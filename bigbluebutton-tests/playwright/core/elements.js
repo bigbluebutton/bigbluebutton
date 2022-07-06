@@ -151,6 +151,7 @@ exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
 // Presentation
 exports.uploadPresentationFileName = 'uploadTest.png';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
+exports.noPresentationLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
 exports.stopScreenSharing = 'button[data-test="stopScreenShare"]';
 exports.managePresentations = 'li[data-test="managePresentations"]';
@@ -175,9 +176,10 @@ exports.videoModalInput = 'input[id="video-modal-input"]';
 exports.startShareVideoBtn = 'button[data-test="startNewVideo"]';
 exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
+exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
-exports.youtubeFrame = 'iframe[title^="YouTube"]';
+exports.youtubeFrame = 'iframe[title^="Creating your own personal rooms with GreenLight"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
@@ -188,9 +190,11 @@ exports.presentationUploadedToast = 'Current presentation';
 exports.languageSelector = 'select[id="langSelector"]';
 exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
+exports.dataSavingsTab = 'span[id="dataSaving"]';
 
 // User
 const userAvatar = 'div[data-test="userAvatar"]';
+const networkDataContainer = 'div[data-test="networkDataContainer"]';
 exports.userAvatar = userAvatar;
 exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
@@ -208,14 +212,16 @@ exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
 exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
+exports.copyStats = 'span[data-test="copyStats"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'div[data-tab="2"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
-exports.connectionDataContainer = 'div[data-test="networkDataContainer"]';
+exports.connectionDataContainer = networkDataContainer;
 exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
 exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
 exports.downloadUserNamesList = 'li[data-test="downloadUserNamesList"]';
