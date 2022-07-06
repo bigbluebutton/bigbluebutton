@@ -9,12 +9,14 @@ test.describe.parallel('Polling', () => {
       await polling.createPoll();
     });
 
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#start-an-anonymous-poll-automated
     test('Create anonymous poll @ci', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
       await polling.pollAnonymous();
     });
 
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#quick-poll-option-automated
     test('Create quick poll - from the slide', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
