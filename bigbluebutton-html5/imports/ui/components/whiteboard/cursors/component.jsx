@@ -139,25 +139,26 @@ export default function Cursors(props) {
     setActive(false);
   };
 
-  const moved = (event, sl) => {
+  const moved = (event) => {
     const { type } = event;
     const nav = document.getElementById('Navbar');
     let yOffset = parseFloat(nav?.style?.height);
     const getSibling = (el) => el?.previousSibling || null;
     const panel = getSibling(nav);
-    const webcams = !nav?.nextSibling?.hasAttribute('role') ? nav?.nextSibling : null;
+    const webcams = document.getElementById('cameraDock');
     const subPanel = panel && getSibling(panel);
     let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
 
+    const sl = document.getElementById('layout')?.getAttribute('data-layout');
     if (type === 'touchmove') {
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
 
-    const handleYOffsets = () => {
+    const handleCustomYOffsets = () => {
       if (camPosition === 'contentTop' || !camPosition) {
-        yOffset += (parseFloat(webcams?.firstChild?.style?.height) + RESIZE_HANDLE_HEIGHT);
+        yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_HEIGHT);
       }
       if (camPosition === 'contentBottom') {
         yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
@@ -167,17 +168,48 @@ export default function Cursors(props) {
     if (document?.documentElement?.dir === 'rtl') {
       xOffset = 0;
       if (webcams && sl?.includes('custom')) {
-        handleYOffsets();
+        handleCustomYOffsets();
         if (camPosition === 'contentRight') {
-          xOffset += (parseFloat(webcams?.firstChild?.style?.width) + RESIZE_HANDLE_WIDTH);
+          xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
         }
       }
+      if (webcams && sl?.includes('smart')) {
+        if (panel || subPanel) {
+          const dockPos = webcams?.getAttribute("data-position");
+          if (dockPos === 'contentRight') {
+            xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+          }
+          if (dockPos === 'contentTop') {
+            yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_WIDTH);
+          }
+        } 
+
+        if (!panel && !subPanel) {
+          xOffset = 0;
+        }
+    }
     } else {
       if (webcams && sl?.includes('custom')) {
-        handleYOffsets();
+        handleCustomYOffsets();
         if (camPosition === 'contentLeft') {
-          xOffset += (parseFloat(webcams?.firstChild?.style?.width) + RESIZE_HANDLE_WIDTH);
+          xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
         }
+      }
+
+      if (webcams && sl?.includes('smart')) {
+          if (panel || subPanel) {
+            const dockPos = webcams?.getAttribute("data-position");
+            if (dockPos === 'contentLeft') {
+              xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+            }
+            if (dockPos === 'contentTop') {
+              yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_WIDTH);
+            }
+          } 
+
+          if (!panel && !subPanel) {
+            xOffset = (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+          }
       }
     }
 
@@ -195,10 +227,10 @@ export default function Cursors(props) {
       cursorWrapper?.addEventListener("touchend", end);
 
     !cursorWrapper.hasOwnProperty("mousemove") &&
-      cursorWrapper?.addEventListener("mousemove", (event) => moved(event, application?.selectedLayout));
+      cursorWrapper?.addEventListener("mousemove", moved);
 
     !cursorWrapper.hasOwnProperty("touchmove") &&
-      cursorWrapper?.addEventListener("touchmove", (event) => moved(event, application?.selectedLayout));
+      cursorWrapper?.addEventListener("touchmove", moved);
   }, [cursorWrapper]);
 
   React.useEffect(() => {
@@ -206,9 +238,9 @@ export default function Cursors(props) {
       if (cursorWrapper) {
         cursorWrapper.removeEventListener('mouseenter', start);
         cursorWrapper.removeEventListener('mouseleave', end);
-        // cursorWrapper.removeEventListener('mousemove', moved);
+        cursorWrapper.removeEventListener('mousemove', moved);
         cursorWrapper.removeEventListener('touchend', end);
-        // cursorWrapper.removeEventListener('touchmove', moved);
+        cursorWrapper.removeEventListener('touchmove', moved);
       }
     }
   });

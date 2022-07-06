@@ -71,6 +71,9 @@ const WebcamComponent = ({
       );
       Storage.setItem('webcamSize', { width: newCameraMaxWidth, height: lastHeight });
     }
+
+    const cams = document.getElementById('cameraDock');
+    cams?.setAttribute("data-position", cameraDock.position);
   }, [cameraDock.position, cameraDock.maxWidth, isPresenter, displayPresentation]);
 
   const handleVideoFocus = (id) => {
