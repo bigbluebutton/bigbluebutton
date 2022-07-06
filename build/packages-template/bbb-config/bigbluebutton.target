@@ -1,5 +1,5 @@
 [Unit]
-Description=Big Blue Button System
+Description=BigBlueButton System
 Requires=
 After=syslog.target network.target
 
