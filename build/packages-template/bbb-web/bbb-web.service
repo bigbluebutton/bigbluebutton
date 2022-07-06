@@ -2,6 +2,7 @@
 Description=BigBlueButton Web Application
 Requires=network.target
 After=redis.service
+PartOf=bigbluebutton.target
 
 [Service]
 Type=simple
@@ -20,5 +21,5 @@ PermissionsStartOnly=true
 LimitNOFILE=1024
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
 

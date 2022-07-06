@@ -342,35 +342,11 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
 
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
-
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $PADS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE bigbluebutton.target
 }
 
 start_bigbluebutton () {
@@ -393,29 +369,6 @@ start_bigbluebutton () {
     fi
 
     echo "Starting BigBlueButton"
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
         TOMCAT_SERVICE=$TOMCAT_USER
@@ -429,7 +382,7 @@ start_bigbluebutton () {
         }
     fi
 
-    systemctl start nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
+    systemctl start bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
