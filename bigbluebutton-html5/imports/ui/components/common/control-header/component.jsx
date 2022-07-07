@@ -8,6 +8,7 @@ const Header = ({
   leftButtonProps,
   rightButtonProps,
   customRightButton,
+  'data-test': dataTest,
 }) => {
   const renderCloseButton = () => (
     <Right {...rightButtonProps} />
@@ -20,7 +21,7 @@ const Header = ({
   );
 
   return (
-    <Styled.Header>
+    <Styled.Header data-test={dataTest ? dataTest : ''}>
       <Left {...leftButtonProps} />
       {customRightButton
         ? renderCustomRightButton()
@@ -35,6 +36,7 @@ Header.propTypes = {
   leftButtonProps: PropTypes.object,
   rightButtonProps: PropTypes.object,
   customRightButton: PropTypes.element,
+  dataTest: PropTypes.string,
 };
 
 export default Header;

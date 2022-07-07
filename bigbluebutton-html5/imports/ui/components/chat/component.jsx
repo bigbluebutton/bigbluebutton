@@ -68,6 +68,7 @@ const Chat = (props) => {
       data-test={isPublicChat ? 'publicChat' : 'privateChat'}
     >
       <Header
+        data-test="chatTitle"
         leftButtonProps={{
           accessKey: chatID !== 'public' ? HIDE_CHAT_AK : null,
           'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),

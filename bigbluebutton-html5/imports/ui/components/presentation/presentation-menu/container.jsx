@@ -12,6 +12,7 @@ const PresentationMenuContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const { elementId } = props;
   const isFullscreen = currentElement === elementId;
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
     <PresentationMenu
@@ -21,6 +22,7 @@ const PresentationMenuContainer = (props) => {
         currentGroup,
         isFullscreen,
         layoutContextDispatch,
+        isRTL,
       }}
     />
   );

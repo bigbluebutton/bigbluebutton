@@ -173,7 +173,7 @@
     "app.presentation.options.fullscreen": "Vollbild",
     "app.presentation.options.exitFullscreen": "Vollbilddarstellung beenden",
     "app.presentation.options.minimize": "Minimieren",
-    "app.presentation.options.snapshot": "Ausschnitt der aktuellen Präsentation",
+    "app.presentation.options.snapshot": "Ausschnitt der aktuellen Folie",
     "app.presentation.options.downloading": "Herunterladen...",
     "app.presentation.options.downloaded": "Aktuelle Präsentation wurde heruntergeladen",
     "app.presentation.options.downloadFailed": "Aktuelle Präsentation konnte nicht heruntergeladen werden",
