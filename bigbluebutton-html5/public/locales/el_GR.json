@@ -160,7 +160,6 @@
     "app.presentation.options.fullscreen": "Πλήρης οθόνη",
     "app.presentation.options.exitFullscreen": "Έξοδος από πλήρη οθόνη",
     "app.presentation.options.minimize": "Ελαχιστοποίηση",
-    "app.presentation.options.snapshot": "Στιγμιότυπο της τρέχουσας παρουσίασης",
     "app.presentation.options.downloading": "Λήψη...",
     "app.presentation.options.downloaded": "Έγινε λήψη της τρέχουσας παρουσίασης",
     "app.presentation.options.downloadFailed": "Δεν μπορεί να γίνει λήψη της τρέχουσας παρουσίασης",

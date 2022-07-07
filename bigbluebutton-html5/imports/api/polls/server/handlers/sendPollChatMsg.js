@@ -1,4 +1,5 @@
 import addSystemMsg from '../../../group-chat-msg/server/modifiers/addSystemMsg';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 
 export default function sendPollChatMsg({ body }, meetingId) {
   const { poll } = body;
@@ -10,9 +11,14 @@ export default function sendPollChatMsg({ body }, meetingId) {
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
   const pollResultData = poll;
+  const answers = pollResultData.answers.reduce(caseInsensitiveReducer, []);
+
   const extra = {
     type: 'poll',
-    pollResultData,
+    pollResultData: {
+      ...pollResultData,
+      answers,
+    },
   };
 
   const payload = {

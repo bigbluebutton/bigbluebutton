@@ -2,6 +2,7 @@ const { test } = require('@playwright/test');
 const { Webcam } = require('./webcam');
 
 test.describe.parallel('Webcam @ci', () => {
+  // https://docs.bigbluebutton.org/2.5/release-tests.html#joining-webcam-automated
   test('Shares webcam', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);

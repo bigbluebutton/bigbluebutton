@@ -1,5 +1,7 @@
 [Unit]
 Description=BigBlueButton recording processing starter
+Wants=redis-server.service
+After=redis-server.service
 
 [Service]
 Type=simple
