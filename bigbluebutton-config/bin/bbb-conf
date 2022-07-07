@@ -368,6 +368,9 @@ start_bigbluebutton () {
         fi
     fi
 
+    echo "Reloading NginX configuration"
+    systemctl reload nginx
+
     echo "Starting BigBlueButton"
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -1680,7 +1683,7 @@ String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
 
-    echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
+    echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
     start_bigbluebutton
 
