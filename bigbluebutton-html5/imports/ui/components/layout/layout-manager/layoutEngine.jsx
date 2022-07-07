@@ -289,17 +289,24 @@ const LayoutEngine = ({ layoutType }) => {
     isMobile,
     isTablet,
   };
+  
+  const layout = document.getElementById('layout');
 
   switch (layoutType) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
+      layout?.setAttribute("data-layout", LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;
     case LAYOUT_TYPE.SMART_LAYOUT:
+      layout?.setAttribute("data-layout", LAYOUT_TYPE.SMART_LAYOUT);
       return <SmartLayout {...common} />;
     case LAYOUT_TYPE.PRESENTATION_FOCUS:
+      layout?.setAttribute("data-layout", LAYOUT_TYPE.PRESENTATION_FOCUS);
       return <PresentationFocusLayout {...common} />;
     case LAYOUT_TYPE.VIDEO_FOCUS:
+      layout?.setAttribute("data-layout",LAYOUT_TYPE.VIDEO_FOCUS);
       return <VideoFocusLayout {...common} />;
     default:
+      layout?.setAttribute("data-layout", LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} />;
   }
 };
