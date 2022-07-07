@@ -16,6 +16,7 @@ jobs:
       - run: ./build/setup.sh bbb-apps-akka
       - run: ./build/setup.sh bbb-config
       - run: ./build/setup.sh bbb-etherpad
+      - run: ./build/setup.sh bbb-export-annotations
       - run: ./build/setup.sh bbb-freeswitch-core
       - run: ./build/setup.sh bbb-freeswitch-sounds
       - run: ./build/setup.sh bbb-fsesl-akka
