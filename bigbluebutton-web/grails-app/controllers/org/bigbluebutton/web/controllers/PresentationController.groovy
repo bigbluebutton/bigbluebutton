@@ -175,7 +175,6 @@ class PresentationController {
       log.debug "@Setting file to be downloadable..."
       uploadedPres.setDownloadable();
     }
-
     uploadedPres.setUploadedFile(pres);
     presentationService.processUploadedPresentation(uploadedPres)
     log.debug("file upload success " + presFilename)
