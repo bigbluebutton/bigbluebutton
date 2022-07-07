@@ -6,19 +6,23 @@ import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const THROTTLE_TIMEOUT = 1000;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
 const ENABLED = CONFIG.enabled;
 const LANGUAGES = CONFIG.language.available;
+const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined';
+const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undefined'
+  && typeof window.speechSynthesis !== 'undefined'
+  && VALID_ENVIRONMENT;
 
 const setSpeechVoices = () => {
-  if (typeof window.speechSynthesis === 'undefined') return;
+  if (!hasSpeechRecognitionSupport()) return;
 
   Session.set('speechVoices', _.uniq(window.speechSynthesis.getVoices().map((v) => v.lang)));
 };
