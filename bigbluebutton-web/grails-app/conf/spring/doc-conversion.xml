@@ -23,6 +23,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:bigbluebutton.properties</value>
+        </property>
+    </bean>
+
+
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
@@ -152,6 +159,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           class="org.bigbluebutton.presentation.imp.PresentationConversionCompletionService"
           init-method="start" destroy-method="stop">
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+    </bean>
+
+    <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
+        <property name="testRoomMock" value="${testRoomMock}"/>
+        <property name="testPresentationName" value="${testPresentationName}"/>
+        <property name="testUploadedPresentation" value="${testUploadedPresentation}"/>
+        <property name="defaultUploadedPresentation" value="${defaultUploadedPresentation}"/>
+        <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
+        <property name="preUploadedPresentationOverrideDefault" value="${preUploadedPresentationOverrideDefault}"/>
     </bean>
 
 </beans>
