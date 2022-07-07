@@ -445,6 +445,10 @@ display_bigbluebutton_status () {
         units="$units bbb-pads"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-export-annotations.service ]; then
+        units="$units bbb-export-annotations"
+    fi
+
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi

@@ -2,6 +2,7 @@
 Description=BigBlueButton Export Annotations
 Wants=redis.service
 After=syslog.target network.target
+PartOf=bigbluebutton.target
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-export-annotations
@@ -13,4 +14,4 @@ Group=bigbluebutton
 Environment=NODE_ENV=production
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
