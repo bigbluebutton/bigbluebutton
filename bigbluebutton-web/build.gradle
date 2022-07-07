@@ -11,7 +11,8 @@ buildscript {
     classpath "org.grails.plugins:hibernate5:${gormVersion}"
     classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
     classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
-    classpath "org.grails.plugins:views-gradle:2.1.0"
+    classpath "org.grails.plugins:views-gradle:2.1.1"
+    classpath "org.grails.plugins:views-json:2.1.1"
   }
 }
 
@@ -53,11 +54,14 @@ repositories {
 
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
-  implementation "org.springframework.boot:spring-boot-starter-logging"
-  implementation "org.springframework.boot:spring-boot-autoconfigure"
+  implementation "org.springframework:spring-core:5.3.21"
+  implementation "org.springframework:spring-context:5.3.21"
+  implementation "org.springframework.boot:spring-boot:${springVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
+  implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
   implementation "org.grails:grails-core"
-  implementation "org.springframework.boot:spring-boot-starter-actuator"
-  implementation "org.springframework.boot:spring-boot-starter-tomcat:2.6.6"
+  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
   implementation "org.grails:grails-web-boot"
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest"
@@ -67,7 +71,11 @@ dependencies {
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
   implementation 'org.grails.plugins:external-config:1.2.2'
-  implementation "org.grails.plugins:cache"
+  //implementation "org.grails.plugins:cache"
+  implementation "org.grails.plugins:views-json:2.1.1"
+  implementation "org.grails.plugins:cache:5.0.1"
+  implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
+  implementation "org.grails:grails-gradle-plugin:5.1.4"
   implementation "org.grails.plugins:async"
   implementation "org.grails.plugins:scaffolding"
   implementation "org.grails.plugins:events"
@@ -92,7 +100,7 @@ dependencies {
 
   implementation "javax.validation:validation-api:2.0.1.Final"
 //  compile "org.hibernate:hibernate-validator:7.0.1.Final"
-  implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.1'
+  implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
 
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console"
@@ -105,6 +113,10 @@ dependencies {
   testRuntimeOnly "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
   testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.63.0"
   testImplementation "com.github.javafaker:javafaker:0.12"
+}
+
+tasks.named('bootWarMainClassName') {
+    it.mustRunAfter(tasks.named('compileGsonViews'))
 }
 
 configurations.implementation {
@@ -120,6 +132,7 @@ configurations {
 
 bootRun {
   jvmArgs('-Dspring.output.ansi.enabled=always')
+  jvmArgs('-Dspring.main.allow-circular-references=true')
   sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
