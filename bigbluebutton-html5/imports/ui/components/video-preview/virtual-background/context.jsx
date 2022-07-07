@@ -9,32 +9,34 @@ const reducer = (state, action) => {
 
   switch (action.type) {
     case 'load': {
+      const backgrounds = { ...state.backgrounds };
+      action.backgrounds.forEach((background) => {
+        backgrounds[background.uniqueId] = background;
+      });
       return {
         ...state,
         loaded: true,
-        customBackgrounds: action.backgrounds,
-        newCustomBackgrounds: [],
+        backgrounds,
       };
     }
     case 'new': {
-      save(action.background);
+      if (action.background.custom) save(action.background);
       return {
         ...state,
-        newCustomBackgrounds: [
-          ...state.newCustomBackgrounds,
-          action.background,
-        ],
+        backgrounds: {
+          ...state.backgrounds,
+          [action.background.uniqueId]: action.background,
+        },
       };
     }
     case 'delete': {
-      const { customBackgrounds, newCustomBackgrounds } = state;
-      const filterFunc = ({ uniqueId }) => uniqueId !== action.uniqueId;
-
+      const { backgrounds } = state;
+      delete backgrounds[action.uniqueId];
       del(action.uniqueId);
+
       return {
         ...state,
-        customBackgrounds: customBackgrounds.filter(filterFunc),
-        newCustomBackgrounds: newCustomBackgrounds.filter(filterFunc),
+        backgrounds,
       };
     }
     default: {
@@ -46,8 +48,7 @@ const reducer = (state, action) => {
 export const CustomBackgroundsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, {
     loaded: false,
-    customBackgrounds: [],
-    newCustomBackgrounds: [],
+    backgrounds: {},
   });
 
   const { load } = Service;
@@ -55,7 +56,7 @@ export const CustomBackgroundsProvider = ({ children }) => {
   const loadFromDB = () => {
     const onError = () => dispatch({
       type: 'load',
-      backgrounds: [],
+      backgrounds: {},
     });
 
     const onSuccess = (backgrounds) => dispatch({
@@ -71,8 +72,7 @@ export const CustomBackgroundsProvider = ({ children }) => {
       value={{
         dispatch,
         loaded: state.loaded,
-        customBackgrounds: state.customBackgrounds,
-        newCustomBackgrounds: state.newCustomBackgrounds,
+        backgrounds: state.backgrounds,
         loadFromDB: _.throttle(loadFromDB, 500, { leading: true, trailing: false }),
       }}
     >

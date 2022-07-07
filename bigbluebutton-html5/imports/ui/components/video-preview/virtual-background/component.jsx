@@ -99,8 +99,7 @@ const VirtualBgSelector = ({
   const {
     dispatch,
     loaded,
-    customBackgrounds,
-    newCustomBackgrounds,
+    backgrounds,
     loadFromDB,
   } = useContext(CustomVirtualBackgroundsContext);
 
@@ -172,7 +171,10 @@ const VirtualBgSelector = ({
       (background) => {
         dispatch({
           type: 'new',
-          background,
+          background: {
+            ...background,
+            custom: true,
+          },
         });
       },
       (error) => {
@@ -273,8 +275,7 @@ const VirtualBgSelector = ({
                 )
               })}
 
-              {customBackgrounds
-                .concat(newCustomBackgrounds)
+              {Object.values(backgrounds)
                 .map(({ filename, data, uniqueId }, index) => {
                   const imageIndex = index + IMAGE_NAMES.length + 2;
                   const label = intl.formatMessage(intlMessages.backgroundWithIndex, {

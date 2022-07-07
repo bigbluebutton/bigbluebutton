@@ -70,7 +70,10 @@ const DragAndDrop = (props) => {
           onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
             dispatchCustomBackground({
               type: 'new',
-              background,
+              background: {
+                ...background,
+                custom: true,
+              },
             });
           });
         },
