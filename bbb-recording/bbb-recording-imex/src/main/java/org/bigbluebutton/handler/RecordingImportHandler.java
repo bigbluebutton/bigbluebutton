@@ -29,7 +29,9 @@ public class RecordingImportHandler {
     public static RecordingImportHandler getInstance() {
         if (instance == null) {
             instance = new RecordingImportHandler();
+            if(instance.dataStore == null) instance = null;
         }
+
         return instance;
     }
 
@@ -74,10 +76,7 @@ public class RecordingImportHandler {
             recording = xmlService.xmlToRecording(recordId, content);
         }
 
-        if (recording != null) {
-            if (persist)
-                dataStore.save(recording);
-        }
+        if (recording != null && persist) dataStore.save(recording);
 
         return recording;
     }

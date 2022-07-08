@@ -28,22 +28,30 @@ public class DataStore {
     }
 
     private void openConnection() {
-        sessionFactory = new Configuration()
-                .configure()
-                .addAnnotatedClass(Recording.class)
-                .addAnnotatedClass(Metadata.class)
-                .addAnnotatedClass(PlaybackFormat.class)
-                .addAnnotatedClass(Thumbnail.class)
-                .addAnnotatedClass(CallbackData.class)
-                .addAnnotatedClass(Track.class)
-                .addAnnotatedClass(Events.class)
-                .buildSessionFactory();
+        try {
+            sessionFactory = new Configuration()
+                    .configure()
+                    .addAnnotatedClass(Recording.class)
+                    .addAnnotatedClass(Metadata.class)
+                    .addAnnotatedClass(PlaybackFormat.class)
+                    .addAnnotatedClass(Thumbnail.class)
+                    .addAnnotatedClass(CallbackData.class)
+                    .addAnnotatedClass(Track.class)
+                    .addAnnotatedClass(Events.class)
+                    .buildSessionFactory();
+        } catch(Exception e) {
+            sessionFactory = null;
+            logger.info("Failed to open connection to database. Please ensure that the database is running and that " +
+                    "your credentials are correct.");
+        }
     }
 
     public static DataStore getInstance() {
         if(instance == null) {
             instance = new DataStore();
+            if(instance.sessionFactory == null) instance = null;
         }
+
         return instance;
     }
 

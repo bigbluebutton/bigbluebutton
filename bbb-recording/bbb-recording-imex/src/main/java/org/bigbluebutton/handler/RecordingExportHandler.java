@@ -43,7 +43,9 @@ public class RecordingExportHandler {
     public static RecordingExportHandler getInstance() {
         if (instance == null) {
             instance = new RecordingExportHandler();
+            if(instance.dataStore == null) instance = null;
         }
+
         return instance;
     }
 

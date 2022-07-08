@@ -1,5 +1,6 @@
 package org.bigbluebutton.app;
 
+import org.bigbluebutton.handler.EventsHandler;
 import org.bigbluebutton.handler.RecordingExportHandler;
 import org.bigbluebutton.handler.RecordingImportHandler;
 
@@ -25,6 +26,7 @@ public class RecordingApp {
         char flag;
         boolean export = false;
         boolean persist = false;
+        boolean recording = true;
         String id = null;
         String path;
 
@@ -61,11 +63,13 @@ public class RecordingApp {
                     }
                     break;
                 case 's':
+                case 'v':
+                    if(flag == 'v') recording = false;
                     if (i < args.length)
                         id = args[i++];
                     else {
                         System.out.println(
-                                "Error: To import/export a single recording you must provide the recording ID");
+                                "Error: To import/export a single recording or events you must provide the recording ID");
                     }
                     break;
                 default:
@@ -77,33 +81,45 @@ public class RecordingApp {
         if (i < args.length)
             path = args[i];
         else {
-            path = createDefaultDirectory();
+            path = createDefaultDirectory(recording);
             if (path == null)
                 return;
         }
 
-        executeCommands(export, persist, id, path);
+        executeCommands(export, persist, recording, id, path);
     }
 
     private static void printUsage() {
-        System.out.println("Usage: {-e|-i <persist>} [-s <id>] [PATH]");
-        System.out.println("Import/export recording(s) to/from PATH. The default PATH is "
-                + "\n/var/bigbluebutton/published/presentation");
-        System.out.println("-e                  export recording(s)");
+        System.out.println("Usage: {-e|-i <persist>} {-r|-v} [-s <id>] [PATH]");
+        System.out.println("Import/export recording(s)/event(s) to/from PATH.");
+        System.out.println("The default values for PATH are");
+        System.out.println("    /var/bigbluebutton/published/presentation for recordings");
+        System.out.println("    /var/bigbluebutton/events for events");
+        System.out.println("-e                  export recording(s)/event(s_");
         System.out.println(
-                "-i <persist>        import recording(s) and indicate if they should be persisted [true|false]");
-        System.out.println("-s <id>             ID of single recording to be imported/exported");
+                "-i <persist>        import recording(s)/event(s) and indicate if they should be persisted [true|false]");
+        System.out.println("{-r|-v}            Indicated whether you wish to import/export recordings or events");
+        System.out.println("-s <id>             ID of a single recording/event to be imported/exported");
     }
 
-    private static String createDefaultDirectory() {
+    private static String createDefaultDirectory(boolean recording) {
         Path root = Paths.get(System.getProperty("user.dir")).getFileSystem().getRootDirectories().iterator().next();
-        String path = root.toAbsolutePath() + "var/bigbluebutton/published/presentation";
+        String recordings = root.toAbsolutePath() + "var/bigbluebutton/published/presentation";
+        String events = root.toAbsolutePath() + "var/bigbluebutton/events";
+
+        String path = recordings;
+        String target = "presentation";
+
+        if(!recording) {
+            path = events;
+            target = "events";
+        }
 
         File directory = new File(path);
         if (!directory.exists()) {
             boolean created = directory.mkdirs();
             if (!created) {
-                System.out.println("Error: Failed to create default presentation directory");
+                System.out.println("Error: Failed to create default " + target + " directory");
                 return null;
             }
         }
@@ -111,19 +127,31 @@ public class RecordingApp {
         return path;
     }
 
-    private static void executeCommands(boolean export, boolean persist, String id, String path) {
+    private static void executeCommands(boolean export, boolean persist, boolean recording, String id, String path) {
         if (!export) {
-            RecordingImportHandler handler = RecordingImportHandler.getInstance();
-            if (id == null || id.isEmpty())
-                handler.importRecordings(path, persist);
-            else
-                handler.importRecording(path, id, persist);
+            if(recording) {
+                RecordingImportHandler handler = RecordingImportHandler.getInstance();
+                if(handler == null) return;
+                if (id == null || id.isEmpty()) handler.importRecordings(path, persist);
+                else handler.importRecording(path, id, persist);
+            } else {
+                EventsHandler handler = EventsHandler.getInstance();
+                if(handler == null) return;
+                if(id == null || id.isEmpty()) handler.importEvents(path, persist);
+                else handler.importEvents(path, id, persist);
+            }
         } else {
-            RecordingExportHandler handler = RecordingExportHandler.getInstance();
-            if (id == null || id.isEmpty())
-                handler.exportRecordings(path);
-            else
-                handler.exportRecording(id, path);
+            if (recording) {
+                RecordingExportHandler handler = RecordingExportHandler.getInstance();
+                if(handler == null) return;
+                if (id == null || id.isEmpty()) handler.exportRecordings(path);
+                else handler.exportRecording(id, path);
+            } else {
+                EventsHandler handler = EventsHandler.getInstance();
+                if(handler == null) return;
+                if(id == null || id.isEmpty()) handler.exportEvents(path);
+                else handler.exportEvents(id, path);
+            }
         }
     }
 
@@ -131,60 +159,114 @@ public class RecordingApp {
         System.out.println("Use this application to import and export recording metadata");
 
         do {
-            int impex = getResponse("Are you importing or exporting recordings? (1-Import 2-Export 3-Quit) ",
+            int impex = getResponse("Are you importing or exporting recordings/events? (1-Import 2-Export 3-Quit) ",
                     new int[] { 1, 2, 3 }, "Please enter either 1, 2, or 3");
 
+            int recordingsOrEvents = getResponse("Are you working with recordings or events? (1-Recordings 2-Events",
+                    new int[] {1, 2}, "Please enter either 1 or 2");
+
+            boolean recordings = recordingsOrEvents != 2;
+
             if (impex == 1) {
-                importRecordings();
+                importMode(recordings);
             } else if (impex == 2) {
-                exportRecordings();
+                exportMode(recordings);
             } else {
                 break;
             }
         } while (true);
     }
 
-    private static void importRecordings() {
-        RecordingImportHandler handler = RecordingImportHandler.getInstance();
-        int importIndividually = getResponse("Are you importing recordings individually? (1-Yes 2-No) ",
-                new int[] { 1, 2 }, "Please enter either 1 or 2");
-        int persist = getResponse("Should the imported recording(s) be persisted? (1-Yes 2-No) ", new int[] { 1, 2 },
-                "Please enter either 1 or 2");
-        boolean shouldPersist = persist == 1;
+    private static void importMode(boolean recordings) {
+        if(recordings) {
+            RecordingImportHandler handler = RecordingImportHandler.getInstance();
+            if(handler == null) return;
+            int importIndividually = getResponse("Are you importing recordings individually? (1-Yes 2-No) ",
+                    new int[] { 1, 2 }, "Please enter either 1 or 2");
+            int persist = getResponse("Should the imported recording(s) be persisted? (1-Yes 2-No) ", new int[] { 1, 2 },
+                    "Please enter either 1 or 2");
+            boolean shouldPersist = persist == 1;
 
-        if (importIndividually == 1) {
-            do {
-                String path = getResponse(
-                        "Please enter the path to the recording metadata.xml file (enter q to quit): ");
+            if (importIndividually == 1) {
+                do {
+                    String path = getResponse(
+                            "Please enter the path to the recording metadata.xml file (enter q to quit): ");
 
-                if (path.equalsIgnoreCase("q") || path.equalsIgnoreCase("quit"))
-                    break;
+                    if (path.equalsIgnoreCase("q") || path.equalsIgnoreCase("quit"))
+                        break;
 
-                String recordingId = getResponse("Please enter the ID of the recording: ");
-                handler.importRecording(path, recordingId, shouldPersist);
-            } while (true);
+                    String recordingId = getResponse("Please enter the ID of the recording: ");
+                    handler.importRecording(path, recordingId, shouldPersist);
+                } while (true);
+            } else {
+                String path = getResponse("Please enter the path to the directory containing the metadata.xml files: ");
+                handler.importRecordings(path, shouldPersist);
+            }
         } else {
-            String path = getResponse("Please enter the path to the directory containing the metadata.xml files: ");
-            handler.importRecordings(path, shouldPersist);
+            EventsHandler handler = EventsHandler.getInstance();
+            if(handler == null) return;
+            int importIndividually = getResponse("Are you importing events individually? (1-Yes 2-No) ",
+                    new int[] { 1, 2 }, "Please enter either 1 or 2");
+            int persist = getResponse("Should the imported event(s) be persisted? (1-Yes 2-No) ", new int[] { 1, 2 },
+                    "Please enter either 1 or 2");
+            boolean shouldPersist = persist == 1;
+
+            if (importIndividually == 1) {
+                do {
+                    String path = getResponse(
+                            "Please enter the path to the recording data.json file (enter q to quit): ");
+
+                    if (path.equalsIgnoreCase("q") || path.equalsIgnoreCase("quit"))
+                        break;
+
+                    String recordingId = getResponse("Please enter the ID of the recording: ");
+                    handler.importEvents(path, recordingId, shouldPersist);
+                } while (true);
+            } else {
+                String path = getResponse("Please enter the path to the directory containing the data.json files: ");
+                handler.importEvents(path, shouldPersist);
+            }
         }
     }
 
-    private static void exportRecordings() {
-        RecordingExportHandler handler = RecordingExportHandler.getInstance();
-        int exportAll = getResponse("Do you want to export all recordings? (1-Yes 2-No) ", new int[] { 1, 2 },
-                "Please enter either 1 or 2");
-        String path = getResponse("Please enter the path to the directory that the recordings should be exported to: ");
+    private static void exportMode(boolean recordings) {
+        if(recordings) {
+            RecordingExportHandler handler = RecordingExportHandler.getInstance();
+            if(handler == null) return;
 
-        if (exportAll == 1) {
-            handler.exportRecordings(path);
+            int exportAll = getResponse("Do you want to export all recordings? (1-Yes 2-No) ", new int[] { 1, 2 },
+                    "Please enter either 1 or 2");
+            String path = getResponse("Please enter the path to the directory that the recordings should be exported to: ");
+
+            if (exportAll == 1) {
+                handler.exportRecordings(path);
+            } else {
+                do {
+                    String response = getResponse(
+                            "Please enter the ID of the recording you would like to export (enter q to quit): ");
+                    if (response.equalsIgnoreCase("q") || response.equalsIgnoreCase("quit"))
+                        break;
+                    handler.exportRecording(response, path);
+                } while (true);
+            }
         } else {
-            do {
-                String response = getResponse(
-                        "Please enter the ID of the recording you would like to export (enter q to quit): ");
-                if (response.equalsIgnoreCase("q") || response.equalsIgnoreCase("quit"))
-                    break;
-                handler.exportRecording(response, path);
-            } while (true);
+            EventsHandler handler = EventsHandler.getInstance();
+            if(handler == null) return;
+            int exportAll = getResponse("Do you want to export all events? (1-Yes 2-No) ", new int[] { 1, 2 },
+                    "Please enter either 1 or 2");
+            String path = getResponse("Please enter the path to the directory that the events should be exported to: ");
+
+            if (exportAll == 1) {
+                handler.exportEvents(path);
+            } else {
+                do {
+                    String response = getResponse(
+                            "Please enter the ID of the recording for the events you would like to export (enter q to quit): ");
+                    if (response.equalsIgnoreCase("q") || response.equalsIgnoreCase("quit"))
+                        break;
+                    handler.exportEvents(response, path);
+                } while (true);
+            }
         }
     }
 
@@ -202,18 +284,17 @@ public class RecordingApp {
 
     private static String getResponse(String prompt) {
         Console console = System.console();
-        String response = "";
+        String response;
         do {
             response = console.readLine(prompt);
-        } while (response == "");
+        } while (response.equals(""));
 
         return response;
     }
 
     private static int parseResponse(String response, String error) {
         try {
-            int parsedResponse = Integer.parseInt(response);
-            return parsedResponse;
+            return Integer.parseInt(response);
         } catch (NumberFormatException e) {
             System.out.println(error);
         }
