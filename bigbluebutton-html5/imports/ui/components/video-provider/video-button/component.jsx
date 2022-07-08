@@ -8,9 +8,12 @@ import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
+import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
-const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
+const VIRTUAL_BACKGROUNDS_CONFIG = Meteor.settings.public.virtualBackgrounds;
+const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
+const shouldEnableBackgroundUpload = () => ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
 
 const intlMessages = defineMessages({
   videoSettings: {
@@ -76,7 +79,7 @@ const JoinVideoButton = ({
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
     && isDesktopSharingCamera;
-  const shouldEnableWebcamBackgroundUploadButton = ENABLE_WEBCAM_BACKGROUND_UPLOAD
+  const shouldEnableWebcamBackgroundUploadButton = shouldEnableBackgroundUpload()
     && hasVideoStream
     && !isMobile;
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()

@@ -51,3 +51,7 @@ export function isLayoutsEnabled() {
 export function isVirtualBackgroundsEnabled() {
   return getDisabledFeatures().indexOf('virtualBackgrounds') === -1;
 }
+
+export function isCustomVirtualBackgroundsEnabled() {
+  return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
+}

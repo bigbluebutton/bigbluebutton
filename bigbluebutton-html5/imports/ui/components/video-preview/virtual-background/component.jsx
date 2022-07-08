@@ -15,6 +15,7 @@ import VirtualBgService from '/imports/ui/components/video-preview/virtual-backg
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Settings from '/imports/ui/services/settings';
+import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -80,6 +81,9 @@ const intlMessages = defineMessages({
 });
 
 const SKELETON_COUNT = 5;
+const VIRTUAL_BACKGROUNDS_CONFIG = Meteor.settings.public.virtualBackgrounds;
+const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
+const shouldEnableBackgroundUpload = () => ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
 
 const VirtualBgSelector = ({
   intl,
@@ -107,18 +111,20 @@ const VirtualBgSelector = ({
   const { MIME_TYPES_ALLOWED } = VirtualBgService;
 
   useEffect(() => {
-    if (!defaultSetUp) {
-      const defaultBackgrounds = ['Blur', ...IMAGE_NAMES].map((imageName) => ({
-        uniqueId: imageName,
-        custom: false,
-        lastActivityDate: Date.now(),
-      }));
-      dispatch({
-        type: 'setDefault',
-        backgrounds: defaultBackgrounds,
-      });
+    if (shouldEnableBackgroundUpload()) {
+      if (!defaultSetUp) {
+        const defaultBackgrounds = ['Blur', ...IMAGE_NAMES].map((imageName) => ({
+          uniqueId: imageName,
+          custom: false,
+          lastActivityDate: Date.now(),
+        }));
+        dispatch({
+          type: 'setDefault',
+          backgrounds: defaultBackgrounds,
+        });
+      }
+      if (!loaded) loadFromDB();
     }
-    if (!loaded) loadFromDB();
   }, []);
 
   const _virtualBgSelected = (type, name, index, customParams) =>
@@ -131,29 +137,32 @@ const VirtualBgSelector = ({
           return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
         }
 
-        if (customParams) {
-          dispatch({
-            type: 'update',
-            background: {
-              filename: name,
-              uniqueId: customParams.uniqueId,
-              data: customParams.file,
-              custom: true,
-              lastActivityDate: Date.now(),
-            },
-          });
+        if (!shouldEnableBackgroundUpload()) {
+          if (index >= 0) findDOMNode(inputElementsRef.current[index]).focus();
         } else {
-          dispatch({
-            type: 'update',
-            background: {
-              uniqueId: name,
-              custom: false,
-              lastActivityDate: Date.now(),
-            },
-          });
+          if (customParams) {
+            dispatch({
+              type: 'update',
+              background: {
+                filename: name,
+                uniqueId: customParams.uniqueId,
+                data: customParams.file,
+                custom: true,
+                lastActivityDate: Date.now(),
+              },
+            });
+          } else {
+            dispatch({
+              type: 'update',
+              background: {
+                uniqueId: name,
+                custom: false,
+                lastActivityDate: Date.now(),
+              },
+            });
+          }
+          findDOMNode(inputElementsRef.current[0]).focus();
         }
-
-        findDOMNode(inputElementsRef.current[0]).focus();
         return setCurrentVirtualBg({ type, name });
       });
 
@@ -336,6 +345,65 @@ const VirtualBgSelector = ({
       );
     };
 
+    const renderInputButton = () => (
+      <>
+        <Styled.BgCustomButton
+          icon='plus'
+          label={intl.formatMessage(intlMessages.customLabel)}
+          aria-describedby={`vr-cam-btn-custom`}
+          hideLabel
+          tabIndex={disabled ? -1 : 0}
+          disabled={disabled}
+          onClick={() => {
+            if (customBgSelectorRef.current) {
+              customBgSelectorRef.current.click();
+            }
+          }}
+          isVisualEffects={isVisualEffects}
+        />
+        <input
+          ref={customBgSelectorRef}
+          type="file"
+          id="customBgSelector"
+          onChange={handleCustomBgChange}
+          style={{ display: 'none' }}
+          accept={MIME_TYPES_ALLOWED.join(', ')}
+        />
+        <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
+          {intl.formatMessage(intlMessages.customLabel)}
+        </div>
+      </>
+    );
+
+    const renderNoneButton = () => (
+      <>
+        <Styled.BgNoneButton
+          icon='close'
+          label={intl.formatMessage(intlMessages.noneLabel)}
+          aria-pressed={currentVirtualBg?.name === undefined}
+          aria-describedby={`vr-cam-btn-none`}
+          hideLabel
+          tabIndex={disabled ? -1 : 0}
+          disabled={disabled}
+          onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
+          isVisualEffects={isVisualEffects}
+        />
+        <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
+          {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
+        </div>
+      </>
+    );
+
+    const renderSkeleton = () => (
+      <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
+        {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
+          <Styled.SkeletonWrapper key={`skeleton-${index}`}>
+            <Skeleton />
+          </Styled.SkeletonWrapper>
+        ))}
+      </SkeletonTheme>
+    );
+
     const ready = loaded && defaultSetUp;
 
     return (
@@ -345,74 +413,42 @@ const VirtualBgSelector = ({
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
           isVisualEffects={isVisualEffects}
         >
-          {!ready && (
-            <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
-              {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
-                <Styled.SkeletonWrapper key={`skeleton-${index}`}>
-                  <Skeleton />
-                </Styled.SkeletonWrapper>
-              ))}
-            </SkeletonTheme>
+          {shouldEnableBackgroundUpload() && (
+            <>
+              {!ready && renderSkeleton()}
+
+              {ready && (
+                <>
+                  {renderNoneButton()}
+
+                  {Object.values(backgrounds)
+                    .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
+                    .slice(0, isVisualEffects ? undefined : 3)
+                    .map((background, index) => {
+                      if (background.custom) {
+                        return renderCustomButton(background, index);
+                      } else {
+                        const isBlur = background.uniqueId.includes('Blur');
+                        return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
+                      }
+                    })}
+
+                  {renderInputButton()}
+                </>
+              )}
+            </>
           )}
 
-          {ready && (
+          {!shouldEnableBackgroundUpload() && (
             <>
-              <>
-                <Styled.BgNoneButton
-                  icon='close'
-                  label={intl.formatMessage(intlMessages.noneLabel)}
-                  aria-pressed={currentVirtualBg?.name === undefined}
-                  aria-describedby={`vr-cam-btn-none`}
-                  hideLabel
-                  tabIndex={disabled ? -1 : 0}
-                  disabled={disabled}
-                  onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
-                  isVisualEffects={isVisualEffects}
-                />
-                <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
-                  {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
-                </div>
-              </>
+              {renderNoneButton()}
 
-              {Object.values(backgrounds)
-                .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
-                .slice(0, isVisualEffects ? undefined : 3)
-                .map((background, index) => {
-                  if (background.custom) {
-                    return renderCustomButton(background, index);
-                  } else {
-                    const isBlur = background.uniqueId.includes('Blur');
-                    return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
-                  }
-                })}
+              {renderBlurButton(0)}
 
-              <>
-                <Styled.BgCustomButton
-                  icon='plus'
-                  label={intl.formatMessage(intlMessages.customLabel)}
-                  aria-describedby={`vr-cam-btn-custom`}
-                  hideLabel
-                  tabIndex={disabled ? -1 : 0}
-                  disabled={disabled}
-                  onClick={() => {
-                    if (customBgSelectorRef.current) {
-                      customBgSelectorRef.current.click();
-                    }
-                  }}
-                  isVisualEffects={isVisualEffects}
-                />
-                <input
-                  ref={customBgSelectorRef}
-                  type="file"
-                  id="customBgSelector"
-                  onChange={handleCustomBgChange}
-                  style={{ display: 'none' }}
-                  accept={MIME_TYPES_ALLOWED.join(', ')}
-                />
-                <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
-                  {intl.formatMessage(intlMessages.customLabel)}
-                </div>
-              </>
+              {IMAGE_NAMES.map((imageName, index) => {
+                const actualIndex = index + 1;
+                return renderDefaultButton(imageName, actualIndex);
+              })}
             </>
           )}
         </Styled.BgWrapper>
