@@ -7,7 +7,7 @@ const { Worker } = require('worker_threads');
 const path = require('path');
 
 const logger = new Logger('presAnn Master');
-logger.info("Running export-annotations");
+logger.info("Running bbb-export-annotations");
 
 const kickOffCollectorWorker = (jobId) => {
     return new Promise((resolve, reject) => {
