@@ -9,12 +9,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayLightest,
-<<<<<<< HEAD
-  colorPrimary,
-  colorGray,
-  colorGrayLighter,
-=======
->>>>>>> 201b2bec34... passing styles to common buttons
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
