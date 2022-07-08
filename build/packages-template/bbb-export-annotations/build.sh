@@ -16,6 +16,8 @@ rm -rf staging
 
 mkdir -p staging/usr/local/bigbluebutton/bbb-export-annotations
 
+find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-files)) -exec cp -r {} staging/usr/local/bigbluebutton/bbb-export-annotations/ \;
+
 pushd .
 cd staging/usr/local/bigbluebutton/bbb-export-annotations/
 npm install --production
