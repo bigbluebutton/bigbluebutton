@@ -16,18 +16,15 @@ const WhiteboardContainer = (props) => {
 
 export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger }) => {
   const shapes = Service.getShapes(whiteboardId, curPageId, intl);
-  const assets = Service.getAssets();
   const curPres = Service.getCurrentPres();
 
   return {
     initDefaultPages: Service.initDefaultPages,
     persistShape: Service.persistShape,
-    persistAsset: Service.persistAsset,
     isMultiUserActive: Service.isMultiUserActive,
     hasMultiUserAccess: Service.hasMultiUserAccess,
     changeCurrentSlide: Service.changeCurrentSlide,
     shapes: shapes,
-    assets: assets,
     curPres,
     removeShapes: Service.removeShapes,
     zoomSlide: PresentationToolbarService.zoomSlide,

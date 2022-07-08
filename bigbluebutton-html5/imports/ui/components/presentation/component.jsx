@@ -892,6 +892,9 @@ class Presentation extends PureComponent {
       showSlide,
       isFullscreen,
       localPosition,
+      isZoomed,
+      presentationWidth,
+      presentationHeight,
     } = this.state;
 
     let viewBoxDimensions;
@@ -970,8 +973,10 @@ class Presentation extends PureComponent {
             curPageId={currentSlide?.num.toString()}
             svgUri={currentSlide?.svgUri}
             intl={intl}
-            presentationBounds={presentationBounds}
+            presentationWidth={presentationWidth}
+            presentationHeight={presentationHeight}
             isViewersCursorLocked={isViewersCursorLocked}
+            isZoomed={isZoomed}
             setIsZoomed={this.setIsZoomed}
             zoomChanger={this.zoomChanger}
           />
