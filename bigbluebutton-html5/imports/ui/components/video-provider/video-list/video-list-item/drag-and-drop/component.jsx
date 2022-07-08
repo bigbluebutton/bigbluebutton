@@ -73,6 +73,7 @@ const DragAndDrop = (props) => {
               background: {
                 ...background,
                 custom: true,
+                lastActivityDate: Date.now(),
               },
             });
           });
