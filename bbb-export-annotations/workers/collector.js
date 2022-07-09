@@ -4,7 +4,6 @@ const fs = require('fs');
 const redis = require('redis');
 const { Worker, workerData, parentPort } = require('worker_threads');
 const path = require('path');
-const probe = require('probe-image-size');
 const { execSync } = require("child_process");
 
 const jobId = workerData;
