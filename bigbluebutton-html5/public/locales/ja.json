@@ -173,6 +173,7 @@
     "app.presentation.options.fullscreen": "全画面表示",
     "app.presentation.options.exitFullscreen": "全画面表示解除",
     "app.presentation.options.minimize": "最小化",
+    "app.presentation.options.snapshot": "現在のスライドのスナップショット",
     "app.presentation.options.downloading": "ダウンロード中...",
     "app.presentation.options.downloaded": "プレゼンファイルをダウンロードしました",
     "app.presentation.options.downloadFailed": "プレゼンファイルがダウンロードできませんでした",

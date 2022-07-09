@@ -2,7 +2,7 @@
     "app.home.greeting": "Zure aurkezpena laster hasiko da...",
     "app.chat.submitLabel": "Bidali mezua",
     "app.chat.loading": "Kargatutako txat mezuak: {0}%",
-    "app.chat.errorMaxMessageLength": "Mezua luzeegia da, {0} karaktere soberan ditu",
+    "app.chat.errorMaxMessageLength": "Mezua luzeegia da, {0} karaktere soberan d(it)u",
     "app.chat.disconnected": "Deskonektatuta zaude, mezuak ezin dira bidali",
     "app.chat.locked": "Txata blokeatuta dago, mezuak ezin dira bidali",
     "app.chat.inputLabel": "Txatean {0} mezu sartu dira",
