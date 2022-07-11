@@ -293,7 +293,7 @@ class AudioSettings extends React.Component {
     } = this.props;
 
     return (
-      <Styled.FormWrapper>
+      <Styled.FormWrapper data-test="audioSettingsModal">
         <Styled.Form>
           <Styled.Row>
             <Styled.AudioNote>
@@ -313,6 +313,7 @@ class AudioSettings extends React.Component {
             disabled={isConnecting}
           />
           <Button
+            data-test="joinEchoTestButton"
             size="md"
             color="primary"
             label={intl.formatMessage(intlMessages.retryLabel)}
