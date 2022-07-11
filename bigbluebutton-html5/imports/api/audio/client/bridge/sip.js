@@ -1097,21 +1097,23 @@ class SIPSession {
         };
 
         const query = VoiceCallStates.find(selector);
+        const callback = (id, fields) => {
+          if (!fsReady && ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
+            || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE))) {
+            fsReady = true;
+            checkIfCallReady();
+          }
+
+          if (fields.callState === CallStateOptions.CALL_ENDED) {
+            fsReady = false;
+            c.stop();
+            checkIfCallStopped();
+          }
+        };
 
         query.observeChanges({
-          changed: (id, fields) => {
-            if (!fsReady && ((this.inEchoTest && fields.callState === CallStateOptions.IN_ECHO_TEST)
-              || (!this.inEchoTest && fields.callState === CallStateOptions.IN_CONFERENCE))) {
-              fsReady = true;
-              checkIfCallReady();
-            }
-
-            if (fields.callState === CallStateOptions.CALL_ENDED) {
-              fsReady = false;
-              c.stop();
-              checkIfCallStopped();
-            }
-          },
+          added: (id, fields) => callback(id, fields),
+          changed: (id, fields) => callback(id, fields),
         });
       });
 
