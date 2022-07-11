@@ -176,6 +176,8 @@ begin
     File.open(data_json_path, 'w') do |f|
       f.write(events_data.to_json)
     end
+	
+	system("sh /usr/local/bin/recording-imex.sh -i true -v -s #{meeting_id} #{data_json_path}")
 
     json_file = File.open(data_json_path)
     data = JSON.load(json_file)

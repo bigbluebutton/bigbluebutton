@@ -31,9 +31,10 @@ public class EventsHandler {
     }
 
     public static EventsHandler getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new EventsHandler();
-            if(instance.dataStore == null) instance = null;
+            if (instance.dataStore == null)
+                instance = null;
         }
 
         return instance;
@@ -78,12 +79,12 @@ public class EventsHandler {
 
         Events events = new Events();
 
-        if(content != null && isValidJson(content)) {
+        if (content != null && isValidJson(content)) {
             logger.info("File content: {}", content);
             events.setContent(content);
         }
 
-        if(persist) {
+        if (persist) {
             Recording recording = dataStore.findRecordingByRecordId(recordId);
             recording.setEvents(events);
             events.setRecording(recording);
@@ -98,15 +99,17 @@ public class EventsHandler {
 
         for (Recording recording : recordings) {
             Events events = recording.getEvents();
-            if(events != null) exportEvents(events, recording.getRecordId(), path);
+            if (events != null)
+                exportEvents(events, recording.getRecordId(), path);
         }
     }
 
     public void exportEvents(String recordId, String path) {
         Recording recording = dataStore.findRecordingByRecordId(recordId);
-        if(recording != null) {
+        if (recording != null) {
             Events events = recording.getEvents();
-            if(events != null) exportEvents(events, recordId, path);
+            if (events != null)
+                exportEvents(events, recordId, path);
         }
     }
 
@@ -139,7 +142,7 @@ public class EventsHandler {
             logger.info("Attempting to create file {}", file.getAbsolutePath());
             boolean fileCreated = file.createNewFile();
 
-            if(fileCreated) {
+            if (fileCreated) {
                 logger.info("Exporting {}", events.getContent());
                 String content = events.getContent();
                 JSONObject json = new JSONObject(content);
@@ -156,10 +159,10 @@ public class EventsHandler {
     private boolean isValidJson(String json) {
         try {
             new JSONObject(json);
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             try {
                 new JSONArray(json);
-            } catch(JSONException ex) {
+            } catch (JSONException ex) {
                 return false;
             }
         }

@@ -7,8 +7,7 @@ case $EDIT in
   1)
     ;;
   2)
-   echo "Please ensure that you have edited the .env file before continuing"
-   exit 0
+   echo "Please edit the .env file if you wish to customize your setup."
    ;;
   *)
     echo "That is not a valid option. Exiting."

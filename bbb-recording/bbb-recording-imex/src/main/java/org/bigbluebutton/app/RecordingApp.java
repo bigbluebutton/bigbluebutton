@@ -62,9 +62,12 @@ public class RecordingApp {
                         return;
                     }
                     break;
-                case 's':
+                case 'r':
                 case 'v':
-                    if(flag == 'v') recording = false;
+                    if (flag == 'v')
+                        recording = false;
+                    break;
+                case 's':
                     if (i < args.length)
                         id = args[i++];
                     else {
@@ -110,7 +113,7 @@ public class RecordingApp {
         String path = recordings;
         String target = "presentation";
 
-        if(!recording) {
+        if (!recording) {
             path = events;
             target = "events";
         }
@@ -129,28 +132,40 @@ public class RecordingApp {
 
     private static void executeCommands(boolean export, boolean persist, boolean recording, String id, String path) {
         if (!export) {
-            if(recording) {
+            if (recording) {
                 RecordingImportHandler handler = RecordingImportHandler.getInstance();
-                if(handler == null) return;
-                if (id == null || id.isEmpty()) handler.importRecordings(path, persist);
-                else handler.importRecording(path, id, persist);
+                if (handler == null)
+                    return;
+                if (id == null || id.isEmpty())
+                    handler.importRecordings(path, persist);
+                else
+                    handler.importRecording(path, id, persist);
             } else {
                 EventsHandler handler = EventsHandler.getInstance();
-                if(handler == null) return;
-                if(id == null || id.isEmpty()) handler.importEvents(path, persist);
-                else handler.importEvents(path, id, persist);
+                if (handler == null)
+                    return;
+                if (id == null || id.isEmpty())
+                    handler.importEvents(path, persist);
+                else
+                    handler.importEvents(path, id, persist);
             }
         } else {
             if (recording) {
                 RecordingExportHandler handler = RecordingExportHandler.getInstance();
-                if(handler == null) return;
-                if (id == null || id.isEmpty()) handler.exportRecordings(path);
-                else handler.exportRecording(id, path);
+                if (handler == null)
+                    return;
+                if (id == null || id.isEmpty())
+                    handler.exportRecordings(path);
+                else
+                    handler.exportRecording(id, path);
             } else {
                 EventsHandler handler = EventsHandler.getInstance();
-                if(handler == null) return;
-                if(id == null || id.isEmpty()) handler.exportEvents(path);
-                else handler.exportEvents(id, path);
+                if (handler == null)
+                    return;
+                if (id == null || id.isEmpty())
+                    handler.exportEvents(path);
+                else
+                    handler.exportEvents(id, path);
             }
         }
     }
@@ -163,7 +178,7 @@ public class RecordingApp {
                     new int[] { 1, 2, 3 }, "Please enter either 1, 2, or 3");
 
             int recordingsOrEvents = getResponse("Are you working with recordings or events? (1-Recordings 2-Events",
-                    new int[] {1, 2}, "Please enter either 1 or 2");
+                    new int[] { 1, 2 }, "Please enter either 1 or 2");
 
             boolean recordings = recordingsOrEvents != 2;
 
@@ -178,13 +193,14 @@ public class RecordingApp {
     }
 
     private static void importMode(boolean recordings) {
-        if(recordings) {
+        if (recordings) {
             RecordingImportHandler handler = RecordingImportHandler.getInstance();
-            if(handler == null) return;
+            if (handler == null)
+                return;
             int importIndividually = getResponse("Are you importing recordings individually? (1-Yes 2-No) ",
                     new int[] { 1, 2 }, "Please enter either 1 or 2");
-            int persist = getResponse("Should the imported recording(s) be persisted? (1-Yes 2-No) ", new int[] { 1, 2 },
-                    "Please enter either 1 or 2");
+            int persist = getResponse("Should the imported recording(s) be persisted? (1-Yes 2-No) ",
+                    new int[] { 1, 2 }, "Please enter either 1 or 2");
             boolean shouldPersist = persist == 1;
 
             if (importIndividually == 1) {
@@ -204,7 +220,8 @@ public class RecordingApp {
             }
         } else {
             EventsHandler handler = EventsHandler.getInstance();
-            if(handler == null) return;
+            if (handler == null)
+                return;
             int importIndividually = getResponse("Are you importing events individually? (1-Yes 2-No) ",
                     new int[] { 1, 2 }, "Please enter either 1 or 2");
             int persist = getResponse("Should the imported event(s) be persisted? (1-Yes 2-No) ", new int[] { 1, 2 },
@@ -230,13 +247,15 @@ public class RecordingApp {
     }
 
     private static void exportMode(boolean recordings) {
-        if(recordings) {
+        if (recordings) {
             RecordingExportHandler handler = RecordingExportHandler.getInstance();
-            if(handler == null) return;
+            if (handler == null)
+                return;
 
             int exportAll = getResponse("Do you want to export all recordings? (1-Yes 2-No) ", new int[] { 1, 2 },
                     "Please enter either 1 or 2");
-            String path = getResponse("Please enter the path to the directory that the recordings should be exported to: ");
+            String path = getResponse(
+                    "Please enter the path to the directory that the recordings should be exported to: ");
 
             if (exportAll == 1) {
                 handler.exportRecordings(path);
@@ -251,7 +270,8 @@ public class RecordingApp {
             }
         } else {
             EventsHandler handler = EventsHandler.getInstance();
-            if(handler == null) return;
+            if (handler == null)
+                return;
             int exportAll = getResponse("Do you want to export all events? (1-Yes 2-No) ", new int[] { 1, 2 },
                     "Please enter either 1 or 2");
             String path = getResponse("Please enter the path to the directory that the events should be exported to: ");
