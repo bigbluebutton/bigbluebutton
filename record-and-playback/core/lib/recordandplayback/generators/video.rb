@@ -28,7 +28,7 @@ require File.expand_path('../../edl', __FILE__)
 module BigBlueButton
 
 
-  def BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, output_width, output_height, output_framerate, audio_offset, processed_audio_file, video_formats=['webm'], show_moderator_viewpoint=false, render_cams_list=["all"])
+  def BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, output_width, output_height, output_framerate, audio_offset, processed_audio_file, video_formats=['webm'], show_moderator_viewpoint=false, render_cams_list=["all"], delay_on_closing_cam)
     BigBlueButton.logger.info("Processing webcam videos")
 
     render_cams_list.each_with_index do |cam, index|
@@ -44,7 +44,7 @@ module BigBlueButton
       start_time = BigBlueButton::Events.first_event_timestamp(events)
       end_time = BigBlueButton::Events.last_event_timestamp(events)
       webcam_edl = BigBlueButton::Events.create_webcam_edl(
-                      events, raw_archive_dir, show_moderator_viewpoint, what_to_render)
+                      events, raw_archive_dir, show_moderator_viewpoint, what_to_render, delay_on_closing_cam)
       user_video_edl = BigBlueButton::Events.edl_match_recording_marks_video(
                       webcam_edl, events, start_time, end_time)
       BigBlueButton::EDL::Video.dump(user_video_edl)

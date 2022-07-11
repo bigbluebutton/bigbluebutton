@@ -167,20 +167,86 @@ module BigBlueButton
       end
     end
 
-    def self.is_talking_period_greater_than(events, initial_talking_timestamp, initial_timestamp, duration, user_id_analysed)
+    def self.is_talking_period_greater_than(events, initial_talking_timestamp, initial_timestamp, duration, user_id_analysed, add_cam_event)
       # It checks if the next event of closing talking is greater than the specific duration
       # if so, then it can create another EDL, otherwise, it would become chaotic 
       events.xpath('/recording/event[@eventname="ParticipantTalkingEvent" or @eventname="ParticipantMutedEvent"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
         user_id = event.at_xpath('participant').text
+        enter_if = true
+        if !add_cam_event
+          case event['eventname']
+          when 'ParticipantTalkingEvent'
+            if !BigBlueButton::Events.to_boolean(event.at_xpath('talking').text)
+              enter_if = false
+            end
+          when 'ParticipantMutedEvent'
+            if BigBlueButton::Events.to_boolean(event.at_xpath('muted').text)
+              enter_if = false
+            end
+          end
+        end
+        if timestamp > initial_talking_timestamp && user_id == user_id_analysed && enter_if
+          return (timestamp - initial_talking_timestamp > duration * 1000)
+        end
+      end
+    end
+
+    def self.is_closing_event_greater_than(events, initial_talking_timestamp, initial_timestamp, duration, user_id_analysed)
+      # It checks if the next event of closing camera or ending meeting is greater than the duration specified
+      events.xpath('/recording/event[@eventname="StopWebcamShareEvent" or @eventname="StopWebRTCShareEvent"]').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+        user_id = event.at_xpath('userId').text
         if timestamp > initial_talking_timestamp && user_id == user_id_analysed
           return (timestamp - initial_talking_timestamp > duration * 1000)
         end
       end
     end
 
+    def self.check_for_delay(list_of_delay_users, actual_timstamp, video_edl, 
+      talking_people_only, delay_on_closing_cam, active_videos, inactive_videos, list_user_talking, videos)
+
+      list_users_to_delete = []
+      # Verify if the list is empty to spare computation
+      if !list_of_delay_users.empty? && talking_people_only
+        list_of_delay_users.each do |user_in_delay|
+          # If the difference from the actual timestamp and the delayed uder event is greater than 
+          # the delay period, I will update the video_edl.
+          # If that difference is equal to the delay period, I will update only the active_video and
+          # inactive_video lists.
+          if actual_timstamp - user_in_delay[:timestamp] >= delay_on_closing_cam * 1000
+            filename_to_remove = BigBlueButton::Events.extract_filename_from_userId(user_in_delay[:user_id], active_videos)
+            if filename_to_remove != ""
+              active_videos.delete(filename_to_remove)
+              inactive_videos << filename_to_remove
+              list_user_talking[user_in_delay[:user_id]] = false
+              if actual_timstamp - user_in_delay[:timestamp] > delay_on_closing_cam * 1000
+                timestamp = user_in_delay[:timestamp]
+                edl_entry = {
+                  :timestamp => timestamp + delay_on_closing_cam * 1000,
+                  :areas => { :webcam => [] }
+                }
+                active_videos.each do |filename|
+                  edl_entry[:areas][:webcam] << {
+                    :filename => filename,
+                    :timestamp => timestamp + delay_on_closing_cam * 1000 - videos[filename][:timestamp]
+                  }
+                end
+              end
+              video_edl << edl_entry
+            end
+            list_users_to_delete << user_in_delay
+          end
+        end
+      end
+      list_users_to_delete.each do |user|
+        list_of_delay_users.delete(user)
+      end
+
+    end
+
     # Build a webcam EDL
-    def self.create_webcam_edl(events, archive_dir, show_moderator_viewpoint, what_to_render)
+    def self.create_webcam_edl(events, archive_dir, show_moderator_viewpoint, what_to_render, delay_on_closing_cam)
       # The following variables can't be true together.
       # And they are independent from the show_moderator_viewpoint variable
       talking_people_only=false
@@ -211,13 +277,20 @@ module BigBlueButton
       }
       list_user_info = {}
       list_user_talking = {}
+      user_in_delay = []
       webcamsOnlyForModerator = false
       # moderators_only shows only moderators, if the user sets show_moderator_viewpoint and 
       # moderators_only, the second config is more restrict than the first, so, the second is 
       # prioritized.
       if (show_moderator_viewpoint && !moderators_only)
+        BigBlueButton.logger.debug "Teste aqui entrou"
         events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or @eventname="ParticipantTalkingEvent" or @eventname="ParticipantMutedEvent"]').each do |event|
           timestamp = event['timestamp'].to_i - initial_timestamp
+
+          # Will check and process if any user in the delay list can be removed already
+          BigBlueButton::Events.check_for_delay(user_in_delay, timestamp, video_edl, 
+            talking_people_only, delay_on_closing_cam, active_videos, inactive_videos, list_user_talking, videos)
+
           # Determine the video filename
           case event['eventname']
           when 'StartWebcamShareEvent', 'StopWebcamShareEvent'
@@ -289,6 +362,7 @@ module BigBlueButton
               is_user_cam_on= false
               is_only_cam_speaking=false
               filename_to_add= ""
+              is_file_with_delay = false
 
               # The EDL will only change if the is_talking changes (i.e. if the person 
               # was talinkg and stops, or the other way around).
@@ -298,7 +372,7 @@ module BigBlueButton
                 if is_talking
                   # Flow to insert a new Camera in the new_EDL
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, inactive_videos)
-                  edl_will_modify = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, 2, user_id)
+                  edl_will_modify = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, 2, user_id, true)
                   if filename_to_add != "" && edl_will_modify
                     is_user_cam_on = true
                     inactive_videos.delete(filename_to_add)
@@ -307,17 +381,24 @@ module BigBlueButton
                   list_user_talking[user_id] = is_talking
                 else
                   # Flow to remove a Camera from the EDL
+                  is_talking_period_greater = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, delay_on_closing_cam * 2, user_id, false)
+                  is_stop_camera_event_greater = BigBlueButton::Events.is_closing_event_greater_than(events, initial_timestamp, timestamp, delay_on_closing_cam * 2, user_id)
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
-                  if filename_to_add != ""
+                  edl_will_modify = !is_talking_period_greater && !is_stop_camera_event_greater
+
+                  # If edl will not modify, then the flow to remove the cam from the active list and insert it 
+                  # into the inactive one will be made later.
+                  if filename_to_add != "" && edl_will_modify
                     is_user_cam_on = true
                     active_videos.delete(filename_to_add)
                     inactive_videos << filename_to_add
+                  elsif !edl_will_modify
+                    is_file_with_delay = true
                   end
                   list_user_talking[user_id] = is_talking
                 end
               end
-
-              if is_user_cam_on
+              if is_user_cam_on && !is_file_with_delay
                 edl_entry = {
                   :timestamp => timestamp,
                   :areas => { :webcam => [] }
@@ -329,6 +410,13 @@ module BigBlueButton
                   }
                 end
                 video_edl << edl_entry
+              elsif is_file_with_delay
+                # This is the flow to insert a camera with a delay 
+                  user_in_delay << {
+                    :user_id => user_id,
+                    :active_videos => active_videos,
+                    :timestamp => timestamp
+                  }
               end
 
               # The user is set in the list_user_talking which is just a list 
@@ -342,6 +430,10 @@ module BigBlueButton
       else
         events.xpath('/recording/event[@module="WEBCAM" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCShareEvent" or @eventname="StopWebRTCShareEvent")) or (@module="PARTICIPANT" and (@eventname="ParticipantStatusChangeEvent" or @eventname="ParticipantJoinEvent")) or @eventname="WebcamsOnlyForModeratorEvent" or @eventname="MeetingConfigurationEvent" or @eventname="ParticipantTalkingEvent" or @eventname="ParticipantMutedEvent"]').each do |event|
           timestamp = event['timestamp'].to_i - initial_timestamp
+
+          # Will check and process if any user in the delay list can be removed already
+          BigBlueButton::Events.check_for_delay(user_in_delay, timestamp, video_edl, 
+            talking_people_only, delay_on_closing_cam, active_videos, inactive_videos, list_user_talking, videos)
 
           # Determine the video filename if event is as the following
           case event['eventname']
@@ -498,6 +590,7 @@ module BigBlueButton
               is_user_cam_on= false
               is_only_cam_speaking=false
               filename_to_add= ""
+              is_file_with_delay = false
 
               # The EDL will only change if the is_talking changes (i.e. if the person 
               # was talinkg and stops, or the other way around).
@@ -507,7 +600,7 @@ module BigBlueButton
                 if is_talking
                   # Flow to insert a new Camera in the new_EDL
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, inactive_videos)
-                  edl_will_modify = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, 2, user_id)
+                  edl_will_modify = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, 2, user_id, true)
                   if filename_to_add != "" && edl_will_modify
                     is_user_cam_on = true
                     inactive_videos.delete(filename_to_add)
@@ -516,17 +609,24 @@ module BigBlueButton
                   list_user_talking[user_id] = is_talking
                 else
                   # Flow to remove a Camera from the EDL
+                  is_talking_period_greater = BigBlueButton::Events.is_talking_period_greater_than(events, initial_timestamp, timestamp, delay_on_closing_cam * 2, user_id, false)
+                  is_stop_camera_event_greater = BigBlueButton::Events.is_closing_event_greater_than(events, initial_timestamp, timestamp, delay_on_closing_cam * 2, user_id)
                   filename_to_add = BigBlueButton::Events.extract_filename_from_userId(user_id, active_videos)
-                  if filename_to_add != ""
+                  edl_will_modify = !is_talking_period_greater && !is_stop_camera_event_greater
+
+                  # If edl will not modify, then the flow to remove the cam from the active list and insert it 
+                  # into the inactive one will be made later.
+                  if filename_to_add != "" && edl_will_modify
                     is_user_cam_on = true
                     active_videos.delete(filename_to_add)
                     inactive_videos << filename_to_add
+                  elsif !edl_will_modify
+                    is_file_with_delay = true
                   end
                   list_user_talking[user_id] = is_talking
                 end
               end
-
-              if is_user_cam_on
+              if is_user_cam_on && !is_file_with_delay
                 edl_entry = {
                   :timestamp => timestamp,
                   :areas => { :webcam => [] }
@@ -538,6 +638,13 @@ module BigBlueButton
                   }
                 end
                 video_edl << edl_entry
+              elsif is_file_with_delay
+              # This is the flow to insert a camera with a delay 
+                user_in_delay << {
+                  :user_id => user_id,
+                  :active_videos => active_videos,
+                  :timestamp => timestamp
+                }
               end
 
               # The user is set in the list_user_talking which is just a list 
