@@ -30,14 +30,14 @@ test.describe.parallel('Presentation', () => {
     // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-a-presentation-automated
     test('Upload single presentation @ci', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page);
+	await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 
     // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page);
+      await presentation.initPages(page, true);
       await presentation.uploadMultiplePresentationsTest();
     });
 

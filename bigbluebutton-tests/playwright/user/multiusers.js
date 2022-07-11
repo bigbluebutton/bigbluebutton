@@ -13,8 +13,11 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
+  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
     await this.initModPage(page1);
+    if (waitAndClearDefaultPresentationNotificationModPage) {
+        await waitAndClearDefaultPresentationNotification(this.modPage);
+    }
     await this.initUserPage();
   }
 
@@ -124,8 +127,6 @@ class MultiUsers {
     const { raiseHandButton } = getSettings();
     test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
 
-    await waitAndClearDefaultPresentationNotification(this.modPage);
-    await waitAndClearDefaultPresentationNotification(this.userPage);
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);

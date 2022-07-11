@@ -6,7 +6,6 @@ const { checkSvgIndex, getSvgOuterHtml, uploadSinglePresentation, uploadMultiple
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class Presentation extends MultiUsers {
   constructor(browser, context) {
@@ -63,7 +62,6 @@ class Presentation extends MultiUsers {
   }
 
   async uploadSinglePresentationTest() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitForSelector(e.skipSlide);
 
     const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);
@@ -81,7 +79,6 @@ class Presentation extends MultiUsers {
   }
 
   async uploadMultiplePresentationsTest() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitForSelector(e.skipSlide);
 
     const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);

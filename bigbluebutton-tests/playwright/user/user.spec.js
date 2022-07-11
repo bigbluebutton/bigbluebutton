@@ -12,7 +12,7 @@ test.describe.parallel('User', () => {
     // https://docs.bigbluebutton.org/2.5/release-tests.html#set-status--raise-hand-automated
     test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page);
+      await multiusers.initPages(page, true);
       await multiusers.raiseAndLowerHand();
     });
 
