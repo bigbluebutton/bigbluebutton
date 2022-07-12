@@ -57,6 +57,10 @@ const intlClientErrors = defineMessages({
     id: 'app.video.virtualBackground.genericError',
     description: 'Failed to apply camera effect',
   },
+  inactiveError: {
+    id: 'app.video.inactiveError',
+    description: 'Camera stopped unexpectedly',
+  },
 });
 
 const intlSFUErrors = defineMessages({
@@ -500,6 +504,7 @@ class VideoProvider extends Component {
 
     if (peer) {
       if (peer && peer.bbbVideoStream) {
+        peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
         peer.bbbVideoStream.stop();
       }
 
@@ -560,6 +565,8 @@ class VideoProvider extends Component {
                 this.replacePCVideoTracks(stream, newStream);
               }
             });
+            peer.inactivationHandler = () => this._handleLocalStreamInactive(stream);
+            bbbVideoStream.once('inactive', peer.inactivationHandler);
 
             peer.generateOffer((errorGenOffer, offerSdp) => {
               if (errorGenOffer) {
@@ -756,7 +763,10 @@ class VideoProvider extends Component {
 
   _onWebRTCError(error, stream, isLocal) {
     const { intl } = this.props;
-    const errorMessage = intlClientErrors[error.name] || intlSFUErrors[error];
+    const { name: errorName, message: errorMessage } = error;
+    const errorLocale = intlClientErrors[errorName]
+      || intlClientErrors[errorMessage]
+      || intlSFUErrors[error];
 
     logger.error({
       logCode: 'video_provider_webrtc_peer_error',
@@ -772,7 +782,7 @@ class VideoProvider extends Component {
     // will try to autoreconnect silently, but the error will log nonetheless
     if (isLocal) {
       this.stopWebRTCPeer(stream, false);
-      if (errorMessage) VideoService.notify(intl.formatMessage(errorMessage));
+      if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
     } else {
       // If it's a viewer, set the reconnection timeout. There's a good chance
       // no local candidate was generated and it wasn't set.
@@ -845,6 +855,27 @@ class VideoProvider extends Component {
     this.sendMessage(message);
   }
 
+  _handleLocalStreamInactive(stream) {
+    const peer = this.webRtcPeers[stream];
+    const isLocal = VideoService.isLocalStream(stream);
+    const role = VideoService.getRole(isLocal);
+
+    // Peer == null: this is a trailing event.
+    // !isLocal: someone is misusing this handler - local streams only.
+    if (peer == null || !isLocal) return;
+
+    logger.error({
+      logCode: 'video_provider_local_stream_inactive',
+      extraInfo: {
+        cameraId: stream,
+        role,
+      },
+    }, 'Local camera stream stopped unexpectedly');
+
+    const error = new Error('inactiveError');
+    this._onWebRTCError(error, stream, isLocal);
+  }
+
   _handleIceConnectionStateChange(stream, isLocal) {
     const { intl } = this.props;
     const peer = this.webRtcPeers[stream];
@@ -868,7 +899,6 @@ class VideoProvider extends Component {
             role,
           },
         }, `Camera ICE connection state changed: ${connectionState}. Role: ${role}.`);
-        if (isLocal) VideoService.notify(intl.formatMessage(intlClientErrors.iceConnectionStateError));
 
         this._onWebRTCError(error, stream, isLocal);
       }

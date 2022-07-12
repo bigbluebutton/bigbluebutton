@@ -40,7 +40,7 @@ const storeStream = (deviceId, stream) => {
   VIDEO_STREAM_STORAGE.set(deviceId, stream);
 
   // Stream insurance: clean it up if it ends (see the events being listened to below)
-  stream.on('inactive', () => {
+  stream.once('inactive', () => {
     deleteStream(deviceId);
   });
 

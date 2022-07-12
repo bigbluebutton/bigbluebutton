@@ -832,6 +832,7 @@
     "app.video.notReadableError": "Could not get webcam video. Please make sure another program is not using the webcam ",
     "app.video.timeoutError": "Browser did not respond in time.",
     "app.video.genericError": "An unknown error has occurred with the device ({0})",
+    "app.video.inactiveError": "Your webcam stopped unexpectedly. Please review your browser's permissions",
     "app.video.mediaTimedOutError": "Your webcam stream has been interrupted. Try sharing it again",
     "app.video.mediaFlowTimeout1020": "Media could not reach the server (error 1020)",
     "app.video.suggestWebcamLock": "Enforce lock setting to viewers webcams?",
