@@ -13,7 +13,7 @@ import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import VideoPreviewService from '../video-preview/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
   EFFECT_TYPES,
   getSessionVirtualBackgroundInfo,
