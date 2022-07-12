@@ -20,6 +20,7 @@ jobs:
       - run: ./build/setup.sh bbb-freeswitch-core
       - run: ./build/setup.sh bbb-freeswitch-sounds
       - run: ./build/setup.sh bbb-fsesl-akka
+      - run: ./build/setup.sh bbb-html5-nodejs
       - run: ./build/setup.sh bbb-html5
       - run: ./build/setup.sh bbb-learning-dashboard
       - run: ./build/setup.sh bbb-libreoffice-docker
