@@ -1,3 +1,4 @@
+/* eslint react/sort-comp: 0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReconnectingWebSocket from 'reconnecting-websocket';
@@ -20,6 +21,7 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { notify } from '/imports/ui/services/notification';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
+import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
@@ -35,6 +37,7 @@ const {
 } = Meteor.settings.public.kurento.cameraQualityThresholds;
 const PING_INTERVAL = 15000;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
+const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -393,26 +396,22 @@ class VideoProvider extends Component {
         ? peer.processAnswer.bind(peer)
         : peer.processOffer.bind(peer);
 
-      processorFunc(message.sdpAnswer, (error, answer) => {
-        if (error) {
-          logger.error({
-            logCode: 'video_provider_peerconnection_process_error',
-            extraInfo: {
-              cameraId: stream,
-              role,
-              errorMessage: error.message,
-              errorCode: error.code,
-            },
-          }, 'Camera answer processing failed');
-
-          return;
-        }
-
+      processorFunc(message.sdpAnswer).then((answer) => {
         if (answer) this.sendLocalAnswer(peer, stream, answer);
 
         peer.didSDPAnswered = true;
         this.processOutboundIceQueue(peer, role, stream);
         VideoService.processInboundIceQueue(peer, stream);
+      }).catch((error) => {
+        logger.error({
+          logCode: 'video_provider_peerconnection_process_error',
+          extraInfo: {
+            cameraId: stream,
+            role,
+            errorMessage: error.message,
+            errorCode: error.code,
+          },
+        }, 'Camera answer processing failed');
       });
     } else {
       logger.warn({
@@ -522,7 +521,7 @@ class VideoProvider extends Component {
     }
   }
 
-  _createPublisher (stream, peerOptions) {
+  _createPublisher(stream, peerOptions) {
     return new Promise((resolve, reject) => {
       try {
         const { id: profileId } = VideoService.getCameraProfile();
@@ -532,91 +531,62 @@ class VideoProvider extends Component {
           peerOptions.videoStream = bbbVideoStream.mediaStream;
         }
 
-        const handlePubPeerCreation = (error) => {
-          try {
-            const peer = this.webRtcPeers[stream];
-            peer.stream = stream;
-            peer.started = false;
-            peer.attached = false;
-            peer.didSDPAnswered = false;
-            peer.inboundIceQueue = [];
-            peer.isPublisher = true;
-            peer.originalProfileId = profileId;
-            peer.currentProfileId = profileId;
+        const peer = new WebRtcPeer('sendonly', peerOptions);
+        this.webRtcPeers[stream] = peer;
+        peer.stream = stream;
+        peer.started = false;
+        peer.attached = false;
+        peer.didSDPAnswered = false;
+        peer.inboundIceQueue = [];
+        peer.isPublisher = true;
+        peer.originalProfileId = profileId;
+        peer.currentProfileId = profileId;
+        peer.start();
 
-            if (error) return reject(error);
-
-            // Store the media stream if necessary. The scenario here is one where
-            // there is no preloaded stream stored.
-            if (bbbVideoStream == null) {
-              bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
-              VideoPreviewService.storeStream(
-                MediaStreamUtils.extractDeviceIdFromStream(
-                  bbbVideoStream.mediaStream,
-                  'video',
-                ),
-                bbbVideoStream
-              );
-            }
-
-            peer.bbbVideoStream = bbbVideoStream;
-            bbbVideoStream.on('streamSwapped', ({ newStream }) => {
-              if (newStream && newStream instanceof MediaStream) {
-                this.replacePCVideoTracks(stream, newStream);
-              }
-            });
-            peer.inactivationHandler = () => this._handleLocalStreamInactive(stream);
-            bbbVideoStream.once('inactive', peer.inactivationHandler);
-
-            peer.generateOffer((errorGenOffer, offerSdp) => {
-              if (errorGenOffer) {
-                return reject(errorGenOffer);
-              }
-
-              return resolve(offerSdp);
-            });
-          } catch (error) {
-            return reject(error);
-          }
+        // Store the media stream if necessary. The scenario here is one where
+        // there is no preloaded stream stored.
+        if (bbbVideoStream == null) {
+          bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+          VideoPreviewService.storeStream(
+            MediaStreamUtils.extractDeviceIdFromStream(
+              bbbVideoStream.mediaStream,
+              'video',
+            ),
+            bbbVideoStream,
+          );
         }
 
-        this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerSendonly(
-          peerOptions,
-          handlePubPeerCreation,
-        );
+        peer.bbbVideoStream = bbbVideoStream;
+        bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+          if (newStream && newStream instanceof MediaStream) {
+            this.replacePCVideoTracks(stream, newStream);
+          }
+        });
+        peer.inactivationHandler = () => this._handleLocalStreamInactive(stream);
+        bbbVideoStream.once('inactive', peer.inactivationHandler);
+
+        peer.generateOffer().then(resolve).catch(reject);
       } catch (error) {
-        return reject(error);
+        reject(error);
       }
     });
   }
 
-  _createSubscriber (stream, peerOptions) {
+  _createSubscriber(stream, peerOptions) {
     return new Promise((resolve, reject) => {
       try {
-        const handleSubPeerCreation = (error) => {
-          try {
-            const peer = this.webRtcPeers[stream];
-            peer.stream = stream;
-            peer.started = false;
-            peer.attached = false;
-            peer.didSDPAnswered = false;
-            peer.inboundIceQueue = [];
-            peer.isPublisher = false;
-
-            if (error) return reject(error);
-
-            return resolve();
-          } catch (error) {
-            return reject(error);
-          }
-        };
-
-        this.webRtcPeers[stream] = new window.kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(
-          peerOptions,
-          handleSubPeerCreation,
-        );
+        const peer = new WebRtcPeer('recvonly', peerOptions);
+        this.webRtcPeers[stream] = peer;
+        peer.stream = stream;
+        peer.started = false;
+        peer.attached = false;
+        peer.didSDPAnswered = false;
+        peer.inboundIceQueue = [];
+        peer.isPublisher = false;
+        peer.start();
+        resolve();
       } catch (error) {
-        return reject(error);
+        reject(error);
       }
     });
   }
@@ -635,7 +605,7 @@ class VideoProvider extends Component {
 
     this.webRtcPeers[stream] = {};
     this.outboundIceQueues[stream] = [];
-    const { constraints, bitrate, } = VideoService.getCameraProfile();
+    const { constraints, bitrate } = VideoService.getCameraProfile();
     const peerOptions = {
       mediaConstraints: {
         audio: false,
@@ -644,7 +614,8 @@ class VideoProvider extends Component {
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
       configuration: {
         iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
-      }
+      },
+      trace: TRACE_LOGS,
     };
 
     try {
