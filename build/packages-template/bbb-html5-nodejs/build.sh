@@ -19,10 +19,12 @@ mkdir -p staging/usr/lib/bbb-html5/node
 cd staging/usr/lib/bbb-html5/node
 
 wget https://nodejs.org/dist/v${NODE_VERSION}/${NODE_DIRNAME}.tar.gz
-tar xfz ${NODE_DIRNAME}.tar.gz
-mv ${NODE_DIRNAME}/* .
-rmdir ${NODE_DIRNAME}
-rm ${NODE_DIRNAME}.tar.gz
+if [ -f ${NODE_DIRNAME}.tar.gz ]; then
+    tar xfz ${NODE_DIRNAME}.tar.gz
+    mv ${NODE_DIRNAME}/* .
+    rmdir ${NODE_DIRNAME}
+    rm ${NODE_DIRNAME}.tar.gz
+fi
 
 popd
 
