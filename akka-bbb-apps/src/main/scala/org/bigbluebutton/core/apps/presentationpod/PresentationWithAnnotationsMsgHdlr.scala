@@ -74,8 +74,11 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
-      val reason = "No permission to export presentation."
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("presentationWithAnnotationDownload")) {
+      val reason = "Annotated presentation download disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+      val reason = "No permission to download presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
@@ -116,7 +119,10 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("exportPresentationWithAnnotation")) {
+      val reason = "Annotated presentation export disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to export presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (currentPres.isEmpty) {

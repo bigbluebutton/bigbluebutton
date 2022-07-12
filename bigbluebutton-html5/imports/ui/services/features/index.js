@@ -51,3 +51,11 @@ export function isLayoutsEnabled() {
 export function isVirtualBackgroundsEnabled() {
   return getDisabledFeatures().indexOf('virtualBackgrounds') === -1;
 }
+
+export function isPresentationWithAnnotationDownloadEnabled() {
+  return getDisabledFeatures().indexOf('presentationWithAnnotationDownload') === -1;
+}
+
+export function isExportPresentationWithAnnotationEnabled() {
+  return getDisabledFeatures().indexOf('exportPresentationWithAnnotation') === -1;
+}
