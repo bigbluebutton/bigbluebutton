@@ -10,7 +10,7 @@ const getSlideText = async (url) => {
   let content = '';
   try {
     const request = await axios(url);
-    content = request.data;
+    content = request.data.toString();
   } catch (error) {
     Logger.error(`No file found. ${error}`);
   }

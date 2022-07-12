@@ -50,6 +50,7 @@ export default function Whiteboard(props) {
     setIsZoomed,
     zoomChanger,
     isZoomed,
+    isMultiUserActive,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -183,7 +184,7 @@ export default function Whiteboard(props) {
         tldrawAPI?.setCamera(camera.point, camera.zoom);
       }
     }
-  }, [presentationBounds, curPageId]);
+  }, [presentationBounds, curPageId, document?.documentElement?.dir]);
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
@@ -221,11 +222,13 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
+        hasMultiUserAccess={props?.hasMultiUserAccess}
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
+        isMultiUserActive={isMultiUserActive}
       >
         <Tldraw
-          key={`wb-${!hasWBAccess && !isPresenter}`}
+          key={`wb-${!hasWBAccess && !isPresenter}-${document?.documentElement?.dir}`}
           document={doc}
           // disable the ability to drag and drop files onto the whiteboard
           // until we handle saving of assets in akka.
