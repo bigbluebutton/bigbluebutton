@@ -60,6 +60,7 @@ cp bigbluebutton.target staging/lib/systemd/system/
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
+    --before-install before-install.sh \
     --description "BigBlueButton configuration utilities" \
     $DIRECTORIES \
     $OPTS \
