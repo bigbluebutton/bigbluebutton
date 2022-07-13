@@ -118,6 +118,7 @@ const VideoListItem = (props) => {
       onHandleVideoFocus={onHandleVideoFocus}
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
+      isRTL={isRTL}
     />
   );
 
@@ -141,6 +142,7 @@ const VideoListItem = (props) => {
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
+          isRTL={isRTL}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -186,6 +188,7 @@ const VideoListItem = (props) => {
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
+          isRTL={isRTL}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -203,50 +206,6 @@ const VideoListItem = (props) => {
       animations={animations}
       {...makeDragOperations(onVirtualBgDrop, user?.userId)}
     >
-      {
-          videoIsReady
-            ? (
-              <>
-                <Styled.TopBar>
-                  <PinArea
-                    user={user}
-                  />
-                  <ViewActions
-                    videoContainer={videoContainer}
-                    name={name}
-                    cameraId={cameraId}
-                    isFullscreenContext={isFullscreenContext}
-                    layoutContextDispatch={layoutContextDispatch}
-                  />
-                </Styled.TopBar>
-                <Styled.BottomBar>
-                  <UserActions
-                    name={name}
-                    user={user}
-                    cameraId={cameraId}
-                    numOfStreams={numOfStreams}
-                    onHandleVideoFocus={onHandleVideoFocus}
-                    focused={focused}
-                    onHandleMirror={() => setIsMirrored((value) => !value)}
-                    isRTL={isRTL}
-                  />
-                  <UserStatus
-                    voiceUser={voiceUser}
-                  />
-                </Styled.BottomBar>
-              </>
-            )
-            : (
-              <Styled.WebcamConnecting
-                data-test="webcamConnecting"
-                talking={talking}
-                animations={animations}
-              >
-                <Styled.LoadingText>{name}</Styled.LoadingText>
-              </Styled.WebcamConnecting>
-            )
-        }
-
       <Styled.VideoContainer>
         <Styled.Video
           mirrored={isMirrored}

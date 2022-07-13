@@ -203,7 +203,7 @@
     "app.presentation.presentationToolbar.goToSlide": "{0}. dia",
     "app.presentation.placeholder": "Jelenleg nincs aktív előadás",
     "app.presentationUploder.title": "Prezentáció",
-    "app.presentationUploder.message": "Előadóként tetszőleges office dokumentumot, illetve PDF fájlt fel tudsz tölteni. A legjobb eredmény érdekében javasoljuk PDF fájl használatát. Kérjük, ellenőrizd, hogy egy prezentációt kiválasztottál a jobb oldalon lévő jelölővel. ",
+    "app.presentationUploder.message": "Előadóként tetszőleges office dokumentumot, illetve PDF fájlt fel tudsz tölteni. A legjobb eredmény érdekében javasoljuk PDF fájl használatát. Kérjük, ellenőrizd, hogy egy prezentációt kiválasztottál a jobb oldalon lévő kör alakú jelölővel. ",
     "app.presentationUploder.extraHint": "FONTOS: egyik fájl sem érheti el {0} MB-ot és {1} oldalt.",
     "app.presentationUploder.uploadLabel": "Feltöltés",
     "app.presentationUploder.confirmLabel": "Jóváhagyás",

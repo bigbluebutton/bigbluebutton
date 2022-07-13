@@ -2,6 +2,12 @@
 
 TARGET=`basename $(pwd)`
 
+# inject dependency to bigbluebutton.target
+for unit in freeswitch nginx redis-server; do
+  mkdir -p "staging/lib/systemd/system/${unit}.service.d"
+  cp bigbluebutton.conf "staging/lib/systemd/system/${unit}.service.d/"
+done
+
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
@@ -14,6 +20,7 @@ rm -rf staging
 #
 # Create build directories for markign by fpm
 DIRS="/etc/bigbluebutton \
+      /lib/systemd/system \
       /var/bigbluebutton/blank \
       /usr/share/bigbluebutton/blank \
       /var/www/bigbluebutton-default"
@@ -44,30 +51,7 @@ cp cron.daily/* staging/etc/cron.daily
 mkdir -p staging/etc/cron.hourly
 cp cron.hourly/bbb-resync-freeswitch staging/etc/cron.hourly
 
-# Overrides 
-
-mkdir -p staging/etc/systemd/system/bbb-apps-akka.service.d
-cat > staging/etc/systemd/system/bbb-apps-akka.service.d/override.conf <<HERE
-[Unit]
-Wants=redis-server.service
-After=redis-server.service
-HERE
-
-mkdir -p staging/etc/systemd/system/bbb-fsesl-akka.service.d
-cat > staging/etc/systemd/system/bbb-fsesl-akka.service.d/override.conf <<HERE
-[Unit]
-Wants=redis-server.service
-After=redis-server.service
-HERE
-
-
-mkdir -p staging/etc/systemd/system/bbb-transcode-akka.service.d
-cat > staging/etc/systemd/system/bbb-transcode-akka.service.d/override.conf <<HERE
-[Unit]
-Wants=redis-server.service
-After=redis-server.service
-HERE
-
+cp bigbluebutton.target staging/lib/systemd/system/
 
 . ./opts-$DISTRO.sh
 
@@ -76,6 +60,7 @@ HERE
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
+    --before-install before-install.sh \
     --description "BigBlueButton configuration utilities" \
     $DIRECTORIES \
     $OPTS \

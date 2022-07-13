@@ -342,35 +342,11 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
 
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
-
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $PADS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE bigbluebutton.target
 }
 
 start_bigbluebutton () {
@@ -392,44 +368,24 @@ start_bigbluebutton () {
         fi
     fi
 
+    echo "Reloading NginX configuration"
+    systemctl reload nginx
+
     echo "Starting BigBlueButton"
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
         TOMCAT_SERVICE=$TOMCAT_USER
+
+        systemctl start $TOMCAT_SERVICE || {
+            echo
+            echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI or BBB-Demo."
+            echo "#     Run the command:"
+            echo "#       sudo journalctl -u $TOMCAT_SERVICE"
+            echo "#     To better understand the ERROR"
+        }
     fi
 
-    systemctl start $TOMCAT_SERVICE || {
-        echo
-        echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI or BBB-Demo."
-        echo "#     Run the command:"
-        echo "#       sudo journalctl -u $TOMCAT_SERVICE"
-        echo "#     To better understand the ERROR"
-    }
-
-    systemctl start nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
+    systemctl start bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -490,6 +446,10 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
         units="$units bbb-pads"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-export-annotations.service ]; then
+        units="$units bbb-export-annotations"
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -1142,17 +1102,19 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
+        if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+            TOMCAT_SERVICE=$TOMCAT_USER
 
-        if bbb-conf --status | grep -q tomcat9; then
-            echo "# Warning: $TOMCAT_SERVICE is not started correctly"
-            echo "#"
-            echo "#   $(bbb-conf --status | grep inactive | grep $TOMCAT_SERVICE)"
-            echo "#"
+            if bbb-conf --status | grep -q inactive | grep -q $TOMCAT_SERVICE; then
+                echo "# Warning: $TOMCAT_SERVICE is not started correctly"
+                echo "#"
+            fi
         fi
-        if bbb-conf --status | grep inactive | grep -vq tomcat9; then
+
+        if bbb-conf --status | grep inactive; then
             echo "# Error: Detected some processes have not started correctly"
             echo "#"
-            echo "#   $(bbb-conf --status | grep inactive | grep -v $TOMCAT_SERVICE)"
+            echo "#   $(bbb-conf --status | grep inactive)"
             echo "#"
         fi
     fi
@@ -1721,7 +1683,7 @@ String BigBlueButtonURL = \"$BBB_WEB_URL/bigbluebutton/\";
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
 
-    echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
+    echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
     start_bigbluebutton
 

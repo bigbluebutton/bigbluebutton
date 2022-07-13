@@ -10,6 +10,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import browserInfo from '/imports/utils/browserInfo';
 
 const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
@@ -122,6 +123,11 @@ const getVolume = () => KurentoBridge.getVolume();
 const shouldEnableVolumeControl = () => VOLUME_CONTROL_ENABLED && screenshareHasAudio();
 
 const attachLocalPreviewStream = (mediaElement) => {
+  const {isMobileApp} = browserInfo;
+  if (isMobileApp) {
+    // We don't show preview for mobile app, as the stream is only available in native code
+    return;
+  }
   const stream = KurentoBridge.gdmStream;
   if (stream && mediaElement) {
     // Always muted, presenter preview.

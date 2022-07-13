@@ -28,7 +28,7 @@ class Polling extends MultiUsers {
   }
 
   async quickPoll() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPresentation.uploadPresentation(this.modPage, e.questionSlideFileName);
 
     await this.modPage.waitAndClick(e.quickPoll);
@@ -54,7 +54,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitForSelector(e.restartPoll);
 
-    await this.modPage.hasElement(e.pollResults);
+    await this.modPage.hasElement(e.wbTypedText);
   }
 
   async stopPoll() {
@@ -80,18 +80,18 @@ class Polling extends MultiUsers {
   async pollResultsOnWhiteboard() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
-    await this.modPage.hasElement(e.pollResults);
+    await this.modPage.hasElement(e.wbTypedText);
   }
 
   async pollResultsInDifferentPresentation() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await util.startPoll(this.modPage);
 
     await utilPresentation.uploadPresentation(this.modPage, e.questionSlideFileName);
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
     // Check poll results
-    await this.modPage.hasElement(e.pollResults);
+    await this.modPage.hasElement(e.wbTypedText);
   }
 
   async manageResponseChoices() {
