@@ -2,15 +2,13 @@ import * as React from "react";
 import _ from "lodash";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
-import logger from '/imports/startup/client/logger';
 import {
   ColorStyle,
   DashStyle,
   SizeStyle,
-  TDDocument,
   TDShapeType,
 } from "@tldraw/tldraw";
-import { Renderer, Utils } from "@tldraw/core";
+import { Utils } from "@tldraw/core";
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -31,11 +29,8 @@ export default function Whiteboard(props) {
     isPresenter,
     removeShapes,
     initDefaultPages,
-    meetingId,
     persistShape,
-    persistAsset,
     shapes,
-    assets,
     currentUser,
     curPres,
     whiteboardId,
@@ -45,7 +40,8 @@ export default function Whiteboard(props) {
     slidePosition,
     curPageId,
     svgUri,
-    presentationBounds,
+    presentationWidth,
+    presentationHeight,
     isViewersCursorLocked,
     setIsZoomed,
     zoomChanger,
@@ -61,35 +57,28 @@ export default function Whiteboard(props) {
     pages,
     pageStates,
     bindings: {},
-    assets,
+    assets: {},
   });
-  //const [doc, setDoc] = React.useState(rDocument.current);
-  const [_assets, setAssets] = React.useState(assets);
-  const [command, setCommand] = React.useState("");
-  const [wbAccess, setWBAccess] = React.useState(props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId));
-  const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const [cameraFitSlide, setCameraFitSlide] = React.useState({point: [0, 0], zoom: 0});
   const prevShapes = usePrevious(shapes);
-  const prevSlidePosition = usePrevious(slidePosition);
-  const prevPageId = usePrevious(curPageId);
 
   const calculateCameraFitSlide = () => {
     let zoom =
       Math.min(
-        (presentationBounds.width) / slidePosition.width,
-        (presentationBounds.height) / slidePosition.height
+        (presentationWidth) / slidePosition.width,
+        (presentationHeight) / slidePosition.height
       );
 
     zoom = Utils.clamp(zoom, 0.1, 5);
 
     let point = [0, 0];
-    if ((presentationBounds.width / presentationBounds.height) >
+    if ((presentationWidth / presentationHeight) >
         (slidePosition.width / slidePosition.height))
     {
-      point[0] = (presentationBounds.width - (slidePosition.width * zoom)) / 2 / zoom
+      point[0] = (presentationWidth - (slidePosition.width * zoom)) / 2 / zoom
     } else {
-      point[1] = (presentationBounds.height - (slidePosition.height * zoom)) / 2 / zoom
+      point[1] = (presentationHeight - (slidePosition.height * zoom)) / 2 / zoom
     }
 
     isPresenter && zoomChanger(zoom);
@@ -172,9 +161,9 @@ export default function Whiteboard(props) {
     }
 
     return currentDoc;
-  }, [assets, shapes, tldrawAPI, curPageId, slidePosition]);
+  }, [shapes, tldrawAPI, curPageId, slidePosition]);
 
-  // when presentationBounds change, update tldraw camera
+  // when presentationSizes change, update tldraw camera
   // to fit slide on center if zoomed out
   React.useEffect(() => {
     if (curPageId && slidePosition) {
@@ -184,7 +173,7 @@ export default function Whiteboard(props) {
         tldrawAPI?.setCamera(camera.point, camera.zoom);
       }
     }
-  }, [presentationBounds, curPageId, document?.documentElement?.dir]);
+  }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
@@ -451,6 +440,14 @@ export default function Whiteboard(props) {
 
           onPatch={(s, reason) => {
             if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+              if (cameraFitSlide.zoom === 0) {
+                //can happen when the slide finish uploading
+                const cameraFitSlide = calculateCameraFitSlide();
+                tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
+                setIsZoomed(false);
+                setCameraFitSlide(cameraFitSlide);
+                return;
+              }
               const camera = tldrawAPI.getPageState().camera;
               //don't allow zoom out more than fit
               if (camera.zoom <= cameraFitSlide.zoom) {
