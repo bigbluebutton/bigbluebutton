@@ -2,12 +2,16 @@ import {
   EFFECT_TYPES,
   BLUR_FILENAME,
   createVirtualBackgroundStream,
-} from '/imports/ui/services/virtual-background/service'
+} from '/imports/ui/services/virtual-background/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { EventEmitter2 } from 'eventemitter2';
 
-export class BBBVideoStream extends EventEmitter2 {
-  static trackStreamTermination (stream, handler) {
+export default class BBBVideoStream extends EventEmitter2 {
+  static isVirtualBackground(type) {
+    return type === EFFECT_TYPES.IMAGE_TYPE;
+  }
+
+  static trackStreamTermination(stream, handler) {
     // Dirty, but effective way of checking whether the browser supports the 'inactive'
     // event. If the oninactive interface is null, it can be overridden === supported.
     // If undefined, it's not; so we fallback to the track 'ended' event.
@@ -39,7 +43,7 @@ export class BBBVideoStream extends EventEmitter2 {
     this._trackOriginalStreamTermination();
   }
 
-  set mediaStream (mediaStream) {
+  set mediaStream(mediaStream) {
     if (!this.mediaStream
       || mediaStream == null
       || mediaStream.id !== this.mediaStream.id) {
@@ -52,23 +56,19 @@ export class BBBVideoStream extends EventEmitter2 {
     }
   }
 
-  get mediaStream () {
+  get mediaStream() {
     return this._mediaStream;
   }
 
-  set virtualBgService (service) {
+  set virtualBgService(service) {
     this._virtualBgService = service;
   }
 
-  get virtualBgService () {
+  get virtualBgService() {
     return this._virtualBgService;
   }
 
-  isVirtualBackground (type) {
-    return type === EFFECT_TYPES.IMAGE_TYPE;
-  }
-
-  _trackOriginalStreamTermination () {
+  _trackOriginalStreamTermination() {
     const notify = () => {
       this.emit('inactive');
     };
@@ -76,12 +76,12 @@ export class BBBVideoStream extends EventEmitter2 {
     BBBVideoStream.trackStreamTermination(this.originalStream, notify);
   }
 
-  _changeVirtualBackground (type, name, customParams) {
+  _changeVirtualBackground(type, name, customParams) {
     try {
       this.virtualBgService.changeBackgroundImage({
         type,
         name,
-        isVirtualBackground: this.isVirtualBackground(type),
+        isVirtualBackground: BBBVideoStream.isVirtualBackground(type),
         customParams,
       });
       this.virtualBgType = type;
@@ -92,14 +92,13 @@ export class BBBVideoStream extends EventEmitter2 {
     }
   }
 
-
-  startVirtualBackground (type, name = '', customParams) {
+  startVirtualBackground(type, name = '', customParams) {
     if (this.virtualBgService) return this._changeVirtualBackground(type, name, customParams);
 
     return createVirtualBackgroundStream(
       type,
       name,
-      this.isVirtualBackground(type),
+      BBBVideoStream.isVirtualBackground(type),
       this.mediaStream,
       customParams,
     ).then(({ service, effect }) => {
@@ -112,7 +111,7 @@ export class BBBVideoStream extends EventEmitter2 {
     });
   }
 
-  stopVirtualBackground () {
+  stopVirtualBackground() {
     if (this.virtualBgService != null) {
       this.virtualBgService.stopEffect();
       this.virtualBgService = null;
@@ -124,7 +123,7 @@ export class BBBVideoStream extends EventEmitter2 {
     this.isVirtualBackgroundEnabled = false;
   }
 
-  stop () {
+  stop() {
     if (this.isVirtualBackgroundEnabled) {
       this.stopVirtualBackground();
     }
