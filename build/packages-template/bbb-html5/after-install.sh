@@ -55,30 +55,14 @@ if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   systemctl daemon-reload
 fi
 
-source /etc/lsb-release
-
-# Set up specific version of node
-if [ "$DISTRIB_CODENAME" == "focal" ]; then
-  node_version="14.19.1"
-  if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
-    cd /usr/share
-    tar xfz "node-v${node_version}-linux-x64.tar.gz"
-  fi
-  node_owner=$(stat -c %U:%G "/usr/share/node-v${node_version}-linux-x64")
-  if [[ $node_owner != root:root ]] ; then
-    chown -R root:root "/usr/share/node-v${node_version}-linux-x64"
-  fi
-fi
-
-
 # Enable Listen Only support in FreeSWITCH
 if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
   sed -i 's/<!--<param name="enable-3pcc" value="true"\/>-->/<param name="enable-3pcc" value="proxy"\/>/g' /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 fi
 
-chown root:root /usr/lib/systemd/system
-chown root:root /usr/lib/systemd/system/bbb-html5.service
-chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
+chown root:root /lib/systemd/system
+chown root:root /lib/systemd/system/bbb-html5.service
+chown root:root /lib/systemd/system/disable-transparent-huge-pages.service
 
 # Ensure settings is readable
 chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml

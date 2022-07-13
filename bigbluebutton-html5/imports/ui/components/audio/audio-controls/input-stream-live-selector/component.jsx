@@ -298,7 +298,7 @@ class InputStreamLiveSelector extends Component {
         accessKey={shortcuts.togglemute}
         $talking={talking || undefined}
         animations={animations}
-        data-test="toggleMicrophoneButton"
+        data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
       />
     );
   }
@@ -316,7 +316,7 @@ class InputStreamLiveSelector extends Component {
         aria-label={intl.formatMessage(intlMessages.leaveAudio)}
         label={intl.formatMessage(intlMessages.leaveAudio)}
         accessKey={shortcuts.leaveaudio}
-        data-test="leaveAudio"
+        data-test='leaveListenOnly'
         hideLabel
         color="primary"
         icon={isListenOnly ? 'listen' : 'volume_level_2'}
@@ -372,6 +372,7 @@ class InputStreamLiveSelector extends Component {
       icon: 'logout',
       label: intl.formatMessage(intlMessages.leaveAudio),
       key: 'leaveAudioOption',
+      dataTest: 'leaveAudio',
       customStyles: Styled.DangerColor,
       dividerTop: true,
       onClick: () => handleLeaveAudio(),
@@ -396,6 +397,7 @@ class InputStreamLiveSelector extends Component {
                 ? this.renderListenOnlyButton()
                 : this.renderMuteToggleButton()}
               <Styled.AudioDropdown
+                data-test='audioDropdownMenu'
                 emoji="device_list_selector"
                 label={intl.formatMessage(intlMessages.changeAudioDevice)}
                 hideLabel

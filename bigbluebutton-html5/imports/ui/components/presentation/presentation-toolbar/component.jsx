@@ -354,6 +354,7 @@ class PresentationToolbar extends PureComponent {
         {
           <Styled.PresentationZoomControls>
             <Styled.WBAccessButton
+              data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
               role="button"
               aria-label={
                 multiUser

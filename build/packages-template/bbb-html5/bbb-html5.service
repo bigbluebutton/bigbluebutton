@@ -2,6 +2,7 @@
 Description=BigBlueButton HTML5 service
 Wants=redis.service mongod.service disable-transparent-huge-pages.service bbb-pads.service
 After=redis.service mongod.service disable-transparent-huge-pages.service bbb-pads.service syslog.target network.target
+PartOf=bigbluebutton.target
 
 [Service]
 Type=oneshot
@@ -16,5 +17,5 @@ RemainAfterExit=yes
 User=root
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
 
