@@ -72,7 +72,6 @@ const QuickPollButton = styled(QuickPollDropdownContainer)`
 
   &:focus {
     background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -83,7 +82,6 @@ const PresentationSlideControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   & > button {
     padding: ${whiteboardToolbarPadding};
@@ -91,7 +89,10 @@ const PresentationSlideControls = styled.div`
 `;
 
 const PrevSlideButton = styled(Button)`
-  border: none !important;
+
+  i {
+    padding-left: 20%;
+  }
 
   & > i {
     font-size: 1rem;
@@ -105,25 +106,17 @@ const PrevSlideButton = styled(Button)`
     }
   }
 
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
-  }
 `;
 
 const NextSlideButton = styled(Button)`
-  border: none !important;
+  
+  i {
+    padding-left: 60%;
+  }
 
   & > i {
     font-size: 1rem;
-
+    
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
       -moz-transform: scale(-1, 1);
@@ -131,18 +124,6 @@ const NextSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -184,7 +165,6 @@ const PresentationZoomControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   button {
     padding: ${whiteboardToolbarPadding};

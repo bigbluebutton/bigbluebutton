@@ -10,7 +10,8 @@ class Right extends Component {
   render() {
     return (
       <Styled.CloseButton
-        size="sm"
+        size="md"
+        color="light"
         hideLabel
         circle
         {...this.props}
