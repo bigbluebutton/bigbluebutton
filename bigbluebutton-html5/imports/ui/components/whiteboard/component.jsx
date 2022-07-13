@@ -233,6 +233,9 @@ export default function Whiteboard(props) {
           // disable the ability to drag and drop files onto the whiteboard
           // until we handle saving of assets in akka.
           disableAssets={true}
+          // Disable automatic focus. Users were losing focus on shared notes
+          // and chat on presentation mount.
+          autofocus={false}
           onMount={(app) => {
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
