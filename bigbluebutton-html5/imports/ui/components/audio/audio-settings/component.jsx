@@ -308,7 +308,7 @@ class AudioSettings extends React.Component {
         <Styled.EnterAudio>
           <Styled.BackButton
             label={intl.formatMessage(intlMessages.backLabel)}
-            size="md"
+            color="secondary"
             onClick={handleBack}
             disabled={isConnecting}
           />
