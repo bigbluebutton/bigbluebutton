@@ -393,7 +393,7 @@ const ButtonSpan = styled.span`
 
   ${({ size, color }) => size === 'md' && color === 'dark' && `
     color: ${colorWhite};
-    background: transparent;
+    background: none !important;
     
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
