@@ -136,9 +136,10 @@ const getEndedModifier = () => {
   };
 };
 
-export default function updateTimer(action, meetingId, time = 0, stopwatch = true, accumulated = 0, track = TRACKS[0]) {
+export default function updateTimer(action, meetingId, requesterUserId, time = 0, stopwatch = true, accumulated = 0, track = TRACKS[0]) {
   check(action, String);
   check(meetingId, String);
+  check(requesterUserId, String);
   check(time, Number);
   check(stopwatch, Boolean);
   check(accumulated, Number);
@@ -183,13 +184,27 @@ export default function updateTimer(action, meetingId, time = 0, stopwatch = tru
       Logger.error(`Unhandled timer action=${action}`);
   }
 
-  const cb = (err) => {
-    if (err) {
-      return Logger.error(`Updating timer at collection: ${err}`);
+  try {
+    const { numberAffected } = Timer.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Updated timer meetingId=${meetingId}`);
+
+      if (action === 'switch'){
+        if (stopwatch === false){     //required if because timer is a boolean
+          Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} timer `);
+        }else{ 
+          Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} stopwatch `);
+        }
+      }else if (action === 'set' && time !== 0) {
+        Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} ${time}ms`);
+      }else if (action == 'track') {
+        Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} changed to ${track}`);
+      }else 
+        Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action}`);
     }
-
-    return Logger.debug(`Updated timer action=${action} meetingId=${meetingId}`);
-  };
-
-  return Timer.update(selector, modifier, cb);
+    
+  } catch (err) {
+    Logger.error(`Updating timer: ${err}`);
+  }
 }

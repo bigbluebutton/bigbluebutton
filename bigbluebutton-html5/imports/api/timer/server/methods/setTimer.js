@@ -5,8 +5,9 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 export default function setTimer(time) {
   check(time, Number);
 
-  const { meetingId } = extractCredentials(this.userId);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(meetingId, String);
+  check(requesterUserId, String);
 
-  updateTimer('set', meetingId, time);
+  updateTimer('set', meetingId, requesterUserId, time);
 }

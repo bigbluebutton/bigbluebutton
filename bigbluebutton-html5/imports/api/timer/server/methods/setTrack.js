@@ -7,6 +7,7 @@ import { isTrackValid } from '/imports/api/timer/server/helpers';
 export default function setTrack(track) {
   const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(meetingId, String);
+  check(requesterUserId, String);
   check(track, String);
 
   //These are bogus values, won't update collection
@@ -15,7 +16,7 @@ export default function setTrack(track) {
   const accumulated = 0;
 
   if (isTrackValid(track)) {
-    updateTimer('track', meetingId, time, stopwatch, accumulated, track);
+    updateTimer('track', meetingId, requesterUserId, time, stopwatch, accumulated, track);
   } else {
     Logger.warn(`User=${requesterUserId} tried to set invalid track '${track}' in meeting=${meetingId}`);
   }

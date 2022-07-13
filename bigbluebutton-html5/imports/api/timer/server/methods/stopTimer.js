@@ -5,8 +5,9 @@ import updateTimer from '/imports/api/timer/server/modifiers/updateTimer';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function stopTimer() {
-  const { meetingId } = extractCredentials(this.userId);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(meetingId, String);
+  check(requesterUserId, String);
 
   const now = Date.now();
   const timer = Timer.findOne(
@@ -29,7 +30,7 @@ export default function stopTimer() {
     } = timer;
 
     const accumulated = timer.accumulated + (now - timestamp);
-    updateTimer('stop', meetingId, time, stopwatch, accumulated);
+    updateTimer('stop', meetingId, requesterUserId, time, stopwatch, accumulated);
   } else {
     Logger.warn(`Could not stop timer for meetingId=${meetingId}`);
   }

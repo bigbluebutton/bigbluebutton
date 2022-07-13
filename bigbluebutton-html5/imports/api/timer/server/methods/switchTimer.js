@@ -5,11 +5,12 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 export default function switchTimer(stopwatch) {
   check(stopwatch, Boolean);
 
-  const { meetingId } = extractCredentials(this.userId);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(meetingId, String);
+  check(requesterUserId, String);
 
   // Bogus value of time. It won't update the collection
   const time = 0;
 
-  updateTimer('switch', meetingId, time, stopwatch);
+  updateTimer('switch', meetingId, requesterUserId, time, stopwatch);
 }

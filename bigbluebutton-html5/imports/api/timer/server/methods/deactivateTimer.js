@@ -3,8 +3,9 @@ import updateTimer from '/imports/api/timer/server/modifiers/updateTimer';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
 export default function deactivateTimer() {
-  const { meetingId } = extractCredentials(this.userId);
+  const { meetingId, requesterUserId } = extractCredentials(this.userId);
   check(meetingId, String);
+  check(requesterUserId, String);
 
-  updateTimer('deactivate', meetingId);
+  updateTimer('deactivate', meetingId, requesterUserId);
 }
