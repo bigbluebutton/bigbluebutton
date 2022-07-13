@@ -11,11 +11,11 @@ test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
     test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page);
+      await multiusers.initModPage(page);
       await multiusers.raiseAndLowerHand();
     });
 
-    test('Toggle user list', async ({ browser, context, page }) => {
+    test('Toggle user list @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.toggleUserList();
@@ -23,7 +23,7 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('List', () => {
-    test('Change user status', async ({ browser, page }) => {
+    test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
       await status.changeUserStatus();
@@ -35,26 +35,26 @@ test.describe.parallel('User', () => {
       await multiusers.userPresence();
     });
 
-    test('Make presenter', async ({ browser, context, page }) => {
+    test('Make presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.makePresenter();
     });
 
-    test('Take presenter', async ({ browser, context, page }) => {
+    test('Take presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.takePresenter();
     });
 
-    test('Promote to moderator', async ({ browser, context, page }) => {
+    test('Promote to moderator @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.promoteToModerator();
     });
 
-    test('Demote to viewer', async ({ browser, context, page }) => {
+    test('Demote to viewer @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
@@ -83,7 +83,7 @@ test.describe.parallel('User', () => {
       });
     });
 
-    test.describe.parallel('Lock viewers', () => {
+    test.describe.parallel('Lock viewers @ci', () => {
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -146,7 +146,7 @@ test.describe.parallel('User', () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Select random user', async ({ browser, context, page }) => {
+    test('Select random user @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.selectRandomUser();
@@ -158,7 +158,7 @@ test.describe.parallel('User', () => {
       test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
     });
 
-    test('Mobile Tag Name For Mobile User', async ({ browser }) => {
+    test('Mobile Tag Name For Mobile User @ci', async ({ browser }) => {
       const context = await browser.newContext({ ...iPhone11 });
       const mobilePage = await context.newPage();
       const mobileDevices = new MobileDevices(browser, context);

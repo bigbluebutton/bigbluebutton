@@ -112,7 +112,10 @@ class Tooltip extends Component {
   }
 
   componentWillUnmount() {
-    if (this.tooltip[0]) this.tooltip[0].hide();
+    setTimeout(() => {
+      const tooltip = this.tooltip[0];
+      if (tooltip) tooltip.hide();
+    }, 150);
   }
 
   onShow() {

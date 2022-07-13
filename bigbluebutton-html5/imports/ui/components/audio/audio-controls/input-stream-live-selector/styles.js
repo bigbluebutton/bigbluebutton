@@ -40,15 +40,15 @@ const MuteToggleButton = styled(Button)`
     }
   `}
 
-  ${({ talking }) => talking && `
+  ${({ $talking }) => $talking && `
     border-radius: 50%;
   `}
-    
-  ${({ talking, animations }) => talking && animations && css`
+
+  ${({ $talking, animations }) => $talking && animations && css`
     animation: ${pulse} 1s infinite ease-in;
   `}
 
-  ${({ talking, animations }) => talking && !animations && css`
+  ${({ $talking, animations }) => $talking && !animations && css`
     & span {
       content: '';
       outline: none !important;

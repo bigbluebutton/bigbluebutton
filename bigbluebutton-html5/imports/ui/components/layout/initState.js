@@ -6,8 +6,8 @@ export const INITIAL_INPUT_STATE = {
 
   },
   browser: {
-    width: 0,
-    height: 0,
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight,
   },
   bannerBar: {
     hasBanner: false,

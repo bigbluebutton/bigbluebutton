@@ -105,8 +105,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         bottom: 5rem;
     }
 
+    [dir="rtl"] #TD-Tools {
+        left: 1rem;
+        right: auto;
+    }
+
     #TD-Tools > div {
       flex-direction: column;
+    }
+
+    #TD-Styles + div {
+      display: flex;
+      padding-right: 2.5rem;
+    }
+
+    [dir="rtl"] #TD-Styles + div  {
+      padding-left: 2.5rem;
+      padding-right: 0px;
     }
   </style>
   <script>
@@ -119,7 +134,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
   <!-- fonts -->
-  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff2?v=VERSION" as="font" type="font/woff2" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff?v=VERSION" as="font" crossorigin="anonymous"/>
@@ -132,7 +147,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <style>
     @font-face {
       font-family: 'bbb-icons';
-      src: url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
+      src: url('fonts/BbbIcons/bbb-icons.woff2?v=VERSION') format('woff2'),
+        url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
       font-weight: normal;
       font-style: normal;
     }

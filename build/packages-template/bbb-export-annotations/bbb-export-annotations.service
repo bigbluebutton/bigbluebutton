@@ -1,0 +1,17 @@
+[Unit]
+Description=BigBlueButton Export Annotations
+Wants=redis.service
+After=syslog.target network.target
+PartOf=bigbluebutton.target
+
+[Service]
+WorkingDirectory=/usr/local/bigbluebutton/bbb-export-annotations
+ExecStart=/usr/bin/node master.js
+Restart=always
+SyslogIdentifier=bbb-export-annotations
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

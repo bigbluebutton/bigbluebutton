@@ -151,6 +151,7 @@ const JoinVideoButton = ({
             emoji="device_list_selector"
             hideLabel
             label={intl.formatMessage(intlMessages.videoSettings)}
+            rotate
           />
         )}
         actions={actions}

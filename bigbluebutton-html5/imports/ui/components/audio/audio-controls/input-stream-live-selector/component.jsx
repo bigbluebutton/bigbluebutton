@@ -296,9 +296,9 @@ class InputStreamLiveSelector extends Component {
         size="lg"
         circle
         accessKey={shortcuts.togglemute}
-        talking={talking || undefined}
+        $talking={talking || undefined}
         animations={animations}
-        data-test="toggleMicrophoneButton"
+        data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
       />
     );
   }
@@ -316,7 +316,7 @@ class InputStreamLiveSelector extends Component {
         aria-label={intl.formatMessage(intlMessages.leaveAudio)}
         label={intl.formatMessage(intlMessages.leaveAudio)}
         accessKey={shortcuts.leaveaudio}
-        data-test="leaveAudio"
+        data-test='leaveListenOnly'
         hideLabel
         color="primary"
         icon={isListenOnly ? 'listen' : 'volume_level_2'}
@@ -346,6 +346,8 @@ class InputStreamLiveSelector extends Component {
       currentInputDeviceId,
       currentOutputDeviceId,
       isListenOnly,
+      isRTL,
+      shortcuts,
     } = this.props;
 
     const inputDeviceList = !isListenOnly
@@ -370,6 +372,7 @@ class InputStreamLiveSelector extends Component {
       icon: 'logout',
       label: intl.formatMessage(intlMessages.leaveAudio),
       key: 'leaveAudioOption',
+      dataTest: 'leaveAudio',
       customStyles: Styled.DangerColor,
       dividerTop: true,
       onClick: () => handleLeaveAudio(),
@@ -378,22 +381,44 @@ class InputStreamLiveSelector extends Component {
     const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
 
     return (
-      <BBBMenu
-        trigger={(
-          <>
-            {isListenOnly
-              ? this.renderListenOnlyButton()
-              : this.renderMuteToggleButton()}
-            <Styled.AudioDropdown
-              emoji="device_list_selector"
-              label={intl.formatMessage(intlMessages.changeAudioDevice)}
-              hideLabel
-              tabIndex={0}
-            />
-          </>
-        )}
-        actions={dropdownListComplete}
-      />
+      <>
+        {!isListenOnly ? (
+          <span
+            style={{ display: 'none' }}
+            accessKey={shortcuts.leaveaudio}
+            onClick={() => handleLeaveAudio()}
+            aria-hidden="true"
+          />
+        ) : null}
+        <BBBMenu
+          trigger={(
+            <>
+              {isListenOnly
+                ? this.renderListenOnlyButton()
+                : this.renderMuteToggleButton()}
+              <Styled.AudioDropdown
+                data-test='audioDropdownMenu'
+                emoji="device_list_selector"
+                label={intl.formatMessage(intlMessages.changeAudioDevice)}
+                hideLabel
+                tabIndex={0}
+                rotate
+              />
+            </>
+          )}
+          actions={dropdownListComplete}
+          opts={{
+            id: 'default-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+            transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          }}
+        />
+      </>
     );
   }
 
@@ -422,4 +447,4 @@ InputStreamLiveSelector.propTypes = propTypes;
 InputStreamLiveSelector.defaultProps = defaultProps;
 
 export default withShortcutHelper(injectIntl(InputStreamLiveSelector),
-  ['leaveAudio']);
+  ['leaveAudio', 'toggleMute']);

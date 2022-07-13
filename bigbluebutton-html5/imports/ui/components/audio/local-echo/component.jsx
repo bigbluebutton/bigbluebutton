@@ -22,9 +22,9 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  stopHearingYourselfLabel: {
-    id: 'app.audio.stopHearingYourselfLabel',
-    description: 'Stop hearing yourself button label',
+  stopAudioFeedbackLabel: {
+    id: 'app.audio.stopAudioFeedback',
+    description: 'Stop audio feedback button label',
   },
   testSpeakerLabel: {
     id: 'app.audio.audioSettings.testSpeakerLabel',
@@ -41,7 +41,7 @@ const LocalEcho = ({
   const [hearing, setHearing] = useState(initialHearingState);
   const { animations } = Settings.application;
   const icon = hearing ? 'mute' : 'unmute';
-  const label = hearing ? intlMessages.stopHearingYourselfLabel : intlMessages.testSpeakerLabel;
+  const label = hearing ? intlMessages.stopAudioFeedbackLabel : intlMessages.testSpeakerLabel;
 
   const applyHearingState = (_stream) => {
     if (hearing) {
@@ -69,7 +69,8 @@ const LocalEcho = ({
 
   return (
     <Styled.LocalEchoTestButton
-      hearing={hearing}
+      data-test={hearing ? 'stopHearingButton' : 'testSpeakerButton'}
+      $hearing={hearing}
       label={intl.formatMessage(label)}
       icon={icon}
       size="md"

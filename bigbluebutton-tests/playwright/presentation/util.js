@@ -4,14 +4,16 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 async function checkSvgIndex(test, element) {
-  const check = await test.page.evaluate(([el]) => {
-    return document.querySelector('svg g g g').outerHTML.indexOf(el) !== -1;
-  }, [element]);
+  const check = await test.page.evaluate(([el, slideImg]) => {
+    return document.querySelector(slideImg).outerHTML.indexOf(el) !== -1;
+  }, [element, e.currentSlideImg]);
   await expect(check).toBeTruthy();
 }
 
-function getSvgOuterHtml() {
-  return document.querySelector('svg g g g').outerHTML;
+async function getSlideOuterHtml(testPage) {
+  return testPage.page.evaluate(([slideImg]) => {
+    return document.querySelector(slideImg).outerHTML;
+  }, [e.currentSlideImg]);
 }
 
 async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
@@ -23,11 +25,10 @@ async function uploadPresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_L
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText('body', e.convertingPresentationFileToast);
-
-  await test.hasText('body', e.presentationUploadedToast, uploadTimeout);
+  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, uploadTimeout);
+  await test.hasText(e.smallToastMsg, e.presentationUploadedToast, uploadTimeout);
 }
 
 exports.checkSvgIndex = checkSvgIndex;
-exports.getSvgOuterHtml = getSvgOuterHtml;
+exports.getSlideOuterHtml = getSlideOuterHtml;
 exports.uploadPresentation = uploadPresentation;

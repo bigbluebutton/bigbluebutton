@@ -118,6 +118,7 @@ FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
 FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+FREESWITCH_SWITCH_CONF=/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml
 
 LTI_DIR=/usr/share/bbb-lti
 
@@ -276,6 +277,7 @@ usage() {
     echo "   --version                        Display BigBlueButton version (packages)"
     echo "   --setip <IP/hostname>            Set IP/hostname for BigBlueButton"
     echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+    echo "   --set-port-range MIN-MAX         Change UDP port range used for audio/video/screenshare"
     echo
     echo "Monitoring:"
     echo "   --check                          Check configuration files and processes for problems"
@@ -342,35 +344,11 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
 
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
-
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $PADS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE bigbluebutton.target
 }
 
 start_bigbluebutton () {
@@ -392,36 +370,24 @@ start_bigbluebutton () {
         fi
     fi
 
+    echo "Reloading NginX configuration"
+    systemctl reload nginx
+
     echo "Starting BigBlueButton"
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
         TOMCAT_SERVICE=$TOMCAT_USER
+
+        systemctl start $TOMCAT_SERVICE || {
+            echo
+            echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI or BBB-Demo."
+            echo "#     Run the command:"
+            echo "#       sudo journalctl -u $TOMCAT_SERVICE"
+            echo "#     To better understand the ERROR"
+        }
     fi
 
-    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
+    systemctl start bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -482,6 +448,10 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
         units="$units bbb-pads"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-export-annotations.service ]; then
+        units="$units bbb-export-annotations"
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -584,6 +554,12 @@ while [ $# -gt 0 ]; do
         if echo $HOST|grep -q ":"; then
             HOST=$(echo ${2}|cut -d: -f1)
         fi
+        shift; shift
+        continue
+    fi
+
+    if [ "$1" = "--set-port-range" ]; then
+        PORT_RANGE="${2}"
         shift; shift
         continue
     fi
@@ -691,6 +667,45 @@ if [[ $SECRET ]]; then
     echo "  $SUDO bbb-conf --restart"
     echo
     echo
+fi
+
+#
+# Set Port Range
+#
+
+if [[ $PORT_RANGE ]]; then
+    if [[ "$PORT_RANGE" =~ ^([[:digit:]]+)-([[:digit:]]+)$ ]]; then
+        START_PORT=${BASH_REMATCH[1]}
+        END_PORT=${BASH_REMATCH[2]}
+
+        need_root
+
+        xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
+        xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
+
+        sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
+        sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
+
+        mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
+        touch $WEBRTC_SFU_ETC_CONFIG
+        yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMinPort $START_PORT
+        yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMaxPort $END_PORT
+
+        echo
+        echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
+        echo
+        echo "You must restart BigBlueButton for the changes to take effect"
+        echo
+        echo "  $SUDO bbb-conf --restart"
+        echo
+        echo
+    else
+        echo
+        echo "Warning: --set-port-range requires a numerical port range (default is 16384-32768)"
+        echo
+        echo "Port range remains unchanged"
+        echo
+    fi
 fi
 
 check_configuration() {
@@ -1081,10 +1096,21 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
-        echo "# Error: Detected some processes have not started correctly"
-        echo "#"
-        echo "#   $(bbb-conf --status | grep inactive)"
-        echo "#"
+        if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+            TOMCAT_SERVICE=$TOMCAT_USER
+
+            if bbb-conf --status | grep -q inactive | grep -q $TOMCAT_SERVICE; then
+                echo "# Warning: $TOMCAT_SERVICE is not started correctly"
+                echo "#"
+            fi
+        fi
+
+        if bbb-conf --status | grep inactive; then
+            echo "# Error: Detected some processes have not started correctly"
+            echo "#"
+            echo "#   $(bbb-conf --status | grep inactive)"
+            echo "#"
+        fi
     fi
 
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
@@ -1338,6 +1364,18 @@ if [ $CHECK ]; then
     echo "                        ext-sip-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-sip-ip"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
+
+    # awk script from https://stackoverflow.com/a/14527886/1493790
+    # open issue: a tool like crudini (https://stackoverflow.com/a/25513632/1493790)
+    #     would be better for parsing ini files
+
+    echo
+    echo "UDP port ranges"
+    echo
+    echo "                        FreeSWITCH: $(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-start-port"]' -v @value $FREESWITCH_SWITCH_CONF)-$(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-end-port"]' -v @value $FREESWITCH_SWITCH_CONF)"
+    echo "                           kurento: $(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /minPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)-$(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /maxPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)"
+
+    echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMinPort)-$(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMaxPort)"
 
 
 #     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
@@ -1632,7 +1670,7 @@ if [ -n "$HOST" ]; then
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
 
-    echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
+    echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
     start_bigbluebutton
 

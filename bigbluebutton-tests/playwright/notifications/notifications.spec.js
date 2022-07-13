@@ -4,13 +4,13 @@ const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
 
 test.describe.parallel('Notifications', () => {
-  test('Save settings notification', async ({ browser, context, page }) => {
+  test('Save settings notification @ci', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.saveSettingsNotification();
   });
 
-  test('Audio notifications', async ({ browser, context, page }) => {
+  test('Audio notifications @ci', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.audioNotification();
@@ -22,7 +22,7 @@ test.describe.parallel('Notifications', () => {
     await notifications.getUserJoinPopupResponse();
   });
 
-  test('Raise and lower hand notification', async ({ browser, context, page }) => {
+  test('Raise and lower hand notification @ci', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
@@ -42,14 +42,14 @@ test.describe.parallel('Notifications', () => {
     });
   });
 
-  test.describe.parallel('Presenter', () => {
+  test.describe.parallel('Presenter @ci', () => {
     test('Poll results notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page);
       await presenterNotifications.publishPollResults();
     });
 
-    test.fixme('Presentation upload notification', async ({ browser, context, page }) => { // this test is unstable, there's an apparent timing issue around the visibility of smallToastMsg
+    test('Presentation upload notification', async ({ browser, context, page }) => { // this test is unstable, there's an apparent timing issue around the visibility of smallToastMsg
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page);
       await presenterNotifications.fileUploaderNotification();

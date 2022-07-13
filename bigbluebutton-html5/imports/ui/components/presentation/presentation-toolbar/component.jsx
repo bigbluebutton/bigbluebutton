@@ -253,9 +253,12 @@ class PresentationToolbar extends PureComponent {
       parseCurrentSlideContent,
       startPoll,
       currentSlide,
+      slidePosition,
+      tldrawAPI,
       toolbarWidth,
       multiUserSize,
       multiUser,
+      isZoomed,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -351,6 +354,7 @@ class PresentationToolbar extends PureComponent {
         {
           <Styled.PresentationZoomControls>
             <Styled.WBAccessButton
+              data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
               role="button"
               aria-label={
                 multiUser
@@ -378,16 +382,16 @@ class PresentationToolbar extends PureComponent {
             {!isMobile ? (
               <TooltipContainer>
                 <ZoomTool
-                  zoomValue={
-                    this.props?.tldrawAPI?.getPageState()?.camera?.zoom
-                  }
+                  slidePosition={slidePosition}
+                  zoomValue={zoom}
                   currentSlideNum={currentSlideNum}
                   change={this.change}
                   minBound={0.1}
                   maxBound={5}
                   step={STEP}
                   isMeteorConnected={isMeteorConnected}
-                  tldrawAPI={this.props?.tldrawAPI}
+                  tldrawAPI={tldrawAPI}
+                  isZoomed={isZoomed}
                 />
               </TooltipContainer>
             ) : null}

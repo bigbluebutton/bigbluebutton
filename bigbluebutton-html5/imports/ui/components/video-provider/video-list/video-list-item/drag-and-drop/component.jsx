@@ -58,7 +58,7 @@ const DragAndDrop = (props) => {
   }, []);
 
   const makeDragOperations = (onAction, userId) => {
-    if (Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
+    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
 
     const startAndSaveVirtualBackground = (file) => {
       const { readFile } = VirtualBgService;

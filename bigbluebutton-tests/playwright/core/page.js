@@ -6,7 +6,7 @@ const helpers = require('./helpers');
 const e = require('./elements');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
-const { generateSettingsData } = require('./settings');
+const { generateSettingsData, getSettings } = require('./settings');
 
 class Page {
   constructor(browser, page) {
@@ -33,7 +33,10 @@ class Page {
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
-    await this.page.goto(joinUrl);
+    const response = await this.page.goto(joinUrl);
+    await expect(response.ok()).toBeTruthy();
+    const hasErrorLabel = await this.page.evaluate(checkElement, [e.errorMessageLabel]);
+    await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
     this.settings = await generateSettingsData(this.page);
     const { autoJoinAudioModal } = this.settings;
     if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
@@ -47,7 +50,7 @@ class Page {
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath, 'utf8');
-    await testInfo.attach('downloaded', { filePath });
+    await testInfo.attach('downloaded', { body: download });
 
     return {
       download,
@@ -58,13 +61,15 @@ class Page {
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
-    await this.waitForSelector(e.connectingToEchoTest);
-    const { listenOnlyCallTimeout } = this.settings;
-    await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+    await this.waitForSelector(e.stopHearingButton);
+    await this.waitAndClick(e.joinEchoTestButton);
+    await this.waitForSelector(e.establishingAudioLabel);
+    await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.waitForSelector(e.isTalking);
   }
 
   async leaveAudio() {
+    await this.waitAndClick(e.audioDropdownMenu);
     await this.waitAndClick(e.leaveAudio);
     await this.waitForSelector(e.joinAudio);
   }
@@ -75,7 +80,7 @@ class Page {
   }
 
   async shareWebcam(shouldConfirmSharing = true, videoPreviewTimeout = ELEMENT_WAIT_TIME) {
-    const { webcamSharingEnabled } = this.settings;
+    const { webcamSharingEnabled } = getSettings();
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     await this.waitAndClick(e.joinVideo);
