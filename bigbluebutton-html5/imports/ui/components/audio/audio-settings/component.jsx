@@ -80,9 +80,9 @@ class AudioSettings extends React.Component {
     this.state = {
       inputDeviceId,
       outputDeviceId,
-      // If streams need to be produced, device selectors are blocked until
-      // at least one stream is generated
-      deviceSelectorsBlocked: props.produceStreams,
+      // If streams need to be produced, device selectors and audio join are
+      // blocked until at least one stream is generated
+      producingStreams: props.produceStreams,
       stream: null,
     };
 
@@ -154,7 +154,7 @@ class AudioSettings extends React.Component {
           // between stream vs chosen device
           inputDeviceId: MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio'),
           stream,
-          deviceSelectorsBlocked: false,
+          producingStreams: false,
         });
       }).catch((error) => {
         logger.warn({
@@ -246,8 +246,9 @@ class AudioSettings extends React.Component {
   }
 
   renderDeviceSelectors() {
-    const { inputDeviceId, outputDeviceId, deviceSelectorsBlocked } = this.state;
-    const { intl } = this.props;
+    const { inputDeviceId, outputDeviceId, producingStreams } = this.state;
+    const { intl, isConnecting } = this.props;
+    const blocked = producingStreams || isConnecting;
 
     return (
       <Styled.Row>
@@ -259,7 +260,7 @@ class AudioSettings extends React.Component {
                 id="inputDeviceSelector"
                 deviceId={inputDeviceId}
                 kind="audioinput"
-                blocked={deviceSelectorsBlocked}
+                blocked={blocked}
                 onChange={this.handleInputChange}
                 intl={intl}
               />
@@ -274,7 +275,7 @@ class AudioSettings extends React.Component {
                 id="outputDeviceSelector"
                 deviceId={outputDeviceId}
                 kind="audiooutput"
-                blocked={deviceSelectorsBlocked}
+                blocked={blocked}
                 onChange={this.handleOutputChange}
                 intl={intl}
               />
@@ -291,6 +292,7 @@ class AudioSettings extends React.Component {
       intl,
       handleBack,
     } = this.props;
+    const { producingStreams } = this.state;
 
     return (
       <Styled.FormWrapper data-test="audioSettingsModal">
@@ -318,6 +320,7 @@ class AudioSettings extends React.Component {
             color="primary"
             label={intl.formatMessage(intlMessages.retryLabel)}
             onClick={this.handleConfirmationClick}
+            disabled={isConnecting || producingStreams}
           />
         </Styled.EnterAudio>
       </Styled.FormWrapper>
