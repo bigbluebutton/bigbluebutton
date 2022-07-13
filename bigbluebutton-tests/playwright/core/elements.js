@@ -24,15 +24,22 @@ exports.userListButton = 'button[accesskey="U"]';
 // Audio
 exports.joinAudio = 'button[data-test="joinAudio"]';
 exports.audioModal = 'div[data-test="audioModal"]';
+exports.audioSettingsModal = 'div[data-test="audioSettingsModal"]';
 exports.listenOnlyButton = 'button[data-test="listenOnlyBtn"]';
-exports.connecting = 'span[data-test="connecting"]';
-exports.leaveAudio = 'button[data-test="leaveAudio"]';
+exports.testSpeakerButton = 'button[data-test="testSpeakerButton"]';
+exports.stopHearingButton = 'button[data-test="stopHearingButton"]';
+exports.joinEchoTestButton = 'button[data-test="joinEchoTestButton"]';
+exports.establishingAudioLabel = 'span[data-test="establishingAudioLabel"]';
+exports.leaveListenOnly = 'button[data-test="leaveListenOnly"]';
+exports.leaveAudio = 'li[data-test="leaveAudio"]';
+exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';
 exports.microphoneButton = 'button[data-test="microphoneBtn"]';
 exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
 exports.isTalking = 'button[data-test="isTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
-exports.toggleMicrophoneButton = 'button[data-test="toggleMicrophoneButton"]';
+exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
+exports.muteMicButton = 'button[data-test="muteMicButton"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -79,8 +86,6 @@ exports.uniqueCharacterMessage = 'A';
 exports.audioOptionsButtons = 'span[data-test="audioModalOptions"] > button';
 exports.userListContent = 'div[data-test="userListContent"]';
 exports.brandingAreaLogo = 'div[data-test="brandingArea"]';
-exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
-exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';
 exports.toolbarToolsList = 'div[data-test="toolbarToolsList"]';
 exports.notificationBannerBar = 'div[data-test="notificationBannerBar"]';
 exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
@@ -141,14 +146,13 @@ exports.pollQuestionArea = 'textarea[data-test="pollQuestionArea"]';
 exports.userResponseBtn = 'button[data-test="userResponseBtn"]';
 exports.pollAnswerOptionInput = 'input[data-test="pollAnswerOption"]';
 exports.pollSubmitAnswer = 'button[data-test="submitAnswer"]';
-exports.pollResults = 'g[data-test="pollResultAria"]';
-exports.closePollingMenu = 'button[data-test="data-test="closePolling""]';
 exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
 
 // Presentation
+exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
@@ -268,10 +272,17 @@ exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 
 // Whiteboard
-exports.whiteboard = 'svg[data-test="whiteboard"]';
-exports.toolsButton = 'button[data-test="toolsBtn"]';
-exports.rectangle = 'button[data-test="rectangleTool"]';
-exports.drawnRectangle = 'svg g[clip-path] > g:nth-child(2) rect[data-test="drawnRectangle"]';
+exports.whiteboard = 'div[id="canvas"]';
+exports.wbLayer = 'div[data-testid="layer"]';
+exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
+exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
+exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
+exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
+exports.wbTypedText = 'div[data-shape="text"]';
+exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
+exports.wbDrawnLine = 'div[data-shape="draw"]';
+exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
+exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff"]';
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';

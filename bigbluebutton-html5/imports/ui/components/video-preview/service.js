@@ -2,7 +2,7 @@ import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 
 const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
 // Unfiltered, includes hidden profiles
@@ -40,7 +40,7 @@ const storeStream = (deviceId, stream) => {
   VIDEO_STREAM_STORAGE.set(deviceId, stream);
 
   // Stream insurance: clean it up if it ends (see the events being listened to below)
-  stream.on('inactive', () => {
+  stream.once('inactive', () => {
     deleteStream(deviceId);
   });
 

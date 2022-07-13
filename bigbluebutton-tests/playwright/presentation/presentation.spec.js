@@ -27,7 +27,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.uploadPresentationTest();
     });
 
-    test('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {
+    test.skip('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.allowAndDisallowDownload(testInfo);

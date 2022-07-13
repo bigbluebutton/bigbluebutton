@@ -3,6 +3,32 @@ package org.bigbluebutton.common2.msgs
 case class AnnotationVO(id: String, annotationInfo: scala.collection.immutable.Map[String, Any],
                         wbId: String, userId: String)
 
+case class PresentationPageForExport(
+  page: Int,
+  xCamera: Double,
+  yCamera: Double,
+  zoom: Double,
+  annotations: Array[AnnotationVO],
+)
+
+case class StoredAnnotations(
+  jobId: String,
+  presId: String,
+  pages: List[PresentationPageForExport],
+)
+
+case class ExportJob(
+  jobId: String,
+  jobType: String,
+  filename: String,
+  presId: String,
+  presLocation: String,
+  allPages: Boolean,
+  pages: List[Int],
+  parentMeetingId: String,
+  presUploadToken: String,
+)
+
 // ------------ client to akka-apps ------------
 object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerMsg" }
 case class ClientToServerLatencyTracerMsg(header: BbbClientMsgHeader, body: ClientToServerLatencyTracerMsgBody) extends StandardMsg
@@ -65,4 +91,12 @@ case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations
 object DeleteWhiteboardAnnotationsEvtMsg { val NAME = "DeleteWhiteboardAnnotationsEvtMsg" }
 case class DeleteWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: DeleteWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
 case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String])
+
 // ------------ akka-apps to client ------------
+object StoreAnnotationsInRedisSysMsg { val NAME = "StoreAnnotationsInRedisSysMsg" }
+case class StoreAnnotationsInRedisSysMsg(header: BbbCoreHeaderWithMeetingId, body:   StoreAnnotationsInRedisSysMsgBody) extends BbbCoreMsg
+case class StoreAnnotationsInRedisSysMsgBody(annotations: StoredAnnotations)
+
+object StoreExportJobInRedisSysMsg { val NAME = "StoreExportJobInRedisSysMsg" }
+case class StoreExportJobInRedisSysMsg(header: BbbCoreHeaderWithMeetingId, body:   StoreExportJobInRedisSysMsgBody) extends BbbCoreMsg
+case class StoreExportJobInRedisSysMsgBody(exportJob: ExportJob)

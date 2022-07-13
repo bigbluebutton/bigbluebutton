@@ -242,6 +242,7 @@ class RecordingIndicator extends PureComponent {
                 aria-label={`${intl.formatMessage(recording
                   ? intlMessages.notificationRecordingStart
                   : intlMessages.notificationRecordingStop)}`}
+                  recording={recording}
               >
                 {recordingIndicatorIcon}
 

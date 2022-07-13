@@ -61,13 +61,15 @@ class Page {
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
-    await this.waitForSelector(e.connectingToEchoTest);
-    const { listenOnlyCallTimeout } = getSettings();
-    await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+    await this.waitForSelector(e.stopHearingButton);
+    await this.waitAndClick(e.joinEchoTestButton);
+    await this.waitForSelector(e.establishingAudioLabel);
+    await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.waitForSelector(e.isTalking);
   }
 
   async leaveAudio() {
+    await this.waitAndClick(e.audioDropdownMenu);
     await this.waitAndClick(e.leaveAudio);
     await this.waitForSelector(e.joinAudio);
   }
