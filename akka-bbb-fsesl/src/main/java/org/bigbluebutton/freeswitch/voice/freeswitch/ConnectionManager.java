@@ -204,6 +204,34 @@ public class ConnectionManager {
 		}
 	}
 
+	public void deaf(DeafUserCommand duc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(duc.getCommand(), duc.getCommandArgs());
+		}
+	}
+
+	public void hold(HoldUserCommand huc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(huc.getCommand(), huc.getCommandArgs());
+		}
+	}
+
+	public void playSound(PlaySoundCommand psc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(psc.getCommand(), psc.getCommandArgs());
+		}
+	}
+
+	public void stopSound(StopSoundCommand ssc) {
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand(ssc.getCommand(), ssc.getCommandArgs());
+		}
+	}
+
 	public void tranfer(TransferUserToMeetingCommand tutmc) {
 		Client c = manager.getESLClient();
 		if (c.canSend()) {
