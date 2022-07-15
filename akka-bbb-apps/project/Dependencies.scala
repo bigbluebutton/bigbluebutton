@@ -27,6 +27,7 @@ object Dependencies {
 
     // BigBlueButton
     val bbbCommons = "0.0.21-SNAPSHOT"
+    val bbbCommonWeb = "0.0.3-SNAPSHOT"
 
     // Test
     val scalaTest = "3.2.11"
@@ -55,6 +56,9 @@ object Dependencies {
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
+    val bbbCommonWeb = "org.bigbluebutton" % "bbb-common-web" % Versions.bbbCommonWeb
+
+
   }
 
   object Test {
@@ -87,5 +91,7 @@ object Dependencies {
     Compile.apacheLang,
     Compile.akkaHttp,
     Compile.akkaHttpSprayJson,
-    Compile.bbbCommons) ++ testing
+    Compile.bbbCommons,
+//    Compile.bbbCommonWeb
+  ) ++ testing
 }

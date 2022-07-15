@@ -1,0 +1,135 @@
+package org.bigbluebutton.service
+
+import akka.actor.{ Actor, ActorLogging, ActorRef, ActorSystem, Props }
+import akka.pattern.ask
+import akka.pattern.AskTimeoutException
+import akka.util.Timeout
+import org.bigbluebutton.{ MeetingInfoAnalytics, SystemConfiguration }
+import org.bigbluebutton.api.meeting.{ MsgBuilder, RegisterUser }
+import org.bigbluebutton.common2.domain.DefaultProps
+import org.bigbluebutton.common2.msgs.{ BbbCommonEnvCoreMsg, MeetingEndingEvtMsg, MeetingInfoAnalyticsServiceMsg }
+import org.bigbluebutton.core.api.{ CreateMeetingInternalMsg, RegisterUserInternalMsg }
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
+
+import scala.collection.mutable
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
+
+sealed trait MeetingMessage
+
+case class GetMeetingMessage(meetingId: String) extends MeetingMessage
+//case object GetMeetingsInfoMessage extends MeetingMessage
+case class MeetingResponseMsg(optionMeetingInfoAnalytics: Option[MeetingInfoAnalytics]) extends MeetingMessage
+case class MeetingListResponseMsg(optionMeetingsInfoAnalytics: Option[List[MeetingInfoAnalytics]]) extends MeetingMessage
+
+object MeetingService {
+  def apply(system: ActorSystem, meetingInfoActor: ActorRef, eventBus: InternalEventBus, actorRef: ActorRef) = new MeetingService(system, meetingInfoActor, eventBus, actorRef)
+}
+
+class MeetingService(system: ActorSystem, meetingInfoActor: ActorRef, eventBus: InternalEventBus, actorRef: ActorRef) extends SystemConfiguration {
+  implicit def executionContext: ExecutionContextExecutor = system.dispatcher
+  implicit val timeout: Timeout = 2 seconds
+
+  def getAnalytics(): Future[MeetingInfoListResponseMsg] = {
+    val future = meetingInfoActor.ask(GetMeetingsInfoMessage).mapTo[MeetingInfoListResponseMsg]
+
+    future.recover {
+      case e: AskTimeoutException => {
+        MeetingInfoListResponseMsg(None)
+      }
+    }
+  }
+
+  //  def createMeeting(defaultprops: DefaultProps): Future[MeetingResponseMsg] = {
+  def createMeeting(defaultprops: DefaultProps) = {
+    val msg = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultprops)
+
+    // with SystemConfiguration
+    //      eventBus.publish(BigBlueButtonEvent(meetingManagerChannel,msg)
+    //    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, CreateMeetingInternalMsg(defaultprops)))
+
+    //    actorRef ! CreateMeetingInternalMsg(defaultprops)
+
+    val future = actorRef ? CreateMeetingInternalMsg(defaultprops)
+    val result = Await.result(future, timeout.duration).asInstanceOf[String]
+    println(result)
+
+    //      val future = meetingInfoActor.ask(GetMeetingMessage(meetingId)).mapTo[MeetingResponseMsg]
+    //
+    //      future.recover {
+    //        case e: AskTimeoutException => {
+    //          MeetingResponseMsg(None)
+    //        }
+    //      }
+  }
+
+  def registerUser(regUser: RegisterUser) = {
+    val msg = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
+
+    // with SystemConfiguration
+    //      eventBus.publish(BigBlueButtonEvent(meetingManagerChannel,msg)
+    //    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, CreateMeetingInternalMsg(defaultprops)))
+
+    //    actorRef ! CreateMeetingInternalMsg(defaultprops)
+
+    val future = actorRef ? RegisterUserInternalMsg(regUser)
+    val result = Await.result(future, timeout.duration).asInstanceOf[String]
+    println(result)
+
+    //      val future = meetingInfoActor.ask(GetMeetingMessage(meetingId)).mapTo[MeetingResponseMsg]
+    //
+    //      future.recover {
+    //        case e: AskTimeoutException => {
+    //          MeetingResponseMsg(None)
+    //        }
+    //      }
+  }
+
+}
+
+object MeetingActor {
+  def props(): Props = Props(classOf[MeetingActor])
+}
+
+class MeetingActor extends Actor with ActorLogging {
+  var optionMeeting: Option[MeetingInfoAnalytics] = None
+  var meetingInfoMap: mutable.HashMap[String, MeetingInfoAnalytics] = mutable.HashMap.empty[String, MeetingInfoAnalytics]
+
+  override def receive: Receive = {
+    case msg: BbbCommonEnvCoreMsg => handle(msg)
+    case GetMeetingsInfoMessage =>
+      if (meetingInfoMap.size > 0) {
+        sender ! MeetingListResponseMsg(Option(meetingInfoMap.values.toList))
+      } else {
+        sender ! MeetingListResponseMsg(None)
+      }
+    case GetMeetingMessage(meetingId) =>
+      meetingInfoMap.get(meetingId) match {
+        case Some(meetingInfoAnalytics) =>
+          sender ! MeetingResponseMsg(Option(meetingInfoAnalytics))
+        case None => sender ! MeetingResponseMsg(None)
+      }
+    case _ => // ignore other messages
+  }
+
+  def handle(msg: BbbCommonEnvCoreMsg): Unit = {
+    msg.core match {
+      case m: MeetingInfoAnalyticsServiceMsg =>
+        val meetingInternalId = m.body.meetingInfo.internalId
+
+        optionMeeting = Option.apply(MeetingInfoAnalytics(m.body.meetingInfo.name, m.body.meetingInfo.externalId,
+          meetingInternalId, m.body.meetingInfo.hasUserJoined, m.body.meetingInfo.isMeetingRecorded, m.body.meetingInfo.webcams,
+          m.body.meetingInfo.audio, m.body.meetingInfo.screenshare, m.body.meetingInfo.users, m.body.meetingInfo.presentation,
+          m.body.meetingInfo.breakoutRoom))
+
+        meetingInfoMap.get(meetingInternalId) match {
+          case Some(_) => {
+            meetingInfoMap(meetingInternalId) = optionMeeting.get
+          }
+          case None => meetingInfoMap += (meetingInternalId -> optionMeeting.get)
+        }
+      case m: MeetingEndingEvtMsg => meetingInfoMap -= m.body.meetingId
+      case _                      => // ignore
+    }
+  }
+}

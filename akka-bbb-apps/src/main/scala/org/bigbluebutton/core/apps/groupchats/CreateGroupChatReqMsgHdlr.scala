@@ -84,10 +84,12 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
       BbbCoreEnvelope(name, routing)
     }
 
-    def makeBody(chatId: String,
-                 access: String, correlationId: String,
-                 createdBy: GroupChatUser, users: Vector[GroupChatUser],
-                 msgs: Vector[GroupChatMsgToUser]): GroupChatCreatedEvtMsgBody = {
+    def makeBody(
+        chatId: String,
+        access: String, correlationId: String,
+        createdBy: GroupChatUser, users: Vector[GroupChatUser],
+        msgs: Vector[GroupChatMsgToUser]
+    ): GroupChatCreatedEvtMsgBody = {
       GroupChatCreatedEvtMsgBody(correlationId, chatId, createdBy,
         access, users, msgs)
     }

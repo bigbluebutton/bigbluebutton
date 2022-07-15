@@ -10,6 +10,7 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.api.meeting.RegisterUser
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
@@ -63,10 +64,52 @@ class BigBlueButtonActor(
   def receive = {
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
+    case msg: CreateMeetingInternalMsg  => handleCreateMeetingInternalMsg(msg, sender)
+    case msg: RegisterUserInternalMsg   => handleRegisterUserInternalMsg(msg, sender)
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
     case _                              => // do nothing
+  }
+
+  def handleCreateMeetingInternalMsg(msg: CreateMeetingInternalMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED CreateMeetingInternalMsg msg {}", msg)
+
+    RunningMeetings.findWithId(meetings, msg.defaultProps.meetingProp.intId) match {
+      case None =>
+        log.info("Create meeting request. meetingId={}", msg.defaultProps.meetingProp.intId)
+
+        val m = RunningMeeting(msg.defaultProps, outGW, eventBus)
+
+        // Subscribe to meeting and voice events.
+        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+        bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+        RunningMeetings.add(meetings, m)
+        actorRef ! "CRIADO COM SUCESSO!"
+
+      case Some(m) => {
+        log.info("Meeting already created. meetingID={}", msg.defaultProps.meetingProp.intId)
+        // do nothing
+        actorRef ! "JA EXISTE"
+      }
+
+    }
+  }
+
+  def handleRegisterUserInternalMsg(msg: RegisterUserInternalMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED RegisterUserInternalMsg msg {}", msg)
+    for {
+      m <- RunningMeetings.findWithId(meetings, msg.regUser.meetingId)
+    } yield {
+      log.debug("FORWARDING Register user message")
+      m.actorRef forward (msg)
+
+      actorRef ! "USER REGISTRADO COM SUCESSO!"
+    }
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {

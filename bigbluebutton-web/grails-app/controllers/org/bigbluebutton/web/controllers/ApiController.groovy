@@ -140,6 +140,9 @@ class ApiController {
 
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
+    log.info "params.html5InstanceId"
+    log.info params.html5InstanceId
+
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
     ApiErrors errors = new ApiErrors()
