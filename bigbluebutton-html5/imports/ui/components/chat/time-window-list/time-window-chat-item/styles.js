@@ -103,6 +103,13 @@ const Meta = styled.div`
   line-height: 1.35;
 `;
 
+const HeaderAndTime = styled.div`
+  display: flex;
+  flex: 1;
+  flex-flow: row;
+  line-height: 1.35;
+`
+
 const Name = styled.div`
   display: flex;
   min-width: 0;
@@ -224,6 +231,7 @@ export default {
   AvatarWrapper,
   Content,
   Meta,
+  HeaderAndTime,
   Name,
   Offline,
   Time,

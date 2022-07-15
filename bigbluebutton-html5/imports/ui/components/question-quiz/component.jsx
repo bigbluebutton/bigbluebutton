@@ -39,17 +39,19 @@ const isCorrectOption = (opt) => {
 
 const getCorrectOptions = (options) => {
   const correctOptions = []
+  const correctIndexes = []
   let isCorrect = false;
-  options.forEach((opt) => {
+  options.forEach((opt, i) => {
     isCorrect = false
     while (isCorrectOption(opt)) {
       opt = opt.substring(0,
         opt.length - CORRECT_OPTION_SYMBOL.length)
       isCorrect = true
     }
-    isCorrect && correctOptions.push(opt)
+    isCorrect && correctOptions.push(opt) &&
+    correctIndexes.push(i)
   });
-  return correctOptions;
+  return {correctOptions, correctIndexes};
 }
 
 const verifiedOptionList = (optList) => {
@@ -93,7 +95,7 @@ const checkIfDuplicateOptions = (optionsList) => {
 }
 
 const getMaxInputCharacters = (optList) => {
-  const correctOptions = getCorrectOptions(optList)
+  const {correctOptions} = getCorrectOptions(optList)
   const charactersForCorrectOption = CORRECT_OPTION_SYMBOL.length
     * (correctOptions.length)
   const maxInputCharacters = QUESTION_OPTIONS_MAX_INPUT_CHARS
@@ -117,10 +119,6 @@ const intlMessages = defineMessages({
   previewBtnLabel: {
     id: 'app.questionQuiz.previewQuestionBtn',
     description: 'Label of button to preview question',
-  },
-  questionQuizBtnLabel: {
-    id: 'app.questionQuiz.questionQuizBtn',
-    description: 'Label of button to ask question',
   },
   correctOptionLabel: {
     id: 'app.questionQuiz.correctOptionLabel',
@@ -191,7 +189,7 @@ const intlMessages = defineMessages({
     description: 'Close',
   },
   optionsLabel: {
-    id: 'playback.player.chat.message.poll.options',
+    id: 'app.questionQuiz.options.label',
     description: 'label for options heading',
   },
   delete: {
@@ -199,7 +197,7 @@ const intlMessages = defineMessages({
     description: '',
   },
   questionLabel: {
-    id: 'playback.player.chat.message.poll.question',
+    id: 'app.questionQuiz.question.label',
     description: '',
   },
   addOptionLabel: {
@@ -261,7 +259,6 @@ class QuestionQuiz extends Component {
     super(props);
 
     this.state = {
-      isQuestioning: false,
       question: '',
       questionAndOptions: '',
       optList: [],
@@ -314,7 +311,6 @@ class QuestionQuiz extends Component {
   handleBackClick() {
     const { stopQuestionQuiz } = this.props;
     this.setState({
-      isQuestioning: false,
       error: null,
     }, () => {
       stopQuestionQuiz();
@@ -343,7 +339,8 @@ class QuestionQuiz extends Component {
       questionAndOptionsList = questionAndOptions.split('\n');
       const modifiedOpt = questionAndOptionsList[index + 1]
       if (isCorrectOption(modifiedOpt))
-        questionAndOptionsList[index + 1] = validatedVal.concat(CORRECT_OPTION_SYMBOL)
+        questionAndOptionsList[index + 1] = 
+        validatedVal.concat(CORRECT_OPTION_SYMBOL)
       else
         questionAndOptionsList[index + 1] = validatedVal
     }
@@ -454,7 +451,6 @@ class QuestionQuiz extends Component {
           intlMessages.sameOptionErr,
         )
       })
-      return null;
     }
 
     const isCorrectOpt = isCorrectOption(selectedOption)
@@ -467,7 +463,7 @@ class QuestionQuiz extends Component {
       optListArray[index] = options[index]
     }
     const questionAndOptionsString = `${question}\n${options.join('\n')}`
-    const correctOptions = getCorrectOptions(options)
+    const {correctOptions} = getCorrectOptions(options)
     const clearError = (error === correctOptionErrorMsg
       && correctOptions.length > 0)
     this.setState({
@@ -515,7 +511,7 @@ class QuestionQuiz extends Component {
     const { questionAndOptions } = this.state;
     const { splittedQuestion, optionsList } =
       getSplittedQuestionAndOptions(questionAndOptions)
-    const correctOptions = getCorrectOptions(optionsList)
+    const {correctOptions} = getCorrectOptions(optionsList)
     const maxInputCharacters = getMaxInputCharacters(optionsList)
 
     //max input characters error
@@ -599,7 +595,7 @@ class QuestionQuiz extends Component {
     const { intl } = this.props;
     const { error } = this.state;
     const { optionsList: optionList } = getSplittedQuestionAndOptions(validatedInput)
-    const correctOptions = getCorrectOptions(optionList)
+    const {correctOptions} = getCorrectOptions(optionList)
     const maxInputCharacters = getMaxInputCharacters(optionList)
     const maxOptionsErrorMsg = intl.formatMessage(
       intlMessages.maxOptionsLength, { 0: MAX_CUSTOM_FIELDS }
@@ -702,7 +698,8 @@ class QuestionQuiz extends Component {
         <Styled.Instructions style={{ marginBottom: '0.9rem', textAlign: 'justify' }}>
           {intl.formatMessage(intlMessages.addingQuestionInstructionsText)}
           <Styled.CorrectOptionInstructions>
-            {" "}{intl.formatMessage(intlMessages.addingCorrectOptionInstructionsText, { 0: CORRECT_OPTION_SYMBOL })}
+            {" "}{intl.formatMessage(intlMessages.addingCorrectOptionInstructionsText,
+              { 0: CORRECT_OPTION_SYMBOL })}
           </Styled.CorrectOptionInstructions>
         </Styled.Instructions>
 
@@ -715,8 +712,10 @@ class QuestionQuiz extends Component {
             rows="8"
             cols="35"
             // maxLength={QUESTION_OPTIONS_MAX_INPUT_CHARS}
-            aria-label={intl.formatMessage(questionAndOptionsPlaceholderLabel, { 0: CORRECT_OPTION_SYMBOL })}
-            placeholder={intl.formatMessage(questionAndOptionsPlaceholderLabel, { 0: CORRECT_OPTION_SYMBOL })}
+            aria-label={intl.formatMessage(questionAndOptionsPlaceholderLabel,
+              { 0: CORRECT_OPTION_SYMBOL })}
+            placeholder={intl.formatMessage(questionAndOptionsPlaceholderLabel,
+              { 0: CORRECT_OPTION_SYMBOL })}
           />
           {hasQuestionError ? (
             <Styled.InputError>{error}</Styled.InputError>
@@ -796,7 +795,7 @@ class QuestionQuiz extends Component {
             const answers = optList;
             const verifiedQuestionType = 'CUSTOM';
             if (question && optList && !error) {
-              return this.setState({ isQuestioning: true, optList, question }, () => {
+              return this.setState({ optList, question }, () => {
                 // let verifiedOptions = verifiedOptionList(optList)
                 startCustomQuestionQuiz(
                   verifiedQuestionType,
@@ -863,7 +862,7 @@ class QuestionQuiz extends Component {
     const { intl } = this.props;
     const { optList, error, questionAndOptions } = this.state;
     const { optionsList } = getSplittedQuestionAndOptions(questionAndOptions)
-    const correctOptions = getCorrectOptions(optionsList)
+    const {correctOptions, correctIndexes} = getCorrectOptions(optionsList)
     const emptyOptionErrorMsg = intl.formatMessage(
       intlMessages.optionEmptyError,
     );
@@ -874,6 +873,8 @@ class QuestionQuiz extends Component {
       const questionQuizOptionKey = `questionQuiz-option-${i}`;
       const option = isCorrectOption(o) ? o.substring(0,
         o.length - CORRECT_OPTION_SYMBOL.length) : o
+      const isCorrectOpt =  correctOptions.includes(option) && 
+        correctIndexes.includes(i)
       return (
         <span key={questionQuizOptionKey}>
           <div
@@ -889,12 +890,12 @@ class QuestionQuiz extends Component {
               data-test="quizOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               // maxLength={QUESTION_OPTIONS_MAX_INPUT_CHARS}
-              isCorrect={correctOptions.includes(option)}
+              isCorrect={isCorrectOpt}
             />
             <Styled.QuestionQuizCheckbox>
               <Checkbox
                 onChange={() => this.toogleCorrectOptionCheckBox(i)}
-                checked={correctOptions.includes(option)}
+                checked={isCorrectOpt}
                 ariaLabelledBy="optionsCheckboxLabel"
               />
             </Styled.QuestionQuizCheckbox>
@@ -942,7 +943,7 @@ class QuestionQuiz extends Component {
     } = this.props;
     const { question, openPreviewModal, optList, questionAndOptions } = this.state;
     const { optionsList } = getSplittedQuestionAndOptions(questionAndOptions)
-    const correctOptions = getCorrectOptions(optionsList)
+    const {correctOptions} = getCorrectOptions(optionsList)
     return (
       <div>
         <Styled.Header>

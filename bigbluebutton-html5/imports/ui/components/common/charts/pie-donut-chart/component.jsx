@@ -1,12 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import QuestionQuizService from '/imports/ui/components/question-quiz/service'
 import Chart from "react-apexcharts";
 import Styled from './styles';
 import html2canvas from 'html2canvas';
-import './style'
 import { jsPDF } from "jspdf";
+import './style'
 
 const propTypes = {
   series: PropTypes.array.isRequired,
@@ -45,17 +44,22 @@ const defaultProps = {
   downloadPdfLabel:'',
   chartColors: ['#008FFB','#775dd0','#ff4560',
   '#feb019', '#00e396','#ab814f'],
-  extra: null
+  extra: null,
+  totalValue:null
 };
 
 export default class PieChart extends PureComponent {
   constructor(props) {
     super(props);
-    // this.state = {
-    //     chartData: false
-    // }
     this.downloadQuizStatsPdf = this.downloadQuizStatsPdf.bind(this)
     this.getFormattedLegendText = this.getFormattedLegendText.bind(this)
+  }
+
+  componentDidMount() {
+    const titleSelector = document.querySelector(".apexcharts-title-text")
+    if(titleSelector && document.dir === "rtl"){
+      titleSelector.style.direction = 'initial';
+    }
   }
 
   downloadQuizStatsPdf() {
@@ -89,7 +93,7 @@ export default class PieChart extends PureComponent {
     const { series, height, type, totalLabel, MAX_OPTION_LENGTH,
       legendColors, labels, tooltipLabel, titleText, MAX_TITLE_LENGTH,
       chartId, isDownloadPdf, isDownloadPngCsvSvg, viewTotalCount, 
-      downloadPdfLabel, totalValue, chartColors } = this.props
+      downloadPdfLabel, totalValue, chartColors, extra } = this.props
     const pieChartData = {
       series: series,
       pie: {
@@ -156,10 +160,20 @@ export default class PieChart extends PureComponent {
           borderWidth: 0,
 
         },
-        // formatter: function (val,opts){
-        //   // return `${opts.seriesIndex+1}. ${val}%`
-        //   return `${val}%`
-        // }
+        formatter: function (val,opts){
+          const percentageIds = extra?.percentageIds
+          const roundOffVal = val.toFixed(2)
+          const index = opts.seriesIndex
+          const MAX_LABEL_LENGTH = 15
+          if(percentageIds?.length > 0)
+          return (`${percentageIds[index] ? 
+          percentageIds[index] : 
+          labels[index].length > MAX_LABEL_LENGTH ? 
+          labels[index].substring(0,MAX_LABEL_LENGTH)+'...':
+          labels[index]}: ${roundOffVal}%`)
+          else
+          return `${roundOffVal}%`
+        }
       },
       grid: {
         padding: {
@@ -238,7 +252,8 @@ export default class PieChart extends PureComponent {
     };
     return (
       <div>
-        <Chart options={pieChartData} series={pieChartData.series} type={type} height={parseInt(height)} />
+        <Chart options={pieChartData} series={pieChartData.series}
+        type={type} height={parseInt(height)} />
         <Styled.DownloadStatsBtn
           data-test="downloadStatsBtn"
           label={downloadPdfLabel}
@@ -258,5 +273,3 @@ export default class PieChart extends PureComponent {
 
 PieChart.propTypes = propTypes;
 PieChart.defaultProps = defaultProps;
-
-// export default injectIntl(PieChart);

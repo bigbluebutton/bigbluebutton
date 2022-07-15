@@ -188,11 +188,7 @@ class ActionsDropdown extends PureComponent {
         dataTest: 'questionQuiz',
         label: formatMessage(questionQuizBtnLabel),
         key: this.questionQuizId,
-        // onClick: () => null
         onClick: () => {
-          // if (Session.equals('pollInitiated', true)) {
-          //   Session.set('resetPollPanel', true);
-          // }
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,

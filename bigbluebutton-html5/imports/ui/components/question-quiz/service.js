@@ -49,11 +49,11 @@ const questionQuizAnswerIds = {
 
 const intlMessages = defineMessages({
   legendTitle: {
-    id: 'playback.player.chat.message.poll.options',
+    id: 'app.questionQuiz.options.label',
     description: 'heading for chat quiz legend',
   },
   questionQuizQuestionTitle: {
-    id: 'playback.player.chat.message.poll.question',
+    id: 'app.questionQuiz.question.label',
     description: 'title displayed before quiz question',
   },
   questionQuizStatsVotesLabel: {

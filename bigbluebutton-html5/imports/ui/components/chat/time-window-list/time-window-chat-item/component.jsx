@@ -316,12 +316,14 @@ class TimeWindowChatItem extends PureComponent {
           </Styled.AvatarWrapper>
           <Styled.Content>
             <Styled.Meta>
+              <Styled.HeaderAndTime>
               <Styled.Name>
                 <span>{intl.formatMessage(intlMessages.questionQuizResult)}</span>
               </Styled.Name>
               <Styled.Time dateTime={dateTime}>
                 <FormattedTime value={dateTime} />
               </Styled.Time>
+              </Styled.HeaderAndTime>
               {amIPresenter && (
                 <QuizStats
                   intl={intl}

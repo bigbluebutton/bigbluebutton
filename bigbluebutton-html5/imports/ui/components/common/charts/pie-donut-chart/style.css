@@ -11,3 +11,7 @@ foreignObject{
     position: relative ;
     margin-top: 280px ;
 }
+.apexcharts-title-text [dir="rtl"]{
+    display: block;
+    transform: translateX(100px);
+}

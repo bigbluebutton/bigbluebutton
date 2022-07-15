@@ -10,7 +10,7 @@ import Checkbox from '/imports/ui/components/common/checkbox/component';
 
 const intlMessages = defineMessages({
   questionQuizingTitleLabel: {
-    id: 'playback.player.chat.message.poll.options',
+    id: 'app.questionQuiz.options.label',
   },
   questionQuizAnswerLabel: {
     id: 'app.questioning.questionQuizAnswerLabel',
@@ -19,7 +19,7 @@ const intlMessages = defineMessages({
     id: 'app.polling.pollAnswerDesc',
   },
   questionQuizQuestionTitle: {
-    id: 'playback.player.chat.message.poll.question',
+    id: 'app.questionQuiz.question.label',
   },
   responseIsSecret: {
     id: 'app.questioning.responseSecret',
@@ -142,7 +142,9 @@ class Questioning extends Component {
                     </Styled.QuestionQuizingTitle>
                   )
                 }
-                <Styled.QuestionQuizingAnswers removeColumns={answers.length === 1} stacked={stackOptions}>
+                <Styled.QuestionQuizingAnswers 
+                removeColumns={answers.length === 1}
+                stacked={stackOptions}>
                   {answers.map((questionQuizAnswer) => {
                     const formattedMessageIndex = questionQuizAnswer?.key.toLowerCase();
                     let label = questionQuizAnswer.key;
@@ -158,7 +160,8 @@ class Questioning extends Component {
                           size="md"
                           label={label}
                           key={questionQuizAnswer.key}
-                          onClick={() => handleVote(questionQuiz.questionQuizId, [questionQuizAnswer.id])}
+                          onClick={() => handleVote(questionQuiz.questionQuizId,
+                          [questionQuizAnswer.id])}
                           aria-labelledby={`questionQuizAnswerLabel${questionQuizAnswer.key}`}
                           aria-describedby={`questionQuizAnswerDesc${questionQuizAnswer.key}`}
                           data-test="questionQuizAnswerOption"
@@ -177,7 +180,8 @@ class Questioning extends Component {
           )
         }
         <Styled.QuestionQuizingSecret>
-          {intl.formatMessage(questionQuiz.secretQuestionQuiz ? intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
+          {intl.formatMessage(questionQuiz.secretQuestionQuiz ? 
+          intlMessages.responseIsSecret : intlMessages.responseNotSecret)}
         </Styled.QuestionQuizingSecret>
       </div>
     );
@@ -217,7 +221,8 @@ class Questioning extends Component {
                     <Checkbox
                       disabled={!isMeteorConnected}
                       id={`answerInput${questionQuizAnswer.key}`}
-                      onChange={() => this.handleCheckboxChange(questionQuiz.questionQuizId, questionQuizAnswer.id)}
+                      onChange={() => this.handleCheckboxChange
+                      (questionQuiz.questionQuizId, questionQuizAnswer.id)}
                       checked={checkedAnswers.includes(questionQuizAnswer.id)}
                       ariaLabelledBy={`questionQuizAnswerLabel${questionQuizAnswer.key}`}
                       ariaDescribedBy={`questionQuizAnswerDesc${questionQuizAnswer.key}`}
@@ -277,7 +282,8 @@ class Questioning extends Component {
               </Styled.QHeader>
             )
           }
-          {questionQuiz.isMultipleResponse ? this.renderCheckboxAnswers() : this.renderButtonAnswers()}
+          {questionQuiz.isMultipleResponse ? this.renderCheckboxAnswers() :
+          this.renderButtonAnswers()}
         </Styled.QuestionQuizingContainer>
       </Styled.Overlay>
     );
