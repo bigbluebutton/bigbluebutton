@@ -83,7 +83,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "  + source + " " + dest;
     } else {
       dest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
-      COMMAND = "pdftocairo -png -scale-to 150 " + source + " " + dest;
+      COMMAND = "pdftocairo -png -scale-to 150 -cropbox " + source + " " + dest;
     }
 
     //System.out.println(COMMAND);

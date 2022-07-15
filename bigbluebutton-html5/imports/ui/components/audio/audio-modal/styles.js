@@ -26,6 +26,7 @@ const AudioModalButton = styled(Button)`
 
   // Modifies the audio button icon colour
   & span:first-child {
+    display: inline-block;
     color: #1b3c4b;
     background-color: #f1f8ff;
     box-shadow: none;
@@ -46,6 +47,7 @@ const AudioModalButton = styled(Button)`
 
   // Modifies the button label text
   & span:last-child {
+    display: block;
     color: black;
     font-size: 1rem;
     font-weight: 600;

@@ -16,9 +16,9 @@ async function createMeeting(params, customParameter) {
   const meetingID = `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
-  const query = customParameter !== undefined ? `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}&joinViaHtml5=true`
+  const query = customParameter !== undefined ? `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`
     + `&allowStartStopRecording=true&${customParameter}&autoStartRecording=false&welcome=${params.welcome}`
-    : `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}&joinViaHtml5=true`
+    : `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`
     + `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
   const apicall = `create${query}${params.secret}`;
   const checksum = sha1(apicall);
@@ -29,8 +29,8 @@ async function createMeeting(params, customParameter) {
 
 function getJoinURL(meetingID, params, moderator, customParameter) {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
-  const query = customParameter !== undefined ? `fullName=${params.fullName}&joinViaHtml5=true&meetingID=${meetingID}&password=${pw}&${customParameter}`
-    : `fullName=${params.fullName}&joinViaHtml5=true&meetingID=${meetingID}&password=${pw}`;
+  const query = customParameter !== undefined ? `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}&${customParameter}`
+    : `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}`;
   const apicall = `join${query}${params.secret}`;
   const checksum = sha1(apicall);
   return `${params.server}/join?${query}&checksum=${checksum}`;

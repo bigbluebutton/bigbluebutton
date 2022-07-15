@@ -399,6 +399,7 @@ class PresentationToolbar extends PureComponent {
             ) : null}
             <Styled.FitToWidthButton
               role="button"
+              data-test="fitToWidthButton"
               aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
               aria-label={
                 fitToWidth
