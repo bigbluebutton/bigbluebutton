@@ -6,6 +6,7 @@ import {
   colorDanger,
   colorGrayDark,
   colorOffWhite,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const pulse = keyframes`
