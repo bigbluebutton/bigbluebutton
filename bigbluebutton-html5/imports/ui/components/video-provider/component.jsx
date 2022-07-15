@@ -542,30 +542,30 @@ class VideoProvider extends Component {
         peer.originalProfileId = profileId;
         peer.currentProfileId = profileId;
         peer.start();
-
-        // Store the media stream if necessary. The scenario here is one where
-        // there is no preloaded stream stored.
-        if (bbbVideoStream == null) {
-          bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
-          VideoPreviewService.storeStream(
-            MediaStreamUtils.extractDeviceIdFromStream(
-              bbbVideoStream.mediaStream,
-              'video',
-            ),
-            bbbVideoStream,
-          );
-        }
-
-        peer.bbbVideoStream = bbbVideoStream;
-        bbbVideoStream.on('streamSwapped', ({ newStream }) => {
-          if (newStream && newStream instanceof MediaStream) {
-            this.replacePCVideoTracks(stream, newStream);
+        peer.generateOffer().then((offer) => {
+          // Store the media stream if necessary. The scenario here is one where
+          // there is no preloaded stream stored.
+          if (bbbVideoStream == null) {
+            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+            VideoPreviewService.storeStream(
+              MediaStreamUtils.extractDeviceIdFromStream(
+                bbbVideoStream.mediaStream,
+                'video',
+              ),
+              bbbVideoStream,
+            );
           }
-        });
-        peer.inactivationHandler = () => this._handleLocalStreamInactive(stream);
-        bbbVideoStream.once('inactive', peer.inactivationHandler);
 
-        peer.generateOffer().then(resolve).catch(reject);
+          peer.bbbVideoStream = bbbVideoStream;
+          bbbVideoStream.on('streamSwapped', ({ newStream }) => {
+            if (newStream && newStream instanceof MediaStream) {
+              this.replacePCVideoTracks(stream, newStream);
+            }
+          });
+          peer.inactivationHandler = () => this._handleLocalStreamInactive(stream);
+          bbbVideoStream.once('inactive', peer.inactivationHandler);
+          resolve(offer);
+        }).catch(reject);
       } catch (error) {
         reject(error);
       }

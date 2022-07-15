@@ -10,7 +10,6 @@ export default class WebRtcPeer extends EventEmitter2 {
     super({ newListener: true });
 
     this.mode = mode;
-
     this.options = options;
     this.peerConnection = this.options.peerConnection;
     this.videoStream = this.options.videoStream;
@@ -27,8 +26,19 @@ export default class WebRtcPeer extends EventEmitter2 {
     this._handleIceCandidate = this._handleIceCandidate.bind(this);
     this._handleSignalingStateChange = this._handleSignalingStateChange.bind(this);
 
-    if (this.onicecandidate) this.on('icecandidate', this.onicecandidate);
-    if (this.oncandidategatheringdone) this.on('candidategatheringdone', this.oncandidategatheringdone);
+    this._assignOverrides();
+  }
+
+  _assignOverrides() {
+    if (typeof this.onicecandidate === 'function') {
+      this.on('icecandidate', this.onicecandidate);
+    }
+    if (typeof this.oncandidategatheringdone === 'function') {
+      this.on('candidategatheringdone', this.oncandidategatheringdone);
+    }
+    if (typeof this.options.mediaStreamFactory === 'function') {
+      this.mediaStreamFactory = this.options.mediaStreamFactory.bind(this);
+    }
   }
 
   _flushInboundCandidateQueue() {
@@ -87,6 +97,28 @@ export default class WebRtcPeer extends EventEmitter2 {
     if (this.peerConnection?.signalingState === 'stable') {
       this._flushInboundCandidateQueue();
     }
+  }
+
+  // Public method can be overriden via options
+  mediaStreamFactory() {
+    if (this.videoStream || this.audioStream) {
+      return Promise.resolve();
+    }
+
+    this.logger.info('BBB::WebRtcPeer::mediaStreamFactory - running default factory', this.mediaConstraints);
+    return navigator.mediaDevices.getUserMedia(this.mediaConstraints).then((stream) => {
+      if (stream.getAudioTracks().length > 0) {
+        this.audioStream = stream;
+        this.logger.debug('BBB::WebRtcPeer::mediaStreamFactory - generated audio', this.audioStream);
+      }
+      if (stream.getVideoTracks().length > 0) {
+        this.videoStream = stream;
+        this.logger.debug('BBB::WebRtcPeer::mediaStreamFactory - generated video', this.videoStream);
+      }
+    }).catch((error) => {
+      this.logger.error('BBB::WebRtcPeer::mediaStreamFactory - gUM failed', error);
+      throw error;
+    });
   }
 
   set peerConnection(pc) {
@@ -165,18 +197,6 @@ export default class WebRtcPeer extends EventEmitter2 {
 
     this.peerConnection.addEventListener('icecandidate', this._handleIceCandidate);
     this._trackQueueFlushEvents();
-
-    if (this.videoStream) {
-      this.videoStream.getTracks().forEach((track) => {
-        this.peerConnection.addTrack(track, this.videoStream);
-      });
-    }
-
-    if (this.audioStream) {
-      this.audioStream.getTracks().forEach((track) => {
-        this.peerConnection.addTrack(track, this.audioStream);
-      });
-    }
   }
 
   addIceCandidate(iceCandidate) {
@@ -205,7 +225,7 @@ export default class WebRtcPeer extends EventEmitter2 {
     }
   }
 
-  generateOffer() {
+  async generateOffer() {
     switch (this.mode) {
       case 'recvonly': {
         const useAudio = this.mediaConstraints
@@ -229,10 +249,25 @@ export default class WebRtcPeer extends EventEmitter2 {
         break;
       }
 
-      case 'sendonly': {
+      case 'sendonly':
+      case 'sendrecv': {
+        await this.mediaStreamFactory();
+
+        if (this.videoStream) {
+          this.videoStream.getTracks().forEach((track) => {
+            this.peerConnection.addTrack(track, this.videoStream);
+          });
+        }
+
+        if (this.audioStream) {
+          this.audioStream.getTracks().forEach((track) => {
+            this.peerConnection.addTrack(track, this.audioStream);
+          });
+        }
+
         this.peerConnection.getTransceivers().forEach((transceiver) => {
           // eslint-disable-next-line no-param-reassign
-          transceiver.direction = 'sendonly';
+          transceiver.direction = this.mode;
         });
         break;
       }
