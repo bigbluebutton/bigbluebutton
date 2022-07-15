@@ -115,7 +115,8 @@ const defaultProps = {
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const { isSafari } = browserInfo;
+const APP_CONFIG = Meteor.settings.public.app;
+const { isSafari, isMobileApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class SettingsDropdown extends PureComponent {
@@ -239,7 +240,7 @@ class SettingsDropdown extends PureComponent {
       );
     }
 
-    if (isIos) {
+    if (isIos && !isMobileApp && APP_CONFIG.iosAppStoreUrl !== '') {
       this.menuItems.push(
         {
           key: 'list-item-help',
