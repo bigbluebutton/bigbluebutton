@@ -425,7 +425,7 @@ const VirtualBgSelector = ({
                     .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
                     .slice(0, isVisualEffects ? undefined : 3)
                     .map((background, index) => {
-                      if (background.custom) {
+                      if (background.custom !== false) {
                         return renderCustomButton(background, index);
                       } else {
                         const isBlur = background.uniqueId.includes('Blur');
