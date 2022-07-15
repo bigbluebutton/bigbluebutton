@@ -37,6 +37,6 @@ gem 'bbbevents', '~> 1.2'
 gem 'rake', '>= 12.3', '<14'
 
 group :test, optional: true do
-  gem 'rubocop', '~> 0.79.0'
+  gem 'rubocop', '~> 1.31.1'
   gem 'minitest', '~> 5.14.1'
 end

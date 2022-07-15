@@ -13,8 +13,11 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
+  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
     await this.initModPage(page1);
+    if (waitAndClearDefaultPresentationNotificationModPage) {
+        await waitAndClearDefaultPresentationNotification(this.modPage);
+    }
     await this.initUserPage();
   }
 
@@ -78,10 +81,11 @@ class MultiUsers {
   async makePresenter() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
+    await this.modPage.wasRemoved(e.wbToolbar);
 
     await this.userPage.hasElement(e.startScreenSharing);
     await this.userPage.hasElement(e.presentationToolbarWrapper);
-    await this.userPage.hasElement(e.toolsButton);
+    await this.userPage.hasElement(e.wbToolbar);
     await this.userPage.hasElement(e.actions);
     const isPresenter = await checkIsPresenter(this.userPage);
     expect(isPresenter).toBeTruthy();
@@ -90,9 +94,10 @@ class MultiUsers {
   async takePresenter() {
     await this.modPage2.waitAndClick(e.currentUser);
     await this.modPage2.waitAndClick(e.takePresenter);
+    await this.modPage.wasRemoved(e.wbToolbar);
 
     await this.modPage2.hasElement(e.startScreenSharing);
-    await this.modPage2.hasElement(e.toolsButton);
+    await this.modPage2.hasElement(e.wbToolbar);
     await this.modPage2.hasElement(e.presentationToolbarWrapper);
     const isPresenter = await checkIsPresenter(this.modPage2);
     expect(isPresenter).toBeTruthy();
@@ -125,7 +130,7 @@ class MultiUsers {
     test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
 
     await waitAndClearDefaultPresentationNotification(this.modPage);
-    await waitAndClearDefaultPresentationNotification(this.userPage);
+    await this.initUserPage();
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
@@ -199,10 +204,10 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage.waitForSelector(e.multiWhiteboardTool);
-    const resp = await this.modPage.page.evaluate((multiWhiteboardTool) => {
-      return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
-    }, e.multiWhiteboardTool);
+    await this.modPage.waitForSelector(e.multiUsersWhiteboardOff);
+    const resp = await this.modPage.page.evaluate((multiUsersWbBtn) => {
+      return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
+    }, e.multiUsersWhiteboardOff);
     await expect(resp).toBeTruthy();
   }
 }

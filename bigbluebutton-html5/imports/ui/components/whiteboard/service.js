@@ -1,5 +1,4 @@
 import Users from '/imports/api/users';
-import Captions from "/imports/api/captions";
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
@@ -13,8 +12,6 @@ const Annotations = new Mongo.Collection(null);
 
 const UnsentAnnotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
-const DRAW_START = ANNOTATION_CONFIG.status.start;
-const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 let annotationsStreamListener = null;
@@ -23,7 +20,7 @@ const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
 };
 
-function clearFakeAnnotations() {
+const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
   Annotations.remove({ id: /-fake/g });
 }
@@ -299,8 +296,6 @@ const persistShape = (shape, whiteboardId) => {
   sendAnnotation(annotation);
 };
 
-const persistAsset = (asset) => makeCall("persistAsset", asset);
-
 const removeShapes = (shapes, whiteboardId) => makeCall("deleteAnnotations", shapes, whiteboardId);
 
 const changeCurrentSlide = (s) => {
@@ -355,18 +350,6 @@ const getCurrentPres = () => {
   return  PresentationService.getCurrentPresentation(podId);
 }
 
-const getAssets = () => {
-  // temporary storage for assets
-  let a = Captions.find().fetch().filter(s => s.src);
-  let _assets = {}
-  Object.entries(a).map(([k,v]) => {
-    _assets[v.id] = v;
-    return v.src && v;
-  });
-
-  return _assets;
-}
-
 const initDefaultPages = (count = 1) => {
   const pages = {};
   const pageStates = {};
@@ -409,11 +392,9 @@ export {
   removeGlobalAccess,
   removeIndividualAccess,
   persistShape,
-  persistAsset,
   getShapes,
-  getAssets,
   getCurrentPres,
   removeShapes,
   changeCurrentSlide,
-  getCurSlide,
+  clearFakeAnnotations,
 };
