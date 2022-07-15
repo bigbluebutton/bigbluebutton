@@ -6,6 +6,7 @@ const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -62,6 +63,17 @@ class MultiUsers {
     const page = await context.newPage();
     this.userPage2 = new Page(this.browser, page);
     await this.userPage2.init(false, shouldCloseAudioModal, options);
+  }
+
+  async muteAnotherUser() {
+    await this.userPage.joinMicrophone();
+    await this.modPage.hasElement(e.joinAudio);
+    await this.modPage.waitAndClick(e.isTalking);
+    await this.userPage.hasElement(e.unmuteMicButton);
+    await this.modPage.hasElement(e.wasTalking);
+    await this.userPage.hasElement(e.wasTalking);
+    await this.userPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.talkingIndicator);
   }
 
   async userPresence() {

@@ -1,4 +1,5 @@
 const { test } = require('@playwright/test');
+const { MultiUsers } = require('../user/multiusers');
 const { Audio } = require('./audio');
 
 test.describe.parallel('Audio', () => {
@@ -12,5 +13,38 @@ test.describe.parallel('Audio', () => {
     const audio = new Audio(browser, page);
     await audio.init(true, false);
     await audio.joinMicrophone();
+  });
+
+  test('Mute youself by clicking the mute button @ci', async ({ browser, page }) => {
+    const audio = new Audio(browser, page);
+    await audio.init(true, false);
+    await audio.muteYourselfByButton();
+  });
+
+  test('Change audio input and keep it connected', async ({ browser, page }) => {
+    const audio = new Audio(browser, page);
+    await audio.init(true, false);
+    await audio.changeAudioInput();
+  });
+
+  test('Keep the last mute state after rejoining audio @ci', async ({ browser, page }) => {
+    const audio = new Audio(browser, page);
+    await audio.init(true, false);
+    await audio.keepMuteStateOnRejoin();
+  });
+
+  test.describe.parallel('Talking indicator @ci', () => {
+    test('Mute youself by clicking the talking indicator', async ({ browser, page }) => {
+      const audio = new Audio(browser, page);
+      await audio.init(true, false);
+      await audio.muteYourselfBytalkingIndicator();
+    });
+
+    test('Mute another user by clicking the talking indicator', async ({ browser, context, page }) => {
+      const audio = new MultiUsers(browser, context);
+      await audio.initModPage(page);
+      await audio.initUserPage(false);
+      await audio.muteAnotherUser();
+    });
   });
 });
