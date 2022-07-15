@@ -10,7 +10,7 @@ test.describe.parallel('Webcam @ci', () => {
   });
 
   test('Checks content of webcam', async ({ browser, page }) => {
-    test.skip(true, 'the test is not as reliable as it should be: getting unexpected failures');
+    test.fixme(true, 'The test is not as reliable as it should be: getting unexpected failures');
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.checksContent();
