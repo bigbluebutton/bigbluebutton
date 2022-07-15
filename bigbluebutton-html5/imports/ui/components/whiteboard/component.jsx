@@ -2,15 +2,13 @@ import * as React from "react";
 import _ from "lodash";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
-import logger from '/imports/startup/client/logger';
 import {
   ColorStyle,
   DashStyle,
   SizeStyle,
-  TDDocument,
   TDShapeType,
 } from "@tldraw/tldraw";
-import { Renderer, Utils } from "@tldraw/core";
+import { Utils } from "@tldraw/core";
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -31,11 +29,8 @@ export default function Whiteboard(props) {
     isPresenter,
     removeShapes,
     initDefaultPages,
-    meetingId,
     persistShape,
-    persistAsset,
     shapes,
-    assets,
     currentUser,
     curPres,
     whiteboardId,
@@ -45,8 +40,13 @@ export default function Whiteboard(props) {
     slidePosition,
     curPageId,
     svgUri,
-    presentationBounds,
+    presentationWidth,
+    presentationHeight,
     isViewersCursorLocked,
+    setIsZoomed,
+    zoomChanger,
+    isZoomed,
+    isMultiUserActive,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -57,38 +57,31 @@ export default function Whiteboard(props) {
     pages,
     pageStates,
     bindings: {},
-    assets,
+    assets: {},
   });
-  //const [doc, setDoc] = React.useState(rDocument.current);
-  const [_assets, setAssets] = React.useState(assets);
-  const [command, setCommand] = React.useState("");
-  const [wbAccess, setWBAccess] = React.useState(props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId));
-  const [selectedIds, setSelectedIds] = React.useState([]);
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const [cameraFitSlide, setCameraFitSlide] = React.useState({point: [0, 0], zoom: 0});
-  const [zoomedIn, setZoomedIn] = React.useState(false);
   const prevShapes = usePrevious(shapes);
-  const prevSlidePosition = usePrevious(slidePosition);
-  const prevPageId = usePrevious(curPageId);
 
   const calculateCameraFitSlide = () => {
-    let zoom = 
+    let zoom =
       Math.min(
-        (presentationBounds.width) / slidePosition.width,
-        (presentationBounds.height) / slidePosition.height
-      )        
-      
+        (presentationWidth) / slidePosition.width,
+        (presentationHeight) / slidePosition.height
+      );
+
     zoom = Utils.clamp(zoom, 0.1, 5);
 
     let point = [0, 0];
-    if ((presentationBounds.width / presentationBounds.height) > 
-        (slidePosition.width / slidePosition.height)) 
-    { 
-      point[0] = (presentationBounds.width - (slidePosition.width * zoom)) / 2 / zoom
+    if ((presentationWidth / presentationHeight) >
+        (slidePosition.width / slidePosition.height))
+    {
+      point[0] = (presentationWidth - (slidePosition.width * zoom)) / 2 / zoom
     } else {
-      point[1] = (presentationBounds.height - (slidePosition.height * zoom)) / 2 / zoom
+      point[1] = (presentationHeight - (slidePosition.height * zoom)) / 2 / zoom
     }
 
+    isPresenter && zoomChanger(zoom);
     return {point, zoom}
   }
 
@@ -109,11 +102,11 @@ export default function Whiteboard(props) {
       stack = tldrawAPI?.stack
 
       next.pages[curPageId].shapes = shapes;
-      
+
       changed = true;
     }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {      
+    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
       next.assets[`slide-background-asset-${curPageId}`] = {
         id: `slide-background-asset-${curPageId}`,
         size: [slidePosition?.width || 0, slidePosition?.height || 0],
@@ -168,19 +161,19 @@ export default function Whiteboard(props) {
     }
 
     return currentDoc;
-  }, [assets, shapes, tldrawAPI, curPageId, slidePosition]);
+  }, [shapes, tldrawAPI, curPageId, slidePosition]);
 
-  // when presentationBounds change, update tldraw camera
+  // when presentationSizes change, update tldraw camera
   // to fit slide on center if zoomed out
   React.useEffect(() => {
     if (curPageId && slidePosition) {
       const camera = calculateCameraFitSlide();
       setCameraFitSlide(camera);
-      if (!zoomedIn) {
+      if (!isZoomed) {
         tldrawAPI?.setCamera(camera.point, camera.zoom);
       }
     }
-  }, [presentationBounds, curPageId]);
+  }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
@@ -188,11 +181,11 @@ export default function Whiteboard(props) {
       const previousPageZoom = tldrawAPI.getPageState()?.camera?.zoom;
       tldrawAPI.changePage(curPageId);
       //change zoom of the new page to follow the previous one
-      if (!zoomedIn && cameraFitSlide.zoom !== 0) {
+      if (!isZoomed && cameraFitSlide.zoom !== 0) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom, "zoomed");
       } else {
         previousPageZoom &&
-        slidePosition && 
+        slidePosition &&
         tldrawAPI.setCamera([slidePosition.xCamera, slidePosition.yCamera], previousPageZoom, "zoomed");
       }
     }
@@ -203,10 +196,10 @@ export default function Whiteboard(props) {
     if (tldrawAPI && !isPresenter && curPageId && slidePosition) {
       if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-        setZoomedIn(false);
+        setIsZoomed(false);
       } else {
         tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-        setZoomedIn(true);
+        setIsZoomed(true);
       }
     }
   }, [curPageId, slidePosition]);
@@ -218,17 +211,47 @@ export default function Whiteboard(props) {
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
+        hasMultiUserAccess={props?.hasMultiUserAccess}
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
+        isMultiUserActive={isMultiUserActive}
       >
         <Tldraw
-          key={`wb-${!hasWBAccess && !isPresenter}`}
+          key={`wb-${!hasWBAccess && !isPresenter}-${document?.documentElement?.dir}`}
           document={doc}
-          disableAssets={false}
+          // disable the ability to drag and drop files onto the whiteboard
+          // until we handle saving of assets in akka.
+          disableAssets={true}
+          // Disable automatic focus. Users were losing focus on shared notes
+          // and chat on presentation mount.
+          autofocus={false}
           onMount={(app) => {
-            if (!hasWBAccess && !isPresenter) app.onPan = () => {}; 
             setTLDrawAPI(app);
             props.setTldrawAPI(app);
+            // disable for non presenter that doesn't have multi user access
+            if (!hasWBAccess && !isPresenter) {
+              app.onPan = () => {};
+              app.setSelectedIds = () => {};
+              app.setHoveredId = () => {};
+            } else {
+              // disable hover highlight for background slide shape
+              app.setHoveredId = (id) => {
+                if (id.includes('slide-background')) return null;
+                app.patchState(
+                  {
+                    document: {
+                      pageStates: {
+                        [app.getPage()?.id]: {
+                          hoveredId: id,
+                        },
+                      },
+                    },
+                  },
+                  `set_hovered_id`
+                );
+              };
+            }
+
             if (curPageId) {
               app.changePage(curPageId);
               if (slidePosition.zoom === 0) {
@@ -237,8 +260,8 @@ export default function Whiteboard(props) {
                 app.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
                 setCameraFitSlide(cameraFitSlide);
               } else {
-                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom)
-                setZoomedIn(true);
+                app.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
+                setIsZoomed(true);
               }
             }
           }}
@@ -250,20 +273,42 @@ export default function Whiteboard(props) {
           readOnly={!isPresenter && !hasWBAccess}
           onUndo={(e, s) => {
             e?.selectedIds?.map(id => {
-              persistShape(e.getShape(id), whiteboardId);
+              const shape = e.getShape(id);
+              persistShape(shape, whiteboardId);
+              const children = shape.children;
+              children && children.forEach(c => {
+                const childShape = e.getShape(c);
+                const shapeBounds = e.getShapeBounds(c);
+                childShape.size = [shapeBounds.width, shapeBounds.height];
+                persistShape(childShape, whiteboardId)
+              });
             })
             const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
             let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-            removeShapes(shapesIdsToRemove, whiteboardId)
+            if (shapesIdsToRemove.length) {
+              // add a little delay, wee need to make sure children are updated first
+              setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+            }
           }}
 
           onRedo={(e, s) => {
             e?.selectedIds?.map(id => {
-              persistShape(e.getShape(id), whiteboardId);
+              const shape = e.getShape(id);
+              persistShape(shape, whiteboardId);
+              const children = shape.children;
+              children && children.forEach(c => {
+                const childShape = e.getShape(c);
+                const shapeBounds = e.getShapeBounds(c);
+                childShape.size = [shapeBounds.width, shapeBounds.height];
+                persistShape(childShape, whiteboardId)
+              });
             });
             const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
             let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-            removeShapes(shapesIdsToRemove, whiteboardId)
+            if (shapesIdsToRemove.length) {
+              // add a little delay, wee need to make sure children are updated first
+              setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+            }
           }}
 
           onChangePage={(app, s, b, a) => {
@@ -272,114 +317,159 @@ export default function Whiteboard(props) {
             }
           }}
           onCommand={(e, s, g) => {
-            if (s.includes("session:complete:DrawSession")) {
-              Object.entries(e.state.document.pages[e.getPage()?.id]?.shapes)
-                .filter(([k, s]) => s?.type === 'draw')
-                .forEach(([k, s]) => {
-                  if (!e.prevShapes[k] && !k.includes('slide-background')) {
-                    const shapeBounds = e.getShapeBounds(k);
-                    s.size = [shapeBounds.width, shapeBounds.height];
-                    persistShape(s, whiteboardId);
-                  }
+
+            if (s.includes('move_to_page')) {
+              let groupShapes = [];
+              let nonGroupShapes = [];
+              let movedShapes = {};
+              e.selectedIds.forEach(id => {
+                const shape = e.getShape(id);
+                if (shape.type === 'group')
+                  groupShapes.push(id);
+                else
+                  nonGroupShapes.push(id);
+                movedShapes[id] = e.getShape(id);
+              });
+              //remove shapes on origin page
+              let idsToRemove = nonGroupShapes.concat(groupShapes);
+              removeShapes(idsToRemove, whiteboardId);
+              //persist shapes for destination page
+              const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(e.getPage()?.id)).id;
+              let idsToInsert = groupShapes.concat(nonGroupShapes);
+              idsToInsert.forEach(id => {
+                persistShape(movedShapes[id], newWhiteboardId);
+                const children = movedShapes[id].children;
+                children && children.forEach(c => {
+                  persistShape(e.getShape(c), newWhiteboardId)
                 });
+              });
+              return;
             }
 
-            if (s.includes("style")
-            || s?.includes("session:complete:ArrowSession")) {
+            if (s.includes('ungroup')) {
+              e?.selectedIds?.map(id => {
+                persistShape(e.getShape(id), whiteboardId);
+              })
+
+              // check for deleted shapes
+              const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
+              let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+              if (shapesIdsToRemove.length) {
+                // add a little delay, wee need to make sure children are updated first
+                setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+              }
+              return;
+            }
+
+            const conditions = [
+              "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
+              "align", "move", "delete", "create", "flip", "toggle", "group", "translate"
+            ]
+            if (conditions.some(el => s?.startsWith(el))) {
               e.selectedIds.forEach(id => {
                 const shape = e.getShape(id);
                 const shapeBounds = e.getShapeBounds(id);
                 shape.size = [shapeBounds.width, shapeBounds.height];
                 persistShape(shape, whiteboardId);
-              }); 
-            }
-
-            if (s.includes('move_to_page')) {
-              const movedShapes = e.selectedIds.map(id => {
-                return e.getShape(id);
-              });
-              //remove shapes on origin page
-              removeShapes(e.selectedIds, whiteboardId);
-              //persist shapes for destination page
-              const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(e.getPage()?.id)).id;
-              movedShapes.forEach(s => {
-                persistShape(s, newWhiteboardId);
-              });
-              return;
-            }
-
-            const conditions = [
-              "session:complete:TransformSingleSession", "session:complete:TranslateSession",
-              "session:complete:RotateSession", "session:complete:HandleSession", 
-              "updated_shapes", "duplicate", "stretch", "align", "move", 
-              "create", "flip", "toggle", "group", "translate"
-            ]
-            if (conditions.some(el => s?.includes(el))) {
-                e.selectedIds.forEach(id => {
-                  const shape = e.getShape(id);
-                  const shapeBounds = e.getShapeBounds(id);
+                //checks to find any bindings assosiated with the selected shapes.
+                //If any, they need to be updated as well.
+                const pageBindings = e.bindings;
+                const boundShapes = {};
+                if (pageBindings) {
+                  Object.entries(pageBindings).map(([k,b]) => {
+                    if (b.toId.includes(id)) {
+                      boundShapes[b.fromId] = e.getShape(b.fromId);
+                    }
+                  })
+                }
+                //persist shape(s) that was updated by the client and any shapes bound to it.
+                Object.entries(boundShapes).map(([k,bs]) => {
+                  const shapeBounds = e.getShapeBounds(k);
+                  bs.size = [shapeBounds.width, shapeBounds.height];
+                  persistShape(bs, whiteboardId)
+                })
+                const children = e.getShape(id).children;
+                //also persist children of the selected shape (grouped shapes)
+                children && children.forEach(c => {
+                  const shape = e.getShape(c);
+                  const shapeBounds = e.getShapeBounds(c);
                   shape.size = [shapeBounds.width, shapeBounds.height];
-                  persistShape(shape, whiteboardId);
-                  //checks to find any bindings assosiated with the selected shapes.
-                  //If any, they need to be updated as well.
-                  const pageBindings = e.state.document.pages[e.getPage()?.id]?.bindings;
-                  const boundShapes = [];
+                  persistShape(shape, whiteboardId)
+                  // also persist shapes that are bound to the children
                   if (pageBindings) {
                     Object.entries(pageBindings).map(([k,b]) => {
-                      if (b.toId.includes(id)) {
-                        boundShapes.push(e.state.document.pages[e.getPage()?.id]?.shapes[b.fromId])
+                      if (!(b.fromId in boundShapes) && b.toId.includes(c)) {
+                        const shape = e.getShape(b.fromId);
+                        persistShape(shape, whiteboardId)
+                        boundShapes[b.fromId] = shape;
                       }
                     })
                   }
-                  //persist shape(s) that was updated by the client and any shapes bound to it.
-                  boundShapes.forEach(bs => {
-                    const shapeBounds = e.getShapeBounds(bs.id);
-                    bs.size = [shapeBounds.width, shapeBounds.height];
-                    persistShape(bs, whiteboardId)
-                  })
-                  const children = e.getShape(id).children
-                  //also persist children of the selected shape (grouped shapes)
-                  children && children.forEach(c => {
-                    const shape = e.getShape(c);
-                    const shapeBounds = e.getShapeBounds(c);
-                    shape.size = [shapeBounds.width, shapeBounds.height];
-                    persistShape(shape, whiteboardId)
-                  })
-                });
-            }
+                })
+              });
+              // draw shapes
+              Object.entries(e.state.document.pages[e.getPage()?.id]?.shapes)
+                .filter(([k, s]) => s?.type === 'draw')
+                .forEach(([k, s]) => {
+                  if (!prevShapes[k] && !k.includes('slide-background')) {
+                    const shapeBounds = e.getShapeBounds(k);
+                    s.size = [shapeBounds.width, shapeBounds.height];
+                    persistShape(s, whiteboardId);
+                  }
+              });
 
-            if (s?.includes("session:complete:EraseSession") || s?.includes("delete")) {
+              // check for deleted shapes
               const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
               let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-              removeShapes(shapesIdsToRemove, whiteboardId)
+              let groups = [];
+              let nonGroups = [];
+              // if we have groups, we need to make sure they are removed lastly
+              shapesIdsToRemove.forEach(shape => {
+                if (shapes[shape].type === 'group') {
+                  groups.push(shape);
+                } else {
+                  nonGroups.push(shape);
+                }
+              });
+              if (shapesIdsToRemove.length) {
+                shapesIdsToRemove = nonGroups.concat(groups);
+                removeShapes(shapesIdsToRemove, whiteboardId);
+              }
             }
           }}
 
           onPatch={(s, reason) => {
             if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+              if (cameraFitSlide.zoom === 0) {
+                //can happen when the slide finish uploading
+                const cameraFitSlide = calculateCameraFitSlide();
+                tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
+                setIsZoomed(false);
+                setCameraFitSlide(cameraFitSlide);
+                return;
+              }
               const camera = tldrawAPI.getPageState().camera;
               //don't allow zoom out more than fit
               if (camera.zoom <= cameraFitSlide.zoom) {
                 tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-                setZoomedIn(false);
+                setIsZoomed(false);
                 zoomSlide(parseInt(curPageId), podId, 0, 0, 0);
               } else {
                 zoomSlide(parseInt(curPageId), podId, camera.zoom, camera.point[0], camera.point[1]);
-                setZoomedIn(true);
+                setIsZoomed(true);
               }
             }
             //don't allow non-presenters to pan&zoom
             if (slidePosition && reason && !isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
               if (slidePosition.zoom === 0 && slidePosition.xCamera === 0 && slidePosition.yCamera === 0) {
                 tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
-                setZoomedIn(false);
+                setIsZoomed(false);
               } else {
                 tldrawAPI?.setCamera([slidePosition.xCamera, slidePosition.yCamera], slidePosition.zoom);
-                setZoomedIn(true);
+                setIsZoomed(true);
               }
-            } 
+            }
           }}
-
         />
       </Cursors>
     </>

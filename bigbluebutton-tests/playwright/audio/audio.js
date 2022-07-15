@@ -11,9 +11,9 @@ class Audio extends Page {
     const { autoJoinAudioModal, listenOnlyCallTimeout } = this.settings;
     if (!autoJoinAudioModal) await this.waitAndClick(e.joinAudio);
     await this.waitAndClick(e.listenOnlyButton);
-    await this.wasRemoved(e.connecting);
-    await this.waitForSelector(e.leaveAudio, listenOnlyCallTimeout);
-    await this.waitForSelector(e.whiteboard);
+    await this.wasRemoved(e.establishingAudioLabel);
+    await this.waitForSelector(e.leaveListenOnly, listenOnlyCallTimeout);
+    await this.waitAndClick(e.audioDropdownMenu);
     await this.hasElement(e.leaveAudio);
   }
 
@@ -22,19 +22,21 @@ class Audio extends Page {
       autoJoinAudioModal,
       skipEchoTest,
       skipEchoTestOnJoin,
-      listenOnlyCallTimeout,
     } = this.settings;
 
     if (!autoJoinAudioModal) await this.waitAndClick(e.joinAudio);
     await this.waitAndClick(e.microphoneButton);
     const shouldSkipEchoTest = skipEchoTest || skipEchoTestOnJoin;
     if (!shouldSkipEchoTest) {
-      await this.waitForSelector(e.connectingToEchoTest);
-      await this.wasRemoved(e.connectingToEchoTest, ELEMENT_WAIT_LONGER_TIME);
-      await this.waitAndClick(e.echoYesButton, listenOnlyCallTimeout);
+      await this.waitForSelector(e.stopHearingButton);
+      await this.waitAndClick(e.joinEchoTestButton);
+      await this.waitForSelector(e.establishingAudioLabel);
+      await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     }
-    await this.waitForSelector(e.whiteboard, shouldSkipEchoTest ? listenOnlyCallTimeout : ELEMENT_WAIT_TIME);
     await this.hasElement(e.isTalking);
+    await this.hasElement(e.muteMicButton);
+    await this.waitAndClick(e.audioDropdownMenu);
+    await this.hasElement(e.leaveAudio);
   }
 }
 

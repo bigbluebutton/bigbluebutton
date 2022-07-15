@@ -15,6 +15,7 @@ import Settings from '/imports/ui/services/settings';
 import BreakoutDropdown from '/imports/ui/components/breakout-room/breakout-dropdown/component';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -549,19 +550,19 @@ class BreakoutRoom extends PureComponent {
       intl,
       endAllBreakouts,
       amIModerator,
+      isRTL,
     } = this.props;
     return (
       <Styled.Panel ref={(n) => this.panel = n}>
-        <Styled.Header>
-          <Styled.HeaderButton
-            icon="left_arrow"
-            label={intl.formatMessage(intlMessages.breakoutTitle)}
-            aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
-            onClick={() => {
+        <Header
+          leftButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),
+            label: intl.formatMessage(intlMessages.breakoutTitle),
+            onClick: () => {
               this.closePanel();
-            }}
-          />
-          { amIModerator && (
+            },
+          }}
+          customRightButton={amIModerator && (
             <BreakoutDropdown
               openBreakoutTimeManager={this.showSetTimeForm}
               endAllBreakouts={() => {
@@ -570,9 +571,10 @@ class BreakoutRoom extends PureComponent {
               }}
               isMeteorConnected={isMeteorConnected}
               amIModerator={amIModerator}
+              isRTL={isRTL}
             />
-          ) }
-        </Styled.Header>
+          )}
+        />
         {this.renderDuration()}
         {amIModerator
           ? (

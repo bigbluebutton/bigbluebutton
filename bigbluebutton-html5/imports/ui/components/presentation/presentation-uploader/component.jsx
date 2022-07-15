@@ -644,7 +644,7 @@ class PresentationUploader extends Component {
           </Styled.StatusIcon>
         </Styled.FileLine>
         <Styled.StatusInfo>
-          <Styled.StatusInfoSpan styles={hasError ? 'error' : 'info'}>
+          <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
             {this.renderPresentationItemStatus(item)}
           </Styled.StatusInfoSpan>
         </Styled.StatusInfo>
@@ -1058,7 +1058,7 @@ class PresentationUploader extends Component {
             <h1>{intl.formatMessage(intlMessages.title)}</h1>
             <Styled.ActionWrapper>
               <Styled.DismissButton
-                color="default"
+                color="secondary"
                 onClick={this.handleDismiss}
                 label={intl.formatMessage(intlMessages.dismissLabel)}
                 aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}

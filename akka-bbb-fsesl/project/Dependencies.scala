@@ -46,8 +46,8 @@ object Dependencies {
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
-    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons excludeAll (
-      ExclusionRule(organization = "org.red5"))
+    val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
+
     val bbbFseslClient = "org.bigbluebutton" % "bbb-fsesl-client" % Versions.bbbFsesl
   }
 

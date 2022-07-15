@@ -382,6 +382,30 @@ def svg_render_shape_poll(g, slide, shape)
                           width: width, height: height, x: x, y: y)
 end
 
+def build_tldraw_shape(image_shapes, slide, shape)
+  shape_in = shape[:in]
+  shape_out = shape[:out]
+
+  if shape_in == shape_out
+    BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is never shown (duration rounds to 0)")
+    return
+  end
+
+  if (shape_in >= slide[:out]) || (!shape[:out].nil? && shape[:out] <= slide[:in])
+    BigBlueButton.logger.info("Draw #{shape[:shape_id]} Shape #{shape[:shape_unique_id]} is not visible during image time span")
+    return
+  end
+
+  tldraw_shape = {
+    id: shape[:shape_id],
+    timestamp: shape_in,
+    undo: (shape[:undo].nil? ? -1 : shape[:undo]),
+    shape_data: shape[:shape_data]
+  } 
+
+  image_shapes.push(tldraw_shape)
+end
+
 def svg_render_shape(canvas, slide, shape, image_id)
   shape_in = shape[:in]
   shape_out = shape[:out]
@@ -426,7 +450,7 @@ def svg_render_shape(canvas, slide, shape, image_id)
 end
 
 @svg_image_id = 1
-def svg_render_image(svg, slide, shapes)
+def svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   slide_number = slide[:slide]
   presentation = slide[:presentation]
   slide_in = slide[:in]
@@ -458,15 +482,25 @@ def svg_render_image(svg, slide, shapes)
 
   shapes = shapes[presentation][slide_number]
 
-  canvas = doc.create_element('g',
-                              class: 'canvas', id: "canvas#{image_id}",
-                              image: "image#{image_id}", display: 'none')
+  if !tldraw
+    canvas = doc.create_element('g',
+                                class: 'canvas', id: "canvas#{image_id}",
+                                image: "image#{image_id}", display: 'none')
 
-  shapes.each do |shape|
-    svg_render_shape(canvas, slide, shape, image_id)
+    shapes.each do |shape|
+      svg_render_shape(canvas, slide, shape, image_id)
+    end
+
+    svg << canvas unless canvas.element_children.empty?
+  else 
+    image_shapes = []
+
+    shapes.each do |shape|
+        build_tldraw_shape(image_shapes, slide, shape)
+    end
+
+    tldraw_shapes[image_id] = { :shapes=>image_shapes, :timestamp=> slide_in}
   end
-
-  svg << canvas unless canvas.element_children.empty?
 end
 
 def panzoom_viewbox(panzoom)
@@ -483,13 +517,19 @@ def panzoom_viewbox(panzoom)
   [x, y, w, h]
 end
 
-def panzooms_emit_event(rec, panzoom)
+def panzooms_emit_event(rec, panzoom, tldraw)
   panzoom_in = panzoom[:in]
   return if panzoom_in == panzoom[:out]
 
-  rec.event(timestamp: panzoom_in) do
-    x, y, w, h = panzoom_viewbox(panzoom)
-    rec.viewBox("#{x} #{y} #{w} #{h}")
+  if !tldraw
+    rec.event(timestamp: panzoom_in) do
+      x, y, w, h = panzoom_viewbox(panzoom)
+      rec.viewBox("#{x} #{y} #{w} #{h}")
+    end
+  else 
+    rec.event(timestamp: panzoom_in) do
+      rec.cameraAndZoom("#{panzoom[:x_camera]} #{panzoom[:y_camera]} #{panzoom[:zoom]}")
+    end
   end
 end
 
@@ -497,14 +537,14 @@ def convert_cursor_coordinate(cursor_coord, panzoom_offset, panzoom_ratio)
   (((cursor_coord / 100.0) + (panzoom_offset * MAGIC_MYSTERY_NUMBER / 100.0)) / (panzoom_ratio / 100.0)).round(5)
 end
 
-def cursors_emit_event(rec, cursor)
+def cursors_emit_event(rec, cursor, tldraw)
   cursor_in = cursor[:in]
   return if cursor_in == cursor[:out]
 
   rec.event(timestamp: cursor_in) do
     panzoom = cursor[:panzoom]
     if cursor[:visible]
-      if @version_atleast_2_0_0
+      if @version_atleast_2_0_0 && !tldraw
         # In BBB 2.0, the cursor now uses the same coordinate system as annotations
         # Use the panzoom information to convert it to be relative to viewbox
         x = convert_cursor_coordinate(cursor[:x], panzoom[:x_offset], panzoom[:width_ratio])
@@ -533,6 +573,53 @@ def determine_slide_number(slide, current_slide)
   slide = slide.text.to_i
   slide -= 1 unless @version_atleast_0_9_0
   slide
+end
+
+def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide, timestamp)
+  presentation = event.at_xpath('presentation')
+  slide = event.at_xpath('pageNumber')
+
+  presentation = determine_presentation(presentation, current_presentation)
+  slide = determine_slide_number(slide, current_slide)
+
+  # Set up the shapes data structures if needed
+  shapes[presentation] ||= {}
+  shapes[presentation][slide] ||= []
+
+  # We only need to deal with shapes for this slide
+  shapes = shapes[presentation][slide]
+
+  # Set up the structure for this shape
+  shape = {}
+  # Common properties
+  shape[:in] = timestamp
+  shape_data = shape[:shape_data] = JSON.parse(event.at_xpath('shapeData'))
+
+  user_id = event.at_xpath('userId')&.text
+  shape[:user_id] = user_id if user_id
+
+  shape_id = event.at_xpath('shapeId')&.text
+  shape[:id] = shape_id if shape_id
+
+  draw_id = shape[:shape_id] = @svg_shape_id
+  @svg_shape_id += 1
+
+  # Find the previous shape, for updates
+  prev_shape = nil
+  if shape_id
+    # If we have a shape ID, look up the previous shape by ID
+    prev_shape_pos = shapes.rindex { |s| s[:shade_id] == shape_id }
+    prev_shape = prev_shape_pos ? shapes[prev_shape_pos] : nil
+  end
+  if prev_shape
+    prev_shape[:out] = timestamp
+    shape[:shape_unique_id] = prev_shape[:shape_unique_id]
+  else
+    shape[:shape_unique_id] = @svg_shape_unique_id
+    @svg_shape_unique_id += 1
+  end
+
+  shapes << shape
 end
 
 def events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
@@ -734,7 +821,7 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   end
 end
 
-def events_get_image_info(slide)
+def events_get_image_info(slide, tldraw)
   slide_deskshare = slide[:deskshare]
   slide_presentation = slide[:presentation]
 
@@ -744,7 +831,8 @@ def events_get_image_info(slide)
     slide[:src] = 'presentation/logo.png'
   else
     slide_nr = slide[:slide] + 1
-    slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"
+    tldraw ? slide[:src] = "presentation/#{slide_presentation}/svgs/slide#{slide_nr}.svg"
+           : slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"
     slide[:text] = "presentation/#{slide_presentation}/textfiles/slide-#{slide_nr}.txt"
   end
   image_path = "#{@process_dir}/#{slide[:src]}"
@@ -792,6 +880,7 @@ def process_presentation(package_dir)
   # Current pan/zoom state
   current_x_offset = current_y_offset = 0.0
   current_width_ratio = current_height_ratio = 100.0
+  current_x_camera = current_y_camera = current_zoom = 0.0  
   # Current cursor status
   cursor_x = cursor_y = -1.0
   cursor_visible = false
@@ -802,6 +891,8 @@ def process_presentation(package_dir)
   panzooms = []
   cursors = []
   shapes = {}
+  tldraw = BigBlueButton::Events.check_for_tldraw_events(@doc)
+  tldraw_shapes = {}
 
   # Iterate through the events.xml and store the events, building the
   # xml files as we go
@@ -836,6 +927,12 @@ def process_presentation(package_dir)
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
+    when 'TldrawCameraChangedEvent'
+      current_x_camera = event.at_xpath('xCamera').text.to_f
+      current_y_camera = event.at_xpath('yCamera').text.to_f
+      current_zoom = event.at_xpath('zoom').text.to_f
+      panzoom_changed = true
+
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
       deskshare = slide_changed = true if @presentation_props['include_deskshare']
 
@@ -848,7 +945,10 @@ def process_presentation(package_dir)
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
 
-    when 'UndoShapeEvent', 'UndoAnnotationEvent'
+    when 'AddTldrawShapeEvent'
+      events_parse_tldraw_shape(shapes, event, current_presentation, current_slide, timestamp)
+
+    when 'UndoShapeEvent', 'UndoAnnotationEvent', 'DeleteTldrawShapeEvent'
       events_parse_undo(shapes, event, current_presentation, current_slide, timestamp)
 
     when 'ClearPageEvent', 'ClearWhiteboardEvent'
@@ -887,7 +987,7 @@ def process_presentation(package_dir)
       else
         if slide
           slide[:out] = timestamp
-          svg_render_image(svg, slide, shapes)
+          svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
         end
 
         BigBlueButton.logger.info("Presentation #{current_presentation} Slide #{current_slide} Deskshare #{deskshare}")
@@ -897,7 +997,7 @@ def process_presentation(package_dir)
           in: timestamp,
           deskshare: deskshare,
         }
-        events_get_image_info(slide)
+        events_get_image_info(slide, tldraw)
         slides << slide
       end
     end
@@ -909,40 +1009,59 @@ def process_presentation(package_dir)
       slide_width = slide[:width]
       slide_height = slide[:height]
       if panzoom &&
+        (panzoom[:deskshare] == deskshare) &&
+        ((!tldraw &&
          (panzoom[:x_offset] == current_x_offset) &&
          (panzoom[:y_offset] == current_y_offset) &&
          (panzoom[:width_ratio] == current_width_ratio) &&
          (panzoom[:height_ratio] == current_height_ratio) &&
          (panzoom[:width] == slide_width) &&
-         (panzoom[:height] == slide_height) &&
-         (panzoom[:deskshare] == deskshare)
+         (panzoom[:height] == slide_height)) ||
+        (tldraw &&
+         (panzoom[:x_camera] == current_x_camera) &&
+         (panzoom[:y_camera] == current_y_camera) &&
+         (panzoom[:zoom] == current_zoom))
+        )
         BigBlueButton.logger.info('Panzoom: skipping, no changes')
         panzoom_changed = false
       else
         if panzoom
           panzoom[:out] = timestamp
-          panzooms_emit_event(panzooms_rec, panzoom)
+          panzooms_emit_event(panzooms_rec, panzoom, tldraw)
         end
-        BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
-        panzoom = {
-          x_offset: current_x_offset,
-          y_offset: current_y_offset,
-          width_ratio: current_width_ratio,
-          height_ratio: current_height_ratio,
-          width: slide[:width],
-          height: slide[:height],
-          in: timestamp,
-          deskshare: deskshare,
-        }
+        if !tldraw
+          BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
+          panzoom = {
+            x_offset: current_x_offset,
+            y_offset: current_y_offset,
+            width_ratio: current_width_ratio,
+            height_ratio: current_height_ratio,
+            width: slide[:width],
+            height: slide[:height],
+            in: timestamp,
+            deskshare: deskshare,
+          }
+        else 
+          BigBlueButton.logger.info("Panzoom: #{current_x_camera} #{current_y_camera} #{current_zoom} (#{slide_width}x#{slide_height})")
+          panzoom = {
+            x_camera: current_x_camera,
+            y_camera: current_y_camera,
+            zoom: current_zoom,
+            in: timestamp,
+            deskshare: deskshare,
+          }
+        end
         panzooms << panzoom
       end
     end
 
     # Perform cursor finalization
     if cursor_changed || panzoom_changed
-      unless cursor_x >= 0 && cursor_x <= 100 &&
-          cursor_y >= 0 && cursor_y <= 100
-        cursor_visible = false
+      if !tldraw
+        unless cursor_x >= 0 && cursor_x <= 100 &&
+            cursor_y >= 0 && cursor_y <= 100
+          cursor_visible = false
+        end
       end
 
       panzoom = panzooms.last
@@ -955,7 +1074,7 @@ def process_presentation(package_dir)
       else
         if cursor
           cursor[:out] = timestamp
-          cursors_emit_event(cursors_rec, cursor)
+          cursors_emit_event(cursors_rec, cursor, tldraw)
         end
         cursor = {
           visible: cursor_visible,
@@ -972,26 +1091,27 @@ def process_presentation(package_dir)
   # Add the last slide, panzoom, and cursor
   slide = slides.last
   slide[:out] = last_timestamp
-  svg_render_image(svg, slide, shapes)
+  svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   panzoom = panzooms.last
   panzoom[:out] = last_timestamp
-  panzooms_emit_event(panzooms_rec, panzoom)
+  panzooms_emit_event(panzooms_rec, panzoom, tldraw)
   cursor = cursors.last
   cursor[:out] = last_timestamp
-  cursors_emit_event(cursors_rec, cursor)
+  cursors_emit_event(cursors_rec, cursor, tldraw)
 
   cursors_doc = Builder::XmlMarkup.new(indent: 2)
   cursors_doc.instruct!
-  cursors_doc.recording(id: 'cursor_events') { |xml| xml << cursors_rec.target! }
+  cursors_doc.recording(id: 'cursor_events', tldraw: tldraw) { |xml| xml << cursors_rec.target! }
 
   panzooms_doc = Builder::XmlMarkup.new(indent: 2)
   panzooms_doc.instruct!
-  panzooms_doc.recording(id: 'panzoom_events') { |xml| xml << panzooms_rec.target! }
+  panzooms_doc.recording(id: 'panzoom_events', tldraw: tldraw) { |xml| xml << panzooms_rec.target! }
 
   # And save the result
   File.write("#{package_dir}/#{@shapes_svg_filename}", shapes_doc.to_xml)
   File.write("#{package_dir}/#{@panzooms_xml_filename}", panzooms_doc.target!)
   File.write("#{package_dir}/#{@cursor_xml_filename}", cursors_doc.target!)
+  generate_json_file(package_dir, @tldraw_shapes_filename, tldraw_shapes) if tldraw
 end
 
 def process_chat_messages(events, bbb_props)
@@ -1170,6 +1290,7 @@ end
 @panzooms_xml_filename = 'panzooms.xml'
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
+@tldraw_shapes_filename = 'tldraw.json'
 @svg_shape_id = 1
 @svg_shape_unique_id = 1
 

@@ -2,6 +2,7 @@ const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { getSettings } = require('../core/settings');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -22,7 +23,11 @@ class Join extends Create {
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
 
-    if (!shouldJoinAudio) await breakoutUserPage.closeAudioModal();
+    if (shouldJoinAudio) {
+      await this.userPage.waitForSelector(e.joinAudio);
+    } else {
+      await breakoutUserPage.closeAudioModal();
+    }
     await breakoutUserPage.waitForSelector(e.presentationTitle);
     return breakoutUserPage;
   }
@@ -30,17 +35,14 @@ class Join extends Create {
   async joinAndShareWebcam() {
     const breakoutPage = await this.joinRoom();
 
-    const { videoPreviewTimeout } = breakoutPage.settings;
+    const { videoPreviewTimeout } = getSettings();
     await breakoutPage.shareWebcam(true, videoPreviewTimeout);
-    await breakoutPage.hasElement(e.presentationPlaceholder);
-    await breakoutPage.waitForSelector(e.presentationTitle);
   }
 
   async joinAndShareScreen() {
     const breakoutPage = await this.joinRoom();
 
     await utilScreenShare.startScreenshare(breakoutPage);
-    await utilScreenShare.getScreenShareBreakoutContainer(breakoutPage);
   }
 
   async joinWithAudio() {

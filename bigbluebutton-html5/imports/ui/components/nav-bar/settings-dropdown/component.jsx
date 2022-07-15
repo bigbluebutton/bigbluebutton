@@ -298,9 +298,10 @@ class SettingsDropdown extends PureComponent {
       shortcuts: OPEN_OPTIONS_AK,
       isDropdownOpen,
       isMobile,
+      isRTL,
     } = this.props;
 
-    const customStyles = { top: '3rem' };
+    const customStyles = { top: '1rem' };
 
     return (
       <BBBMenu
@@ -312,7 +313,8 @@ class SettingsDropdown extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             data-test="optionsButton"
-            ghost
+            color="dark"
+            size="md"
             circle
             hideLabel
             // FIXME: Without onClick react proptypes keep warning
@@ -321,6 +323,16 @@ class SettingsDropdown extends PureComponent {
           />
         )}
         actions={this.renderMenuItems()}
+        opts={{
+          id: "default-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
+          transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+        }}
       />
     );
   }

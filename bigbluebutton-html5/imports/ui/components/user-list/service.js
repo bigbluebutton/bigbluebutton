@@ -18,6 +18,7 @@ import { Session } from 'meteor/session';
 import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
+import { getDateString } from '/imports/utils/string-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -631,7 +632,7 @@ const sortUsersByLastName = (a, b) => {
   return sortUsersByName(aUser, bUser);
 };
 
-const isUserPresenter = (userId) => {
+const isUserPresenter = (userId = Auth.userID) => {
   const user = Users.findOne({ userId },
     { fields: { presenter: 1 } });
   return user ? user.presenter : false;
@@ -666,13 +667,10 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel) => {
   const link = document.createElement('a');
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } });
-  const date = new Date();
-  const time = `${date.getHours()}-${date.getMinutes()}`;
-  const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
-  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${dateString}.txt`);
+  link.setAttribute('download', `bbb-${meeting.meetingProp.name}[users-list]_${getDateString()}.txt`);
   link.setAttribute(
     'href',
-    `data: ${mimeType} ;charset=utf-16,${encodeURIComponent(namesListsString)}`,
+    `data: ${mimeType};charset=utf-16,${encodeURIComponent(namesListsString)}`,
   );
   return link;
 };
