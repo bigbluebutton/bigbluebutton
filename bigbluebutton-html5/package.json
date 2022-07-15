@@ -43,7 +43,7 @@
     "classnames": "^2.2.6",
     "darkreader": "^4.9.46",
     "emoji-mart": "^3.0.1",
-    "eventemitter2": "~5.0.1",
+    "eventemitter2": "~6.4.6",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
     "flat": "^4.1.1",

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Styled from '../styles';
 import {
   colorOffWhite,
   toolbarButtonColor,
@@ -9,9 +8,9 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
 
-const DecreaseZoomButton = styled(Styled.PrevSlideButton)``;
+const DecreaseZoomButton = styled(Button)``;
 
-const IncreaseZoomButton = styled(Styled.NextSlideButton)``;
+const IncreaseZoomButton = styled(Button)``;
 
 const ResetZoomButton = styled(Button)`
   text-align: center;

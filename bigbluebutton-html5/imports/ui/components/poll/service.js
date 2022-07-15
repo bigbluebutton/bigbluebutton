@@ -1,7 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { CurrentPoll } from '/imports/api/polls';
 import { escapeHtml } from '/imports/utils/string-utils';
-import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages } from 'react-intl';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
@@ -89,7 +88,7 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   answers.map((item) => {
     responded += item.numVotes;
     return item;
-  }).reduce(caseInsensitiveReducer, []).forEach((item) => {
+  }).forEach((item) => {
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round((item.numVotes / numResponded) * 100);
     const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);

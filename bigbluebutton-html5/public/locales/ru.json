@@ -1043,7 +1043,9 @@
     "app.learningDashboard.errors.dataUnavailable": "Данные больше не доступны",
     "mobileApp.portals.fields.url.label": "URL сервера",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "Сохранить",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Имя уже используется"
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Поля, обязательные для заполнения",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Имя уже используется",
+    "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Ошибка при загрузке страницы. Проверьте URL и Интернет соединение."
 
 }
 

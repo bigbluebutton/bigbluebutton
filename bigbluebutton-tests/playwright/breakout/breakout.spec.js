@@ -9,6 +9,7 @@ test.describe.parallel('Breakout', () => {
     await create.create();
   });
 
+  // https://docs.bigbluebutton.org/2.5/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
   test('Join Breakout room @ci', async ({ browser, context, page }) => {
     const join = new Join(browser, context);
     await join.initPages(page);
