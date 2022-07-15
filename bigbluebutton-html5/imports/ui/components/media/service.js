@@ -5,6 +5,7 @@ import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
+import UserService from '/imports/ui/components/user-list/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -26,7 +27,7 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && viewScreenshare && isVideoBroadcasting();
+  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter()) && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {

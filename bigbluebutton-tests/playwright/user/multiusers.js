@@ -13,8 +13,11 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
+  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
     await this.initModPage(page1);
+    if (waitAndClearDefaultPresentationNotificationModPage) {
+        await waitAndClearDefaultPresentationNotification(this.modPage);
+    }
     await this.initUserPage();
   }
 

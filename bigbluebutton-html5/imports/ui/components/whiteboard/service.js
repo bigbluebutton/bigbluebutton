@@ -20,7 +20,7 @@ const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
 };
 
-function clearFakeAnnotations() {
+const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
   Annotations.remove({ id: /-fake/g });
 }
@@ -396,5 +396,5 @@ export {
   getCurrentPres,
   removeShapes,
   changeCurrentSlide,
-  getCurSlide,
+  clearFakeAnnotations,
 };
