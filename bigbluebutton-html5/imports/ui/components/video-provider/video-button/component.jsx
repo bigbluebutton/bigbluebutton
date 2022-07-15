@@ -8,6 +8,7 @@ import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
+import Button from '/imports/ui/components/common/button/component';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
@@ -161,7 +162,7 @@ const JoinVideoButton = ({
 
   return (
     <Styled.OffsetBottom>
-      <Styled.VideoButton
+      <Button
         label={label}
         data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
         onClick={handleOnClick}

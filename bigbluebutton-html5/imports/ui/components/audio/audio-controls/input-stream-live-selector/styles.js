@@ -4,7 +4,6 @@ import Button from '/imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorDanger,
-  colorWhite,
   colorGrayDark,
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
