@@ -70,14 +70,14 @@ let exportJob = JSON.parse(job);
         // CairoSVG doesn't handle transparent SVG and PNG embeds properly, e.g., in rasterized text.
         // So textboxes may get a black background when downloading/exporting repeatedly.
         // To avoid that, we take slides from the uploaded file, but later probe the dimensions from the SVG
-        // so it matches what was shown in the browser -- Tldraw unfortunately uses absolute coordinates.
+        // so it matches what was shown in the browser.
 
         let extract_png_from_pdf = [
           'pdftocairo',
           '-png',
           '-f', pageNumber, 
           '-l', pageNumber,
-          '-r', config.collector.backgroundSlidePPI,
+          '-scale-to', config.collector.pngWidthRasterizedSlides,
           '-singlefile',
           '-cropbox',
           pdfFile, outputFile,

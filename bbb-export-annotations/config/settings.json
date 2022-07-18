@@ -7,7 +7,7 @@
       "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
     },
     "collector": {
-      "backgroundSlidePPI": 350
+      "pngWidthRasterizedSlides": 2048
     },
     "process": {
       "whiteboardTextEncoding": "utf-8",

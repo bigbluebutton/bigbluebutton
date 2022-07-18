@@ -796,14 +796,12 @@ for (let currentSlide of pages) {
         if (err) { return logger.error(err); }
     });
 
-    // Dimensions converted back to a pixel size which,
+    // Dimensions converted to a pixel size which,
     // when converted to points, will yield the desired
     // dimension in pixels when read without conversion
 
-    // e.g. say Tldraw's canvas is 1920x1080 px.
-    // The background SVG dimensions are set to 1920x1080 pt (incorrect unit).
-    // So we read it in ignoring the unit as 1920x1080 px, making the position of the drawings match.
-    // Now we assume we had 1920x1080pt and resize to 2560x1440 px so that the SVG generates with the original "wrong" size.
+    // e.g. say the background SVG dimensions are set to 1920x1080 pt
+    // Resize output to 2560x1440 px so that the SVG generates with the original size in pt.
 
     let convertAnnotatedSlide = [
         'cairosvg',
