@@ -142,7 +142,8 @@ export default function Cursors(props) {
   const moved = (event) => {
     const { type, x, y } = event;
     // If the presentation container is the full screen element we don't need any offsets
-    if (document?.fullscreenElement?.getAttribute('data-test') === "presentationContainer") {
+    const fsEl = document?.webkitFullscreenElement || document?.fullscreenElement;
+    if (fsEl?.getAttribute('data-test') === "presentationContainer") {
       return setPos({ x, y });
     }
     const nav = document.getElementById('Navbar');
