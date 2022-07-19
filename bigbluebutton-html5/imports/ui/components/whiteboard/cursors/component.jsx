@@ -140,7 +140,11 @@ export default function Cursors(props) {
   };
 
   const moved = (event) => {
-    const { type } = event;
+    const { type, x, y } = event;
+    // If the presentation container is the full screen element we don't need any offsets
+    if (document?.fullscreenElement?.getAttribute('data-test') === "presentationContainer") {
+      return setPos({ x, y });
+    }
     const nav = document.getElementById('Navbar');
     let yOffset = parseFloat(nav?.style?.height);
     const getSibling = (el) => el?.previousSibling || null;
@@ -149,8 +153,8 @@ export default function Cursors(props) {
     const subPanel = panel && getSibling(panel);
     let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
-
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
+
     if (type === 'touchmove') {
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
@@ -187,7 +191,7 @@ export default function Cursors(props) {
         if (!panel && !subPanel) {
           xOffset = 0;
         }
-    }
+      }
     } else {
       if (webcams && sl?.includes('custom')) {
         handleCustomYOffsets();
