@@ -121,7 +121,12 @@ function to_px(pt) {
 }
 
 function escapeText(string) {
-    return string.replace(/['".*+?^${}()|[\]\\\/]/g, '\\$&');
+    return  string
+            .replace(/&/g, '\\&amp;')
+            .replace(/'/g, '\\&#39;')
+            .replace(/>/g, '\\&gt;')
+            .replace(/</g, '\\&lt;')
+            .replace(/[~`!".*+?%^${}()|[\]\\\/]/g, '\\$&');
 }
 
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
