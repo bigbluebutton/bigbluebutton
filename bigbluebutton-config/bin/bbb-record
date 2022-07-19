@@ -193,7 +193,6 @@ add_gems() {
       cat $FILE_TO_ADD_GEMS >> /usr/local/bigbluebutton/core/Gemfile
       pushd /usr/local/bigbluebutton/core
          bundle config unset --local deployment
-         # rm Gemfile.lock
          bundle install
          # Remove unneeded files to reduce package size
          bundle clean
@@ -232,6 +231,7 @@ usage() {
    echo "   --tointernal <external meetingId>  get the internal meeting ids for the given external meetingId"
    echo "   --toexternal <internal meetingId>  get the external meeting id for the given internal meetingId"
    echo "   --republish <internal meetingID>   republish the recording for meetingID. (Only for Matterhorn Integration)"
+   echo "   --addcustomgems                    rebuild and install new custom gems (if /etc/bigbluebutton/recording/GemsToAdd is set with the new gems)"
    #echo "   --rearchive [meetingId]            rearchive the recording (created before a restart)"
    echo
 }
