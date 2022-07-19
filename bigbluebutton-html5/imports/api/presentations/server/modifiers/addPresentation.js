@@ -65,6 +65,8 @@ export default function addPresentation(meetingId, podId, presentation) {
       podId,
       'conversion.done': true,
       'conversion.error': false,
+      'exportation.isRunning': false,
+      'exportation.error': false,
     }, flat(presentation, { safe: true })),
   };
 
