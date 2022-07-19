@@ -185,6 +185,26 @@ check_path_owner_group() {
    fi
 }
 
+add_gems() {
+   echo "Checking for adding gems file..."
+   FILENAME_OF_GEMS="GemsToAdd"
+   FILE_TO_ADD_GEMS="/etc/bigbluebutton/recording/$FILENAME_OF_GEMS"
+   if [ -f "$FILE_TO_ADD_GEMS" ]; then
+      cat $FILE_TO_ADD_GEMS >> /usr/local/bigbluebutton/core/Gemfile
+      pushd /usr/local/bigbluebutton/core
+         bundle config unset --local deployment
+         # rm Gemfile.lock
+         bundle install
+         # Remove unneeded files to reduce package size
+         bundle clean
+         bundle config set --local deployment true
+      popd
+      mv $FILE_TO_ADD_GEMS "$FILE_TO_ADD_GEMS-used"
+   else
+      echo "No file to add gems, please insert one first"
+   fi
+}
+
 usage() {
    echo "BigBlueButton Recording Diagnostic Utility (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
    echo
@@ -362,6 +382,13 @@ while [ $# -gt 0 ]; do
          shift
       fi
       TOINTERNAL=1
+      shift
+      continue
+   fi
+
+   if [ "$1" = "-addcustomgems" ] || [ "$1" = "--addcustomgems" ]; then
+      need_root
+      ADD_CUSTOM_GEMS=1
       shift
       continue
    fi
@@ -962,4 +989,8 @@ if [ $DEBUG ]; then
    fi
 
    exit 0
+fi
+
+if [ $ADD_CUSTOM_GEMS ]; then
+   add_gems
 fi
