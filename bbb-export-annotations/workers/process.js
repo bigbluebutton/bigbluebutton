@@ -120,9 +120,14 @@ function to_px(pt) {
     return (pt / config.process.pointsPerInch) * config.process.pixelsPerInch
 }
 
+function escapeText(string) {
+    return string.replace(/['".*+?^${}()|[\]\\\/]/g, '\\$&');
+}
+
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
     
     fontSize = to_pt(fontSize) * config.process.textScaleFactor
+    text = escapeText(text);
 
     // Sticky notes need automatic line wrapping: take width into account
     // Texbox scaled by a constant factor to improve resolution at small scales
