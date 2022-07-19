@@ -24,6 +24,7 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
+const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
@@ -314,6 +315,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           stream: (inputStream && inputStream.active) ? inputStream : undefined,
           offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
           signalCandidates: SIGNAL_CANDIDATES,
+          traceLogs: TRACE_LOGS,
         };
 
         this.broker = new AudioBroker(
@@ -428,6 +430,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
               clientSessionNumber: getAudioSessionNumber(),
               iceServers,
               offering: LISTEN_ONLY_OFFERING,
+              traceLogs: TRACE_LOGS,
             };
 
             this.broker = new AudioBroker(

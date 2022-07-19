@@ -14,7 +14,6 @@ class Polling extends MultiUsers {
   }
 
   async createPoll() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await util.startPoll(this.modPage);
     await this.modPage.hasElement(e.pollMenuButton);
   }
@@ -29,7 +28,7 @@ class Polling extends MultiUsers {
 
   async quickPoll() {
     await waitAndClearDefaultPresentationNotification(this.modPage);
-    await utilPresentation.uploadPresentation(this.modPage, e.questionSlideFileName);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
 
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitForSelector(e.pollMenuButton);
@@ -87,7 +86,7 @@ class Polling extends MultiUsers {
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await util.startPoll(this.modPage);
 
-    await utilPresentation.uploadPresentation(this.modPage, e.questionSlideFileName);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
     // Check poll results

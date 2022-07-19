@@ -111,22 +111,9 @@ class BaseBroker {
     this.sendMessage({ id: 'ping' });
   }
 
-  _handleRemoteDescriptionProcessing (error, localDescription = null) {
-    if (error) {
-      logger.error({
-        logCode: `${this.logCodePrefix}_processanswer_error`,
-        extraInfo: {
-          errorMessage: error.name || error.message || 'Unknown error',
-          sfuComponent: this.sfuComponent,
-        }
-      }, `Error processing SDP answer from SFU for ${this.sfuComponent}`);
-      // 1305: "PEER_NEGOTIATION_FAILED",
-      return this.onerror(BaseBroker.assembleError(1305));
-    }
-
+  _processRemoteDescription(localDescription = null) {
     // There is a new local description; send it back to the server
     if (localDescription) this.sendLocalDescription(localDescription);
-
     // Mark the peer as negotiated and flush the ICE queue
     this.webRtcPeer.negotiated = true;
     this.processIceQueue();
@@ -151,21 +138,39 @@ class BaseBroker {
     return true;
   }
 
-  processOffer (sfuResponse) {
+  processOffer(sfuResponse) {
     if (this._validateStartResponse(sfuResponse)) {
-      this.webRtcPeer.processOffer(
-        sfuResponse.sdpAnswer,
-        this._handleRemoteDescriptionProcessing.bind(this)
-      );
+      this.webRtcPeer.processOffer(sfuResponse.sdpAnswer)
+        .then(this._processRemoteDescription.bind(this))
+        .catch((error) => {
+          logger.error({
+            logCode: `${this.logCodePrefix}_processoffer_error`,
+            extraInfo: {
+              errorMessage: error.name || error.message || 'Unknown error',
+              sfuComponent: this.sfuComponent,
+            },
+          }, `Error processing offer from SFU for ${this.sfuComponent}`);
+          // 1305: "PEER_NEGOTIATION_FAILED",
+          this.onerror(BaseBroker.assembleError(1305));
+        });
     }
   }
 
-  processAnswer (sfuResponse) {
+  processAnswer(sfuResponse) {
     if (this._validateStartResponse(sfuResponse)) {
-      this.webRtcPeer.processAnswer(
-        sfuResponse.sdpAnswer,
-        this._handleRemoteDescriptionProcessing.bind(this)
-      );
+      this.webRtcPeer.processAnswer(sfuResponse.sdpAnswer)
+        .then(this._processRemoteDescription.bind(this))
+        .catch((error) => {
+          logger.error({
+            logCode: `${this.logCodePrefix}_processanswer_error`,
+            extraInfo: {
+              errorMessage: error.name || error.message || 'Unknown error',
+              sfuComponent: this.sfuComponent,
+            },
+          }, `Error processing answer from SFU for ${this.sfuComponent}`);
+          // 1305: "PEER_NEGOTIATION_FAILED",
+          this.onerror(BaseBroker.assembleError(1305));
+        });
     }
   }
 
@@ -205,22 +210,20 @@ class BaseBroker {
     }
   }
 
-  addIceCandidate (candidate) {
-    this.webRtcPeer.addIceCandidate(candidate, (error) => {
-      if (error) {
-        // Just log the error. We can't be sure if a candidate failure on add is
-        // fatal or not, so that's why we have a timeout set up for negotiations and
-        // listeners for ICE state transitioning to failures, so we won't act on it here
-        logger.error({
-          logCode: `${this.logCodePrefix}_addicecandidate_error`,
-          extraInfo: {
-            errorMessage: error.name || error.message || 'Unknown error',
-            errorCode: error.code || 'Unknown code',
-            sfuComponent: this.sfuComponent,
-            started: this.started,
-          }
-        }, `Adding ICE candidate failed`);
-      }
+  addIceCandidate(candidate) {
+    this.webRtcPeer.addIceCandidate(candidate).catch((error) => {
+      // Just log the error. We can't be sure if a candidate failure on add is
+      // fatal or not, so that's why we have a timeout set up for negotiations and
+      // listeners for ICE state transitioning to failures, so we won't act on it here
+      logger.error({
+        logCode: `${this.logCodePrefix}_addicecandidate_error`,
+        extraInfo: {
+          errorMessage: error.name || error.message || 'Unknown error',
+          errorCode: error.code || 'Unknown code',
+          sfuComponent: this.sfuComponent,
+          started: this.started,
+        },
+      }, 'Adding ICE candidate failed');
     });
   }
 

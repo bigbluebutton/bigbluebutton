@@ -391,6 +391,7 @@ class LockViewersComponent extends Component {
             <Styled.ButtonCancel
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
+              color="secondary"
             />
             <Styled.ButtonApply
               color="primary"

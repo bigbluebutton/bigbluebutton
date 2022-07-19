@@ -219,6 +219,8 @@ public:
     signalCandidates: false
     # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
+    # traceLogs: <Boolean> - enable trace logs in SFU peers
+    traceLogs: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
