@@ -192,6 +192,10 @@ export default function Cursors(props) {
           xOffset = 0;
         }
       }
+      if (webcams && sl?.includes('videoFocus')) {
+        xOffset = parseFloat(nav?.style?.width);
+        yOffset = parseFloat(panel?.style?.height);
+      }
     } else {
       if (webcams && sl?.includes('custom')) {
         handleCustomYOffsets();
@@ -214,6 +218,11 @@ export default function Cursors(props) {
           if (!panel && !subPanel) {
             xOffset = (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
           }
+      }
+
+      if (webcams && sl?.includes('videoFocus')) {
+        xOffset = parseFloat(subPanel?.style?.width);
+        yOffset = parseFloat(panel?.style?.height);
       }
     }
 
