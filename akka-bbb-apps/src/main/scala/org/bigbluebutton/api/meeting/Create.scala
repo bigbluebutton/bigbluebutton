@@ -372,10 +372,10 @@ object Create {
 //      Try(config.getString("defaultDialAccessNumber")).getOrElse("")
 //    })
 
-    val logoutUrl = params.getOrElse(ApiCreateParams.LOGOUT_URL, {
-      config.getString("bigbluebutton.web.logoutURL").orElse("") match {
-        case "" | "default" => config.getString("bigbluebutton.web.serverURL")
-        case _ => _
+    val logoutUrl:String = params.getOrElse(ApiCreateParams.LOGOUT_URL, {
+      Try(config.getString("bigbluebutton.web.logoutURL")).getOrElse("") match {
+        case "" | "default" => Try(config.getString("bigbluebutton.web.serverURL")).getOrElse("")
+        case logoutUrl => logoutUrl
       }
     })
 
@@ -396,8 +396,8 @@ object Create {
     //Append footer if it's not breakoutRoom
     welcomeMessageTemplate = welcomeMessageTemplate + {
       config.getString("defaultWelcomeMessageFooter") match {
-        case "" | isBreakout => ""
-        case footerMsg => "<br><br>" + footerMsg
+        case "" => ""
+        case footerMsg => if(isBreakout) "" else "<br><br>" + footerMsg
       }
     }
 

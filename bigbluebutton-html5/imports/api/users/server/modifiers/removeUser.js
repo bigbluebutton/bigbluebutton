@@ -78,3 +78,17 @@ export default function removeUser(body, meetingId) {
     Logger.error(`Removing user from Users collection: ${err}`);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

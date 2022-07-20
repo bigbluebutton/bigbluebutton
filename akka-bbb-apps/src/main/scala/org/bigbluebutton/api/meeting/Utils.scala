@@ -1,7 +1,7 @@
 package org.bigbluebutton.api.meeting
 
-import org.apache.commons.lang3.{StringEscapeUtils, StringUtils}
-import org.slf4j.{Logger, LoggerFactory}
+import org.apache.commons.lang3.{ StringEscapeUtils, StringUtils }
+import org.slf4j.{ Logger, LoggerFactory }
 
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
@@ -16,7 +16,7 @@ object Utils {
 
   def stripControlChars(text: String): String = text.replaceAll("\\p{Cc}", "")
 
-    def escapeHTMLTags(value: String): String = StringEscapeUtils.escapeHtml4(value)
+  def escapeHTMLTags(value: String): String = StringEscapeUtils.escapeHtml4(value)
 
   def isValidMeetingId(meetingId: String): Boolean = { //return  VALID_ID_PATTERN.matcher(meetingId).matches();
     !containsChar(meetingId, INVALID_CHARS)

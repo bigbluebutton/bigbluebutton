@@ -234,13 +234,49 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
             // ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION
 
 
+            get {
+              val meetingCreateFuture = meetingService.createMeeting(defaultprops)
+              val entityFuture = meetingCreateFuture.map { resp =>
+                resp.optionMeetingCreateResp match {
+                  case Some(_) =>
+                    val response:xml.Elem = <response>
+                      <returncode>SUCCESS</returncode>
+                      <meetingID>{defaultprops.meetingProp.extId}</meetingID>
+                      <internalMeetingID>{defaultprops.meetingProp.intId}</internalMeetingID>
+                      <parentMeetingID>{defaultprops.breakoutProps.parentId}</parentMeetingID>
+                      <attendeePW>{defaultprops.password.viewerPass}</attendeePW>
+                      <moderatorPW>{defaultprops.password.moderatorPass}</moderatorPW>
+                      <createTime>{defaultprops.durationProps.createdTime}</createTime>
+                      <voiceBridge>{defaultprops.voiceProp.telVoice}</voiceBridge>
+                      <dialNumber>{defaultprops.voiceProp.dialNumber}</dialNumber>
+                      <createDate>{defaultprops.durationProps.createdDate}</createDate>
+                      <hasUserJoined>false</hasUserJoined>
+                      <duration>0</duration>
+                      <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                      <messageKey/>
+                      <message/>
+                    </response>
+                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),response.toString)
+                  case None =>
+                    val response:xml.Elem = <response>
+                      <returncode>ERR</returncode>
+                      <messageKey/>
+                      <message>errrr</message>
+                    </response>
+                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),response.toString)
 
-            meetingService.createMeeting(defaultprops)
+//                    HttpEntity(ContentTypes.`application/json`, s"""{ "message": "No active meeting with ID $meetingId"}""".parseJson.prettyPrint)
+                }
+              }
+              complete(StatusCodes.OK,entityFuture)
+            }
 
-            complete(
-              StatusCodes.OK,
-              HttpEntity(ContentTypes.`application/json`, """{ "message": "Trying to create meeting"}""".parseJson.prettyPrint)
-            )
+
+
+//            complete(
+//              StatusCodes.OK,
+//              HttpEntity(ContentTypes.`application/json`, """{ "message": "Trying to create meeting"}""".parseJson.prettyPrint)
+//            )
           }
 
 

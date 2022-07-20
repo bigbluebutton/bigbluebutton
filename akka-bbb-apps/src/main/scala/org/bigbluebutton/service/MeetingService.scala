@@ -41,7 +41,23 @@ class MeetingService(system: ActorSystem, meetingInfoActor: ActorRef, eventBus: 
   }
 
   //  def createMeeting(defaultprops: DefaultProps): Future[MeetingResponseMsg] = {
-  def createMeeting(defaultprops: DefaultProps) = {
+  //  def getAnalytics(meetingId: String): Future[MeetingInfoResponseMsg] = {
+  //    val future = meetingInfoActor.ask(GetMeetingInfoMessage(meetingId)).mapTo[MeetingInfoResponseMsg]
+  //
+  //    future.recover {
+  //      case e: AskTimeoutException => {
+  //        MeetingInfoResponseMsg(None)
+  //      }
+  //    }
+  //  }
+
+  case class MeetingCreateResp(
+      msg:              String,
+  )
+
+  case class MeetingCreateResponseMsg(optionMeetingCreateResp: Option[String])
+
+  def createMeeting(defaultprops: DefaultProps): Future[MeetingCreateResponseMsg] = {
     val msg = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultprops)
 
     // with SystemConfiguration
@@ -51,8 +67,17 @@ class MeetingService(system: ActorSystem, meetingInfoActor: ActorRef, eventBus: 
     //    actorRef ! CreateMeetingInternalMsg(defaultprops)
 
     val future = actorRef ? CreateMeetingInternalMsg(defaultprops)
-    val result = Await.result(future, timeout.duration).asInstanceOf[String]
-    println(result)
+
+    future.recover {
+      case e: AskTimeoutException => {
+        MeetingCreateResponseMsg(None)
+      }
+    }
+
+    // val result = Await.result(future, timeout.duration).asInstanceOf[String]
+    //println(result)
+
+    // result
 
     //      val future = meetingInfoActor.ask(GetMeetingMessage(meetingId)).mapTo[MeetingResponseMsg]
     //

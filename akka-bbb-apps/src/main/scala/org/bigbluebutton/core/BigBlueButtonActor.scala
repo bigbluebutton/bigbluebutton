@@ -77,24 +77,32 @@ class BigBlueButtonActor(
 
     RunningMeetings.findWithId(meetings, msg.defaultProps.meetingProp.intId) match {
       case None =>
-        log.info("Create meeting request. meetingId={}", msg.defaultProps.meetingProp.intId)
 
-        val m = RunningMeeting(msg.defaultProps, outGW, eventBus)
+        RunningMeetings.findWithExtId(meetings, msg.defaultProps.meetingProp.extId) match {
+          case None =>
+            log.info("Create meeting request. meetingId={}", msg.defaultProps.meetingProp.intId)
 
-        // Subscribe to meeting and voice events.
-        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
-        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+            val m = RunningMeeting(msg.defaultProps, outGW, eventBus)
 
-        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
-        bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+            // Subscribe to meeting and voice events.
+            eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+            eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
 
-        RunningMeetings.add(meetings, m)
-        actorRef ! "CRIADO COM SUCESSO!"
+            bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+            bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
 
+            RunningMeetings.add(meetings, m)
+            actorRef ! "CRIADO COM SUCESSO!"
+          case Some(m) => {
+            log.info("Meeting already created. meetingID={}", msg.defaultProps.meetingProp.intId)
+            // do nothing
+            actorRef ! "JA EXISTE COM EXT ID"
+          }
+        }
       case Some(m) => {
         log.info("Meeting already created. meetingID={}", msg.defaultProps.meetingProp.intId)
         // do nothing
-        actorRef ! "JA EXISTE"
+        actorRef ! "JA EXISTE COM INT ID"
       }
 
     }
