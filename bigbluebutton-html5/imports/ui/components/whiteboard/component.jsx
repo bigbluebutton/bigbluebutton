@@ -217,7 +217,7 @@ export default function Whiteboard(props) {
         isMultiUserActive={isMultiUserActive}
       >
         <Tldraw
-          key={`wb-${!hasWBAccess && !isPresenter}-${document?.documentElement?.dir}`}
+          key={`wb-${!hasWBAccess && !isPresenter}-${document?.documentElement?.dir}-${document.getElementById('Navbar')?.style?.width}`}
           document={doc}
           // disable the ability to drag and drop files onto the whiteboard
           // until we handle saving of assets in akka.
