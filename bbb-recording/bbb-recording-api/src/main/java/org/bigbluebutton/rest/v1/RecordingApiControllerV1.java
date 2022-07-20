@@ -10,7 +10,7 @@ import org.bigbluebutton.response.Response;
 import org.bigbluebutton.response.ResponseV1;
 import org.bigbluebutton.response.content.MessageContent;
 import org.bigbluebutton.response.content.TrackContent;
-import org.bigbluebutton.response.dto.TrackDto;
+import org.bigbluebutton.response.model.TrackModel;
 import org.bigbluebutton.service.RecordingService;
 import org.bigbluebutton.service.XmlService;
 import org.slf4j.Logger;
@@ -277,14 +277,14 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
                     HttpStatus.NOT_FOUND);
         } else {
             TrackContent content = new TrackContent();
-            List<TrackDto> trackDtos = new ArrayList<>();
+            List<TrackModel> trackDtos = new ArrayList<>();
             for (Track track : tracks)
-                trackDtos.add(TrackDto.trackToDto(track));
+                trackDtos.add(TrackModel.toModel(track));
 
             Pageable pageable = PageRequest.of(page, size);
             int start = (int) pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), trackDtos.size());
-            Page<TrackDto> trackPage = new PageImpl<>(trackDtos.subList(start, end), pageable, trackDtos.size());
+            Page<TrackModel> trackPage = new PageImpl<>(trackDtos.subList(start, end), pageable, trackDtos.size());
 
             content.setTracks(trackPage);
             response.setContent(content);

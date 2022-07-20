@@ -1,4 +1,4 @@
-package org.bigbluebutton.response.dto;
+package org.bigbluebutton.response.model;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import org.bigbluebutton.dao.entity.Metadata;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class MetadataDto {
+public class MetadataModel {
 
     private Map<String, String> meta;
 
@@ -26,10 +26,13 @@ public class MetadataDto {
         meta.put(key, value);
     }
 
-    public static MetadataDto metadataToDto(Set<Metadata> metadata) {
-        MetadataDto metadataDto = new MetadataDto();
+    public static MetadataModel toModel(Set<Metadata> metadata) {
+        if (metadata == null)
+            return null;
+
+        MetadataModel metadataModel = new MetadataModel();
         for (Metadata meta : metadata)
-            metadataDto.addMeta(meta.getKey(), meta.getValue());
-        return metadataDto;
+            metadataModel.addMeta(meta.getKey(), meta.getValue());
+        return metadataModel;
     }
 }

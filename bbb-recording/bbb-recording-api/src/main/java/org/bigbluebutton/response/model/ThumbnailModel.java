@@ -1,34 +1,34 @@
-package org.bigbluebutton.response.dto;
+package org.bigbluebutton.response.model;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import org.bigbluebutton.dao.entity.Thumbnail;
 
-public class ThumbnailDto {
+public class ThumbnailModel {
 
     @JacksonXmlProperty(isAttribute = true)
-    private int height;
+    private Integer height;
 
     @JacksonXmlProperty(isAttribute = true)
-    private int width;
+    private Integer width;
 
     @JacksonXmlProperty(isAttribute = true)
     private String alt;
 
     private String url;
 
-    public int getHeight() {
+    public Integer getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
         this.height = height;
     }
 
-    public int getWidth() {
+    public Integer getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(Integer width) {
         this.width = width;
     }
 
@@ -48,14 +48,17 @@ public class ThumbnailDto {
         this.url = url;
     }
 
-    public static ThumbnailDto thumbnailToDto(Thumbnail thumbnail) {
-        ThumbnailDto thumbnailDto = new ThumbnailDto();
+    public static ThumbnailModel toModel(Thumbnail thumbnail) {
+        if (thumbnail == null)
+            return null;
 
-        thumbnailDto.setHeight(thumbnail.getHeight());
-        thumbnailDto.setWidth(thumbnail.getWidth());
-        thumbnailDto.setAlt(thumbnail.getAlt());
+        ThumbnailModel thumbnailModel = new ThumbnailModel();
+
+        thumbnailModel.setHeight(thumbnail.getHeight());
+        thumbnailModel.setWidth(thumbnail.getWidth());
+        thumbnailModel.setAlt(thumbnail.getAlt());
         thumbnail.setUrl(thumbnail.getUrl());
 
-        return thumbnailDto;
+        return thumbnailModel;
     }
 }

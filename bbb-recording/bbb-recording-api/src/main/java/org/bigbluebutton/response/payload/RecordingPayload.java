@@ -1,10 +1,10 @@
 package org.bigbluebutton.response.payload;
 
 import lombok.Data;
-import org.bigbluebutton.response.dto.RecordingDto;
+import org.bigbluebutton.response.model.RecordingModel;
 
 @Data
 public class RecordingPayload implements Payload {
 
-    private RecordingDto recordingDto;
+    private RecordingModel recordingDto;
 }

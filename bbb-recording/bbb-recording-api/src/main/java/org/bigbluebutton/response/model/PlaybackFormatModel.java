@@ -1,17 +1,17 @@
-package org.bigbluebutton.response.dto;
+package org.bigbluebutton.response.model;
 
 import org.bigbluebutton.dao.entity.PlaybackFormat;
 import org.bigbluebutton.dao.entity.Thumbnail;
 
 import java.util.*;
 
-public class PlaybackFormatDto {
+public class PlaybackFormatModel {
 
     private String format;
     private String url;
     private Integer length;
     private Integer processingTime;
-    private Set<ThumbnailDto> thumbnails;
+    private Set<ThumbnailModel> thumbnails;
 
     public String getFormat() {
         return format;
@@ -45,35 +45,38 @@ public class PlaybackFormatDto {
         this.processingTime = processingTime;
     }
 
-    public Set<ThumbnailDto> getThumbnails() {
+    public Set<ThumbnailModel> getThumbnails() {
         return thumbnails;
     }
 
-    public void setThumbnails(Set<ThumbnailDto> thumbnails) {
+    public void setThumbnails(Set<ThumbnailModel> thumbnails) {
         this.thumbnails = thumbnails;
     }
 
-    public void addThumbnailDto(ThumbnailDto thumbnailDto) {
+    public void addThumbnailDto(ThumbnailModel thumbnailDto) {
         if (thumbnails == null)
             thumbnails = new HashSet<>();
         thumbnails.add(thumbnailDto);
     }
 
-    public static PlaybackFormatDto playbackFormatToDto(PlaybackFormat playbackFormat) {
-        PlaybackFormatDto playbackFormatDto = new PlaybackFormatDto();
+    public static PlaybackFormatModel toModel(PlaybackFormat playbackFormat) {
+        if (playbackFormat == null)
+            return null;
 
-        playbackFormatDto.setFormat(playbackFormat.getFormat());
-        playbackFormatDto.setUrl(playbackFormat.getUrl());
-        playbackFormatDto.setLength(playbackFormat.getLength());
-        playbackFormatDto.setProcessingTime(playbackFormat.getProcessingTime());
+        PlaybackFormatModel playbackFormatModel = new PlaybackFormatModel();
+
+        playbackFormatModel.setFormat(playbackFormat.getFormat());
+        playbackFormatModel.setUrl(playbackFormat.getUrl());
+        playbackFormatModel.setLength(playbackFormat.getLength());
+        playbackFormatModel.setProcessingTime(playbackFormat.getProcessingTime());
 
         List<Thumbnail> thumbnails = new ArrayList<>(List.copyOf(playbackFormat.getThumbnails()));
         Collections.sort(thumbnails);
         for (Thumbnail thumbnail : thumbnails) {
-            ThumbnailDto thumbnailDto = ThumbnailDto.thumbnailToDto(thumbnail);
-            playbackFormatDto.addThumbnailDto(thumbnailDto);
+            ThumbnailModel thumbnailDto = ThumbnailModel.toModel(thumbnail);
+            playbackFormatModel.addThumbnailDto(thumbnailDto);
         }
 
-        return playbackFormatDto;
+        return playbackFormatModel;
     }
 }

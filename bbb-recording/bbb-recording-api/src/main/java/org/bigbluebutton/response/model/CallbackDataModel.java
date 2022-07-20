@@ -1,10 +1,10 @@
-package org.bigbluebutton.response.dto;
+package org.bigbluebutton.response.model;
 
 import org.bigbluebutton.dao.entity.CallbackData;
 
 import java.time.LocalDateTime;
 
-public class CallbackDataDto {
+public class CallbackDataModel {
 
     private String meetingId;
     private String callbackAttributes;
@@ -43,14 +43,17 @@ public class CallbackDataDto {
         this.updatedAt = updatedAt;
     }
 
-    public static CallbackDataDto callbackDataToDto(CallbackData callbackData) {
-        CallbackDataDto callbackDataDto = new CallbackDataDto();
+    public static CallbackDataModel toModel(CallbackData callbackData) {
+        if (callbackData == null)
+            return null;
 
-        callbackDataDto.setMeetingId(callbackData.getMeetingId());
-        callbackDataDto.setCallbackAttributes(callbackData.getCallbackAttributes());
-        callbackDataDto.setCreatedAt(callbackData.getCreatedAt());
-        callbackDataDto.setUpdatedAt(callbackData.getUpdatedAt());
+        CallbackDataModel callbackDataModel = new CallbackDataModel();
 
-        return callbackDataDto;
+        callbackDataModel.setMeetingId(callbackData.getMeetingId());
+        callbackDataModel.setCallbackAttributes(callbackData.getCallbackAttributes());
+        callbackDataModel.setCreatedAt(callbackData.getCreatedAt());
+        callbackDataModel.setUpdatedAt(callbackData.getUpdatedAt());
+
+        return callbackDataModel;
     }
 }

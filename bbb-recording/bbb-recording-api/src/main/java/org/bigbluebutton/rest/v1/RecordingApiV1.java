@@ -34,8 +34,7 @@ public interface RecordingApiV1 {
 
     @RequestMapping(value = "/v1/putRecordingTextTrack", produces = {
             MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-    ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file,
-            HttpServletRequest request);
+    ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file, HttpServletRequest request);
 
     @RequestMapping(value = "/v1/getMeetingSummary", produces = {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)

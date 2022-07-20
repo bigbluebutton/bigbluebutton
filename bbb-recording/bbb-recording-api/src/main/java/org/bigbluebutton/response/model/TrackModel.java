@@ -1,8 +1,9 @@
-package org.bigbluebutton.response.dto;
+package org.bigbluebutton.response.model;
 
 import org.bigbluebutton.dao.entity.Track;
+import org.springframework.hateoas.RepresentationModel;
 
-public class TrackDto {
+public class TrackModel extends RepresentationModel<TrackModel> {
 
     private String href;
     private String kind;
@@ -50,15 +51,18 @@ public class TrackDto {
         this.source = source;
     }
 
-    public static TrackDto trackToDto(Track track) {
-        TrackDto trackDto = new TrackDto();
+    public static TrackModel toModel(Track track) {
+        if (track == null)
+            return null;
 
-        trackDto.setHref(track.getHref());
-        trackDto.setKind(track.getKind());
-        trackDto.setLabel(track.getLabel());
-        trackDto.setLang(track.getLang());
-        trackDto.setSource(track.getSource());
+        TrackModel trackModel = new TrackModel();
 
-        return trackDto;
+        trackModel.setHref(track.getHref());
+        trackModel.setKind(track.getKind());
+        trackModel.setLabel(track.getLabel());
+        trackModel.setLang(track.getLang());
+        trackModel.setSource(track.getSource());
+
+        return trackModel;
     }
 }

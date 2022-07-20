@@ -177,8 +177,11 @@ public class RecordingApp {
             int impex = getResponse("Are you importing or exporting recordings/events? (1-Import 2-Export 3-Quit) ",
                     new int[] { 1, 2, 3 }, "Please enter either 1, 2, or 3");
 
-            int recordingsOrEvents = getResponse("Are you working with recordings or events? (1-Recordings 2-Events",
-                    new int[] { 1, 2 }, "Please enter either 1 or 2");
+            int recordingsOrEvents = 1;
+            if (impex == 1 || impex == 2) {
+                recordingsOrEvents = getResponse("Are you working with recordings or events? (1-Recordings 2-Events) ",
+                        new int[] { 1, 2 }, "Please enter either 1 or 2");
+            }
 
             boolean recordings = recordingsOrEvents != 2;
 
