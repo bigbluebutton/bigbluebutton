@@ -628,14 +628,6 @@ public class ParamsProcessorUtil {
         String uploadExternalUrl = defaultUploadExternalUrl;
         if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_URL))) {
             uploadExternalUrl = params.get(ApiParams.UPLOAD_EXTERNAL_URL);
-
-            boolean hasQuoteCharacters = (uploadExternalUrl.charAt(0) == '"' && uploadExternalUrl.charAt(uploadExternalUrl.length()-1) == '"') 
-                || (uploadExternalUrl.charAt(0) == '\'' && uploadExternalUrl.charAt(uploadExternalUrl.length()-1) == '\'')
-                || (uploadExternalUrl.charAt(0) == '`' && uploadExternalUrl.charAt(uploadExternalUrl.length()-1) == '`');
-
-            if (hasQuoteCharacters) {
-                uploadExternalUrl = uploadExternalUrl.substring(1, uploadExternalUrl.length() - 1);
-            }
         }
 
         String meetingLayout = defaultMeetingLayout;
