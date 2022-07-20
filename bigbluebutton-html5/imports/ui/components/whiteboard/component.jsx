@@ -257,7 +257,7 @@ export default function Whiteboard(props) {
         setCameraFitSlide(cameraFitSlide);
         return;
       }
-      const camera = tldrawAPI.getPageState().camera;
+      const camera = tldrawAPI.getPageState()?.camera;
       //don't allow zoom out more than fit
       if (camera.zoom <= cameraFitSlide.zoom) {
         tldrawAPI?.setCamera(cameraFitSlide.point, cameraFitSlide.zoom);
@@ -498,7 +498,7 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
       >
-        {!hasWBAccess && !isPresenter ? readOnlyWB : editableWB}
+        {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
       </Cursors>
     </>
   );
