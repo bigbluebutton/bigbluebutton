@@ -502,7 +502,7 @@ class MeetingActor(
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
       case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ExportPresentationWithAnnotationReqMsg         => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: NewPresAnnFileAvailableMsg                     => log.info("***** New PDF with annotations available.")
+      case m: NewPresAnnFileAvailableMsg                     => presentationPodsApp.handle(m, liveMeeting, msgBus)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

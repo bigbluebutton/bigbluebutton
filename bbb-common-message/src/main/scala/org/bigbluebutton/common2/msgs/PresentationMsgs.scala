@@ -22,6 +22,10 @@ object NewPresAnnFileAvailableMsg { val NAME = "NewPresAnnFileAvailableMsg" }
 case class NewPresAnnFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableMsgBody) extends StandardMsg
 case class NewPresAnnFileAvailableMsgBody(fileURI: String)
 
+object NewPresAnnFileAvailableEvtMsg { val NAME = "NewPresAnnFileAvailableEvtMsg" }
+case class NewPresAnnFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableEvtMsgBody) extends BbbCoreMsg
+case class NewPresAnnFileAvailableEvtMsgBody(fileURI: String)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
