@@ -126,7 +126,6 @@ export default function Cursors(props) {
     hasMultiUserAccess,
     isMultiUserActive,
     application,
-    key,
   } = props;
 
   const start = () => setActive(true);
