@@ -469,7 +469,7 @@ export default function Whiteboard(props) {
 
   const readOnlyWB = (
     <Tldraw
-      key={`wb-readOnly-${document?.documentElement?.dir}`}
+      key={`wb-readOnly`}
       document={doc}
       onMount={onMount}
       // disable the ability to drag and drop files onto the whiteboard
