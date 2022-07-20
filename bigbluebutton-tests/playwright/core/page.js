@@ -173,6 +173,18 @@ class Page {
     const locator = this.getLocator(selector);
     await expect(locator).toContainText(text, { timeout });
   }
+
+  async press(key) {
+    await this.page.keyboard.press(key);
+  }
+
+  async down(key) {
+    await this.page.keyboard.down(key);
+  }
+
+  async up(key) {
+    await this.page.keyboard.up(key);
+  }
 }
 
 module.exports = exports = Page;
