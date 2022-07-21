@@ -1153,6 +1153,7 @@ class ApiController {
    *************************************************/
 
   def insertDocument = {
+    log.debug "\n\n\n\nI'm failing \n\n\n\n"
     String API_CALL = 'insertDocument'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
@@ -1162,9 +1163,18 @@ class ApiController {
             request.getQueryString()
     )
 
+    log.debug ""
+    log.debug ""
+    log.debug request.getParameterMap().toMapString()
+    log.debug ""
+    log.debug ""
+    log.debug request.getQueryString()
+    log.debug ""
+    log.debug ""
+
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
-      return
+      //return
     }
 
     String externalMeetingId = params.meetingID
@@ -1172,7 +1182,9 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")
     Meeting meeting = meetingService.getMeeting(internalMeetingId)
 
+    log.debug "\n\nHERE!\n\n"
     if (meeting != null){
+      log.debug "\n\nThis!\n\n"
       uploadDocuments(meeting, true);
       withFormat {
         xml {
@@ -1315,8 +1327,17 @@ class ApiController {
       key, value -> params[key] = sanitizeInput(value)
     }
 
+    log.debug ""
+    log.debug " I upload docs ;~; "
+    log.debug ""
+    log.debug ""
+    log.debug ""
+    log.debug ""
+    log.debug ""
+
     Boolean preUploadedPresentationOverrideDefault=true
     if (!isFromInsertAPI) {
+      log.debug "\n\n\n\nfrom API\n\n\n\n"
       String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
       if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
       else preUploadedPresentationOverrideDefault = po[0].toBoolean()
@@ -1328,36 +1349,51 @@ class ApiController {
     Boolean isDefaultPresentationCurrent = false;
     def listOfPresentation = []
 
+    // log.debug ""
+    // log.debug "Request body: ${requestBody}"
+    // log.debug ""
+    // log.debug ""
+
     if (requestBody == null) {
+      log.debug "\n\n\n\nrequest = null\n\n\n\n"
       if (isFromInsertAPI){
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
       listOfPresentation << [name: "default", current: true];
     } else {
+      log.debug "\n\n\n\nrequest != null\n\n\n\n"
       def xml = new XmlSlurper().parseText(requestBody);
       Boolean hasCurrent = false;
       xml.children().each { module ->
+      log.debug "\n\n\n\nFOR module\n\n\n\n"
         log.debug("module config found: [${module.@name}]");
 
         if ("presentation".equals(module.@name.toString())) {
+          log.debug "\n\n\n\nmodule.name = presentation\n\n\n\n"
           for (document in module.children()) {
+            log.debug "\n\n\n\nFOR doc\n\n\n\n"
             if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
                     document.@current.toString()) && !hasCurrent) {
+                      log.debug "\n\n\n\nList[0] = doc\n\n\n\n"
               listOfPresentation.add(0, document)
               hasCurrent = true;
             } else {
+              log.debug "\n\n\n\nList.append the(doc)\n\n\n\n"
               listOfPresentation << document
             }
           }
           Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
           if (uploadDefault) {
+            log.debug "\n\n\n\nupload default = true\n\n\n\n"
             isDefaultPresentationCurrent = !hasCurrent;
             hasCurrent = true
             isDefaultPresentationUsed = true
             if (isDefaultPresentationCurrent) {
+              log.debug "\n\n\n\ndefault = current\n\n\n\n"
               listOfPresentation.add(0, [name: "default", current: true])
             } else {
+              log.debug "\n\n\n\nefault != current\n\n\n\n"
               listOfPresentation << [name: "default", current: false];
             }
           }
@@ -1370,37 +1406,48 @@ class ApiController {
       def Boolean isRemovable = true;
       def Boolean isDownloadable = false;
 
+      // log.debug "\n\n\n\ndoc name: ${document.name}\n\n\n\n"
+      // log.debug "\n\n\n\ncurrent: ${document.current}\n\n\n\n"
+
       if (document.name != null && "default".equals(document.name)) {
+        log.debug "\n\n\n\ndoc.name = null\n\n\n\n"
         downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
       } else{
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
+          log.debug "\n\n\n\nremovable != null\n\n\n\n"
           isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
         }
         if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+          log.debug "\n\n\n\ndownloadable != null\n\n\n\n"
           isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
         }
         // The array has already been processed to let the first be the current. (This way it is
         // ensured that only one document is current)
         if (index == 0) {
+          log.debug "\n\n\n\nindex = 0\n\n\n\n"
           isCurrent = true
         }
         isCurrent = isCurrent && !isFromInsertAPI
         // Verifying whether the document is a base64 encoded or a url to download.
         if (!StringUtils.isEmpty(document.@url.toString())) {
+          log.debug "\n\n\n\nurl != null\n\n\n\n"
           def fileName;
-          if (!StringUtils.isEmpty(document.@filename.toString())) {
+          if (StringUtils.isEmpty(document.@filename.toString())) {
+            log.debug "\n\n\n\nfilename=null\n\n\n\n"
             log.debug("user provided filename: [${document.@filename}]");
-            fileName = document.@filename.toString();
+            fileName = "sample.pdf";
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
                   fileName, isDownloadable, isRemovable);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
+          log.debug "\n\n\n\nRaw bytes for name=${document.@name.toString()}\n\n\n\n"
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
           processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
                   conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */);
         } else {
+          log.debug "\n\n\n\n[LOGS]\n\n\n\n"
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
       }

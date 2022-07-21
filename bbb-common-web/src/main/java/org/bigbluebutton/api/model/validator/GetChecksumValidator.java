@@ -23,6 +23,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
 
         if (securitySalt.isEmpty()) {
             log.warn("Security is disabled in this service. Make sure this is intentional.");
+            log.debug("securitySalt.isEmpty()");
             return true;
         }
 
@@ -30,6 +31,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         log.info("query string after checksum removed: [{}]", queryStringWithoutChecksum);
 
         if(queryStringWithoutChecksum == null) {
+            log.debug("queryStringWithoutChecksum == null");
             return false;
         }
 
@@ -37,18 +39,22 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         log.info("CHECKSUM={} length={}", providedChecksum, providedChecksum.length());
 
         if(providedChecksum == null) {
+            log.debug("providedChecksum == null");
             return false;
         }
 
         String data = checksum.getApiCall() + queryStringWithoutChecksum + securitySalt;
         String createdCheckSum = DigestUtils.sha1Hex(data);
 
-        if (providedChecksum.length() == 64) {
-            createdCheckSum = DigestUtils.sha256Hex(data);
-            log.info("SHA256 {}", createdCheckSum);
-        }
+        // if (providedChecksum.length() == 64) {
+        //     log.debug("providedChecksum.length() == 64");
+        //     createdCheckSum = DigestUtils.sha256Hex(data);
+        //     log.info("SHA256 {}", createdCheckSum);
+        // }
 
         if (createdCheckSum == null || !createdCheckSum.equals(providedChecksum)) {
+            log.debug("createdCheckSum = " + createdCheckSum + ", provided one = " + providedChecksum + ", query = " + queryStringWithoutChecksum);
+            //log.debug("!createdCheckSum.equals(providedChecksum), " + !createdCheckSum.equals(providedChecksum));
             log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", createdCheckSum, providedChecksum);
             return false;
         }
