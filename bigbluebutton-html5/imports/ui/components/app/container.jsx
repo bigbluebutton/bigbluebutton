@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings, { LayoutMeetings } from '/imports/api/meetings';
+import AudioCaptionsLiveContainer from '/imports/ui/components/audio/captions/live/container';
+import AudioCaptionsService from '/imports/ui/components/audio/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import CaptionsContainer from '/imports/ui/components/captions/live/container';
 import CaptionsService from '/imports/ui/components/captions/service';
@@ -243,6 +245,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
 
   return {
     captions: CaptionsService.isCaptionsActive() ? <CaptionsContainer /> : null,
+    audioCaptions: AudioCaptionsService.getAudioCaptions() ? <AudioCaptionsLiveContainer /> : null,
     fontSize: getFontSize(),
     hasBreakoutRooms: getBreakoutRooms().length > 0,
     customStyle: getFromUserSettings('bbb_custom_style', false),
