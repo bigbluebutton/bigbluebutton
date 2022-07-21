@@ -32,6 +32,16 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildBroadcastNewPresAnnFileAvailable(newPresAnnFileAvailableMsg: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NewPresAnnFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
+    val body = NewPresAnnFileAvailableEvtMsgBody(fileURI = newPresAnnFileAvailableMsg.body.fileURI)
+    val event = NewPresAnnFileAvailableEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildPresentationUploadTokenSysPubMsg(parentId: String, userId: String, presentationUploadToken: String, filename: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
@@ -161,4 +171,12 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
     }
   }
+
+  def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    log.info("Received NewPresAnnFileAvailableMsg meetingId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.fileURI)
+
+    bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
+
+  }
+
 }
