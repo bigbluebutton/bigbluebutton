@@ -508,19 +508,17 @@ class PresentationUploader extends Component {
       }
     });
 
-    if (hasNewUpload) {
-      this.toastId = toast.info(this.renderToastList(), {
-        hideProgressBar: true,
-        autoClose: false,
-        newestOnTop: true,
-        closeOnClick: true,
-        onClose: () => {
-          this.toastId = null;
-        },
-      });
-    }
-
-    if (this.toastId) Session.set('UploadPresentationToastId', this.toastId);
+    // if (hasNewUpload) {
+    //   this.toastId = toast.info(this.renderToastList(), {
+    //     hideProgressBar: true,
+    //     autoClose: false,
+    //     newestOnTop: true,
+    //     closeOnClick: true,
+    //     onClose: () => {
+    //       this.toastId = null;
+    //     },
+    //   });
+    // }
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
@@ -611,46 +609,46 @@ class PresentationUploader extends Component {
     });
   }
 
-  renderToastItem(item) {
-    const isUploading = !item.upload.done && item.upload.progress > 0;
-    const isConverting = !item.conversion.done && item.upload.done;
-    const hasError = item.conversion.error || item.upload.error;
-    const isProcessing = (isUploading || isConverting) && !hasError;
+  // renderToastItem(item) {
+  //   const isUploading = !item.upload.done && item.upload.progress > 0;
+  //   const isConverting = !item.conversion.done && item.upload.done;
+  //   const hasError = item.conversion.error || item.upload.error;
+  //   const isProcessing = (isUploading || isConverting) && !hasError;
 
-    let icon = isProcessing ? 'blank' : 'check';
-    if (hasError) icon = 'circle_close';
+  //   let icon = isProcessing ? 'blank' : 'check';
+  //   if (hasError) icon = 'circle_close';
 
-    return (
-      <Styled.UploadRow
-        key={item.id}
-        onClick={() => {
-          if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
-        }}
-      >
-        <Styled.FileLine>
-          <span>
-            <Icon iconName="file" />
-          </span>
-          <Styled.ToastFileName>
-            <span>{item.filename}</span>
-          </Styled.ToastFileName>
-          <Styled.StatusIcon>
-            <Styled.ToastItemIcon
-              done={!isProcessing && !hasError}
-              error={hasError}
-              loading={isProcessing}
-              iconName={icon}
-            />
-          </Styled.StatusIcon>
-        </Styled.FileLine>
-        <Styled.StatusInfo>
-          <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
-            {this.renderPresentationItemStatus(item)}
-          </Styled.StatusInfoSpan>
-        </Styled.StatusInfo>
-      </Styled.UploadRow>
-    );
-  }
+  //   return (
+  //     <Styled.UploadRow
+  //       key={item.id}
+  //       onClick={() => {
+  //         if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
+  //       }}
+  //     >
+  //       <Styled.FileLine>
+  //         <span>
+  //           <Icon iconName="file" />
+  //         </span>
+  //         <Styled.ToastFileName>
+  //           <span>{item.filename}</span>
+  //         </Styled.ToastFileName>
+  //         <Styled.StatusIcon>
+  //           <Styled.ToastItemIcon
+  //             done={!isProcessing && !hasError}
+  //             error={hasError}
+  //             loading={isProcessing}
+  //             iconName={icon}
+  //           />
+  //         </Styled.StatusIcon>
+  //       </Styled.FileLine>
+  //       <Styled.StatusInfo>
+  //         <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
+  //           {this.renderPresentationItemStatus(item)}
+  //         </Styled.StatusInfoSpan>
+  //       </Styled.StatusInfo>
+  //     </Styled.UploadRow>
+  //   );
+  // }
 
   renderExtraHint() {
     const {
@@ -719,69 +717,69 @@ class PresentationUploader extends Component {
     );
   }
 
-  renderToastList() {
-    const { presentations, toUploadCount } = this.state;
+  // renderToastList() {
+  //   const { presentations, toUploadCount } = this.state;
 
-    if (toUploadCount === 0) {
-      return this.handleDismissToast(this.toastId);
-    }
+  //   if (toUploadCount === 0) {
+  //     return this.handleDismissToast(this.toastId);
+  //   }
 
-    const { intl } = this.props;
-    let converted = 0;
+  //   const { intl } = this.props;
+  //   let converted = 0;
 
-    let presentationsSorted = presentations
-      .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
-      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-      .sort((a, b) => a.conversion.done - b.conversion.done);
+  //   let presentationsSorted = presentations
+  //     .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
+  //     .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
+  //     .sort((a, b) => a.conversion.done - b.conversion.done);
 
-    presentationsSorted = presentationsSorted
-      .splice(0, toUploadCount)
-      .map((p) => {
-        if (p.conversion.done) converted += 1;
-        return p;
-      });
+  //   presentationsSorted = presentationsSorted
+  //     .splice(0, toUploadCount)
+  //     .map((p) => {
+  //       if (p.conversion.done) converted += 1;
+  //       return p;
+  //     });
 
-    let toastHeading = '';
-    const itemLabel = presentationsSorted.length > 1
-      ? intl.formatMessage(intlMessages.itemPlural)
-      : intl.formatMessage(intlMessages.item);
+  //   let toastHeading = '';
+  //   const itemLabel = presentationsSorted.length > 1
+  //     ? intl.formatMessage(intlMessages.itemPlural)
+  //     : intl.formatMessage(intlMessages.item);
 
-    if (converted === 0) {
-      toastHeading = intl.formatMessage(intlMessages.uploading, {
-        0: presentationsSorted.length,
-        1: itemLabel,
-      });
-    }
+  //   if (converted === 0) {
+  //     toastHeading = intl.formatMessage(intlMessages.uploading, {
+  //       0: presentationsSorted.length,
+  //       1: itemLabel,
+  //     });
+  //   }
 
-    if (converted > 0 && converted !== presentationsSorted.length) {
-      toastHeading = intl.formatMessage(intlMessages.uploadStatus, {
-        0: converted,
-        1: presentationsSorted.length,
-      });
-    }
+  //   if (converted > 0 && converted !== presentationsSorted.length) {
+  //     toastHeading = intl.formatMessage(intlMessages.uploadStatus, {
+  //       0: converted,
+  //       1: presentationsSorted.length,
+  //     });
+  //   }
 
-    if (converted === presentationsSorted.length) {
-      toastHeading = intl.formatMessage(intlMessages.completed, {
-        0: converted,
-      });
-    }
+  //   if (converted === presentationsSorted.length) {
+  //     toastHeading = intl.formatMessage(intlMessages.completed, {
+  //       0: converted,
+  //     });
+  //   }
 
-    return (
-      <Styled.ToastWrapper>
-        <Styled.UploadToastHeader>
-          <Styled.UploadIcon iconName="upload" />
-          <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
-        </Styled.UploadToastHeader>
-        <Styled.InnerToast>
-          <div>
-            <div>
-              {presentationsSorted.map((item) => this.renderToastItem(item))}
-            </div>
-          </div>
-        </Styled.InnerToast>
-      </Styled.ToastWrapper>
-    );
-  }
+  //   return (
+  //     <Styled.ToastWrapper>
+  //       <Styled.UploadToastHeader>
+  //         <Styled.UploadIcon iconName="upload" />
+  //         <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
+  //       </Styled.UploadToastHeader>
+  //       <Styled.InnerToast>
+  //         <div>
+  //           <div>
+  //             {presentationsSorted.map((item) => this.renderToastItem(item))}
+  //           </div>
+  //         </div>
+  //       </Styled.InnerToast>
+  //     </Styled.ToastWrapper>
+  //   );
+  // }
 
   renderPresentationItem(item) {
     const { disableActions } = this.state;
@@ -974,66 +972,66 @@ class PresentationUploader extends Component {
     );
   }
 
-  renderPresentationItemStatus(item) {
-    const { intl } = this.props;
-    if (!item.upload.done && item.upload.progress === 0) {
-      return intl.formatMessage(intlMessages.fileToUpload);
-    }
+  // renderPresentationItemStatus(item) {
+  //   const { intl } = this.props;
+  //   if (!item.upload.done && item.upload.progress === 0) {
+  //     return intl.formatMessage(intlMessages.fileToUpload);
+  //   }
 
-    if (!item.upload.done && !item.upload.error) {
-      return intl.formatMessage(intlMessages.uploadProcess, {
-        0: Math.floor(item.upload.progress).toString(),
-      });
-    }
+  //   if (!item.upload.done && !item.upload.error) {
+  //     return intl.formatMessage(intlMessages.uploadProcess, {
+  //       0: Math.floor(item.upload.progress).toString(),
+  //     });
+  //   }
 
-    const constraint = {};
+  //   const constraint = {};
 
-    if (item.upload.done && item.upload.error) {
-      if (item.conversion.status === 'FILE_TOO_LARGE') {
-        constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-      }
+  //   if (item.upload.done && item.upload.error) {
+  //     if (item.conversion.status === 'FILE_TOO_LARGE') {
+  //       constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
+  //     }
 
-      if (item.upload.progress < 100) {
-        const errorMessage = intlMessages.badConnectionError;
-        return intl.formatMessage(errorMessage);
-      }
+  //     if (item.upload.progress < 100) {
+  //       const errorMessage = intlMessages.badConnectionError;
+  //       return intl.formatMessage(errorMessage);
+  //     }
 
-      const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage, constraint);
-    }
+  //     const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
+  //     return intl.formatMessage(errorMessage, constraint);
+  //   }
 
-    if (!item.conversion.done && item.conversion.error) {
-      const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
+  //   if (!item.conversion.done && item.conversion.error) {
+  //     const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
 
-      switch (item.conversion.status) {
-        case 'PAGE_COUNT_EXCEEDED':
-          constraint['0'] = item.conversion.maxNumberPages;
-          break;
-        case 'PDF_HAS_BIG_PAGE':
-          constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
-          break;
-        default:
-          break;
-      }
+  //     switch (item.conversion.status) {
+  //       case 'PAGE_COUNT_EXCEEDED':
+  //         constraint['0'] = item.conversion.maxNumberPages;
+  //         break;
+  //       case 'PDF_HAS_BIG_PAGE':
+  //         constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
+  //         break;
+  //       default:
+  //         break;
+  //     }
 
-      return intl.formatMessage(errorMessage, constraint);
-    }
+  //     return intl.formatMessage(errorMessage, constraint);
+  //   }
 
-    if (!item.conversion.done && !item.conversion.error) {
-      if (item.conversion.pagesCompleted < item.conversion.numPages) {
-        return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-          0: item.conversion.pagesCompleted,
-          1: item.conversion.numPages,
-        });
-      }
+  //   if (!item.conversion.done && !item.conversion.error) {
+  //     if (item.conversion.pagesCompleted < item.conversion.numPages) {
+  //       return intl.formatMessage(intlMessages.conversionProcessingSlides, {
+  //         0: item.conversion.pagesCompleted,
+  //         1: item.conversion.numPages,
+  //       });
+  //     }
 
-      const conversionStatusMessage = intlMessages[item.conversion.status]
-        || intlMessages.genericConversionStatus;
-      return intl.formatMessage(conversionStatusMessage);
-    }
+  //     const conversionStatusMessage = intlMessages[item.conversion.status]
+  //       || intlMessages.genericConversionStatus;
+  //     return intl.formatMessage(conversionStatusMessage);
+  //   }
 
-    return null;
-  }
+  //   return null;
+  // }
 
   render() {
     const {

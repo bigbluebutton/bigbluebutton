@@ -38,12 +38,15 @@ export default withTracker(() => {
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
-    handleSave: (presentations) => Service.persistPresentationChanges(
+    handleSave: (presentations) => {
+      console.log("teste aqui")
+      console.log(presentations)
+      return Service.persistPresentationChanges(
       currentPresentations,
       presentations,
       PRESENTATION_CONFIG.uploadEndpoint,
       'DEFAULT_PRESENTATION_POD',
-    ),
+    )},
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
