@@ -35,12 +35,12 @@ export default function exportPresentationToChat(presentationId) {
           const { isRunning, error } = doc.exportation;
 
           if (!isRunning && !error) {
-            clearTimeout(timeoutRef);
+            Meteor.clearTimeout(timeoutRef);
           }
         },
       });
 
-      timeoutRef = setTimeout(() => {
+      timeoutRef = Meteor.setTimeout(() => {
         observer.stop();
         setPresentationExporting(meetingId, presentationId, { isRunning: false, error: true });
       }, EXPORTING_THRESHOLD);
