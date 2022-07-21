@@ -22,9 +22,10 @@ export default function setPresentationExporting(meetingId, presentationId, expo
     const { numberAffected } = Presentations.upsert(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Set exporting status on presentation {${presentationId} in meeting {${meetingId}}`);
+      const status = `isRunning=${exportation.isRunning} error=${exportation.error}`;
+      Logger.info(`Set exporting status on presentation ${presentationId} in meeting ${meetingId} ${status}`);
     }
   } catch (err) {
-    Logger.error(`Could not set exporting status on pres {${presentationId} in meeting {${meetingId}} ${err}`);
+    Logger.error(`Could not set exporting status on pres ${presentationId} in meeting ${meetingId} ${err}`);
   }
 }
