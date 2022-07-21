@@ -128,6 +128,12 @@ const VideoFocusLayout = (props) => {
             cameraDock: {
               numCameras: cameraDockInput.numCameras,
             },
+            externalVideo: {
+              hasExternalVideo: input.externalVideo.hasExternalVideo,
+            },
+            screenShare: {
+              hasScreenShare: input.screenShare.hasScreenShare,
+            },
           },
           INITIAL_INPUT_STATE,
         ),
