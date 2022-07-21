@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import setPresentationExporting from '/imports/api/presentations/server/modifiers/setPresentationExporting';
 import Presentations from '/imports/api/presentations';
 
-const EXPORTING_THRESHOLD = 20000;
+const EXPORTING_THRESHOLD = 60000;
 
 export default function exportPresentationToChat(presentationId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
