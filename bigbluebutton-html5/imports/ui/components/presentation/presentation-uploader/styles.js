@@ -302,7 +302,14 @@ const ItemAction = styled.div`
 `;
 
 const RemoveButton = styled(Button)`
-  margin-left: ${smPaddingX};
+  [dir="ltr"] & {
+    margin-left: ${smPaddingX};
+  }
+
+  [dir="rtl"] & {
+    margin-right: ${smPaddingX};
+  }
+
   div > i {
     margin-top: .25rem;
   }
@@ -587,7 +594,14 @@ const SetCurrentAction = styled.td`
     color: ${colorGrayLight};
     cursor: pointer;
     font-size: 1.35rem;
-    padding-left: 0 !important;
+
+    [dir="ltr"] & {
+      padding-left: 0 !important;
+    }
+
+    [dir="rtl"] & {
+      padding-right: 0 !important;
+    }
 
     ${({ animations }) => animations && `
       transition: all .25s;
