@@ -534,7 +534,6 @@ const DownloadButton = styled(Button)`
   color: ${colorBlueLight};
   cursor: pointer;
   display: inline-block;
-  margin-left: ${smPaddingX};
 
   &:hover {
     background-color: ${colorOffWhite} !important;
@@ -596,17 +595,27 @@ const SetCurrentAction = styled.td`
   }
 `;
 
-const Head = styled.h3`
+const Head = styled.tr`
   color: ${colorText};
-  display: flex;
-  font-weight: 600;
-  justify-content: space-between;
-  margin: 0;
-  padding: 8px 0;
-  font-size: ${fontSizeBase};
 
-  span:nth-child(2) {
-    margin-right: ${lgPaddingX};
+  th {
+    padding: calc(${smPaddingY} * 2) calc(${smPaddingX} / 2);
+    white-space: nowrap;
+    text-align: left;
+
+    [dir="rtl"] & {
+      text-align: right;
+    }
+
+    &:first-child {
+      [dir="ltr"] & {
+        padding-left: 0;
+      }
+
+      [dir="rtl"] & {
+        padding-right: 0;
+      }
+    }
   }
 `;
 

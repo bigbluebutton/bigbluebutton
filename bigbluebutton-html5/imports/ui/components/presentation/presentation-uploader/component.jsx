@@ -739,35 +739,33 @@ class PresentationUploader extends Component {
     }
 
     return (
-      <>
-        <Styled.Head>
-          <span>{intl.formatMessage(intlMessages.currentLabel)}</span>
-          <span>{intl.formatMessage(intlMessages.downloadLabel)}</span>
-        </Styled.Head>
-        <Styled.FileList>
-          <Styled.Table>
-            <thead>
-              <tr>
-                <Styled.VisuallyHidden>
-                  {intl.formatMessage(intlMessages.setAsCurrentPresentation)}
-                </Styled.VisuallyHidden>
-                <Styled.VisuallyHidden colSpan={2}>
-                  {intl.formatMessage(intlMessages.filename)}
-                </Styled.VisuallyHidden>
-                <Styled.VisuallyHidden>
-                  {intl.formatMessage(intlMessages.status)}
-                </Styled.VisuallyHidden>
-                <Styled.VisuallyHidden>
-                  {intl.formatMessage(intlMessages.options)}
-                </Styled.VisuallyHidden>
-              </tr>
-            </thead>
-            <tbody>
-              {presentationsSorted.map((item) => this.renderPresentationItem(item))}
-            </tbody>
-          </Styled.Table>
-        </Styled.FileList>
-      </>
+      <Styled.FileList>
+        <Styled.Table>
+          <thead>
+            <tr>
+              <Styled.VisuallyHidden>
+                {intl.formatMessage(intlMessages.setAsCurrentPresentation)}
+              </Styled.VisuallyHidden>
+              <Styled.VisuallyHidden colSpan={2}>
+                {intl.formatMessage(intlMessages.filename)}
+              </Styled.VisuallyHidden>
+              <Styled.VisuallyHidden>
+                {intl.formatMessage(intlMessages.status)}
+              </Styled.VisuallyHidden>
+              <Styled.VisuallyHidden>
+                {intl.formatMessage(intlMessages.options)}
+              </Styled.VisuallyHidden>
+            </tr>
+            <Styled.Head>
+              <th colSpan={4}>{intl.formatMessage(intlMessages.currentLabel)}</th>
+              <th>{intl.formatMessage(intlMessages.downloadLabel)}</th>
+            </Styled.Head>
+          </thead>
+          <tbody>
+            {presentationsSorted.map((item) => this.renderPresentationItem(item))}
+          </tbody>
+        </Styled.Table>
+      </Styled.FileList>
     );
   }
 
