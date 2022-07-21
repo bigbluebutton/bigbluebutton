@@ -9,6 +9,7 @@ import { PANELS, ACTIONS } from '../layout/enums';
 import Settings from '/imports/ui/services/settings';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -252,10 +253,19 @@ const WaitingUsers = (props) => {
     setRememberChoice(checked);
   };
 
-  const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {
+  const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {   
     if (shouldExecutePolicy) {
       changeGuestPolicy(policyRule);
     }
+
+    if (policyRule === 'ALWAYS_ACCEPT_AUTH') {
+      notify("Action applied to waiting users: " + intl.formatMessage(intlMessages.allowAllAuthenticated).toUpperCase(), 'success');
+    }else if (policyRule === 'ALWAYS_ACCEPT') {
+      notify("Action applied to waiting users: " + intl.formatMessage(intlMessages.allowEveryone).toUpperCase(), 'success');
+    }else if(policyRule === 'ALWAYS_DENY') {
+      notify("Action applied to waiting users: " + intl.formatMessage(intlMessages.denyEveryone).toUpperCase(), 'success');
+    }
+
     closePanel();
     return cb();
   };
