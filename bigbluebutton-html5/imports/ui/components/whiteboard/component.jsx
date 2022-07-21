@@ -236,7 +236,7 @@ export default function Whiteboard(props) {
             } else {
               // disable hover highlight for background slide shape
               app.setHoveredId = (id) => {
-                if (id.includes('slide-background')) return null;
+                if (id?.includes('slide-background')) return null;
                 app.patchState(
                   {
                     document: {
