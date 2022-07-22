@@ -51,7 +51,7 @@ public interface RecordingApiV2 {
     );
 
     @RequestMapping(value = "/{recordID}/tracks", produces = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.POST)
+            MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.PUT)
     ResponseEntity<Response> addRecordingTextTrack(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
             @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @RequestBody AddTextTrackBody body

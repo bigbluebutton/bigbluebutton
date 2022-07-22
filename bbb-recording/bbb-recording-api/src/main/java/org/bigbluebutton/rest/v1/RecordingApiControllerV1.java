@@ -367,11 +367,11 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 MessageContent content = new MessageContent();
-                content.setMessageKey("upload_text_track_success");
-                content.setMessage("Text track uploaded successfully");
+                content.setMessageKey("upload_text_track_failed");
+                content.setMessage("Text track upload failed.");
                 content.setRecordId(recordId);
                 response.setContent(content);
-                response.setReturnCode("FAILED");
+                response.setReturnCode("SUCCESS");
                 return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {

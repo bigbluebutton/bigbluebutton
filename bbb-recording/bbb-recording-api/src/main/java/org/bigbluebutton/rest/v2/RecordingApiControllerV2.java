@@ -2,6 +2,7 @@ package org.bigbluebutton.rest.v2;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import org.apache.commons.lang3.LocaleUtils;
 import org.bigbluebutton.dao.entity.Recording;
 import org.bigbluebutton.dao.entity.Track;
 import org.bigbluebutton.request.AddTextTrackBody;
@@ -160,7 +161,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
             Errors errors = new Errors();
             errors.addError(Error.METADATA_NOT_PROVIDED);
             response.setErrors(errors);
-            return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         Recording recording = recordingService.updateRecording(recordID, meta.getMeta());
@@ -250,7 +251,42 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
 
     @Override
     public ResponseEntity<Response> addRecordingTextTrack(String recordID, AddTextTrackBody body) {
-        return null;
+        ResponseEnvelope response = new ResponseEnvelope();
+
+        ResponseEntity<Response> r = checkForId(response, recordID);
+        if (r != null)
+            return r;
+
+        Locale locale;
+        try {
+            locale = LocaleUtils.toLocale(body.getLang());
+        } catch (IllegalArgumentException e) {
+            Errors errors = new Errors();
+            errors.addError(Error.INVALID_LANG);
+            response.setErrors(errors);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        String captionsLang = locale.toLanguageTag();
+        String label = body.getLabel();
+        if (label == null || label.isEmpty())
+            label = locale.getDisplayLanguage();
+
+        if(!body.getFile().isEmpty()) {
+            boolean result = recordingService.putTrack(body.getFile(), recordID, body.getKind(), captionsLang, label);
+            if(result) {
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Errors errors = new Errors();
+                errors.addError(Error.UPLOAD_FAILED);
+                response.setErrors(errors);
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            Errors errors = new Errors();
+            errors.addError(Error.EMPTY_TEXT_TRACK);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Override
@@ -263,7 +299,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
             Errors errors = new Errors();
             errors.addError(Error.ID_NOT_PROVIDED);
             response.setErrors(errors);
-            return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
         return null;
