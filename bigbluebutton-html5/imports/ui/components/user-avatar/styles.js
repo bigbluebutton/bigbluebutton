@@ -151,7 +151,7 @@ const Avatar = styled.div`
   ${({ presenter }) => presenter && `
     &:before {
       content: "\\00a0\\e90b\\00a0";
-      padding: ${mdPaddingY};
+      padding: ${mdPaddingY} !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
       left: ${userIndicatorsOffset};
@@ -172,7 +172,7 @@ const Avatar = styled.div`
     presenter, isChrome, isFirefox, isEdge,
   }) => presenter && (isChrome || isFirefox || isEdge) && `
     &:before {
-      padding: ${indicatorPadding};
+      padding: ${indicatorPadding} !important;
     }
   `}
 

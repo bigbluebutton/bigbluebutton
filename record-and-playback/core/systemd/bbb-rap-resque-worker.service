@@ -1,7 +1,7 @@
 [Unit]
 Description=BigBlueButton resque worker for recordings
-Wants=redis.service
-After=redis.service
+Wants=redis-server.service
+After=redis-server.service
 
 [Service]
 Type=simple

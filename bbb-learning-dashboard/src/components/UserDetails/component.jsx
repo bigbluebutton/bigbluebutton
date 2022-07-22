@@ -7,6 +7,7 @@ import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
 import { getSumOfTime, tsToHHmmss, getActivityScore } from '../../services/UserService';
 import { usePreviousValue } from '../../utils/hooks';
+import { toCamelCase } from '../../utils/string';
 
 const UserDatailsComponent = (props) => {
   const {
@@ -257,7 +258,12 @@ const UserDatailsComponent = (props) => {
   ) {
     return (
       <div className="p-6 flex flex-row justify-between items-end">
-        <div className="min-w-[20%] text-ellipsis overflow-hidden">{category}</div>
+        <div className="min-w-[20%] text-ellipsis overflow-hidden">
+          <FormattedMessage
+            id={`app.learningDashboard.userDetails.${toCamelCase(category)}`}
+            defaultMessage={category}
+          />
+        </div>
         <div className="min-w-[60%] grow text-center text-sm">
           <div className="mb-2">
             { (function getAverage() {

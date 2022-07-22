@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import _ from 'lodash';
-import BBBMenu from "/imports/ui/components/common/menu/component";
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import { getDateString } from '/imports/utils/string-utils';
-import Trigger from "/imports/ui/components/common/control-header/right/component";
+import Trigger from '/imports/ui/components/common/control-header/right/component';
 
 import ChatService from '../service';
 import { addNewAlert } from '../../screenreader-alert/service';
@@ -63,62 +63,62 @@ class ChatDropdown extends PureComponent {
     const clearIcon = 'delete';
     const saveIcon = 'download';
     const copyIcon = 'copy';
-    
-    this.menuItems = [];
-      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
-      && (
-        this.menuItems.push(
-          {
-            key: this.actionsKey[0],            
-            icon: saveIcon,
-            dataTest: "chatSave",
-            label: intl.formatMessage(intlMessages.save),
-            onClick: () => {
-              const link = document.createElement('a');
-              const mimeType = 'text/plain';
-              link.setAttribute('download', `bbb-${meetingName}[public-chat]_${getDateString()}.txt`);
-              link.setAttribute(
-                'href',
-                `data: ${mimeType};charset=utf-8,`
-                + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, intl))}`,
-              );
-              link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-            }       
-          }          
-        )  
-      ),
-      ENABLE_SAVE_AND_COPY_PUBLIC_CHAT
-      && (
-        this.menuItems.push(
-          {
-            key: this.actionsKey[1],
-            icon: copyIcon,
-            id: "clipboardButton",
-            dataTest: "chatCopy",
-            label: intl.formatMessage(intlMessages.copy),
-            onClick: () => {
-              let chatHistory = ChatService.exportChat(timeWindowsValues, intl);
-              navigator.clipboard.writeText(chatHistory).then(() => {
-                addNewAlert(intl.formatMessage(intlMessages.copySuccess));
-              }).catch(() => {
-                addNewAlert(intl.formatMessage(intlMessages.copyErr));
-              });
-            }
-          }
-        )
-      )
 
-      if (!meetingIsBreakout && amIModerator && isMeteorConnected) {
-        this.menuItems.push(
-          {
-            key: this.actionsKey[2],
-            icon: clearIcon,
-            dataTest: "chatClear",
-            label: intl.formatMessage(intlMessages.clear),
-            onClick: () => ChatService.clearPublicChatHistory()
-          }
-        )     
-      }
+    this.menuItems = [];
+
+    if (ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) {
+      this.menuItems.push(
+        {
+          key: this.actionsKey[0],
+          icon: saveIcon,
+          dataTest: 'chatSave',
+          label: intl.formatMessage(intlMessages.save),
+          onClick: () => {
+            const link = document.createElement('a');
+            const mimeType = 'text/plain';
+            link.setAttribute('download', `bbb-${meetingName}[public-chat]_${getDateString()}.txt`);
+            link.setAttribute(
+              'href',
+              `data: ${mimeType};charset=utf-8,`
+              + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, intl))}`,
+            );
+            link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+          },
+        },
+      );
+    }
+
+    if (ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) {
+      this.menuItems.push(
+        {
+          key: this.actionsKey[1],
+          icon: copyIcon,
+          id: 'clipboardButton',
+          dataTest: 'chatCopy',
+          label: intl.formatMessage(intlMessages.copy),
+          onClick: () => {
+            const chatHistory = ChatService.exportChat(timeWindowsValues, intl);
+            navigator.clipboard.writeText(chatHistory).then(() => {
+              addNewAlert(intl.formatMessage(intlMessages.copySuccess));
+            }).catch(() => {
+              addNewAlert(intl.formatMessage(intlMessages.copyErr));
+            });
+          },
+        },
+      );
+    }
+
+    if (!meetingIsBreakout && amIModerator && isMeteorConnected) {
+      this.menuItems.push(
+        {
+          key: this.actionsKey[2],
+          icon: clearIcon,
+          dataTest: 'chatClear',
+          label: intl.formatMessage(intlMessages.clear),
+          onClick: () => ChatService.clearPublicChatHistory(),
+        },
+      );
+    }
 
     return this.menuItems;
   }
@@ -133,28 +133,28 @@ class ChatDropdown extends PureComponent {
     if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
     return (
       <>
-      <BBBMenu
-        trigger={
-          <Trigger
-            data-test="chatOptionsMenu"
-            icon="more"
-            label={intl.formatMessage(intlMessages.options)}
-            aria-label={intl.formatMessage(intlMessages.options)}
-            onClick={() => null}
-          />                    
-        }
-        opts={{
-          id: "default-dropdown-menu",
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: "true",
-          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-        }}
-        actions={this.getAvailableActions()}
-      />
+        <BBBMenu
+          trigger={(
+            <Trigger
+              data-test="chatOptionsMenu"
+              icon="more"
+              label={intl.formatMessage(intlMessages.options)}
+              aria-label={intl.formatMessage(intlMessages.options)}
+              onClick={() => null}
+            />
+          )}
+          opts={{
+            id: 'default-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+          }}
+          actions={this.getAvailableActions()}
+        />
       </>
     );
   }

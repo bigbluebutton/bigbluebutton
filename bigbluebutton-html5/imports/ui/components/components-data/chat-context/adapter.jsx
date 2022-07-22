@@ -97,7 +97,7 @@ const Adapter = () => {
   more info: https://github.com/bigbluebutton/bigbluebutton/issues/11842 */
   useEffect(() => {
     if (users[Auth.meetingID]) {
-      if (currentUserData?.role !== users[Auth.meetingID][Auth.userID].role) {
+      if (currentUserData?.role !== users[Auth.meetingID][Auth.userID]?.role) {
         prevUserData = currentUserData;
       }
       currentUserData = users[Auth.meetingID][Auth.userID];

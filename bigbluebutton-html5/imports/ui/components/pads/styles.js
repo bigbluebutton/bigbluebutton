@@ -35,10 +35,12 @@ const Pad = styled.div`
 
 const IFrame = styled.iframe`
   width: 100%;
-  height: 100%;
+  height: auto;
   overflow: hidden;
   border-style: none;
   border-bottom: 1px solid ${colorGrayLightest};
+
+  padding-bottom: 5px;
 `;
 
 export default {

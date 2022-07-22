@@ -1,7 +1,7 @@
 [Unit]
 Description=BigBlueButton Webhooks
 Wants=redis-server.service
-After=syslog.target network.target
+After=syslog.target network.target redis-server.service
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-webhooks
