@@ -250,16 +250,16 @@ class PresentationUploader extends Component {
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
-    this.handleDismissToast = this.handleDismissToast.bind(this);
+    // this.handleDismissToast = this.handleDismissToast.bind(this);
     this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
     this.renderPresentationList = this.renderPresentationList.bind(this);
     this.renderPresentationItem = this.renderPresentationItem.bind(this);
-    this.renderPresentationItemStatus = this.renderPresentationItemStatus.bind(this);
-    this.renderToastList = this.renderToastList.bind(this);
-    this.renderToastItem = this.renderToastItem.bind(this);
+    // this.renderPresentationItemStatus = this.renderPresentationItemStatus.bind(this);
+    // this.renderToastList = this.renderToastList.bind(this);
+    // this.renderToastItem = this.renderToastItem.bind(this);
     // utilities
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
@@ -325,13 +325,15 @@ class PresentationUploader extends Component {
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
 
-    if (this.toastId) {
+    const toastId = Session.get("presentationUploaderToastId");
+
+    if (toastId) {
       if (!prevProps.isOpen && isOpen) {
-        this.handleDismissToast(this.toastId);
+        this.props.handleDismissToast(toastId);
       }
 
-      toast.update(this.toastId, {
-        render: this.renderToastList(),
+      toast.update(toastId, {
+        render: this.props.renderToastList(this.state.presentations, this.state.toUploadCount, intl),
       });
     }
   }
@@ -340,9 +342,9 @@ class PresentationUploader extends Component {
     Session.set('showUploadPresentationView', false);
   }
 
-  handleDismissToast() {
-    return toast.dismiss(this.toastId);
-  }
+  // handleDismissToast(toastId) {
+  //   return toast.dismiss(toastId);
+  // }
 
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
@@ -522,7 +524,7 @@ class PresentationUploader extends Component {
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
-      return handleSave(presentationsToSave)
+      return handleSave(presentationsToSave, this.state.toUploadCount, this.props.intl)
         .then(() => {
           const hasError = presentations.some((p) => p.upload.error || p.conversion.error);
           if (!hasError) {
@@ -837,7 +839,7 @@ class PresentationUploader extends Component {
           <span>{item.filename}</span>
         </Styled.TableItemName>
         <Styled.TableItemStatus colSpan={hasError ? 2 : 0}>
-          {this.renderPresentationItemStatus(item)}
+          {this.props.renderPresentationItemStatus(item, intl)}
         </Styled.TableItemStatus>
         {hasError ? null : (
           <Styled.TableItemActions notDownloadable={!allowDownloadable}>

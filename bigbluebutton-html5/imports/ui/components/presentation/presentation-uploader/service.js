@@ -1,4 +1,6 @@
 import Presentations from '/imports/api/presentations';
+import React from 'react';
+import Icon from '/imports/ui/components/common/icon/component';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
 import Poll from '/imports/api/polls/';
@@ -6,6 +8,8 @@ import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
+import Styled from './styles';
+import { toast } from 'react-toastify';
 import _ from 'lodash';
 import { Random } from 'meteor/random'
 
@@ -413,10 +417,15 @@ function renderToastItem(item, intl) {
   );
 }
 
+function handleDismissToast(toastId) {
+  return toast.dismiss(toastId);
+}
+
 function renderToastList(presentations, toUploadCount, intl) {
 
   if (toUploadCount === 0) {
-    return this.handleDismissToast(this.toastId);
+    const toastId = Session.get("presentationUploaderToastId")
+    return handleDismissToast(toastId);
   }
 
   let converted = 0;
@@ -475,19 +484,21 @@ function renderToastList(presentations, toUploadCount, intl) {
   );
 }
 
-const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) => {
+const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId, toUploadCount, intl) => {
   const presentationsToUpload = newState.filter((p) => !p.upload.done);
+
   if (presentationsToUpload.length > 0) {
     console.log("Vou criar toast")
-    toastId = toast.info(renderToastList(), {
+    const toastId = toast.info(renderToastList(newState, toUploadCount, intl ), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
       closeOnClick: true,
       onClose: () => {
-        this.toastId = null;
+        Session.set("presentationUploaderToastId", null)
       },
     });
+    Session.set('presentationUploaderToastId', toastId)
   }
   const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
 
@@ -533,4 +544,7 @@ export default {
   dispatchTogglePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
+  renderToastList,
+  handleDismissToast,
+  renderPresentationItemStatus,
 };
