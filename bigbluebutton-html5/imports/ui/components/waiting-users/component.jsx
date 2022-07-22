@@ -80,6 +80,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.denyLabel',
     description: 'Deny guest button label',
   },
+  feedbackMessage: {
+    id: 'app.userList.guest.feedbackMessage',
+    description: 'Feedback message moderator action',
+  },
 });
 
 const ALLOW_STATUS = 'ALLOW';
@@ -253,20 +257,15 @@ const WaitingUsers = (props) => {
     setRememberChoice(checked);
   };
 
-  const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {   
+  const changePolicy = (shouldExecutePolicy, policyRule, cb, message) => () => {   
     if (shouldExecutePolicy) {
       changeGuestPolicy(policyRule);
     }
 
-    if (policyRule === 'ALWAYS_ACCEPT_AUTH') {
-      notify("Action applied to waiting users: " + intl.formatMessage(intlMessages.allowAllAuthenticated).toUpperCase(), 'success');
-    }else if (policyRule === 'ALWAYS_ACCEPT') {
-      notify("Action applied to waiting users: " + intl.formatMessage(intlMessages.allowEveryone).toUpperCase(), 'success');
-    }else if(policyRule === 'ALWAYS_DENY') {
-      notify("Action applied to waiting users: " + intl.formatMessage(intlMessages.denyEveryone).toUpperCase(), 'success');
-    }
-
     closePanel();
+    
+    notify(intl.formatMessage(intlMessages.feedbackMessage) + message.toUpperCase(), 'success');
+    
     return cb();
   };
 
@@ -276,7 +275,7 @@ const WaitingUsers = (props) => {
       color={color}
       label={message}
       size="lg"
-      onClick={changePolicy(rememberChoice, policy, action)}
+      onClick={changePolicy(rememberChoice, policy, action, message)}
     />
   );
 
