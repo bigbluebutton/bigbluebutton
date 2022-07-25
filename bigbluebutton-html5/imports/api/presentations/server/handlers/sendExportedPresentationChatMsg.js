@@ -1,7 +1,7 @@
 import addSystemMsg from '/imports/api/group-chat-msg/server/modifiers/addSystemMsg';
 import Presentations from '/imports/api/presentations';
 
-const DEFAULT_FILENAME = 'Annotated_slide.pdf';
+const DEFAULT_FILENAME = 'annotated_slides.pdf';
 
 export default function sendExportedPresentationChatMsg(meetingId, presentationId, fileURI) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
