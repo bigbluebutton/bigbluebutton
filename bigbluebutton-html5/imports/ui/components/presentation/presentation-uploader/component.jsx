@@ -282,9 +282,9 @@ class PresentationUploader extends Component {
       const firstFocusableElement = modal?.querySelectorAll(focusableElements)[0];
       const focusableContent = modal?.querySelectorAll(focusableElements);
       const lastFocusableElement = focusableContent[focusableContent.length - 1];
-      
+
       firstFocusableElement.focus();
-  
+
       modal.addEventListener('keydown', function(e) {
         let tab = e.key === 'Tab' || e.keyCode === TAB;
         if (!tab) return;
@@ -317,7 +317,7 @@ class PresentationUploader extends Component {
       this.setState({
         presentations: presStateMapped,
       })
-      
+
     }
 
     if (presentations.length > 0) {
@@ -809,7 +809,7 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
-    const { isRemovable } = item; 
+    const { isRemovable } = item;
 
     return (
       <Styled.PresentationItem
@@ -975,7 +975,10 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItemStatus(item) {
-    const { intl } = this.props;
+    const {
+      intl,
+      fileSizeMax
+    } = this.props;
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -989,13 +992,8 @@ class PresentationUploader extends Component {
     const constraint = {};
 
     if (item.upload.done && item.upload.error) {
-      if (item.conversion.status === 'FILE_TOO_LARGE') {
-        constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-      }
-
-      if (item.upload.progress < 100) {
-        const errorMessage = intlMessages.badConnectionError;
-        return intl.formatMessage(errorMessage);
+      if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status === 413) {
+        constraint['0'] = fileSizeMax / 1000000;
       }
 
       const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
