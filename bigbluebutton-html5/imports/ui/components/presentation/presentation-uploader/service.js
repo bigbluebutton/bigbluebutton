@@ -277,8 +277,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     const cursor = Presentations.find({ id: presentationId });
 
     const checkStatus = (exportation) => {
-      const shouldStop = (lastStatus.isRunning === true && exportation.isRunning === false)
-        || exportation.error;
+      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
 
       if (shouldStop) {
         observer(exportation, true);

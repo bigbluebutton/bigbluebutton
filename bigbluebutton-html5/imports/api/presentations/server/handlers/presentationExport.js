@@ -17,5 +17,5 @@ export default function handlePresentationExport({ body }, meetingId) {
   check(presentationId, String);
 
   sendExportedPresentationChatMsg(meetingId, presentationId, fileURI);
-  setPresentationExporting(meetingId, presentationId, { isRunning: false, error: false });
+  setPresentationExporting(meetingId, presentationId, { status: 'EXPORTED' });
 }

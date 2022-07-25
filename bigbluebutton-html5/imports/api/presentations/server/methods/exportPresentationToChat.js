@@ -31,12 +31,13 @@ export default function exportPresentationToChat(presentationId) {
       const selector = { meetingId, id: presentationId };
       const cursor = Presentations.find(selector);
       const numPages = cursor.fetch()[0]?.pages?.length ?? 1;
+      const threshold = EXPORTING_THRESHOLD_PER_SLIDE * numPages;
 
       const observer = cursor.observe({
         changed: (doc) => {
-          const { isRunning, error } = doc.exportation;
+          const { status } = doc.exportation;
 
-          if (!isRunning && !error) {
+          if (status === 'EXPORTED') {
             Meteor.clearTimeout(timeoutRef);
           }
         },
@@ -44,11 +45,11 @@ export default function exportPresentationToChat(presentationId) {
 
       timeoutRef = Meteor.setTimeout(() => {
         observer.stop();
-        setPresentationExporting(meetingId, presentationId, { isRunning: false, error: true });
-      }, EXPORTING_THRESHOLD_PER_SLIDE * numPages);
+        setPresentationExporting(meetingId, presentationId, { status: 'TIMEOUT' });
+      }, threshold);
     };
 
-    setPresentationExporting(meetingId, presentationId, { isRunning: true, error: false });
+    setPresentationExporting(meetingId, presentationId, { status: 'RUNNING' });
     setObserver();
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

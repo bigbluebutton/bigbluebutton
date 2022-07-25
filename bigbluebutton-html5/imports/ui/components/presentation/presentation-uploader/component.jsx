@@ -249,7 +249,25 @@ const intlMessages = defineMessages({
     id: 'app.presentation.downloadLabel',
     description: 'download label',
   },
+  sending: {
+    id: 'app.presentationUploader.sending',
+    description: 'sending label',
+  },
+  sent: {
+    id: 'app.presentationUploader.sent',
+    description: 'sent label',
+  },
+  exportingTimeout: {
+    id: 'app.presentationUploader.exportingTimeout',
+    description: 'exporting timeout label',
+  },
 });
+
+const EXPORT_STATUSES = {
+  RUNNING: 'RUNNING',
+  TIMEOUT: 'TIMEOUT',
+  EXPORTED: 'EXPORTED',
+};
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -259,7 +277,7 @@ class PresentationUploader extends Component {
       presentations: [],
       disableActions: false,
       toUploadCount: 0,
-      exportingCount: 0,
+      presExporting: new Set(),
     };
 
     this.toastId = null;
@@ -282,9 +300,13 @@ class PresentationUploader extends Component {
     this.renderPresentationItemStatus = this.renderPresentationItemStatus.bind(this);
     this.renderToastList = this.renderToastList.bind(this);
     this.renderToastItem = this.renderToastItem.bind(this);
+    this.renderExportToast = this.renderExportToast.bind(this);
+    this.renderToastExportItem = this.renderToastExportItem.bind(this);
+    this.renderExportationStatus = this.renderExportationStatus.bind(this);
     // utilities
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
+    this.getPresentationsToShow = this.getPresentationsToShow.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -605,33 +627,56 @@ class PresentationUploader extends Component {
     );
   }
 
+  getPresentationsToShow() {
+    const { presentations, presExporting } = this.state;
+
+    return Array.from(presExporting)
+      .map((id) => presentations.find((p) => p.id === id))
+      .filter((p) => p);
+  }
+
   handleSendToChat(item) {
     const { exportPresentationToChat } = this.props;
 
-    const observer = (exportation, done) => {
-      if (done) {
-        this.setState((prevState) => ({
-          exportingCount: prevState.exportingCount - 1,
-        }));
-      }
+    const observer = (exportation) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
+
+      if (exportation.status === EXPORT_STATUSES.RUNNING) {
+        this.setState((prevState) => {
+          prevState.presExporting.add(item.id);
+          return {
+            presExporting: prevState.presExporting,
+          };
+        }, () => {
+          if (this.exportToastId) {
+            toast.update(this.exportToastId, {
+              render: this.renderExportToast(),
+            });
+          } else {
+            this.exportToastId = toast.info(this.renderExportToast(), {
+              hideProgressBar: true,
+              autoClose: false,
+              newestOnTop: true,
+              closeOnClick: true,
+              onClose: () => {
+                this.exportToastId = null;
+
+                const presToShow = this.getPresentationsToShow();
+                const isAnyRunning = presToShow.some(
+                  (p) => p.exportation.status === EXPORT_STATUSES.RUNNING
+                );
+
+                if (!isAnyRunning) {
+                  this.setState({ presExporting: new Set() });
+                }
+              },
+            });
+          }
+        });
+      }
     };
 
-    this.setState((prevState) => ({
-      exportingCount: prevState.exportingCount + 1,
-    }));
-
     exportPresentationToChat(item.id, observer);
-
-    this.exportToastId = toast.info(this.renderExportToast(), {
-      hideProgressBar: true,
-      autoClose: false,
-      newestOnTop: true,
-      closeOnClick: true,
-      onClose: () => {
-        this.exportToastId = null;
-      },
-    });
 
     Session.set('showUploadPresentationView', false);
   }
@@ -835,28 +880,47 @@ class PresentationUploader extends Component {
 
   renderExportToast() {
     const { intl } = this.props;
-    const { presentations, exportingCount } = this.state;
+    const { presExporting } = this.state;
 
-    const presExporting = presentations.filter((pres) => pres.exportation.isRunning);
+    const presToShow = this.getPresentationsToShow();
 
-    if (exportingCount === 0 && this.exportToastId) {
+    const isAllExported = presToShow.every(
+      (p) => p.exportation.status === EXPORT_STATUSES.EXPORTED
+    );
+    const shouldDismiss = isAllExported && this.exportToastId;
+
+    if (shouldDismiss) {
       this.handleDismissToast(this.exportToastId);
+
+      if (presExporting.size) {
+        this.setState({ presExporting: new Set() });
+      }
+
+      return;
     }
 
-    const headerLabelId = exportingCount === 1 ? 'exportToastHeader' : 'exportToastHeaderPlural';
+    const presToShowSorted = [
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.RUNNING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.TIMEOUT),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.EXPORTED),
+    ];
+
+    const headerLabelId = presToShowSorted.length === 1
+      ? 'exportToastHeader'
+      : 'exportToastHeaderPlural';
 
     return (
       <Styled.ToastWrapper>
         <Styled.UploadToastHeader>
           <Styled.UploadIcon iconName="download" />
           <Styled.UploadToastTitle>
-            {intl.formatMessage(intlMessages[headerLabelId], { 0: exportingCount })}
+            {intl.formatMessage(intlMessages[headerLabelId], { 0: presToShowSorted.length })}
           </Styled.UploadToastTitle>
         </Styled.UploadToastHeader>
         <Styled.InnerToast>
           <div>
             <div>
-              {presExporting.map((item) => this.renderToastExportItem(item))}
+              {presToShowSorted.map((item) => this.renderToastExportItem(item))}
             </div>
           </div>
         </Styled.InnerToast>
@@ -865,23 +929,65 @@ class PresentationUploader extends Component {
   }
 
   renderToastExportItem(item) {
+    const { status } = item.exportation;
+    const loading = status === EXPORT_STATUSES.RUNNING;
+    const done = status === EXPORT_STATUSES.EXPORTED;
+    let icon;
+
+    switch (status) {
+      case EXPORT_STATUSES.RUNNING:
+        icon = 'blank'
+        break;
+      case EXPORT_STATUSES.EXPORTED:
+        icon = 'check'
+        break;
+      case EXPORT_STATUSES.TIMEOUT:
+        icon = 'warning'
+        break;
+      default:
+        break;
+    }
+
     return (
-      <Styled.FileLine>
-        <span>
-          <Icon iconName="file" />
-        </span>
-        <Styled.ToastFileName>
-          <span>{item.filename}</span>
-        </Styled.ToastFileName>
-        <Styled.StatusIcon>
-          <Styled.ToastItemIcon
-            loading
-            iconName="blank"
-            color="#0F70D7"
-          />
-        </Styled.StatusIcon>
-      </Styled.FileLine>
+      <Styled.UploadRow>
+        <Styled.FileLine>
+          <span>
+            <Icon iconName="file" />
+          </span>
+          <Styled.ToastFileName>
+            <span>{item.filename}</span>
+          </Styled.ToastFileName>
+          <Styled.StatusIcon>
+            <Styled.ToastItemIcon
+              loading={loading}
+              done={done}
+              iconName={icon}
+              color="#0F70D7"
+            />
+          </Styled.StatusIcon>
+        </Styled.FileLine>
+        <Styled.StatusInfo>
+          <Styled.StatusInfoSpan>
+            {this.renderExportationStatus(item)}
+          </Styled.StatusInfoSpan>
+        </Styled.StatusInfo>
+      </Styled.UploadRow>
     );
+  }
+
+  renderExportationStatus(item) {
+    const { intl } = this.props;
+
+    switch (item.exportation.status) {
+      case EXPORT_STATUSES.RUNNING:
+        return intl.formatMessage(intlMessages.sending);
+      case EXPORT_STATUSES.TIMEOUT:
+        return intl.formatMessage(intlMessages.exportingTimeout);
+      case EXPORT_STATUSES.EXPORTED:
+        return intl.formatMessage(intlMessages.sent);
+      default:
+        return '';
+    }
   }
 
   renderPresentationItem(item) {
@@ -904,7 +1010,9 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
-    const { isRemovable, exportation: { isRunning: isExporting } } = item;
+    const { isRemovable, exportation: { status } } = item;
+
+    const isExporting = status === 'RUNNING';
 
     const shouldDisableExportButton = isExporting
       || !item.conversion.done
