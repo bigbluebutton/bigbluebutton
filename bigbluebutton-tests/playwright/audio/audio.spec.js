@@ -15,12 +15,14 @@ test.describe.parallel('Audio', () => {
     await audio.joinMicrophone();
   });
 
+  // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
   test('Mute youself by clicking the mute button @ci', async ({ browser, page }) => {
     const audio = new Audio(browser, page);
     await audio.init(true, false);
     await audio.muteYourselfByButton();
   });
 
+  // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources
   test('Change audio input and keep it connected', async ({ browser, page }) => {
     const audio = new Audio(browser, page);
     await audio.init(true, false);
@@ -34,12 +36,14 @@ test.describe.parallel('Audio', () => {
   });
 
   test.describe.parallel('Talking indicator @ci', () => {
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
     test('Mute youself by clicking the talking indicator', async ({ browser, page }) => {
       const audio = new Audio(browser, page);
       await audio.init(true, false);
       await audio.muteYourselfBytalkingIndicator();
     });
 
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
     test('Mute another user by clicking the talking indicator', async ({ browser, context, page }) => {
       const audio = new MultiUsers(browser, context);
       await audio.initModPage(page);
