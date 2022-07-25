@@ -16,7 +16,7 @@ test.describe.parallel('Audio', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
-  test('Mute youself by clicking the mute button @ci', async ({ browser, page }) => {
+  test('Mute yourself by clicking the mute button @ci', async ({ browser, page }) => {
     const audio = new Audio(browser, page);
     await audio.init(true, false);
     await audio.muteYourselfByButton();
@@ -37,7 +37,7 @@ test.describe.parallel('Audio', () => {
 
   test.describe.parallel('Talking indicator @ci', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
-    test('Mute youself by clicking the talking indicator', async ({ browser, page }) => {
+    test('Mute yourself by clicking the talking indicator', async ({ browser, page }) => {
       const audio = new Audio(browser, page);
       await audio.init(true, false);
       await audio.muteYourselfBytalkingIndicator();
