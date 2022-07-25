@@ -30,6 +30,7 @@ export default function exportPresentationToChat(presentationId) {
 
       const selector = { meetingId, id: presentationId };
       const cursor = Presentations.find(selector);
+      const numPages = cursor.fetch()[0]?.pages?.length ?? 1;
 
       const observer = cursor.observe({
         changed: (doc) => {
@@ -44,7 +45,7 @@ export default function exportPresentationToChat(presentationId) {
       timeoutRef = Meteor.setTimeout(() => {
         observer.stop();
         setPresentationExporting(meetingId, presentationId, { isRunning: false, error: true });
-      }, EXPORTING_THRESHOLD_PER_SLIDE);
+      }, EXPORTING_THRESHOLD_PER_SLIDE * numPages);
     };
 
     setPresentationExporting(meetingId, presentationId, { isRunning: true, error: false });
