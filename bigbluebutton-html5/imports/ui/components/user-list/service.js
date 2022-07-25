@@ -632,7 +632,7 @@ const sortUsersByLastName = (a, b) => {
   return sortUsersByName(aUser, bUser);
 };
 
-const isUserPresenter = (userId) => {
+const isUserPresenter = (userId = Auth.userID) => {
   const user = Users.findOne({ userId },
     { fields: { presenter: 1 } });
   return user ? user.presenter : false;

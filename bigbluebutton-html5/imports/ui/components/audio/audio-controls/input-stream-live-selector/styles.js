@@ -4,9 +4,9 @@ import Button from '/imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorDanger,
-  colorWhite,
   colorGrayDark,
   colorOffWhite,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const pulse = keyframes`

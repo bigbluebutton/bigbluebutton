@@ -52,6 +52,8 @@ class TalkingIndicator extends PureComponent {
       const {
         talking,
         color,
+        transcribing,
+        floor,
         muted,
         callerName,
       } = talkers[`${id}`];
@@ -65,33 +67,47 @@ class TalkingIndicator extends PureComponent {
       icon = muted ? 'mute' : icon;
 
       return (
-        <Styled.TalkingIndicatorButton
-          $spoke={!talking || undefined}
-          $muted={muted}
-          $isViewer={!amIModerator || undefined}
+        <Styled.TalkingIndicatorWrapper
           key={_.uniqueId(`${callerName}-`)}
-          onClick={() => this.handleMuteUser(id)}
-          label={callerName}
-          tooltipLabel={!muted && amIModerator
-            ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
-            : null}
-          data-test={talking ? 'isTalking' : 'wasTalking'}
-          aria-label={ariaLabel}
-          aria-describedby={talking ? 'description' : null}
-          color="primary"
-          icon={icon}
-          size="sm"
-          style={{
-            backgroundColor: color,
-            border: `solid 2px ${color}`,
-          }}
+          muted={muted}
+          talking={talking}
+          floor={floor}
         >
-          {talking ? (
-            <Styled.Hidden id="description">
-              {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
-            </Styled.Hidden>
-          ) : null}
-        </Styled.TalkingIndicatorButton>
+          {transcribing && (
+            <Styled.CCIcon
+              iconName={muted ? 'closed_caption_stop' : 'closed_caption'}
+              muted={muted}
+              talking={talking}
+            />
+          )}
+          <Styled.TalkingIndicatorButton
+            $spoke={!talking || undefined}
+            $muted={muted}
+            $isViewer={!amIModerator || undefined}
+            key={_.uniqueId(`${callerName}-`)}
+            onClick={() => this.handleMuteUser(id)}
+            label={callerName}
+            tooltipLabel={!muted && amIModerator
+              ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
+              : null}
+            data-test={talking ? 'isTalking' : 'wasTalking'}
+            aria-label={ariaLabel}
+            aria-describedby={talking ? 'description' : null}
+            color="primary"
+            icon={icon}
+            size="lg"
+            style={{
+              backgroundColor: color,
+              border: `solid 2px ${color}`,
+            }}
+          >
+            {talking ? (
+              <Styled.Hidden id="description">
+                {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
+              </Styled.Hidden>
+            ) : null}
+          </Styled.TalkingIndicatorButton>
+        </Styled.TalkingIndicatorWrapper>
       );
     });
 

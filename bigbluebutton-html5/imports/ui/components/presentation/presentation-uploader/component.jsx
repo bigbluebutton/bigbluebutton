@@ -268,6 +268,31 @@ class PresentationUploader extends Component {
   componentDidUpdate(prevProps) {
     const { isOpen, presentations: propPresentations, intl } = this.props;
     const { presentations } = this.state;
+    const { presentations: prevPropPresentations } = prevProps;
+
+    let shouldUpdateState = isOpen && !prevProps.isOpen;
+    const presState = Object.values({
+      ...propPresentations,
+      ...presentations,
+    });
+    const presStateMapped = presState.map((presentation) => {
+      propPresentations.forEach((propPres) => {
+        if (propPres.id === presentation.id) {
+          const prevPropPres = prevPropPresentations.find((pres) => pres.id === propPres.id);
+          if (propPres.isCurrent !== prevPropPres?.isCurrent) {
+            presentation.isCurrent = propPres.isCurrent;
+            shouldUpdateState = true;
+          }
+        }
+      });
+      return presentation;
+    });
+
+    if (shouldUpdateState) {
+      this.setState({
+        presentations: presStateMapped,
+      });
+    }
 
     if (!isOpen && prevProps.isOpen) {
       unregisterTitleView();
@@ -300,24 +325,6 @@ class PresentationUploader extends Component {
           }
         }
       });
-
-      const presState = Object.values({
-        ...propPresentations,
-        ...presentations,
-      });
-      const presStateMapped = presState.map((presentation) => {
-        propPresentations.forEach((propPres) => {
-          if (propPres.id == presentation.id){
-            presentation.isCurrent = propPres.isCurrent;
-          }
-        })
-        return presentation;
-      })
-
-      this.setState({
-        presentations: presStateMapped,
-      })
-      
     }
 
     if (presentations.length > 0) {
@@ -1058,7 +1065,7 @@ class PresentationUploader extends Component {
             <h1>{intl.formatMessage(intlMessages.title)}</h1>
             <Styled.ActionWrapper>
               <Styled.DismissButton
-                color="default"
+                color="secondary"
                 onClick={this.handleDismiss}
                 label={intl.formatMessage(intlMessages.dismissLabel)}
                 aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}

@@ -91,10 +91,24 @@ const del = (key, onError) => {
   });
 };
 
+const update = (background) => {
+  withObjectStore({
+    onError: genericErrorHandlerBuilder(
+      'IndexedDB_access',
+      'Error on update custom background in IndexedDB',
+      'Something wrong while updating custom background',
+    ),
+    onSuccess: (objectStore) => {
+      objectStore.put(background);
+    },
+  });
+};
+
 export default {
   load,
   save,
   del,
+  update,
   MIME_TYPES_ALLOWED,
   MAX_FILE_SIZE,
 };

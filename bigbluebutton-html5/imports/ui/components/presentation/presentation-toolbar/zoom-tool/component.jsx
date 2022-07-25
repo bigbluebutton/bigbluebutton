@@ -180,6 +180,9 @@ class ZoomTool extends PureComponent {
             minBound={minBound}
           >
             <Styled.DecreaseZoomButton
+              color="light"
+              circle
+              size="md"
               key="zoom-tool-1"
               aria-describedby="zoomOutDescription"
               aria-label={zoomOutAriaLabel}
@@ -220,6 +223,9 @@ class ZoomTool extends PureComponent {
             maxBound={maxBound}
           >
             <Styled.IncreaseZoomButton
+              color="light"
+              circle
+              size="md"
               key="zoom-tool-3"
               aria-describedby="zoomInDescription"
               aria-label={zoomInAriaLabel}

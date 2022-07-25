@@ -20,6 +20,7 @@ import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoic
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
+import clearAudioCaptions from '/imports/api/audio-captions/server/modifiers/clearAudioCaptions';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
 import clearRecordMeeting from './clearRecordMeeting';
@@ -54,6 +55,7 @@ export default function meetingHasEnded(meetingId) {
     clearVoiceUsers(meetingId);
     clearUserInfo(meetingId);
     clearConnectionStatus(meetingId);
+    clearAudioCaptions(meetingId);
     clearLocalSettings(meetingId);
     clearMeetingTimeRemaining(meetingId);
     clearRecordMeeting(meetingId);

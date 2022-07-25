@@ -627,6 +627,7 @@ class ConnectionStatusComponent extends PureComponent {
         <Styled.Copy
           disabled={!hasNetworkData}
           role="button"
+	  data-test="copyStats"
           onClick={this.copyNetworkData.bind(this)}
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
