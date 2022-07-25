@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import setPresentationExporting from '/imports/api/presentations/server/modifiers/setPresentationExporting';
 import Presentations from '/imports/api/presentations';
 
-const EXPORTING_THRESHOLD = 60000;
+const EXPORTING_THRESHOLD_PER_SLIDE = 60000;
 
 export default function exportPresentationToChat(presentationId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -28,7 +28,8 @@ export default function exportPresentationToChat(presentationId) {
     const setObserver = () => {
       let timeoutRef = null;
 
-      const cursor = Presentations.find({ id: presentationId });
+      const selector = { meetingId, id: presentationId };
+      const cursor = Presentations.find(selector);
 
       const observer = cursor.observe({
         changed: (doc) => {
@@ -43,7 +44,7 @@ export default function exportPresentationToChat(presentationId) {
       timeoutRef = Meteor.setTimeout(() => {
         observer.stop();
         setPresentationExporting(meetingId, presentationId, { isRunning: false, error: true });
-      }, EXPORTING_THRESHOLD);
+      }, EXPORTING_THRESHOLD_PER_SLIDE);
     };
 
     setPresentationExporting(meetingId, presentationId, { isRunning: true, error: false });
