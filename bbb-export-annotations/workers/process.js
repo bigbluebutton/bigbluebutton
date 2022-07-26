@@ -129,7 +129,7 @@ function escapeText(string) {
             .replace(/>/g, '\\&gt;')
             .replace(/</g, '\\&lt;')
             .replace(/[~`!".*+?%^${}()|[\]\\\/]/g, '\\$&')
-            .replace(/-/g, '\\x2d');
+            .replace(/-/g, '\\&#x2D;');
 }
 
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
