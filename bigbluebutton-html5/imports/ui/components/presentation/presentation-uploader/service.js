@@ -417,6 +417,34 @@ function renderToastItem(item, intl) {
   );
 }
 
+const verifyUploadToast = (presentations, toUploadCount, intl) => {
+  const toastId = Session.get("presentationUploaderToastId");
+
+  if (toastId) {
+    toast.update(toastId, {
+      render: renderToastList(presentations, toUploadCount, intl),
+    });
+  }
+}
+
+const observePresentationsForToast = (meetingId, presentations, toUploadCount, intl) => new Promise((resolve, reject) => {
+
+  Tracker.autorun((c) => {
+    const query = Presentations.find({ meetingId });
+
+    query.observe({
+      added: (doc) => {
+        console.log(presentations)
+        verifyUploadToast(presentations, toUploadCount, intl)
+      },
+      changed: (newDoc) => {
+        console.log(presentations)
+        verifyUploadToast(presentations, toUploadCount, intl)
+      },
+    });
+  });
+})
+
 function handleDismissToast(toastId) {
   return toast.dismiss(toastId);
 }
@@ -499,6 +527,7 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId, t
       },
     });
     Session.set('presentationUploaderToastId', toastId)
+    observePresentationsForToast(Auth.meetingID, presentationsToUpload, toUploadCount, intl)
   }
   const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
 

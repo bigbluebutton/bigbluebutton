@@ -327,15 +327,15 @@ class PresentationUploader extends Component {
 
     const toastId = Session.get("presentationUploaderToastId");
 
-    if (toastId) {
-      if (!prevProps.isOpen && isOpen) {
-        this.props.handleDismissToast(toastId);
-      }
+    // if (toastId) {
+    //   if (!prevProps.isOpen && isOpen) {
+    //     this.props.handleDismissToast(toastId);
+    //   }
 
-      toast.update(toastId, {
-        render: this.props.renderToastList(this.state.presentations, this.state.toUploadCount, intl),
-      });
-    }
+    //   toast.update(toastId, {
+    //     render: this.props.renderToastList(this.state.presentations, this.state.toUploadCount, intl),
+    //   });
+    // }
   }
 
   componentWillUnmount() {
