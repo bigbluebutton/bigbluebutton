@@ -58,6 +58,7 @@ const TimeWindowChatItemContainer = (props) => {
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,
         messageKey,
         handleReadMessage,
+        getExportedPresentationString: ChatService.getExportedPresentationString,
         ...props,
       }
       }

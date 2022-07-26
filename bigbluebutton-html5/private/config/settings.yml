@@ -501,6 +501,7 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true

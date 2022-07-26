@@ -43,7 +43,8 @@ async function notifyMeetingActor() {
                 userId: ""
             },
             body: {
-                fileURI: link
+                fileURI: link,
+                presId: exportJob.presId
             },
           }
     }
