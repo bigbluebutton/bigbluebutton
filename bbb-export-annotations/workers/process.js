@@ -120,13 +120,16 @@ function to_px(pt) {
     return (pt / config.process.pointsPerInch) * config.process.pixelsPerInch
 }
 
+// Escape shell metacharacters based on MDN's page on regular expressions, 
+// the escape-string-regexp npm package, and Pango markup.
 function escapeText(string) {
     return  string
             .replace(/&/g, '\\&amp;')
             .replace(/'/g, '\\&#39;')
             .replace(/>/g, '\\&gt;')
             .replace(/</g, '\\&lt;')
-            .replace(/[~`!".*+?%^${}()|[\]\\\/]/g, '\\$&');
+            .replace(/[~`!".*+?%^${}()|[\]\\\/]/g, '\\$&')
+            .replace(/-/g, '\\x2d');
 }
 
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
