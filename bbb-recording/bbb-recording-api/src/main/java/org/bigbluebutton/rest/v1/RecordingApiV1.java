@@ -12,31 +12,32 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface RecordingApiV1 {
 
-    @RequestMapping(value = "/v1/getRecordings", produces = {
+    @RequestMapping(value = "/getRecordings", produces = {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     String getRecordings(HttpServletRequest request);
 
-    @RequestMapping(value = "/v1/publishRecordings", produces = {
+    @RequestMapping(value = "/publishRecordings", produces = {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     String publishRecordings(HttpServletRequest request);
 
-    @RequestMapping(value = "/v1/deleteRecordings", produces = {
+    @RequestMapping(value = "/deleteRecordings", produces = {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     String deleteRecordings(HttpServletRequest request);
 
-    @RequestMapping(value = "/v1/updateRecordings", produces = {
+    @RequestMapping(value = "/updateRecordings", produces = {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     String updateRecordings(HttpServletRequest request);
 
-    @RequestMapping(value = "/v1/getRecordingTextTracks", produces = {
+    @RequestMapping(value = "/getRecordingTextTracks", produces = {
             MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.GET)
     ResponseEntity<Response> getRecordingTextTracks(HttpServletRequest request);
 
-    @RequestMapping(value = "/v1/putRecordingTextTrack", produces = {
+    @RequestMapping(value = "/putRecordingTextTrack", produces = {
             MediaType.APPLICATION_JSON_VALUE }, method = RequestMethod.POST)
-    ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file, HttpServletRequest request);
+    ResponseEntity<Response> putRecordingTextTrack(@RequestParam("file") MultipartFile file,
+            HttpServletRequest request);
 
-    @RequestMapping(value = "/v1/getMeetingSummary", produces = {
+    @RequestMapping(value = "/getMeetingSummary", produces = {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     String getMeetingSummary(HttpServletRequest request);
 }

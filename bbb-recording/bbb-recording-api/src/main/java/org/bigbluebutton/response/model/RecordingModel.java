@@ -176,10 +176,12 @@ public class RecordingModel extends RepresentationModel<RecordingModel> {
     }
 
     private void addLinks() {
-        Link selfLink = linkTo(RecordingApiControllerV2.class).slash("recordings").slash(this.getRecordId()).withSelfRel();
+        Link selfLink = linkTo(RecordingApiControllerV2.class).slash("recordings").slash(this.getRecordId())
+                .withSelfRel();
         add(selfLink);
 
-        Link tracksLink = linkTo(methodOn(RecordingApiControllerV2.class).getRecordingTextTracks(recordId, null, null)).withRel("tracks");
+        Link tracksLink = linkTo(methodOn(RecordingApiControllerV2.class).getRecordingTextTracks(recordId, null, null))
+                .withRel("tracks");
         add(tracksLink);
     }
 }

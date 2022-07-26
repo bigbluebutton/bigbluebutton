@@ -37,7 +37,11 @@ spring.flyway.enabled=false
 bbb.web.defaultServerUrl=http://bigbluebutton.example.com
 bbb.web.defaultTextTrackUrl=${bbb.web.defaultServerUrl}/bigbluebutton
 
+# Required if you are using version 1 of the API
 bbb.security.salt=
+
+# Required if you are using version 2 of the API
+bbb.security.api_key=
 
 bbb.recording.publishedDir=/var/bigbluebutton/published
 bbb.recording.unpublishedDir=/var/bigbluebutton/unpublished

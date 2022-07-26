@@ -3,6 +3,7 @@ package org.bigbluebutton.rest.v2;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import org.apache.commons.lang3.LocaleUtils;
+import org.bigbluebutton.dao.entity.Events;
 import org.bigbluebutton.dao.entity.Recording;
 import org.bigbluebutton.dao.entity.Track;
 import org.bigbluebutton.request.AddTextTrackBody;
@@ -15,10 +16,13 @@ import org.bigbluebutton.response.model.RecordingModel;
 import org.bigbluebutton.response.model.TrackModel;
 import org.bigbluebutton.response.model.assembler.RecordingModelAssembler;
 import org.bigbluebutton.response.model.assembler.TrackModelAssembler;
+import org.bigbluebutton.response.payload.EventsPayload;
 import org.bigbluebutton.response.payload.RecordingPayload;
 import org.bigbluebutton.response.payload.RecordingsPayload;
 import org.bigbluebutton.response.payload.TracksPayload;
 import org.bigbluebutton.service.RecordingService;
+import org.json.JSONObject;
+import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,13 +56,10 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     private PagedResourcesAssembler<Track> trackPagedResourcesAssembler;
 
     @Autowired
-    public RecordingApiControllerV2(
-            @Qualifier("dbImpl") RecordingService recordingService,
-            RecordingModelAssembler recordingModelAssembler,
-            TrackModelAssembler trackModelAssembler,
+    public RecordingApiControllerV2(@Qualifier("dbImpl") RecordingService recordingService,
+            RecordingModelAssembler recordingModelAssembler, TrackModelAssembler trackModelAssembler,
             PagedResourcesAssembler<Recording> recordingPagedResourcesAssembler,
-            PagedResourcesAssembler<Track> trackPagedResourcesAssembler
-    ) {
+            PagedResourcesAssembler<Track> trackPagedResourcesAssembler) {
         this.recordingService = recordingService;
         this.recordingModelAssembler = recordingModelAssembler;
         this.trackModelAssembler = trackModelAssembler;
@@ -121,11 +122,11 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
         Pageable pageable = PageRequest.of(page, size);
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), recordings.size());
-        Page<Recording> recordingPage = new PageImpl<>(recordings.subList(start, end), pageable,
-                recordings.size());
+        Page<Recording> recordingPage = new PageImpl<>(recordings.subList(start, end), pageable, recordings.size());
 
         RecordingsPayload payload = new RecordingsPayload();
-        PagedModel<RecordingModel> pagedModel = recordingPagedResourcesAssembler.toModel(recordingPage, recordingModelAssembler);
+        PagedModel<RecordingModel> pagedModel = recordingPagedResourcesAssembler.toModel(recordingPage,
+                recordingModelAssembler);
         payload.setRecordings(pagedModel);
         response.setPayload(payload);
 
@@ -134,8 +135,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
 
     @Override
     public ResponseEntity<Response> getRecording(
-            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID
-    ) {
+            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
@@ -149,8 +149,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     @Override
     public ResponseEntity<Response> updateRecording(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.DEFAULT, description = "Metadata params to update", required = true) @RequestBody MetadataParams meta
-    ) {
+            @Parameter(in = ParameterIn.DEFAULT, description = "Metadata params to update", required = true) @RequestBody MetadataParams meta) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
@@ -170,8 +169,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
 
     @Override
     public ResponseEntity<Response> deleteRecording(
-            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID
-    ) {
+            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
@@ -193,8 +191,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     @Override
     public ResponseEntity<Response> publishRecording(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.QUERY, description = "Should the recording be published", required = true) @RequestParam("publish") Boolean publish
-    ) {
+            @Parameter(in = ParameterIn.QUERY, description = "Should the recording be published", required = true) @RequestParam("publish") Boolean publish) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
@@ -209,8 +206,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     public ResponseEntity<Response> getRecordingTextTracks(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
             @Parameter(in = ParameterIn.QUERY, description = "Page number") @RequestParam("page") String page,
-            @Parameter(in = ParameterIn.QUERY, description = "Number of tracks per page") @RequestParam("size") String size
-    ) {
+            @Parameter(in = ParameterIn.QUERY, description = "Number of tracks per page") @RequestParam("size") String size) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
@@ -219,7 +215,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
 
         List<Track> tracks = recordingService.getTracks(recordID);
 
-        if(tracks == null || tracks.isEmpty()) {
+        if (tracks == null || tracks.isEmpty()) {
             Errors errors = new Errors();
             errors.addError(Error.NO_RESULTS);
             response.setErrors(errors);
@@ -237,8 +233,7 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
             Pageable pageable = PageRequest.of(p, s);
             int start = (int) pageable.getOffset();
             int end = Math.min((start + pageable.getPageSize()), tracks.size());
-            Page<Track> trackPage = new PageImpl<>(tracks.subList(start, end), pageable,
-                    tracks.size());
+            Page<Track> trackPage = new PageImpl<>(tracks.subList(start, end), pageable, tracks.size());
 
             TracksPayload payload = new TracksPayload();
             PagedModel<TrackModel> pagedModel = trackPagedResourcesAssembler.toModel(trackPage, trackModelAssembler);
@@ -250,7 +245,9 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     }
 
     @Override
-    public ResponseEntity<Response> addRecordingTextTrack(String recordID, AddTextTrackBody body) {
+    public ResponseEntity<Response> addRecordingTextTrack(
+            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
+            @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @RequestBody AddTextTrackBody body) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
@@ -272,9 +269,9 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
         if (label == null || label.isEmpty())
             label = locale.getDisplayLanguage();
 
-        if(!body.getFile().isEmpty()) {
+        if (!body.getFile().isEmpty()) {
             boolean result = recordingService.putTrack(body.getFile(), recordID, body.getKind(), captionsLang, label);
-            if(result) {
+            if (result) {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             } else {
                 Errors errors = new Errors();
@@ -290,8 +287,37 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     }
 
     @Override
-    public ResponseEntity<Response> getMeetingSummary(String recordID) {
-        return null;
+    public ResponseEntity<Response> getMeetingSummary(
+            @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
+            @RequestHeader(value = "accept", required = false) String accept) {
+        ResponseEnvelope response = new ResponseEnvelope();
+
+        ResponseEntity<Response> r = checkForId(response, recordID);
+        if (r != null)
+            return r;
+
+        Events events = recordingService.getEvents(recordID);
+
+        if (events == null) {
+            Errors errors = new Errors();
+            errors.addError(Error.ID_NOT_FOUND);
+            response.setErrors(errors);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        } else {
+            if (accept == null || accept.equalsIgnoreCase("application/json")) {
+                EventsPayload payload = new EventsPayload();
+                payload.setMeetingSummary(events.getContent());
+                response.setPayload(payload);
+            } else {
+                JSONObject json = new JSONObject(events.getContent());
+                String xml = XML.toString(json);
+                EventsPayload payload = new EventsPayload();
+                payload.setMeetingSummary(xml);
+                response.setPayload(payload);
+            }
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
     }
 
     private ResponseEntity<Response> checkForId(ResponseEnvelope response, String recordID) {
