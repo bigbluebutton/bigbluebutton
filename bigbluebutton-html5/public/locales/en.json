@@ -237,7 +237,7 @@
     "app.presentationUploader.exporting": "Sending to chat",
     "app.presentationUploader.sending": "Sending...",
     "app.presentationUploader.sent": "Sent",
-    "app.presentationUploader.exportingTimeout": "The exporting is taking too long...",
+    "app.presentationUploader.exportingTimeout": "The export is taking too long...",
     "app.presentationUploader.export": "Send to chat",
     "app.presentationUploader.currentPresentationLabel": "Current presentation",
     "app.presentationUploder.extraHint": "IMPORTANT: each file may not exceed {0} MB and {1} pages.",
