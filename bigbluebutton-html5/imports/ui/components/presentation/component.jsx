@@ -868,7 +868,7 @@ class Presentation extends PureComponent {
     return (
       <PresentationMenu
         fullscreenRef={this.refPresentationContainer}
-        getScreenshotRef={this.getSvgRef}
+        tldrawAPI={this.state.tldrawAPI}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         toggleSwapLayout={MediaService.toggleSwapLayout}
