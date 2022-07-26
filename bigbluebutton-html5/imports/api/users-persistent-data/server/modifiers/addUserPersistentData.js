@@ -7,6 +7,7 @@ export default function addUserPersistentData(user) {
     meetingId: String,
     sortName: String,
     color: String,
+    speechLocale: String,
     mobile: Boolean,
     breakoutProps: Object,
     inactivityCheck: Boolean,

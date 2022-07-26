@@ -29,8 +29,9 @@ test.describe.parallel('Presentation', () => {
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-a-presentation-automated
     test('Upload single presentation @ci', async ({ browser, context, page }) => {
+      test.fixme(true, 'Different behaviors in the development and production environment');
       const presentation = new Presentation(browser, context);
-	await presentation.initPages(page, true);
+      await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 

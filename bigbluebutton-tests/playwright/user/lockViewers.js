@@ -20,7 +20,6 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await waitAndClearNotification(this.modPage);
     const videoContainerLockedCount = await this.userPage2.getSelectorCount(e.webcamVideoItem);
     expect(videoContainerLockedCount).toBe(1);
 
