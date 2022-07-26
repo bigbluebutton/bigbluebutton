@@ -643,6 +643,7 @@
     "app.userList.guest.privateMessageLabel": "Message",
     "app.userList.guest.acceptLabel": "Accept",
     "app.userList.guest.denyLabel": "Deny",
+    "app.userList.guest.feedbackMessage": "Action applied: ",
     "app.user-info.title": "Directory Lookup",
     "app.toast.breakoutRoomEnded": "The breakout room ended.  Please rejoin in the audio.",
     "app.toast.chat.public": "New Public Chat message",
