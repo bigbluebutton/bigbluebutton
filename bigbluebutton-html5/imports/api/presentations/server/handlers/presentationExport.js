@@ -6,16 +6,11 @@ export default function handlePresentationExport({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
 
-  const { fileURI } = body;
+  const { fileURI, presId } = body;
 
   check(fileURI, String);
+  check(presId, String);
 
-  const fileURL = new URL(fileURI);
-  const path = fileURL.pathname;
-  const presentationId = path.split('/')[5];
-
-  check(presentationId, String);
-
-  sendExportedPresentationChatMsg(meetingId, presentationId, fileURI);
-  setPresentationExporting(meetingId, presentationId, { status: 'EXPORTED' });
+  sendExportedPresentationChatMsg(meetingId, presId, fileURI);
+  setPresentationExporting(meetingId, presId, { status: 'EXPORTED' });
 }
