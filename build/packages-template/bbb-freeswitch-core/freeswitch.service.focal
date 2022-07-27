@@ -3,6 +3,7 @@
 [Unit]
 Description=freeswitch
 After=syslog.target network.target local-fs.target
+PartOf=bigbluebutton.target
 
 [Service]
 ; service
@@ -54,5 +55,5 @@ CPUSchedulingPriority=89
 ; execute "systemctl daemon-reload" after editing the unit files.
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
 

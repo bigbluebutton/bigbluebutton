@@ -49,6 +49,14 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(toVoiceConfRedisChannel, json)
       case MuteUserInVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
+      case DeafUserInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case HoldUserInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case PlaySoundInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
+      case StopSoundInVoiceConfSysMsg.NAME =>
+        msgSender.send(toVoiceConfRedisChannel, json)
       case StartRecordingVoiceConfSysMsg.NAME =>
         msgSender.send(toVoiceConfRedisChannel, json)
       case StopRecordingVoiceConfSysMsg.NAME =>

@@ -6,7 +6,7 @@ import {
   borderSizeLarge,
   borderSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorPrimary, colorDanger, colorGray } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorPrimary, colorDangerDark, colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 
 const RecordingIndicatorIcon = styled.span`
   width: ${fontSizeLarge};
@@ -43,8 +43,8 @@ const RecordingControl = styled.div`
   
   ${({ recording }) => recording && `
     padding: 5px;
-    background-color: ${colorDanger};
-    border: ${borderSizeLarge} solid ${colorDanger};
+    background-color: ${colorDangerDark};
+    border: ${borderSizeLarge} solid ${colorDangerDark};
     border-radius: 10px;
 
     &:focus {
@@ -70,7 +70,7 @@ const PresentationTitle = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  font-weight: 200;
+  font-weight: 400;
   color: ${colorWhite};
   font-size: ${fontSizeBase};
   padding: 0;
@@ -126,6 +126,13 @@ const RecordingIndicator = styled.div`
 
 const RecordingStatusViewOnly = styled.div`
   display: flex;
+
+  ${({ recording }) => recording && `
+    padding: 5px;
+    background-color: ${colorDangerDark};
+    border: ${borderSizeLarge} solid ${colorDangerDark};
+    border-radius: 10px;
+  `}
 `;
 
 export default {

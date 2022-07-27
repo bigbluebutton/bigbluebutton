@@ -10,7 +10,7 @@ const getSlideText = async (url) => {
   let content = '';
   try {
     const request = await axios(url);
-    content = request.data;
+    content = request.data.toString();
   } catch (error) {
     Logger.error(`No file found. ${error}`);
   }
@@ -65,6 +65,7 @@ export default function addPresentation(meetingId, podId, presentation) {
       podId,
       'conversion.done': true,
       'conversion.error': false,
+      'exportation.status': null,
     }, flat(presentation, { safe: true })),
   };
 

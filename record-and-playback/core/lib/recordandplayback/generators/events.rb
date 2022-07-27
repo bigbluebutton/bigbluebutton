@@ -960,7 +960,7 @@ module BigBlueButton
         # The following events are considered to indicate that the presentation
         # area was actively used during the session.
         when 'AddShapeEvent', 'ModifyTextEvent', 'UndoShapeEvent',
-            'ClearPageEvent'
+            'ClearPageEvent', 'AddTldrawShapeEvent', 'DeleteTldrawShapeEvent'
         BigBlueButton.logger.debug("Seen a #{event['eventname']} event, presentation area used.")
           return true
         # We ignore the first SharePresentationEvent, since it's the default
@@ -1091,6 +1091,12 @@ module BigBlueButton
         end
       end
       return false
+    end
+
+    # Check if doc has tldraw events
+    def self.check_for_tldraw_events(events)  
+      return !(events.xpath("recording/event[@eventname='TldrawCameraChangedEvent']").empty? && 
+               events.xpath("recording/event[@eventname='AddTldrawShapeEvent']").empty?)
     end
 
   end

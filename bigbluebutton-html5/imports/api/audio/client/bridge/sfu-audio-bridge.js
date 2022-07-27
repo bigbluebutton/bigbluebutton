@@ -24,11 +24,11 @@ import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
+const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
-const GLOBAL_AUDIO_PREFIX = 'GLOBAL_AUDIO_';
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
@@ -304,14 +304,9 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         const { isListenOnly, extension, inputStream } = options;
         this.inEchoTest = !!extension;
         this.isListenOnly = isListenOnly;
-        const callerIdName = [
-          `${this.userId}_${getAudioSessionNumber()}`,
-          'bbbID',
-          isListenOnly ? `${GLOBAL_AUDIO_PREFIX}` : this.name,
-        ].join('-').replace(/"/g, "'");
 
         const brokerOptions = {
-          caleeName: callerIdName,
+          clientSessionNumber: getAudioSessionNumber(),
           extension,
           iceServers: this.iceServers,
           mediaServer: getMediaServerAdapter(isListenOnly),
@@ -320,6 +315,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           stream: (inputStream && inputStream.active) ? inputStream : undefined,
           offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
           signalCandidates: SIGNAL_CANDIDATES,
+          traceLogs: TRACE_LOGS,
         };
 
         this.broker = new AudioBroker(
@@ -431,10 +427,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         fetchWebRTCMappedStunTurnServers(this.sessionToken)
           .then((iceServers) => {
             const options = {
-              userName: this.name,
-              caleeName: `${GLOBAL_AUDIO_PREFIX}${this.voiceBridge}`,
+              clientSessionNumber: getAudioSessionNumber(),
               iceServers,
               offering: LISTEN_ONLY_OFFERING,
+              traceLogs: TRACE_LOGS,
             };
 
             this.broker = new AudioBroker(
@@ -471,8 +467,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     const mediaElement = document.getElementById(MEDIA_TAG);
 
     this.clearReconnectionTimeout();
-    this.broker.stop();
-    this.broker = null;
+
+    if (this.broker) {
+      this.broker.stop();
+      this.broker = null;
+    }
 
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();

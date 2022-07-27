@@ -49,5 +49,9 @@ export function isLayoutsEnabled() {
 }
 
 export function isVirtualBackgroundsEnabled() {
-  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1;
+  return getDisabledFeatures().indexOf('virtualBackgrounds') === -1 && Meteor.settings.public.virtualBackgrounds.enabled;
+}
+
+export function isCustomVirtualBackgroundsEnabled() {
+  return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
 }

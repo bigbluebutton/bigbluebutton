@@ -32,23 +32,28 @@ class ResizeAndMoveSlideRecordEvent extends AbstractPresentationRecordEvent {
     eventMap.put(ID, id)
   }
 
-  def setXCamera(xCamera: Double) {
-    eventMap.put(X_CAMERA, xCamera.toString)
+  def setXOffset(offset: Double) {
+    eventMap.put(X_OFFSET, offset.toString)
   }
 
-  def setYCamera(yCamera: Double) {
-    eventMap.put(Y_CAMERA, yCamera.toString)
+  def setYOffset(offset: Double) {
+    eventMap.put(Y_OFFSET, offset.toString)
   }
 
-  def setZoom(zoom: Double) {
-    eventMap.put(ZOOM, zoom.toString)
+  def setWidthRatio(ratio: Double) {
+    eventMap.put(WIDTH_RATIO, ratio.toString)
+  }
+
+  def setHeightRatio(ratio: Double) {
+    eventMap.put(HEIGHT_RATIO, ratio.toString)
   }
 }
 
 object ResizeAndMoveSlideRecordEvent {
   protected final val PRES_NAME = "presentationName"
   protected final val ID = "id"
-  protected final val X_CAMERA = "xCamera"
-  protected final val Y_CAMERA = "yCamera"
-  protected final val ZOOM = "zoom"
+  protected final val X_OFFSET = "xOffset"
+  protected final val Y_OFFSET = "yOffset"
+  protected final val WIDTH_RATIO = "widthRatio"
+  protected final val HEIGHT_RATIO = "heightRatio"
 }

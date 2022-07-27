@@ -58,7 +58,7 @@ const DragAndDrop = (props) => {
   }, []);
 
   const makeDragOperations = (onAction, userId) => {
-    if (Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
+    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
 
     const startAndSaveVirtualBackground = (file) => {
       const { readFile } = VirtualBgService;
@@ -70,7 +70,11 @@ const DragAndDrop = (props) => {
           onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
             dispatchCustomBackground({
               type: 'new',
-              background,
+              background: {
+                ...background,
+                custom: true,
+                lastActivityDate: Date.now(),
+              },
             });
           });
         },

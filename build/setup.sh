@@ -15,9 +15,17 @@ mkdir -p artifacts
 
 DOCKER_IMAGE=$(python3 -c 'import yaml; print(yaml.load(open("./.gitlab-ci.yml"), Loader=yaml.SafeLoader)["default"]["image"])')
 
+if [ "$LOCAL_BUILD" != 1 ] ; then
+    GIT_REV="${CI_COMMIT_SHA:0:10}"
+else
+    GIT_REV=$(git rev-parse HEAD)
+    GIT_REV="local-build-${GIT_REV:0:10}"
+fi
+COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
+
 # -v "$CACHE_DIR/dev":/root/dev
 sudo docker run --rm \
-        -e "LOCAL_BUILD=1" \
+        --env GIT_REV=$GIT_REV --env COMMIT_DATE=$COMMIT_DATE --env "LOCAL_BUILD=1" \
         --mount type=bind,src="$PWD",dst=/mnt \
         --mount type=bind,src="${PWD}/artifacts,dst=/artifacts" \
         -t "$DOCKER_IMAGE" /mnt/build/setup-inside-docker.sh "$PACKAGE_TO_BUILD"

@@ -47,6 +47,7 @@ const getPresentations = () => Presentations
       removable,
       id,
       name,
+      exportation,
     } = presentation;
 
     const uploadTimestamp = id.split('-').pop();
@@ -60,6 +61,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
+      exportation: exportation || { isRunning: false, error: false },
     };
   });
 
@@ -288,6 +290,37 @@ const getExternalUploadData = () => {
   }
 };
 
+const exportPresentationToChat = (presentationId, observer) => {
+  let lastStatus = {};
+
+  Tracker.autorun((c) => {
+    const cursor = Presentations.find({ id: presentationId });
+
+    const checkStatus = (exportation) => {
+      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+
+      if (shouldStop) {
+        observer(exportation, true);
+        return c.stop();
+      }
+
+      observer(exportation, false);
+      lastStatus = exportation;
+    };
+
+    cursor.observe({
+      added: (doc) => {
+        checkStatus(doc.exportation);
+      },
+      changed: (doc) => {
+        checkStatus(doc.exportation);
+      },
+    });
+  });
+
+  makeCall('exportPresentationToChat', presentationId);
+};
+
 export default {
   getPresentations,
   persistPresentationChanges,
@@ -295,4 +328,5 @@ export default {
   setPresentation,
   requestPresentationUploadToken,
   getExternalUploadData,
+  exportPresentationToChat,
 };
