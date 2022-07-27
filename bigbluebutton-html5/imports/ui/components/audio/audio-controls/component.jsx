@@ -6,6 +6,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import Styled from './styles';
+import Button from '/imports/ui/components/common/button/component';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -58,7 +59,7 @@ class AudioControls extends PureComponent {
     } = this.props;
 
     return (
-      <Styled.AudioControlsButton
+      <Button
         onClick={handleJoinAudio}
         disabled={disable}
         hideLabel

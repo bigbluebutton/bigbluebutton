@@ -5,6 +5,7 @@
 Description=High-performance, schema-free document-oriented database
 After=network.target
 Documentation=https://docs.mongodb.org/manual
+PartOf=bigbluebutton.target
 
 [Service]
 User=mongodb
@@ -34,5 +35,5 @@ TasksAccounting=false
 # http://docs.mongodb.org/manual/reference/ulimit/#recommended-settings
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
 

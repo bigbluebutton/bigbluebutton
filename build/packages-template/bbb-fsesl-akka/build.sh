@@ -51,7 +51,7 @@ sed -i "s/^version .*/version := \"$VERSION\"/g" build.sbt
 if [[ -n $EPOCH && $EPOCH -gt 0 ]] ; then
     echo 'version in Debian := "'$EPOCH:$VERSION'"' >> build.sbt
 else
-    echo 'version in Debian := "'$VERSION-$BUILD'"' >> build.sbt
+    echo 'version in Debian := "'1:$VERSION-$BUILD'"' >> build.sbt
 fi
 sbt debian:packageBin
 cp ./target/*.deb ..

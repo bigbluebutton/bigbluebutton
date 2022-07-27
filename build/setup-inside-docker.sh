@@ -26,16 +26,9 @@ for dir in .gradle .grails .ivy2 .m2; do
     ln -s "${SOURCE}/cache/${dir}" "/root/${dir}"
 done
 
-if [ "$LOCAL_BUILD" != 1 ] ; then
-    GIT_REV="${CI_COMMIT_SHA:0:10}"
-else
-    GIT_REV=$(git rev-parse HEAD)
-    GIT_REV="local-build-${GIT_REV:0:10}"
-fi
 VERSION_NUMBER="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f1)"
 # this contains stuff like alpha4 etc
 VERSION_ADDON="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f2)"
-COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
 BUILD_NUMBER=${BUILD_NUMBER:=1}
 EPOCH=${EPOCH:=2}
 

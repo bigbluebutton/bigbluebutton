@@ -111,6 +111,9 @@ class RedisRecorderActor(
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
       //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
+      // AudioCaptions
+      case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
+
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
@@ -184,7 +187,7 @@ class RedisRecorderActor(
   }
 
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
-    val ev = new ResizeAndMoveSlideRecordEvent()
+    val ev = new TldrawCameraChangedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
@@ -280,7 +283,7 @@ class RedisRecorderActor(
 
   private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
     msg.body.annotations.foreach(annotation => {
-      val ev = new AddShapeWhiteboardRecordEvent()
+      val ev = new AddTldrawShapeWhiteboardRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setPresentation(getPresentationId(annotation.wbId))
       ev.setPageNumber(getPageNum(annotation.wbId))
@@ -320,7 +323,7 @@ class RedisRecorderActor(
 
   private def handleDeleteWhiteboardAnnotationsEvtMsg(msg: DeleteWhiteboardAnnotationsEvtMsg) {
     msg.body.annotationsIds.foreach(annotationId => {
-      val ev = new UndoAnnotationRecordEvent()
+      val ev = new DeleteTldrawShapeRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setPresentation(getPresentationId(msg.body.whiteboardId))
       ev.setPageNumber(getPageNum(msg.body.whiteboardId))
@@ -504,6 +507,15 @@ class RedisRecorderActor(
     record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
   }
   */
+
+  private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
+    val ev = new TranscriptUpdatedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setLocale(msg.body.locale)
+    ev.setTranscript(msg.body.transcript)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
 
   private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()

@@ -160,6 +160,7 @@ const LayoutModalComponent = (props) => {
         <Styled.BottomButton
           label={intl.formatMessage(intlMessages.cancel)}
           onClick={closeModal}
+          color='secondary'
         />
         <Button
           color="primary"

@@ -92,17 +92,7 @@ const Bottom = styled.div`
 
 const NavbarToggleButton = styled(Button)`
   margin: 0;
-
   z-index: 3;
-
-  &:hover,
-  &:focus {
-    span {
-      background-color: transparent !important;
-      color: ${colorWhite} !important;
-      opacity: .75;
-    }
-  }
 
   ${({ hasNotification }) => hasNotification && `
     position: relative;
