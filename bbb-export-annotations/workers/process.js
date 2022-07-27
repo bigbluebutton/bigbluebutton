@@ -2,7 +2,7 @@ const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
 const {create} = require('xmlbuilder2', {encoding: 'utf-8'});
-const {execSync} = require('child_process');
+const cp = require('child_process');
 const {Worker, workerData, parentPort} = require('worker_threads');
 const path = require('path');
 const sanitize = require('sanitize-filename');
@@ -130,12 +130,13 @@ function to_px(pt) {
 // the escape-string-regexp npm package, and Pango markup.
 function escapeText(string) {
   return string
+      .replace(/[~`!.*+?%^${}()|[\]\\/]/g, '\\$&')
+      .replace(/-/g, '\\&#x2D;')
       .replace(/&/g, '\\&amp;')
       .replace(/'/g, '\\&#39;')
+      .replace(/"/g, '\\&quot;')
       .replace(/>/g, '\\&gt;')
-      .replace(/</g, '\\&lt;')
-      .replace(/[~`!".*+?%^${}()|[\]\\/]/g, '\\$&')
-      .replace(/-/g, '\\&#x2D;');
+      .replace(/</g, '\\&lt;');
 }
 
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
@@ -144,7 +145,7 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
 
   // Sticky notes need automatic line wrapping: take width into account
   // Texbox scaled by a constant factor to improve resolution at small scales
-  const size = textBoxWidth ? `-size ${textBoxWidth * config.process.textScaleFactor}x` : '';
+  const size = textBoxWidth ? ['-size', `${textBoxWidth * config.process.textScaleFactor}x`] : [];
 
   const pangoText = `pango:"<span font_family='${font}' font='${fontSize}' color='${textColor}'>${text}</span>"`;
 
@@ -152,19 +153,18 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
   textAlign = justify ? 'left' : textAlign;
 
   const commands = [
-    'convert',
     '-encoding', `${config.process.whiteboardTextEncoding}`,
     '-density', config.process.pixelsPerInch,
-    '-background', 'transparent',
-    size,
-    '-define', `pango:align=${textAlign}`,
-    '-define', `pango:justify=${justify}`,
-    '-define', 'pango:wrap=word-char',
-    pangoText,
-    path.join(dropbox, `text${id}.png`),
-  ].join(' ');
+    '-background', 'transparent'].concat(size,
+      [
+        '-define', `pango:align=${textAlign}`,
+        '-define', `pango:justify=${justify}`,
+        '-define', 'pango:wrap=word-char',
+        pangoText,
+        path.join(dropbox, `text${id}.png`),
+      ]);
 
-  execSync(commands);
+  cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
 }
 
 function get_gap(dash, size) {
@@ -244,7 +244,7 @@ function getPath(annotationPoints) {
       .map((strokePoint) => strokePoint.point);
 
   let [max_x, max_y] = [0, 0];
-  const path = stroke.reduce(
+  const inner_path = stroke.reduce(
       (acc, [x0, y0], i, arr) => {
         if (!arr[i + 1]) return acc;
         const [x1, y1] = arr[i + 1];
@@ -261,8 +261,7 @@ function getPath(annotationPoints) {
       ['M', ...stroke[0], 'Q'],
   );
 
-  path.join(' ');
-  return [path, max_x, max_y];
+  return [inner_path, max_x, max_y];
 }
 
 function getOutlinePath(annotationPoints) {
@@ -273,7 +272,7 @@ function getOutlinePath(annotationPoints) {
   });
 
   let [max_x, max_y] = [0, 0];
-  const path = stroke.reduce(
+  const outline_path = stroke.reduce(
       (acc, [x0, y0], i, arr) => {
         const [x1, y1] = arr[(i + 1) % arr.length];
         if (x1 >= max_x) {
@@ -289,10 +288,9 @@ function getOutlinePath(annotationPoints) {
       ['M', ...stroke[0], 'Q'],
   );
 
-  path.push('Z');
-  path.join(' ');
+  outline_path.push('Z');
 
-  return [path, max_x, max_y];
+  return [outline_path, max_x, max_y];
 }
 
 function circleFromThreePoints(A, B, C) {
@@ -474,10 +472,9 @@ function overlay_arrow(svg, annotation) {
 
 function overlay_draw(svg, annotation) {
   const dash = annotation.style.dash;
+  const [calculated_path, max_x, max_y] = (dash == 'draw') ? getOutlinePath(annotation.points) : getPath(annotation.points);
 
-  const [path, max_x, max_y] = (dash == 'draw') ? getOutlinePath(annotation.points) : getPath(annotation.points);
-
-  if (!path.length) return;
+  if (!calculated_path.length) return;
 
   const shapeColor = color_to_hex(annotation.style.color);
   const rotation = rad_to_degree(annotation.rotation);
@@ -514,7 +511,7 @@ function overlay_draw(svg, annotation) {
 
   svg.ele('path', {
     style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
-    d: path,
+    d: calculated_path,
     transform: shapeTransform,
   });
 }
@@ -780,7 +777,7 @@ const exportJob = JSON.parse(job);
 const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
 const whiteboard = JSON.parse(annotations);
 const pages = JSON.parse(whiteboard.pages);
-let ghostScriptInput = '';
+const ghostScriptInput = [];
 
 // 3. Convert annotations to SVG
 for (const currentSlide of pages) {
@@ -848,16 +845,15 @@ for (const currentSlide of pages) {
   // generates with the original size in pt.
 
   const convertAnnotatedSlide = [
-    'cairosvg',
     SVGfile,
     '--output-width', to_px(slideWidth),
     '--output-height', to_px(slideHeight),
     '-o', PDFfile,
-  ].join(' ');
+  ];
 
-  execSync(convertAnnotatedSlide);
+  cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
 
-  ghostScriptInput += `${PDFfile} `;
+  ghostScriptInput.push(PDFfile);
 }
 
 // Create PDF output directory if it doesn't exist
@@ -867,23 +863,20 @@ if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, {recursive: true});
 }
 
-const filename = sanitize(exportJob.filename.replace(/\s/g, '_'));
+const filename_with_extension = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.pdf`;
 
 const mergePDFs = [
-  'gs',
   '-dNOPAUSE',
   '-sDEVICE=pdfwrite',
-  `-sOUTPUTFILE="${path.join(outputDir, `${filename}.pdf`)}"`,
-  `-dBATCH`,
-  ghostScriptInput,
-].join(' ');
+  `-sOUTPUTFILE="${path.join(outputDir, filename_with_extension)}"`,
+  `-dBATCH`].concat(ghostScriptInput);
 
 // Resulting PDF file is stored in the presentation dir
-execSync(mergePDFs);
+cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
 
 // Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename}.pdf`);
+logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
 
-kickOffNotifierWorker(exportJob.jobType, filename);
+kickOffNotifierWorker(exportJob.jobType, filename_with_extension);
 
 parentPort.postMessage({message: workerData});

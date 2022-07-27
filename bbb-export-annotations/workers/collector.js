@@ -4,7 +4,7 @@ const fs = require('fs');
 const redis = require('redis');
 const {Worker, workerData, parentPort} = require('worker_threads');
 const path = require('path');
-const {execSync} = require('child_process');
+const cp = require('child_process');
 
 const jobId = workerData;
 
@@ -77,7 +77,6 @@ const exportJob = JSON.parse(job);
       // so it matches what was shown in the browser.
 
       const extract_png_from_pdf = [
-        'pdftocairo',
         '-png',
         '-f', pageNumber,
         '-l', pageNumber,
@@ -85,9 +84,9 @@ const exportJob = JSON.parse(job);
         '-singlefile',
         '-cropbox',
         pdfFile, outputFile,
-      ].join(' ');
+      ];
 
-      execSync(extract_png_from_pdf);
+      cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
     }
   // If PNG file already available
   } else if (fs.existsSync(`${presFile}.png`)) {
