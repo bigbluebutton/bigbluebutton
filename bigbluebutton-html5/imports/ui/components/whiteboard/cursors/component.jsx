@@ -262,7 +262,7 @@ export default function Cursors(props) {
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
 
   return (
-    <span disabled={true} ref={(r) => (cursorWrapper = r)}>
+    <span ref={(r) => (cursorWrapper = r)}>
       <div style={{ height: "100%", cursor: multiUserAccess || currentUser?.presenter ? "none" : "default" }}>
         {(active && multiUserAccess || (active && currentUser?.presenter)) && (
           <PositionLabel
