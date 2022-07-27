@@ -17,8 +17,6 @@ public class Track {
     @Column(name = "id")
     private Long id;
 
-    private String recordId;
-
     @Column(name = "href")
     private String href;
 

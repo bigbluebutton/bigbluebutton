@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.*;
 
 @Service
-@Qualifier("dbImpl")
 public class RecordingServiceDbImpl implements RecordingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingServiceDbImpl.class);
@@ -35,6 +34,11 @@ public class RecordingServiceDbImpl implements RecordingService {
     public RecordingServiceDbImpl(RecordingRepository recordingRepository, MetadataRepository metadataRepository) {
         this.recordingRepository = recordingRepository;
         this.metadataRepository = metadataRepository;
+    }
+
+    @Override
+    public String getType() {
+        return "db";
     }
 
     @Override
@@ -193,7 +197,6 @@ public class RecordingServiceDbImpl implements RecordingService {
             file.transferTo(captionsFile);
 
             Track track = new Track();
-            track.setRecordId(recordId);
             track.setKind(kind);
             track.setLang(lang);
             track.setLabel(label);
@@ -208,10 +211,13 @@ public class RecordingServiceDbImpl implements RecordingService {
 
             Optional<Recording> optional = recordingRepository.findByRecordId(recordId);
             if (optional.isPresent()) {
-                Recording recording = optional.get();
-                recording.addTrack(track);
-                recordingRepository.save(recording);
-                return saveTrackInfoFile(track, trackId, captionsDir);
+                if (saveTrackInfoFile(track, trackId, captionsDir)) {
+                    Recording recording = optional.get();
+                    track.setRecording(recording);
+                    recording.addTrack(track);
+                    recordingRepository.save(recording);
+                    return true;
+                }
             }
 
             return false;

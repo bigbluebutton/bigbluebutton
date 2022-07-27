@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 public interface RecordingApiV2 {
 
     @RequestMapping(value = "", produces = { MediaType.APPLICATION_JSON_VALUE,
@@ -47,9 +49,9 @@ public interface RecordingApiV2 {
 
     @RequestMapping(value = "/{recordID}/tracks", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.PUT)
-    ResponseEntity<Response> addRecordingTextTrack(
+    ResponseEntity<Response> putRecordingTextTrack(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @RequestBody AddTextTrackBody body);
+            @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @Valid @RequestBody AddTextTrackBody body);
 
     @RequestMapping(value = "/{recordID}/events", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)

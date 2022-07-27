@@ -2,6 +2,13 @@ package org.bigbluebutton.response.error;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+/**
+ * API Specific Errors
+ *
+ * 5000 series errors are generic/unspecified errors 6000 series errors are server side errors 7000 series errors are
+ * client side errors
+ **/
+
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Error {
 
@@ -13,7 +20,10 @@ public enum Error {
     ID_NOT_PROVIDED(7002, "You must provide an ID"),
     ID_FORMAT_ERROR(7003, "Provided ID does not conform to the necessary format"),
     METADATA_NOT_PROVIDED(7004, "You must supply metadata parameters to be updated"),
-    INVALID_LANG(7005, "Malformed lang parameter"), EMPTY_TEXT_TRACK(7006, "Uploaded text track is empty");
+    MISSING_KIND(7005, "You must provide the kind of text track (subtitles|captions)"),
+    MISSING_LANG(7006, "You must provide a lang parameter"),
+    INVALID_KIND(7007, "Invalid kind parameter, expected='subtitles|captions'"),
+    INVALID_LANG(7008, "Malformed lang parameter"), EMPTY_TEXT_TRACK(7009, "Uploaded text track is empty");
 
     private final int code;
     private final String description;

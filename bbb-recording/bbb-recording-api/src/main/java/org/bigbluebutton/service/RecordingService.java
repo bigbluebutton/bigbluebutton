@@ -14,6 +14,8 @@ import java.util.Map;
 
 public interface RecordingService {
 
+    String getType();
+
     List<Recording> searchRecordings(List<String> meetingIds, List<String> recordIds, List<String> states,
             Map<String, String> meta);
 

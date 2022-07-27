@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -38,29 +40,38 @@ import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
+@ConditionalOnProperty("bbb.api.v2.enabled")
 @RequestMapping("/v2/recordings")
 @EnableHypermediaSupport(type = HypermediaType.HAL)
 public class RecordingApiControllerV2 implements RecordingApiV2 {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingApiControllerV2.class);
 
-    private RecordingService recordingService;
-    private RecordingModelAssembler recordingModelAssembler;
-    private TrackModelAssembler trackModelAssembler;
-    private PagedResourcesAssembler<Recording> recordingPagedResourcesAssembler;
-    private PagedResourcesAssembler<Track> trackPagedResourcesAssembler;
+    private final Map<String, RecordingService> recordingServices;
+    private final RecordingService recordingService;
+    private final RecordingModelAssembler recordingModelAssembler;
+    private final TrackModelAssembler trackModelAssembler;
+    private final PagedResourcesAssembler<Recording> recordingPagedResourcesAssembler;
+    private final PagedResourcesAssembler<Track> trackPagedResourcesAssembler;
 
     @Autowired
-    public RecordingApiControllerV2(@Qualifier("dbImpl") RecordingService recordingService,
+    public RecordingApiControllerV2(List<RecordingService> recordingServices,
+            @Value("${bbb.api.recording.impl}") String recordingServiceImpl,
             RecordingModelAssembler recordingModelAssembler, TrackModelAssembler trackModelAssembler,
             PagedResourcesAssembler<Recording> recordingPagedResourcesAssembler,
             PagedResourcesAssembler<Track> trackPagedResourcesAssembler) {
-        this.recordingService = recordingService;
+        this.recordingServices = recordingServices.stream()
+                .collect(Collectors.toMap(RecordingService::getType, Function.identity()));
+        recordingService = this.recordingServices.get(recordingServiceImpl);
         this.recordingModelAssembler = recordingModelAssembler;
         this.trackModelAssembler = trackModelAssembler;
         this.recordingPagedResourcesAssembler = recordingPagedResourcesAssembler;
@@ -149,19 +160,12 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     @Override
     public ResponseEntity<Response> updateRecording(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.DEFAULT, description = "Metadata params to update", required = true) @RequestBody MetadataParams meta) {
+            @Parameter(in = ParameterIn.DEFAULT, description = "Metadata params to update", required = true) @Valid @RequestBody MetadataParams meta) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
         if (r != null)
             return r;
-
-        if (meta.getMeta() == null || meta.getMeta().size() == 0) {
-            Errors errors = new Errors();
-            errors.addError(Error.METADATA_NOT_PROVIDED);
-            response.setErrors(errors);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
 
         Recording recording = recordingService.updateRecording(recordID, meta.getMeta());
         return createRecordingResponse(response, recording);
@@ -245,44 +249,30 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     }
 
     @Override
-    public ResponseEntity<Response> addRecordingTextTrack(
+    public ResponseEntity<Response> putRecordingTextTrack(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @RequestBody AddTextTrackBody body) {
+            @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @Valid @RequestBody AddTextTrackBody body) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
         if (r != null)
             return r;
 
-        Locale locale;
-        try {
-            locale = LocaleUtils.toLocale(body.getLang());
-        } catch (IllegalArgumentException e) {
-            Errors errors = new Errors();
-            errors.addError(Error.INVALID_LANG);
-            response.setErrors(errors);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-
+        Locale locale = LocaleUtils.toLocale(body.getLang());
+        ;
         String captionsLang = locale.toLanguageTag();
         String label = body.getLabel();
         if (label == null || label.isEmpty())
             label = locale.getDisplayLanguage();
 
-        if (!body.getFile().isEmpty()) {
-            boolean result = recordingService.putTrack(body.getFile(), recordID, body.getKind(), captionsLang, label);
-            if (result) {
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } else {
-                Errors errors = new Errors();
-                errors.addError(Error.UPLOAD_FAILED);
-                response.setErrors(errors);
-                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+        boolean result = recordingService.putTrack(body.getFile(), recordID, body.getKind(), captionsLang, label);
+        if (result) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
             Errors errors = new Errors();
-            errors.addError(Error.EMPTY_TEXT_TRACK);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            errors.addError(Error.UPLOAD_FAILED);
+            response.setErrors(errors);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -318,6 +308,22 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response> handleValidationException(MethodArgumentNotValidException ex) {
+        ResponseEnvelope response = new ResponseEnvelope();
+        Errors errors = new Errors();
+        Map<Integer, Error> apiErrors = Arrays.stream(Error.values())
+                .collect(Collectors.toMap(Error::getCode, Function.identity()));
+
+        ex.getBindingResult().getAllErrors().forEach(e -> {
+            int code = Integer.parseInt(Objects.requireNonNull(e.getDefaultMessage()));
+            Error error = apiErrors.get(code);
+            errors.addError(error);
+        });
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     private ResponseEntity<Response> checkForId(ResponseEnvelope response, String recordID) {

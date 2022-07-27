@@ -2,6 +2,7 @@ package org.bigbluebutton.request;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 @Data
 public class MetadataParams {
 
+    @NotBlank
     private Map<String, String> meta;
 
     public static boolean isMetaValid(String meta) {

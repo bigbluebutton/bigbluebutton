@@ -42,7 +42,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 @Service
-@Qualifier("fileImpl")
 public class RecordingServiceFileImpl implements RecordingService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingService.class);
@@ -81,6 +80,11 @@ public class RecordingServiceFileImpl implements RecordingService {
     @Autowired
     public RecordingServiceFileImpl(XmlService xmlService) {
         this.xmlService = xmlService;
+    }
+
+    @Override
+    public String getType() {
+        return "file";
     }
 
     @Override
@@ -203,7 +207,6 @@ public class RecordingServiceFileImpl implements RecordingService {
             file.transferTo(captionsFile);
 
             Track track = new Track();
-            track.setRecordId(recordId);
             track.setKind(kind);
             track.setLang(lang);
             track.setOriginalName(originalFileName);

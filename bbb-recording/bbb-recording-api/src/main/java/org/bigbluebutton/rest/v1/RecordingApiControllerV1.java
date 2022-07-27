@@ -31,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1")
@@ -38,16 +40,21 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingApiControllerV1.class);
 
-    @Value("${bbb.security.salt}")
     private String securitySalt;
 
+    private final Map<String, RecordingService> recordingServicesByType;
     private final RecordingService recordingService;
     private final XmlService xmlService;
 
     @Autowired
-    public RecordingApiControllerV1(@Qualifier("fileImpl") RecordingService recordingService, XmlService xmlService) {
-        this.recordingService = recordingService;
+    public RecordingApiControllerV1(List<RecordingService> recordingServices, XmlService xmlService,
+            @Value("${bbb.security.salt}") String securitySalt,
+            @Value("${bbb.api.recording.impl}") String recordingServiceImpl) {
+        recordingServicesByType = recordingServices.stream()
+                .collect(Collectors.toMap(RecordingService::getType, Function.identity()));
+        recordingService = this.recordingServicesByType.get(recordingServiceImpl);
         this.xmlService = xmlService;
+        this.securitySalt = securitySalt;
     }
 
     @Override
@@ -57,7 +64,7 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         List<String> states = new ArrayList<>();
         Map<String, String> meta = new HashMap<>();
         int page = 0;
-        int size = 25;
+        int size = 10;
         String checksum = null;
 
         Map<String, String[]> params = request.getParameterMap();
@@ -236,7 +243,7 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
         String recordId = null;
         String checksum = null;
         int page = 0;
-        int size = 25;
+        int size = 10;
 
         Map<String, String[]> params = request.getParameterMap();
 
@@ -261,12 +268,12 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         if (recordId == null || recordId.isEmpty()) {
             return createMessageResponse(response, "missingParamRecordID", "You must specify a recordID.", "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
 
         if (!validateChecksum("getRecordingTextTracks", checksum, request.getQueryString())) {
             return createMessageResponse(response, "checksumError", "You did not pass the checksum security check",
-                    "FAILED", HttpStatus.METHOD_NOT_ALLOWED);
+                    "FAILED", HttpStatus.BAD_REQUEST);
         }
 
         List<Track> tracks = recordingService.getTracks(recordId);
@@ -321,28 +328,28 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
 
         if (!validateChecksum("putRecordingTextTrack", checksum, request.getQueryString())) {
             return createMessageResponse(response, "checksumError", "You did not pass the checksum security check",
-                    "FAILED", HttpStatus.METHOD_NOT_ALLOWED);
+                    "FAILED", HttpStatus.BAD_REQUEST);
         }
 
         if (recordId == null || recordId.isEmpty()) {
             return createMessageResponse(response, "paramError", "Missing param recordID.", "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
 
         if (kind == null || kind.isEmpty()) {
             return createMessageResponse(response, "paramError", "Missing param kind.", "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
 
         if (!kind.equals("subtitles") && !kind.equals("captions")) {
             return createMessageResponse(response, "invalidKind",
                     "Invalid kind parameter, expected='subtitles|captions' actual=" + kind, "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
 
         if (lang == null || lang.isEmpty()) {
             return createMessageResponse(response, "paramError", "Missing param lang.", "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
 
         Locale locale;
@@ -350,7 +357,7 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
             locale = LocaleUtils.toLocale(lang);
         } catch (IllegalArgumentException e) {
             return createMessageResponse(response, "invalidLang", "Malformed lang param, received=" + lang, "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
 
         String captionsLang = locale.toLanguageTag();
@@ -378,7 +385,7 @@ public class RecordingApiControllerV1 implements RecordingApiV1 {
             }
         } else {
             return createMessageResponse(response, "empty_uploaded_text_track", "Empty uploaded text track.", "FAILED",
-                    HttpStatus.METHOD_NOT_ALLOWED);
+                    HttpStatus.BAD_REQUEST);
         }
     }
 

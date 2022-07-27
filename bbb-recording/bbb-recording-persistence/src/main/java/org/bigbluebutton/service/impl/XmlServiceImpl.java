@@ -600,14 +600,17 @@ public class XmlServiceImpl implements XmlService {
         for (Field field : fields) {
             Annotation[] annotations = field.getDeclaredAnnotations();
             String fieldName = field.getName();
+            boolean shouldInclude = true;
 
             for(Annotation annotation: annotations) {
                 if(annotation instanceof XmlExport) {
                     XmlExport xmlExport = (XmlExport) annotation;
-                    if(!xmlExport.shouldInclude()) continue;
+                    shouldInclude = xmlExport.shouldInclude();
                     if(!xmlExport.name().equals("")) fieldName = xmlExport.name();
                 }
             }
+
+            if(!shouldInclude) continue;
 
             field.setAccessible(true);
             Object fieldValue = field.get(object);
@@ -618,11 +621,11 @@ public class XmlServiceImpl implements XmlService {
 
                 switch (type) {
                     case CHILD:
-                        Element child = createElement(document, field.getName(), fieldValue.toString());
+                        Element child = createElement(document, fieldName, fieldValue.toString());
                         parent.appendChild(child);
                         break;
                     case ATTRIBUTE:
-                        parent.setAttribute(field.getName(), fieldValue.toString());
+                        parent.setAttribute(fieldName, fieldValue.toString());
                         break;
                 }
             }
