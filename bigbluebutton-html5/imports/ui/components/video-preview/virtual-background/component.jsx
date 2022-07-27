@@ -137,8 +137,12 @@ const VirtualBgSelector = ({
           return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
         }
 
+        setCurrentVirtualBg({ type, name });
+
+        if (index < 0) return;
+
         if (!shouldEnableBackgroundUpload()) {
-          if (index >= 0) findDOMNode(inputElementsRef.current[index]).focus();
+          findDOMNode(inputElementsRef.current[index]).focus();
         } else {
           if (customParams) {
             dispatch({
@@ -163,7 +167,6 @@ const VirtualBgSelector = ({
           }
           findDOMNode(inputElementsRef.current[0]).focus();
         }
-        return setCurrentVirtualBg({ type, name });
       });
 
   const renderDropdownSelector = () => {
