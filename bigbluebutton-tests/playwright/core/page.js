@@ -154,8 +154,18 @@ class Page {
     await expect(locator).toBeHidden({ timeout });
   }
 
+  async wasNthElementRemoved(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
+    await expect(locator).toBeHidden({ timeout });
+  }
+
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
+    await expect(locator).toBeVisible({ timeout });
+  }
+
+  async hasNElements(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
     await expect(locator).toBeVisible({ timeout });
   }
 
