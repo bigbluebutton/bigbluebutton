@@ -139,7 +139,7 @@ const VirtualBgSelector = ({
 
         setCurrentVirtualBg({ type, name });
 
-        if (index < 0) return;
+        if (!index || index < 0) return;
 
         if (!shouldEnableBackgroundUpload()) {
           findDOMNode(inputElementsRef.current[index]).focus();
