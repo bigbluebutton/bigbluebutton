@@ -9,32 +9,16 @@
 
                     # Workaround IE refusal to set cookies in iframe
                     add_header P3P 'CP="No P3P policy available"';
-                    if ($bbb_loadbalancer_node) {
-                        add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
-                        add_header 'Access-Control-Allow-Credentials' 'true' always;
-                    }
 		}
 
 
 		location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
-			# Grails can't handle CORS OPTION preflight requests correctly -> lets do this in nginx
-			if ($request_method = 'OPTIONS') {
-				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
-				add_header 'Access-Control-Allow-Credentials' 'true' always;
-				add_header 'Content-Type' 'text/plain; charset=utf-8';
-				add_header 'Content-Length' 0;
-				return 204;
-			}
 			proxy_pass         http://127.0.0.1:8090;
 			proxy_redirect     default;
 			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 
 			# Workaround IE refusal to set cookies in iframe
 			add_header P3P 'CP="No P3P policy available"';
-			if ($bbb_loadbalancer_node) {
-				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
-				add_header 'Access-Control-Allow-Credentials' 'true' always;
-			}
 
 			# high limit for presentation as bbb-web will reject upload if larger than configured
 			client_max_body_size       1000m;
@@ -73,9 +57,6 @@
 			proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
 			# Workaround IE refusal to set cookies in iframe
 			add_header P3P 'CP="No P3P policy available"';
-			if ($bbb_loadbalancer_node) {
-				add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
-			}
 		}
 
 		location = /bigbluebutton/presentation/checkPresentation {
@@ -87,6 +68,7 @@
 			proxy_set_header        X-Original-URI $request_uri;
 			proxy_set_header	Content-Length "";
 			proxy_set_header	X-Original-Content-Length $http_content_length;
+			proxy_set_header	X-Original-Method $request_method;
 
 			# high limit for presentation as bbb-web will reject upload if larger than configured
 			client_max_body_size       1000m;
@@ -129,9 +111,6 @@
         location ~ "^/bigbluebutton\/textTrack\/(?<textTrackToken>[a-zA-Z0-9]+)\/(?<recordId>[a-zA-Z0-9_-]+)\/(?<textTrack>.+)$" {
             # Workaround IE refusal to set cookies in iframe
             add_header P3P 'CP="No P3P policy available"';
-            if ($bbb_loadbalancer_node) {
-                add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
-            }
 
             # Allow 30M uploaded presentation document.
             client_max_body_size       30m;
