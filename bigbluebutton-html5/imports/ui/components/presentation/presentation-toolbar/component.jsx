@@ -4,16 +4,12 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import {
-  HUNDRED_PERCENT,
-  MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
-
-import ToolbarMenuItem from '/imports/ui/components/whiteboard/whiteboard-toolbar/toolbar-menu-item/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
