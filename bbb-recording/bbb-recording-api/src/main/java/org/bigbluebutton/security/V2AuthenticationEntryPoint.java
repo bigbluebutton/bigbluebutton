@@ -26,11 +26,11 @@ public class V2AuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         String content;
         String accept = request.getHeader("Accept");
-        if (accept == null || accept.equalsIgnoreCase("application/json")) {
-            ObjectMapper mapper = new ObjectMapper();
+        if (accept.equalsIgnoreCase("application/xml")) {
+            XmlMapper mapper = new XmlMapper();
             content = mapper.writeValueAsString(envelope);
         } else {
-            XmlMapper mapper = new XmlMapper();
+            ObjectMapper mapper = new ObjectMapper();
             content = mapper.writeValueAsString(envelope);
         }
 

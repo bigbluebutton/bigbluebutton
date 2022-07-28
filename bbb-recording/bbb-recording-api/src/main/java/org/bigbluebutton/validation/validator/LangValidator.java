@@ -1,17 +1,16 @@
 package org.bigbluebutton.validation.validator;
 
 import org.apache.commons.lang3.LocaleUtils;
-import org.bigbluebutton.response.error.Error;
-import org.bigbluebutton.response.error.Errors;
 import org.bigbluebutton.validation.constraint.LangConstraint;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Locale;
 
 public class LangValidator implements ConstraintValidator<LangConstraint, String> {
+
+    private static final Logger logger = LoggerFactory.getLogger(LangValidator.class);
 
     @Override
     public void initialize(LangConstraint constraintAnnotation) {
@@ -20,8 +19,9 @@ public class LangValidator implements ConstraintValidator<LangConstraint, String
 
     @Override
     public boolean isValid(String lang, ConstraintValidatorContext constraintValidatorContext) {
+        logger.info("Validating provided lang parameter: {}", lang);
         try {
-            Locale locale = LocaleUtils.toLocale(lang);
+            LocaleUtils.toLocale(lang);
         } catch (IllegalArgumentException e) {
             return false;
         }

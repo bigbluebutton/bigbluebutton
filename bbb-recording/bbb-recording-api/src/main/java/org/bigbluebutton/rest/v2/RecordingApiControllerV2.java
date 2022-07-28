@@ -6,7 +6,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.bigbluebutton.dao.entity.Events;
 import org.bigbluebutton.dao.entity.Recording;
 import org.bigbluebutton.dao.entity.Track;
-import org.bigbluebutton.request.AddTextTrackBody;
+import org.bigbluebutton.request.TextTrackInfo;
 import org.bigbluebutton.request.MetadataParams;
 import org.bigbluebutton.response.Response;
 import org.bigbluebutton.response.ResponseEnvelope;
@@ -26,7 +26,6 @@ import org.json.XML;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
@@ -42,6 +41,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -249,30 +249,36 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
     }
 
     @Override
-    public ResponseEntity<Response> putRecordingTextTrack(
+    public ResponseEntity<Response> addRecordingTextTrack(
             @Parameter(in = ParameterIn.PATH, description = "ID of the recording", required = true) @PathVariable("recordID") String recordID,
-            @Parameter(in = ParameterIn.DEFAULT, description = "Text track file and details", required = true) @Valid @RequestBody AddTextTrackBody body) {
+            @RequestPart(value = "info") @Valid TextTrackInfo info, @RequestPart(value = "file") MultipartFile file) {
         ResponseEnvelope response = new ResponseEnvelope();
 
         ResponseEntity<Response> r = checkForId(response, recordID);
         if (r != null)
             return r;
 
-        Locale locale = LocaleUtils.toLocale(body.getLang());
-        ;
+        Locale locale = LocaleUtils.toLocale(info.getLang());
         String captionsLang = locale.toLanguageTag();
-        String label = body.getLabel();
+        String label = info.getLabel();
         if (label == null || label.isEmpty())
             label = locale.getDisplayLanguage();
 
-        boolean result = recordingService.putTrack(body.getFile(), recordID, body.getKind(), captionsLang, label);
-        if (result) {
-            return new ResponseEntity<>(response, HttpStatus.OK);
+        if (!file.isEmpty()) {
+            boolean result = recordingService.putTrack(file, recordID, info.getKind(), captionsLang, label);
+            if (result) {
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                Errors errors = new Errors();
+                errors.addError(Error.UPLOAD_FAILED);
+                response.setErrors(errors);
+                return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } else {
             Errors errors = new Errors();
-            errors.addError(Error.UPLOAD_FAILED);
+            errors.addError(Error.EMPTY_TEXT_TRACK);
             response.setErrors(errors);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -294,15 +300,15 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
             response.setErrors(errors);
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         } else {
-            if (accept == null || accept.equalsIgnoreCase("application/json")) {
-                EventsPayload payload = new EventsPayload();
-                payload.setMeetingSummary(events.getContent());
-                response.setPayload(payload);
-            } else {
+            if (accept.equalsIgnoreCase("application/xml")) {
                 JSONObject json = new JSONObject(events.getContent());
                 String xml = XML.toString(json);
                 EventsPayload payload = new EventsPayload();
                 payload.setMeetingSummary(xml);
+                response.setPayload(payload);
+            } else {
+                EventsPayload payload = new EventsPayload();
+                payload.setMeetingSummary(events.getContent());
                 response.setPayload(payload);
             }
 
@@ -317,12 +323,15 @@ public class RecordingApiControllerV2 implements RecordingApiV2 {
         Map<Integer, Error> apiErrors = Arrays.stream(Error.values())
                 .collect(Collectors.toMap(Error::getCode, Function.identity()));
 
-        ex.getBindingResult().getAllErrors().forEach(e -> {
+        ex.getBindingResult().getFieldErrors().forEach(e -> {
+            logger.info("Error: {}", e.getDefaultMessage());
             int code = Integer.parseInt(Objects.requireNonNull(e.getDefaultMessage()));
             Error error = apiErrors.get(code);
+            logger.info("API Error {}: {}", error.getCode(), error.getDescription());
             errors.addError(error);
         });
 
+        response.setErrors(errors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

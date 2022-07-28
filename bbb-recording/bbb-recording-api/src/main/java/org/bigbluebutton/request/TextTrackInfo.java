@@ -3,13 +3,11 @@ package org.bigbluebutton.request;
 import lombok.Data;
 import org.bigbluebutton.validation.constraint.KindConstraint;
 import org.bigbluebutton.validation.constraint.LangConstraint;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 
 @Data
-public class AddTextTrackBody {
+public class TextTrackInfo {
 
     @NotBlank(message = "7005")
     @KindConstraint
@@ -20,7 +18,4 @@ public class AddTextTrackBody {
     private String lang;
 
     private String label;
-
-    @NotEmpty(message = "7009")
-    private MultipartFile file;
 }

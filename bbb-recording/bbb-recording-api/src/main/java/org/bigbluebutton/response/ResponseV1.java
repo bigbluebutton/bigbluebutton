@@ -19,7 +19,6 @@ public class ResponseV1 implements Response {
         this.returnCode = returnCode;
     }
 
-    @JsonAnyGetter
     public Content getContent() {
         return content;
     }
