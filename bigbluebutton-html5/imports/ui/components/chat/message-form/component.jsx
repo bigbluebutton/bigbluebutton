@@ -79,6 +79,7 @@ class MessageForm extends PureComponent {
     this.setMessageHint = this.setMessageHint.bind(this);
     this.handleUserTyping = _.throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
     this.typingIndicator = CHAT_CONFIG.typingIndicator.enabled;
+    this.forceFocus = _.throttle(this.forceFocus.bind(this), 2000, { trailing: false });
   }
 
   componentDidMount() {
@@ -174,6 +175,8 @@ class MessageForm extends PureComponent {
   }
 
   handleMessageKeyDown(e) {
+    this.forceFocus();
+
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -191,6 +194,13 @@ class MessageForm extends PureComponent {
     const { startUserTyping, chatId } = this.props;
     if (error || !this.typingIndicator) return;
     startUserTyping(chatId);
+  }
+
+  forceFocus() {
+    if (this.textarea) {
+      this.textarea.blur();
+      this.textarea.focus();
+    }
   }
 
   handleMessageChange(e) {
