@@ -447,6 +447,7 @@ public:
     maxQuestionOptionsLength: 1100
     chatMessage: true
     correct_option_symbol: '(*)'
+    reports_location: '/usr/share/meteor/bundle/programs/web.browser/app'
   captions:
     enabled: true
     id: captions

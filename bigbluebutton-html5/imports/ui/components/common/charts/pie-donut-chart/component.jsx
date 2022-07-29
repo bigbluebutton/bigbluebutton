@@ -4,7 +4,6 @@ import QuestionQuizService from '/imports/ui/components/question-quiz/service'
 import Chart from "react-apexcharts";
 import Styled from './styles';
 import html2canvas from 'html2canvas';
-import { jsPDF } from "jspdf";
 import './style'
 
 const propTypes = {
@@ -32,7 +31,7 @@ const defaultProps = {
   height: 450,
   type: 'donut',
   totalLabel: '',
-  MAX_OPTION_LENGTH: 65,
+  MAX_OPTION_LENGTH: 30,
   legendColors: [],
   tooltipLabel: '',
   titleText: '',
@@ -63,14 +62,13 @@ export default class PieChart extends PureComponent {
   }
 
   downloadQuizStatsPdf() {
+    const {chartId} = this.props
     html2canvas(document.querySelector(".apexcharts-canvas")).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF('p', 'pt', 'a4', false);
-      pdf.addImage(imgData, 'PNG', 20, 50);
-      const timeElapsed = Date.now();
-      const today = new Date(timeElapsed);
-      pdf.save(
-        `Chart_Stats_${today.toLocaleTimeString()}.pdf`);
+      const img = document.createElement('a');
+      img.href = imgData;
+      img.download = `${chartId}.png`;
+      img.click();
     });
   }
 
@@ -164,7 +162,7 @@ export default class PieChart extends PureComponent {
           const percentageIds = extra?.percentageIds
           const roundOffVal = val.toFixed(2)
           const index = opts.seriesIndex
-          const MAX_LABEL_LENGTH = 15
+          const MAX_LABEL_LENGTH = 3
           if(percentageIds?.length > 0)
           return (`${percentageIds[index] ? 
           percentageIds[index] : 

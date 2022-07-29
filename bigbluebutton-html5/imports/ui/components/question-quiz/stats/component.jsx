@@ -5,11 +5,9 @@ import { injectIntl, defineMessages } from 'react-intl';
 import Styled from './styles';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import Chart from '/imports/ui/components/common/charts/pie-donut-chart/component';
-import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
 import { makeCall } from '/imports/ui/services/api';
 import Service from '/imports/ui/components/question-quiz/live-result/service';
-import 'jspdf-autotable'
 import QuestionQuizService from '/imports/ui/components/question-quiz/service'
 import BBBMenu from "/imports/ui/components/common/menu/component";
 
@@ -144,86 +142,52 @@ class QuestionQuizStats extends PureComponent {
     );
   }
 
+  getFileFromUrl(dataurl, filename) {
+    const link = document.createElement("a");
+    link.href = `${dataurl}`
+    link.download = filename;
+    link.click(); 
+  }
+
   downloadQuizStatsPdf() {
     const isDocRightDirection = (document.dir === "rtl")
-    const timeElapsed = Date.now();
-    const today = new Date(timeElapsed);
-    const { intl, questionQuizResultData } = this.props
+    const { quizResult } = this.state
+    const {intl, questionQuizResultData} = this.props
+    const { questionQuizAnswerIds } = QuestionQuizService
+    const options = []
     const question = questionQuizResultData?.questionText
-    const questionShortened = question.length > 15 ?
-      question.substring(0, 15) + '...' : question
-    const fileName = `${questionShortened}-${today
-      .toLocaleDateString()}-${today.toLocaleTimeString()
-        .replace("AM", "").replace("PM", "").trim()}`
-    //Download pdf option for left direction locales
-    if (!isDocRightDirection) {
-      const { quizResult } = this.state
-      const pdf = new jsPDF('p', 'mm');
-      html2canvas(document.querySelector(".apexcharts-canvas")).then((canvas) => {
-        const chartImgData = canvas.toDataURL("image/png");
-        const fontSize = 12
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const pageFotterX = pageWidth - 13
-        const pageFotterY = pageHeight - 13
-        const ImgPositionX = 10
-        const ImgPositionY = 17
-        const canvasPadding = 24
-        html2canvas(document.querySelector("#questionAndOptionsContainer"), {
-          onclone: function (clonedDoc) {
-            // I made the div hidden and here I am changing it to visible
-            clonedDoc.getElementById('questionAndOptionsContainer')
-              .style.display = 'block';
-          }
-        }).then(function (questionAndOptscanvas) {
-          //First page containing question and options
-          const widthRatio = pageWidth / questionAndOptscanvas.width;
-          const heightRatio = pageHeight / questionAndOptscanvas.height;
-          const ratio = widthRatio > heightRatio ? heightRatio : widthRatio;
-          const canvasWidth = (questionAndOptscanvas.width * ratio) - canvasPadding;
-          const canvasHeight = (questionAndOptscanvas.height * ratio) - canvasPadding;
-          const data = questionAndOptscanvas.toDataURL("image/png");
-          pdf.page = 1;
-          pdf.setFontSize(fontSize)
-          pdf.text(pdf.page + '', pageFotterX, pageFotterY, null, null, "right");
-          pdf.addImage(data, 'PNG', ImgPositionX + 5, ImgPositionY, canvasWidth, canvasHeight);
-
-          //Second page for graphical stats
-          const chartWidthRatio = pageWidth / canvas.width;
-          const chartHeightRatio = pageHeight / canvas.height;
-          const chartRatio = chartWidthRatio > chartHeightRatio ? chartHeightRatio : chartWidthRatio;
-          const chartCanvasWidth = (canvas.width * chartRatio) - canvasPadding;
-          const chartCanvasHeight = (canvas.height * chartRatio) - canvasPadding;
-          pdf.addPage();
-          pdf.page++;
-          pdf.text(pdf.page + '', pageFotterX, pageFotterY, null, null, "right");
-          pdf.addImage(chartImgData, 'PNG', ImgPositionX, ImgPositionY,
-          chartCanvasWidth, chartCanvasHeight);
-
-          //Third page containing User results table
-          pdf.addPage();
-          pdf.page++;
-          pdf.text(pdf.page + '', pageFotterX, pageFotterY, null, null, "right");
-          pdf.autoTable({
-            head: [[intl.formatMessage(intlMessages.usersTitle),
-            intl.formatMessage(intlMessages.responsesTitle),
-            intl.formatMessage(intlMessages.questionQuizResultsColoumnTitle)]],
-            body: quizResult,
-          })
-          pdf.save(`${fileName}.pdf`);
-        });
-      });
-    }
-    else {
-      //adding png download for right direction locales
-      html2canvas(document.querySelector("#quizStatsContainer")).then(function (canvas) {
-        const data = canvas.toDataURL();
-        const img = document.createElement('a');
-        img.href = data;
-        img.download = `${fileName}.png`;
-        img.click();
-      });
-    }
+    const headingText = intl.formatMessage(intlMessages.questionQuizStatsTitle)
+    const questionTitle = intl.formatMessage(intlMessages.questionTitle)
+    const optionsTitle = intl.formatMessage(intlMessages.optionsTitle)
+    const correctText = intl.formatMessage(intlMessages.questionQuizCorrectLabel)
+    const quizAnswerIdsArray = _.toArray(questionQuizAnswerIds);
+    const quizId = questionQuizResultData?.id.split("/").pop()
+    const questionShortened = question.substring(0, 15)
+    const fileName = `${questionShortened}-${quizId}`
+    questionQuizResultData?.answers.forEach((opt, i) => {
+      options.push(`${intl.formatMessage(quizAnswerIdsArray[i])}: ${opt.key}`)
+    })
+    //here i am hiding the overflow to not show in pdf
+    document.querySelector(".apexcharts-legend").style.overflow = 'hidden';
+    html2canvas(document.querySelector(".apexcharts-canvas")).then((canvas) => {
+      const chartImgData = canvas.toDataURL("image/png");
+      //making the overflow visible again after downloading
+      document.querySelector(".apexcharts-legend").style.overflow = 'auto';
+      const statsTableData = {
+        rows: quizResult,
+        header:{
+          col1: intl.formatMessage(intlMessages.usersTitle),
+          col2: intl.formatMessage(intlMessages.responsesTitle),
+          col3: intl.formatMessage(intlMessages.questionQuizResultsColoumnTitle)
+        }
+      }
+      makeCall('generateQuestionQuizPdf',quizId, headingText ,questionTitle, optionsTitle,
+      correctText, question, options, chartImgData, statsTableData, isDocRightDirection)
+      .then((res) => {
+        const url = res
+        this.getFileFromUrl(url,fileName)
+      })
+    })
   }
 
   getQuizLiveResultResponses() {
@@ -272,12 +236,12 @@ class QuestionQuizStats extends PureComponent {
               answerIds.push(intl.formatMessage(quizAnswerIdsArray[id]))
             })
             responseAnswer = answerIds.length > 0 ? answerIds.join(',') : '-'
-            resultArray.push([
-              user.name,
+            resultArray.push({
+              userName: user.name,
               responseAnswer,
-              user.answer ? resultColString :
+              result: user.answer ? resultColString :
                 intl.formatMessage(intlMessages.notAttemptedQuizLabel)
-            ])
+            })
             return ([
               ...acc,
               (
@@ -303,7 +267,7 @@ class QuestionQuizStats extends PureComponent {
   questionQuizStatsModal() {
     const { isOpenStatsPreviewModal, quizResponses } = this.state
     const { questionQuizResultData, intl } = this.props
-    const { questionQuizAnswerIds, CORRECT_OPTION_SYMBOL } = QuestionQuizService
+    const { questionQuizAnswerIds } = QuestionQuizService
     const quizAnswerIdsArray = _.toArray(questionQuizAnswerIds);
     const percentageAnswerIds = []
     if (isOpenStatsPreviewModal) {
@@ -311,8 +275,6 @@ class QuestionQuizStats extends PureComponent {
       const votesOfOptions = [];
       const question = questionQuizResultData?.questionText
       const headingText = intl.formatMessage(intlMessages.questionQuizStatsTitle)
-      const questionTitle = intl.formatMessage(intlMessages.questionTitle)
-      const optionsTitle = intl.formatMessage(intlMessages.optionsTitle)
       const totalRespondents = questionQuizResultData?.numRespondents
       const totalResponders = questionQuizResultData?.numResponders
       const notAttemptedUsers = totalRespondents - totalResponders
@@ -348,32 +310,6 @@ class QuestionQuizStats extends PureComponent {
             />
 
             <Styled.PreviewModalContainer id="quizStatsContainer">
-              <Styled.QuestionAndOptionsContainer
-                id="questionAndOptionsContainer"
-                isHidden={true}
-              >
-                <Styled.StatsTitle>
-                  {headingText}
-                </Styled.StatsTitle>
-                <Styled.StatsSubHeading>
-                  {questionTitle}
-                </Styled.StatsSubHeading>
-                <p>{question}</p>
-                <Styled.StatsSubHeading>
-                  {optionsTitle}
-                </Styled.StatsSubHeading>
-                {options.slice(0, options.length - 1).map((option, i) => {
-                  const isCorrectOption = QuestionQuizService.isCorrectOption(option)
-                  option = isCorrectOption ? option.substring(0,
-                    option.length - CORRECT_OPTION_SYMBOL.length) + ' (' +
-                    correctText + ')' : option
-                  return (
-                    <Styled.ListOptionItem key={i + option} isCorrect={isCorrectOption}>
-                      {option}
-                    </Styled.ListOptionItem>
-                  )
-                })}
-              </Styled.QuestionAndOptionsContainer>
               <Chart series={votesOfOptions} type='donut'
                 totalLabel={intl.formatMessage(intlMessages.questionQuizTotalRespondentsLabel)}
                 labels={options} tooltipLabel={intl.formatMessage(intlMessages.questionQuizStatsVotesLabel)}

@@ -6,6 +6,7 @@ import startQuestionQuiz from './methods/startQuestionQuiz';
 import stopQuestionQuiz from './methods/stopQuestionQuiz';
 import getCurrentQuestionQuiz from './methods/getCurrentQuestionQuiz';
 import getQuestionQuizResponses from './methods/getQuestionQuizResponses';
+import generateQuestionQuizPdf from './methods/generateQuestionQuizPdf'
 
 Meteor.methods({
   publishQuestionQuizVote,
@@ -14,5 +15,6 @@ Meteor.methods({
   startQuestionQuiz,
   stopQuestionQuiz,
   getCurrentQuestionQuiz,
-  getQuestionQuizResponses
+  getQuestionQuizResponses,
+  generateQuestionQuizPdf
 });

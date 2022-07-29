@@ -5,13 +5,12 @@ import {
   colorBadgeSuccess,
   colorBadgeWarning,
   colorBadgeDanger,
-  questioningsuccessDarkColor
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 import {
   pollInputHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeBase, fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 const PreviewModalContainer = styled.div`
   padding: 1rem;
   padding-top: 1.5rem;
@@ -103,56 +102,6 @@ const MoreStatsButton = styled(Button)`
   position: relative;
 `;
 
-const StatsTitle = styled.h1`
-  min-width: 0;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  margin: 0;
-  font-weight: 500;
-  font-size: ${fontSizeLarge};
-  text-align: center;
-  align-self: flex-end;
-  margin-bottom:2rem;
-  width:100%;
-  @media screen and (max-width: 480px) {
-    font-size:12px;
-    margin-bottom:1rem;
-  }
-`;
-
-const StatsSubHeading = styled.h3`
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  margin: 0;
-  font-weight: 400;
-  text-align: flex-start;
-  @media screen and (max-width: 480px) {
-    font-size:11px;
-  }
-`;
-
-const QuestionAndOptionsContainer = styled.div`
-  display:block;
-  ${({ isHidden }) => isHidden && `
-  display:none;
-  `}
-  @media screen and (max-width: 480px) {
-    font-size:10px;
-  }
-`
-
-const ListOptionItem = styled.p`
-  ${({ isCorrect }) => isCorrect && `
-  color:${questioningsuccessDarkColor};
-  font-weight:bold;
-  `}
-`
 export default {
   PreviewModalContainer,
   ModalHeading,
@@ -163,8 +112,4 @@ export default {
   Trow,
   THeading,
   MoreStatsButton,
-  StatsTitle,
-  StatsSubHeading,
-  QuestionAndOptionsContainer,
-  ListOptionItem
 };
