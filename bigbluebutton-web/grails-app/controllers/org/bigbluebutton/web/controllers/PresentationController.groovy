@@ -175,7 +175,7 @@ class PresentationController {
       log.debug "@Setting file to be downloadable..."
       uploadedPres.setDownloadable();
     }
-
+    log.debug "1) PRESENTATION: ${pres.toString()}"
     uploadedPres.setUploadedFile(pres);
     presentationService.processUploadedPresentation(uploadedPres)
     log.debug("file upload success " + presFilename)
@@ -331,6 +331,8 @@ class PresentationController {
     def meetingId = params.meetingId
 
     log.debug "Controller: Download request for $presFilename"
+
+    log.debug "8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888"
 
     InputStream is = null;
     try {

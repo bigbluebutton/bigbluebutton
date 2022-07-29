@@ -81,8 +81,9 @@ class PresentationService {
 		// Run conversion on another thread.
 		Timer t = new Timer(uploadedPres.getName(), false)
 
-		t.runAfter(5000) {
+		t.runAfter(10000) {
 			try {
+				log.debug "Load 1, name: ${uploadedPres.getName()}"
 				documentConversionService.processDocument(uploadedPres)
 			} finally {
 				t.cancel()
@@ -91,14 +92,17 @@ class PresentationService {
 	}
 
 	def showSlide(String conf, String room, String presentationName, String id) {
+		log.debug "888888888888[ SLIDE ]8888888888888888888"
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "slide-${id}.swf")
 	}
 
 	def showSvgImage(String conf, String room, String presentationName, String id) {
+		log.debug "888888888888[ SVG ]8888888888888888888"
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
 	}
 
 	def showPresentation = {conf, room, filename ->
+		log.debug "888888888888[ PRESS ]8888888888888888888"
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename + File.separatorChar + "slides.swf")
 	}
 
@@ -158,6 +162,7 @@ class PresentationService {
 				// Run conversion on another thread.
 				new Timer().runAfter(1000)
 				{
+					log.debug "Load 2"
 					documentConversionService.processDocument(uploadedPres)
 				}
 			} else {

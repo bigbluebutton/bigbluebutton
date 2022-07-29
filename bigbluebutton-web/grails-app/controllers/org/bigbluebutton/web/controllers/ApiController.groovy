@@ -1592,6 +1592,16 @@ class ApiController {
     if (isDownloadable != null && isDownloadable){
       uploadedPres.setDownloadable();
     }
+
+  // log.debug "\n\nuploadFailReasons: ${uploadFailReasons}" +
+  // "\npodId: ${podId}" +
+  // "\nmeetingId: ${meetingId}" +
+  // "\npresId: ${presId}" +
+  // "\nfilename: ${filename}" +
+  // "\npresentationBaseUrl: ${presentationBaseUrl}" +
+  // "\ncurrent: ${current}" +
+  // "\nauthzToken: ${authzToken}" +
+  // "\nuploadFailed: ${uploadFailed}"
     presentationService.processUploadedPresentation(uploadedPres);
   }
 

@@ -161,15 +161,4 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
     </bean>
 
-    <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
-        <property name="presentationDir" value="${presentationDir}"/>
-        <property name="testConferenceMock" value="${testConferenceMock}"/>
-        <property name="testRoomMock" value="${testRoomMock}"/>
-        <property name="testPresentationName" value="${testPresentationName}"/>
-        <property name="testUploadedPresentation" value="${testUploadedPresentation}"/>
-        <property name="defaultUploadedPresentation" value="${defaultUploadedPresentation}"/>
-        <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
-        <property name="preUploadedPresentationOverrideDefault" value="${preUploadedPresentationOverrideDefault}"/>
-    </bean>
-
 </beans>

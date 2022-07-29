@@ -43,17 +43,20 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
             return false;
         }
 
+        log.debug("DATA: " + checksum.getApiCall() + queryStringWithoutChecksum + securitySalt);
+
         String data = checksum.getApiCall() + queryStringWithoutChecksum + securitySalt;
         String createdCheckSum = DigestUtils.sha1Hex(data);
 
-        // if (providedChecksum.length() == 64) {
-        //     log.debug("providedChecksum.length() == 64");
-        //     createdCheckSum = DigestUtils.sha256Hex(data);
-        //     log.info("SHA256 {}", createdCheckSum);
-        // }
+        if (providedChecksum.length() == 64) {
+            log.debug("providedChecksum.length() == 64");
+            createdCheckSum = DigestUtils.sha256Hex(data);
+            log.info("SHA256 {}", createdCheckSum);
+        }
+
+        log.debug("createdCheckSum = " + createdCheckSum + ", provided one = " + providedChecksum + ", query = " + queryStringWithoutChecksum);
 
         if (createdCheckSum == null || !createdCheckSum.equals(providedChecksum)) {
-            log.debug("createdCheckSum = " + createdCheckSum + ", provided one = " + providedChecksum + ", query = " + queryStringWithoutChecksum);
             //log.debug("!createdCheckSum.equals(providedChecksum), " + !createdCheckSum.equals(providedChecksum));
             log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", createdCheckSum, providedChecksum);
             return false;
