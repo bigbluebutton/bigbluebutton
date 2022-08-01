@@ -60,7 +60,7 @@
     "react-autosize-textarea": "^5.0.1",
     "react-color": "^2.19.3",
     "react-dom": "^16.14.0",
-    "react-draggable": "^3.3.2",
+    "react-draggable": "^4.4.5",
     "react-dropzone": "^7.0.1",
     "react-intl": "^3.12.1",
     "react-loading-skeleton": "^3.0.3",
