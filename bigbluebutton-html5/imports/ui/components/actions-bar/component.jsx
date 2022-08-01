@@ -23,7 +23,6 @@ class ActionsBar extends PureComponent {
       intl,
       isSharingVideo,
       hasScreenshare,
-      isSharingDesktop,
       canIOperateDesktop,
       stopExternalVideoShare,
       isSharingDesktop,
