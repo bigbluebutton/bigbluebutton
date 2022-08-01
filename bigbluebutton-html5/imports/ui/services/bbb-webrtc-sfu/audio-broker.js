@@ -83,7 +83,6 @@ class AudioBroker extends BaseBroker {
           },
           trace: this.traceLogs,
         };
-
         const peerRole = this.role === 'sendrecv' ? this.role : 'recvonly';
         this.webRtcPeer = new WebRtcPeer(peerRole, options);
         this.webRtcPeer.iceQueue = [];
@@ -118,8 +117,12 @@ class AudioBroker extends BaseBroker {
   }
 
   joinAudio() {
-    return this.openWSConnection()
-      .then(this._join.bind(this));
+    return new Promise((resolve, reject) => {
+      this.openWSConnection()
+        .then(this._join.bind(this))
+        .then(resolve)
+        .catch(reject);
+    });
   }
 
   onWSMessage(message) {

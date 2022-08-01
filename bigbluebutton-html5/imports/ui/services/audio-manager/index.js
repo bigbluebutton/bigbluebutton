@@ -86,7 +86,7 @@ class AudioManager {
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     // Whether fallback bridge usage was triggered
-    this._useFallbackBridge = false;
+    this._usingFallbackBridge = false;
   }
 
   async init(userData, audioEventHandler) {
@@ -225,10 +225,10 @@ class AudioManager {
     const previousBridge = this.bridge.bridgeName;
     // Make sure the current call is shut down.
     this.bridge.exitAudio();
-    this._useFallbackBridge = true;
+    this._usingFallbackBridge = true;
 
     if (this.isEchoTest) {
-      this.joinEchoTest().catch((error) => {
+      return this.joinEchoTest().catch((error) => {
         logger.info({
           logCode: 'audiomanager_fallback_echotest_failure',
           extraInfo: {
@@ -238,9 +238,13 @@ class AudioManager {
             errorMessage: error.message,
           },
         }, `Join audio via fallback (echo test) failed: ${error.name} - ${error.message}`);
+
+        throw error;
       });
-    } else if (this.isListenOnly) {
-      this.joinListenOnly().catch((error) => {
+    }
+
+    if (this.isListenOnly) {
+      return this.joinListenOnly().catch((error) => {
         logger.info({
           logCode: 'audiomanager_fallback_listenonly_failure',
           extraInfo: {
@@ -250,20 +254,24 @@ class AudioManager {
             errorMessage: error.message,
           },
         }, `Join audio via fallback (listen only) failed: ${error.name} - ${error.message}`);
-      });
-    } else {
-      this.joinMicrophone().catch((error) => {
-        logger.info({
-          logCode: 'audiomanager_fallback_mic_failure',
-          extraInfo: {
-            previousBridge,
-            fallbackBridge: this.bridge.bridgeName,
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, `Join audio via fallback (mic) failed: ${error.name} - ${error.message}`);
+
+        throw error;
       });
     }
+
+    return this.joinMicrophone().catch((error) => {
+      logger.info({
+        logCode: 'audiomanager_fallback_mic_failure',
+        extraInfo: {
+          previousBridge,
+          fallbackBridge: this.bridge.bridgeName,
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Join audio via fallback (mic) failed: ${error.name} - ${error.message}`);
+
+      throw error;
+    });
   }
 
   joinMicrophone() {
@@ -309,7 +317,7 @@ class AudioManager {
           extraInfo: {
             logType: 'user_action',
             bridge: this.bridge?.bridgeName,
-            usingFallback: this._useFallbackBridge,
+            usingFallback: this._usingFallbackBridge,
           },
         }, 'User requested to join audio conference with mic');
 
@@ -318,52 +326,91 @@ class AudioManager {
   }
 
   joinAudio(callOptions, callStateCallback) {
-    return this.bridge
-      .joinAudio(callOptions, callStateCallback.bind(this))
-      .catch((error) => {
-        const { name } = error;
+    return new Promise((resolve, reject) => {
+      this.bridge
+        .joinAudio(callOptions, callStateCallback.bind(this))
+        .then(resolve)
+        .catch((error) => {
+          const { name } = error;
+          const gUMErrors = [
+            'AbortError',
+            'NotAllowedError',
+            'NotFoundError',
+            'NotReadableError',
+            'OverconstrainedError',
+            'SecurityError',
+            'TypeError',
+          ];
 
-        if (!name) {
-          throw error;
-        }
+          const isGUMError = (_error) => {
+            if (_error.name == null) return false;
+            return gUMErrors.some((errName) => errName === _error.name);
+          };
 
-        switch (name) {
-          case 'NotAllowedError':
-            logger.error(
-              {
-                logCode: 'audiomanager_error_getting_device',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
+          // If it isn't a getUserMedia-related error, process it as a CONNECTION_ERROR
+          // which might use the fallback system
+          if (!isGUMError(error)) {
+            logger.error({
+              logCode: 'audiomanager_error_connection_error',
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+                bridge: this.bridge?.name,
+                usingFallback: this._usingFallbackBridge,
               },
-              `Error getting microphone - {${error.name}: ${error.message}}`
-            );
-            break;
-          case 'NotFoundError':
-            logger.error(
-              {
-                logCode: 'audiomanager_error_device_not_found',
-                extraInfo: {
-                  errorName: error.name,
-                  errorMessage: error.message,
-                },
+            }, `Audio manager: CONNECTION_ERROR - {${error.name}: ${error.message}}`);
+
+            if (!this.shouldUseFallbackBridge()) {
+              reject({
+                type: 'CONNECTION_ERROR',
+                name: error.name,
+                message: error.message,
+              });
+            }
+
+            this._joinViaFallback().then(resolve).catch((_error) => {
+              reject({
+                type: 'CONNECTION_ERROR',
+                name: _error.name,
+                message: _error.message,
+              });
+            });
+          } else {
+            // This is a getUserMedia-related error. Since it is bridge agnostic
+            // (as in: it would probably have happened with any bridge), there's no
+            // point in using the fallback system. Just reject as a MEDIA_ERROR
+            let logCode = `audio_manager_error_${name || 'gum'}`;
+
+            switch (name) {
+              case 'NotAllowedError':
+                logCode = 'audiomanager_error_getting_device';
+                break;
+              case 'NotFoundError':
+                logCode = 'audiomanager_error_device_not_found';
+                break;
+              default:
+                break;
+            }
+
+            logger.error({
+              logCode,
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+                bridge: this.bridge?.name,
+                usingFallback: this._usingFallbackBridge,
               },
-              `Error getting microphone - {${error.name}: ${error.message}}`
-            );
-            break;
+            }, `Error getting microphone - {${error.name}: ${error.message}}`);
 
-          default:
-            break;
-        }
+            this.isConnecting = false;
+            this.isWaitingPermissions = false;
 
-        this.isConnecting = false;
-        this.isWaitingPermissions = false;
-
-        throw {
-          type: 'MEDIA_ERROR',
-        };
-      });
+            reject({
+              type: 'MEDIA_ERROR',
+            });
+          }
+        });
+    });
   }
 
   async joinListenOnly() {
@@ -387,7 +434,7 @@ class AudioManager {
       extraInfo: {
         logType: 'user_action',
         bridge: this.bridge?.bridgeName,
-        usingFallback: this._useFallbackBridge,
+        usingFallback: this._usingFallbackBridge,
       },
     }, 'user requested to connect to audio conference as listen only');
 
@@ -500,7 +547,7 @@ class AudioManager {
         logCode: 'audio_joined',
         extraInfo: {
           bridge: this.bridge?.bridgeName,
-          usingFallback: this._useFallbackBridge,
+          usingFallback: this._usingFallbackBridge,
         },
       }, 'Audio Joined');
       this.inputStream = this.bridge ? this.bridge.inputStream : null;
@@ -567,44 +614,43 @@ class AudioManager {
           logCode: 'audio_ended',
           extraInfo: {
             bridge,
-            usingFallback: this._useFallbackBridge,
+            usingFallback: this._usingFallbackBridge,
           },
         }, 'Audio ended without issue');
         this.onAudioExit();
       } else if (status === FAILED) {
-        // We have a fallback bridge configured for this audio mode
-        if (this.hasFallbackBridge()) {
-          // We've not tried fallback yet => try it.
-          if (!this._useFallbackBridge) {
-            this._joinViaFallback();
-            return resolve(RECONNECTING);
+        const handleFailedStatus = () => {
+          this._usingFallbackBridge = false;
+          this.isReconnecting = false;
+          this.setBreakoutAudioTransferStatus({
+            breakoutMeetingId: '',
+            status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
+          });
+          const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
+          const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
+          this.error = !!error;
+          logger.error({
+            logCode: 'audio_failure',
+            extraInfo: {
+              errorCode: error,
+              cause: bridgeError,
+              bridge,
+              usingFallback: this._usingFallbackBridge,
+            },
+          }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
+          if (silenceNotifications !== true) {
+            this.notify(errorMsg, true);
+            this.exitAudio();
+            this.onAudioExit();
           }
+        };
 
-          // We've tried the fallback and it failed - give up.
-          this._useFallbackBridge = false;
-        }
-        this.isReconnecting = false;
-        this.setBreakoutAudioTransferStatus({
-          breakoutMeetingId: '',
-          status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
-        });
-        const errorKey =
-          this.messages.error[error] || this.messages.error.GENERIC_ERROR;
-        const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
-        this.error = !!error;
-        logger.error({
-          logCode: 'audio_failure',
-          extraInfo: {
-            errorCode: error,
-            cause: bridgeError,
-            bridge,
-            usingFallback: this._useFallbackBridge,
-          },
-        }, `Audio error - errorCode=${error}, cause=${bridgeError}`);
-        if (silenceNotifications !== true) {
-          this.notify(errorMsg, true);
-          this.exitAudio();
-          this.onAudioExit();
+        if (this.shouldUseFallbackBridge()) {
+          this._joinViaFallback()
+            .then(() => { resolve(RECONNECTING) })
+            .catch(handleFailedStatus);
+        } else {
+          handleFailedStatus();
         }
       } else if (status === RECONNECTING) {
         this.isReconnecting = true;
@@ -616,7 +662,7 @@ class AudioManager {
           logCode: 'audio_reconnecting',
           extraInfo: {
             bridge,
-            usingFallback: this._useFallbackBridge,
+            usingFallback: this._usingFallbackBridge,
           },
         }, 'Attempting to reconnect audio');
         this.notify(
@@ -726,7 +772,7 @@ class AudioManager {
   }
 
   get bridge() {
-    if (!this._useFallbackBridge || !this.hasFallbackBridge()) {
+    if (!this._usingFallbackBridge || !this.hasFallbackBridge()) {
       return this.isListenOnly ? this.listenOnlyBridge : this.fullAudioBridge;
     }
 
@@ -735,6 +781,11 @@ class AudioManager {
 
   hasFallbackBridge() {
     return this.isListenOnly ? !!this.fallbackListenOnlyBridge : !!this.fallbackFullAudioBridge;
+  }
+
+  shouldUseFallbackBridge() {
+    // We have a fallback bridge and did not try it yet => try it.
+    return this.hasFallbackBridge() && !this._usingFallbackBridge;
   }
 
   set inputStream(stream) {

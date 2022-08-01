@@ -230,7 +230,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
   }
 
   handleBrokerFailure(error) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       mapErrorCode(error);
       const { errorMessage, errorCause, errorCode } = error;
 
@@ -269,7 +269,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         bridgeError: errorMessage,
         bridge: this.bridgeName,
       });
-      return resolve();
+      return reject(error);
     });
   }
 
@@ -321,20 +321,38 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     });
   }
 
-  _startBroker(options) {
+  mediaStreamFactory(constraints) {
+    if (this.preloadedInputStream && this.preloadedInputStream.active) {
+      return Promise.resolve(this.preloadedInputStream);
+    }
+
+    return navigator.mediaDevices.getUserMedia(constraints);
+  }
+
+  async _startBroker(options) {
     try {
+      const audioConstraints = getAudioConstraints({ deviceId: this.inputDeviceId });
+
       const { isListenOnly, extension, inputStream } = options;
       this.inEchoTest = !!extension;
       this.isListenOnly = isListenOnly;
+
+      // If a valid MediaStream was provided it means it was preloaded somewhere
+      // else - let's use it so we don't call gUM needlessly
+      if (inputStream && inputStream.active) {
+        this.preloadedInputStream = inputStream;
+      } else {
+        this.preloadedInputStream = await this.mediaStreamFactory({ audio: audioConstraints });
+      }
 
       const brokerOptions = {
         clientSessionNumber: getAudioSessionNumber(),
         extension,
         iceServers: this.iceServers,
         mediaServer: getMediaServerAdapter(isListenOnly),
-        constraints: getAudioConstraints({ deviceId: this.inputDeviceId }),
+        constraints: audioConstraints,
         forceRelay: shouldForceRelay(),
-        stream: (inputStream && inputStream.active) ? inputStream : undefined,
+        stream: this.preloadedInputStream,
         offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
         signalCandidates: SIGNAL_CANDIDATES,
         traceLogs: TRACE_LOGS,
@@ -346,16 +364,20 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         brokerOptions,
       );
 
-      this.broker.onended = this.handleTermination.bind(this);
-      this.broker.onerror = this.handleBrokerFailure.bind(this);
       this.broker.onstart = this.handleStart.bind(this);
 
-      return this.broker.joinAudio().catch((error) => {
+      return this.broker.joinAudio().then(() => {
+        this.broker.onended = this.handleTermination.bind(this);
+        this.broker.onerror = this.handleBrokerFailure.bind(this);
+      }).catch((error) => {
+        if (this.alreadyErrored) return Promise.resolve();
+        this.alreadyErrored = true;
         logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
           'Problem when initializing SFU broker for fullaudio bridge');
         return Promise.reject(error);
       });
     } catch (error) {
+      this.alreadyErrored = true;
       logger.warn({ logCode: 'sfuaudio_bridge_broker_init_fail' },
         'Problem when initializing SFU broker for fullaudio bridge');
       return Promise.reject(error);
@@ -363,6 +385,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
   }
 
   async joinAudio(options, callback) {
+    this.alreadyErrored = false;
     this.callback = callback;
 
     try {
@@ -493,6 +516,8 @@ export default class SFUAudioBridge extends BaseAudioBridge {
       this.broker.stop();
       this.broker = null;
     }
+
+    this.alreadyErrored = false;
 
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();
