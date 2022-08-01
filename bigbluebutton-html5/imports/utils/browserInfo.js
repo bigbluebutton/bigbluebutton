@@ -15,6 +15,19 @@ const isValidSafariVersion = Bowser.getParser(window.navigator.userAgent).satisf
   safari: '>12',
 });
 
+// Check whether Chrome's 'Auto Dark Mode' is enabled
+// See: https://developer.chrome.com/blog/auto-dark-theme/#detecting-auto-dark-theme
+const isChromeAutoDarkModeEnabled = () => {
+  const detection = document.createElement('div');
+  detection.style.display = 'none';
+  detection.style.backgroundColor = 'canvas';
+  detection.style.colorScheme = 'light';
+  document.body.appendChild(detection);
+  const isChromeAutoDarkModeEnabled = getComputedStyle(detection).backgroundColor !== 'rgb(255, 255, 255)';
+  document.body.removeChild(detection);
+  return isChromeAutoDarkModeEnabled;
+};
+
 const browserInfo = {
   isChrome,
   isSafari,
@@ -24,6 +37,7 @@ const browserInfo = {
   browserName,
   versionNumber,
   isValidSafariVersion,
+  isChromeAutoDarkModeEnabled,
 };
 
 export default browserInfo;

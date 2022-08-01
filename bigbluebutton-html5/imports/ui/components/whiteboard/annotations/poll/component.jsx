@@ -8,6 +8,7 @@ import {
   getSwapLayout,
   shouldEnableSwapLayout,
 } from '/imports/ui/components/media/service';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -25,16 +26,6 @@ const MAX_DISPLAYED_CHARS = 15;
 class PollDrawComponent extends Component {
   constructor(props) {
     super(props);
-
-    // Check whether Chrome's 'Auto Dark Mode' is enabled
-    // See: https://developer.chrome.com/blog/auto-dark-theme/#detecting-auto-dark-theme
-    const detection = document.createElement('div');
-    detection.style.display = 'none';
-    detection.style.backgroundColor = 'canvas';
-    detection.style.colorScheme = 'light';
-    document.body.appendChild(detection);
-    const isChromeAutoDarkModeEnabled = getComputedStyle(detection).backgroundColor !== 'rgb(255, 255, 255)';
-    document.body.removeChild(detection);
 
     this.state = {
       // We did it because it was calculated in the componentWillMount
@@ -82,7 +73,7 @@ class PollDrawComponent extends Component {
 
       reducedResult: [],
 
-      isChromeAutoDarkModeEnabled,
+      isChromeAutoDarkModeEnabled: browserInfo.isChromeAutoDarkModeEnabled(),
     };
 
     this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
