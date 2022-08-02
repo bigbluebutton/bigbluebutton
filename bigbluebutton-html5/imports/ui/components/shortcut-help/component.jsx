@@ -257,12 +257,12 @@ const ShortcutHelpComponent = (props) => {
           </StyledSettings.SettingsTabSelector>
 
           <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="alert" />
+            <StyledSettings.SettingsIcon iconName="presentation" />
             <span id="presentationTab">{intl.formatMessage(intlMessages.presentation)}</span>
           </StyledSettings.SettingsTabSelector>
 
           <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="alert" />
+            <StyledSettings.SettingsIcon iconName="whiteboard" />
             <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
           </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
