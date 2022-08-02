@@ -1,17 +1,19 @@
 import Presentations from '/imports/api/presentations';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
 import Poll from '/imports/api/polls/';
 import { Meteor } from 'meteor/meteor';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, useIntl } from 'react-intl';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import { toast } from 'react-toastify';
 import _ from 'lodash';
-import { Random } from 'meteor/random'
+import update from 'immutability-helper';
+import { Random } from 'meteor/random';
+import { UploadingPresentations } from '/imports/api/presentations';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -271,10 +273,20 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
+  UploadingPresentations.insert({
+    tmpPresId,
+    progress: 0,
+    filename: file.name,
+    uploadTimestamp: new Date()
+  })
+
   return requestPresentationUploadToken(tmpPresId, podId, meetingId, file.name)
     .then((token) => {
       makeCall('setUsedToken', token);
-      return futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress);
+      return futch(endpoint.replace('upload', `${token}/upload`), opts, (e) => {
+        onProgress(e)
+        UploadingPresentations.upsert({ tmpPresId }, {$set: {progress: (e.loaded / e.total) * 100}})
+      });
     })
     .then(() => observePresentationConversion(meetingId, tmpPresId, onConversion))
     // Trap the error so we can have parallel upload
@@ -317,33 +329,35 @@ const removePresentations = (
 ) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.id, podId)));
 
 function renderPresentationItemStatus(item, intl) {
-  if (!item.upload.done && item.upload.progress === 0) {
+  if (("progress" in item) && item.progress === 0) {
     return intl.formatMessage(intlMessages.fileToUpload);
   }
 
-  if (!item.upload.done && !item.upload.error) {
+  if (("progress" in item) && item.progress < 100 && !("conversion" in item)) {
     return intl.formatMessage(intlMessages.uploadProcess, {
-      0: Math.floor(item.upload.progress).toString(),
+      0: Math.floor(item.progress).toString(),
     });
   }
 
   const constraint = {};
 
-  if (item.upload.done && item.upload.error) {
-    if (item.conversion.status === 'FILE_TOO_LARGE') {
-      constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-    }
+  // Fazer o handle dos upload errors que eu estou perdendo ali embaixo vv
+  // ----------------------------------------------------------------------
+  // if (item.upload.done && item.upload.error) {
+  //   if (item.conversion.status === 'FILE_TOO_LARGE') {
+  //     constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
+  //   }
 
-    if (item.upload.progress < 100) {
-      const errorMessage = intlMessages.badConnectionError;
-      return intl.formatMessage(errorMessage);
-    }
+  //   if (item.upload.progress < 100) {
+  //     const errorMessage = intlMessages.badConnectionError;
+  //     return intl.formatMessage(errorMessage);
+  //   }
 
-    const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-    return intl.formatMessage(errorMessage, constraint);
-  }
+  //   const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
+  //   return intl.formatMessage(errorMessage, constraint);
+  // }
 
-  if (!item.conversion.done && item.conversion.error) {
+  if (("conversion" in item) && (!item.conversion.done && item.conversion.error)) {
     const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
 
     switch (item.conversion.status) {
@@ -360,7 +374,7 @@ function renderPresentationItemStatus(item, intl) {
     return intl.formatMessage(errorMessage, constraint);
   }
 
-  if (!item.conversion.done && !item.conversion.error) {
+  if ((("conversion" in item) && (!item.conversion.done && !item.conversion.error)) || (("progress" in item) && item.progress == 100)) {
     if (item.conversion.pagesCompleted < item.conversion.numPages) {
       return intl.formatMessage(intlMessages.conversionProcessingSlides, {
         0: item.conversion.pagesCompleted,
@@ -377,13 +391,14 @@ function renderPresentationItemStatus(item, intl) {
 }
 
 function renderToastItem(item, intl) {
-  const isUploading = !item.upload.done && item.upload.progress > 0;
-  const isConverting = !item.conversion.done && item.upload.done;
-  const hasError = item.conversion.error || item.upload.error;
+  const isUploading = ("progress" in item) && item.progress <= 100;
+  const isConverting = ("conversion" in item) && !item.conversion.done;
+  const hasError = ((("conversion" in item) && item.conversion.error) || (("upload" in item) && item.upload.error));
   const isProcessing = (isUploading || isConverting) && !hasError;
 
   let icon = isProcessing ? 'blank' : 'check';
   if (hasError) icon = 'circle_close';
+  console.log("Teste de dentro do toast item", item);
 
   return (
     <Styled.UploadRow
@@ -397,7 +412,7 @@ function renderToastItem(item, intl) {
           <Icon iconName="file" />
         </span>
         <Styled.ToastFileName>
-          <span>{item.filename}</span>
+          <span>{item.filename || item.name}</span>
         </Styled.ToastFileName>
         <Styled.StatusIcon>
           <Styled.ToastItemIcon
@@ -417,56 +432,82 @@ function renderToastItem(item, intl) {
   );
 }
 
-const verifyUploadToast = (presentations, toUploadCount, intl) => {
-  const toastId = Session.get("presentationUploaderToastId");
+// const renderToastList = (uploadPresentation, conversionPresentations, intl) => {
 
-  if (toastId) {
-    toast.update(toastId, {
-      render: renderToastList(presentations, toUploadCount, intl),
-    });
-  }
-}
+//   // Receber os dois presentations aqui
 
-const observePresentationsForToast = (meetingId, presentations, toUploadCount, intl) => new Promise((resolve, reject) => {
+//   let presentationsUploadSorted = uploadPresentation
+//     .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp);
 
-  Tracker.autorun((c) => {
-    const query = Presentations.find({ meetingId });
+//   let converted = 0;
+//   conversionPresentations
+//   .forEach((p) => {
+//     console.log("Teste--->", p)
+//     if (p.conversion.done) converted += 1;
+//   });
 
-    query.observe({
-      added: (doc) => {
-        console.log(presentations)
-        verifyUploadToast(presentations, toUploadCount, intl)
-      },
-      changed: (newDoc) => {
-        console.log(presentations)
-        verifyUploadToast(presentations, toUploadCount, intl)
-      },
-    });
-  });
-})
+//   let toastHeading = '';
+//   const itemLabelUpload = presentationsUploadSorted.length > 1
+//     ? intl.formatMessage(intlMessages.itemPlural)
+//     : intl.formatMessage(intlMessages.item);
 
-function handleDismissToast(toastId) {
-  return toast.dismiss(toastId);
-}
+//   if (converted === 0) {
+//     toastHeading = intl.formatMessage(intlMessages.uploading, {
+//       0: presentationsUploadSorted.length,
+//       1: itemLabelUpload,
+//     });
+//   }
 
-function renderToastList(presentations, toUploadCount, intl) {
+//   console.log("Teste dentro do renderToastList", presentationsUploadSorted)
 
-  if (toUploadCount === 0) {
-    const toastId = Session.get("presentationUploaderToastId")
-    return handleDismissToast(toastId);
-  }
+//   if (converted > 0 && converted !== presentationsUploadSorted.length) {
+//     toastHeading = intl.formatMessage(intlMessages.uploadStatus, {
+//       0: converted,
+//       1: presentationsSorted.length,
+//     });
+//   }
+
+//   if (converted === presentationsUploadSorted.length) {
+//     toastHeading = intl.formatMessage(intlMessages.completed, {
+//       0: converted,
+//     });
+//   }
+
+//   return (
+//     <Styled.ToastWrapper>
+//       <Styled.UploadToastHeader>
+//         <Styled.UploadIcon iconName="upload" />
+//         <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
+//       </Styled.UploadToastHeader>
+//       <Styled.InnerToast>
+//         <div>
+//           <div>
+//             {presentationsUploadSorted.map((item) => renderToastItem(item, intl))}
+//             {conversionPresentations.map((item) => renderToastItem(item, intl))}
+//           </div>
+//         </div>
+//       </Styled.InnerToast>
+//     </Styled.ToastWrapper>
+//   );
+// }
+
+const renderToastList = (presentations, intl) => {
 
   let converted = 0;
 
   let presentationsSorted = presentations
-    .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
     .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-    .sort((a, b) => a.conversion.done - b.conversion.done);
+    .sort((a, b) => {
+      const presADone = a.conversion ? a.conversion.done : false;
+      const presBDone = b.conversion ? b.conversion.done : false;
 
-  presentationsSorted = presentationsSorted
-    .splice(0, toUploadCount)
-    .map((p) => {
-      if (p.conversion.done) converted += 1;
+      return presADone - presBDone
+    });
+
+  presentationsSorted
+    .forEach((p) => {
+      const presDone = p.conversion ? p.conversion.done : false;
+      if (presDone) converted += 1;
       return p;
     });
 
@@ -512,23 +553,111 @@ function renderToastList(presentations, toUploadCount, intl) {
   );
 }
 
+
+function handleDismissToast(toastId) {
+  return toast.dismiss(toastId);
+}
+
+const mergePresentationsInList = (item, newState) => {
+  const indexInList = newState.findIndex(p => {
+    console.log("Teste grande aqui no findIndex", p.tmpPresId === item.tmpPresId);
+    return p.tmpPresId === item.tmpPresId
+  })
+  console.log("Teste do newState antes de atualizar ---> ", [...newState], item)
+  if (indexInList !== -1) {
+    newState = update(newState, {
+      [indexInList]: {
+        $apply: (p) => update(p, {
+          $merge: item
+        })
+      }
+    })
+  } else {
+    console.log("Teste antes do push---", JSON.stringify(item))
+    newState.push({...item});
+  }
+  console.log("Teste aqui: --->" + JSON.stringify(newState));
+  return newState;
+}
+let counter = 0;
+const mergeListOfPresentations = (uploadList, convertList, previousState) => {
+  // Não pode tirar nenhuma pres de dentro do state.
+  // Só vai tirar sob uma condição: se o seu done for true... (precisará fazer um Presentations.find({tmpPresId: value}))
+  let newState = [...previousState];
+  console.log('mergeListOfPresentations ---:', JSON.stringify(previousState))
+  uploadList.forEach((item) => {
+    console.log("Entrou no primeiro each ---", JSON.stringify(item));
+    newState = mergePresentationsInList(item, newState)
+  });
+  convertList.forEach((item) => {
+    console.log("Entrou no segundo each ---", JSON.stringify(item));
+    newState = mergePresentationsInList(item, newState)
+  });
+  console.log("Teste daqui depois dos dois foreach ==", JSON.stringify(newState));
+
+  console.log("Teste daqui depois do filter", JSON.stringify(newState));
+  return newState;
+}
+
+let presentationsToConvert = [];
+
+/////////////////////////////////////////////////////////////////////
+export const ToastController = ({ intl }) => {
+
+  console.log("Teste para saber o valor das pres", JSON.stringify(presentationsToConvert));
+
+  useEffect(() => Tracker.autorun((c) => {
+    const uploadingPresentations = UploadingPresentations.find().fetch();
+    const convertingPresentations = Presentations.find(
+      {"conversion.done": false, "conversion.error": false}
+    ).fetch();
+    const newListOfPres = mergeListOfPresentations(uploadingPresentations, convertingPresentations, presentationsToConvert);
+    presentationsToConvert = [...newListOfPres];
+
+    let activeToast = Session.get("presentationUploaderToastId");
+    const showToast = presentationsToConvert.length > 0;
+    if (showToast && !activeToast) {
+      activeToast = toast.info(() => renderToastList(presentationsToConvert, intl), {
+        hideProgressBar: true,
+        autoClose: false,
+        newestOnTop: true,
+        closeOnClick: true,
+        onClose: () => {
+          Session.set("presentationUploaderToastId", null);
+        },
+      });
+      Session.set("presentationUploaderToastId", activeToast);
+      console.log("teste Tem upload", uploadingPresentations);
+    } else if (!showToast && activeToast) {
+      console.log("teste dismiss toast")// toast.dismis()
+      // deletar pres com 100%
+      handleDismissToast(activeToast);
+      Session.set("presentationUploaderToastId", null);
+    } else {
+      console.log("teste update toast");
+      toast.update(activeToast, {
+        render: renderToastList(presentationsToConvert, intl),
+      });
+    }
+
+    UploadingPresentations.remove({progress: 100});
+
+    const conversionDoneListTempId = Presentations.find(
+      {"conversion.done": true}
+    ).fetch().map(p => p.tmpPresId);
+    console.log("tempID dos done aqui: --- ", conversionDoneListTempId, counter)
+    
+    presentationsToConvert = presentationsToConvert.filter(p => {
+      console.log("Teste dentro do filter --->>>>:::", p.tmpPresId, [...conversionDoneListTempId], counter)
+      return !(conversionDoneListTempId.includes(p.tmpPresId))});
+    counter += 1;
+  }), [])
+  return null;
+}
+
 const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId, toUploadCount, intl) => {
   const presentationsToUpload = newState.filter((p) => !p.upload.done);
 
-  if (presentationsToUpload.length > 0) {
-    console.log("Vou criar toast")
-    const toastId = toast.info(renderToastList(newState, toUploadCount, intl ), {
-      hideProgressBar: true,
-      autoClose: false,
-      newestOnTop: true,
-      closeOnClick: true,
-      onClose: () => {
-        Session.set("presentationUploaderToastId", null)
-      },
-    });
-    Session.set('presentationUploaderToastId', toastId)
-    observePresentationsForToast(Auth.meetingID, presentationsToUpload, toUploadCount, intl)
-  }
   const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
 
   let currentPresentation = newState.find((p) => p.isCurrent);

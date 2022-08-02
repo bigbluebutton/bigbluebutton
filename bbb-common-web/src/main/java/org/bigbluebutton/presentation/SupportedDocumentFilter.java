@@ -62,7 +62,7 @@ public class SupportedDocumentFilter {
       OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
-        pres.isDownloadable(), pres.isRemovable(),  msgKey);
+        pres.isDownloadable(), pres.isRemovable(),  msgKey, pres.getTemporaryPresentationId());
 
       gw.sendDocConversionMsg(progress);
 

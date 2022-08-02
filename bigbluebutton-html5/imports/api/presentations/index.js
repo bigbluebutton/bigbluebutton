@@ -4,6 +4,7 @@ const collectionOptions = Meteor.isClient ? {
   connection: null,
 } : {};
 
+export const UploadingPresentations = Meteor.isClient ? new Mongo.Collection("uploadingPresentations", collectionOptions) : null;
 const Presentations = new Mongo.Collection('presentations', collectionOptions);
 
 if (Meteor.isServer) {

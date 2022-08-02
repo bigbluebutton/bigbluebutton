@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { ToastController } from './service';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -1051,40 +1052,43 @@ class PresentationUploader extends Component {
       if (item.id.indexOf(item.filename) !== -1 && item.upload.progress === 0) hasNewUpload = true;
     });
 
-    return isOpen ? (
-      <Styled.UploaderModal id="upload-modal">
-        <Styled.ModalInner>
-          <Styled.ModalHeader>
-            <h1>{intl.formatMessage(intlMessages.title)}</h1>
-            <Styled.ActionWrapper>
-              <Styled.DismissButton
-                color="secondary"
-                onClick={this.handleDismiss}
-                label={intl.formatMessage(intlMessages.dismissLabel)}
-                aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}
-              />
-              <Styled.ConfirmButton
-                data-test="confirmManagePresentation"
-                color="primary"
-                onClick={() => this.handleConfirm(hasNewUpload)}
-                disabled={disableActions}
-                label={hasNewUpload
-                  ? intl.formatMessage(intlMessages.uploadLabel)
-                  : intl.formatMessage(intlMessages.confirmLabel)}
-              />
-            </Styled.ActionWrapper>
-          </Styled.ModalHeader>
+    return (<>
+      <ToastController intl = {intl} />
+      {isOpen ? (
+        <Styled.UploaderModal id="upload-modal">
+          <Styled.ModalInner>
+            <Styled.ModalHeader>
+              <h1>{intl.formatMessage(intlMessages.title)}</h1>
+              <Styled.ActionWrapper>
+                <Styled.DismissButton
+                  color="secondary"
+                  onClick={this.handleDismiss}
+                  label={intl.formatMessage(intlMessages.dismissLabel)}
+                  aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}
+                />
+                <Styled.ConfirmButton
+                  data-test="confirmManagePresentation"
+                  color="primary"
+                  onClick={() => this.handleConfirm(hasNewUpload)}
+                  disabled={disableActions}
+                  label={hasNewUpload
+                    ? intl.formatMessage(intlMessages.uploadLabel)
+                    : intl.formatMessage(intlMessages.confirmLabel)}
+                />
+              </Styled.ActionWrapper>
+            </Styled.ModalHeader>
 
-          <Styled.ModalHint>
-            {`${intl.formatMessage(intlMessages.message)}`}
-            {fileUploadConstraintsHint ? this.renderExtraHint() : null}
-          </Styled.ModalHint>
-          {this.renderPresentationList()}
-          {isMobile ? this.renderPicDropzone() : null}
-          {this.renderDropzone()}
-        </Styled.ModalInner>
-      </Styled.UploaderModal>
-    ) : null;
+            <Styled.ModalHint>
+              {`${intl.formatMessage(intlMessages.message)}`}
+              {fileUploadConstraintsHint ? this.renderExtraHint() : null}
+            </Styled.ModalHint>
+            {this.renderPresentationList()}
+            {isMobile ? this.renderPicDropzone() : null}
+            {this.renderDropzone()}
+          </Styled.ModalInner>
+        </Styled.UploaderModal>
+      ) : null
+    }</>)
   }
 }
 
