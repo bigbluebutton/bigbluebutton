@@ -89,7 +89,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getPresentation(presId)).headOption
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("presentationWithAnnotationDownload")) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationWithAnnotations")) {
       val reason = "Annotated presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
@@ -129,8 +129,8 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("exportPresentationWithAnnotation")) {
-      val reason = "Annotated presentation export disabled for this meeting."
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
+      val reason = "Importing slides from breakout rooms disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to export presentation."

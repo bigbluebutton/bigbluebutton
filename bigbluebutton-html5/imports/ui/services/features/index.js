@@ -56,10 +56,10 @@ export function isCustomVirtualBackgroundsEnabled() {
   return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
 }
 
-export function isPresentationWithAnnotationDownloadEnabled() {
-  return getDisabledFeatures().indexOf('presentationWithAnnotationDownload') === -1;
+export function isDownloadPresentationWithAnnotationsEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadable;
 }
 
-export function isExportPresentationWithAnnotationEnabled() {
-  return getDisabledFeatures().indexOf('exportPresentationWithAnnotation') === -1;
+export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
 }
