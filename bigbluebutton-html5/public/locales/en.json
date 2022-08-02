@@ -760,7 +760,9 @@
     "app.shortcut-help.arrow": "Arrow",
     "app.shortcut-help.text": "Text Tool",
     "app.shortcut-help.note": "Sticky Note",
-
+    "app.shortcut-help.general": "General",
+    "app.shortcut-help.presentation": "Presentation",
+    "app.shortcut-help.whiteboard": "Whiteboard",
     "app.lock-viewers.title": "Lock viewers",
     "app.lock-viewers.description": "These options enable you to restrict viewers from using specific features.",
     "app.lock-viewers.featuresLable": "Feature",
