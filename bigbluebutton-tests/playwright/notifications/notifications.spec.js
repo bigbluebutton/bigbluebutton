@@ -2,6 +2,7 @@ const { test } = require('@playwright/test');
 const { Notifications } = require('./notifications');
 const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
+const { RecordingNotifications } = require('./recordingNotifications');
 
 test.describe.parallel('Notifications', () => {
   test('Save settings notification @ci', async ({ browser, context, page }) => {
@@ -39,6 +40,29 @@ test.describe.parallel('Notifications', () => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.privateChatNotification();
+    });
+  });
+
+  test.describe.parallel('Recording', () => {
+    test('Notification appearing when user is not in audio', async ({ browser, page }) => {
+      const recordingNotifications = new RecordingNotifications(browser, page);
+      await recordingNotifications.init(true, true, { customParameter: 'record=true' });
+      await recordingNotifications.notificationNoAudio();
+    });
+    test('Notification appearing when user is in listen only', async ({ browser, page }) => {
+      const recordingNotifications = new RecordingNotifications(browser, page);
+      await recordingNotifications.init(true, true, { customParameter: 'record=true' });
+      await recordingNotifications.notificationListenOnly();
+    });
+    test('No notification appearing when user is in audio', async ({ browser, page }) => {
+      const recordingNotifications = new RecordingNotifications(browser, page);
+      await recordingNotifications.init(true, false, { customParameter: 'record=true' });
+      await recordingNotifications.noNotificationInAudio();
+    });
+    test('Modal appearing when user wants to start recording', async ({ browser, page }) => {
+      const recordingNotifications = new RecordingNotifications(browser, page);
+      await recordingNotifications.init(true, true, { customParameter: 'record=true' });
+      await recordingNotifications.modalStartRecording();
     });
   });
 

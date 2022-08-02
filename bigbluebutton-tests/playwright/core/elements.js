@@ -114,6 +114,8 @@ exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
 exports.userJoinPushAlerts = 'input[data-test="userJoinPopupAlerts"]';
 exports.toastContainer = 'div[data-test="toastContainer"]';
 exports.presentationStatusInfo = 'span[data-test="presentationStatusInfo"]';
+exports.noButton = 'button[aria-label="No"]';
+exports.yesButton = 'button[aria-label="Yes"]';
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
@@ -126,6 +128,7 @@ exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
+exports.noActiveMicrophoneToast = 'No active microphone. Share your microphone to add audio to this recording.';
 // Icons
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
