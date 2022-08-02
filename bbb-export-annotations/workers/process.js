@@ -120,12 +120,26 @@ function to_px(pt) {
     return (pt / config.process.pointsPerInch) * config.process.pixelsPerInch
 }
 
+// Escape shell metacharacters based on MDN's page on regular expressions, 
+// the escape-string-regexp npm package, and Pango markup.
+function escapeText(string) {
+    return  string
+            .replace(/&/g, '\\&amp;')
+            .replace(/'/g, '\\&#39;')
+            .replace(/>/g, '\\&gt;')
+            .replace(/</g, '\\&lt;')
+            .replace(/[~`!".*+?%^${}()|[\]\\\/]/g, '\\$&')
+            .replace(/-/g, '\\&#x2D;');
+}
+
 function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth = null) {
     
-    fontSize = to_pt(fontSize);
+    fontSize = to_pt(fontSize) * config.process.textScaleFactor
+    text = escapeText(text);
 
     // Sticky notes need automatic line wrapping: take width into account
-    let size = textBoxWidth ? `-size ${textBoxWidth}x` : ''
+    // Texbox scaled by a constant factor to improve resolution at small scales
+    let size = textBoxWidth ? `-size ${textBoxWidth * config.process.textScaleFactor}x` : ''
 
     let pangoText = `pango:"<span font_family='${font}' font='${fontSize}' color='${textColor}'>${text}</span>"`
 
@@ -560,8 +574,8 @@ function overlay_shape_label(svg, annotation) {
     render_textbox(fontColor, font, fontSize, textAlign, text, id);
 
     let dimensions = probe.sync(fs.readFileSync(path.join(dropbox, `text${id}.png`)));
-    let labelWidth = dimensions.width;
-    let labelHeight = dimensions.height;
+    let labelWidth = dimensions.width / config.process.textScaleFactor;
+    let labelHeight = dimensions.height / config.process.textScaleFactor;
     
     svg.ele('g', {
         transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`
@@ -744,7 +758,8 @@ let ghostScriptInput = ""
 for (let currentSlide of pages) {
 
     let backgroundImagePath = path.join(dropbox, `slide${currentSlide.page}`);
-    let svgFileExists = fs.existsSync(`${backgroundImagePath}.svg`)
+    let svgBackgroundSlide = path.join(exportJob.presLocation, 'svgs',  `slide${currentSlide.page}.svg`);
+    let svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
     let backgroundFormat = fs.existsSync(`${backgroundImagePath}.png`) ? 'png' : 'jpeg'
 
     // Output dimensions in pixels even if stated otherwise (pt)
@@ -752,8 +767,8 @@ for (let currentSlide of pages) {
     // that would prevent loading file in memory
     // Ideally, use dimensions provided by tldraw's background image asset
     // (this is not yet always provided)
-    let dimensions = svgFileExists ? 
-        probe.sync(fs.readFileSync(`${backgroundImagePath}.svg`)) :
+    let dimensions = svgBackgroundExists ? 
+        probe.sync(fs.readFileSync(svgBackgroundSlide)) :
         probe.sync(fs.readFileSync(`${backgroundImagePath}.${backgroundFormat}`));
 
     let slideWidth = parseInt(dimensions.width, 10);
@@ -794,14 +809,12 @@ for (let currentSlide of pages) {
         if (err) { return logger.error(err); }
     });
 
-    // Dimensions converted back to a pixel size which,
+    // Dimensions converted to a pixel size which,
     // when converted to points, will yield the desired
     // dimension in pixels when read without conversion
 
-    // e.g. say Tldraw's canvas is 1920x1080 px.
-    // The background SVG dimensions are set to 1920x1080 pt (incorrect unit).
-    // So we read it in ignoring the unit as 1920x1080 px, making the position of the drawings match.
-    // Now we assume we had 1920x1080pt and resize to 2560x1440 px so that the SVG generates with the original "wrong" size.
+    // e.g. say the background SVG dimensions are set to 1920x1080 pt
+    // Resize output to 2560x1440 px so that the SVG generates with the original size in pt.
 
     let convertAnnotatedSlide = [
         'cairosvg',

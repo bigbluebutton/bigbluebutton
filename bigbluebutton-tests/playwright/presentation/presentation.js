@@ -2,11 +2,10 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkSvgIndex, getSvgOuterHtml, uploadPresentation } = require('./util.js');
+const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class Presentation extends MultiUsers {
   constructor(browser, context) {
@@ -15,19 +14,18 @@ class Presentation extends MultiUsers {
 
   async skipSlide() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitForSelector(e.presentationToolbarWrapper);
 
     await checkSvgIndex(this.modPage, '/svg/1');
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.page.waitForTimeout(1000);
+    await sleep(1000);
 
     await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.page.waitForTimeout(1000);
+    await sleep(1000);
 
     await checkSvgIndex(this.modPage, '/svg/1');
   }
@@ -62,15 +60,31 @@ class Presentation extends MultiUsers {
     await userFrame.hasElement('video');
   }
 
-  async uploadPresentationTest() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
+  async uploadSinglePresentationTest() {
+    await this.modPage.waitForSelector(e.skipSlide);
+
+    const modSlides0 = await getSlideOuterHtml(this.modPage);
+    const userSlides0 = await getSlideOuterHtml(this.userPage);
+    await expect(modSlides0).toEqual(userSlides0);
+
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+
+    const modSlides1 = await getSlideOuterHtml(this.modPage);
+    const userSlides1 = await getSlideOuterHtml(this.userPage);
+    await expect(modSlides1).toEqual(userSlides1);
+
+    await expect(modSlides0).not.toEqual(modSlides1);
+    await expect(userSlides0).not.toEqual(userSlides1);
+  }
+
+  async uploadMultiplePresentationsTest() {
     await this.modPage.waitForSelector(e.skipSlide);
 
     const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);
     const userSlides0 = await this.userPage.page.evaluate(getSvgOuterHtml);
     await expect(modSlides0).toEqual(userSlides0);
 
-    await uploadPresentation(this.modPage, e.uploadPresentationFileName);
+    await uploadMultiplePresentations(this.modPage, [e.uploadPresentationFileName, e.questionSlideFileName]);
 
     const modSlides1 = await this.userPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
     const userSlides1 = await this.modPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
@@ -78,6 +92,17 @@ class Presentation extends MultiUsers {
 
     await expect(modSlides0).not.toEqual(modSlides1);
     await expect(userSlides0).not.toEqual(userSlides1);
+  }
+
+  async fitToWidthTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    const width1 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
+    await this.modPage.waitAndClick(e.fitToWidthButton);
+    const width2 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
+    await expect(Number(width2) > Number(width1)).toBeTruthy();
   }
 
   async allowAndDisallowDownload(testInfo) {
@@ -113,10 +138,10 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.removePresentation);
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
-    await this.modPage.waitForSelector(e.presentationPlaceholder);
-    await this.modPage.hasText(e.presentationPlaceholder, e.presentationPlaceholderLabel);
-    await this.userPage.waitForSelector(e.presentationPlaceholder);
-    await this.userPage.hasText(e.presentationPlaceholder, e.presentationPlaceholderLabel);
+    await this.modPage.wasRemoved(e.whiteboard);
+    await this.modPage.hasElementDisabled(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.whiteboard);
+    await this.userPage.hasElementDisabled(e.minimizePresentation);
   }
 
   async getFrame(page, frameSelector) {

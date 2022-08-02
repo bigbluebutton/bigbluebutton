@@ -20,14 +20,29 @@ test.describe.parallel('Presentation', () => {
     await presentation.startExternalVideo();
   });
 
+  test('Presentation fit to width', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.fitToWidthTest();
+  });
+
   test.describe.parallel('Manage', () => {
-    test('Upload presentation @ci', async ({ browser, context, page }) => {
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-a-presentation-automated
+    test('Upload single presentation @ci', async ({ browser, context, page }) => {
+      test.fixme(true, 'Different behaviors in the development and production environment');
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page);
-      await presentation.uploadPresentationTest();
+      await presentation.initPages(page, true);
+      await presentation.uploadSinglePresentationTest();
     });
 
-    test('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {
+    // https://docs.bigbluebutton.org/2.5/release-tests.html#uploading-multiple-presentations-automated
+    test('Upload multiple presentations', async ({ browser, context, page }) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, true);
+      await presentation.uploadMultiplePresentationsTest();
+    });
+
+    test.skip('Allow and disallow presentation download @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.allowAndDisallowDownload(testInfo);

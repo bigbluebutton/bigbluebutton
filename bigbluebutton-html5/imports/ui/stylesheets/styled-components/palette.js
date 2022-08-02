@@ -17,6 +17,7 @@ const colorTransparent = 'var(--color-transparent, #ff000000)';
 
 const colorPrimary = 'var(--color-primary, #0F70D7)';
 const colorDanger = 'var(--color-danger, #DF2721)';
+const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
 const colorWarning = 'var(--color-warning, purple)';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
@@ -134,6 +135,7 @@ export {
   colorBlueLightest,
   colorPrimary,
   colorDanger,
+  colorDangerDark,
   colorSuccess,
   colorWarning,
   colorBackground,

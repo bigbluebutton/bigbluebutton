@@ -23,7 +23,7 @@ const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, isRTL
+    makeDragOperations, dragging, draggingOver, isRTL
   } = props;
 
   const [videoIsReady, setVideoIsReady] = useState(false);
@@ -204,7 +204,11 @@ const VideoListItem = (props) => {
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
-      {...makeDragOperations(onVirtualBgDrop, user?.userId)}
+      {...{
+        ...makeDragOperations(onVirtualBgDrop, user?.userId),
+        dragging,
+        draggingOver,
+      }}
     >
       <Styled.VideoContainer>
         <Styled.Video

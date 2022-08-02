@@ -375,6 +375,10 @@ class ReceivedJsonMsgHandlerActor(
       case GetScreenSubscribePermissionReqMsg.NAME =>
         routeGenericMsg[GetScreenSubscribePermissionReqMsg](envelope, jsonNode)
 
+      // AudioCaptions
+      case UpdateTranscriptPubMsg.NAME =>
+        routeGenericMsg[UpdateTranscriptPubMsg](envelope, jsonNode)
+
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatsReqMsg](envelope, jsonNode)

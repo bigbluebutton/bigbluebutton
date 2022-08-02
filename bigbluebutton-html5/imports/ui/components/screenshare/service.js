@@ -114,6 +114,14 @@ const getMediaElement = () => {
   return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
 }
 
+const getMediaElementDimensions = () => {
+  const element = getMediaElement();
+  return {
+    width: element?.videoWidth ?? 0,
+    height: element?.videoHeight ?? 0,
+  };
+};
+
 const setVolume = (volume) => {
   KurentoBridge.setVolume(volume);
 };
@@ -255,6 +263,7 @@ export {
   isSharingScreen,
   setSharingScreen,
   getMediaElement,
+  getMediaElementDimensions,
   attachLocalPreviewStream,
   isGloballyBroadcasting,
   getStats,

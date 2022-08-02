@@ -47,6 +47,7 @@ const SidebarContent = (props) => {
     resizableEdge,
     contextDispatch,
     sidebarContentPanel,
+    amIPresenter,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -141,7 +142,7 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
       <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
-        <PollContainer smallSidebar={smallSidebar} />
+        <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
       </Styled.Poll>
     </Resizable>
   );

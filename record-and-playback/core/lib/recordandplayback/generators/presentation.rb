@@ -51,7 +51,7 @@ module BigBlueButton
       temp_out = "#{File.dirname(png_out)}/temp-#{File.basename(png_out, '.png')}"
       status = BigBlueButton.execute(
         [
-          'pdftocairo', '-png', '-f', page_num.to_s, '-l', page_num.to_s, '-scale-to', scale.to_s, '-singlefile',
+          'pdftocairo', '-png', '-f', page_num.to_s, '-l', page_num.to_s, '-scale-to', scale.to_s, '-singlefile', '-cropbox',
           pdf_presentation, temp_out,
         ],
         false

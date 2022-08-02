@@ -184,6 +184,10 @@ const intlMessages = defineMessages({
     id: 'app.video.virtualBackground.genericError',
     description: 'Failed to apply camera effect',
   },
+  inactiveError: {
+    id: 'app.video.inactiveError',
+    description: 'Camera stopped unexpectedly',
+  },
 });
 
 class VideoPreview extends Component {
@@ -201,6 +205,7 @@ class VideoPreview extends Component {
     this.handleSelectWebcam = this.handleSelectWebcam.bind(this);
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
     this.handleVirtualBgSelected = this.handleVirtualBgSelected.bind(this);
+    this.handleLocalStreamInactive = this.handleLocalStreamInactive.bind(this);
 
     this._isMounted = false;
 
@@ -216,6 +221,14 @@ class VideoPreview extends Component {
   }
 
   set currentVideoStream (bbbVideoStream) {
+    // Stream is being unset - remove gUM revocation handler to avoid false negatives
+    if (this._currentVideoStream) {
+      this._currentVideoStream.removeListener('inactive', this.handleLocalStreamInactive);
+    }
+    // Set up inactivation handler for the new stream (to, eg, detect gUM revocation)
+    if (bbbVideoStream) {
+      bbbVideoStream.once('inactive', this.handleLocalStreamInactive);
+    }
     this._currentVideoStream = bbbVideoStream;
   }
 
@@ -305,7 +318,7 @@ class VideoPreview extends Component {
 
   componentWillUnmount() {
     const { webcamDeviceId } = this.state;
-    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
+    this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
   }
@@ -316,6 +329,17 @@ class VideoPreview extends Component {
     this.getInitialCameraStream(webcamValue).then(() => {
       this.displayPreview();
     });
+  }
+
+  handleLocalStreamInactive() {
+    this.setState({
+      isStartSharingDisabled: true,
+    });
+    this.handlePreviewError(
+      'stream_inactive',
+      new Error('inactiveError'),
+      '- preview camera stream inactive',
+    );
   }
 
   // Resolves into true if the background switch is successful, false otherwise
@@ -400,7 +424,7 @@ class VideoPreview extends Component {
     const { resolve, closeModal } = this.props;
     const { webcamDeviceId } = this.state;
 
-    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
+    this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     closeModal();
     if (resolve) resolve();
   }
@@ -449,6 +473,14 @@ class VideoPreview extends Component {
 
     return intl.formatMessage(intlMessages.genericError,
       { 0: `${error.name}: ${error.message}` });
+  }
+
+  terminateCameraStream(stream, deviceId) {
+    if (stream) {
+      // Stream is being destroyed - remove gUM revocation handler to avoid false negatives
+      stream.removeListener('inactive', this.handleLocalStreamInactive);
+      PreviewService.terminateCameraStream(this.currentVideoStream, deviceId);
+    }
   }
 
   cleanupStreamAndVideo() {
@@ -503,13 +535,13 @@ class VideoPreview extends Component {
     });
 
     PreviewService.changeProfile(profile.id);
-    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
+    this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
     // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
     return PreviewService.doGUM(deviceId, profile).then((bbbVideoStream) => {
       // Late GUM resolve, clean up tracks, stop.
-      if (!this._isMounted) return PreviewService.terminateCameraStream(bbbVideoStream, deviceId);
+      if (!this._isMounted) return this.terminateCameraStream(bbbVideoStream, deviceId);
 
       this.currentVideoStream = bbbVideoStream;
       this.setState({
