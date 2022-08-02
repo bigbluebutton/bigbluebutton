@@ -33,10 +33,15 @@ exports.establishingAudioLabel = 'span[data-test="establishingAudioLabel"]';
 exports.leaveListenOnly = 'button[data-test="leaveListenOnly"]';
 exports.leaveAudio = 'li[data-test="leaveAudio"]';
 exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';
+exports.defaultInputAudioDevice = 'li[data-test="audioinput-1"]';
+exports.secondInputAudioDevice = 'li[data-test="audioinput-2"]';
 exports.microphoneButton = 'button[data-test="microphoneBtn"]';
 exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
+exports.hasVolumeEchoTest = 'span[data-test="hasVolume"]';
+exports.hasNoVolumeEchoTest = 'span[data-test="hasNoVolume"]';
 exports.isTalking = 'button[data-test="isTalking"]';
+exports.wasTalking = 'button[data-test="wasTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
 exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
 exports.muteMicButton = 'button[data-test="muteMicButton"]';
@@ -125,6 +130,7 @@ exports.loweringHandToast = 'Your hand has been lowered';
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
 exports.listenOnlyIcon = `${baseBbbIcon}listen`;
+exports.checkedIcon = `${baseBbbIcon}check`;
 
 // Polling
 exports.pollQuestion = 'Are we good ?';
