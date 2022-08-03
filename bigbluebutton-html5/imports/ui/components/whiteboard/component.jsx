@@ -205,6 +205,8 @@ export default function Whiteboard(props) {
     }
   }, [curPageId, slidePosition]);
 
+  const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
+
   React.useEffect(() => {
     if (hasWBAccess || isPresenter) {
       const tdTools = document.getElementById("TD-Tools"); 
@@ -237,8 +239,6 @@ export default function Whiteboard(props) {
       }
     }
   });
-
-  const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
   const onMount = (app) => {
     setTLDrawAPI(app);
@@ -329,7 +329,6 @@ export default function Whiteboard(props) {
       showZoom={false}
       showUI={curPres ? (isPresenter || hasWBAccess) : true}
       showMenu={curPres ? false : true}
-    
       showMultiplayerMenu={false}
       readOnly={false}
       onPatch={onPatch}
