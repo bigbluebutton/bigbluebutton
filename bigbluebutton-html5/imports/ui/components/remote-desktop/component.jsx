@@ -10,6 +10,7 @@ import VncDisplay from 'react-vnc-display';
 import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
 import MediaService from '../media/service';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 import { styles } from './styles';
 
@@ -89,14 +90,49 @@ class RemoteDesktop extends Component {
     }
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    const {
+      getSwapLayout,
+      toggleSwapLayout,
+      layoutContextDispatch,
+      hidePresentation,
+    } = this.props;
+
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
 
     document.addEventListener('cut', this.transferClipboardText);
     document.addEventListener('copy', this.transferClipboardText);
+
+    /* XXX this is what external video does, don't know why (bwb) */
+    /* if (getSwapLayout()) toggleSwapLayout(layoutContextDispatch); */
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_REMOTE_DESKTOP,
+      value: true,
+    });
   }
 
   componentWillUnmount() {
+    const { hidePresentation, layoutContextDispatch } = this.props;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_HAS_REMOTE_DESKTOP,
+      value: false,
+    });
+
+    if (hidePresentation) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: false,
+      });
+    }
     document.removeEventListener('copy', this.transferClipboardText);
     document.removeEventListener('cut', this.transferClipboardText);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);

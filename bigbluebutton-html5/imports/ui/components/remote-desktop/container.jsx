@@ -4,6 +4,7 @@ import { Session } from 'meteor/session';
 import { getRemoteDesktopUrl, getRemoteDesktopPassword, getRemoteDesktopCanOperate } from './service';
 import LayoutContext from '../layout/context';
 import RemoteDesktop from './component';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const RemoteDesktopContainer = props => {
   const layoutContext = useContext(LayoutContext);
@@ -16,9 +17,11 @@ const RemoteDesktopContainer = props => {
   const fullscreenElementId = 'RemoteDesktop';
   const fullscreenContext = (element === fullscreenElementId);
   return (
-    <RemoteDesktop {...{ ...props, presentationBounds: presentation, fullscreenContext, }} />
+    <RemoteDesktop {...{ ...props, layoutContextDispatch, presentationBounds: presentation, fullscreenContext, }} />
   );
 };
+
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 export default withTracker(({ isPresenter }) => {
   const inEchoTest = Session.get('inEchoTest');
@@ -28,5 +31,6 @@ export default withTracker(({ isPresenter }) => {
     remoteDesktopUrl: getRemoteDesktopUrl(),
     remoteDesktopPassword: getRemoteDesktopPassword(),
     remoteDesktopCanOperate: getRemoteDesktopCanOperate(),
+    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };
 })(RemoteDesktopContainer);

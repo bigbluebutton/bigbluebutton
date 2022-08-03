@@ -1126,6 +1126,23 @@ const reducer = (state, action) => {
         },
       };
     }
+    // REMOTE DESKTOP
+    case ACTIONS.SET_HAS_REMOTE_DESKTOP: {
+      const { remoteDesktop } = state.input;
+      if (remoteDesktop.hasRemoteDesktop === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          remoteDesktop: {
+            ...remoteDesktop,
+            hasRemoteDesktop: action.value,
+          },
+        },
+      };
+    }
     default: {
       throw new Error('Unexpected action');
     }

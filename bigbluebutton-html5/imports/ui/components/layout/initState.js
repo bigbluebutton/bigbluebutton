@@ -94,6 +94,9 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
   },
+  remoteDesktop: {
+    hasRemoteDesktop: false,
+  },
 };
 
 export const INITIAL_OUTPUT_STATE = {
