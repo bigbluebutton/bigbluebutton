@@ -80,7 +80,6 @@ class RemoteDesktop extends Component {
   }
 
   async componentDidMount() {
-    window.addEventListener('layoutSizesSets', this.handleResize);
     this.playerParent.addEventListener('fullscreenchange', this.onFullscreenChange);
 
     document.addEventListener('cut', this.transferClipboardText);
@@ -90,7 +89,6 @@ class RemoteDesktop extends Component {
   componentWillUnmount() {
     document.removeEventListener('copy', this.transferClipboardText);
     document.removeEventListener('cut', this.transferClipboardText);
-    window.removeEventListener('layoutSizesSets', this.handleResize);
     this.playerParent.removeEventListener('fullscreenchange', this.onFullscreenChange);
     this.unmounting = true;
     delete window.remoteDesktop;
