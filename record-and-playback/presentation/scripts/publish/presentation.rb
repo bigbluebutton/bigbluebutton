@@ -39,7 +39,7 @@ filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
   presOverrideProps = YAML::load(File.open(filepathPresOverride))
-  $presentation_props = $presentation_props.merge(presOverrideProps)
+  @presentation_props = @presentation_props.merge(presOverrideProps)
 end
 
 # There's a couple of places where stuff is mysteriously divided or multiplied

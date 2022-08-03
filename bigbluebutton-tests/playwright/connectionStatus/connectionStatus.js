@@ -3,7 +3,6 @@ const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { openConnectionStatus, checkNetworkStatus } = require('./util');
-const { sleep } = require('../core/helpers');
 
 class ConnectionStatus extends MultiUsers {
   constructor(browser, context) {
