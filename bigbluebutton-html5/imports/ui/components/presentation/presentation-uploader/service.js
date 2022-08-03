@@ -136,6 +136,7 @@ const getPresentations = () => Presentations
       removable,
       id,
       name,
+      exportation,
     } = presentation;
 
     const uploadTimestamp = id.split('-').pop();
@@ -149,6 +150,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
+      exportation: exportation || { isRunning: false, error: false },
     };
   });
 
@@ -329,7 +331,8 @@ const removePresentations = (
 ) => Promise.all(presentationsToRemove.map((p) => removePresentation(p.id, podId)));
 
 function renderPresentationItemStatus(item, intl) {
-  if (("progress" in item) && item.progress === 0) {
+  console.log('renderPresentationItemStatus para saber na lista', item);
+  if ((("progress" in item) && item.progress === 0) || (!("progress" in item) && ("conversion"  in item && !item.conversion.done))) {
     return intl.formatMessage(intlMessages.fileToUpload);
   }
 
@@ -375,15 +378,20 @@ function renderPresentationItemStatus(item, intl) {
   }
 
   if ((("conversion" in item) && (!item.conversion.done && !item.conversion.error)) || (("progress" in item) && item.progress == 100)) {
-    if (item.conversion.pagesCompleted < item.conversion.numPages) {
-      return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-        0: item.conversion.pagesCompleted,
-        1: item.conversion.numPages,
-      });
-    }
+    let conversionStatusMessage
+    if ("conversion" in item) {
+        if (item.conversion.pagesCompleted < item.conversion.numPages) {
+        return intl.formatMessage(intlMessages.conversionProcessingSlides, {
+          0: item.conversion.pagesCompleted,
+          1: item.conversion.numPages,
+        });
+      }
 
-    const conversionStatusMessage = intlMessages[item.conversion.status]
-      || intlMessages.genericConversionStatus;
+      conversionStatusMessage = intlMessages[item.conversion.status]
+        || intlMessages.genericConversionStatus;
+    } else {
+      conversionStatusMessage = intlMessages.genericConversionStatus;
+    }
     return intl.formatMessage(conversionStatusMessage);
   }
 
@@ -646,7 +654,7 @@ export const ToastController = ({ intl }) => {
       {"conversion.done": true}
     ).fetch().map(p => p.tmpPresId);
     console.log("tempID dos done aqui: --- ", conversionDoneListTempId, counter)
-    
+
     presentationsToConvert = presentationsToConvert.filter(p => {
       console.log("Teste dentro do filter --->>>>:::", p.tmpPresId, [...conversionDoneListTempId], counter)
       return !(conversionDoneListTempId.includes(p.tmpPresId))});
@@ -691,9 +699,41 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId, t
         return Promise.resolve();
       }
 
+      console.log("Quase terminando o flow aqui pra saber o que acntece com o current", currentPresentation);
       return setPresentation(currentPresentation.id, podId);
     })
     .then(removePresentations.bind(null, presentationsToRemove, podId));
+};
+
+const exportPresentationToChat = (presentationId, observer) => {
+  let lastStatus = {};
+
+  Tracker.autorun((c) => {
+    const cursor = Presentations.find({ id: presentationId });
+
+    const checkStatus = (exportation) => {
+      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+
+      if (shouldStop) {
+        observer(exportation, true);
+        return c.stop();
+      }
+
+      observer(exportation, false);
+      lastStatus = exportation;
+    };
+
+    cursor.observe({
+      added: (doc) => {
+        checkStatus(doc.exportation);
+      },
+      changed: (doc) => {
+        checkStatus(doc.exportation);
+      },
+    });
+  });
+
+  makeCall('exportPresentationToChat', presentationId);
 };
 
 export default {
@@ -702,6 +742,7 @@ export default {
   dispatchTogglePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
+  exportPresentationToChat,
   renderToastList,
   handleDismissToast,
   renderPresentationItemStatus,

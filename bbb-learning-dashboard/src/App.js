@@ -313,7 +313,7 @@ class App extends React.Component {
 
     return (
       <div className="mx-10">
-        <div className="flex items-start justify-between pb-3">
+        <div className="flex flex-col sm:flex-row items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
             {

@@ -26,6 +26,7 @@ import {
   headingsFontWeight,
   fontSizeLarge,
   modalTitleFw,
+  fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayLight,
@@ -39,6 +40,8 @@ import {
   colorSuccess,
   colorGrayLightest,
   colorText,
+  colorBlueLight,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -296,10 +299,17 @@ const ItemAction = styled.div`
       padding: unset !important;
     }
   }
-`; 
+`;
 
 const RemoveButton = styled(Button)`
-  margin-left: ${smPaddingX};
+  [dir="ltr"] & {
+    margin-left: ${smPaddingX};
+  }
+
+  [dir="rtl"] & {
+    margin-right: ${smPaddingX};
+  }
+
   div > i {
     margin-top: .25rem;
   }
@@ -430,7 +440,7 @@ const ConfirmButton = styled(Button)`
 `;
 
 const ModalHint = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   color: ${colorText};
   font-weight: normal;
 `;
@@ -459,7 +469,7 @@ const ToastItemIcon = styled(Icon)`
     color: ${colorGrayLightest};
     border: 1px solid;
     border-radius: 50%;
-    border-right-color: ${colorGray};
+    border-right-color: ${({ color }) => color || colorGray};
     animation: ${rotate} 1s linear infinite;
   `}
 `;
@@ -524,37 +534,39 @@ const TableItemActions = styled.td`
 `;
 
 const DownloadButton = styled(Button)`
-  margin-left: ${smPaddingX};
-  div > i {
-    margin-top: .25rem;
-  }
-
-  &,
-  & > i {
-    display: inline-block;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    font-size: 1.35rem;
-    color: ${colorGrayLight};
-    padding: 0;
-
-    ${({ animations }) => animations && `
-      transition: all .25s;
-    `}
-
-    :hover, :focus {
-      padding: unset !important;
-    }
-  }
-
+  background: transparent;
   background-color: transparent;
-  border: 0 !important;
+  border: 2px solid ${colorBlueLight} !important;
+  border-radius: 4px;
+  color: ${colorBlueLight};
+  cursor: pointer;
+  display: inline-block;
 
-  & > i:focus,
-  & > i:hover {
-    color: ${colorDanger} !important;
+  &:hover {
+    background-color: ${colorOffWhite} !important;
+    color: ${colorBlueLight} !important;
+    filter: none !important;
   }
+
+  &:focus {
+    background-color: transparent !important;
+    color: ${colorBlueLight} !important;
+  }
+
+  &:hover:focus {
+    background-color: ${colorOffWhite} !important;
+    color: ${colorBlueLight} !important;
+  }
+
+  &:active:focus {
+    background-color: ${colorOffWhite} !important;
+    color: ${colorBlueLight} !important;
+    filter: brightness(85%) !important;
+  }
+
+  ${({ animations }) => animations && `
+    transition: all .25s;
+  `}
 
   &[aria-disabled="true"] {
     cursor: not-allowed;
@@ -562,17 +574,63 @@ const DownloadButton = styled(Button)`
     box-shadow: none;
     pointer-events: none;
   }
-
-  ${({ isDownloadable }) => isDownloadable && `
-    & > i {
-      color: ${colorSuccess};
-    }
-  `}
 `;
 
 const ExtraHint = styled.div`
   margin-top: 1rem;
   font-weight: bold;
+`;
+
+const ExportHint = styled(ModalHint)`
+  margin: 2rem 0;
+`;
+
+const SetCurrentAction = styled.td`
+  width: 0;
+
+  &, & i {
+    border: 0;
+    background: transparent;
+    color: ${colorGrayLight};
+    cursor: pointer;
+    font-size: 1.35rem;
+
+    [dir="ltr"] & {
+      padding-left: 0 !important;
+    }
+
+    [dir="rtl"] & {
+      padding-right: 0 !important;
+    }
+
+    ${({ animations }) => animations && `
+      transition: all .25s;
+    `}
+  }
+`;
+
+const Head = styled.tr`
+  color: ${colorText};
+
+  th {
+    padding: calc(${smPaddingY} * 2) calc(${smPaddingX} / 2);
+    white-space: nowrap;
+    text-align: left;
+
+    [dir="rtl"] & {
+      text-align: right;
+    }
+
+    &:first-child {
+      [dir="ltr"] & {
+        padding-left: 0;
+      }
+
+      [dir="rtl"] & {
+        padding-right: 0;
+      }
+    }
+  }
 `;
 
 export default {
@@ -613,4 +671,7 @@ export default {
   TableItemActions,
   DownloadButton,
   ExtraHint,
+  ExportHint,
+  SetCurrentAction,
+  Head,
 };

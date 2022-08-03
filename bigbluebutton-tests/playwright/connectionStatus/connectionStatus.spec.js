@@ -19,4 +19,17 @@ test.describe.parallel('Connection Status', () => {
     await connectionStatus.initModPage(page);
     await connectionStatus.reportUserInConnectionIssues();
   });
+
+  test('Go to settings modal', async ({ browser, context, page }) => {
+    const connectionStatus = new ConnectionStatus(browser, context);
+    await connectionStatus.initModPage(page);
+    await connectionStatus.linkToSettingsTest();
+  });
+
+  test('Copy stats', async ({ browser, context, page }, testInfo) => {
+    test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
+    const connectionStatus = new ConnectionStatus(browser, context);
+    await connectionStatus.initModPage(page);
+    await connectionStatus.copyStatsTest(context);
+  });
 });
