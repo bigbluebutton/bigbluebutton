@@ -1,12 +1,12 @@
 @import "/imports/ui/stylesheets/mixins/focus";
 @import "/imports/ui/stylesheets/variables/_all";
 
-.remoteDesktop iframe {
+.remoteDesktop {
   display: flex;
   flex-flow: column;
   flex-grow: 1;
   flex-shrink: 1;
-  position: relative;
+  position: absolute;
   overflow-x: hidden;
   overflow-y: auto;
   border-style: none;

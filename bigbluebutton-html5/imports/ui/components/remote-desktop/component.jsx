@@ -169,13 +169,22 @@ class RemoteDesktop extends Component {
 
   render() {
     var { remoteDesktopUrl, viewOnly } = this.state;
-    var { remoteDesktopPassword, remoteDesktopCanOperate } = this.props;
+    var { remoteDesktopPassword, remoteDesktopCanOperate, presentationBounds, fullscreenContext, layoutSwapped } = this.props;
 
     return (
       <div
         id="remote-desktop"
         data-test="remoteDesktop"
-        style={{width: '100%', height: '100%', display: 'flex'}}
+        className={styles.remoteDesktop}
+        style={{
+          top: presentationBounds.top,
+          left: presentationBounds.left,
+          right: presentationBounds.right,
+          width: presentationBounds.width,
+          height: presentationBounds.height,
+          display: layoutSwapped ? 'none' : 'flex',
+          zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
+        }}
         ref={(ref) => { this.playerParent = ref; }}
         /* onMouseEnter/onFocus doesn't seem to work on VncDisplay
          *
