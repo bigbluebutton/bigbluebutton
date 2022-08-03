@@ -134,7 +134,7 @@ const SidebarContent = (props) => {
       <ErrorBoundary
         Fallback={FallbackView}
       >
-        <ChatContainer />
+        <ChatContainer width={width}/>
       </ErrorBoundary>
       )}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NotesContainer />}

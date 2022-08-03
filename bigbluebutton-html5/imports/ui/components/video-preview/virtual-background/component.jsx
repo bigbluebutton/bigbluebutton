@@ -12,10 +12,14 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import { CustomVirtualBackgroundsContext } from './context';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
+import logger from '/imports/startup/client/logger';
+import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Settings from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+
+const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -92,6 +96,7 @@ const VirtualBgSelector = ({
   showThumbnails,
   initialVirtualBgState,
   isVisualEffects,
+  readFile,
 }) => {
   const [currentVirtualBg, setCurrentVirtualBg] = useState({
     ...initialVirtualBgState,
@@ -137,8 +142,12 @@ const VirtualBgSelector = ({
           return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
         }
 
+        setCurrentVirtualBg({ type, name });
+
+        if (!index || index < 0) return;
+
         if (!shouldEnableBackgroundUpload()) {
-          if (index >= 0) findDOMNode(inputElementsRef.current[index]).focus();
+          findDOMNode(inputElementsRef.current[index]).focus();
         } else {
           if (customParams) {
             dispatch({
@@ -163,7 +172,6 @@ const VirtualBgSelector = ({
           }
           findDOMNode(inputElementsRef.current[0]).focus();
         }
-        return setCurrentVirtualBg({ type, name });
       });
 
   const renderDropdownSelector = () => {
@@ -205,25 +213,30 @@ const VirtualBgSelector = ({
 
   const handleCustomBgChange = (event) => {
     const file = event.target.files[0];
-    const { readFile } = VirtualBgService;
 
-    readFile(
-      file,
-      (background) => {
-        dispatch({
-          type: 'new',
-          background: {
-            ...background,
-            custom: true,
-            lastActivityDate: Date.now(),
-          },
-        });
-      },
-      (error) => {
-        // Add some logging, notification, etc.
-      }
-    );
-  }
+    const onSuccess = (background) => {
+      dispatch({
+        type: 'new',
+        background: {
+          ...background,
+          custom: true,
+          lastActivityDate: Date.now(),
+        },
+      });
+    };
+
+    const onError = (error) => {
+      logger.warn({
+        logCode: 'read_file_error',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, error.message);
+    };
+
+    readFile(file, onSuccess, onError);
+  };
 
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
@@ -484,4 +497,4 @@ VirtualBgSelector.defaultProps = {
   },
 };
 
-export default injectIntl(VirtualBgSelector);
+export default injectIntl(withFileReader(VirtualBgSelector, MIME_TYPES_ALLOWED, MAX_FILE_SIZE));

@@ -155,6 +155,19 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.note',
     description: 'describes the sticky note shortcut key',
   },
+  general: {
+    id: 'app.shortcut-help.general',
+    description: 'general tab heading',
+  },
+  presentation: {
+    id: 'app.shortcut-help.presentation',
+    description: 'presentation tab heading',
+    "app.shortcut-help.whiteboard": "Whiteboard",
+  },
+  whiteboard: {
+    id: 'app.shortcut-help.whiteboard',
+    description: 'whiteboard tab heading',
+  }
 });
 
 const renderItem = (func, key) => {
@@ -240,17 +253,17 @@ const ShortcutHelpComponent = (props) => {
         <StyledSettings.SettingsTabList>
           <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
             <StyledSettings.SettingsIcon iconName="application" />
-            <span id="appicationTab">{'General'}</span>
+            <span id="appicationTab">{intl.formatMessage(intlMessages.general)}</span>
           </StyledSettings.SettingsTabSelector>
 
           <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="alert" />
-            <span id="presentationTab">{'Presentation'}</span>
+            <StyledSettings.SettingsIcon iconName="presentation" />
+            <span id="presentationTab">{intl.formatMessage(intlMessages.presentation)}</span>
           </StyledSettings.SettingsTabSelector>
 
           <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="alert" />
-            <span id="whiteboardTab">{'Whiteboard'}</span>
+            <StyledSettings.SettingsIcon iconName="whiteboard" />
+            <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
           </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
