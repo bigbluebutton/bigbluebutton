@@ -34,12 +34,22 @@ class RemoteDesktop extends Component {
 
     var { remoteDesktopUrl, remoteDesktopCanOperate } = props;
 
-    /* If the remote desktop URL includes the string "{jwt}", delay
-     * opening the connection until we've obtained a JSON Web Token
-     * and inserted it into the URL.
+    /* Append our sessionToken to the URL so that the WebSocket/VNC server
+     * can authenticate the user.
+     *
+     * Implicit in this design is that the WebSocket/VNC server knows
+     * which BigBlueButton server to authenticate against.
+     *
+     * We check for '?' to see if the user specified any URL parameters
+     * which we append to, instead of adding a new parameters string.
      */
-    if (remoteDesktopUrl && remoteDesktopUrl.includes('{jwt}')) {
-      remoteDesktopUrl = '';
+
+    if (remoteDesktopUrl) {
+        if (remoteDesktopUrl.includes('?')) {
+            remoteDesktopUrl = `${remoteDesktopUrl}&sessionToken=${Auth.sessionToken}`;
+        } else {
+            remoteDesktopUrl = `${remoteDesktopUrl}?sessionToken=${Auth.sessionToken}`;
+        }
     }
 
     this.state = {
