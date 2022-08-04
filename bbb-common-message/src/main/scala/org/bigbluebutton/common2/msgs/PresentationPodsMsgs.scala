@@ -13,7 +13,7 @@ case class RemovePresentationPodPubMsgBody(podId: String)
 
 object PresentationUploadTokenReqMsg { val NAME = "PresentationUploadTokenReqMsg" }
 case class PresentationUploadTokenReqMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenReqMsgBody) extends StandardMsg
-case class PresentationUploadTokenReqMsgBody(podId: String, filename: String)
+case class PresentationUploadTokenReqMsgBody(podId: String, filename: String, tmpPresId: String)
 
 object GetAllPresentationPodsReqMsg { val NAME = "GetAllPresentationPodsReqMsg" }
 case class GetAllPresentationPodsReqMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsReqMsgBody) extends StandardMsg
@@ -37,8 +37,8 @@ case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: 
 
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg" }
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
-case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
-                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
+case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xCamera: Double,
+                                       yCamera: Double, zoom: Double)
 
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg" }
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
@@ -113,13 +113,14 @@ case class PresentationConversionRequestReceivedSysMsg(
     body:   PresentationConversionRequestReceivedSysMsgBody
 ) extends StandardMsg
 case class PresentationConversionRequestReceivedSysMsgBody(
-    podId:          String,
-    presentationId: String,
-    current:        Boolean,
-    presName:       String,
-    downloadable:   Boolean,
-    removable:      Boolean,
-    authzToken:     String
+    podId:                   String,
+    presentationId:          String,
+    temporaryPresentationId: String,
+    current:                 Boolean,
+    presName:                String,
+    downloadable:            Boolean,
+    removable:               Boolean,
+    authzToken:              String
 )
 
 object PresentationPageConversionStartedSysMsg { val NAME = "PresentationPageConversionStartedSysMsg" }
@@ -181,7 +182,7 @@ case class PdfConversionInvalidErrorEvtMsgBody(podId: String, messageKey: String
 
 object PresentationUploadTokenPassRespMsg { val NAME = "PresentationUploadTokenPassRespMsg" }
 case class PresentationUploadTokenPassRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenPassRespMsgBody) extends StandardMsg
-case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String)
+case class PresentationUploadTokenPassRespMsgBody(podId: String, authzToken: String, filename: String, tmpPresId: String)
 
 object PresentationUploadTokenFailRespMsg { val NAME = "PresentationUploadTokenFailRespMsg" }
 case class PresentationUploadTokenFailRespMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenFailRespMsgBody) extends StandardMsg
@@ -287,8 +288,8 @@ case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: 
 
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg" }
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg
-case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
-                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
+case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pageId: String, xCamera: Double,
+                                       yCamera: Double, zoom: Double)
 
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" }
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg

@@ -4,6 +4,9 @@ import {
   colorOffWhite,
   colorBlueLightest,
   toolbarButtonColor,
+  colorDanger,
+  colorWhite,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   whiteboardToolbarMargin,
@@ -11,17 +14,20 @@ import {
   whiteboardToolbarPadding,
   borderSize,
   smPaddingY,
+  borderSizeLarge,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
 
 const PresentationToolbarWrapper = styled.div`
-  position: relative;
+  position: absolute;
   align-self: center;
   z-index: 1;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   min-width: fit-content;
   width: 100%;
+  bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 
@@ -66,7 +72,6 @@ const QuickPollButton = styled(QuickPollDropdownContainer)`
 
   &:focus {
     background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -77,7 +82,6 @@ const PresentationSlideControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   & > button {
     padding: ${whiteboardToolbarPadding};
@@ -85,7 +89,10 @@ const PresentationSlideControls = styled.div`
 `;
 
 const PrevSlideButton = styled(Button)`
-  border: none !important;
+
+  i {
+    padding-left: 20%;
+  }
 
   & > i {
     font-size: 1rem;
@@ -99,25 +106,17 @@ const PrevSlideButton = styled(Button)`
     }
   }
 
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
-  }
 `;
 
 const NextSlideButton = styled(Button)`
-  border: none !important;
+  
+  i {
+    padding-left: 60%;
+  }
 
   & > i {
     font-size: 1rem;
-
+    
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
       -moz-transform: scale(-1, 1);
@@ -125,18 +124,6 @@ const NextSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -178,7 +165,6 @@ const PresentationZoomControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   button {
     padding: ${whiteboardToolbarPadding};
@@ -220,6 +206,59 @@ const FitToWidthButton = styled(Button)`
   }
 `;
 
+const MultiUserTool = styled.span`
+  background-color: ${colorDanger};
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+  z-index: 2;
+  right: 1rem;
+  bottom: 0.5rem;
+  color: ${colorWhite};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
+  font-size: ${smPaddingX};
+`;
+
+const MUTPlaceholder = styled.div`
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+  right: 1rem;
+  bottom: 0.5rem;
+`;
+
+const WBAccessButton = styled(Button)`
+  border: none !important;
+
+  & > i {
+    font-size: 1.2rem;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+
+  position: relative;
+  color: ${toolbarButtonColor};
+  background-color: ${colorOffWhite};
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 0;
+
+  &:focus {
+    background-color: ${colorOffWhite};
+    border: 0;
+  }
+`;
+
 export default {
   PresentationToolbarWrapper,
   QuickPollButton,
@@ -229,4 +268,7 @@ export default {
   SkipSlideSelect,
   PresentationZoomControls,
   FitToWidthButton,
+  MultiUserTool,
+  WBAccessButton,
+  MUTPlaceholder,
 };

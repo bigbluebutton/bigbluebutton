@@ -33,6 +33,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val questionQuizs2x = new QuestionQuizs
   private val guestsWaiting = new GuestsWaiting
   private val deskshareModel = new ScreenshareModel
+  private val audioCaptions = new AudioCaptions
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
@@ -50,7 +51,6 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   Layouts.setCurrentLayout(
     liveMeeting.layouts,
     props.usersProp.meetingLayout,
-    SystemUser.ID
   )
 
   private val recordEvents = props.recordProp.record || props.recordProp.keepEvents

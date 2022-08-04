@@ -41,6 +41,13 @@ meeting_id = opts[:meeting_id]
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = BigBlueButton.read_props
 presentation_props = YAML.safe_load(File.open('presentation.yml'))
+filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
+hasOverride = File.file?(filepathPresOverride)
+if (hasOverride)
+  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presentation_props = presentation_props.merge(presOverrideProps)
+end
+
 presentation_props['audio_offset'] = 0 if presentation_props['audio_offset'].nil?
 presentation_props['include_deskshare'] = false if presentation_props['include_deskshare'].nil?
 
@@ -137,6 +144,7 @@ unless FileTest.directory?(target_dir)
     metadata_file.close
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
+    version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
     # Start processing raw files
     presentation_text = {}
     presentations.each do |pres|
@@ -169,7 +177,7 @@ unless FileTest.directory?(target_dir)
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
-            )
+            ) if !version_atleast_2_6_0
             next unless File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt")
             t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
             text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
@@ -180,11 +188,15 @@ unless FileTest.directory?(target_dir)
       else
         BigBlueButton::Presentation.convert_image_to_png(
           images[0], "#{target_pres_dir}/slide-1.png", '1600x1600'
-        )
+        ) if !version_atleast_2_6_0
       end
 
       # Copy thumbnails from raw files
       FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails") if File.exist?("#{pres_dir}/thumbnails")
+      if version_atleast_2_6_0
+        # Copy svgs from raw files (needed for Tldraw)
+        FileUtils.cp_r("#{pres_dir}/svgs", "#{target_pres_dir}/svgs") if File.exist?("#{pres_dir}/svgs")
+      end
     end
 
     BigBlueButton.logger.info('Generating closed captions')
@@ -218,7 +230,7 @@ unless FileTest.directory?(target_dir)
 
       webcam_framerate = 15 if webcam_framerate.nil?
       processed_audio_file = BigBlueButton::AudioProcessor.get_processed_audio_file(raw_archive_dir, "#{target_dir}/audio")
-      BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'])
+      BigBlueButton.process_webcam_videos(target_dir, raw_archive_dir, webcam_width, webcam_height, webcam_framerate, presentation_props['audio_offset'], processed_audio_file, presentation_props['video_formats'], props['show_moderator_viewpoint'])
     end
 
     if !Dir["#{raw_archive_dir}/deskshare/*"].empty? && presentation_props['include_deskshare']

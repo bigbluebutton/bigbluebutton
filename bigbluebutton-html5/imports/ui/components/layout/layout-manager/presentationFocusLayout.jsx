@@ -95,6 +95,14 @@ const PresentationFocusLayout = (props) => {
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -122,6 +130,14 @@ const PresentationFocusLayout = (props) => {
           },
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
+          },
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
           },
         }, INITIAL_INPUT_STATE),
       });
@@ -319,9 +335,9 @@ const PresentationFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
-        left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
-        right: isRTL ? (mediaBounds.right + captionsMargin) : null,
-        maxWidth: mediaBounds.width - (captionsMargin * 2),
+        left: !isRTL ? (sidebarSize + captionsMargin) : null,
+        right: isRTL ? (sidebarSize + captionsMargin) : null,
+        maxWidth: mediaAreaBounds.width - (captionsMargin * 2),
       },
     });
 
@@ -412,6 +428,7 @@ const PresentationFocusLayout = (props) => {
           bottom: false,
           left: false,
         },
+        focusedId: input.cameraDock.focusedId,
         zIndex: cameraDockBounds.zIndex,
       },
     });

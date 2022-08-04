@@ -10,6 +10,9 @@ const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
   const layoutContextDispatch = layoutDispatch();
+  const { elementId } = props;
+  const isFullscreen = currentElement === elementId;
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
     <PresentationMenu
@@ -17,7 +20,9 @@ const PresentationMenuContainer = (props) => {
       {...{
         currentElement,
         currentGroup,
+        isFullscreen,
         layoutContextDispatch,
+        isRTL,
       }}
     />
   );
@@ -25,7 +30,6 @@ const PresentationMenuContainer = (props) => {
 
 export default withTracker((props) => {
   const handleToggleFullscreen = (ref) => FullscreenService.toggleFullScreen(ref);
-  const { isFullscreen } = props;
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({ meetingId }, { fields: { 'meetingProp.name': 1 } });
@@ -34,7 +38,6 @@ export default withTracker((props) => {
     ...props,
     handleToggleFullscreen,
     isIphone,
-    isFullscreen,
     isDropdownOpen: Session.get('dropdownOpen'),
     meetingName: meetingObject.meetingProp.name,
   };

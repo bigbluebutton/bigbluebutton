@@ -71,9 +71,11 @@ class ConfirmationModal extends Component {
             </Styled.Title>
           </Styled.Header>
           <Styled.Description>
-            <span dangerouslySetInnerHTML={{ __html: description }} />
+            <Styled.DescriptionText>
+              {description}
+            </Styled.DescriptionText>
             { hasCheckbox ? (
-              <label htmlFor="confirmationCheckbox" key="confirmation-checkbox">
+              <Styled.Label htmlFor="confirmationCheckbox" key="confirmation-checkbox">
                 <Styled.Checkbox
                   type="checkbox"
                   id="confirmationCheckbox"
@@ -82,7 +84,7 @@ class ConfirmationModal extends Component {
                   aria-label={intl.formatMessage({ id: checkboxMessageId })}
                 />
                 <span aria-hidden>{intl.formatMessage({ id: checkboxMessageId })}</span>
-              </label>
+              </Styled.Label>
             ) : null }
           </Styled.Description>
 

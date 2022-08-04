@@ -10,7 +10,10 @@ export default function sendBulkAnnotations(payload) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    payload.forEach((annotation) => sendAnnotationHelper(annotation, meetingId, requesterUserId));
+    console.log("!!!!!!! sendBulkAnnotations!!!!:", payload)
+
+    sendAnnotationHelper(payload, meetingId, requesterUserId);
+    //payload.forEach((annotation) => sendAnnotationHelper(annotation, meetingId, requesterUserId));
     return true;
   } catch (err) {
     Logger.error(`Exception while invoking method sendBulkAnnotations ${err.stack}`);

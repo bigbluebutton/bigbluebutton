@@ -1,12 +1,15 @@
 import React, { PureComponent } from 'react';
 import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
+import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import Button from '/imports/ui/components/common/button/component';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -14,8 +17,8 @@ class ActionsBar extends PureComponent {
       amIPresenter,
       amIModerator,
       enableVideo,
-      isLayoutSwapped,
-      toggleSwapLayout,
+      presentationIsOpen,
+      setPresentationIsOpen,
       handleTakePresenter,
       intl,
       isSharingVideo,
@@ -35,7 +38,9 @@ class ActionsBar extends PureComponent {
       shortcuts,
       layoutContextDispatch,
       actionsBarStyle,
-      isOldMinimizeButtonEnabled,
+      setMeetingLayout,
+      showPushLayout,
+      setPushLayout,
     } = this.props;
 
     return (
@@ -58,7 +63,11 @@ class ActionsBar extends PureComponent {
             isSharingVideo,
             stopExternalVideoShare,
             isMeteorConnected,
-            isQuestioningEnabled
+            isQuestioningEnabled,
+            setMeetingLayout,
+            setPushLayout,
+            presentationIsOpen,
+            showPushLayout,
           }}
           />
           {isCaptionsAvailable
@@ -66,6 +75,11 @@ class ActionsBar extends PureComponent {
               <CaptionsButtonContainer {...{ intl }} />
             )
             : null}
+          { !deviceInfo.isMobile
+            ? (
+              <AudioCaptionsButtonContainer />
+            )
+            : null }
         </Styled.Left>
         <Styled.Center>
           <AudioControlsContainer />
@@ -81,22 +95,17 @@ class ActionsBar extends PureComponent {
           />
         </Styled.Center>
         <Styled.Right>
-          {!isOldMinimizeButtonEnabled ||
-            (isOldMinimizeButtonEnabled && isLayoutSwapped && !isPresentationDisabled)
-            ? (
-              <PresentationOptionsContainer
-                isLayoutSwapped={isLayoutSwapped}
-                toggleSwapLayout={toggleSwapLayout}
-                layoutContextDispatch={layoutContextDispatch}
-                hasPresentation={isThereCurrentPresentation}
-                hasExternalVideo={isSharingVideo}
-                hasScreenshare={hasScreenshare}
-              />
-            )
-            : null}
+          <PresentationOptionsContainer
+            presentationIsOpen={presentationIsOpen}
+            setPresentationIsOpen={setPresentationIsOpen}
+            layoutContextDispatch={layoutContextDispatch}
+            hasPresentation={isThereCurrentPresentation}
+            hasExternalVideo={isSharingVideo}
+            hasScreenshare={hasScreenshare}
+          />
           {isRaiseHandButtonEnabled
             ? (
-              <Styled.RaiseHandButton
+              <Button
                 icon="hand"
                 label={intl.formatMessage({
                   id: `app.actionsBar.emojiMenu.${

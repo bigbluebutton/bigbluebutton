@@ -48,6 +48,7 @@ const SidebarContent = (props) => {
     resizableEdge,
     contextDispatch,
     sidebarContentPanel,
+    amIPresenter,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -124,15 +125,19 @@ const SidebarContent = (props) => {
         width,
         height,
       }}
+      handleStyles={{
+        left: { height: '100vh' },
+        right: { height: '100vh' },
+      }}
     >
       {sidebarContentPanel === PANELS.CHAT
-        && (
-          <ErrorBoundary
-            Fallback={FallbackView}
-          >
-            <ChatContainer />
-          </ErrorBoundary>
-        )}
+      && (
+      <ErrorBoundary
+        Fallback={FallbackView}
+      >
+        <ChatContainer width={width}/>
+      </ErrorBoundary>
+      )}
       {sidebarContentPanel === PANELS.SHARED_NOTES && <NotesContainer />}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
@@ -140,7 +145,7 @@ const SidebarContent = (props) => {
       {
         sidebarContentPanel === PANELS.POLL && (
           <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
-            <PollContainer smallSidebar={smallSidebar} />
+            <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
           </Styled.Poll>
         )
       }

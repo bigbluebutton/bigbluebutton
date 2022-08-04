@@ -32,10 +32,18 @@ const intlMessages = defineMessages({
     id: 'app.calculatingBreakoutTimeRemaining',
     description: 'Message that tells that the remaining time is being calculated',
   },
+  alertBreakoutEndsUnderMinutes: {
+    id: 'app.meeting.alertBreakoutEndsUnderMinutes',
+    description: 'Alert that tells that the breakout ends under x minutes',
+  },
 });
 
 let timeRemaining = 0;
 let prevTimeRemaining = 0;
+let lastAlertTime = null;
+
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+const REMAINING_TIME_ALERT_THRESHOLD_ARRAY = METEOR_SETTINGS_APP.remainingTimeAlertThresholdArray;
 
 const timeRemainingDep = new Tracker.Dependency();
 let timeRemainingInterval = null;
@@ -53,11 +61,14 @@ class breakoutRemainingTimeContainer extends React.Component {
       return null;
     }
     if (bold) {
+      const words = message.split(' ');
+      const time = words.pop();
+      const text = words.join(' ');
       return (
         <BreakoutRemainingTimeComponent>
-          <Text>{message.split(' ')[0]}</Text>
+          <Text>{text}</Text>
           <br />
-          <Time>{message.split(' ')[1]}</Time>
+          <Time>{time}</Time>
         </BreakoutRemainingTimeComponent>
       );
     }
@@ -95,9 +106,8 @@ export default injectNotify(injectIntl(withTracker(({
   notify,
   messageDuration,
   timeEndedMessage,
-  alertMessage,
-  alertUnderMinutes,
   fromBreakoutPanel,
+  displayAlerts,
 }) => {
   const data = {};
   if (breakoutRoom) {
@@ -122,7 +132,14 @@ export default injectNotify(injectIntl(withTracker(({
   if (timeRemaining >= 0 && timeRemainingInterval) {
     if (timeRemaining > 0) {
       const time = getTimeRemaining();
-      if (time === (alertUnderMinutes * 60) && alertMessage) {
+      const alertsInSeconds = REMAINING_TIME_ALERT_THRESHOLD_ARRAY.map((item) => item * 60);
+
+      if (alertsInSeconds.includes(time) && time !== lastAlertTime && displayAlerts) {
+        const timeInMinutes = time / 60;
+        const msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${timeInMinutes === 1 ? 'Singular' : 'Plural'}` };
+        const alertMessage = intl.formatMessage(msg, { 0: timeInMinutes })
+
+        lastAlertTime = time;
         notify(alertMessage, 'info', 'rooms');
       }
       data.message = intl.formatMessage(messageDuration, { 0: humanizeSeconds(time) });

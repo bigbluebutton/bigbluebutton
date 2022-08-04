@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
@@ -14,6 +13,9 @@ import { screenshareHasEnded } from '/imports/ui/components/screenshare/service'
 import AudioManager from '/imports/ui/services/audio-manager';
 import Settings from '/imports/ui/services/settings';
 import BreakoutDropdown from '/imports/ui/components/breakout-room/breakout-dropdown/component';
+import Users from '/imports/api/users';
+import Auth from '/imports/ui/services/auth';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -155,6 +157,8 @@ class BreakoutRoom extends PureComponent {
       if (breakoutUrlData.redirectToHtml5JoinURL !== ''
         && breakoutUrlData.redirectToHtml5JoinURL !== prevBreakoutData.redirectToHtml5JoinURL) {
         prevBreakoutData = breakoutUrlData;
+
+        Session.set('lastBreakoutIdOpened', requestedBreakoutId);
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
@@ -171,7 +175,6 @@ class BreakoutRoom extends PureComponent {
   }
 
   getBreakoutURL(breakoutId) {
-    Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
@@ -187,6 +190,8 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (breakoutRoomUrlData) {
+
+      Session.set('lastBreakoutIdOpened', breakoutId);
       window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false, generated: false });
     }
@@ -282,7 +287,8 @@ class BreakoutRoom extends PureComponent {
       amIPresenter,
       intl,
       isUserInBreakoutRoom,
-      exitAudio,
+      forceExitAudio,
+      rejoinAudio,
       setBreakoutAudioTransferStatus,
       getBreakoutAudioTransferStatus,
     } = this.props;
@@ -349,7 +355,7 @@ class BreakoutRoom extends PureComponent {
                   this.getBreakoutURL(breakoutId);
                   // leave main room's audio,
                   // and stops video and screenshare when joining a breakout room
-                  exitAudio();
+                  forceExitAudio();
                   logger.info({
                     logCode: 'breakoutroom_join',
                     extraInfo: { logType: 'user_action' },
@@ -357,6 +363,31 @@ class BreakoutRoom extends PureComponent {
                   VideoService.storeDeviceIds();
                   VideoService.exitVideo();
                   if (amIPresenter) screenshareHasEnded();
+
+                  Tracker.autorun((c) => {
+                    const selector = {
+                      meetingId: breakoutId,
+                    };
+
+                    const query = Users.find(selector, {
+                      fields: {
+                        loggedOut: 1,
+                        extId: 1,
+                      },
+                    });
+
+                    const observeLogOut = (user) => {
+                      if (user?.loggedOut && user?.extId?.startsWith(Auth.userID)) {
+                        rejoinAudio();
+                        c.stop();
+                      }
+                    }
+
+                    query.observe({
+                      added: observeLogOut,
+                      changed: observeLogOut,
+                    });
+                  });
                 }}
                 disabled={disable}
               />
@@ -519,19 +550,19 @@ class BreakoutRoom extends PureComponent {
       intl,
       endAllBreakouts,
       amIModerator,
+      isRTL,
     } = this.props;
     return (
       <Styled.Panel ref={(n) => this.panel = n}>
-        <Styled.Header>
-          <Styled.HeaderButton
-            icon="left_arrow"
-            label={intl.formatMessage(intlMessages.breakoutTitle)}
-            aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
-            onClick={() => {
+        <Header
+          leftButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),
+            label: intl.formatMessage(intlMessages.breakoutTitle),
+            onClick: () => {
               this.closePanel();
-            }}
-          />
-          { amIModerator && (
+            },
+          }}
+          customRightButton={amIModerator && (
             <BreakoutDropdown
               openBreakoutTimeManager={this.showSetTimeForm}
               endAllBreakouts={() => {
@@ -540,9 +571,10 @@ class BreakoutRoom extends PureComponent {
               }}
               isMeteorConnected={isMeteorConnected}
               amIModerator={amIModerator}
+              isRTL={isRTL}
             />
-          ) }
-        </Styled.Header>
+          )}
+        />
         {this.renderDuration()}
         {amIModerator
           ? (

@@ -5,10 +5,6 @@ import QuestionQuizService from '/imports/ui/components/question-quiz/service';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { injectIntl, defineMessages } from 'react-intl';
 import Styled from './styles';
-import {
-  getSwapLayout,
-  shouldEnableSwapLayout,
-} from '/imports/ui/components/media/service';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -78,11 +74,10 @@ class PollDrawComponent extends Component {
   }
 
   componentDidMount() {
-    const { annotation } = this.props;
+    const { annotation, isLayoutSwapped } = this.props;
     const { pollType, numResponders } = annotation;
     if (pollType === PollService.pollTypes.Response && numResponders === 0) return;
 
-    const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (isLayoutSwapped) return;
 
     this.pollInitialCalculation();
@@ -644,7 +639,7 @@ class PollDrawComponent extends Component {
     }
 
     ariaResultLabel = `${intl.formatMessage(intlMessages.pollResultAria)}: `;
-    textArray.map((t, idx) => {
+    textArray.forEach((t, idx) => {
       const pollLine = t.slice(0, -1);
       ariaResultLabel += `${idx > 0 ? ' |' : ''} ${pollLine.join(' | ')}`;
     });

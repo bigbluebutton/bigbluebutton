@@ -6,6 +6,7 @@ import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -25,6 +26,17 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
         model.rooms.values.foreach { room =>
           eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id, MeetingEndReason.BREAKOUT_ENDED_BY_MOD)))
         }
+
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "rooms",
+          "app.toast.breakoutRoomEnded",
+          "Message when the breakout room is ended",
+          Vector()
+        )
+        outGW.send(notifyEvent)
+
       }
 
       state.update(None)

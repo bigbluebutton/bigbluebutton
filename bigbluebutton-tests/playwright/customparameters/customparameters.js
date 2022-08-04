@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const util = require('./util');
+const { getSettings } = require('../core/settings');
 
 class CustomParameters extends MultiUsers {
   constructor(browser, context) {
@@ -75,14 +76,13 @@ class CustomParameters extends MultiUsers {
   }
 
   async listenOnlyMode() {
-    await this.modPage.waitForSelector(e.audioModal);
-    await this.modPage.waitForSelector(e.connectingToEchoTest);
-    await this.modPage.wasRemoved(e.connecting);
-    await this.modPage.waitForSelector(e.echoYesButton);
-    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.waitForSelector(e.audioSettingsModal);
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.waitForSelector(e.establishingAudioLabel);
+    await this.modPage.waitForSelector(e.isTalking);
+    await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
-    const audioOptionsCount = await this.modPage.getSelectorCount(e.audioOptionsButtons);
-    await expect(audioOptionsCount).toBe(1);
+    await this.modPage.waitForSelector(e.audioSettingsModal);
   }
 
   async forceListenOnly() {
@@ -93,20 +93,21 @@ class CustomParameters extends MultiUsers {
 
   async skipCheck() {
     await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.waitForSelector(e.connecting);
-    await this.modPage.wasRemoved(e.connecting, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.echoYesButton);
+    await this.modPage.waitForSelector(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.smallToastMsg);
     await this.modPage.hasElement(e.isTalking);
   }
 
   async skipCheckOnFirstJoin() {
     await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.hasElement(e.connecting);
+    await this.modPage.hasElement(e.establishingAudioLabel);
+    await this.modPage.hasElement(e.smallToastMsg);
+    await this.modPage.hasElement(e.isTalking);
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.hasElement(e.connectingToEchoTest);
+    await this.modPage.hasElement(e.audioSettingsModal);
   }
 
   async bannerText() {
@@ -136,12 +137,13 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewEvents(customParameter) {
     await this.initUserPage(true, this.context, { useModMeetingId: true, customParameter });
-    await this.userPage.waitAndClick(e.minimizePresentation);
+    const { presentationHidden, pollEnabled } = getSettings();
+    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     const zoomInCase = await util.zoomIn(this.modPage);
     await expect(zoomInCase).toBeTruthy();
     const zoomOutCase = await util.zoomOut(this.modPage);
     await expect(zoomOutCase).toBeTruthy();
-    await util.poll(this.modPage, this.userPage);
+    if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await util.nextSlide(this.modPage);
     await util.previousSlide(this.modPage);
     await util.annotation(this.modPage);
@@ -150,8 +152,9 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewPollResult(customParameter) {
     await this.initUserPage(true, this.context, { useModMeetingId: true, customParameter })
-    await this.userPage.waitAndClick(e.minimizePresentation);
-    await util.poll(this.modPage, this.userPage);
+    const { presentationHidden,pollEnabled } = getSettings();
+    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
+    if (pollEnabled) await util.poll(this.modPage, this.userPage);
     await this.userPage.waitForSelector(e.smallToastMsg);
     await this.userPage.checkElement(e.restorePresentation);
   }
@@ -168,9 +171,8 @@ class CustomParameters extends MultiUsers {
     await this.modPage.shareWebcam(false);
     await this.modPage.waitAndClick(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.joinVideo);
-    const parsedSettings = await this.modPage.getSettingsYaml();
-    const videoPreviewTimeout = parseInt(parsedSettings.public.kurento.gUMTimeout);
-    await this.modPage.shareWebcam(videoPreviewTimeout);
+    const { videoPreviewTimeout } = this.modPage.settings;
+    await this.modPage.shareWebcam(true, videoPreviewTimeout);
   }
 
   async mirrorOwnWebcam() {
@@ -182,28 +184,28 @@ class CustomParameters extends MultiUsers {
 
   async multiUserPenOnly() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.waitAndClick(e.toolsButton);
+    await this.userPage.waitAndClick(e.wbToolbar);
     const resp = await this.userPage.page.evaluate((toolsElement) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.childElementCount === 1;
-    }, e.toolsButton);
+    }, e.wbToolbar);
     await expect(resp).toBeTruthy();
   }
 
   async presenterTools() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.toolsButton);
+    await this.modPage.waitAndClick(e.wbToolbar);
     const resp = await this.modPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.toolsButton, e.toolbarToolsList]);
+    }, [e.wbToolbar, e.toolbarToolsList]);
     await expect(resp).toBeTruthy();
   }
 
   async multiUserTools() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.waitAndClick(e.toolsButton);
+    await this.userPage.waitAndClick(e.wbToolbar);
     const resp = await this.userPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.toolsButton, e.toolbarToolsList]);
+    }, [e.wbToolbar, e.toolbarToolsList]);
     await expect(resp).toBeTruthy();
   }
 

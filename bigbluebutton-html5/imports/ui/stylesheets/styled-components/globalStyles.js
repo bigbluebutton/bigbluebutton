@@ -26,6 +26,10 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+  .MuiList-padding {
+    padding: 0 !important;
+  }
+
   .MuiPaper-root {
     background-color: ${dropdownBg};
     border-radius: ${borderRadius};
@@ -143,6 +147,9 @@ const GlobalStyle = createGlobalStyle`
 
   .actionToast {
     background-color: ${colorWhite};
+    display: flex;
+    padding: ${smPaddingX};
+    border-radius: ${borderRadius};
 
     i.close {
       left: none !important;

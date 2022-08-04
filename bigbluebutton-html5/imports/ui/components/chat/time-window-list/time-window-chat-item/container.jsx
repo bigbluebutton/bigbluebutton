@@ -67,6 +67,7 @@ const TimeWindowChatItemContainer = (props) => {
         handleReadMessage,
         usernames,
         amIPresenter,
+        getExportedPresentationString: ChatService.getExportedPresentationString,
         ...props,
       }
       }

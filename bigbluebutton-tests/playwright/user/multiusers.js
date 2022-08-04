@@ -1,9 +1,12 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { waitAndClearNotification } = require('../notifications/util');
+const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
+const { checkTextContent } = require('../core/util');
+const { getSettings } = require('../core/settings');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -11,8 +14,11 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
+  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
     await this.initModPage(page1);
+    if (waitAndClearDefaultPresentationNotificationModPage) {
+        await waitAndClearDefaultPresentationNotification(this.modPage);
+    }
     await this.initUserPage();
   }
 
@@ -62,6 +68,17 @@ class MultiUsers {
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
+  async muteAnotherUser() {
+    await this.userPage.joinMicrophone();
+    await this.modPage.hasElement(e.joinAudio);
+    await this.modPage.waitAndClick(e.isTalking);
+    await this.userPage.hasElement(e.unmuteMicButton);
+    await this.modPage.hasElement(e.wasTalking);
+    await this.userPage.hasElement(e.wasTalking);
+    await this.userPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.talkingIndicator);
+  }
+
   async userPresence() {
     const firstUserOnModPage = this.modPage.getLocator(e.currentUser);
     const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
@@ -76,10 +93,11 @@ class MultiUsers {
   async makePresenter() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
+    await this.modPage.wasRemoved(e.wbToolbar);
 
     await this.userPage.hasElement(e.startScreenSharing);
     await this.userPage.hasElement(e.presentationToolbarWrapper);
-    await this.userPage.hasElement(e.toolsButton);
+    await this.userPage.hasElement(e.wbToolbar);
     await this.userPage.hasElement(e.actions);
     const isPresenter = await checkIsPresenter(this.userPage);
     expect(isPresenter).toBeTruthy();
@@ -88,9 +106,10 @@ class MultiUsers {
   async takePresenter() {
     await this.modPage2.waitAndClick(e.currentUser);
     await this.modPage2.waitAndClick(e.takePresenter);
+    await this.modPage.wasRemoved(e.wbToolbar);
 
     await this.modPage2.hasElement(e.startScreenSharing);
-    await this.modPage2.hasElement(e.toolsButton);
+    await this.modPage2.hasElement(e.wbToolbar);
     await this.modPage2.hasElement(e.presentationToolbarWrapper);
     const isPresenter = await checkIsPresenter(this.modPage2);
     expect(isPresenter).toBeTruthy();
@@ -118,21 +137,19 @@ class MultiUsers {
     await this.modPage2.wasRemoved(e.manageUsers);
   }
 
-  async raiseHandTest() {
+  async raiseAndLowerHand() {
+    const { raiseHandButton } = getSettings();
+    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.initUserPage();
     await this.userPage.waitAndClick(e.raiseHandBtn);
+    await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
-  }
-
-  async getAvatarColorAndCompareWithUserListItem() {
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-
     const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
     const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
-  }
-
-  async lowerHandTest() {
-    await waitAndClearNotification(this.userPage);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
@@ -149,6 +166,18 @@ class MultiUsers {
     await this.modPage.wasRemoved(e.chatWelcomeMessageText);
     await this.modPage.wasRemoved(e.chatBox);
     await this.modPage.hasElement(e.chatButton);
+  }
+
+  async saveUserNames(testInfo) {
+    await this.modPage.waitAndClick(e.manageUsers);
+    const { content } = await this.modPage.handleDownload(e.downloadUserNamesList, testInfo);
+
+    const dataToCheck = [
+      this.modPage.username,
+      this.userPage.username,
+      this.modPage.meetingId,
+    ];
+    await checkTextContent(content, dataToCheck);
   }
 
   async selectRandomUser() {
@@ -187,10 +216,10 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage.waitForSelector(e.multiWhiteboardTool);
-    const resp = await this.modPage.page.evaluate((multiWhiteboardTool) => {
-      return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
-    }, e.multiWhiteboardTool);
+    await this.modPage.waitForSelector(e.multiUsersWhiteboardOff);
+    const resp = await this.modPage.page.evaluate((multiUsersWbBtn) => {
+      return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
+    }, e.multiUsersWhiteboardOff);
     await expect(resp).toBeTruthy();
   }
 }

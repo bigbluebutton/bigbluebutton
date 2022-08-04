@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Generator: Adobe Illustrator 25.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Camada_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 192 108" enable-background="new 0 0 192 108" xml:space="preserve">
+<g>
+	<g>
+		<g>
+			<rect fill="#06172A" width="192" height="108"/>
+		</g>
+		<g>
+			<rect fill="#92BCEA" width="38.4" height="108"/>
+		</g>
+		<g>
+			<g>
+				<g>
+					<rect x="52.8" y="7.92" fill="#0F70D7" width="34.56" height="25.92"/>
+				</g>
+				<g>
+					<rect x="143.04" y="7.92" fill="#0F70D7" width="34.56" height="25.92"/>
+				</g>
+				<g>
+					<rect x="97.92" y="7.92" fill="#0F70D7" width="34.56" height="25.92"/>
+				</g>
+			</g>
+			<g>
+				<path fill="#FFFFFF" d="M71.43,20.82c1.64-0.56,2.82-2.11,2.82-3.94c0-2.3-1.86-4.16-4.16-4.16s-4.16,1.86-4.16,4.16
+					c0,1.83,1.18,3.38,2.82,3.94c-3.96,0.64-6.98,4.08-6.98,8.22h16.65C78.41,24.9,75.38,21.47,71.43,20.82z"/>
+				<path fill="#FFFFFF" d="M116.55,20.82c1.64-0.56,2.82-2.11,2.82-3.94c0-2.3-1.86-4.16-4.16-4.16c-2.3,0-4.16,1.86-4.16,4.16
+					c0,1.83,1.18,3.38,2.82,3.94c-3.96,0.64-6.98,4.08-6.98,8.22h16.65C123.53,24.9,120.5,21.47,116.55,20.82z"/>
+				<path fill="#FFFFFF" d="M161.67,20.82c1.64-0.56,2.82-2.11,2.82-3.94c0-2.3-1.86-4.16-4.16-4.16s-4.16,1.86-4.16,4.16
+					c0,1.83,1.18,3.38,2.82,3.94c-3.96,0.64-6.98,4.08-6.98,8.22h16.65C168.65,24.9,165.62,21.47,161.67,20.82z"/>
+			</g>
+		</g>
+		<g>
+			<rect x="52.8" y="47.28" fill="#FFFFFF" width="124.8" height="52.8"/>
+			<g>
+				<polygon fill="#008081" points="107.44,56.88 126.84,90.48 88.04,90.48 				"/>
+				<polygon fill="#008081" points="130.72,70.32 142.36,90.48 119.08,90.48 				"/>
+				<circle fill="#DF2721" cx="122.96" cy="64.47" r="4.49"/>
+			</g>
+		</g>
+	</g>
+	<g>
+		<g>
+			<line fill="none" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" x1="52.8" y1="40.56" x2="57.3" y2="40.56"/>
+			
+				<line fill="none" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="8.6132,3.8281" x1="61.13" y1="40.56" x2="171.19" y2="40.56"/>
+			<line fill="none" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" x1="173.1" y1="40.56" x2="177.6" y2="40.56"/>
+		</g>
+	</g>
+</g>
+</svg>

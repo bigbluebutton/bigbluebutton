@@ -75,10 +75,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.locked',
     description: 'locked element label',
   },
-  unlockedLabel: {
-    id: 'app.lock-viewers.unlocked',
-    description: 'unlocked element label',
-  },
+  hideCursorsLabel: {
+    id: "app.lock-viewers.hideViewersCursor",
+    description: 'label for other viewers cursor',
+  }
 });
 
 const propTypes = {
@@ -126,12 +126,9 @@ class LockViewersComponent extends Component {
 
   displayLockStatus(status) {
     const { intl } = this.props;
-
     return (
-      <Styled.ToggleLabel>
-        {status ? intl.formatMessage(intlMessages.lockedLabel)
-          : intl.formatMessage(intlMessages.unlockedLabel)
-        }
+      status && <Styled.ToggleLabel>
+        {intl.formatMessage(intlMessages.lockedLabel)}
       </Styled.ToggleLabel>
     );
   }
@@ -361,6 +358,32 @@ class LockViewersComponent extends Component {
                 </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
+
+            <Styled.Row>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.hideCursorsLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(lockSettingsProps.hideViewersCursor)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.hideViewersCursor}
+                    onChange={() => {
+                      this.toggleLockSettings('hideViewersCursor');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.hideCursorsLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="hideViewersCursor"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
           </Styled.Form>
         </Styled.Container>
         <Styled.Footer>
@@ -368,6 +391,7 @@ class LockViewersComponent extends Component {
             <Styled.ButtonCancel
               label={intl.formatMessage(intlMessages.buttonCancel)}
               onClick={closeModal}
+              color="secondary"
             />
             <Styled.ButtonApply
               color="primary"

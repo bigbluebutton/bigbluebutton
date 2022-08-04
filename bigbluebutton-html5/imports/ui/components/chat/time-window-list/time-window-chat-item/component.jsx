@@ -15,6 +15,7 @@ const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_res
 const CHAT_QUESTION_QUIZ_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_quiz_result;
 const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
+const CHAT_EXPORTED_PRESENTATION_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_exported_presentation;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -76,10 +77,10 @@ class TimeWindowChatItem extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { height, forceCacheUpdate, systemMessage, index } = this.props;
+    const { height, forceCacheUpdate, index } = this.props;
     const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
 
-    if (systemMessage && elementHeight && height !== 'auto' && elementHeight !== height && this.state.forcedUpdateCount < 10) {
+    if (elementHeight && height !== 'auto' && elementHeight !== height && this.state.forcedUpdateCount < 10) {
       // forceCacheUpdate() internally calls forceUpdate(), so we need a stop flag
       // and cannot rely on shouldComponentUpdate() and other comparisons.
       forceCacheUpdate(index);
@@ -116,6 +117,9 @@ class TimeWindowChatItem extends PureComponent {
 
     if (messages && messages[0].id.includes(CHAT_QUESTION_QUIZ_RESULTS_MESSAGE)) {
       return this.renderQuestionQuizItem();
+    }
+    if (messages && messages[0].id.includes(CHAT_EXPORTED_PRESENTATION_MESSAGE)) {
+      return this.renderExportedPresentationItem();
     }
 
     return (
@@ -166,13 +170,15 @@ class TimeWindowChatItem extends PureComponent {
     } = this.props;
 
     const dateTime = new Date(timestamp);
-    const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
     const emphasizedText = messageFromModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
 
     return (
-      <Styled.Item key={`time-window-${messageKey}`}>
+      <Styled.Item
+        key={`time-window-${messageKey}`}
+        ref={element => this.itemRef = element}
+      >
         <Styled.Wrapper isSystemSender={isSystemSender}>
           <Styled.AvatarWrapper>
             <UserAvatar
@@ -202,7 +208,6 @@ class TimeWindowChatItem extends PureComponent {
             <Styled.Messages>
               {messages.map(message => (
                 <Styled.ChatItem
-                  hasLink={regEx.test(message.text)}
                   emphasizedMessage={emphasizedText}
                   key={message.id}
                   text={message.text}
@@ -244,6 +249,9 @@ class TimeWindowChatItem extends PureComponent {
       chatAreaId,
       lastReadMessageTime,
       handleReadMessage,
+      dispatch,
+      read,
+      chatId,
     } = this.props;
 
     const dateTime = new Date(timestamp);
@@ -275,7 +283,19 @@ class TimeWindowChatItem extends PureComponent {
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
-              handleReadMessage={handleReadMessage}
+              handleReadMessage={(timestamp) => {
+                handleReadMessage(timestamp);
+
+                if (!read) {
+                  dispatch({
+                    type: 'last_read_message_timestamp_changed',
+                    value: {
+                      chatId,
+                      timestamp,
+                    },
+                  });
+                }
+              }}
               scrollArea={scrollArea}
               color={color}
             />
@@ -353,6 +373,68 @@ class TimeWindowChatItem extends PureComponent {
     ) : null;
   }
 
+  renderExportedPresentationItem() {
+    const {
+      timestamp,
+      color,
+      intl,
+      messages,
+      extra,
+      scrollArea,
+      chatAreaId,
+      lastReadMessageTime,
+      handleReadMessage,
+      dispatch,
+      read,
+      chatId,
+      getExportedPresentationString,
+    } = this.props;
+
+    const dateTime = new Date(timestamp);
+
+    return messages ? (
+      <Styled.Item key={_.uniqueId('message-presentation-item-')}>
+        <Styled.PresentationWrapper ref={(ref) => { this.item = ref; }}>
+          <Styled.AvatarWrapper>
+            <UserAvatar color="#0F70D7">
+              <Styled.PollIcon iconName="download" />
+            </UserAvatar>
+          </Styled.AvatarWrapper>
+          <Styled.Content>
+            <Styled.Meta>
+              <Styled.Time dateTime={dateTime} style={{ margin: 0 }}>
+                <FormattedTime value={dateTime} />
+              </Styled.Time>
+            </Styled.Meta>
+            <Styled.PresentationChatItem
+              type="presentation"
+              key={messages[0].id}
+              text={getExportedPresentationString(extra.fileURI, extra.filename, intl)}
+              time={messages[0].time}
+              chatAreaId={chatAreaId}
+              lastReadMessageTime={lastReadMessageTime}
+              handleReadMessage={(timestamp) => {
+                handleReadMessage(timestamp);
+
+                if (!read) {
+                  dispatch({
+                    type: 'last_read_message_timestamp_changed',
+                    value: {
+                      chatId,
+                      timestamp,
+                    },
+                  });
+                }
+              }}
+              scrollArea={scrollArea}
+              color={color}
+            />
+          </Styled.Content>
+        </Styled.PresentationWrapper>
+      </Styled.Item>
+    ) : null;
+  }
+
   render() {
     const {
       systemMessage,
@@ -362,11 +444,7 @@ class TimeWindowChatItem extends PureComponent {
       return this.renderSystemMessage();
     }
 
-    return (
-      <Styled.Item>
-        {this.renderMessageItem()}
-      </Styled.Item>
-    );
+    return this.renderMessageItem();
   }
 }
 

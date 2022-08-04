@@ -53,6 +53,7 @@ export default function addUser(meetingId, userData) {
     meetingId,
     sortName: user.name.trim().toLowerCase(),
     color,
+    speechLocale: '',
     mobile: false,
     breakoutProps: {
       isBreakoutUser: Meeting.meetingProp.isBreakout,
@@ -62,6 +63,7 @@ export default function addUser(meetingId, userData) {
     inactivityCheck: false,
     responseDelay: 0,
     loggedOut: false,
+    left: false,
     ...flat(user),
   };
 

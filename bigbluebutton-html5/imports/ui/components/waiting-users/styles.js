@@ -5,21 +5,16 @@ import {
   itemFocusBorder,
   colorGray,
   colorWhite,
-  colorGrayDark,
   colorGrayLightest,
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
-  borderSizeLarge,
   mdPaddingX,
   mdPaddingY,
-  pollHeaderOffset,
-  toastContentWidth,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
@@ -126,6 +121,8 @@ const CustomButton = styled(Button)`
   margin: .3rem 0;
   font-weight: 400;
   font-size: ${fontSizeBase};
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const Panel = styled.div`
@@ -145,55 +142,6 @@ const Panel = styled.div`
 
   @media ${smallOnly} {
     transform: none !important;
-  }
-`;
-
-const Header = styled.header`
-  position: relative;
-  top: ${pollHeaderOffset};
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const Title = styled(DivElipsis)`
-  flex: 1;
-
-  & > button, & > button:hover {
-    max-width: ${toastContentWidth};
-  }
-`;
-
-const HideButton = styled(Button)`
-  position: relative;
-  background-color: ${colorWhite};
-  display: block;
-  margin: ${borderSizeLarge};
-  margin-bottom: ${borderSize};
-  padding-left: 0;
-  padding-right: inherit;
-
-  [dir="rtl"] & {
-    padding-left: inherit;
-    padding-right: 0;
-  }
-
-  & > i {
-    color: ${colorGrayDark};
-    font-size: smaller;
-
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }
-
-  &:hover {
-    background-color: ${colorWhite};
   }
 `;
 
@@ -245,6 +193,10 @@ const ScrollableArea = styled(ScrollboxVertical)`
   padding-right: 0.25rem;
 `;
 
+const ModeratorActions = styled.div`
+  padding: 0 .2rem;
+`;
+
 export default {
   ListItem,
   UserContentContainer,
@@ -260,10 +212,8 @@ export default {
   Users,
   CustomButton,
   Panel,
-  Header,
-  Title,
-  HideButton,
   LobbyMessage,
   RememberContainer,
   ScrollableArea,
+  ModeratorActions,
 };

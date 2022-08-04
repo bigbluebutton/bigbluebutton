@@ -68,7 +68,21 @@ case class UserLeftMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserLeftMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class UserLeftMeetingEvtMsgBody(intId: String)
+case class UserLeftMeetingEvtMsgBody(intId: String, eject: Boolean, ejectedBy: String, reason: String, reasonCode: String)
+
+object UserLeftFlagUpdatedEvtMsg {
+  val NAME = "UserLeftFlagUpdatedEvtMsg"
+  def apply(meetingId: String, userId: String, body: UserLeftFlagUpdatedEvtMsgBody): UserLeftFlagUpdatedEvtMsg = {
+    val header = BbbClientMsgHeader(UserLeftFlagUpdatedEvtMsg.NAME, meetingId, userId)
+    UserLeftFlagUpdatedEvtMsg(header, body)
+  }
+}
+
+case class UserLeftFlagUpdatedEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   UserLeftFlagUpdatedEvtMsgBody
+) extends BbbCoreMsg
+case class UserLeftFlagUpdatedEvtMsgBody(intId: String, userLeftFlag: Boolean)
 
 object UserJoinedMeetingEvtMsg {
   val NAME = "UserJoinedMeetingEvtMsg"
@@ -183,13 +197,6 @@ object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
-/**
- * Sent to all clients about a user ejected (kicked) from the meeting
- */
-object UserEjectedFromMeetingEvtMsg { val NAME = "UserEjectedFromMeetingEvtMsg" }
-case class UserEjectedFromMeetingEvtMsg(header: BbbClientMsgHeader, body: UserEjectedFromMeetingEvtMsgBody) extends StandardMsg
-case class UserEjectedFromMeetingEvtMsgBody(userId: String, ejectedBy: String, reason: String, reasonCode: String)
-
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
@@ -303,7 +310,7 @@ case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body:
 case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
- * Sent from bbb-apps when user disconnects from Red5.
+ * Sent from client to bbb-akka to notify that a user is leaving
  */
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg

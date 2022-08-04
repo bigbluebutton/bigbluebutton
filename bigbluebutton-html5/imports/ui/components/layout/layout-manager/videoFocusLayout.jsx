@@ -97,6 +97,14 @@ const VideoFocusLayout = (props) => {
             cameraDock: {
               numCameras: cameraDockInput.numCameras,
             },
+            externalVideo: {
+              hasExternalVideo: input.externalVideo.hasExternalVideo,
+            },
+            screenShare: {
+              hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
+            },
           },
           INITIAL_INPUT_STATE,
         ),
@@ -127,6 +135,14 @@ const VideoFocusLayout = (props) => {
             },
             cameraDock: {
               numCameras: cameraDockInput.numCameras,
+            },
+            externalVideo: {
+              hasExternalVideo: input.externalVideo.hasExternalVideo,
+            },
+            screenShare: {
+              hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
             },
           },
           INITIAL_INPUT_STATE,
@@ -331,9 +347,9 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
-        left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
-        right: isRTL ? (mediaBounds.right + captionsMargin) : null,
-        maxWidth: mediaBounds.width - (captionsMargin * 2),
+        left: !isRTL ? (sidebarSize + captionsMargin) : null,
+        right: isRTL ? (sidebarSize + captionsMargin) : null,
+        maxWidth: mediaAreaBounds.width - (captionsMargin * 2),
       },
     });
 
@@ -424,6 +440,7 @@ const VideoFocusLayout = (props) => {
           left: false,
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 

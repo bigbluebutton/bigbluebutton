@@ -15,7 +15,7 @@ nohup mongod --config ./mongo-ramdisk.conf --oplogSize 8 --replSet rs0 --noauth 
 MONGO_OK=0
 
 while [ "$MONGO_OK" = "0" ]; do
-    MONGO_OK=`netstat -lan | grep 127.0.1.1 | grep 27017 &> /dev/null && echo 1 || echo 0`
+    MONGO_OK=`ss -lan | grep 127.0.1.1 | grep 27017 &> /dev/null && echo 1 || echo 0`
     sleep 1;
 done;
 
