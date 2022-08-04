@@ -147,7 +147,7 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
   // Texbox scaled by a constant factor to improve resolution at small scales
   const size = textBoxWidth ? ['-size', `${textBoxWidth * config.process.textScaleFactor}x`] : [];
 
-  const pangoText = `pango:"<span font_family='${font}' font='${fontSize}' color='${textColor}'>${text}</span>"`;
+  const pangoText = `pango:<span font_family='${font}' font='${fontSize}' color='${textColor}'>${text}</span>`;
 
   const justify = textAlign === 'justify';
   textAlign = justify ? 'left' : textAlign;
