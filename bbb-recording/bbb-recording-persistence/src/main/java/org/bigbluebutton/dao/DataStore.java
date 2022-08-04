@@ -56,7 +56,6 @@ public class DataStore {
     }
 
     public <T> void save(T entity) {
-        logger.info("Attempting to save {}", entity);
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
 
@@ -75,7 +74,6 @@ public class DataStore {
     }
 
     public <T> T find(String id, Class<T> entityClass) {
-        logger.info("Attempting to find {} with ID {}", entityClass.getSimpleName(), id);
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         T result = null;
@@ -99,7 +97,6 @@ public class DataStore {
     }
 
     public <T> List<T> findAll(Class<T> entityClass) {
-        logger.info("Attempting to fetch all {}", entityClass.getSimpleName());
         Session session = sessionFactory.openSession();
         Transaction transaction = null;
         List<T> result = null;

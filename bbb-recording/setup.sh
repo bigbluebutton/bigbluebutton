@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "***** Welcome to the BBB Recording setup *****"
-echo -n "Have you edited the .env file? (1-Yes 2-No)"
+echo -n "Have you edited the .env file? (1-Yes 2-No) "
 read EDIT
 
 case $EDIT in
@@ -59,7 +59,7 @@ echo "6. Exit"
 
 while [ $CONTINUE -eq 1 ]
 do
-  echo -n "What would you like to do?"
+  echo -n "What would you like to do? "
   read RESPONSE	
   evaluate_response "$RESPONSE"
 done

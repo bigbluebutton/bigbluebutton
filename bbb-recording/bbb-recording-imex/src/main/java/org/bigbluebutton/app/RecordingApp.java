@@ -1,6 +1,7 @@
 package org.bigbluebutton.app;
 
 import org.bigbluebutton.handler.EventsHandler;
+import org.bigbluebutton.handler.GenerationHandler;
 import org.bigbluebutton.handler.RecordingExportHandler;
 import org.bigbluebutton.handler.RecordingImportHandler;
 
@@ -24,6 +25,8 @@ public class RecordingApp {
         int i = 0, j;
         String arg;
         char flag;
+        boolean importExport = true;
+        String numRecordings = null;
         boolean export = false;
         boolean persist = false;
         boolean recording = true;
@@ -62,6 +65,15 @@ public class RecordingApp {
                         return;
                     }
                     break;
+                case 'g':
+                    importExport = false;
+                    if (i < args.length)
+                        numRecordings = args[i++];
+                    else {
+                        System.out.println(
+                                "Error: To generate recordings you must provide the number of recordings to generate");
+                    }
+                    break;
                 case 'r':
                 case 'v':
                     if (flag == 'v')
@@ -81,6 +93,23 @@ public class RecordingApp {
             }
         }
 
+        if (!importExport) {
+            int numberOfRecordings = 0;
+            try {
+                if (numRecordings != null)
+                    numberOfRecordings = Integer.parseInt(numRecordings);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Could not parse the number of recordings to generate");
+                return;
+            }
+
+            GenerationHandler handler = GenerationHandler.getInstance();
+            if (handler == null)
+                return;
+            handler.generateRecordings(numberOfRecordings);
+            return;
+        }
+
         if (i < args.length)
             path = args[i];
         else {
@@ -93,6 +122,7 @@ public class RecordingApp {
     }
 
     private static void printUsage() {
+        System.out.println("********** Import/Export Mode **********");
         System.out.println("Usage: {-e|-i <persist>} {-r|-v} [-s <id>] [PATH]");
         System.out.println("Import/export recording(s)/event(s) to/from PATH.");
         System.out.println("The default values for PATH are");
@@ -103,6 +133,9 @@ public class RecordingApp {
                 "-i <persist>        import recording(s)/event(s) and indicate if they should be persisted [true|false]");
         System.out.println("{-r|-v}            Indicated whether you wish to import/export recordings or events");
         System.out.println("-s <id>             ID of a single recording/event to be imported/exported");
+        System.out.println("********** Generation Mode **********");
+        System.out.println("Usage: -g [NUMBER]");
+        System.out.println("Generate a specified NUMBER of recording metadata");
     }
 
     private static String createDefaultDirectory(boolean recording) {
@@ -174,6 +207,14 @@ public class RecordingApp {
         System.out.println("Use this application to import and export recording metadata");
 
         do {
+            int generation = getResponse("Are you generating recordings? (1-Yes 2-No) ", new int[] { 1, 2 },
+                    "Please enter either 1 or 2");
+
+            if (generation == 1) {
+                generationMode();
+                continue;
+            }
+
             int impex = getResponse("Are you importing or exporting recordings/events? (1-Import 2-Export 3-Quit) ",
                     new int[] { 1, 2, 3 }, "Please enter either 1, 2, or 3");
 
@@ -291,6 +332,23 @@ public class RecordingApp {
                 } while (true);
             }
         }
+    }
+
+    private static void generationMode() {
+        int numRecordings = -1;
+        do {
+            String response = getResponse("How many recordings would you like to generate? ");
+            try {
+                numRecordings = Integer.parseInt(response);
+            } catch (NumberFormatException e) {
+                System.out.println("You must enter a positive number");
+            }
+        } while (numRecordings < 1);
+
+        GenerationHandler handler = GenerationHandler.getInstance();
+        if (handler == null)
+            return;
+        handler.generateRecordings(numRecordings);
     }
 
     private static int getResponse(String prompt, int[] options, String error) {
