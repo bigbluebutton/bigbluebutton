@@ -100,18 +100,25 @@ class Stress {
 
   async usersJoinKeepingConnected() {
     const meetingId = await createMeeting(parameters);
+    const pages = [];
 
     for (let i = 1; i <= c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS / 2; i++) {
       console.log(`joining ${i * 2} users of ${c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS}`);
       const modPage = new Page(this.browser, await this.getNewPageTab());
       const userPage = new Page(this.browser, await this.getNewPageTab());
-      Promise.all([
+      pages.push(modPage);
+      pages.push(userPage);
+      await Promise.all([
         modPage.init(true, false, { meetingId, fullName: `Mod-${i}` }),
         userPage.init(false, false, { meetingId, fullName: `User-${i}` }),
       ]);
       await modPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
       await userPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
     }
+
+    pages.forEach(async (currentPage) => {
+      await currentPage.page.close();
+    })
   }
 
   async usersJoinExceddingParticipantsLimit() {

@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "BigBlueButton's Presentation Annotation Exporter",
   "scripts": {
-    "start": "node master.js"
+    "start": "node master.js",
+    "lint:fix": "eslint --fix **/*.js"
   },
   "dependencies": {
     "axios": "^0.26.0",
@@ -13,5 +14,9 @@
     "redis": "^4.0.3",
     "sanitize-filename": "^1.6.3",
     "xmlbuilder2": "^3.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.20.0",
+    "eslint-config-google": "^0.14.0"
   }
 }

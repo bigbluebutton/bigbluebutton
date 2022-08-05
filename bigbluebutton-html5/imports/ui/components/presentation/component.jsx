@@ -169,7 +169,6 @@ class Presentation extends PureComponent {
     } = this.props;
 
     const { presentationWidth, presentationHeight } = this.state;
-
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
@@ -868,7 +867,7 @@ class Presentation extends PureComponent {
     return (
       <PresentationMenu
         fullscreenRef={this.refPresentationContainer}
-        getScreenshotRef={this.getSvgRef}
+        tldrawAPI={this.state.tldrawAPI}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         toggleSwapLayout={MediaService.toggleSwapLayout}
