@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.api.meeting.RegisterUser
+import org.bigbluebutton.api.meeting.join.RegisterUser
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
@@ -114,5 +114,13 @@ case class DeskShareRTMPBroadcastStoppedRequest(conferenceName: String, streamna
 case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID: String, replyTo: String) extends InMessage
 
 //API
-case class CreateMeetingInternalMsg(defaultProps: DefaultProps) extends InMessage
-case class RegisterUserInternalMsg(regUser: RegisterUser) extends InMessage
+case class CreateMeetingApiMsg(defaultProps: DefaultProps) extends InMessage
+case class RegisterUserApiMsg(regUser: RegisterUser) extends InMessage
+case class GetUserApiMsg(meetingId: String, userIntId: String) extends InMessage
+
+//case class ApiResponse(msg: String)
+
+trait ApiResponse
+
+case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
+case class ApiResponseFailure(msg: String, any: Any = null) extends ApiResponse

@@ -2,15 +2,29 @@ package org.bigbluebutton
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.{complete, _}
+import akka.pattern.AskTimeoutException
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.service.{HealthzService, MeetingInfoService, MeetingService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus}
 import spray.json._
 
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import api.meeting.{Create, Join, MsgBuilder}
+import api.meeting.{MsgBuilder, ParamsUtils, UserSession}
+import api.meeting.create.{Create, CreateResponse}
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.ScalaObjectMapper
 import com.typesafe.config.ConfigFactory
+import org.apache.commons.lang3.RandomStringUtils
+import org.bigbluebutton.api.meeting.join.Join
+import org.bigbluebutton.core.api.{ApiResponseFailure, ApiResponseSuccess}
+import com.softwaremill.session.CsrfDirectives._
+import com.softwaremill.session.CsrfOptions._
+import com.softwaremill.session.SessionDirectives._
+import com.softwaremill.session.SessionOptions._
+import com.softwaremill.session._
+import com.google.gson.Gson
+import org.bigbluebutton.core.models.RegisteredUser
 
 import scala.util.Try
 
@@ -72,6 +86,14 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
   extends JsonSupportProtocolHealthResponse
   with JsonSupportProtocolMeetingInfoResponse {
 
+  val sessionConfig = SessionConfig.default("YzszrU1UkqsMqCNEnuLI8DDWs6Wqacj2z4dbtquSjB8GbsFpBA7GG38yk0DaIyrB")
+  implicit val sessionManager = new SessionManager[Map[String,String]](sessionConfig)
+  implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[Map[String,String]] {
+    //                      def log(msg: String) = log.info(msg)
+    def log(msg: String) = println(s"Logger: $msg")
+  }
+//  var sessions: Map[String,UserSession] = Map()
+
   def routes =
     (path("api" / "create") & extractLog) { log =>
       get {
@@ -102,97 +124,8 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
           log.info(s"attendeePW [${attendeePW.getOrElse("")}]")
           log.info(s"moderatorPW [${moderatorPW.getOrElse("")}]")
 
-          /*
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.CREATE,
-            request.getParameterMap(),
-            request.getQueryString()
-    )
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue())
-      return
-    }
-    */
-
-
           val voiceBridge = voiceBridgeParam.getOrElse("1")
-          /*
-    // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
-    if (!params.voiceBridge) {
-      // Try up to 10 times. We should find a valid telVoice quickly unless
-      // the server hosts ~100k meetings (default 5-digit telVoice)
-      for (int i in 1..10) {
-        String telVoice = paramsProcessorUtil.processTelVoice("");
-        if (!meetingService.getNotEndedMeetingWithTelVoice(telVoice)) {
-          params.voiceBridge = telVoice;
-          break;
-        }
-      }
-      // Still no unique voiceBridge found? Let createMeeting handle it.
-    }
-    */
-
-
           val html5InstanceId = 1
-          /*
-    params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
-    */
-
-
-          /*
-          Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
-
-
-
-      */
-
-
-          /*
-
-              ApiErrors errors = new ApiErrors()
-
-              if (meetingService.createMeeting(newMeeting)) {
-                // See if the request came with pre-uploading of presentation.
-                uploadDocuments(newMeeting, false);  //
-                respondWithConference(newMeeting, null, null)
-              } else {
-                // Translate the external meeting id into an internal meeting id.
-                String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-                Meeting existing = meetingService.getNotEndedMeetingWithId(internalMeetingId);
-                if (existing != null) {
-                  log.debug "Existing conference found"
-                  Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-                  if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
-                    //paramsProcessorUtil.updateMeeting(updateParams, existing);
-                    // trying to create a conference a second time, return success, but give extra info
-                    // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
-                    //uploadDocuments(existing);
-                    respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
-                  } else {
-                    // BEGIN - backward compatibility
-                    invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-                    return
-                    // END - backward compatibility
-
-                    // enforce meetingID unique-ness
-                    errors.nonUniqueMeetingIdError()
-                    respondWithErrors(errors)
-                  }
-
-                  return
-                } else {
-                  Meeting existingTelVoice = meetingService.getNotEndedMeetingWithTelVoice(newMeeting.getTelVoice());
-                  Meeting existingWebVoice = meetingService.getNotEndedMeetingWithWebVoice(newMeeting.getWebVoice());
-                  if (existingTelVoice != null || existingWebVoice != null) {
-                    log.error "VoiceBridge already in use by another meeting (different meetingId)"
-                    errors.nonUniqueVoiceBridgeError()
-                    respondWithErrors(errors)
-                  }
-                }
-              }
-                       */
 
           val config = ConfigFactory.load("bigbluebutton.properties")
           lazy val presentationDir = Try(config.getString("presentationDir")).getOrElse("localhost")
@@ -205,98 +138,37 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
             println("PARAAAAMS")
             println(params.toString)
 
-//            val defaultprops = Create.createDefaultProp(
-//              meetingName = name,
-//              extMeetingId = meetingID,
-//              meetingId = meetingID,
-//              moderatorPass = moderatorPW.getOrElse(""),
-//              viewerPass = attendeePW.getOrElse(""),
-//              dialNumber = "613-555-1234"
-//            )
-//
-//            meetingService.createMeeting(defaultprops)
-
-
             val defaultprops = Create.createDefaultProp(meetingID, params, config)
 
-            // TODO
-//            if (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
-//              meeting.setCustomLogoURL(params.get(ApiParams.LOGO));
-//            } else if (this.getUseDefaultLogo()) {
-//              meeting.setCustomLogoURL(this.getDefaultLogoURL());
-//            }
-
-            //if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
-            //			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
-            //		}
-
-            // TODO
-            // ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION
-
-
-            get {
               val meetingCreateFuture = meetingService.createMeeting(defaultprops)
               val entityFuture = meetingCreateFuture.map { resp =>
-                resp.optionMeetingCreateResp match {
-                  case Some(_) =>
+
+                println("SIM ENTROU NO MATCH.....")
+                println(resp)
+
+                resp match {
+                  case ApiResponseSuccess(msg, arg) =>
+                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                      CreateResponse.ResponseMeeting(msg,defaultprops).toXml.toString)
+                  case ApiResponseFailure(msg, arg) =>
                     val response:xml.Elem = <response>
-                      <returncode>SUCCESS</returncode>
-                      <meetingID>{defaultprops.meetingProp.extId}</meetingID>
-                      <internalMeetingID>{defaultprops.meetingProp.intId}</internalMeetingID>
-                      <parentMeetingID>{defaultprops.breakoutProps.parentId}</parentMeetingID>
-                      <attendeePW>{defaultprops.password.viewerPass}</attendeePW>
-                      <moderatorPW>{defaultprops.password.moderatorPass}</moderatorPW>
-                      <createTime>{defaultprops.durationProps.createdTime}</createTime>
-                      <voiceBridge>{defaultprops.voiceProp.telVoice}</voiceBridge>
-                      <dialNumber>{defaultprops.voiceProp.dialNumber}</dialNumber>
-                      <createDate>{defaultprops.durationProps.createdDate}</createDate>
-                      <hasUserJoined>false</hasUserJoined>
-                      <duration>0</duration>
-                      <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
+                      <returncode>ERR</returncode>
                       <messageKey/>
-                      <message/>
+                      <message>{msg}</message>
                     </response>
                     HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),response.toString)
-                  case None =>
+                  case _ =>
                     val response:xml.Elem = <response>
                       <returncode>ERR</returncode>
                       <messageKey/>
                       <message>errrr</message>
                     </response>
                     HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),response.toString)
-
 //                    HttpEntity(ContentTypes.`application/json`, s"""{ "message": "No active meeting with ID $meetingId"}""".parseJson.prettyPrint)
                 }
               }
               complete(StatusCodes.OK,entityFuture)
-            }
-
-
-
-//            complete(
-//              StatusCodes.OK,
-//              HttpEntity(ContentTypes.`application/json`, """{ "message": "Trying to create meeting"}""".parseJson.prettyPrint)
-//            )
           }
-
-
-
-
-          //          HttpEntity(ContentTypes.`application/json`, res.optionMeetingsInfoAnalytics.get.toJson.prettyPrint)
-
-          //            val future = meetingService.getAnalytics()
-          //            val entityFuture = future.map { res =>
-          //              res.optionMeetingsInfoAnalytics match {
-          //                case Some(_) =>
-          //                  HttpEntity(ContentTypes.`application/json`, res.optionMeetingsInfoAnalytics.get.toJson.prettyPrint)
-          //                case None =>
-          //                  HttpEntity(ContentTypes.`application/json`, """{ "message": "No active meetings"}""".parseJson.prettyPrint)
-          //              }
-          //            }
-          //            complete(entityFuture)
-
-
-
 
         }
 
@@ -310,403 +182,426 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
           "redirect".as[String].optional,
           "checksum".as[String],
         ) { (
-           fullName,
-           meetingID,
-           password,
-           redirect,
-           checksum,
-          ) =>
-            println("fullName: " + fullName)
-            println("meetingID: " + meetingID)
-            println("password: " + password)
-            println("redirect: " + redirect)
-            println("checksum: " + checksum)
+                               fullName,
+                               meetingID,
+                               password,
+                               redirectFlag,
+                               checksum,
+                             ) =>
+          println("fullName: " + fullName)
+          println("meetingID: " + meetingID)
+          println("password: " + password)
+          println("redirect: " + redirectFlag)
+          println("checksum: " + checksum)
+
+
 
           parameterMap { params =>
             log.debug("PARAAAAMS")
             log.debug(params.toString)
 
-            complete(
-              StatusCodes.OK,
-              HttpEntity(ContentTypes.`application/json`, """{ "message": "Trying to register user"}""".parseJson.prettyPrint)
-            )
+            var destUrl:String = null
+
+            try {
+              val regUser = Join.createRegisterUser(
+                meetingID,
+                params
+              )
+
+              val sessionToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase
+
+              val registerUserFuture = meetingService.registerUser(regUser)
+              val entityFuture = registerUserFuture.map { resp =>
+
+                println("SIM ENTROU NO MATCH.....")
+                println(resp)
+
+
+                resp match {
+                  case ApiResponseSuccess(msg, arg) =>
+                    //                  HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                    //                    CreateResponse.ResponseMeeting(msg,defaultprops).toXml.toString)
+
+                    val defaultHTML5ClientUrl = ParamsUtils().getConfigAsString("defaultHTML5ClientUrl")
+
+                    destUrl = defaultHTML5ClientUrl + "?sessionToken=" + sessionToken
+
+
+                    log.info("Redirecting to ${destUrl}")
+
+                    //                  redirect(Uri(destUrl), StatusCodes.PermanentRedirect)
+
+                    HttpEntity(ContentTypes.`application/json`, s"""{ "message": "Redirecting to $destUrl"}""".parseJson.prettyPrint)
+                  //                  complete(StatusCodes.OK,entityFuture)
+                  case ApiResponseFailure(msg, arg) =>
+                    val response: xml.Elem = <response>
+                      <returncode>ERR</returncode>
+                      <messageKey/>
+                      <message>
+                        {msg}
+                      </message>
+                    </response>
+                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString)
+
+                  //                  complete(StatusCodes.OK,entityFuture)
+                  case _ =>
+                    val response: xml.Elem = <response>
+                      <returncode>ERR</returncode>
+                      <messageKey/>
+                      <message>errrr</message>
+                    </response>
+                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString)
+                  //                    HttpEntity(ContentTypes.`application/json`, s"""{ "message": "No active meeting with ID $meetingId"}""".parseJson.prettyPrint)
+
+                  //                  complete(StatusCodes.OK,entityFuture)
+                }
+              }
+              //            complete(StatusCodes.OK,entityFuture)
+
+
+
+//              val session = UserSession(sessionToken)
+
+//              val teste : Map[String, String] = Map()
+//              val b = teste + ("kkk" -> "ccc")
+
+              optionalSession(oneOff, usingCookies) { currSession => {
+
+                val userSession = currSession match {
+                  case Some(currUserSession: Map[String, String]) => currUserSession
+                  case None       => Map[String,String]()
+                }
+
+//                val test: Array[String] = Array()
+//                val b = test + "bla"
+
+                val acessTokenData = UserSession(regUser.meetingId, regUser.intUserId)
+
+
+
+
+                val gson = new Gson
+                val jsonUserData = gson.toJson(acessTokenData)
+
+                gson.fromJson(jsonUserData, classOf[UserSession])
+//
+//
+//                val mapper = new ObjectMapper() with ScalaObjectMapper
+//                //this line my be needed depending on your case classes
+//                mapper.registerModule(DefaultScalaModule)
+//
+//                def fromJson[T](json: String)(implicit m: Manifest[T]): T = {
+//                  mapper.readValue[T](json)
+//                }
+
+
+//                println(acessTokenData.toString)
+//                println(acessTokenData.toJson)
+
+                setSession(oneOff, usingCookies, userSession + (sessionToken -> jsonUserData)) {
+                  setNewCsrfToken(checkHeader) { ctx =>
+                    log.info(s"SESSION SET SUCESSEFULY $sessionToken")
+                    ctx.complete(
+                      StatusCodes.OK,entityFuture
+                      //                    log.info(s"SESSION SET SUCESSEFULY $sessionToken")
+                      //                      complete(StatusCodes.OK,entityFuture)
+
+                      //                    HttpResponse(
+                      //                      status = TemporaryRedirect,
+                      //                      headers = headers
+                      //                        .Location(Uri(state.getOrElse("/"))) :: Nil,
+                      //                      entity = HttpEntity.Empty
+                      //                    )
+                    )
+                  }
+                }
+              }
+              }
+
+
+
+//                complete(sessionToken.toJson)
+//                log.info(s"SESSION SET SUCESSEFULY $sessionToken")
+//                complete(StatusCodes.OK,entityFuture)
+//              }
+
+
+
+
+            } catch {
+              case e: Exception => {
+                log.error(s"Error join on meeting $meetingID, ${e.getMessage}")
+                val response: xml.Elem = <response>
+                  <returncode>ERR</returncode>
+                  <messageKey/>
+                  <message>{e.getMessage}</message>
+                </response>
+                complete(HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString))
+              }
+            }
+
+
+
+
+
+            //            complete(
+            //              StatusCodes.OK,
+            //              HttpEntity(ContentTypes.`application/json`, """{ "message": "Trying to register user"}""".parseJson.prettyPrint)
+            //            )
+
+            //          }
+
+            //          {
+            //            "envelope":{
+            //              "name":"RegisterUserReqMsg",
+            //              "routing":{
+            //              "sender":"bbb-web"
+            //            },
+            //              "timestamp":1657591625809
+            //            },
+            //            "core":{
+            //              "header":{
+            //              "name":"RegisterUserReqMsg",
+            //              "meetingId":"35f5887b2d967a7695d4c86cb075ced59c38a2d1-1657591615291"
+            //            },
+            //              "body":{
+            //              "meetingId":"35f5887b2d967a7695d4c86cb075ced59c38a2d1-1657591615291",
+            //              "intUserId":"w_8ue7sn9cwyao",
+            //              "name":"User 2644673",
+            //              "role":"MODERATOR",
+            //              "extUserId":"w_8ue7sn9cwyao",
+            //              "authToken":"nkvlyftehfvo",
+            //              "avatarURL":"",
+            //              "guest":false,
+            //              "authed":true,
+            //              "guestStatus":"ALLOW",
+            //              "excludeFromDashboard":false
+            //            }
+            //            }
+            //          }"
+
+
+            //          https://bbb26.bbbvm.imdt.com.br/bigbluebutton/api/join?
+            //            fullName=User+2644673
+            //          meetingID=random-3842371
+            //          password=ap
+            //          redirect=true
+            //          checksum=71567cce72c8213a4884f80e0530e362ac18cb05
           }
 
-
-//          {
-//            "envelope":{
-//              "name":"RegisterUserReqMsg",
-//              "routing":{
-//              "sender":"bbb-web"
-//            },
-//              "timestamp":1657591625809
-//            },
-//            "core":{
-//              "header":{
-//              "name":"RegisterUserReqMsg",
-//              "meetingId":"35f5887b2d967a7695d4c86cb075ced59c38a2d1-1657591615291"
-//            },
-//              "body":{
-//              "meetingId":"35f5887b2d967a7695d4c86cb075ced59c38a2d1-1657591615291",
-//              "intUserId":"w_8ue7sn9cwyao",
-//              "name":"User 2644673",
-//              "role":"MODERATOR",
-//              "extUserId":"w_8ue7sn9cwyao",
-//              "authToken":"nkvlyftehfvo",
-//              "avatarURL":"",
-//              "guest":false,
-//              "authed":true,
-//              "guestStatus":"ALLOW",
-//              "excludeFromDashboard":false
-//            }
-//            }
-//          }"
-
-
-
-
-
-          //          https://bbb26.bbbvm.imdt.com.br/bigbluebutton/api/join?
-//            fullName=User+2644673
-//          meetingID=random-3842371
-//          password=ap
-//          redirect=true
-//          checksum=71567cce72c8213a4884f80e0530e362ac18cb05
-
-
-
-
-          val regUser = Join.createRegisterUser(
-            meetingId = meetingID,
-            intUserId = "w_8ue7sn9cwyao",
-            name = fullName,
-            role = "MODERATOR",
-            extUserId =            "w_8ue7sn9cwyao",
-            authToken =            "nkvlyftehfvo",
-            avatarURL =            "",
-            guest =                false,
-            authed =                true,
-            guestStatus =          "ALLOW",
-            excludeFromDashboard = false
-          )
-
-          meetingService.registerUser(regUser)
-
-
-
-          /*
-          String API_CALL = 'join'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-    log.debug request.getParameterMap().toMapString()
-    log.debug request.getQueryString()
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.JOIN,
-            request.getParameterMap(),
-            request.getQueryString()
-    )
-
-    HashMap<String, String> roles = new HashMap<String, String>();
-
-    roles.put("moderator", ROLE_MODERATOR);
-    roles.put("viewer", ROLE_ATTENDEE);
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
-      return
-    }
-
-    Boolean authenticated = false;
-
-    Boolean guest = false;
-    if (!StringUtils.isEmpty(params.guest)) {
-      guest = Boolean.parseBoolean(params.guest)
-    } else {
-      // guest param has not been passed. Make user as
-      // authenticated by default. (ralam july 3, 2018)
-      authenticated = true
-    }
-
-
-    if (!StringUtils.isEmpty(params.auth)) {
-      authenticated = Boolean.parseBoolean(params.auth)
-    }
-
-    String fullName = ParamsUtil.stripControlChars(params.fullName)
-
-    String externalMeetingId = params.meetingID
-
-    String attPW = params.password
-
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
-
-    // the createTime mismatch with meeting's createTime, complain
-    // In the future, the createTime param will be required
-    if (params.createTime != null) {
-      long createTime = 0;
-      try {
-        createTime = Long.parseLong(params.createTime);
-      } catch (Exception e) {
-        log.warn("could not parse createTime param");
-        createTime = -1;
+        }
       }
-      if (createTime != meeting.getCreateTime()) {
-        // BEGIN - backward compatibility
-        invalid("mismatchCreateTimeParam", "The createTime parameter submitted mismatches with the current meeting.", REDIRECT_RESPONSE);
-        return
-        // END - backward compatibility
+    } ~ (path("api" / "enter") & extractLog) { log =>
+        get {
+          log.info("enter")
 
-        errors.mismatchCreateTimeParam();
-        respondWithErrors(errors, REDIRECT_RESPONSE);
-        return
-      }
-    }
+          requiredSession(oneOff, usingCookies) { userSession: Map[String, String] =>
+            println(s"Current session $userSession")
+//            complete {
+//              "secret"
+//            }
 
-    // Now determine if this user is a moderator or a viewer.
-    String role = null;
+              parameter("sessionToken".as[String]) { (sessionToken) =>
+                println("sessionToken: " + sessionToken)
 
-    // First Case: send a valid role
-    if (!StringUtils.isEmpty(params.role) && roles.containsKey(params.role.toLowerCase())) {
-      role = roles.get(params.role.toLowerCase());
 
-    // Second case: role is not present or valid BUT there is password
-    } else if (attPW != null && !attPW.isEmpty()){
-      // Check if the meeting has passwords
-      if ((meeting.getModeratorPassword() != null && !meeting.getModeratorPassword().isEmpty())
-              && (meeting.getViewerPassword() != null && !meeting.getViewerPassword().isEmpty())){
-        // Check which role does the user belong
-        if (meeting.getModeratorPassword().equals(attPW)) {
-          role = Meeting.ROLE_MODERATOR
-        } else if (meeting.getViewerPassword().equals(attPW)) {
-          role = Meeting.ROLE_ATTENDEE
-        } else {
-          log.debug("Password does not match any of the registered ones");
-          response.addHeader("Cache-Control", "no-cache")
-          withFormat {
-            xml {
-              render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
-                      RESP_CODE_FAILED), contentType: "text/xml")
+
+                val response = {
+                  if(userSession.exists(tokens => tokens._1 == sessionToken)) {
+
+                    val gson = new Gson
+                    val userTokenData = gson.fromJson(userSession(sessionToken), classOf[UserSession])
+
+                    val registerUserFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId)
+                    val entityFuture = registerUserFuture.map { resp =>
+
+                      println("SIM ENTROU NO MATCH.....")
+                      println(resp)
+
+
+                      resp match {
+                        case ApiResponseSuccess(msg, regUser: RegisteredUser) =>
+
+                          println("CHEGOU REG USER!!!!!!!!!")
+                          println(regUser)
+
+                          var userReturn:Map[String,String] = Map()
+                          userReturn += ("returncode" -> "SUCCESS")
+                          userReturn += ("fullname" -> regUser.name)
+                          userReturn += ("confname" -> "bla")
+                          userReturn += ("meetingID" -> userTokenData.meetingId)
+                          userReturn += ("externMeetingID" -> "bla")
+                          userReturn += ("externUserID" -> regUser.externId)
+                          userReturn += ("internalUserID" -> regUser.id)
+                          userReturn += ("role" -> regUser.role)
+                          userReturn += ("guest" -> regUser.guest)
+                          userReturn += ("guestStatus" -> regUser.guestStatus)
+                          userReturn += ("conference" -> "bla")
+                          userReturn += ("room" -> "bla")
+                          userReturn += ("voicebridge" -> "bla")
+                          userReturn += ("dialnumber" -> "bla")
+                          userReturn += ("webvoiceconf" -> "bla")
+                          userReturn += ("mode" -> "bla")
+                          userReturn += ("record" -> "bla")
+                          userReturn += ("isBreakout" -> "bla")
+                          userReturn += ("logoutTimer" -> "bla")
+                          userReturn += ("allowStartStopRecording" -> "bla")
+                          userReturn += ("welcome" -> "bla")
+                          userReturn += ("modOnlyMessage" -> "bla")
+                          userReturn += ("bannerText" -> "bla")
+                          userReturn += ("bannerColor" -> "bla")
+                          userReturn += ("welcome" -> "bla")
+                          userReturn += ("customLogoURL" -> "bla")
+                          userReturn += ("customCopyright" -> "bla")
+                          userReturn += ("muteOnStart" -> "bla")
+                          userReturn += ("allowModsToUnmuteUsers" -> "bla")
+                          userReturn += ("logoutUrl" -> "bla")
+                          userReturn += ("defaultLayout" -> "bla")
+                          userReturn += ("avatarURL" -> "bla")
+                          userReturn += ("record" -> "bla")
+                          userReturn += ("privateChatEnabled" -> "bla")
+                          userReturn += ("customdata" -> "bla") //TODO
+                          userReturn += ("metadata" -> "bla") //TODO
+
+
+                          //                    complete(HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString))
+                          //                complete(HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint))
+
+                          //                json {
+                          //                  def builder = new JsonBuilder()
+                          //                  builder.response {
+                          //                    returncode RESP_CODE_SUCCESS
+                          //                      fullname us.fullname
+                          //                    confname us.conferencename
+                          //                    meetingID us.meetingID
+                          //                    externMeetingID us.externMeetingID
+                          //                    externUserID us.externUserID
+                          //                    internalUserID newInternalUserID
+                          //                      authToken us.authToken
+                          //                    role us.role
+                          //                    guest us.guest
+                          //                    guestStatus us.guestStatus
+                          //                    conference us.conference
+                          //                    room us.room
+                          //                    voicebridge us.voicebridge
+                          //                    dialnumber meeting.getDialNumber()
+                          //                    webvoiceconf us.webvoiceconf
+                          //                    mode us.mode
+                          //                    record us.record
+                          //                    isBreakout meeting.isBreakout()
+                          //                    logoutTimer meeting.getLogoutTimer()
+                          //                    allowStartStopRecording meeting.getAllowStartStopRecording()
+                          //                    welcome us.welcome
+                          //                    if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage) && us.role.equals(ROLE_MODERATOR)) {
+                          //                      modOnlyMessage meeting.moderatorOnlyMessage
+                          //                    }
+                          //                    if (!StringUtils.isEmpty(meeting.bannerText)) {
+                          //                      bannerText meeting.getBannerText()
+                          //                      bannerColor meeting.getBannerColor()
+                          //                    }
+                          //                    customLogoURL meeting.getCustomLogoURL()
+                          //                    customCopyright meeting.getCustomCopyright()
+                          //                    muteOnStart meeting.getMuteOnStart()
+                          //                    allowModsToUnmuteUsers meeting.getAllowModsToUnmuteUsers()
+                          //                    logoutUrl us.logoutUrl
+                          //                    defaultLayout us.defaultLayout
+                          //                    avatarURL us.avatarURL
+                          //                    if (meeting.breakoutRoomsParams != null) {
+                          //                      breakoutRooms {
+                          //                        record meeting.breakoutRoomsParams.record
+                          //                        privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
+                          //                      }
+                          //                    }
+                          //                    customdata (
+                          //                      meeting.getUserCustomData(us.externUserID).collect { k, v ->
+                          //                        ["$k": v]
+                          //                      }
+                          //                    )
+                          //                    metadata (
+                          //                      meeting.getMetadata().collect { k, v ->
+                          //                        ["$k": v]
+                          //                      }
+                          //                    )
+                          //                  }
+                          //                  render(contentType: "application/json", text: builder.toPrettyString())
+                          //                }
+
+                          userReturn
+                        case ApiResponseFailure(msg, arg) =>
+
+                          var userReturn:Map[String,String] = Map()
+                          userReturn += ("returncode" -> "ERROR")
+                          userReturn += ("message" -> msg)
+
+                          userReturn
+
+                        //                  complete(StatusCodes.OK,entityFuture)
+                        case _ =>
+                          var userReturn:Map[String,String] = Map()
+                          userReturn += ("returncode" -> "ERROR")
+                          userReturn += ("message" -> "generic error")
+
+                          userReturn
+                        //                    HttpEntity(ContentTypes.`application/json`, s"""{ "message": "No active meeting with ID $meetingId"}""".parseJson.prettyPrint)
+
+                        //                  complete(StatusCodes.OK,entityFuture)
+                      }
+                    }//.mapTo(Map[String,String])
+
+//                    complete(StatusCodes.OK,entityFuture)
+
+//                    val teste = entityFuture.onComplete(resp => {
+//                      resp
+//                    })
+
+                    complete(StatusCodes.OK,entityFuture)
+
+//                    entityFuture.recover {
+//                      case e: AskTimeoutException => {
+//                        var userReturn:Map[String,String] = Map()
+//                        userReturn += ("returncode" -> "ERROR")
+//                        userReturn += ("message" -> "Request Timeout error")
+//
+//                        userReturn
+//                      }
+//                    }
+
+//                    teste
+
+//                    <response>
+//                      <returncode>SUCCESS</returncode>
+//                      <messageKey/>
+//                      <message>Session found: {userTokenData}</message>
+//                    </response>
+                  } else {
+//                    <response>
+//                      <returncode>ERRO</returncode>
+//                      <messageKey/>
+//                      <message>Session invalid</message>
+//                    </response>
+
+                    var userReturn:Map[String,String] = Map()
+                    userReturn += ("returncode" -> "ERROR")
+                    userReturn += ("message" -> "Session invalid")
+
+                    complete(HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint))
+
+                  }
+                }
+
+
+                response
+
+
+
+
+
+
+
+
             }
           }
-          return
         }
-      // In this case, the meeting doesn't have any password registered and there is no role param
-      } else {
-        log.debug("This meeting doesn't have any password");
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-          xml {
-            render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
-                    "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
-          }
-        }
-        return
-      }
-
-    // Third case: No valid role + no valid password
-    } else {
-      log.debug("No matching params encountered");
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
-        }
-      }
-      return
-    }
-
-    // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
-    // For users joining using the phone, we will prepend "v_" so it will be easier
-    // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
-    String internalUserID = "w_" + RandomStringUtils.randomAlphanumeric(12).toLowerCase()
-
-    String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
-
-    log.debug "Auth token: " + authToken
-
-    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
-
-    log.debug "Session token: " + sessionToken
-
-    String externUserID = params.userID
-    if (StringUtils.isEmpty(externUserID)) {
-      externUserID = internalUserID
-    }
-
-    //Return a Map with the user custom data
-    Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
-
-    //Currently, it's associated with the externalUserID
-    if (userCustomData.size() > 0)
-      meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
-
-    String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated)
-
-    UserSession us = new UserSession();
-    us.authToken = authToken;
-    us.internalUserId = internalUserID
-    us.conferencename = meeting.getName()
-    us.meetingID = meeting.getInternalId()
-    us.externMeetingID = meeting.getExternalId()
-    us.externUserID = externUserID
-    us.fullname = fullName
-    us.role = role
-    us.conference = meeting.getInternalId()
-    us.room = meeting.getInternalId()
-    us.voicebridge = meeting.getTelVoice()
-    us.webvoiceconf = meeting.getWebVoice()
-    us.mode = "LIVE"
-    us.record = meeting.isRecord()
-    us.welcome = meeting.getWelcomeMessage()
-    us.guest = guest
-    us.authed = authenticated
-    us.guestStatus = guestStatusVal
-    us.logoutUrl = meeting.getLogoutUrl()
-    us.defaultLayout = meeting.getMeetingLayout()
-    us.leftGuestLobby = false
-
-    if (!StringUtils.isEmpty(params.defaultLayout)) {
-      us.defaultLayout = params.defaultLayout;
-    }
-
-    if (!StringUtils.isEmpty(params.avatarURL)) {
-      us.avatarURL = params.avatarURL;
-    } else {
-      us.avatarURL = meeting.defaultAvatarURL
-    }
-
-    if (!StringUtils.isEmpty(params.excludeFromDashboard)) {
-      try {
-        us.excludeFromDashboard = Boolean.parseBoolean(params.excludeFromDashboard)
-      } catch (Exception e) {
-        // Do nothing, prop excludeFromDashboard was already initialized
-      }
-    }
-
-    String meetingId = meeting.getInternalId()
-
-    if (hasReachedMaxParticipants(meeting, us)) {
-      // BEGIN - backward compatibility
-      invalid("maxParticipantsReached", "The number of participants allowed for this meeting has been reached.", REDIRECT_RESPONSE);
-      return
-      // END - backward compatibility
-
-      errors.maxParticipantsReached();
-      respondWithErrors(errors, REDIRECT_RESPONSE);
-      return;
-    }
-
-    // Register user into the meeting.
-    meetingService.registerUser(
-        us.meetingID,
-        us.internalUserId,
-        us.fullname,
-        us.role,
-        us.externUserID,
-        us.authToken,
-        us.avatarURL,
-        us.guest,
-        us.authed,
-        guestStatusVal,
-        us.excludeFromDashboard,
-        us.leftGuestLobby
-    )
-
-    session.setMaxInactiveInterval(SESSION_TIMEOUT);
-
-    //check if exists the param redirect
-    boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
-
-    if (!StringUtils.isEmpty(params.redirect)) {
-      try {
-        redirectClient = Boolean.parseBoolean(params.redirect);
-      } catch (Exception e) {
-        redirectClient = true;
-      }
-    }
-
-    String msgKey = "successfullyJoined"
-    String msgValue = "You have joined successfully."
-
-    // Keep track of the client url in case this needs to wait for
-    // approval as guest. We need to be able to send the user to the
-    // client after being approved by moderator.
-    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
-
-    session[sessionToken] = sessionToken
-    meetingService.addUserSession(sessionToken, us)
-
-    //Identify which of these to logs should be used. sessionToken or user-token
-    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
-    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
-
-    log.info("Session token: ${sessionToken}")
-
-    // Process if we send the user directly to the client or
-    // have it wait for approval.
-    String destUrl = clientURL + "?sessionToken=" + sessionToken
-    if (guestStatusVal.equals(GuestPolicy.WAIT)) {
-      String guestWaitUrl = paramsProcessorUtil.getDefaultGuestWaitURL();
-      destUrl = guestWaitUrl + "?sessionToken=" + sessionToken
-      // Check if the user has her/his default locale overridden by an userdata
-      String customLocale = userCustomData.get("bbb_override_default_locale")
-      if (customLocale != null) {
-        destUrl += "&locale=" + customLocale
-      }
-      msgKey = "guestWait"
-      msgValue = "Guest waiting for approval to join meeting."
-    } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
-      destUrl = meeting.getLogoutUrl()
-      msgKey = "guestDeny"
-      msgValue = "Guest denied to join meeting."
-    }
-
-    Map<String, Object> logData = new HashMap<String, Object>();
-    logData.put("meetingid", us.meetingID);
-    logData.put("extMeetingid", us.externMeetingID);
-    logData.put("name", us.fullname);
-    logData.put("userid", us.internalUserId);
-    logData.put("sessionToken", sessionToken);
-    logData.put("logCode", "join_api");
-    logData.put("description", "Handle JOIN API.");
-
-    Gson gson = new Gson();
-    String logStr = gson.toJson(logData);
-
-    log.info(" --analytics-- data=" + logStr);
-
-    if (redirectClient) {
-      log.info("Redirecting to ${destUrl}");
-      redirect(url: destUrl);
-    } else {
-      log.info("Successfully joined. Sending XML response.");
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
-        }
-      }
-    }
-           */
-
-
-
-
-          complete(
-            StatusCodes.OK,
-            HttpEntity(ContentTypes.`application/json`, """{ "message": "Trying to register user"}""".parseJson.prettyPrint)
-          )
-
-          }
-
-      }
     } ~ path("healthz") {
       get {
         val future = healthz.getHealthz()

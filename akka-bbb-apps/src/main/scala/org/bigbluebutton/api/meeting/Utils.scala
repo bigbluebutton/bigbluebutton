@@ -1,7 +1,6 @@
 package org.bigbluebutton.api.meeting
 
 import org.apache.commons.lang3.{ StringEscapeUtils, StringUtils }
-import org.slf4j.{ Logger, LoggerFactory }
 
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder

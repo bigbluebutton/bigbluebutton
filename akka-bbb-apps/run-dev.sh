@@ -2,8 +2,8 @@
 
 sudo service bbb-apps-akka stop
 
-rm -rf src/main/resources
-cp -R src/universal/conf src/main/resources
+#rm -rf src/main/resources
+#cp -R src/universal/conf src/main/resources
 
 #Set correct sharedSecret and bbbWebAPI
 sudo sed -i "s/sharedSecret = \"changeme\"/sharedSecret = \"$(sudo bbb-conf --salt | grep Secret: | cut -d ' ' -f 6)\"/g" src/main/resources/application.conf

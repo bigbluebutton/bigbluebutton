@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.RegisterUserInternalMsg
+import org.bigbluebutton.core.api.RegisterUserApiMsg
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
@@ -79,7 +79,7 @@ trait RegisterUserReqMsgHdlr {
 
   }
 
-  def handleRegisterUserInternalMsg(msg: RegisterUserInternalMsg): Unit = {
+  def handleRegisterUserApiMsg(msg: RegisterUserApiMsg): Unit = {
 
     def buildUserRegisteredRespMsg(meetingId: String, userId: String, name: String,
                                    role: String, excludeFromDashboard: Boolean, registeredOn: Long): BbbCommonEnvCoreMsg = {
