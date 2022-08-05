@@ -97,6 +97,14 @@ const VideoFocusLayout = (props) => {
             cameraDock: {
               numCameras: cameraDockInput.numCameras,
             },
+            externalVideo: {
+              hasExternalVideo: input.externalVideo.hasExternalVideo,
+            },
+            screenShare: {
+              hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
+            },
           },
           INITIAL_INPUT_STATE,
         ),
@@ -127,6 +135,14 @@ const VideoFocusLayout = (props) => {
             },
             cameraDock: {
               numCameras: cameraDockInput.numCameras,
+            },
+            externalVideo: {
+              hasExternalVideo: input.externalVideo.hasExternalVideo,
+            },
+            screenShare: {
+              hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
             },
           },
           INITIAL_INPUT_STATE,
@@ -240,14 +256,14 @@ const VideoFocusLayout = (props) => {
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
-    } else if (cameraDockInput.numCameras > 0) {
+    } else if (cameraDockInput.numCameras > 0 && presentationInput.isOpen) {
       mediaBounds.height = windowHeight() - sidebarContentHeight - bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
       mediaBounds.top = sidebarContentHeight + bannerAreaHeight();
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
-    } else if (!input.presentation.isOpen) {
+    } else if (!presentationInput.isOpen) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;
@@ -331,9 +347,9 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
-        left: !isRTL ? (mediaBounds.left + captionsMargin) : null,
-        right: isRTL ? (mediaBounds.right + captionsMargin) : null,
-        maxWidth: mediaBounds.width - (captionsMargin * 2),
+        left: !isRTL ? (sidebarSize + captionsMargin) : null,
+        right: isRTL ? (sidebarSize + captionsMargin) : null,
+        maxWidth: mediaAreaBounds.width - (captionsMargin * 2),
       },
     });
 
@@ -424,6 +440,7 @@ const VideoFocusLayout = (props) => {
           left: false,
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 

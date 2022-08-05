@@ -42,16 +42,20 @@ class RxJsonMsgHdlrActor(val fsApp: FreeswitchApplication) extends Actor with Ac
         routeEjectUserFromVoiceConfMsg(envelope, jsonNode)
       case MuteUserInVoiceConfSysMsg.NAME =>
         routeMuteUserInVoiceConfMsg(envelope, jsonNode)
+      case DeafUserInVoiceConfSysMsg.NAME =>
+        routeDeafUserInVoiceConfMsg(envelope, jsonNode)
+      case HoldUserInVoiceConfSysMsg.NAME =>
+        routeHoldUserInVoiceConfMsg(envelope, jsonNode)
+      case PlaySoundInVoiceConfSysMsg.NAME =>
+        routePlaySoundInVoiceConfMsg(envelope, jsonNode)
+      case StopSoundInVoiceConfSysMsg.NAME =>
+        routeStopSoundInVoiceConfMsg(envelope, jsonNode)
       case TransferUserToVoiceConfSysMsg.NAME =>
         routeTransferUserToVoiceConfMsg(envelope, jsonNode)
       case StartRecordingVoiceConfSysMsg.NAME =>
         routeStartRecordingVoiceConfMsg(envelope, jsonNode)
       case StopRecordingVoiceConfSysMsg.NAME =>
         routeStopRecordingVoiceConfMsg(envelope, jsonNode)
-      case ScreenshareStopRtmpBroadcastVoiceConfMsg.NAME =>
-        routeDeskshareStopRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
-      case ScreenshareStartRtmpBroadcastVoiceConfMsg.NAME =>
-        routeDeskshareStartRtmpBroadcastVoiceConfMsg(envelope, jsonNode)
       case CheckRunningAndRecordingToVoiceConfSysMsg.NAME =>
         routeCheckRunningAndRecordingToVoiceConfSysMsg(envelope, jsonNode)
       case GetUsersStatusToVoiceConfSysMsg.NAME =>

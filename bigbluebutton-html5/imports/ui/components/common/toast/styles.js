@@ -27,7 +27,6 @@ import {
   borderSizeSmall,
   toastIconMd,
   toastIconSm,
-  smPaddingY,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -142,35 +141,35 @@ const Toast = styled.div`
   display: flex;
 
   ${({ type }) => type === 'default' && `
-    & > i {
+    & .toastIcon {
       color: ${toastDefaultColor};
       background-color: ${toastDefaultBg};
     }
   `}
 
   ${({ type }) => type === 'error' && `
-    & > i {
+    & .toastIcon {
       color: ${toastErrorColor};
       background-color: ${toastErrorBg};
     }
   `}
 
   ${({ type }) => type === 'info' && `
-    & > i {
+    & .toastIcon {
       color: ${toastInfoColor};
       background-color: ${toastInfoBg};
     }
   `}
 
   ${({ type }) => type === 'success' && `
-    & > i {
+    & .toastIcon {
       color: ${toastSuccessColor};
       background-color: ${toastSuccessBg};
     }
   `}
 
   ${({ type }) => type === 'warning' && `
-    & > i {
+    & .toastIcon {
       color: ${toastWarningColor};
       background-color: ${toastWarningBg};
     }
@@ -180,7 +179,6 @@ const Toast = styled.div`
 const ToastifyContainer = styled(Toastify)`
   z-index: 9998;
   position: fixed;
-  padding: ${smPaddingY};
   min-width: 20rem !important;
   max-width: 23rem !important;
   box-sizing: border-box;

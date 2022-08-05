@@ -27,8 +27,8 @@ cp -r scripts staging/usr/local/bigbluebutton/core
 mkdir -p staging/var/bigbluebutton
 cp -r playback staging/var/bigbluebutton
 
-mkdir -p staging/etc/bigbluebutton/nginx
-mv staging/usr/local/bigbluebutton/core/scripts/presentation.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+mv staging/usr/local/bigbluebutton/core/scripts/presentation.nginx staging/usr/share/bigbluebutton/nginx
 
 ##
 
@@ -42,6 +42,5 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --description "BigBluebutton playback of presentation" \
     $DIRECTORIES \
-    $OPTS
-
-
+    $OPTS \
+    -d 'yq (>= 3)' -d 'yq (<< 4)'

@@ -1,6 +1,8 @@
+const { default: test } = require('@playwright/test');
 const Page = require('../core/page');
-const { startScreenshare, getScreenShareBreakoutContainer } = require('./util');
+const { startScreenshare } = require('./util');
 const e = require('../core/elements');
+const { getSettings } = require('../core/settings');
 
 class ScreenShare extends Page {
   constructor(browser, page) {
@@ -8,8 +10,9 @@ class ScreenShare extends Page {
   }
 
   async startSharing() {
+    const { screensharingEnabled } = getSettings();
+    test.fail(!screensharingEnabled, 'Screensharing is disabled');
     await startScreenshare(this);
-    await getScreenShareBreakoutContainer(this);
     await this.hasElement(e.isSharingScreen);
   }
 

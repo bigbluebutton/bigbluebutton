@@ -3,7 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import Styled from './styles';
-import { notify } from '/imports/ui/services/notification';
+import { escapeHtml } from '/imports/utils/string-utils';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -42,14 +43,7 @@ const messages = defineMessages({
   errorChatLocked: {
     id: 'app.chat.locked',
   },
-  msgToBreakoutsSent: {
-    id: 'app.createBreakoutRoom.msgToBreakoutsSent',
-    description: 'Message for chat sent successfully',
-  },
 });
-
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -81,21 +75,8 @@ class MessageForm extends PureComponent {
     const {
       connected,
       locked,
-      userMessagesTooAllBreakouts,
-      intl,
     } = this.props;
     const { message } = this.state;
-
-    // Check for new messages sent and notify user
-    if (prevProps.userMessagesTooAllBreakouts.length < userMessagesTooAllBreakouts.length) {
-      for (let i = prevProps.userMessagesTooAllBreakouts.length;
-        i < userMessagesTooAllBreakouts.length;
-        i += 1) {
-        notify(
-          intl.formatMessage(messages.msgToBreakoutsSent, { 0: userMessagesTooAllBreakouts[i].totalOfRooms }), 'info', 'group_chat',
-        );
-      }
-    }
 
     this.updateUnsentMessagesCollection(prevProps.chatId, message);
 
@@ -160,7 +141,7 @@ class MessageForm extends PureComponent {
       handleSendMessage,
     } = this.props;
     const { message } = this.state;
-    let msg = message.trim();
+    const msg = message.trim();
 
     if (msg.length < minMessageLength) return;
 
@@ -170,13 +151,7 @@ class MessageForm extends PureComponent {
       return;
     }
 
-    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(msg));
-    msg = div.innerHTML;
-
-    handleSendMessage(msg);
+    handleSendMessage(escapeHtml(msg));
     this.setState({ message: '', hasErrors: false });
   }
 
@@ -231,7 +206,7 @@ class MessageForm extends PureComponent {
 
     const { hasErrors, error, message } = this.state;
 
-    return CHAT_ENABLED ? (
+    return isChatEnabled() ? (
       <Styled.Form
         ref={(ref) => { this.form = ref; }}
         onSubmit={this.handleSubmit}

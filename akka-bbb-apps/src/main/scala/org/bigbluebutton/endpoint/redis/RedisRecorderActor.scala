@@ -75,10 +75,10 @@ class RedisRecorderActor(
       case m: SetPresenterInPodRespMsg              => handleSetPresenterInPodRespMsg(m)
 
       // Whiteboard
-      case m: SendWhiteboardAnnotationEvtMsg        => handleSendWhiteboardAnnotationEvtMsg(m)
+      case m: SendWhiteboardAnnotationsEvtMsg       => handleSendWhiteboardAnnotationsEvtMsg(m)
       case m: SendCursorPositionEvtMsg              => handleSendCursorPositionEvtMsg(m)
       case m: ClearWhiteboardEvtMsg                 => handleClearWhiteboardEvtMsg(m)
-      case m: UndoWhiteboardEvtMsg                  => handleUndoWhiteboardEvtMsg(m)
+      case m: DeleteWhiteboardAnnotationsEvtMsg     => handleDeleteWhiteboardAnnotationsEvtMsg(m)
 
       // User
       case m: UserJoinedMeetingEvtMsg               => handleUserJoinedMeetingEvtMsg(m)
@@ -98,6 +98,8 @@ class RedisRecorderActor(
       case m: VoiceRecordingStartedEvtMsg           => handleVoiceRecordingStartedEvtMsg(m)
       case m: VoiceRecordingStoppedEvtMsg           => handleVoiceRecordingStoppedEvtMsg(m)
 
+      case m: AudioFloorChangedEvtMsg               => handleAudioFloorChangedEvtMsg(m)
+
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
@@ -109,11 +111,15 @@ class RedisRecorderActor(
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
       //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
+      // AudioCaptions
+      case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
+
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleEndAndKickAllSysMsg(m)
+      case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -139,6 +145,10 @@ class RedisRecorderActor(
       ev.setMeetingId(msg.header.meetingId)
       ev.setSenderId(msg.body.msg.sender.id)
       ev.setMessage(msg.body.msg.message)
+      ev.setSenderRole(msg.body.msg.sender.role)
+
+      val isModerator = msg.body.msg.sender.role == "MODERATOR"
+      ev.setChatEmphasizedText(msg.body.msg.chatEmphasizedText && isModerator)
 
       record(msg.header.meetingId, ev.toMap.asJava)
     }
@@ -177,15 +187,14 @@ class RedisRecorderActor(
   }
 
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
-    val ev = new ResizeAndMoveSlideRecordEvent()
+    val ev = new TldrawCameraChangedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
     ev.setId(msg.body.pageId)
-    ev.setXOffset(msg.body.xOffset)
-    ev.setYOffset(msg.body.yOffset)
-    ev.setWidthRatio(msg.body.widthRatio)
-    ev.setHeightRatio(msg.body.heightRatio)
+    ev.setXCamera(msg.body.xCamera)
+    ev.setYCamera(msg.body.yCamera)
+    ev.setZoom(msg.body.zoom)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -272,20 +281,19 @@ class RedisRecorderActor(
     presId
   }
 
-  private def handleSendWhiteboardAnnotationEvtMsg(msg: SendWhiteboardAnnotationEvtMsg) {
-    val annotation = msg.body.annotation
+  private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
+    msg.body.annotations.foreach(annotation => {
+      val ev = new AddTldrawShapeWhiteboardRecordEvent()
+      ev.setMeetingId(msg.header.meetingId)
+      ev.setPresentation(getPresentationId(annotation.wbId))
+      ev.setPageNumber(getPageNum(annotation.wbId))
+      ev.setWhiteboardId(annotation.wbId)
+      ev.setUserId(annotation.userId)
+      ev.setAnnotationId(annotation.id)
+      ev.addAnnotation(annotation.annotationInfo)
 
-    val ev = new AddShapeWhiteboardRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setPresentation(getPresentationId(annotation.wbId))
-    ev.setPageNumber(getPageNum(annotation.wbId))
-    ev.setWhiteboardId(annotation.wbId)
-    ev.setUserId(annotation.userId)
-    ev.setAnnotationId(annotation.id)
-    ev.setPosition(annotation.position)
-    ev.addAnnotation(annotation.annotationInfo)
-
-    record(msg.header.meetingId, ev.toMap.asJava)
+      record(msg.header.meetingId, ev.toMap.asJava)
+    })
   }
 
   private def handleSendCursorPositionEvtMsg(msg: SendCursorPositionEvtMsg) {
@@ -313,15 +321,17 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleUndoWhiteboardEvtMsg(msg: UndoWhiteboardEvtMsg) {
-    val ev = new UndoAnnotationRecordEvent()
-    ev.setMeetingId(msg.header.meetingId)
-    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
-    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
-    ev.setWhiteboardId(msg.body.whiteboardId)
-    ev.setUserId(msg.body.userId)
-    ev.setShapeId(msg.body.annotationId)
-    record(msg.header.meetingId, ev.toMap.asJava)
+  private def handleDeleteWhiteboardAnnotationsEvtMsg(msg: DeleteWhiteboardAnnotationsEvtMsg) {
+    msg.body.annotationsIds.foreach(annotationId => {
+      val ev = new DeleteTldrawShapeRecordEvent()
+      ev.setMeetingId(msg.header.meetingId)
+      ev.setPresentation(getPresentationId(msg.body.whiteboardId))
+      ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+      ev.setWhiteboardId(msg.body.whiteboardId)
+      ev.setUserId(msg.header.userId)
+      ev.setShapeId(annotationId)
+      record(msg.header.meetingId, ev.toMap.asJava)
+    })
   }
 
   private def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
@@ -440,6 +450,17 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleAudioFloorChangedEvtMsg(msg: AudioFloorChangedEvtMsg) {
+    val ev = new AudioFloorChangedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setBridge(msg.body.voiceConf)
+    ev.setParticipant(msg.body.intId)
+    ev.setFloor(msg.body.floor)
+    ev.setLastFloorTime(msg.body.lastFloorTime)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
     val ev = new EditCaptionHistoryRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -486,6 +507,15 @@ class RedisRecorderActor(
     record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
   }
   */
+
+  private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
+    val ev = new TranscriptUpdatedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setLocale(msg.body.locale)
+    ev.setTranscript(msg.body.transcript)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
 
   private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()
@@ -603,6 +633,12 @@ class RedisRecorderActor(
       healthzService.sendRecordingDBStatusMessage(System.currentTimeMillis())
     else
       log.error("recording database is not available.")
+  }
+
+  private def handleStarterConfigurations(msg: MeetingCreatedEvtMsg): Unit = {
+    val ev = new MeetingConfigurationEvent()
+    ev.setWebcamsOnlyForModerator(msg.body.props.usersProp.webcamsOnlyForModerator)
+    record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
   }
 
 }

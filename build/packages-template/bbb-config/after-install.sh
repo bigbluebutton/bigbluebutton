@@ -2,6 +2,21 @@
 
 set +x
 
+removeOldOverride() {
+    service_name=$1
+    # check if override file has been modified. If not it can be safely removed
+    if [ -f "/etc/systemd/system/${service_name}.service.d/override.conf" ] ; then
+        if echo "d32a00b9a2669b3fe757b8de3470e358  /etc/systemd/system/${service_name}.service.d/override.conf" | md5sum -c --quiet 2>/dev/null >/dev/null ; then
+            rm -f "/etc/systemd/system/${service_name}.service.d/override.conf"
+        fi
+    fi
+    if [ -d "/etc/systemd/system/${service_name}.service.d" ]; then
+        if [ $(ls "/etc/systemd/system/${service_name}.service.d" |wc -l) = 0 ]; then
+            rmdir "/etc/systemd/system/${service_name}.service.d"
+        fi
+    fi
+}
+
 BIGBLUEBUTTON_USER=bigbluebutton
 
 if ! id freeswitch >/dev/null 2>&1; then
@@ -20,7 +35,7 @@ else
 fi
 
 #
-# Set the permissions to /var/bigbluebutton so both red5 and tomcat can write
+# Set the permissions to /var/bigbluebutton tomcat (and possibly other services) can write
 #
 if [ -d /var/bigbluebutton ]; then
   echo -n "."
@@ -79,10 +94,6 @@ if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
   fi
 fi
 
-if [ -d /var/bigbluebutton/screenshare ]; then
-  chown red5:red5 /var/bigbluebutton/screenshare
-fi
-
 #
 # Added to enable bbb-record-core to move files #8901
 #
@@ -104,10 +115,6 @@ if [ -d /var/kurento/screenshare ]; then
   chmod 0775 /var/kurento/screenshare
 fi
 
-if [ -f /usr/lib/systemd/system/red5.service ]; then
-  chown root:root /usr/lib/systemd/system/red5.service
-fi
-
 # Verify mediasoup raw media directories ownership and perms
 if [ -d /var/mediasoup ]; then
   chown bigbluebutton:bigbluebutton /var/mediasoup
@@ -124,7 +131,7 @@ fi
 
 sed -i 's/worker_connections 768/worker_connections 4000/g' /etc/nginx/nginx.conf
 
-if grep "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
+if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
   num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*')
   if [[ "$num" -lt 10000 ]]; then
     sed -i 's/worker_rlimit_nofile [0-9 ]*;/worker_rlimit_nofile 10000;/g' /etc/nginx/nginx.conf
@@ -133,8 +140,24 @@ else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 
+# set full BBB version in settings.yml so it can be displayed in the client
+BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
+BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+if [ -f $BBB_RELEASE_FILE ] && [ -f $BBB_HTML5_SETTINGS_FILE ]; then
+  BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' | tail -n 1)
+  echo "setting public.app.bbbServerVersion: $BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
+  yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
+fi
+
 # Fix permissions for logging
 chown bigbluebutton:bigbluebutton /var/log/bbb-fsesl-akka
+
+# cleanup old overrides
+
+removeOldOverride bbb-apps-akka
+removeOldOverride bbb-fsesl-akka
+removeOldOverride bbb-transcode-akka
+
 
 # Load the overrides
 systemctl daemon-reload

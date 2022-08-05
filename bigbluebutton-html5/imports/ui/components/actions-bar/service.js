@@ -30,7 +30,7 @@ const currentBreakoutUsers = (user) => !Breakouts.findOne({
 
 const filterBreakoutUsers = (filter) => (users) => users.filter(filter);
 
-const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
+const getUsersNotJoined = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
@@ -60,8 +60,6 @@ export default {
   }).fetch(),
   groups: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { groups: 1 } }).groups,
-  isBreakoutEnabled: () => Meetings.findOne({ meetingId: Auth.meetingID },
-    { fields: { 'breakoutProps.enabled': 1 } }).breakoutProps.enabled,
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
@@ -70,9 +68,10 @@ export default {
   breakoutJoinedUsers: () => Breakouts.find({
     joinedUsers: { $exists: true },
   }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
+  moveUser: (fromBreakoutId, toBreakoutId, userId) => makeCall('moveUser', fromBreakoutId, toBreakoutId, userId),
   getBreakouts,
   getLastBreakouts,
-  getUsersNotAssigned,
+  getUsersNotJoined,
   takePresenterRole,
   isSharingVideo: () => getVideoUrl(),
 };

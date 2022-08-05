@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import {
   FormattedMessage, FormattedNumber, FormattedTime, injectIntl,
@@ -6,6 +6,8 @@ import {
 import { UserDetailsContext } from './context';
 import UserAvatar from '../UserAvatar';
 import { getSumOfTime, tsToHHmmss, getActivityScore } from '../../services/UserService';
+import { usePreviousValue } from '../../utils/hooks';
+import { toCamelCase } from '../../utils/string';
 
 const UserDatailsComponent = (props) => {
   const {
@@ -14,14 +16,35 @@ const UserDatailsComponent = (props) => {
 
   if (!isOpen) return null;
 
+  const modal = useRef();
+  const closeButton = useRef();
+  const wasModalOpen = usePreviousValue(isOpen);
+
   useEffect(() => {
-    const handler = (e) => {
+    const keydownhandler = (e) => {
       if (e.code === 'Escape') dispatch({ type: 'closeModal' });
     };
 
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    const focusHandler = () => {
+      if (modal.current && document.activeElement) {
+        if (!modal.current.contains(document.activeElement)) {
+          closeButton.current.focus();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', keydownhandler);
+    window.addEventListener('focus', focusHandler, true);
+
+    return () => {
+      window.removeEventListener('keydown', keydownhandler);
+      window.removeEventListener('focus', focusHandler, true);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!wasModalOpen) closeButton.current?.focus();
+  });
 
   const {
     createdOn, endedOn, polls, users,
@@ -176,6 +199,11 @@ const UserDatailsComponent = (props) => {
       if (hasDraw) mostCommonAnswer = null;
     }
 
+    const capitalizeFirstLetter = (text) => (
+      String.fromCharCode(text.charCodeAt(0) - 32)
+      + text.substring(1)
+    );
+
     return (
       <div className="p-6 flex flex-row justify-between items-center">
         <div className="min-w-[40%] text-ellipsis">{question}</div>
@@ -211,11 +239,11 @@ const UserDatailsComponent = (props) => {
         <div
           className="min-w-[40%] text-ellipsis text-center overflow-hidden"
           title={mostCommonAnswer
-            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
+            ? capitalizeFirstLetter(mostCommonAnswer)
             : null}
         >
           { mostCommonAnswer
-            ? `${String.fromCharCode(mostCommonAnswer.charCodeAt(0) - 32)}${mostCommonAnswer.substring(1)}`
+            ? capitalizeFirstLetter(mostCommonAnswer)
             : intl.formatMessage({
               id: 'app.learningDashboard.usersTable.notAvailable',
               defaultMessage: 'N/A',
@@ -230,10 +258,15 @@ const UserDatailsComponent = (props) => {
   ) {
     return (
       <div className="p-6 flex flex-row justify-between items-end">
-        <div className="min-w-[20%] text-ellipsis overflow-hidden">{category}</div>
+        <div className="min-w-[20%] text-ellipsis overflow-hidden">
+          <FormattedMessage
+            id={`app.learningDashboard.userDetails.${toCamelCase(category)}`}
+            defaultMessage={category}
+          />
+        </div>
         <div className="min-w-[60%] grow text-center text-sm">
           <div className="mb-2">
-            { (function () {
+            { (function getAverage() {
               if (average >= 0 && category === 'Talk Time') return tsToHHmmss(average);
               if (average >= 0 && category !== 'Talk Time') return <FormattedNumber value={average} minimumFractionDigits="0" maximumFractionDigits="1" />;
               return <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />;
@@ -277,12 +310,14 @@ const UserDatailsComponent = (props) => {
         role="none"
         onClick={() => dispatch({ type: 'closeModal' })}
       />
-      <div className="overflow-auto w-full md:w-2/4 bg-gray-100 p-6">
+      <div ref={modal} className="overflow-auto w-full md:w-2/4 bg-gray-100 p-6">
         <div className="text-right rtl:text-left">
           <button
             onClick={() => dispatch({ type: 'closeModal' })}
             type="button"
             aria-label="Close user details modal"
+            ref={closeButton}
+            className="focus:rounded-md focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50 hover:text-black/50 active:text-black/75"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

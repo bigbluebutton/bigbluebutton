@@ -3,8 +3,8 @@ import styled from 'styled-components';
 const Slider = styled.div`
   width: 0.9em;
   display: flex;
-  position: relative;
-  bottom: 3.5em;
+  position: absolute;
+  bottom: 2.5em;
   left: 1em;
   padding: 0.25rem 0.5rem;
   min-width: 200px;

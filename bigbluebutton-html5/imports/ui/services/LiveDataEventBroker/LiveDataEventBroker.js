@@ -21,7 +21,7 @@ class CollectionEventsBroker {
       const index = CollectionEventsBroker.getKey({ collection, msg: event });
       const TheresCallback = this.callbacks[index];
       if (TheresCallback) {
-        throw new Error('There is already an associated callback for this event');
+        throw new Error(`There is already an associated callback for this event ${index}`);
       }
       this.callbacks[index] = callback;
       return true;

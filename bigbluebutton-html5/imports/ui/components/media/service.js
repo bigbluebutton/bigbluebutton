@@ -3,8 +3,9 @@ import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service'
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { isScreenSharingEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
+import UserService from '/imports/ui/components/user-list/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -26,58 +27,22 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && viewScreenshare && isVideoBroadcasting();
+  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter()) && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {
-  const { enabled: enableExternalVideo } = Meteor.settings.public.externalVideoPlayer;
-  return enableExternalVideo && getVideoUrl();
+  return isExternalVideoEnabled() && getVideoUrl();
 }
 
 function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
 
-const swapLayout = {
-  value: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
-  tracker: new Tracker.Dependency(),
-};
-
-const setSwapLayout = (layoutContextDispatch) => {
-  const hidePresentation = getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation);
-
-  swapLayout.value = getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout);
-  swapLayout.tracker.changed();
-
-  if (!hidePresentation) {
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: !swapLayout.value,
-    });
-  }
-};
-
-const toggleSwapLayout = (layoutContextDispatch) => {
-  window.dispatchEvent(new Event('togglePresentationHide'));
-  swapLayout.value = !swapLayout.value;
-  swapLayout.tracker.changed();
-
+const setPresentationIsOpen = (layoutContextDispatch, value) => {
   layoutContextDispatch({
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-    value: !swapLayout.value,
+    value,
   });
-};
-
-export const shouldEnableSwapLayout = () => {
-  if (!PRESENTATION_CONFIG.oldMinimizeButton) {
-    return true;
-  }
-  return !shouldShowScreenshare() && !shouldShowExternalVideo();
-}
-
-export const getSwapLayout = () => {
-  swapLayout.tracker.depend();
-  return swapLayout.value;
 };
 
 export default {
@@ -87,8 +52,5 @@ export default {
   shouldShowExternalVideo,
   shouldShowOverlay,
   isVideoBroadcasting,
-  toggleSwapLayout,
-  shouldEnableSwapLayout,
-  getSwapLayout,
-  setSwapLayout,
+  setPresentationIsOpen,
 };

@@ -5,8 +5,8 @@ import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 
 const propTypes = {
-  children: PropTypes.node.isRequired,
-  moderator: PropTypes.bool.isRequired,
+  children: PropTypes.node,
+  moderator: PropTypes.bool,
   presenter: PropTypes.bool,
   talking: PropTypes.bool,
   muted: PropTypes.bool,
@@ -16,9 +16,13 @@ const propTypes = {
   color: PropTypes.string,
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
+  className: PropTypes.string,
+  isSkeleton: PropTypes.bool,
 };
 
 const defaultProps = {
+  children: <></>,
+  moderator: false,
   presenter: false,
   talking: false,
   muted: false,
@@ -28,6 +32,8 @@ const defaultProps = {
   color: '#000',
   emoji: false,
   avatar: '',
+  className: '',
+  isSkeleton: false,
 };
 
 const { animations } = Settings.application;
@@ -37,6 +43,7 @@ const UserAvatar = ({
   children,
   moderator,
   presenter,
+  className,
   talking,
   muted,
   listenOnly,
@@ -46,42 +53,50 @@ const UserAvatar = ({
   avatar,
   noVoice,
   whiteboardAccess,
+  isSkeleton,
 }) => (
-  <Styled.Avatar
-    aria-hidden="true"
-    data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
-    moderator={moderator}
-    presenter={presenter}
-    whiteboardAccess={whiteboardAccess && !presenter}
-    muted={muted}
-    listenOnly={listenOnly}
-    voice={voice}
-    noVoice={noVoice && !listenOnly}
-    isChrome={isChrome}
-    isFirefox={isFirefox}
-    isEdge={isEdge}
-    style={{
-      backgroundColor: color,
-      color, // We need the same color on both for the border
-    }}
-  >
+  <>
+    {isSkeleton && (<Styled.Skeleton>{children}</Styled.Skeleton>)}
 
-    <Styled.Talking talking={talking && !muted && avatar.length === 0} animations={animations} />
+    {!isSkeleton && (
+      <Styled.Avatar
+        aria-hidden="true"
+        data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
+        moderator={moderator}
+        presenter={presenter}
+        className={className}
+        whiteboardAccess={whiteboardAccess && !presenter}
+        muted={muted}
+        listenOnly={listenOnly}
+        voice={voice}
+        noVoice={noVoice && !listenOnly}
+        isChrome={isChrome}
+        isFirefox={isFirefox}
+        isEdge={isEdge}
+        style={{
+          backgroundColor: color,
+          color, // We need the same color on both for the border
+        }}
+      >
 
-    {avatar.length !== 0 && !emoji
-      ? (
-        <Styled.Image>
-          <Styled.Img
-            moderator={moderator}
-            src={avatar}
-          />
-        </Styled.Image>
-      ) : (
-        <Styled.Content>
-          {children}
-        </Styled.Content>
-      )}
-  </Styled.Avatar>
+        <Styled.Talking talking={talking && !muted && avatar.length === 0} animations={animations} />
+
+        {avatar.length !== 0 && !emoji
+          ? (
+            <Styled.Image>
+              <Styled.Img
+                moderator={moderator}
+                src={avatar}
+              />
+            </Styled.Image>
+          ) : (
+            <Styled.Content>
+              {children}
+            </Styled.Content>
+          )}
+      </Styled.Avatar>
+    )}
+  </>
 );
 
 UserAvatar.propTypes = propTypes;

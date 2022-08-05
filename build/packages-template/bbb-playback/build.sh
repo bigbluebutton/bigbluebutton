@@ -33,8 +33,8 @@ npm run-script build
 mkdir -p $BBB_PLAYBACK_BASE
 cp -r ./build $BBB_PLAYBACK
 
-mkdir -p staging/etc/bigbluebutton/nginx
-cp playback.nginx staging/etc/bigbluebutton/nginx
+mkdir -p staging/usr/share/bigbluebutton/nginx
+cp playback.nginx staging/usr/share/bigbluebutton/nginx
 
 ##
 

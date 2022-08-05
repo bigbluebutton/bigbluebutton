@@ -12,8 +12,6 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   const { recording, time } = RecordMeetings.findOne({ meetingId: Auth.meetingID });
 
   return ({
-    closeModal: () => mountModal(null),
-
     toggleRecording: () => {
       makeCall('toggleRecording');
       mountModal(null);

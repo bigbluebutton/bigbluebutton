@@ -6,7 +6,9 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import _ from 'lodash';
 import Styled from './styles';
+import StyledSettings from '../settings/styles';
 import withShortcutHelper from './service';
+import { isChatEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   title: {
@@ -97,15 +99,91 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.previousSlideDesc',
     description: 'describes the previous slide shortcut',
   },
+  togglePanKey: {
+    id: 'app.shortcut-help.togglePanKey',
+    description: 'describes the toggle pan shortcut key',
+  },
+  toggleFullscreenKey: {
+    id: 'app.shortcut-help.toggleFullscreenKey',
+    description: 'describes the toggle full-screen shortcut key',
+  },
+  nextSlideKey: {
+    id: 'app.shortcut-help.nextSlideKey',
+    description: 'describes the next slide shortcut key',
+  },
+  previousSlideKey: {
+    id: 'app.shortcut-help.previousSlideKey',
+    description: 'describes the previous slide shortcut key',
+  },
+  select: {
+    id: 'app.shortcut-help.select',
+    description: 'describes the selection tool shortcut key',
+  },
+  pencil: {
+    id: 'app.shortcut-help.pencil',
+    description: 'describes the pencil tool shortcut key',
+  },
+  eraser: {
+    id: 'app.shortcut-help.eraser',
+    description: 'describes the eraser tool shortcut key',
+  },
+  rectangle: {
+    id: 'app.shortcut-help.rectangle',
+    description: 'describes the rectangle shape tool shortcut key',
+  },
+  elipse: {
+    id: 'app.shortcut-help.elipse',
+    description: 'describes the elipse shape tool shortcut key',
+  },
+  triangle: {
+    id: 'app.shortcut-help.triangle',
+    description: 'describes the triangle shape tool shortcut key',
+  },
+  line: {
+    id: 'app.shortcut-help.line',
+    description: 'describes the line shape tool shortcut key',
+  },
+  arrow: {
+    id: 'app.shortcut-help.arrow',
+    description: 'describes the arrow shape tool shortcut key',
+  },
+  text: {
+    id: 'app.shortcut-help.text',
+    description: 'describes the text tool shortcut key',
+  },
+  note: {
+    id: 'app.shortcut-help.note',
+    description: 'describes the sticky note shortcut key',
+  },
+  general: {
+    id: 'app.shortcut-help.general',
+    description: 'general tab heading',
+  },
+  presentation: {
+    id: 'app.shortcut-help.presentation',
+    description: 'presentation tab heading',
+    "app.shortcut-help.whiteboard": "Whiteboard",
+  },
+  whiteboard: {
+    id: 'app.shortcut-help.whiteboard',
+    description: 'whiteboard tab heading',
+  }
 });
 
-const CHAT_CONFIG = Meteor.settings.public.chat;
-const CHAT_ENABLED = CHAT_CONFIG.enabled;
+const renderItem = (func, key) => {
+  return (
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <Styled.DescCell>{func}</Styled.DescCell>
+      <Styled.KeyCell>{key}</Styled.KeyCell>
+    </tr>
+  );
+}
 
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
   const { browserName } = browserInfo;
   const { isIos, isMacos } = deviceInfo;
+  const [ selectedTab, setSelectedTab] = React.useState(0);
 
   let accessMod = null;
 
@@ -133,43 +211,31 @@ const ShortcutHelpComponent = (props) => {
     accessMod = 'Control + Option';
   }
 
-  const shortcutItems = shortcuts.map((shortcut) => {
-    if (!CHAT_ENABLED && shortcut.descId.indexOf('Chat') !== -1) return null;
-    return (
-      <tr key={_.uniqueId('hotkey-item-')}>
-        <Styled.KeyCell>{`${accessMod} + ${shortcut.accesskey}`}</Styled.KeyCell>
-        <Styled.DescCell>{`${intl.formatMessage(intlMessages[`${shortcut.descId.toLowerCase()}`])}`}</Styled.DescCell>
-      </tr>
+  const generalShortcutItems = shortcuts.map((shortcut) => {
+    if (!isChatEnabled() && shortcut.descId.indexOf('Chat') !== -1) return null;
+    return renderItem(
+      `${intl.formatMessage(intlMessages[`${shortcut.descId.toLowerCase()}`])}`,
+      `${accessMod} + ${shortcut.accesskey}`
     );
   });
 
-  shortcutItems.push((
-    <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Spacebar</Styled.KeyCell>
-      <Styled.DescCell>{intl.formatMessage(intlMessages.togglePan)}</Styled.DescCell>
-    </tr>
-  ));
+  const shortcutItems = [];
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan), intl.formatMessage(intlMessages.togglePanKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.toggleFullscreen), intl.formatMessage(intlMessages.toggleFullscreenKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.nextSlideDesc), intl.formatMessage(intlMessages.nextSlideKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc), intl.formatMessage(intlMessages.previousSlideKey)));
 
-  shortcutItems.push((
-    <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Enter</Styled.KeyCell>
-      <Styled.DescCell>{intl.formatMessage(intlMessages.toggleFullscreen)}</Styled.DescCell>
-    </tr>
-  ));
-
-  shortcutItems.push((
-    <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Right Arrow</Styled.KeyCell>
-      <Styled.DescCell>{intl.formatMessage(intlMessages.nextSlideDesc)}</Styled.DescCell>
-    </tr>
-  ));
-
-  shortcutItems.push((
-    <tr key={_.uniqueId('hotkey-item-')}>
-      <Styled.KeyCell>Left Arrow</Styled.KeyCell>
-      <Styled.DescCell>{intl.formatMessage(intlMessages.previousSlideDesc)}</Styled.DescCell>
-    </tr>
-  ));
+  const whiteboardShortcutItems = [];
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.select), '1'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.pencil), '2'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.eraser), '3'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.rectangle), '4'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.elipse), '5'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.triangle), '6'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.line), '7'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.arrow), '8'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.text), '9'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.note), '0'));
 
   return (
     <Modal
@@ -179,21 +245,69 @@ const ShortcutHelpComponent = (props) => {
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
     >
-      {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
-        : (
-          <span>
-            <Styled.ShortcutTable>
+      <Styled.SettingsTabs
+        onSelect={(tab) => setSelectedTab(tab)}
+        selectedIndex={selectedTab}
+        role="presentation"
+      >
+        <StyledSettings.SettingsTabList>
+          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
+            <StyledSettings.SettingsIcon iconName="application" />
+            <span id="appicationTab">{intl.formatMessage(intlMessages.general)}</span>
+          </StyledSettings.SettingsTabSelector>
+
+          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
+            <StyledSettings.SettingsIcon iconName="presentation" />
+            <span id="presentationTab">{intl.formatMessage(intlMessages.presentation)}</span>
+          </StyledSettings.SettingsTabSelector>
+
+          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
+            <StyledSettings.SettingsIcon iconName="whiteboard" />
+            <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
+          </StyledSettings.SettingsTabSelector>
+        </StyledSettings.SettingsTabList>
+
+        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
+          : (
+            <span>
+              <Styled.ShortcutTable>
+                <tbody>
+                  <tr>           
+                    <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+                    <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                  </tr>
+                  {generalShortcutItems}
+                </tbody>
+              </Styled.ShortcutTable>
+            </span>
+          )
+        }
+        </StyledSettings.SettingsTabPanel>
+        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+          <Styled.ShortcutTable>
               <tbody>
                 <tr>
-                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
                 </tr>
                 {shortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-          </span>
-        )
-      }
+        </StyledSettings.SettingsTabPanel>
+        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+          <Styled.ShortcutTable>
+              <tbody>
+                <tr>
+                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                </tr>
+                {whiteboardShortcutItems}
+              </tbody>
+            </Styled.ShortcutTable>
+        </StyledSettings.SettingsTabPanel>
+
+      </Styled.SettingsTabs>
     </Modal>
   );
 };

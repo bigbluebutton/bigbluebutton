@@ -26,7 +26,6 @@ const STATUS_WAITING = 'waiting';
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
 const REMAINING_TIME_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeThreshold;
-const REMAINING_TIME_ALERT_THRESHOLD = METEOR_SETTINGS_APP.remainingTimeAlertThreshold;
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -172,8 +171,6 @@ export default injectIntl(withTracker(({ intl }) => {
   const meetingId = Auth.meetingID;
   const breakouts = breakoutService.getBreakouts();
 
-  let msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
-
   if (breakouts.length > 0) {
     const currentBreakout = breakouts.find((b) => b.breakoutId === meetingId);
 
@@ -183,10 +180,7 @@ export default injectIntl(withTracker(({ intl }) => {
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
-          alertMessage={
-            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
-          }
-          alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
+          displayAlerts={true}
         />
       );
     }
@@ -201,18 +195,13 @@ export default injectIntl(withTracker(({ intl }) => {
     const { isBreakout } = Meeting.meetingProp;
     const underThirtyMin = timeRemaining && timeRemaining <= (REMAINING_TIME_THRESHOLD * 60);
 
-    msg = { id: `${intlMessages.alertMeetingEndsUnderMinutes.id}${REMAINING_TIME_ALERT_THRESHOLD === 1 ? 'Singular' : 'Plural'}` };
-
     if (underThirtyMin && !isBreakout) {
       data.message = (
         <BreakoutRemainingTime
           breakoutRoom={meetingTimeRemaining}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}
-          alertMessage={
-            intl.formatMessage(msg, { 0: REMAINING_TIME_ALERT_THRESHOLD })
-          }
-          alertUnderMinutes={REMAINING_TIME_ALERT_THRESHOLD}
+          displayAlerts={true}
         />
       );
     }

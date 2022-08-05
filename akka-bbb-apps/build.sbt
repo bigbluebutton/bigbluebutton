@@ -18,7 +18,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-1.11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -34,6 +34,9 @@ publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/
 // into eclipse.
 retrieveManaged := true
 
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
+
 testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", "junitxml")
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
@@ -45,6 +48,7 @@ lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", 
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
+scalaVersion := "2.13.4"
 //-----------
 // Packaging
 //
@@ -72,4 +76,4 @@ daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=/etc/bigbluebutton/bbb-apps-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java8-runtime-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("java11-runtime-headless", "bash")

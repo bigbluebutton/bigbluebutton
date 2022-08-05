@@ -51,14 +51,13 @@ object PresentationPodsApp {
           txtUri = page.urls.getOrElse("text", ""),
           svgUri = page.urls.getOrElse("svg", ""),
           current = page.current,
-          xOffset = page.xOffset,
-          yOffset = page.yOffset,
-          widthRatio = page.widthRatio,
-          heightRatio = page.heightRatio
+          xCamera = page.xCamera,
+          yCamera = page.yCamera,
+          zoom = page.zoom,
         )
       }
 
-      PresentationVO(p.id, p.name, p.current,
+      PresentationVO(p.id, "", p.name, p.current,
         pages.toVector, p.downloadable, p.removable)
     }
 
@@ -74,7 +73,7 @@ object PresentationPodsApp {
     state.update(podManager)
   }
 
-  def translatePresentationToPresentationVO(pres: PresentationInPod): PresentationVO = {
+  def translatePresentationToPresentationVO(pres: PresentationInPod, temporaryPresentationId: String): PresentationVO = {
     val pages = pres.pages.values.map { page =>
       PageVO(
         id = page.id,
@@ -84,13 +83,12 @@ object PresentationPodsApp {
         txtUri = page.urls.getOrElse("text", ""),
         svgUri = page.urls.getOrElse("svg", ""),
         current = page.current,
-        xOffset = page.xOffset,
-        yOffset = page.yOffset,
-        widthRatio = page.widthRatio,
-        heightRatio = page.heightRatio
+        xCamera = page.xCamera,
+        yCamera = page.yCamera,
+        zoom = page.zoom
       )
     }
-    PresentationVO(pres.id, pres.name, pres.current, pages.toVector, pres.downloadable, pres.removable)
+    PresentationVO(pres.id, temporaryPresentationId, pres.name, pres.current, pages.toVector, pres.downloadable, pres.removable)
   }
 
   def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {

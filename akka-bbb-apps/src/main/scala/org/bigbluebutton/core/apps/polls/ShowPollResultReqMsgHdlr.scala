@@ -7,6 +7,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>
@@ -24,13 +25,23 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
 
+      val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "polling",
+        "app.whiteboard.annotations.poll",
+        "Message displayed when a poll is published",
+        Vector()
+      )
+      bus.outGW.send(notifyEvent)
+
       // SendWhiteboardAnnotationPubMsg
       val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
-      val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationEvtMsg.NAME, annotationRouting)
-      val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
+      val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
+      val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val annotMsgBody = SendWhiteboardAnnotationEvtMsgBody(annot)
-      val annotationEvent = SendWhiteboardAnnotationEvtMsg(annotationHeader, annotMsgBody)
+      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
+      val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
       val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
       bus.outGW.send(annotationMsgEvent)
     }

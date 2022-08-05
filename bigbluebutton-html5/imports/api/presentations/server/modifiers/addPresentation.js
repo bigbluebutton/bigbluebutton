@@ -1,4 +1,4 @@
-import { HTTP } from 'meteor/http';
+import axios from 'axios';
 import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
@@ -9,7 +9,8 @@ import setCurrentPresentation from './setCurrentPresentation';
 const getSlideText = async (url) => {
   let content = '';
   try {
-    content = await HTTP.get(url).content;
+    const request = await axios(url);
+    content = request.data.toString();
   } catch (error) {
     Logger.error(`No file found. ${error}`);
   }
@@ -33,6 +34,7 @@ export default function addPresentation(meetingId, podId, presentation) {
     id: String,
     name: String,
     current: Boolean,
+    temporaryPresentationId: String,
     pages: [
       {
         id: String,
@@ -42,10 +44,9 @@ export default function addPresentation(meetingId, podId, presentation) {
         txtUri: String,
         svgUri: String,
         current: Boolean,
-        xOffset: Number,
-        yOffset: Number,
-        widthRatio: Number,
-        heightRatio: Number,
+        xCamera: Number,
+        yCamera: Number,
+        zoom: Number,
       },
     ],
     downloadable: Boolean,
@@ -64,6 +65,7 @@ export default function addPresentation(meetingId, podId, presentation) {
       podId,
       'conversion.done': true,
       'conversion.error': false,
+      'exportation.status': null,
     }, flat(presentation, { safe: true })),
   };
 

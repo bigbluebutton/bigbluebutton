@@ -22,18 +22,19 @@ build_common_messages () {
     cd bbb-common-message
     sbt publish
     sbt publishLocal
+    cd ..
 }
 
 build_fsesl_client () {
     cd bbb-fsesl-client
     sbt publish
     sbt publishLocal
+    cd ..
 }
 
-# build these two in parallel
-build_common_messages &
-build_fsesl_client &
-wait
+build_common_messages
+build_fsesl_client
+
 
 cd akka-bbb-fsesl
 sed -i 's/\r$//' project/Dependencies.scala
@@ -50,7 +51,7 @@ sed -i "s/^version .*/version := \"$VERSION\"/g" build.sbt
 if [[ -n $EPOCH && $EPOCH -gt 0 ]] ; then
     echo 'version in Debian := "'$EPOCH:$VERSION'"' >> build.sbt
 else
-    echo 'version in Debian := "'$VERSION-$BUILD'"' >> build.sbt
+    echo 'version in Debian := "'1:$VERSION-$BUILD'"' >> build.sbt
 fi
 sbt debian:packageBin
 cp ./target/*.deb ..

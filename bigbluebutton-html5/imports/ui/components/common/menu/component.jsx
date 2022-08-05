@@ -6,6 +6,7 @@ import Menu from "@material-ui/core/Menu";
 import { Divider } from "@material-ui/core";
 
 import Icon from "/imports/ui/components/common/icon/component";
+import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
 import { ENTER } from "/imports/utils/keyCodes";
 
@@ -18,9 +19,6 @@ const intlMessages = defineMessages({
   },
 });
 
-//Used to switch to mobile view
-const MAX_WIDTH = 640;
-
 class BBBMenu extends React.Component {
   constructor(props) {
     super(props);
@@ -28,11 +26,20 @@ class BBBMenu extends React.Component {
       anchorEl: null,
     };
 
-    this.opts = props.opts;
+    this.optsToMerge = {};
     this.autoFocus = false;
 
     this.handleClick = this.handleClick.bind(this);
     this.handleClose = this.handleClose.bind(this);
+  }
+
+  componentDidUpdate() {
+    const { anchorEl } = this.state;
+    if (this.props.open === false && anchorEl) {
+      this.setState({ anchorEl: null });
+    } else if (this.props.open === true && !anchorEl) {
+      this.setState({ anchorEl: this.anchorElRef });
+    }
   }
 
   handleClick(event) {
@@ -63,12 +70,12 @@ class BBBMenu extends React.Component {
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
-        paddingLeft: '4px',
-        paddingRight: '4px',
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        marginLeft: '4px',
-        marginRight: '4px'
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        paddingTop: '12px',
+        paddingBottom: '12px',
+        marginLeft: '0px',
+        marginRight: '0px',
       };
 
       if (a.customStyles) {
@@ -90,12 +97,13 @@ class BBBMenu extends React.Component {
             const close = !key.includes('setstatus') && !key.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
+            event.stopPropagation();
           }}>
-          <div style={{ display: 'flex', flexFlow: 'row', width: '100%' }}>
+          <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <Styled.Option>{label}</Styled.Option>
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
-          </div>
+          </Styled.MenuItemWrapper>
         </Styled.BBBMenuItem>,
         a.divider && <Divider disabled />
       ];
@@ -104,7 +112,7 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest } = this.props;
+    const { trigger, intl, customStyles, dataTest, opts } = this.props;
     const actionsItems = this.makeMenuItems();
 
     let menuStyles = { zIndex: 9999 };
@@ -118,7 +126,10 @@ class BBBMenu extends React.Component {
         <div
           onClick={(e) => {
             e.persist();
-            this.opts.autoFocus = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
+            const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
+
+            this.optsToMerge.autoFocus = firefoxInputSource && chromeInputSource;
             this.handleClick(e);
           }}
           onKeyPress={(e) => {
@@ -127,12 +138,14 @@ class BBBMenu extends React.Component {
             this.handleClick(e);
           }}
           accessKey={this.props?.accessKey}
+          ref={(ref) => this.anchorElRef = ref}
         >
           {trigger}
         </div>
 
         <Menu
-          {...this.opts}
+          {...opts}
+          {...this.optsToMerge}
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
@@ -140,7 +153,7 @@ class BBBMenu extends React.Component {
           data-test={dataTest}
         >
           {actionsItems}
-          {anchorEl && window.innerWidth < MAX_WIDTH &&
+          {anchorEl && window.innerWidth < SMALL_VIEWPORT_BREAKPOINT &&
             <Styled.CloseButton
               label={intl.formatMessage(intlMessages.close)}
               size="lg"

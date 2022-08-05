@@ -44,16 +44,7 @@ lti_config() {
   # but it's not deployed yet
   #
 
-  if [ -f /tmp/lti-config.properties ]; then
-    VARS=$(cat /tmp/bigbluebutton-lti.properties | grep = | grep -v \# | sed -e "s/ //g" -e "s/=.*/ /g" | tr -d '\n')
-    for v in $VARS ; do
-      old_val=$(cat /tmp/bigbluebutton-lti.properties | tr -d '\r' | sed -n "/^${v}[# ]*=[ ]*/{s/${v}[ ]*=[ ]*//;p}" )
-      sed -i "s|^$v=.*|$v=$old_val|" /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties
-    done
-    mv -f /tmp/lti-config.properties /tmp/lti-config.properties_
-  else
-    bbb_new_properties
-  fi
+  bbb_new_properties
 
   if [[ ! -L /usr/share/bbb-lti/logs && -d /usr/share/bbb-lti/logs ]]; then  # remove old directory (if exists)
     rm -rf /usr/share/bbb-lti/logs

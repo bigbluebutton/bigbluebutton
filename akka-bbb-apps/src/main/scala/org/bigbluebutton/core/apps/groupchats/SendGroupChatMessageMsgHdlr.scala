@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.groupchats
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
@@ -14,6 +15,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
   def handle(msg: SendGroupChatMessageMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
 
+    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     var chatLocked: Boolean = false
 
     for {
@@ -37,22 +39,32 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       }
     }
 
-    if (!(applyPermissionCheck && chatLocked)) {
+    if (!chatDisabled && !(applyPermissionCheck && chatLocked)) {
       val newState = for {
         sender <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
         chat <- state.groupChats.find(msg.body.chatId)
       } yield {
-        val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
-        val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+        val chatIsPrivate = chat.access == GroupChatAccess.PRIVATE;
+        val userIsAParticipant = chat.users.filter(u => u.id == sender.id).length > 0;
 
-        val event = buildGroupChatMessageBroadcastEvtMsg(
-          liveMeeting.props.meetingProp.intId,
-          msg.header.userId, msg.body.chatId, gcm
-        )
+        if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
+          val gcm = GroupChatApp.toGroupChatMessage(sender, msg.body.msg)
+          val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
 
-        bus.outGW.send(event)
+          val event = buildGroupChatMessageBroadcastEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            msg.header.userId, msg.body.chatId, gcm
+          )
 
-        state.update(gcs)
+          bus.outGW.send(event)
+
+          state.update(gcs)
+        } else {
+          val reason = "User isn't a participant of the chat"
+          PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+          state
+        }
+
       }
 
       newState match {

@@ -13,6 +13,8 @@ export const DEVICE_TYPE = {
   DESKTOP: 'desktop',
 };
 
+export const SMALL_VIEWPORT_BREAKPOINT = 640;
+
 export const CAMERADOCK_POSITION = {
   CONTENT_TOP: 'contentTop',
   CONTENT_RIGHT: 'contentRight',
@@ -27,6 +29,8 @@ export const ACTIONS = {
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',
   SET_FONT_SIZE: 'setFontSize',
+
+  SET_FOCUSED_CAMERA_ID: 'focusedId',
 
   SET_LAYOUT_INPUT: 'setLayoutInput',
 

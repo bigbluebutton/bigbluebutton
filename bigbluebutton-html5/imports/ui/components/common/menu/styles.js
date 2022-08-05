@@ -4,6 +4,14 @@ import Icon from '/imports/ui/components/common/icon/component';
 import MenuItem from "@material-ui/core/MenuItem";
 import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
+
+const MenuItemWrapper = styled.div`
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  align-items: center;
+`;
 
 const Option = styled.div`
   line-height: 1;
@@ -35,6 +43,10 @@ const CloseButton = styled(Button)`
   box-shadow: 0 0 0 2rem ${colorWhite} !important;
   border: ${colorWhite} !important;
   cursor: pointer !important;
+
+  @media ${mediumUp} {
+    display: none;
+  }
 `;
 
 const IconRight = styled(Icon)`
@@ -73,6 +85,7 @@ const BBBMenuItem = styled(MenuItem)`
 `;
 
 export default {
+  MenuItemWrapper,
   Option,
   CloseButton,
   IconRight,

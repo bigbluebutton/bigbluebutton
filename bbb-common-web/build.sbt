@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.8",
+    "-target:jvm-1.11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -29,13 +29,18 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "2.0.0"
+
 Seq(Revolver.settings: _*)
+
 lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
+scalaVersion := "2.13.4"
 //-----------
 // Packaging
 //
@@ -100,3 +105,15 @@ libraryDependencies += "javax.validation" % "validation-api" % "2.0.1.Final"
 libraryDependencies += "org.springframework.boot" % "spring-boot-starter-validation" % "2.5.1"
 libraryDependencies += "org.glassfish" % "javax.el" % "3.0.1-b12"
 libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.5.13"
+
+libraryDependencies ++= Seq(
+  "javax.validation" % "validation-api" % "2.0.1.Final",
+  "org.springframework.boot" % "spring-boot-starter-validation" % "2.6.1",
+  "org.springframework.data" % "spring-data-commons" % "2.6.1",
+  "org.glassfish" % "javax.el" % "3.0.1-b12",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.13",
+  "org.postgresql" % "postgresql" % "42.2.16",
+  "org.hibernate" % "hibernate-core" % "5.6.1.Final",
+  "org.flywaydb" % "flyway-core" % "7.8.2",
+  "com.zaxxer" % "HikariCP" % "4.0.3"
+)

@@ -105,11 +105,8 @@ if [ -f /etc/centos-release ] || [ -f /etc/system-release ]; then
     REDIS_SERVICE=redis.service
 else
     . /etc/lsb-release    # Get value for DISTRIB_ID
-    if [ "$DISTRIB_CODENAME" == "bionic" ]; then
-      TOMCAT_USER=tomcat8
-    fi
-    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-      TOMCAT_USER=tomcat7
+    if [ "$DISTRIB_CODENAME" == "focal" ]; then
+      TOMCAT_USER=tomcat9
     fi
     TOMCAT_DIR=/var/lib/$TOMCAT_USER
     SERVLET_LOGS=$TOMCAT_DIR/logs
@@ -121,13 +118,12 @@ FREESWITCH_VARS=/opt/freeswitch/etc/freeswitch/vars.xml
 FREESWITCH_EXTERNAL=/opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 FREESWITCH_PID=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
 FREESWITCH_EVENT_SOCKET=/opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
+FREESWITCH_SWITCH_CONF=/opt/freeswitch/etc/freeswitch/autoload_configs/switch.conf.xml
 
 LTI_DIR=/usr/share/bbb-lti
 
 if [ -f /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties ]; then
     SERVLET_DIR=/usr/share/bbb-web
-else
-    SERVLET_DIR=/var/lib/tomcat7/webapps/bigbluebutton
 fi
 
 
@@ -158,7 +154,6 @@ get_bbb_web_config_value() {
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
-HTML5_CONFIG_OLD=/usr/share/meteor/bundle/programs/server/assets/app/config/settings-production.json
 HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
@@ -167,18 +162,19 @@ else
     HTML5_CONFIG=$(yq r $HTML5_DEFAULT_CONFIG)
 fi
 
-KURENTO_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
-KURENTO_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-if [ -f $KURENTO_ETC_CONFIG ]; then
-    KURENTO_CONFIG=$(yq m -x $KURENTO_DEFAULT_CONFIG $KURENTO_ETC_CONFIG)
+WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+WEBRTC_SFU_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+if [ -f $WEBRTC_SFU_ETC_CONFIG ]; then
+    # -a overwrite: merges arrays by replacement (yq 3.4+, like the override)
+    WEBRTC_SFU_CONFIG=$(yq m -a overwrite -x $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG)
 else
-    KURENTO_CONFIG=$(yq r $KURENTO_DEFAULT_CONFIG)
+    WEBRTC_SFU_CONFIG=$(yq r $WEBRTC_SFU_DEFAULT_CONFIG)
 fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
-SIP_CONFIG=/etc/bigbluebutton/nginx/sip.nginx
+SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
 SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
 
 NCPU=$(nproc --all)
@@ -213,16 +209,19 @@ fi
 # Determine IP so it works on multilingual installations
 #
 
-if LANG=c ifconfig | grep -q 'venet0:0'; then
-    IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | tail -1 | cut -d: -f2 | awk '{ print $1}')
+### duplicated code: see deb-helper.sh and apply-lib.sh
+if [ -e "/sys/class/net/venet0:0" ]; then
+    # IP detection for OpenVZ environment
+    _dev="venet0:0"
 else
-    IP=$(ifconfig $(route | grep ^default | head -1 | sed "s/.* //") | awk '/inet /{ print $2}' | cut -d: -f2)
+    _dev=$(awk '$2 == 00000000 { print $1 }' /proc/net/route | head -1)
 fi
-
+_ips=$(LANG=C ip -4 -br address show dev "$_dev" | awk '{ $1=$2=""; print $0 }')
+_ips=${_ips/127.0.0.1\/8/}
+read -r IP _ <<< "$_ips"
+IP=${IP/\/*} # strip subnet provided by ip address
 if [ -z "$IP" ]; then
-    if [ $DISTRIB_ID == "centos" ]; then
-        IP=$(hostname -I | sed 's/ .*//g')
-    fi
+  read -r IP _ <<< "$(hostname -I)"
 fi
 
 #
@@ -277,7 +276,8 @@ usage() {
     echo "Configuration:"
     echo "   --version                        Display BigBlueButton version (packages)"
     echo "   --setip <IP/hostname>            Set IP/hostname for BigBlueButton"
-    echo "   --setsecret <secret>             Change the shared secret in bigbluebutton.properties"
+    echo "   --setsecret <secret>             Change the shared secret in /etc/bigbluebutton/bbb-web.properties"
+    echo "   --set-port-range MIN-MAX         Change UDP port range used for audio/video/screenshare"
     echo
     echo "Monitoring:"
     echo "   --check                          Check configuration files and processes for problems"
@@ -344,35 +344,11 @@ uncomment () {
 stop_bigbluebutton () {
     echo "Stopping BigBlueButton"
 
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
-
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl stop $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker.service bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $PADS $ETHERPAD $BBB_WEB $BBB_LTI
+    systemctl stop $TOMCAT_SERVICE bigbluebutton.target
 }
 
 start_bigbluebutton () {
@@ -394,36 +370,24 @@ start_bigbluebutton () {
         fi
     fi
 
+    echo "Reloading NginX configuration"
+    systemctl reload nginx
+
     echo "Starting BigBlueButton"
-    if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        HTML5="mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
-        WEBHOOKS=bbb-webhooks
-    fi
-
-    if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
-        PADS=bbb-pads
-    fi
-
-    if [ -f /usr/share/etherpad-lite/settings.json ]; then
-        ETHERPAD=etherpad
-    fi
-
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
-        BBB_WEB=bbb-web
-    fi
-
-    if [ -f /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties ]; then
-        BBB_LTI=bbb-lti
-    fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
         TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    systemctl start $TOMCAT_SERVICE nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
+    systemctl start $TOMCAT_SERVICE || {
+        echo
+        echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI."
+        echo "#     Run the command:"
+        echo "#       sudo journalctl -u $TOMCAT_SERVICE"
+        echo "#     To better understand the ERROR"
+    }
+
+    systemctl start bigbluebutton.target nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -484,6 +448,10 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-pads.service ]; then
         units="$units bbb-pads"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-export-annotations.service ]; then
+        units="$units bbb-export-annotations"
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -590,6 +558,12 @@ while [ $# -gt 0 ]; do
         continue
     fi
 
+    if [ "$1" = "--set-port-range" ]; then
+        PORT_RANGE="${2}"
+        shift; shift
+        continue
+    fi
+
     if [ "$1" = "--salt" -o "$1" = "-salt" -o "$1" = "--setsalt" -o "$1" = "--secret" -o "$1" = "-secret"  -o "$1" = "--setsecret" ]; then
         SECRET="${2}"
         if [ -z "$SECRET" ]; then
@@ -637,9 +611,9 @@ done
 print_bigbluebutton_version() {
     echo
     if [ $DISTRIB_ID == "centos" ]; then
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-demo | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(rpm -qa | grep bbb | grep -v bbb-lti | grep -v bbb-redis | grep -v bbb-tomcat | grep -v freeswitch | sed 's/.*[0-9].[0-9].[0-9]-//g' | sed 's/\..*//g' | awk '{ sum+=$1} END {print sum}'))"
     else
-        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-demo | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb | grep -v bbb-lti | sed -n '/[0-9].[0-9].[0-9]-/{s/.*[0-9].[0-9].[0-9]-//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
     fi
 }
 
@@ -661,8 +635,10 @@ fi
 
 if [[ $SECRET ]]; then
     need_root
-    if get_properties_value securitySalt "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
-        change_var_salt "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
+
+    echo "Assigning secret in $BBB_WEB_ETC_CONFIG"
+    if [ -f "$BBB_WEB_ETC_CONFIG" ] && grep "^securitySalt" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
+        change_var_value "$BBB_WEB_ETC_CONFIG" securitySalt "$SECRET"
     else
         echo "securitySalt=$SECRET" >> "$BBB_WEB_ETC_CONFIG"
     fi
@@ -693,6 +669,45 @@ if [[ $SECRET ]]; then
     echo
 fi
 
+#
+# Set Port Range
+#
+
+if [[ $PORT_RANGE ]]; then
+    if [[ "$PORT_RANGE" =~ ^([[:digit:]]+)-([[:digit:]]+)$ ]]; then
+        START_PORT=${BASH_REMATCH[1]}
+        END_PORT=${BASH_REMATCH[2]}
+
+        need_root
+
+        xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
+        xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
+
+        sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
+        sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
+
+        mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
+        touch $WEBRTC_SFU_ETC_CONFIG
+        yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMinPort $START_PORT
+        yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMaxPort $END_PORT
+
+        echo
+        echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
+        echo
+        echo "You must restart BigBlueButton for the changes to take effect"
+        echo
+        echo "  $SUDO bbb-conf --restart"
+        echo
+        echo
+    else
+        echo
+        echo "Warning: --set-port-range requires a numerical port range (default is 16384-32768)"
+        echo
+        echo "Port range remains unchanged"
+        echo
+    fi
+fi
+
 check_configuration() {
     #
     # Check that freeswtich ESL matches the value in bigbluebutton.properties
@@ -719,7 +734,7 @@ check_configuration() {
         if [ ! -f $file ]; then
             echo "# Error: File not found: $file"
         else
-            if cat $file | grep -v redis.pass | grep -v redisPassword  | grep -q "^[^=]*=[ ]*$"; then
+            if cat $file | grep -v redis.pass | grep -v redisPassword  | grep -v ^# | grep -q "^[^=]*=[ ]*$"; then
                 echo "# The following properties in $file have no value:"
                 echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v redis.pass | grep -v redisPassword | sed 's/=//g')"
             fi
@@ -746,33 +761,6 @@ check_configuration() {
 
     BBB_SECRET="$(get_bbb_web_config_value securitySalt)"
 
-    if [ -f /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp ]; then
-        #
-        # Make sure the shared secret for the API matches the server
-        #
-        SECRET_DEMO=$(cat ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp | grep -v '^//' | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
-
-        if [ "$BBB_SECRET" != "$SECRET_DEMO" ]; then
-            echo "#"
-            echo "# Warning: API Shared Secret mismatch: "
-            echo "#"
-            echo "#  $BBB_WEB_ETC_CONFIG = $BBB_SECRET"
-            echo "#  /var/lib/$TOMCAT_USER/webapps/demo/bbb_api_conf.jsp               = $SECRET_DEMO"
-            echo "#"
-            echo "# You need to edit bbb_api_conf.jsp to have the same shared secret defined in bigbluebutton.properties"
-            echo "#"
-            echo
-        fi
-
-        if ! grep -q https ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp; then
-            echo
-            echo "# Warning: Did not detect https for API demos in "
-            echo "#"
-            echo "#    ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
-            echo "#"
-            echo
-        fi
-    fi
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
@@ -785,12 +773,12 @@ check_configuration() {
             echo
         fi
 
-        WEBHOOKS_PROXY_PORT=$(cat /etc/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
+        WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
         WEBHOOKS_APP_PORT=$(yq r $WEBHOOKS_CONF server.port)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
-            echo "#  /etc/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
+            echo "#  /usr/share/bigbluebutton/nginx/webhooks.nginx                   = $WEBHOOKS_PROXY_PORT"
             echo "#  $WEBHOOKS_CONF = $WEBHOOKS_APP_PORT"
             echo
         fi
@@ -808,28 +796,14 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
+    SIP_PROTOCOL=$(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
     if [[ $SIP_PROTOCOL == "https" ]]; then
         if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in /etc/bigbluebutton/nginx/sip.nginx"
+            echo "# Warning: Websockets is using HTTPS in /usr/share/bigbluebutton/nginx/sip.nginx"
             echo "# but no definition for wss-binding found in "
             echo "#"
             echo "#    $FREESWITCH_EXTERNAL"
             echo
-        fi
-
-        if [ -f $HTML5_CONFIG_OLD ]; then
-            if grep \"enableListenOnly\".*true $HTML5_CONFIG_OLD > /dev/null; then
-                if ! grep -q ws-binding $FREESWITCH_EXTERNAL ;  then
-                echo "# Warning: You have enabled listen-only audio via Kurento"
-                echo "# but FreeSWITCH is not listening on port 5066.  You should edit "
-                echo "#"
-                echo "#    $FREESWITCH_EXTERNAL"
-                echo "#"
-                echo "# and add a line that enables ws-binding on port 5066."
-                echo
-                fi
-            fi
         fi
     fi
 
@@ -881,26 +855,6 @@ check_configuration() {
 
 }
 
-update_gstreamer() {
-    # due to a change in the kurento packages naming convention, gstreamer packages don't naturally upgrade
-    # this snippet checks if the installed gstreamer packages are the same as the one available in the repository
-    # if they are not, it will update (possibly downgrade)
-    # TODO remove it on 2.3 or above
-    if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-        DOWNGRADE_LIST=""
-        for PACKAGE in $(dpkg -l | grep gst | tr -s ' ' | cut -d' ' -f2 | cut -d':' -f1); do
-            RIGHT_VERSION=$(apt-cache policy $PACKAGE | grep -B1 ubuntu.bigbluebutton.org | head -n1 | tr -s ' ' | cut -d' ' -f2)
-            if [[ $RIGHT_VERSION != "***" ]] && [[ $RIGHT_VERSION != "" ]]; then
-                echo "Force $PACKAGE to version $RIGHT_VERSION"
-                DOWNGRADE_LIST="$PACKAGE=$RIGHT_VERSION $DOWNGRADE_LIST"
-            fi
-        done
-        if [[ $DOWNGRADE_LIST != "" ]]; then
-            apt-get -y --allow-downgrades install $DOWNGRADE_LIST > /dev/null
-        fi
-    fi
-}
-
 check_state() {
     echo
     print_header
@@ -929,7 +883,7 @@ check_state() {
         RUNNING_APPS="${RUNNING_APPS} Nginx"
     fi
 
-    if ! netstat -ant | grep '8090' > /dev/null; then
+    if ! ss -ant | grep '8090' > /dev/null; then
         print_header
         NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
     else
@@ -957,7 +911,7 @@ check_state() {
     #
     # Check if running development environment
     #
-    if ! grep 8090 /etc/bigbluebutton/nginx/web.nginx > /dev/null; then
+    if ! grep 8090 /usr/share/bigbluebutton/nginx/web.nginx > /dev/null; then
         echo "# Warning: nginx is not serving BigBlueButton's web application"
         echo "# from port 8090"
         echo "#"
@@ -1041,8 +995,8 @@ check_state() {
     #
     # Check if the user is running their own bbb-web
     #
-    if grep -q 8888 /etc/bigbluebutton/nginx/web.nginx; then
-        if ! netstat -ant | grep '8888' > /dev/null; then
+    if grep -q 8888 /usr/share/bigbluebutton/nginx/web.nginx; then
+        if ! ss -ant | grep '8888' > /dev/null; then
             echo "# Warning: There is no application server listening to port 8888."
             echo
         fi
@@ -1091,16 +1045,6 @@ check_state() {
         fi
     fi
 
-    if [ -d ${TOMCAT_DIR}/webapps/demo ]; then
-        if test ${TOMCAT_DIR}/webapps/demo.war -nt ${TOMCAT_DIR}/webapps/demo; then
-            echo "# Error: The updated demo.war did not deploy.  To manually deploy:"
-            echo "#"
-            echo "#   $SUDO touch ${SERVLET_DIR}/demo.war"
-            echo "#"
-            echo
-        fi
-    fi
-
     if (( $MEM < 3940 )); then
         echo "# Warning: You are running BigBlueButton on a server with less than 4G of memory.  Your"
         echo "# performance may suffer."
@@ -1108,22 +1052,6 @@ check_state() {
     fi
 
     BBB_WEB="$(get_bbb_web_config_value bigbluebutton.web.serverURL)"
-    if [ -f ${TOMCAT_DIR}/webapps/demo/demo1.jsp ]; then
-        echo "# Warning: The API demos are installed and accessible from:"
-        echo "#"
-        echo "#    $BBB_WEB"
-        echo "#"
-        echo "# and"
-        echo "#"
-        echo "#    $BBB_WEB/demo/demo1.jsp"
-        echo "#"
-        echo "# These API demos allow anyone to access your server without authentication"
-        echo "# to create/manage meetings and recordings. They are for testing purposes only."
-        echo "# If you are running a production system, remove them by running:"
-        echo "#"
-        echo "#   $SUDO apt-get purge bbb-demo"
-        echo
-    fi
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         LTI_URL="${PROTOCOL}://"$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^ltiEndPoint/{s/^.*=//;p}')'/lti/tool'
@@ -1168,10 +1096,21 @@ check_state() {
     fi
 
     if bbb-conf --status | grep -q inactive; then
-        echo "# Error: Detected some processes have not started correctly"
-        echo "#"
-        echo "#   $(bbb-conf --status | grep inactive)"
-        echo "#"
+        if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
+            TOMCAT_SERVICE=$TOMCAT_USER
+
+            if bbb-conf --status | grep -q inactive | grep -q $TOMCAT_SERVICE; then
+                echo "# Warning: $TOMCAT_SERVICE is not started correctly"
+                echo "#"
+            fi
+        fi
+
+        if bbb-conf --status | grep inactive; then
+            echo "# Error: Detected some processes have not started correctly"
+            echo "#"
+            echo "#   $(bbb-conf --status | grep inactive)"
+            echo "#"
+        fi
     fi
 
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
@@ -1207,7 +1146,7 @@ check_state() {
         if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
           echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
           echo "#"
-          echo "#    /etc/bigbluebutton/nginx/sip.nginx"
+          echo "#    /usr/share/bigbluebutton/nginx/sip.nginx"
           echo "#"
           echo "# does not match the local IP address ($IP)."
           echo "# (This is OK if you've manually changed the values)"
@@ -1274,14 +1213,14 @@ check_state() {
       echo "#"
     fi
 
-    FREESWITCH_SIP=$(netstat -anlt | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
-    KURENTO_SIP=$(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)
-    
+    FREESWITCH_SIP=$(ss -anlt4 | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
+    WEBRTC_SFU_SIP_IP=$(echo "$WEBRTC_SFU_CONFIG" | yq r - freeswitch.sip_ip)
+
     if [ ! -z "$FREESWITCH_SIP" ]; then
-      if [ "$FREESWITCH_SIP" != "$KURENTO_SIP" ]; then
+      if [ "$FREESWITCH_SIP" != "$WEBRTC_SFU_SIP_IP" ]; then
         echo
         echo "#"
-        echo "# Kurento will try to connect to $KURENTO_SIP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
+        echo "# bbb-webrtc-sfu will try to connect to $WEBRTC_SFU_SIP_IP but FreeSWITCH is listening on $FREESWITCH_SIP for port 5066"
         echo "#"
         echo "# To fix, run the commands"
         echo "#"
@@ -1311,19 +1250,6 @@ check_state() {
           fi
         fi
       done
-    fi
-
-    stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
-    stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
-    if [ ! -z "$stunServerAddress" ]; then
-      if stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort | grep -q "fail\|Unable\ to\ resolve"; then
-        echo
-        echo "#"
-        echo "# Warning: Failed to verify STUN server at $stunServerAddress:$stunServerPort with command"
-        echo "#"
-        echo "#    stunclient --mode full --localport 30000 $stunServerAddress $stunServerPort"
-        echo "#"
-      fi
     fi
 
     BBB_LOG="/var/log/bigbluebutton"
@@ -1439,12 +1365,18 @@ if [ $CHECK ]; then
     echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
 
-    if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-        BBB_WEB_URL=$(cat ${SERVLET_DIR}//WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-        echo
-        echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
-        echo "                               url: $BBB_WEB_URL"
-    fi
+    # awk script from https://stackoverflow.com/a/14527886/1493790
+    # open issue: a tool like crudini (https://stackoverflow.com/a/25513632/1493790)
+    #     would be better for parsing ini files
+
+    echo
+    echo "UDP port ranges"
+    echo
+    echo "                        FreeSWITCH: $(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-start-port"]' -v @value $FREESWITCH_SWITCH_CONF)-$(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-end-port"]' -v @value $FREESWITCH_SWITCH_CONF)"
+    echo "                           kurento: $(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /minPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)-$(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /maxPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)"
+
+    echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMinPort)-$(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMaxPort)"
+
 
 #     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
 #          LTI_URL=$(cat ${LTI_DIR}/WEB-INF/classes/lti-config.properties | grep -v '#' | sed -n '/^bigbluebuttonURL/{s/.*http[s]:\/\///;s/\/.*//;p}' | tr -d '\015')
@@ -1465,63 +1397,48 @@ if [ $CHECK ]; then
         echo
         echo "$SIP_CONFIG (sip.nginx)"
         echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat /etc/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
+        echo "                          protocol: $(cat /usr/share/bigbluebutton/nginx/sip.nginx | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
-    if [ -n "$KURENTO_CONFIG" ]; then
+    if [ -n "$WEBRTC_SFU_CONFIG" ]; then
+        MEDIASOUP_WEBRTC_IPS=$(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.webrtc.listenIps.*.announcedIp)
         echo
-        echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (Kurento SFU)"
-        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (Kurento SFU - override)"
-        echo "                        kurento.ip: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].ip)"
-        echo "                       kurento.url: $(echo "$KURENTO_CONFIG" | yq r - kurento[0].url)"
-        echo "                    kurento.sip_ip: $(echo "$KURENTO_CONFIG" | yq r - freeswitch.sip_ip)"
-        echo "               recordScreenSharing: $(echo "$KURENTO_CONFIG" | yq r - recordScreenSharing)"
-        echo "                     recordWebcams: $(echo "$KURENTO_CONFIG" | yq r - recordWebcams)"
-        echo "                  codec_video_main: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_main)"
-        echo "               codec_video_content: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_content)"
+        echo "/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)"
+        echo "/etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)"
+        echo "    mediasoup.webrtc.*.announcedIp: $(echo "$MEDIASOUP_WEBRTC_IPS" | awk -v ORS=", " '{ print $1 }' | sed 's/, $//')"
+        echo "  mediasoup.plainRtp.*.announcedIp: $(echo "$WEBRTC_SFU_CONFIG" | yq r --printMode v - mediasoup.plainRtp.*.announcedIp)"
+        echo "                        kurento.ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].ip)"
+        echo "                       kurento.url: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].url)"
+        echo "                 freeswitch.sip_ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - freeswitch.sip_ip)"
+        echo "               recordScreenSharing: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordScreenSharing)"
+        echo "                     recordWebcams: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordWebcams)"
+        echo "                  codec_video_main: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_main)"
+        echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_content)"
     fi
 
-     if [ -n "$HTML5_CONFIG" ]; then
+    if [ -n "$HTML5_CONFIG" ]; then
+    echo
+    echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
+    echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
+    echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
+    echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
+    echo "            defaultFullAudioBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultFullAudioBridge)"
+    echo "           defaultListenOnlyBridge: $(echo "$HTML5_CONFIG" | yq r - public.media.audio.defaultListenOnlyBridge)"
+    echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
+    fi
+
+    if [ ! -z "$STUN" ]; then
+    for i in $STUN; do
         echo
-        echo "/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml (HTML5 client)"
-        echo "/etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)"
-        echo "                             build: $(echo "$HTML5_CONFIG" | yq r - public.app.html5ClientBuild)"
-        echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
-        echo "                  enableListenOnly: $(echo "$HTML5_CONFIG" | yq r - public.kurento.enableListenOnly)"
-        echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
-     fi
+        echo "$TURN (STUN Server)"
+        echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
+    done
+    fi
 
-     if [ ! -z "$STUN" ]; then
-       for i in $STUN; do
-         echo
-         echo "$TURN (STUN Server)"
-         echo "                              stun: $(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
-       done
-     fi
+    check_state
+    echo
 
-     stunServerAddress=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerAddress/{s/.*=//;p}')
-     stunServerPort=$(cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini | sed -n '/^stunServerPort/{s/.*=//;p}')
-     if [ ! -z "$stunServerAddress" ]; then
-        echo
-        echo "/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini (STUN Server)"
-        echo "                              stun: $stunServerAddress:$stunServerPort"
-     fi
-
-     if [ "$DISTRIB_CODENAME" == "xenial" ]; then
-       if ! java -version 2>&1 | grep -q "1.8.0"; then
-        echo
-        echo "# Warning: Did not detect Java 8 as default version"
-        echo
-        echo "   sudo apt-get install openjdk-8-jdk"
-        echo "   update-alternatives --config java"
-        echo "   bbb-conf --restart"
-      fi
-     fi
-
-     check_state
-     echo
-
-     exit 0
+    exit 0
 fi
 
 #
@@ -1667,7 +1584,12 @@ if [ -n "$HOST" ]; then
     if [ -f "$BBB_WEB_ETC_CONFIG" ] && grep "bigbluebutton.web.serverURL" "$BBB_WEB_ETC_CONFIG" > /dev/null ; then
         change_var_value "$BBB_WEB_ETC_CONFIG" bigbluebutton.web.serverURL "$PROTOCOL://$HOST"
     else
-        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" > "$BBB_WEB_ETC_CONFIG"
+        echo "bigbluebutton.web.serverURL=$PROTOCOL://$HOST" >> "$BBB_WEB_ETC_CONFIG"
+    fi
+
+    # Populate /etc/bigbluebutton/bbb-web.properites with the shared secret
+    if ! grep -q "^securitySalt" "$BBB_WEB_ETC_CONFIG"; then
+        echo "securitySalt=$(get_bbb_web_config_value securitySalt)" >> "$BBB_WEB_ETC_CONFIG"
     fi
 
 
@@ -1688,17 +1610,6 @@ if [ -n "$HOST" ]; then
         sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
                 /etc/bigbluebutton/bbb-apps-akka.conf
     fi
-
-    #
-    # Update api demos
-    #
-    if [ -f ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp ]; then
-        echo "Assigning $HOST for api demos in ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp"
-        $SUDO sed -i "s/BigBlueButtonURL = \"http[s]*:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"$PROTOCOL:\/\/$HOST\2/g" \
-                ${TOMCAT_DIR}/webapps/demo/bbb_api_conf.jsp
-    fi
-
-
 
     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
         echo "Assigning $HOST for LTI integration in ${LTI_DIR}/WEB-INF/classes/lti-config.properties"
@@ -1740,20 +1651,10 @@ if [ -n "$HOST" ]; then
     #
     # Update HTML5 client
     #
-    if [ -f $HTML5_CONFIG_OLD ]; then
-        WS=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
-        sed -i "s|\"wsUrl.*|\"wsUrl\": \"$WS/bbb-webrtc-sfu\",|g" $HTML5_CONFIG_OLD
-    fi
-
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
         yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
-
-        #if [ -f $KURENTO_CONFIG ]; then
-        #    yq w -i $KURENTO_CONFIG kurento[0].url "ws://$HOST:8888/kurento"
-        #    chown bigbluebutton:bigbluebutton $KURENTO_CONFIG
-        #fi
     fi
 
     #
@@ -1769,10 +1670,8 @@ if [ -n "$HOST" ]; then
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
 
-    echo "Restarting the BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
+    echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton
-    update_gstreamer
-    echo
     start_bigbluebutton
 
     exit 0
@@ -1786,7 +1685,6 @@ if [ $RESTART ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
     stop_bigbluebutton
-    update_gstreamer
     start_bigbluebutton
     check_state
 fi
@@ -1798,7 +1696,6 @@ if [ $CLEAN ]; then
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE (and cleaning out all log files) ..."
 
     stop_bigbluebutton
-    update_gstreamer
 
     #
     # Clean log files
@@ -1876,11 +1773,11 @@ if [ $CLEAN ]; then
 fi
 
 if [ $NETWORK ]; then
-    netstat -ant | egrep ":80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
+    ss -ant | egrep ":80|:443\ " | egrep -v ":::|0.0.0.0" > /tmp/t_net
     REMOTE=$(cat /tmp/t_net | cut -c 45-68 | cut -d ":" -f1 | sort | uniq)
 
     if [ "$REMOTE" != "" ]; then
-        echo -e "netstat\t\t\t80\t443"
+        echo -e "ss\t\t\t80\t443"
         for IP in $REMOTE ; do
             PORT_80=$(cat /tmp/t_net | grep :80 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )
             PORT_443=$(cat /tmp/t_net | grep :443 | cut -c 45-68 | cut -d ":" -f1 | grep $IP | wc -l )

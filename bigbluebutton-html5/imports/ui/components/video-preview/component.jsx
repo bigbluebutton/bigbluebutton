@@ -17,10 +17,10 @@ import {
   EFFECT_TYPES,
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
-  isVirtualBackgroundEnabled,
   getSessionVirtualBackgroundInfo,
-} from '/imports/ui/services/virtual-background/service'
+} from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
+import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const VIEW_STATES = {
   finding: 'finding',
@@ -34,6 +34,7 @@ const propTypes = {
   startSharing: PropTypes.func.isRequired,
   stopSharing: PropTypes.func.isRequired,
   resolve: PropTypes.func,
+  camCapReached: PropTypes.bool,
   hasVideoStream: PropTypes.bool.isRequired,
   webcamDeviceId: PropTypes.string,
   sharedDevices: PropTypes.arrayOf(PropTypes.string),
@@ -41,11 +42,16 @@ const propTypes = {
 
 const defaultProps = {
   resolve: null,
+  camCapReached: true,
   webcamDeviceId: null,
   sharedDevices: [],
 };
 
 const intlMessages = defineMessages({
+  webcamEffectsTitle: {
+    id: 'app.videoPreview.webcamEffectsTitle',
+    description: 'Title for the video effects modal',
+  },
   webcamSettingsTitle: {
     id: 'app.videoPreview.webcamSettingsTitle',
     description: 'Title for the video preview modal',
@@ -170,9 +176,17 @@ const intlMessages = defineMessages({
     id: 'app.video.genericError',
     description: 'error message for when the webcam sharing fails with unknown error',
   },
+  camCapReached: {
+    id: 'app.video.camCapReached',
+    description: 'message for when the camera cap has been reached',
+  },
   virtualBgGenericError: {
     id: 'app.video.virtualBackground.genericError',
     description: 'Failed to apply camera effect',
+  },
+  inactiveError: {
+    id: 'app.video.inactiveError',
+    description: 'Camera stopped unexpectedly',
   },
 });
 
@@ -191,6 +205,7 @@ class VideoPreview extends Component {
     this.handleSelectWebcam = this.handleSelectWebcam.bind(this);
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
     this.handleVirtualBgSelected = this.handleVirtualBgSelected.bind(this);
+    this.handleLocalStreamInactive = this.handleLocalStreamInactive.bind(this);
 
     this._isMounted = false;
 
@@ -206,6 +221,14 @@ class VideoPreview extends Component {
   }
 
   set currentVideoStream (bbbVideoStream) {
+    // Stream is being unset - remove gUM revocation handler to avoid false negatives
+    if (this._currentVideoStream) {
+      this._currentVideoStream.removeListener('inactive', this.handleLocalStreamInactive);
+    }
+    // Set up inactivation handler for the new stream (to, eg, detect gUM revocation)
+    if (bbbVideoStream) {
+      bbbVideoStream.once('inactive', this.handleLocalStreamInactive);
+    }
     this._currentVideoStream = bbbVideoStream;
   }
 
@@ -295,7 +318,7 @@ class VideoPreview extends Component {
 
   componentWillUnmount() {
     const { webcamDeviceId } = this.state;
-    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
+    this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
   }
@@ -308,10 +331,21 @@ class VideoPreview extends Component {
     });
   }
 
+  handleLocalStreamInactive() {
+    this.setState({
+      isStartSharingDisabled: true,
+    });
+    this.handlePreviewError(
+      'stream_inactive',
+      new Error('inactiveError'),
+      '- preview camera stream inactive',
+    );
+  }
+
   // Resolves into true if the background switch is successful, false otherwise
-  handleVirtualBgSelected(type, name) {
+  handleVirtualBgSelected(type, name, customParams) {
     if (type !== EFFECT_TYPES.NONE_TYPE) {
-      return this.startVirtualBackground(this.currentVideoStream, type, name);
+      return this.startVirtualBackground(this.currentVideoStream, type, name, customParams);
     } else {
       this.stopVirtualBackground(this.currentVideoStream);
       return Promise.resolve(true);
@@ -325,12 +359,12 @@ class VideoPreview extends Component {
     }
   }
 
-  startVirtualBackground(bbbVideoStream, type, name) {
+  startVirtualBackground(bbbVideoStream, type, name, customParams) {
     this.setState({ isStartSharingDisabled: true });
 
     if (bbbVideoStream == null) return Promise.resolve(false);
 
-    return bbbVideoStream.startVirtualBackground(type, name).then(() => {
+    return bbbVideoStream.startVirtualBackground(type, name, customParams).then(() => {
       this.displayPreview();
       return true;
     }).catch(error => {
@@ -390,7 +424,7 @@ class VideoPreview extends Component {
     const { resolve, closeModal } = this.props;
     const { webcamDeviceId } = this.state;
 
-    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
+    this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     closeModal();
     if (resolve) resolve();
   }
@@ -441,6 +475,14 @@ class VideoPreview extends Component {
       { 0: `${error.name}: ${error.message}` });
   }
 
+  terminateCameraStream(stream, deviceId) {
+    if (stream) {
+      // Stream is being destroyed - remove gUM revocation handler to avoid false negatives
+      stream.removeListener('inactive', this.handleLocalStreamInactive);
+      PreviewService.terminateCameraStream(this.currentVideoStream, deviceId);
+    }
+  }
+
   cleanupStreamAndVideo() {
     this.currentVideoStream = null;
     if (this.video) this.video.srcObject = null;
@@ -465,7 +507,10 @@ class VideoPreview extends Component {
     let actualDeviceId = deviceId;
 
     if (!actualDeviceId && this.currentVideoStream) {
-      actualDeviceId = MediaStreamUtils.extractVideoDeviceId(this.currentVideoStream.mediaStream);
+      actualDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+        this.currentVideoStream.mediaStream,
+        'video',
+      );
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });
@@ -490,13 +535,13 @@ class VideoPreview extends Component {
     });
 
     PreviewService.changeProfile(profile.id);
-    PreviewService.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
+    this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
     // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
     return PreviewService.doGUM(deviceId, profile).then((bbbVideoStream) => {
       // Late GUM resolve, clean up tracks, stop.
-      if (!this._isMounted) return PreviewService.terminateCameraStream(bbbVideoStream, deviceId);
+      if (!this._isMounted) return this.terminateCameraStream(bbbVideoStream, deviceId);
 
       this.currentVideoStream = bbbVideoStream;
       this.setState({
@@ -552,6 +597,7 @@ class VideoPreview extends Component {
     const {
       intl,
       sharedDevices,
+      isVisualEffects,
     } = this.props;
 
     const {
@@ -561,6 +607,14 @@ class VideoPreview extends Component {
     } = this.state;
 
     const shared = sharedDevices.includes(webcamDeviceId);
+
+    if (isVisualEffects) {
+      return (
+        <Styled.Col>
+          {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
+        </Styled.Col>
+      )
+    }
 
     return (
       <Styled.Col>
@@ -627,12 +681,13 @@ class VideoPreview extends Component {
             </>
           )
         }
-        {isVirtualBackgroundEnabled() && this.renderVirtualBgSelector()}
+        {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
       </Styled.Col>
     );
   }
 
   renderVirtualBgSelector() {
+    const { isVisualEffects } = this.props;
     const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
@@ -645,6 +700,7 @@ class VideoPreview extends Component {
         locked={isStartSharingDisabled}
         showThumbnails={SHOW_THUMBNAILS}
         initialVirtualBgState={initialVirtualBgState}
+        isVisualEffects={isVisualEffects}
       />
     );
   }
@@ -715,6 +771,8 @@ class VideoPreview extends Component {
       sharedDevices,
       hasVideoStream,
       forceOpen,
+      camCapReached,
+      isVisualEffects,
     } = this.props;
 
     const {
@@ -731,6 +789,10 @@ class VideoPreview extends Component {
 
     const { isIe } = browserInfo;
 
+    const title = isVisualEffects
+      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
+      : intl.formatMessage(intlMessages.webcamSettingsTitle);
+
     return (
       <>
         {isIe ? (
@@ -746,35 +808,39 @@ class VideoPreview extends Component {
           </Styled.BrowserWarning>
         ) : null}
         <Styled.Title>
-          {intl.formatMessage(intlMessages.webcamSettingsTitle)}
+          {title}
         </Styled.Title>
 
         {this.renderContent()}
 
-        <Styled.Footer>
-          {hasVideoStream && VideoService.isMultipleCamerasEnabled()
-            ? (
-              <Styled.ExtraActions>
-                <Button
-                  color="danger"
-                  label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
-                  onClick={this.handleStopSharingAll}
-                  disabled={shouldDisableButtons}
-                />
-              </Styled.ExtraActions>
-            )
-            : null
-          }
-          <Styled.Actions>
-            <Button
+        {!isVisualEffects ? (
+          <Styled.Footer>
+            {hasVideoStream && VideoService.isMultipleCamerasEnabled()
+              ? (
+                <Styled.ExtraActions>
+                  <Button
+                    color="danger"
+                    label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
+                    onClick={this.handleStopSharingAll}
+                    disabled={shouldDisableButtons}
+                  />
+                </Styled.ExtraActions>
+              )
+              : null
+            }
+            <Styled.Actions>
+              {!shared && camCapReached ? (
+                <span>{intl.formatMessage(intlMessages.camCapReached)}</span>
+              ) : (<Button
               data-test="startSharingWebcam"
               color={shared ? 'danger' : 'primary'}
               label={intl.formatMessage(shared ? intlMessages.stopSharingLabel : intlMessages.startSharingLabel)}
               onClick={shared ? this.handleStopSharing : this.handleStartSharing}
               disabled={isStartSharingDisabled || isStartSharingDisabled === null || shouldDisableButtons}
-            />
-          </Styled.Actions>
-        </Styled.Footer>
+            />)}
+            </Styled.Actions>
+          </Styled.Footer>
+        ) : null }
       </>
     );
   }

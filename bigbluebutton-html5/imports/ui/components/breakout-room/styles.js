@@ -1,17 +1,20 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  systemMessageBorderColor,
   mdPaddingX,
   borderSize,
   listItemBgHover, borderSizeSmall,
+  borderRadius,
+  jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   colorGray,
   colorDanger,
-  colorGrayDark,
   userListBg,
-  colorWhite, colorGrayLighter,
+  colorWhite,
+  colorGrayLighter,
+  colorGrayLightest,
+  colorBlueLight
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   headingsFontWeight,
@@ -151,22 +154,45 @@ const BreakoutScrollableList = styled(ScrollboxVertical)`
 `;
 
 const DurationContainer = styled.div`
-  text-align: center;
+  ${({ centeredText }) => centeredText && `
+    text-align: center;
+  `}
+
+  border-radius: ${borderRadius};
+  margin-bottom: ${jumboPaddingY};
+  padding: 10px;
+  box-shadow: 0 0 1px 1px ${colorGrayLightest};
 `;
 
 const SetTimeContainer = styled.div`
-  border-top: 1px solid ${systemMessageBorderColor};
-  border-bottom: 1px solid ${systemMessageBorderColor};
-  padding: 10px 0px;
+  margin: .5rem 0 0 0;
 `;
 
 const SetDurationInput = styled.input`
+  flex: 1;
+  border: 1px solid ${colorGrayLighter};
   width: 50%;
   text-align: center;
   padding: .25rem;
+  border-radius: ${borderRadius};
+  background-clip: padding-box;
+  outline: none;
+
   &::placeholder {
     color: ${colorGray};
     opacity: 1;
+  }
+
+  &:focus {
+    border-radius: ${borderSize};
+    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+  }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: rgba(167,179,189,0.25);
   }
 `;
 
@@ -184,7 +210,6 @@ const EndButton = styled(Button)`
 const Duration = styled.span`
   display: inline-block;
   align-self: center;
-  margin: .5rem 0 .5rem 0;
 `;
 
 const Panel = styled(ScrollboxVertical)`
@@ -202,34 +227,6 @@ const Panel = styled(ScrollboxVertical)`
   height: 100%;
 `;
 
-const HeaderButton = styled(Button)`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  position: relative;
-  margin: 0 auto 2rem 0;
-  padding-left: 0;
-  padding-right: inherit;
-  background: none !important;
-
-  [dir="rtl"] & {
-    margin: 0 0 2rem auto;
-    padding-left: inherit;
-    padding-right: 0;
-  }
-  
-  & > i  {
-    color: ${colorGrayDark};
-
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }`;
-
 const Separator = styled.div`
   position: relative;
   width: 100%;
@@ -237,6 +234,11 @@ const Separator = styled.div`
   height: ${borderSizeSmall};
   background-color: ${colorGrayLighter};
   margin: 30px 0px;
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-wrap: nowrap;
 `;
 
 export default {
@@ -259,6 +261,6 @@ export default {
   EndButton,
   Duration,
   Panel,
-  HeaderButton,
   Separator,
+  FlexRow,
 };

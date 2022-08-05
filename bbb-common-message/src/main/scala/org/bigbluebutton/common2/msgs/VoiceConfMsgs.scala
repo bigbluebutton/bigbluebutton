@@ -6,13 +6,6 @@ trait VoiceStandardMsg extends BbbCoreMsg {
   def header: BbbCoreVoiceConfHeader
 }
 
-object ScreenshareHangUpVoiceConfMsg { val NAME = "ScreenshareHangUpVoiceConfMsg" }
-case class ScreenshareHangUpVoiceConfMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ScreenshareHangUpVoiceConfMsgBody
-) extends BbbCoreMsg
-case class ScreenshareHangUpVoiceConfMsgBody(voiceConf: String, screenshareConf: String, timestamp: String)
-
 /**
  * Sent from FS that RTMP stream has started.
  */
@@ -82,48 +75,6 @@ case class ScreenshareRtmpBroadcastStoppedEvtMsg(
 case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
                                                      timestamp: String)
-
-/**
- * Sent by FS that screenshare has started.
- */
-object ScreenshareStartedVoiceConfEvtMsg { val NAME = "ScreenshareStartedVoiceConfEvtMsg" }
-case class ScreenshareStartedVoiceConfEvtMsg(
-    header: BbbCoreVoiceConfHeader,
-    body:   ScreenshareStartedVoiceConfEvtMsgBody
-) extends VoiceStandardMsg
-case class ScreenshareStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
-                                                 callerIdNum: String, callerIdName: String)
-
-/**
- * Sent to FS to broadcast ans RTMP stream to Red5.
- */
-object ScreenshareStartRtmpBroadcastVoiceConfMsg { val NAME = "ScreenshareStartRtmpBroadcastVoiceConfMsg" }
-case class ScreenshareStartRtmpBroadcastVoiceConfMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ScreenshareStartRtmpBroadcastVoiceConfMsgBody
-) extends BbbCoreMsg
-case class ScreenshareStartRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
-
-/**
- * Sent by FS that screenshare has stopped.
- */
-object ScreenshareStoppedVoiceConfEvtMsg { val NAME = "ScreenshareStoppedVoiceConfEvtMsg" }
-case class ScreenshareStoppedVoiceConfEvtMsg(
-    header: BbbCoreVoiceConfHeader,
-    body:   ScreenshareStoppedVoiceConfEvtMsgBody
-) extends VoiceStandardMsg
-case class ScreenshareStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
-                                                 callerIdNum: String, callerIdName: String)
-
-/**
- * Sent to FS to stop broadcasting RTMP stream to Red5.
- */
-object ScreenshareStopRtmpBroadcastVoiceConfMsg { val NAME = "ScreenshareStopRtmpBroadcastVoiceConfMsg" }
-case class ScreenshareStopRtmpBroadcastVoiceConfMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   ScreenshareStopRtmpBroadcastVoiceConfMsgBody
-) extends BbbCoreMsg
-case class ScreenshareStopRtmpBroadcastVoiceConfMsgBody(voiceConf: String, screenshareConf: String, url: String, timestamp: String)
 
 /* Sent by bbb-webrtc-sfu to ask permission for broadcasting a screen stream
  */
@@ -306,6 +257,46 @@ case class MeetingMutedEvtMsg(
     body:   MeetingMutedEvtMsgBody
 ) extends BbbCoreMsg
 case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
+
+/**
+ * Send to FS to deaf user in the voice conference.
+ */
+object DeafUserInVoiceConfSysMsg { val NAME = "DeafUserInVoiceConfSysMsg" }
+case class DeafUserInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   DeafUserInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class DeafUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, deaf: Boolean)
+
+/**
+ * Send to FS to hold user in the voice conference.
+ */
+object HoldUserInVoiceConfSysMsg { val NAME = "HoldUserInVoiceConfSysMsg" }
+case class HoldUserInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   HoldUserInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class HoldUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, hold: Boolean)
+
+/**
+ * Send to FS to play sound in the voice conference, or specific user
+ */
+object PlaySoundInVoiceConfSysMsg { val NAME = "PlaySoundInVoiceConfSysMsg" }
+case class PlaySoundInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   PlaySoundInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class PlaySoundInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, soundPath: String)
+
+/**
+ * Send to FS to stop current sound in the voice conference, or specific user
+ */
+object StopSoundInVoiceConfSysMsg { val NAME = "StopSoundInVoiceConfSysMsg" }
+case class StopSoundInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   StopSoundInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class StopSoundInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String)
 
 /**
  * Received from FS that voice is being recorded.
@@ -604,6 +595,43 @@ case class GetGlobalAudioPermissionRespMsg(
     body:   GetGlobalAudioPermissionRespMsgBody
 ) extends StandardMsg
 case class GetGlobalAudioPermissionRespMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    sfuSessionId: String,
+    allowed:      Boolean
+)
+
+/* Sent by bbb-webrtc-sfu to ask permission for a new microphone/full audio
+ * connection
+ *   - callerIdNum: the session's callerId as assembled by the requester
+ *   - sfuSessionId: the UUID for this request's session in bbb-webrtc-sfu.
+ *     Used for response matching.
+ */
+object GetMicrophonePermissionReqMsg { val NAME = "GetMicrophonePermissionReqMsg" }
+case class GetMicrophonePermissionReqMsg(
+    header: BbbClientMsgHeader,
+    body:   GetMicrophonePermissionReqMsgBody
+) extends StandardMsg
+case class GetMicrophonePermissionReqMsgBody(
+    meetingId:    String,
+    voiceConf:    String,
+    userId:       String,
+    callerIdNum:  String,
+    sfuSessionId: String
+)
+
+/* Sent to bbb-webrtc-sfu as a response to GetMicrophonePermissionReqMsg
+ *   - sfuSessionId: the UUID for this request's session in bbb-webrtc-sfu.
+ *     Used for response matching.
+ *   - allowed: whether session creation should be allowed.
+ */
+object GetMicrophonePermissionRespMsg { val NAME = "GetMicrophonePermissionRespMsg" }
+case class GetMicrophonePermissionRespMsg(
+    header: BbbClientMsgHeader,
+    body:   GetMicrophonePermissionRespMsgBody
+) extends StandardMsg
+case class GetMicrophonePermissionRespMsgBody(
     meetingId:    String,
     voiceConf:    String,
     userId:       String,

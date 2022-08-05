@@ -109,6 +109,14 @@ class PresentationController {
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
     def podId = params.pod_id
+
+    // Defaults current to false (optional upload parameter)
+    def current = false
+    
+    if (null != params.current) {
+      current = params.current.toBoolean()
+    }
+    
     log.debug "@Default presentation pod" + podId
 
     def uploadFailed = false
@@ -118,6 +126,7 @@ class PresentationController {
     def filenameExt = ""
     def presId = ""
     def pres = null
+    def temporaryPresentationId = params.temporaryPresentationId
 
     def file = request.getFile('fileUpload')
     if (file && !file.empty) {
@@ -153,9 +162,10 @@ class PresentationController {
             podId,
             meetingId,
             presId,
+            temporaryPresentationId,
             presFilename,
             presentationBaseUrl,
-            false /* default presentation */,
+            current,
             params.authzToken,
             uploadFailed,
             uploadFailReasons

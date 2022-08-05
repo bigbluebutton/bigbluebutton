@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import UserOptions from './component';
+import { layoutSelect } from '/imports/ui/components/layout/context';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
@@ -60,6 +61,8 @@ const UserOptionsContainer = withTracker((props) => {
     return name;
   };
 
+  const isRTL = layoutSelect((i) => i.isRTL);
+
   return {
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
@@ -84,16 +87,14 @@ const UserOptionsContainer = withTracker((props) => {
     toggleStatus,
     isMeetingMuted: isMeetingMuteOnStart(),
     amIModerator: ActionsBarService.amIModerator(),
-    getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),
-    isBreakoutEnabled: ActionsBarService.isBreakoutEnabled(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
     guestPolicy: WaitingUsersService.getGuestPolicy(),
     isMeteorConnected: Meteor.status().connected,
     meetingName: getMeetingName(),
-    learningDashboardEnabled: LearningDashboardService.isLearningDashboardEnabled(),
     openLearningDashboardUrl: LearningDashboardService.openLearningDashboardUrl,
     dynamicGuestPolicy,
+    isRTL,
   };
 })(UserOptions);
 

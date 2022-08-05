@@ -2,13 +2,17 @@ const { test, devices } = require('@playwright/test');
 const { ScreenShare } = require('./screenshare');
 
 test.describe.parallel('Screenshare', () => {
-  test('Share screen', async ({ browser, page }) => {
+  test('Share screen @ci', async ({ browser, page }) => {
     const screenshare = new ScreenShare(browser, page);
     await screenshare.init(true, true);
     await screenshare.startSharing();
   });
 
   test.describe.parallel('Mobile', () => {
+    test.beforeEach(({ browserName }) => {
+      test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
+    });
+
     test('Share screen unavailable on Mobile Android', async ({ browser }) => {
       const motoG4 = devices['Moto G4'];
       const context = await browser.newContext({ ...motoG4 });

@@ -15,19 +15,6 @@ import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
 
-  def sendAllWebcamStreams(outGW: OutMsgRouter, requesterId: String, webcams: Webcams, meetingId: String): Unit = {
-    val streams = org.bigbluebutton.core.models.Webcams.findAll(webcams)
-    val webcamStreams = streams.map { u =>
-      val msVO = MediaStreamVO(id = u.stream.id, url = u.stream.url, userId = u.stream.userId,
-        attributes = u.stream.attributes, viewers = u.stream.viewers)
-
-      WebcamStreamVO(streamId = msVO.id, stream = msVO)
-    }
-
-    val event = MsgBuilder.buildGetWebcamStreamsMeetingRespMsg(meetingId, requesterId, webcamStreams)
-    outGW.send(event)
-  }
-
   def trackUserJoin(
       outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,
@@ -35,6 +22,20 @@ trait HandlerHelpers extends SystemConfiguration {
   ): Unit = {
     if (!regUser.joined) {
       RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser)
+    }
+  }
+
+  def sendUserLeftFlagUpdatedEvtMsg(
+      outGW:       OutMsgRouter,
+      liveMeeting: LiveMeeting,
+      intId:       String,
+      leftFlag:    Boolean
+  ): Unit = {
+    for {
+      u <- Users2x.findWithIntId(liveMeeting.users2x, intId)
+    } yield {
+      val userLeftFlagMeetingEvent = MsgBuilder.buildUserLeftFlagUpdatedEvtMsg(liveMeeting.props.meetingProp.intId, u.intId, leftFlag)
+      outGW.send(userLeftFlagMeetingEvent)
     }
   }
 
@@ -85,6 +86,17 @@ trait HandlerHelpers extends SystemConfiguration {
 
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
+
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "user",
+              "app.notification.userJoinPushAlert",
+              "Notification for a user joins the meeting",
+              Vector(s"${newUser.name}")
+            )
+            outGW.send(notifyEvent)
+
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {
               // println(s"userJoinMeeting will trigger an automaticallyAssignPresenter for user=${newUser}")

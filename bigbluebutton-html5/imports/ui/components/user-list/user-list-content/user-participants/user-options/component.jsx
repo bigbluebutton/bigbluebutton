@@ -12,6 +12,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
+import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -26,7 +27,6 @@ const propTypes = {
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
-  isBreakoutEnabled: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
   dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
@@ -99,10 +99,6 @@ const intlMessages = defineMessages({
   learningDashboardDesc: {
     id: 'app.learning-dashboard.description',
     description: 'Activity Report description',
-  },
-  invitationItem: {
-    id: 'app.invitation.title',
-    description: 'invitation to breakout title',
   },
   saveUserNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
@@ -211,9 +207,6 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
-      isBreakoutEnabled,
-      getUsersNotAssigned,
-      learningDashboardEnabled,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -224,12 +217,7 @@ class UserOptions extends PureComponent {
     const canCreateBreakout = amIModerator
       && !meetingIsBreakout
       && !hasBreakoutRoom
-      && isBreakoutEnabled;
-
-    const canInviteUsers = amIModerator
-      && !meetingIsBreakout
-      && hasBreakoutRoom
-      && getUsersNotAssigned(users).length;
+      && isBreakoutRoomsEnabled();
 
     const { locale } = intl;
 
@@ -283,6 +271,7 @@ class UserOptions extends PureComponent {
           // description: ,
           onClick: this.onSaveUserNames,
           icon: 'download',
+          dataTest: 'downloadUserNamesList',
         });
       }
 
@@ -306,16 +295,6 @@ class UserOptions extends PureComponent {
         });
       }
 
-      if (canInviteUsers) {
-        this.menuItems.push({
-          icon: 'rooms',
-          dataTest: 'inviteBreakoutRooms',
-          label: intl.formatMessage(intlMessages.invitationItem),
-          key: this.createBreakoutId,
-          onClick: this.onInvitationUsers,
-        });
-      }
-
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
           icon: 'closed_caption',
@@ -326,7 +305,7 @@ class UserOptions extends PureComponent {
         });
       }
       if (amIModerator) {
-        if (learningDashboardEnabled === true) {
+        if (isLearningDashboardEnabled()) {
           this.menuItems.push({
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',
@@ -344,7 +323,7 @@ class UserOptions extends PureComponent {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, isRTL } = this.props;
 
     return (
       <BBBMenu
@@ -353,14 +332,24 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
             icon="settings"
-            ghost
-            color="primary"
+            color="light"
             hideLabel
-            size="sm"
+            size="md"
+            circle
             onClick={() => null}
           />
         )}
         actions={this.renderMenuItems()}
+        opts={{
+          id: "default-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+        }}
       />
     );
   }

@@ -9,21 +9,21 @@ object GroupChatApp {
 
   val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
 
-  def createGroupChat(chatName: String, access: String, createBy: GroupChatUser,
+  def createGroupChat(access: String, createBy: GroupChatUser,
                       users: Vector[GroupChatUser], msgs: Vector[GroupChatMessage]): GroupChat = {
     val gcId = GroupChatFactory.genId()
-    GroupChatFactory.create(gcId, chatName, access, createBy, users, msgs)
+    GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
   def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.message)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, msg.chatEmphasizedText, msg.message)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, message = msg.message)
+      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
   }
 
   def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
@@ -34,7 +34,7 @@ object GroupChatApp {
 
   def findGroupChatUser(userId: String, users: Users2x): Option[GroupChatUser] = {
     Users2x.findWithIntId(users, userId) match {
-      case Some(u) => Some(GroupChatUser(u.intId, u.name))
+      case Some(u) => Some(GroupChatUser(u.intId, u.name, u.role))
       case None =>
         if (userId == SystemUser.ID) {
           Some(GroupChatUser(SystemUser.ID))
@@ -46,13 +46,15 @@ object GroupChatApp {
 
   def createDefaultPublicGroupChat(): GroupChat = {
     val createBy = GroupChatUser(SystemUser.ID)
-    GroupChatFactory.create(MAIN_PUBLIC_CHAT, MAIN_PUBLIC_CHAT, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
+    GroupChatFactory.create(MAIN_PUBLIC_CHAT, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
   }
 
   def createTestPublicGroupChat(state: MeetingState2x): MeetingState2x = {
     val createBy = GroupChatUser(SystemUser.ID)
-    val defaultPubGroupChat = GroupChatFactory.create("TEST_GROUP_CHAT", "TEST_GROUP_CHAT",
-      GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
+    val defaultPubGroupChat = GroupChatFactory.create(
+      "TEST_GROUP_CHAT",
+      GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty
+    )
     val groupChats = state.groupChats.add(defaultPubGroupChat)
     state.update(groupChats)
   }

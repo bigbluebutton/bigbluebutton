@@ -20,8 +20,10 @@ public interface IBbbWebApiGWApp {
                      String parentMeetingID, String meetingName, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
-                     String moderatorPass, String viewerPass, Boolean learningDashboardEnabled, String learningDashboardAccessToken,
-                     Long createTime,
+                     Integer meetingCameraCap,
+                     Integer userCameraCap,
+                     Integer maxPinnedCameras,
+                     String moderatorPass, String viewerPass, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
                      String dialNumber, Integer maxUsers,
@@ -40,8 +42,8 @@ public interface IBbbWebApiGWApp {
                      LockSettingsParams lockSettingsParams,
                      Integer html5InstanceId,
                      ArrayList<Group> groups,
-                     Boolean virtualBackgroundsDisabled,
-                     ArrayList<String> disabledFeatures);
+                     ArrayList<String> disabledFeatures,
+                     Boolean notifyRecordingIsOn);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

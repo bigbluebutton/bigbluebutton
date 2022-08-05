@@ -2,6 +2,7 @@ package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
@@ -135,6 +136,27 @@ object Users2x {
     }
   }
 
+  def updatePins(users: Users2x, intId: String, maxPinnedCameras: Int, pin: Boolean): Option[UserState] = {
+    if (pin) {
+      return Users2x.addPin(users, intId, maxPinnedCameras);
+    } else {
+      return Users2x.removePin(users, intId);
+    }
+  }
+
+  def addPin(users: Users2x, intId: String, maxPinnedCameras: Int): Option[UserState] = {
+    users.pinned.enqueue(intId)
+    changePin(users, intId, true)
+    if (users.pinned.size <= maxPinnedCameras) return None
+    changePin(users, users.pinned.dequeue(), false)
+  }
+
+  def removePin(users: Users2x, intId: String): Option[UserState] = {
+    if (!hasPins(users)) return None
+    users.pinned.dequeueFirst(_.startsWith(intId))
+    changePin(users, intId, false)
+  }
+
   def changePin(users: Users2x, intId: String, pin: Boolean): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -193,11 +215,8 @@ object Users2x {
     users.toVector.find(u => u.presenter)
   }
 
-  def hasPin(users: Users2x): Boolean = {
-    findPin(users) match {
-      case Some(p) => true
-      case None    => false
-    }
+  def hasPins(users: Users2x): Boolean = {
+    !users.pinned.isEmpty
   }
 
   def isPin(intId: String, users: Users2x): Boolean = {
@@ -207,8 +226,13 @@ object Users2x {
     }
   }
 
-  def findPin(users: Users2x): Option[UserState] = {
-    users.toVector.find(u => u.pin)
+  def findPins(users: Users2x): Vector[Option[UserState]] = {
+    for {
+      uIntId <- users.pinned.toVector
+    } yield {
+      val u = findWithIntId(users, uIntId)
+      u
+    }
   }
 
   def findModerator(users: Users2x): Option[UserState] = {
@@ -248,6 +272,8 @@ class Users2x {
   // Collection of users that left the meeting. We keep a cache of the old users state to recover in case
   // the user reconnected by refreshing the client. (ralam june 13, 2017)
   private var usersCache: collection.immutable.HashMap[String, UserState] = new collection.immutable.HashMap[String, UserState]
+
+  private var pinned: collection.mutable.Queue[String] = new collection.mutable.Queue[String]()
 
   private def toVector: Vector[UserState] = users.values.toVector
 

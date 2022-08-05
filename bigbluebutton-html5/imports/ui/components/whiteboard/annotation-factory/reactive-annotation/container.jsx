@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
-import MediaService, { getSwapLayout, shouldEnableSwapLayout } from '/imports/ui/components/media/service';
 import ReactiveAnnotationService from './service';
 import ReactiveAnnotation from './component';
 import Auth from '/imports/ui/services/auth';
@@ -29,7 +28,10 @@ const ReactiveAnnotationContainer = (props) => {
 
 export default withTracker((params) => {
   const { shapeId } = params;
-  const annotation = ReactiveAnnotationService.getAnnotationById(shapeId);
+  const unsentAnnotation = ReactiveAnnotationService.getUnsentAnnotationById(shapeId);
+  const isUnsentAnnotation = unsentAnnotation !== undefined;
+  const annotation = isUnsentAnnotation
+    ? unsentAnnotation : ReactiveAnnotationService.getAnnotationById(shapeId);
   const isViewer = Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID }, {
     fields: {
       role: 1,
@@ -40,11 +42,6 @@ export default withTracker((params) => {
     'bbb_force_restore_presentation_on_new_events',
     Meteor.settings.public.presentation.restoreOnUpdate,
   );
-
-  if (restoreOnUpdate && isViewer) {
-    const layoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
-    if (layoutSwapped) MediaService.toggleSwapLayout();
-  }
 
   return {
     annotation,

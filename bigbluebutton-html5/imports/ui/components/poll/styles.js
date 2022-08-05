@@ -5,13 +5,10 @@ import {
   smPaddingY,
   lgPaddingX,
   borderRadius,
-  mdPaddingY,
   borderSize,
-  borderSizeLarge,
   pollInputHeight,
   pollSmMargin,
   pollMdMargin,
-  pollHeaderOffset,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
@@ -21,6 +18,7 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorDanger,
+  colorWarning,
   colorHeading,
   colorPrimary,
   colorGrayDark,
@@ -168,6 +166,7 @@ const PollConfigButton = styled(Button)`
 
 const PollParagraph = styled.div`
   color: ${colorText};
+  margin-bottom: 0.9rem;
 `;
 
 const PollCheckbox = styled.div`
@@ -207,6 +206,18 @@ const Row = styled.div`
   justify-content: space-between;
   margin-top: 0.7rem;
   margin-bottom: 0.7rem;
+`;
+
+const Warning = styled.div`
+  color: ${colorWarning};
+  font-size: ${fontSizeSmall};
+`;
+
+const CustomInputRow = styled.div`
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+  justify-content: space-between;
 `;
 
 const Col = styled.div`
@@ -324,54 +335,18 @@ const DragAndDropPollContainer = styled.div`
   height: 200px !important;
 `;
 
-const Header = styled.header`
-  position: relative;
-  top: ${pollHeaderOffset};
+const Question = styled.div`
+  margin-bottom: ${lgPaddingX};
+`;
+
+const OptionWrapper = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: ${mdPaddingY};
 `;
 
-const PollHideButton = styled(Button)`
-  position: relative;
-  background-color: ${colorWhite};
-  display: block;
-  margin: ${borderSizeLarge};
-  margin-bottom: ${borderSize};
-  padding-left: 0;
-  padding-right: inherit;
-
-  [dir="rtl"] & {
-    padding-left: inherit;
-    padding-right: 0;
-  }
-
-  > i {
-    color: ${colorGrayDark};
-    font-size: smaller;
-
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }
-
-  &:hover {
-    background-color: ${colorWhite};
-  }
-`;
-
-const PollCloseButton = styled(Button)`
-  font-size: ${fontSizeBase};
-  position: relative;
-  & > i {
-    color: ${colorText};
-  }
+const ResponseArea = styled.div`
+  display: flex;
+  flex-flow: column wrap;
 `;
 
 export default {
@@ -396,7 +371,9 @@ export default {
   NoSlidePanelContainer,
   PollButton,
   DragAndDropPollContainer,
-  Header,
-  PollHideButton,
-  PollCloseButton,
+  Warning,
+  CustomInputRow,
+  Question,
+  OptionWrapper,
+  ResponseArea,
 };

@@ -49,7 +49,7 @@ class App extends React.Component {
 
     downloadButton.setAttribute('disabled', 'true');
     downloadButton.style.cursor = 'not-allowed';
-    link.setAttribute('href', `data:application/octet-stream,${encodeURIComponent(data)}`);
+    link.setAttribute('href', `data:text/csv;charset=UTF-8,${encodeURIComponent(data)}`);
     link.setAttribute('download', filename);
     link.style.display = 'none';
     document.body.appendChild(link);
@@ -87,14 +87,19 @@ class App extends React.Component {
       const cDecoded = decodeURIComponent(document.cookie);
       const cArr = cDecoded.split('; ');
       cArr.forEach((val) => {
-        if (val.indexOf(`${cookieName}=`) === 0) learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
+        if (val.indexOf(`${cookieName}=`) === 0) {
+          learningDashboardAccessToken = val.substring((`${cookieName}=`).length);
+        }
       });
 
       // Extend AccessToken lifetime by 7d (in each access)
       if (learningDashboardAccessToken !== '') {
         const cookieExpiresDate = new Date();
         cookieExpiresDate.setTime(cookieExpiresDate.getTime() + (3600000 * 24 * 7));
-        document.cookie = `ld-${meetingId}=${learningDashboardAccessToken}; expires=${cookieExpiresDate.toGMTString()}; path=/;SameSite=None;Secure`;
+        const value = `ld-${meetingId}=${learningDashboardAccessToken};`;
+        const expire = `expires=${cookieExpiresDate.toGMTString()};`;
+        const args = 'path=/;SameSite=None;Secure';
+        document.cookie = `${value} ${expire} ${args}`;
       }
     }
 
@@ -308,7 +313,7 @@ class App extends React.Component {
 
     return (
       <div className="mx-10">
-        <div className="flex items-start justify-between pb-3">
+        <div className="flex flex-col sm:flex-row items-start justify-between pb-3">
           <h1 className="mt-3 text-2xl font-semibold whitespace-nowrap inline-block">
             <FormattedMessage id="app.learningDashboard.dashboardTitle" defaultMessage="Learning Dashboard" />
             {

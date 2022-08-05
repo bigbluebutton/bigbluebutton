@@ -64,19 +64,19 @@ async function nextSlide(test) {
 }
 
 async function annotation(test) {
-  await test.waitAndClick(e.toolsButton);
-  await test.waitAndClick(e.pencil);
+  await test.waitAndClick(e.wbPencilShape);
   await test.waitAndClick(e.whiteboard);
-  await test.page.waitForFunction(
-    (whiteboard) => document.querySelectorAll(`${whiteboard} > g > g`)[1].innerHTML !== '',
-    e.whiteboard,
-    { timeout: ELEMENT_WAIT_TIME }
-  );
+  await test.waitForSelector(e.wbLineDraw);
 }
 
 function encodeCustomParams(param) {
   try {
     let splited = param.split('=');
+    if (splited.length > 2) {
+      const aux = splited.shift();
+      splited[1] = splited.join('=');
+      splited[0] = aux;
+    }
     splited[1] = encodeURIComponent(splited[1]).replace(/%20/g, '+');
     return splited.join('=');
   } catch (err) {
@@ -96,9 +96,9 @@ async function checkAccesskey(test, key) {
 }
 
 async function checkShortcutsArray(test, shortcut) {
-  for (const { key } of shortcut) {
+  for (const { key, param } of shortcut) {
     const resp = await checkAccesskey(test, key);
-    await expect(resp).toBeTruthy();
+    await expect.soft(resp, `Shortcut to ${param} (key ${key}) failed`).toBeTruthy();
   }
 }
 

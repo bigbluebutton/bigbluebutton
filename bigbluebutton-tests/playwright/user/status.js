@@ -1,6 +1,6 @@
 const Page = require('../core/page');
 const { setStatus } = require('./util');
-const { waitAndClearNotification } = require('../notifications/util');
+const { waitAndClearNotification, waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const e = require('../core/elements');
 
 class Status extends Page {
@@ -9,6 +9,7 @@ class Status extends Page {
   }
 
   async changeUserStatus() {
+    await waitAndClearDefaultPresentationNotification(this);
     await setStatus(this, e.applaud);
     await this.waitForSelector(e.smallToastMsg);
     await this.checkElement(e.applauseIcon);
@@ -21,7 +22,7 @@ class Status extends Page {
 
   async mobileTagName() {
     await this.waitAndClick(e.userListToggleBtn);
-    await this.waitForSelector(e.firstUser);
+    await this.waitForSelector(e.currentUser);
     await this.hasElement(e.mobileUser);
   }
 }

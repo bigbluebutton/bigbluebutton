@@ -5,64 +5,26 @@ BBB_USER=bigbluebutton
 case "$1" in
   configure|upgrade|1|2)
     
-    SOURCE=/tmp/bigbluebutton.yml
     TARGET=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
     if [ -f /usr/local/bigbluebutton/core/lib/recordandplayback.rb ]; then
       sed -i "s/require 'recordandplayback\/webrtc_deskshare_archiver/#require 'recordandplayback\/webrtc_deskshare_archiver/g" /usr/local/bigbluebutton/core/lib/recordandplayback.rb
     fi
 
-    if [ -f /etc/ImageMagick-6/policy.xml ]; then
-      sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
-    fi
+  if [ -f /etc/ImageMagick-6/policy.xml ]; then
+    sed -i 's/<policy domain="coder" rights="none" pattern="PDF" \/>/<policy domain="coder" rights="write" pattern="PDF" \/>/g' /etc/ImageMagick-6/policy.xml
+  fi
 
-    if [ -f $SOURCE ]; then
-      #
-      # upgrade, so let's propagate values
-
-      TMP=$(mktemp)
-      yq m -x $TARGET $SOURCE > $TMP
-      cat $TMP > $TARGET
-
-      mv -f $SOURCE "${SOURCE}_"
+    if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
+      HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
     else
-      #
-      # New install 
-      if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-        HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-      else
-        HOST=$IP
-      fi
-
-      yq w -i $TARGET playback_host "$HOST"
+      HOST=$IP
     fi
+
+    yq w -i $TARGET playback_host "$HOST"
 
     chmod +r $TARGET
 
-    if ! gem -v | grep -q ^3.; then 
-      gem update --system --no-document
-      if grep -q bionic /etc/lsb-release; then
-        gem install bundler -v 2.1.4
-      else
-        gem install bundler --no-document
-      fi
-    fi
-    
-    if hash gem 2>&-; then
-      cd /usr/local/bigbluebutton/core
-      
-      GEMS="builder bundler"
-      for gem in $GEMS; do
-        if ! gem list $gem | grep -q $gem; then
-          gem install $gem
-        fi
-      done
-      /usr/local/bin/bundle
-    else
-      echo "## Could not find gem ##"
-      exit 1
-    fi
-    
     # Run recording link fixup/upgrade script
     # Don't abort on failure; users can manually run it later, too
     if id $BBB_USER > /dev/null 2>&1 ; then
@@ -130,10 +92,6 @@ esac
 
 if dpkg -l | grep -q nginx; then
   reloadService nginx
-fi
-
-if ! grep -q xenial /etc/lsb-release; then
-  startService bbb-record-core.timer || echo "bbb-record-core could not be registered or started"
 fi
 
 systemctl daemon-reload

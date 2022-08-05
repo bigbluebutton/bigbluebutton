@@ -43,19 +43,32 @@ const reducer = (state, action) => {
       ChatLogger.debug('UsersContextProvider::reducer::removed', { ...action });
 
       const { user } = action.value;
-      if (state[user.meetingId][user.userId]) {
+      const stateUser = state[user.meetingId][user.userId];
+      if (stateUser) {
         const newState = { ...state };
-        delete newState[user.meetingId][user.userId];
+        newState[user.meetingId][user.userId] = {
+          ...stateUser,
+          loggedOut: true,
+        };
+
         return newState;
       }
-
-      return state;
+      return state;    
     }
 
     // USER PERSISTENT DATA
     case ACTIONS.ADDED_USER_PERSISTENT_DATA: {
       const { user } = action.value;
       if (state[user.meetingId] && state[user.meetingId][user.userId]) {
+        if (state[user.meetingId][user.userId].loggedOut) {
+          const newState = { ...state };
+          newState[user.meetingId][user.userId] = {
+            ...state[user.meetingId][user.userId],
+            loggedOut: false,
+          };
+  
+          return newState;  
+        }
         return state;
       }
 

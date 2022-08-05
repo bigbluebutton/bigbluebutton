@@ -1,0 +1,21 @@
+[Unit]
+Description=BigBlueButton HTML5 service
+Wants=redis-server.service mongod.service disable-transparent-huge-pages.service bbb-pads.service
+After=redis-server.service mongod.service disable-transparent-huge-pages.service bbb-pads.service syslog.target network.target
+PartOf=bigbluebutton.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/share/meteor/bundle/workers-start.sh
+WorkingDirectory=/usr/share/meteor
+# WorkingDirectory=/usr/share/meteor/bundle
+RemainAfterExit=yes
+# StandardOutput=syslog
+# StandardError=syslog
+# User=meteor
+# Group=meteor
+User=root
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target
+

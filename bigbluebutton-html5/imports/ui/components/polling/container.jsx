@@ -6,16 +6,15 @@ import Auth from '/imports/ui/services/auth';
 import PollingService from './service';
 import PollService from '/imports/ui/components/poll/service';
 import PollingComponent from './component';
+import { isPollingEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   pollExists: PropTypes.bool.isRequired,
 };
 
-const POLLING_ENABLED = Meteor.settings.public.poll.enabled;
-
 const PollingContainer = ({ pollExists, ...props }) => {
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { presenter: 1 } });
-  const showPolling = pollExists && !currentUser.presenter && POLLING_ENABLED;
+  const showPolling = pollExists && !currentUser.presenter && isPollingEnabled();
 
   if (showPolling) {
     return (
@@ -33,7 +32,7 @@ export default withTracker(() => {
   } = PollingService.mapPolls();
   const { pollTypes } = PollService;
 
-  if(poll && poll?.pollType){
+  if (poll && poll?.pollType) {
     const isResponse = poll.pollType === pollTypes.Response;
     Meteor.subscribe('polls', isResponse);
   }
