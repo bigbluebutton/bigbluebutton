@@ -47,6 +47,7 @@ export default function Whiteboard(props) {
     zoomChanger,
     isZoomed,
     isMultiUserActive,
+    isRTL,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -206,6 +207,39 @@ export default function Whiteboard(props) {
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
+  React.useEffect(() => {
+    if (hasWBAccess || isPresenter) {
+      const tdTools = document.getElementById("TD-Tools"); 
+      const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
+      if (tdPrimaryTools) tdPrimaryTools.style.flexDirection = 'column';
+  
+      if (tdTools) {
+        tdTools.firstChild.style.flexDirection = 'column';
+        tdTools.parentElement.style.overflow = 'visible';
+        tdTools.style.bottom = '6rem';
+        tdTools.style.right = '0.5rem';
+        tdTools.style.position = 'absolute';
+
+        // removes tldraw native help menu button
+        tdTools.parentElement?.nextSibling?.remove();
+
+        if (isRTL) {
+          tdTools.style.left = '0.5rem';
+          tdTools.style.right = 'auto';
+        }
+      }
+  
+      // removes image tool from the tldraw toolbar
+      document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
+
+      const tdStyles = document.getElementById("TD-Styles");
+      if (tdStyles) {
+        document.getElementById("TD-Styles").style.marginRight = isRTL ? 'auto' : '2.5rem';
+        document.getElementById("TD-Styles").style.marginLeft = isRTL ? '2.5rem' : 'auto';
+      }
+    }
+  });
+
   const onMount = (app) => {
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
@@ -217,7 +251,7 @@ export default function Whiteboard(props) {
     } else {
       // disable hover highlight for background slide shape
       app.setHoveredId = (id) => {
-        if (id.includes('slide-background')) return null;
+        if (id?.includes('slide-background')) return null;
         app.patchState(
           {
             document: {
@@ -247,7 +281,7 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onPatch = (s, reason) => {
+  const onPatch = (e, t, reason) => {
     if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       if (cameraFitSlide.zoom === 0) {
         //can happen when the slide finish uploading
@@ -344,8 +378,7 @@ export default function Whiteboard(props) {
         }
       }}
       onCommand={(e, s, g) => {
-
-        if (s.includes('move_to_page')) {
+        if (s?.id.includes('move_to_page')) {
           let groupShapes = [];
           let nonGroupShapes = [];
           let movedShapes = {};
@@ -373,7 +406,7 @@ export default function Whiteboard(props) {
           return;
         }
 
-        if (s.includes('ungroup')) {
+        if (s?.id.includes('ungroup')) {
           e?.selectedIds?.map(id => {
             persistShape(e.getShape(id), whiteboardId);
           })
@@ -390,9 +423,10 @@ export default function Whiteboard(props) {
 
         const conditions = [
           "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
-          "align", "move", "delete", "create", "flip", "toggle", "group", "translate"
+          "align", "move", "delete", "create", "flip", "toggle", "group", "translate",
+          "transform_single", "arrow", "edit", "erase", "rotate",   
         ]
-        if (conditions.some(el => s?.startsWith(el))) {
+        if (conditions.some(el => s?.id?.startsWith(el))) {
           e.selectedIds.forEach(id => {
             const shape = e.getShape(id);
             const shapeBounds = e.getShapeBounds(id);

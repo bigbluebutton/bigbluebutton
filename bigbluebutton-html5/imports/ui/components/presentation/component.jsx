@@ -169,7 +169,6 @@ class Presentation extends PureComponent {
     } = this.props;
 
     const { presentationWidth, presentationHeight } = this.state;
-
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,

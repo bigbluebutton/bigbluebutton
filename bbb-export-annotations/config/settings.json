@@ -4,7 +4,11 @@
     },
     "shared": {
       "presDir": "/var/bigbluebutton",
-      "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
+      "presAnnDropboxDir": "/tmp/pres-ann-dropbox",
+      "cairosvg": "/usr/bin/cairosvg",
+      "ghostscript": "/usr/bin/gs",
+      "imagemagick": "/usr/bin/convert",
+      "pdftocairo": "/usr/bin/pdftocairo"
     },
     "collector": {
       "pngWidthRasterizedSlides": 2560
