@@ -83,6 +83,9 @@ case "$1" in
     else
       echo "Error: FreeSWITCH not installed"
     fi
+
+    systemctl enable bbb-rap-resque-worker.service
+    systemctl enable bbb-rap-starter.service
   ;;
   
   *)
