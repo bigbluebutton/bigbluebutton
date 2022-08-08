@@ -4,6 +4,8 @@ import org.bigbluebutton.api.meeting.join.RegisterUser
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
+
+import scala.collection.immutable.Map
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)
@@ -117,6 +119,7 @@ case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID:
 case class CreateMeetingApiMsg(defaultProps: DefaultProps) extends InMessage
 case class RegisterUserApiMsg(regUser: RegisterUser) extends InMessage
 case class GetUserApiMsg(meetingId: String, userIntId: String) extends InMessage
+case class UserInfosApiMsg(infos: Map[String, Any]) extends InMessage
 
 //case class ApiResponse(msg: String)
 

@@ -559,7 +559,7 @@ public:
           path: 'bridge/sip'
         - name: fullaudio
           path: 'bridge/sfu-audio-bridge'
-    stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
+    stunTurnServersFetchAddress: '/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
     # Forces relay usage on all browsers, environments and media modules.

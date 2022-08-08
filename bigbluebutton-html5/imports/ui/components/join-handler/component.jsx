@@ -179,7 +179,7 @@ class JoinHandler extends Component {
     };
 
     // use enter api to get params for the client
-    const url = `${APP.bbbWebBase}/api/enter?sessionToken=${sessionToken}`;
+    const url = `https://bbb26.bbbvm.imdt.com.br/api/enter?sessionToken=${sessionToken}`;
     const fetchContent = await fetch(url, { credentials: 'include' });
     const parseToJson = await fetchContent.json();
     const { response } = parseToJson;

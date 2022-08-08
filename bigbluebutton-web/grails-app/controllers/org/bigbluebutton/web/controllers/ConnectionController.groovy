@@ -28,6 +28,7 @@ class ConnectionController {
   ParamsProcessorUtil paramsProcessorUtil
 
   def checkAuthorization = {
+    log.info("Check checkAuthorization.")
     try {
       def uri = request.getHeader("x-original-uri")
       def sessionToken = ParamsUtil.getSessionToken(uri)
