@@ -200,7 +200,7 @@ class Presentation extends PureComponent {
       const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
 
       if (
-        prevProps?.currentPresentation?.name !== currentPresentation.name
+        prevProps?.currentPresentation?.id !== currentPresentation.id
         || (downloadableOn && !userIsPresenter)
       ) {
         if (this.currentPresentationToastId) {

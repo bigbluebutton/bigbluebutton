@@ -387,7 +387,6 @@ class PresentationUploader extends Component {
     }
 
     const toastId = Session.get("presentationUploaderToastId");
-//
 //       toast.update(this.toastId, {
 //         render: this.renderToastList(),
 //       });
@@ -591,7 +590,7 @@ class PresentationUploader extends Component {
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
-      return handleSave(presentationsToSave, this.state.toUploadCount, this.props.intl)
+      return handleSave(presentationsToSave)
         .then(() => {
           const hasError = presentations.some((p) => p.upload.error || p.conversion.error);
           if (!hasError) {
@@ -618,6 +617,7 @@ class PresentationUploader extends Component {
             logCode: 'presentationuploader_component_save_error',
             extraInfo: { error },
           }, 'Presentation uploader catch error on confirm');
+          console.log("Erro aqui....", error)
         });
     }
 
@@ -795,6 +795,7 @@ class PresentationUploader extends Component {
       }, 'Presentation uploader catch error on render presentation list');
     }
 
+    console.log("Do render aqui ----------> ", presentationsSorted)
     return (
       <Styled.FileList>
         <Styled.Table>
@@ -1272,7 +1273,7 @@ class PresentationUploader extends Component {
     });
 
     return (<>
-      <ToastController intl = {intl} />
+      <ToastController intl={intl} />
       {isOpen ? (
         <Styled.UploaderModal id="upload-modal">
           <Styled.ModalInner>

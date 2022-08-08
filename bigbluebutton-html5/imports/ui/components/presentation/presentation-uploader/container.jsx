@@ -39,14 +39,7 @@ export default withTracker(() => {
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
-    handleSave: (presentations, toUploadCount, intl) => Service.persistPresentationChanges(
-      currentPresentations,
-      presentations,
-      PRESENTATION_CONFIG.uploadEndpoint,
-      'DEFAULT_PRESENTATION_POD',
-      toUploadCount, 
-      intl
-    ),
+    handleSave: Service.handleSavePresentation,
     handleDismissToast: Service.handleDismissToast,
     renderToastList: Service.renderToastList,
     renderPresentationItemStatus: Service.renderPresentationItemStatus,

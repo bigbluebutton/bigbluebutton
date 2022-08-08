@@ -32,29 +32,44 @@ async function convertAndUpload() {
     type: data.type,
   });
 
-  const formData = new FormData();
+  PresentationUploaderService.handleSavePresentation([], isFromPresentationUploaderInterface = false, {
+    file: sharedNotesData,
+    isDownloadable: false, // by default new presentations are set not to be downloadable
+    isRemovable: true,
+    filename: sharedNotesData.name,
+    isCurrent: true,
+    conversion: { done: false, error: false },
+    upload: { done: false, error: false, progress: 0 },
+    exportation: { isRunning: false, error: false },
+    onConversion: () => {},
+    onUpload: () => {},
+    onProgress: () => {},
+    onDone: () => {},
+})
 
-  formData.append('conference', Auth.meetingID);
-  formData.append('pod_id', podId);
-  formData.append('is_downloadable', false);
-  formData.append('current', true);
-  formData.append('fileUpload', sharedNotesData);
-  formData.append('temporaryPresentationId', tmpPresId);
+  // const formData = new FormData();
 
-  const presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken(
-    tmpPresId,
-    podId,
-    Auth.meetingID,
-    filename,
-  );
+  // formData.append('conference', Auth.meetingID);
+  // formData.append('pod_id', podId);
+  // formData.append('is_downloadable', false);
+  // formData.append('current', true);
+  // formData.append('fileUpload', sharedNotesData);
+  // formData.append('temporaryPresentationId', tmpPresId);
 
-  fetch(PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`), {
-    body: formData,
-    method: 'post',
-  });
+  // const presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken(
+  //   tmpPresId,
+  //   podId,
+  //   Auth.meetingID,
+  //   filename,
+  // );
 
-  makeCall('setUsedToken', presentationUploadToken);
-  return null;
+  // fetch(PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`), {
+  //   body: formData,
+  //   method: 'post',
+  // });
+
+  // makeCall('setUsedToken', presentationUploadToken);
+  // return null;
 }
 
 export default {
