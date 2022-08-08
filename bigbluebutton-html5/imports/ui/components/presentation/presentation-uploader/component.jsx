@@ -795,7 +795,6 @@ class PresentationUploader extends Component {
       }, 'Presentation uploader catch error on render presentation list');
     }
 
-    console.log("Do render aqui ----------> ", presentationsSorted)
     return (
       <Styled.FileList>
         <Styled.Table>
