@@ -210,37 +210,18 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     if (hasWBAccess || isPresenter) {
       const tdTools = document.getElementById("TD-Tools"); 
-      const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
-      if (tdPrimaryTools) tdPrimaryTools.style.flexDirection = 'column';
-  
       if (tdTools) {
-        tdTools.firstChild.style.flexDirection = 'column';
-        tdTools.parentElement.style.overflow = 'visible';
-        tdTools.style.bottom = '6rem';
-        tdTools.style.right = '0.5rem';
-        tdTools.style.position = 'absolute';
-
         // removes tldraw native help menu button
         tdTools.parentElement?.nextSibling?.remove();
-
-        if (isRTL) {
-          tdTools.style.left = '0.5rem';
-          tdTools.style.right = 'auto';
-        }
       }
-  
       // removes image tool from the tldraw toolbar
       document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
-
-      const tdStyles = document.getElementById("TD-Styles");
-      if (tdStyles) {
-        document.getElementById("TD-Styles").style.marginRight = isRTL ? 'auto' : '2.5rem';
-        document.getElementById("TD-Styles").style.marginLeft = isRTL ? '2.5rem' : 'auto';
-      }
     }
   });
 
   const onMount = (app) => {
+    app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
+    app.setSetting('dockPosition', isRTL ? 'left' : 'right');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
