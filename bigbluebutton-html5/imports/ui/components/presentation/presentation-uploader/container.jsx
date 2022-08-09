@@ -4,6 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
 import Service from './service';
+import PresUploaderController from '/imports/ui/components/presentation/presentation-toast/presentation-toast-controller';
 import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
@@ -40,9 +41,9 @@ export default withTracker(() => {
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
     handleSave: Service.handleSavePresentation,
-    handleDismissToast: Service.handleDismissToast,
+    handleDismissToast: PresUploaderController.handleDismissToast,
     renderToastList: Service.renderToastList,
-    renderPresentationItemStatus: Service.renderPresentationItemStatus,
+    renderPresentationItemStatus: PresUploaderController.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,

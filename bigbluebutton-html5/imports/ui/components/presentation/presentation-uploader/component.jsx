@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { ToastController } from './service';
+import { ToastController } from '/imports/ui/components/presentation/presentation-toast/presentation-toast-controller';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -385,31 +385,11 @@ class PresentationUploader extends Component {
       const selected = propPresentations.filter((p) => p.isCurrent);
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
-
-    const toastId = Session.get("presentationUploaderToastId");
-//       toast.update(this.toastId, {
-//         render: this.renderToastList(),
-//       });
-//     }
-
-//     if (this.exportToastId) {
-//       if (!prevProps.isOpen && isOpen) {
-//         this.handleDismissToast(this.exportToastId);
-//       }
-//
-//       toast.update(this.exportToastId, {
-//         render: this.renderExportToast(),
-//       });
-//     }
   }
 
   componentWillUnmount() {
     Session.set('showUploadPresentationView', false);
   }
-
-  // handleDismissToast(toastId) {
-  //   return toast.dismiss(toastId);
-  // }
 
   handleFiledrop(files, files2) {
     const { fileValidMimeTypes, intl } = this.props;
@@ -553,7 +533,7 @@ class PresentationUploader extends Component {
     this.updateFileKey(id, key, applyValue, '$apply');
   }
 
-  handleConfirm(hasNewUpload) {
+  handleConfirm() {
     const {
       handleSave,
       selectedToBeNextCurrent,
@@ -575,18 +555,6 @@ class PresentationUploader extends Component {
         }
       }
     });
-
-    // if (hasNewUpload) {
-    //   this.toastId = toast.info(this.renderToastList(), {
-    //     hideProgressBar: true,
-    //     autoClose: false,
-    //     newestOnTop: true,
-    //     closeOnClick: true,
-    //     onClose: () => {
-    //       this.toastId = null;
-    //     },
-    //   });
-    // }
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
@@ -711,47 +679,6 @@ class PresentationUploader extends Component {
     });
   }
 
-  // renderToastItem(item) {
-  //   const isUploading = !item.upload.done && item.upload.progress > 0;
-  //   const isConverting = !item.conversion.done && item.upload.done;
-  //   const hasError = item.conversion.error || item.upload.error;
-  //   const isProcessing = (isUploading || isConverting) && !hasError;
-
-  //   let icon = isProcessing ? 'blank' : 'check';
-  //   if (hasError) icon = 'circle_close';
-
-  //   return (
-  //     <Styled.UploadRow
-  //       key={item.id}
-  //       onClick={() => {
-  //         if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
-  //       }}
-  //     >
-  //       <Styled.FileLine>
-  //         <span>
-  //           <Icon iconName="file" />
-  //         </span>
-  //         <Styled.ToastFileName>
-  //           <span>{item.filename}</span>
-  //         </Styled.ToastFileName>
-  //         <Styled.StatusIcon>
-  //           <Styled.ToastItemIcon
-  //             done={!isProcessing && !hasError}
-  //             error={hasError}
-  //             loading={isProcessing}
-  //             iconName={icon}
-  //           />
-  //         </Styled.StatusIcon>
-  //       </Styled.FileLine>
-  //       <Styled.StatusInfo>
-  //         <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
-  //           {this.renderPresentationItemStatus(item)}
-  //         </Styled.StatusInfoSpan>
-  //       </Styled.StatusInfo>
-  //     </Styled.UploadRow>
-  //   );
-  // }
-
   renderExtraHint() {
     const {
       intl,
@@ -826,70 +753,6 @@ class PresentationUploader extends Component {
     );
   }
 
-  // renderToastList() {
-  //   const { presentations, toUploadCount } = this.state;
-
-  //   if (toUploadCount === 0) {
-  //     return this.handleDismissToast(this.toastId);
-  //   }
-
-  //   const { intl } = this.props;
-  //   let converted = 0;
-
-  //   let presentationsSorted = presentations
-  //     .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
-  //     .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-  //     .sort((a, b) => a.conversion.done - b.conversion.done);
-
-  //   presentationsSorted = presentationsSorted
-  //     .splice(0, toUploadCount)
-  //     .map((p) => {
-  //       if (p.conversion.done) converted += 1;
-  //       return p;
-  //     });
-
-  //   let toastHeading = '';
-  //   const itemLabel = presentationsSorted.length > 1
-  //     ? intl.formatMessage(intlMessages.itemPlural)
-  //     : intl.formatMessage(intlMessages.item);
-
-  //   if (converted === 0) {
-  //     toastHeading = intl.formatMessage(intlMessages.uploading, {
-  //       0: presentationsSorted.length,
-  //       1: itemLabel,
-  //     });
-  //   }
-
-  //   if (converted > 0 && converted !== presentationsSorted.length) {
-  //     toastHeading = intl.formatMessage(intlMessages.uploadStatus, {
-  //       0: converted,
-  //       1: presentationsSorted.length,
-  //     });
-  //   }
-
-  //   if (converted === presentationsSorted.length) {
-  //     toastHeading = intl.formatMessage(intlMessages.completed, {
-  //       0: converted,
-  //     });
-  //   }
-
-  //   return (
-  //     <Styled.ToastWrapper>
-  //       <Styled.UploadToastHeader>
-  //         <Styled.UploadIcon iconName="upload" />
-  //         <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
-  //       </Styled.UploadToastHeader>
-  //       <Styled.InnerToast>
-  //         <div>
-  //           <div>
-  //             {presentationsSorted.map((item) => this.renderToastItem(item))}
-  //           </div>
-  //         </div>
-  //       </Styled.InnerToast>
-  //     </Styled.ToastWrapper>
-  //   );
-  // }
-
   renderExportToast() {
     const { intl } = this.props;
     const { presExporting } = this.state;
@@ -961,7 +824,9 @@ class PresentationUploader extends Component {
     }
 
     return (
-      <Styled.UploadRow>
+      <Styled.UploadRow
+        key={item.tmpPresId}
+      >
         <Styled.FileLine>
           <span>
             <Icon iconName="file" />
@@ -1194,67 +1059,6 @@ class PresentationUploader extends Component {
     );
   }
 
-  // renderPresentationItemStatus(item) {
-  //   const { intl } = this.props;
-  //   if (!item.upload.done && item.upload.progress === 0) {
-  //     return intl.formatMessage(intlMessages.fileToUpload);
-  //   }
-
-  //   if (!item.upload.done && !item.upload.error) {
-  //     return intl.formatMessage(intlMessages.uploadProcess, {
-  //       0: Math.floor(item.upload.progress).toString(),
-  //     });
-  //   }
-
-  //   const constraint = {};
-
-  //   if (item.upload.done && item.upload.error) {
-  //     if (item.conversion.status === 'FILE_TOO_LARGE') {
-  //       constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-  //     }
-
-  //     if (item.upload.progress < 100) {
-  //       const errorMessage = intlMessages.badConnectionError;
-  //       return intl.formatMessage(errorMessage);
-  //     }
-
-  //     const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-  //     return intl.formatMessage(errorMessage, constraint);
-  //   }
-
-  //   if (!item.conversion.done && item.conversion.error) {
-  //     const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
-
-  //     switch (item.conversion.status) {
-  //       case 'PAGE_COUNT_EXCEEDED':
-  //         constraint['0'] = item.conversion.maxNumberPages;
-  //         break;
-  //       case 'PDF_HAS_BIG_PAGE':
-  //         constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
-  //         break;
-  //       default:
-  //         break;
-  //     }
-
-  //     return intl.formatMessage(errorMessage, constraint);
-  //   }
-
-  //   if (!item.conversion.done && !item.conversion.error) {
-  //     if (item.conversion.pagesCompleted < item.conversion.numPages) {
-  //       return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-  //         0: item.conversion.pagesCompleted,
-  //         1: item.conversion.numPages,
-  //       });
-  //     }
-
-  //     const conversionStatusMessage = intlMessages[item.conversion.status]
-  //       || intlMessages.genericConversionStatus;
-  //     return intl.formatMessage(conversionStatusMessage);
-  //   }
-
-  //   return null;
-  // }
-
   render() {
     const {
       isOpen,
@@ -1288,7 +1092,7 @@ class PresentationUploader extends Component {
                 <Styled.ConfirmButton
                   data-test="confirmManagePresentation"
                   color="primary"
-                  onClick={() => this.handleConfirm(hasNewUpload)}
+                  onClick={() => this.handleConfirm()}
                   disabled={disableActions}
                   label={hasNewUpload
                     ? intl.formatMessage(intlMessages.uploadLabel)
@@ -1301,7 +1105,7 @@ class PresentationUploader extends Component {
               {`${intl.formatMessage(intlMessages.message)}`}
               {fileUploadConstraintsHint ? this.renderExtraHint() : null}
             </Styled.ModalHint>
-            {this.renderPresentationList()}
+              {this.renderPresentationList()}
             <Styled.ExportHint>
               {intl.formatMessage(intlMessages.exportHint)}
             </Styled.ExportHint>
