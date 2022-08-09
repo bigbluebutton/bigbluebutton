@@ -86,6 +86,7 @@ case "$1" in
 
     systemctl enable bbb-rap-resque-worker.service
     systemctl enable bbb-rap-starter.service
+    systemctl enable bbb-rap-caption-inbox.service
   ;;
   
   *)
