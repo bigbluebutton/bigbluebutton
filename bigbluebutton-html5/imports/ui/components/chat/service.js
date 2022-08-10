@@ -43,6 +43,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
+  download: {
+    id: 'app.presentation.downloadLabel',
+    description: 'used as label for presentation download link',
+  },
 });
 
 const setUserSentMessage = (bool) => {
@@ -320,6 +324,13 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
+const getExportedPresentationString = (fileURI, filename, intl) => {
+  const label = intl.formatMessage(intlMessages.download);
+  const link = `<a href=${fileURI} type="application/pdf" rel="noopener, noreferrer" download>${label}</a>`;
+  const name = `<span>${filename}</span>`;
+  return `${name}</br>${link}`;
+};
+
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -342,4 +353,5 @@ export default {
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
+  getExportedPresentationString,
 };

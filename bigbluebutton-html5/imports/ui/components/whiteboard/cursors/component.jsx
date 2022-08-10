@@ -140,7 +140,12 @@ export default function Cursors(props) {
   };
 
   const moved = (event) => {
-    const { type } = event;
+    const { type, x, y } = event;
+    // If the presentation container is the full screen element we don't need any offsets
+    const fsEl = document?.webkitFullscreenElement || document?.fullscreenElement;
+    if (fsEl?.getAttribute('data-test') === "presentationContainer") {
+      return setPos({ x, y });
+    }
     const nav = document.getElementById('Navbar');
     let yOffset = parseFloat(nav?.style?.height);
     const getSibling = (el) => el?.previousSibling || null;
@@ -149,8 +154,8 @@ export default function Cursors(props) {
     const subPanel = panel && getSibling(panel);
     let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
-
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
+
     if (type === 'touchmove') {
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
@@ -187,7 +192,11 @@ export default function Cursors(props) {
         if (!panel && !subPanel) {
           xOffset = 0;
         }
-    }
+      }
+      if (webcams && sl?.includes('videoFocus')) {
+        xOffset = parseFloat(nav?.style?.width);
+        yOffset = parseFloat(panel?.style?.height);
+      }
     } else {
       if (webcams && sl?.includes('custom')) {
         handleCustomYOffsets();
@@ -210,6 +219,11 @@ export default function Cursors(props) {
           if (!panel && !subPanel) {
             xOffset = (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
           }
+      }
+
+      if (webcams && sl?.includes('videoFocus')) {
+        xOffset = parseFloat(subPanel?.style?.width);
+        yOffset = parseFloat(panel?.style?.height);
       }
     }
 
@@ -248,7 +262,7 @@ export default function Cursors(props) {
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
 
   return (
-    <span disabled={true} ref={(r) => (cursorWrapper = r)}>
+    <span ref={(r) => (cursorWrapper = r)}>
       <div style={{ height: "100%", cursor: multiUserAccess || currentUser?.presenter ? "none" : "default" }}>
         {(active && multiUserAccess || (active && currentUser?.presenter)) && (
           <PositionLabel
