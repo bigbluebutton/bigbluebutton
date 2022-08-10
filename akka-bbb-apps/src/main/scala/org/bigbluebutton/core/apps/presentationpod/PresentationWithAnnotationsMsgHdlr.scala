@@ -32,6 +32,16 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildBroadcastNewPresAnnFileAvailable(newPresAnnFileAvailableMsg: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(NewPresAnnFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
+    val body = NewPresAnnFileAvailableEvtMsgBody(fileURI = newPresAnnFileAvailableMsg.body.fileURI, presId = newPresAnnFileAvailableMsg.body.presId)
+    val event = NewPresAnnFileAvailableEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildPresentationUploadTokenSysPubMsg(parentId: String, userId: String, presentationUploadToken: String, filename: String): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
@@ -72,24 +82,27 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val userId = m.header.userId
 
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
-    val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
+    val presId: String = m.body.presId match {
+      case "" => PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
+      case _  => m.body.presId
+    }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
-      val reason = "No permission to export presentation."
+    val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getPresentation(presId)).headOption
+
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationWithAnnotations")) {
+      val reason = "Annotated presentation download disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+      val reason = "No permission to download presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (currentPres.isEmpty) {
-      log.error(s"No presentation set in meeting ${meetingId}")
+      log.error(s"Presentation ${presId} not found in meeting ${meetingId}")
     } else {
 
       val jobType: String = "PresentationWithAnnotationDownloadJob"
       val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
       val allPages: Boolean = m.body.allPages
       val pageCount = currentPres.get.pages.size
-
-      val presId: String = m.body.presId match {
-        case "" => PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
-        case _  => m.body.presId
-      }
 
       val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
       val pages: List[Int] = m.body.pages // Desired presentation pages for export
@@ -116,7 +129,10 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
+      val reason = "Importing slides from breakout rooms disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
       val reason = "No permission to export presentation."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
     } else if (currentPres.isEmpty) {
@@ -161,4 +177,12 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
     }
   }
+
+  def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
+
+    bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
+
+  }
+
 }

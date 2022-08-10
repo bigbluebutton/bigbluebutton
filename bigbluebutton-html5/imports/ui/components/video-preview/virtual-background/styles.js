@@ -150,6 +150,17 @@ const ButtonRemove = styled(Button)`
 
 const BgCustomButton = styled(BgNoneButton)``;
 
+const SkeletonWrapper = styled.div`
+  flex-basis: 0 0 48px;
+  margin: 0 0.15rem;
+  height: 48px;
+
+  & .react-loading-skeleton {    
+    height: 48px;
+    width: 48px;
+  }
+`;
+
 export default {
   VirtualBackgroundRowThumbnail,
   BgWrapper,
@@ -161,4 +172,5 @@ export default {
   ButtonWrapper,
   ButtonRemove,
   BgCustomButton,
+  SkeletonWrapper,
 };

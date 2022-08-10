@@ -245,9 +245,10 @@ class InputStreamLiveSelector extends Component {
     ];
 
     const deviceList = (listLength > 0)
-      ? list.map((device) => (
+      ? list.map((device, index) => (
         {
           key: `${device.deviceId}-${deviceKind}`,
+          dataTest: `${deviceKind}-${index + 1}`,
           label: InputStreamLiveSelector.truncateDeviceName(device.label),
           customStyles: (device.deviceId === currentDeviceId) && Styled.SelectedLabel,
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
@@ -316,7 +317,7 @@ class InputStreamLiveSelector extends Component {
         aria-label={intl.formatMessage(intlMessages.leaveAudio)}
         label={intl.formatMessage(intlMessages.leaveAudio)}
         accessKey={shortcuts.leaveaudio}
-        data-test='leaveListenOnly'
+        data-test="leaveListenOnly"
         hideLabel
         color="primary"
         icon={isListenOnly ? 'listen' : 'volume_level_2'}
@@ -397,7 +398,7 @@ class InputStreamLiveSelector extends Component {
                 ? this.renderListenOnlyButton()
                 : this.renderMuteToggleButton()}
               <Styled.AudioDropdown
-                data-test='audioDropdownMenu'
+                data-test="audioDropdownMenu"
                 emoji="device_list_selector"
                 label={intl.formatMessage(intlMessages.changeAudioDevice)}
                 hideLabel
