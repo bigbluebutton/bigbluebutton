@@ -2,7 +2,7 @@ const Logger = require('../lib/utils/logger');
 const config = require('../config');
 const fs = require('fs');
 const redis = require('redis');
-const {Worker, workerData, parentPort} = require('worker_threads');
+const {Worker, workerData} = require('worker_threads');
 const path = require('path');
 const cp = require('child_process');
 
@@ -100,5 +100,3 @@ const exportJob = JSON.parse(job);
 
   kickOffProcessWorker(exportJob.jobId);
 })();
-
-parentPort.postMessage({message: workerData});
