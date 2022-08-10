@@ -300,16 +300,11 @@ class PresentationUploader extends Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
     this.handleSendToChat = this.handleSendToChat.bind(this);
-    // this.handleDismissToast = this.handleDismissToast.bind(this);
-    // this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
     this.renderPresentationList = this.renderPresentationList.bind(this);
     this.renderPresentationItem = this.renderPresentationItem.bind(this);
-//     this.renderPresentationItemStatus = this.renderPresentationItemStatus.bind(this);
-//     this.renderToastList = this.renderToastList.bind(this);
-//     this.renderToastItem = this.renderToastItem.bind(this);
     this.renderExportToast = this.renderExportToast.bind(this);
     this.renderToastExportItem = this.renderToastExportItem.bind(this);
     this.renderExportationStatus = this.renderExportationStatus.bind(this);

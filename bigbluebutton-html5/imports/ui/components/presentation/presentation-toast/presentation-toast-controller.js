@@ -1,5 +1,5 @@
 import Presentations from '/imports/api/presentations';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTracker } from 'meteor/react-meteor-data';
 import Icon from '/imports/ui/components/common/icon/component';
 import { makeCall } from '/imports/ui/services/api';
@@ -263,6 +263,7 @@ function handleDismissToast(toastId) {
     return toast.dismiss(toastId);
 }
 
+const alreadyRenderedPresList = []
 export const ToastController = ({ intl }) => {
 
 	useTracker(() => {
@@ -281,6 +282,14 @@ export const ToastController = ({ intl }) => {
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
+		presentationsToConvert.map(p => p.tmpPresId).forEach(tmpId => {
+			if (!alreadyRenderedPresList.some(pres => pres.tmpPresId == tmpId)){
+				alreadyRenderedPresList.push({
+					tmpPresId: tmpId,
+					rendered: false,
+				});
+			}
+		})
 		let activeToast = Session.get("presentationUploaderToastId");
 		const showToast = presentationsToConvert.length > 0;
 		if (showToast && !activeToast) {
@@ -307,10 +316,20 @@ export const ToastController = ({ intl }) => {
 		let tmpPresIdListToSetAsRendered = presentationsToConvert.filter(p => 
 			("conversion" in p && (p.conversion.done || p.conversion.error)))
 			
-		tmpPresIdListToSetAsRendered = tmpPresIdListToSetAsRendered.map(p => p.tmpPresId);
+		tmpPresIdListToSetAsRendered = tmpPresIdListToSetAsRendered.map(p => {
+			index = alreadyRenderedPresList.findIndex(pres => pres.tmpPresId === p.tmpPresId);
+			if (index !== -1) {
+				alreadyRenderedPresList[index].rendered = true;
+			}
+			return p.tmpPresId
+		});
 
-		makeCall('setPresentationRenderedInToast', tmpPresIdListToSetAsRendered);
-		}, [])
+		if (alreadyRenderedPresList.every((pres) => pres.rendered)) {
+			makeCall('setPresentationRenderedInToast');
+			alreadyRenderedPresList.length = 0;
+		}
+		
+	}, [])
 	return null;
 }
 

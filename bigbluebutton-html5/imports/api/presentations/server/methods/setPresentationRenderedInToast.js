@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function setPresentationRenderedInToast(tmpPresIdListToSetAsRendered) {
+export default function setPresentationRenderedInToast() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -14,20 +14,13 @@ export default function setPresentationRenderedInToast(tmpPresIdListToSetAsRende
         $set: {renderedInToast: true}
     };
 
-    let numberAffected;
-    tmpPresIdListToSetAsRendered.forEach(p => {
-        numberAffected += Presentations.update({
-            tmpPresId: p,
-            meetingId,
-        }, payload)
-    });
-    // const numberAffected = Presentations.update({
-    //     tmpPresId: {$all: tmpPresIdListToSetAsRendered},
-    //     meetingId,
-    // }, payload)
+    const numberAffected = Presentations.update({
+      renderedInToast: false,
+      meetingId,
+    }, payload);
 
     if (numberAffected) {
-      Logger.info(`TemporaryPresentationIds: ${tmpPresIdListToSetAsRendered} have been set as rendered in the toast within meeting=${meetingId}`);
+      Logger.info(`Presentations have been set as rendered in the toast within meeting=${meetingId}`);
     }
   } catch (err) {
     Logger.error(`Exception while invoking method setPresentationRenderedInToast ${err.stack}`);
