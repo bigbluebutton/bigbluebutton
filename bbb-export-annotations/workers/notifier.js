@@ -6,7 +6,7 @@ const redis = require('redis');
 const axios = require('axios').default;
 const path = require('path');
 
-const {workerData, parentPort} = require('worker_threads');
+const {workerData} = require('worker_threads');
 
 const [jobType, jobId, filename_with_extension] = workerData;
 
@@ -90,5 +90,3 @@ fs.rm(dropbox, {recursive: true}, (err) => {
     throw err;
   }
 });
-
-parentPort.postMessage({message: workerData});
