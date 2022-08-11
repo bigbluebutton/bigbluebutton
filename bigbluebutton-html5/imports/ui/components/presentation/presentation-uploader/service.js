@@ -78,8 +78,6 @@ const observePresentationConversion = (
   onConversion,
 ) => new Promise((resolve) => {
 
-
-  // Fazer o onConversion modificar a upload e ver o que mais da pra fazer
   const conversionTimeout = setTimeout(() => {
     onConversion({
       done: true,

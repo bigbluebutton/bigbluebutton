@@ -8,6 +8,7 @@ import PresUploaderController from '/imports/ui/components/presentation/presenta
 import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
+import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -39,7 +40,7 @@ export default withTracker(() => {
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
+    allowDownloadable: isDownloadPresentationWithAnnotationsEnabled(),
     handleSave: Service.handleSavePresentation,
     handleDismissToast: PresUploaderController.handleDismissToast,
     renderToastList: Service.renderToastList,

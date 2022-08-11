@@ -456,13 +456,12 @@ class AudioModal extends Component {
           <Styled.AudioDial
             label={dialAudioLabel}
             size="md"
-            color="primary"
+            color="secondary"
             onClick={() => {
               this.setState({
                 content: 'audioDial',
               });
             }}
-            ghost
           />
         ) : null}
         <CaptionsSelectContainer />

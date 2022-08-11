@@ -272,13 +272,8 @@ export const ToastController = ({ intl }) => {
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
 		let tmpIdconvertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.conversion.done)
 			.map(p => p.tmpPresId)
-		// tmpIdconvertingPresentations = UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.includes(p.tmpPresId))
-		//   .map(p => p.tmpPresId)
 		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.includes(p.tmpPresId))
 			.map(p => UploadingPresentations.remove({tmpPresId: p.tmpPresId}));
-		// Remove all presentations from the uploading collection if they are already
-		// converting.
-		// UploadingPresentations.remove({tmpPresId: {$all: tmpIdconvertingPresentations}});
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 

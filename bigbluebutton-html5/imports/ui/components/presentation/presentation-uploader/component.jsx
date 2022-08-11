@@ -695,7 +695,7 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
-    const { intl } = this.props;
+    const { intl, allowDownloadable } = this.props;
 
     let presentationsSorted = presentations;
 
@@ -737,7 +737,9 @@ class PresentationUploader extends Component {
             </tr>
             <Styled.Head>
               <th colSpan={4}>{intl.formatMessage(intlMessages.currentLabel)}</th>
-              <th>{intl.formatMessage(intlMessages.downloadLabel)}</th>
+              {
+                allowDownloadable ? <th>{intl.formatMessage(intlMessages.downloadLabel)}</th> : null
+              }
             </Styled.Head>
           </thead>
           <tbody>
