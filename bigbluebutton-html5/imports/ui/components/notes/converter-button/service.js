@@ -45,31 +45,7 @@ async function convertAndUpload() {
     onUpload: () => {},
     onProgress: () => {},
     onDone: () => {},
-})
-
-  // const formData = new FormData();
-
-  // formData.append('conference', Auth.meetingID);
-  // formData.append('pod_id', podId);
-  // formData.append('is_downloadable', false);
-  // formData.append('current', true);
-  // formData.append('fileUpload', sharedNotesData);
-  // formData.append('temporaryPresentationId', tmpPresId);
-
-  // const presentationUploadToken = await PresentationUploaderService.requestPresentationUploadToken(
-  //   tmpPresId,
-  //   podId,
-  //   Auth.meetingID,
-  //   filename,
-  // );
-
-  // fetch(PRESENTATION_CONFIG.uploadEndpoint.replace('upload', `${presentationUploadToken}/upload`), {
-  //   body: formData,
-  //   method: 'post',
-  // });
-
-  // makeCall('setUsedToken', presentationUploadToken);
-  // return null;
+  })
 }
 
 export default {
