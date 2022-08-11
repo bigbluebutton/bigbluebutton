@@ -22,14 +22,9 @@
     "notifier": {
       "pod_id": "DEFAULT_PRESENTATION_POD",
       "is_downloadable": "false",
-      "msgName": "NewPresAnnFileAvailableMsg",
-      "protocol": "https",
-      "host": "localhost"
+      "msgName": "NewPresAnnFileAvailableMsg"
     },
-    "bbbWeb": {
-      "host": "127.0.0.1",
-      "port": 8090
-    },
+    "bbbWebAPI": "http://127.0.0.1:8090",
     "redis": {
       "host": "127.0.0.1",
       "port": 6379,

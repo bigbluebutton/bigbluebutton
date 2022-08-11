@@ -3,7 +3,7 @@ const config = require('../config');
 const fs = require('fs');
 const {create} = require('xmlbuilder2', {encoding: 'utf-8'});
 const cp = require('child_process');
-const {Worker, workerData, parentPort} = require('worker_threads');
+const {Worker, workerData} = require('worker_threads');
 const path = require('path');
 const sanitize = require('sanitize-filename');
 const {getStroke, getStrokePoints} = require('perfect-freehand');
@@ -878,5 +878,3 @@ cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
 logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
 
 kickOffNotifierWorker(exportJob.jobType, filename_with_extension);
-
-parentPort.postMessage({message: workerData});
