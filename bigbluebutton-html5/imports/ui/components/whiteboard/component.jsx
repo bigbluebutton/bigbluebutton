@@ -9,6 +9,7 @@ import {
   TDShapeType,
 } from "@tldraw/tldraw";
 import { Utils } from "@tldraw/core";
+import { createGlobalStyle } from "styled-components";
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -23,6 +24,14 @@ const findRemoved = (A, B) => {
     return !B.includes(a);
   });
 };
+
+const TldrawGlobalStyle = createGlobalStyle`
+  ${({ hideContextMenu }) => hideContextMenu && `
+    #TD-ContextMenu {
+      display: none;
+    }
+  `}
+`;
 
 export default function Whiteboard(props) {
   const {
@@ -533,6 +542,7 @@ export default function Whiteboard(props) {
         isMultiUserActive={isMultiUserActive}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
+        <TldrawGlobalStyle hideContextMenu={!hasWBAccess && !isPresenter} />
       </Cursors>
     </>
   );
