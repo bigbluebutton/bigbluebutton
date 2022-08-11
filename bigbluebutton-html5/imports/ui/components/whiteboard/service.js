@@ -218,8 +218,13 @@ const getMultiUserSize = (whiteboardId) => {
   const multiUserSize = Users.find(
     {
       meetingId: Auth.meetingID,
-      userId: { $in: multiUser },
-      presenter: false,
+      $or: [
+        {
+          userId: { $in: multiUser },
+          presenter: false,
+        },
+        { presenter: true },
+      ],
     },
     { fields: { userId: 1 } }
   ).fetch();
