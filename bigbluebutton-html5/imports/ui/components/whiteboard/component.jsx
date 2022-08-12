@@ -24,6 +24,10 @@ const findRemoved = (A, B) => {
   });
 };
 
+const SMALL_HEIGHT = 435;
+const SMALLEST_HEIGHT = 363;
+const TOOLBAR_SMALL = 28;
+
 export default function Whiteboard(props) {
   const {
     isPresenter,
@@ -209,7 +213,35 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     if (hasWBAccess || isPresenter) {
-      const tdTools = document.getElementById("TD-Tools"); 
+      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
+      const tdToolsDots = document.getElementById("TD-Tools-Dots");
+      const tdDelete = document.getElementById("TD-Delete");
+      const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
+      const tdTools = document.getElementById("TD-Tools");
+      if (props.height < SMALL_HEIGHT) {
+        if (tdToolsDots) {
+          tdToolsDots.style.height = `${TOOLBAR_SMALL}px`;
+          tdToolsDots.style.width = `${TOOLBAR_SMALL}px`;
+        }
+        if (tdDelete) {
+          const delButton = tdDelete.getElementsByTagName('button')[0];
+          delButton.style.height = `${TOOLBAR_SMALL}px`;
+          delButton.style.width = `${TOOLBAR_SMALL}px`;
+        }
+        if (tdPrimaryTools) {
+          const primaryBtns = tdPrimaryTools?.getElementsByTagName('button');
+          for (let item of primaryBtns) {
+            item.style.height = `${TOOLBAR_SMALL}px`;
+            item.style.width = `${TOOLBAR_SMALL}px`;
+          }
+        }
+      }
+      if (props.height < SMALLEST_HEIGHT) {
+        tldrawAPI?.setSetting('dockPosition', 'bottom');
+        if (tdTools) {
+          tdTools.parentElement.style.bottom = `${TOOLBAR_SMALL}px`;
+        }
+      }
       if (tdTools) {
         // removes tldraw native help menu button
         tdTools.parentElement?.nextSibling?.remove();
@@ -221,7 +253,6 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
-    app.setSetting('dockPosition', isRTL ? 'left' : 'right');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -238,7 +269,7 @@ export default function Whiteboard(props) {
             document: {
               pageStates: {
                 [app.getPage()?.id]: {
-                  hoveredId: id,
+                  hoveredId: id || [],
                 },
               },
             },
