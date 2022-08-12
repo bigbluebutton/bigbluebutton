@@ -4,8 +4,6 @@ import org.apache.commons.lang3.RandomStringUtils
 import org.bigbluebutton.api.meeting.{ParamsUtils, Utils}
 import org.bigbluebutton.api.meeting.create.CreateParams
 
-
-
 case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
                         extUserId: String, authToken: String, avatarURL: String,
                         guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
@@ -18,20 +16,10 @@ object Roles {
 }
 
 object Join {
+  @throws(classOf[Exception])
   def createRegisterUser(
                           meetingId:            String,
                           params: Map[String, String],
-//
-//      intUserId:            String,
-//      name:                 String,
-//      role:                 String,
-//      extUserId:            String,
-//      authToken:            String,
-//      avatarURL:            String,
-//      guest:                Boolean,
-//      authed:               Boolean,
-//      guestStatus:          String,
-//      excludeFromDashboard: Boolean
   ): RegisterUser = {
     // val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -56,7 +44,7 @@ object Join {
       }
     }
     if(role.isBlank) {
-      throw new Exception("Param 'role' is required.")
+      throw new RuntimeException("Param 'role' is required.")
     }
 
 

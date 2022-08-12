@@ -256,6 +256,7 @@ class MeetingActor(
     case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
 
     //API Msgs
+    case m: EndMeetingApiMsg                  => handleEndMeeting(m, state)
     case m: RegisterUserApiMsg                => usersApp.handleRegisterUserApiMsg(m)
     case m: GetUserApiMsg                     => usersApp.handleGetUsersMeetingReqMsg(m, sender)
 

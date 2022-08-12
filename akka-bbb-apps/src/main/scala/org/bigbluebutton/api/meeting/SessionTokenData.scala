@@ -1,12 +1,26 @@
 package org.bigbluebutton.api.meeting
 
+import com.google.gson.Gson
 import com.softwaremill.session.{ MultiValueSessionSerializer, SessionSerializer, SingleValueSessionSerializer }
 
 import scala.util.Try
 
 //case class UserSession()
 
-case class UserSession(meetingId: String, userId: String)
+case class SessionTokenData(meetingId: String, userId: String) {
+  def toJson = {
+    val gson = new Gson
+    gson.toJson(this)
+  }
+}
+
+//
+//object UserSession {
+//  def toJson = {
+//    val gson = new Gson
+//    val jsonUserData = gson.toJson(newTokenData)
+//  }
+//}
 
 //case class UserSession(sessionTokens: Array[String])
 //

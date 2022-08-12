@@ -117,6 +117,7 @@ case class DeskShareGetDeskShareInfoRequest(conferenceName: String, requesterID:
 
 //API
 case class CreateMeetingApiMsg(defaultProps: DefaultProps) extends InMessage
+case class EndMeetingApiMsg(meetingId: String) extends InMessage
 case class RegisterUserApiMsg(regUser: RegisterUser) extends InMessage
 case class GetUserApiMsg(meetingId: String, userIntId: String) extends InMessage
 case class UserInfosApiMsg(infos: Map[String, Any]) extends InMessage

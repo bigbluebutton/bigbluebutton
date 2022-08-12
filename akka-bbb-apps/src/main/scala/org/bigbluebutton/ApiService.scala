@@ -4,17 +4,14 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives.{complete, _}
-import akka.pattern.AskTimeoutException
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.service.{HealthzService, MeetingInfoService, MeetingService, PubSubReceiveStatus, PubSubSendStatus, RecordingDBSendStatus}
 import spray.json._
 
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import api.meeting.{MsgBuilder, ParamsUtils, UserSession}
+import api.meeting.{GenericResponse, ParamsUtils, SessionTokenData}
 import api.meeting.create.{Create, CreateResponse}
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.ScalaObjectMapper
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.lang3.RandomStringUtils
 import org.bigbluebutton.api.meeting.join.Join
@@ -25,10 +22,6 @@ import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import com.softwaremill.session._
 import com.google.gson.Gson
-import org.bigbluebutton.api.meeting.stuns.turn.{RemoteIceCandidate, StunServer, StunTurnService, TurnEntry}
-import org.bigbluebutton.core.models.RegisteredUser
-
-import scala.util.Try
 
 case class HealthResponse(
     isHealthy:           Boolean,
@@ -91,10 +84,8 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
   val sessionConfig = SessionConfig.default("YzszrU1UkqsMqCNEnuLI8DDWs6Wqacj2z4dbtquSjB8GbsFpBA7GG38yk0DaIyrB")
   implicit val sessionManager = new SessionManager[Map[String,String]](sessionConfig)
   implicit val refreshTokenStorage = new InMemoryRefreshTokenStorage[Map[String,String]] {
-    //                      def log(msg: String) = log.info(msg)
     def log(msg: String) = println(s"Logger: $msg")
   }
-//  var sessions: Map[String,UserSession] = Map()
 
   implicit object AnyJsonFormat extends JsonFormat[Any] {
     def write(x: Any) = x match {
@@ -119,8 +110,12 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
     }
   }
 
+  val gson = new Gson
+
   def routes =
     (path("api" / "create") & extractLog) { log =>
+      log.info("enter")
+
       get {
         parameter(
           "name".as[String],
@@ -128,20 +123,13 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
           "checksum".as[String],
           "attendeePW".as[String].optional,
           "moderatorPW".as[String].optional,
-          "voiceBridge".as[String].optional,
         ) { (
                                name,
                                meetingID,
                                checksum,
                                attendeePW,
                                moderatorPW,
-                               voiceBridgeParam,
                              ) =>
-          println("name: " + name)
-          println("meetingID: " + meetingID)
-          println("attendeePW: " + attendeePW)
-          println("moderatorPW: " + moderatorPW)
-          println("voiceBridge: " + voiceBridgeParam)
 
           if (!attendeePW.isDefined) log.info("No attendeePW provided")
           if (!moderatorPW.isDefined) log.info("No moderatorPW provided")
@@ -149,56 +137,94 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
           log.info(s"attendeePW [${attendeePW.getOrElse("")}]")
           log.info(s"moderatorPW [${moderatorPW.getOrElse("")}]")
 
-          val voiceBridge = voiceBridgeParam.getOrElse("1")
           val html5InstanceId = 1
 
-          val config = ConfigFactory.load("bigbluebutton.properties")
-          lazy val presentationDir = Try(config.getString("presentationDir")).getOrElse("localhost")
-
-          log.info("presentationDir-----------------")
-          log.info(presentationDir)
-
           parameterMap { params =>
+            log.info(params.toString)
 
-            println("PARAAAAMS")
-            println(params.toString)
+            val config = ConfigFactory.load("bigbluebutton.properties")
 
             val defaultprops = Create.createDefaultProp(meetingID, params, config)
 
-              val meetingCreateFuture = meetingService.createMeeting(defaultprops)
-              val entityFuture = meetingCreateFuture.map { resp =>
-
-                println("SIM ENTROU NO MATCH.....")
-                println(resp)
-
-                resp match {
-                  case ApiResponseSuccess(msg, arg) =>
-                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
-                      CreateResponse.ResponseMeeting(msg,defaultprops).toXml.toString)
-                  case ApiResponseFailure(msg, arg) =>
-                    val response:xml.Elem = <response>
-                      <returncode>ERR</returncode>
-                      <messageKey/>
-                      <message>{msg}</message>
-                    </response>
-                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),response.toString)
-                  case _ =>
-                    val response:xml.Elem = <response>
-                      <returncode>ERR</returncode>
-                      <messageKey/>
-                      <message>errrr</message>
-                    </response>
-                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),response.toString)
-//                    HttpEntity(ContentTypes.`application/json`, s"""{ "message": "No active meeting with ID $meetingId"}""".parseJson.prettyPrint)
-                }
+              val entityFuture = meetingService.createMeeting(defaultprops).map {
+                case ApiResponseSuccess(msg, arg) =>
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                      CreateResponse.SuccessWithMeetingInfoResponse(msg,defaultprops).toXml.toString
+                    )
+                  )
+                case ApiResponseFailure(msg, arg) =>
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                      CreateResponse.FailedResponse("",msg).toXml.toString
+                    )
+                  )
+                case _ =>
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                      CreateResponse.FailedResponse("","Error while creating meeting").toXml.toString
+                    )
+                  )
               }
-              complete(StatusCodes.OK,entityFuture)
+
+              complete(entityFuture)
+          }
+        }
+      }
+    } ~ (path("api" / "end") & extractLog) { log =>
+      log.info("end")
+
+      get {
+        parameter(
+          "meetingID".as[String],
+          "checksum".as[String],
+        ) { (
+                               meetingID,
+                               checksum,
+                             ) =>
+
+          val entityFuture = meetingService.endMeeting(meetingID).map {
+              case ApiResponseSuccess(msg, arg) =>
+                HttpResponse(StatusCodes.OK,
+                  headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                  entity = HttpEntity(
+                    MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                    GenericResponse.SuccessResponse(
+                      "sentEndMeetingRequest",
+                      "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.").toXml.toString
+                  )
+                )
+
+              case ApiResponseFailure(msg, arg) =>
+                HttpResponse(StatusCodes.OK,
+                  headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                  entity = HttpEntity(
+                    MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                    GenericResponse.FailedResponse("",msg).toXml.toString
+                  )
+                )
+              case _ =>
+                HttpResponse(StatusCodes.OK,
+                  headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                  entity = HttpEntity(
+                    MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                    GenericResponse.FailedResponse("","Error while ending meeting").toXml.toString
+                  )
+                )
           }
 
+          complete(entityFuture)
         }
-
       }
     } ~ (path("api" / "join") & extractLog) { log =>
+      log.info("join")
+
       get {
         parameter(
           "fullName".as[String],
@@ -219,413 +245,250 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
           println("redirect: " + redirectFlag)
           println("checksum: " + checksum)
 
-
+          val sessionToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase
 
           parameterMap { params =>
-            log.debug("PARAAAAMS")
             log.debug(params.toString)
-
-            var destUrl:String = null
-
             try {
-              val regUser = Join.createRegisterUser(
-                meetingID,
-                params
-              )
 
-              val sessionToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase
+              optionalSession(oneOff, usingCookies) {
+                currSession => {
+                  log.info(s"Current session $currSession")
+                  val userSession = currSession.getOrElse(Map[String,String]())
 
-              val registerUserFuture = meetingService.registerUser(regUser)
-              val entityFuture = registerUserFuture.map { resp =>
+                  val regUser = Join.createRegisterUser(meetingID,params)
+                  val newJsonTokenData = SessionTokenData(regUser.meetingId, regUser.intUserId).toJson
 
-                println("SIM ENTROU NO MATCH.....")
-                println(resp)
+                  val futureEntity = meetingService.registerUser(regUser).map {
+                    case ApiResponseSuccess(msg, arg) =>
+                      if(redirectFlag.getOrElse("true") == "true") {
+                        val defaultHTML5ClientUrl = ParamsUtils().getConfigAsString("defaultHTML5ClientUrl")
+                        val destUrl = defaultHTML5ClientUrl + "?sessionToken=" + sessionToken
+                        log.info(s"Redirecting to ${destUrl}")
+                        HttpResponse(
+                          status = StatusCodes.PermanentRedirect,
+                          headers = headers.Location(destUrl) :: Nil,
+                          entity = HttpEntity.Empty)
+                      } else {
+                        HttpResponse(StatusCodes.OK,
+                          headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                          entity = HttpEntity(
+                            MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                            GenericResponse.SuccessResponse("",msg).toXml.toString //TODO
+                          )
+                        )
+                      }
+                    case ApiResponseFailure(msg, arg) =>
+                      HttpResponse(StatusCodes.OK,
+                        headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                        entity = HttpEntity(
+                          MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                          GenericResponse.FailedResponse("",msg).toXml.toString
+                        )
+                      )
+                  }
 
-
-                resp match {
-                  case ApiResponseSuccess(msg, arg) =>
-
-//                    val serverURL = ParamsUtils().getConfigAsString("serverURL")
-                    val defaultHTML5ClientUrl = ParamsUtils().getConfigAsString("defaultHTML5ClientUrl")
-
-                    destUrl = defaultHTML5ClientUrl + "?sessionToken=" + sessionToken
-
-
-                    log.info(s"Redirecting to ${destUrl}")
-//                    log.info(s"Redirecting to ${serverURL}")
-
-//                    redirect(destUrl)
-//                    redirect(destUrl, StatusCodes.PermanentRedirect)
-
-
-                    HttpResponse(
-                      status = StatusCodes.PermanentRedirect,
-                      headers = headers.Location(destUrl) :: Nil,
-                      entity =HttpEntity.Empty)
-
-
-//                    HttpResponse(StatusCodes.OK,
-//                      entity = HttpEntity(ContentTypes.`application/json`, s"""{ "message": "Redirecting to $destUrl"}""".parseJson.prettyPrint)
-//                    )
-
-//                    HttpResponse(StatusCodes.OK,
-//                      entity = HttpEntity(ContentTypes.`application/json`, s"""{ "message": "Redirecting to $destUrl"}""".parseJson.prettyPrint)
-//                    )
-
-
-                  //                  complete(StatusCodes.OK,entityFuture)
-                  case ApiResponseFailure(msg, arg) =>
-                    val response: xml.Elem = <response>
-                      <returncode>ERR</returncode>
-                      <messageKey/>
-                      <message>
-                        {msg}
-                      </message>
-                    </response>
-
-                    HttpResponse(StatusCodes.OK,
-                      entity = HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString)
-                    )
-
-
-
-                  case _ =>
-                    val response: xml.Elem = <response>
-                      <returncode>ERR</returncode>
-                      <messageKey/>
-                      <message>errrr</message>
-                    </response>
-//                    HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString)
-
-                    HttpResponse(StatusCodes.OK,
-                      entity = HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString)
-                    )
-
-                }
-              }
-
-              optionalSession(oneOff, usingCookies) { currSession => {
-
-                val userSession = currSession match {
-                  case Some(currUserSession: Map[String, String]) => currUserSession
-                  case None       => Map[String,String]()
-                }
-
-                val acessTokenData = UserSession(regUser.meetingId, regUser.intUserId)
-
-
-
-
-                val gson = new Gson
-                val jsonUserData = gson.toJson(acessTokenData)
-
-                gson.fromJson(jsonUserData, classOf[UserSession])
-
-                setSession(oneOff, usingCookies, userSession + (sessionToken -> jsonUserData)) {
-                  setNewCsrfToken(checkHeader) { ctx =>
-                    log.info(s"SESSION SET SUCESSEFULY $sessionToken")
-                    ctx.complete(
-                      entityFuture
-                    )
+                  setSession(oneOff, usingCookies, userSession + (sessionToken -> newJsonTokenData)) {
+                    setNewCsrfToken(checkHeader) { ctx =>
+                      log.info(s"SessionToken set successfully: $sessionToken")
+                      ctx.complete(futureEntity)
+                    }
                   }
                 }
               }
-              }
-
-
-
-//                complete(sessionToken.toJson)
-//                log.info(s"SESSION SET SUCESSEFULY $sessionToken")
-//                complete(StatusCodes.OK,entityFuture)
-//              }
-
-
-
 
             } catch {
-              case e: Exception => {
-                log.error(s"Error join on meeting $meetingID, ${e.getMessage}")
-                val response: xml.Elem = <response>
-                  <returncode>ERR</returncode>
-                  <messageKey/>
-                  <message>{e.getMessage}</message>
-                </response>
-                complete(HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`), response.toString))
-              }
+              case e: Exception =>
+                complete(
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
+                      GenericResponse.FailedResponse("", s"Error while joining the meeting, ${e.getClass}, ${e.getMessage}").toXml.toString
+                    )
+                  )
+                )
             }
-
           }
-
         }
       }
+
     } ~ (path("api" / "enter") & extractLog) { log =>
         get {
           log.info("enter")
 
           requiredSession(oneOff, usingCookies) { userSession: Map[String, String] =>
-            println(s"Current session $userSession")
+            parameter("sessionToken".as[String]) { (sessionToken) =>
+              log.debug("sessionToken: " + sessionToken)
+              if(userSession.exists(tokens => tokens._1 == sessionToken)) {
+                val userTokenData = gson.fromJson(userSession(sessionToken), classOf[SessionTokenData])
 
-              parameter("sessionToken".as[String]) { (sessionToken) =>
-                println("sessionToken: " + sessionToken)
-
-
-
-                val response = {
-                  if(userSession.exists(tokens => tokens._1 == sessionToken)) {
-
-                    val gson = new Gson
-                    val userTokenData = gson.fromJson(userSession(sessionToken), classOf[UserSession])
-
-                    val registerUserFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId)
-                    val entityFuture = registerUserFuture.map { resp =>
-                      resp match {
-                        case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
-
-                          var userReturn:Map[String, Any] = userInfos.infos
-
-                          userReturn += ("returncode" -> "SUCCESS")
-
-                          val jsonReturn = Map(
-                            "response" -> userReturn
-                          )
-
-                          HttpEntity(ContentTypes.`application/json`, jsonReturn.toJson.prettyPrint)
-
-                        case ApiResponseFailure(msg, arg) =>
-
-                          var userReturn:Map[String,String] = Map()
-                          userReturn += ("returncode" -> "ERROR")
-                          userReturn += ("message" -> msg)
-
-                          HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint)
-                        case _ =>
-                          var userReturn:Map[String,String] = Map()
-                          userReturn += ("returncode" -> "ERROR")
-                          userReturn += ("message" -> "generic error")
-
-                          HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint)
-                      }
-                    }
-
-                    complete(StatusCodes.OK,entityFuture)
-                  } else {
-
-                    var userReturn:Map[String,String] = Map()
-                    userReturn += ("returncode" -> "ERROR")
-                    userReturn += ("message" -> "Session invalid")
-
-                    complete(HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint))
-
-                  }
-                }
-
-
-                response
-            }
-          }
-        }
-    } ~ (path("api" / "stuns") & extractLog) { log =>
-
-      log.info("stuns")
-
-      requiredSession(oneOff, usingCookies) { userSession: Map[String, String] =>
-        println(s"Current session $userSession")
-
-        parameter("sessionToken".as[String]) { (sessionToken) =>
-          println("sessionToken: " + sessionToken)
-
-
-          val response = {
-            if (userSession.exists(tokens => tokens._1 == sessionToken)) {
-
-              val gson = new Gson
-              val userTokenData = gson.fromJson(userSession(sessionToken), classOf[UserSession])
-
-
-
-              val findUserFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId)
-              val entityFuture = findUserFuture.map { resp =>
-
-                resp match {
+                val entityFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
                   case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
-
-                    log.info("Encontrou user com sucesso!")
-                    log.info(userInfos.infos.toString)
-//
-                    val stunServers: List[Map[String,String]] = List(
-                      Map("url" -> "stun:stun.l.google.com:19302")
+                    HttpResponse(StatusCodes.OK,
+                      headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                      entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        Map("response" -> Map("returncode" -> "SUCCESS", "message" -> msg)).toJson.prettyPrint
+                      )
                     )
-                    val turnServers: List[String] = List()
-                    val remoteIceCandidates: List[String] = List()
-
-                    val returnStuns: Map[String, Any] = Map(
-                      ("stunServers" -> stunServers),
-                      ("turnServers" -> turnServers),
-                      ("remoteIceCandidates" -> remoteIceCandidates),
-                    )
-
-
-
-
-                    HttpEntity(ContentTypes.`application/json`, returnStuns.toJson.prettyPrint)
-
                   case ApiResponseFailure(msg, arg) =>
-
-                    var userReturn: Map[String, String] = Map()
-                    userReturn += ("returncode" -> "ERROR")
-                    userReturn += ("message" -> msg)
-
-                    HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint)
-                  case _ =>
-                    var userReturn: Map[String, String] = Map()
-                    userReturn += ("returncode" -> "ERROR")
-                    userReturn += ("message" -> "generic error")
-
-                    HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint)
-                }
-              }
-
-              complete(StatusCodes.OK, entityFuture)
-            } else {
-
-              var userReturn: Map[String, String] = Map()
-              userReturn += ("returncode" -> "ERROR")
-              userReturn += ("message" -> "Session invalid")
-
-              complete(HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint))
-
-            }
-          }
-
-
-          response
-
-        }
-      }
-
-    } ~ (path("api" / "connection" / "checkAuthorization") & extractLog) { log =>
-
-//      def uri = request.getHeader("x-original-uri")
-
-      log.info("api/connection/checkAuthorization")
-
-      headerValueByName("x-original-URI") { originalUri =>
-        println(s"The Original URI is $originalUri")
-
-        ///ws?sessionToken=65xtzsmtkcsb
-
-        val string = "one493two483three"
-        val pattern = """\?sessionToken=([\w]+)""".r
-        pattern.findAllIn(string).matchData foreach {
-          m => println(m.group(1))
-        }
-
-
-        val sessionToken = originalUri match {
-          case s"${x}?sessionToken=${sessionToken}" => {
-            println("sessionToken: " + sessionToken)
-            sessionToken
-          }
-          case _                   => ""
-        }
-
-
-        requiredSession(oneOff, usingCookies) { userSession: Map[String, String] =>
-          println(s"Current session $userSession")
-
-//          parameter("sessionToken".as[String]) { (sessionToken) =>
-            println("sessionToken: " + sessionToken)
-
-
-            val response = {
-              if (userSession.exists(tokens => tokens._1 == sessionToken)) {
-
-                val gson = new Gson
-                val userTokenData = gson.fromJson(userSession(sessionToken), classOf[UserSession])
-
-
-
-                val findUserFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId)
-                val entityFuture = findUserFuture.map { resp =>
-
-                  resp match {
-                    case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
-
-                      log.info("Encontrou user com sucesso!")
-                      log.info(userInfos.infos.toString)
-                      //
-
-
-                      //                    response.addHeader("Cache-Control", "no-cache")
-                      //                    response.contentType = 'plain/text'
-                      //
-                      //                if (userSession != null && !isSessionTokenInvalid) {
-                      //                response.addHeader("User-Id", userSession.internalUserId)
-                      //                response.addHeader("Meeting-Id", userSession.meetingID)
-                      //                response.addHeader("Voice-Bridge", userSession.voicebridge )
-                      //                response.addHeader("User-Name", userSession.fullname)
-                      //                response.setStatus(200)
-                      //                response.outputStream << 'authorized'
-                      //                } else {
-                      //                response.setStatus(401)
-                      //                response.outputStream << 'unauthorized'
-                      //                }
-
-
-
-
-
-                      //                respondWithHeaders(RawHeader("User-Id", userInfos.infos.get("internalUserId").getOrElse("a")), Origin(HttpOrigin("http://akka.io"))) {
-                      //                  complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "authorized"))
-                      //                }
-
-                      val responseHeaders = Seq(
-                        RawHeader("User-Id", userInfos.infos.get("internalUserID").getOrElse("").toString),
-                        RawHeader("Meeting-Id", userInfos.infos.get("meetingID").getOrElse("").toString),
-                        RawHeader("Voice-Bridge", userInfos.infos.get("voicebridge").getOrElse("").toString),
-                        RawHeader("User-Name", userInfos.infos.get("fullname").getOrElse("").toString)
+                    HttpResponse(StatusCodes.OK,
+                      headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                      entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)).toJson.prettyPrint
                       )
-
-
-                      HttpResponse(StatusCodes.OK,
-                        headers = responseHeaders,
-                        entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "authorized")
-                      )
-
-                    case ApiResponseFailure(msg, arg) =>
-                      HttpResponse(StatusCodes.Unauthorized,
-                        entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "unauthorized")
-                      )
-                    case _ =>
-                      HttpResponse(StatusCodes.Unauthorized,
-                        entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "unauthorized")
-                      )
-                  }
+                    )
                 }
 
                 complete(entityFuture)
-
               } else {
-
-                var userReturn: Map[String, String] = Map()
-                userReturn += ("returncode" -> "ERROR")
-                userReturn += ("message" -> "Session invalid")
-
-                complete(HttpEntity(ContentTypes.`application/json`, userReturn.toJson.prettyPrint))
-
+                complete(
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      ContentTypes.`application/json`,
+                      Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")).toJson.prettyPrint
+                    )
+                  )
+                )
               }
             }
+          }
+        }
+    } ~ (path("api" / "signOut") & extractLog) { log =>
+      log.info("signOut")
+      get {
+        parameter(
+          "sessionToken".as[String],
+          "checksum".as[String],
+        ) { (
+              sessionToken,
+              checksum,
+            ) =>
 
+          val httpDefaultResponse = HttpResponse(StatusCodes.OK,
+            headers = Seq(RawHeader("Cache-Control", "no-cache")),
+            entity = HttpEntity(MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),GenericResponse.SuccessResponse("","").toXml.toString)
+          )
 
-            response
+          optionalSession(oneOff, usingCookies) {
+            currSession => {
+              log.info(s"Current session $currSession")
+              currSession match {
+                case Some(currUserSession: Map[String, String]) =>
+                  setSession(oneOff, usingCookies, currUserSession.-(sessionToken)) {
+                    setNewCsrfToken(checkHeader) { ctx =>
+                      log.info(s"Session removed successfully: $sessionToken")
+                      ctx.complete(httpDefaultResponse)
+                    }
+                  }
+                case None =>
+                  log.info(s"Session not found")
+                  complete(httpDefaultResponse)
+              }
+            }
+          }
+        }
+      }
+    } ~ (path("api" / "stuns") & extractLog) { log =>
+      log.info("stuns")
 
-//          }
+      requiredSession(oneOff, usingCookies) { userSession: Map[String, String] =>
+        parameter("sessionToken".as[String]) { sessionToken =>
+          log.debug("sessionToken: " + sessionToken)
+            if (userSession.exists(tokens => tokens._1 == sessionToken)) {
+              val userTokenData = gson.fromJson(userSession(sessionToken), classOf[SessionTokenData])
+
+              val entityFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
+                case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
+                  val stunServers: List[Map[String,String]] = List(
+                    Map("url" -> "stun:stun.l.google.com:19302")
+                  )
+                  val turnServers: List[String] = List()
+                  val remoteIceCandidates: List[String] = List()
+
+                  val returnStuns: Map[String, Any] = Map(
+                    "stunServers" -> stunServers,
+                    "turnServers" -> turnServers,
+                    "remoteIceCandidates" -> remoteIceCandidates
+                  )
+
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      ContentTypes.`application/json`,
+                      returnStuns.toJson.prettyPrint
+                    )
+                  )
+                case ApiResponseFailure(msg, arg) =>
+                  HttpResponse(StatusCodes.OK,
+                    headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                    entity = HttpEntity(
+                      ContentTypes.`application/json`,
+                      Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)).toJson.prettyPrint
+                    )
+                  )
+              }
+
+              complete(entityFuture)
+            } else {
+              complete(
+                HttpResponse(StatusCodes.OK,
+                  headers = Seq(RawHeader("Cache-Control", "no-cache")),
+                  entity = HttpEntity(
+                    ContentTypes.`application/json`,
+                    Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")).toJson.prettyPrint
+                  )
+                )
+              )
+          }
+        }
+      }
+    } ~ (path("api" / "connection" / "checkAuthorization") & extractLog) { log =>
+      log.info("api/connection/checkAuthorization")
+
+      headerValueByName("x-original-URI") { originalUri =>
+        log.debug(s"The Original URI is $originalUri")
+
+        val sessionToken = originalUri match {
+          case s"${x}?sessionToken=${sessionToken}" => sessionToken
+          case _ => ""
         }
 
+        requiredSession(oneOff, usingCookies) { userSession: Map[String, String] =>
+          log.debug("sessionToken: " + sessionToken)
+
+          if (userSession.exists(tokens => tokens._1 == sessionToken)) {
+            val userTokenData = gson.fromJson(userSession(sessionToken), classOf[SessionTokenData])
+
+            val entityFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
+              case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
+                HttpResponse(StatusCodes.OK,
+                  headers = Seq(
+                    RawHeader("User-Id", userInfos.infos.get("internalUserID").getOrElse("").toString),
+                    RawHeader("Meeting-Id", userInfos.infos.get("meetingID").getOrElse("").toString),
+                    RawHeader("Voice-Bridge", userInfos.infos.get("voicebridge").getOrElse("").toString),
+                    RawHeader("User-Name", userInfos.infos.get("fullname").getOrElse("").toString)
+                  ),
+                  entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "authorized")
+                )
+              case ApiResponseFailure(msg, arg) =>
+                HttpResponse(StatusCodes.Unauthorized,
+                  entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "unauthorized")
+                )
+            }
+            complete(entityFuture)
+          } else {
+            complete(
+              HttpResponse(StatusCodes.Unauthorized,
+                entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, "unauthorized")
+              )
+            )
+          }
+        }
       }
-
-
-
     } ~ path("healthz") {
       get {
         val future = healthz.getHealthz()

@@ -64,7 +64,10 @@ class BigBlueButtonActor(
   def receive = {
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
+
+    //Api messages
     case msg: CreateMeetingApiMsg       => handleCreateMeetingApiMsg(msg, sender)
+    case msg: EndMeetingApiMsg          => handleEndMeetingApiMsg(msg, sender)
     case msg: RegisterUserApiMsg        => handleRegisterUserApiMsg(msg, sender)
     case msg: GetUserApiMsg             => handleGetUserApiMsg(msg, sender)
 
@@ -106,6 +109,21 @@ class BigBlueButtonActor(
         actorRef ! ApiResponseFailure("Meeting already created.", m.props)
       }
 
+    }
+  }
+
+  def handleEndMeetingApiMsg(msg: EndMeetingApiMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED EndMeetingApiMsg msg {}", msg)
+
+    RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+      case Some(m) =>
+        log.debug("FORWARDING EndMeetingApiMsg message")
+        m.actorRef forward (msg)
+        log.debug("replying with success")
+
+        actorRef ! ApiResponseSuccess("MEETING ENCERRADA COM SUCESSO!")
+      case None =>
+        actorRef ! ApiResponseFailure("Meeting not found!")
     }
   }
 

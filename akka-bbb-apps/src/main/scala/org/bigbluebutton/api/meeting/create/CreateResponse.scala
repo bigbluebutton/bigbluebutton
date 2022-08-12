@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.domain.DefaultProps
 
 object CreateResponse {
 
-  case class ResponseMeeting(msg: String, defaultprops: DefaultProps) {
+  case class SuccessWithMeetingInfoResponse(msg: String, defaultprops: DefaultProps) {
     def toXml =
       <response>
         <returncode>SUCCESS</returncode>
@@ -44,4 +44,13 @@ object CreateResponse {
         </message>
       </response>
   }
+
+  case class FailedResponse(messageKey: String, msg: String) {
+    def toXml: xml.Elem = <response>
+                            <returncode>FAILED</returncode>
+                            <messageKey>{ messageKey }</messageKey>
+                            <message>{ msg }</message>
+                          </response>
+  }
+
 }

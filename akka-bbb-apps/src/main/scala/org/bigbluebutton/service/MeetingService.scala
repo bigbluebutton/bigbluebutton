@@ -10,7 +10,7 @@ import org.bigbluebutton.api.meeting.MsgBuilder
 import org.bigbluebutton.api.meeting.join.RegisterUser
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, MeetingEndingEvtMsg, MeetingInfoAnalyticsServiceMsg}
-import org.bigbluebutton.core.api.{ApiResponse, ApiResponseFailure, CreateMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg}
+import org.bigbluebutton.core.api.{ApiResponse, ApiResponseFailure, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg}
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.service.MeetingService.meetings
 
@@ -44,129 +44,39 @@ class MeetingService(system: ActorSystem, meetingInfoActor: ActorRef, eventBus: 
     }
   }
 
-  //  def createMeeting(defaultprops: DefaultProps): Future[MeetingResponseMsg] = {
-  //  def getAnalytics(meetingId: String): Future[MeetingInfoResponseMsg] = {
-  //    val future = meetingInfoActor.ask(GetMeetingInfoMessage(meetingId)).mapTo[MeetingInfoResponseMsg]
-  //
-  //    future.recover {
-  //      case e: AskTimeoutException => {
-  //        MeetingInfoResponseMsg(None)
-  //      }
-  //    }
-  //  }
-
   case class MeetingCreateResp(
       msg:              String,
   )
 
-//  case class MeetingCreateResponseMsg(optionMeetingCreateResp: Option[String])
-
   def createMeeting(defaultprops: DefaultProps): Future[ApiResponse] = {
-//    val msg = MsgBuilder.buildCreateMeetingRequestToAkkaApps(defaultprops)
-
-    // with SystemConfiguration
-    //      eventBus.publish(BigBlueButtonEvent(meetingManagerChannel,msg)
-    //    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, CreateMeetingApiMsg(defaultprops)))
-
-    //    actorRef ! CreateMeetingApiMsg(defaultprops)
-
-    println("enviando......!!!!!!!!!!!")
-
-//    val future = actorRef ? CreateMeetingApiMsg(defaultprops).mapTo[ApiResponse]
     val future = actorRef.ask(CreateMeetingApiMsg(defaultprops)).mapTo[ApiResponse]
+    future.recover {
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
+    }
+  }
 
-    future.onComplete(resp => {
-      println("RECEBEUUU RESPOSTA!!! :D")
-      println(resp)
-      meetings += (defaultprops.meetingProp.intId -> defaultprops)
-    })
+  def endMeeting(meetingID: String): Future[ApiResponse] = {
+    val future = actorRef.ask(EndMeetingApiMsg(meetingID)).mapTo[ApiResponse]
 
     future.recover {
-      case e: AskTimeoutException => {
-        ApiResponseFailure("Request Timeout error")
-      }
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
     }
-
-
-
-    // val result = Await.result(future, timeout.duration).asInstanceOf[String]
-    //println(result)
-
-    // result
-
-    //      val future = meetingInfoActor.ask(GetMeetingMessage(meetingId)).mapTo[MeetingResponseMsg]
-    //
-    //      future.recover {
-    //        case e: AskTimeoutException => {
-    //          MeetingResponseMsg(None)
-    //        }
-    //      }
   }
 
   def registerUser(regUser: RegisterUser) = {
-//    val msg = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
-
-    // with SystemConfiguration
-    //      eventBus.publish(BigBlueButtonEvent(meetingManagerChannel,msg)
-    //    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, CreateMeetingApiMsg(defaultprops)))
-
-    //    actorRef ! CreateMeetingApiMsg(defaultprops)
-
     val future = actorRef.ask(RegisterUserApiMsg(regUser)).mapTo[ApiResponse]
 
-    println("RECEBEU RESPOSTA!!!!!!!!!!!")
-
     future.recover {
-      case e: AskTimeoutException => {
-        ApiResponseFailure("Request Timeout error")
-      }
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
     }
-
-//
-//    val future = actorRef ? RegisterUserApiMsg(regUser)
-//    val result = Await.result(future, timeout.duration).asInstanceOf[String]
-//    println(result)
-
-    //      val future = meetingInfoActor.ask(GetMeetingMessage(meetingId)).mapTo[MeetingResponseMsg]
-    //
-    //      future.recover {
-    //        case e: AskTimeoutException => {
-    //          MeetingResponseMsg(None)
-    //        }
-    //      }
   }
 
   def findUser(meetingId: String, userIntId: String) = {
-    //    val msg = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
-
-    // with SystemConfiguration
-    //      eventBus.publish(BigBlueButtonEvent(meetingManagerChannel,msg)
-    //    eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, CreateMeetingApiMsg(defaultprops)))
-
-    //    actorRef ! CreateMeetingApiMsg(defaultprops)
-
     val future = actorRef.ask(GetUserApiMsg(meetingId, userIntId)).mapTo[ApiResponse]
 
-    println("RECEBEU RESPOSTA!!!!!!!!!!!")
-
     future.recover {
-      case e: AskTimeoutException => {
-        ApiResponseFailure("Request Timeout error")
-      }
+      case e: AskTimeoutException => ApiResponseFailure("Request Timeout error")
     }
-
-    //
-    //    val future = actorRef ? RegisterUserApiMsg(regUser)
-    //    val result = Await.result(future, timeout.duration).asInstanceOf[String]
-    //    println(result)
-
-    //      val future = meetingInfoActor.ask(GetMeetingMessage(meetingId)).mapTo[MeetingResponseMsg]
-    //
-    //      future.recover {
-    //        case e: AskTimeoutException => {
-    //          MeetingResponseMsg(None)
-    //        }
-    //      }
   }
 
 }
