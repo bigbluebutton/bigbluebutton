@@ -304,3 +304,7 @@ exports.pencil = 'button[data-test="pencilTool"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
 exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
 exports.exportPlainButton = 'span[id="exportplain"]';
+
+// About modal
+exports.showAboutModalButton = 'body div[id="default-dropdown-menu"] div:nth-child(3) ul:nth-child(1) li:nth-child(3)';
+exports.aboutModal = 'div[aria-label="About"]';
