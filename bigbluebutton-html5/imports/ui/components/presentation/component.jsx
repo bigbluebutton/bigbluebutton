@@ -77,6 +77,7 @@ class Presentation extends PureComponent {
       isFullscreen: false,
       tldrawAPI: null,
       isZoomed: false,
+      isPanning: false,
     };
 
     this.currentPresentationToastId = null;
@@ -93,6 +94,7 @@ class Presentation extends PureComponent {
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
     this.setIsZoomed = this.setIsZoomed.bind(this);
+    this.setIsPanning = this.setIsPanning.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -293,13 +295,19 @@ class Presentation extends PureComponent {
   setTldrawAPI(api) {
     this.setState({
       tldrawAPI: api,
-    })
+    });
   }
 
   setIsZoomed(isZoomed) {
     this.setState({
       isZoomed,
-    })
+    });
+  }
+
+  setIsPanning() {
+    this.setState({
+      isPanning: !this.state.isPanning,
+    });
   }
 
   handleResize() {
@@ -749,6 +757,8 @@ class Presentation extends PureComponent {
           layoutContextDispatch,
           presentationIsOpen,
         }}
+        setIsPanning={this.setIsPanning}
+        isPanning={this.state.isPanning}
         isZoomed={this.state.isZoomed}
         tldrawAPI={this.state.tldrawAPI}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
@@ -985,6 +995,7 @@ class Presentation extends PureComponent {
             presentationHeight={presentationHeight}
             isViewersCursorLocked={isViewersCursorLocked}
             isZoomed={isZoomed}
+            isPanning={this.state.isPanning}
             setIsZoomed={this.setIsZoomed}
             zoomChanger={this.zoomChanger}
           />

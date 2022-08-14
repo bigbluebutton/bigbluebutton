@@ -84,6 +84,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserOff',
     description: 'Whiteboard toolbar turn multi-user off menu',
   },
+  pan: {
+    id: 'app.whiteboard.toolbar.tools.hand',
+    description: 'presentation toolbar pan label',
+  }
 });
 
 class PresentationToolbar extends PureComponent {
@@ -259,6 +263,8 @@ class PresentationToolbar extends PureComponent {
       multiUserSize,
       multiUser,
       isZoomed,
+      setIsPanning,
+      isPanning,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -397,6 +403,20 @@ class PresentationToolbar extends PureComponent {
                 />
               </TooltipContainer>
             ) : null}
+            <Styled.FitToWidthButton
+              role="button"
+              data-test="panButton"
+              aria-label={intl.formatMessage(intlMessages.pan)}
+              color="light"
+              disabled={!isZoomed}
+              icon="hand"
+              size="md"
+              circle
+              onClick={setIsPanning}
+              label={intl.formatMessage(intlMessages.pan)}
+              hideLabel
+              panning={isPanning}
+            />
             <Styled.FitToWidthButton
               role="button"
               data-test="fitToWidthButton"
