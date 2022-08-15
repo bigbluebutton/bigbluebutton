@@ -1,14 +1,19 @@
-const Page = require('../../../core/page');
+const Page = require('../core/page');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
-const e = require('../../../core/elements');
+const e = require('../core/elements');
 
 
-class Language extends Page {
+class Options extends Page {
   constructor(browser, page) {
     super(browser, page);
   }
 
-  async test() {
+  async openedAboutModal() {
+    await openAboutModal(this);
+    await this.hasElement(e.closeModal);
+  }
+
+  async localesTest() {
     const selectedKeysBySelector = {
       [e.messageTitle]: 'app.userList.messagesTitle',
       [e.notesTitle]: 'app.userList.notesTitle',
@@ -43,16 +48,4 @@ class Language extends Page {
   }
 }
 
-class About extends Page {
-  constructor(browser, page) {
-    super(browser, page);
-  }
-
-  async openedAboutModal() {
-    await openAboutModal(this);
-    await this.hasElement(e.closeModal);
-  }
-}
-
-exports.Language = Language;
-exports.About = About;
+exports.Options = Options;
