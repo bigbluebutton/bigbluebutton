@@ -524,6 +524,8 @@ export default function Whiteboard(props) {
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
+        isPanning={isPanning}
+
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
       </Cursors>
