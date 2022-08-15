@@ -1,9 +1,0 @@
-<include>
-    <extension name="bbb_sp_call" continue="true">
-      <condition field="network_addr" expression="${domain}" break="on-false">
-        <action application="set" data="bbb_authorized=true"/>
-        <action application="transfer" data="${destination_number} XML default"/>
-      </condition>
-    </extension>
-</include>
-
