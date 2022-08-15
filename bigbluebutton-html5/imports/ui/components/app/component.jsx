@@ -48,6 +48,7 @@ import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import MediaService from '/imports/ui/components/media/service';
 import ActionsBarContainer from '../actions-bar/container';
+import { updateSettings } from '/imports/ui/components/settings/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -325,13 +326,21 @@ class App extends Component {
         value: contextLayout,
       });
 
-      Settings.application.selectedLayout = contextLayout;
-      Settings.save();
+      updateSettings({
+        application: {
+          ...Settings.application,
+          selectedLayout: contextLayout,
+        },
+      });
     }
 
     if (pushLayoutMeeting !== prevProps.pushLayoutMeeting) {
-      Settings.application.pushLayout = pushLayoutMeeting;
-      Settings.save();
+      updateSettings({
+        application: {
+          ...Settings.application,
+          pushLayout: pushLayoutMeeting,
+        },
+      });
     }
 
     if (meetingLayout === "custom" && !isPresenter) {
