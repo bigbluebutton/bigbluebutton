@@ -1,5 +1,5 @@
-const Page = require('../core/page');
-const e = require('../core/elements');
+const Page = require('../../core/page');
+const e = require('../../core/elements');
 const { openAboutModal } = require('./util');
 
 class About extends Page {

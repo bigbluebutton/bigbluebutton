@@ -1,5 +1,5 @@
-const e = require('../core/elements');
-const defaultLocale = require('../../../bigbluebutton-html5/public/locales/en.json');
+const e = require('../../../core/elements');
+const defaultLocale = require('../../../../../bigbluebutton-html5/public/locales/en.json');
 
 async function openSettings(test) {
   await test.waitAndClick(e.optionsButton);
@@ -29,11 +29,5 @@ async function getLocaleValues(elements, locale) {
   return currentValues;
 }
 
-async function openAboutModal(test) {
-  await test.waitAndClick(e.optionsButton);
-  await test.waitAndClick(e.showAboutModalButton);
-}
-
-exports.openAboutModal = openAboutModal;
 exports.openSettings = openSettings;
 exports.getLocaleValues = getLocaleValues;
