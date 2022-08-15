@@ -43,6 +43,9 @@ const intlMessages = defineMessages({
   joined_another_window_reason: {
     id: 'app.error.joinedAnotherWindow',
   },
+  user_inactivity_eject_reason: {
+    id: 'app.meeting.logout.userInactivityEjectReason',
+  },
 });
 
 const propTypes = {
