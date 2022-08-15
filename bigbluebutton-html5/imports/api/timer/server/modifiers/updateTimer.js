@@ -42,13 +42,14 @@ const getResetModifier = () => {
   };
 };
 
-const handleTimerEndedNotifications = (fields, meetingId, handle, meetingUsers) => {
+const handleTimerEndedNotifications = (fields, meetingId, handle) => {
+  const meetingUsers = Users.find({ meetingId }).count();
+
   if (fields.running === false) {
     handle.stop();
   }
 
-  //Timer is stopped when at least 90% of users online in the meetinng notify that it ended.
-  if (fields.ended >= Math.round(0.9 * meetingUsers)) {
+  if (fields.ended >= meetingUsers) {
     const accumulated = 0;
     updateTimer('stop', meetingId, '', 0, false, accumulated);
   }
@@ -58,14 +59,13 @@ const setTimerEndObserver = (meetingId) => {
   const { stopwatch } = Timer.findOne({ meetingId });
 
   if (stopwatch === false) {
-    const meetingUsers = Users.find({ meetingId }).count();
     const meetingTimer = Timer.find(
       { meetingId },
       { fields: { ended: 1, running: 1 } },
     );
     const handle = meetingTimer.observeChanges({
       changed: (id, fields) => {
-        handleTimerEndedNotifications(fields, meetingId, handle, meetingUsers);
+        handleTimerEndedNotifications(fields, meetingId, handle);
       },
     });
   }
