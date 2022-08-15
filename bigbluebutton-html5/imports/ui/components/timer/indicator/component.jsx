@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import TimerService from '/imports/ui/components/timer/service';
+import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 
 const CDN = Meteor.settings.public.app.cdn;
@@ -137,7 +138,12 @@ class Indicator extends Component {
   play() {
     if (this.alarm && !this.triggered) {
       this.triggered = true;
-      this.alarm.play();
+      this.alarm.play().catch((error) => {
+        logger.error({
+          logCode: 'timer_sound_error',
+          extraInfo: { error },
+        }, `Timer beep failed: ${error}`);
+      });
     }
   }
 
