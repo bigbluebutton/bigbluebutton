@@ -314,7 +314,13 @@ class App extends Component {
 
     this.renderDarkMode();
 
-    if (meetingLayout !== prevProps.meetingLayout) {
+    const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
+    const pushLayoutMeetingDidChange = pushLayoutMeeting !== prevProps.pushLayoutMeeting;
+    const shouldSwitchLayout = isPresenter
+      ? meetingLayoutDidChange
+      : (meetingLayoutDidChange || pushLayoutMeetingDidChange) && pushLayoutMeeting;
+
+    if (shouldSwitchLayout) {
 
       let contextLayout = meetingLayout;
       if (isMobile()) {
@@ -334,7 +340,7 @@ class App extends Component {
       });
     }
 
-    if (pushLayoutMeeting !== prevProps.pushLayoutMeeting) {
+    if (pushLayoutMeetingDidChange) {
       updateSettings({
         application: {
           ...Settings.application,
