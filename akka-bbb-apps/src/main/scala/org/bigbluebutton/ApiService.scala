@@ -114,7 +114,7 @@ class ApiService(healthz: HealthzService, meetingInfoz: MeetingInfoService, meet
 
   def routes =
     (path("api" / "create") & extractLog) { log =>
-      log.info("enter")
+      log.info("create")
 
       get {
         parameter(
