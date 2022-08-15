@@ -1,6 +1,7 @@
-const Page = require('../core/page');
-const { openSettings, getLocaleValues } = require('./util');
-const e = require('../core/elements');
+const Page = require('../../../core/page');
+const { openAboutModal, openSettings, getLocaleValues } = require('./util');
+const e = require('../../../core/elements');
+
 
 class Language extends Page {
   constructor(browser, page) {
@@ -42,4 +43,16 @@ class Language extends Page {
   }
 }
 
+class About extends Page {
+  constructor(browser, page) {
+    super(browser, page);
+  }
+
+  async openedAboutModal() {
+    await openAboutModal(this);
+    await this.hasElement(e.closeModal);
+  }
+}
+
 exports.Language = Language;
+exports.About = About;
