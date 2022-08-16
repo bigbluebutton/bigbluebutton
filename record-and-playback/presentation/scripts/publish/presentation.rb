@@ -503,26 +503,31 @@ def svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   end
 end
 
-def panzoom_viewbox(panzoom)
+def panzoom_viewbox(panzoom, tldraw)
   if panzoom[:deskshare]
     panzoom[:x_offset] = panzoom[:y_offset] = 0.0
     panzoom[:width_ratio] = panzoom[:height_ratio] = 100.0
   end
 
-  x = (-panzoom[:x_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:width]).round(5)
-  y = (-panzoom[:y_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:height]).round(5)
+  if tldraw
+    x = panzoom[:x_offset]
+    y = panzoom[:y_offset]
+  else 
+    x = (-panzoom[:x_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:width]).round(5)
+    y = (-panzoom[:y_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:height]).round(5)
+  end
   w = shape_scale_width(panzoom, panzoom[:width_ratio])
   h = shape_scale_height(panzoom, panzoom[:height_ratio])
 
   [x, y, w, h]
 end
 
-def panzooms_emit_event(rec, panzoom)
+def panzooms_emit_event(rec, panzoom, tldraw)
   panzoom_in = panzoom[:in]
   return if panzoom_in == panzoom[:out]
 
   rec.event(timestamp: panzoom_in) do
-    x, y, w, h = panzoom_viewbox(panzoom)
+    x, y, w, h = panzoom_viewbox(panzoom, tldraw)
     rec.viewBox("#{x} #{y} #{w} #{h}")
   end
 end
@@ -1015,7 +1020,7 @@ def process_presentation(package_dir)
       else
         if panzoom
           panzoom[:out] = timestamp
-          panzooms_emit_event(panzooms_rec, panzoom)
+          panzooms_emit_event(panzooms_rec, panzoom, tldraw)
         end
         BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
         panzoom = {
@@ -1071,7 +1076,7 @@ def process_presentation(package_dir)
   svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   panzoom = panzooms.last
   panzoom[:out] = last_timestamp
-  panzooms_emit_event(panzooms_rec, panzoom)
+  panzooms_emit_event(panzooms_rec, panzoom, tldraw)
   cursor = cursors.last
   cursor[:out] = last_timestamp
   cursors_emit_event(cursors_rec, cursor, tldraw)

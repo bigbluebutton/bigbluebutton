@@ -889,8 +889,6 @@ class Presentation extends PureComponent {
       showSlide,
       isFullscreen,
       localPosition,
-      presentationWidth,
-      presentationHeight,
       fitToWidth,
       zoom,
     } = this.state;
