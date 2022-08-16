@@ -98,6 +98,12 @@ const observePresentationConversion = (
         }
       },
       changed: (newDoc) => {
+        if (newDoc.conversion.status === 'PAGE_COUNT_EXCEEDED') {
+          onConversion(newDoc.conversion);
+          c.stop();
+          clearTimeout(conversionTimeout);
+        }
+
         if (newDoc.temporaryPresentationId !== tmpPresId) return;
 
         onConversion(newDoc.conversion);

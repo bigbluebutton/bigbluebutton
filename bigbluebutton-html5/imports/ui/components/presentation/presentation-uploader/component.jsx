@@ -288,7 +288,9 @@ class PresentationUploader extends Component {
       return presentation;
     }).filter((presentation) => {
       const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
+      const hasConversionError = presentation?.conversion?.error;
 
+      if (hasConversionError) return true;
       if (!currentPropPres) return false;
 
       presentation.conversion = currentPropPres.conversion;
