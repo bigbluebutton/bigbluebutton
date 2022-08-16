@@ -11,9 +11,9 @@ const jobId = workerData;
 const logger = new Logger('presAnn Collector');
 logger.info('Collecting job ' + jobId);
 
-const kickOffProcessWorker = (jobId) => {
+const kickOffProcessWorker = (jobId, statusUpdate) => {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('./workers/process.js', {workerData: jobId});
+    const worker = new Worker('./workers/process.js', {workerData: [jobId, statusUpdate]});
     worker.on('message', resolve);
     worker.on('error', reject);
     worker.on('exit', (code) => {
@@ -47,8 +47,6 @@ const exportJob = JSON.parse(job);
   // Remove annotations from Redis
   await client.del(jobId);
 
-  client.disconnect();
-
   const annotations = JSON.stringify(presAnn);
 
   const whiteboard = JSON.parse(annotations);
@@ -64,6 +62,31 @@ const exportJob = JSON.parse(job);
   // from the presentation directory
   const presFile = path.join(exportJob.presLocation, exportJob.presId);
   const pdfFile = `${presFile}.pdf`;
+
+  // Message to display conversion progress toast
+  const statusUpdate = {
+    envelope: {
+      name: config.log.msgName,
+      routing: {
+        sender: exportJob.module,
+      },
+      timestamp: (new Date()).getTime(),
+    },
+    core: {
+      header: {
+        name: config.log.msgName,
+        meetingId: exportJob.parentMeetingId,
+        userId: '',
+      },
+      body: {
+        presId: exportJob.presId,
+        pageNumber: 1,
+        totalPages: pages.length,
+        status: 'collecting',
+        error: false,
+      },
+    },
+  };
 
   if (fs.existsSync(pdfFile)) {
     for (const p of pages) {
@@ -86,17 +109,32 @@ const exportJob = JSON.parse(job);
         pdfFile, outputFile,
       ];
 
-      cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
+      try {
+        cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
+      } catch (error) {
+        logger.error(`Extracting slide ${pageNumber} failed for job ${jobId}: ${error.message}`);
+        statusUpdate.core.body.error = true;
+      }
+
+      statusUpdate.core.body.pageNumber = pageNumber;
+      await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+      statusUpdate.core.body.error = false;
     }
   // If PNG file already available
   } else if (fs.existsSync(`${presFile}.png`)) {
     fs.copyFileSync(`${presFile}.png`, path.join(dropbox, 'slide1.png'));
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
   // If JPEG file available
   } else if (fs.existsSync(`${presFile}.jpeg`)) {
     fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
   } else {
-    return logger.error(`Could not find presentation file ${exportJob.jobId}`);
+    statusUpdate.core.body.error = true;
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    client.disconnect();
+    return logger.error(`Presentation file missing for job ${exportJob.jobId}`);
   }
 
-  kickOffProcessWorker(exportJob.jobId);
+  client.disconnect();
+  kickOffProcessWorker(exportJob.jobId, statusUpdate);
 })();

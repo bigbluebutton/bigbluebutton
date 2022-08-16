@@ -448,9 +448,9 @@ class MeetingActor(
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
-      case m: VoiceConfCallStateEvtMsg         => handleVoiceConfCallStateEvtMsg(m)
+      case m: VoiceConfCallStateEvtMsg        => handleVoiceConfCallStateEvtMsg(m)
 
-      case m: RecordingStartedVoiceConfEvtMsg  => handleRecordingStartedVoiceConfEvtMsg(m)
+      case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: AudioFloorChangedVoiceConfEvtMsg =>
         handleAudioFloorChangedVoiceConfEvtMsg(m)
         audioCaptionsApp2x.handle(m, liveMeeting)
@@ -507,6 +507,7 @@ class MeetingActor(
       case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ExportPresentationWithAnnotationReqMsg         => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: NewPresAnnFileAvailableMsg                     => presentationPodsApp.handle(m, liveMeeting, msgBus)
+      case m: PresAnnStatusMsg                               => presentationPodsApp.handle(m, liveMeeting, msgBus)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
