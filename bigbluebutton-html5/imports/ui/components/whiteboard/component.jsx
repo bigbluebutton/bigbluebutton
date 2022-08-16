@@ -295,6 +295,18 @@ export default function Whiteboard(props) {
     }
   };
 
+  const persistShapeAndChildren = React.useCallback((id, e) => {
+    const shape = e.getShape(id);
+    persistShape(shape, whiteboardId);
+    const children = shape.children;
+    children && children.forEach(c => {
+      const childShape = e.getShape(c);
+      const shapeBounds = e.getShapeBounds(c);
+      childShape.size = [shapeBounds.width, shapeBounds.height];
+      persistShape(childShape, whiteboardId)
+    });
+  }, [persistShape]);
+
   const editableWB = (
     <Tldraw
       key={`wb-${document?.documentElement?.dir}-${document.getElementById('Navbar')?.style?.width}`}
@@ -314,42 +326,38 @@ export default function Whiteboard(props) {
       readOnly={false}
       onPatch={onPatch}
       onUndo={(e, s) => {
-        e?.selectedIds?.map(id => {
-          const shape = e.getShape(id);
-          persistShape(shape, whiteboardId);
-          const children = shape.children;
-          children && children.forEach(c => {
-            const childShape = e.getShape(c);
-            const shapeBounds = e.getShapeBounds(c);
-            childShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(childShape, whiteboardId)
-          });
-        })
+        e?.selectedIds?.map((id) => {
+          persistShapeAndChildren(id, e);
+        });
         const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
-        let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+        let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes));
+        let shapesIdsToAdd = findRemoved(Object.keys(pageShapes), Object.keys(shapes));
         if (shapesIdsToRemove.length) {
           // add a little delay, wee need to make sure children are updated first
           setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
         }
+        if (shapesIdsToAdd.length) {
+          shapesIdsToAdd.forEach((id) => {
+            persistShapeAndChildren(id, e);
+          });
+        }
       }}
 
       onRedo={(e, s) => {
-        e?.selectedIds?.map(id => {
-          const shape = e.getShape(id);
-          persistShape(shape, whiteboardId);
-          const children = shape.children;
-          children && children.forEach(c => {
-            const childShape = e.getShape(c);
-            const shapeBounds = e.getShapeBounds(c);
-            childShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(childShape, whiteboardId)
-          });
+        e?.selectedIds?.map((id) => {
+          persistShapeAndChildren(id, e);
         });
         const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
-        let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
+        let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes));
+        let shapesIdsToAdd = findRemoved(Object.keys(pageShapes), Object.keys(shapes));
         if (shapesIdsToRemove.length) {
           // add a little delay, wee need to make sure children are updated first
           setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
+        }
+        if (shapesIdsToAdd.length) {
+          shapesIdsToAdd.forEach((id) => {
+            persistShapeAndChildren(id, e);
+          });
         }
       }}
 
