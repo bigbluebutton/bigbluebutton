@@ -254,11 +254,9 @@ class PresentationToolbar extends PureComponent {
       startPoll,
       currentSlide,
       slidePosition,
-      tldrawAPI,
       toolbarWidth,
       multiUserSize,
       multiUser,
-      isZoomed,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -388,12 +386,10 @@ class PresentationToolbar extends PureComponent {
                   zoomValue={zoom}
                   currentSlideNum={currentSlideNum}
                   change={this.change}
-                  minBound={0.1}
-                  maxBound={5}
+                  minBound={HUNDRED_PERCENT}
+                  maxBound={MAX_PERCENT}
                   step={STEP}
                   isMeteorConnected={isMeteorConnected}
-                  tldrawAPI={tldrawAPI}
-                  isZoomed={isZoomed}
                 />
               </TooltipContainer>
             ) : null}
@@ -415,7 +411,7 @@ class PresentationToolbar extends PureComponent {
               icon="fit_to_width"
               size="md"
               circle
-              onClick={() => this.props.tldrawAPI.zoomToFit()}
+              onClick={fitToWidthHandler}
               label={intl.formatMessage(intlMessages.fitToPage)}
               hideLabel
             />

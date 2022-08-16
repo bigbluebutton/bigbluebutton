@@ -37,8 +37,8 @@ case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: 
 
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg" }
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
-case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xCamera: Double,
-                                       yCamera: Double, zoom: Double)
+case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
 
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg" }
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
@@ -288,8 +288,8 @@ case class SetPresentationDownloadableEvtMsgBody(podId: String, presentationId: 
 
 object ResizeAndMovePageEvtMsg { val NAME = "ResizeAndMovePageEvtMsg" }
 case class ResizeAndMovePageEvtMsg(header: BbbClientMsgHeader, body: ResizeAndMovePageEvtMsgBody) extends BbbCoreMsg
-case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pageId: String, xCamera: Double,
-                                       yCamera: Double, zoom: Double)
+case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
 
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" }
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg

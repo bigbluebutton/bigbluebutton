@@ -517,19 +517,13 @@ def panzoom_viewbox(panzoom)
   [x, y, w, h]
 end
 
-def panzooms_emit_event(rec, panzoom, tldraw)
+def panzooms_emit_event(rec, panzoom)
   panzoom_in = panzoom[:in]
   return if panzoom_in == panzoom[:out]
 
-  if !tldraw
-    rec.event(timestamp: panzoom_in) do
-      x, y, w, h = panzoom_viewbox(panzoom)
-      rec.viewBox("#{x} #{y} #{w} #{h}")
-    end
-  else 
-    rec.event(timestamp: panzoom_in) do
-      rec.cameraAndZoom("#{panzoom[:x_camera]} #{panzoom[:y_camera]} #{panzoom[:zoom]}")
-    end
+  rec.event(timestamp: panzoom_in) do
+    x, y, w, h = panzoom_viewbox(panzoom)
+    rec.viewBox("#{x} #{y} #{w} #{h}")
   end
 end
 
@@ -1009,48 +1003,31 @@ def process_presentation(package_dir)
       slide_width = slide[:width]
       slide_height = slide[:height]
       if panzoom &&
-        (panzoom[:deskshare] == deskshare) &&
-        ((!tldraw &&
          (panzoom[:x_offset] == current_x_offset) &&
          (panzoom[:y_offset] == current_y_offset) &&
          (panzoom[:width_ratio] == current_width_ratio) &&
          (panzoom[:height_ratio] == current_height_ratio) &&
          (panzoom[:width] == slide_width) &&
-         (panzoom[:height] == slide_height)) ||
-        (tldraw &&
-         (panzoom[:x_camera] == current_x_camera) &&
-         (panzoom[:y_camera] == current_y_camera) &&
-         (panzoom[:zoom] == current_zoom))
-        )
+         (panzoom[:height] == slide_height) &&
+         (panzoom[:deskshare] == deskshare)
         BigBlueButton.logger.info('Panzoom: skipping, no changes')
         panzoom_changed = false
       else
         if panzoom
           panzoom[:out] = timestamp
-          panzooms_emit_event(panzooms_rec, panzoom, tldraw)
+          panzooms_emit_event(panzooms_rec, panzoom)
         end
-        if !tldraw
-          BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
-          panzoom = {
-            x_offset: current_x_offset,
-            y_offset: current_y_offset,
-            width_ratio: current_width_ratio,
-            height_ratio: current_height_ratio,
-            width: slide[:width],
-            height: slide[:height],
-            in: timestamp,
-            deskshare: deskshare,
-          }
-        else 
-          BigBlueButton.logger.info("Panzoom: #{current_x_camera} #{current_y_camera} #{current_zoom} (#{slide_width}x#{slide_height})")
-          panzoom = {
-            x_camera: current_x_camera,
-            y_camera: current_y_camera,
-            zoom: current_zoom,
-            in: timestamp,
-            deskshare: deskshare,
-          }
-        end
+        BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
+        panzoom = {
+          x_offset: current_x_offset,
+          y_offset: current_y_offset,
+          width_ratio: current_width_ratio,
+          height_ratio: current_height_ratio,
+          width: slide[:width],
+          height: slide[:height],
+          in: timestamp,
+          deskshare: deskshare,
+        }
         panzooms << panzoom
       end
     end
@@ -1094,7 +1071,7 @@ def process_presentation(package_dir)
   svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   panzoom = panzooms.last
   panzoom[:out] = last_timestamp
-  panzooms_emit_event(panzooms_rec, panzoom, tldraw)
+  panzooms_emit_event(panzooms_rec, panzoom)
   cursor = cursors.last
   cursor[:out] = last_timestamp
   cursors_emit_event(cursors_rec, cursor, tldraw)

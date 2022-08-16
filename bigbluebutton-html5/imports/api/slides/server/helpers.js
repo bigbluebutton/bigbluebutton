@@ -8,8 +8,8 @@ const calculateSlideData = (slideData) => {
   return {
     width,
     height,
-    x: ((-xOffset * 2) * width) / 100,
-    y: ((-yOffset * 2) * height) / 100,
+    x: xOffset,
+    y: yOffset,
     viewBoxWidth: (width * widthRatio) / 100,
     viewBoxHeight: (height * heightRatio) / 100,
   };

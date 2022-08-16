@@ -10,9 +10,10 @@ export default function resizeSlide(meetingId, slide) {
     podId,
     presentationId,
     pageId,
-    zoom,
-    xCamera,
-    yCamera,
+    widthRatio,
+    heightRatio,
+    xOffset,
+    yOffset,
   } = slide;
 
   const selector = {
@@ -36,13 +37,15 @@ export default function resizeSlide(meetingId, slide) {
     const slideData = {
       width,
       height,
-      xCamera,
-      yCamera,
-      zoom,
+      xOffset,
+      yOffset,
+      widthRatio,
+      heightRatio,
     };
+    const calculatedData = calculateSlideData(slideData);
 
     const modifier = {
-      $set: slideData,
+      $set: calculatedData,
     };
 
     try {
