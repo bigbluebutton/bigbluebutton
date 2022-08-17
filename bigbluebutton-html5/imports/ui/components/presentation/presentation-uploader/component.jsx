@@ -749,7 +749,7 @@ class PresentationUploader extends Component {
     let converted = 0;
 
     let presentationsSorted = presentations
-      .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
+      .filter((p) => (p.upload.progress || p.upload.error || p.conversion.status) && p.file)
       .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
       .sort((a, b) => a.conversion.done - b.conversion.done);
 
@@ -994,7 +994,7 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItemStatus(item) {
-    const { intl } = this.props;
+    const { intl, fileSizeMax } = this.props;
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -1008,13 +1008,13 @@ class PresentationUploader extends Component {
     const constraint = {};
 
     if (item.upload.done && item.upload.error) {
-      if (item.conversion.status === 'FILE_TOO_LARGE') {
-        constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-      }
-
-      if (item.upload.progress < 100) {
-        const errorMessage = intlMessages.badConnectionError;
-        return intl.formatMessage(errorMessage);
+      if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status === 413) {
+        constraint['0'] = (fileSizeMax / 1000 / 1000).toFixed(2);
+      } else {
+        if (item.upload.progress < 100) {
+          const errorMessage = intlMessages.badConnectionError;
+          return intl.formatMessage(errorMessage);
+        }
       }
 
       const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
