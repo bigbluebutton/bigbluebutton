@@ -129,7 +129,8 @@ class Presentation extends PureComponent {
   }
 
   handlePanShortcut(e) {
-    if (e.keyCode === SPACE) {
+    const { userIsPresenter } = this.props;
+    if (e.keyCode === SPACE && userIsPresenter) {
       switch(e.type) {
         case 'keyup':
           return this.state.isPanning && this.setIsPanning();
