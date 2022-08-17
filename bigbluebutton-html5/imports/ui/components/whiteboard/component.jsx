@@ -141,11 +141,12 @@ export default function Whiteboard(props) {
       if (tldrawAPI && stack) tldrawAPI.stack = stack;
     }
 
-    // move poll result text to bottom right
+    // move poll and questionQuiz result text to bottom right
     if (next.pages[curPageId]) {
-      const pollResults = Object.entries(next.pages[curPageId].shapes)
-                                .filter(([id, shape]) => shape.name.includes("poll-result"))
-      for (const [id, shape] of pollResults) {
+      const pollAndQuizResults = Object.entries(next.pages[curPageId].shapes)
+                                .filter(([id, shape]) => shape.name.includes("poll-result") || 
+                                shape.name.includes("question-quiz-result"))
+      for (const [id, shape] of pollAndQuizResults) {
         if (_.isEqual(shape.point, [0, 0])) {
           const shapeBounds = tldrawAPI?.getShapeBounds(id);
           if (shapeBounds) {

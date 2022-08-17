@@ -64,6 +64,11 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.correctOptionLabel',
     description: 'Quiz results correct lable',
   },
+  questioningLabel: {
+    id: 'app.questionQuiz.questionQuizPaneTitle',
+    description: 'Quiz haeder title',
+  },
+  
 });
 
 const isCorrectOption = (opt) => {
@@ -102,14 +107,14 @@ const getQuestionQuizResultsText = (isDefaultQuestionQuiz, answers, numResponden
         ? intl.formatMessage(questionQuizAnswerIds[item.key.toLowerCase()])
         : item.key;
       resultString += isCorrectOpt ? `<p style=${correctOptionVoteStyles}>${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>` : 
-      `<p style=${IncorrectOptionVoteStyles}>${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`;
+      `<p style=${IncorrectOptionVoteStyles}>${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>\n`;
     } else {
-      resultString += isCorrectOpt ? `<p style=${correctOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`:
-      `<p style=${IncorrectOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</p>`;
+      resultString += isCorrectOpt ? `<span style=${correctOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</span>\n`:
+      `<span style=${IncorrectOptionVoteStyles}>${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}</span>\n`;
       optionsString += isCorrectOpt ? 
-      `<p style=${correctOptionStyles}>${item.id + 1}:${item.key.trim()
-        .replace(CORRECT_OPTION_SYMBOL,
-        ` (${intl.formatMessage(intlMessages.questionQuizCorrectLabel)})`)}</p>`
+      `<span style=${correctOptionStyles}>${item.id + 1}:${item.key.trim()
+        .substring(0, item.key.length - CORRECT_OPTION_SYMBOL.length)} (${intl.
+          formatMessage(intlMessages.questionQuizCorrectLabel)})\n</span>`
       : `${item.id + 1}: ${item.key}\n`;
     }
   });
@@ -141,7 +146,7 @@ const getQuestionQuizResultString = (questionQuizResultData, intl) => {
 
   let questionQuizText = resultString;
   if (!ísDefault) {
-    questionQuizText += formatBoldBlack(`<br/>${intl.formatMessage(intlMessages.legendTitle)}<br/>`);
+    questionQuizText += formatBoldBlack(`\n${intl.formatMessage(intlMessages.legendTitle)}<br/>`);
     questionQuizText += optionsString;
   }
 
@@ -149,7 +154,7 @@ const getQuestionQuizResultString = (questionQuizResultData, intl) => {
   if (questionQuizQuestion.trim() !== '') {
     const sanitizedQuestionQuizQuestion = sanitize(questionQuizQuestion.split('<br#>').join(' '));
 
-    questionQuizText = `${formatBoldBlack(intl.formatMessage(intlMessages.questionQuizQuestionTitle))}<br/>${sanitizedQuestionQuizQuestion}<br/><br/>${formatBoldBlack(intl.formatMessage(intlMessages.questionQuizStatsVotesLabel))}<br/>${questionQuizText}`;
+    questionQuizText = `${formatBoldBlack(intl.formatMessage(intlMessages.questioningLabel) + " " + intl.formatMessage(intlMessages.questionQuizQuestionTitle))}<br/>${sanitizedQuestionQuizQuestion}<br/><br/>${formatBoldBlack(intl.formatMessage(intlMessages.questionQuizStatsVotesLabel))}<br/>${questionQuizText}`;
   }
 
   return questionQuizText;

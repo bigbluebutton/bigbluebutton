@@ -35,11 +35,7 @@ import {
 import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
-<<<<<<< HEAD
-import ActionsBarContainer from '../actions-bar/container';
 import { makeCall } from '../../services/api';
-=======
->>>>>>> upstream/v2.6.x-release
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
 
@@ -120,10 +116,8 @@ const AppContainer = (props) => {
   && !_.isEqual(prevRandomUser, randomlySelectedUser)
   && randomlySelectedUser.length > 0
   && !isModalOpen;
-<<<<<<< HEAD
   // const currentQuestionQuiz = QuestionQuizs.findOne({})
   const currentQuestionQuiz = makeCall("getCurrentQuestionQuiz")
-=======
 
   const setPushLayout = () => {
     LayoutService.setPushLayout(pushLayout);
@@ -142,7 +136,6 @@ const AppContainer = (props) => {
     });
   };
 
->>>>>>> upstream/v2.6.x-release
   return currentUserId
     ? (
       <App
@@ -277,11 +270,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     currentUserEmoji: currentUserEmoji(currentUser),
-<<<<<<< HEAD
-    hasPublishedPoll: publishedPoll,
     hasPublishedQuestionQuiz: publishedQuestionQuiz,
-=======
->>>>>>> upstream/v2.6.x-release
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,

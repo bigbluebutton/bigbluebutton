@@ -300,11 +300,7 @@ class App extends Component {
       notify,
       currentUserEmoji,
       intl,
-<<<<<<< HEAD
-      hasPublishedPoll,
       hasPublishedQuestionQuiz,
-=======
->>>>>>> upstream/v2.6.x-release
       mountModal,
       deviceType,
       meetingLayout,
@@ -329,13 +325,10 @@ class App extends Component {
       pushLayoutMeeting,
       layoutContextDispatch,
       mountRandomUserModal,
-<<<<<<< HEAD
       currentUserId,
-      currentQuestionQuiz
-=======
+      currentQuestionQuiz,
       setPushLayout,
       setMeetingLayout,
->>>>>>> upstream/v2.6.x-release
     } = this.props;
 
     this.renderDarkMode();
@@ -465,22 +458,6 @@ class App extends Component {
           : 'user',
       );
     }
-<<<<<<< HEAD
-    if (!prevProps.meetingMuted && meetingMuted) {
-      notify(
-        intl.formatMessage(intlMessages.meetingMuteOn), 'info', 'mute',
-      );
-    }
-    if (prevProps.meetingMuted && !meetingMuted) {
-      notify(
-        intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
-      );
-    }
-    if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
-      notify(
-        intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
-      );
-    }
     if (!prevProps.hasPublishedQuestionQuiz && hasPublishedQuestionQuiz) {
       currentQuestionQuiz.then((res) => {
         const newQuestionQuiz = res;
@@ -515,18 +492,6 @@ class App extends Component {
         }
       })
     }
-    if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
-      notify(
-        intl.formatMessage(intlMessages.promotedLabel), 'info', 'user',
-      );
-    }
-    if (prevProps.currentUserRole === MODERATOR && currentUserRole === VIEWER) {
-      notify(
-        intl.formatMessage(intlMessages.demotedLabel), 'info', 'user',
-      );
-    }
-=======
->>>>>>> upstream/v2.6.x-release
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
   }

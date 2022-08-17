@@ -6,6 +6,7 @@ import { Slides } from '/imports/api/slides';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import PollService from '/imports/ui/components/poll/service';
+import QuestionQuizService from '/imports/ui/components/question-quiz/service'
 import logger from '/imports/startup/client/logger';
 
 const Annotations = new Mongo.Collection(null);
@@ -315,7 +316,8 @@ const getShapes = (whiteboardId, curPageId, intl) => {
   let result = {};
 
   annotations.forEach((annotation) => {
-    if (annotation.annotationInfo.questionType) {
+    const annotationInfo = annotation.annotationInfo
+    if (annotationInfo.questionType && !annotationInfo.isQuestionQuiz) {
       // poll result, convert it to text and create tldraw shape
       const pollResult = PollService.getPollResultString(annotation.annotationInfo, intl)
         .split('<br/>').join('\n').replace( /(<([^>]+)>)/ig, '');
@@ -335,7 +337,30 @@ const getShapes = (whiteboardId, curPageId, intl) => {
           color: "black",
           textAlign: "start",
           font: "script",
-          dash: "draw"
+          dash: "draw",
+        },
+      }
+    }
+    if (annotationInfo.isQuestionQuiz) {
+      const quizResult = QuestionQuizService.getQuestionQuizResultString(annotation.annotationInfo, intl)
+        .split('<br/>').join('\n').replace( /(<([^>]+)>)/ig, '');
+      annotation.annotationInfo = {
+        childIndex: 2,
+        id: annotation.annotationInfo.id,
+        name: `question-quiz-result-${annotation.annotationInfo.id}`,
+        type: "text",
+        text: quizResult,
+        parentId: `${curPageId}`,
+        point: [0, 0],
+        rotation: 0,
+        style: {
+          isFilled: false,
+          size: "medium",
+          scale: 1,
+          color: "cyan",
+          textAlign: "start",
+          font: "script",
+          dash: "draw",
         },
       }
     }

@@ -1,5 +1,9 @@
 import { makeCall } from '/imports/ui/services/api';
+import { isChatEnabled } from '/imports/ui/services/features';
 
+const QUESTION_QUIZ_CHAT_MESSAGE = Meteor.settings.public.questionQuiz.chatMessage;
+
+const isPrivateChatAllowed = isChatEnabled() && QUESTION_QUIZ_CHAT_MESSAGE
 const sortUsers = (a, b) => {
   const sortByResponse = (a, b) => {
     const DEFAULT_CHAR = '-';
@@ -34,5 +38,5 @@ const sortUsers = (a, b) => {
 
 export default {
   sortUsers,
-  publishQuestionQuiz: () => makeCall('publishQuestionQuiz'),
+  publishQuestionQuiz: (messageLabels, notAttemptedUsers) => makeCall('publishQuestionQuiz',isPrivateChatAllowed, messageLabels, notAttemptedUsers),
 };

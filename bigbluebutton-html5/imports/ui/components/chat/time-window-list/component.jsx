@@ -286,12 +286,9 @@ class TimeWindowList extends PureComponent {
       && timeWindowsValues.length >= scrollPosition
       && !userScrolledBack
     );
-<<<<<<< HEAD
-=======
 
     const paddingValue = convertRemToPixels(2);
 
->>>>>>> upstream/v2.6.x-release
     return (
       [
         <Styled.MessageListWrapper

@@ -43,6 +43,42 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.liveResult.secretLabel',
     description: 'label shown instead of users in quiz responses if quiz is secret',
   },
+  questioningLabel: {
+    id: 'app.questionQuiz.questionQuizPaneTitle',
+    description: 'Quiz haeder title',
+  },
+  questionQuizStatsVotesLabel: {
+    id: 'app.poll.liveResult.responsesTitle',
+    description: 'Quiz stats votes title label.',
+  },
+  optionsTitle: {
+    id: 'app.questionQuiz.options.label',
+    description: 'heading for chat quiz legend',
+  },
+  questionQuizQuestionTitle: {
+    id: 'app.questionQuiz.question.label',
+    description: 'title displayed before quiz question',
+  },
+  questionQuizCorrectAnswer: {
+    id: "app.questionQuiz.correctOptionLabel",
+    description: "correct answer selected notification"
+  },
+  questionQuizIncorrectAnswer: {
+    id: "app.questionQuiz.incorrectOptionLabel",
+    description: "correct answer selected notification"
+  },
+  questionQuizUserInfoAnswer: {
+    id: "app.questionQuiz.info.answer",
+    description: "incorrect answer selected notification"
+  },
+  questionResultsTitle:{
+    id: "app.chat.questionQuizResult",
+    description: 'To show results heading'
+  },
+  notAttemptedQuizLabel: {
+    id: 'app.questionQuiz.chat.notAttempted.label',
+    description: 'Quiz results not attempted lable',
+  },
 });
 
 const getResponseString = (obj) => {
@@ -220,8 +256,20 @@ class LiveResult extends PureComponent {
               <Styled.PublishButton
                 disabled={!isMeteorConnected}
                 onClick={() => {
+                  const {users: notAttemptedUsers} = currentQuestionQuiz
+                  const messageLabels = {
+                    headerLabel: intl.formatMessage(intlMessages.questioningLabel),
+                    questionLabel: intl.formatMessage(intlMessages.questionQuizQuestionTitle),
+                    optionsLabel: intl.formatMessage(intlMessages.optionsTitle),
+                    correctOptLabel: intl.formatMessage(intlMessages.questionQuizCorrectAnswer),
+                    incorrectOptLabel: intl.formatMessage(intlMessages.questionQuizIncorrectAnswer),
+                    responseLabel: intl.formatMessage(intlMessages.questionQuizStatsVotesLabel),
+                    userAnswerLabel: intl.formatMessage(intlMessages.questionQuizUserInfoAnswer),
+                    questionResultsLabel: intl.formatMessage(intlMessages.questionResultsTitle),
+                    notAttemptedQuizLabel: intl.formatMessage(intlMessages.notAttemptedQuizLabel)
+                  }
                   Session.set('questionQuizInitiated', false);
-                  Service.publishQuestionQuiz();
+                  Service.publishQuestionQuiz(messageLabels, notAttemptedUsers);
                   stopQuestionQuiz();
                 }}
                 label={intl.formatMessage(intlMessages.publishLabel)}

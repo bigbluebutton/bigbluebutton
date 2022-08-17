@@ -955,29 +955,6 @@ class Presentation extends PureComponent {
     }
 
     return (
-<<<<<<< HEAD
-      <Styled.PresentationContainer
-        role="region"
-        ref={(ref) => { this.refPresentationContainer = ref; }}
-        style={{
-          top: presentationBounds.top,
-          left: presentationBounds.left,
-          right: presentationBounds.right,
-          width: presentationBounds.width,
-          height: presentationBounds.height,
-          display: layoutSwapped ? 'none' : 'flex',
-          zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-          background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
-            ? colorContentBackground
-            : null,
-        }}
-        data-test="presentationContainer"
-      >
-        {isFullscreen && <PollingContainer />}
-
-        {isFullscreen && <QuestioningContainer />}
-
-=======
       <>
         <Styled.PresentationContainer
           role="region"
@@ -1015,9 +992,9 @@ class Presentation extends PureComponent {
             zoomChanger={this.zoomChanger}
           />
           {isFullscreen && <PollingContainer />}
+          {isFullscreen && <QuestioningContainer />}
           {this.renderPresentationToolbar()}
         {/* 
->>>>>>> upstream/v2.6.x-release
         <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
           <Styled.WhiteboardSizeAvailable ref={(ref) => { this.refWhiteboardArea = ref; }} />
           <Styled.SvgContainer
