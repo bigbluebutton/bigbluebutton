@@ -10,6 +10,7 @@ test.describe.parallel('Options', () => {
 });
 
 test.describe.parallel('Settings', () => {
+  // https://docs.bigbluebutton.org/2.6/release-tests.html#application-settings
   test(`Locales`, async ({ browser, page }) => {
     test.slow();
     const language = new Options(browser, page);
