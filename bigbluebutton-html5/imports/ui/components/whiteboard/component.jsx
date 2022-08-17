@@ -48,6 +48,7 @@ export default function Whiteboard(props) {
     isZoomed,
     isMultiUserActive,
     isRTL,
+    isPanning,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -61,6 +62,7 @@ export default function Whiteboard(props) {
     assets: {},
   });
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const [forcePanning, setForcePanning] = React.useState(false);
   const [cameraFitSlide, setCameraFitSlide] = React.useState({point: [0, 0], zoom: 0});
   const prevShapes = usePrevious(shapes);
 
@@ -210,37 +212,28 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     if (hasWBAccess || isPresenter) {
       const tdTools = document.getElementById("TD-Tools"); 
-      const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
-      if (tdPrimaryTools) tdPrimaryTools.style.flexDirection = 'column';
-  
       if (tdTools) {
-        tdTools.firstChild.style.flexDirection = 'column';
-        tdTools.parentElement.style.overflow = 'visible';
-        tdTools.style.bottom = '6rem';
-        tdTools.style.right = '0.5rem';
-        tdTools.style.position = 'absolute';
-
         // removes tldraw native help menu button
         tdTools.parentElement?.nextSibling?.remove();
-
-        if (isRTL) {
-          tdTools.style.left = '0.5rem';
-          tdTools.style.right = 'auto';
-        }
       }
-  
       // removes image tool from the tldraw toolbar
       document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
+    }
 
-      const tdStyles = document.getElementById("TD-Styles");
-      if (tdStyles) {
-        document.getElementById("TD-Styles").style.marginRight = isRTL ? 'auto' : '2.5rem';
-        document.getElementById("TD-Styles").style.marginLeft = isRTL ? '2.5rem' : 'auto';
-      }
+    if (tldrawAPI) {
+      tldrawAPI.isForcePanning = isPanning;
     }
   });
 
+  React.useEffect(() => {
+    if (tldrawAPI) {
+      tldrawAPI.isForcePanning = isPanning;
+    }
+  }, [isPanning]);
+
   const onMount = (app) => {
+    app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
+    app.setSetting('dockPosition', isRTL ? 'left' : 'right');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -316,7 +309,7 @@ export default function Whiteboard(props) {
 
   const editableWB = (
     <Tldraw
-      key={`wb-${document?.documentElement?.dir}-${document.getElementById('Navbar')?.style?.width}`}
+      key={`wb-${document?.documentElement?.dir}-${document.getElementById('Navbar')?.style?.width}-${forcePanning}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
@@ -531,6 +524,8 @@ export default function Whiteboard(props) {
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
+        isPanning={isPanning}
+
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
       </Cursors>
