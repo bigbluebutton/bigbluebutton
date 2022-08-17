@@ -9,6 +9,9 @@ const ClosedCaptionToggleButton = styled(Button)`
       background-color: transparent !important;
       border-color: ${colorWhite} !important;
     }
+    i {
+      margin-top: .4rem;
+    }
   `}
 `;
 

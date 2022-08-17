@@ -47,6 +47,7 @@ export default function Whiteboard(props) {
     zoomChanger,
     isZoomed,
     isMultiUserActive,
+    isRTL,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -207,7 +208,21 @@ export default function Whiteboard(props) {
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
+  React.useEffect(() => {
+    if (hasWBAccess || isPresenter) {
+      const tdTools = document.getElementById("TD-Tools"); 
+      if (tdTools) {
+        // removes tldraw native help menu button
+        tdTools.parentElement?.nextSibling?.remove();
+      }
+      // removes image tool from the tldraw toolbar
+      document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
+    }
+  });
+
   const onMount = (app) => {
+    app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
+    app.setSetting('dockPosition', isRTL ? 'left' : 'right');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -248,7 +263,7 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onPatch = (s, reason) => {
+  const onPatch = (e, t, reason) => {
     if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       if (cameraFitSlide.zoom === 0) {
         //can happen when the slide finish uploading
@@ -345,8 +360,7 @@ export default function Whiteboard(props) {
         }
       }}
       onCommand={(e, s, g) => {
-
-        if (s.includes('move_to_page')) {
+        if (s?.id.includes('move_to_page')) {
           let groupShapes = [];
           let nonGroupShapes = [];
           let movedShapes = {};
@@ -374,7 +388,7 @@ export default function Whiteboard(props) {
           return;
         }
 
-        if (s.includes('ungroup')) {
+        if (s?.id.includes('ungroup')) {
           e?.selectedIds?.map(id => {
             persistShape(e.getShape(id), whiteboardId);
           })
@@ -391,9 +405,10 @@ export default function Whiteboard(props) {
 
         const conditions = [
           "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
-          "align", "move", "delete", "create", "flip", "toggle", "group", "translate"
+          "align", "move", "delete", "create", "flip", "toggle", "group", "translate",
+          "transform_single", "arrow", "edit", "erase", "rotate",   
         ]
-        if (conditions.some(el => s?.startsWith(el))) {
+        if (conditions.some(el => s?.id?.startsWith(el))) {
           e.selectedIds.forEach(id => {
             const shape = e.getShape(id);
             const shapeBounds = e.getShapeBounds(id);

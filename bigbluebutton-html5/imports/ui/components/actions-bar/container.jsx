@@ -29,6 +29,8 @@ const ActionsBarContainer = (props) => {
 
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
+  if (actionsBarStyle.display === false) return null;
+
   return (
     <ActionsBar {
       ...{

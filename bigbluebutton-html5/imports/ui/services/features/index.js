@@ -59,3 +59,11 @@ export function isVirtualBackgroundsEnabled() {
 export function isCustomVirtualBackgroundsEnabled() {
   return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
 }
+
+export function isDownloadPresentationWithAnnotationsEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadable;
+}
+
+export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
+}
