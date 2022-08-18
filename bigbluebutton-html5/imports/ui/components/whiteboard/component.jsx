@@ -163,16 +163,10 @@ export default function Whiteboard(props) {
         const zoom = calculateZoom(slidePosition.width, slidePosition.height)
         tldrawAPI?.setCamera([0, 0], zoom);
         const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
-        console.log("  ", tldrawAPI?.viewport,  viewedRegionH, 0 ,0);
         zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
       } else {
         const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
-
-        if (fitToWidth) {
-          tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
-        } else {
-          tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
-        }
+        tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
       }
     }
   }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
@@ -204,6 +198,14 @@ export default function Whiteboard(props) {
       tldrawAPI?.zoomTo(zoomCamera);
     }
   }, [zoomValue]);
+
+  // update zoom when presenter changes
+  React.useEffect(() => {
+    if (tldrawAPI && isPresenter && curPageId && slidePosition) {
+      const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)   
+      tldrawAPI.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
+    }
+  }, [isPresenter]);
 
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
@@ -251,8 +253,12 @@ export default function Whiteboard(props) {
     if (curPageId) {
       app.changePage(curPageId);
       const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)
-      app.setCamera([slidePosition.x, slidePosition.y], zoom);
-      setIsMounting(false);
+      // wee need this to ensure tldraw updates the viewport size
+      // after re-mounting
+      setTimeout(() => {      
+        app.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
+        setIsMounting(false);
+      }, 50);
     }
   };
 
