@@ -157,10 +157,23 @@ class RemoteDesktop extends Component {
       return;
     }
 
+    this.player.rfb._windowResize();
+  }
+
+  componentDidUpdate(prevProps) {
+    const {
+      presentationBounds,
+    } = this.props;
+
+    const {
+      presentationBounds: prevPresentationBounds,
+    } = prevProps;
+
     // There's currently a "FIXME: Use ResizeObserver" comment in the noVNC code.
     // Until noVNC can listen for resize events, this is how we tell it its geometry has changed.
     // Once that's fixed, there should be no need for a componentDidUpdate function at all.
-    this.player.rfb._windowResize();
+
+    if (presentationBounds !== prevPresentationBounds) this.player.rfb._windowResize();
   }
 
   onFullscreenChange = () => {
