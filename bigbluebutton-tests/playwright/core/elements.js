@@ -306,5 +306,5 @@ exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to diff
 exports.exportPlainButton = 'span[id="exportplain"]';
 
 // About modal
-exports.showAboutModalButton = 'body div[id="default-dropdown-menu"] div:nth-child(3) ul:nth-child(1) li:nth-child(3)';
-exports.aboutModal = 'div[aria-label="About"]';
+exports.showAboutModalButton = 'li[data-test="aboutModal"]';
+exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
