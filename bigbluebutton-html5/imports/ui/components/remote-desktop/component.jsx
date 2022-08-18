@@ -4,12 +4,10 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import FullscreenService from '../fullscreen-button/service';
 import FullscreenButtonContainer from '../fullscreen-button/container';
-import DesktopCloseButton from './close-button/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import VncDisplay from 'react-vnc-display';
 import Auth from '/imports/ui/services/auth';
 import { notify } from '/imports/ui/services/notification';
-import MediaService from '../media/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 
 import { styles } from './styles';
@@ -242,7 +240,6 @@ class RemoteDesktop extends Component {
          */
         onFocus={() => this.transferClipboardText('div.onFocus')}
       >
-        <DesktopCloseButton toggleSwapLayout={MediaService.toggleSwapLayout}/>
         {this.renderFullscreenButton()}
         <VncDisplay
           className={styles.remoteDesktop}
