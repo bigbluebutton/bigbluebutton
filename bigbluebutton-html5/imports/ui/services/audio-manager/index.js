@@ -615,22 +615,32 @@ class AudioManager {
       return Promise.resolve();
     }
 
+    const currentDeviceId = this.inputDevice?.id ?? 'none';
+
     const handleChangeInputDeviceSuccess = (inputDeviceId) => {
+      logger.debug({
+        logCode: 'audiomanager_input_device_change',
+        extraInfo: {
+          deviceId: currentDeviceId,
+          newDeviceId: inputDeviceId,
+        },
+      }, `Microphone input device changed: from ${currentDeviceId} to ${deviceId}`);
+
       this.inputDevice.id = inputDeviceId;
+
       return Promise.resolve(inputDeviceId);
     };
 
     const handleChangeInputDeviceError = (error) => {
-      logger.error(
-        {
-          logCode: 'audiomanager_error_getting_device',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
+      logger.error({
+        logCode: 'audiomanager_error_getting_device',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          deviceId: currentDeviceId,
+          newDeviceId: deviceId,
         },
-        `Error getting microphone - {${error.name}: ${error.message}}`
-      );
+      }, `Error getting microphone - {${error.name}: ${error.message}}`);
 
       const { MIC_ERROR } = AudioErrors;
       const disabledSysSetting = error.message.includes(
@@ -659,16 +669,46 @@ class AudioManager {
     // a new one will be created for the new stream
     this.inputStream = null;
     this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
+      const currentDeviceId = this.inputDevice?.id ?? 'none';
+
+      logger.debug({
+        logCode: 'audiomanager_input_live_device_change',
+        extraInfo: {
+          deviceId: currentDeviceId,
+          newDeviceId: deviceId,
+        },
+      }, `Microphone input device (live) changed: from ${currentDeviceId} to ${deviceId}`);
       this.setSenderTrackEnabled(!this.isMuted);
       this.inputStream = stream;
     });
   }
 
-  async changeOutputDevice(deviceId, isLive) {
-    await this.bridge.changeOutputDevice(
-      deviceId || DEFAULT_OUTPUT_DEVICE_ID,
-      isLive
-    );
+  changeOutputDevice(deviceId, isLive) {
+    const targetDeviceId = deviceId || DEFAULT_OUTPUT_DEVICE_ID;
+    const currentDeviceId = this.bridge.outputDeviceId ?? 'none';
+
+    return this.bridge.changeOutputDevice(targetDeviceId, isLive).then((outputDeviceId) => {
+      logger.debug({
+        logCode: 'audiomanager_output_device_change',
+        extraInfo: {
+          deviceId: currentDeviceId,
+          newDeviceId: outputDeviceId,
+        },
+      }, `Audio output device changed: from ${currentDeviceId || 'default'} to ${outputDeviceId || 'default'}`);
+      return outputDeviceId;
+    }).catch((error) => {
+      logger.error({
+        logCode: 'audiomanager_output_device_change_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          deviceId: currentDeviceId,
+          newDeviceId: targetDeviceId,
+        },
+      }, `Error changing output device - {${error.name}: ${error.message}}`);
+
+      throw error;
+    });
   }
 
   set inputDevice(value) {
