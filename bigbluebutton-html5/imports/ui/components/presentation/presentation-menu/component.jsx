@@ -189,7 +189,7 @@ const PresentationMenu = (props) => {
 
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
-              const svgString = copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
               const container = document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
