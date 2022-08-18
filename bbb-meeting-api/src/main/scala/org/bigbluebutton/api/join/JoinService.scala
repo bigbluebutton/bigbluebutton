@@ -1,11 +1,9 @@
-package org.bigbluebutton.service
+package org.bigbluebutton.api.join
 
 import org.apache.commons.lang3.RandomStringUtils
-import org.bigbluebutton.model.{CreateParams, JoinParams}
-
-case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
-                        extUserId: String, authToken: String, avatarURL: String,
-                        guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
+import org.bigbluebutton.api.create.CreateParams
+import org.bigbluebutton.common2.api.RegisterUser
+import org.bigbluebutton.service.{ParamsUtils, Utils}
 
 object Roles {
   val ROLE_MODERATOR = "MODERATOR"
@@ -14,7 +12,7 @@ object Roles {
   val LIST = List(ROLE_MODERATOR, ROLE_ATTENDEE)
 }
 
-object Join {
+object JoinService {
   @throws(classOf[Exception])
   def createRegisterUser(
                           meetingId:            String,

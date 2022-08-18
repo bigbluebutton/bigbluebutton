@@ -1,23 +1,17 @@
-package org.bigbluebutton.controller
+package org.bigbluebutton.api.create
 
 import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{ContentTypes, HttpCharsets, HttpEntity, HttpResponse, MediaTypes, StatusCodes}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Route, StandardRoute}
+import akka.http.scaladsl.server.Route
 import com.typesafe.config.ConfigFactory
-import org.bigbluebutton.model.{ApiResponseFailure, ApiResponseSuccess, CreateResponse, Greeting}
-import org.bigbluebutton.service.{CreateService, English, French, MeetingService, Spanish}
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+import org.bigbluebutton.api.ControllerStandard
+import org.bigbluebutton.common2.api.{ApiResponseFailure, ApiResponseSuccess}
+import org.bigbluebutton.service.MeetingService
 
-case object Create {
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  def htmlTextResponse(greeting: Greeting): StandardRoute =
-    complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, s"<h1>${greeting.toString}</h1>"))
-
-  def jsonResponse(greeting: Greeting): StandardRoute =
-    complete(HttpEntity(ContentTypes.`application/json`, greeting.toJson.toString()))
-
+case object CreateController extends ControllerStandard {
   val route: Route = (pathPrefix("create") & extractLog) { log =>
     log.info("create")
 
@@ -52,7 +46,16 @@ case object Create {
           val defaultprops = CreateService.createDefaultProp(meetingID, params, config)
 
 
-          val meetingService = MeetingService
+          //          remoteSelection ! "sendBla"
+
+          //          implicit val actorSystem: ActorSystem = ActorSystem()
+          //          val meetingActorRef = actorSystem.actorOf(AkkaRemoteActor.props())
+          val meetingService = new MeetingService()
+          //          val meetingService = MeetingService
+
+          meetingService.test().map {
+            case m: String => println(s"ele respondeu com $m")
+          }
 
 
           val entityFuture = meetingService.createMeeting(defaultprops).map {
@@ -61,7 +64,7 @@ case object Create {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
-                  CreateResponse.SuccessWithMeetingInfoResponse(msg,defaultprops).toXml.toString
+                  CreateResponse.SuccessWithMeetingInfoResponse(msg, defaultprops).toXml.toString
                 )
               )
             case ApiResponseFailure(msg, arg) =>
@@ -69,7 +72,7 @@ case object Create {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
-                  CreateResponse.FailedResponse("",msg).toXml.toString
+                  CreateResponse.FailedResponse("", msg).toXml.toString
                 )
               )
             case _ =>
@@ -77,7 +80,7 @@ case object Create {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   MediaTypes.`application/xml`.withCharset(HttpCharsets.`UTF-8`),
-                  CreateResponse.FailedResponse("","Error while creating meeting").toXml.toString
+                  CreateResponse.FailedResponse("", "Error while creating meeting").toXml.toString
                 )
               )
           }
@@ -86,36 +89,5 @@ case object Create {
         }
       }
     }
-//
-//    defaultResponsePathEnd() ~
-//    htmlRoute ~
-//    jsonRoute
   }
-
-  val jsonRoute: Route = pathPrefix("json") {
-    defaultResponsePathEnd() ~
-    langRoute(jsonResponse)
-  }
-
-
-  val htmlRoute: Route = pathPrefix("html") {
-    defaultResponsePathEnd(htmlTextResponse) ~
-    langRoute(htmlTextResponse)
-  }
-
-  def defaultResponsePathEnd(generateResponse: Greeting => StandardRoute = jsonResponse): Route = pathEnd {
-    generateResponse(English.getGreetings)
-  }
-
-  def langRoute(generateResponse: Greeting => StandardRoute): Route = pathPrefix("lang") {
-    extractUnmatchedPath {
-      lang => lang.toString match {
-        case en if en contains "en" => generateResponse(English.getGreetings)
-        case es if es contains "es" => generateResponse(Spanish.getGreetings)
-        case fr if fr contains "fr" => generateResponse(French.getGreetings)
-        case _ => generateResponse(English.getGreetings)
-      }
-    }
-  }
-
 }

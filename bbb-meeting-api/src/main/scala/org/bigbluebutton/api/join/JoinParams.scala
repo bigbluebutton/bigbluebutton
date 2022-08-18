@@ -1,4 +1,4 @@
-package org.bigbluebutton.model
+package org.bigbluebutton.api.join
 
 object JoinParams {
   val NAME = "name"

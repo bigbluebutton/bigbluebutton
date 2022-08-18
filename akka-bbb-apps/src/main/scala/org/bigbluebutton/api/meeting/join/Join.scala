@@ -3,10 +3,11 @@ package org.bigbluebutton.api.meeting.join
 import org.apache.commons.lang3.RandomStringUtils
 import org.bigbluebutton.api.meeting.{ParamsUtils, Utils}
 import org.bigbluebutton.api.meeting.create.CreateParams
+import org.bigbluebutton.common2.api.RegisterUser
 
-case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
-                        extUserId: String, authToken: String, avatarURL: String,
-                        guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
+//case class RegisterUser(meetingId: String, intUserId: String, name: String, role: String,
+//                        extUserId: String, authToken: String, avatarURL: String,
+//                        guest: Boolean, authed: Boolean, guestStatus: String, excludeFromDashboard: Boolean)
 
 object Roles {
   val ROLE_MODERATOR = "MODERATOR"

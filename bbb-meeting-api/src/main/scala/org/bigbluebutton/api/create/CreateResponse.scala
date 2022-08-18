@@ -1,4 +1,4 @@
-package org.bigbluebutton.model
+package org.bigbluebutton.api.create
 
 import org.bigbluebutton.common2.domain.DefaultProps
 
@@ -9,48 +9,52 @@ object CreateResponse {
       <response>
         <returncode>SUCCESS</returncode>
         <meetingID>
-          { defaultprops.meetingProp.extId }
+          {defaultprops.meetingProp.extId}
         </meetingID>
         <internalMeetingID>
-          { defaultprops.meetingProp.intId }
+          {defaultprops.meetingProp.intId}
         </internalMeetingID>
         <parentMeetingID>
-          { defaultprops.breakoutProps.parentId }
+          {defaultprops.breakoutProps.parentId}
         </parentMeetingID>
         <attendeePW>
-          { defaultprops.password.viewerPass }
+          {defaultprops.password.viewerPass}
         </attendeePW>
         <moderatorPW>
-          { defaultprops.password.moderatorPass }
+          {defaultprops.password.moderatorPass}
         </moderatorPW>
         <createTime>
-          { defaultprops.durationProps.createdTime }
+          {defaultprops.durationProps.createdTime}
         </createTime>
         <voiceBridge>
-          { defaultprops.voiceProp.telVoice }
+          {defaultprops.voiceProp.telVoice}
         </voiceBridge>
         <dialNumber>
-          { defaultprops.voiceProp.dialNumber }
+          {defaultprops.voiceProp.dialNumber}
         </dialNumber>
         <createDate>
-          { defaultprops.durationProps.createdDate }
+          {defaultprops.durationProps.createdDate}
         </createDate>
         <hasUserJoined>false</hasUserJoined>
         <duration>0</duration>
         <hasBeenForciblyEnded>false</hasBeenForciblyEnded>
         <messageKey/>
         <message>
-          { msg }
+          {msg}
         </message>
       </response>
   }
 
   case class FailedResponse(messageKey: String, msg: String) {
     def toXml: xml.Elem = <response>
-                            <returncode>FAILED</returncode>
-                            <messageKey>{ messageKey }</messageKey>
-                            <message>{ msg }</message>
-                          </response>
+      <returncode>FAILED</returncode>
+      <messageKey>
+        {messageKey}
+      </messageKey>
+      <message>
+        {msg}
+      </message>
+    </response>
   }
 
 }

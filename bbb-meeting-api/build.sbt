@@ -1,4 +1,5 @@
 import Dependencies._
+import sbt.Keys.libraryDependencies
 
 enablePlugins(JavaAppPackaging)
 
@@ -28,8 +29,14 @@ lazy val root = (project in file(".")).
         "com.typesafe.akka" %% "akka-remote" % akkaVersion,
         "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
         "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion,
+        "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
+        "com.softwaremill.akka-http-session" %% "core" % "0.7.0",
+        "com.softwaremill.akka-http-session" %% "jwt" % "0.7.0",
+        "io.aeron" % "aeron-driver" % "1.37.0",
+        "io.aeron" % "aeron-client" % "1.37.0",
         "org.scala-lang.modules" %% "scala-xml" % "2.1.0",
         "com.typesafe.akka" %% "akka-http-testkit" % "10.2.9",
+        "io.spray" % "spray-json_2.13" % "1.3.6",
         scalaTest % Test,
         bbbCommons,
         akkaHttpSessionCore,

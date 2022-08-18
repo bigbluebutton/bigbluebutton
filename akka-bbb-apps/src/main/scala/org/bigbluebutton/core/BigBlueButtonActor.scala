@@ -10,7 +10,8 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.api.meeting.join.RegisterUser
+import org.bigbluebutton.common2.api.RegisterUser
+import org.bigbluebutton.common2.api.{ ApiResponseFailure, ApiResponseSuccess, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg }
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
@@ -70,6 +71,8 @@ class BigBlueButtonActor(
     case msg: EndMeetingApiMsg          => handleEndMeetingApiMsg(msg, sender)
     case msg: RegisterUserApiMsg        => handleRegisterUserApiMsg(msg, sender)
     case msg: GetUserApiMsg             => handleGetUserApiMsg(msg, sender)
+    case "oi"                           => sender() ! "hehehehe"
+    case msg: String                    => println(s"ATENCAAAAAAAAAAAAO RECEBI $msg")
 
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)

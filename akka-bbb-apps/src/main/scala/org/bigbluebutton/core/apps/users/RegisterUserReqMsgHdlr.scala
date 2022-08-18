@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.common2.api.RegisterUserApiMsg
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.RegisterUserApiMsg
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder

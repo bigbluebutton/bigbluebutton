@@ -7,10 +7,9 @@ import akka.pattern.AskTimeoutException
 import akka.util.Timeout
 import org.bigbluebutton.{MeetingInfoAnalytics, SystemConfiguration}
 import org.bigbluebutton.api.meeting.MsgBuilder
-import org.bigbluebutton.api.meeting.join.RegisterUser
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, MeetingEndingEvtMsg, MeetingInfoAnalyticsServiceMsg}
-import org.bigbluebutton.core.api.{ApiResponse, ApiResponseFailure, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg}
+import org.bigbluebutton.common2.api.{ApiResponse, ApiResponseFailure, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg, RegisterUser}
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.service.MeetingService.meetings
 

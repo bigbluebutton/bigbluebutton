@@ -35,6 +35,7 @@ import org.bigbluebutton.core.apps.voice._
 import akka.actor.Props
 import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Resume
+import org.bigbluebutton.common2.api.{ EndMeetingApiMsg, RegisterUserApiMsg, GetUserApiMsg }
 import org.bigbluebutton.common2.msgs
 
 import scala.concurrent.duration._
@@ -42,7 +43,7 @@ import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.meeting.{ SyncGetMeetingInfoRespMsgHdlr, ValidateConnAuthTokenSysMsgHdlr }
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
-import org.bigbluebutton.core.models.Webcams.{ findAll }
+import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.{ hasAuthedUserJoined, isVoiceRecording }
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 

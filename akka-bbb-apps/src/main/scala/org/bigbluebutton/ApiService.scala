@@ -15,7 +15,7 @@ import api.meeting.create.{Create, CreateResponse}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.lang3.RandomStringUtils
 import org.bigbluebutton.api.meeting.join.Join
-import org.bigbluebutton.core.api.{ApiResponseFailure, ApiResponseSuccess, UserInfosApiMsg}
+import org.bigbluebutton.common2.api.{ApiResponseFailure, ApiResponseSuccess, UserInfosApiMsg}
 import com.softwaremill.session.CsrfDirectives._
 import com.softwaremill.session.CsrfOptions._
 import com.softwaremill.session.SessionDirectives._

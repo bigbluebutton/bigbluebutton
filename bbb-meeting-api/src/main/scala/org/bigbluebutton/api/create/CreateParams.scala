@@ -1,4 +1,4 @@
-package org.bigbluebutton.model
+package org.bigbluebutton.api.create
 
 object CreateParams {
   val ALLOW_START_STOP_RECORDING = "allowStartStopRecording"

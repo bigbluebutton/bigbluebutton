@@ -1,6 +1,6 @@
 package org.bigbluebutton.api.meeting
 
-import org.bigbluebutton.api.meeting.join.RegisterUser
+import org.bigbluebutton.common2.api.RegisterUser
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs._
 

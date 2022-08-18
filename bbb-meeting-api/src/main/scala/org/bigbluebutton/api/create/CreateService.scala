@@ -1,10 +1,9 @@
-package org.bigbluebutton.service
+package org.bigbluebutton.api.create
 
 import com.typesafe.config.Config
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang3.RandomStringUtils
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.model.CreateParams
 import org.bigbluebutton.service.{ParamsUtils, Utils}
 
 import scala.collection.mutable

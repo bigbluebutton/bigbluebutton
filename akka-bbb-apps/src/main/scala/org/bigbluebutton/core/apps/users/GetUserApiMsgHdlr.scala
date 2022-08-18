@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.apps.users
 
 import akka.actor.ActorRef
+import org.bigbluebutton.common2.api.{ApiResponseSuccess, UserInfosApiMsg, GetUserApiMsg}
 import org.bigbluebutton.common2.msgs.GetUsersMeetingReqMsg
-import org.bigbluebutton.core.api.{ ApiResponseSuccess, GetUserApiMsg, UserInfosApiMsg }
-import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x }
-import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.models.{RegisteredUsers, Roles, Users2x}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting, OutMsgRouter}
 
 trait GetUserApiMsgHdlr extends HandlerHelpers {
   this: UsersApp =>
