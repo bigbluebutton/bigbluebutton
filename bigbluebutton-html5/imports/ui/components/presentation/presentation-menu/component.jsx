@@ -89,7 +89,7 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    getScreenshotRef,
+    tldrawAPI,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
@@ -172,7 +172,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
           dataTest: "presentationSnapshot",
-          onClick: () => {
+          onClick: async () => {
             setState({
               loading: true,
               hasError: false,
@@ -189,38 +189,37 @@ const PresentationMenu = (props) => {
             });
 
             try {
-              const wbRef = document.getElementById('Navbar')?.nextSibling?.childNodes[1]?.querySelector('[tabindex = "0"]');
-              toPng(wbRef, {
-                width: window.screen.width,
-                height: window.screen.height,
-              }).then((data) => {
-                const anchor = document.createElement('a');
-                anchor.href = data;
-                anchor.setAttribute(
-                  'download',
-                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-                );
-                anchor.click();
-  
-                setState({
-                  loading: false,
-                  hasError: false,
-                });
-              }).catch((error) => {
-                logger.warn({
-                  logCode: 'presentation_snapshot_error',
-                  extraInfo: error,
-                });
-  
-                setState({
-                  loading: false,
-                  hasError: true,
-                });
+              const { copySvg, getShapes, currentPageId } = tldrawAPI;
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const container = document.createElement('div');
+              container.innerHTML = svgString;
+              const svgElem = container.firstChild;
+              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
+              const anchor = document.createElement('a');
+              anchor.href = data;
+              anchor.setAttribute(
+                'download',
+                `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
+              );
+              anchor.click();
+
+              setState({
+                loading: false,
+                hasError: false,
               });
-            } catch (err) {
+            } catch (e) {
+              setState({
+                loading: false,
+                hasError: true,
+              });
+
               logger.warn({
                 logCode: 'presentation_snapshot_error',
-                extraInfo: err,
+                extraInfo: e,
               });
             }
           },

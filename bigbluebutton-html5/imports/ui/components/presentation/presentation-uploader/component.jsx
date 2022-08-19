@@ -169,14 +169,6 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.unsupportedDocument',
     description: 'warns the user that the file extension is not supported',
   },
-  isDownloadable: {
-    id: 'app.presentationUploder.isDownloadableLabel',
-    description: 'presentation is available for downloading by all viewers',
-  },
-  isNotDownloadable: {
-    id: 'app.presentationUploder.isNotDownloadableLabel',
-    description: 'presentation is not available for downloading the viewers',
-  },
   removePresentation: {
     id: 'app.presentationUploder.removePresentationLabel',
     description: 'select to delete this presentation',
@@ -228,8 +220,54 @@ const intlMessages = defineMessages({
   uploadViewTitle: {
     id: 'app.presentationUploder.uploadViewTitle',
     description: 'view name apended to document title',
-  }
+  },
+  exportHint: {
+    id: 'app.presentationUploader.exportHint',
+    description: 'message to indicate the export presentation option',
+  },
+  exportToastHeader: {
+    id: 'app.presentationUploader.exportToastHeader',
+    description: 'exporting toast header',
+  },
+  exportToastHeaderPlural: {
+    id: 'app.presentationUploader.exportToastHeaderPlural',
+    description: 'exporting toast header in plural',
+  },
+  export: {
+    id: 'app.presentationUploader.export',
+    description: 'send presentation to chat',
+  },
+  exporting: {
+    id: 'app.presentationUploader.exporting',
+    description: 'presentation is being sent to chat',
+  },
+  currentLabel: {
+    id: 'app.presentationUploader.currentPresentationLabel',
+    description: 'current presentation label',
+  },
+  downloadLabel: {
+    id: 'app.presentation.downloadLabel',
+    description: 'download label',
+  },
+  sending: {
+    id: 'app.presentationUploader.sending',
+    description: 'sending label',
+  },
+  sent: {
+    id: 'app.presentationUploader.sent',
+    description: 'sent label',
+  },
+  exportingTimeout: {
+    id: 'app.presentationUploader.exportingTimeout',
+    description: 'exporting timeout label',
+  },
 });
+
+const EXPORT_STATUSES = {
+  RUNNING: 'RUNNING',
+  TIMEOUT: 'TIMEOUT',
+  EXPORTED: 'EXPORTED',
+};
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -239,10 +277,12 @@ class PresentationUploader extends Component {
       presentations: [],
       disableActions: false,
       toUploadCount: 0,
+      presExporting: new Set(),
     };
 
     this.toastId = null;
     this.hasError = null;
+    this.exportToastId = null;
 
     // handlers
     this.handleFiledrop = this.handleFiledrop.bind(this);
@@ -251,7 +291,7 @@ class PresentationUploader extends Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
     this.handleDismissToast = this.handleDismissToast.bind(this);
-    this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
+    this.handleSendToChat = this.handleSendToChat.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
@@ -260,9 +300,13 @@ class PresentationUploader extends Component {
     this.renderPresentationItemStatus = this.renderPresentationItemStatus.bind(this);
     this.renderToastList = this.renderToastList.bind(this);
     this.renderToastItem = this.renderToastItem.bind(this);
+    this.renderExportToast = this.renderExportToast.bind(this);
+    this.renderToastExportItem = this.renderToastExportItem.bind(this);
+    this.renderExportationStatus = this.renderExportationStatus.bind(this);
     // utilities
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
+    this.getPresentationsToShow = this.getPresentationsToShow.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -350,6 +394,16 @@ class PresentationUploader extends Component {
         render: this.renderToastList(),
       });
     }
+
+    if (this.exportToastId) {
+      if (!prevProps.isOpen && isOpen) {
+        this.handleDismissToast(this.exportToastId);
+      }
+
+      toast.update(this.exportToastId, {
+        render: this.renderExportToast(),
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -382,6 +436,7 @@ class PresentationUploader extends Component {
         isCurrent: false,
         conversion: { done: false, error: false },
         upload: { done: false, error: false, progress: 0 },
+        exportation: { isRunning: false, error: false },
         onProgress: (event) => {
           if (!event.lengthComputable) {
             this.deepMergeUpdateFileKey(id, 'upload', {
@@ -588,25 +643,58 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleToggleDownloadable(item) {
-    const { presentations } = this.state;
+  getPresentationsToShow() {
+    const { presentations, presExporting } = this.state;
 
-    const oldDownloadableState = item.isDownloadable;
+    return Array.from(presExporting)
+      .map((id) => presentations.find((p) => p.id === id))
+      .filter((p) => p);
+  }
 
-    const outOfDatePresentationIndex = presentations.findIndex((p) => p.id === item.id);
-    const commands = {};
-    commands[outOfDatePresentationIndex] = {
-      $apply: (presentation) => {
-        const p = presentation;
-        p.isDownloadable = !oldDownloadableState;
-        return p;
-      },
+  handleSendToChat(item) {
+    const { exportPresentationToChat } = this.props;
+
+    const observer = (exportation) => {
+      this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
+
+      if (exportation.status === EXPORT_STATUSES.RUNNING) {
+        this.setState((prevState) => {
+          prevState.presExporting.add(item.id);
+          return {
+            presExporting: prevState.presExporting,
+          };
+        }, () => {
+          if (this.exportToastId) {
+            toast.update(this.exportToastId, {
+              render: this.renderExportToast(),
+            });
+          } else {
+            this.exportToastId = toast.info(this.renderExportToast(), {
+              hideProgressBar: true,
+              autoClose: false,
+              newestOnTop: true,
+              closeOnClick: true,
+              onClose: () => {
+                this.exportToastId = null;
+
+                const presToShow = this.getPresentationsToShow();
+                const isAnyRunning = presToShow.some(
+                  (p) => p.exportation.status === EXPORT_STATUSES.RUNNING
+                );
+
+                if (!isAnyRunning) {
+                  this.setState({ presExporting: new Set() });
+                }
+              },
+            });
+          }
+        });
+      }
     };
-    const presentationsUpdated = update(presentations, commands);
 
-    this.setState({
-      presentations: presentationsUpdated,
-    });
+    exportPresentationToChat(item.id, observer);
+
+    Session.set('showUploadPresentationView', false);
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -689,7 +777,7 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
-    const { intl } = this.props;
+    const { intl, allowDownloadable } = this.props;
 
     let presentationsSorted = presentations;
 
@@ -716,7 +804,10 @@ class PresentationUploader extends Component {
         <Styled.Table>
           <thead>
             <tr>
-              <Styled.VisuallyHidden colSpan={3}>
+              <Styled.VisuallyHidden>
+                {intl.formatMessage(intlMessages.setAsCurrentPresentation)}
+              </Styled.VisuallyHidden>
+              <Styled.VisuallyHidden colSpan={2}>
                 {intl.formatMessage(intlMessages.filename)}
               </Styled.VisuallyHidden>
               <Styled.VisuallyHidden>
@@ -726,6 +817,12 @@ class PresentationUploader extends Component {
                 {intl.formatMessage(intlMessages.options)}
               </Styled.VisuallyHidden>
             </tr>
+            <Styled.Head>
+              <th colSpan={4}>{intl.formatMessage(intlMessages.currentLabel)}</th>
+              {
+                allowDownloadable ? <th>{intl.formatMessage(intlMessages.downloadLabel)}</th> : null
+              }
+            </Styled.Head>
           </thead>
           <tbody>
             {presentationsSorted.map((item) => this.renderPresentationItem(item))}
@@ -799,6 +896,118 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderExportToast() {
+    const { intl } = this.props;
+    const { presExporting } = this.state;
+
+    const presToShow = this.getPresentationsToShow();
+
+    const isAllExported = presToShow.every(
+      (p) => p.exportation.status === EXPORT_STATUSES.EXPORTED
+    );
+    const shouldDismiss = isAllExported && this.exportToastId;
+
+    if (shouldDismiss) {
+      this.handleDismissToast(this.exportToastId);
+
+      if (presExporting.size) {
+        this.setState({ presExporting: new Set() });
+      }
+
+      return;
+    }
+
+    const presToShowSorted = [
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.RUNNING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.TIMEOUT),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.EXPORTED),
+    ];
+
+    const headerLabelId = presToShowSorted.length === 1
+      ? 'exportToastHeader'
+      : 'exportToastHeaderPlural';
+
+    return (
+      <Styled.ToastWrapper>
+        <Styled.UploadToastHeader>
+          <Styled.UploadIcon iconName="download" />
+          <Styled.UploadToastTitle>
+            {intl.formatMessage(intlMessages[headerLabelId], { 0: presToShowSorted.length })}
+          </Styled.UploadToastTitle>
+        </Styled.UploadToastHeader>
+        <Styled.InnerToast>
+          <div>
+            <div>
+              {presToShowSorted.map((item) => this.renderToastExportItem(item))}
+            </div>
+          </div>
+        </Styled.InnerToast>
+      </Styled.ToastWrapper>
+    );
+  }
+
+  renderToastExportItem(item) {
+    const { status } = item.exportation;
+    const loading = status === EXPORT_STATUSES.RUNNING;
+    const done = status === EXPORT_STATUSES.EXPORTED;
+    let icon;
+
+    switch (status) {
+      case EXPORT_STATUSES.RUNNING:
+        icon = 'blank'
+        break;
+      case EXPORT_STATUSES.EXPORTED:
+        icon = 'check'
+        break;
+      case EXPORT_STATUSES.TIMEOUT:
+        icon = 'warning'
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <Styled.UploadRow>
+        <Styled.FileLine>
+          <span>
+            <Icon iconName="file" />
+          </span>
+          <Styled.ToastFileName>
+            <span>{item.filename}</span>
+          </Styled.ToastFileName>
+          <Styled.StatusIcon>
+            <Styled.ToastItemIcon
+              loading={loading}
+              done={done}
+              iconName={icon}
+              color="#0F70D7"
+            />
+          </Styled.StatusIcon>
+        </Styled.FileLine>
+        <Styled.StatusInfo>
+          <Styled.StatusInfoSpan>
+            {this.renderExportationStatus(item)}
+          </Styled.StatusInfoSpan>
+        </Styled.StatusInfo>
+      </Styled.UploadRow>
+    );
+  }
+
+  renderExportationStatus(item) {
+    const { intl } = this.props;
+
+    switch (item.exportation.status) {
+      case EXPORT_STATUSES.RUNNING:
+        return intl.formatMessage(intlMessages.sending);
+      case EXPORT_STATUSES.TIMEOUT:
+        return intl.formatMessage(intlMessages.exportingTimeout);
+      case EXPORT_STATUSES.EXPORTED:
+        return intl.formatMessage(intlMessages.sent);
+      default:
+        return '';
+    }
+  }
+
   renderPresentationItem(item) {
     const { disableActions } = this.state;
     const {
@@ -817,15 +1026,22 @@ class PresentationUploader extends Component {
       this.hasError = true;
     }
 
-    const formattedDownloadableLabel = !item.isDownloadable
-      ? intl.formatMessage(intlMessages.isDownloadable)
-      : intl.formatMessage(intlMessages.isNotDownloadable);
-
-    const formattedDownloadableAriaLabel = `${formattedDownloadableLabel} ${item.filename}`;
-
     const { animations } = Settings.application;
 
-    const { isRemovable } = item; 
+    const { isRemovable, exportation: { status } } = item;
+
+    const isExporting = status === 'RUNNING';
+
+    const shouldDisableExportButton = isExporting
+      || !item.conversion.done
+      || hasError
+      || disableActions;
+
+    const formattedDownloadLabel = isExporting
+      ? intl.formatMessage(intlMessages.exporting)
+      : intl.formatMessage(intlMessages.export);
+
+    const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
 
     return (
       <Styled.PresentationItem
@@ -837,9 +1053,19 @@ class PresentationUploader extends Component {
         animated={isProcessing}
         animations={animations}
       >
-        <Styled.TableItemIcon>
-          <Icon iconName="file" />
-        </Styled.TableItemIcon>
+        <Styled.SetCurrentAction>
+          <Checkbox
+            animations={animations}
+            ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
+            checked={item.isCurrent}
+            keyValue={item.id}
+            onChange={() => this.handleCurrentChange(item.id)}
+            disabled={disableActions || hasError}
+          />
+        </Styled.SetCurrentAction>
+        <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
+          <span>{item.filename}</span>
+        </Styled.TableItemName>
         {
           isActualCurrent
             ? (
@@ -851,9 +1077,6 @@ class PresentationUploader extends Component {
             )
             : null
         }
-        <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
-          <span>{item.filename}</span>
-        </Styled.TableItemName>
         <Styled.TableItemStatus colSpan={hasError ? 2 : 0}>
           {this.renderPresentationItemStatus(item)}
         </Styled.TableItemStatus>
@@ -861,29 +1084,16 @@ class PresentationUploader extends Component {
           <Styled.TableItemActions notDownloadable={!allowDownloadable}>
             {allowDownloadable ? (
               <Styled.DownloadButton
-                disabled={disableActions}
-                isDownloadable={item.isDownloadable}
-                label={formattedDownloadableLabel}
-                data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
-                aria-label={formattedDownloadableAriaLabel}
-                hideLabel
+                disabled={shouldDisableExportButton}
+                label={intl.formatMessage(intlMessages.export)}
+                data-test="exportPresentationToPublicChat"
+                aria-label={formattedDownloadAriaLabel}
                 size="sm"
-                icon={item.isDownloadable ? 'download' : 'download-off'}
-                onClick={() => this.handleToggleDownloadable(item)}
+                color="primary"
+                onClick={() => this.handleSendToChat(item)}
                 animations={animations}
               />
-              ) : null
-            }
-            <Styled.ItemAction>
-              <Checkbox
-              animations={animations}
-              ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
-              checked={item.isCurrent}
-              keyValue={item.id}
-              onChange={() => this.handleCurrentChange(item.id)}
-              disabled={disableActions}
-              />
-            </Styled.ItemAction>
+            ) : null}
             {isRemovable ? (
               <Styled.RemoveButton
                 disabled={disableActions}
@@ -1096,6 +1306,9 @@ class PresentationUploader extends Component {
             {fileUploadConstraintsHint ? this.renderExtraHint() : null}
           </Styled.ModalHint>
           {this.renderPresentationList()}
+          <Styled.ExportHint>
+            {intl.formatMessage(intlMessages.exportHint)}
+          </Styled.ExportHint>
           {isMobile ? this.renderPicDropzone() : null}
           {this.renderDropzone()}
         </Styled.ModalInner>

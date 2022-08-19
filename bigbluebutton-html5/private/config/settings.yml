@@ -501,11 +501,14 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
     enableEmojiPicker: false
+    # e.g.: disableEmojis: ['1F595','1F922']
+    disableEmojis: []
   notes:
     enabled: true
     id: notes
@@ -618,6 +621,13 @@ public:
       useRtcLoopbackInChromium: true
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
+    # networkPriorities: DSCP markings for each media type. Chromium only, applies
+    # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
+    # for further info.
+    #networkPriorities:
+    #  audio: high
+    #  webcam: medium
+    #  screenshare: medium
   stats:
     enabled: true
     interval: 10000

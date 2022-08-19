@@ -2,6 +2,7 @@ const { test, devices } = require('@playwright/test');
 const { ScreenShare } = require('./screenshare');
 
 test.describe.parallel('Screenshare', () => {
+  // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
   test('Share screen @ci', async ({ browser, page }) => {
     const screenshare = new ScreenShare(browser, page);
     await screenshare.init(true, true);

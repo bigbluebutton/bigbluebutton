@@ -891,7 +891,7 @@ def process_presentation(package_dir)
   panzooms = []
   cursors = []
   shapes = {}
-  tldraw = BigBlueButton::Events.check_for_tldraw_events(@doc)
+  tldraw = @version_atleast_2_6_0
   tldraw_shapes = {}
 
   # Iterate through the events.xml and store the events, building the
@@ -1387,6 +1387,9 @@ begin
         )
         @version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
           @doc, 2, 0, 0
+        )
+        @version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(
+          @doc, 2, 6, 0
         )
         BigBlueButton.logger.info('Creating metadata.xml')
 
