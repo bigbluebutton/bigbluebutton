@@ -98,6 +98,7 @@ exports.etherpadEditable = 'body[id="innerdocbody"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.currentPresentationToast = 'div[data-test="toastSmallMsg"] > div';
 exports.notificationsTab = 'span[id="notificationTab"]';
 exports.chatPopupAlertsBtn = 'input[data-test="chatPopupAlertsBtn"]';
 exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
