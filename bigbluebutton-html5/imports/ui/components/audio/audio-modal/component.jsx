@@ -47,6 +47,7 @@ const propTypes = {
   changeInputStream: PropTypes.func.isRequired,
   localEchoEnabled: PropTypes.bool.isRequired,
   showVolumeMeter: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -512,6 +513,7 @@ class AudioModal extends Component {
       changeOutputDevice,
       localEchoEnabled,
       showVolumeMeter,
+      notify,
     } = this.props;
 
     const confirmationCallback = !localEchoEnabled
@@ -542,6 +544,7 @@ class AudioModal extends Component {
         withVolumeMeter={showVolumeMeter}
         withEcho={localEchoEnabled}
         produceStreams={localEchoEnabled || showVolumeMeter}
+        notify={notify}
       />
     );
   }

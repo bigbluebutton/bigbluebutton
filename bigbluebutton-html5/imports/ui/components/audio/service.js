@@ -111,9 +111,7 @@ export default {
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
-  changeOutputDevice: (outputDeviceId, isLive) => {
-    AudioManager.changeOutputDevice(outputDeviceId, isLive);
-  },
+  changeOutputDevice: (outputDeviceId, isLive) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
   isConnected: () => AudioManager.isConnected,
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
@@ -144,4 +142,5 @@ export default {
   localEchoEnabled: LOCAL_ECHO_TEST_ENABLED,
   localEchoInitHearingState: LOCAL_ECHO_INIT_HEARING_STATE,
   showVolumeMeter: SHOW_VOLUME_METER,
+  notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
 };

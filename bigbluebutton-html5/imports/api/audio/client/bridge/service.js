@@ -1,5 +1,6 @@
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
+import Storage from '/imports/ui/services/storage/session';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';
@@ -8,6 +9,7 @@ const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings
   .application.microphoneConstraints;
+const MEDIA_TAG = Meteor.settings.public.media.mediaTag;
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -30,6 +32,16 @@ const reloadAudioElement = (audioElement) => {
 
   return false;
 };
+
+const getCurrentAudioSinkId = () => {
+  const audioElement = document.querySelector(MEDIA_TAG);
+  return audioElement?.sinkId || DEFAULT_OUTPUT_DEVICE_ID;
+};
+
+const getStoredAudioInputDeviceId = () => Storage.getItem(INPUT_DEVICE_ID_KEY);
+const getStoredAudioOutputDeviceId = () => Storage.getItem(OUTPUT_DEVICE_ID_KEY);
+const storeAudioInputDeviceId = (deviceId) => Storage.setItem(INPUT_DEVICE_ID_KEY, deviceId);
+const storeAudioOutputDeviceId = (deviceId) => Storage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
 
 /**
  * Filter constraints set in audioDeviceConstraints, based on
@@ -89,4 +101,9 @@ export {
   reloadAudioElement,
   filterSupportedConstraints,
   getAudioConstraints,
+  getCurrentAudioSinkId,
+  getStoredAudioInputDeviceId,
+  storeAudioInputDeviceId,
+  getStoredAudioOutputDeviceId,
+  storeAudioOutputDeviceId,
 };

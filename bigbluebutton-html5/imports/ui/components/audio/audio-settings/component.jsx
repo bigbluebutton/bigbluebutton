@@ -29,6 +29,7 @@ const propTypes = {
   produceStreams: PropTypes.bool,
   withEcho: PropTypes.bool,
   withVolumeMeter: PropTypes.bool,
+  notify: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -61,6 +62,10 @@ const intlMessages = defineMessages({
   retryLabel: {
     id: 'app.audio.joinAudio',
     description: 'Confirmation button label',
+  },
+  deviceChangeFailed: {
+    id: 'app.audioNotification.deviceChangeFailed',
+    description: 'Device change failed',
   },
 });
 
@@ -139,38 +144,53 @@ class AudioSettings extends React.Component {
       handleGUMFailure,
       changeInputDevice,
       produceStreams,
+      intl,
+      notify,
     } = this.props;
+    const { inputDeviceId: currentInputDeviceId } = this.state;
 
-    changeInputDevice(deviceId);
+    try {
+      changeInputDevice(deviceId)
+      // Only generate input streams if they're going to be used with something
+      // In this case, the volume meter or local echo test.
+      if (produceStreams) {
+        this.generateInputStream(deviceId).then((stream) => {
+          if (!this._isMounted) return;
 
-    // Only generate input streams if they're going to be used with something
-    // In this case, the volume meter or local echo test.
-    if (produceStreams) {
-      this.generateInputStream(deviceId).then((stream) => {
-        if (!this._isMounted) return;
-
-        this.setState({
-          // We extract the deviceId again from the stream to guarantee consistency
-          // between stream vs chosen device
-          inputDeviceId: MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio'),
-          stream,
-          producingStreams: false,
+          this.setState({
+            // We extract the deviceId again from the stream to guarantee consistency
+            // between stream vs chosen device
+            inputDeviceId: MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio'),
+            stream,
+            producingStreams: false,
+          });
+        }).catch((error) => {
+          logger.warn({
+            logCode: 'audiosettings_gum_failed',
+            extraInfo: {
+              deviceId,
+              errorMessage: error.message,
+              errorName: error.name,
+            },
+          }, `Audio settings gUM failed: ${error.name}`);
+          handleGUMFailure(error);
         });
-      }).catch((error) => {
-        logger.warn({
-          logCode: 'audiosettings_gum_failed',
-          extraInfo: {
-            deviceId,
-            errorMessage: error.message,
-            errorName: error.name,
-          },
-        }, `Audio settings gUM failed: ${error.name}`);
-        handleGUMFailure(error);
-      });
-    } else {
-      this.setState({
-        inputDeviceId: deviceId,
-      });
+      } else {
+        this.setState({
+          inputDeviceId: deviceId,
+        });
+      }
+    } catch (error) {
+      logger.debug({
+        logCode: 'audiosettings_input_device_change_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          deviceId: currentInputDeviceId,
+          newDeviceId: deviceId,
+        },
+      }, `Audio settings: error changing input device - {${error.name}: ${error.message}}`);
+      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
     }
   }
 
@@ -178,14 +198,28 @@ class AudioSettings extends React.Component {
     const {
       changeOutputDevice,
       withEcho,
+      intl,
+      notify,
     } = this.props;
+    const { outputDeviceId: currentOutputDeviceId } = this.state;
 
     // withEcho usage (isLive arg): if local echo is enabled we need the device
     // change to be performed seamlessly (which is what the isLive parameter guarantes)
-    changeOutputDevice(deviceId, withEcho);
-
-    this.setState({
-      outputDeviceId: deviceId,
+    changeOutputDevice(deviceId, withEcho).then(() => {
+      this.setState({
+        outputDeviceId: deviceId,
+      });
+    }).catch((error) => {
+      logger.debug({
+        logCode: 'audiosettings_output_device_change_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          deviceId: currentOutputDeviceId,
+          newDeviceId: deviceId,
+        },
+      }, `Audio settings: error changing output device - {${error.name}: ${error.message}}`);
+      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
     });
   }
 
