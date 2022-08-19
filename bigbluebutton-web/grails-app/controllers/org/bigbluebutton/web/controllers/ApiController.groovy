@@ -62,7 +62,6 @@ class ApiController {
   HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
-  Boolean allowInsertDocumentChangeCurrent = grailsApplication.config.getProperty("allowInsertDocumentChangeCurrent")
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();
@@ -1395,9 +1394,7 @@ class ApiController {
         } else if (index == 0 && !isFromInsertAPI){
           isCurrent = true
         }
-        if (isFromInsertAPI && allowInsertDocumentChangeCurrent != null) {
-          isCurrent = isCurrent && allowInsertDocumentChangeCurrent
-        }
+
         // Verifying whether the document is a base64 encoded or a url to download.
         if (!StringUtils.isEmpty(document.@url.toString())) {
           def fileName;
