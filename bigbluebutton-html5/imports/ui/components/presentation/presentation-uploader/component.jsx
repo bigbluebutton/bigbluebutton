@@ -292,7 +292,6 @@ class PresentationUploader extends Component {
       if (!currentPropPres) return false;
 
       presentation.conversion = currentPropPres.conversion;
-      presentation.isDownloadable = currentPropPres.isDownloadable;
       presentation.isRemovable = currentPropPres.isRemovable;
 
       return true;
