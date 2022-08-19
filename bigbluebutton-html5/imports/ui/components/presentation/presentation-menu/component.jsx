@@ -171,6 +171,7 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
+          dataTest: "presentationSnapshot",
           onClick: () => {
             setState({
               loading: true,

@@ -268,6 +268,41 @@ class PresentationUploader extends Component {
   componentDidUpdate(prevProps) {
     const { isOpen, presentations: propPresentations, intl } = this.props;
     const { presentations } = this.state;
+    const { presentations: prevPropPresentations } = prevProps;
+
+    let shouldUpdateState = isOpen && !prevProps.isOpen;
+    const presState = Object.values({
+      ...propPresentations,
+      ...presentations,
+    });
+    const presStateMapped = presState.map((presentation) => {
+      propPresentations.forEach((propPres) => {
+        if (propPres.id === presentation.id) {
+          const prevPropPres = prevPropPresentations.find((pres) => pres.id === propPres.id);
+          if (propPres.isCurrent !== prevPropPres?.isCurrent) {
+            presentation.isCurrent = propPres.isCurrent;
+            shouldUpdateState = true;
+          }
+        }
+      });
+      return presentation;
+    }).filter((presentation) => {
+      const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
+
+      if (!currentPropPres) return false;
+
+      presentation.conversion = currentPropPres.conversion;
+      presentation.isDownloadable = currentPropPres.isDownloadable;
+      presentation.isRemovable = currentPropPres.isRemovable;
+
+      return true;
+    });
+
+    if (shouldUpdateState) {
+      this.setState({
+        presentations: presStateMapped,
+      });
+    }
 
     if (!isOpen && prevProps.isOpen) {
       unregisterTitleView();
@@ -300,24 +335,6 @@ class PresentationUploader extends Component {
           }
         }
       });
-
-      const presState = Object.values({
-        ...propPresentations,
-        ...presentations,
-      });
-      const presStateMapped = presState.map((presentation) => {
-        propPresentations.forEach((propPres) => {
-          if (propPres.id == presentation.id){
-            presentation.isCurrent = propPres.isCurrent;
-          }
-        })
-        return presentation;
-      })
-
-      this.setState({
-        presentations: presStateMapped,
-      })
-      
     }
 
     if (presentations.length > 0) {
