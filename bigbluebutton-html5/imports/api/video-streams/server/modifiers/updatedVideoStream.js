@@ -1,6 +1,7 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VideoStreams from '/imports/api/video-streams';
+import flat from 'flat';
 
 export default function updateVideoStream(meetingId, videoStream) {
   check(meetingId, String);
@@ -23,7 +24,7 @@ export default function updateVideoStream(meetingId, videoStream) {
 
   const modifier = {
     $set: Object.assign(
-      ...videoStream,
+      flat(videoStream),
     ),
   };
 
