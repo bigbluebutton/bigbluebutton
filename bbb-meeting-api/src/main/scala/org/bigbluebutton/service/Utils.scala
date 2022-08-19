@@ -1,7 +1,5 @@
 package org.bigbluebutton.service
-
 import org.apache.commons.lang3.{StringEscapeUtils, StringUtils}
-
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.regex.Pattern

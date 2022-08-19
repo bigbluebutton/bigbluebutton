@@ -11,7 +11,6 @@ import org.bigbluebutton.api.ControllerStandard
 import org.bigbluebutton.common2.api.{ApiResponseFailure, ApiResponseSuccess, UserInfosApiMsg}
 import org.bigbluebutton.model.SessionTokenData
 import org.bigbluebutton.service.MeetingService
-import io.circe._, io.circe.generic.auto._, io.circe.parser._, io.circe.syntax._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -25,19 +24,10 @@ case object EnterController extends ControllerStandard {
         parameter("sessionToken".as[String]) { (sessionToken) =>
           log.debug("sessionToken: " + sessionToken)
           if (userSession.exists(tokens => tokens._1 == sessionToken)) {
-            //val userTokenData = gson.fromJson(userSession(sessionToken), classOf[SessionTokenData])
 
+            val userTokenData = gson.fromJson(userSession(sessionToken), classOf[SessionTokenData])
 
-
-            val userTokenData = decode[SessionTokenData](userSession(sessionToken)) match {
-              case Right(userTokenData) => userTokenData
-              case Left(error)  => SessionTokenData("","")
-            }
-
-
-            val meetingService = new MeetingService()
-
-            val entityFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
+            val entityFuture = MeetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
               case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
 
                 val responseMap: Map[String, String] = Map(
@@ -51,7 +41,7 @@ case object EnterController extends ControllerStandard {
                   headers = Seq(RawHeader("Cache-Control", "no-cache")),
                   entity = HttpEntity(
                     ContentTypes.`application/json`,
-                    Map("response" -> responseMap).asJson.noSpaces
+                    gson.toJson(Map("response" -> responseMap))
                   )
                 )
               case ApiResponseFailure(msg, arg) =>
@@ -59,7 +49,7 @@ case object EnterController extends ControllerStandard {
                   headers = Seq(RawHeader("Cache-Control", "no-cache")),
                   entity = HttpEntity(
                     ContentTypes.`application/json`,
-                    Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)).asJson.noSpaces
+                    gson.toJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)))
                   )
                 )
             }
@@ -71,7 +61,7 @@ case object EnterController extends ControllerStandard {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   ContentTypes.`application/json`,
-                  Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")).asJson.noSpaces
+                  gson.toJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")))
                 )
               )
             )
@@ -79,33 +69,5 @@ case object EnterController extends ControllerStandard {
         }
       }
     }
-
   }
-
-  //  val jsonRoute: Route = pathPrefix("json") {
-  //    defaultResponsePathEnd() ~
-  //    langRoute(jsonResponse)
-  //  }
-  //
-  //
-  //  val htmlRoute: Route = pathPrefix("html") {
-  //    defaultResponsePathEnd(htmlTextResponse) ~
-  //    langRoute(htmlTextResponse)
-  //  }
-  //
-  //  def defaultResponsePathEnd(generateResponse: Greeting => StandardRoute = jsonResponse): Route = pathEnd {
-  //    generateResponse(English.getGreetings)
-  //  }
-  //
-  //  def langRoute(generateResponse: Greeting => StandardRoute): Route = pathPrefix("lang") {
-  //    extractUnmatchedPath {
-  //      lang => lang.toString match {
-  //        case en if en contains "en" => generateResponse(English.getGreetings)
-  //        case es if es contains "es" => generateResponse(Spanish.getGreetings)
-  //        case fr if fr contains "fr" => generateResponse(French.getGreetings)
-  //        case _ => generateResponse(English.getGreetings)
-  //      }
-  //    }
-  //  }
-
 }

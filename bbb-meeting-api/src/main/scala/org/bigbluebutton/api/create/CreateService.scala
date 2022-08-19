@@ -25,8 +25,6 @@ object CreateService {
                          params: Map[String, String],
                          config: Config
                        ): DefaultProps = {
-    println("createDefaultProp")
-    println(params)
 
     val paramsUtils = ParamsUtils(meetingId, params)
 

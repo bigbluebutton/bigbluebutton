@@ -1203,6 +1203,10 @@ class ApiController {
     String API_CALL = 'learningDashboard'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+    String con = grailsApplication.config.defaultWelcomeMessage
+    log.debug con
+    log.debug "-----------------"
+
     String respMessage = ""
     boolean reject = false
 

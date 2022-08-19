@@ -21,26 +21,19 @@ lazy val root = (project in file(".")).
       val akkaVersion = "2.6.19"
       Seq(
         "com.typesafe" % "config" % configVersion,
-        "io.circe" %% "circe-core" % circeVersion,
-        "io.circe" %% "circe-parser" % circeVersion,
-        "io.circe" %% "circe-generic" % circeVersion,
         "com.typesafe.akka" %% "akka-actor" % akkaVersion,
         "com.typesafe.akka" %% "akka-stream" % akkaVersion,
         "com.typesafe.akka" %% "akka-remote" % akkaVersion,
         "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-        "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion,
-        "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
         "com.softwaremill.akka-http-session" %% "core" % "0.7.0",
         "com.softwaremill.akka-http-session" %% "jwt" % "0.7.0",
-        "io.aeron" % "aeron-driver" % "1.37.0",
-        "io.aeron" % "aeron-client" % "1.37.0",
         "org.scala-lang.modules" %% "scala-xml" % "2.1.0",
+        "com.typesafe.akka" %% "akka-testkit" % akkaVersion  % Test,
         "com.typesafe.akka" %% "akka-http-testkit" % "10.2.9",
-        "io.spray" % "spray-json_2.13" % "1.3.6",
         scalaTest % Test,
         bbbCommons,
-        akkaHttpSessionCore,
-        akkaHttpSessionJwt,
+//        akkaHttpSessionCore,
+//        akkaHttpSessionJwt,
         apacheLang
       )
     }

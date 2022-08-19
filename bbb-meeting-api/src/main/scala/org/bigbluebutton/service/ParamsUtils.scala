@@ -1,11 +1,8 @@
 package org.bigbluebutton.service
-
 import com.typesafe.config.ConfigFactory
-
 import scala.util.Try
 
 case class ParamsUtils(meetingId: String = "", params: Map[String, String] = Map()) {
-
   val config = ConfigFactory.load("bigbluebutton.properties").resolve()
 
   def hasParam(apiName: String): Boolean = {
@@ -17,21 +14,10 @@ case class ParamsUtils(meetingId: String = "", params: Map[String, String] = Map
 
   def getConfigAsString(configName: String = "", defaultValue: String = ""): String = {
     var configValue = Try(config.getString(configName)).getOrElse("")
-
-    //    println("Era: " + configValue)
-
-    //${serverURL}
     val pattern = """\$\{([^\}]+)\}""".r
     val allMatches = pattern.findAllMatchIn(configValue)
     allMatches.foreach { m =>
-      //      println("a=" + m.group(0) + "b=" + m.group(1))
-      //
-      //      println("resultado" + getConfigAsString(m.group(1)))
-      //      println("resultado" + configValue.replace(m.group(0), getConfigAsString(m.group(1))))
-
       configValue = configValue.replace(m.group(0), getConfigAsString(m.group(1)))
-
-      //      println("Era: " + configValue)
     }
 
     configValue

@@ -45,20 +45,7 @@ case object CreateController extends ControllerStandard {
 
           val defaultprops = CreateService.createDefaultProp(meetingID, params, config)
 
-
-          //          remoteSelection ! "sendBla"
-
-          //          implicit val actorSystem: ActorSystem = ActorSystem()
-          //          val meetingActorRef = actorSystem.actorOf(AkkaRemoteActor.props())
-          val meetingService = new MeetingService()
-          //          val meetingService = MeetingService
-
-          meetingService.test().map {
-            case m: String => println(s"ele respondeu com $m")
-          }
-
-
-          val entityFuture = meetingService.createMeeting(defaultprops).map {
+          val entityFuture = MeetingService.createMeeting(defaultprops).map {
             case ApiResponseSuccess(msg, arg) =>
               HttpResponse(StatusCodes.OK,
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),

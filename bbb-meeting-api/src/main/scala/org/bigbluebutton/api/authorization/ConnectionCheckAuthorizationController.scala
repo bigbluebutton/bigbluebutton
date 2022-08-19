@@ -32,9 +32,7 @@ case object ConnectionCheckAuthorizationController extends ControllerStandard {
         if (userSession.exists(tokens => tokens._1 == sessionToken)) {
           val userTokenData = gson.fromJson(userSession(sessionToken), classOf[SessionTokenData])
 
-          val meetingService = new MeetingService()
-
-          val entityFuture = meetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
+          val entityFuture = MeetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
             case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
               HttpResponse(StatusCodes.OK,
                 headers = Seq(

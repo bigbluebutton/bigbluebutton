@@ -57,9 +57,7 @@ case object JoinController extends ControllerStandard {
                 val regUser = JoinService.createRegisterUser(meetingID, params)
                 val newJsonTokenData = SessionTokenData(regUser.meetingId, regUser.intUserId).toJson
 
-                val meetingService = new MeetingService()
-
-                val futureEntity = meetingService.registerUser(regUser).map {
+                val futureEntity = MeetingService.registerUser(regUser).map {
                   case ApiResponseSuccess(msg, arg) =>
                     //                    if(redirectFlag.getOrElse("true") == "true") {
                     if (true) {
