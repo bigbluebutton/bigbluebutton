@@ -454,6 +454,18 @@ display_bigbluebutton_status () {
         units="$units bbb-export-annotations"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-rap-caption-inbox.service ]; then
+        units="$units bbb-rap-caption-inbox"
+    fi
+
+    if [ -f /lib/systemd/system/bbb-rap-resque-worker.service ]; then
+        units="$units bbb-rap-resque-worker"
+    fi
+
+    if [ -f /lib/systemd/system/bbb-rap-starter.service ]; then
+        units="$units bbb-rap-starter"
+    fi
+
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
