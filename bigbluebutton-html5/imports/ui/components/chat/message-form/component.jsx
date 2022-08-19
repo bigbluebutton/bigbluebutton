@@ -306,7 +306,7 @@ class MessageForm extends PureComponent {
           showEmojiPicker: !prevState.showEmojiPicker,
         }))}
         icon="happy"
-        color="dark"
+        color="light"
         ghost
         type="button"
         circle
