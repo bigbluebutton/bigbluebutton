@@ -7,6 +7,8 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Styled from './styles';
 import ToolbarMenuItem from './toolbar-menu-item/component';
 import ToolbarSubmenu from './toolbar-submenu/component';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 const TRANSITION_DURATION = '0.4s';
 const TOOLBAR_CONFIG = Meteor.settings.public.whiteboard.toolbar;
@@ -42,6 +44,10 @@ const intlMessages = defineMessages({
   toolbarClearAnnotations: {
     id: 'app.whiteboard.toolbar.clear',
     description: 'Whiteboard toolbar clear menu',
+  },
+  toolbarConfirmClearAnnotations: {
+    id: 'app.whiteboard.toolbar.clearConfirmation',
+    description: 'Whiteboard toolbar clear confirmation',
   },
   toolbarMultiUserOn: {
     id: 'app.whiteboard.toolbar.multiUserOn',
@@ -375,9 +381,19 @@ class WhiteboardToolbar extends Component {
     const {
       actions,
       whiteboardId,
+      mountModal,
+      intl,
     } = this.props;
 
-    actions.clearWhiteboard(whiteboardId);
+    mountModal(
+      <ConfirmationModal
+        intl={intl}
+        title={intl.formatMessage(intlMessages.toolbarClearAnnotations)}
+        description={intl.formatMessage(intlMessages.toolbarConfirmClearAnnotations)}
+        confirmParam={whiteboardId}
+        onConfirm={actions.clearWhiteboard}
+      />
+    )
   }
 
   handleSwitchWhiteboardMode() {
@@ -735,7 +751,7 @@ class WhiteboardToolbar extends Component {
 
     return (
       <Styled.CustomSvgIcon>
-        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={colorSelected.value}>
+        <rect x="25%" y="25%" width="50%" height="50%" stroke="black" strokeWidth="1" fill={colorSelected.value} id="colorPicker">
           <animate
             ref={(ref) => { this.colorListIconColor = ref; }}
             attributeName="fill"
@@ -888,4 +904,4 @@ WhiteboardToolbar.propTypes = {
 
 };
 
-export default injectWbResizeEvent(injectIntl(WhiteboardToolbar));
+export default injectWbResizeEvent(injectIntl(withModalMounter(WhiteboardToolbar)));

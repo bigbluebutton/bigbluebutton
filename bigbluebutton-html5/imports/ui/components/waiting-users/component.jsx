@@ -8,6 +8,8 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import Settings from '/imports/ui/services/settings';
 import browserInfo from '/imports/utils/browserInfo';
+import Header from '/imports/ui/components/common/control-header/component';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -77,6 +79,10 @@ const intlMessages = defineMessages({
   deny: {
     id: 'app.userList.guest.denyLabel',
     description: 'Deny guest button label',
+  },
+  feedbackMessage: {
+    id: 'app.userList.guest.feedbackMessage',
+    description: 'Feedback message moderator action',
   },
 });
 
@@ -251,11 +257,15 @@ const WaitingUsers = (props) => {
     setRememberChoice(checked);
   };
 
-  const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {
+  const changePolicy = (shouldExecutePolicy, policyRule, cb, message) => () => {   
     if (shouldExecutePolicy) {
       changeGuestPolicy(policyRule);
     }
+
     closePanel();
+    
+    notify(intl.formatMessage(intlMessages.feedbackMessage) + message.toUpperCase(), 'success');
+    
     return cb();
   };
 
@@ -265,7 +275,7 @@ const WaitingUsers = (props) => {
       color={color}
       label={message}
       size="lg"
-      onClick={changePolicy(rememberChoice, policy, action)}
+      onClick={changePolicy(rememberChoice, policy, action, message)}
     />
   );
 
@@ -314,15 +324,12 @@ const WaitingUsers = (props) => {
 
   return (
     <Styled.Panel data-test="note" isChrome={isChrome}>
-      <Styled.Header>
-        <Styled.Title data-test="noteTitle">
-          <Styled.HideButton
-            onClick={() => closePanel()}
-            label={intl.formatMessage(intlMessages.title)}
-            icon="left_arrow"
-          />
-        </Styled.Title>
-      </Styled.Header>
+      <Header
+        leftButtonProps={{
+          onClick: () => closePanel(),
+          label: intl.formatMessage(intlMessages.title),
+        }}
+      />
       <Styled.ScrollableArea>
         {isGuestLobbyMessageEnabled ? (
           <Styled.LobbyMessage>

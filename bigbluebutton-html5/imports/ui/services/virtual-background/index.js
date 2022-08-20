@@ -15,6 +15,7 @@ import {
   MODELS,
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
+import logger from '/imports/startup/client/logger';
 
 const blurValue = '25px';
 
@@ -195,9 +196,23 @@ class VirtualBackgroundService {
      * @returns {void}
      */
     _renderMask() {
-        this.resizeSource();
-        this.runInference();
-        this.runPostProcessing();
+        try {
+            this.resizeSource();
+            this.runInference();
+            this.runPostProcessing();
+        } catch (error) {
+            // TODO This is a high frequency log so that's why it's debug level.
+            // Should be reviewed later when the actual problem with runPostProcessing
+            // throwing on stalled pages/iframes - prlanzarin Jun 30 2022
+            logger.debug({
+                logCode: 'virtualbg_renderMask_failure',
+                extraInfo: {
+                    errorMessage: error.message,
+                    errorCode: error.code,
+                    errorName: error.name,
+                },
+            }, `Virtual background renderMask failed: ${error.message || error.name}`);
+        }
 
         this._maskFrameTimerWorker.postMessage({
             id: SET_TIMEOUT,
@@ -249,7 +264,11 @@ class VirtualBackgroundService {
         }
         this._virtualImage = document.createElement('img');
         this._virtualImage.crossOrigin = 'anonymous';
-        this._virtualImage.src = virtualBackgroundImagePath + imagesrc;
+        if (parameters.customParams) {
+            this._virtualImage.src = parameters.customParams.file;
+        } else {
+            this._virtualImage.src = virtualBackgroundImagePath + imagesrc;
+        }
     }
 
     /**
@@ -335,7 +354,11 @@ export async function createVirtualBackgroundService(parameters = null) {
         parameters.backgroundType = 'blur';
         parameters.isVirtualBackground = false;
     } else {
-        parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+        if (parameters.customParams) {
+            parameters.virtualSource = parameters.customParams.file;
+        } else {
+            parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+        }
     }
 
     if (!modelResponse.ok) {

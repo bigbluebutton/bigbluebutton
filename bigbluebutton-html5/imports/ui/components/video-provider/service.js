@@ -702,7 +702,7 @@ class VideoService {
   }
 
   addCandidateToPeer(peer, candidate, cameraId) {
-    peer.addIceCandidate(candidate, (error) => {
+    peer.addIceCandidate(candidate).catch((error) => {
       if (error) {
         // Just log the error. We can't be sure if a candidate failure on add is
         // fatal or not, so that's why we have a timeout set up for negotiations
@@ -771,17 +771,6 @@ class VideoService {
       && !this.isMobile
       && !this.isSafari
       && this.numberOfDevices > 1;
-  }
-
-  // to be used soon (Paulo)
-  amIModerator() {
-    return Users.findOne({ userId: Auth.userID },
-      { fields: { role: 1 } }).role === ROLE_MODERATOR;
-  }
-
-  // to be used soon (Paulo)
-  getNumberOfPublishers() {
-    return VideoStreams.find({ meetingId: Auth.meetingID }).count();
   }
 
   isProfileBetter (newProfileId, originalProfileId) {

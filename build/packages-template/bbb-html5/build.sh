@@ -48,6 +48,11 @@ cat .meteor/release
 # --production means we won't be installing devDependencies
 meteor npm ci --production
 
+# deleting links as they were repeatedly broken (node_modules/acorn/bin mostly)
+# I have not seen this on npm 8+ but meteor npm is still at 6.x right now
+# https://forums.meteor.com/t/broken-symbolic-link-on-running-app/57770/3
+find node_modules/.bin -xtype l -delete
+
 # Build the HTML5 client https://guide.meteor.com/deployment.html#custom-deployment
 # https://docs.meteor.com/environment-variables.html#METEOR-DISABLE-OPTIMISTIC-CACHING - disable caching because we're only building once
 # --allow-superuser
@@ -91,12 +96,6 @@ cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
 
 
 mkdir -p staging/usr/share
-
-if [ ! -f node-v14.19.1-linux-x64.tar.gz ]; then
-  wget https://nodejs.org/dist/v14.19.1/node-v14.19.1-linux-x64.tar.gz
-fi
-
-cp node-v14.19.1-linux-x64.tar.gz staging/usr/share
 
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
   sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html

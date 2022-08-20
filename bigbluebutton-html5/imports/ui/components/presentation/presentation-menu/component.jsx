@@ -5,6 +5,7 @@ import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
+import BBBMenu from "/imports/ui/components/common/menu/component";
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
@@ -49,8 +50,8 @@ const intlMessages = defineMessages({
   },
   snapshotLabel: {
     id: 'app.presentation.options.snapshot',
-    description: 'Snapshot of current presentation label',
-    defaultMessage: 'Snapshot of current presentation',
+    description: 'Snapshot of current slide label',
+    defaultMessage: 'Snapshot of current slide',
   },
 });
 
@@ -60,7 +61,6 @@ const propTypes = {
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isDropdownOpen: PropTypes.bool,
-  toggleSwapLayout: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
@@ -82,7 +82,6 @@ const defaultProps = {
 const PresentationMenu = (props) => {
   const {
     intl,
-    toggleSwapLayout,
     isFullscreen,
     elementId,
     elementName,
@@ -90,11 +89,12 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    getScreenshotRef,
+    tldrawAPI,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
     isIphone,
+    isRTL
   } = props;
 
   const [state, setState] = useState({
@@ -164,18 +164,6 @@ const PresentationMenu = (props) => {
       );
     }
 
-    if (OLD_MINIMIZE_BUTTON_ENABLED) {
-      menuItems.push(
-        {
-          key: 'list-item-minimize',
-          label: intl.formatMessage(intlMessages.minimizePresentationLabel),
-          onClick: () => {
-            toggleSwapLayout(layoutContextDispatch);
-          },
-        },
-      );
-    }
-
     const { isSafari } = browserInfo;
 
     if (!isSafari) {
@@ -183,7 +171,8 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
-          onClick: () => {
+          dataTest: "presentationSnapshot",
+          onClick: async () => {
             setState({
               loading: true,
               hasError: false,
@@ -199,10 +188,17 @@ const PresentationMenu = (props) => {
               },
             });
 
-            toPng(getScreenshotRef(), {
-              width: window.screen.width,
-              height: window.screen.height,
-            }).then((data) => {
+            try {
+              const { copySvg, getShapes, currentPageId } = tldrawAPI;
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const container = document.createElement('div');
+              container.innerHTML = svgString;
+              const svgElem = container.firstChild;
+              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
               const anchor = document.createElement('a');
               anchor.href = data;
               anchor.setAttribute(
@@ -215,17 +211,17 @@ const PresentationMenu = (props) => {
                 loading: false,
                 hasError: false,
               });
-            }).catch((error) => {
-              logger.warn({
-                logCode: 'presentation_snapshot_error',
-                extraInfo: error,
-              });
-
+            } catch (e) {
               setState({
                 loading: false,
                 hasError: true,
               });
-            });
+
+              logger.warn({
+                logCode: 'presentation_snapshot_error',
+                extraInfo: e,
+              });
+            }
           },
         },
       );
@@ -256,50 +252,44 @@ const PresentationMenu = (props) => {
 
   const options = getAvailableOptions();
 
-  if (options.length === 0) return null;
+  if (options.length === 0) {
+    const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
+    if (undoCtrls?.style) {
+      undoCtrls.style = "padding:0px";
+    }
+    return null
+  };
 
   return (
     <Styled.Right>
-      <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
-        <Styled.DropdownButton
-          state={isDropdownOpen ? 'open' : 'closed'}
-          aria-label={intl.formatMessage(intlMessages.optionsLabel)}
-          data-test="whiteboardOptionsButton"
-          onClick={() => setIsDropdownOpen((isOpen) => !isOpen)}
-        >
-          <Styled.ButtonIcon iconName="more" />
-        </Styled.DropdownButton>
-      </TooltipContainer>
-      { isDropdownOpen && (
-        <>
-          <Styled.Overlay onClick={() => setIsDropdownOpen(false)} />
-          <Styled.Dropdown
-            ref={dropdownRef}
-            onBlur={() => setIsDropdownOpen(false)}
-            tabIndex={0}
-          >
-            <Styled.List>
-              { options.map((option) => {
-                const {
-                  label, onClick, key, dataTest,
-                } = option;
-
-                return (
-                  <Styled.ListItem
-                    {...{
-                      onClick,
-                      key,
-                      'data-test': dataTest ?? '',
-                    }}
-                  >
-                    {label}
-                  </Styled.ListItem>
-                );
-              }) }
-            </Styled.List>
-          </Styled.Dropdown>
-        </>
-      ) }
+      <BBBMenu 
+        trigger={
+          <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
+            <Styled.DropdownButton
+              state={isDropdownOpen ? 'open' : 'closed'}
+              aria-label={intl.formatMessage(intlMessages.optionsLabel)}
+              data-test="whiteboardOptionsButton"
+              onClick={() => {
+                setIsDropdownOpen((isOpen) => !isOpen)
+              }}
+              >
+                <Styled.ButtonIcon iconName="more" />
+            </Styled.DropdownButton>
+          </TooltipContainer>
+        }
+        opts={{
+          id: "default-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+          container: fullscreenRef
+        }}
+        actions={getAvailableOptions()}
+      />
     </Styled.Right>
   );
 };

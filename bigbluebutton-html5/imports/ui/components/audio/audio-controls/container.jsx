@@ -14,6 +14,7 @@ import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
 } from '../audio-modal/service';
+import { layoutSelect } from '/imports/ui/components/layout/context';
 
 import Service from '../service';
 import AppService from '/imports/ui/components/app/service';
@@ -25,7 +26,8 @@ const AudioControlsContainer = (props) => {
   const {
     users, lockSettings, userLocks, children, ...newProps
   } = props;
-  return <AudioControls {...newProps} />;
+  const isRTL = layoutSelect((i) => i.isRTL);
+  return <AudioControls {...{ ...newProps, isRTL }} />;
 };
 
 const handleLeaveAudio = () => {

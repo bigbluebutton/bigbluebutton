@@ -9,14 +9,13 @@ import Auth from '/imports/ui/services/auth';
 import AudioService from '/imports/ui/components/audio/service';
 import { Meteor } from "meteor/meteor";
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import ConnectionStatusService from '/imports/ui/components/connection-status/service';
+import browserInfo from '/imports/utils/browserInfo';
 
 const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
-/**
- * Screenshare status to be filtered in getStats()
- */
-const FILTER_SCREENSHARE_STATS = [
+const DEFAULT_SCREENSHARE_STATS_TYPES = [
   'outbound-rtp',
   'inbound-rtp',
 ];
@@ -37,6 +36,32 @@ const setSharingScreen = (isSharingScreen) => {
     _sharingScreenDep.value = isSharingScreen;
     _sharingScreenDep.tracker.changed();
   }
+};
+
+const _trackStreamTermination = (stream, handler) => {
+  if (typeof stream !== 'object' || typeof handler !== 'function') {
+    throw new TypeError('Invalid trackStreamTermination arguments');
+  }
+
+  if (stream.oninactive === null) {
+    stream.addEventListener('inactive', handler, { once: true });
+  } else {
+    const track = MediaStreamUtils.getVideoTracks(stream)[0];
+    if (track) {
+      track.addEventListener('ended', handler, { once: true });
+      track.onended = handler;
+    }
+  }
+};
+
+const _isStreamActive = (stream) => {
+  const tracksAreActive = !stream.getTracks().some(track => track.readyState === 'ended');
+
+  return tracksAreActive && stream.active;
+}
+
+const _handleStreamTermination = () => {
+  screenshareHasEnded();
 };
 
 // A simplified, trackable version of isVideoBroadcasting that DOES NOT
@@ -89,6 +114,14 @@ const getMediaElement = () => {
   return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
 }
 
+const getMediaElementDimensions = () => {
+  const element = getMediaElement();
+  return {
+    width: element?.videoWidth ?? 0,
+    height: element?.videoHeight ?? 0,
+  };
+};
+
 const setVolume = (volume) => {
   KurentoBridge.setVolume(volume);
 };
@@ -98,6 +131,11 @@ const getVolume = () => KurentoBridge.getVolume();
 const shouldEnableVolumeControl = () => VOLUME_CONTROL_ENABLED && screenshareHasAudio();
 
 const attachLocalPreviewStream = (mediaElement) => {
+  const {isMobileApp} = browserInfo;
+  if (isMobileApp) {
+    // We don't show preview for mobile app, as the stream is only available in native code
+    return;
+  }
   const stream = KurentoBridge.gdmStream;
   if (stream && mediaElement) {
     // Always muted, presenter preview.
@@ -122,11 +160,25 @@ const shareScreen = async (isPresenter, onFail) => {
 
   try {
     const stream = await BridgeService.getScreenStream();
-    if(!isPresenter) return MediaStreamUtils.stopMediaStreamTracks(stream);
+    _trackStreamTermination(stream, _handleStreamTermination);
+
+    if (!isPresenter) {
+      MediaStreamUtils.stopMediaStreamTracks(stream);
+      return;
+    }
+
     await KurentoBridge.share(stream, onFail);
+
+    // Stream might have been disabled in the meantime. I love badly designed
+    // async components like this screen sharing bridge :) - prlanzarin 09 May 22
+    if (!_isStreamActive(stream)) {
+      _handleStreamTermination();
+      return;
+    }
+
     setSharingScreen(true);
   } catch (error) {
-    return onFail(error);
+    onFail(error);
   }
 };
 
@@ -152,33 +204,33 @@ const screenShareEndAlert = () => AudioService
 const dataSavingSetting = () => Settings.dataSaving.viewScreenshare;
 
 /**
-   * Get stats about all active screenshare peer.
-   * We filter the status based on FILTER_SCREENSHARE_STATS constant.
+   * Get stats about all active screenshare peers.
    *
    * For more information see:
-   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
-   * and
-   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
-   * @returns An Object containing the information about each active peer
-   *          (currently one, for screenshare). The returned format
-   *          follows the format returned by video's service getStats, which
-   *          considers more than one peer connection to be returned.
+   *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+
+   * @param {Array[String]} statsType - An array containing valid RTCStatsType
+   *                                    values to include in the return object
+   *
+   * @returns {Object} The information about each active screen sharing peer.
+   *          The returned format follows the format returned by video's service
+   *          getStats, which considers more than one peer connection to be returned.
    *          The format is given by:
    *          {
    *            peerIdString: RTCStatsReport
    *          }
    */
-const getStats = async () => {
+const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
+  const screenshareStats = {};
   const peer = KurentoBridge.getPeerConnection();
 
   if (!peer) return null;
 
   const peerStats = await peer.getStats();
 
-  const screenshareStats = {};
-
   peerStats.forEach((stat) => {
-    if (FILTER_SCREENSHARE_STATS.includes(stat.type)) {
+    if (statsTypes.includes(stat.type)) {
       screenshareStats[stat.type] = stat;
     }
   });
@@ -186,8 +238,21 @@ const getStats = async () => {
   return { screenshareStats };
 };
 
+// This method may throw errors
+const isMediaFlowing = (previousStats, currentStats) => {
+  const bpsData = ConnectionStatusService.calculateBitsPerSecond(
+    currentStats.screenshareStats,
+    previousStats.screenshareStats,
+  );
+  const bpsDataAggr = Object.values(bpsData)
+    .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
+
+  return bpsDataAggr > 0;
+};
+
 export {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
+  isMediaFlowing,
   isVideoBroadcasting,
   screenshareHasEnded,
   screenshareHasStarted,
@@ -198,6 +263,7 @@ export {
   isSharingScreen,
   setSharingScreen,
   getMediaElement,
+  getMediaElementDimensions,
   attachLocalPreviewStream,
   isGloballyBroadcasting,
   getStats,

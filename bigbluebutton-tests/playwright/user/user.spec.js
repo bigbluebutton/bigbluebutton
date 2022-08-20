@@ -9,13 +9,14 @@ const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
     test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page);
+      await multiusers.initModPage(page, true);
       await multiusers.raiseAndLowerHand();
     });
 
-    test('Toggle user list', async ({ browser, context, page }) => {
+    test('Toggle user list @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.toggleUserList();
@@ -23,7 +24,8 @@ test.describe.parallel('User', () => {
   });
 
   test.describe.parallel('List', () => {
-    test('Change user status', async ({ browser, page }) => {
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
+    test('Change user status @ci', async ({ browser, page }) => {
       const status = new Status(browser, page);
       await status.init(true, true);
       await status.changeUserStatus();
@@ -35,26 +37,28 @@ test.describe.parallel('User', () => {
       await multiusers.userPresence();
     });
 
-    test('Make presenter', async ({ browser, context, page }) => {
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#make-viewer-a-presenter-automated
+    test('Make presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.makePresenter();
     });
 
-    test('Take presenter', async ({ browser, context, page }) => {
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#taking-presenter-status-back-automated
+    test('Take presenter @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.takePresenter();
     });
 
-    test('Promote to moderator', async ({ browser, context, page }) => {
+    test('Promote to moderator @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.promoteToModerator();
     });
 
-    test('Demote to viewer', async ({ browser, context, page }) => {
+    test('Demote to viewer @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
@@ -83,7 +87,8 @@ test.describe.parallel('User', () => {
       });
     });
 
-    test.describe.parallel('Lock viewers', () => {
+    test.describe.parallel('Lock viewers @ci', () => {
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#webcam
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -91,6 +96,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockShareWebcam();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-webcams
       test('Lock See other viewers webcams', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -98,6 +104,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersWebcams();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#microphone
       test('Lock Share microphone', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -105,6 +112,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockShareMicrophone();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#public-chat
       test('Lock Send public chat messages', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -112,6 +120,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSendPublicChatMessages();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#private-chat
       test('Lock Send private chat messages', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -119,12 +128,14 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSendPrivateChatMessages();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#shared-notes-1
       test('Lock Edit Shared Notes', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockEditSharedNotes();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-in-the-users-list
       test('Lock See other viewers in the Users list', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -132,6 +143,7 @@ test.describe.parallel('User', () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#unlock-a-specific-user
       test('Unlock a user', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
@@ -140,13 +152,14 @@ test.describe.parallel('User', () => {
       });
     });
 
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#saving-usernames
     test('Save user names', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initPages(page);
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Select random user', async ({ browser, context, page }) => {
+    test('Select random user @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.selectRandomUser();
@@ -158,7 +171,7 @@ test.describe.parallel('User', () => {
       test.skip(browserName === 'firefox', 'Mobile tests are not able in Firefox browser');
     });
 
-    test('Mobile Tag Name For Mobile User', async ({ browser }) => {
+    test('Mobile Tag Name For Mobile User @ci', async ({ browser }) => {
       const context = await browser.newContext({ ...iPhone11 });
       const mobilePage = await context.newPage();
       const mobileDevices = new MobileDevices(browser, context);

@@ -3,6 +3,8 @@ import {
   colorPrimary,
   colorBlack,
   colorWhite,
+  webcamBackgroundColor,
+  colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
@@ -15,11 +17,20 @@ const rotate360 = keyframes`
   }
 `;
 
+const fade = keyframes`
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 0;
+  }
+`;
+
 const Content = styled.div`
   position: relative;
   display: flex;
   min-width: 100%;
-
+  border-radius: 10px;
   &::after {
     content: "";
     position: absolute;
@@ -27,18 +38,32 @@ const Content = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid ${colorPrimary};
-    opacity: 0;
     pointer-events: none;
+    border: 2px solid ${colorBlack};
+    border-radius: 10px;
+
+    ${({ talking }) => talking && `
+      border: 2px solid ${colorPrimary};
+    `}
 
     ${({ animations }) => animations && `
       transition: opacity .1s;
     `}
   }
 
-  ${({ talking }) => talking && `
+  ${({ dragging, animations }) => dragging && animations && css`
+    &::after {
+      animation: ${fade} .5s linear infinite;
+      animation-direction: alternate;
+    }
+  `}
+
+  ${({ dragging, draggingOver }) => (dragging || draggingOver) && `
     &::after {
       opacity: 0.7;
+      border-style: dashed;
+      border-color: ${colorDanger};
+      transition: opacity 0s;
     }
   `}
 
@@ -53,25 +78,15 @@ const Content = styled.div`
 `;
 
 const WebcamConnecting = styled.div`
-  position: relative;
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-  background-color: ${colorBlack};
-
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  white-space: nowrap;
-  z-index: 1;
-  vertical-align: middle;
-  border-radius: 1px;
-  opacity: 1;
-
-  position: relative;
-  display: flex;
+  height: 100%;
+  width: 100%;
   min-width: 100%;
+  border-radius: 10px;
+  background-color: ${webcamBackgroundColor};
+  z-index: 0;
 
   &::after {
     content: "";
@@ -80,7 +95,6 @@ const WebcamConnecting = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    border: 5px solid ${colorPrimary};
     opacity: 0;
     pointer-events: none;
 
@@ -88,12 +102,6 @@ const WebcamConnecting = styled.div`
       transition: opacity .1s;
     `}
   }
-
-  ${({ talking }) => talking && `
-    &::after {
-      opacity: 0.7;
-    }
-  `}
 `;
 
 const LoadingText = styled(TextElipsis)`
@@ -125,6 +133,8 @@ const Reconnecting = styled.div`
 `;
 
 const VideoContainer = styled.div`
+  display: flex;
+  justify-content: center;
   width: 100%;
   height: 100%;
 `;
@@ -132,9 +142,10 @@ const VideoContainer = styled.div`
 const Video = styled.video`
   position: relative;
   height: 100%;
-  width: 100%;
+  width: calc(100% - 1px);
   object-fit: contain;
   background-color: ${colorBlack};
+  border-radius: 10px;
 
   ${({ mirrored }) => mirrored && `
     transform: scale(-1, 1);

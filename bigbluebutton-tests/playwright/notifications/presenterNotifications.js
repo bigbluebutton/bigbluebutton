@@ -4,7 +4,7 @@ const e = require('../core/elements');
 const utilPolling = require('../polling/util');
 const utilScreenShare = require('../screenshare/util');
 const utilPresentation = require('../presentation/util');
-const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 
 class PresenterNotifications extends MultiUsers {
   constructor(browser, context) {
@@ -12,18 +12,19 @@ class PresenterNotifications extends MultiUsers {
   }
 
   async publishPollResults() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPolling.startPoll(this.modPage, true);
     await this.modPage.waitForSelector(e.smallToastMsg);
     await util.checkNotificationText(this.modPage, e.pollPublishedToast);
   }
 
   async fileUploaderNotification() {
-    await utilPresentation.uploadPresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
     await util.checkNotificationText(this.userPage, e.presentationUploadedToast);
   }
 
   async screenshareToast() {
+    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilScreenShare.startScreenshare(this.modPage);
     await util.checkNotificationText(this.modPage, e.startScreenshareToast);
     await util.waitAndClearNotification(this.modPage);

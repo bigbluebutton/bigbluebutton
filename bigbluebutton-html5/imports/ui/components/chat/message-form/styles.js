@@ -13,6 +13,8 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
+import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import Button from '/imports/ui/components/common/button/component';
 
 const Form = styled.form`
@@ -84,9 +86,50 @@ const SendButton = styled(Button)`
   }
 `;
 
+const EmojiButtonWrapper = styled.div``;
+
+const EmojiButton = styled(Button)`
+  margin:0 0 0 ${smPaddingX};
+  align-self: center;
+  font-size: 0.5rem;
+
+  [dir="rtl"]  & {
+    margin: 0 ${smPaddingX} 0 0;
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
+`;
+
+const EmojiPickerWrapper = styled.div`
+  .emoji-mart {
+    max-width: 100% !important;
+  }
+  .emoji-mart-anchor {
+    cursor: pointer;
+  }
+  .emoji-mart-emoji {
+    cursor: pointer !important;
+  }
+  .emoji-mart-category-list {
+    span {
+      cursor: pointer !important;
+      display: inline-block !important;
+    }
+  }
+`;
+
+const EmojiPicker = styled(EmojiPickerComponent)``;
+
 export default {
   Form,
   Wrapper,
   Input,
   SendButton,
+  EmojiButton,
+  EmojiButtonWrapper,
+  EmojiPicker,
+  EmojiPickerWrapper,
 };

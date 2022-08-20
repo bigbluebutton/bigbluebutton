@@ -1,12 +1,11 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
 `;
 
 const Left = styled.div`
@@ -76,20 +75,9 @@ const Right = styled.div`
   }
 `;
 
-const RaiseHandButton = styled(Button)`
-  ${({ emoji }) => emoji !== 'raiseHand' && `
-      span {
-        box-shadow: none;
-        background-color: transparent !important;
-        border-color: ${colorWhite} !important;
-      }
-   `}
-`;
-
 export default {
   ActionsBar,
   Left,
   Center,
   Right,
-  RaiseHandButton,
 };

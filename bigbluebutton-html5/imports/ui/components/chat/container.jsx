@@ -13,6 +13,7 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import Chat from '/imports/ui/components/chat/component';
 import ChatService from './service';
 import { layoutSelect, layoutDispatch } from '../layout/context';
+import { escapeHtml } from '/imports/utils/string-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -200,7 +201,7 @@ const ChatContainer = (props) => {
           id,
           content: [{
             id,
-            text: intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatName }),
+            text: escapeHtml(intl.formatMessage(intlMessages.partnerDisconnected, { 0: chatName })),
             time,
           }],
           time,

@@ -83,6 +83,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.endMeetingDesc',
     description: 'Describes settings option closing the current meeting',
   },
+  startCaption: {
+    id: 'app.audio.captions.button.start',
+    description: 'Start audio captions',
+  },
+  stopCaption: {
+    id: 'app.audio.captions.button.stop',
+    description: 'Stop audio captions',
+  },
 });
 
 const propTypes = {
@@ -97,6 +105,9 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
+  audioCaptionsEnabled: PropTypes.bool.isRequired,
+  audioCaptionsActive: PropTypes.bool.isRequired,
+  audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
 };
 
@@ -185,7 +196,8 @@ class SettingsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
+      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
+      audioCaptionsActive, audioCaptionsSet, isMobile,
     } = this.props;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
@@ -227,6 +239,20 @@ class SettingsDropdown extends PureComponent {
           label: intl.formatMessage(intlMessages.helpLabel),
           // description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`),
+        },
+      );
+    }
+
+    if (audioCaptionsEnabled && isMobile) {
+      this.menuItems.push(
+        {
+          key: 'audioCaptions',
+          dataTest: 'audioCaptions',
+          icon: audioCaptionsActive ? 'closed_caption_stop' : 'closed_caption',
+          label: intl.formatMessage(
+            audioCaptionsActive ? intlMessages.stopCaption : intlMessages.startCaption,
+          ),
+          onClick: () => audioCaptionsSet(!audioCaptionsActive),
         },
       );
     }
@@ -279,9 +305,10 @@ class SettingsDropdown extends PureComponent {
       shortcuts: OPEN_OPTIONS_AK,
       isDropdownOpen,
       isMobile,
+      isRTL,
     } = this.props;
 
-    const customStyles = { top: '3rem' };
+    const customStyles = { top: '1rem' };
 
     return (
       <BBBMenu
@@ -293,7 +320,8 @@ class SettingsDropdown extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             data-test="optionsButton"
-            ghost
+            color="dark"
+            size="md"
             circle
             hideLabel
             // FIXME: Without onClick react proptypes keep warning
@@ -302,6 +330,16 @@ class SettingsDropdown extends PureComponent {
           />
         )}
         actions={this.renderMenuItems()}
+        opts={{
+          id: "default-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
+          transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+        }}
       />
     );
   }
