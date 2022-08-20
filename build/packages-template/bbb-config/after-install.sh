@@ -142,6 +142,7 @@ fi
 
 # symlink default bbb nginx config from package if it does not exist
 if [ ! -e /etc/bigbluebutton/nginx/include_default.nginx ] ; then
+  mkdir -p /etc/bigbluebutton/nginx
   ln -s /usr/share/bigbluebutton/include_default.nginx /etc/bigbluebutton/nginx/include_default.nginx
 fi
 
