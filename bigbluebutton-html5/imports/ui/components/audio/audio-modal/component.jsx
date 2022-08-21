@@ -12,6 +12,7 @@ import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
+import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -455,15 +456,15 @@ class AudioModal extends Component {
           <Styled.AudioDial
             label={dialAudioLabel}
             size="md"
-            color="primary"
+            color="secondary"
             onClick={() => {
               this.setState({
                 content: 'audioDial',
               });
             }}
-            ghost
           />
         ) : null}
+        <CaptionsSelectContainer />
       </div>
     );
   }
