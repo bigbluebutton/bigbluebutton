@@ -27,6 +27,7 @@ const findRemoved = (A, B) => {
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
 const TOOLBAR_SMALL = 28;
+const TOOLBAR_LARGE = 38;
 
 export default function Whiteboard(props) {
   const {
@@ -218,34 +219,25 @@ export default function Whiteboard(props) {
       const tdDelete = document.getElementById("TD-Delete");
       const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
       const tdTools = document.getElementById("TD-Tools");
-      if (props.height < SMALL_HEIGHT) {
-        if (tdToolsDots) {
-          tdToolsDots.style.height = `${TOOLBAR_SMALL}px`;
-          tdToolsDots.style.width = `${TOOLBAR_SMALL}px`;
-        }
-        if (tdDelete) {
-          const delButton = tdDelete.getElementsByTagName('button')[0];
-          delButton.style.height = `${TOOLBAR_SMALL}px`;
-          delButton.style.width = `${TOOLBAR_SMALL}px`;
-        }
-        if (tdPrimaryTools) {
-          const primaryBtns = tdPrimaryTools?.getElementsByTagName('button');
-          for (let item of primaryBtns) {
-            item.style.height = `${TOOLBAR_SMALL}px`;
-            item.style.width = `${TOOLBAR_SMALL}px`;
-          }
+      if (tdToolsDots && tdDelete && tdPrimaryTools) {
+        const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
+        tdToolsDots.style.height = `${size}px`;
+        tdToolsDots.style.width = `${size}px`;
+        const delButton = tdDelete.getElementsByTagName('button')[0];
+        delButton.style.height = `${size}px`;
+        delButton.style.width = `${size}px`;
+        const primaryBtns = tdPrimaryTools?.getElementsByTagName('button');
+        for (let item of primaryBtns) {
+          item.style.height = `${size}px`;
+          item.style.width = `${size}px`;
         }
       }
-      if (props.height < SMALLEST_HEIGHT) {
+      if (props.height < SMALLEST_HEIGHT && tdTools) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
-        if (tdTools) {
-          tdTools.parentElement.style.bottom = `${TOOLBAR_SMALL}px`;
-        }
+        tdTools.parentElement.style.bottom = `${TOOLBAR_SMALL}px`;
       }
-      if (tdTools) {
-        // removes tldraw native help menu button
-        tdTools.parentElement?.nextSibling?.remove();
-      }
+      // removes tldraw native help menu button
+      tdTools?.parentElement?.nextSibling?.remove();
       // removes image tool from the tldraw toolbar
       document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
     }
