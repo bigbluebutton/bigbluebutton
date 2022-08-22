@@ -266,7 +266,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
-    isModerator: currentUser.role === ROLE_MODERATOR,
+    isModerator: currentUser?.role === ROLE_MODERATOR,
     meetingLayout: layout,
     meetingLayoutUpdatedAt: layoutUpdatedAt,
     presentationIsOpen,
