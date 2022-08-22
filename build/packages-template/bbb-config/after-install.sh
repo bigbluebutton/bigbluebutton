@@ -140,6 +140,12 @@ else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 
+# symlink default bbb nginx config from package if it does not exist
+if [ ! -e /etc/bigbluebutton/nginx/include_default.nginx ] ; then
+  mkdir -p /etc/bigbluebutton/nginx
+  ln -s /usr/share/bigbluebutton/include_default.nginx /etc/bigbluebutton/nginx/include_default.nginx
+fi
+
 # set full BBB version in settings.yml so it can be displayed in the client
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml

@@ -27,6 +27,7 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 // FIXME Remove hardcoded defaults 2.3.
 const WS_CONN_TIMEOUT = Meteor.settings.public.kurento.wsConnectionTimeout || 4000;
 
+const { webcam: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
 const {
   baseTimeout: CAMERA_SHARE_FAILED_WAIT_TIME = 15000,
   maxTimeout: MAX_CAMERA_SHARE_FAILED_WAIT_TIME = 60000,
@@ -616,6 +617,7 @@ class VideoProvider extends Component {
         iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
       },
       trace: TRACE_LOGS,
+      networkPriorities: NETWORK_PRIORITY ? { video: NETWORK_PRIORITY } : undefined,
     };
 
     try {
