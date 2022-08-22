@@ -580,7 +580,6 @@ class PresentationUploader extends Component {
             logCode: 'presentationuploader_component_save_error',
             extraInfo: { error },
           }, 'Presentation uploader catch error on confirm');
-          console.log("Erro aqui....", error)
         });
     }
 
