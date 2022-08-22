@@ -4,6 +4,7 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import { Session } from 'meteor/session';
@@ -76,6 +77,7 @@ class Presentation extends PureComponent {
       fitToWidth: false,
       isFullscreen: false,
       tldrawAPI: null,
+      isPanning: false,
     };
 
     this.currentPresentationToastId = null;
@@ -90,6 +92,8 @@ class Presentation extends PureComponent {
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
+    this.setIsPanning = this.setIsPanning.bind(this);
+    this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
@@ -122,8 +126,28 @@ class Presentation extends PureComponent {
     return stateChange;
   }
 
+  setIsPanning() {
+    this.setState({
+      isPanning: !this.state.isPanning,
+    });
+  }
+
+  handlePanShortcut(e) {
+    const { userIsPresenter } = this.props;
+    if (e.keyCode === SPACE && userIsPresenter) {
+      switch(e.type) {
+        case 'keyup':
+          return this.state.isPanning && this.setIsPanning();
+        case 'keydown':
+          return !this.state.isPanning && this.setIsPanning(); 
+      }
+    }
+  }
+
   componentDidMount() {
     this.getInitialPresentationSizes();
+    this.refPresentationContainer.addEventListener('keydown', this.handlePanShortcut);
+    this.refPresentationContainer.addEventListener('keyup', this.handlePanShortcut);
     this.refPresentationContainer
       .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
@@ -267,6 +291,9 @@ class Presentation extends PureComponent {
         value: currentSlide.num,
       });
     }
+    if (!userIsPresenter && prevProps.userIsPresenter) {
+      this.setIsPanning();
+    }
   }
 
   componentWillUnmount() {
@@ -276,6 +303,8 @@ class Presentation extends PureComponent {
     window.removeEventListener('resize', this.onResize, false);
     this.refPresentationContainer
       .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener('keydown', this.handlePanShortcut);
+    this.refPresentationContainer.removeEventListener('keyup', this.handlePanShortcut);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -738,7 +767,8 @@ class Presentation extends PureComponent {
           layoutContextDispatch,
           presentationIsOpen,
         }}
-        isZoomed={this.state.isZoomed}
+        setIsPanning={this.setIsPanning}
+        isPanning={this.state.isPanning}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
@@ -992,6 +1022,7 @@ class Presentation extends PureComponent {
                   presentationWidth={svgWidth}
                   presentationHeight={svgHeight}
                   isViewersCursorLocked={isViewersCursorLocked}
+                  isPanning={this.state.isPanning}
                   zoomChanger={this.zoomChanger}
                   fitToWidth={fitToWidth}
                   zoomValue={zoom}

@@ -204,6 +204,12 @@ const FitToWidthButton = styled(Button)`
     background-color: ${colorOffWhite};
     border: 0;
   }
+
+  ${({ panning }) => panning && `
+    > span {
+      background-color: #DCE4EC;
+    }
+  `}
 `;
 
 const MultiUserTool = styled.span`

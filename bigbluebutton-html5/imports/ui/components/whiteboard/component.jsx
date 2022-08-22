@@ -50,6 +50,7 @@ export default function Whiteboard(props) {
     zoomValue,
     width,
     height,
+    isPanning,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -63,6 +64,7 @@ export default function Whiteboard(props) {
     assets: {},
   });
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
@@ -221,7 +223,17 @@ export default function Whiteboard(props) {
       // removes image tool from the tldraw toolbar
       document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
     }
+
+    if (tldrawAPI) {
+      tldrawAPI.isForcePanning = isPanning;
+    }
   });
+
+  React.useEffect(() => {
+    if (tldrawAPI) {
+      tldrawAPI.isForcePanning = isPanning;
+    }
+  }, [isPanning]);
 
   const onMount = (app) => {
     app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
@@ -310,7 +322,7 @@ export default function Whiteboard(props) {
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <Tldraw
-      key={`wb-${isRTL}-${width}-${height}-${dockPos}`}
+      key={`wb-${isRTL}-${width}-${height}-${dockPos}-${forcePanning}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
@@ -525,6 +537,7 @@ export default function Whiteboard(props) {
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
+        isPanning={isPanning}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
       </Cursors>
