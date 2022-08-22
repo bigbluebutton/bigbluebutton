@@ -330,6 +330,15 @@ class PresentationUploader extends Component {
         }
       });
       return presentation;
+    }).filter((presentation) => {
+      const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
+
+      if (!currentPropPres) return false;
+
+      presentation.conversion = currentPropPres.conversion;
+      presentation.isRemovable = currentPropPres.isRemovable;
+
+      return true;
     });
 
     if (shouldUpdateState) {
