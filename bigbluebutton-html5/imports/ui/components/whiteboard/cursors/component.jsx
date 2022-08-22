@@ -285,7 +285,7 @@ export default function Cursors(props) {
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? "none" : "default";
   if (isPanning) cursorType = 'grab';
-  
+
   return (
     <span ref={(r) => (cursorWrapper = r)}>
       <div style={{ height: "100%", cursor: cursorType }}>

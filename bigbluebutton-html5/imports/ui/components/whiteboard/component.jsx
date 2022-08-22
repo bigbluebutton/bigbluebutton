@@ -51,11 +51,11 @@ export default function Whiteboard(props) {
     zoomChanger,
     isMultiUserActive,
     isRTL,
-    isPanning,
     fitToWidth,
     zoomValue,
     width,
     height,
+    isPanning,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -345,7 +345,7 @@ export default function Whiteboard(props) {
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <Tldraw
-      key={`wb-${isRTL}-${width}-${height}-${dockPos}`}
+      key={`wb-${isRTL}-${width}-${height}-${dockPos}-${forcePanning}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
@@ -561,7 +561,6 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
-
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
       </Cursors>

@@ -92,6 +92,8 @@ class Presentation extends PureComponent {
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
+    this.setIsPanning = this.setIsPanning.bind(this);
+    this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
     this.setIsPanning = this.setIsPanning.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
@@ -124,6 +126,12 @@ class Presentation extends PureComponent {
     }
 
     return stateChange;
+  }
+
+  setIsPanning() {
+    this.setState({
+      isPanning: !this.state.isPanning,
+    });
   }
 
   handlePanShortcut(e) {
@@ -284,10 +292,6 @@ class Presentation extends PureComponent {
         type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
         value: currentSlide.num,
       });
-    }
-
-    if (isPanning || !userIsPresenter && prevProps.userIsPresenter) {
-      this.setIsPanning();
     }
   }
 
@@ -771,7 +775,6 @@ class Presentation extends PureComponent {
         }}
         setIsPanning={this.setIsPanning}
         isPanning={this.state.isPanning}
-        isZoomed={this.state.isZoomed}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
@@ -1025,8 +1028,8 @@ class Presentation extends PureComponent {
                   presentationWidth={svgWidth}
                   presentationHeight={svgHeight}
                   isViewersCursorLocked={isViewersCursorLocked}
-                  zoomChanger={this.zoomChanger}
                   isPanning={this.state.isPanning}
+                  zoomChanger={this.zoomChanger}
                   fitToWidth={fitToWidth}
                   zoomValue={zoom}
                 />
