@@ -49,6 +49,8 @@ export default function Whiteboard(props) {
     isPanning,
     fitToWidth,
     zoomValue,
+    width,
+    height,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -101,7 +103,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
+    if (curPageId && next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
       next.assets[`slide-background-asset-${curPageId}`] = {
         id: `slide-background-asset-${curPageId}`,
         size: [slidePosition?.width || 0, slidePosition?.height || 0],
@@ -316,9 +318,11 @@ export default function Whiteboard(props) {
     }
   };
 
+  const webcams = document.getElementById('cameraDock');
+  const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <Tldraw
-      key={`wb-${document?.documentElement?.dir}-${document.getElementById('Navbar')?.style?.width}-${forcePanning}`}
+      key={`wb-${isRTL}-${width}-${height}-${dockPos}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
