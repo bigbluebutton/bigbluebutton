@@ -182,7 +182,7 @@ class Page {
   }
 
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
-    const locator = this.getLocator(selector);
+    const locator = this.getLocator(selector).first();
     await expect(locator).toContainText(text, { timeout });
   }
 
