@@ -168,6 +168,7 @@ export default function Cursors(props) {
     if (panel) xOffset += parseFloat(panel?.style?.width);
     if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
     if (type === 'touchmove') {
+      calcPresOffset();
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
