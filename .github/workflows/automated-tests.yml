@@ -134,7 +134,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-ci
+        run: npm run test-chromium-ci
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: ${{ contains(github.event.pull_request.labels.*.name, 'test Firefox')
