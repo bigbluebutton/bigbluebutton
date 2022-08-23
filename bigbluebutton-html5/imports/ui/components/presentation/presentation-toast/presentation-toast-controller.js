@@ -90,7 +90,7 @@ const intlMessages = defineMessages({
 });  
 
 function renderPresentationItemStatus(item, intl) {
-	if ((("progress" in item) && item.progress === 0) || (("conversion" in item && !item.conversion.done && !item.conversion.error))) {
+	if ((("progress" in item) && item.progress === 0) || (("upload" in item) && item.upload.progress === 0)) {
 		return intl.formatMessage(intlMessages.fileToUpload);
 	}
 
