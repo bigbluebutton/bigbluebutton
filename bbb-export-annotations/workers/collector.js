@@ -112,7 +112,9 @@ const exportJob = JSON.parse(job);
       try {
         cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
       } catch (error) {
-        logger.error(`Extracting slide ${pageNumber} failed for job ${jobId}: ${error.message}`);
+        const error_reason = `PDFtoCairo failed extracting slide ${pageNumber}`;
+        logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
+        statusUpdate.core.body.status = error_reason;
         statusUpdate.core.body.error = true;
       }
 
