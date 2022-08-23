@@ -4,6 +4,7 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import { Session } from 'meteor/session';
@@ -78,6 +79,8 @@ class Presentation extends PureComponent {
       isFullscreen: false,
       tldrawAPI: null,
       isZoomed: false,
+      hadPresentation: false,
+      isPanning: false,
     };
 
     this.currentPresentationToastId = null;
@@ -94,6 +97,8 @@ class Presentation extends PureComponent {
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
     this.setIsZoomed = this.setIsZoomed.bind(this);
+    this.setIsPanning = this.setIsPanning.bind(this);
+    this.handlePanShortcut = this.handlePanShortcut.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -125,8 +130,22 @@ class Presentation extends PureComponent {
     return stateChange;
   }
 
+  handlePanShortcut(e) {
+    const { userIsPresenter } = this.props;
+    if (e.keyCode === SPACE && userIsPresenter) {
+      switch(e.type) {
+        case 'keyup':
+          return this.state.isPanning && this.setIsPanning();
+        case 'keydown':
+          return !this.state.isPanning && this.setIsPanning(); 
+      }
+    }
+  }
+
   componentDidMount() {
     this.getInitialPresentationSizes();
+    this.refPresentationContainer.addEventListener('keydown', this.handlePanShortcut);
+    this.refPresentationContainer.addEventListener('keyup', this.handlePanShortcut);
     this.refPresentationContainer
       .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
@@ -170,7 +189,7 @@ class Presentation extends PureComponent {
       clearFakeAnnotations,
     } = this.props;
 
-    const { presentationWidth, presentationHeight } = this.state;
+    const { presentationWidth, presentationHeight, isZoomed, isPanning } = this.state;
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
@@ -272,6 +291,10 @@ class Presentation extends PureComponent {
         value: currentSlide.num,
       });
     }
+
+    if (!isZoomed && isPanning || !userIsPresenter && prevProps.userIsPresenter) {
+      this.setIsPanning();
+    }
   }
 
   componentWillUnmount() {
@@ -281,6 +304,8 @@ class Presentation extends PureComponent {
     window.removeEventListener('resize', this.onResize, false);
     this.refPresentationContainer
       .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener('keydown', this.handlePanShortcut);
+    this.refPresentationContainer.removeEventListener('keyup', this.handlePanShortcut);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -296,13 +321,19 @@ class Presentation extends PureComponent {
   setTldrawAPI(api) {
     this.setState({
       tldrawAPI: api,
-    })
+    });
   }
 
   setIsZoomed(isZoomed) {
     this.setState({
       isZoomed,
-    })
+    });
+  }
+
+  setIsPanning() {
+    this.setState({
+      isPanning: !this.state.isPanning,
+    });
   }
 
   handleResize() {
@@ -752,6 +783,8 @@ class Presentation extends PureComponent {
           layoutContextDispatch,
           presentationIsOpen,
         }}
+        setIsPanning={this.setIsPanning}
+        isPanning={this.state.isPanning}
         isZoomed={this.state.isZoomed}
         tldrawAPI={this.state.tldrawAPI}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
@@ -988,6 +1021,7 @@ class Presentation extends PureComponent {
             presentationHeight={presentationHeight}
             isViewersCursorLocked={isViewersCursorLocked}
             isZoomed={isZoomed}
+            isPanning={this.state.isPanning}
             setIsZoomed={this.setIsZoomed}
             zoomChanger={this.zoomChanger}
           />

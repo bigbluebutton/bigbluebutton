@@ -224,6 +224,7 @@ class SettingsDropdown extends PureComponent {
       {
         key: 'list-item-about',
         icon: 'about',
+        dataTest: 'aboutModal',
         label: intl.formatMessage(intlMessages.aboutLabel),
         // description: intl.formatMessage(intlMessages.aboutDesc),
         onClick: () => mountModal(<AboutContainer />),
