@@ -167,16 +167,15 @@ export default function Cursors(props) {
     if (nav) yOffset += parseFloat(nav?.style?.height);
     if (panel) xOffset += parseFloat(panel?.style?.width);
     if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
+
+    // disable native tldraw eraser animation
+    const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
+    if (eraserLine) eraserLine.style.display = `none`;
+        
     if (type === 'touchmove') {
       calcPresOffset();
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
-    }
-
-    // disable native tldraw eraser animation
-    const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
-    if (eraserLine) {
-      eraserLine.style.display = `none`;
     }
 
     if (document?.documentElement?.dir === 'rtl') { 
