@@ -132,7 +132,22 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-ci
+        run: npm run test-chromium-ci
+      - name: Run Firefox tests
+        working-directory: ./bigbluebutton-tests/playwright
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'test Firefox')
+                || contains(github.event.pull_request.labels.*.name, 'Test Firefox') }}
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+        # patch playwright's firefox so that it uses the system's root certificate authority
+        run: |
+          sh -c '
+          find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
+          npm run test-firefox-ci
+          '
       - if: always()
         uses: actions/upload-artifact@v3
         with:
