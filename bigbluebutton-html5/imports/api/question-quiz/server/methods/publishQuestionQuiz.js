@@ -33,7 +33,8 @@ export default function publishQuestionQuiz(isPrivateChatAllowed, messageLabels,
 
     if(isPrivateChatAllowed){
       const {responses, answers, question} = questionQuiz
-      handleSendPrivateChatToUsersForPublishedQuestionQuiz(this.userId, question, responses, answers, messageLabels, notAttemptedUsers)
+      handleSendPrivateChatToUsersForPublishedQuestionQuiz(this.userId, question,
+       responses ? responses : [], answers, messageLabels, notAttemptedUsers)
     }
   } catch (err) {
     Logger.error(`Exception while invoking method publishQuestionQuiz ${err.stack}`);
