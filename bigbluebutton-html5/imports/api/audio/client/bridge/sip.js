@@ -17,15 +17,12 @@ import { Tracker } from 'meteor/tracker';
 import VoiceCallStates from '/imports/api/voice-call-states';
 import CallStateOptions from '/imports/api/voice-call-states/utils/callStates';
 import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
 import browserInfo from '/imports/utils/browserInfo';
 import {
   getCurrentAudioSessionNumber,
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
-  DEFAULT_OUTPUT_DEVICE_ID,
-  OUTPUT_DEVICE_ID_KEY,
 } from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
