@@ -192,7 +192,7 @@ class Presentation extends PureComponent {
       clearFakeAnnotations,
     } = this.props;
 
-    const { presentationWidth, presentationHeight, isPanning } = this.state;
+    const { presentationWidth, presentationHeight, zoom, isPanning } = this.state;
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
@@ -292,6 +292,10 @@ class Presentation extends PureComponent {
         type: ACTIONS.SET_PRESENTATION_NUM_CURRENT_SLIDE,
         value: currentSlide.num,
       });
+    }
+
+    if (zoom <= HUNDRED_PERCENT && isPanning || !userIsPresenter && prevProps.userIsPresenter) {
+      this.setIsPanning();
     }
   }
 
