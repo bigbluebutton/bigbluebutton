@@ -60,7 +60,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
-      exportation: exportation || { isRunning: false, error: false },
+      exportation: exportation || { error: false },
     };
   });
 
@@ -277,7 +277,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     const cursor = Presentations.find({ id: presentationId });
 
     const checkStatus = (exportation) => {
-      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+      const shouldStop = lastStatus.status === 'PROCESSING' && exportation.status === 'EXPORTED';
 
       if (shouldStop) {
         observer(exportation, true);

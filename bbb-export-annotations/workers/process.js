@@ -14,7 +14,7 @@ const [jobId, statusUpdate] = workerData;
 
 const logger = new Logger('presAnn Process Worker');
 logger.info('Processing PDF for job ' + jobId);
-statusUpdate.core.body.status = 'processing';
+statusUpdate.core.body.status = 'PROCESSING';
 
 const kickOffNotifierWorker = (jobType, filename) => {
   return new Promise((resolve, reject) => {
@@ -787,7 +787,7 @@ async function process_presentation_annotations() {
 
   await client.connect();
 
-  client.on('error', (err) => console.log('Redis Client Error', err));
+  client.on('error', (err) => logger.info('Redis Client Error', err));
 
   // 1. Get the job
   const job = fs.readFileSync(path.join(dropbox, 'job'));

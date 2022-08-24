@@ -5,6 +5,7 @@ import handlePresentationCurrentSet from './handlers/presentationCurrentSet';
 import handlePresentationConversionUpdate from './handlers/presentationConversionUpdate';
 import handlePresentationDownloadableSet from './handlers/presentationDownloadableSet';
 import handlePresentationExport from './handlers/presentationExport';
+import handlePresentationExportToastUpdate from './handlers/presentationExportToastUpdate';
 
 RedisPubSub.on('PdfConversionInvalidErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
@@ -16,3 +17,4 @@ RedisPubSub.on('RemovePresentationEvtMsg', handlePresentationRemove);
 RedisPubSub.on('SetCurrentPresentationEvtMsg', handlePresentationCurrentSet);
 RedisPubSub.on('SetPresentationDownloadableEvtMsg', handlePresentationDownloadableSet);
 RedisPubSub.on('NewPresAnnFileAvailableEvtMsg', handlePresentationExport);
+RedisPubSub.on('PresAnnStatusEvtMsg', handlePresentationExportToastUpdate);

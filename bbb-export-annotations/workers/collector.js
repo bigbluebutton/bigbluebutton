@@ -82,7 +82,7 @@ const exportJob = JSON.parse(job);
         presId: exportJob.presId,
         pageNumber: 1,
         totalPages: pages.length,
-        status: 'collecting',
+        status: 'COLLECTING',
         error: false,
       },
     },
