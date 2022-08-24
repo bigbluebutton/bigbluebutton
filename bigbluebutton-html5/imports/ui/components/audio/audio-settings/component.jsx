@@ -155,12 +155,19 @@ class AudioSettings extends React.Component {
       // In this case, the volume meter or local echo test.
       if (produceStreams) {
         this.generateInputStream(deviceId).then((stream) => {
+          // Extract the deviceId again from the stream to guarantee consistency
+          // between stream DID vs chosen DID. That's necessary in scenarios where,
+          // eg, there's no default/pre-set deviceId ('') and the browser's
+          // default device has been altered by the user (browser default != system's
+          // default).
+          const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
+          if (extractedDeviceId && extractedDeviceId !== deviceId) changeInputDevice(extractedDeviceId);
+
+          // Component unmounted after gUM resolution -> skip echo rendering
           if (!this._isMounted) return;
 
           this.setState({
-            // We extract the deviceId again from the stream to guarantee consistency
-            // between stream vs chosen device
-            inputDeviceId: MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio'),
+            inputDeviceId: extractedDeviceId,
             stream,
             producingStreams: false,
           });

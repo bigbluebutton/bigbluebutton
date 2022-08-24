@@ -15,7 +15,6 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import {
   DEFAULT_INPUT_DEVICE_ID,
-  DEFAULT_OUTPUT_DEVICE_ID,
   reloadAudioElement,
   getCurrentAudioSinkId,
   getStoredAudioInputDeviceId,
@@ -23,6 +22,7 @@ import {
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
 } from '/imports/api/audio/client/bridge/service';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
@@ -97,7 +97,7 @@ class AudioManager {
       tracker: new Tracker.Dependency(),
     };
     this._outputDeviceId = {
-      value: DEFAULT_OUTPUT_DEVICE_ID,
+      value: getCurrentAudioSinkId(),
       tracker: new Tracker.Dependency(),
     };
 
@@ -561,10 +561,22 @@ class AudioManager {
 
     // Enforce correct output device on audio join
     this.changeOutputDevice(this.outputDeviceId, true);
+    storeAudioOutputDeviceId(this.outputDeviceId);
+
+    // Extract the deviceId again from the stream to guarantee consistency
+    // between stream DID vs chosen DID. That's necessary in scenarios where,
+    // eg, there's no default/pre-set deviceId ('') and the browser's
+    // default device has been altered by the user (browser default != system's
+    // default).
+    if (this.inputStream) {
+      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.inputStream, 'audio');
+      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+        this.changeInputDevice(extractedDeviceId);
+      }
+    }
     // Audio joined successfully - add device IDs to session storage so they
     // can be re-used on refreshes/other sessions
     storeAudioInputDeviceId(this.inputDeviceId);
-    storeAudioOutputDeviceId(this.outputDeviceId);
   }
 
   onTransferStart() {
