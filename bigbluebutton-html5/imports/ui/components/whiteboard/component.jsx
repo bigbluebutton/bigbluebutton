@@ -437,6 +437,16 @@ export default function Whiteboard(props) {
           return;
         }
 
+        // Don't allow duplicating slides
+        if (s?.id?.includes('duplicate')) {
+          const shapeDuplicated = Object.values(s?.after?.document?.pages[e?.getPage()?.id]?.shapes)[0];
+
+          if (shapeDuplicated?.assetId === `slide-background-asset-${e?.getPage()?.id}`) {
+            e.delete([shapeDuplicated?.id]);
+            return;
+          }
+        }
+
         const conditions = [
           "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
           "align", "move", "delete", "create", "flip", "toggle", "group", "translate",
