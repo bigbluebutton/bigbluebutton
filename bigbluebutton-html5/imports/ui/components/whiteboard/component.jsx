@@ -174,8 +174,20 @@ export default function Whiteboard(props) {
         const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
         zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
       } else {
-        const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
-        tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
+        const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
+        const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
+        if (isMounting && currentAspectRatio !== previousAspectRatio) {
+          // wee need this to ensure tldraw updates the viewport size
+          // after re-mounting
+          setTimeout(() => {
+            const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
+            tldrawAPI.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
+            setIsMounting(false);
+          }, 50);
+        } else {
+          const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
+          tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
+        }
       }
     }
   }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
@@ -211,8 +223,17 @@ export default function Whiteboard(props) {
   // update zoom when presenter changes
   React.useEffect(() => {
     if (tldrawAPI && isPresenter && curPageId && slidePosition) {
-      const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)   
-      tldrawAPI.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
+      const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
+      const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
+      if (previousAspectRatio !== currentAspectRatio && fitToWidth) {
+        const zoom = calculateZoom(slidePosition.width, slidePosition.height)
+        tldrawAPI?.setCamera([0, 0], zoom);
+        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+        zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+      } else {
+        const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)
+        tldrawAPI.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
+      }
     }
   }, [isPresenter]);
 
@@ -289,13 +310,15 @@ export default function Whiteboard(props) {
 
     if (curPageId) {
       app.changePage(curPageId);
-      const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)
-      // wee need this to ensure tldraw updates the viewport size
-      // after re-mounting
-      setTimeout(() => {      
-        app.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
-        setIsMounting(false);
-      }, 50);
+      if (presentationWidth > 0 && presentationHeight > 0) {
+        const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
+        // wee need this to ensure tldraw updates the viewport size
+        // after re-mounting
+        setTimeout(() => {
+          app.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
+          setIsMounting(false);
+        }, 50);
+      }
     }
   };
 
@@ -323,14 +346,19 @@ export default function Whiteboard(props) {
       
       tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
-      const zoomToolbar = (HUNDRED_PERCENT * camera.zoom) / zoomFitSlide;
+      const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
       if (zoom !== zoomToolbar) {
         setZoom(zoomToolbar);
         isPresenter && zoomChanger(zoomToolbar);
       }
 
-      const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
-      const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+      let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
+      let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+
+      if (!fitToWidth && camera.zoom === zoomFitSlide) {
+        viewedRegionW = HUNDRED_PERCENT;
+        viewedRegionH = HUNDRED_PERCENT;
+      }
 
       zoomSlide(parseInt(curPageId), podId, viewedRegionW, viewedRegionH, camera.point[0], camera.point[1]);
     }
@@ -401,11 +429,6 @@ export default function Whiteboard(props) {
         }
       }}
 
-      onChangePage={(app, s, b, a) => {
-        if (!isMounting && app.getPage()?.id !== curPageId) {
-          skipToSlide(Number.parseInt(app.getPage()?.id), podId)
-        }
-      }}
       onCommand={(e, s, g) => {
         if (s?.id.includes('move_to_page')) {
           let groupShapes = [];
@@ -432,6 +455,13 @@ export default function Whiteboard(props) {
               persistShape(e.getShape(c), newWhiteboardId)
             });
           });
+          if (isPresenter) {
+            // change slide for others
+            skipToSlide(Number.parseInt(e.getPage()?.id), podId)
+          } else {
+            // ignore, stay on same page
+            e.changePage(curPageId);
+          }
           return;
         }
 

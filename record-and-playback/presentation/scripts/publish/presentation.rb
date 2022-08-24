@@ -926,12 +926,6 @@ def process_presentation(package_dir)
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
       panzoom_changed = true
 
-    when 'TldrawCameraChangedEvent'
-      current_x_camera = event.at_xpath('xCamera').text.to_f
-      current_y_camera = event.at_xpath('yCamera').text.to_f
-      current_zoom = event.at_xpath('zoom').text.to_f
-      panzoom_changed = true
-
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
       deskshare = slide_changed = true if @presentation_props['include_deskshare']
 

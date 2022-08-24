@@ -437,7 +437,10 @@ class PresentationToolbar extends PureComponent {
               size="md"
               circle
               onClick={fitToWidthHandler}
-              label={intl.formatMessage(intlMessages.fitToPage)}
+              label={fitToWidth
+                ? intl.formatMessage(intlMessages.fitToPage)
+                : intl.formatMessage(intlMessages.fitToWidth)
+              }
               hideLabel
             />
           </Styled.PresentationZoomControls>
