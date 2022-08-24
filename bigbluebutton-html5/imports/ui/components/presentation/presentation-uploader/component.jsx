@@ -277,12 +277,21 @@ class PresentationUploader extends Component {
     });
     const presStateFiltered = presState.filter((presentation) => {
       const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
+      const prevPropPres = prevPropPresentations.find((pres) => pres.id === presentation.id);
       const hasConversionError = presentation?.conversion?.error;
       const finishedConversion = presentation?.conversion?.done || currentPropPres?.conversion?.done;
       const hasTemporaryId = presentation.id.startsWith(presentation.filename);
 
       if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
+
+      if(presentation?.conversion?.done !== finishedConversion) {
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres.isCurrent !== prevPropPres?.isCurrent) {
+        presentation.isCurrent = currentPropPres.isCurrent;
+      }
 
       presentation.conversion = currentPropPres.conversion;
       presentation.isRemovable = currentPropPres.isRemovable;
