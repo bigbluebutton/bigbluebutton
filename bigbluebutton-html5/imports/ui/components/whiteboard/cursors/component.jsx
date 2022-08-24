@@ -155,7 +155,7 @@ export default function Cursors(props) {
     let yOffset = 0;
     let xOffset = 0;
     const calcPresOffset = () => {
-      yOffset += (parseFloat(presentationContainer?.style?.height) - (parseFloat(presentation?.style?.height) + PRES_TOOLBAR_HEIGHT)) / 2;
+      yOffset += (parseFloat(presentationContainer?.style?.height) - (parseFloat(presentation?.style?.height) + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))) / 2;
       xOffset += (parseFloat(presentationContainer?.style?.width) - parseFloat(presentation?.style?.width)) / 2;
     }
     // If the presentation container is the full screen element we don't need any offsets
