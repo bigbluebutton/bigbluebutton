@@ -1,11 +1,7 @@
 package org.bigbluebutton.core.api
 
-import org.bigbluebutton.common2.api.RegisterUser
-import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
 import spray.json.JsObject
-
-import scala.collection.immutable.Map
 case class InMessageHeader(name: String)
 case class InHeaderAndJsonPayload(header: InMessageHeader, payload: JsObject)
 case class MessageProcessException(message: String) extends Exception(message)

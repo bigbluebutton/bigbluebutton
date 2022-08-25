@@ -27,7 +27,6 @@ object Dependencies {
 
     // BigBlueButton
     val bbbCommons = "0.0.21-SNAPSHOT"
-    val bbbCommonWeb = "0.0.3-SNAPSHOT"
 
     // Test
     val scalaTest = "3.2.11"
@@ -53,18 +52,10 @@ object Dependencies {
     val akkaRemote = "com.typesafe.akka" % "akka-remote_2.13" % Versions.akkaVersion
     val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
     val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
-    val akkaHttpSessionCore = "com.softwaremill.akka-http-session" %% "core" % "0.7.0"
-    val akkaHttpSessionJwt = "com.softwaremill.akka-http-session" %% "jwt" % "0.7.0"
-
-//    libraryDependencies += "com.softwaremill.akka-http-session" %% "core" % "0.2.5"
-//    libraryDependencies += "com.softwaremill.akka-http-session" %% "jwt" % "0.2.5"
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
-    val bbbCommonWeb = "org.bigbluebutton" % "bbb-common-web" % Versions.bbbCommonWeb
-
-
   }
 
   object Test {
@@ -98,9 +89,5 @@ object Dependencies {
     Compile.apacheLang,
     Compile.akkaHttp,
     Compile.akkaHttpSprayJson,
-    Compile.akkaHttpSessionCore,
-    Compile.akkaHttpSessionJwt,
-    Compile.bbbCommons,
-//    Compile.bbbCommonWeb
-  ) ++ testing
+    Compile.bbbCommons) ++ testing
 }

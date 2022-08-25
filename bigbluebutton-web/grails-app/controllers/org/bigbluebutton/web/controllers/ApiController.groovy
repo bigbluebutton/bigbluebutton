@@ -140,9 +140,6 @@ class ApiController {
 
     params.html5InstanceId = html5LoadBalancingService.findSuitableHTML5ProcessByRoundRobin().toString()
 
-    log.info "params.html5InstanceId"
-    log.info params.html5InstanceId
-
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params)
 
     ApiErrors errors = new ApiErrors()
@@ -1202,10 +1199,6 @@ class ApiController {
   def learningDashboard = {
     String API_CALL = 'learningDashboard'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    String con = grailsApplication.config.defaultWelcomeMessage
-    log.debug con
-    log.debug "-----------------"
 
     String respMessage = ""
     boolean reject = false
