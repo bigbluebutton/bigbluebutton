@@ -179,7 +179,7 @@ const Avatar = styled.div`
   ${({ whiteboardAccess }) => whiteboardAccess && `
     &:before {
       content: "\\00a0\\e925\\00a0";
-      padding: ${mdPaddingY};
+      padding: ${mdPaddingY} !important;
       border-radius: 50% !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
@@ -193,6 +193,7 @@ const Avatar = styled.div`
         left: auto;
         right: ${userIndicatorsOffset};
         letter-spacing: -.33rem;
+        transform: scale(-1, 1);
       }
     }
   `}

@@ -35,7 +35,7 @@ class Page {
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
-    const hasErrorLabel = await this.page.evaluate(checkElement, [e.errorMessageLabel]);
+    const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
     this.settings = await generateSettingsData(this.page);
     const { autoJoinAudioModal } = this.settings;
@@ -154,8 +154,18 @@ class Page {
     await expect(locator).toBeHidden({ timeout });
   }
 
+  async wasNthElementRemoved(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
+    await expect(locator).toBeHidden({ timeout });
+  }
+
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
+    await expect(locator).toBeVisible({ timeout });
+  }
+
+  async hasNElements(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
     await expect(locator).toBeVisible({ timeout });
   }
 
@@ -172,6 +182,18 @@ class Page {
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
     await expect(locator).toContainText(text, { timeout });
+  }
+
+  async press(key) {
+    await this.page.keyboard.press(key);
+  }
+
+  async down(key) {
+    await this.page.keyboard.down(key);
+  }
+
+  async up(key) {
+    await this.page.keyboard.up(key);
   }
 }
 
