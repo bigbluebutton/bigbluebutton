@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-bullseye
+FROM openjdk:17-slim-bullseye
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list

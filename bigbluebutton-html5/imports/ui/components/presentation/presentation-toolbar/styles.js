@@ -89,13 +89,9 @@ const PresentationSlideControls = styled.div`
 `;
 
 const PrevSlideButton = styled(Button)`
-
   i {
-    padding-left: 20%;
-  }
-
-  & > i {
     font-size: 1rem;
+    padding-left: 20%;
 
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
@@ -105,17 +101,12 @@ const PrevSlideButton = styled(Button)`
       transform: scale(-1, 1);
     }
   }
-
 `;
 
 const NextSlideButton = styled(Button)`
-  
   i {
-    padding-left: 60%;
-  }
-
-  & > i {
     font-size: 1rem;
+    padding-left: 60%;
     
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
@@ -204,6 +195,12 @@ const FitToWidthButton = styled(Button)`
     background-color: ${colorOffWhite};
     border: 0;
   }
+
+  ${({ panning }) => panning && `
+    > span {
+      background-color: #DCE4EC;
+    }
+  `}
 `;
 
 const MultiUserTool = styled.span`
@@ -213,7 +210,6 @@ const MultiUserTool = styled.span`
   height: 1rem;
   position: relative;
   z-index: 2;
-  right: 1rem;
   bottom: 0.5rem;
   color: ${colorWhite};
   display: flex;
@@ -221,20 +217,35 @@ const MultiUserTool = styled.span`
   align-items: center;
   box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
   font-size: ${smPaddingX};
+
+  [dir="ltr"] & {
+    right: 1rem;
+  }
+
+  [dir="rtl"] & {
+    left: 1rem;
+  }
 `;
 
 const MUTPlaceholder = styled.div`
   width: 1rem;
   height: 1rem;
   position: relative;
-  right: 1rem;
   bottom: 0.5rem;
+
+  [dir="ltr"] & {
+    right: 1rem;
+  }
+
+  [dir="rtl"] & {
+    left: 1rem;
+  }
 `;
 
 const WBAccessButton = styled(Button)`
   border: none !important;
 
-  & > i {
+  i {
     font-size: 1.2rem;
 
     [dir="rtl"] & {

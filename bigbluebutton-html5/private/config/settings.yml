@@ -621,6 +621,13 @@ public:
       useRtcLoopbackInChromium: true
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
+    # networkPriorities: DSCP markings for each media type. Chromium only, applies
+    # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
+    # for further info.
+    #networkPriorities:
+    #  audio: high
+    #  webcam: medium
+    #  screenshare: medium
   stats:
     enabled: true
     interval: 10000
