@@ -103,71 +103,72 @@ export default function Whiteboard(props) {
     let stack = null;
     let changed = false;
 
-    if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
-      // mergeDocument loses bindings and history, save it
-      pageBindings = tldrawAPI?.getPage(curPageId)?.bindings;
-      history = tldrawAPI?.history
-      stack = tldrawAPI?.stack
+    if (curPageId) {
+      if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+        // mergeDocument loses bindings and history, save it
+        pageBindings = tldrawAPI?.getPage(curPageId)?.bindings;
+        history = tldrawAPI?.history
+        stack = tldrawAPI?.stack
 
-      next.pages[curPageId].shapes = shapes;
+        next.pages[curPageId].shapes = shapes;
 
-      changed = true;
-    }
+        changed = true;
+      }
 
-    if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
-      next.assets[`slide-background-asset-${curPageId}`] = {
-        id: `slide-background-asset-${curPageId}`,
-        size: [slidePosition?.width || 0, slidePosition?.height || 0],
-        src: svgUri,
-        type: "image",
-      };
+      if (next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
+        next.assets[`slide-background-asset-${curPageId}`] = {
+          id: `slide-background-asset-${curPageId}`,
+          size: [slidePosition?.width || 0, slidePosition?.height || 0],
+          src: svgUri,
+          type: "image",
+        };
 
-      next.pages[curPageId].shapes["slide-background-shape"] = {
-        assetId: `slide-background-asset-${curPageId}`,
-        childIndex: 0.5,
-        id: "slide-background-shape",
-        name: "Image",
-        type: TDShapeType.Image,
-        parentId: `${curPageId}`,
-        point: [0, 0],
-        isLocked: true,
-        size: [slidePosition?.width || 0, slidePosition?.height || 0],
-        style: {
-          dash: DashStyle.Draw,
-          size: SizeStyle.Medium,
-          color: ColorStyle.Blue,
-        },
-      };
+        next.pages[curPageId].shapes["slide-background-shape"] = {
+          assetId: `slide-background-asset-${curPageId}`,
+          childIndex: 0.5,
+          id: "slide-background-shape",
+          name: "Image",
+          type: TDShapeType.Image,
+          parentId: `${curPageId}`,
+          point: [0, 0],
+          isLocked: true,
+          size: [slidePosition?.width || 0, slidePosition?.height || 0],
+          style: {
+            dash: DashStyle.Draw,
+            size: SizeStyle.Medium,
+            color: ColorStyle.Blue,
+          },
+        };
 
-      changed = true;
-    }
+        changed = true;
+      }
 
-    if (changed) {
-      if (pageBindings) next.pages[curPageId].bindings = pageBindings;
-      tldrawAPI?.mergeDocument(next);
-      if (tldrawAPI && history) tldrawAPI.history = history;
-      if (tldrawAPI && stack) tldrawAPI.stack = stack;
-    }
+      if (changed) {
+        if (pageBindings) next.pages[curPageId].bindings = pageBindings;
+        tldrawAPI?.mergeDocument(next);
+        if (tldrawAPI && history) tldrawAPI.history = history;
+        if (tldrawAPI && stack) tldrawAPI.stack = stack;
+      }
 
-    // move poll result text to bottom right
-    if (next.pages[curPageId]) {
-      const pollResults = Object.entries(next.pages[curPageId].shapes)
-                                .filter(([id, shape]) => shape.name.includes("poll-result"))
-      for (const [id, shape] of pollResults) {
-        if (_.isEqual(shape.point, [0, 0])) {
-          const shapeBounds = tldrawAPI?.getShapeBounds(id);
-          if (shapeBounds) {
-            shape.point = [
-              slidePosition.width - shapeBounds.width,
-              slidePosition.height - shapeBounds.height
-            ]
-            shape.size = [shapeBounds.width, shapeBounds.height]
-            isPresenter && persistShape(shape, whiteboardId);
+      // move poll result text to bottom right
+      if (next.pages[curPageId]) {
+        const pollResults = Object.entries(next.pages[curPageId].shapes)
+                                  .filter(([id, shape]) => shape.name.includes("poll-result"))
+        for (const [id, shape] of pollResults) {
+          if (_.isEqual(shape.point, [0, 0])) {
+            const shapeBounds = tldrawAPI?.getShapeBounds(id);
+            if (shapeBounds) {
+              shape.point = [
+                slidePosition.width - shapeBounds.width,
+                slidePosition.height - shapeBounds.height
+              ]
+              shape.size = [shapeBounds.width, shapeBounds.height]
+              isPresenter && persistShape(shape, whiteboardId);
+            }
           }
-        }
-      };
+        };
+      }
     }
-
     return currentDoc;
   }, [shapes, tldrawAPI, curPageId, slidePosition]);
 
