@@ -47,8 +47,8 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
       }
 
       //TODO is it used?
-      //      userInfos += ("bannerText" -> "bla)
-      //      userInfos += ("bannerColor" -> "bla")
+      //      userInfos += ("bannerText" -> "a)
+      //      userInfos += ("bannerColor" -> "a")
 
       //userInfos += ("customLogoURL" -> "bla") //customLogoURL  CONFIG
       //userInfos += ("customCopyright" -> "bla") //TODO is it used?
@@ -69,10 +69,10 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
       userInfos += ("customdata" -> Map()) //TODO
       userInfos += ("metadata" -> Map()) //TODO
 
-      actorRef ! ApiResponseSuccess("USER ENCONTRADO!", UserInfosApiMsg(userInfos))
+      actorRef ! ApiResponseSuccess("User found!", UserInfosApiMsg(userInfos))
     }
 
-    log.debug("or what?")
+    log.debug("Handle user not found here..")
 
     //      for {
     //      uvo <- Users2x.findWithIntId(liveMeeting.users2x, msg.userIntId)
