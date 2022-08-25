@@ -91,6 +91,14 @@ const SmartLayout = (props) => {
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: externalVideoInput.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: screenShareInput.hasScreenShare,
+            width: screenShareInput.width,
+            height: screenShareInput.height,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {

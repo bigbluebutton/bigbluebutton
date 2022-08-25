@@ -98,6 +98,7 @@ exports.etherpadEditable = 'body[id="innerdocbody"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.currentPresentationToast = 'div[data-test="toastSmallMsg"] > div';
 exports.notificationsTab = 'span[id="notificationTab"]';
 exports.chatPopupAlertsBtn = 'input[data-test="chatPopupAlertsBtn"]';
 exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
@@ -282,3 +283,8 @@ exports.drawnRectangle = 'svg g[clip-path] > g:nth-child(2) rect[data-test="draw
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
+
+// Shared notes
+exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
+exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
+exports.exportPlainButton = 'span[id="exportplain"]';
