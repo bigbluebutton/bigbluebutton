@@ -97,8 +97,10 @@ export default class BaseAudioBridge {
       newStream = await navigator.mediaDevices.getUserMedia(constraints);
       await this.setInputStream(newStream);
       this.inputDeviceId = deviceId;
-      backupStream.getAudioTracks().forEach((track) => track.stop());
-      backupStream = null;
+      if (backupStream && backupStream.active) {
+        backupStream.getAudioTracks().forEach((track) => track.stop());
+        backupStream = null;
+      }
 
       return newStream;
     } catch (error) {
