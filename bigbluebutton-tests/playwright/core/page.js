@@ -156,8 +156,18 @@ class Page {
     await expect(locator).toBeHidden({ timeout });
   }
 
+  async wasNthElementRemoved(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
+    await expect(locator).toBeHidden({ timeout });
+  }
+
   async hasElement(selector, timeout = ELEMENT_WAIT_TIME) {
     const locator = this.getLocator(selector);
+    await expect(locator).toBeVisible({ timeout });
+  }
+
+  async hasNElements(selector, count, timeout = ELEMENT_WAIT_TIME) {
+    const locator = this.getLocator(':nth-match(' + selector + ',' + count + ')');
     await expect(locator).toBeVisible({ timeout });
   }
 
@@ -172,8 +182,20 @@ class Page {
   }
 
   async hasText(selector, text, timeout = ELEMENT_WAIT_TIME) {
-    const locator = this.getLocator(selector);
+    const locator = this.getLocator(selector).first();
     await expect(locator).toContainText(text, { timeout });
+  }
+
+  async press(key) {
+    await this.page.keyboard.press(key);
+  }
+
+  async down(key) {
+    await this.page.keyboard.down(key);
+  }
+
+  async up(key) {
+    await this.page.keyboard.up(key);
   }
 }
 

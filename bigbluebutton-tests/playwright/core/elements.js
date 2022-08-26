@@ -33,10 +33,15 @@ exports.establishingAudioLabel = 'span[data-test="establishingAudioLabel"]';
 exports.leaveListenOnly = 'button[data-test="leaveListenOnly"]';
 exports.leaveAudio = 'li[data-test="leaveAudio"]';
 exports.audioDropdownMenu = 'button[data-test="audioDropdownMenu"]';
+exports.defaultInputAudioDevice = 'li[data-test="audioinput-1"]';
+exports.secondInputAudioDevice = 'li[data-test="audioinput-2"]';
 exports.microphoneButton = 'button[data-test="microphoneBtn"]';
 exports.echoYesButton = 'button[data-test="echoYesBtn"]';
 exports.connectingToEchoTest = 'span[data-test="connectingToEchoTest"]';
+exports.hasVolumeEchoTest = 'span[data-test="hasVolume"]';
+exports.hasNoVolumeEchoTest = 'span[data-test="hasNoVolume"]';
 exports.isTalking = 'button[data-test="isTalking"]';
+exports.wasTalking = 'button[data-test="wasTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
 exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
 exports.muteMicButton = 'button[data-test="muteMicButton"]';
@@ -109,6 +114,8 @@ exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
 exports.userJoinPushAlerts = 'input[data-test="userJoinPopupAlerts"]';
 exports.toastContainer = 'div[data-test="toastContainer"]';
 exports.presentationStatusInfo = 'span[data-test="presentationStatusInfo"]';
+exports.noButton = 'button[aria-label="No"]';
+exports.yesButton = 'button[aria-label="Yes"]';
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
@@ -121,10 +128,12 @@ exports.joiningMessageToast = 'You have joined the audio conference';
 exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
+exports.noActiveMicrophoneToast = 'No active microphone. Share your microphone to add audio to this recording.';
 // Icons
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
 exports.listenOnlyIcon = `${baseBbbIcon}listen`;
+exports.checkedIcon = `${baseBbbIcon}check`;
 
 // Polling
 exports.pollQuestion = 'Are we good ?';
@@ -293,3 +302,12 @@ exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
+
+// Shared notes
+exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
+exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
+exports.exportPlainButton = 'span[id="exportplain"]';
+
+// About modal
+exports.showAboutModalButton = 'li[data-test="aboutModal"]';
+exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';

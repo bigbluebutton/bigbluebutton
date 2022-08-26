@@ -100,6 +100,8 @@ const PresentationFocusLayout = (props) => {
           },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
           },
         }, INITIAL_INPUT_STATE),
       });
@@ -128,6 +130,14 @@ const PresentationFocusLayout = (props) => {
           },
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
+          },
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
           },
         }, INITIAL_INPUT_STATE),
       });
