@@ -78,6 +78,7 @@ class Presentation extends PureComponent {
       isFullscreen: false,
       tldrawAPI: null,
       isZoomed: false,
+      hadPresentation: false,
       isPanning: false,
     };
 
