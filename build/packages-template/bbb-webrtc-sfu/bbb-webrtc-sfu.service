@@ -13,6 +13,8 @@ User=bigbluebutton
 Group=bigbluebutton
 Environment=NODE_ENV=production
 Environment=NODE_CONFIG_DIR=/etc/bigbluebutton/bbb-webrtc-sfu/:/usr/local/bigbluebutton/bbb-webrtc-sfu/config/
+CPUSchedulingPolicy=fifo
+Nice=19
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target

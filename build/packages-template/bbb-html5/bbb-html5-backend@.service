@@ -22,7 +22,7 @@ RestartSec=10
 User=meteor
 Group=meteor
 CPUSchedulingPolicy=fifo
-Nice=19
+Nice=18
 
 [Install]
 WantedBy=bbb-html5.service
