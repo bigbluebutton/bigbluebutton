@@ -265,7 +265,6 @@ export default function Whiteboard(props) {
     app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
-
     // disable for non presenter that doesn't have multi user access
     if (!hasWBAccess && !isPresenter) {
       app.onPan = () => {};
@@ -307,7 +306,6 @@ export default function Whiteboard(props) {
 
     // disable hover highlight for background slide shape
     e.setHoveredId = (id) => {
-      console.log('setHoveredId', id)
       if (id?.includes('slide-background')) return null;
       const validId = isOwner(id) ? id : [];
       e.patchState(
@@ -414,7 +412,6 @@ export default function Whiteboard(props) {
         }
       }}
 
-
       onChangePage={(app, s, b, a) => {
         if (app.getPage()?.id !== curPageId) {
           skipToSlide(Number.parseInt(app.getPage()?.id), podId)
@@ -469,7 +466,6 @@ export default function Whiteboard(props) {
           "align", "move", "delete", "create", "flip", "toggle", "group", "translate",
           "transform_single", "arrow", "edit", "erase", "rotate",   
         ];
-
         if (conditions.some(el => s?.id?.startsWith(el))) {
           e.selectedIds.forEach(id => {
             if (!isOwner(id)) {
