@@ -13,9 +13,9 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 
 object MeetingService {
-  val configRemote: Config = ConfigFactory.load().getConfig("bbbAkkaApps")
+  val configRemote: Config = ConfigFactory.load().getConfig("bbbMeetingApiActorConfig")
   val system = ActorSystem("bbb-meeting-api-remote-actor" , configRemote)
-  val bbbAkkaAppsActor = system.actorSelection("akka://bigbluebutton-apps-system@127.0.0.1:2552/user/bigbluebutton-actor")
+  val bbbAkkaAppsActor = system.actorSelection("akka://bigbluebutton-apps-system@127.0.0.1:25520/user/bigbluebutton-actor")
 
   implicit def executionContext: ExecutionContextExecutor = MeetingService.system.dispatcher
   implicit val timeout: Timeout = 2 seconds

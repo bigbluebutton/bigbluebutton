@@ -13,8 +13,6 @@ case class RegisterUserApiMsg(regUser: RegisterUser)
 case class GetUserApiMsg(meetingId: String, userIntId: String)
 case class UserInfosApiMsg(infos: Map[String, Any])
 
-//case class ApiResponse(msg: String)
-
 trait ApiResponse
 
 case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
