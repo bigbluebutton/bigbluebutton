@@ -257,7 +257,7 @@ export default function Whiteboard(props) {
 
   const isOwner = (id) => {
     const owner = shapes[id]?.userId;
-    const hasShapeAccess = (owner && (owner === currentUser?.userId) || (!owner && !shapes[id]) || currentUser?.presenter);
+    const hasShapeAccess = (owner && owner === currentUser?.userId) || (!owner && !shapes[id]) || currentUser?.presenter;
     return hasShapeAccess;
   }
 
