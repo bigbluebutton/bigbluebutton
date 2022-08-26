@@ -256,9 +256,9 @@ export default function Whiteboard(props) {
   }, [isPanning]);
 
   const isOwner = (id) => {
-    if (currentUser.presenter) return true;
     const owner = shapes[id]?.userId;
-    return (owner && (owner !== currentUser?.userId)) ? false : true;
+    const hasShapeAccess = (owner && (owner === currentUser?.userId) || (!owner && !shapes[id]) || currentUser?.presenter);
+    return hasShapeAccess;
   }
 
   const onMount = (app) => {
