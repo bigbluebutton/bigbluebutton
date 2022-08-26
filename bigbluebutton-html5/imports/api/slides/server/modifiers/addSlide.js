@@ -6,6 +6,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { Slides } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 import { SVG, PNG } from '/imports/utils/mimeTypes';
+import calculateSlideData from '/imports/api/slides/server/helpers';
 import addSlidePositions from './addSlidePositions';
 
 const loadSlidesFromHttpAlways = Meteor.settings.private.app.loadSlidesFromHttpAlways || false;

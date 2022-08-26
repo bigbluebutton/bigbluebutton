@@ -15,6 +15,7 @@ import {
   colorGrayLight,
   palettePlaceholderText,
   colorGrayLighter,
+  colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import MessageChatItem from './message-chat-item/component';
