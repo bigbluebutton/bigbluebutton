@@ -346,8 +346,10 @@ stop_bigbluebutton () {
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
-      systemctl stop $TOMCAT_SERVICE bigbluebutton.target
+      systemctl stop $TOMCAT_SERVICE
     fi
+
+    systemctl stop bigbluebutton.target
 }
 
 start_bigbluebutton () {
