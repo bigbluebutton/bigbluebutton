@@ -18,7 +18,7 @@ rm -rf staging
 
 # New format
 if [ -f private/config/settings.yml ]; then
-  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/" private/config/settings.yml
+  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
