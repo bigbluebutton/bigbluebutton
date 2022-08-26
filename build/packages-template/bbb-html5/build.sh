@@ -104,7 +104,7 @@ if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
   sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
 fi
 
-find staging/usr/share/meteor/bundle/programs/web.browser -name '*.css' -exec sed -i "s/VERSION/$(($BUILD))/" '{}' \;
+find staging/usr/share/meteor/bundle/programs/web.browser -name '*.css' -exec sed -i "s/VERSION/$(($BUILD))/g" '{}' \;
 
 # Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
 # uncompressed versions as well so it works with mismatched nginx location blocks
