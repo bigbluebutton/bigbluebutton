@@ -255,32 +255,22 @@ export default function Whiteboard(props) {
     }
   }, [isPanning]);
 
+  const isOwner = (id) => {
+    if (currentUser.presenter) return true;
+    const owner = shapes[id]?.userId;
+    return (owner && (owner !== currentUser?.userId)) ? false : true;
+  }
+
   const onMount = (app) => {
     app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
+
     // disable for non presenter that doesn't have multi user access
     if (!hasWBAccess && !isPresenter) {
       app.onPan = () => {};
       app.setSelectedIds = () => {};
       app.setHoveredId = () => {};
-    } else {
-      // disable hover highlight for background slide shape
-      app.setHoveredId = (id) => {
-        if (id?.includes('slide-background')) return null;
-        app.patchState(
-          {
-            document: {
-              pageStates: {
-                [app.getPage()?.id]: {
-                  hoveredId: id || [],
-                },
-              },
-            },
-          },
-          `set_hovered_id`
-        );
-      };
     }
 
     if (curPageId) {
@@ -298,6 +288,42 @@ export default function Whiteboard(props) {
   };
 
   const onPatch = (e, t, reason) => {
+    e.setSelectedIds = (ids) => {
+      const validIds = [];
+      ids.forEach(id => isOwner(id) && validIds.push(id));
+      e.patchState(
+        {
+          document: {
+            pageStates: {
+              [e.getPage()?.id]: {
+                selectedIds: validIds,
+              },
+            },
+          },
+        },
+        `selected`
+      );
+    }
+
+    // disable hover highlight for background slide shape
+    e.setHoveredId = (id) => {
+      console.log('setHoveredId', id)
+      if (id?.includes('slide-background')) return null;
+      const validId = isOwner(id) ? id : [];
+      e.patchState(
+        {
+          document: {
+            pageStates: {
+              [e.getPage()?.id]: {
+                hoveredId: validId,
+              },
+            },
+          },
+        },
+        `set_hovered_id`
+      );
+    };
+
     if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       if (cameraFitSlide.zoom === 0) {
         //can happen when the slide finish uploading
@@ -388,6 +414,7 @@ export default function Whiteboard(props) {
         }
       }}
 
+
       onChangePage={(app, s, b, a) => {
         if (app.getPage()?.id !== curPageId) {
           skipToSlide(Number.parseInt(app.getPage()?.id), podId)
@@ -441,9 +468,13 @@ export default function Whiteboard(props) {
           "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
           "align", "move", "delete", "create", "flip", "toggle", "group", "translate",
           "transform_single", "arrow", "edit", "erase", "rotate",   
-        ]
+        ];
+
         if (conditions.some(el => s?.id?.startsWith(el))) {
           e.selectedIds.forEach(id => {
+            if (!isOwner(id)) {
+              return e?.undo();
+            };
             const shape = e.getShape(id);
             const shapeBounds = e.getShapeBounds(id);
             shape.size = [shapeBounds.width, shapeBounds.height];
@@ -502,6 +533,9 @@ export default function Whiteboard(props) {
           let nonGroups = [];
           // if we have groups, we need to make sure they are removed lastly
           shapesIdsToRemove.forEach(shape => {
+            if (!isOwner(shape)) {
+              return e?.undo();
+            };
             if (shapes[shape].type === 'group') {
               groups.push(shape);
             } else {
