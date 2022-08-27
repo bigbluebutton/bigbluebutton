@@ -14,7 +14,6 @@ import {
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import TextareaAutosize from 'react-autosize-textarea';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
-import Icon from '/imports/ui/components/common/icon/component';
 import Button from '/imports/ui/components/common/button/component';
 
 const Form = styled.form`
