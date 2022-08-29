@@ -15,42 +15,47 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
-require 'optimist'
-require 'nokogiri'
+require 'rexml/document'
+require 'optparse'
 require 'uri'
 require 'net/http'
 
 #### Start ####
 
-opts = Optimist::options do
-    opt :url_string, "url string", :type => :string
-    opt "machine-readable", "Make the output readable for machine"
-end
+options = {}
+OptionParser.new do |opts|
+  opts.on("-m", "--machine-readable", "Make the output radable for machine") do |m|
+    options[:machine_readable] = m
+  end
+  opts.on("-uURL_STRING", "--url-string=URL_STRING", "Url string") do |u|
+    options[:url_string] = u
+  end
+end.parse!
 
-url = opts[:url_string]
+url = options[:url_string]
 uri = URI(url)
 res = Net::HTTP.get_response(uri)
 
 xml_string = res.body if res.is_a?(Net::HTTPSuccess)
-xml_object = Nokogiri::XML(xml_string)
+xml_object = REXML::Document.new(xml_string)
 string_list_internalID = ""
 
-if (!opts["machine-readable"])
-    string_list_internalID += "|Internal meeting ID | Name | Start time | Moderator count | Viewer count | \\n"
-    string_list_internalID += "---------------------------------------------------------------------------\\n"
-    xml_object.xpath("//meeting").each_with_index do |item, index|
-        meetingId = item.xpath("//internalMeetingID")[index].text
-        meetingName = item.xpath("//meetingName")[index].text
-        startTime = item.xpath("//createDate")[index].text
-        moderatorCount = item.xpath("//moderatorCount")[index].text.to_i
-        viewerCount = item.xpath("//participantCount")[index].text.to_i - moderatorCount
-
-        string_list_internalID += "|" + meetingId + " | " + meetingName + " | " + startTime + " | " + moderatorCount.to_s + " | " + viewerCount.to_s + " |\\n"
-    end
+if (!options[:machine_readable])
+  string_list_internalID += "|Internal meeting ID | Name | Start time | Moderator count | Viewer count | \\n"
+  string_list_internalID += "---------------------------------------------------------------------------\\n"
+  xml_object.get_elements("//meeting").each_with_index do |item, index|
+    meetingId = item.get_elements("//internalMeetingID")[index].text
+    meetingName = item.get_elements("//meetingName")[index].text
+    startTime = item.get_elements("//createDate")[index].text
+    moderatorCount = item.get_elements("//moderatorCount")[index].text.to_i
+    viewerCount = item.get_elements("//participantCount")[index].text.to_i - moderatorCount
+    
+    string_list_internalID += "|" + meetingId + " | " + meetingName + " | " + startTime + " | " + moderatorCount.to_s + " | " + viewerCount.to_s + " |\\n"
+  end
 else
-    xml_object.xpath("//internalMeetingID").each do |item|
-        string_list_internalID += " " +  item.text
-    end 
+  xml_object.get_elements("//internalMeetingID").each do |item|
+    string_list_internalID += " " +  item.text
+  end 
 end
 
 puts string_list_internalID

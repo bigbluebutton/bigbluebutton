@@ -204,18 +204,16 @@ if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
     fi
 fi
 
-get_url () {
-    api_method="getMeetings"
-    X=$( bbb-conf --secret | fgrep URL: )
-    api_url=${X##* }
+get_meetings_url () {
+    BBB_WEB_URL=$(get_bbb_web_config_value bigbluebutton.web.serverURL)
+    SECRET=$(get_bbb_web_config_value securitySalt)
 
-    Y=$( bbb-conf --secret | fgrep Secret: )
-    Secret=${Y##* }
+    API_METHOD="getMeetings"
 
-    string_for_checksum=$api_method$Secret
-    checksum=$( echo -n $string_for_checksum | sha1sum | cut -f 1 -d ' ' )
+    STRING_FOR_CHECKSUM=$API_METHOD$SECRET
+    CHECKSUM=$( echo -n $STRING_FOR_CHECKSUM | sha1sum | cut -f 1 -d ' ' )
 
-    URL="${api_url}api/$api_method?checksum=$checksum"
+    URL="${BBB_WEB_URL}/bigbluebutton/api/$API_METHOD?checksum=$CHECKSUM"
 
     echo "$URL"
 }
@@ -1488,7 +1486,7 @@ fi
 # Return a list of the running meetings
 #
 if [ $RUNNING_MEETINGS ]; then
-    url=$( get_url )
+    url=$( get_meetings_url )
     if [ ! $MACHINE_READABLE ]; then
         list_of_internalId=$( ruby /usr/local/bigbluebutton/core/lib/xml_helper_conf.rb -u "$url")
     else
