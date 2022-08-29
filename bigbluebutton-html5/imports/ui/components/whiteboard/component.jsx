@@ -194,7 +194,7 @@ export default function Whiteboard(props) {
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
-    if (tldrawAPI && curPageId && prevSlidePosition) {
+    if (tldrawAPI && curPageId) {
       tldrawAPI.changePage(curPageId);
       let zoom = prevSlidePosition
         ? calculateZoom(prevSlidePosition.viewBoxWidth, prevSlidePosition.viewBoxHeight)
