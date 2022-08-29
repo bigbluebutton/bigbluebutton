@@ -14,8 +14,6 @@ const UserDatailsComponent = (props) => {
     isOpen, dispatch, user, dataJson, intl,
   } = props;
 
-  if (!isOpen) return null;
-
   const modal = useRef();
   const closeButton = useRef();
   const wasModalOpen = usePreviousValue(isOpen);
@@ -45,6 +43,8 @@ const UserDatailsComponent = (props) => {
   useEffect(() => {
     if (!wasModalOpen) closeButton.current?.focus();
   });
+
+  if (!isOpen) return null;
 
   const {
     createdOn, endedOn, polls, users,
