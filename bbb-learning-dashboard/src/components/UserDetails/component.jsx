@@ -14,37 +14,37 @@ const UserDatailsComponent = (props) => {
     isOpen, dispatch, user, dataJson, intl,
   } = props;
 
-  if (!isOpen) return null;
-
-  const modal = useRef();
-  const closeButton = useRef();
+  const modalRef = useRef();
+  const closeButtonRef = useRef();
   const wasModalOpen = usePreviousValue(isOpen);
 
   useEffect(() => {
-    const keydownhandler = (e) => {
+    const keydownHandler = (e) => {
       if (e.code === 'Escape') dispatch({ type: 'closeModal' });
     };
 
     const focusHandler = () => {
-      if (modal.current && document.activeElement) {
-        if (!modal.current.contains(document.activeElement)) {
-          closeButton.current.focus();
+      if (modalRef.current && document.activeElement) {
+        if (!modalRef.current.contains(document.activeElement)) {
+          closeButtonRef.current.focus();
         }
       }
     };
 
-    window.addEventListener('keydown', keydownhandler);
+    window.addEventListener('keydown', keydownHandler);
     window.addEventListener('focus', focusHandler, true);
 
     return () => {
-      window.removeEventListener('keydown', keydownhandler);
+      window.removeEventListener('keydown', keydownHandler);
       window.removeEventListener('focus', focusHandler, true);
     };
   }, []);
 
   useEffect(() => {
-    if (!wasModalOpen) closeButton.current?.focus();
+    if (!wasModalOpen) closeButtonRef.current?.focus();
   });
+
+  if (!isOpen) return null;
 
   const {
     createdOn, endedOn, polls, users,
@@ -310,13 +310,13 @@ const UserDatailsComponent = (props) => {
         role="none"
         onClick={() => dispatch({ type: 'closeModal' })}
       />
-      <div ref={modal} className="overflow-auto w-full md:w-2/4 bg-gray-100 p-6">
+      <div ref={modalRef} className="overflow-auto w-full md:w-2/4 bg-gray-100 p-6">
         <div className="text-right rtl:text-left">
           <button
             onClick={() => dispatch({ type: 'closeModal' })}
             type="button"
             aria-label="Close user details modal"
-            ref={closeButton}
+            ref={closeButtonRef}
             className="focus:rounded-md focus:outline-none focus:ring focus:ring-gray-500 focus:ring-opacity-50 hover:text-black/50 active:text-black/75"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
