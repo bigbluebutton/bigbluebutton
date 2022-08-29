@@ -19,7 +19,7 @@ case object ConnectionCheckAuthorizationController extends ControllerStandard {
     log.info("api/connection/checkAuthorization")
 
     headerValueByName("x-original-URI") { originalUri =>
-      log.debug(s"The Original URI is $originalUri")
+      log.info(s"The Original URI is $originalUri")
 
       val sessionToken = originalUri match {
         case s"${x}?sessionToken=${sessionToken}" => sessionToken

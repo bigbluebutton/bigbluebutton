@@ -30,18 +30,18 @@ case object EnterController extends ControllerStandard {
             val entityFuture = MeetingService.findUser(userTokenData.meetingId, userTokenData.userId).map {
               case ApiResponseSuccess(msg, userInfos: UserInfosApiMsg) =>
 
-                val responseMap: Map[String, String] = Map(
+                val responseMap: Map[String, Any] = Map(
                   "returncode" -> "SUCCESS",
-                  "message" -> msg
+//                  "message" -> msg
                 ) ++ userInfos.infos.map(curr => {
-                  (curr._1 -> curr._2.toString)
+                  (curr._1 -> curr._2)
                 })
 
                 HttpResponse(StatusCodes.OK,
                   headers = Seq(RawHeader("Cache-Control", "no-cache")),
                   entity = HttpEntity(
                     ContentTypes.`application/json`,
-                    gson.toJson(Map("response" -> responseMap))
+                    respAsJson(Map("response" -> responseMap))
                   )
                 )
               case ApiResponseFailure(msg, arg) =>
@@ -49,7 +49,7 @@ case object EnterController extends ControllerStandard {
                   headers = Seq(RawHeader("Cache-Control", "no-cache")),
                   entity = HttpEntity(
                     ContentTypes.`application/json`,
-                    gson.toJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)))
+                    respAsJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)))
                   )
                 )
             }
@@ -61,7 +61,7 @@ case object EnterController extends ControllerStandard {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   ContentTypes.`application/json`,
-                  gson.toJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")))
+                  respAsJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")))
                 )
               )
             )

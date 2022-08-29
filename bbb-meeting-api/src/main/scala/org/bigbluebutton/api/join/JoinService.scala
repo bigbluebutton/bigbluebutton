@@ -35,7 +35,7 @@ object JoinService {
         params.getOrElse(CreateParams.ROLE, "").toUpperCase
       } else if(!params.getOrElse(CreateParams.PASSWORD, "").isEmpty) {
         //TODO not sure if it will be imported since it is DEPRECATED
-        ""
+        "MODERATOR" //TODO remove it, using for tests
       } else {
         ""
       }

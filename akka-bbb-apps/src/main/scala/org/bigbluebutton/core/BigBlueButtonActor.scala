@@ -1,6 +1,6 @@
 package org.bigbluebutton.core
 
-import java.io.{PrintWriter, StringWriter}
+import java.io.{ PrintWriter, StringWriter }
 import akka.actor._
 import akka.actor.ActorLogging
 import akka.actor.SupervisorStrategy.Resume
@@ -11,7 +11,7 @@ import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.api.RegisterUser
-import org.bigbluebutton.common2.api.{ApiResponseFailure, ApiResponseSuccess, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg}
+import org.bigbluebutton.common2.api.{ ApiResponseFailure, ApiResponseSuccess, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg }
 import org.bigbluebutton.common2.domain.DefaultProps
 
 import java.util.concurrent.TimeUnit

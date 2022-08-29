@@ -134,7 +134,7 @@ object CreateService {
 
     //TODO what to do with it?
     val avatarURL = if(Try(config.getInt("useDefaultAvatar")).getOrElse("false") == "true") {
-      Try(config.getInt("defaultAvatarURL")).getOrElse("")
+      ParamsUtils().getConfigAsString("defaultAvatarURL","")
     } else ""
     val html5InstanceId = paramsUtils.getParamAsString(CreateParams.HTML5_INSTANCE_ID)
 

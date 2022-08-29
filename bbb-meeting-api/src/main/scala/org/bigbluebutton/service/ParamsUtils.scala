@@ -13,7 +13,7 @@ case class ParamsUtils(meetingId: String = "", params: Map[String, String] = Map
   }
 
   def getConfigAsString(configName: String = "", defaultValue: String = ""): String = {
-    var configValue = Try(config.getString(configName)).getOrElse("")
+    var configValue = Try(config.getString(configName)).getOrElse(defaultValue)
     val pattern = """\$\{([^\}]+)\}""".r
     val allMatches = pattern.findAllMatchIn(configValue)
     allMatches.foreach { m =>
@@ -26,7 +26,7 @@ case class ParamsUtils(meetingId: String = "", params: Map[String, String] = Map
   def getParamAsString(apiName: String, configName: String = "", defaultValue: String = ""): String = {
     val value = params.getOrElse(apiName, {
       if (configName equals "") defaultValue
-      else Try(config.getString(configName)).getOrElse(defaultValue)
+      else getConfigAsString(configName,defaultValue)
     })
 
     value

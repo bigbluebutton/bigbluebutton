@@ -46,6 +46,8 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
         userInfos += ("modOnlyMessage" -> liveMeeting.props.welcomeProp.modOnlyMessage)
       }
 
+
+
       //TODO is it used?
       //      userInfos += ("bannerText" -> "a)
       //      userInfos += ("bannerColor" -> "a")
@@ -66,8 +68,8 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
         ))
       }
 
-      userInfos += ("customdata" -> Map()) //TODO
-      userInfos += ("metadata" -> Map()) //TODO
+      userInfos += ("customdata" -> Array()) //TODO
+      userInfos += ("metadata" -> Array()) //TODO
 
       actorRef ! ApiResponseSuccess("User found!", UserInfosApiMsg(userInfos))
     }

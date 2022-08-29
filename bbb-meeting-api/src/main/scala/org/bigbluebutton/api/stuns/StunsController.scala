@@ -42,7 +42,7 @@ case object StunsController extends ControllerStandard {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   ContentTypes.`application/json`,
-                  gson.toJson(returnStuns)
+                  respAsJson(returnStuns)
                 )
               )
             case ApiResponseFailure(msg, arg) =>
@@ -50,7 +50,7 @@ case object StunsController extends ControllerStandard {
                 headers = Seq(RawHeader("Cache-Control", "no-cache")),
                 entity = HttpEntity(
                   ContentTypes.`application/json`,
-                  gson.toJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)))
+                  respAsJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> msg)))
                 )
               )
           }
@@ -62,7 +62,7 @@ case object StunsController extends ControllerStandard {
               headers = Seq(RawHeader("Cache-Control", "no-cache")),
               entity = HttpEntity(
                 ContentTypes.`application/json`,
-                gson.toJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")))
+                respAsJson(Map("response" -> Map("returncode" -> "ERROR", "message" -> "Session invalid")))
               )
             )
           )
