@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.users
 
+import org.bigbluebutton.common2.api.RegisterUserApiMsg
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
@@ -12,7 +13,22 @@ trait RegisterUserReqMsgHdlr {
   val outGW: OutMsgRouter
 
   def handleRegisterUserReqMsg(msg: RegisterUserReqMsg): Unit = {
+    val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
+      msg.body.name, msg.body.role, msg.body.authToken,
+      msg.body.avatarURL, msg.body.guest, msg.body.authed, msg.body.guestStatus, msg.body.excludeFromDashboard, false)
 
+    registerUser(regUser)
+  }
+
+  def handleRegisterUserApiMsg(msg: RegisterUserApiMsg): Unit = {
+    val regUser = RegisteredUsers.create(msg.regUser.intUserId, msg.regUser.extUserId,
+      msg.regUser.name, msg.regUser.role, msg.regUser.authToken,
+      msg.regUser.avatarURL, msg.regUser.guest, msg.regUser.authed, msg.regUser.guestStatus, msg.regUser.excludeFromDashboard, false)
+
+    registerUser(regUser)
+  }
+
+  def registerUser(regUser: RegisteredUser) = {
     def buildUserRegisteredRespMsg(meetingId: String, userId: String, name: String,
                                    role: String, excludeFromDashboard: Boolean, registeredOn: Long): BbbCommonEnvCoreMsg = {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
@@ -22,16 +38,11 @@ trait RegisterUserReqMsgHdlr {
       val event = UserRegisteredRespMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
     }
-    val guestStatus = msg.body.guestStatus
-
-    val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
-      msg.body.name, msg.body.role, msg.body.authToken,
-      msg.body.avatarURL, msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, false)
 
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
 
     log.info("Register user success. meetingId=" + liveMeeting.props.meetingProp.intId
-      + " userId=" + msg.body.extUserId + " user=" + regUser)
+      + " userId=" + regUser.externId + " user=" + regUser)
 
     val event = buildUserRegisteredRespMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.name,
       regUser.role, regUser.excludeFromDashboard, regUser.registeredOn)
@@ -52,7 +63,7 @@ trait RegisterUserReqMsgHdlr {
       GuestsWaiting.add(guestsWaitingList, guest)
     }
 
-    guestStatus match {
+    regUser.guestStatus match {
       case GuestStatus.ALLOW =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
@@ -75,6 +86,6 @@ trait RegisterUserReqMsgHdlr {
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
     }
-
   }
+
 }

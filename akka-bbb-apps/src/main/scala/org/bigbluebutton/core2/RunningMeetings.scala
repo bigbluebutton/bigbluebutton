@@ -7,6 +7,10 @@ object RunningMeetings {
     meetings.toVector.find(m => m.props.meetingProp.intId == id)
   }
 
+  def findWithExtId(meetings: RunningMeetings, id: String): Option[RunningMeeting] = {
+    meetings.toVector.find(m => m.props.meetingProp.extId == id)
+  }
+
   def add(meetings: RunningMeetings, meeting: RunningMeeting): RunningMeeting = {
     meetings.save(meeting)
     meeting

@@ -43,6 +43,7 @@ public:
     # users see the hostnames of the individual nodes, you can leave this at the
     # default setting
     bbbWebBase: '/bigbluebutton'
+    meetingApi: '/api'
     # If you run a cluster setup with a load balancer which hides the individual
     # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
     learningDashboardBase: '/learning-analytics-dashboard'
@@ -559,7 +560,7 @@ public:
           path: 'bridge/sip'
         - name: fullaudio
           path: 'bridge/sfu-audio-bridge'
-    stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
+    stunTurnServersFetchAddress: '/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
     # Forces relay usage on all browsers, environments and media modules.

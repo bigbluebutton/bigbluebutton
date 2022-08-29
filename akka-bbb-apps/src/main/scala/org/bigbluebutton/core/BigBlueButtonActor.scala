@@ -10,6 +10,9 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.common2.api.RegisterUser
+import org.bigbluebutton.common2.api.{ ApiResponseFailure, ApiResponseSuccess, CreateMeetingApiMsg, EndMeetingApiMsg, GetUserApiMsg, RegisterUserApiMsg }
+import org.bigbluebutton.common2.domain.DefaultProps
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
@@ -64,9 +67,84 @@ class BigBlueButtonActor(
     // Internal messages
     case msg: DestroyMeetingInternalMsg => handleDestroyMeeting(msg)
 
+    //Api messages
+    case msg: CreateMeetingApiMsg       => handleCreateMeetingApiMsg(msg, sender)
+    case msg: EndMeetingApiMsg          => handleEndMeetingApiMsg(msg, sender)
+    case msg: RegisterUserApiMsg        => handleRegisterUserApiMsg(msg, sender)
+    case msg: GetUserApiMsg             => handleGetUserApiMsg(msg, sender)
+
     // 2x messages
     case msg: BbbCommonEnvCoreMsg       => handleBbbCommonEnvCoreMsg(msg)
     case _                              => // do nothing
+  }
+
+  def handleCreateMeetingApiMsg(msg: CreateMeetingApiMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED CreateMeetingApiMsg msg {}", msg)
+
+    RunningMeetings.findWithId(meetings, msg.defaultProps.meetingProp.intId) match {
+      case None =>
+
+        RunningMeetings.findWithExtId(meetings, msg.defaultProps.meetingProp.extId) match {
+          case None =>
+            log.info("Create meeting request. meetingId={}", msg.defaultProps.meetingProp.intId)
+            createMeeting(msg.defaultProps)
+            actorRef ! ApiResponseSuccess("Meeting created successfully!")
+          case Some(m) => {
+            log.info("Meeting already created. meetingID={}", msg.defaultProps.meetingProp.intId)
+            // do nothing
+            actorRef ! ApiResponseFailure("Meeting already created.", m.props)
+          }
+        }
+      case Some(m) => {
+        log.info("Meeting already created. meetingID={}", msg.defaultProps.meetingProp.intId)
+        // do nothing
+        actorRef ! ApiResponseFailure("Meeting already created.", m.props)
+      }
+    }
+  }
+
+  def handleEndMeetingApiMsg(msg: EndMeetingApiMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED EndMeetingApiMsg msg {}", msg)
+
+    RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+      case Some(m) =>
+        log.debug("FORWARDING EndMeetingApiMsg message")
+        m.actorRef forward (msg)
+        log.debug("replying with success")
+
+        actorRef ! ApiResponseSuccess("Meeting ended successfully!")
+      case None =>
+        actorRef ! ApiResponseFailure("Meeting not found!")
+    }
+  }
+
+  def handleRegisterUserApiMsg(msg: RegisterUserApiMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED RegisterUserApiMsg msg {}", msg)
+
+    RunningMeetings.findWithExtId(meetings, msg.regUser.meetingId) match {
+      case Some(m) =>
+        log.debug("FORWARDING Register user message")
+        m.actorRef forward (msg)
+        log.debug("replying with success")
+
+        actorRef ! ApiResponseSuccess("User registered successfully!")
+      case None =>
+        actorRef ! ApiResponseFailure("Meeting not found!")
+    }
+  }
+
+  def handleGetUserApiMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
+    log.debug("RECEIVED GetUserApiMsg msg {}", msg)
+
+    RunningMeetings.findWithExtId(meetings, msg.meetingId) match {
+      case Some(m) =>
+        log.debug("FORWARDING Get user message")
+        m.actorRef forward (msg)
+
+      //actorRef ! ApiResponseSuccess("USER REGISTRADO COM SUCESSO!")
+      case None =>
+        actorRef ! ApiResponseFailure("Meeting not found!")
+    }
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
@@ -121,23 +199,25 @@ class BigBlueButtonActor(
     RunningMeetings.findWithId(meetings, msg.body.props.meetingProp.intId) match {
       case None =>
         log.info("Create meeting request. meetingId={}", msg.body.props.meetingProp.intId)
-
-        val m = RunningMeeting(msg.body.props, outGW, eventBus)
-
-        // Subscribe to meeting and voice events.
-        eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
-        eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-
-        bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
-        bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
-
-        RunningMeetings.add(meetings, m)
-
+        createMeeting(msg.body.props)
       case Some(m) =>
         log.info("Meeting already created. meetingID={}", msg.body.props.meetingProp.intId)
       // do nothing
 
     }
+  }
+
+  def createMeeting(props: DefaultProps): Unit = {
+    val m = RunningMeeting(props, outGW, eventBus)
+
+    // Subscribe to meeting and voice events.
+    eventBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+    eventBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+    bbbMsgBus.subscribe(m.actorRef, m.props.meetingProp.intId)
+    bbbMsgBus.subscribe(m.actorRef, m.props.voiceProp.voiceConf)
+
+    RunningMeetings.add(meetings, m)
   }
 
   private def handleGetRunningMeetingsReqMsg(msg: GetRunningMeetingsReqMsg): Unit = {

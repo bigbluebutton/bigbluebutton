@@ -49,6 +49,7 @@ object Dependencies {
     val sprayJson = "io.spray" % "spray-json_2.13" % Versions.spray
 
     val akkaStream = "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion
+    val akkaRemote = "com.typesafe.akka" % "akka-remote_2.13" % Versions.akkaVersion
     val akkaHttp = "com.typesafe.akka" %% "akka-http" % Versions.akkaHttpVersion
     val akkaHttpSprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Versions.akkaHttpVersion
 
@@ -78,6 +79,7 @@ object Dependencies {
     Compile.akkaActor,
     Compile.akkaSl4fj,
     Compile.akkaStream,
+    Compile.akkaRemote,
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.quicklens,
