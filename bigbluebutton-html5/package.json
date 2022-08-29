@@ -62,7 +62,7 @@
     "react-dom": "^16.14.0",
     "react-draggable": "^4.4.5",
     "react-dropzone": "^7.0.1",
-    "react-intl": "^3.12.1",
+    "react-intl": "^6.1.0",
     "react-loading-skeleton": "^3.0.3",
     "react-modal": "~3.6.1",
     "react-player": "^2.10.0",
