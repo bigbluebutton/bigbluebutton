@@ -191,14 +191,15 @@ const currentUserEmoji = (currentUser) => (currentUser
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed(userData) {
-      //wait 3secs (before endMeeting), client will try to authenticate again
+      // wait 3secs (before endMeeting), client will try to authenticate again
+      const delayForReconnection = userData.ejected ? 0 : 3000;
       setTimeout(() => {
         const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
         if (queryCurrentUser.count() === 0) {
           endMeeting(403, userData.ejectedReason || null);
         }
-      }, 3000);
-    }
+      }, delayForReconnection);
+    },
   });
 
   const currentUser = Users.findOne(
