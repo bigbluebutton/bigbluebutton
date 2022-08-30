@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { List } from 'react-virtualized';
+import { Virtuoso } from 'react-virtuoso';
 import ReactModal from 'react-modal';
 
 const ScrollboxVertical = styled.div`
@@ -41,7 +41,7 @@ const ScrollboxVertical = styled.div`
   &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 
-const VirtualizedScrollboxVertical = styled(List)`
+const VirtualizedScrollboxVertical = styled(Virtuoso)`
   overflow-y: auto;
   background: linear-gradient(white 30%, rgba(255,255,255,0)),
     linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,

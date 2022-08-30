@@ -3,11 +3,6 @@ import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { findDOMNode } from 'react-dom';
-import {
-  AutoSizer,
-  CellMeasurer,
-  CellMeasurerCache,
-} from 'react-virtualized';
 import UserListItemContainer from './user-list-item/container';
 import UserOptionsContainer from './user-options/container';
 import Settings from '/imports/ui/services/settings';
@@ -44,11 +39,6 @@ const SKELETON_COUNT = 10;
 class UserParticipants extends Component {
   constructor() {
     super();
-
-    this.cache = new CellMeasurerCache({
-      fixedWidth: true,
-      keyMapper: () => 1,
-    });
 
     this.state = {
       selectedUser: null,
@@ -115,12 +105,7 @@ class UserParticipants extends Component {
     return this.refScrollContainer;
   }
 
-  rowRenderer({
-    index,
-    parent,
-    style,
-    key,
-  }) {
+  rowRenderer(index) {
     const {
       compact,
       setEmojiStatus,
@@ -136,35 +121,23 @@ class UserParticipants extends Component {
     const isRTL = Settings.application.isRTL;
 
     return (
-      <CellMeasurer
-        key={key}
-        cache={this.cache}
-        columnIndex={0}
-        parent={parent}
-        rowIndex={index}
-      >
-        <span
-          style={style}
-          key={key}
-          id={`user-${user?.userId || ''}`}
-        >
-          <UserListItemContainer
-            {...{
-              compact,
-              setEmojiStatus,
-              requestUserInformation,
-              currentUser,
-              meetingIsBreakout,
-              scrollArea,
-              isRTL,
-              lockSettingsProps,
-              isThisMeetingLocked,
-            }}
-            user={user}
-            getScrollContainerRef={this.getScrollContainerRef}
-          />
-        </span>
-      </CellMeasurer>
+      <span id={`user-${user?.userId || ''}`}>
+        <UserListItemContainer
+          {...{
+            compact,
+            setEmojiStatus,
+            requestUserInformation,
+            currentUser,
+            meetingIsBreakout,
+            scrollArea,
+            isRTL,
+            lockSettingsProps,
+            isThisMeetingLocked,
+          }}
+          user={user}
+          getScrollContainerRef={this.getScrollContainerRef}
+        />
+      </span>
     );
   }
 
@@ -235,33 +208,22 @@ class UserParticipants extends Component {
           }}
         >
           <span id="participants-destination" />
-          <AutoSizer>
-            {({ height, width }) => (
-              <Styled.VirtualizedList
-                {...{
-                  isOpen,
-                  users,
-                }}
-                ref={(ref) => {
-                  if (ref !== null) {
-                    this.listRef = ref;
-                  }
+          <Styled.VirtualizedList
+            scrollerRef={(ref) => {
+              if (ref !== null) {
+                this.listRef = ref;
 
-                  if (ref !== null && !scrollArea) {
-                    this.setState({ scrollArea: findDOMNode(ref) });
-                  }
-                }}
-                rowHeight={this.cache.rowHeight}
-                rowRenderer={this.rowRenderer}
-                rowCount={users.length || SKELETON_COUNT}
-                height={height - 1}
-                width={width - 1}
-                overscanRowCount={30}
-                deferredMeasurementCache={this.cache}
-                tabIndex={-1}
-              />
-            )}
-          </AutoSizer>
+                if (!scrollArea) {
+                  this.setState({ scrollArea: ref });
+                }
+              }
+            }}
+            totalCount={users.length || SKELETON_COUNT}
+            itemContent={this.rowRenderer}
+            ovserscan={30}
+            tabIndex={-1}
+            computeItemKey={(index) => index}
+          />
         </Styled.VirtualizedScrollableList>
       </Styled.UserListColumn>
     );

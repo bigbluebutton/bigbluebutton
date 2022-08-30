@@ -70,6 +70,7 @@ const VirtualizedList = styled(VirtualizedScrollboxVertical)`
     radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
 
   outline: none;
+  overflow-x: hidden;
 `;
 
 export default {

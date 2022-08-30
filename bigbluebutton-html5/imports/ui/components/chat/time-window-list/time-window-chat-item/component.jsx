@@ -61,22 +61,9 @@ const intlMessages = defineMessages({
 class TimeWindowChatItem extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {
-      forcedUpdateCount: 0,
-    };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { height, forceCacheUpdate, index } = this.props;
-    const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
-
-    if (elementHeight && height !== 'auto' && elementHeight !== height && this.state.forcedUpdateCount < 10) {
-      // forceCacheUpdate() internally calls forceUpdate(), so we need a stop flag
-      // and cannot rely on shouldComponentUpdate() and other comparisons.
-      forceCacheUpdate(index);
-      this.setState(({ forcedUpdateCount }) => ({ forcedUpdateCount: forcedUpdateCount + 1 }));
-    }
-
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::props', { ...this.props }, { ...prevProps });
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::state', { ...this.state }, { ...prevState });
   }

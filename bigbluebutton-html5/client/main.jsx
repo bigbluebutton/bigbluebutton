@@ -59,6 +59,11 @@ Meteor.startup(() => {
   window.addEventListener('error', (e) => {
     let message = e.message || e.error.toString();
 
+    // The library react-virtuoso throws an error when the ResizeObserver loop
+    // exceeds the limit. It's not a relevant error. We don't have to worry about it.
+    // Just ignore it to avoid flooding the log output.
+    if (message.includes('ResizeObserver')) return;
+
     // Chrome will add on "Uncaught" to the start of the message for some reason. This
     // will strip that so the errors can hopefully be grouped better.
     if (message) message = message.replace(/^Uncaught/, '').trim();
