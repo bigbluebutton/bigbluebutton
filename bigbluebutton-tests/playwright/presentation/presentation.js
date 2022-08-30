@@ -144,6 +144,62 @@ class Presentation extends MultiUsers {
     await this.userPage.hasElementDisabled(e.minimizePresentation);
   }
 
+  async uploadAndRemoveAllPresentations() {
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+  
+    const modSlides1 = await getSlideOuterHtml(this.modPage);
+    const userSlides1 = await getSlideOuterHtml(this.userPage);
+    await expect(modSlides1).toEqual(userSlides1);
+  
+    // Remove
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+  
+    await this.modPage.wasRemoved(e.whiteboard);
+    await this.modPage.hasElementDisabled(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.whiteboard);
+    await this.userPage.hasElementDisabled(e.minimizePresentation);
+  
+    // Check removed presentations inside the Manage Presentations
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.wasRemoved(e.presentationsList);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+  
+    // Making viewer a presenter
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+  
+    await this.userPage.waitAndClick(e.actions);
+    await this.userPage.waitAndClick(e.managePresentations);
+    await this.userPage.wasRemoved(e.presentationsList);
+  }
+  
+  async removePreviousPresentationFromPreviousPresenter() {
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+  
+    const modSlides1 = await getSlideOuterHtml(this.modPage);
+    const userSlides1 = await getSlideOuterHtml(this.userPage);
+    await expect(modSlides1).toEqual(userSlides1);
+  
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+  
+    await this.userPage.waitAndClick(e.actions);
+    await this.userPage.waitAndClick(e.managePresentations);
+    await this.userPage.waitAndClick(e.removePresentation);
+    await this.userPage.waitAndClick(e.removePresentation);
+    await this.userPage.waitAndClick(e.confirmManagePresentation);
+  
+    await this.userPage.waitAndClick(e.actions);
+    await this.userPage.waitAndClick(e.managePresentations);
+    await this.userPage.wasRemoved(e.presentationsList);
+  }
+
   async getFrame(page, frameSelector) {
     await page.waitForSelector(frameSelector);
     await sleep(1000);
