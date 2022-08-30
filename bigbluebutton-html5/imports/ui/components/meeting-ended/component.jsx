@@ -179,7 +179,7 @@ class MeetingEnded extends PureComponent {
   }
 
   getEndingMessage() {
-    const { intl, code, endedReason } = this.props;
+    const { intl, code, ejectedReason, endedReason } = this.props;
 
     if (endedReason && endedReason === 'ENDED_DUE_TO_NO_MODERATOR') {
       return this.endWhenNoModeratorMinutes === 1
@@ -189,6 +189,10 @@ class MeetingEnded extends PureComponent {
 
     if (this.meetingEndedBy) {
       return intl.formatMessage(intlMessage.messageEndedByUser, { 0: this.meetingEndedBy });
+    }
+
+    if (intlMessage[ejectedReason]) {
+      return intl.formatMessage(intlMessage[ejectedReason]);
     }
 
     if (intlMessage[code]) {
