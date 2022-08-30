@@ -238,6 +238,8 @@ export default class WhiteboardOverlay extends Component {
       setTextShapeActiveId,
       contextMenuHandler,
       clearPreview,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
       updateCursor,
     } = this.props;
 
@@ -255,6 +257,8 @@ export default class WhiteboardOverlay extends Component {
       setTextShapeActiveId,
       contextMenuHandler,
       clearPreview,
+      addAnnotationToDiscardedList,
+      undoAnnotation,
     };
 
     return (
@@ -319,4 +323,6 @@ WhiteboardOverlay.propTypes = {
   setTextShapeActiveId: PropTypes.func.isRequired,
   // Defines a handler to publish cursor position to the server
   updateCursor: PropTypes.func.isRequired,
+  addAnnotationToDiscardedList: PropTypes.func.isRequired,
+  undoAnnotation: PropTypes.func.isRequired,
 };

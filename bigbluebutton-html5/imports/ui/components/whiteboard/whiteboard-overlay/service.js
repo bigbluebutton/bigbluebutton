@@ -1,6 +1,6 @@
 import Storage from '/imports/ui/services/storage/session';
 import Auth from '/imports/ui/services/auth';
-import { sendAnnotation, sendLiveSyncPreviewAnnotation, clearPreview } from '/imports/ui/components/whiteboard/service';
+import { sendAnnotation, sendLiveSyncPreviewAnnotation, clearPreview, addAnnotationToDiscardedList } from '/imports/ui/components/whiteboard/service';
 import { publishCursorUpdate } from '/imports/ui/components/cursor/service';
 
 const DRAW_SETTINGS = 'drawSettings';
@@ -55,6 +55,7 @@ const updateCursor = (payload) => {
 };
 
 export default {
+  addAnnotationToDiscardedList,
   sendAnnotation,
   sendLiveSyncPreviewAnnotation,
   getWhiteboardToolbarValues,

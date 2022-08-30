@@ -17,9 +17,14 @@ const DRAW_END = ANNOTATION_CONFIG.status.end;
 
 const ANNOTATION_TYPE_PENCIL = 'pencil';
 const ANNOTATION_TYPE_TEXT = 'text';
+const discardedList = [];
 
 
 let annotationsStreamListener = null;
+
+export function addAnnotationToDiscardedList(annotation) {
+  if (!discardedList.includes(annotation)) discardedList.push(annotation);
+}
 
 const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
@@ -108,7 +113,7 @@ export function initAnnotationsStreamListener() {
     annotationsStreamListener.on('added', ({ annotations }) => {
       annotations.forEach((annotation) => {
         const tool = annotation.annotation.annotationType;
-        if (tool === ANNOTATION_TYPE_TEXT) {
+        if (tool === ANNOTATION_TYPE_TEXT && !discardedList.includes(annotation.id)) {
           handleAddedLiveSyncPreviewAnnotation(annotation);
         } else {
           handleAddedAnnotation(annotation);
@@ -162,7 +167,7 @@ const proccessAnnotationsQueue = async () => {
 
   const annotations = annotationsQueue.splice(0, queueSize);
 
-  const isAnnotationSent = await makeCall('sendBulkAnnotations', annotations);
+  const isAnnotationSent = await makeCall('sendBulkAnnotations', annotations.filter(({ id }) => !discardedList.includes(id)));
 
   if (!isAnnotationSent) {
     // undo splice
