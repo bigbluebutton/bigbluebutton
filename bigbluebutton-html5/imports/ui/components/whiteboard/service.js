@@ -27,7 +27,7 @@ const clearPreview = (annotation) => {
 
 const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
-  Annotations.remove({ id: /-fake/g, annotationType: { $ne: 'text' } });
+  Annotations.remove({ id: /-fake/g });
 }
 
 function handleAddedLiveSyncPreviewAnnotation({
