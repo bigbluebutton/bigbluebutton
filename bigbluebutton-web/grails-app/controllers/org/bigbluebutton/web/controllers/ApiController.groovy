@@ -1327,7 +1327,11 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
     Boolean isDefaultPresentationCurrent = false;
     def listOfPresentation = []
+    def presentationListHasCurrent = false
 
+    // This part of the code is responsible for organize the presentations in a certain order
+    // It selects the one that has the current=true, and put it in the 0th place.
+    // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
     if (requestBody == null) {
       if (isFromInsertAPI){
         log.warn("Insert Document API called without a payload - ignoring")
@@ -1363,6 +1367,7 @@ class ApiController {
           }
         }
       }
+      presentationListHasCurrent = hasCurrent;
     }
 
     listOfPresentation.eachWithIndex { document, index ->
@@ -1382,10 +1387,14 @@ class ApiController {
         }
         // The array has already been processed to let the first be the current. (This way it is
         // ensured that only one document is current)
-        if (index == 0) {
+        if (index == 0 && isFromInsertAPI) {
+          if (presentationListHasCurrent) {
+            isCurrent = true
+          }
+        } else if (index == 0 && !isFromInsertAPI){
           isCurrent = true
         }
-        isCurrent = isCurrent && !isFromInsertAPI
+
         // Verifying whether the document is a base64 encoded or a url to download.
         if (!StringUtils.isEmpty(document.@url.toString())) {
           def fileName;

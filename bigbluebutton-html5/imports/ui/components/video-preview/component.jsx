@@ -354,13 +354,13 @@ class VideoPreview extends Component {
   };
 
   // Resolves into true if the background switch is successful, false otherwise
-  handleVirtualBgSelected(type, name) {
+  handleVirtualBgSelected(type, name, customParams) {
     const { sharedDevices } = this.props;
     const { webcamDeviceId } = this.state;
     const shared = sharedDevices.includes(webcamDeviceId);
 
     if (type !== EFFECT_TYPES.NONE_TYPE) {
-      return this.startVirtualBackground(this.currentVideoStream, type, name).then((switched) => {
+      return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
         // If it's not shared we don't have to update here because
         // it will be updated in the handleStartSharing method.
         if (switched && shared) this.updateVirtualBackgroundInfo();
