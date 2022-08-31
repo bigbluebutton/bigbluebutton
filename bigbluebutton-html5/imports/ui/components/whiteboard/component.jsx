@@ -369,7 +369,7 @@ export default function Whiteboard(props) {
     }
   };
 
-  const persistShapeAndChildren = React.useCallback((id, e) => {
+  const persistShapeAndChildren = (id, e) => {
     const shape = e.getShape(id);
     persistShape(shape, whiteboardId);
     const children = shape.children;
@@ -379,7 +379,7 @@ export default function Whiteboard(props) {
       childShape.size = [shapeBounds.width, shapeBounds.height];
       persistShape(childShape, whiteboardId)
     });
-  }, [persistShape]);
+  };
 
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
