@@ -4,6 +4,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import {
+  HUNDRED_PERCENT,
+  MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
 import Styled from './styles';
