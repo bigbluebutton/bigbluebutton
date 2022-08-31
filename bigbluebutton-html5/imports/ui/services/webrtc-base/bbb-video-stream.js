@@ -111,6 +111,18 @@ export default class BBBVideoStream extends EventEmitter2 {
     });
   }
 
+  changeCameraBrightness(brightness) {
+    if (!this.virtualBgService) return;
+
+    this.virtualBgService.brightness = brightness;
+  }
+
+  toggleCameraBrightnessArea(value) {
+    if (!this.virtualBgService) return;
+
+    this.virtualBgService.wholeImageBrightness = value;
+  }
+
   stopVirtualBackground() {
     if (this.virtualBgService != null) {
       this.virtualBgService.stopEffect();
