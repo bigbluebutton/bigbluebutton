@@ -7,5 +7,5 @@ export default function deactivateTimer() {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  updateTimer('deactivate', meetingId, requesterUserId);
+  updateTimer({ action: 'deactivate', meetingId, requesterUserId });
 }

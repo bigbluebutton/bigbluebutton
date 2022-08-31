@@ -30,7 +30,14 @@ export default function stopTimer() {
     } = timer;
 
     const accumulated = timer.accumulated + (now - timestamp);
-    updateTimer('stop', meetingId, requesterUserId, time, stopwatch, accumulated);
+    updateTimer({
+      action: 'stop',
+      meetingId,
+      requesterUserId,
+      time,
+      stopwatch,
+      accumulated,
+    });
   } else {
     Logger.warn(`Could not stop timer for meetingId=${meetingId}`);
   }

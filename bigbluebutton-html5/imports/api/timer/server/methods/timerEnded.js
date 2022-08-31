@@ -7,5 +7,9 @@ export default function timerEnded() {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  updateTimer('ended', meetingId, requesterUserId);
+  updateTimer({
+    action: 'ended',
+    meetingId,
+    requesterUserId,
+  });
 }

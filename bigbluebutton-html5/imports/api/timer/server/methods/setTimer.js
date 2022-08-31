@@ -9,5 +9,10 @@ export default function setTimer(time) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  updateTimer('set', meetingId, requesterUserId, time);
+  updateTimer({
+    action: 'set',
+    meetingId,
+    requesterUserId,
+    time,
+  });
 }

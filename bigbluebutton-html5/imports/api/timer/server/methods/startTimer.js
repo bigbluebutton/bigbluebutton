@@ -7,5 +7,5 @@ export default function startTimer() {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  updateTimer('start', meetingId, requesterUserId);
+  updateTimer({ action: 'start', meetingId, requesterUserId });
 }

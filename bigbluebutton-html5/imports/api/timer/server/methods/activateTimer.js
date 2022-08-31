@@ -7,5 +7,5 @@ export default function activateTimer() {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  updateTimer('activate', meetingId, requesterUserId);
+  updateTimer({ action: 'activate', meetingId, requesterUserId });
 }

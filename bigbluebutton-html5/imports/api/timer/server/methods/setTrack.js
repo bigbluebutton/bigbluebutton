@@ -10,13 +10,14 @@ export default function setTrack(track) {
   check(requesterUserId, String);
   check(track, String);
 
-  //These are bogus values, won't update collection
-  const time = 0;
-  const stopwatch = false;
-  const accumulated = 0;
-
   if (isTrackValid(track)) {
-    updateTimer('track', meetingId, requesterUserId, time, stopwatch, accumulated, track);
+    updateTimer({
+      action: 'track',
+      meetingId,
+      requesterUserId,
+      stopwatch: false,
+      track,
+    });
   } else {
     Logger.warn(`User=${requesterUserId} tried to set invalid track '${track}' in meeting=${meetingId}`);
   }

@@ -9,8 +9,10 @@ export default function switchTimer(stopwatch) {
   check(meetingId, String);
   check(requesterUserId, String);
 
-  // Bogus value of time. It won't update the collection
-  const time = 0;
-
-  updateTimer('switch', meetingId, requesterUserId, time, stopwatch);
+  updateTimer({
+    action: 'switch',
+    meetingId,
+    requesterUserId,
+    stopwatch,
+  });
 }

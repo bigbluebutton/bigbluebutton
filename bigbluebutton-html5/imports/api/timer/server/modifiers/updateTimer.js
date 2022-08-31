@@ -50,8 +50,11 @@ const handleTimerEndedNotifications = (fields, meetingId, handle) => {
   }
 
   if (fields.ended >= meetingUsers) {
-    const accumulated = 0;
-    updateTimer('stop', meetingId, '', 0, false, accumulated);
+    updateTimer({
+      action: 'stop',
+      meetingId,
+      stopwatch: false,
+    });
   }
 };
 
@@ -132,7 +135,15 @@ const getEndedModifier = () => {
   };
 };
 
-export default function updateTimer(action, meetingId, requesterUserId, time = 0, stopwatch = true, accumulated = 0, track = TRACKS[0]) {
+export default function updateTimer({
+  action,
+  meetingId,
+  requesterUserId = 'SYSTEM_REQUEST',
+  time = 0,
+  stopwatch = true,
+  accumulated = 0,
+  track = TRACKS[0],
+}) {
   check(action, String);
   check(meetingId, String);
   check(requesterUserId, String);
