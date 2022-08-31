@@ -9,8 +9,6 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import MediaService from '/imports/ui/components/media/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ExternalVideoContainer = (props) => {
   const fullscreenElementId = 'ExternalVideo';

@@ -4,16 +4,12 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import {
-  HUNDRED_PERCENT,
-  MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
-
-import ToolbarMenuItem from '/imports/ui/components/whiteboard/whiteboard-toolbar/toolbar-menu-item/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -84,6 +80,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserOff',
     description: 'Whiteboard toolbar turn multi-user off menu',
   },
+  pan: {
+    id: 'app.whiteboard.toolbar.tools.hand',
+    description: 'presentation toolbar pan label',
+  }
 });
 
 class PresentationToolbar extends PureComponent {
@@ -103,6 +103,11 @@ class PresentationToolbar extends PureComponent {
 
   componentDidMount() {
     document.addEventListener('keydown', this.switchSlide);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { zoom, setIsPanning } = this.props;
+    if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom) setIsPanning();
   }
 
   componentWillUnmount() {
@@ -254,11 +259,11 @@ class PresentationToolbar extends PureComponent {
       startPoll,
       currentSlide,
       slidePosition,
-      tldrawAPI,
       toolbarWidth,
       multiUserSize,
       multiUser,
-      isZoomed,
+      setIsPanning,
+      isPanning,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -388,15 +393,27 @@ class PresentationToolbar extends PureComponent {
                   zoomValue={zoom}
                   currentSlideNum={currentSlideNum}
                   change={this.change}
-                  minBound={0.1}
-                  maxBound={5}
+                  minBound={HUNDRED_PERCENT}
+                  maxBound={MAX_PERCENT}
                   step={STEP}
                   isMeteorConnected={isMeteorConnected}
-                  tldrawAPI={tldrawAPI}
-                  isZoomed={isZoomed}
                 />
               </TooltipContainer>
             ) : null}
+            <Styled.FitToWidthButton
+              role="button"
+              data-test="panButton"
+              aria-label={intl.formatMessage(intlMessages.pan)}
+              color="light"
+              disabled={(zoom <= HUNDRED_PERCENT)}
+              icon="hand"
+              size="md"
+              circle
+              onClick={setIsPanning}
+              label={intl.formatMessage(intlMessages.pan)}
+              hideLabel
+              panning={isPanning}
+            />
             <Styled.FitToWidthButton
               role="button"
               data-test="fitToWidthButton"
@@ -415,8 +432,11 @@ class PresentationToolbar extends PureComponent {
               icon="fit_to_width"
               size="md"
               circle
-              onClick={() => this.props.tldrawAPI.zoomToFit()}
-              label={intl.formatMessage(intlMessages.fitToPage)}
+              onClick={fitToWidthHandler}
+              label={fitToWidth
+                ? intl.formatMessage(intlMessages.fitToPage)
+                : intl.formatMessage(intlMessages.fitToWidth)
+              }
               hideLabel
             />
           </Styled.PresentationZoomControls>
