@@ -75,7 +75,7 @@ const HoverToolbar = styled.div`
   ${({ toolbarStyle }) => toolbarStyle === 'hoverToolbar' && `
     display: none;
 
-    :hover > & {
+    #screenshareContainer:hover > & {
       display: flex;
     }
   `}
