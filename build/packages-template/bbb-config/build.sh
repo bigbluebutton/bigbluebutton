@@ -4,8 +4,8 @@ TARGET=`basename $(pwd)`
 
 # inject dependency to bigbluebutton.target
 for unit in freeswitch nginx redis-server; do
-  mkdir -p "staging/lib/systemd/system/${unit}.service.d"
-  cp bigbluebutton.conf "staging/lib/systemd/system/${unit}.service.d/"
+  mkdir -p "staging/usr/lib/systemd/system/${unit}.service.d"
+  cp bigbluebutton.conf "staging/usr/lib/systemd/system/${unit}.service.d/"
 done
 
 
@@ -20,7 +20,7 @@ rm -rf staging
 #
 # Create build directories for markign by fpm
 DIRS="/etc/bigbluebutton \
-      /lib/systemd/system \
+      /usr/lib/systemd/system \
       /var/bigbluebutton/blank \
       /usr/share/bigbluebutton/blank \
       /var/www/bigbluebutton-default/assets"
@@ -55,7 +55,7 @@ mkdir -p staging/usr/share/bigbluebutton/nginx
 
 cp include_default.nginx staging/usr/share/bigbluebutton/
 
-cp bigbluebutton.target staging/lib/systemd/system/
+cp bigbluebutton.target staging/usr/lib/systemd/system/
 
 . ./opts-$DISTRO.sh
 
