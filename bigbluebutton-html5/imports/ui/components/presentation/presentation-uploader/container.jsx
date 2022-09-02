@@ -51,5 +51,6 @@ export default withTracker(() => {
     exportPresentationToChat,
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    externalUploadData: Service.getExternalUploadData(),
   };
 })(PresentationUploaderContainer);

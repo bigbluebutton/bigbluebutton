@@ -9,6 +9,7 @@ import _ from 'lodash';
 import update from 'immutability-helper';
 import { Random } from 'meteor/random';
 import { UploadingPresentations } from '/imports/api/presentations';
+import Meetings from '/imports/api/meetings';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -315,6 +316,25 @@ const handleSavePresentation = (presentations = [], isFromPresentationUploaderIn
   'DEFAULT_PRESENTATION_POD'
 )}
 
+const getExternalUploadData = () => {
+  const { meetingProp } = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'meetingProp.uploadExternalDescription': 1,
+        'meetingProp.uploadExternalUrl': 1
+      },
+    },
+  );
+
+  const { uploadExternalDescription, uploadExternalUrl } = meetingProp;
+
+  return {
+    uploadExternalDescription,
+    uploadExternalUrl,
+  }
+};
+
 const exportPresentationToChat = (presentationId, observer) => {
   let lastStatus = {};
 
@@ -353,6 +373,7 @@ export default {
   dispatchTogglePresentationDownloadable,
   setPresentation,
   requestPresentationUploadToken,
+  getExternalUploadData,
   exportPresentationToChat,
   uploadAndConvertPresentation,
 };

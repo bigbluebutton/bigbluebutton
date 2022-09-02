@@ -1,5 +1,6 @@
 import * as React from "react";
 import _ from "lodash";
+import { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import {
@@ -28,6 +29,14 @@ const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
+
+const TldrawGlobalStyle = createGlobalStyle`
+  ${({ hideContextMenu }) => hideContextMenu && `
+    #TD-ContextMenu {
+      display: none;
+    }
+  `}
+`;
 
 export default function Whiteboard(props) {
   const {
@@ -593,6 +602,7 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
+        <TldrawGlobalStyle hideContextMenu={!hasWBAccess && !isPresenter} />
       </Cursors>
     </>
   );
