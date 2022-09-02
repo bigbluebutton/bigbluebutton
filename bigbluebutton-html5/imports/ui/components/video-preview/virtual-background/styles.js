@@ -34,6 +34,10 @@ const BgWrapper = styled(ScrollboxVertical)`
     flex-wrap: wrap;
     align-content: flex-start;
   `}
+
+  ${({ brightnessEnabled, isVisualEffects }) => brightnessEnabled && isVisualEffects && `
+    height: 10rem;
+  `}
 `;
 
 const BgNoneButton = styled(Button)`

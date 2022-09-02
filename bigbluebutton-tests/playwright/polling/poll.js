@@ -30,7 +30,8 @@ class Polling extends MultiUsers {
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
 
-    await this.modPage.waitAndClick(e.quickPoll);
+    // The slide needs to be uploaded and converted, so wait a bit longer for this step
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.pollMenuButton);
 
     await this.userPage.hasElement(e.pollingContainer);

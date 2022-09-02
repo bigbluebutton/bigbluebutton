@@ -166,7 +166,7 @@ function renderToastItem(item, intl) {
 
 	return (
 		<Styled.UploadRow
-			key={item.tmpPresId}
+			key={item.temporaryPresentationId}
 			onClick={() => {
 				if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
 			}}
@@ -271,16 +271,17 @@ export const ToastController = ({ intl }) => {
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
 		let tmpIdconvertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.conversion.done)
-			.map(p => p.tmpPresId)
-		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.includes(p.tmpPresId))
-			.map(p => UploadingPresentations.remove({tmpPresId: p.tmpPresId}));
+			.map(p => p.temporaryPresentationId)
+		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.includes(p.temporaryPresentationId))
+			.map(p => {
+				return UploadingPresentations.remove({temporaryPresentationId: p.temporaryPresentationId})});
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
-		presentationsToConvert.map(p => p.tmpPresId).forEach(tmpId => {
-			if (!alreadyRenderedPresList.some(pres => pres.tmpPresId == tmpId)){
+		presentationsToConvert.map(p => p.temporaryPresentationId).forEach(tmpId => {
+			if (!alreadyRenderedPresList.some(pres => pres.temporaryPresentationId == tmpId)){
 				alreadyRenderedPresList.push({
-					tmpPresId: tmpId,
+					temporaryPresentationId: tmpId,
 					rendered: false,
 				});
 			}
@@ -308,15 +309,15 @@ export const ToastController = ({ intl }) => {
 			});
 		}
 
-		let tmpPresIdListToSetAsRendered = presentationsToConvert.filter(p => 
+		let temporaryPresentationIdListToSetAsRendered = presentationsToConvert.filter(p => 
 			("conversion" in p && (p.conversion.done || p.conversion.error)))
 			
-		tmpPresIdListToSetAsRendered = tmpPresIdListToSetAsRendered.map(p => {
-			index = alreadyRenderedPresList.findIndex(pres => pres.tmpPresId === p.tmpPresId);
+		temporaryPresentationIdListToSetAsRendered = temporaryPresentationIdListToSetAsRendered.map(p => {
+			index = alreadyRenderedPresList.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId);
 			if (index !== -1) {
 				alreadyRenderedPresList[index].rendered = true;
 			}
-			return p.tmpPresId
+			return p.temporaryPresentationId
 		});
 
 		if (alreadyRenderedPresList.every((pres) => pres.rendered)) {

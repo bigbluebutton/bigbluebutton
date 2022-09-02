@@ -541,6 +541,7 @@ const DownloadButton = styled(Button)`
   color: ${colorBlueLight};
   cursor: pointer;
   display: inline-block;
+  font-size: 80%;
 
   &:hover {
     background-color: ${colorOffWhite} !important;

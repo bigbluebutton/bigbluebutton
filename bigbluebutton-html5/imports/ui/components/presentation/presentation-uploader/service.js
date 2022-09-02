@@ -74,7 +74,7 @@ const dispatchTogglePresentationDownloadable = (presentation, newState) => {
 
 const observePresentationConversion = (
   meetingId,
-  tmpPresId,
+  temporaryPresentationId,
   onConversion,
 ) => new Promise((resolve) => {
 
@@ -94,11 +94,11 @@ const observePresentationConversion = (
   Tracker.autorun((c) => {
     const query = Presentations.find({ meetingId });
 
-    
+
     query.observe({
       added: (doc) => {
 
-        if (doc.tmpPresId !== tmpPresId) return;
+        if (doc.temporaryPresentationId !== temporaryPresentationId) return;
 
         if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
           onConversion(doc.conversion);
@@ -108,7 +108,7 @@ const observePresentationConversion = (
       },
       changed: (newDoc) => {
 
-        if (newDoc.tmpPresId !== tmpPresId) return;
+        if (newDoc.temporaryPresentationId !== temporaryPresentationId) return;
 
         onConversion(newDoc.conversion);
 
@@ -128,12 +128,12 @@ const observePresentationConversion = (
 });
 
 const requestPresentationUploadToken = (
-  tmpPresId,
+  temporaryPresentationId,
   podId,
   meetingId,
   filename,
 ) => new Promise((resolve, reject) => {
-  makeCall('requestPresentationUploadToken', podId, filename, tmpPresId);
+  makeCall('requestPresentationUploadToken', podId, filename, temporaryPresentationId);
 
   let computation = null;
   const timeout = setTimeout(() => {
@@ -143,13 +143,13 @@ const requestPresentationUploadToken = (
 
   Tracker.autorun((c) => {
     computation = c;
-    const sub = Meteor.subscribe('presentation-upload-token', podId, filename, tmpPresId);
+    const sub = Meteor.subscribe('presentation-upload-token', podId, filename, temporaryPresentationId);
     if (!sub.ready()) return;
 
     const PresentationToken = PresentationUploadToken.findOne({
       podId,
       meetingId,
-      tmpPresId,
+      temporaryPresentationId,
       used: false,
     });
 
@@ -176,13 +176,13 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
 ) => {
-  const tmpPresId = _.uniqueId(Random.id(20))
+  const temporaryPresentationId = _.uniqueId(Random.id(20))
 
   const data = new FormData();
   data.append('fileUpload', file);
   data.append('conference', meetingId);
   data.append('room', meetingId);
-  data.append('temporaryPresentationId', tmpPresId);
+  data.append('temporaryPresentationId', temporaryPresentationId);
 
   // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
   data.append('pod_id', podId);
@@ -195,7 +195,7 @@ const uploadAndConvertPresentation = (
   };
 
   UploadingPresentations.insert({
-    tmpPresId,
+    temporaryPresentationId,
     progress: 0,
     filename: file.name,
     upload: {
@@ -205,15 +205,15 @@ const uploadAndConvertPresentation = (
     uploadTimestamp: new Date()
   })
 
-  return requestPresentationUploadToken(tmpPresId, podId, meetingId, file.name)
+  return requestPresentationUploadToken(temporaryPresentationId, podId, meetingId, file.name)
     .then((token) => {
       makeCall('setUsedToken', token);
       return futch(endpoint.replace('upload', `${token}/upload`), opts, (e) => {
         onProgress(e);
-        UploadingPresentations.upsert({ tmpPresId }, {$set: {progress: (e.loaded / e.total) * 100}});
+        UploadingPresentations.upsert({ temporaryPresentationId }, {$set: {progress: (e.loaded / e.total) * 100}});
       });
     })
-    .then(() => observePresentationConversion(meetingId, tmpPresId, onConversion))
+    .then(() => observePresentationConversion(meetingId, temporaryPresentationId, onConversion))
     .catch((error) => {
       logger.debug({
         logCode: 'presentation_uploader_service',
@@ -221,7 +221,7 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      observePresentationConversion(meetingId, tmpPresId, onConversion);
+      observePresentationConversion(meetingId, temporaryPresentationId, onConversion);
       onUpload({ error: true, done: true, status: error.code });
       return Promise.resolve();
     });

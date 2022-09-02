@@ -13,6 +13,5 @@ server {
         }
 
 	# Include specific rules for record and playback
-        include /usr/share/bigbluebutton/nginx/*.nginx;
         include /etc/bigbluebutton/nginx/*.nginx; # an overriding set of files, possibly present
 }

@@ -324,22 +324,45 @@ class PresentationUploader extends Component {
       ...propPresentations,
       ...presentations,
     });
-    const presStateMapped = presState.map((presentation) => {
-      propPresentations.forEach((propPres) => {
-        if (propPres.id === presentation.id) {
-          const prevPropPres = prevPropPresentations.find((pres) => pres.id === propPres.id);
-          if (propPres.isCurrent !== prevPropPres?.isCurrent) {
-            presentation.isCurrent = propPres.isCurrent;
-            shouldUpdateState = true;
-          }
-        }
-      });
-      return presentation;
+    const presStateFiltered = presState.filter((presentation) => {
+      const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
+      const prevPropPres = prevPropPresentations.find((pres) => pres.id === presentation.id);
+      const hasConversionError = presentation?.conversion?.error;
+      const finishedConversion = presentation?.conversion?.done || currentPropPres?.conversion?.done;
+      const hasTemporaryId = presentation.id.startsWith(presentation.filename);
+
+      if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
+      if (!currentPropPres) return false;
+
+      if(presentation?.conversion?.done !== finishedConversion) {
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres.isCurrent !== prevPropPres?.isCurrent) {
+        presentation.isCurrent = currentPropPres.isCurrent;
+      }
+
+      presentation.conversion = currentPropPres.conversion;
+      presentation.isRemovable = currentPropPres.isRemovable;
+
+      return true;
+    }).filter(presentation => {
+      const duplicated = presentations.find(
+        (pres) => pres.filename === presentation.filename
+          && pres.id !== presentation.id
+      );
+      if (duplicated
+        && duplicated.id.startsWith(presentation.filename)
+        && !presentation.id.startsWith(presentation.filename)
+        && presentation?.conversion?.done === duplicated?.conversion?.done) {
+          return false;
+      }
+      return true;
     });
 
     if (shouldUpdateState) {
       this.setState({
-        presentations: presStateMapped,
+        presentations: _.uniqBy(presStateFiltered, 'id')
       });
     }
 
@@ -580,7 +603,6 @@ class PresentationUploader extends Component {
             logCode: 'presentationuploader_component_save_error',
             extraInfo: { error },
           }, 'Presentation uploader catch error on confirm');
-          console.log("Erro aqui....", error)
         });
     }
 
@@ -743,7 +765,7 @@ class PresentationUploader extends Component {
             </Styled.Head>
           </thead>
           <tbody>
-            {presentationsSorted.map((item) => this.renderPresentationItem(item))}
+            {_.uniqBy(presentationsSorted, 'id').map((item) => this.renderPresentationItem(item))}
           </tbody>
         </Styled.Table>
       </Styled.FileList>
@@ -822,7 +844,7 @@ class PresentationUploader extends Component {
 
     return (
       <Styled.UploadRow
-        key={item.tmpPresId}
+        key={item.temporaryPresentationId}
       >
         <Styled.FileLine>
           <span>

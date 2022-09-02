@@ -64,6 +64,7 @@ public:
     # restarting webcam.
     enableWebcamSelectorButton: true
     enableTalkingIndicator: true
+    enableCameraBrightness: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
     ipv4FallbackDomain: ''
@@ -236,6 +237,10 @@ public:
       - critical
       - danger
       - warning
+    # Whether the fallback mechanism should be used
+    # when the locale string is empty. If false, the empty
+    # string will be returned.
+    fallbackOnEmptyLocaleString: true
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -621,6 +626,13 @@ public:
       useRtcLoopbackInChromium: true
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
+    # networkPriorities: DSCP markings for each media type. Chromium only, applies
+    # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
+    # for further info.
+    #networkPriorities:
+    #  audio: high
+    #  webcam: medium
+    #  screenshare: medium
   stats:
     enabled: true
     interval: 10000

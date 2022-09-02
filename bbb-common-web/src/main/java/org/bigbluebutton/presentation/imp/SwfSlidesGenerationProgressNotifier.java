@@ -71,7 +71,7 @@ public class SwfSlidesGenerationProgressNotifier {
   }
 
   public void sendCreatingThumbnailsUpdateMessage(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY,
@@ -106,7 +106,7 @@ public class SwfSlidesGenerationProgressNotifier {
   }
 
   public void sendCreatingTextFilesUpdateMessage(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY,
@@ -115,7 +115,7 @@ public class SwfSlidesGenerationProgressNotifier {
   }
 
   public void sendCreatingSvgImagesUpdateMessage(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY,

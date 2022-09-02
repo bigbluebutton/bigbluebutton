@@ -21,12 +21,15 @@ import {
 } from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+import Checkbox from '/imports/ui/components/common/checkbox/component'
 
 const VIEW_STATES = {
   finding: 'finding',
   found: 'found',
   error: 'error',
 };
+
+const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -188,6 +191,14 @@ const intlMessages = defineMessages({
     id: 'app.video.inactiveError',
     description: 'Camera stopped unexpectedly',
   },
+  brightness: {
+    id: 'app.videoPreview.brightness',
+    description: 'Brightness label',
+  },
+  wholeImageBrightnessLabel: {
+    id: 'app.videoPreview.wholeImageBrightnessLabel',
+    description: 'Whole image brightness label',
+  },
 });
 
 class VideoPreview extends Component {
@@ -206,6 +217,7 @@ class VideoPreview extends Component {
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
     this.handleVirtualBgSelected = this.handleVirtualBgSelected.bind(this);
     this.handleLocalStreamInactive = this.handleLocalStreamInactive.bind(this);
+    this.handleBrightnessAreaChange = this.handleBrightnessAreaChange.bind(this);
 
     this._isMounted = false;
 
@@ -217,6 +229,8 @@ class VideoPreview extends Component {
       viewState: VIEW_STATES.finding,
       deviceError: null,
       previewError: null,
+      brightness: 100,
+      wholeImageBrightness: false,
     };
   }
 
@@ -297,6 +311,28 @@ class VideoPreview extends Component {
                 viewState: VIEW_STATES.found,
               });
               this.displayPreview();
+
+              if (ENABLE_CAMERA_BRIGHTNESS) {
+                const setBrightnessInfo = () => {
+                  const stream = this.currentVideoStream || {};
+                  const service = stream.virtualBgService || {};
+                  const { brightness = 100, wholeImageBrightness = false } = service;
+                  this.setState({ brightness, wholeImageBrightness });
+                };
+
+                if (!this.currentVideoStream.virtualBgService) {
+                  this.startVirtualBackground(
+                    this.currentVideoStream,
+                    EFFECT_TYPES.NONE_TYPE
+                  ).then((switched) => {
+                    if (switched) {
+                      setBrightnessInfo();
+                    }
+                  });
+                } else {
+                  setBrightnessInfo();
+                }
+              }
             });
         } else {
           // There were no webcams coming from enumerateDevices. Throw an error.
@@ -313,6 +349,22 @@ class VideoPreview extends Component {
       // Nothing we can do.
       const error = new Error('NotSupportedError');
       this.handleDeviceError('mount', error, ': navigator.mediaDevices unavailable');
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.brightnessMarker) {
+      const markerStyle = window.getComputedStyle(this.brightnessMarker);
+      const left = parseFloat(markerStyle.left);
+      const right = parseFloat(markerStyle.right);
+
+      if (left < 0) {
+        this.brightnessMarker.style.left = '0px';
+        this.brightnessMarker.style.right = 'auto';
+      } else if (right < 0) {
+        this.brightnessMarker.style.right = '0px';
+        this.brightnessMarker.style.left = 'auto';
+      }
     }
   }
 
@@ -342,12 +394,33 @@ class VideoPreview extends Component {
     );
   }
 
+  updateVirtualBackgroundInfo = () => {
+    const { webcamDeviceId } = this.state;
+
+    // Update this session's virtual camera effect information if it's enabled
+    setSessionVirtualBackgroundInfo(
+      this.currentVideoStream.virtualBgType,
+      this.currentVideoStream.virtualBgName,
+      webcamDeviceId,
+    );
+  };
+
   // Resolves into true if the background switch is successful, false otherwise
   handleVirtualBgSelected(type, name, customParams) {
-    if (type !== EFFECT_TYPES.NONE_TYPE) {
-      return this.startVirtualBackground(this.currentVideoStream, type, name, customParams);
+    const { sharedDevices } = this.props;
+    const { webcamDeviceId } = this.state;
+    const shared = sharedDevices.includes(webcamDeviceId);
+
+    if (type !== EFFECT_TYPES.NONE_TYPE || ENABLE_CAMERA_BRIGHTNESS) {
+      return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
+        // If it's not shared we don't have to update here because
+        // it will be updated in the handleStartSharing method.
+        if (switched && shared) this.updateVirtualBackgroundInfo();
+        return switched;
+      });
     } else {
       this.stopVirtualBackground(this.currentVideoStream);
+      if (shared) this.updateVirtualBackgroundInfo();
       return Promise.resolve(true);
     }
   }
@@ -394,12 +467,7 @@ class VideoPreview extends Component {
       this.currentVideoStream.stop();
     }
 
-    // Update this session's virtual camera effect information if it's enabled
-    setSessionVirtualBackgroundInfo(
-      this.currentVideoStream.virtualBgType,
-      this.currentVideoStream.virtualBgName,
-      webcamDeviceId,
-    );
+    this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
     startSharing(webcamDeviceId);
     if (resolve) resolve();
@@ -610,14 +678,14 @@ class VideoPreview extends Component {
 
     if (isVisualEffects) {
       return (
-        <Styled.Col>
+        <>
           {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
-        </Styled.Col>
-      )
+        </>
+      );
     }
 
     return (
-      <Styled.Col>
+      <>
         <Styled.Label htmlFor="setCam">
           {intl.formatMessage(intlMessages.cameraLabel)}
         </Styled.Label>
@@ -682,7 +750,76 @@ class VideoPreview extends Component {
           )
         }
         {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
-      </Styled.Col>
+      </>
+    );
+  }
+
+  handleBrightnessAreaChange() {
+    const { wholeImageBrightness } = this.state;
+    this.currentVideoStream.toggleCameraBrightnessArea(!wholeImageBrightness);
+    this.setState({ wholeImageBrightness: !wholeImageBrightness });
+  }
+
+  renderBrightnessInput() {
+    if (!ENABLE_CAMERA_BRIGHTNESS) return null;
+
+    const { intl } = this.props;
+    const { brightness, wholeImageBrightness } = this.state;
+
+    const origin = brightness <= 100 ? 'left' : 'right';
+    const offset = origin === 'left'
+      ? (brightness * 100) / 200
+      : ((200 - brightness) * 100) / 200;
+
+    return (
+      <>
+        <Styled.Label htmlFor="brightness">
+          {intl.formatMessage(intlMessages.brightness)}
+        </Styled.Label>
+        <div>
+          <Styled.MarkerDynamicWrapper>
+            <Styled.MarkerDynamic
+              ref={(ref) => this.brightnessMarker = ref}
+              style={{ [origin]: `calc(${offset}% - 1rem)` }}
+            >
+              {brightness - 100}
+            </Styled.MarkerDynamic>
+          </Styled.MarkerDynamicWrapper>
+        </div>
+        <input
+          id="brightness"
+          style={{ width: '100%' }}
+          type="range"
+          min={0}
+          max={200}
+          value={brightness}
+          onChange={(e) => {
+            const brightness = e.target.valueAsNumber;
+            this.currentVideoStream.changeCameraBrightness(brightness);
+            this.setState({ brightness });
+          }}
+        />
+        <Styled.MarkerWrapper>
+          <Styled.Marker>{'-100'}</Styled.Marker>
+          <Styled.Marker>{'0'}</Styled.Marker>
+          <Styled.Marker>{'100'}</Styled.Marker>
+        </Styled.MarkerWrapper>
+        <div style={{ display: 'flex', marginTop: '.5rem' }}>
+          <Checkbox
+            onChange={this.handleBrightnessAreaChange}
+            checked={wholeImageBrightness}
+            ariaLabelledBy="brightnessAreaLabel"
+            id="brightnessArea"
+          />
+          <label
+            htmlFor="brightnessArea"
+            id="brightnessAreaLabel"
+            style={{ margin: '0 .5rem' }}
+          >
+            {intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
+          </label>
+        </div>
+      </>
     );
   }
 
@@ -759,7 +896,10 @@ class VideoPreview extends Component {
                   )
               }
             </Styled.VideoCol>
-            {this.renderDeviceSelectors()}
+            <Styled.Col>
+              {this.renderDeviceSelectors()}
+              {this.renderBrightnessInput()}
+            </Styled.Col>
           </Styled.Content>
         );
     }

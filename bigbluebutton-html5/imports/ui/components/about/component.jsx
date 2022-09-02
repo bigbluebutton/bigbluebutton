@@ -55,6 +55,7 @@ const AboutComponent = ({ intl, settings }) => {
 
   return (
     <Modal
+      data-test="aboutModalTitleLabel"
       title={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.dismissLabel),

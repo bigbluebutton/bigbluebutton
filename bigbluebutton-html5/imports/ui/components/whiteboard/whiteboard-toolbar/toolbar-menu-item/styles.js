@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {
   toolbarButtonWidth,
   toolbarButtonHeight,
-  toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {

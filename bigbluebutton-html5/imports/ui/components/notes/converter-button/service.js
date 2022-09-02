@@ -26,7 +26,7 @@ async function convertAndUpload() {
   if (duplicates !== 0) { filename = `${filename}(${duplicates})`; }
 
   const podId = 'DEFAULT_PRESENTATION_POD';
-  const tmpPresId = _.uniqueId(Random.id(20));
+  const temporaryPresentationId = _.uniqueId(Random.id(20));
 
   const sharedNotesData = new File([data], `${filename}.${extension}`, {
     type: data.type,

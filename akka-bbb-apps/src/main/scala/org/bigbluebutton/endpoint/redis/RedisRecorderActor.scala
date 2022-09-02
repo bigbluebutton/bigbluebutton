@@ -187,14 +187,15 @@ class RedisRecorderActor(
   }
 
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
-    val ev = new TldrawCameraChangedRecordEvent()
+    val ev = new ResizeAndMoveSlideRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
     ev.setId(msg.body.pageId)
-    ev.setXCamera(msg.body.xCamera)
-    ev.setYCamera(msg.body.yCamera)
-    ev.setZoom(msg.body.zoom)
+    ev.setXOffset(msg.body.xOffset)
+    ev.setYOffset(msg.body.yOffset)
+    ev.setWidthRatio(msg.body.widthRatio)
+    ev.setHeightRatio(msg.body.heightRatio)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
