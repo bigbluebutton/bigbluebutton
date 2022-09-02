@@ -146,7 +146,12 @@ const sendAnnotation = (annotation) => {
   // reconnected. With this it will miss things
   if (!Meteor.status().connected) return;
 
-  annotationsQueue.push(annotation);
+  const index = annotationsQueue.findIndex(ann => ann.id === annotation.id);
+  if (index !== -1) {
+    annotationsQueue[index] = annotation;
+  } else {
+    annotationsQueue.push(annotation);
+  }
   if (!annotationsSenderIsRunning)
     setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 };
