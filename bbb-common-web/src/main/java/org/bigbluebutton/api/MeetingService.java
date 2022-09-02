@@ -421,7 +421,8 @@ public class MeetingService implements MessageListener {
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
-            m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn());
+            m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
+            m.getUploadExternalDescription(), m.getUploadExternalUrl());
   }
 
   private String formatPrettyDate(Long timestamp) {

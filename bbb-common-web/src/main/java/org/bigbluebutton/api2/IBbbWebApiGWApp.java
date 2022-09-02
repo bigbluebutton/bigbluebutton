@@ -43,7 +43,9 @@ public interface IBbbWebApiGWApp {
                      Integer html5InstanceId,
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
-                     Boolean notifyRecordingIsOn);
+                     Boolean notifyRecordingIsOn,
+                     String uploadExternalDescription,
+                     String uploadExternalUrl);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

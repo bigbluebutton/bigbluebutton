@@ -9,14 +9,16 @@ case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          endWhenNoModerator:                     Boolean, endWhenNoModeratorDelayInMinutes: Int)
 
 case class MeetingProp(
-    name:                 String,
-    extId:                String,
-    intId:                String,
-    meetingCameraCap:     Int,
-    maxPinnedCameras:     Int,
-    isBreakout:           Boolean,
-    disabledFeatures:     Vector[String],
-    notifyRecordingIsOn:  Boolean,
+    name:                       String,
+    extId:                      String,
+    intId:                      String,
+    meetingCameraCap:           Int,
+    maxPinnedCameras:           Int,
+    isBreakout:                 Boolean,
+    disabledFeatures:           Vector[String],
+    notifyRecordingIsOn:        Boolean,
+    uploadExternalDescription:  String,
+    uploadExternalUrl:          String,
 )
 
 case class BreakoutProps(
