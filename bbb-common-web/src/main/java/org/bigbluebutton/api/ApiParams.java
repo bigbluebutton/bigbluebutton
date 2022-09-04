@@ -76,6 +76,7 @@ public class ApiParams {
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
     public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";
+    public static final String BREAKOUT_ROOMS_BRING_BACK_SLIDES_ENABLED = "breakoutRoomsBringBackSlidesEnabled";
 
     public static final String LOCK_SETTINGS_DISABLE_CAM = "lockSettingsDisableCam";
     public static final String LOCK_SETTINGS_DISABLE_MIC = "lockSettingsDisableMic";

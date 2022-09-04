@@ -104,6 +104,7 @@ public class ParamsProcessorUtil {
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
+        private boolean defaultBreakoutRoomsBringBackSlidesEnabled = true;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
 		private boolean defaultLockSettingsDisableCam;
@@ -273,7 +274,13 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled);
+            Boolean breakoutRoomsBringBackSlidesEnabled = defaultBreakoutRoomsBringBackSlidesEnabled;
+			String breakoutRoomsBringBackSlidesEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_BRING_BACK_SLIDES_ENABLED);
+			if (!StringUtils.isEmpty(breakoutRoomsBringBackSlidesEnabledParam)) {
+				breakoutRoomsBringBackSlidesEnabled = Boolean.parseBoolean(breakoutRoomsBringBackSlidesEnabledParam);
+			}
+
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsBringBackSlidesEnabled);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -1303,6 +1310,10 @@ public class ParamsProcessorUtil {
 
 	public void setBreakoutRoomsRecord(Boolean breakoutRoomsRecord) {
 		this.defaultBreakoutRoomsRecord = breakoutRoomsRecord;
+	}
+
+    public void setBreakoutRoomsBringBackSlidesEnabled(Boolean breakoutRoomsBringBackSlidesEnabled) {
+		this.defaultBreakoutRoomsBringBackSlidesEnabled = breakoutRoomsBringBackSlidesEnabled;
 	}
 
 	public void setBreakoutRoomsPrivateChatEnabled(Boolean breakoutRoomsPrivateChatEnabled) {

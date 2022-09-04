@@ -185,7 +185,8 @@ class BbbWebApiGWApp(
       freeJoin = freeJoin.booleanValue(),
       breakoutRooms = Vector(),
       record = breakoutParams.record.booleanValue(),
-      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
+      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
+      bringBackSlidesEnabled = breakoutParams.bringBackSlidesEnabled.booleanValue()
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
