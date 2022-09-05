@@ -82,6 +82,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.freeJoin',
     description: 'free join label',
   },
+  captureLabel: {
+    id: 'app.createBreakoutRoom.capture',
+    description: 'capture presentations label',
+  },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
     description: 'Room label',
@@ -200,6 +204,7 @@ class BreakoutRoom extends PureComponent {
     this.handleDismiss = this.handleDismiss.bind(this);
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
+    this.setCapture = this.setCapture.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
     this.renderErrorMessages = this.renderErrorMessages.bind(this);
@@ -220,6 +225,7 @@ class BreakoutRoom extends PureComponent {
       roomNameDuplicatedIsValid: true,
       roomNameEmptyIsValid: true,
       record: false,
+      capture: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
     };
@@ -386,6 +392,7 @@ class BreakoutRoom extends PureComponent {
       users,
       freeJoin,
       record,
+      capture,
       numberOfRoomsIsValid,
       numberOfRooms,
       durationTime,
@@ -430,7 +437,7 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
     }));
 
-    createBreakoutRoom(rooms, durationTime, record);
+    createBreakoutRoom(rooms, durationTime, record, capture);
     Session.set('isUserListOpen', true);
   }
 
@@ -565,6 +572,10 @@ class BreakoutRoom extends PureComponent {
 
   setRecord(e) {
     this.setState({ record: e.target.checked });
+  }
+
+  setCapture(e) {
+    this.setState({ capture: e.target.checked });
   }
 
   getUserByRoom(room) {
@@ -978,11 +989,14 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderCheckboxes() {
-    const { intl, isUpdate, isBreakoutRecordable } = this.props;
+    const {
+      intl, isUpdate, isBreakoutRecordable,
+    } = this.props;
     if (isUpdate) return null;
     const {
       freeJoin,
       record,
+      capture,
     } = this.state;
     return (
       <Styled.CheckBoxesContainer key="breakout-checkboxes">
@@ -1012,6 +1026,18 @@ class BreakoutRoom extends PureComponent {
             </Styled.FreeJoinLabel>
           ) : null
         }
+        <Styled.FreeJoinLabel htmlFor="captureBreakoutCheckbox" key="capture-breakouts">
+          <Styled.FreeJoinCheckbox
+            id="captureBreakoutCheckbox"
+            type="checkbox"
+            onChange={this.setCapture}
+            checked={capture}
+            aria-label={intl.formatMessage(intlMessages.captureLabel)}
+          />
+          <span aria-hidden>
+            {intl.formatMessage(intlMessages.captureLabel)}
+          </span>
+        </Styled.FreeJoinLabel>
       </Styled.CheckBoxesContainer>
     );
   }

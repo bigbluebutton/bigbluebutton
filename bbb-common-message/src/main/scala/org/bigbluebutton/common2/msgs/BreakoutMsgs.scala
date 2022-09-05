@@ -59,7 +59,7 @@ case class BreakoutRoomDetail(
     sourcePresentationSlide: Int,
     record:                  Boolean,
     privateChatEnabled:      Boolean,
-    bringBackSlidesEnabled:  Boolean
+    capture:                 Boolean
 )
 
 /**
@@ -67,7 +67,7 @@ case class BreakoutRoomDetail(
  */
 object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
 case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends StandardMsg
-case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, rooms: Vector[BreakoutRoomMsgBody])
+case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, capture: Boolean, rooms: Vector[BreakoutRoomMsgBody])
 case class BreakoutRoomMsgBody(name: String, sequence: Int, shortName: String, isDefaultName: Boolean, freeJoin: Boolean, users: Vector[String])
 
 // Sent by user to request ending all the breakout rooms

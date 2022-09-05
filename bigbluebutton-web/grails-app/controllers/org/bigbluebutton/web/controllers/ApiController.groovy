@@ -1002,7 +1002,7 @@ class ApiController {
               breakoutRooms {
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
-                bringBackSlidesEnabled meeting.breakoutRoomsParams.bringBackSlidesEnabled
+                capture meeting.breakoutRoomsParams.capture
               }
             }
             customdata (
