@@ -312,3 +312,7 @@ exports.exportPlainButton = 'span[id="exportplain"]';
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
 exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
+
+// Help button
+exports.helpButton = 'li[data-test="helpButton"]';
+exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'

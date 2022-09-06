@@ -13,6 +13,15 @@ class Options extends Page {
     await this.hasElement(e.closeModal);
   }
 
+  async openHelp(context) {
+    await this.waitAndClick(e.optionsButton);
+
+    const newPage = await this.handleNewTab(e.helpButton, context);
+
+    await expect(newPage).toHaveTitle(/BigBlueButton Tutorials/);
+    await this.hasElement(e.presentationTitle);
+  }
+
   async localesTest() {
     const selectedKeysBySelector = {
       [e.messageTitle]: 'app.userList.messagesTitle',

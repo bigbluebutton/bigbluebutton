@@ -18,3 +18,12 @@ test.describe.parallel('Settings', () => {
     await language.localesTest();
   });
 });
+
+test.describe.parallel('Help Button', () => {
+  test('Open Help Button', async ({ browser, page, context }) => {
+    test.slow();
+    const helpButton = new Options(browser, page);
+    await helpButton.init(true, true);
+    await helpButton.openHelp(context);
+  });
+});
