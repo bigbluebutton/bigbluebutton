@@ -76,12 +76,12 @@ const Right = styled.div`
 `;
 
 const RaiseHandButton = styled(Button)`
-  ${({ emoji }) => emoji !== 'raiseHand' && `
-      span {
-        box-shadow: none;
-        background-color: transparent !important;
-        border-color: ${colorWhite} !important;
-      }
+${({ ghost }) => ghost && `
+  & > span {
+    box-shadow: none;
+    background-color: transparent !important;
+    border-color: ${colorWhite} !important;
+  }
    `}
 `;
 

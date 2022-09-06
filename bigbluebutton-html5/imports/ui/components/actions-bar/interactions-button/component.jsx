@@ -9,9 +9,6 @@ import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
 import QuestionsService from '/imports/ui/components/questions/service';
 
-import cx from 'classnames';
-import { styles } from '../styles';
-
 const InteractionsButton = (props) => {
   const {
     userId,
@@ -156,10 +153,10 @@ const InteractionsButton = (props) => {
 
   const renderEmojiPicker = () => (
     <Styled.Wrapper>
-    <ReactionsPicker
+      <ReactionsPicker
         {...props}
-      onEmojiSelect={handleReactionSelect}
-    />
+        onEmojiSelect={handleReactionSelect}
+      />
     </Styled.Wrapper>
   );
 
@@ -212,8 +209,8 @@ const InteractionsButton = (props) => {
     <BBBMenu
       classes={[styles.offsetBottom]}
       trigger={(
-        <>
-          <Button
+        <Styled.InteractionsDropdown>
+          <Styled.RaiseHandButton
             data-test="InteractionsButton"
             icon={emoji === 'raiseHand' ? 'interactions-hand' : 'interactions-hand-down'}
             label={emoji === 'raiseHand'
