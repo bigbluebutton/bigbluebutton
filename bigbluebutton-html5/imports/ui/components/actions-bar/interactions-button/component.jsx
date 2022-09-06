@@ -155,16 +155,12 @@ const InteractionsButton = (props) => {
   };
 
   const renderEmojiPicker = () => (
+    <Styled.Wrapper>
     <ReactionsPicker
-      style={{
-        alignSelf: 'center',
-        width: '100%',
-        margin: '0px',
-      }}
-      showPreview={false}
-      showSkinTones={false}
+        {...props}
       onEmojiSelect={handleReactionSelect}
     />
+    </Styled.Wrapper>
   );
 
   const handlePresent = () => {

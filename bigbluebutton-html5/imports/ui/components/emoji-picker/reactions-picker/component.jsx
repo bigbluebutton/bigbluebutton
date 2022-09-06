@@ -27,7 +27,8 @@ const emojisToExclude = [
 
 const inlineStyle = {
   margin: '.5rem 0',
-
+  alignSelf: 'center',
+  width: '100%',
 };
 
 const ReactionsPicker = (props) => {
@@ -35,12 +36,9 @@ const ReactionsPicker = (props) => {
     intl,
     onEmojiSelect,
     style,
-    showPreview,
-    showSkinTones,
   } = props;
 
   const i18n = {
-    search: intl.formatMessage({ id: 'app.emojiPicker.search' }),
     notfound: intl.formatMessage({ id: 'app.emojiPicker.notFound' }),
     clear: intl.formatMessage({ id: 'app.emojiPicker.clear' }),
     skintext: intl.formatMessage({ id: 'app.emojiPicker.skintext' }),
@@ -51,22 +49,19 @@ const ReactionsPicker = (props) => {
   };
 
   return (
-    <div className={styles.dropdownContent}>
-      <Picker
-        onSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
-        native
-        emoji=""
-        title=""
-        emojiSize={30}
-        emojiTooltip
-        style={Object.assign(inlineStyle, style)}
-        i18n={i18n}
-        showPreview={showPreview}
-        showSkinTones={showSkinTones}
-        emojisToShowFilter={(emoji) => emojisToExclude.includes(emoji.unified)}
-      />
-    </div>
-
+    <Picker
+      onSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
+      native
+      emoji=""
+      title=""
+      emojiSize={30}
+      emojiTooltip
+      style={Object.assign(inlineStyle, style)}
+      i18n={i18n}
+      showPreview={false}
+      showSkinTones={false}
+      emojisToShowFilter={(emoji) => emojisToExclude.includes(emoji.unified)}
+    />
   );
 };
 

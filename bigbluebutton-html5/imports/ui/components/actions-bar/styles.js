@@ -75,9 +75,59 @@ const Right = styled.div`
   }
 `;
 
+const RaiseHandButton = styled(Button)`
+  ${({ emoji }) => emoji !== 'raiseHand' && `
+      span {
+        box-shadow: none;
+        background-color: transparent !important;
+        border-color: ${colorWhite} !important;
+      }
+   `}
+`;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  > * {
+    margin: 8px;
+  }
+`;
+
+const InteractionsDropdown = styled.div`
+  position: relative;
+`;
+
+const Wrapper = styled.div`
+  .emoji-mart-bar {
+    display: none;
+  }
+  .emoji-mart-search {
+    display: none;
+  }
+  .emoji-mart-category[aria-label="Frequently Used"] {
+    display: none;
+  }
+  .emoji-mart-category-label{
+    display: none;
+  }
+  .emoji-mart-scroll{
+    overflow:hidden;
+    padding: 0;
+    height: 300px;
+  }
+  .emoji-mart{
+    border: none;
+  }
+`;
+
 export default {
   ActionsBar,
   Left,
   Center,
   Right,
+  RaiseHandButton,
+  ButtonContainer,
+  InteractionsDropdown,
+  Wrapper,
 };
