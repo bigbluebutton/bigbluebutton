@@ -29,9 +29,17 @@ const GlobalStyle = createGlobalStyle`
       max-width: none;
     }
   }
-
-  .MuiList-padding {
-    padding: 0 !important;
+  // Interactions modal
+  @media(min-width: 600px) {
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+      top: unset !important;
+    }
+    .MuiPaper-root{
+      bottom: 4rem !important;
+    }
+    .MuiList-padding {
+      padding: 0 !important;
+    }
   }
 
   .MuiPaper-root {

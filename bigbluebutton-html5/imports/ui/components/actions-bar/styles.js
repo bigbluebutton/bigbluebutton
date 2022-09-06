@@ -111,13 +111,16 @@ const Wrapper = styled.div`
   .emoji-mart-category-label{
     display: none;
   }
-  .emoji-mart-scroll{
-    overflow:hidden;
-    padding: 0;
-    height: 300px;
-  }
   .emoji-mart{
     border: none;
+  }
+  @media(min-width: 600px) {
+    .emoji-mart-scroll{
+      overflow:hidden;
+      padding: 0;
+      height: 270px;
+      width: 280px;
+    }
   }
 `;
 
