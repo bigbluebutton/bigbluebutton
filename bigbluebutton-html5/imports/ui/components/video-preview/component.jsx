@@ -18,6 +18,7 @@ import {
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
+  isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
@@ -30,6 +31,7 @@ const VIEW_STATES = {
 };
 
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
+const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -312,7 +314,7 @@ class VideoPreview extends Component {
               });
               this.displayPreview();
 
-              if (ENABLE_CAMERA_BRIGHTNESS) {
+              if (CAMERA_BRIGHTNESS_AVAILABLE) {
                 const setBrightnessInfo = () => {
                   const stream = this.currentVideoStream || {};
                   const service = stream.virtualBgService || {};
@@ -411,7 +413,7 @@ class VideoPreview extends Component {
     const { webcamDeviceId } = this.state;
     const shared = sharedDevices.includes(webcamDeviceId);
 
-    if (type !== EFFECT_TYPES.NONE_TYPE || ENABLE_CAMERA_BRIGHTNESS) {
+    if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
       return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
         // If it's not shared we don't have to update here because
         // it will be updated in the handleStartSharing method.
@@ -460,11 +462,19 @@ class VideoPreview extends Component {
 
   handleStartSharing() {
     const { resolve, startSharing } = this.props;
-    const { webcamDeviceId } = this.state;
+    const { webcamDeviceId, brightness } = this.state;
     // Only streams that will be shared should be stored in the service.  // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
     if(!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
       this.currentVideoStream.stop();
+    }
+
+    if (
+      this.currentVideoStream.virtualBgService
+      && brightness === 100
+      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+    ) {
+      this.stopVirtualBackground(this.currentVideoStream);
     }
 
     this.updateVirtualBackgroundInfo();
@@ -489,8 +499,18 @@ class VideoPreview extends Component {
   }
 
   handleProceed() {
-    const { resolve, closeModal } = this.props;
-    const { webcamDeviceId } = this.state;
+    const { resolve, closeModal, sharedDevices, isVisualEffects } = this.props;
+    const { webcamDeviceId, brightness } = this.state;
+    const shared = sharedDevices.includes(webcamDeviceId);
+
+    if (
+      (shared || isVisualEffects)
+      && this.currentVideoStream.virtualBgService
+      && brightness === 100
+      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+    ) {
+      this.stopVirtualBackground(this.currentVideoStream);
+    }
 
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     closeModal();
@@ -764,7 +784,7 @@ class VideoPreview extends Component {
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     const { intl } = this.props;
-    const { brightness, wholeImageBrightness } = this.state;
+    const { brightness, wholeImageBrightness, isStartSharingDisabled } = this.state;
 
     const origin = brightness <= 100 ? 'left' : 'right';
     const offset = origin === 'left'
@@ -798,6 +818,7 @@ class VideoPreview extends Component {
             this.currentVideoStream.changeCameraBrightness(brightness);
             this.setState({ brightness });
           }}
+          disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
         />
         <Styled.MarkerWrapper>
           <Styled.Marker>{'-100'}</Styled.Marker>
@@ -810,6 +831,7 @@ class VideoPreview extends Component {
             checked={wholeImageBrightness}
             ariaLabelledBy="brightnessAreaLabel"
             id="brightnessArea"
+            disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
           />
           <label
             htmlFor="brightnessArea"

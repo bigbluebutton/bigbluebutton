@@ -74,6 +74,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.dropzoneLabel',
     description: 'message warning where drop files for upload',
   },
+  externalUploadTitle: {
+    id: 'app.presentationUploder.externalUploadTitle',
+    description: 'title for external upload area',
+  },
+  externalUploadLabel: {
+    id: 'app.presentationUploder.externalUploadLabel',
+    description: 'message of external upload button',
+  },
   dropzoneImagesLabel: {
     id: 'app.presentationUploder.dropzoneImagesLabel',
     description: 'message warning where drop images for upload',
@@ -294,6 +302,7 @@ class PresentationUploader extends Component {
     this.handleSendToChat = this.handleSendToChat.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
+    this.renderExternalUpload = this.renderExternalUpload.bind(this);
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
     this.renderPresentationList = this.renderPresentationList.bind(this);
     this.renderPresentationItem = this.renderPresentationItem.bind(this);
@@ -1173,6 +1182,32 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderExternalUpload() {
+    const { externalUploadData, intl } = this.props;
+
+    const { uploadExternalDescription, uploadExternalUrl } = externalUploadData;
+
+    if (!uploadExternalDescription || !uploadExternalUrl) return null;
+
+    return (
+      <Styled.ExternalUpload>
+        <div>
+          <Styled.ExternalUploadTitle>
+            {intl.formatMessage(intlMessages.externalUploadTitle)}
+          </Styled.ExternalUploadTitle>
+
+          <p>{uploadExternalDescription}</p>
+        </div>
+        <Styled.ExternalUploadButton
+          color="default"
+          onClick={() => window.open(`${uploadExternalUrl}`)}
+          label={intl.formatMessage(intlMessages.externalUploadLabel)}
+          aria-describedby={intl.formatMessage(intlMessages.externalUploadLabel)}
+        />        
+      </Styled.ExternalUpload>
+    )
+  }
+
   renderPicDropzone() {
     const {
       intl,
@@ -1325,6 +1360,7 @@ class PresentationUploader extends Component {
           </Styled.ExportHint>
           {isMobile ? this.renderPicDropzone() : null}
           {this.renderDropzone()}
+          {this.renderExternalUpload()}
         </Styled.ModalInner>
       </Styled.UploaderModal>
     ) : null;

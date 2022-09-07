@@ -541,6 +541,7 @@ const DownloadButton = styled(Button)`
   color: ${colorBlueLight};
   cursor: pointer;
   display: inline-block;
+  font-size: 80%;
 
   &:hover {
     background-color: ${colorOffWhite} !important;
@@ -579,6 +580,33 @@ const DownloadButton = styled(Button)`
 const ExtraHint = styled.div`
   margin-top: 1rem;
   font-weight: bold;
+`;
+
+const ExternalUpload = styled.div`
+  background-color: ${colorOffWhite};
+  border-radius: ${borderRadius};
+  margin-top: 2rem;
+  padding: ${lgPaddingX};
+  color: ${colorText};
+  font-weight: normal;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+
+  & p {
+    margin: 0;
+  }
+`;
+
+const ExternalUploadTitle = styled.h4`
+  font-size: 0.9rem;
+  margin: 0;
+`;
+
+const ExternalUploadButton = styled(Button)`
+  height: 2rem;
+  align-self: center;
+  margin-left: 2rem;
 `;
 
 const ExportHint = styled(ModalHint)`
@@ -671,6 +699,9 @@ export default {
   TableItemActions,
   DownloadButton,
   ExtraHint,
+  ExternalUpload,
+  ExternalUploadTitle,
+  ExternalUploadButton,
   ExportHint,
   SetCurrentAction,
   Head,

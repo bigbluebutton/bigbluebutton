@@ -32,8 +32,8 @@ grails assemble
 
 cd ..
 
-mkdir -p staging/lib/systemd/system
-cp bbb-lti.service staging/lib/systemd/system
+mkdir -p staging/usr/lib/systemd/system
+cp bbb-lti.service staging/usr/lib/systemd/system
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
 cp bbb-lti/lti.nginx  staging/usr/share/bigbluebutton/nginx

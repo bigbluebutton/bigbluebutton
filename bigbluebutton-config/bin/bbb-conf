@@ -435,7 +435,7 @@ display_bigbluebutton_status () {
         units="$units etherpad"
     fi
 
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-web.service ]; then
         units="$units bbb-web"
     fi
 
@@ -443,7 +443,7 @@ display_bigbluebutton_status () {
         units="$units bbb-webhooks"
     fi
 
-    if [ -f /lib/systemd/system/bbb-lti.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-lti.service ]; then
         units="$units bbb-lti"
     fi
 
@@ -459,11 +459,11 @@ display_bigbluebutton_status () {
         units="$units bbb-rap-caption-inbox"
     fi
 
-    if [ -f /lib/systemd/system/bbb-rap-resque-worker.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-rap-resque-worker.service ]; then
         units="$units bbb-rap-resque-worker"
     fi
 
-    if [ -f /lib/systemd/system/bbb-rap-starter.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-rap-starter.service ]; then
         units="$units bbb-rap-starter"
     fi
 
