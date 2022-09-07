@@ -38,7 +38,6 @@ const propTypes = {
   pushLayout: PropTypes.bool,
   pushLayoutMeeting: PropTypes.bool,
   selectedLayout: PropTypes.string,
-  setPushLayout: PropTypes.func,
   setMeetingLayout: PropTypes.func,
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
@@ -137,7 +136,6 @@ class PushLayoutEngine extends React.Component {
       pushLayoutMeeting,
       selectedLayout,
       setMeetingLayout,
-      setPushLayout,
     } = this.props;
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
@@ -247,8 +245,6 @@ class PushLayoutEngine extends React.Component {
     ) {
       if (isPresenter) {
         setMeetingLayout();
-      } else if (isModerator) {
-        setPushLayout();
       }
     }
   }
