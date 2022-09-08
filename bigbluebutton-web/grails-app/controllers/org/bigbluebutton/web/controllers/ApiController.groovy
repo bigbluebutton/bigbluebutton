@@ -1154,7 +1154,6 @@ class ApiController {
    *************************************************/
 
   def insertDocument = {
-    log.debug "\n\n\n\nI'm failing \n\n\n\n"
     String API_CALL = 'insertDocument'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
@@ -1166,7 +1165,7 @@ class ApiController {
 
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
-      //return
+      return
     }
 
     String externalMeetingId = params.meetingID
@@ -1335,7 +1334,6 @@ class ApiController {
     // It selects the one that has the current=true, and put it in the 0th place.
     // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
     if (requestBody == null) {
-      log.debug "\n\n\n\nrequest = null\n\n\n\n"
       if (isFromInsertAPI){
         log.warn("Insert Document API called without a payload - ignoring")
         return;
@@ -1378,9 +1376,6 @@ class ApiController {
       def Boolean isRemovable = true;
       def Boolean isDownloadable = false;
 
-      // log.debug "\n\n\n\ndoc name: ${document.name}\n\n\n\n"
-      // log.debug "\n\n\n\ncurrent: ${document.current}\n\n\n\n"
-
       if (document.name != null && "default".equals(document.name)) {
         downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
       } else{
@@ -1403,7 +1398,6 @@ class ApiController {
 
         // Verifying whether the document is a base64 encoded or a url to download.
         if (!StringUtils.isEmpty(document.@url.toString())) {
-          log.debug "\n\n\n\nurl != null\n\n\n\n"
           def fileName;
           if (!StringUtils.isEmpty(document.@filename.toString())) {
             log.debug("user provided filename: [${document.@filename}]");

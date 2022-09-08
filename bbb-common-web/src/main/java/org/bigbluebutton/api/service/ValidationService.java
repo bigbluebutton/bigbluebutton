@@ -68,23 +68,16 @@ public class ValidationService {
 
     public Map<String, String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
-
-        log.debug("CALL: " + apiCall.toString());
-        log.debug("PARAMS: " + params.toString());
-        log.debug("QUERY: " + queryString);
         params = sanitizeParams(params);
 
         Request request = initializeRequest(apiCall, params, queryString);
         Map<String,String> violations = new HashMap<>();
 
         if(request == null) {
-            log.debug("request = null in validation");
             violations.put("validationError", "Request not recognized");
         } else {
-            log.debug("request != null in validation");
             request.populateFromParamsMap(params);
             violations = performValidation(request);
-            log.debug("VIOLATIONS: " + violations.toString());
         }
 
         return violations;

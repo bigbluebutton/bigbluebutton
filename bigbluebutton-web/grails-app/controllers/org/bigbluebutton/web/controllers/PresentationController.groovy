@@ -331,8 +331,6 @@ class PresentationController {
 
     log.debug "Controller: Download request for $presFilename"
 
-    log.debug "8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888"
-
     InputStream is = null;
     try {
       def pres = meetingService.getDownloadablePresentationFile(meetingId, presId, presFilename)
