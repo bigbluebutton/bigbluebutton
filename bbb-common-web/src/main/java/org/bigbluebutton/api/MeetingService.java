@@ -79,6 +79,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 
+import org.springframework.data.domain.*;
+
 public class MeetingService implements MessageListener {
   private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 
@@ -394,6 +396,7 @@ public class MeetingService implements MessageListener {
     logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
     logData.put("meetingCameraCap", m.getMeetingCameraCap());
     logData.put("userCameraCap", m.getUserCameraCap());
+    logData.put("maxPinnedCameras", m.getMaxPinnedCameras());
     logData.put("record", m.isRecord());
     logData.put("logCode", "create_meeting");
     logData.put("description", "Create meeting.");
@@ -408,7 +411,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getModeratorPassword(), m.getViewerPassword(),
+            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(), m.getModeratorPassword(), m.getViewerPassword(),
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
@@ -418,7 +421,8 @@ public class MeetingService implements MessageListener {
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
-            m.getGroups(), m.getDisabledFeatures());
+            m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
+            m.getUploadExternalDescription(), m.getUploadExternalUrl());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -573,8 +577,26 @@ public class MeetingService implements MessageListener {
     return recordingService.isRecordingExist(recordId);
   }
 
-  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters) {
-    return recordingService.getRecordings2x(idList, states, metadataFilters);
+  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, String page, String size) {
+    int p;
+    int s;
+
+    try {
+      p = Integer.parseInt(page);
+    } catch(NumberFormatException e) {
+      p = 0;
+    }
+
+    try {
+      s = Integer.parseInt(size);
+    } catch(NumberFormatException e) {
+      s = 25;
+    }
+
+    log.info("{} {}", p, s);
+
+    Pageable pageable = PageRequest.of(p, s);
+    return recordingService.getRecordings2x(idList, states, metadataFilters, pageable);
   }
 
   public boolean existsAnyRecording(List<String> idList) {
@@ -646,6 +668,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DURATION, message.durationInMinutes.toString());
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
+      params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
@@ -927,6 +950,13 @@ public class MeetingService implements MessageListener {
       User user = new User(message.userId, message.externalUserId,
         message.name, message.role, message.avatarURL, message.guest, message.guestStatus,
               message.clientType);
+
+      if(m.getMaxUsers() > 0 && m.getUsers().size() >= m.getMaxUsers()) {
+        m.removeEnteredUser(user.getInternalUserId());
+        gw.ejectDuplicateUser(message.meetingId, user.getInternalUserId(), user.getFullname(), user.getExternalUserId());
+        return;
+      }
+
       m.userJoined(user);
       m.setGuestStatusWithId(user.getInternalUserId(), message.guestStatus);
       UserSession userSession = getUserSessionWithUserId(user.getInternalUserId());

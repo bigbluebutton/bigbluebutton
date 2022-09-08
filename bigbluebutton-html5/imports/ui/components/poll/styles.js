@@ -18,6 +18,7 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorDanger,
+  colorWarning,
   colorHeading,
   colorPrimary,
   colorGrayDark,
@@ -165,6 +166,7 @@ const PollConfigButton = styled(Button)`
 
 const PollParagraph = styled.div`
   color: ${colorText};
+  margin-bottom: 0.9rem;
 `;
 
 const PollCheckbox = styled.div`
@@ -204,6 +206,18 @@ const Row = styled.div`
   justify-content: space-between;
   margin-top: 0.7rem;
   margin-bottom: 0.7rem;
+`;
+
+const Warning = styled.div`
+  color: ${colorWarning};
+  font-size: ${fontSizeSmall};
+`;
+
+const CustomInputRow = styled.div`
+  display: flex;
+  flex-flow: wrap;
+  flex-grow: 1;
+  justify-content: space-between;
 `;
 
 const Col = styled.div`
@@ -321,6 +335,20 @@ const DragAndDropPollContainer = styled.div`
   height: 200px !important;
 `;
 
+const Question = styled.div`
+  margin-bottom: ${lgPaddingX};
+`;
+
+const OptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ResponseArea = styled.div`
+  display: flex;
+  flex-flow: column wrap;
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -343,4 +371,9 @@ export default {
   NoSlidePanelContainer,
   PollButton,
   DragAndDropPollContainer,
+  Warning,
+  CustomInputRow,
+  Question,
+  OptionWrapper,
+  ResponseArea,
 };

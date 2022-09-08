@@ -55,7 +55,9 @@ class ZoomTool extends PureComponent {
     const { zoomValue } = this.props;
     const { stateZoomValue } = this.state;
     const isDifferent = zoomValue !== stateZoomValue;
-    if (isDifferent) this.onChanger(zoomValue);
+    if (isDifferent) {
+      this.onChanger(zoomValue);
+    }
   }
 
   onChanger(value) {
@@ -159,7 +161,7 @@ class ZoomTool extends PureComponent {
     }
 
     const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
-
+    
     return (
       [
         (
@@ -170,6 +172,9 @@ class ZoomTool extends PureComponent {
             minBound={minBound}
           >
             <Styled.DecreaseZoomButton
+              color="light"
+              circle
+              size="md"
               key="zoom-tool-1"
               aria-describedby="zoomOutDescription"
               aria-label={zoomOutAriaLabel}
@@ -208,6 +213,9 @@ class ZoomTool extends PureComponent {
             maxBound={maxBound}
           >
             <Styled.IncreaseZoomButton
+              color="light"
+              circle
+              size="md"
               key="zoom-tool-3"
               aria-describedby="zoomInDescription"
               aria-label={zoomInAriaLabel}

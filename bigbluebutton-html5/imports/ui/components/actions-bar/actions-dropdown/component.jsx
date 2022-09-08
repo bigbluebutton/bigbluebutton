@@ -6,10 +6,11 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
+import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import Styled from './styles'
-import { PANELS, ACTIONS } from '../../layout/enums';
+import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -23,10 +24,14 @@ const propTypes = {
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  setMeetingLayout: PropTypes.func.isRequired,
+  setPushLayout: PropTypes.func.isRequired,
+  showPushLayout: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   shortcuts: '',
+  settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
 };
 
 const intlMessages = defineMessages({
@@ -82,6 +87,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
     description: 'Description for select random user option',
   },
+  propagateLayoutLabel: {
+    id: 'app.actionsBar.actionsDropdown.propagateLayoutLabel',
+    description: 'Label for propagate layout button',
+  },
+  layoutModal: {
+    id: 'app.actionsBar.actionsDropdown.layoutModal',
+    description: 'Label for layouts selection button',
+  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
@@ -116,6 +129,7 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
+      amIModerator,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
@@ -125,6 +139,9 @@ class ActionsDropdown extends PureComponent {
       mountModal,
       layoutContextDispatch,
       hidePresentation,
+      setMeetingLayout,
+      setPushLayout,
+      showPushLayout,
     } = this.props;
 
     const {
@@ -202,6 +219,22 @@ class ActionsDropdown extends PureComponent {
         dataTest: "selectRandomUser",
       })
     }
+
+    if ((amIPresenter || amIModerator) && showPushLayout) {
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.propagateLayoutLabel),
+        key: 'propagate layout',
+        onClick: amIPresenter ? setMeetingLayout : setPushLayout,
+      });
+    }
+
+    actions.push({
+      icon: 'send',
+      label: intl.formatMessage(intlMessages.layoutModal),
+      key: 'layoutModal',
+      onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+    });
 
     return actions;
   }

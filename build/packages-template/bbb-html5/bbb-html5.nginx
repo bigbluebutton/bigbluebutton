@@ -11,6 +11,7 @@ location /html5client/locales {
 }
 
 location /html5client/compatibility {
+  gzip_static on;
   alias /usr/share/meteor/bundle/programs/web.browser/app/compatibility;
 }
 

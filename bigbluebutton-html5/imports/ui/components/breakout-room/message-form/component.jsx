@@ -4,7 +4,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 import { escapeHtml } from '/imports/utils/string-utils';
-import { notify } from '/imports/ui/services/notification';
 import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -44,10 +43,6 @@ const messages = defineMessages({
   errorChatLocked: {
     id: 'app.chat.locked',
   },
-  msgToBreakoutsSent: {
-    id: 'app.createBreakoutRoom.msgToBreakoutsSent',
-    description: 'Message for chat sent successfully',
-  },
 });
 
 class MessageForm extends PureComponent {
@@ -80,21 +75,8 @@ class MessageForm extends PureComponent {
     const {
       connected,
       locked,
-      userMessagesTooAllBreakouts,
-      intl,
     } = this.props;
     const { message } = this.state;
-
-    // Check for new messages sent and notify user
-    if (prevProps.userMessagesTooAllBreakouts.length < userMessagesTooAllBreakouts.length) {
-      for (let i = prevProps.userMessagesTooAllBreakouts.length;
-        i < userMessagesTooAllBreakouts.length;
-        i += 1) {
-        notify(
-          intl.formatMessage(messages.msgToBreakoutsSent, { 0: userMessagesTooAllBreakouts[i].totalOfRooms }), 'info', 'group_chat',
-        );
-      }
-    }
 
     this.updateUnsentMessagesCollection(prevProps.chatId, message);
 

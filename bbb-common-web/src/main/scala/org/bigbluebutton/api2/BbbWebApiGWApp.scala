@@ -124,6 +124,7 @@ class BbbWebApiGWApp(
                     allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
                     userCameraCap:    java.lang.Integer,
+                    maxPinnedCameras: java.lang.Integer,
                     moderatorPass:    String, viewerPass: String, learningDashboardAccessToken: String,
                     createTime: java.lang.Long, createDate: String, isBreakout: java.lang.Boolean,
                     sequence: java.lang.Integer,
@@ -146,7 +147,10 @@ class BbbWebApiGWApp(
                     lockSettingsParams:                     LockSettingsParams,
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
-                    disabledFeatures:                       java.util.ArrayList[String]): Unit = {
+                    disabledFeatures:                       java.util.ArrayList[String],
+                    notifyRecordingIsOn:                    java.lang.Boolean,
+                    uploadExternalDescription:              String,
+                    uploadExternalUrl:                      String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -155,8 +159,12 @@ class BbbWebApiGWApp(
       extId = extMeetingId,
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
+      maxPinnedCameras = maxPinnedCameras.intValue(),
       isBreakout = isBreakout.booleanValue(),
-      disabledFeaturesAsVector
+      disabledFeaturesAsVector,
+      notifyRecordingIsOn,
+      uploadExternalDescription,
+      uploadExternalUrl
     )
 
     val durationProps = DurationProps(
@@ -304,8 +312,8 @@ class BbbWebApiGWApp(
       // Send new event with page urls
       val newEvent = MsgBuilder.buildPresentationPageConvertedSysMsg(msg.asInstanceOf[DocPageGeneratedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
-    } else if (msg.isInstanceOf[OfficeDocConversionProgress]) {
-      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[OfficeDocConversionProgress])
+    } else if (msg.isInstanceOf[DocConversionProgress]) {
+      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[DocConversionProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])

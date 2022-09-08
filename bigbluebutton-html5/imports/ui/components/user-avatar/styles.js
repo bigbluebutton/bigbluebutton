@@ -31,8 +31,9 @@ const Content = styled.div`
 
 const Image = styled.div`
   display: flex;
-  height: 2rem;
-  width: 2rem;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
 `;
 
 const Img = styled.img`
@@ -94,7 +95,7 @@ const Talking = styled.div`
 const Avatar = styled.div`
   position: relative;
   height: 2.25rem;
-  min-width: 2.25rem;
+  width: 2.25rem;
   border-radius: 50%;
   text-align: center;
   font-size: .85rem;
@@ -179,7 +180,7 @@ const Avatar = styled.div`
   ${({ whiteboardAccess }) => whiteboardAccess && `
     &:before {
       content: "\\00a0\\e925\\00a0";
-      padding: ${mdPaddingY};
+      padding: ${mdPaddingY} !important;
       border-radius: 50% !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
@@ -193,6 +194,7 @@ const Avatar = styled.div`
         left: auto;
         right: ${userIndicatorsOffset};
         letter-spacing: -.33rem;
+        transform: scale(-1, 1);
       }
     }
   `}

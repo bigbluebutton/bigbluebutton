@@ -92,13 +92,17 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
     private Integer defaultUserCameraCap = 0;
+    private Integer defaultMaxPinnedCameras = 3;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
+    private String defaultUploadExternalDescription = "";
+    private String defaultUploadExternalUrl = "";
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
@@ -528,6 +532,11 @@ public class ParamsProcessorUtil {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
+        Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
+        if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
+            notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -558,6 +567,16 @@ public class ParamsProcessorUtil {
             } catch (NumberFormatException e) {
                 log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
             }
+        }
+
+        Integer maxPinnedCameras = defaultMaxPinnedCameras;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_PINNED_CAMERAS))) {
+          try {
+            Integer maxPinnedCamerasParam = Integer.parseInt(params.get(ApiParams.MAX_PINNED_CAMERAS));
+            if (maxPinnedCamerasParam > 0) maxPinnedCameras = maxPinnedCamerasParam;
+          } catch (NumberFormatException e) {
+            log.warn("Invalid param [maxPinnedCameras] for meeting =[{}]", internalMeetingId);
+          }
         }
 
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
@@ -600,6 +619,16 @@ public class ParamsProcessorUtil {
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
+
+        String uploadExternalDescription = defaultUploadExternalDescription;
+        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION))) {
+            uploadExternalDescription = params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION);
+        }
+
+        String uploadExternalUrl = defaultUploadExternalUrl;
+        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_URL))) {
+            uploadExternalUrl = params.get(ApiParams.UPLOAD_EXTERNAL_URL);
+        }
 
         String meetingLayout = defaultMeetingLayout;
 
@@ -667,6 +696,7 @@ public class ParamsProcessorUtil {
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
+                .withMaxPinnedCameras(maxPinnedCameras)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -682,6 +712,9 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
+                .withNotifyRecordingIsOn(notifyRecordingIsOn)
+                .withUploadExternalDescription(uploadExternalDescription)
+                .withUploadExternalUrl(uploadExternalUrl)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1127,6 +1160,10 @@ public class ParamsProcessorUtil {
         this.defaultUserCameraCap = userCameraCap;
     }
 
+    public void setDefaultMaxPinnedCameras(Integer maxPinnedCameras) {
+        this.defaultMaxPinnedCameras = maxPinnedCameras;
+    }
+
 	public void setUseDefaultAvatar(Boolean value) {
 		this.useDefaultAvatar = value;
 	}
@@ -1341,6 +1378,18 @@ public class ParamsProcessorUtil {
   public void setDisabledFeatures(String disabledFeatures) {
         this.defaultDisabledFeatures = disabledFeatures;
     }
+
+  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+  }
+
+  public void setUploadExternalDescription(String uploadExternalDescription) {
+    this.defaultUploadExternalDescription = uploadExternalDescription;
+  }
+
+  public void setUploadExternalUrl(String uploadExternalUrl) {
+    this.defaultUploadExternalUrl = uploadExternalUrl;
+  }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

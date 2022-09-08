@@ -13,9 +13,10 @@ import {
   screenshareHasEnded,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+import Button from '/imports/ui/components/common/button/component';
 
 const { isMobile } = deviceInfo;
-const { isSafari } = browserInfo;
+const { isSafari, isMobileApp } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -30,10 +31,6 @@ const intlMessages = defineMessages({
   desktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
     description: 'Desktop Share option label',
-  },
-  lockedDesktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.lockedDesktopShareLabel',
-    description: 'Desktop locked Share option label',
   },
   stopDesktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
@@ -105,6 +102,9 @@ const getErrorLocale = (errorCode) => {
     // Unsupported errors
     case SCREENSHARING_ERRORS.NotSupportedError.errorCode:
       return intlMessages.unsupportedEnvError;
+    // Errors that should be silent/ignored. They WILL NOT be LOGGED nor NOTIFIED via toasts.
+    case SCREENSHARING_ERRORS.ENDED_WHILE_STARTING.errorCode:
+      return null;
     // Fall through: everything else is an error which might be solved with a retry
     default:
       return intlMessages.retryError;
@@ -128,13 +128,16 @@ const ScreenshareButton = ({
       errorMessage,
     } = error;
 
-    logger.error({
-      logCode: 'screenshare_failed',
-      extraInfo: { errorCode, errorMessage },
-    }, 'Screenshare failed');
-
     const localizedError = getErrorLocale(errorCode);
-    notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop');
+
+    if (localizedError) {
+      notify(intl.formatMessage(localizedError, { 0: errorCode }), 'error', 'desktop');
+      logger.error({
+        logCode: 'screenshare_failed',
+        extraInfo: { errorCode, errorMessage },
+      }, `Screenshare failed: ${errorMessage} (code=${errorCode})`);
+    }
+
     screenshareHasEnded();
   };
 
@@ -151,26 +154,24 @@ const ScreenshareButton = ({
     </Styled.ScreenShareModal>,
   );
 
-  const screenshareLocked = screenshareDataSavingSetting
-    ? intlMessages.desktopShareLabel : intlMessages.lockedDesktopShareLabel;
+  const screenshareLabel = intlMessages.desktopShareLabel;
 
   const vLabel = isVideoBroadcasting
-    ? intlMessages.stopDesktopShareLabel : screenshareLocked;
+    ? intlMessages.stopDesktopShareLabel : screenshareLabel;
 
   const vDescr = isVideoBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
   const shouldAllowScreensharing = enabled
-    && !isMobile
+    && ( !isMobile || isMobileApp)
     && amIPresenter;
 
-  const dataTest = !screenshareDataSavingSetting ? 'screenshareLocked'
-    : isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+  const dataTest = isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
 
   return shouldAllowScreensharing
     ? (
-      <Styled.ScreenShareButton
-        disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
+      <Button
+        disabled={(!isMeteorConnected && !isVideoBroadcasting)}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         data-test={dataTest}
         label={intl.formatMessage(vLabel)}

@@ -61,7 +61,6 @@ const propTypes = {
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isDropdownOpen: PropTypes.bool,
-  toggleSwapLayout: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
@@ -83,7 +82,6 @@ const defaultProps = {
 const PresentationMenu = (props) => {
   const {
     intl,
-    toggleSwapLayout,
     isFullscreen,
     elementId,
     elementName,
@@ -91,7 +89,7 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    getScreenshotRef,
+    tldrawAPI,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
@@ -166,18 +164,6 @@ const PresentationMenu = (props) => {
       );
     }
 
-    if (OLD_MINIMIZE_BUTTON_ENABLED) {
-      menuItems.push(
-        {
-          key: 'list-item-minimize',
-          label: intl.formatMessage(intlMessages.minimizePresentationLabel),
-          onClick: () => {
-            toggleSwapLayout(layoutContextDispatch);
-          },
-        },
-      );
-    }
-
     const { isSafari } = browserInfo;
 
     if (!isSafari) {
@@ -185,7 +171,8 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
-          onClick: () => {
+          dataTest: "presentationSnapshot",
+          onClick: async () => {
             setState({
               loading: true,
               hasError: false,
@@ -201,10 +188,17 @@ const PresentationMenu = (props) => {
               },
             });
 
-            toPng(getScreenshotRef(), {
-              width: window.screen.width,
-              height: window.screen.height,
-            }).then((data) => {
+            try {
+              const { copySvg, getShapes, currentPageId } = tldrawAPI;
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const container = document.createElement('div');
+              container.innerHTML = svgString;
+              const svgElem = container.firstChild;
+              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
               const anchor = document.createElement('a');
               anchor.href = data;
               anchor.setAttribute(
@@ -217,17 +211,17 @@ const PresentationMenu = (props) => {
                 loading: false,
                 hasError: false,
               });
-            }).catch((error) => {
-              logger.warn({
-                logCode: 'presentation_snapshot_error',
-                extraInfo: error,
-              });
-
+            } catch (e) {
               setState({
                 loading: false,
                 hasError: true,
               });
-            });
+
+              logger.warn({
+                logCode: 'presentation_snapshot_error',
+                extraInfo: e,
+              });
+            }
           },
         },
       );
@@ -258,7 +252,13 @@ const PresentationMenu = (props) => {
 
   const options = getAvailableOptions();
 
-  if (options.length === 0) return null;
+  if (options.length === 0) {
+    const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
+    if (undoCtrls?.style) {
+      undoCtrls.style = "padding:0px";
+    }
+    return null
+  };
 
   return (
     <Styled.Right>

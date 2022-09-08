@@ -105,4 +105,5 @@ export default {
   getRev,
   getPadTail,
   getPadContent,
+  getParams,
 };

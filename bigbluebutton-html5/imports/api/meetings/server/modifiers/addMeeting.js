@@ -7,6 +7,7 @@ import SanitizeHTML from 'sanitize-html';
 import Meetings, {
   RecordMeetings,
   ExternalVideoMeetings,
+  LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
@@ -35,6 +36,32 @@ const addExternalVideo = (meetingId) => {
   }
 };
 
+const addLayout = (meetingId, layout) => {
+  const selector = { meetingId };
+
+  const modifier = {
+    meetingId,
+    layout,
+    layoutUpdatedAt: new Date().getTime(),
+    presentationIsOpen: true,
+    isResizing: false,
+    cameraPosition: 'contentTop',
+    focusedCamera: 'none',
+    presentationVideoRate: 0,
+    pushLayout: false,
+  };
+
+  try {
+    const { numberAffected } = LayoutMeetings.upsert(selector, modifier);
+
+    if (numberAffected) {
+      Logger.verbose(`Added layout meetingId=${meetingId}`, numberAffected);
+    }
+  } catch (err) {
+    Logger.error(`Adding layout: ${err}`);
+  }
+};
+
 export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
@@ -52,9 +79,13 @@ export default function addMeeting(meeting) {
       intId: String,
       extId: String,
       meetingCameraCap: Number,
+      maxPinnedCameras: Number,
       isBreakout: Boolean,
       name: String,
       disabledFeatures: Array,
+      notifyRecordingIsOn: Boolean,
+      uploadExternalDescription: String,
+      uploadExternalUrl: String,
     },
     usersProp: {
       webcamsOnlyForModerator: Boolean,
@@ -176,11 +207,13 @@ export default function addMeeting(meeting) {
   // At the moment `modOnlyMessage` is obtained from client side as a response to Enter API
   newMeeting.welcomeProp.modOnlyMessage = sanitizeTextInChat(newMeeting.welcomeProp.modOnlyMessage);
 
+  const { meetingLayout } = meeting.usersProp;
+
   const modifier = {
     $set: Object.assign({
       meetingId,
       meetingEnded,
-      layout: LAYOUT_TYPE[meeting.usersProp.meetingLayout] || 'smart',
+      layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
@@ -213,6 +246,7 @@ export default function addMeeting(meeting) {
   }
 
   addExternalVideo(meetingId);
+  addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
     const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);

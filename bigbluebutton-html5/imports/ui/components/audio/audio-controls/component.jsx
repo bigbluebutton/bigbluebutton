@@ -6,7 +6,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/container';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import Styled from './styles';
-import Settings from '/imports/ui/services/settings';
+import Button from '/imports/ui/components/common/button/component';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -46,9 +46,7 @@ const propTypes = {
 class AudioControls extends PureComponent {
   constructor(props) {
     super(props);
-    this.renderLeaveButtonWithoutLiveStreamSelector = this
-      .renderLeaveButtonWithoutLiveStreamSelector.bind(this);
-
+    this.renderButtonsAndStreamSelector = this.renderButtonsAndStreamSelector.bind(this);
     this.renderJoinLeaveButton = this.renderJoinLeaveButton.bind(this);
   }
 
@@ -61,7 +59,7 @@ class AudioControls extends PureComponent {
     } = this.props;
 
     return (
-      <Styled.AudioControlsButton
+      <Button
         onClick={handleJoinAudio}
         disabled={disable}
         hideLabel
@@ -78,49 +76,20 @@ class AudioControls extends PureComponent {
     );
   }
 
-  static renderLeaveButtonWithLiveStreamSelector(props) {
-    const { handleLeaveAudio, isRTL } = props;
-    return (
-      <InputStreamLiveSelectorContainer {...{ handleLeaveAudio, isRTL }} />
-    );
-  }
-
-  renderLeaveButtonWithoutLiveStreamSelector() {
+  renderButtonsAndStreamSelector(_enableDynamicDeviceSelection) {
     const {
-      handleJoinAudio,
-      handleLeaveAudio,
-      disable,
-      inAudio,
-      listenOnly,
-      intl,
-      shortcuts,
+      handleLeaveAudio, handleToggleMuteMicrophone, muted, disable, talking,
     } = this.props;
 
-    let joinIcon = 'no_audio';
-    if (inAudio) {
-      if (listenOnly) {
-        joinIcon = 'listen';
-      } else {
-        joinIcon = 'volume_level_2';
-      }
-    }
-
     return (
-      <Styled.LeaveButtonWithoutLiveStreamSelector
-        onClick={inAudio ? handleLeaveAudio : handleJoinAudio}
-        disabled={disable}
-        data-test={inAudio ? 'leaveAudio' : 'joinAudio'}
-        hideLabel
-        aria-label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-          : intl.formatMessage(intlMessages.joinAudio)}
-        label={inAudio ? intl.formatMessage(intlMessages.leaveAudio)
-          : intl.formatMessage(intlMessages.joinAudio)}
-        color={inAudio ? 'primary' : 'default'}
-        ghost={!inAudio}
-        icon={joinIcon}
-        size="lg"
-        circle
-        accessKey={inAudio ? shortcuts.leaveaudio : shortcuts.joinaudio}
+      <InputStreamLiveSelectorContainer {...{
+        handleLeaveAudio,
+        handleToggleMuteMicrophone,
+        muted,
+        disable,
+        talking,
+        _enableDynamicDeviceSelection,
+      }}
       />
     );
   }
@@ -138,16 +107,10 @@ class AudioControls extends PureComponent {
       enableDynamicAudioDeviceSelection = true;
     }
 
-    const _enableDynamicDeviceSelection = enableDynamicAudioDeviceSelection
-      && !isMobile;
+    const _enableDynamicDeviceSelection = enableDynamicAudioDeviceSelection && !isMobile;
 
     if (inAudio) {
-      if (_enableDynamicDeviceSelection) {
-        return AudioControls.renderLeaveButtonWithLiveStreamSelector(this
-          .props);
-      }
-
-      return this.renderLeaveButtonWithoutLiveStreamSelector();
+      return this.renderButtonsAndStreamSelector(_enableDynamicDeviceSelection);
     }
 
     return this.renderJoinButton();
@@ -155,43 +118,14 @@ class AudioControls extends PureComponent {
 
   render() {
     const {
-      handleToggleMuteMicrophone,
       showMute,
       muted,
-      disable,
-      talking,
-      intl,
-      shortcuts,
       isVoiceUser,
       listenOnly,
       inputStream,
       isViewer,
       isPresenter,
     } = this.props;
-
-    const label = muted ? intl.formatMessage(intlMessages.unmuteAudio)
-      : intl.formatMessage(intlMessages.muteAudio);
-
-    const { animations } = Settings.application;
-
-    const toggleMuteBtn = (
-      <Styled.MuteToggleButton
-        onClick={handleToggleMuteMicrophone}
-        disabled={disable}
-        hideLabel
-        label={label}
-        aria-label={label}
-        color={!muted ? 'primary' : 'default'}
-        ghost={muted}
-        icon={muted ? 'mute' : 'unmute'}
-        size="lg"
-        circle
-        accessKey={shortcuts.togglemute}
-        talking={talking}
-        animations={animations}
-        data-test="toggleMicrophoneButton"
-      />
-    );
 
     const MUTE_ALERT_CONFIG = Meteor.settings.public.app.mutedAlert;
     const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
@@ -204,7 +138,6 @@ class AudioControls extends PureComponent {
           }}
           />
         ) : null}
-        {showMute && isVoiceUser ? toggleMuteBtn : null}
         {
           this.renderJoinLeaveButton()
         }

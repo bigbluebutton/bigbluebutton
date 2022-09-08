@@ -9,8 +9,6 @@ import {
   colorText,
   colorGrayLighter,
   colorGray,
-  colorWhite,
-  colorLink,
   colorBlueLight,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -120,8 +118,6 @@ const StartButton = styled(Button)`
   display: block;
   position: absolute;
   bottom: 20px;
-  color: ${colorWhite} !important;
-  background-color: ${colorLink} !important;
 `;
 
 export default {

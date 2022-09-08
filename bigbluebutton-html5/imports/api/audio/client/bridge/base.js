@@ -87,6 +87,8 @@ export default class BaseAudioBridge {
           logCode: 'audio_reload_audio_element',
           extraInfo: {
             bridgeName: this.bridgeName,
+            deviceId: value,
+            isLive,
           },
         }, 'Audio element reloaded after changing output device');
 
@@ -94,8 +96,14 @@ export default class BaseAudioBridge {
       } catch (error) {
         logger.error({
           logCode: 'audio_changeoutputdevice_error',
-          extraInfo: { error, callerIdName: this.user.callerIdName },
-        }, 'Change Output Device error');
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            deviceId: value,
+            isLive,
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, `Change output device failed: ${error.name}`);
         throw new Error(this.baseErrorCodes.MEDIA_ERROR);
       }
     }

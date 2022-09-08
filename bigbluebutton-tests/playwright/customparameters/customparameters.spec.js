@@ -74,7 +74,7 @@ test.describe.parallel('CustomParameters', () => {
       await customParam.autoJoin();
     });
 
-    test('Listen Only Mode', async ({ browser, context, page }) => {
+    test('Disable Listen Only Mode', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { customParameter: c.listenOnlyMode });
       await customParam.listenOnlyMode();
@@ -169,6 +169,7 @@ test.describe.parallel('CustomParameters', () => {
   });
 
   test.describe.parallel('Whiteboard', () => {
+    test.skip();
     test('Multi Users Pen Only', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.multiUserPenOnly });

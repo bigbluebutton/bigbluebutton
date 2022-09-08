@@ -15,6 +15,7 @@ import {
   MODELS,
   getVirtualBgImagePath,
 } from '/imports/ui/services/virtual-background/service'
+import logger from '/imports/startup/client/logger';
 
 const blurValue = '25px';
 
@@ -81,6 +82,8 @@ class VirtualBackgroundService {
     constructor(model, options) {
         this._model = model;
         this._options = options;
+        this._options.brightness = 100;
+        this._options.wholeImageBrightness = false;
         if (this._options.virtualBackground.backgroundType === 'image') {
             this._virtualImage = document.createElement('img');
             this._virtualImage.crossOrigin = 'anonymous';
@@ -122,7 +125,7 @@ class VirtualBackgroundService {
         // Smooth out the edges.
         if (this._options.virtualBackground.isVirtualBackground) {
             this._outputCanvasCtx.filter = 'blur(4px)';
-        } else {
+        } else if (this._options.virtualBackground.backgroundType === 'blur') {
             this._outputCanvasCtx.filter = 'blur(8px)';
         }
 
@@ -143,10 +146,16 @@ class VirtualBackgroundService {
         // Draw the foreground video.
         //
 
+        this._outputCanvasCtx.filter = `brightness(${this._options.brightness}%)`;
         this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+        this._outputCanvasCtx.filter = 'none';
 
         // Draw the background.
         //
+
+        if (this._options.wholeImageBrightness) {
+            this._outputCanvasCtx.filter = `brightness(${this._options.brightness}%)`;
+        }
 
         this._outputCanvasCtx.globalCompositeOperation = 'destination-over';
         if (this._options.virtualBackground.isVirtualBackground) {
@@ -160,8 +169,10 @@ class VirtualBackgroundService {
                 0.5,
                 0.5,
             );
-        } else {
+        } else if (this._options.virtualBackground.backgroundType === 'blur') {
             this._outputCanvasCtx.filter = `blur(${blurValue})`;
+            this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+        } else {
             this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
         }
     }
@@ -195,9 +206,23 @@ class VirtualBackgroundService {
      * @returns {void}
      */
     _renderMask() {
-        this.resizeSource();
-        this.runInference();
-        this.runPostProcessing();
+        try {
+            this.resizeSource();
+            this.runInference();
+            this.runPostProcessing();
+        } catch (error) {
+            // TODO This is a high frequency log so that's why it's debug level.
+            // Should be reviewed later when the actual problem with runPostProcessing
+            // throwing on stalled pages/iframes - prlanzarin Jun 30 2022
+            logger.debug({
+                logCode: 'virtualbg_renderMask_failure',
+                extraInfo: {
+                    errorMessage: error.message,
+                    errorCode: error.code,
+                    errorName: error.name,
+                },
+            }, `Virtual background renderMask failed: ${error.message || error.name}`);
+        }
 
         this._maskFrameTimerWorker.postMessage({
             id: SET_TIMEOUT,
@@ -240,16 +265,25 @@ class VirtualBackgroundService {
 
     changeBackgroundImage(parameters = null) {
         const virtualBackgroundImagePath = getVirtualBgImagePath();
-        let imagesrc = virtualBackgroundImagePath + '';
+        let name = '';
         let type = 'blur';
+        let isVirtualBackground = false;
         if (parameters != null && Object.keys(parameters).length > 0) {
-            imagesrc = parameters.name;
+            name = parameters.name;
             type = parameters.type;
-            this._options.virtualBackground.isVirtualBackground = parameters.isVirtualBackground;
+            isVirtualBackground = parameters.isVirtualBackground;
         }
-        this._virtualImage = document.createElement('img');
-        this._virtualImage.crossOrigin = 'anonymous';
-        this._virtualImage.src = virtualBackgroundImagePath + imagesrc;
+        this._options.virtualBackground.virtualSource = virtualBackgroundImagePath + name;
+        this._options.virtualBackground.backgroundType = type;
+        this._options.virtualBackground.isVirtualBackground = isVirtualBackground;
+        if (this._options.virtualBackground.backgroundType === 'image') {
+            this._virtualImage = document.createElement('img');
+            this._virtualImage.crossOrigin = 'anonymous';
+            this._virtualImage.src = virtualBackgroundImagePath + name;
+        }
+        if (parameters.customParams) {
+            this._virtualImage.src = parameters.customParams.file;
+        }
     }
 
     /**
@@ -303,6 +337,22 @@ class VirtualBackgroundService {
             this._maskFrameTimerWorker.terminate();
         }
 
+
+    set brightness(value) {
+        this._options.brightness = value;
+    }
+
+    get brightness() {
+        return this._options.brightness;
+    }
+
+    set wholeImageBrightness(value) {
+        this._options.wholeImageBrightness = value;
+    }
+
+    get wholeImageBrightness() {
+        return this._options.wholeImageBrightness;
+    }
 }
 
     /**
@@ -335,7 +385,11 @@ export async function createVirtualBackgroundService(parameters = null) {
         parameters.backgroundType = 'blur';
         parameters.isVirtualBackground = false;
     } else {
-        parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+        if (parameters.customParams) {
+            parameters.virtualSource = parameters.customParams.file;
+        } else {
+            parameters.virtualSource = virtualBackgroundImagePath + parameters.backgroundFilename;
+        }
     }
 
     if (!modelResponse.ok) {

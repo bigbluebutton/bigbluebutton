@@ -49,7 +49,6 @@ public class MessageSender extends RedisAwareCommunicator {
         connectionPool = ConnectionPoolSupport.createGenericObjectPool(() -> redisClient.connectPubSub(),
                 createPoolingConfig());
 
-        log.info("Redis org.bigbluebutton.red5.pubsub.message publisher starting!");
         try {
             sendMessage = true;
 
@@ -84,7 +83,7 @@ public class MessageSender extends RedisAwareCommunicator {
                     RedisAsyncCommands<String, String> async = connection.async();
                     RedisFuture<Long> future = async.publish(channel, message);
                 } catch (Exception e) {
-                    log.warn("Cannot publish the org.bigbluebutton.red5.pubsub.message to redis", e);
+                    log.warn("Cannot publish the message to redis", e);
                 }
             }
         };

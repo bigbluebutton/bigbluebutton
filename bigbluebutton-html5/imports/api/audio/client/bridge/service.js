@@ -2,8 +2,8 @@ import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
-const DEFAULT_INPUT_DEVICE_ID = 'default';
-const DEFAULT_OUTPUT_DEVICE_ID = 'default';
+const DEFAULT_INPUT_DEVICE_ID = '';
+const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
 const AUDIO_MICROPHONE_CONSTRAINTS = Meteor.settings.public.app.defaultSettings

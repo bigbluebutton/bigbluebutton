@@ -5,7 +5,7 @@ import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
 
 export default (props) => {
-  const { autoSwapLayout, hidePresentation } = props;
+  const { hidePresentation } = props;
   const { animations } = Settings.application;
 
   return (

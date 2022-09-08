@@ -1,6 +1,6 @@
 const stopMediaStreamTracks = (stream) => {
   if (stream && typeof stream.getTracks === 'function') {
-    stream.getTracks().forEach(track => {
+    stream.getTracks().forEach((track) => {
       if (typeof track.stop === 'function' && track.readyState !== 'ended') {
         track.stop();
         // Manually emit the event as a safeguard; Firefox doesn't fire it when it
@@ -10,37 +10,63 @@ const stopMediaStreamTracks = (stream) => {
       }
     });
   }
-}
+};
 
-const getVideoTracks = (stream) => {
-  let videoTracks = [];
-
+const getAudioTracks = (stream) => {
   if (stream) {
-    if (typeof stream.getVideoTracks === 'function') {
-      videoTracks = stream.getVideoTracks();
-    } else if (typeof stream.getTracks === 'function') {
-      videoTracks = stream.getTracks().filter(track => track.kind === 'video');
+    if (typeof stream.getAudioTracks === 'function') {
+      return stream.getAudioTracks();
+    }
+
+    if (typeof stream.getTracks === 'function') {
+      return stream.getTracks().filter((track) => track.kind === 'audio');
     }
   }
 
-  return videoTracks;
-}
+  return [];
+};
 
-const extractVideoDeviceId = (stream) => {
-  // An empty string is the browser's default...
-  let deviceId = '';
-  const tracks = getVideoTracks(stream);
+const getVideoTracks = (stream) => {
+  if (stream) {
+    if (typeof stream.getVideoTracks === 'function') {
+      return stream.getVideoTracks();
+    }
 
-  if (tracks[0] && typeof tracks[0].getSettings === 'function') {
-    const settings = tracks[0].getSettings();
-    deviceId = settings.deviceId;
+    if (typeof stream.getTracks === 'function') {
+      return stream.getTracks().filter((track) => track.kind === 'video');
+    }
   }
 
-  return deviceId;
-}
+  return [];
+};
+
+const getDeviceIdFromTrack = (track) => {
+  if (track && typeof track.getSettings === 'function') {
+    const { deviceId } = track.getSettings();
+    return deviceId;
+  }
+  return '';
+};
+
+const extractDeviceIdFromStream = (stream, kind) => {
+  // An empty string is the browser's default...
+  let tracks = [];
+
+  switch (kind) {
+    case 'audio':
+      tracks = getAudioTracks(stream);
+      return getDeviceIdFromTrack(tracks[0]);
+    case 'video':
+      tracks = getVideoTracks(stream);
+      return getDeviceIdFromTrack(tracks[0]);
+    default: {
+      return '';
+    }
+  }
+};
 
 export default {
   stopMediaStreamTracks,
   getVideoTracks,
-  extractVideoDeviceId,
+  extractDeviceIdFromStream,
 };

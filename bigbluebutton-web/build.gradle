@@ -98,9 +98,10 @@ dependencies {
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
   implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 
-  implementation "javax.validation:validation-api:2.0.1.Final"
-//  compile "org.hibernate:hibernate-validator:7.0.1.Final"
+  implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation 'org.springframework.boot:spring-boot-starter-validation:2.7.1'
+  implementation 'org.postgresql:postgresql:42.2.16'
+  implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console"

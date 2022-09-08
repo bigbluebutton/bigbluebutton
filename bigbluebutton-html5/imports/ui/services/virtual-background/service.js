@@ -1,8 +1,6 @@
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { createVirtualBackgroundService } from '/imports/ui/services/virtual-background';
-import Meetings from '/imports/api/meetings';
-import Auth from '/imports/ui/services/auth';
 
 const BLUR_FILENAME = 'blur.jpg';
 const EFFECT_TYPES = {
@@ -34,7 +32,6 @@ const MODELS = {
 };
 
 const {
-  enabled: VIRTUAL_BACKGROUND_ENABLED = true,
   thumbnailsPath: THUMBNAILS_PATH = '/resources/images/virtual-backgrounds/thumbnails/',
   fileNames: IMAGE_NAMES = ['home.jpg', 'coffeeshop.jpg', 'board.jpg'],
   storedOnBBB: IS_STORED_ON_BBB = true,
@@ -42,11 +39,12 @@ const {
   showThumbnails: SHOW_THUMBNAILS = true,
 } = Meteor.settings.public.virtualBackgrounds;
 
-const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream) => {
+const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, customParams) => {
   const buildParams = {
     backgroundType: type,
     backgroundFilename: name,
     isVirtualBackground,
+    customParams,
   }
 
   return createVirtualBackgroundService(buildParams).then((service) => {

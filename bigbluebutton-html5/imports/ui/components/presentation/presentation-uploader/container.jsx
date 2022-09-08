@@ -7,6 +7,7 @@ import Service from './service';
 import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
+import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -29,6 +30,7 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
+    exportPresentationToChat,
   } = Service;
 
   return {
@@ -37,7 +39,7 @@ export default withTracker(() => {
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
-    allowDownloadable: PRESENTATION_CONFIG.allowDownloadable,
+    allowDownloadable: isDownloadPresentationWithAnnotationsEnabled(),
     handleSave: (presentations) => Service.persistPresentationChanges(
       currentPresentations,
       presentations,
@@ -47,7 +49,9 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
+    exportPresentationToChat,
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    externalUploadData: Service.getExternalUploadData(),
   };
 })(PresentationUploaderContainer);

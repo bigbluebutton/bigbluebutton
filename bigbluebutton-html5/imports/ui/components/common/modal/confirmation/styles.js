@@ -83,6 +83,10 @@ const ConfirmationButton = styled(Button)`
   }
 `;
 
+const Label = styled.label`
+  display: block;
+`;
+
 export default {
   ConfirmationModal,
   Container,
@@ -93,4 +97,5 @@ export default {
   Checkbox,
   Footer,
   ConfirmationButton,
+  Label,
 };

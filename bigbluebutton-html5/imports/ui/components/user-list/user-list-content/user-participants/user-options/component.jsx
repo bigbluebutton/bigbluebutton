@@ -100,10 +100,6 @@ const intlMessages = defineMessages({
     id: 'app.learning-dashboard.description',
     description: 'Activity Report description',
   },
-  invitationItem: {
-    id: 'app.invitation.title',
-    description: 'invitation to breakout title',
-  },
   saveUserNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Save user name feature description',
@@ -211,7 +207,6 @@ class UserOptions extends PureComponent {
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
       hasBreakoutRoom,
-      getUsersNotAssigned,
       openLearningDashboardUrl,
       amIModerator,
       users,
@@ -223,11 +218,6 @@ class UserOptions extends PureComponent {
       && !meetingIsBreakout
       && !hasBreakoutRoom
       && isBreakoutRoomsEnabled();
-
-    const canInviteUsers = amIModerator
-      && !meetingIsBreakout
-      && hasBreakoutRoom
-      && getUsersNotAssigned(users).length;
 
     const { locale } = intl;
 
@@ -305,16 +295,6 @@ class UserOptions extends PureComponent {
         });
       }
 
-      if (canInviteUsers) {
-        this.menuItems.push({
-          icon: 'rooms',
-          dataTest: 'inviteBreakoutRooms',
-          label: intl.formatMessage(intlMessages.invitationItem),
-          key: this.createBreakoutId,
-          onClick: this.onInvitationUsers,
-        });
-      }
-
       if (amIModerator && CaptionsService.isCaptionsEnabled()) {
         this.menuItems.push({
           icon: 'closed_caption',
@@ -352,10 +332,10 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
             icon="settings"
-            ghost
-            color="primary"
+            color="light"
             hideLabel
-            size="sm"
+            size="md"
+            circle
             onClick={() => null}
           />
         )}

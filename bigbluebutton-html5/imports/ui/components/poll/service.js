@@ -1,7 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { CurrentPoll } from '/imports/api/polls';
 import { escapeHtml } from '/imports/utils/string-utils';
-import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages } from 'react-intl';
 
 const POLL_AVATAR_COLOR = '#3B48A9';
@@ -89,7 +88,7 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   answers.map((item) => {
     responded += item.numVotes;
     return item;
-  }).reduce(caseInsensitiveReducer, []).forEach((item) => {
+  }).forEach((item) => {
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round((item.numVotes / numResponded) * 100);
     const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
@@ -206,6 +205,44 @@ const checkPollType = (
   return _type;
 };
 
+/**
+ * 
+ * @param {String} input
+ */
+ const validateInput = (input) => {
+  let _input = input;
+  while (/^\s/.test(_input)) _input = _input.substring(1);
+  return _input;
+};
+
+/**
+ * 
+ * @param {String} input
+ */
+const removeEmptyLineSpaces = (input) => {
+  const filteredInput = input.split('\n').filter((val) => val.trim() !== '');
+  return filteredInput;
+};
+
+/**
+ * 
+ * @param {String|Array} questionAndOptions
+ */
+const getSplittedQuestionAndOptions = (questionAndOptions) => {
+  const inputList = Array.isArray(questionAndOptions)
+    ? questionAndOptions
+    : questionAndOptions.split('\n').filter((val) => val !== '');
+  const splittedQuestion = inputList.length > 0 ? inputList[0] : questionAndOptions;
+  const optionsList = inputList.slice(1);
+
+  optionsList.forEach((val, i) => { optionsList[i] = { val }; });
+
+  return {
+    splittedQuestion,
+    optionsList,
+  };
+};
+
 export default {
   pollTypes,
   currentPoll: () => CurrentPoll.findOne({ meetingId: Auth.meetingID }),
@@ -217,4 +254,7 @@ export default {
   matchYesNoAbstentionPoll,
   matchTrueFalsePoll,
   checkPollType,
+  validateInput,
+  removeEmptyLineSpaces,
+  getSplittedQuestionAndOptions,
 };

@@ -87,7 +87,6 @@ const UserOptionsContainer = withTracker((props) => {
     toggleStatus,
     isMeetingMuted: isMeetingMuteOnStart(),
     amIModerator: ActionsBarService.amIModerator(),
-    getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
     guestPolicy: WaitingUsersService.getGuestPolicy(),

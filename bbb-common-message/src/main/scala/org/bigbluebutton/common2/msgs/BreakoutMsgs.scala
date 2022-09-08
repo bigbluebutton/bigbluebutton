@@ -110,6 +110,14 @@ object SendMessageToAllBreakoutRoomsEvtMsg { val NAME = "SendMessageToAllBreakou
 case class SendMessageToAllBreakoutRoomsEvtMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsEvtMsgBody) extends BbbCoreMsg
 case class SendMessageToAllBreakoutRoomsEvtMsgBody(meetingId: String, senderId: String, msg: String, totalOfRooms: Int)
 
+object ChangeUserBreakoutReqMsg { val NAME = "ChangeUserBreakoutReqMsg" }
+case class ChangeUserBreakoutReqMsg(header: BbbClientMsgHeader, body: ChangeUserBreakoutReqMsgBody) extends StandardMsg
+case class ChangeUserBreakoutReqMsgBody(meetingId: String, userId: String, fromBreakoutId: String, toBreakoutId: String)
+
+object ChangeUserBreakoutEvtMsg { val NAME = "ChangeUserBreakoutEvtMsg" }
+case class ChangeUserBreakoutEvtMsg(header: BbbClientMsgHeader, body: ChangeUserBreakoutEvtMsgBody) extends BbbCoreMsg
+case class ChangeUserBreakoutEvtMsgBody(meetingId: String, userId: String, fromBreakoutId: String, toBreakoutId: String, redirectToHtml5JoinURL: String)
+
 // Common Value objects
 case class BreakoutUserVO(id: String, name: String)
 

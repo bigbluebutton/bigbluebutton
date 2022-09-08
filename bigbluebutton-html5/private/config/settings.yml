@@ -48,6 +48,8 @@ public:
     learningDashboardBase: '/learning-analytics-dashboard'
     # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
     customStyleUrl: null
+    darkTheme:
+      enabled: true
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
@@ -62,6 +64,7 @@ public:
     # restarting webcam.
     enableWebcamSelectorButton: true
     enableTalkingIndicator: true
+    enableCameraBrightness: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
     ipv4FallbackDomain: ''
@@ -69,13 +72,44 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    # Allows users to enable automatic transcription when joining a meeting.
+    # Automatic transcription requires the browser to support the web
+    # speech API, which involves sending voice data to third-party servers!
+    # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
+    audioCaptions:
+      enabled: false
+      # mobile: <Boolean> - controls speech transcription availability on mobile
+      mobile: false
+      language:
+        available:
+        # - de-DE
+          - en-US
+          - es-ES
+        # - fr-FR
+        # - hi-ID
+        # - it-IT
+        # - ja-JP
+          - pt-BR
+        # - ru-RU
+        # - zh-CN
+        # If true, automatically uses the below locale field content as transcription language
+        # and the language selector in audio modal won't show up!
+        forceLocale: false
+        # If true, the default selected value for language selector in audio modal
+        # is the below locale field content
+        defaultSelectLocale: true
+        # Possible Values:
+        # browserLanguage: to set browser language
+        # [en-US, es-ES, pt-BR,...]: to set a specific locale
+        # disabled: to set disabled
+        locale: disabled
     mutedAlert:
       enabled: true
       interval: 200
       threshold: -50
       duration: 4000
     remainingTimeThreshold: 30
-    remainingTimeAlertThreshold: 1
+    remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
@@ -124,7 +158,7 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
-        pushLayoutToEveryone: false
+        darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
         # specified in fallbackLocale. Note that fallbackLocale should be a
@@ -203,6 +237,10 @@ public:
       - critical
       - danger
       - warning
+    # Whether the fallback mechanism should be used
+    # when the locale string is empty. If false, the empty
+    # string will be returned.
+    fallbackOnEmptyLocaleString: true
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -217,6 +255,8 @@ public:
     signalCandidates: false
     # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
+    # traceLogs: <Boolean> - enable trace logs in SFU peers
+    traceLogs: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
@@ -324,12 +364,11 @@ public:
     enableVideo: true
     enableVideoMenu: true
     enableVideoPin: true
-    enableListenOnly: true
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for listen only.
     # Default is undefined, which means the default setting in bbb-webrtc-sfu
     # prevails (listenOnlyMediaServer).
-    #listenOnlyMediaServer: Kurento
+    #listenOnlyMediaServer: mediasoup
     # Experimental. Server wide configuration to choose which bbb-webrtc-sfu
     # media server adapter should be used for webcams.
     # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -429,8 +468,8 @@ public:
     syncInterval: 60000
   poll:
     enabled: true
+    allowCustomResponseInput: true
     maxCustom: 5
-    allowDragAndDropFile: false
     maxTypedAnswerLength: 45
     chatMessage: true
   captions:
@@ -467,16 +506,22 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
+    autoConvertEmoji: true
+    enableEmojiPicker: false
+    # e.g.: disableEmojis: ['1F595','1F922']
+    disableEmojis: []
   notes:
     enabled: true
     id: notes
   layout:
-    autoSwapLayout: false
     hidePresentation: false
     showParticipantsOnLogin: true
+    showPushLayoutButton: true
+    showPushLayoutToggle: true
   pads:
     url: ETHERPAD_HOST
     cookie:
@@ -496,11 +541,11 @@ public:
       # media server adapter should be used for fullaudio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
       # prevails (fullAudioMediaServer).
-      # fullAudioMediaServer: Kurento
+      #fullAudioMediaServer: mediasoup
       #
       #
       # Default bridge to be used by listen only mechanism.
-      defaultListenOnlyBridge: kurento
+      defaultListenOnlyBridge: fullaudio
       #
       #
       # Bridge array, here's where we list our bridges.
@@ -513,16 +558,12 @@ public:
       # '/imports/api/audio/client' dir.
       #
       bridges:
-        #
-        # The name of the bridge
+        # name:  The name of the bridge
         - name: sipjs
-          #
-          # The bridge file path , relative to /imports/api/audio/client
+          # path: the bridge file path, relative to /imports/api/audio/client
           path: 'bridge/sip'
-        - name: kurento
-          path: 'bridge/kurento'
         - name: fullaudio
-          path: 'bridge/FullAudioBridge'
+          path: 'bridge/sfu-audio-bridge'
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -552,6 +593,9 @@ public:
     # showing to the user there's an audio error.
     audioReconnectionAttempts: 3
     sipjsHackViaWs: false
+    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
+    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
+    sipjsAllowMdns: false
     # the fqdn of this host.
     # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
     # individual nodes, you can leave this at the default setting
@@ -570,6 +614,25 @@ public:
     traceSip: false
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
+    # localEchoTest:
+    #   enabled: Boolean => enables an experimental, simplified echo test mode
+    #   initialHearingState: Boolean => whether users should hear themselves firsthand
+    #   useRtcLoopbackInChromium: Boolean => whether a local RTC loopback should
+    #   be used in Chromium browsers. Works around the fact that Chromium has no
+    #   echo cancellation in non-rtc audio streams
+    localEchoTest:
+      enabled: true
+      initialHearingState: true
+      useRtcLoopbackInChromium: true
+    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
+    showVolumeMeter: true
+    # networkPriorities: DSCP markings for each media type. Chromium only, applies
+    # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
+    # for further info.
+    #networkPriorities:
+    #  audio: high
+    #  webcam: medium
+    #  screenshare: medium
   stats:
     enabled: true
     interval: 10000
@@ -752,6 +815,7 @@ public:
       logTag: ''
   virtualBackgrounds:
     enabled: true
+    enableVirtualBackgroundUpload: true
     storedOnBBB: true
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/

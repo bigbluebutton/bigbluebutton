@@ -44,6 +44,25 @@ const initState = {
 const reducer = (state, action) => {
   debugActions(action.type, action.value);
   switch (action.type) {
+
+    case ACTIONS.SET_FOCUSED_CAMERA_ID: {
+      const { cameraDock } = state.input;
+      const { focusedId } = cameraDock;
+
+      if (focusedId === action.value) return state;
+
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          cameraDock: {
+            ...cameraDock,
+            focusedId: action.value,
+          },
+        },
+      };
+    }
+
     case ACTIONS.SET_LAYOUT_INPUT: {
       if (state.input === action.value) return state;
       return {
@@ -699,6 +718,7 @@ const reducer = (state, action) => {
         isDraggable,
         resizableEdge,
         zIndex,
+        focusedId,
       } = action.value;
       const { cameraDock } = state.output;
       if (cameraDock.display === display
@@ -714,7 +734,8 @@ const reducer = (state, action) => {
         && cameraDock.tabOrder === tabOrder
         && cameraDock.isDraggable === isDraggable
         && cameraDock.zIndex === zIndex
-        && cameraDock.resizableEdge === resizableEdge) {
+        && cameraDock.resizableEdge === resizableEdge
+        && cameraDock.focusedId === focusedId) {
         return state;
       }
       return {
@@ -739,6 +760,7 @@ const reducer = (state, action) => {
             isDraggable,
             resizableEdge,
             zIndex,
+            focusedId,
           },
         },
       };

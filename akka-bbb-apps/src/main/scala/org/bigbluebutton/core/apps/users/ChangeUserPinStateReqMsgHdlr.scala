@@ -37,19 +37,15 @@ trait ChangeUserPinStateReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.changedBy, reason, outGW, liveMeeting)
     } else {
       for {
-        oldPin <- Users2x.findPin(liveMeeting.users2x)
-      } yield {
-        if (oldPin.intId != msg.body.userId) {
-          Users2x.changePin(liveMeeting.users2x, oldPin.intId, false)
-          broadcastUserPinChange(oldPin, false)
-        }
-      }
-      for {
         newPin <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
       } yield {
         if (newPin.pin != msg.body.pin) {
-          Users2x.changePin(liveMeeting.users2x, newPin.intId, msg.body.pin)
+          var removePinnedUser: Option[UserState] = None;
+          removePinnedUser = Users2x.updatePins(liveMeeting.users2x, msg.body.userId, liveMeeting.props.meetingProp.maxPinnedCameras, msg.body.pin)
           broadcastUserPinChange(newPin, msg.body.pin)
+          if (!removePinnedUser.isEmpty) {
+            broadcastUserPinChange(removePinnedUser.get, false)
+          }
         }
       }
     }

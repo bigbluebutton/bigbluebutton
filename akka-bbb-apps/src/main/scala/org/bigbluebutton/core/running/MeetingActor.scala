@@ -18,6 +18,7 @@ import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
 import org.bigbluebutton.core.apps.pads.PadsApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.webcam.WebcamApp2x
@@ -80,6 +81,7 @@ class MeetingActor(
   with MuteMeetingCmdMsgHdlr
   with IsMeetingMutedReqMsgHdlr
   with GetGlobalAudioPermissionReqMsgHdlr
+  with GetMicrophonePermissionReqMsgHdlr
   with GetScreenBroadcastPermissionReqMsgHdlr
   with GetScreenSubscribePermissionReqMsgHdlr
 
@@ -123,6 +125,7 @@ class MeetingActor(
 
   val presentationApp2x = new PresentationApp2x
   val screenshareApp2x = new ScreenshareApp2x
+  val audioCaptionsApp2x = new AudioCaptionsApp2x
   val captionApp2x = new CaptionApp2x
   val chatApp2x = new ChatApp2x
   val externalVideoApp2x = new ExternalVideoApp2x
@@ -401,12 +404,12 @@ class MeetingActor(
         updateModeratorsPresence()
 
       // Whiteboard
-      case m: SendCursorPositionPubMsg       => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ClearWhiteboardPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
-      case m: UndoWhiteboardPubMsg           => wbApp.handle(m, liveMeeting, msgBus)
-      case m: ModifyWhiteboardAccessPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
-      case m: SendWhiteboardAnnotationPubMsg => wbApp.handle(m, liveMeeting, msgBus)
-      case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendCursorPositionPubMsg          => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ClearWhiteboardPubMsg             => wbApp.handle(m, liveMeeting, msgBus)
+      case m: DeleteWhiteboardAnnotationsPubMsg => wbApp.handle(m, liveMeeting, msgBus)
+      case m: ModifyWhiteboardAccessPubMsg      => wbApp.handle(m, liveMeeting, msgBus)
+      case m: SendWhiteboardAnnotationsPubMsg   => wbApp.handle(m, liveMeeting, msgBus)
+      case m: GetWhiteboardAnnotationsReqMsg    => wbApp.handle(m, liveMeeting, msgBus)
 
       // Poll
       case m: StartPollReqMsg =>
@@ -437,6 +440,7 @@ class MeetingActor(
       case m: TransferUserToMeetingRequestMsg     => state = handleTransferUserToMeetingRequestMsg(m, state)
       case m: UpdateBreakoutRoomsTimeReqMsg       => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
       case m: SendMessageToAllBreakoutRoomsReqMsg => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
+      case m: ChangeUserBreakoutReqMsg            => state = handleChangeUserBreakoutReqMsg(m, state)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg             => handleUserLeftVoiceConfEvtMsg(m)
@@ -447,7 +451,9 @@ class MeetingActor(
       case m: VoiceConfCallStateEvtMsg         => handleVoiceConfCallStateEvtMsg(m)
 
       case m: RecordingStartedVoiceConfEvtMsg  => handleRecordingStartedVoiceConfEvtMsg(m)
-      case m: AudioFloorChangedVoiceConfEvtMsg => handleAudioFloorChangedVoiceConfEvtMsg(m)
+      case m: AudioFloorChangedVoiceConfEvtMsg =>
+        handleAudioFloorChangedVoiceConfEvtMsg(m)
+        audioCaptionsApp2x.handle(m, liveMeeting)
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
@@ -466,10 +472,13 @@ class MeetingActor(
         handleUserStatusVoiceConfEvtMsg(m)
       case m: GetGlobalAudioPermissionReqMsg =>
         handleGetGlobalAudioPermissionReqMsg(m)
+      case m: GetMicrophonePermissionReqMsg =>
+        handleGetMicrophonePermissionReqMsg(m)
 
       // Layout
       case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
       case m: BroadcastLayoutMsg      => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg  => handleBroadcastPushLayoutMsg(m)
 
       // Pads
       case m: PadCreateGroupReqMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
@@ -495,6 +504,9 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
+      case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: ExportPresentationWithAnnotationReqMsg         => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: NewPresAnnFileAvailableMsg                     => presentationPodsApp.handle(m, liveMeeting, msgBus)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -549,6 +561,9 @@ class MeetingActor(
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
       case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
+
+      // AudioCaptions
+      case m: UpdateTranscriptPubMsg                         => audioCaptionsApp2x.handle(m, liveMeeting, msgBus)
 
       // GroupChat
       case m: CreateGroupChatReqMsg =>
@@ -858,6 +873,16 @@ class MeetingActor(
         // send a user left event for the clients to update
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
         outGW.send(userLeftMeetingEvent)
+
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "user",
+          "app.notification.userLeavePushAlert",
+          "Notification for a user leaves the meeting",
+          Vector(s"${u.name}")
+        )
+        outGW.send(notifyEvent)
 
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)

@@ -134,15 +134,15 @@ class ChatDropdown extends PureComponent {
     return (
       <>
         <BBBMenu
-          trigger={(
+          trigger={
             <Trigger
               data-test="chatOptionsMenu"
               icon="more"
               label={intl.formatMessage(intlMessages.options)}
               aria-label={intl.formatMessage(intlMessages.options)}
               onClick={() => null}
-            />
-          )}
+            />                    
+          }
           opts={{
             id: 'default-dropdown-menu',
             keepMounted: true,

@@ -6,8 +6,9 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceUsers from '/imports/api/voice-users';
 import RecordIndicator from './component';
 import deviceInfo from '/imports/utils/deviceInfo';
+import RecordingIndicatorService from './service';
 
-const RecordIndicatorContainer = props => (
+const RecordIndicatorContainer = (props) => (
   <RecordIndicator {...props} />
 );
 
@@ -30,5 +31,6 @@ export default withTracker(() => {
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
+    recordingNotificationEnabled: RecordingIndicatorService.isRecordingNotificationEnabled(),
   };
 })(RecordIndicatorContainer);

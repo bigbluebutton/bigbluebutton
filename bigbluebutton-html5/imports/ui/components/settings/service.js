@@ -1,7 +1,7 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
-import { notify } from '/imports/ui/services/notification';
+import {notify} from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
 
 const getUserRoles = () => {
@@ -12,6 +12,14 @@ const getUserRoles = () => {
   return user.role;
 };
 
+const isPresenter = () => {
+  const user = Users.findOne({
+    userId: Auth.userID,
+  });
+
+  return user.presenter;
+};
+
 const showGuestNotification = () => {
   const guestPolicy = GuestService.getGuestPolicy();
 
@@ -19,6 +27,8 @@ const showGuestNotification = () => {
   // entrance is being controlled by moderators
   return guestPolicy === 'ASK_MODERATOR';
 };
+
+const isKeepPushingLayoutEnabled = () => Meteor.settings.public.layout.showPushLayoutToggle;
 
 const updateSettings = (obj, msg) => {
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
@@ -40,7 +50,9 @@ const getAvailableLocales = () => fetch('./locale-list').then(locales => locales
 
 export {
   getUserRoles,
+  isPresenter,
   showGuestNotification,
   updateSettings,
+  isKeepPushingLayoutEnabled,
   getAvailableLocales,
 };

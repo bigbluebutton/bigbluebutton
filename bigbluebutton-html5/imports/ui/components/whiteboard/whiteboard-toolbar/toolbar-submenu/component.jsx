@@ -89,7 +89,7 @@ class ToolbarSubmenu extends Component {
     if (type === 'color') {
       return (
         <Styled.CustomSvgIcon>
-          <rect x="20%" y="20%" width="60%" height="60%" fill={obj.value} />
+          <rect x="20%" y="20%" width="60%" height="60%" fill={obj.value} id="colorPicker"/>
         </Styled.CustomSvgIcon>
       );
     } if (type === 'thickness') {

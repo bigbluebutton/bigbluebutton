@@ -4,10 +4,6 @@ import PollService from '/imports/ui/components/poll/service';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { injectIntl, defineMessages } from 'react-intl';
 import Styled from './styles';
-import {
-  getSwapLayout,
-  shouldEnableSwapLayout,
-} from '/imports/ui/components/media/service';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -77,11 +73,10 @@ class PollDrawComponent extends Component {
   }
 
   componentDidMount() {
-    const { annotation } = this.props;
+    const { annotation, isLayoutSwapped } = this.props;
     const { pollType, numResponders } = annotation;
     if (pollType === PollService.pollTypes.Response && numResponders === 0) return;
 
-    const isLayoutSwapped = getSwapLayout() && shouldEnableSwapLayout();
     if (isLayoutSwapped) return;
 
     this.pollInitialCalculation();

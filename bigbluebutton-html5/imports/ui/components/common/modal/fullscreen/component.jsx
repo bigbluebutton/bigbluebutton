@@ -118,6 +118,7 @@ class ModalFullscreen extends PureComponent {
               disabled={dismiss.disabled}
               onClick={() => this.handleAction('dismiss')}
               aria-describedby="modalDismissDescription"
+              color="secondary"
             />
             <Styled.ConfirmButton
               data-test="modalConfirmButton"

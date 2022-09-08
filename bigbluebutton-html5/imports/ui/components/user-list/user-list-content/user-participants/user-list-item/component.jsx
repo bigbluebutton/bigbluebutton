@@ -424,6 +424,7 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToUnmuteAudio
+          && !user.locked
           && !userLocks.userMic
           && isMeteorConnected
           && !meetingIsBreakout
@@ -653,6 +654,7 @@ class UserListItem extends PureComponent {
       user,
       intl,
       isThisMeetingLocked,
+      userInBreakout,
       userLastBreakout,
       isMe,
       isRTL,
@@ -746,7 +748,7 @@ class UserListItem extends PureComponent {
       if (LABEL.guest) userNameSub.push(intl.formatMessage(messages.guest));
     }
 
-    if (userLastBreakout) {
+    if (userInBreakout && userLastBreakout) {
       userNameSub.push(
         <span key={_.uniqueId('breakout-')}>
           <Icon iconName="rooms" />

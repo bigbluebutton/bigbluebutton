@@ -20,7 +20,7 @@ export default withTracker(() => ({
   getBreakouts: ActionsBarService.getBreakouts,
   getLastBreakouts: ActionsBarService.getLastBreakouts,
   getBreakoutUserWasIn: BreakoutRoomService.getBreakoutUserWasIn,
-  getUsersNotAssigned: ActionsBarService.getUsersNotAssigned,
+  getUsersNotJoined: ActionsBarService.getUsersNotJoined,
   sendInvitation: ActionsBarService.sendInvitation,
   breakoutJoinedUsers: ActionsBarService.breakoutJoinedUsers(),
   users: ActionsBarService.users(),
@@ -28,4 +28,5 @@ export default withTracker(() => ({
   isMe: ActionsBarService.isMe,
   meetingName: ActionsBarService.meetingName(),
   amIModerator: ActionsBarService.amIModerator(),
+  moveUser: ActionsBarService.moveUser,
 }))(CreateBreakoutRoomContainer);

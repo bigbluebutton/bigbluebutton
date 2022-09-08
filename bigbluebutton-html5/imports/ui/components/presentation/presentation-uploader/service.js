@@ -6,6 +6,7 @@ import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 import { Random } from 'meteor/random'
+import Meetings from '/imports/api/meetings';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -46,6 +47,7 @@ const getPresentations = () => Presentations
       removable,
       id,
       name,
+      exportation,
     } = presentation;
 
     const uploadTimestamp = id.split('-').pop();
@@ -59,6 +61,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
+      exportation: exportation || { isRunning: false, error: false },
     };
   });
 
@@ -68,7 +71,7 @@ const dispatchTogglePresentationDownloadable = (presentation, newState) => {
 
 const observePresentationConversion = (
   meetingId,
-  tmpPresId,
+  temporaryPresentationId,
   onConversion,
 ) => new Promise((resolve) => {
   const conversionTimeout = setTimeout(() => {
@@ -89,7 +92,7 @@ const observePresentationConversion = (
 
     query.observe({
       added: (doc) => {
-        if (doc.temporaryPresentationId !== tmpPresId) return;
+        if (doc.temporaryPresentationId !== temporaryPresentationId) return;
 
         if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
           onConversion(doc.conversion);
@@ -98,7 +101,7 @@ const observePresentationConversion = (
         }
       },
       changed: (newDoc) => {
-        if (newDoc.temporaryPresentationId !== tmpPresId) return;
+        if (newDoc.temporaryPresentationId !== temporaryPresentationId) return;
 
         onConversion(newDoc.conversion);
 
@@ -117,12 +120,12 @@ const observePresentationConversion = (
 });
 
 const requestPresentationUploadToken = (
-  tmpPresId,
+  temporaryPresentationId,
   podId,
   meetingId,
   filename,
 ) => new Promise((resolve, reject) => {
-  makeCall('requestPresentationUploadToken', podId, filename, tmpPresId);
+  makeCall('requestPresentationUploadToken', podId, filename, temporaryPresentationId);
 
   let computation = null;
   const timeout = setTimeout(() => {
@@ -132,13 +135,13 @@ const requestPresentationUploadToken = (
 
   Tracker.autorun((c) => {
     computation = c;
-    const sub = Meteor.subscribe('presentation-upload-token', podId, filename, tmpPresId);
+    const sub = Meteor.subscribe('presentation-upload-token', podId, filename, temporaryPresentationId);
     if (!sub.ready()) return;
 
     const PresentationToken = PresentationUploadToken.findOne({
       podId,
       meetingId,
-      tmpPresId,
+      temporaryPresentationId,
       used: false,
     });
 
@@ -165,13 +168,13 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
 ) => {
-  const tmpPresId = _.uniqueId(Random.id(20))
+  const temporaryPresentationId = _.uniqueId(Random.id(20))
 
   const data = new FormData();
   data.append('fileUpload', file);
   data.append('conference', meetingId);
   data.append('room', meetingId);
-  data.append('temporaryPresentationId', tmpPresId);
+  data.append('temporaryPresentationId', temporaryPresentationId);
 
   // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
   data.append('pod_id', podId);
@@ -183,12 +186,12 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  return requestPresentationUploadToken(tmpPresId, podId, meetingId, file.name)
+  return requestPresentationUploadToken(temporaryPresentationId, podId, meetingId, file.name)
     .then((token) => {
       makeCall('setUsedToken', token);
       return futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress);
     })
-    .then(() => observePresentationConversion(meetingId, tmpPresId, onConversion))
+    .then(() => observePresentationConversion(meetingId, temporaryPresentationId, onConversion))
     // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
@@ -197,7 +200,7 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      observePresentationConversion(meetingId, tmpPresId, onConversion);
+      observePresentationConversion(meetingId, temporaryPresentationId, onConversion);
       onUpload({ error: true, done: true, status: error.code });
       return Promise.resolve();
     });
@@ -268,9 +271,62 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
     .then(removePresentations.bind(null, presentationsToRemove, podId));
 };
 
+const getExternalUploadData = () => {
+  const { meetingProp } = Meetings.findOne(
+    { meetingId: Auth.meetingID },
+    {
+      fields: {
+        'meetingProp.uploadExternalDescription': 1,
+        'meetingProp.uploadExternalUrl': 1
+      },
+    },
+  );
+
+  const { uploadExternalDescription, uploadExternalUrl } = meetingProp;
+
+  return {
+    uploadExternalDescription,
+    uploadExternalUrl,
+  }
+};
+
+const exportPresentationToChat = (presentationId, observer) => {
+  let lastStatus = {};
+
+  Tracker.autorun((c) => {
+    const cursor = Presentations.find({ id: presentationId });
+
+    const checkStatus = (exportation) => {
+      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+
+      if (shouldStop) {
+        observer(exportation, true);
+        return c.stop();
+      }
+
+      observer(exportation, false);
+      lastStatus = exportation;
+    };
+
+    cursor.observe({
+      added: (doc) => {
+        checkStatus(doc.exportation);
+      },
+      changed: (doc) => {
+        checkStatus(doc.exportation);
+      },
+    });
+  });
+
+  makeCall('exportPresentationToChat', presentationId);
+};
+
 export default {
   getPresentations,
   persistPresentationChanges,
   dispatchTogglePresentationDownloadable,
   setPresentation,
+  requestPresentationUploadToken,
+  getExternalUploadData,
+  exportPresentationToChat,
 };
