@@ -4,13 +4,14 @@ case "$1" in
   configure|upgrade|1|2)
 
     TARGET=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
+    BBB_PROPERTIES=/etc/bigbluebutton/bbb-web.properites
 
     cp /usr/local/bigbluebutton/bbb-webhooks/config/default.example.yml $TARGET
     chmod 644 $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-    BBB_SECRET=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2)
-    BBB_HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+    BBB_SECRET=$(cat $BBB_PROPERTIES | grep securitySalt | cut -d= -f2)
+    BBB_HOST=$(cat $BBB_PROPERTIES | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
     yq w -i $TARGET bbb.sharedSecret "$BBB_SECRET"
     yq w -i $TARGET bbb.serverDomain "$BBB_HOST"

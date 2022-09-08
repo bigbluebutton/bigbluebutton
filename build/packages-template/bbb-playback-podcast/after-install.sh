@@ -6,12 +6,9 @@ case "$1" in
   configure|upgrade|1|2)
     
   TARGET=/usr/local/bigbluebutton/core/scripts/podcast.yml
+  BBB_PROPERTIES=/etc/bigbluebutton/bbb-web.properites
 
-  if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-    HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  else
-    HOST=$IP
-  fi
+  HOST=$(cat $BBB_PROPERTIES | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
   if [ -f $TARGET ]; then
     yq w -i $TARGET playback_host $HOST

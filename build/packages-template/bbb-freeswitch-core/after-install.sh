@@ -65,17 +65,5 @@ case "$1" in
 esac
 
 ldconfig
-if [ -f /.dockerenv ]; then
-  # To make it easier to run within Docker, disable IPV6
-  sed -i 's/::/0.0.0.0/g' /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
-  if [ -f /opt/freeswitch/conf/sip_profiles/external-ipv6.xml ]; then
-    mv /opt/freeswitch/conf/sip_profiles/external-ipv6.xml /opt/freeswitch/conf/sip_profiles/external-ipv6.xml_
-  fi
-  if [ -f /opt/freeswitch/conf/sip_profiles/internal-ipv6.xml ]; then
-    mv /opt/freeswitch/conf/sip_profiles/internal-ipv6.xml /opt/freeswitch/conf/sip_profiles/internal-ipv6.xml_
-  fi
-else
-  startService freeswitch.service || echo "freeswitch.service could not be registered or started"
-fi
-
+startService freeswitch.service || echo "freeswitch.service could not be registered or started"

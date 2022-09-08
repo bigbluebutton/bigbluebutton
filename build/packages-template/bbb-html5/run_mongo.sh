@@ -4,9 +4,7 @@ cd `dirname $0`
 rm /mnt/mongo-ramdisk/* -rf
 mkdir /mnt/mongo-ramdisk/ &> /dev/null
 umount /mnt/mongo-ramdisk/  &> /dev/null
-if [ ! -f /.dockerenv ]; then
-  mount -t tmpfs -o size=512m tmpfs /mnt/mongo-ramdisk/ 
-fi
+mount -t tmpfs -o size=512m tmpfs /mnt/mongo-ramdisk/ 
 
 nohup mongod --config ./mongo-ramdisk.conf --oplogSize 8 --replSet rs0 --noauth --nojournal &> /dev/null &
 

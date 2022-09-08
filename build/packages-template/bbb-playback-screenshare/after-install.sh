@@ -24,10 +24,7 @@ case "$1" in
       rm /var/bigbluebutton/published/screenshare/index.html
     fi
  
-    if [ ! -f /.dockerenv ]; then
-      systemctl restart nginx
-    fi
-    
+    systemctl restart nginx
   ;;
   
   failed-upgrade)

@@ -1,11 +1,5 @@
 #!/bin/bash -e
 
-escape_quotes() {
-    cat <<EOF | sed -e "s/'/\\\\'/g"
-$1
-EOF
-}
-
 change_var_value () {
   sed -i "s<^\(${2}\).*<\1=${3}<" $1;
 }
@@ -15,7 +9,8 @@ bbb_new_properties() {
   #
   # Setup lti-config.properties for bbb-lti
   #
-  HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+  BBB_PROPERTIES=/etc/bigbluebutton/bbb-web.properites
+  HOST=$(cat $BBB_PROPERTIES | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
   sed -i "s/^bigbluebuttonURL=.*/bigbluebuttonURL=$PROTOCOL:\/\/$HOST\/bigbluebutton/g" \
     /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties
@@ -23,7 +18,7 @@ bbb_new_properties() {
   sed -i "s/^ltiEndPoint=.*/ltiEndPoint=$HOST/g" \
     /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties
 
-  BBB_SECRET=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2);
+  BBB_SECRET=$(cat $BBB_PROPERTIES | grep securitySalt | cut -d= -f2);
   change_var_value /usr/share/bbb-lti/WEB-INF/classes/lti-config.properties bigbluebuttonSalt $BBB_SECRET
 
   HASH="$RANDOM$(date +%s)$$$RANDOM"

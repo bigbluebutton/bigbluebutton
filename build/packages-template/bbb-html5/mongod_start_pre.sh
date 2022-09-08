@@ -5,9 +5,7 @@ mkdir -p /mnt/mongo-ramdisk
 if /bin/findmnt | grep -q "/mnt/mongo-ramdisk"; then
   umount /mnt/mongo-ramdisk/
 fi
-if [ ! -f /.dockerenv ]; then 
-  mount -t tmpfs -o size=512m tmpfs /mnt/mongo-ramdisk
-fi
+mount -t tmpfs -o size=512m tmpfs /mnt/mongo-ramdisk
 
 if id mongod &> /dev/null; then
   chown -R mongod:mongod /mnt/mongo-ramdisk

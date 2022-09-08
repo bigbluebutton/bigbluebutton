@@ -3,11 +3,7 @@
 case "$1" in
   configure|upgrade|1|2)
 
-  if [ ! -f /.dockerenv ]; then
-    systemctl enable bbb-export-annotations.service
-    systemctl daemon-reload
-    startService bbb-export-annotations.service || echo "bbb-export-annotations service could not be registered or started"
-  fi
+  startService bbb-export-annotations.service || echo "bbb-export-annotations service could not be registered or started"
   ;;
 
   abort-upgrade|abort-remove|abort-deconfigure)

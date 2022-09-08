@@ -75,25 +75,6 @@ else
   echo "Warning: BigBlueButton not installed"
 fi
 
-if [ -f /usr/share/bbb-apps-akka/conf/application.conf ]; then
-  if [ "$(cat /usr/share/bbb-apps-akka/conf/application.conf | sed -n '/sharedSecret.*/{s/[^"]*"//;s/".*//;p}')" == "changeme" ]; then
-    SECRET=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-    sed -i "s/sharedSecret[ ]*=[ ]*\"[^\"]*\"/sharedSecret=\"$SECRET\"/g" \
-       /usr/share/bbb-apps-akka/conf/application.conf
-
-    HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-    sed -i  "s/bbbWebAPI[ ]*=[ ]*\"[^\"]*\"/bbbWebAPI=\"http:\/\/$HOST\/bigbluebutton\/api\"/g" \
-       /usr/share/bbb-apps-akka/conf/application.conf
-    sed -i "s/bbbWebHost[ ]*=[ ]*\"[^\"]*\"/bbbWebHost=\"$HOST\"/g" \
-       /usr/share/bbb-apps-akka/conf/application.conf
-    sed -i "s/deskshareip[ ]*=[ ]*\"[^\"]*\"/deskshareip=\"$HOST\"/g" \
-       /usr/share/bbb-apps-akka/conf/application.conf
-    sed -i "s/defaultPresentationURL[ ]*=[ ]*\"[^\"]*\"/defaultPresentationURL=\"http:\/\/$HOST\/default.pdf\"/g" \
-       /usr/share/bbb-apps-akka/conf/application.conf
-
-  fi
-fi
-
 #
 # Added to enable bbb-record-core to move files #8901
 #

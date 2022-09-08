@@ -10,7 +10,7 @@
 #
 startService() {
   app_name=$1
-  if hash systemctl > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
+  if hash systemctl > /dev/null 2>&1 ; then
     # if there no .service or .timer (or any other suffix), it will add .service suffix
     if [[ ! $app_name =~ ^.*\.[a-z]*$ ]]; then
       app_name="$app_name.service"
@@ -18,17 +18,7 @@ startService() {
     echo "Adding $app_name to autostart using systemd"
     systemctl enable $app_name
     systemctl start $app_name
-  elif hash update-rc.d > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
-    echo "Adding $app_name to autostart using update-rc.d"
-    update-rc.d $app_name defaults
-    service $app_name start
-  elif hash chkconfig > /dev/null 2>&1; then
-    echo "Adding $app_name to autostart using chkconfig"
-    chkconfig --add $app_name
-    chkconfig $app_name on
-    service $app_name start
-  else
-    echo "WARNING: Could not add $app_name to autostart: neither update-rc nor chkconfig found!"
+    echo "WARNING: Could not add $app_name to autostart"
   fi
 }
 
@@ -38,7 +28,7 @@ startService() {
 #
 stopService() {
   app_name=$1
-  if hash systemctl > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
+  if hash systemctl > /dev/null 2>&1 ; then
     # if there no .service or .timer (or any other suffix), it will add .service suffix
     if [[ ! $app_name =~ ^.*\.[a-z]*$ ]]; then
       app_name="$app_name.service"
@@ -50,17 +40,8 @@ stopService() {
     if systemctl is-enabled $app_name > /dev/null 2>&1; then
       systemctl disable $app_name
     fi
-  elif hash update-rc.d > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
-    echo "Removing $app_name from autostart using update-rc.d"
-    update-rc.d -f $app_name remove
-    service $app_name stop
-  elif hash chkconfig > /dev/null 2>&1; then
-    echo "Removing $app_name from autostart using chkconfig"
-    chkconfig $app_name off
-    chkconfig --del $app_name
-    service $app_name stop
   else
-    echo "WARNING: Could not remove $app_name from autostart: neither update-rc nor chkconfig found!"
+    echo "WARNING: Could not remove $app_name from autostart"
   fi
 }
 
@@ -70,7 +51,7 @@ stopService() {
 #
 reloadService() {
   app_name=$1
-  if hash systemctl > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
+  if hash systemctl > /dev/null 2>&1 ; then
   # if there no .service or .timer (or any other suffix), it will add .service suffix
     if [[ ! $app_name =~ ^.*\.[a-z]*$ ]]; then
       app_name="$app_name.service"
@@ -81,11 +62,8 @@ reloadService() {
     else
       startService $app_name
     fi
-  elif hash service > /dev/null 2>&1; then
-    echo "Reloading $app_name using service"
-    service $app_name reload
   else
-    echo "WARNING: Could not reload $app_name: neither update-rc nor chkconfig found!"
+    echo "WARNING: Could not reload $app_name"
   fi
 }
 
@@ -95,7 +73,7 @@ reloadService() {
 #
 restartService() {
   app_name=$1
-  if hash systemctl > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
+  if hash systemctl > /dev/null 2>&1 ; then
     # if there no .service or .timer (or any other suffix), it will add .service suffix
     if [[ ! $app_name =~ ^.*\.[a-z]*$ ]]; then
       app_name="$app_name.service"
@@ -106,11 +84,8 @@ restartService() {
     else
       startService $app_name
     fi
-  elif hash service > /dev/null 2>&1; then
-    echo "Restart $app_name using service"
-    service $app_name restart
   else
-    echo "WARNING: Could not restart $app_name: neither update-rc nor chkconfig found!"
+    echo "WARNING: Could not restart $app_name"
   fi
 }
 
@@ -210,29 +185,6 @@ IP=${IP/\/*} # strip subnet provided by ip address
 if [ -z "$IP" ]; then
   read -r IP _ <<< "$(hostname -I)"
 fi
-
-if [ -f /etc/redhat-release ]; then
-  TOMCAT_SERVICE=tomcat
-else
-  if grep -q focal /etc/lsb-release; then
-    TOMCAT_SERVICE=tomcat9
-  fi
-fi
-
-if [ -f /var/lib/$TOMCAT_SERVICE/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVLET_DIR=/var/lib/$TOMCAT_SERVICE/webapps/bigbluebutton
-else 
-  SERVLET_DIR=/usr/share/bbb-web
-fi
-
-PROTOCOL=http
-if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
-  SERVER_URL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-  if cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep bigbluebutton.web.serverURL | grep -q https; then
-    PROTOCOL=https
-  fi
-fi
-
 
 ##########################
 ### END DEB-HELPERS.SH ###
