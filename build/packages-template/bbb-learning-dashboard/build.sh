@@ -28,7 +28,7 @@ cp learning-dashboard.nginx staging/usr/share/bigbluebutton/nginx
 
 
 # install dependencies, create build, copy build over to destination
-npm ci
+npm ci --omit=dev
 npm run build
 cp -r build/* staging/var/bigbluebutton/learning-dashboard
 
