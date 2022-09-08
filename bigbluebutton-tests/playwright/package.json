@@ -10,7 +10,7 @@
   "dependencies": {
     "@playwright/test": "^1.25.0",
     "playwright": "^1.19.2",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "dotenv": "^16.0.0",
     "sha1": "^1.1.1"
   }
