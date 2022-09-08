@@ -148,7 +148,9 @@ class BbbWebApiGWApp(
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
-                    notifyRecordingIsOn:                    java.lang.Boolean): Unit = {
+                    notifyRecordingIsOn:                    java.lang.Boolean,
+                    uploadExternalDescription:              String,
+                    uploadExternalUrl:                      String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -160,7 +162,9 @@ class BbbWebApiGWApp(
       maxPinnedCameras = maxPinnedCameras.intValue(),
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
-      notifyRecordingIsOn
+      notifyRecordingIsOn,
+      uploadExternalDescription,
+      uploadExternalUrl
     )
 
     val durationProps = DurationProps(
@@ -308,8 +312,8 @@ class BbbWebApiGWApp(
       // Send new event with page urls
       val newEvent = MsgBuilder.buildPresentationPageConvertedSysMsg(msg.asInstanceOf[DocPageGeneratedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
-    } else if (msg.isInstanceOf[OfficeDocConversionProgress]) {
-      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[OfficeDocConversionProgress])
+    } else if (msg.isInstanceOf[DocConversionProgress]) {
+      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[DocConversionProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])

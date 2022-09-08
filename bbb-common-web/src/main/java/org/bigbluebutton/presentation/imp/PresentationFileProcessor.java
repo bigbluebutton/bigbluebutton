@@ -206,7 +206,8 @@ public class PresentationFileProcessor {
             DocPageCountFailed progress = new DocPageCountFailed(pres.getPodId(), pres.getMeetingId(),
                     pres.getId(), pres.getId(),
                     pres.getName(), "notUsedYet", "notUsedYet",
-                    pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY);
+                    pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.PAGE_COUNT_FAILED_KEY,
+                    pres.getTemporaryPresentationId());
 
             notifier.sendDocConversionProgress(progress);
 
@@ -232,7 +233,7 @@ public class PresentationFileProcessor {
                     pres.getId(), pres.getId(),
                     pres.getName(), "notUsedYet", "notUsedYet",
                     pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.PAGE_COUNT_EXCEEDED_KEY,
-                    e.getPageCount(), e.getMaxNumberOfPages());
+                    e.getPageCount(), e.getMaxNumberOfPages(), pres.getTemporaryPresentationId());
 
             notifier.sendDocConversionProgress(progress);
         }

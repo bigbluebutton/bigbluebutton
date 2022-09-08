@@ -6,7 +6,7 @@ const redis = require('redis');
 const axios = require('axios').default;
 const path = require('path');
 
-const {workerData, parentPort} = require('worker_threads');
+const {workerData} = require('worker_threads');
 
 const [jobType, jobId, filename_with_extension] = workerData;
 
@@ -27,7 +27,11 @@ async function notifyMeetingActor() {
 
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
-  const link = `${config.notifier.protocol}://${config.notifier.host}/bigbluebutton/presentation/${exportJob.parentMeetingId}/${exportJob.parentMeetingId}/${exportJob.presId}/pdf/${jobId}/${filename_with_extension}`;
+
+  const link = path.join(`${path.sep}bigbluebutton`, 'presentation',
+      exportJob.parentMeetingId, exportJob.parentMeetingId,
+      exportJob.presId, 'pdf', jobId, filename_with_extension);
+
   const notification = {
     envelope: {
       name: config.notifier.msgName,
@@ -57,7 +61,7 @@ async function notifyMeetingActor() {
 
 /** Upload PDF to a BBB room */
 async function upload() {
-  const callbackUrl = `http://${config.bbbWeb.host}:${config.bbbWeb.port}/bigbluebutton/presentation/${exportJob.presentationUploadToken}/upload`;
+  const callbackUrl = `${config.bbbWebAPI}/bigbluebutton/presentation/${exportJob.presentationUploadToken}/upload`;
   const formData = new FormData();
   const file = `${exportJob.presLocation}/pdfs/${jobId}/${filename_with_extension}`;
 
@@ -86,5 +90,3 @@ fs.rm(dropbox, {recursive: true}, (err) => {
     throw err;
   }
 });
-
-parentPort.postMessage({message: workerData});

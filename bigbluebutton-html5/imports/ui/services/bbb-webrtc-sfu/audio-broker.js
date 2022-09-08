@@ -28,6 +28,7 @@ class AudioBroker extends BaseBroker {
     // stream,
     // signalCandidates
     // traceLogs
+    // networkPriority
     Object.assign(this, options);
   }
 
@@ -82,6 +83,7 @@ class AudioBroker extends BaseBroker {
             this.onIceCandidate(candidate, this.role);
           },
           trace: this.traceLogs,
+          networkPriorities: this.networkPriority ? { audio: this.networkPriority } : undefined,
         };
 
         const peerRole = this.role === 'sendrecv' ? this.role : 'recvonly';

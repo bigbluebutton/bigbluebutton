@@ -30,6 +30,7 @@ const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
 const MEDIA_TAG = MEDIA.mediaTag.replace(/#/g, '');
 const RECONNECT_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 15000;
+const { audio: NETWORK_PRIORITY } = MEDIA.networkPriorities || {};
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
 const BRIDGE_NAME = 'fullaudio';
@@ -316,6 +317,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           offering: isListenOnly ? LISTEN_ONLY_OFFERING : true,
           signalCandidates: SIGNAL_CANDIDATES,
           traceLogs: TRACE_LOGS,
+          networkPriority: NETWORK_PRIORITY,
         };
 
         this.broker = new AudioBroker(

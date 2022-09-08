@@ -18,9 +18,10 @@ export default function addSlidePositions(
   check(slidePosition, {
     width: Number,
     height: Number,
-    xCamera: Number,
-    yCamera: Number,
-    zoom: Number,
+    x: Number,
+    y: Number,
+    viewBoxWidth: Number,
+    viewBoxHeight: Number,
   });
 
   const selector = {

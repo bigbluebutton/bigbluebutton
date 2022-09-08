@@ -7,8 +7,6 @@ import {
   colorGrayDark,
   colorSuccess,
   colorGrayLightest,
-  colorPrimary,
-  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSizeLarge,
@@ -16,9 +14,6 @@ import {
   statusIconSize,
   borderSize,
   statusInfoHeight,
-  borderRadius,
-  mdPaddingY,
-  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`

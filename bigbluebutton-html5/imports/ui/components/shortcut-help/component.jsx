@@ -162,13 +162,89 @@ const intlMessages = defineMessages({
   presentation: {
     id: 'app.shortcut-help.presentation',
     description: 'presentation tab heading',
-    "app.shortcut-help.whiteboard": "Whiteboard",
   },
   whiteboard: {
     id: 'app.shortcut-help.whiteboard',
     description: 'whiteboard tab heading',
+  },
+  zoomIn: {
+    id: 'app.shortcut-help.zoomIn',
+    description: 'describes the zoom in shortcut key',
+  },
+  zoomOut: {
+    id: 'app.shortcut-help.zoomOut',
+    description: 'describes the zoom out shortcut key',
+  },
+  zoomFit: {
+    id: 'app.shortcut-help.zoomFit',
+    description: 'describes the zoom to fit shortcut key',
+  },
+  zoomSelect: {
+    id: 'app.shortcut-help.zoomSelect',
+    description: 'describes the zoom to selection shortcut key',
+  },
+  flipH: {
+    id: 'app.shortcut-help.flipH',
+    description: 'describes the flip horozontally shortcut key',
+  },
+  flipV: {
+    id: 'app.shortcut-help.flipV',
+    description: 'describes the flip vertically shortcut key',
+  },
+  lock: {
+    id: 'app.shortcut-help.lock',
+    description: 'describes the lock / unlock shape shortcut key',
+  },
+  moveToFront: {
+    id: 'app.shortcut-help.moveToFront',
+    description: 'describes the move to front shortcut key',
+  },
+  moveToBack: {
+    id: 'app.shortcut-help.moveToBack',
+    description: 'describes the move to back shortcut key',
+  },
+  moveForward: {
+    id: 'app.shortcut-help.moveForward',
+    description: 'describes the move forward shortcut key',
+  },
+  moveBackward: {
+    id: 'app.shortcut-help.moveBackward',
+    description: 'describes the move backward shortcut key',
+  },
+  undo: {
+    id: 'app.shortcut-help.undo',
+    description: 'describes the undo shortcut key',
+  },
+  redo: {
+    id: 'app.shortcut-help.redo',
+    description: 'describes the redo shortcut key',
+  },
+  cut: {
+    id: 'app.shortcut-help.cut',
+    description: 'describes the cut shortcut key',
+  },
+  copy: {
+    id: 'app.shortcut-help.copy',
+    description: 'describes the cut shortcut key',
+  },
+  paste: {
+    id: 'app.shortcut-help.paste',
+    description: 'describes the paste shortcut key',
+  },
+  selectAll: {
+    id: 'app.shortcut-help.selectAll',
+    description: 'describes the select all shortcut key',
+  },
+  delete: {
+    id: 'app.shortcut-help.delete',
+    description: 'describes the delete shortcut key',
+  },
+  duplicate: {
+    id: 'app.shortcut-help.duplicate',
+    description: 'describes the duplicate shortcut key',
   }
 });
+
 
 const renderItem = (func, key) => {
   return (
@@ -226,6 +302,7 @@ const ShortcutHelpComponent = (props) => {
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc), intl.formatMessage(intlMessages.previousSlideKey)));
 
   const whiteboardShortcutItems = [];
+  //tools
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.select), '1'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.pencil), '2'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.eraser), '3'));
@@ -236,6 +313,28 @@ const ShortcutHelpComponent = (props) => {
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.arrow), '8'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.text), '9'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.note), '0'));
+  //views
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomFit), '↑ + 1'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomSelect), '↑ + 2'));
+//transform
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipH), '↑ + H'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipV), '↑ + V'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.lock), 'Ctrl ↑ L'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToFront), '↑ ]'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveForward), ']'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveBackward), '['));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToBack), '↑ ['));
+  //edit
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.undo), 'Ctrl Z'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.redo), 'Ctrl ↑ Z'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.cut), 'Ctrl X'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.copy), 'Ctrl C'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.paste), 'Ctrl V'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.selectAll), 'Ctrl A'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.delete), 'Del'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.duplicate), 'Ctrl D'));
 
   return (
     <Modal

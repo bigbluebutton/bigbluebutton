@@ -171,6 +171,7 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
+          dataTest: "presentationSnapshot",
           onClick: async () => {
             setState({
               loading: true,
@@ -189,7 +190,7 @@ const PresentationMenu = (props) => {
 
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
-              const svgString = copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
               const container = document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;

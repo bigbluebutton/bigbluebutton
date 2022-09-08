@@ -171,6 +171,7 @@
     "app.presentation.options.fullscreen": "Полный экран",
     "app.presentation.options.exitFullscreen": "Выход из режима полного экрана",
     "app.presentation.options.minimize": "Свернуть",
+    "app.presentation.options.snapshot": "Скриншот текущего слайда",
     "app.presentation.options.downloading": "Загрузка...",
     "app.presentation.options.downloaded": "Текущая презентация была скачана",
     "app.presentation.options.downloadFailed": "Невозможно скачать текущую презентацию",

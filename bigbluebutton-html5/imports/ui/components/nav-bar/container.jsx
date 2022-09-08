@@ -57,7 +57,7 @@ const NavBarContainer = ({ children, ...props }) => {
 
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
-  if (hideNavBar) return null;
+  if (hideNavBar || navBar.display === false) return null;
 
   return (
     <NavBar

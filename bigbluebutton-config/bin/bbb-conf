@@ -346,9 +346,10 @@ stop_bigbluebutton () {
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
+      systemctl stop $TOMCAT_SERVICE
     fi
 
-    systemctl stop $TOMCAT_SERVICE bigbluebutton.target
+    systemctl stop bigbluebutton.target
 }
 
 start_bigbluebutton () {
@@ -377,17 +378,17 @@ start_bigbluebutton () {
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
         TOMCAT_SERVICE=$TOMCAT_USER
+
+        [ -z "$TOMCAT_SERVICE" ] || systemctl start $TOMCAT_SERVICE || {
+            echo
+            echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI."
+            echo "#     Run the command:"
+            echo "#       sudo journalctl -u $TOMCAT_SERVICE"
+            echo "#     To better understand the ERROR"
+        }
     fi
 
-    systemctl start $TOMCAT_SERVICE || {
-        echo
-        echo "# Warning: $TOMCAT_SERVICE could not be started. Please, check BBB-LTI."
-        echo "#     Run the command:"
-        echo "#       sudo journalctl -u $TOMCAT_SERVICE"
-        echo "#     To better understand the ERROR"
-    }
-
-    systemctl start bigbluebutton.target nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
+    systemctl start bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -434,7 +435,7 @@ display_bigbluebutton_status () {
         units="$units etherpad"
     fi
 
-    if [ -f /lib/systemd/system/bbb-web.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-web.service ]; then
         units="$units bbb-web"
     fi
 
@@ -442,7 +443,7 @@ display_bigbluebutton_status () {
         units="$units bbb-webhooks"
     fi
 
-    if [ -f /lib/systemd/system/bbb-lti.service ]; then
+    if [ -f /usr/lib/systemd/system/bbb-lti.service ]; then
         units="$units bbb-lti"
     fi
 
@@ -452,6 +453,18 @@ display_bigbluebutton_status () {
 
     if [ -f /usr/lib/systemd/system/bbb-export-annotations.service ]; then
         units="$units bbb-export-annotations"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-rap-caption-inbox.service ]; then
+        units="$units bbb-rap-caption-inbox"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-rap-resque-worker.service ]; then
+        units="$units bbb-rap-resque-worker"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-rap-starter.service ]; then
+        units="$units bbb-rap-starter"
     fi
 
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
@@ -885,14 +898,18 @@ check_state() {
 
     if ! ss -ant | grep '8090' > /dev/null; then
         print_header
-        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
+        if [ ! -z "$TOMCAT_SERVICE" ]; then
+            NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
+        fi
     else
         if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
         print_header
         RUNNING_APPS="${RUNNING_APPS} Grails"
         echo "#   ${TOMCAT_USER}:      noticed you are running grails run-app instead of ${TOMCAT_USER}"
         else
-            RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
+            if [ ! -z "$TOMCAT_SERVICE" ]; then
+                RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
+            fi
         fi
     fi
 
