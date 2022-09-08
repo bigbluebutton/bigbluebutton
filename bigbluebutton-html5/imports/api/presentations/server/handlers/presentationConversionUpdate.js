@@ -25,6 +25,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
 
   const {
     presentationId, podId, messageKey: status, presName: presentationName,
+    temporaryPresentationId
   } = body;
 
   check(meetingId, String);
@@ -73,9 +74,17 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     id: presentationId ?? body.presentationToken,
   };
 
-  const modifier = {
-    $set: Object.assign({ meetingId, podId }, statusModifier),
-  };
+  let modifier
+  if (temporaryPresentationId){
+    modifier = {
+      $set: Object.assign({ meetingId, podId, temporaryPresentationId, }, statusModifier),
+    };
+  } else {
+    modifier = {
+      $set: Object.assign({ meetingId, podId }, statusModifier),
+    };
+  }
+  
 
   try {
     const { insertedId } = Presentations.upsert(selector, modifier);

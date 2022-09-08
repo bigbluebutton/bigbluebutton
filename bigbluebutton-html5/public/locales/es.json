@@ -279,7 +279,7 @@
     "app.poll.start.label" : "Iniciar votación/encuesta",
     "app.poll.secretPoll.label" : "Encuesta anónima",
     "app.poll.secretPoll.isSecretLabel": "La encuesta es anónima. No podrás ver las respuestas individuales.",
-    "app.poll.questionErr": "Se requiere una respuesta.",
+    "app.poll.questionErr": "Se requiere una pregunta.",
     "app.poll.optionErr": "Introducir una opción a la votación/encuesta",
     "app.poll.startPollDesc": "Inicia la encuesta",
     "app.poll.showRespDesc": "Muestra la configuración de respuestas",

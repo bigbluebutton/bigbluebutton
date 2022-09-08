@@ -39,9 +39,8 @@ public class MaxParticipantsValidator implements ConstraintValidator<MaxParticip
         boolean rejoin = meeting.getUserById(userSession.internalUserId) != null;
         boolean reenter = meeting.getEnteredUserById(userSession.internalUserId) != null;
         int joinedUsers = meeting.getUsers().size();
-        int enteredUsers = meeting.getEnteredUsers().size();
 
-        boolean reachedMax = (joinedUsers + enteredUsers) >= maxParticipants;
+        boolean reachedMax = joinedUsers >= maxParticipants;
         if(enabled && !rejoin && !reenter && reachedMax) {
             return false;
         }
