@@ -15,6 +15,12 @@ bbb_config() {
   if [ ! -L /usr/share/bbb-web/logs ]; then  # create symbolic link
     ln -s /var/log/bigbluebutton /usr/share/bbb-web/logs
   fi
+
+  # web.nginx pointing to web vs web_dev to switch between production and dev env
+  if [ ! -L /usr/share/bigbluebutton/nginx/web.nginx ]; then
+    ln -s /usr/share/bigbluebutton/nginx/web /usr/share/bigbluebutton/nginx/web.nginx
+  fi
+
   chown bigbluebutton:bigbluebutton /var/log/bigbluebutton
   touch /var/log/bigbluebutton/bbb-web.log
   chown bigbluebutton:bigbluebutton /var/log/bigbluebutton/bbb-web.log
