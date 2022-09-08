@@ -8,6 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Logger from '/imports/startup/client/logger';
+import { formatLocaleCode } from '/imports/utils/string-utils';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -136,6 +137,8 @@ class IntlStartup extends Component {
               }
 
               const dasherizedLocale = normalizedLocale.replace('_', '-');
+              const { language, formattedLocale } = formatLocaleCode(dasherizedLocale);
+
               this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
                 Settings.application.locale = dasherizedLocale;
                 if (RTL_LANGUAGES.includes(dasherizedLocale.substring(0, 2))) {
@@ -147,6 +150,8 @@ class IntlStartup extends Component {
                 }
                 Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(dasherizedLocale.substring(0, 2)));
                 window.dispatchEvent(new Event('localeChanged'));
+                document.getElementsByTagName('html')[0].lang = formattedLocale;
+                document.body.classList.add(`lang-${language}`);
                 Settings.save();
               });
             });
@@ -157,7 +162,7 @@ class IntlStartup extends Component {
   render() {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
-    const locale = normalizedLocale?.replace('@', '-');
+    const { formattedLocale } = formatLocaleCode(normalizedLocale);
 
     return (
       <>
@@ -165,7 +170,7 @@ class IntlStartup extends Component {
 
         {normalizedLocale
           && (
-          <IntlProvider fallbackOnEmptyString={FALLBACK_ON_EMPTY_STRING} locale={locale} messages={messages}>
+          <IntlProvider fallbackOnEmptyString={FALLBACK_ON_EMPTY_STRING} locale={formattedLocale} messages={messages}>
             {children}
           </IntlProvider>
           )
