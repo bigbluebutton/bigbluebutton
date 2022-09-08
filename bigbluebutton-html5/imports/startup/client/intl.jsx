@@ -157,6 +157,7 @@ class IntlStartup extends Component {
   render() {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
+    const locale = normalizedLocale?.replace('@', '-');
 
     return (
       <>
@@ -164,7 +165,7 @@ class IntlStartup extends Component {
 
         {normalizedLocale
           && (
-          <IntlProvider fallbackOnEmptyString={FALLBACK_ON_EMPTY_STRING} locale={normalizedLocale} messages={messages}>
+          <IntlProvider fallbackOnEmptyString={FALLBACK_ON_EMPTY_STRING} locale={locale} messages={messages}>
             {children}
           </IntlProvider>
           )
