@@ -20,6 +20,8 @@
     "app.chat.multi.typing": "Više sudionika tipka odjednom",
     "app.chat.one.typing": "{0} tipka",
     "app.chat.two.typing": "{0} i {1} tipkaju",
+    "app.chat.copySuccess": "Transkript chata je kopiran",
+    "app.chat.copyErr": "Kopiranje transkripta chata nije uspjelo",
     "app.captions.label": "Titlovi",
     "app.captions.menu.close": "Zatvori",
     "app.captions.menu.start": "Pokreni",

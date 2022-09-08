@@ -45,8 +45,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const endMeeting = (code) => {
+const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
+  Session.set('errorMessageDescription', ejectedReason);
   Session.set('isMeetingEnded', true);
 };
 
@@ -192,8 +193,15 @@ const currentUserEmoji = (currentUser) => (currentUser
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
-    removed() {
-      endMeeting('403');
+    removed(userData) {
+      // wait 3secs (before endMeeting), client will try to authenticate again
+      const delayForReconnection = userData.ejected ? 0 : 3000;
+      setTimeout(() => {
+        const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
+        if (queryCurrentUser.count() === 0) {
+          endMeeting(403, userData.ejectedReason || null);
+        }
+      }, delayForReconnection);
     },
   });
 
@@ -273,7 +281,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
-    isModerator: currentUser.role === ROLE_MODERATOR,
+    isModerator: currentUser?.role === ROLE_MODERATOR,
     meetingLayout: layout,
     meetingLayoutUpdatedAt: layoutUpdatedAt,
     presentationIsOpen,
