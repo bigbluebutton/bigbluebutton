@@ -640,7 +640,7 @@ class App extends Component {
     return (
       <>
         <Notifications />
-        <LayoutEngine layoutType={selectedLayout} />
+        {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
         <GlobalStyles />
         <Styled.Layout
           id="layout"
