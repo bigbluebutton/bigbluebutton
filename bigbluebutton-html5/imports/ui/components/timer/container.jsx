@@ -1,13 +1,15 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Timer from './component';
 import Service from './service';
-import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 
 const TimerContainer = ({ children, ...props }) => {
   const layoutContextDispatch = layoutDispatch();
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  const { isResizing } = cameraDock;
   return (
-    <Timer {...{ layoutContextDispatch, ...props}}>
+    <Timer {...{ layoutContextDispatch, isResizing, ...props }}>
       {children}
     </Timer>
   );

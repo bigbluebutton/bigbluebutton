@@ -119,40 +119,26 @@ const StopwatchTime = styled.div`
   }
 `;
 
+const StopwatchTimeInput = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  .label {
+    display: flex;
+    font-size: small;
+    justify-content: center;
+  }
+`;
+
+const StopwatchTimeInputLabel = styled.div`
+  display: flex;
+  font-size: small;
+  justify-content: center;
+`;
+
 const StopwatchTimeColon = styled.span`
   align-self: center;
   padding: 0 .25rem;
-`;
-
-const TimerPreset = styled.span`
-  display: flex;
-  width: 100%;
-  margin-top: 1rem;
-  flex-direction: column;
-`;
-
-const TimerLine = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  padding: .5rem 0;
-`;
-
-const TimerPresetButton = styled(Button)`
-  margin: 0 .5rem;
-`
-
-const TimerControls = styled.div`
-  margin-top: 4rem;
-  height: 3rem;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-`;
-
-const TimerControlButton = styled(Button)`
-  width: 6rem;
-  margin: 0 1rem;
 `;
 
 const TimerSongsWrapper = styled.div`
@@ -162,7 +148,7 @@ const TimerSongsWrapper = styled.div`
   margin-bottom: -2rem;
 `;
 
-const TimerRow = styled.div`
+const TimerRow = `
   display: flex;
   flex-flow: row;
   flex-grow: 1;
@@ -175,20 +161,23 @@ const TimerCol = `
   justify-content: center;
   align-items: center;
 `;
-
-const TimerSongTitle = styled.div`
-  ${TimerCol}
+// talvez deva haver um col dentro desse estilo
+const TimerSongsTitle = styled.div`
+  ${TimerRow}
   font-weight: bold;
   font-size: 1.1rem;
-  opacity: ${({ disabled }) => (disabled ? '50%' : '100%')}
+  opacity: ${(stopwatch) => (stopwatch ? '50%' : '100%')}
 `;
 
-const TimerOptionsWrapper = styled.div`
+const TimerTracks = styled.div`
   ${TimerCol}
-  display: flex;
-  flex-flow: column;
   margin-top: 0.8rem;
   margin-bottom: 2rem;
+  width: 15rem;
+  
+  .row {
+    margin: 0.5rem auto;
+  }
 
   label {
     display: flex;
@@ -197,11 +186,23 @@ const TimerOptionsWrapper = styled.div`
   input {
     margin: auto 0.5rem;
   }
-  opacity: ${({ disabled }) => (disabled ? '50%' : '100%')}
 `;
 
-const TimerSongsContainer = styled.div`
-  width: 15rem;
+const TimerTrackItem = styled.div`
+  ${TimerRow}
+`;
+
+const TimerControls = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-top: 4rem;
+  height: 3rem;
+`;
+
+const TimerControlButton = styled(Button)`
+  width: 6rem;
+  margin: 0 1rem;
 `;
 
 export default {
@@ -214,16 +215,13 @@ export default {
   TimerType,
   TimerSwitchButton,
   StopwatchTime,
+  StopwatchTimeInput,
+  StopwatchTimeInputLabel,
   StopwatchTimeColon,
-  TimerPreset,
-  TimerLine,
-  TimerPresetButton,
+  TimerSongsWrapper,
+  TimerSongsTitle,
+  TimerTracks,
+  TimerTrackItem,
   TimerControls,
   TimerControlButton,
-  TimerSongsWrapper,
-  TimerSongTitle,
-  TimerRow,
-  TimerCol,
-  TimerOptionsWrapper,
-  TimerSongsContainer,
 };

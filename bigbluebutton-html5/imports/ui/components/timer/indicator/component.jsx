@@ -327,12 +327,12 @@ class Indicator extends Component {
     return (
       <Styled.TimerWrapper>
         <Styled.Timer>
-          <Styled.TimerIndicator
-            role="button"
-            tabIndex={0}
+          <Styled.TimerButton
             running={running}
             disabled={!isModerator}
             hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+            role="button"
+            tabIndex={0}
             onClick={isModerator ? onClick : null}
           >
             <Styled.TimerContent>
@@ -346,7 +346,7 @@ class Indicator extends Component {
                 {time}
               </Styled.TimerTime>
             </Styled.TimerContent>
-          </Styled.TimerIndicator>
+          </Styled.TimerButton>
         </Styled.Timer>
       </Styled.TimerWrapper>
     );

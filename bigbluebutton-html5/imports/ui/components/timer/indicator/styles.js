@@ -4,9 +4,8 @@ import { borderRadius } from '/imports/ui/stylesheets/styled-components/general'
 import {
   colorSuccess,
   colorDanger,
-  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase, fontSizeSmall, fontSizeXS } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase, fontSizeXS } from '/imports/ui/stylesheets/styled-components/typography';
 
 const colorTimerRunning = `${colorSuccess}`;
 const colorTimerStopped = `${colorDanger}`;
@@ -20,7 +19,6 @@ const timerFontWeight = `400`;
 const timerBorderRadius = `2rem`;
 
 const TimerWrapper = styled.div`
-  display: flex;
   overflow: hidden;
   margin-left: auto;
 `;
@@ -50,7 +48,7 @@ const hiddenStyle = `
   }
 `;
 
-const TimerIndicator = styled.div`
+const TimerButton = styled.div`
   @include highContrastOutline();
   cursor: pointer;
   color: white;
@@ -76,7 +74,7 @@ const TimerIndicator = styled.div`
   }
 
   i {
-    font-size: ${fontSizeSmall};
+    font-size: var(--font-size-small);
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
@@ -103,7 +101,6 @@ const time = `
 const TimerContent = styled.div`
   ${time}
   display: flex;
-  background-color: ${colorBackground}
 
   [dir="ltr"] & {
     span:first-child {
@@ -129,7 +126,7 @@ const TimerTime = styled.span`
 export default {
   TimerWrapper,
   Timer,
-  TimerIndicator,
+  TimerButton,
   TimerContent,
   TimerIcon,
   TimerTime,

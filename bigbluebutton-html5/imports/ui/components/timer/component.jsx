@@ -250,38 +250,31 @@ class Timer extends Component {
 
     return (
       <Styled.TimerSongsWrapper>
-        <Styled.TimerRow>
-          <Styled.TimerSongTitle
-            disabled={stopwatch}
-          >
-            {intl.formatMessage(intlMessages.songs)}
-          </Styled.TimerSongTitle>
-        </Styled.TimerRow>
-        <Styled.TimerOptionsWrapper
-          disabled={stopwatch}
+        <Styled.TimerSongsTitle
+          stopwatch={stopwatch}
         >
-          <Styled.TimerSongsContainer>
-            {Service.TRACKS.map((track) => (
-              <Styled.TimerRow
-                key={track}
-              >
-                <label htmlFor={track}>
-                  <input
-                    type="radio"
-                    name="track"
-                    id={track}
-                    value={track}
-                    checked={currentTrack === track}
-                    onChange={Timer.handleOnTrackChange}
-                    disabled={stopwatch}
-                  />
-                  {intl.formatMessage(intlMessages[track])}
-                </label>
-              </Styled.TimerRow>
-            ))
-            }
-          </Styled.TimerSongsContainer>
-        </Styled.TimerOptionsWrapper>
+          {intl.formatMessage(intlMessages.songs)}
+        </Styled.TimerSongsTitle>
+        <Styled.TimerTracks>
+          {Service.TRACKS.map((track) => (
+            <Styled.TimerTrackItem
+              key={track}
+            >
+              <label htmlFor={track}>
+                <input
+                  type="radio"
+                  name="track"
+                  id={track}
+                  value={track}
+                  checked={currentTrack === track}
+                  onChange={Timer.handleOnTrackChange}
+                  disabled={stopwatch}
+                />
+                {intl.formatMessage(intlMessages[track])}
+              </label>
+            </Styled.TimerTrackItem>
+          ))}
+        </Styled.TimerTracks>
       </Styled.TimerSongsWrapper>
     );
   }
@@ -308,35 +301,50 @@ class Timer extends Component {
     return (
       <div>
         <Styled.StopwatchTime>
-          <input
-            type="number"
-            disabled={stopwatch}
-            value={hours}
-            maxLength="2"
-            max={Service.getMaxHours()}
-            min="0"
-            onChange={(event) => this.handleOnHoursChange(event)}
-          />
+          <Styled.StopwatchTimeInput>
+            <input
+              type="number"
+              disabled={stopwatch}
+              value={hours}
+              maxLength="2"
+              max={Service.getMaxHours()}
+              min="0"
+              onChange={(event) => this.handleOnHoursChange(event)}
+            />
+            <Styled.StopwatchTimeInputLabel>
+              {intl.formatMessage(intlMessages.hours)}
+            </Styled.StopwatchTimeInputLabel>
+          </Styled.StopwatchTimeInput>
           <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
-          <input
-            type="number"
-            disabled={stopwatch}
-            value={minutes}
-            maxLength="2"
-            max="59"
-            min="0"
-            onChange={(event) => this.handleOnMinutesChange(event)}
-          />
+          <Styled.StopwatchTimeInput>
+            <input
+              type="number"
+              disabled={stopwatch}
+              value={minutes}
+              maxLength="2"
+              max="59"
+              min="0"
+              onChange={(event) => this.handleOnMinutesChange(event)}
+            />
+            <Styled.StopwatchTimeInputLabel>
+              {intl.formatMessage(intlMessages.minutes)}
+            </Styled.StopwatchTimeInputLabel>
+          </Styled.StopwatchTimeInput>
           <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
-          <input
-            type="number"
-            disabled={stopwatch}
-            value={seconds}
-            maxLength="2"
-            max="59"
-            min="0"
-            onChange={(event) => this.handleOnSecondsChange(event)}
-          />
+          <Styled.StopwatchTimeInput>
+            <input
+              type="number"
+              disabled={stopwatch}
+              value={seconds}
+              maxLength="2"
+              max="59"
+              min="0"
+              onChange={(event) => this.handleOnSecondsChange(event)}
+            />
+            <Styled.StopwatchTimeInputLabel>
+              {intl.formatMessage(intlMessages.seconds)}
+            </Styled.StopwatchTimeInputLabel>
+          </Styled.StopwatchTimeInput>
         </Styled.StopwatchTime>
         { Service.isMusicEnabled()
           ? this.renderSongSelectorRadios() : null}
@@ -348,26 +356,32 @@ class Timer extends Component {
   renderContent() {
     const {
       intl,
+      isResizing,
       timer,
     } = this.props;
 
     const { stopwatch } = timer;
 
     return (
-      <Styled.TimerContent>
-        <Styled.TimerCurrent>
+      <Styled.TimerContent
+        isResizing={isResizing}
+      >
+        <Styled.TimerCurrent
+          aria-hidden
+          ref={this.timeRef}
+        >
           {this.getTime()}
         </Styled.TimerCurrent>
         <Styled.TimerType>
           <Styled.TimerSwitchButton
-            color={stopwatch ? 'primary' : 'default'}
             label={intl.formatMessage(intlMessages.stopwatch)}
             onClick={() => this.handleSwitchToStopwatch()}
+            color={stopwatch ? 'primary' : 'default'}
           />
           <Styled.TimerSwitchButton
-            color={stopwatch ? 'default' : 'primary'}
             label={intl.formatMessage(intlMessages.timer)}
             onClick={() => this.handleSwitchToTimer()}
+            color={!stopwatch ? 'primary' : 'default'}
           />
         </Styled.TimerType>
         {this.renderTimer()}
@@ -386,7 +400,7 @@ class Timer extends Component {
     } = this.props;
 
     if (!isActive || !isModerator) {
-      Service.closePanel(layoutContextDispatch)
+      Service.closePanel(layoutContextDispatch);
       return null;
     }
 
@@ -398,14 +412,12 @@ class Timer extends Component {
         data-test="timer"
       >
         <Styled.TimerHeader>
-          <Styled.TimerTitle
-            data-test="timerTitle"
-          >
+          <Styled.TimerTitle>
             <Styled.TimerMinimizeButton
               onClick={() => Service.closePanel(layoutContextDispatch)}
               aria-label={intl.formatMessage(intlMessages.hideTimerLabel)}
               label={intl.formatMessage(message)}
-              icon={isRTL ? "right_arrow" : "left_arrow"}
+              icon={isRTL ? 'right_arrow' : 'left_arrow'}
             />
           </Styled.TimerTitle>
         </Styled.TimerHeader>

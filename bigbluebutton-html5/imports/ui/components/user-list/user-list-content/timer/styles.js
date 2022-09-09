@@ -1,13 +1,9 @@
 import styled from 'styled-components';
+
 import Styled from '/imports/ui/components/user-list/styles';
 import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
 
-const ListItem = styled(StyledContent.ListItem)`
-  ${({ $disabled }) => $disabled && `
-    cursor: not-allowed;
-    border: none;
-  `}
-`;
+const ListItem = styled(StyledContent.ListItem)``;
 
 const Messages = styled(Styled.Messages)``;
 
