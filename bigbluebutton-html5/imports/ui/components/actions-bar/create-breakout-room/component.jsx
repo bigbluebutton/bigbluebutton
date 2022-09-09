@@ -814,6 +814,7 @@ class BreakoutRoom extends PureComponent {
                   onBlur={changeRoomName(value)}
                   aria-label={`${this.getRoomName(value)}`}
                   aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
+                  data-test="roomName"
                 />
                 <div aria-hidden id={`room-input-${value}`} className="sr-only">
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
@@ -884,6 +885,7 @@ class BreakoutRoom extends PureComponent {
                 onChange={this.changeDurationTime}
                 onBlur={this.blurDurationTime}
                 aria-label={intl.formatMessage(intlMessages.duration)}
+                data-test="durationTime"
               />
               <Styled.HoldButtonWrapper
                 key="decrease-breakout-time"
@@ -901,6 +903,7 @@ class BreakoutRoom extends PureComponent {
                   hideLabel
                   circle
                   size="sm"
+                  data-test="decreaseBreakoutTime"
                 />
               </Styled.HoldButtonWrapper>
               <Styled.HoldButtonWrapper
@@ -917,6 +920,7 @@ class BreakoutRoom extends PureComponent {
                   hideLabel
                   circle
                   size="sm"
+                  data-test="increaseBreakoutTime"
                 />
               </Styled.HoldButtonWrapper>
             </Styled.DurationArea>
@@ -1185,7 +1189,9 @@ class BreakoutRoom extends PureComponent {
   renderTitle() {
     const { intl, isUpdate } = this.props;
     return (
-      <Styled.SubTitle>
+      <Styled.SubTitle
+        data-test='titulo'
+      >
         { isUpdate
           ? intl.formatMessage(intlMessages.breakoutRoomUpdateDesc)
           : intl.formatMessage(intlMessages.breakoutRoomDesc) }

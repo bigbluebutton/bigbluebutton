@@ -49,6 +49,7 @@ exports.muteMicButton = 'button[data-test="muteMicButton"]';
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
 exports.randomlyAssign = 'button[data-test="randomlyAssign"]';
+exports.resetAssignments = 'button[data-test="resetAssignments"]'
 exports.breakoutRoomsItem = 'div[data-test="breakoutRoomsItem"]';
 exports.alreadyConnected = 'span[data-test="alreadyConnected"]';
 exports.askJoinRoom1 = 'button[data-test="askToJoinRoom1"]';
@@ -56,6 +57,16 @@ exports.joinRoom1 = 'button[data-test="joinRoom1"]';
 exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
 exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
+exports.durationTime = 'input[data-test="durationTime"]';
+exports.decreaseBreakoutTime = 'button[data-test="decreaseBreakoutTime"]';
+exports.increaseBreakoutTime = 'button[data-test="increaseBreakoutTime"]';
+exports.numberDurationTime = 'input[value="16"]';
+exports.numberDurationTime15 = 'input[value="15"]';
+exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
+exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
+exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
+exports.roomName = 'input[aria-describedby="room-input-1"]';
+exports.roomNameTest = 'input[aria-label="Room1Teste"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';

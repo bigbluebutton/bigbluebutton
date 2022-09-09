@@ -12,6 +12,30 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
+    //Change number of rooms
+    //await this.modPage.waitAndClick(e.selectNumberOfRooms);
+    await this.modPage.getLocator(e.selectNumberOfRooms).selectOption('7');
+    await this.modPage.hasText(e.selectNumberOfRooms, '7');
+
+    //Decrease and Increase breakout time
+    await this.modPage.waitAndClick(e.increaseBreakoutTime);
+    await this.modPage.hasElement(e.numberDurationTime);
+    await this.modPage.waitAndClick(e.decreaseBreakoutTime);
+    await this.modPage.hasElement(e.numberDurationTime15);
+
+    //Reset assignments
+    await this.modPage.waitAndClick(e.randomlyAssign);
+    await this.modPage.waitAndClick(e.resetAssignments);
+
+    //Remove specific assignment
+    //await this.modPage.waitAndClick(e.randomlyAssign);
+    //await this.modPage.getLocator(e.)
+
+    //Change room's name
+    await this.modPage.type(e.roomName, 'Teste');
+    await this.modPage.press('Tab');
+    await this.modPage.hasElement(e.roomNameTest);
+
     await this.modPage.waitAndClick(e.randomlyAssign);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
