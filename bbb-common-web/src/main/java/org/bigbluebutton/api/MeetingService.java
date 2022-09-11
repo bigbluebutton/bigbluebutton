@@ -660,6 +660,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
+      params.put(ApiParams.CAPTURE, message.capture.toString());
       params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
       params.put(ApiParams.DIAL_NUMBER, message.dialNumber);

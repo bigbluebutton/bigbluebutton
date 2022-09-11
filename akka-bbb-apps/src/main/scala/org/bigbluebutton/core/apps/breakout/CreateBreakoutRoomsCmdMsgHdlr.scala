@@ -52,7 +52,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val (internalId, externalId) = BreakoutRoomsUtil.createMeetingIds(liveMeeting.props.meetingProp.intId, i)
       val voiceConf = BreakoutRoomsUtil.createVoiceConfId(liveMeeting.props.voiceProp.voiceConf, i)
 
-      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, voiceConf, room.users)
+      val breakout = BreakoutModel.create(parentId, internalId, externalId, room.name, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, voiceConf, room.users, msg.body.capture)
       rooms = rooms + (breakout.id -> breakout)
     }
 
@@ -71,7 +71,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.password.viewerPass,
         presId, presSlide, msg.body.record,
         liveMeeting.props.breakoutProps.privateChatEnabled,
-        msg.body.capture,
+        breakout.capture,
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)

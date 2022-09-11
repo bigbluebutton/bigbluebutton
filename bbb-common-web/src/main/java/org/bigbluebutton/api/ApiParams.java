@@ -31,6 +31,7 @@ public class ApiParams {
     public static final String DIAL_NUMBER = "dialNumber";
     public static final String DURATION = "duration";
     public static final String FREE_JOIN = "freeJoin";
+    public static final String CAPTURE = "capture";
     public static final String FULL_NAME = "fullName";
     public static final String GUEST_POLICY = "guestPolicy";
     public static final String MEETING_LAYOUT = "meetingLayout";
