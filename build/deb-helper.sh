@@ -18,7 +18,8 @@ startService() {
     echo "Adding $app_name to autostart using systemd"
     systemctl enable $app_name
     systemctl start $app_name
-    echo "WARNING: Could not add $app_name to autostart"
+  else
+    echo "WARNING: Could not add $app_name to autostart via systemctl"
   fi
 }
 
