@@ -1185,9 +1185,9 @@ class PresentationUploader extends Component {
   renderExternalUpload() {
     const { externalUploadData, intl } = this.props;
 
-    const { uploadExternalDescription, uploadExternalUrl } = externalUploadData;
+    const { presentationUploadExternalDescription, presentationUploadExternalUrl } = externalUploadData;
 
-    if (!uploadExternalDescription || !uploadExternalUrl) return null;
+    if (!presentationUploadExternalDescription || !presentationUploadExternalUrl) return null;
 
     return (
       <Styled.ExternalUpload>
@@ -1196,11 +1196,11 @@ class PresentationUploader extends Component {
             {intl.formatMessage(intlMessages.externalUploadTitle)}
           </Styled.ExternalUploadTitle>
 
-          <p>{uploadExternalDescription}</p>
+          <p>{presentationUploadExternalDescription}</p>
         </div>
         <Styled.ExternalUploadButton
           color="default"
-          onClick={() => window.open(`${uploadExternalUrl}`)}
+          onClick={() => window.open(`${presentationUploadExternalUrl}`)}
           label={intl.formatMessage(intlMessages.externalUploadLabel)}
           aria-describedby={intl.formatMessage(intlMessages.externalUploadLabel)}
         />        
