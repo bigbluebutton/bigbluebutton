@@ -21,4 +21,12 @@ test.describe.parallel('Webcam @ci', () => {
     await webcam.init(true, false);
     await webcam.talkingIndicator();
   });
+
+  test('Pinning and unpinning webcams', async ({ browser, context, page }) => {
+    const webcam = new MultiUsers(browser, context);
+    await webcam.initModPage(page);
+    await webcam.initUserPage();
+    await webcam.initModPage2();
+    await webcam.pinningWebcams();
+  });
 });

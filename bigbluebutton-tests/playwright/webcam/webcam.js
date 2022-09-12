@@ -13,6 +13,10 @@ class Webcam extends Page {
     const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
     await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
     await this.hasElement('video');
+    await this.hasElement(e.videoDropdownMenu);
+    await this.waitAndClick(e.leaveVideo);
+    await this.hasElement(e.joinVideo);
+    await this.wasRemoved('video');
   }
 
   async checksContent() {

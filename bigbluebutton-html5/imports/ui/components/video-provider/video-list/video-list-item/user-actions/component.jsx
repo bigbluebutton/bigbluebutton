@@ -90,6 +90,7 @@ const UserActions = (props) => {
       label: intl.formatMessage(intlMessages.mirrorLabel),
       description: intl.formatMessage(intlMessages.mirrorDesc),
       onClick: () => onHandleMirror(),
+      dataTest: 'mirrorWebcamBtn',
     });
 
     if (numOfStreams > 2) {
@@ -98,6 +99,7 @@ const UserActions = (props) => {
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus(cameraId),
+        dataTest: 'FocusWebcamBtn',
       });
     }
 
@@ -107,6 +109,7 @@ const UserActions = (props) => {
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Desc`]),
         onClick: () => VideoService.toggleVideoPin(userId, pinned),
+        dataTest: 'pinWebcamBtn',
       });
     }
 
