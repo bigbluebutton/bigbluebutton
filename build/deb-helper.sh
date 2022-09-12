@@ -10,6 +10,12 @@
 #
 startService() {
   app_name=$1
+  if [ -f /.dockerenv ]; then
+    echo "startService for $app_name and /.dockerenv is present"
+  else
+    echo "startService for $app_name and /.dockerenv is not present"
+  fi
+
   if hash systemctl > /dev/null 2>&1 ; then
     # if there no .service or .timer (or any other suffix), it will add .service suffix
     if [[ ! $app_name =~ ^.*\.[a-z]*$ ]]; then
@@ -18,8 +24,17 @@ startService() {
     echo "Adding $app_name to autostart using systemd"
     systemctl enable $app_name
     systemctl start $app_name
+  elif hash update-rc.d > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
+    echo "Adding $app_name to autostart using update-rc.d"
+    update-rc.d $app_name defaults
+    service $app_name start
+  elif hash chkconfig > /dev/null 2>&1; then
+    echo "Adding $app_name to autostart using chkconfig"
+    chkconfig --add $app_name
+    chkconfig $app_name on
+    service $app_name start
   else
-    echo "WARNING: Could not add $app_name to autostart via systemctl"
+    echo "WARNING: Could not add $app_name to autostart"
   fi
 }
 
