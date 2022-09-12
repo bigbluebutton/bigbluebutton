@@ -24,6 +24,8 @@ startService() {
     echo "Adding $app_name to autostart using systemd"
     systemctl enable $app_name
     systemctl start $app_name
+    journalctl -xe # TEMP TEMP TEMP TEMP TEMP
+    systemctl status freeswitch.service # TEMP TEMP TEMP TEMP TEMP
   elif hash update-rc.d > /dev/null 2>&1 && [ ! -f /.dockerenv ]; then
     echo "Adding $app_name to autostart using update-rc.d"
     update-rc.d $app_name defaults
@@ -35,8 +37,6 @@ startService() {
     service $app_name start
   else
     echo "WARNING: Could not add $app_name to autostart"
-    journalctl -xe # TEMP TEMP TEMP TEMP TEMP
-    systemctl status freeswitch.service # TEMP TEMP TEMP TEMP TEMP
   fi
 }
 
