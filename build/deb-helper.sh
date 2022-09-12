@@ -35,6 +35,8 @@ startService() {
     service $app_name start
   else
     echo "WARNING: Could not add $app_name to autostart"
+    journalctl -xe # TEMP TEMP TEMP TEMP TEMP
+    systemctl status freeswitch.service # TEMP TEMP TEMP TEMP TEMP
   fi
 }
 
