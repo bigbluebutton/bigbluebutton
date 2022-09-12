@@ -1,3 +1,4 @@
+const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
