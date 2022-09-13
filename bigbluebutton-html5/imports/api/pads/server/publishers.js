@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import Logger from '/imports/startup/server/logger';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
+import { PatchEmitter } from './modifiers/sendPadPatch';
 
 function pads() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
@@ -51,7 +53,29 @@ function padsUpdates() {
 
   Logger.info(`Publishing PadsUpdates for ${meetingId} ${userId}`);
 
-  return PadsUpdates.find({ meetingId });
+  return PadsUpdates.find({ meetingId }, { fields: { content: 0 } });
+}
+
+function padsPatches() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing PadsPatches was requested by unauth connection ${this.connection.id}`);
+    return this.ready();
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.info(`Publishing PadsPatches for ${meetingId} ${userId}`);
+
+  PatchEmitter.on('patch', (content) => {
+    if (content.meetingId === meetingId) {
+      this.added('pads-patches', Random.id(), content);
+      Logger.debug(`Sent pad patch external=${content.externalId} meeting=${meetingId}`);
+    }
+  });
+
+  this.ready();
 }
 
 function publishPads(...args) {
@@ -69,8 +93,15 @@ function publishPadsUpdates(...args) {
   return boundPadsUpdates(...args);
 }
 
+function publishPadsPatches(...args) {
+  const boundPadsPatches = padsPatches.bind(this);
+  return boundPadsPatches(...args);
+}
+
 Meteor.publish('pads', publishPads);
 
 Meteor.publish('pads-sessions', publishPadsSessions);
 
 Meteor.publish('pads-updates', publishPadsUpdates);
+
+Meteor.publish('pads-patches', publishPadsPatches);

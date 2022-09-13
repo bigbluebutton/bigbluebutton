@@ -15,7 +15,7 @@ import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import GroupChat from '/imports/api/group-chat';
 import ConnectionStatus from '/imports/api/connection-status';
 import Captions from '/imports/api/captions';
-import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
+import Pads, { PadsSessions, PadsUpdates, PadsPatches } from '/imports/api/pads';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Annotations from '/imports/api/annotations';
 import Breakouts from '/imports/api/breakouts';
@@ -60,6 +60,7 @@ export const localGuestUsersSync = new AbstractCollection(guestUsers, guestUsers
 export const localMeetingsSync = new AbstractCollection(Meetings, Meetings);
 export const localUsersSync = new AbstractCollection(Users, Users);
 export const localNotificationsSync = new AbstractCollection(Notifications, Notifications);
+export const localPadsPatchesSync = new AbstractCollection(PadsPatches, PadsPatches);
 
 const collectionMirrorInitializer = () => {
   localCurrentPollSync.setupListeners();
@@ -95,6 +96,7 @@ const collectionMirrorInitializer = () => {
   localMeetingsSync.setupListeners();
   localUsersSync.setupListeners();
   localNotificationsSync.setupListeners();
+  localPadsPatchesSync.setupListeners();
 };
 
 export default collectionMirrorInitializer;

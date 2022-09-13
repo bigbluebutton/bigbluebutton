@@ -1,8 +1,9 @@
 import _ from 'lodash';
-import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
+import Pads, { PadsPatches, PadsSessions, PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
+import { patch } from '@mconf/bbb-diff';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 const THROTTLE_TIMEOUT = 2000;
@@ -83,17 +84,92 @@ const getPadTail = (externalId) => {
   return '';
 };
 
+const PadsContent = new Mongo.Collection(null);
+
 const getPadContent = (externalId) => {
-  const updates = PadsUpdates.findOne(
+  const content = PadsContent.findOne(
     {
       meetingId: Auth.meetingID,
       externalId,
     }, { fields: { content: 1 } },
   );
 
-  if (updates && updates.content) return updates.content;
+  if (content && content.content) return content.content;
 
   return '';
+};
+
+const setPadContent = (externalId) => {
+  makeCall('getPadContent', externalId).then((payload) => {
+    if (!payload) return;
+
+    const { content, contentLastUpdatedAt } = payload;
+    const selector = { meetingId: Auth.meetingID, externalId };
+    const modifier = {
+      $set: {
+        content,
+        contentLastUpdatedAt,
+      },
+    };
+
+    PadsContent.upsert(selector, modifier);
+  });
+};
+
+const getPadLastUpdate = (externalId) => {
+  const content = PadsContent.findOne(
+    {
+      meetingId: Auth.meetingID,
+      externalId,
+    }, { fields: { contentLastUpdatedAt: 1 } },
+  );
+
+  if (content && content.contentLastUpdatedAt) return content.contentLastUpdatedAt;
+
+  return 0;
+};
+
+const padPatchWatcher = () => {
+  const query = PadsPatches.find({});
+
+  query.observe({
+    added: (patchDoc) => {
+      const { meetingId, externalId, start, end, text, timestamp: patchTimestamp } = patchDoc;
+      const padContent = getPadContent(externalId);
+      const padLastUpdate = getPadLastUpdate(externalId);
+
+      if (patchTimestamp < padLastUpdate) return;
+
+      PadsContent.upsert({ meetingId, externalId }, {
+        $set: {
+          content: patch(padContent, { start, end, text }),
+          contentLastUpdatedAt: patchTimestamp,
+        },
+      });
+    },
+  });
+}
+
+const padContentSetter = (comp) => {
+  const { connected } = Meteor.status();
+  const { loggedIn, meetingID } = Auth;
+  const ready = Session.get('subscriptionsReady');
+  const externalIds = Pads.find(
+    {
+      meetingId: meetingID,
+    },
+    {
+      fields: { externalId: 1 },
+    },
+  ).fetch().map((doc) => doc.externalId);
+
+  if (connected && loggedIn && ready) {
+    externalIds.forEach((externalId, index) => {
+      setPadContent(externalId);
+
+      if (index === externalIds.length - 1 && comp) comp.stop();
+    });
+  }
 };
 
 export default {
@@ -106,4 +182,6 @@ export default {
   getPadTail,
   getPadContent,
   getParams,
+  padPatchWatcher,
+  padContentSetter,
 };

@@ -7,6 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const Pads = new Mongo.Collection('pads', collectionOptions);
 const PadsSessions = new Mongo.Collection('pads-sessions', collectionOptions);
 const PadsUpdates = new Mongo.Collection('pads-updates', collectionOptions);
+const PadsPatches = new Mongo.Collection('pads-patches', collectionOptions);
 
 if (Meteor.isServer) {
   Pads._ensureIndex({ meetingId: 1, externalId: 1 });
@@ -17,6 +18,7 @@ if (Meteor.isServer) {
 export {
   PadsSessions,
   PadsUpdates,
+  PadsPatches,
 };
 
 export default Pads;

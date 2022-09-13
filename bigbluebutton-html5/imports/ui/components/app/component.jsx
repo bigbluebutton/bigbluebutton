@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { throttle } from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Modal from 'react-modal';
+import { Tracker } from 'meteor/tracker';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -49,6 +50,7 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import MediaService from '/imports/ui/components/media/service';
 import ActionsBarContainer from '../actions-bar/container';
 import { updateSettings } from '/imports/ui/components/settings/service';
+import PadsService from '/imports/ui/components/pads/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -275,6 +277,9 @@ class App extends Component {
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
+
+    Tracker.autorun(PadsService.padContentSetter);
+    Tracker.autorun(PadsService.padPatchWatcher);
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
