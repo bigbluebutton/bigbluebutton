@@ -66,6 +66,7 @@ public class ParamsProcessorUtil {
     private String apiVersion;
     private boolean serviceEnabled = false;
     private String securitySalt;
+    private String checksumHash;
     private int defaultMaxUsers = 20;
     private String defaultWelcomeMessage;
     private String defaultWelcomeMessageFooter;
@@ -945,11 +946,26 @@ public class ParamsProcessorUtil {
 		log.info("CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = apiCall + queryString + securitySalt;
-		String cs = DigestUtils.sha1Hex(data);
-		if (checksum.length() == 64) {
-			cs = DigestUtils.sha256Hex(data);
-			log.info("SHA256 {}", cs);
-		}
+        String cs;
+
+        checksumHash = checksumHash.toLowerCase();
+        switch(checksumHash) {
+            case "sha256":
+                cs = DigestUtils.sha256Hex(data);
+                log.info("SHA256 {}", cs);
+            case "sha384":
+                cs = DigestUtils.sha384Hex(data);
+                log.info("SHA384 {}", cs);
+                break;
+            case "sha512":
+                cs = DigestUtils.sha512Hex(data);
+                log.info("SHA512 {}", cs);
+                break;
+            default:
+                cs = DigestUtils.sha1Hex(data);
+                log.info("SHA1 {}", cs);
+        }
+
 		if (cs == null || !cs.equals(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
@@ -1034,6 +1050,8 @@ public class ParamsProcessorUtil {
 	public void setSecuritySalt(String securitySalt) {
 		this.securitySalt = securitySalt;
 	}
+
+	public void setChecksumHash(String checksumHash) { this.checksumHash = checksumHash; }
 
 	public void setDefaultMaxUsers(int defaultMaxUsers) {
 		this.defaultMaxUsers = defaultMaxUsers;

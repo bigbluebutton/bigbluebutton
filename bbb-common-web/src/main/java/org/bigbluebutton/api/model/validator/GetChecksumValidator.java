@@ -20,6 +20,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
     @Override
     public boolean isValid(GetChecksum checksum, ConstraintValidatorContext context) {
         String securitySalt = ServiceUtils.getValidationService().getSecuritySalt();
+        String checksumHash = ServiceUtils.getValidationService().getChecksumHash().toLowerCase();
 
         if (securitySalt.isEmpty()) {
             log.warn("Security is disabled in this service. Make sure this is intentional.");
@@ -41,11 +42,23 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         }
 
         String data = checksum.getApiCall() + queryStringWithoutChecksum + securitySalt;
-        String createdCheckSum = DigestUtils.sha1Hex(data);
+        String createdCheckSum;
 
-        if (providedChecksum.length() == 64) {
-            createdCheckSum = DigestUtils.sha256Hex(data);
-            log.info("SHA256 {}", createdCheckSum);
+        switch(checksumHash) {
+            case "sha256":
+                createdCheckSum = DigestUtils.sha256Hex(data);
+                log.info("SHA256 {}", createdCheckSum);
+            case "sha384":
+                createdCheckSum = DigestUtils.sha384Hex(data);
+                log.info("SHA384 {}", createdCheckSum);
+                break;
+            case "sha512":
+                createdCheckSum = DigestUtils.sha512Hex(data);
+                log.info("SHA512 {}", createdCheckSum);
+                break;
+            default:
+                createdCheckSum = DigestUtils.sha1Hex(data);
+                log.info("SHA1 {}", createdCheckSum);
         }
 
         if (createdCheckSum == null || !createdCheckSum.equals(providedChecksum)) {
