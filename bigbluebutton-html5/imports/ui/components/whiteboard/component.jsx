@@ -377,6 +377,13 @@ export default function Whiteboard(props) {
       const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
     }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      if (patchedShape?.type === 'text') {
+        persistShape(patchedShape, whiteboardId);
+      }
+    }
   };
 
   const webcams = document.getElementById('cameraDock');
