@@ -12,6 +12,7 @@ const PAGE_COUNT_EXCEEDED_KEY = 'PAGE_COUNT_EXCEEDED';
 const PDF_HAS_BIG_PAGE_KEY = 'PDF_HAS_BIG_PAGE';
 const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 const FILE_TOO_LARGE_KEY = 'FILE_TOO_LARGE';
+const CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
 // const GENERATING_THUMBNAIL_KEY = 'GENERATING_THUMBNAIL';
 // const GENERATED_THUMBNAIL_KEY = 'GENERATED_THUMBNAIL';
 // const GENERATING_TEXTFILES_KEY = 'GENERATING_TEXTFILES';
@@ -59,6 +60,12 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier['conversion.error'] = true;
       statusModifier['conversion.bigPageSize'] = body.bigPageSize;
       break;
+    case CONVERSION_TIMEOUT_KEY:
+      statusModifier['conversion.error'] = true;
+      statusModifier['conversion.convPdfToSvgTimeout'] = body.convPdfToSvgTimeout;
+      statusModifier['conversion.numberPageError'] = body.page;
+      
+      break;
     case GENERATED_SLIDE_KEY:
       statusModifier['conversion.pagesCompleted'] = body.pagesCompleted;
       statusModifier['conversion.numPages'] = body.numberOfPages;
@@ -87,9 +94,24 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
   
 
   try {
-    const { insertedId } = Presentations.upsert(selector, modifier);
+    const isPresentationPersisted = Presentations.find(selector).fetch().some((item) => {
+      if (item.temporaryPresentationId && temporaryPresentationId){
+        return item.temporaryPresentationId === temporaryPresentationId;
+      } else{
+        return item.id === presentationId;
+      } 
+    });
+    let insertedID;
+    if (!isPresentationPersisted) {
+      const { insertedId } = Presentations.upsert(selector, modifier);
+      insertedID = insertedId;
+    } else {
+      selector['conversion.error'] = false;
+      const { insertedId } = Presentations.update(selector, modifier);
+      insertedID = insertedId;
+    }
 
-    if (insertedId) {
+    if (insertedID) {
       Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
     } else {
       Logger.debug('Upserted presentation conversion', { status, presentationId, meetingId });

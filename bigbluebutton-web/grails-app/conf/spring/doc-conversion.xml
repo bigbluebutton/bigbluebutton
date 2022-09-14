@@ -145,6 +145,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="swfSlidesGenerationProgressNotifier"
           class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
         <property name="messagingService" ref="bbbWebApiGWApp"/>
+        <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
         <property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
     </bean>
 

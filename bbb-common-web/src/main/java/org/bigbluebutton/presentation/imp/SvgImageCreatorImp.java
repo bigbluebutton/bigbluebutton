@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
@@ -30,14 +31,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private SwfSlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
-    private int convPdfToSvgTimeout = 60;
+    private int convPdfToSvgTimeout = 3;
     private int svgResolutionPpi = 300;
     private boolean forceRasterizeSlides = false;
     private int pngWidthRasterizedSlides = 2048;
 	private String BLANK_SVG;
 
     @Override
-    public boolean createSvgImage(UploadedPresentation pres, int page) {
+    public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
         boolean success = false;
         File svgImagesPresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
         if (!svgImagesPresentationDir.exists())
@@ -45,7 +46,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         try {
             success = generateSvgImage(svgImagesPresentationDir, pres, page);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("Interrupted Exception while generating images {}", pres.getName(), e);
             success = false;
         }
@@ -54,9 +55,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     }
 
     private boolean generateSvgImage(File imagePresentationDir, UploadedPresentation pres, int page)
-            throws InterruptedException {
+            throws InterruptedException, TimeoutException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
+        int countOfTimeOut = 0;
 
         int numSlides = 1;
         boolean done = false;
@@ -114,6 +116,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         if(detectFontType3tHandler.isCommandTimeout()) {
             log.error("Command execution (detectFontType3) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+            countOfTimeOut += 1;
         }
 
         if(detectFontType3tHandler.hasFontType3()) {
@@ -142,6 +145,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             if(pHandler.isCommandTimeout()) {
                 log.error("Command execution (convertPdfToSvg) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                countOfTimeOut += 1;
             }
 
             if (!done) {
@@ -216,6 +220,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             if(pngHandler.isCommandTimeout()) {
                 log.error("Command execution (convertPdfToPng) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+                countOfTimeOut += 1;
             }
 
             if(tempPng.length() > 0) {
@@ -277,6 +282,12 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             return true;
         }
 
+        if (countOfTimeOut >= 3) {
+            throw new TimeoutException("(Timeout error) The slide " + page +
+                    " could not be processed within "
+                    + convPdfToSvgTimeout +
+                    " seconds.");
+        }
         copyBlankSvgs(imagePresentationDir, pres.getNumberOfPages());
 
         Map<String, Object> logData = new HashMap<String, Object>();

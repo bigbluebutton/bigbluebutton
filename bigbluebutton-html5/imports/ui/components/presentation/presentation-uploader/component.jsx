@@ -161,6 +161,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
+  CONVERSION_TIMEOUT: {
+    id:'app.presentationUploder.conversion.conversionTimeout',
+    description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+  },
   PDF_HAS_BIG_PAGE: {
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
@@ -1281,6 +1285,11 @@ class PresentationUploader extends Component {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
 
       switch (item.conversion.status) {
+        case 'CONVERSION_TIMEOUT': 
+          console.log("Teste aqui.... -> dentro do render status", item.conversion)
+          constraint['0'] = item.conversion.numberPageError;
+          constraint['1'] = item.conversion.convPdfToSvgTimeout;
+          break;
         case 'PAGE_COUNT_EXCEEDED':
           constraint['0'] = item.conversion.maxNumberPages;
           break;

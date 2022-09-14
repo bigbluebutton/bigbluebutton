@@ -32,6 +32,7 @@ public class SwfSlidesGenerationProgressNotifier {
 
   private IBbbWebApiGWApp messagingService;
 
+  private int convPdfToSvgTimeout = 3;
   private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 
 
@@ -49,6 +50,16 @@ public class SwfSlidesGenerationProgressNotifier {
             uploadedFileSize,
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
+  }
+
+  public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
+    UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_TIMEOUT_KEY,
+            page, pres.getTemporaryPresentationId(), pres.getId(), convPdfToSvgTimeout);
+    messagingService.sendDocConversionMsg(errorMessage);
   }
 
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
@@ -98,6 +109,10 @@ public class SwfSlidesGenerationProgressNotifier {
 
   public void setMessagingService(IBbbWebApiGWApp m) {
     messagingService = m;
+  }
+
+  public void setConvPdfToSvgTimeout(int convPdfToSvgTimeout) {
+    this.convPdfToSvgTimeout = convPdfToSvgTimeout;
   }
 
   public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
