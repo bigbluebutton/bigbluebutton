@@ -61,7 +61,7 @@ class RemoteDesktopModal extends Component {
     const { remoteDesktopUrl } = props;
 
     this.state = {
-      url: remoteDesktopUrl,
+      url: remoteDesktopUrl ? remoteDesktopUrl : Meteor.settings.public?.remoteDesktop?.defaultUrl,
       sharing: remoteDesktopUrl,
       password: null,
       operators: 'all',
@@ -90,7 +90,7 @@ class RemoteDesktopModal extends Component {
   }
 
   updateRemoteDesktopUrlHandler(ev) {
-    this.setState({ url: ev.target.value });
+    this.setState({ url: ev.target.value ? ev.target.value : Meteor.settings.public?.remoteDesktop?.defaultUrl });
   }
 
   updateRemoteDesktopPassword = ev => {
@@ -144,7 +144,7 @@ class RemoteDesktopModal extends Component {
                 id="remote-desktop-modal-input"
                 onChange={this.updateRemoteDesktopUrlHandler}
                 name="remote-desktop-modal-input"
-                placeholder={intl.formatMessage(intlMessages.urlInput)}
+                placeholder={Meteor.settings.public?.remoteDesktop?.defaultUrl ? Meteor.settings.public?.remoteDesktop?.defaultUrl : intl.formatMessage(intlMessages.urlInput)}
                 disabled={sharing}
                 aria-describedby="remote-desktop-note"
               />
