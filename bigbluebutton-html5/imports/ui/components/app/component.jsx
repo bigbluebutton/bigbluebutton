@@ -494,8 +494,8 @@ class App extends Component {
     return (
       <>
         <Notifications />
-        <LayoutEngine layoutType={selectedLayout} />
         {this.mountPushLayoutEngine()}
+        {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
         <GlobalStyles />
         <Styled.Layout
           id="layout"

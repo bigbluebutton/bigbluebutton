@@ -77,6 +77,10 @@ const BreakoutNameInput = styled.input`
     color: ${colorGray};
     opacity: 1;
   }
+
+  ${({ readOnly }) => readOnly && `
+    cursor: default;
+  `}
 `;
 
 const BreakoutBox = styled(ScrollboxVertical)`

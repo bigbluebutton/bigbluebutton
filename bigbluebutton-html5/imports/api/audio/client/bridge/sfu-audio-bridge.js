@@ -8,13 +8,8 @@ import {
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
-import Storage from '/imports/ui/services/storage/session';
 import browserInfo from '/imports/utils/browserInfo';
 import {
-  DEFAULT_INPUT_DEVICE_ID,
-  DEFAULT_OUTPUT_DEVICE_ID,
-  INPUT_DEVICE_ID_KEY,
-  OUTPUT_DEVICE_ID_KEY,
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
@@ -76,51 +71,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     this.userId = userData.userId;
     this.name = userData.username;
     this.sessionToken = userData.sessionToken;
-    this.media = {
-      inputDevice: {},
-    };
     this.broker = null;
     this.reconnecting = false;
     this.iceServers = [];
     this.inEchoTest = false;
     this.bridgeName = BRIDGE_NAME;
-  }
-
-  get inputDeviceId() {
-    const sessionInputDeviceId = Storage.getItem(INPUT_DEVICE_ID_KEY);
-
-    if (sessionInputDeviceId) {
-      return sessionInputDeviceId;
-    }
-
-    if (this.media.inputDeviceId) {
-      return this.media.inputDeviceId;
-    }
-
-    return DEFAULT_INPUT_DEVICE_ID;
-  }
-
-  set inputDeviceId(deviceId) {
-    Storage.setItem(INPUT_DEVICE_ID_KEY, deviceId);
-    this.media.inputDeviceId = deviceId;
-  }
-
-  get outputDeviceId() {
-    const sessionOutputDeviceId = Storage.getItem(OUTPUT_DEVICE_ID_KEY);
-    if (sessionOutputDeviceId) {
-      return sessionOutputDeviceId;
-    }
-
-    if (this.media.outputDeviceId) {
-      return this.media.outputDeviceId;
-    }
-
-    return DEFAULT_OUTPUT_DEVICE_ID;
-  }
-
-  set outputDeviceId(deviceId) {
-    Storage.setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
-    this.media.outputDeviceId = deviceId;
   }
 
   get inputStream() {
@@ -135,25 +90,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     return this.broker?.role;
   }
 
-  async setInputStream(stream) {
-    try {
-      if (this.broker == null) return null;
+  setInputStream(stream) {
+    if (this.broker == null) return null;
 
-      await this.broker.setLocalStream(stream);
-
-      return stream;
-    } catch (error) {
-      logger.warn({
-        logCode: 'sfuaudio_setinputstream_error',
-        extraInfo: {
-          errorCode: error.code,
-          errorMessage: error.message,
-          bridgeName: this.bridgeName,
-          role: this.role,
-        },
-      }, 'Failed to set input stream (mic)');
-      return null;
-    }
+    return this.broker.setLocalStream(stream);
   }
 
   getPeerConnection() {
@@ -368,32 +308,6 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     return this.trackTransferState(onTransferSuccess);
   }
 
-  async liveChangeInputDevice(deviceId) {
-    try {
-      const constraints = {
-        audio: getAudioConstraints({ deviceId }),
-      };
-
-      this.inputStream.getAudioTracks().forEach((t) => t.stop());
-      const updatedStream = await navigator.mediaDevices.getUserMedia(constraints);
-      await this.setInputStream(updatedStream);
-      this.inputDeviceId = deviceId;
-
-      return updatedStream;
-    } catch (error) {
-      logger.warn({
-        logCode: 'sfuaudio_livechangeinputdevice_error',
-        extraInfo: {
-          errorCode: error.code,
-          errorMessage: error.message,
-          bridgeName: this.bridgeName,
-          role: this.role,
-        },
-      }, 'Failed to change input device (mic)');
-      return null;
-    }
-  }
-
   async updateAudioConstraints(constraints) {
     try {
       if (typeof constraints !== 'object') return;
@@ -405,7 +319,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         const stream = await navigator.mediaDevices.getUserMedia(
           { audio: matchConstraints },
         );
-        this.setInputStream(stream);
+        await this.setInputStream(stream);
       } else {
         this.inputStream.getAudioTracks()
           .forEach((track) => track.applyConstraints(matchConstraints));
