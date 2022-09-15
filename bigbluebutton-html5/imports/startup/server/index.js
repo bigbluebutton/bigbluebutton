@@ -34,12 +34,36 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
+const formatMemoryUsage = (data) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`
+
+const serverHealth = () => {
+  const memoryData = process.memoryUsage();
+  const memoryUsage = {
+    rss: formatMemoryUsage(memoryData.rss),
+    heapTotal: formatMemoryUsage(memoryData.heapTotal),
+    heapUsed: formatMemoryUsage(memoryData.heapUsed),
+    external: formatMemoryUsage(memoryData.external),
+  }
+
+  const cpuData = process.cpuUsage();
+  const cpuUsage = {
+    system: formatMemoryUsage(cpuData.system),
+    user: formatMemoryUsage(cpuData.user),
+  }
+
+  Logger.info('Server health', {memoryUsage, cpuUsage});
+};
+
 Meteor.startup(() => {
   const APP_CONFIG = Meteor.settings.public.app;
   const CDN_URL = APP_CONFIG.cdn;
   const instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
 
   Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
+
+  Meteor.setInterval(() => {
+    serverHealth();
+  }, 30000);
 
   const { customHeartbeat } = APP_CONFIG;
 
