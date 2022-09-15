@@ -110,6 +110,8 @@ const addConnectionStatus = (level, type, value) => {
 let rttCalcStartedAt = 0;
 
 const fetchRoundTripTime = () => {
+  // if client didn't receive response from last "voidConnection"
+  // calculate the rtt from last call time and notify user of connection loss
   if (rttCalcStartedAt !== 0) {
     const tf = Date.now();
     const rtt = tf - rttCalcStartedAt;
@@ -118,8 +120,6 @@ const fetchRoundTripTime = () => {
       const event = new CustomEvent('socketstats', { detail: { rtt } });
       window.dispatchEvent(event);
     }
-
-    rttCalcStartedAt = 0;
   }
 
   const t0 = Date.now();
@@ -132,9 +132,7 @@ const fetchRoundTripTime = () => {
     window.dispatchEvent(event);
     lastRtt = rtt;
 
-    if (rttCalcStartedAt === t0) {
-      rttCalcStartedAt = 0;
-    }
+    rttCalcStartedAt = 0;
   });
 };
 
