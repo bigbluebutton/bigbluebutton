@@ -31,10 +31,22 @@ class Create extends MultiUsers {
     //await this.modPage.waitAndClick(e.randomlyAssign);
     //await this.modPage.getLocator(e.)
 
+    //Drag and drop a user in a room
+    
+
     //Change room's name
+    /*
     await this.modPage.type(e.roomName, 'Teste');
-    await this.modPage.press('Tab');
+    await this.modPage.waitAndClick(e.randomlyAssign);
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.hasElement(e.roomNameTest);
+*/
+
+    //Randomly assignment
+
 
     await this.modPage.waitAndClick(e.randomlyAssign);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
@@ -42,6 +54,8 @@ class Create extends MultiUsers {
     await this.userPage.hasElement(e.modalConfirmButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem);
+    
+  
   }
 }
 

@@ -197,6 +197,10 @@ class Page {
   async up(key) {
     await this.page.keyboard.up(key);
   }
+
+  async dragDropSelector(selector, position) {
+    await this.page.locator(selector).dragTo(this.page.locator(position));
+  }
 }
 
 module.exports = exports = Page;

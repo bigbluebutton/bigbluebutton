@@ -66,7 +66,16 @@ exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
 exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
 exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
 exports.roomName = 'input[aria-describedby="room-input-1"]';
-exports.roomNameTest = 'input[aria-label="Room1Teste"]';
+exports.roomNameTest = 'input[aria-label="Room 1Teste"]';
+exports.breakoutOptionsMenu = 'button[data-test="breakoutOptionsMenu"]';
+exports.openUpdateBreakoutUsersModal = 'li[data-test="openUpdateBreakoutUsersModal"]';
+exports.userTest = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
+exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
+exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
+exports.sendButtonDurationTime = 'button[data-test="sendButtonDurationTime"]';
+exports.breakoutRemainingTime = 'span[data-test="breakoutRemainingTime"]';
+exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom"]';
+exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
