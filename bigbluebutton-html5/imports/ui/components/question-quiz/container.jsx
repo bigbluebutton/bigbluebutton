@@ -23,15 +23,18 @@ const QuestionQuizContainer = ({ ...props }) => {
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
   const usernames = {};
-
+  const meetingViewers = []
   Object.values(users[Auth.meetingID]).forEach((user) => {
     usernames[user.userId] = { userId: user.userId, name: user.name };
+    if(!users[Auth.meetingID][user.userId].presenter)
+    meetingViewers.push({userId: user.userId})
   });
   return (
     <QuestionQuiz
       {...{ layoutContextDispatch, sidebarContentPanel, ...props }}
       usernames={usernames}
       amIPresenter={amIPresenter}
+      meetingViewers={meetingViewers}
     />
   );
 };
@@ -56,6 +59,8 @@ export default withTracker(() => {
 
   const stopQuestionQuiz = () => makeCall('stopQuestionQuiz');
 
+  const createUsersPrivateChatGroup = (meetingViewers) => makeCall('createUsersPrivateChatGroup', meetingViewers);
+
   return {
     currentSlide,
     questionQuizTypes,
@@ -69,5 +74,6 @@ export default withTracker(() => {
     resetQuestionQuizPanel: Session.get('resetQuestionQuizPanel') || false,
     questionQuizAnswerIds: Service.questionQuizAnswerIds,
     isMeteorConnected: Meteor.status().connected,
+    createUsersPrivateChatGroup
   };
 })(QuestionQuizContainer);

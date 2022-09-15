@@ -26,23 +26,34 @@ const checkCorrectAnswers = (answers) => {
   return answers;
 }
 
-const generatePrivateChatMessageOfQuestionResult = (messageData) => {
+const generatePrivateChatMessageOfQuestionResult = (messageData, isQuestionQuizPublished) => {
   const {userResponse, answers, messageLabels, question} = messageData
   const isUserNotAttemptedQuiz = userResponse.answerIds.length === 0
   const userResponseKey = !isUserNotAttemptedQuiz ? answers[userResponse.answerIds[0]].key : null
   const isUserResponseCorrect = !isUserNotAttemptedQuiz ? answers[userResponse.answerIds[0]].isCorrect : null
   let correctOptionsStr = ''
   let count = 0
-  answers.map((ans) => {if (ans.isCorrect) correctOptionsStr += (`${count+=1}. ${ans.key}\n`)})
-  const message = messageLabels && `
-    *${messageLabels.headerLabel} ${messageLabels.questionLabel}*
-    ${question} \n\n *${messageLabels.correctOptLabel[0]?.toUpperCase() + 
-    messageLabels.correctOptLabel.slice(1)} ${messageLabels.optionsLabel}* \n${correctOptionsStr}
-    *${messageLabels.responseLabel}* \n${!isUserNotAttemptedQuiz ? userResponseKey : 
-    messageLabels.notAttemptedQuizLabel} \n\n *${messageLabels.questionResultsLabel}*
-    ${messageLabels.userAnswerLabel} ${!isUserNotAttemptedQuiz ? isUserResponseCorrect ? messageLabels.correctOptLabel : 
-    messageLabels.incorrectOptLabel : messageLabels.notAttemptedQuizLabel}.
-  `
+  let message = ''
+  if(isQuestionQuizPublished){
+    answers.map((ans) => {if (ans.isCorrect) correctOptionsStr += (`${count+=1}. ${ans.key}\n`)})
+    message = messageLabels && `
+      *${messageLabels.headerLabel} ${messageLabels.questionLabel}*
+      ${question} \n\n *${messageLabels.correctOptLabel[0]?.toUpperCase() + 
+      messageLabels.correctOptLabel.slice(1)} ${messageLabels.optionsLabel}* \n${correctOptionsStr}
+      *${messageLabels.responseLabel}* \n${!isUserNotAttemptedQuiz ? userResponseKey : 
+      messageLabels.notAttemptedQuizLabel} \n\n *${messageLabels.questionResultsLabel}*
+      ${messageLabels.userAnswerLabel} ${!isUserNotAttemptedQuiz ? isUserResponseCorrect ? messageLabels.correctOptLabel : 
+      messageLabels.incorrectOptLabel : messageLabels.notAttemptedQuizLabel}.
+    `
+  }
+  else{
+    answers.map((ans) => { correctOptionsStr += (`${count+=1}. ${ans.key}\n`)})
+    message = messageLabels && `
+      *${messageLabels.headerLabel} ${messageLabels.questionLabel}*
+      ${question} \n\n *${messageLabels.optionsLabel}* \n${correctOptionsStr}
+      *${messageLabels.statusLabel}* \n${messageLabels.cancelLabel}
+    `
+  }
   return message;
 }
 

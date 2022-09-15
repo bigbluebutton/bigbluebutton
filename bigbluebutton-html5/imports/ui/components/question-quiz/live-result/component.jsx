@@ -79,6 +79,10 @@ const intlMessages = defineMessages({
     id: 'app.questionQuiz.chat.notAttempted.label',
     description: 'Quiz results not attempted lable',
   },
+  statusLabel: {
+    id: 'app.presentationUploder.tableHeading.status',
+    description: 'Status heading',
+  },
 });
 
 const getResponseString = (obj) => {
@@ -212,7 +216,7 @@ class LiveResult extends PureComponent {
 
     const { userAnswers, questionQuizStats, currentQuestionQuizQuestion } = this.state;
     const { animations } = Settings.application;
-
+    let isQuestionQuizPublished = false
     let waiting;
     let userCount = 0;
     let respondedCount = 0;
@@ -256,7 +260,7 @@ class LiveResult extends PureComponent {
               <Styled.PublishButton
                 disabled={!isMeteorConnected}
                 onClick={() => {
-                  const {users: notAttemptedUsers} = currentQuestionQuiz
+                  isQuestionQuizPublished = true
                   const messageLabels = {
                     headerLabel: intl.formatMessage(intlMessages.questioningLabel),
                     questionLabel: intl.formatMessage(intlMessages.questionQuizQuestionTitle),
@@ -269,7 +273,9 @@ class LiveResult extends PureComponent {
                     notAttemptedQuizLabel: intl.formatMessage(intlMessages.notAttemptedQuizLabel)
                   }
                   Session.set('questionQuizInitiated', false);
-                  Service.publishQuestionQuiz(messageLabels, notAttemptedUsers);
+                  Service.publishQuestionQuiz();
+                  Service.isPrivateChatAllowed && 
+                  Service.sendQuestionQuizResultPrivateMsg(messageLabels, isQuestionQuizPublished)
                   stopQuestionQuiz();
                 }}
                 label={intl.formatMessage(intlMessages.publishLabel)}
@@ -279,6 +285,15 @@ class LiveResult extends PureComponent {
               <Styled.CancelButton
                 disabled={!isMeteorConnected}
                 onClick={() => {
+                  const messageLabels = {
+                    headerLabel: intl.formatMessage(intlMessages.questioningLabel),
+                    questionLabel: intl.formatMessage(intlMessages.questionQuizQuestionTitle),
+                    optionsLabel: intl.formatMessage(intlMessages.optionsTitle),
+                    statusLabel: intl.formatMessage(intlMessages.statusLabel),
+                    cancelLabel: intl.formatMessage(intlMessages.cancelPollLabel)
+                  }
+                  isQuestionQuizPublished = false;
+                  Service.sendQuestionQuizResultPrivateMsg(messageLabels, isQuestionQuizPublished)
                   Session.set('questionQuizInitiated', false);
                   Session.set('resetQuestionQuizPanel', true);
                   stopQuestionQuiz();

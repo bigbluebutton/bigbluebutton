@@ -7,6 +7,8 @@ import stopQuestionQuiz from './methods/stopQuestionQuiz';
 import getCurrentQuestionQuiz from './methods/getCurrentQuestionQuiz';
 import getQuestionQuizResponses from './methods/getQuestionQuizResponses';
 import generateQuestionQuizPdf from './methods/generateQuestionQuizPdf'
+import createUsersPrivateChatGroup from './methods/createUsersPrivateChatGroup'
+import sendQuestionQuizResultPrivateMsg from './methods/sendQuestionQuizResultPrivateMsg'
 
 Meteor.methods({
   publishQuestionQuizVote,
@@ -16,5 +18,7 @@ Meteor.methods({
   stopQuestionQuiz,
   getCurrentQuestionQuiz,
   getQuestionQuizResponses,
-  generateQuestionQuizPdf
+  generateQuestionQuizPdf,
+  createUsersPrivateChatGroup,
+  sendQuestionQuizResultPrivateMsg
 });

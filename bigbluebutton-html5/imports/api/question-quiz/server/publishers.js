@@ -37,6 +37,7 @@ function currentQuestionQuiz(secretQuestionQuiz) {
     const selector = {
       meetingId,
       requester: userId,
+      isPublished: false
     };
 
     const options = { fields: {} };

@@ -34,6 +34,7 @@ export default function sendGroupChatMsg(chatId, message, currentUserId) {
   const EVENT_NAME = 'SendGroupChatMessageMsg';
 
   try {
+    currentUserId && check(currentUserId, String);
     const { meetingId, requesterUserId } = extractCredentials(this.userId ? this.userId : currentUserId);
 
     check(meetingId, String);

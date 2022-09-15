@@ -38,5 +38,7 @@ const sortUsers = (a, b) => {
 
 export default {
   sortUsers,
-  publishQuestionQuiz: (messageLabels, notAttemptedUsers) => makeCall('publishQuestionQuiz',isPrivateChatAllowed, messageLabels, notAttemptedUsers),
+  isPrivateChatAllowed,
+  publishQuestionQuiz: () => makeCall('publishQuestionQuiz'),
+  sendQuestionQuizResultPrivateMsg: (messageLabels, isQuestionQuizPublished) => makeCall('sendQuestionQuizResultPrivateMsg',messageLabels, isQuestionQuizPublished),
 };

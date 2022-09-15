@@ -11,6 +11,7 @@ export default function createGroupChat(receiver, senderId) {
   const EVENT_NAME = 'CreateGroupChatReqMsg';
 
   try {
+    senderId && check(senderId, String);
     const { meetingId, requesterUserId } = extractCredentials(this.userId ? this.userId : senderId);
 
     check(meetingId, String);

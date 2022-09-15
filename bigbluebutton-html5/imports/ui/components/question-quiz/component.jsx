@@ -9,6 +9,7 @@ import LiveResult from './live-result/component';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
+import LiveResultService from './live-result/service';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 
 
@@ -250,6 +251,14 @@ const intlMessages = defineMessages({
   emptyPollOpt: {
     id: 'app.poll.emptyPollOpt',
     description: 'screen reader for blank poll option',
+  },
+  statusLabel: {
+    id: 'app.presentationUploder.tableHeading.status',
+    description: 'Status heading',
+  },
+  cancelPollLabel: {
+    id: 'app.poll.cancelPollLabel',
+    description: 'label for cancel poll button',
   },
 });
 
@@ -688,7 +697,7 @@ class QuestionQuiz extends Component {
   renderQuestionQuizOptions() {
     const { secretQuestionQuiz, questionAndOptions, error,
       isMultipleResponse, optList: optionsList } = this.state;
-    const { intl, startCustomQuestionQuiz } = this.props;
+    const { intl, startCustomQuestionQuiz, meetingViewers, createUsersPrivateChatGroup } = this.props;
     const questionAndOptionsPlaceholderLabel = intlMessages.questionAndOptionsPlaceholder;
     const hasQuestionError = (error !== null);
     return (
@@ -795,6 +804,7 @@ class QuestionQuiz extends Component {
             const verifiedQuestionType = 'CUSTOM';
             if (question && optList && !error) {
               // let verifiedOptions = verifiedOptionList(optList)
+              createUsersPrivateChatGroup(meetingViewers);
               startCustomQuestionQuiz(
                 verifiedQuestionType,
                 secretQuestionQuiz,
@@ -973,7 +983,19 @@ class QuestionQuiz extends Component {
             label={intl.formatMessage(intlMessages.closeLabel)}
             aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.questionQuizPaneTitle)}`}
             onClick={() => {
-              if (currentQuestionQuiz) stopQuestionQuiz();
+              if (currentQuestionQuiz) {
+                const messageLabels = {
+                  headerLabel: intl.formatMessage(intlMessages.questionQuizPaneTitle),
+                  questionLabel: intl.formatMessage(intlMessages.questionLabel),
+                  optionsLabel: intl.formatMessage(intlMessages.optionsLabel),
+                  statusLabel: intl.formatMessage(intlMessages.statusLabel),
+                  cancelLabel: intl.formatMessage(intlMessages.cancelPollLabel)
+                }
+                let isQuestionQuizPublished = false;
+                LiveResultService.sendQuestionQuizResultPrivateMsg(messageLabels, isQuestionQuizPublished)
+                stopQuestionQuiz();
+              }
+              
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
@@ -1063,8 +1085,10 @@ QuestionQuiz.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   amIPresenter: PropTypes.bool.isRequired,
+  meetingViewers: PropTypes.array.isRequired,
   questionQuizTypes: PropTypes.instanceOf(Object).isRequired,
   startQuestionQuiz: PropTypes.func.isRequired,
   startCustomQuestionQuiz: PropTypes.func.isRequired,
+  createUsersPrivateChatGroup: PropTypes.func.isRequired,
   stopQuestionQuiz: PropTypes.func.isRequired,
 };

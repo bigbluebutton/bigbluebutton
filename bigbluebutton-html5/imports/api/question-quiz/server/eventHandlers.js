@@ -4,11 +4,9 @@ import handleQuestionQuizStopped from './handlers/questionQuizStopped';
 import handleQuestionQuizPublished from './handlers/questionQuizPublished';
 import handleUserVoted from './handlers/userVoted';
 import handleUserResponded from './handlers/userResponded';
-import handleUserTypedResponse from './handlers/userTypedResponse';
 
 RedisPubSub.on('QuestionQuizShowResultEvtMsg', handleQuestionQuizPublished);
 RedisPubSub.on('QuestionQuizStartedEvtMsg', handleQuestionQuizStarted);
 RedisPubSub.on('QuestionQuizStoppedEvtMsg', handleQuestionQuizStopped);
 RedisPubSub.on('QuestionQuizUpdatedEvtMsg', handleUserVoted);
 RedisPubSub.on('UserRespondedToQuestionQuizRespMsg', handleUserResponded);
-RedisPubSub.on('UserRespondedToTypedQuestionQuizRespMsg', handleUserTypedResponse);
