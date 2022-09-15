@@ -22,7 +22,7 @@ const propTypes = {
   cameraIsResizing: PropTypes.bool,
   cameraPosition: PropTypes.string,
   focusedCamera: PropTypes.string,
-  horizontalPosition: PropTypes.string,
+  horizontalPosition: PropTypes.bool,
   isLayoutMeetingResizing: PropTypes.bool,
   isPresenter: PropTypes.bool,
   isModerator: PropTypes.bool,
