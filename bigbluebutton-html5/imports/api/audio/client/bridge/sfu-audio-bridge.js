@@ -105,6 +105,11 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     return null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  mediaStreamFactory(constraints) {
+    return doGUM(constraints, true);
+  }
+
   handleTermination() {
     return this.callback({ status: this.baseCallStates.ended, bridge: this.bridgeName });
   }
@@ -259,6 +264,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           signalCandidates: SIGNAL_CANDIDATES,
           traceLogs: TRACE_LOGS,
           networkPriority: NETWORK_PRIORITY,
+          mediaStreamFactory: this.mediaStreamFactory,
         };
 
         this.broker = new AudioBroker(
