@@ -717,19 +717,15 @@ class AudioManager {
     // a new one will be created for the new stream
     this.inputStream = null;
     return this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
-      logger.debug({
-        logCode: 'audiomanager_input_live_device_change',
-        extraInfo: {
-          deviceId: currentDeviceId,
-          newDeviceId: deviceId,
-        },
-      }, `Microphone input device (live) changed: from ${currentDeviceId} to ${deviceId}`);
-      this.setSenderTrackEnabled(!this.isMuted);
-      this.inputDeviceId = deviceId;
+      this.inputStream = stream;
+      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.inputStream, 'audio');
+      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+        this.changeInputDevice(extractedDeviceId);
+      }
       // Live input device change - add device ID to session storage so it
       // can be re-used on refreshes/other sessions
-      storeAudioInputDeviceId(deviceId);
-      this.inputStream = stream;
+      storeAudioInputDeviceId(extractedDeviceId);
+      this.setSenderTrackEnabled(!this.isMuted);
     }).catch((error) => {
       logger.error({
         logCode: 'audiomanager_input_live_device_change_failure',

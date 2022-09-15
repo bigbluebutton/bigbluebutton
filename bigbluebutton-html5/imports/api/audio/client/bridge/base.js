@@ -5,6 +5,7 @@ import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import {
   getAudioConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
@@ -94,9 +95,8 @@ export default class BaseAudioBridge {
         this.inputStream.getAudioTracks().forEach((track) => track.stop());
       }
 
-      newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      newStream = await doGUM(constraints);
       await this.setInputStream(newStream);
-      this.inputDeviceId = deviceId;
       if (backupStream && backupStream.active) {
         backupStream.getAudioTracks().forEach((track) => track.stop());
         backupStream = null;

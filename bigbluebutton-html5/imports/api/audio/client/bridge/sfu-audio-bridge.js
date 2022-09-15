@@ -13,6 +13,7 @@ import {
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
@@ -316,9 +317,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
       if (IS_CHROME) {
         matchConstraints.deviceId = this.inputDeviceId;
-        const stream = await navigator.mediaDevices.getUserMedia(
-          { audio: matchConstraints },
-        );
+        const stream = await doGUM({ audio: matchConstraints });
         await this.setInputStream(stream);
       } else {
         this.inputStream.getAudioTracks()
