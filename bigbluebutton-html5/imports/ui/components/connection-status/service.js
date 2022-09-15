@@ -152,14 +152,13 @@ const sortOffline = (a, b) => {
 };
 
 const getConnectionStatus = () => {
-  // const clientIdleTimeLimit = new Date().getTime() - (STATS_INTERVAL + STATS.rtt[STATS.rtt.length - 1]);
-  const clientIdleTimeLimit = new Date().getTime() - (STATS_INTERVAL);
+  const connectionLossTimeThreshold = new Date().getTime() - (STATS_INTERVAL);
 
   const selector = {
     meetingId: Auth.meetingID,
     $or: [
       { status: { $exists: true } },
-      { connectionAliveAt: { $lte: clientIdleTimeLimit } },
+      { connectionAliveAt: { $lte: connectionLossTimeThreshold } },
     ],
   };
 
@@ -209,7 +208,7 @@ const getConnectionStatus = () => {
     const userStatus = connectionStatus.find((userConnStatus) => userConnStatus.userId === userId);
 
     if (userStatus) {
-      const notResponding = userStatus.connectionAliveAt < clientIdleTimeLimit;
+      const notResponding = userStatus.connectionAliveAt < connectionLossTimeThreshold;
 
       if (userStatus.status || (!loggedOut && notResponding)) {
         result.push({
@@ -293,6 +292,7 @@ const notification = (level, intl) => {
     return null;
   }
   Session.set('connectionStatusNotified', true);
+
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
 };
