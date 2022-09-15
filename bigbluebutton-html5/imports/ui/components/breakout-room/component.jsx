@@ -454,7 +454,9 @@ class BreakoutRoom extends PureComponent {
             breakout.shortName,
           )}
         </Styled.Content>
-        <Styled.JoinedUserNames>
+        <Styled.JoinedUserNames
+          data-test="userNameBreakoutRoom"
+        >
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
@@ -518,6 +520,7 @@ class BreakoutRoom extends PureComponent {
               &nbsp;
               &nbsp;
               <Styled.EndButton
+                data-test="sendButtonDurationTime"
                 color="primary"
                 disabled={!isMeteorConnected}
                 size="sm"

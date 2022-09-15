@@ -1053,6 +1053,7 @@ class BreakoutRoom extends PureComponent {
           draggable
           onDragStart={dragStart}
           onDragEnd={dragEnd}
+          data-test="userTest"
         >
           <span>
             <span>{user.userName}</span>
