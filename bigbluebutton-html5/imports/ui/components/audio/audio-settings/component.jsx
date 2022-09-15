@@ -11,6 +11,7 @@ import LocalEchoContainer from '/imports/ui/components/audio/local-echo/containe
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import {
   getAudioConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
@@ -245,7 +246,7 @@ class AudioSettings extends React.Component {
       audio: getAudioConstraints({ deviceId: inputDeviceId }),
     };
 
-    return navigator.mediaDevices.getUserMedia(constraints);
+    return doGUM(constraints, true);
   }
 
   renderOutputTest() {

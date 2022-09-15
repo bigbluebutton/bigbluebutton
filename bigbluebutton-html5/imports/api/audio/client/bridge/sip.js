@@ -23,6 +23,7 @@ import {
   getAudioSessionNumber,
   getAudioConstraints,
   filterSupportedConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 
 const MEDIA = Meteor.settings.public.media;
@@ -384,7 +385,8 @@ class SIPSession {
     if (!constraints.audio && !constraints.video) {
       return Promise.resolve(new MediaStream());
     }
-    return navigator.mediaDevices.getUserMedia(constraints);
+
+    return doGUM(constraints, true);
   }
 
   createUserAgent(iceServers) {
@@ -1117,9 +1119,7 @@ class SIPSession {
       if (isChrome) {
         matchConstraints.deviceId = this.inputDeviceId;
 
-        const stream = await navigator.mediaDevices.getUserMedia(
-          { audio: matchConstraints },
-        );
+        const stream = await doGUM({ audio: matchConstraints });
 
         this.currentSession.sessionDescriptionHandler
           .setLocalMediaStream(stream);
