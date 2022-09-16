@@ -56,7 +56,7 @@ class Chat extends Page {
     // enable access to browser context clipboard
     const copiedText = await this.getCopiedText(context);
     const check = copiedText.includes(`${p.fullName}: ${e.message}`);
-    expect(check).toBeTruthy();
+    await expect(check).toBeTruthy();
   }
 
   async saveChat(testInfo) {
@@ -136,7 +136,7 @@ class Chat extends Page {
 
     const copiedText = await this.getCopiedText(context);
     const check = copiedText.includes(`${p.fullName}: ${e.frequentlyUsedEmoji}`);
-    expect(check).toBeTruthy();
+    await expect(check).toBeTruthy();
   }
 
   async emojiSaveChat(testInfo) {
@@ -188,7 +188,7 @@ class Chat extends Page {
 
     const copiedText = await this.getCopiedText(context);
     const check = copiedText.includes(`${p.fullName}: ${e.convertedEmojiMessage}`);
-    expect(check).toBeTruthy();
+    await expect(check).toBeTruthy();
   }
 
   async autoConvertEmojiSaveChat(testInfo) {
