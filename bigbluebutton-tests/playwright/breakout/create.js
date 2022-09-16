@@ -28,34 +28,26 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.resetAssignments);
 
     //Remove specific assignment
-    //await this.modPage.waitAndClick(e.randomlyAssign);
-    //await this.modPage.getLocator(e.)
+    await this.modPage.waitAndClick(e.randomlyAssign);
+    await this.modPage.dragDropSelector(e.removeUser, e.breakoutBox0);
+    await this.modPage.hasText(e.breakoutBox0, /Attendee/);
 
     //Drag and drop a user in a room
-    
+    await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, /Attendee/);
+    await this.modPage.waitAndClick(e.resetAssignments);
 
     //Change room's name
-    /*
-    await this.modPage.type(e.roomName, 'Teste');
-    await this.modPage.waitAndClick(e.randomlyAssign);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
+    await this.modPage.type(e.roomName, 'Test');
     await this.modPage.hasElement(e.roomNameTest);
-*/
 
     //Randomly assignment
-
-
     await this.modPage.waitAndClick(e.randomlyAssign);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.userPage.hasElement(e.modalConfirmButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem);
-    
-  
   }
 }
 

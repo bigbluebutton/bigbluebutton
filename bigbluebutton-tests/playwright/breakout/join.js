@@ -77,7 +77,6 @@ class Join extends Create {
   }
 
   async inviteUserAfterCreatingRooms() {
-
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
