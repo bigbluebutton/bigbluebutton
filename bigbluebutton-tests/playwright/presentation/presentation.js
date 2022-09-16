@@ -198,6 +198,7 @@ class Presentation extends MultiUsers {
     await this.userPage.waitAndClick(e.removePresentation);
     await this.userPage.waitAndClick(e.confirmManagePresentation);
   
+    await this.userPage.wasRemoved(e.whiteboard);
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);
     await this.userPage.wasRemoved(e.presentationsList);
