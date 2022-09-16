@@ -17,10 +17,10 @@ export default function setPresentationRenderedInToast() {
     const numberAffected = Presentations.update({
       renderedInToast: false,
       meetingId,
-    }, payload);
+    }, payload, {multi: true});
 
     if (numberAffected) {
-      Logger.info(`Presentations have been set as rendered in the toast within meeting=${meetingId}`);
+      Logger.info(`Presentations have been set as rendered in the toast within meeting=${meetingId}, ${numberAffected} documents affected.`);
     }
   } catch (err) {
     Logger.error(`Exception while invoking method setPresentationRenderedInToast ${err.stack}`);

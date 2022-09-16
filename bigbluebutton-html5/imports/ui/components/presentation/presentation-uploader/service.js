@@ -105,7 +105,7 @@ const observePresentationConversion = (
         if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
         if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
-          Presentations.update({id: tokenId}, {$set: {temporaryPresentationId}})
+          Presentations.update({id: tokenId}, {$set: {temporaryPresentationId, renderedInToast: false}})
           onConversion(doc.conversion);
           c.stop();
           clearTimeout(conversionTimeout);

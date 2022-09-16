@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
 import _ from 'lodash';
 import { UploadingPresentations } from '/imports/api/presentations';
+ 
+const TIMEOUT_CLOSE_TOAST = 1; //second
 
 const intlMessages = defineMessages({
 
@@ -289,13 +291,26 @@ export const ToastController = ({ intl }) => {
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
-		presentationsToConvert.map(p => {return {temporaryPresentationId: p.temporaryPresentationId, presentationId: p.id}}).forEach(objectId => {
-			if (!alreadyRenderedPresList.some(pres => (pres.temporaryPresentationId === objectId.temporaryPresentationId || pres.presentationId === objectId.presentationId))){
+		console.log("Teste pra saber quais são as presentations: -------> ", {presentationsToConvert: JSON.parse(JSON.stringify(presentationsToConvert)), alreadyRenderedPresList: JSON.parse(JSON.stringify(alreadyRenderedPresList)), presentationsRenderedFalseAndConversionFalse: JSON.parse(JSON.stringify(presentationsRenderedFalseAndConversionFalse))})
+		// Updating or populating the "state" presentation list
+		presentationsToConvert.map(p => {
+
+			return {
+				temporaryPresentationId: p.temporaryPresentationId, 
+				presentationId: p.id,
+				hasError: p.conversion?.error || p.upload?.error,
+			}
+		}).forEach(objectId => {
+			const docIndexAlreadyInList = alreadyRenderedPresList.findIndex(pres => (pres.temporaryPresentationId === objectId.temporaryPresentationId || pres.presentationId === objectId.presentationId))
+			if (docIndexAlreadyInList === -1) {
 				alreadyRenderedPresList.push({
 					temporaryPresentationId: objectId.temporaryPresentationId,
 					presentationId: objectId.presentationId,
 					rendered: false,
+					hasError: objectId.hasError,
 				});
+			} else {
+				alreadyRenderedPresList[docIndexAlreadyInList].hasError = objectId.hasError;
 			}
 		})
 		let activeToast = Session.get("presentationUploaderToastId");
@@ -309,6 +324,10 @@ export const ToastController = ({ intl }) => {
 				onClose: () => {
 					Session.set("presentationUploaderToastId", null);
 					presentationsToConvert = [];
+					if (alreadyRenderedPresList.every((pres) => pres.rendered)) {
+						makeCall('setPresentationRenderedInToast');
+						alreadyRenderedPresList.length = 0;
+					}
 				},
 			});
 			Session.set("presentationUploaderToastId", activeToast);
@@ -332,9 +351,12 @@ export const ToastController = ({ intl }) => {
 			return p.temporaryPresentationId
 		});
 
-		if (alreadyRenderedPresList.every((pres) => pres.rendered)) {
-			makeCall('setPresentationRenderedInToast');
-			alreadyRenderedPresList.length = 0;
+		if (alreadyRenderedPresList.every((pres) => pres.rendered && !pres.hasError)) {
+
+			setTimeout(() => {
+				makeCall('setPresentationRenderedInToast');
+				alreadyRenderedPresList.length = 0;
+			}, TIMEOUT_CLOSE_TOAST * 1000);
 		}
 		
 	}, [])
