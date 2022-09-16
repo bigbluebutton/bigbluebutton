@@ -78,6 +78,9 @@ const observePresentationConversion = (
   temporaryPresentationId,
   onConversion,
 ) => new Promise((resolve) => {
+  // The token is placed as an id before the original one is generated
+  // in the back-end; 
+  const tokenId = PresentationUploadToken.findOne({temporaryPresentationId}).authzToken;
 
   const conversionTimeout = setTimeout(() => {
     onConversion({
@@ -99,9 +102,10 @@ const observePresentationConversion = (
     query.observe({
       added: (doc) => {
 
-        if (doc.temporaryPresentationId !== temporaryPresentationId) return;
+        if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
         if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
+          Presentations.update({id: tokenId}, {$set: {temporaryPresentationId}})
           onConversion(doc.conversion);
           c.stop();
           clearTimeout(conversionTimeout);

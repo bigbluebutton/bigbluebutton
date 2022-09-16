@@ -43,6 +43,14 @@ const intlMessages = defineMessages({
 		id: 'app.presentationUploder.conversion.generatedSlides',
 		description: 'warns that were slides generated',
 	},
+	413: {
+		id: 'app.presentationUploder.upload.413',
+		description: 'error that file exceed the size limit',
+	},
+	FILE_TOO_LARGE: {
+		id: 'app.presentationUploder.upload.413',
+		description: 'error that file exceed the size limit',
+	},
 	PAGE_COUNT_EXCEEDED: {
 		id: 'app.presentationUploder.conversion.pageCountExceeded',
 		description: 'warns the user that the conversion failed because of the page count',
@@ -90,7 +98,7 @@ const intlMessages = defineMessages({
 });  
 
 function renderPresentationItemStatus(item, intl) {
-	if ((("progress" in item) && item.progress === 0) || (("upload" in item) && item.upload.progress === 0)) {
+	if ((("progress" in item) && item.progress === 0) || (("upload" in item) && item.upload.progress === 0 && !item.upload.error)) {
 		return intl.formatMessage(intlMessages.fileToUpload);
 	}
 
@@ -103,13 +111,13 @@ function renderPresentationItemStatus(item, intl) {
 	const constraint = {};
 
 	if (("upload" in item) && (item.upload.done && item.upload.error)) {
-		if (item.conversion.status === 'FILE_TOO_LARGE') {
+		if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
 			constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-		}
-
-		if (item.progress < 100) {
-			const errorMessage = intlMessages.badConnectionError;
-			return intl.formatMessage(errorMessage);
+		} else {
+			if (item.progress < 100) {
+				const errorMessage = intlMessages.badConnectionError;
+				return intl.formatMessage(errorMessage);
+			}
 		}
 
 		const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
@@ -120,6 +128,9 @@ function renderPresentationItemStatus(item, intl) {
 		const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
 
 		switch (item.conversion.status) {
+			case 'FILE_TOO_LARGE':
+				constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
+				break;
 			case 'PAGE_COUNT_EXCEEDED':
 				constraint['0'] = item.conversion.maxNumberPages;
 				break;
@@ -267,7 +278,7 @@ const alreadyRenderedPresList = []
 export const ToastController = ({ intl }) => {
 
 	useTracker(() => {
-
+		
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
 		let tmpIdconvertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.conversion.done)
@@ -278,10 +289,11 @@ export const ToastController = ({ intl }) => {
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
-		presentationsToConvert.map(p => p.temporaryPresentationId).forEach(tmpId => {
-			if (!alreadyRenderedPresList.some(pres => pres.temporaryPresentationId == tmpId)){
+		presentationsToConvert.map(p => {return {temporaryPresentationId: p.temporaryPresentationId, presentationId: p.id}}).forEach(objectId => {
+			if (!alreadyRenderedPresList.some(pres => (pres.temporaryPresentationId === objectId.temporaryPresentationId || pres.presentationId === objectId.presentationId))){
 				alreadyRenderedPresList.push({
-					temporaryPresentationId: tmpId,
+					temporaryPresentationId: objectId.temporaryPresentationId,
+					presentationId: objectId.presentationId,
 					rendered: false,
 				});
 			}
@@ -313,7 +325,7 @@ export const ToastController = ({ intl }) => {
 			("conversion" in p && (p.conversion.done || p.conversion.error)))
 			
 		temporaryPresentationIdListToSetAsRendered = temporaryPresentationIdListToSetAsRendered.map(p => {
-			index = alreadyRenderedPresList.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId);
+			index = alreadyRenderedPresList.findIndex(pres => (pres.temporaryPresentationId === p.temporaryPresentationId || pres.presentationId === p.id));
 			if (index !== -1) {
 				alreadyRenderedPresList[index].rendered = true;
 			}
