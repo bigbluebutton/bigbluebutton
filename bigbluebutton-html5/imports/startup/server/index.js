@@ -51,7 +51,7 @@ const serverHealth = () => {
     user: formatMemoryUsage(cpuData.user),
   }
 
-  Logger.info('Server health', {memoryUsage, cpuUsage});
+  Logger.info('Server health ', {memoryUsage, cpuUsage});
 };
 
 Meteor.startup(() => {
@@ -61,9 +61,15 @@ Meteor.startup(() => {
 
   Logger.warn(`Started bbb-html5 process with instanceId=${instanceId}`);
 
-  Meteor.setInterval(() => {
-    serverHealth();
-  }, 30000);
+  const LOG_CONFIG = Meteor.settings.private.serverLog;
+  const { healthChecker } = LOG_CONFIG;
+  const { enable: enableHealthCheck, intervalMs: healthCheckInterval } = healthChecker;
+
+  if (enableHealthCheck) {
+    Meteor.setInterval(() => {
+      serverHealth();
+    }, healthCheckInterval);
+  }
 
   const { customHeartbeat } = APP_CONFIG;
 

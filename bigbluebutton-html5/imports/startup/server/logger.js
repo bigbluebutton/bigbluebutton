@@ -3,15 +3,15 @@ import { createLogger, format, transports } from 'winston';
 import WinstonPromTransport from './prom-metrics/winstonPromTransport';
 
 const LOG_CONFIG = Meteor?.settings?.private?.serverLog || {};
-const { level } = LOG_CONFIG;
+const { level, includeServerInfo } = LOG_CONFIG;
 
-const serverInfoFormat = format.printf(({ level, message, timestamp, ...metadata}) => {
-  const instanceId = parseInt(process.env.INSTANCE_ID, 10);
+const serverInfoFormat = format.printf(({ level, message, timestamp, ...metadata }) => {
+  const instanceId = parseInt(process.env.INSTANCE_ID, 10) || 1;
   const role = process.env.BBB_HTML5_ROLE;
-  const server = Meteor?.isDevelopment ? 'development' : `${role}-${instanceId}`;
+  const server = includeServerInfo && !Meteor?.isDevelopment ? `${role}-${instanceId} ` : "";
 
-  let msg = `${timestamp} ${server} [${level}] : ${message}`;
-  if(metadata) msg += JSON.stringify(metadata)
+  let msg = `${timestamp} ${server}[${level}] : ${message}`;
+  if (metadata) msg += JSON.stringify(metadata)
   return msg
 });
 
