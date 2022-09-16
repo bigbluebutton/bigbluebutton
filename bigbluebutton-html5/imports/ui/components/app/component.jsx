@@ -481,21 +481,16 @@ class App extends Component {
           newQuestionQuiz.responses.forEach((response) => {
             if (response.userId === currentUserId) {
               isUserRespondedToQuiz = true;
-              let isCorrect = false
-              newQuestionQuiz.answers.forEach((ans) => {
-                if (ans.isCorrect && response.answerIds.includes(ans.id) && !isCorrect) {
-                  isCorrect = true
-                  return notify(
-                    `${intl.formatMessage(intlMessages.questionQuizPublishedLabel)}. 
+              if(response.isCorrect)
+              return notify(
+                `${intl.formatMessage(intlMessages.questionQuizPublishedLabel)}. 
                   ${intl.formatMessage(intlMessages.questionQuizUserInfoAnswer)} ${intl.formatMessage(
-                    intlMessages.questionQuizCorrectAnswer)}!`, 'success', 'polling',
-                  );
-                }
-              })
-              !isCorrect && notify(
+                  intlMessages.questionQuizCorrectAnswer)}!`, 'success', 'polling',
+              );
+              notify(
                 `${intl.formatMessage(intlMessages.questionQuizPublishedLabel)}. 
               ${intl.formatMessage(intlMessages.questionQuizUserInfoAnswer)} ${intl.formatMessage(
-                intlMessages.questionQuizIncorrectAnswer)}!`, 'warning', 'polling',
+                  intlMessages.questionQuizIncorrectAnswer)}!`, 'warning', 'polling',
               );
             }
           })

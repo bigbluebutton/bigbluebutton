@@ -12,13 +12,20 @@ export default function userResponded({ body }) {
   const selector = {
     id: questionQuizId,
   };
-
+  const currentQuestionQuiz = QuestionQuizs.findOne(selector)
+  const {answers:options} = currentQuestionQuiz
+  let isCorrect = false;
+  answerIds.forEach((id) => {
+    if(options[id].isCorrect){
+      isCorrect = true;
+    }
+  })
   const modifier = {
     $pull: {
       users: userId,
     },
     $push: {
-      responses: { userId, answerIds },
+      responses: { userId, answerIds, isCorrect },
     },
   };
 

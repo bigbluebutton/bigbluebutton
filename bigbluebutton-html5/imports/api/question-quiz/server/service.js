@@ -29,19 +29,22 @@ const checkCorrectAnswers = (answers) => {
 const generatePrivateChatMessageOfQuestionResult = (messageData, isQuestionQuizPublished) => {
   const {userResponse, answers, messageLabels, question} = messageData
   const isUserNotAttemptedQuiz = userResponse.answerIds.length === 0
-  const userResponseKey = !isUserNotAttemptedQuiz ? answers[userResponse.answerIds[0]].key : null
-  const isUserResponseCorrect = !isUserNotAttemptedQuiz ? answers[userResponse.answerIds[0]].isCorrect : null
+  const isUserResponseCorrect = !isUserNotAttemptedQuiz ? userResponse.isCorrect : null
   let correctOptionsStr = ''
   let count = 0
   let message = ''
+  let userResponseKeys = ''
+  !isUserNotAttemptedQuiz ? 
+  userResponse.answerIds.forEach(ansId => userResponseKeys += `${answers[ansId].key}\n`)
+  : null
   if(isQuestionQuizPublished){
     answers.map((ans) => {if (ans.isCorrect) correctOptionsStr += (`${count+=1}. ${ans.key}\n`)})
     message = messageLabels && `
       *${messageLabels.headerLabel} ${messageLabels.questionLabel}*
       ${question} \n\n *${messageLabels.correctOptLabel[0]?.toUpperCase() + 
       messageLabels.correctOptLabel.slice(1)} ${messageLabels.optionsLabel}* \n${correctOptionsStr}
-      *${messageLabels.responseLabel}* \n${!isUserNotAttemptedQuiz ? userResponseKey : 
-      messageLabels.notAttemptedQuizLabel} \n\n *${messageLabels.questionResultsLabel}*
+      *${messageLabels.responseLabel}* \n${!isUserNotAttemptedQuiz ? userResponseKeys : 
+      messageLabels.notAttemptedQuizLabel+'\n'} \n *${messageLabels.questionResultsLabel}*
       ${messageLabels.userAnswerLabel} ${!isUserNotAttemptedQuiz ? isUserResponseCorrect ? messageLabels.correctOptLabel : 
       messageLabels.incorrectOptLabel : messageLabels.notAttemptedQuizLabel}.
     `
