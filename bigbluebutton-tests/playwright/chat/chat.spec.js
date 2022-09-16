@@ -23,7 +23,7 @@ test.describe.parallel('Chat', () => {
     await chat.clearChat();
   });
 
-  test('Copy chat', async ({ browser, context, page }, testInfo) => {
+  test.only('Copy chat', async ({ browser, context, page }, testInfo) => {
     test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
     const chat = new Chat(browser, page);
     await chat.init(true, true);
