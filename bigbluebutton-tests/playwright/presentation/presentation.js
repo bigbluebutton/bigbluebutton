@@ -6,6 +6,7 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
+const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class Presentation extends MultiUsers {
   constructor(browser, context) {
@@ -145,6 +146,7 @@ class Presentation extends MultiUsers {
   }
 
   async uploadAndRemoveAllPresentations() {
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
   
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -180,6 +182,7 @@ class Presentation extends MultiUsers {
   }
   
   async removePreviousPresentationFromPreviousPresenter() {
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
   
     const modSlides1 = await getSlideOuterHtml(this.modPage);
