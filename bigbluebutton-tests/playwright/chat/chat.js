@@ -54,8 +54,7 @@ class Chat extends Page {
     await this.waitForSelector(e.chatUserMessageText);
     await this.waitAndClick(e.chatCopy);
     // enable access to browser context clipboard
-    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
-    const copiedText = await this.page.evaluate(async () => navigator.clipboard.readText());
+    const copiedText = await this.getCopiedText(context);
     const check = copiedText.includes(`${p.fullName}: ${e.message}`);
     expect(check).toBeTruthy();
   }
@@ -134,6 +133,10 @@ class Chat extends Page {
   
       await this.waitForSelector(e.chatUserMessageText);
       await this.waitAndClick(e.chatCopy);
+
+      const copiedText = await this.getCopiedText(context);
+      const check = copiedText.includes(`${p.fullName}: ${e.emojiSent}`);
+      expect(check).toBeTruthy();
     }
 
     async emojiSaveChat(testInfo) {
@@ -182,6 +185,10 @@ class Chat extends Page {
   
       await this.waitForSelector(e.chatUserMessageText);
       await this.waitAndClick(e.chatCopy);
+
+      const copiedText = await this.getCopiedText(context);
+      const check = copiedText.includes(`${p.fullName}: ${e.autoConvertEmojiMessage}`);
+      expect(check).toBeTruthy();
     }
 
     async autoConvertEmojiSaveChat(testInfo) {
