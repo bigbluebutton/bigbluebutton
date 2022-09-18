@@ -104,6 +104,13 @@ case class SendMessageToBreakoutRoomInternalMsg(parentId: String, breakoutId: St
  */
 case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String, extUserId: String, ejectedBy: String, reason: String, reasonCode: String, ban: Boolean) extends InMessage
 
+/**
+ * Sent by parent meeting to breakout room to import annotated slides.
+ * @param parentMeetingId
+ * @param allSlides
+ */
+case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, allPages: Boolean = false) extends InMessage
+
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
 case class DeskShareStoppedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

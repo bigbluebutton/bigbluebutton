@@ -28,7 +28,6 @@ const propTypes = {
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
   isBreakoutRecordable: PropTypes.bool.isRequired,
-  isBreakoutCaptureEnabled: PropTypes.bool.isRequired,
   dynamicGuestPolicy: PropTypes.bool.isRequired,
 };
 

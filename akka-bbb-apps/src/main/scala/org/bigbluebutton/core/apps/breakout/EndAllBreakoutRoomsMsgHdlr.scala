@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.EndBreakoutRoomInternalMsg
+import org.bigbluebutton.core.api.{ EndBreakoutRoomInternalMsg, CapturePresentationReqInternalMsg }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
@@ -14,8 +14,8 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleEndAllBreakoutRoomsMsg(msg: EndAllBreakoutRoomsMsg, state: MeetingState2x): MeetingState2x = {
+    val meetingId = liveMeeting.props.meetingProp.intId
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-      val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to end breakout rooms for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       state
@@ -26,14 +26,14 @@ trait EndAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
         model.rooms.values.foreach { room =>
           eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id, MeetingEndReason.BREAKOUT_ENDED_BY_MOD)))
 
-          println("=====================================")
-          println("CAPTURE IS: " + room.capture)
-          println("=====================================")
-
+          if (room.capture) {
+            val event = BigBlueButtonEvent(room.id, CapturePresentationReqInternalMsg(msg.header.userId, meetingId))
+            eventBus.publish(event)
+          }
         }
 
         val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-          liveMeeting.props.meetingProp.intId,
+          meetingId,
           "info",
           "rooms",
           "app.toast.breakoutRoomEnded",
