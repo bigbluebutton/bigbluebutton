@@ -10,6 +10,7 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
+import { isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -1026,18 +1027,22 @@ class BreakoutRoom extends PureComponent {
             </Styled.FreeJoinLabel>
           ) : null
         }
-        <Styled.FreeJoinLabel htmlFor="captureBreakoutCheckbox" key="capture-breakouts">
-          <Styled.FreeJoinCheckbox
-            id="captureBreakoutCheckbox"
-            type="checkbox"
-            onChange={this.setCapture}
-            checked={capture}
-            aria-label={intl.formatMessage(intlMessages.captureLabel)}
-          />
-          <span aria-hidden>
-            {intl.formatMessage(intlMessages.captureLabel)}
-          </span>
-        </Styled.FreeJoinLabel>
+        {
+          isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() ? (
+            <Styled.FreeJoinLabel htmlFor="captureBreakoutCheckbox" key="capture-breakouts">
+              <Styled.FreeJoinCheckbox
+                id="captureBreakoutCheckbox"
+                type="checkbox"
+                onChange={this.setCapture}
+                checked={capture}
+                aria-label={intl.formatMessage(intlMessages.captureLabel)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.captureLabel)}
+              </span>
+            </Styled.FreeJoinLabel>
+          ) : null
+        }
       </Styled.CheckBoxesContainer>
     );
   }
