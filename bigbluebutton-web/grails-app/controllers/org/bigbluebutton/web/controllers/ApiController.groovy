@@ -905,6 +905,7 @@ class ApiController {
           reject = true
           respMessage = "The maximum number of participants allowed for this meeting has been reached."
         } else {
+          log.info("User ${us.internalUserId} has entered")
           meeting.userEntered(us.internalUserId)
         }
       }
@@ -1669,7 +1670,10 @@ class ApiController {
     // Users that are entering the meeting
     int enteredUsers = meeting.getEnteredUsers().size()
 
-    Boolean reachedMax = (joinedUsers + enteredUsers) >= maxParticipants;
+    log.info("Joined users - ${joinedUsers}")
+    log.info("Entered users - ${enteredUsers}")
+
+    Boolean reachedMax = joinedUsers >= maxParticipants;
     if (enabled && !rejoin && !reenter && reachedMax) {
       return true;
     }

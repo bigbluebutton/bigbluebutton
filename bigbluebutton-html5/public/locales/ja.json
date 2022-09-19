@@ -716,7 +716,7 @@
     "app.connection-status.description": "ユーザーの接続状況の閲覧",
     "app.connection-status.empty": "現在のところ接続の問題は報告されていません。",
     "app.connection-status.more": "更に見る",
-    "app.connection-status.copy": "スタッツをコピー",
+    "app.connection-status.copy": "状況データをコピー",
     "app.connection-status.copied": "コピーしました！",
     "app.connection-status.jitter": "ジッター",
     "app.connection-status.label": "接続状況",

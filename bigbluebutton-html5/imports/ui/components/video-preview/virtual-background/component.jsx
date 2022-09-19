@@ -20,6 +20,7 @@ import Settings from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
+const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -425,6 +426,7 @@ const VirtualBgSelector = ({
           role="group"
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
           isVisualEffects={isVisualEffects}
+          brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
         >
           {shouldEnableBackgroundUpload() && (
             <>

@@ -12,8 +12,8 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const CursorContainer = (props) => {
   const { cursorX, cursorY, presenter, uid, isViewersCursorLocked } = props;
+  const usingUsersContext = useContext(UsersContext);
   if (cursorX > 0 && cursorY > 0) {
-    const usingUsersContext = useContext(UsersContext);
     const { users } = usingUsersContext;
     const role = users[Auth.meetingID][Auth.userID].role;
     const userId = users[Auth.meetingID][Auth.userID].userId;

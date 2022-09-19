@@ -423,7 +423,8 @@ public class MeetingService implements MessageListener {
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
-            m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn());
+            m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
+            m.getUploadExternalDescription(), m.getUploadExternalUrl());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -952,6 +953,13 @@ public class MeetingService implements MessageListener {
       User user = new User(message.userId, message.externalUserId,
         message.name, message.role, message.avatarURL, message.guest, message.guestStatus,
               message.clientType);
+
+      if(m.getMaxUsers() > 0 && m.getUsers().size() >= m.getMaxUsers()) {
+        m.removeEnteredUser(user.getInternalUserId());
+        gw.ejectDuplicateUser(message.meetingId, user.getInternalUserId(), user.getFullname(), user.getExternalUserId());
+        return;
+      }
+
       m.userJoined(user);
       m.setGuestStatusWithId(user.getInternalUserId(), message.guestStatus);
       UserSession userSession = getUserSessionWithUserId(user.getInternalUserId());

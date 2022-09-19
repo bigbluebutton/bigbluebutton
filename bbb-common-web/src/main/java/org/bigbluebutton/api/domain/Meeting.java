@@ -96,6 +96,8 @@ public class Meeting {
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
+	private String uploadExternalDescription;
+	private String uploadExternalUrl;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -120,6 +122,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
+		uploadExternalDescription = builder.uploadExternalDescription;
+		uploadExternalUrl = builder.uploadExternalUrl;
 		if (builder.viewerPass == null){
 			viewerPass = "";
 		} else {
@@ -387,6 +391,13 @@ public class Meeting {
 
 	public Boolean getNotifyRecordingIsOn() {
 		return notifyRecordingIsOn;
+	}
+
+	public String getUploadExternalDescription() {
+		return uploadExternalDescription;
+	}
+	public String getUploadExternalUrl() {
+		return uploadExternalUrl;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -819,6 +830,8 @@ public class Meeting {
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
 		private Boolean notifyRecordingIsOn;
+		private String uploadExternalDescription;
+		private String uploadExternalUrl;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -943,6 +956,16 @@ public class Meeting {
 
     	public Builder withNotifyRecordingIsOn(Boolean b) {
 	    	this.notifyRecordingIsOn = b;
+	    	return this;
+	    }
+
+    	public Builder withUploadExternalDescription(String d) {
+	    	this.uploadExternalDescription = d;
+	    	return this;
+	    }
+
+			public Builder withUploadExternalUrl(String u) {
+	    	this.uploadExternalUrl = u;
 	    	return this;
 	    }
 

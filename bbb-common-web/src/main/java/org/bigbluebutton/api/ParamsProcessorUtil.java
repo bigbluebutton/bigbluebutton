@@ -101,6 +101,8 @@ public class ParamsProcessorUtil {
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
+    private String defaultUploadExternalDescription = "";
+    private String defaultUploadExternalUrl = "";
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
@@ -625,6 +627,16 @@ public class ParamsProcessorUtil {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
 
+        String uploadExternalDescription = defaultUploadExternalDescription;
+        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION))) {
+            uploadExternalDescription = params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION);
+        }
+
+        String uploadExternalUrl = defaultUploadExternalUrl;
+        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_URL))) {
+            uploadExternalUrl = params.get(ApiParams.UPLOAD_EXTERNAL_URL);
+        }
+
         String meetingLayout = defaultMeetingLayout;
 
         ArrayList<Group> groups = processGroupsParams(params);
@@ -708,6 +720,8 @@ public class ParamsProcessorUtil {
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
+                .withUploadExternalDescription(uploadExternalDescription)
+                .withUploadExternalUrl(uploadExternalUrl)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1375,6 +1389,14 @@ public class ParamsProcessorUtil {
 
   public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
       this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+  }
+
+  public void setUploadExternalDescription(String uploadExternalDescription) {
+    this.defaultUploadExternalDescription = uploadExternalDescription;
+  }
+
+  public void setUploadExternalUrl(String uploadExternalUrl) {
+    this.defaultUploadExternalUrl = uploadExternalUrl;
   }
 
   public void setBbbVersion(String version) {
