@@ -24,11 +24,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="location">
-            <value>classpath:bigbluebutton.properties</value>
+        <property name="locations">
+            <list>
+                <value>classpath:bigbluebutton.properties</value>
+                <value>file:/etc/bigbluebutton/bbb-web.properties</value>
+            </list>
         </property>
     </bean>
-
 
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
