@@ -130,8 +130,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
-      val reason = "Importing slides from breakout rooms disabled for this meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+      log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
     } else {

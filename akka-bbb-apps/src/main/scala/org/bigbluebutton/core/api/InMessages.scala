@@ -109,7 +109,7 @@ case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String
  * @param parentMeetingId
  * @param allSlides
  */
-case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, allPages: Boolean = false) extends InMessage
+case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, allPages: Boolean = true) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

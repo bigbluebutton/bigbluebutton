@@ -285,6 +285,10 @@ public class Meeting {
         this.freeJoin = freeJoin;
     }
 
+	public Boolean isCaptured() {
+        return capture;
+    }
+
 	public void setCapture(Boolean capture) {
 		this.capture = capture;
 	}

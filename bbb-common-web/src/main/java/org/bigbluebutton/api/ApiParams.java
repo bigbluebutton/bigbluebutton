@@ -31,7 +31,6 @@ public class ApiParams {
     public static final String DIAL_NUMBER = "dialNumber";
     public static final String DURATION = "duration";
     public static final String FREE_JOIN = "freeJoin";
-    public static final String CAPTURE = "capture";
     public static final String FULL_NAME = "fullName";
     public static final String GUEST_POLICY = "guestPolicy";
     public static final String MEETING_LAYOUT = "meetingLayout";
@@ -74,6 +73,7 @@ public class ApiParams {
     public static final String DISABLED_FEATURES = "disabledFeatures";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 
+    public static final String BREAKOUT_ROOMS_CAPTURE = "capture";
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
     public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";
