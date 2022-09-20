@@ -78,6 +78,13 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+// Emoji picker
+exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
+exports.frequentlyUsedEmoji = '👍';
+exports.emojiSent = 'section[aria-label="Frequently Used"] button[title="+1"] span';
+// Auto Convert Emoji
+exports.autoConvertEmojiMessage = ':)';
+exports.convertedEmojiMessage = '😊';
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';

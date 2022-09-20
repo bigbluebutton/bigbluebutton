@@ -21,6 +21,8 @@ async function generateSettingsData(page) {
       chatEnabled: settingsData.chat.enabled,
       publicChatOptionsEnabled: settingsData.chat.enableSaveAndCopyPublicChat,
       maxMessageLength: settingsData.chat.max_message_length,
+      emojiPickerEnabled: settingsData.chat.enableEmojiPicker,
+      autoConvertEmojiEnabled: settingsData.chat.autoConvertEmoji,
       // Polling
       pollEnabled: settingsData.poll.enabled,
       pollChatMessage: settingsData.poll.chatMessage,

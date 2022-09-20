@@ -115,6 +115,11 @@ class Page {
     return locator.count();
   }
 
+  async getCopiedText(context) {
+    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL});
+    return this.page.evaluate(async () => navigator.clipboard.readText());
+  }
+
   async closeAudioModal() {
     await this.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
     await this.waitAndClick(e.closeModal);
