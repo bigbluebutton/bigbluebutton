@@ -81,8 +81,8 @@ const mapGroupMessage = (message) => {
     const mappedSender = {
       avatar: sender?.avatar,
       color: message.color,
-      isModerator: sender?.role === ROLE_MODERATOR,
-      name: sender.name,
+      isModerator: message.senderRole === ROLE_MODERATOR,
+      name: message.senderName,
       isOnline: !!sender,
     };
 
