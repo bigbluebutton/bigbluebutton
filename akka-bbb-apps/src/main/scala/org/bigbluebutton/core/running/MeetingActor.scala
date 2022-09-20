@@ -283,7 +283,7 @@ class MeetingActor(
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: SendBreakoutTimeRemainingInternalMsg =>
       handleSendBreakoutTimeRemainingInternalMsg(msg)
-
+    case msg: CaptureSharedNotesReqInternalMsg => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
 

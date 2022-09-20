@@ -1028,6 +1028,7 @@
     "app.createBreakoutRoom.addRoomTime": "Increase breakout room time to",
     "app.createBreakoutRoom.addParticipantLabel": "+ Add participant",
     "app.createBreakoutRoom.freeJoin": "Allow users to choose a breakout room to join",
+    "app.createBreakoutRoom.captureNotes": "Capture shared notes when breakout rooms end",
     "app.createBreakoutRoom.leastOneWarnBreakout": "You must place at least one user in a breakout room.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Minimum duration for a breakout room is {0} minutes.",
     "app.createBreakoutRoom.modalDesc": "Tip: You can drag-and-drop a user's name to assign them to a specific breakout room.",
