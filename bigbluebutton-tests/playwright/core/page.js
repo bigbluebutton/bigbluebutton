@@ -58,6 +58,14 @@ class Page {
     }
   }
 
+  async handleNewTab(selector, context){
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      this.waitAndClick(selector),
+    ]);
+    return newPage;
+  }
+
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
