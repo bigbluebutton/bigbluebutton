@@ -4,7 +4,8 @@
     "test:filter": "npx playwright test -g",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug -g",
-    "test-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci"
+    "test-chromium-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci",
+    "test-firefox-ci": "export CI='true' && npx playwright test --project=firefox --grep @ci"
   },
   "dependencies": {
     "@playwright/test": "^1.19.2",

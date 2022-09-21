@@ -35,7 +35,7 @@ class Page {
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
-    const hasErrorLabel = await this.page.evaluate(checkElement, [e.errorMessageLabel]);
+    const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'Getting error when joining. Check if the BBB_URL and BBB_SECRET are set correctly').toBeFalsy();
     this.settings = await generateSettingsData(this.page);
     const { autoJoinAudioModal } = this.settings;
@@ -87,9 +87,9 @@ class Page {
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamConnecting);
     await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(e.webcamConnecting);
   }
 
   getLocator(selector) {

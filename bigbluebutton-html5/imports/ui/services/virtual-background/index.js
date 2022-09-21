@@ -240,16 +240,22 @@ class VirtualBackgroundService {
 
     changeBackgroundImage(parameters = null) {
         const virtualBackgroundImagePath = getVirtualBgImagePath();
-        let imagesrc = virtualBackgroundImagePath + '';
+        let name = '';
         let type = 'blur';
+        let isVirtualBackground = false;
         if (parameters != null && Object.keys(parameters).length > 0) {
-            imagesrc = parameters.name;
+            name = parameters.name;
             type = parameters.type;
-            this._options.virtualBackground.isVirtualBackground = parameters.isVirtualBackground;
+            isVirtualBackground = parameters.isVirtualBackground;
         }
-        this._virtualImage = document.createElement('img');
-        this._virtualImage.crossOrigin = 'anonymous';
-        this._virtualImage.src = virtualBackgroundImagePath + imagesrc;
+        this._options.virtualBackground.virtualSource = virtualBackgroundImagePath + name;
+        this._options.virtualBackground.backgroundType = type;
+        this._options.virtualBackground.isVirtualBackground = isVirtualBackground;
+        if (this._options.virtualBackground.backgroundType === 'image') {
+            this._virtualImage = document.createElement('img');
+            this._virtualImage.crossOrigin = 'anonymous';
+            this._virtualImage.src = virtualBackgroundImagePath + name;
+        }
     }
 
     /**

@@ -275,32 +275,45 @@ class PresentationUploader extends Component {
       ...propPresentations,
       ...presentations,
     });
-    const presStateMapped = presState.map((presentation) => {
-      propPresentations.forEach((propPres) => {
-        if (propPres.id === presentation.id) {
-          const prevPropPres = prevPropPresentations.find((pres) => pres.id === propPres.id);
-          if (propPres.isCurrent !== prevPropPres?.isCurrent) {
-            presentation.isCurrent = propPres.isCurrent;
-            shouldUpdateState = true;
-          }
-        }
-      });
-      return presentation;
-    }).filter((presentation) => {
+    const presStateFiltered = presState.filter((presentation) => {
       const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
+      const prevPropPres = prevPropPresentations.find((pres) => pres.id === presentation.id);
+      const hasConversionError = presentation?.conversion?.error;
+      const finishedConversion = presentation?.conversion?.done || currentPropPres?.conversion?.done;
+      const hasTemporaryId = presentation.id.startsWith(presentation.filename);
 
+      if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
 
+      if(presentation?.conversion?.done !== finishedConversion) {
+        shouldUpdateState = true;
+      }
+
+      if (currentPropPres.isCurrent !== prevPropPres?.isCurrent) {
+        presentation.isCurrent = currentPropPres.isCurrent;
+      }
+
       presentation.conversion = currentPropPres.conversion;
-      presentation.isDownloadable = currentPropPres.isDownloadable;
       presentation.isRemovable = currentPropPres.isRemovable;
 
+      return true;
+    }).filter(presentation => {
+      const duplicated = presentations.find(
+        (pres) => pres.filename === presentation.filename
+          && pres.id !== presentation.id
+      );
+      if (duplicated
+        && duplicated.id.startsWith(presentation.filename)
+        && !presentation.id.startsWith(presentation.filename)
+        && presentation?.conversion?.done === duplicated?.conversion?.done) {
+          return false;
+      }
       return true;
     });
 
     if (shouldUpdateState) {
       this.setState({
-        presentations: presStateMapped,
+        presentations: _.uniqBy(presStateFiltered, 'id')
       });
     }
 
@@ -729,7 +742,7 @@ class PresentationUploader extends Component {
             </tr>
           </thead>
           <tbody>
-            {presentationsSorted.map((item) => this.renderPresentationItem(item))}
+            {_.uniqBy(presentationsSorted, 'id').map((item) => this.renderPresentationItem(item))}
           </tbody>
         </Styled.Table>
       </Styled.FileList>
@@ -747,7 +760,7 @@ class PresentationUploader extends Component {
     let converted = 0;
 
     let presentationsSorted = presentations
-      .filter((p) => (p.upload.progress || p.conversion.status) && p.file)
+      .filter((p) => (p.upload.progress || p.upload.error || p.conversion.status) && p.file)
       .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
       .sort((a, b) => a.conversion.done - b.conversion.done);
 
@@ -992,7 +1005,7 @@ class PresentationUploader extends Component {
   }
 
   renderPresentationItemStatus(item) {
-    const { intl } = this.props;
+    const { intl, fileSizeMax } = this.props;
     if (!item.upload.done && item.upload.progress === 0) {
       return intl.formatMessage(intlMessages.fileToUpload);
     }
@@ -1006,13 +1019,13 @@ class PresentationUploader extends Component {
     const constraint = {};
 
     if (item.upload.done && item.upload.error) {
-      if (item.conversion.status === 'FILE_TOO_LARGE') {
-        constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-      }
-
-      if (item.upload.progress < 100) {
-        const errorMessage = intlMessages.badConnectionError;
-        return intl.formatMessage(errorMessage);
+      if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status === 413) {
+        constraint['0'] = (fileSizeMax / 1000 / 1000).toFixed(2);
+      } else {
+        if (item.upload.progress < 100) {
+          const errorMessage = intlMessages.badConnectionError;
+          return intl.formatMessage(errorMessage);
+        }
       }
 
       const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
