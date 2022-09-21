@@ -58,6 +58,14 @@ class Page {
     }
   }
 
+  async handleNewTab(selector, context){
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      this.waitAndClick(selector),
+    ]);
+    return newPage;
+  }
+
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
@@ -105,6 +113,11 @@ class Page {
   async getSelectorCount(selector) {
     const locator = this.getLocator(selector);
     return locator.count();
+  }
+
+  async getCopiedText(context) {
+    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL});
+    return this.page.evaluate(async () => navigator.clipboard.readText());
   }
 
   async closeAudioModal() {

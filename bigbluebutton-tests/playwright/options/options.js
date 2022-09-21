@@ -1,3 +1,4 @@
+const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
@@ -11,6 +12,15 @@ class Options extends Page {
   async openedAboutModal() {
     await openAboutModal(this);
     await this.hasElement(e.closeModal);
+  }
+
+  async openHelp(context) {
+    await this.waitAndClick(e.optionsButton);
+
+    const newPage = await this.handleNewTab(e.helpButton, context);
+
+    await expect(newPage).toHaveTitle(/BigBlueButton Tutorials/);
+    await this.hasElement(e.presentationTitle);
   }
 
   async localesTest() {
