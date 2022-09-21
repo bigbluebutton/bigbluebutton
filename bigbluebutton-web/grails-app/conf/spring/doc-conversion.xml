@@ -30,6 +30,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 <value>file:/etc/bigbluebutton/bbb-web.properties</value>
             </list>
         </property>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
     </bean>
 
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
