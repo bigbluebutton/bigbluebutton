@@ -291,26 +291,33 @@ export const ToastController = ({ intl }) => {
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
-		console.log("Teste pra saber quais são as presentations: -------> ", {presentationsToConvert: JSON.parse(JSON.stringify(presentationsToConvert)), alreadyRenderedPresList: JSON.parse(JSON.stringify(alreadyRenderedPresList)), presentationsRenderedFalseAndConversionFalse: JSON.parse(JSON.stringify(presentationsRenderedFalseAndConversionFalse))})
 		// Updating or populating the "state" presentation list
 		presentationsToConvert.map(p => {
-
 			return {
+				filename: p.name || p.filename,
 				temporaryPresentationId: p.temporaryPresentationId, 
 				presentationId: p.id,
 				hasError: p.conversion?.error || p.upload?.error,
+				lastModifiedUploader: p.lastModifiedUploader,
 			}
-		}).forEach(objectId => {
-			const docIndexAlreadyInList = alreadyRenderedPresList.findIndex(pres => (pres.temporaryPresentationId === objectId.temporaryPresentationId || pres.presentationId === objectId.presentationId))
+		}).forEach(p => {
+			const docIndexAlreadyInList = alreadyRenderedPresList.findIndex(pres => {
+				return (pres.temporaryPresentationId === p.temporaryPresentationId || pres.presentationId === p.presentationId 
+				|| (pres.lastModifiedUploader !== undefined && !pres.lastModifiedUploader && pres.filename === p.filename))});
 			if (docIndexAlreadyInList === -1) {
 				alreadyRenderedPresList.push({
-					temporaryPresentationId: objectId.temporaryPresentationId,
-					presentationId: objectId.presentationId,
+					filename: p.filename,
+					temporaryPresentationId: p.temporaryPresentationId,
+					presentationId: p.presentationId,
 					rendered: false,
-					hasError: objectId.hasError,
+					lastModifiedUploader: p.lastModifiedUploader,
+					hasError: p.hasError,
 				});
 			} else {
-				alreadyRenderedPresList[docIndexAlreadyInList].hasError = objectId.hasError;
+				alreadyRenderedPresList[docIndexAlreadyInList].temporaryPresentationId = p.temporaryPresentationId;
+				alreadyRenderedPresList[docIndexAlreadyInList].presentationId = p.presentationId;
+				alreadyRenderedPresList[docIndexAlreadyInList].lastModifiedUploader = p.lastModifiedUploader;
+				alreadyRenderedPresList[docIndexAlreadyInList].hasError = p.hasError;
 			}
 		})
 		let activeToast = Session.get("presentationUploaderToastId");

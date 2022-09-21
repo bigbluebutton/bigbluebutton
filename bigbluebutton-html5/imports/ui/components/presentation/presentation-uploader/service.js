@@ -80,7 +80,7 @@ const observePresentationConversion = (
 ) => new Promise((resolve) => {
   // The token is placed as an id before the original one is generated
   // in the back-end; 
-  const tokenId = PresentationUploadToken.findOne({temporaryPresentationId}).authzToken;
+  const tokenId = PresentationUploadToken.findOne({temporaryPresentationId})?.authzToken;
 
   const conversionTimeout = setTimeout(() => {
     onConversion({
@@ -199,15 +199,23 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  UploadingPresentations.insert({
-    temporaryPresentationId,
-    progress: 0,
-    filename: file.name,
-    upload: {
-      done: false,
-      error: false
-    },
-    uploadTimestamp: new Date()
+  // If the presentation is from sharedNotes I don't want to 
+  // insert another one, I just need to update it.
+  UploadingPresentations.upsert({
+      filename: file.name,
+      lastModifiedUploader: false,
+    }, {
+      $set: {
+        temporaryPresentationId,
+        progress: 0,
+        filename: file.name,
+        lastModifiedUploader: true,
+        upload: {
+          done: false,
+          error: false
+        },
+        uploadTimestamp: new Date()
+    }
   })
 
   return requestPresentationUploadToken(temporaryPresentationId, podId, meetingId, file.name)
