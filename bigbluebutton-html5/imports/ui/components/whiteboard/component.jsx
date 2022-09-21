@@ -29,6 +29,7 @@ const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
+const TOOLBAR_OFFSET = 0;
 
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
@@ -270,7 +271,7 @@ export default function Whiteboard(props) {
       }
       if (props.height < SMALLEST_HEIGHT && tdTools) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
-        tdTools.parentElement.style.bottom = `${TOOLBAR_SMALL}px`;
+        tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
       }
       // removes tldraw native help menu button
       tdTools?.parentElement?.nextSibling?.remove();
@@ -407,6 +408,13 @@ export default function Whiteboard(props) {
             },
           },
         );
+      }
+    }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      if (patchedShape?.type === 'text') {
+        persistShape(patchedShape, whiteboardId);
       }
     }
   };

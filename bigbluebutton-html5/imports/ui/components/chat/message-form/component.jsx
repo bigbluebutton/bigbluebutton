@@ -312,6 +312,7 @@ class MessageForm extends PureComponent {
         circle
         hideLabel
         label={intl.formatMessage(messages.emojiButtonLabel)}
+        data-test="emojiPickerButton"
       />
     );
   }

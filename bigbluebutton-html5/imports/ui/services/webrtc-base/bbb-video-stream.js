@@ -12,6 +12,10 @@ export default class BBBVideoStream extends EventEmitter2 {
   }
 
   static trackStreamTermination(stream, handler) {
+    const _handler = () => {
+      handler({ id: stream?.id });
+    };
+
     // Dirty, but effective way of checking whether the browser supports the 'inactive'
     // event. If the oninactive interface is null, it can be overridden === supported.
     // If undefined, it's not; so we fallback to the track 'ended' event.
@@ -19,14 +23,14 @@ export default class BBBVideoStream extends EventEmitter2 {
     // thin wrapper classes for MediaStreamTracks as well, because we'll want a single
     // media stream holding multiple tracks in the future
     if (stream.oninactive === null) {
-      stream.addEventListener('inactive', handler, { once: true });
+      stream.addEventListener('inactive', _handler, { once: true });
     } else {
       const track = MediaStreamUtils.getVideoTracks(stream)[0];
       if (track) {
-        track.addEventListener('ended', handler, { once: true });
+        track.addEventListener('ended', _handler, { once: true });
         // Extra safeguard: Firefox doesn't fire the 'ended' when it should
         // but it invokes the callback (?), so hook up to both
-        track.onended = handler;
+        track.onended = _handler;
       }
     }
   }
@@ -69,8 +73,8 @@ export default class BBBVideoStream extends EventEmitter2 {
   }
 
   _trackOriginalStreamTermination() {
-    const notify = () => {
-      this.emit('inactive');
+    const notify = ({ id }) => {
+      this.emit('inactive', { id });
     };
 
     BBBVideoStream.trackStreamTermination(this.originalStream, notify);

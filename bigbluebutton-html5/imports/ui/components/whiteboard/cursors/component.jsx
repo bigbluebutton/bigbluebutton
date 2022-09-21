@@ -1,5 +1,6 @@
 import * as React from "react";
 import { _ } from "lodash";
+import logger from '/imports/startup/client/logger';
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
 const XL_OFFSET = 85;
@@ -133,11 +134,18 @@ export default function Cursors(props) {
   const start = () => setActive(true);
   
   const end = () => {
-    publishCursorUpdate({
-      xPercent: 0,
-      yPercent: 0,
-      whiteboardId: whiteboardId,
-    });
+    if(typeof whiteboardId == "String"){
+      publishCursorUpdate({
+        xPercent: 0,
+        yPercent: 0,
+        whiteboardId: whiteboardId,
+      });
+    } else {
+      logger.info({
+        logCode: 'cursor_not_logged',
+        extraInfo: { whiteboardId: whiteboardId },
+      }, "cursor not sent since used when whiteboard not loaded, (whiteboardID = " + whiteboardId + ")");
+    }
     setActive(false);
   };
 
