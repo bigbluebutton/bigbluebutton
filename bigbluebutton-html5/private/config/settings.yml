@@ -574,6 +574,7 @@ public:
     traceSip: false
     # SDP semantics: plan-b|unified-plan
     sdpSemantics: 'unified-plan'
+    disableWebsocketFallback: false
   stats:
     enabled: true
     interval: 10000
