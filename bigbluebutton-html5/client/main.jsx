@@ -38,7 +38,7 @@ import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
 
-const { disableWebsocketFallback } = Meteor.settings.public.media;
+const { disableWebsocketFallback } = Meteor.settings.public.app;
 
 if (disableWebsocketFallback) {
   Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; }
