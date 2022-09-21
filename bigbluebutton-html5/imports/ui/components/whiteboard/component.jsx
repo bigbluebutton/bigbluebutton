@@ -316,6 +316,22 @@ export default function Whiteboard(props) {
           `set_hovered_id`
         );
       };
+      // disable selecting background slide shape
+      app.setSelectedIds = (ids) => {
+        ids = ids.filter(id => !id.includes('slide-background'))
+        app.patchState(
+          {
+            document: {
+              pageStates: {
+                [app.getPage()?.id]: {
+                  selectedIds: ids || [],
+                },
+              },
+            },
+          },
+          `selected`
+        );
+      };
     }
 
     if (curPageId) {
@@ -376,6 +392,23 @@ export default function Whiteboard(props) {
     if (slidePosition && reason && !isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
+    }
+    // disable select for non presenter that doesn't have multi user access
+    if (!hasWBAccess && !isPresenter) {
+      if (e?.getPageState()?.brush || e?.selectedIds?.length !== 0) {
+        e.patchState(
+          {
+            document: {
+              pageStates: {
+                [e?.currentPageId]: {
+                  selectedIds: [],
+                  brush: null,
+                },
+              },
+            },
+          },
+        );
+      }
     }
 
     if (reason && reason === 'patched_shapes') {
