@@ -62,6 +62,11 @@ async function waitAndClearDefaultPresentationNotification(testPage) {
   }
 }
 
+async function clearNotificationIfPresent(testPage) {
+  const hasNotificationAppeared = await testPage.page.evaluate(checkElement, e.smallToastMsg);
+  if (hasNotificationAppeared) await testPage.waitAndClick(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+}
+
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
@@ -69,5 +74,6 @@ exports.checkNotificationText = checkNotificationText;
 exports.checkNotificationIcon = checkNotificationIcon;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
+exports.clearNotificationIfPresent = clearNotificationIfPresent;
 exports.waitAndClearNotification = waitAndClearNotification;
 exports.waitAndClearDefaultPresentationNotification = waitAndClearDefaultPresentationNotification;

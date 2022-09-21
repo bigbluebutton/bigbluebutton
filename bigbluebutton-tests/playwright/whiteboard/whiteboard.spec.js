@@ -29,28 +29,28 @@ test.describe.parallel('Drawing - visual regression', () => {
 
   test('Draw rectangle', async ({ browser, context, page }) => {
     const drawRectangle = new DrawRectangle(browser, context);
-    await drawRectangle.initModPage(page, true, { customMeetingId : CUSTOM_MEETING_ID });
+    await drawRectangle.initModPage(page, true, { customMeetingId : 'draw_rectangle_meeting' });
     await drawRectangle.initModPage2();
     await drawRectangle.test();
   });
 
   test('Draw ellipse', async ({ browser, context, page }) => {
     const drawEllipse = new DrawEllipse(browser, context);
-    await drawEllipse.initModPage(page, true, { customMeetingId : CUSTOM_MEETING_ID });
+    await drawEllipse.initModPage(page, true, { customMeetingId : 'draw_ellipse_meeting' });
     await drawEllipse.initModPage2();
     await drawEllipse.test();
   });
 
   test('Draw triangle', async ({ browser, context, page }) => {
     const drawTriangle = new DrawTriangle(browser, context);
-    await drawTriangle.initModPage(page, true, { customMeetingId : CUSTOM_MEETING_ID });
+    await drawTriangle.initModPage(page, true, { customMeetingId : 'draw_triangle_meeting' });
     await drawTriangle.initModPage2();
     await drawTriangle.test();
   });
 
   test('Draw line', async ({ browser, context, page }) => {
     const drawLine= new DrawLine(browser, context);
-    await drawLine.initModPage(page, true, { customMeetingId : CUSTOM_MEETING_ID });
+    await drawLine.initModPage(page, true, { customMeetingId : 'draw_line_meeting' });
     await drawLine.initModPage2();
     await drawLine.test();
   });
