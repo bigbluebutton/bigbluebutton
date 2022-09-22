@@ -58,6 +58,30 @@ case $RELEASE in
       INSTALL_SCRIPT=bbb-install-2.6.sh
       INSTALL_OPTIONS=
       ;;
+   bionic-*)
+      # Git builds, with names like bionic-e41349, for BigBlueButton 2.4
+      # osito.freesoft.org is my development server, which is the repository for git builds
+      # We expect to have a directory named like bionic-e41349 available on this host's web server
+      #    containing a valid Debian package repository
+      INSTALL_OPTIONS="-r osito.freesoft.org"
+      INSTALL_SCRIPT=bbb-install.sh
+      ;;
+   focal-*)
+      # Git builds for BigBlueButton 2.5 or 2.6
+      INSTALL_OPTIONS="-r osito.freesoft.org"
+
+      # We can't tell from the name of the release if this is 2.5 or 2.6,
+      # so look at the bigbluebutton package to figure this out
+      MAIN_PACKAGE_NAME=$(wget -qO- https://osito.freesoft.org/$RELEASE/dists/bigbluebutton-focal/main/binary-amd64/Packages | grep pool/main/b/bigbluebutton)
+      if echo $MAIN_PACKAGE_NAME | grep -q 2\\.6; then
+         INSTALL_SCRIPT=bbb-install-2.6.sh
+      elif echo $MAIN_PACKAGE_NAME | grep -q 2\\.5; then
+         INSTALL_SCRIPT=bbb-install-2.5.sh
+      else
+         echo Unknown bigbluebutton version
+         exit 1
+      fi
+      ;;
    *)
       echo "Unknown release: $RELEASE"
       exit 1
