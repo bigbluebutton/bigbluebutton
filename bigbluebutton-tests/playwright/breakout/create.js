@@ -1,6 +1,7 @@
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { expect } = require('@playwright/test');
 
 class Create extends MultiUsers {
   constructor(browser, context) {
@@ -13,19 +14,20 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     //Change number of rooms
-    //await this.modPage.waitAndClick(e.selectNumberOfRooms);
     await this.modPage.getLocator(e.selectNumberOfRooms).selectOption('7');
-    await this.modPage.hasText(e.selectNumberOfRooms, '7');
+    await this.modPage.checkElementCount(e.roomGrid, 8);
 
-    //Decrease and Increase breakout time
+    //Change duration time
     await this.modPage.waitAndClick(e.increaseBreakoutTime);
-    await this.modPage.hasElement(e.numberDurationTime);
+    await this.modPage.hasValue(e.durationTime, /16/);
     await this.modPage.waitAndClick(e.decreaseBreakoutTime);
-    await this.modPage.hasElement(e.numberDurationTime15);
+    await this.modPage.hasValue(e.durationTime, /15/);
 
     //Reset assignments
     await this.modPage.waitAndClick(e.randomlyAssign);
+    await this.modPage.hasText(e.breakoutBox1, /Attendee/);
     await this.modPage.waitAndClick(e.resetAssignments);
+    await this.modPage.hasText(e.breakoutBox0, /Attendee/);
 
     //Remove specific assignment
     await this.modPage.waitAndClick(e.randomlyAssign);
@@ -39,7 +41,7 @@ class Create extends MultiUsers {
 
     //Change room's name
     await this.modPage.type(e.roomName, 'Test');
-    await this.modPage.hasElement(e.roomNameTest);
+    await this.modPage.hasValue(e.roomName, /Test/);
 
     //Randomly assignment
     await this.modPage.waitAndClick(e.randomlyAssign);

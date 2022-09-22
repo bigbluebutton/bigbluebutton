@@ -783,7 +783,7 @@ class BreakoutRoom extends PureComponent {
     };
 
     return (
-      <Styled.BoxContainer key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }}>
+      <Styled.BoxContainer key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }} data-test="roomGrid">
         <Styled.Alert valid={leastOneUserIsValid} role="alert">
           <Styled.FreeJoinLabel>
             <Styled.BreakoutNameInput
@@ -814,7 +814,7 @@ class BreakoutRoom extends PureComponent {
                   onBlur={changeRoomName(value)}
                   aria-label={`${this.getRoomName(value)}`}
                   aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
-                  data-test="roomName"
+                  data-test={this.getRoomName(value).length === 0 ? `room-error-${value}` : `roomName-${value}`}
                 />
                 <div aria-hidden id={`room-input-${value}`} className="sr-only">
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
@@ -1053,7 +1053,6 @@ class BreakoutRoom extends PureComponent {
           draggable
           onDragStart={dragStart}
           onDragEnd={dragEnd}
-          data-test="userTest"
         >
           <span>
             <span>{user.userName}</span>

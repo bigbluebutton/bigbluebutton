@@ -54,9 +54,10 @@ class Join extends Create {
 
   async messageToAllRooms() {
     const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.type(e.chatBox, "teste");
+    await this.modPage.type(e.chatBox, "test");
     await this.modPage.waitAndClick(e.sendButton);
 
     await breakoutUserPage.hasElement(e.chatUserMessageText);
@@ -64,11 +65,11 @@ class Join extends Create {
 
   async changeDurationTime() {
     const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openBreakoutTimeManager);
-    
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
@@ -80,7 +81,6 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
-
     await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
     await this.modPage.waitAndClick(e.modalConfirmButton);
@@ -91,20 +91,18 @@ class Join extends Create {
 
   async usernameShowsBelowRoomsName() {
     const breakoutUserPage = await this.joinRoom();
-
+    //await breakoutUserPage.waitForSelector(e.presentationTitle);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
-
   }
 
   async showBreakoutRoomTimeRemaining() {
     const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openBreakoutTimeManager);
-
-
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
@@ -117,7 +115,6 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.endAllBreakouts);
-
     await this.modPage.wasRemoved(e.breakoutRoomsItem);
   }
 }
