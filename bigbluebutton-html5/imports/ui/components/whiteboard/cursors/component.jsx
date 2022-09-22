@@ -1,5 +1,4 @@
 import * as React from "react";
-import { _ } from "lodash";
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
 const XL_OFFSET = 85;
@@ -141,7 +140,7 @@ export default function Cursors(props) {
       });
     };
     setActive(false);
-  };
+  }
 
   const moved = (event) => {
     const { type, x, y } = event;
