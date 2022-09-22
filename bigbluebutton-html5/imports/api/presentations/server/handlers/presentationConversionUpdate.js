@@ -62,7 +62,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       break;
     case CONVERSION_TIMEOUT_KEY:
       statusModifier['conversion.error'] = true;
-      statusModifier['conversion.convPdfToSvgTimeout'] = body.convPdfToSvgTimeout;
+      statusModifier['conversion.maxNumberOfAttempts'] = body.maxNumberOfAttempts;
       statusModifier['conversion.numberPageError'] = body.page;
       
       break;

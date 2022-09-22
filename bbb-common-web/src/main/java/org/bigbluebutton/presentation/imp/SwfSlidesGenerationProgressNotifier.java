@@ -31,8 +31,7 @@ public class SwfSlidesGenerationProgressNotifier {
   private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
 
   private IBbbWebApiGWApp messagingService;
-
-  private int convPdfToSvgTimeout = 3;
+  private int maxNumberOfAttempts = 3;
   private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 
 
@@ -58,7 +57,7 @@ public class SwfSlidesGenerationProgressNotifier {
             pres.getMeetingId(),
             pres.getName(),
             ConversionMessageConstants.CONVERSION_TIMEOUT_KEY,
-            page, pres.getTemporaryPresentationId(), pres.getId(), convPdfToSvgTimeout);
+            page, pres.getTemporaryPresentationId(), pres.getId(), maxNumberOfAttempts);
     messagingService.sendDocConversionMsg(errorMessage);
   }
 
@@ -111,8 +110,8 @@ public class SwfSlidesGenerationProgressNotifier {
     messagingService = m;
   }
 
-  public void setConvPdfToSvgTimeout(int convPdfToSvgTimeout) {
-    this.convPdfToSvgTimeout = convPdfToSvgTimeout;
+  public void setMaxNumberOfAttempts(int maxNumberOfAttempts) {
+    this.maxNumberOfAttempts = maxNumberOfAttempts;
   }
 
   public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {

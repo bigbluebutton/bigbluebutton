@@ -8,7 +8,7 @@ public class UploadFileTimedoutMessage implements IDocConversionMsg {
   public final String messageKey;
   public final String temporaryPresentationId;
   public final String presentationId;
-  public final int convPdfToSvgTimeout;
+  public final int maxNumberOfAttempts;
 
   public UploadFileTimedoutMessage(String podId,
                                    String meetingId,
@@ -17,7 +17,7 @@ public class UploadFileTimedoutMessage implements IDocConversionMsg {
                                    int page,
                                    String temporaryPresentationId,
                                    String presentationId,
-                                   int convPdfToSvgTimeout) {
+                                   int maxNumberOfAttempts) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.temporaryPresentationId = temporaryPresentationId;
@@ -25,6 +25,6 @@ public class UploadFileTimedoutMessage implements IDocConversionMsg {
     this.messageKey = messageKey;
     this.page = page;
     this.presentationId = presentationId;
-    this.convPdfToSvgTimeout = convPdfToSvgTimeout;
+    this.maxNumberOfAttempts = maxNumberOfAttempts;
   }
 }

@@ -26,7 +26,7 @@ trait PresentationUploadedFileTimeoutErrorPubMsgHdlr {
 
       val body = PresentationUploadedFileTimeoutErrorEvtMsgBody(msg.body.podId, msg.body.meetingId,
         msg.body.presentationName, msg.body.page, msg.body.messageKey, msg.body.temporaryPresentationId,
-        msg.body.presentationId, msg.body.convPdfToSvgTimeout)
+        msg.body.presentationId, msg.body.maxNumberOfAttempts)
       val event = PresentationUploadedFileTimeoutErrorEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

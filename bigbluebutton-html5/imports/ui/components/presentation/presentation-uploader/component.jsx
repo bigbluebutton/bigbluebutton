@@ -1286,9 +1286,8 @@ class PresentationUploader extends Component {
 
       switch (item.conversion.status) {
         case 'CONVERSION_TIMEOUT': 
-          console.log("Teste aqui.... -> dentro do render status", item.conversion)
           constraint['0'] = item.conversion.numberPageError;
-          constraint['1'] = item.conversion.convPdfToSvgTimeout;
+          constraint['1'] = item.conversion.maxNumberOfAttempts;
           break;
         case 'PAGE_COUNT_EXCEEDED':
           constraint['0'] = item.conversion.maxNumberPages;

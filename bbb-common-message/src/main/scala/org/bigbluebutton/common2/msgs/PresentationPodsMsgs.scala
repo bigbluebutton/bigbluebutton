@@ -178,7 +178,7 @@ case class PresentationUploadedFileTimeoutErrorSysPubMsgBody(
     messageKey:              String,
     temporaryPresentationId: String,
     presentationId:          String,
-    convPdfToSvgTimeout:     Int,
+    maxNumberOfAttempts:     Int,
 )
 
 // ------------ bbb-common-web to akka-apps ------------
@@ -241,7 +241,7 @@ case class PresentationUploadedFileTimeoutErrorEvtMsg(header: BbbClientMsgHeader
 case class PresentationUploadedFileTimeoutErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                           page: Int, messageKey: String,
                                                           temporaryPresentationId: String, presentationId: String,
-                                                          convPdfToSvgTimeout: Int)
+                                                          maxNumberOfAttempts: Int)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(

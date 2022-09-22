@@ -133,8 +133,8 @@ public class PresentationFileProcessor {
             }).findAny().orElse(null);
 
             if (timeoutErrorMessage != null) {
-                log.error(pageToConvert.getMessageErrorInConversion());
-                notifier.sendUploadFileTimedout(pres, page);
+                log.error(timeoutErrorMessage.getMessageErrorInConversion());
+                notifier.sendUploadFileTimedout(pres, timeoutErrorMessage.getPageNumber());
                 break;
             }
         }
