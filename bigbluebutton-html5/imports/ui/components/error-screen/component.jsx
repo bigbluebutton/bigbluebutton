@@ -46,6 +46,15 @@ const intlMessages = defineMessages({
   user_inactivity_eject_reason: {
     id: 'app.meeting.logout.userInactivityEjectReason',
   },
+  user_requested_eject_reason: {
+    id: 'app.meeting.logout.ejectedFromMeeting',
+  },
+  duplicate_user_in_meeting_eject_reason: {
+    id: 'app.meeting.logout.duplicateUserEjectReason',
+  },
+  not_enough_permission_eject_reason: {
+    id: 'app.meeting.logout.permissionEjectReason',
+  },
 });
 
 const propTypes = {
@@ -93,7 +102,9 @@ class ErrorScreen extends PureComponent {
           {formatedMessage}
         </Styled.Message>
         {
-          !errorMessageDescription || (
+          !errorMessageDescription
+          || formatedMessage === errorMessageDescription
+          || (
             <Styled.SessionMessage>
               {errorMessageDescription}
             </Styled.SessionMessage>
