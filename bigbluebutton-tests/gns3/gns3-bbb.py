@@ -100,8 +100,6 @@ parser.add_argument('--ls', action="store_true",
                     help='list running nodes')
 parser.add_argument('--create-test-client', action="store_true",
                     help='create a test client and add it to an existing network')
-parser.add_argument('--create-test-server', action="store_true",
-                    help='create a test server and add it to an existing network')
 parser.add_argument('version', nargs=1,
                     help='version of BigBlueButton server to be installed\n(bionic-240, focal-250, focal-25-dev, focal-260)')
 args = parser.parse_args()
@@ -878,20 +876,6 @@ if args.create_test_client:
     create_BBB_client('client')
     exit(0)
 
-if args.create_test_server:
-    global PublicIP_switch
-    PublicIP_switch = next(n for n in nodes if n['name'] == 'PublicIP' and n['node_type'] == 'ethernet_switch')
-    notification_url = start_listening_for_notifications()
-    # find an unoccupied x coordinate on the GUI
-    for x in (100, 200, 0, 300, -100):
-        try:
-            next(n for n in nodes if n['x'] == x and n['y'] == 100)
-        except StopIteration:
-            break
-    create_BBB_server(args.version[0], notification_url=notification_url, x=x)
-    start_nodes_running()
-    exit(0)
-
 # CREATE NEW VIRTUAL NETWORK
 
 notification_url = start_listening_for_notifications()
@@ -997,7 +981,13 @@ depends_on(nat4, nat1)
 
 # THE BIG BLUE BUTTON SERVER
 
-BBB_server(args.version[0], notification_url=notification_url, depends_on=nat1)
+# find an unoccupied x coordinate on the GUI
+for x in (100, 300, -100):
+    try:
+        next(n for n in nodes if n['x'] == x and n['y'] == 100)
+    except StopIteration:
+        break
+BBB_server(args.version[0], notification_url=notification_url, x=x, depends_on=nat1)
 
 # THE TEST CLIENT
 
