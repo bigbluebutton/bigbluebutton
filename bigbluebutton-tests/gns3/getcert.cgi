@@ -42,7 +42,10 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = $HOSTNAME
 EOF
-    openssl x509 -req -in $HOSTNAME.csr -CA /home/ubuntu/ca/bbb-dev-ca.crt -CAkey /home/ubuntu/ca/bbb-dev-ca.key -set_serial 1 -out $HOSTNAME.crt -days 825 -sha256 -passin file:/home/ubuntu/ca/bbb-dev-ca.pass -extfile $HOSTNAME.ext
+    TIMESTAMP=$(date +%s%N)
+    openssl x509 -req -in $HOSTNAME.csr -CA /home/ubuntu/ca/bbb-dev-ca.crt -CAkey /home/ubuntu/ca/bbb-dev-ca.key \
+        -set_serial $TIMESTAMP -out $HOSTNAME.crt -days 825 -sha256 \
+        -passin file:/home/ubuntu/ca/bbb-dev-ca.pass -extfile $HOSTNAME.ext
 
     echo "Content-type: application/x-x509-user-cert"
     echo ""
