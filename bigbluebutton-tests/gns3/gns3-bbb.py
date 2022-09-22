@@ -207,6 +207,12 @@ result = requests.get(url, auth=auth)
 result.raise_for_status()
 
 nodes = result.json()
+existing_nodes = {n['name'] : n for n in nodes}
+
+links_url = "http://{}/v2/projects/{}/links".format(gns3_server, project_id)
+result = requests.get(links_url, auth=auth)
+result.raise_for_status()
+links = result.json()
 
 if args.ls:
     for node in nodes:
@@ -301,6 +307,17 @@ def start_listening_for_notifications():
     threading.Thread(target=httpd.serve_forever).start()
     return "http://{}:{}/".format(script_ip, httpd.server_port)
 
+### TRACK WHICH OBJECTS DEPEND ON WHICH OTHERS FOR START ORDER
+
+node_dependencies = dict()
+ubuntu_node_ids_by_name = dict()
+
+def depends_on(node1, node2):
+    # If neither node already exists, introduce a dependency
+    if node1['name'] not in existing_nodes and node2['name'] not in existing_nodes:
+        print('depending', node1['name'], 'on', node2['name'])
+        node_dependencies[node1['node_id']] = (node2,)
+
 ### Start nodes running
 ###
 ### We can't start everything at once, because not having network connectivity during boot is a problem
@@ -353,11 +370,6 @@ def start_nodes_running():
                 waiting_for_things_to_start.add(start_node)
 
     httpd.shutdown()
-
-### TRACK WHICH OBJECTS DEPEND ON WHICH OTHERS
-
-node_dependencies = dict()
-ubuntu_node_ids_by_name = dict()
 
 ### FUNCTIONS TO CREATE VARIOUS KINDS OF GNS3 OBJECTS
 
@@ -537,12 +549,7 @@ def create_link(node1, port1, node2, port2=None):
 
     'port2' is optional; the first available port on 'node2' will be used if it is not specified.
     """
-    url = "http://{}/v2/projects/{}/links".format(gns3_server, project_id)
-
     if not port2:
-        result = requests.get(url, auth=auth)
-        result.raise_for_status()
-        links = result.json()
         ports_in_use = set((node['adapter_number'], node['port_number']) for link in links for node in link['nodes'] if node['node_id'] == node2['node_id'])
         available_ports = (port for port in node2['ports'] if (port['adapter_number'], port['port_number']) not in ports_in_use)
         next_available_port = next(available_ports)
@@ -556,8 +563,9 @@ def create_link(node1, port1, node2, port2=None):
                             'port_number' : next_available_port['port_number'],
                             'node_id' : node2['node_id']}]}
 
-    result = requests.post(url, auth=auth, data=json.dumps(link_obj))
+    result = requests.post(links_url, auth=auth, data=json.dumps(link_obj))
     result.raise_for_status()
+    links.append(link_obj)
 
 # BigBlueButton test clients
 
@@ -657,8 +665,13 @@ def create_nat_gateway(hostname, x=0, y=0, nat_interface='192.168.1.1/24'):
 
 
 # BigBlueButton server
+#
+# Also creates a NAT gateway and a server subnet (if use_nat is True)
+#
+# We have a depends_on argument, instead of just letting the caller call depends_on(),
+# because the dependency might (optionally) involve the NAT gateway, not just the server.
 
-def create_server(hostname, x=100, notification_url=None, use_nat=True, depends_on=None):
+def create_BBB_server(hostname, x=100, notification_url=None, use_nat=True, depends_on=None):
 
     user_data = {'hostname': hostname,
                  'network': {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}},
@@ -801,10 +814,69 @@ iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 1
         # Management link for ssh access to NAT2
         # create_link(nat2, 2, internet, 2)
 
+### DECLARE NODES: CREATE THEM, BUT ONLY IF THEY DON'T ALREADY EXIST
+
+def ubuntu_node(user_data, *args, **kwargs):
+    name = user_data['hostname']
+    if name not in existing_nodes:
+        return create_ubuntu_node(user_data, *args, **kwargs)
+    else:
+        print(name, "exists")
+        return existing_nodes[name]
+
+def cloud(name, *args, **kwargs):
+    if name not in existing_nodes:
+        return create_cloud(name, *args, **kwargs)
+    else:
+        print(name, "exists")
+        return existing_nodes[name]
+
+def switch(name, *args, **kwargs):
+    if name not in existing_nodes:
+        return create_switch(name, *args, **kwargs)
+    else:
+        print(name, "exists")
+        return existing_nodes[name]
+
+def nat_gateway(name, *args, **kwargs):
+    if name not in existing_nodes:
+        return create_nat_gateway(name, *args, **kwargs)
+    else:
+        print(name, "exists")
+        return existing_nodes[name]
+
+def BBB_server(name, *args, **kwargs):
+    if name not in existing_nodes:
+        return create_BBB_server(name, *args, **kwargs)
+    else:
+        print(name, "exists")
+        return existing_nodes[name]
+
+def BBB_client(name, *args, **kwargs):
+    if name not in existing_nodes:
+        return create_BBB_client(name, *args, **kwargs)
+    else:
+        print(name, "exists")
+        return existing_nodes[name]
+
+def link(node1, port1, node2, port2=None):
+    for link in links:
+        if link['nodes'][0]['node_id'] == node1['node_id'] and \
+               link['nodes'][0]['port_number'] == node1['ports'][port1]['port_number'] and \
+               link['nodes'][0]['adapter_number'] == node1['ports'][port1]['adapter_number'] and \
+               link['nodes'][1]['node_id'] == node2['node_id']:
+           return
+        if link['nodes'][1]['node_id'] == node1['node_id'] and \
+               link['nodes'][1]['port_number'] == node1['ports'][port1]['port_number'] and \
+               link['nodes'][1]['adapter_number'] == node1['ports'][port1]['adapter_number'] and \
+               link['nodes'][0]['node_id'] == node2['node_id']:
+           return
+    create_link(node1, port1, node2, port2)
+
 ### CREATE NEW NODES (IF REQUESTED)
 
 if args.create_test_client:
-    create_test_client('client')
+    create_BBB_client('client')
     exit(0)
 
 if args.create_test_server:
@@ -817,18 +889,9 @@ if args.create_test_server:
             next(n for n in nodes if n['x'] == x and n['y'] == 100)
         except StopIteration:
             break
-    create_server(args.version[0], notification_url=notification_url, x=x)
+    create_BBB_server(args.version[0], notification_url=notification_url, x=x)
     start_nodes_running()
     exit(0)
-
-# Check to see if we have an existing network, and abort if so
-
-existing_nodes = set(n['name'] for n in nodes)
-potential_nodes = set('Internet InternetSwitch PublicIP NAT1 NAT2 NAT3 NAT4 ServerSubnet bbb-ci.test'.split())
-
-if existing_nodes.intersection(potential_nodes):
-    print('Not creating network because of existing nodes:', existing_nodes)
-    exit(1)
 
 # CREATE NEW VIRTUAL NETWORK
 
@@ -907,57 +970,40 @@ user_data = {'hostname': 'NAT1',
 if apt_proxy:
     user_data['apt'] = {'http_proxy': apt_proxy}
 
-nat1 = create_ubuntu_node(user_data, ram=1024, disk=4096, ethernets=2)
+nat1 = ubuntu_node(user_data, ram=1024, disk=4096, ethernets=2)
 
 # CREATE CLOUD
 
-cloud = create_cloud('Internet', INTERNET_INTERFACE, x=-400, y=0)
-
-internet = create_switch('InternetSwitch', x=-200, y=0)
-
-create_link(cloud, 0, internet, 0)
+cloud = cloud('Internet', INTERNET_INTERFACE, x=-400, y=0)
+internet = switch('InternetSwitch', x=-200, y=0)
+link(cloud, 0, internet)
 
 # CREATE A NEW ETHERNET SWITCH
 
-PublicIP_switch = create_switch('PublicIP', x=100, y=0)
-
-# LINK TO SWITCH
-
-print("Configuring link from Internet to NAT...")
-
-create_link(nat1, 0, internet, 1)
-
-# SECOND LINK TO SWITCH
-
-print("Configuring link from NAT to Public IP switch...")
-
-create_link(nat1, 1, PublicIP_switch, 0)
+PublicIP_switch = switch('PublicIP', x=100, y=0)
+link(nat1, 0, internet)
+link(nat1, 1, PublicIP_switch)
 
 # NAT3: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, OVERLAPPING SERVER ADDRESS SPACE
 
-nat3 = create_nat_gateway('NAT3', x=200, y=0, nat_interface='192.168.1.1/24')
-
-create_link(nat3, 0, PublicIP_switch)
-
-node_dependencies[nat3['node_id']] = (nat1,)
+nat3 = nat_gateway('NAT3', x=200, y=0, nat_interface='192.168.1.1/24')
+link(nat3, 0, PublicIP_switch)
+depends_on(nat3, nat1)
 
 # NAT4: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, NOT OVERLAPPING SERVER ADDRESS SPACE
 
-nat4 = create_nat_gateway('NAT4', x=200, y=-100, nat_interface='192.168.128.1/24')
-
-create_link(nat4, 0, PublicIP_switch)
-
-node_dependencies[nat4['node_id']] = (nat1,)
+nat4 = nat_gateway('NAT4', x=200, y=-100, nat_interface='192.168.128.1/24')
+link(nat4, 0, PublicIP_switch)
+depends_on(nat4, nat1)
 
 # THE BIG BLUE BUTTON SERVER
 
-create_server(args.version[0], notification_url=notification_url, depends_on=nat1)
+BBB_server(args.version[0], notification_url=notification_url, depends_on=nat1)
 
 # THE TEST CLIENT
 
-client = create_test_client('testclient', x=300, y=-100)
-create_link(client, 0, nat4, 1)
-
-node_dependencies[client['node_id']] = (nat4,)
+client = BBB_client('testclient', x=300, y=-100)
+link(client, 0, nat4, 1)
+depends_on(client, nat4)
 
 start_nodes_running()
