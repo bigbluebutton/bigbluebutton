@@ -310,7 +310,6 @@ def start_listening_for_notifications():
 ### TRACK WHICH OBJECTS DEPEND ON WHICH OTHERS FOR START ORDER
 
 node_dependencies = dict()
-ubuntu_node_ids_by_name = dict()
 
 def depends_on(node1, node2):
     # If neither node already exists, introduce a dependency
@@ -326,7 +325,7 @@ def depends_on(node1, node2):
 
 def start_nodes_running():
 
-    ubuntu_names_by_node_id = {v:k for k,v in ubuntu_node_ids_by_name.items()}
+    names_by_node_id = {v['node_id']:k for k,v in existing_nodes.items()}
 
     all_dependent_nodes = set()
     for value in node_dependencies.values():
@@ -336,7 +335,7 @@ def start_nodes_running():
     waiting_for_things_to_start = all_dependent_nodes.difference(node_dependencies.keys())
 
     for start_node in waiting_for_things_to_start:
-        print(f"Starting {ubuntu_names_by_node_id[start_node]}...")
+        print(f"Starting {names_by_node_id[start_node]}...")
 
         project_start_url = "http://{}/v2/projects/{}/nodes/{}/start".format(gns3_server, project_id, start_node)
         result = requests.post(project_start_url, auth=auth)
@@ -346,10 +345,10 @@ def start_nodes_running():
 
         while waiting_for_things_to_start.intersection(all_dependent_nodes):
 
-            print('Waiting for', [ubuntu_names_by_node_id[nodeid] for nodeid in waiting_for_things_to_start.intersection(all_dependent_nodes)])
+            print('Waiting for', [names_by_node_id[nodeid] for nodeid in waiting_for_things_to_start.intersection(all_dependent_nodes)])
             instance_report_cv.wait()
 
-            running_nodes = set(ubuntu_node_ids_by_name[inst.decode()] for inst in instances_reported)
+            running_nodes = set(existing_nodes[inst.decode()]['node_id'] for inst in instances_reported)
 
             waiting_for_things_to_start.difference_update(running_nodes)
 
@@ -361,7 +360,7 @@ def start_nodes_running():
                         candidate_nodes.add(key)
 
             for start_node in candidate_nodes:
-                print(f"Starting {ubuntu_names_by_node_id[start_node]}...")
+                print(f"Starting {names_by_node_id[start_node]}...")
 
                 project_start_url = "http://{}/v2/projects/{}/nodes/{}/start".format(gns3_server, project_id, start_node)
                 result = requests.post(project_start_url, auth=auth)
@@ -483,7 +482,7 @@ def create_ubuntu_node(user_data, x=0, y=0, image=cloud_image, cpus=None, ram=No
         result = requests.post(url, auth=auth, data=json.dumps(resize_obj))
         result.raise_for_status()
 
-    ubuntu_node_ids_by_name[ubuntu['name']] = ubuntu['node_id']
+    existing_nodes[ubuntu['name']] = ubuntu
     return ubuntu
 
 def start_ubuntu_node(ubuntu):
