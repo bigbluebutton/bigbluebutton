@@ -520,7 +520,7 @@ def create_cloud(name, interface, x=0, y=0):
     result.raise_for_status()
     return result.json()
 
-def create_switch(name, x=0, y=0):
+def create_switch(name, ethernets=None, x=0, y=0):
 
     print(f"Configuring Ethernet switch {name}...")
 
@@ -533,6 +533,11 @@ def create_switch(name, x=0, y=0):
         "x" : x,
         "y" : y
     }
+
+    if ethernets:
+        switch_node['properties'] = {}
+        ports = [{"name": f"Ethernet{i}", "port_number": i, "type": "access", "vlan": 1} for i in range(ethernets)]
+        switch_node['properties']['ports_mapping'] = ports
 
     url = "http://{}/v2/projects/{}/nodes".format(gns3_server, project_id)
 
