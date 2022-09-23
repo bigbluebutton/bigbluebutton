@@ -982,7 +982,7 @@ depends_on(nat4, nat1)
 # THE BIG BLUE BUTTON SERVER
 
 # find an unoccupied x coordinate on the GUI
-for x in (100, 300, -100):
+for x in (100, 300, -100, 500, -300):
     try:
         next(n for n in nodes if n['x'] == x and n['y'] == 100)
     except StopIteration:
