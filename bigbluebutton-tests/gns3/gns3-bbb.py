@@ -10,9 +10,15 @@
 #
 # USAGE
 #
-# ./gns3-bbb.py
+# ./gns3-bbb.py focal-260
 #
-# Can be passed a '-d' option to delete EVERYTHING in an existing project.
+# If the project infrastructure (switches, NAT gateways, testclient)
+# doesn't exist, it will be created.  In any event, a new focal-260
+# server will be added (unless one already exists).
+#
+# The '-d' option deletes a single server and its associated subnet and NAT nodes.
+#
+# The '--delete-everything' switch deletes EVERYTHING in an existing project.
 #
 # 1. Authentication to GNS3 server
 #
@@ -91,6 +97,8 @@ package_upgrade = False
 
 parser = argparse.ArgumentParser(description='Start an BigBlueButton test network in GNS3')
 parser.add_argument('-d', '--delete', action="store_true",
+                    help='delete the named server (instead of creating it)')
+parser.add_argument('--delete-everything', action="store_true",
                     help='delete everything in the project instead of creating it')
 parser.add_argument('-p', '--project', default='BigBlueButton',
                     help='name of the GNS3 project (default "BigBlueButton")')
@@ -218,12 +226,21 @@ if args.ls:
         print(json.dumps(node, indent=4))
     exit(0)
 
-if args.delete:
+if args.delete_everything:
     for node in nodes:
         print("deleting {}...".format(node['name']))
         node_url = "http://{}/v2/projects/{}/nodes/{}".format(gns3_server, project_id, node['node_id'])
         result = requests.delete(node_url, auth=auth)
         result.raise_for_status()
+    exit(0)
+
+if args.delete:
+    for node in nodes:
+        if args.version[0] in node['name']:
+            print("deleting {}...".format(node['name']))
+            node_url = "http://{}/v2/projects/{}/nodes/{}".format(gns3_server, project_id, node['node_id'])
+            result = requests.delete(node_url, auth=auth)
+            result.raise_for_status()
     exit(0)
 
 # Find out if the system we're running on is configured to use an apt proxy.
