@@ -139,7 +139,7 @@ with open(os.path.join(__location__, 'getcert.cgi')) as f:
 #    user_data['runcmd'].extend([i['run'] for i in automated_tests['jobs']['build-install-and-test']['steps'] if i.get('name', '') == stepname])
 
 # An Ubuntu 20 image created by GNS3/ubuntu.py in Brent Baccala's NPDC github repository
-client_image = 'ubuntu-open-desktop-08-Aug-1616.qcow2'
+client_image = 'ubuntu-open-desktop-2022-Sep-23-1105.qcow2'
 
 # Obtain the credentials needed to authenticate ourself to the GNS3 server
 
