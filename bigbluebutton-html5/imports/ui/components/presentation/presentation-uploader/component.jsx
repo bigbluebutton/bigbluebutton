@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { ToastController } from '/imports/ui/components/presentation/presentation-toast/presentation-toast-controller';
+import { PresentationUploaderToast } from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -1130,7 +1130,7 @@ class PresentationUploader extends Component {
     });
 
     return (<>
-      <ToastController intl={intl} />
+      <PresentationUploaderToast intl={intl} />
       {isOpen ? (
         <Styled.UploaderModal id="upload-modal">
           <Styled.ModalInner>

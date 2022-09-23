@@ -277,7 +277,7 @@ function handleDismissToast(toastId) {
 }
 
 const alreadyRenderedPresList = []
-export const ToastController = ({ intl }) => {
+export const PresentationUploaderToast = ({ intl }) => {
 
 	useTracker(() => {
 		
@@ -328,11 +328,13 @@ export const ToastController = ({ intl }) => {
 				autoClose: false,
 				newestOnTop: true,
 				closeOnClick: true,
+				className: "presentationUploaderToast toastClass",
 				onClose: () => {
-					Session.set("presentationUploaderToastId", null);
 					presentationsToConvert = [];
 					if (alreadyRenderedPresList.every((pres) => pres.rendered)) {
-						makeCall('setPresentationRenderedInToast');
+						makeCall('setPresentationRenderedInToast').then(() => {
+							Session.set("presentationUploaderToastId", null);
+						});
 						alreadyRenderedPresList.length = 0;
 					}
 				},
