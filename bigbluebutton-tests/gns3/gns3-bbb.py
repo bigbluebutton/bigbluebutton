@@ -347,14 +347,31 @@ def start_nodes_running():
         for node in value:
             all_dependent_nodes.update((node['node_id'], ))
 
-    waiting_for_things_to_start = all_dependent_nodes.difference(node_dependencies.keys())
+    # We assume that if GNS3 reported the node as 'started', that it's ready for service.
+    # This isn't entirely valid, as it might still be booting, but it's OK for now (I hope).
 
-    for start_node in waiting_for_things_to_start:
+    running_nodeids = set(node['node_id'] for node in nodes if node['status'] == 'started')
+
+    candidate_nodes = set()
+
+    waiting_for_things_to_start = set()
+
+    for key, value in node_dependencies.items():
+        if key not in waiting_for_things_to_start and key not in running_nodeids:
+            if running_nodeids.issuperset([v['node_id'] for v in value]):
+                candidate_nodes.add(key)
+
+    for start_node in candidate_nodes:
         print(f"Starting {names_by_node_id[start_node]}...")
 
         project_start_url = "http://{}/v2/projects/{}/nodes/{}/start".format(gns3_server, project_id, start_node)
         result = requests.post(project_start_url, auth=auth)
         result.raise_for_status()
+
+        waiting_for_things_to_start.add(start_node)
+
+    #print("all_dependent_nodes", all_dependent_nodes)
+    #print("waiting_for_things_to_start", waiting_for_things_to_start)
 
     with instance_report_cv:
 
@@ -363,15 +380,15 @@ def start_nodes_running():
             print('Waiting for', [names_by_node_id[nodeid] for nodeid in waiting_for_things_to_start.intersection(all_dependent_nodes)])
             instance_report_cv.wait()
 
-            running_nodes = set(existing_nodes[inst.decode()]['node_id'] for inst in instances_reported)
+            running_nodeids.update(existing_nodes[inst.decode()]['node_id'] for inst in instances_reported)
 
-            waiting_for_things_to_start.difference_update(running_nodes)
+            waiting_for_things_to_start.difference_update(running_nodeids)
 
             candidate_nodes = set()
 
             for key, value in node_dependencies.items():
-                if key not in waiting_for_things_to_start and key not in running_nodes:
-                    if running_nodes.issuperset([v['node_id'] for v in value]):
+                if key not in waiting_for_things_to_start and key not in running_nodeids:
+                    if running_nodeids.issuperset([v['node_id'] for v in value]):
                         candidate_nodes.add(key)
 
             for start_node in candidate_nodes:
