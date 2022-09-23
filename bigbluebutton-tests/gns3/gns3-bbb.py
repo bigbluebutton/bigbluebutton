@@ -968,15 +968,25 @@ link(nat1, 0, internet)
 link(nat1, 1, PublicIP_switch)
 
 # NAT3: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, OVERLAPPING SERVER ADDRESS SPACE
+#
+# We put a switch on here to ensure that NAT3's interface will be up when it boots.
+#
+# Otherwise, if the interface is down, it won't start its DHCP server (ever).
 
 nat3 = nat_gateway('NAT3', x=200, y=0, nat_interface='192.168.1.1/24')
 link(nat3, 0, PublicIP_switch)
+nat3_switch = switch('NAT3-subnet', x=300, y=0)
+link(nat3, 1, nat3_switch)
 depends_on(nat3, nat1)
 
 # NAT4: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, NOT OVERLAPPING SERVER ADDRESS SPACE
+#
+# Put a switch on here for the same reason as NAT3.
 
 nat4 = nat_gateway('NAT4', x=200, y=-100, nat_interface='192.168.128.1/24')
 link(nat4, 0, PublicIP_switch)
+nat4_switch = switch('NAT4-subnet', x=300, y=-100)
+link(nat4, 1, nat4_switch)
 depends_on(nat4, nat1)
 
 # THE BIG BLUE BUTTON SERVER
@@ -992,7 +1002,7 @@ BBB_server(args.version[0], notification_url=notification_url, x=x, depends_on=n
 # THE TEST CLIENT
 
 client = BBB_client('testclient', x=300, y=-100)
-link(client, 0, nat4, 1)
+link(client, 0, nat4_switch, 1)
 depends_on(client, nat4)
 
 start_nodes_running()
