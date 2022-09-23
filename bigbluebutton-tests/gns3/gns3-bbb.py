@@ -612,7 +612,7 @@ try:
 except subprocess.CalledProcessError:
     pass
 
-def create_test_client(hostname, x=0, y=0):
+def create_BBB_client(hostname, x=0, y=0):
     client_user_data['hostname'] = hostname
     # need this many virtual CPUs to run the stress tests, which stress the client perhaps more than the server
     return create_ubuntu_node(client_user_data, image=client_image, cpus=12, ram=8192, disk=8192, vnc=True, x=x, y=y)
@@ -958,17 +958,17 @@ user_data = {'hostname': 'NAT1',
 if apt_proxy:
     user_data['apt'] = {'http_proxy': apt_proxy}
 
-nat1 = ubuntu_node(user_data, ram=1024, disk=4096, ethernets=2)
+nat1 = ubuntu_node(user_data, ram=1024, disk=4096, ethernets=2, x=-100, y=0)
 
 # CREATE CLOUD
 
-cloud = cloud('Internet', INTERNET_INTERFACE, x=-400, y=0)
-internet = switch('InternetSwitch', x=-200, y=0)
+cloud = cloud('Internet', INTERNET_INTERFACE, x=-500, y=0)
+internet = switch('InternetSwitch', x=-300, y=0)
 link(cloud, 0, internet)
 
 # CREATE A NEW ETHERNET SWITCH
 
-PublicIP_switch = switch('PublicIP', x=100, y=0)
+PublicIP_switch = switch('PublicIP', x=0, y=0, ethernets=16)
 link(nat1, 0, internet)
 link(nat1, 1, PublicIP_switch)
 
@@ -978,9 +978,9 @@ link(nat1, 1, PublicIP_switch)
 #
 # Otherwise, if the interface is down, it won't start its DHCP server (ever).
 
-nat3 = nat_gateway('NAT3', x=200, y=0, nat_interface='192.168.1.1/24')
+nat3 = nat_gateway('NAT3', x=100, y=0, nat_interface='192.168.1.1/24')
 link(nat3, 0, PublicIP_switch)
-nat3_switch = switch('NAT3-subnet', x=300, y=0)
+nat3_switch = switch('NAT3-subnet', x=200, y=0)
 link(nat3, 1, nat3_switch)
 depends_on(nat3, nat1)
 
@@ -988,16 +988,16 @@ depends_on(nat3, nat1)
 #
 # Put a switch on here for the same reason as NAT3.
 
-nat4 = nat_gateway('NAT4', x=200, y=-100, nat_interface='192.168.128.1/24')
+nat4 = nat_gateway('NAT4', x=100, y=-100, nat_interface='192.168.128.1/24')
 link(nat4, 0, PublicIP_switch)
-nat4_switch = switch('NAT4-subnet', x=300, y=-100)
+nat4_switch = switch('NAT4-subnet', x=200, y=-100)
 link(nat4, 1, nat4_switch)
 depends_on(nat4, nat1)
 
 # THE BIG BLUE BUTTON SERVER
 
 # find an unoccupied x coordinate on the GUI
-for x in (100, 300, -100, 500, -300):
+for x in (0, 200, -200, 400, -400):
     try:
         next(n for n in nodes if n['x'] == x and n['y'] == 100)
     except StopIteration:
