@@ -203,6 +203,11 @@ public:
       - critical
       - danger
       - warning
+    # Whether the fallback mechanism should be used
+    # when the locale string is empty. If false, the empty
+    # string will be returned.
+    fallbackOnEmptyLocaleString: true
+    disableWebsocketFallback: false
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -794,6 +799,10 @@ private:
   serverLog:
     level: info
     streamerLog: false
+    includeServerInfo: true
+    healthChecker:
+      enable: true
+      intervalMs: 30000
   minBrowserVersions:
     - browser: chrome
       version: 72

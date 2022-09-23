@@ -661,7 +661,7 @@
     "app.notification.recordingStop": "این جلسه ضبط نمی‌شود",
     "app.notification.recordingPaused": "این جلسه دیگر ضبط نمی‌شود",
     "app.notification.recordingAriaLabel": "زمان ضبط‌شده",
-    "app.notification.userJoinPushAlert": "{0} به جلسه پیوستند",
+    "app.notification.userJoinPushAlert": "{0} به جلسه پیوست",
     "app.notification.userLeavePushAlert": "{0} جلسه را ترک کرد",
     "app.submenu.notification.raiseHandLabel": "بالابردن دست",
     "app.shortcut-help.title": "میانبرهای صفحه کلید",
