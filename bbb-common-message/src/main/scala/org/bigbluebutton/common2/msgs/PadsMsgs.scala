@@ -113,3 +113,8 @@ case class PadUpdatePubMsgBody(externalId: String, text: String)
 object PadUpdateCmdMsg { val NAME = "PadUpdateCmdMsg" }
 case class PadUpdateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: PadUpdateCmdMsgBody) extends BbbCoreMsg
 case class PadUpdateCmdMsgBody(groupId: String, name: String, text: String)
+
+// pads -> apps
+object PadCapturePubMsg { val NAME = "PadCapturePubMsg" }
+case class PadCapturePubMsg(header: BbbCoreHeaderWithMeetingId, body: PadCapturePubMsgBody) extends PadStandardMsg
+case class PadCapturePubMsgBody(parentMeetingId: String, padId: String)

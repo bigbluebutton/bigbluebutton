@@ -283,7 +283,7 @@ class MeetingActor(
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: SendBreakoutTimeRemainingInternalMsg =>
       handleSendBreakoutTimeRemainingInternalMsg(msg)
-    case msg: CaptureSharedNotesReqInternalMsg => presentationPodsApp.handle(msg, state, liveMeeting, msgBus)
+    case msg: CaptureSharedNotesReqInternalMsg => presentationPodsApp.handle(msg, liveMeeting, msgBus)
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
 
@@ -448,9 +448,9 @@ class MeetingActor(
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
-      case m: VoiceConfCallStateEvtMsg         => handleVoiceConfCallStateEvtMsg(m)
+      case m: VoiceConfCallStateEvtMsg        => handleVoiceConfCallStateEvtMsg(m)
 
-      case m: RecordingStartedVoiceConfEvtMsg  => handleRecordingStartedVoiceConfEvtMsg(m)
+      case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: AudioFloorChangedVoiceConfEvtMsg =>
         handleAudioFloorChangedVoiceConfEvtMsg(m)
         audioCaptionsApp2x.handle(m, liveMeeting)
@@ -492,6 +492,7 @@ class MeetingActor(
       case m: PadContentSysMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPatchSysMsg          => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatePubMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCapturePubMsg        => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Lock Settings
       case m: ChangeLockSettingsInMeetingCmdMsg =>

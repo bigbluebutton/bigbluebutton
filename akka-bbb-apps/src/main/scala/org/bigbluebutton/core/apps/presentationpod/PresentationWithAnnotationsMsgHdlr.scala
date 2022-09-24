@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ CaptureSharedNotesReqInternalMsg }
+import org.bigbluebutton.core.api.CaptureSharedNotesReqInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -184,10 +184,38 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
 
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
-
   }
 
-  def handle(m: CaptureSharedNotesReqInternalMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    log.info("Received CaptureSharedNotesReqInternalMsg")
+  def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+
+    log.info("Received CaptureSharedNotesReqInternalMsg meetingId={} parentMeetingId={}", meetingId, m.parentMeetingId)
+
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
+    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId)
+    val event = CaptureSharedNotesReqEvtMsg(header, body)
+
+    bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
+  }
+
+  def handle(m: PadCapturePubMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val userId: String = "system"
+    val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+    val jobType = "PadCaptureJob"
+    val filename = s"${liveMeeting.props.meetingProp.name}-notes"
+
+    val presId = m.body.padId
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
+
+    val exportJob: ExportJob = new ExportJob(jobId, jobType, filename, presId, "", true, List[Int](), m.body.parentMeetingId, presentationUploadToken)
+    val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+
+    bus.outGW.send(job)
   }
 }

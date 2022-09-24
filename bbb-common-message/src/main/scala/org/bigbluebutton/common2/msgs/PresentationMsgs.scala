@@ -22,10 +22,6 @@ object NewPresAnnFileAvailableMsg { val NAME = "NewPresAnnFileAvailableMsg" }
 case class NewPresAnnFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableMsgBody) extends StandardMsg
 case class NewPresAnnFileAvailableMsgBody(fileURI: String, presId: String)
 
-object NewPresAnnFileAvailableEvtMsg { val NAME = "NewPresAnnFileAvailableEvtMsg" }
-case class NewPresAnnFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableEvtMsgBody) extends BbbCoreMsg
-case class NewPresAnnFileAvailableEvtMsgBody(fileURI: String, presId: String)
-
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -40,4 +36,13 @@ case class PresenterUnassignedEvtMsgBody(intId: String, name: String, assignedBy
 object NewPresentationEvtMsg { val NAME = "NewPresentationEvtMsg" }
 case class NewPresentationEvtMsg(header: BbbClientMsgHeader, body: NewPresentationEvtMsgBody) extends BbbCoreMsg
 case class NewPresentationEvtMsgBody(presentation: PresentationVO)
+
+object NewPresAnnFileAvailableEvtMsg { val NAME = "NewPresAnnFileAvailableEvtMsg" }
+case class NewPresAnnFileAvailableEvtMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableEvtMsgBody) extends BbbCoreMsg
+case class NewPresAnnFileAvailableEvtMsgBody(fileURI: String, presId: String)
+
+object CaptureSharedNotesReqEvtMsg { val NAME = "CaptureSharedNotesReqEvtMsg" }
+case class CaptureSharedNotesReqEvtMsg(header: BbbClientMsgHeader, body: CaptureSharedNotesReqEvtMsgBody) extends BbbCoreMsg
+case class CaptureSharedNotesReqEvtMsgBody(parentMeetingId: String)
+
 // ------------ akka-apps to client ------------
