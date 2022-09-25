@@ -40,9 +40,12 @@ function ssh() {
       echo ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP "$@"
       command ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP "$@"
       ;;
-   testclient-NAT4)
+   # usually this is testclient-NAT4, but it can be any host behind NAT4,
+   # since NAT4 is a DNS server for its DHCP clients
+   *-NAT4)
+      local HOSTNAME=$(echo $1 | cut -d - -f 1)
       local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 NAT4)
-      local PRIVATE_IP=$(command ssh -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP dig +short @192.168.128.1 testclient)
+      local PRIVATE_IP=$(command ssh -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP dig +short @192.168.128.1 $HOSTNAME)
       shift
       echo ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@$PRIVATE_IP "$@"
       command ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@$PRIVATE_IP "$@"
