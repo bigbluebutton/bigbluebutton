@@ -25,30 +25,30 @@ function ssh() {
       local HOSTNAME=$(echo $1 | cut -d - -f 1-2)
       local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 $HOSTNAME)
       shift
-      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP $*
-      command ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP $*
+      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP "$@"
+      command ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP "$@"
       ;;
    focal-*)
       local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 $1)
       shift
-      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@192.168.1.2 $*
-      command ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@192.168.1.2 $*
+      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@192.168.1.2 "$@"
+      command ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@192.168.1.2 "$@"
       ;;
    NAT4)
       local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 $1)
       shift
-      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP $*
-      command ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP $*
+      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP "$@"
+      command ssh $SSH_OPTIONS -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP "$@"
       ;;
    testclient-NAT4)
       local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 NAT4)
       local PRIVATE_IP=$(command ssh -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP dig +short @192.168.128.1 testclient)
       shift
-      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@$PRIVATE_IP $*
-      command ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@$PRIVATE_IP $*
+      echo ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@$PRIVATE_IP "$@"
+      command ssh $SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP ubuntu@$PRIVATE_IP "$@"
       ;;
    *)
-      command ssh $*
+      command ssh "$@"
       ;;
    esac
 }
