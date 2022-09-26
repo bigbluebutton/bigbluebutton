@@ -552,7 +552,7 @@ module BigBlueButton
 
         ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"
 
-        ffmpeg_cmd = [*FFMPEG]
+        ffmpeg_cmd = [*FFMPEG, '-copyts']
         ffmpeg_inputs.each do |input|
           ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-i', input[:filename]]
         end

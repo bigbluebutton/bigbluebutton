@@ -643,6 +643,7 @@
     "app.userList.guest.privateMessageLabel": "Message",
     "app.userList.guest.acceptLabel": "Accepter",
     "app.userList.guest.denyLabel": "Refuser",
+    "app.userList.guest.feedbackMessage": "Opération en cours :",
     "app.user-info.title": "Recherche dans l'annuaire",
     "app.toast.breakoutRoomEnded": "La réunion privée s'est terminée. Veuillez rejoindre l'audio.",
     "app.toast.chat.public": "Nouveau message de discussion publique",
