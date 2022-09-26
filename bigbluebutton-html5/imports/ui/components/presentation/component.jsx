@@ -235,7 +235,7 @@ class Presentation extends PureComponent {
           this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
             onClose: () => { this.currentPresentationToastId = null; },
             autoClose: shouldCloseToast,
-            className: 'actionToast',
+            className: 'actionToast currentPresentationToast',
           });
         }
       }
