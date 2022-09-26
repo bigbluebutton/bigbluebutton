@@ -55,3 +55,56 @@ function ssh() {
       ;;
    esac
 }
+
+function scp() {
+   local NAT1=192.168.4.198
+   local SSH_OPTIONS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+   local LEADING_OPTIONS=()
+   local TRAILING_OPTIONS=()
+   local TARGET_HOST=""
+   local TARGET_FILE=""
+   for var in "$@"; do
+      case $var in
+      *:*)
+         TARGET_HOST=$(echo $var | cut -d : -f 1)
+         TARGET_FILE=$(echo $var | cut -d : -f 2)
+         ;;
+      *)
+         if [[ -z "$TARGET_HOST" ]]; then
+            LEADING_OPTIONS+=($var)
+         else
+            TRAILING_OPTIONS+=($var)
+         fi
+         ;;
+      esac
+   done
+   case $TARGET_HOST in
+   focal-*-NAT)
+      local HOSTNAME=$(echo $TARGET_HOST | cut -d - -f 1-2)
+      local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 $HOSTNAME)
+      LEADING_OPTIONS=($SSH_OPTIONS -J ubuntu@$NAT1 "${LEADING_OPTIONS[@]}")
+      TARGET_HOST="ubuntu@$PUBLIC_IP"
+      ;;
+   focal-*)
+      local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 $TARGET_HOST)
+      LEADING_OPTIONS=($SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP "${LEADING_OPTIONS[@]}")
+      TARGET_HOST="ubuntu@192.168.1.2"
+      ;;
+   NAT4)
+      local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 $TARGET_HOST)
+      LEADING_OPTIONS=($SSH_OPTIONS -J ubuntu@$NAT1 "${LEADING_OPTIONS[@]}")
+      TARGET_HOST="ubuntu@$PUBLIC_IP"
+      ;;
+   # usually this is testclient-NAT4, but it can be any host behind NAT4,
+   # since NAT4 is a DNS server for its DHCP clients
+   *-NAT4)
+      local HOSTNAME=$(echo $TARGET_HOST | cut -d - -f 1)
+      local PUBLIC_IP=$(command ssh ubuntu@$NAT1 dig +short @128.8.8.254 NAT4)
+      local PRIVATE_IP=$(command ssh -J ubuntu@$NAT1 ubuntu@$PUBLIC_IP dig +short @192.168.128.1 $HOSTNAME)
+      LEADING_OPTIONS=($SSH_OPTIONS -J ubuntu@$NAT1,ubuntu@$PUBLIC_IP "${LEADING_OPTIONS[@]}")
+      TARGET_HOST="ubuntu@$PRIVATE_IP"
+      ;;
+   esac
+   echo scp ${LEADING_OPTIONS[@]} $TARGET_HOST:$TARGET_FILE $TRAILING_OPTIONS
+   command scp ${LEADING_OPTIONS[@]} $TARGET_HOST:$TARGET_FILE $TRAILING_OPTIONS
+}
