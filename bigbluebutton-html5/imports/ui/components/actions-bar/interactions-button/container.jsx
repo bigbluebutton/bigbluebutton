@@ -5,6 +5,7 @@ import LayoutContext from '/imports/ui/components/layout/context';
 import { injectIntl } from 'react-intl';
 import InteractionsButton from './component';
 import actionsBarService from '../service';
+import { layoutSelect } from '../../layout/context';
 
 const InteractionsButtonContainer = ({ ...props }) => {
   const layoutContext = useContext(LayoutContext);
@@ -12,8 +13,13 @@ const InteractionsButtonContainer = ({ ...props }) => {
   const { input } = layoutContextState;
   const { sidebarContent } = input;
   const { sidebarContentPanel } = sidebarContent;
+  const { isMobile } = deviceInfo;
+  const isRTL = layoutSelect((i) => i.isRTL);
   return (
-    <InteractionsButton {...{ layoutContextDispatch, sidebarContentPanel, ...props }} />
+    <InteractionsButton {...{
+      layoutContextDispatch, sidebarContentPanel, isMobile, isRTL, ...props,
+    }}
+    />
   );
 };
 

@@ -16,6 +16,8 @@ const InteractionsButton = (props) => {
     intl,
     sidebarContentPanel,
     layoutContextDispatch,
+    isMobile,
+    isRTL,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -239,11 +241,13 @@ const InteractionsButton = (props) => {
       renderOtherComponents={showEmojiPicker ? renderEmojiPicker() : buttonStatus()}
       onCloseCallback={() => handleClose()}
       opts={{
-        disablePortal: true,
         id: 'default-dropdown-menu',
-        keepMounted: false,
+        keepMounted: true,
         transitionDuration: 0,
         elevation: 3,
+        getContentAnchorEl: null,
+        anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+        transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
       }}
     />
   );
