@@ -324,13 +324,12 @@ def start_listening_for_notifications():
 
 ### TRACK WHICH OBJECTS DEPEND ON WHICH OTHERS FOR START ORDER
 
+# a map from nodeID to a list of node dictionaries
 node_dependencies = dict()
 
 def depends_on(node1, node2):
-    # If neither node already exists, introduce a dependency
-    if node1['name'] not in existing_nodes and node2['name'] not in existing_nodes:
-        print('depending', node1['name'], 'on', node2['name'])
-        node_dependencies[node1['node_id']] = (node2,)
+    print('depending', node1['name'], 'on', node2['name'])
+    node_dependencies[node1['node_id']] = (node2,)
 
 ### Start nodes running
 ###
@@ -338,9 +337,16 @@ def depends_on(node1, node2):
 ### for things like package installs and upgrades, so we need to make sure the gateways come up first
 ### before we try to boot nodes deeper in the topology.
 
-def start_nodes_running():
+def start_nodes_running(node_names_to_start):
 
     names_by_node_id = {v['node_id']:k for k,v in existing_nodes.items()}
+
+    def start_nodeid(nodeid):
+        print(f"Starting {names_by_node_id[nodeid]}...")
+
+        project_start_url = "http://{}/v2/projects/{}/nodes/{}/start".format(gns3_server, project_id, nodeid)
+        result = requests.post(project_start_url, auth=auth)
+        result.raise_for_status()
 
     all_dependent_nodes = set()
     for value in node_dependencies.values():
@@ -352,53 +358,43 @@ def start_nodes_running():
 
     running_nodeids = set(node['node_id'] for node in nodes if node['status'] == 'started')
 
-    candidate_nodes = set()
+    waiting_for_nodeids_to_start = set()
 
-    waiting_for_things_to_start = set()
-
-    for key, value in node_dependencies.items():
-        if key not in waiting_for_things_to_start and key not in running_nodeids:
-            if running_nodeids.issuperset([v['node_id'] for v in value]):
-                candidate_nodes.add(key)
-
-    for start_node in candidate_nodes:
-        print(f"Starting {names_by_node_id[start_node]}...")
-
-        project_start_url = "http://{}/v2/projects/{}/nodes/{}/start".format(gns3_server, project_id, start_node)
-        result = requests.post(project_start_url, auth=auth)
-        result.raise_for_status()
-
-        waiting_for_things_to_start.add(start_node)
+    for node_name in node_names_to_start:
+        node_id = existing_nodes[node_name]['node_id']
+        dependencies = node_dependencies.get(node_id, [])
+        for v in dependencies:
+            if v['name'] not in node_names_to_start:
+                node_names_to_start.append(v['name'])
+        if node_id not in running_nodeids and node_id not in waiting_for_nodeids_to_start:
+            if running_nodeids.issuperset([v['node_id'] for v in dependencies]):
+                start_nodeid(node_id)
+                waiting_for_nodeids_to_start.add(node_id)
 
     #print("all_dependent_nodes", all_dependent_nodes)
-    #print("waiting_for_things_to_start", waiting_for_things_to_start)
+    #print("waiting_for_nodeids_to_start", waiting_for_nodeids_to_start)
 
     with instance_report_cv:
 
-        while waiting_for_things_to_start.intersection(all_dependent_nodes):
+        while waiting_for_nodeids_to_start.intersection(all_dependent_nodes):
 
-            print('Waiting for', [names_by_node_id[nodeid] for nodeid in waiting_for_things_to_start.intersection(all_dependent_nodes)])
+            print('Waiting for', [names_by_node_id[nodeid] for nodeid in waiting_for_nodeids_to_start.intersection(all_dependent_nodes)])
             instance_report_cv.wait()
 
             running_nodeids.update(existing_nodes[inst.decode()]['node_id'] for inst in instances_reported)
 
-            waiting_for_things_to_start.difference_update(running_nodeids)
+            waiting_for_nodeids_to_start.difference_update(running_nodeids)
 
             candidate_nodes = set()
 
             for key, value in node_dependencies.items():
-                if key not in waiting_for_things_to_start and key not in running_nodeids:
+                if key not in waiting_for_nodeids_to_start and key not in running_nodeids:
                     if running_nodeids.issuperset([v['node_id'] for v in value]):
                         candidate_nodes.add(key)
 
             for start_node in candidate_nodes:
-                print(f"Starting {names_by_node_id[start_node]}...")
-
-                project_start_url = "http://{}/v2/projects/{}/nodes/{}/start".format(gns3_server, project_id, start_node)
-                result = requests.post(project_start_url, auth=auth)
-                result.raise_for_status()
-
-                waiting_for_things_to_start.add(start_node)
+                start_nodeid(start_node)
+                waiting_for_nodeids_to_start.add(start_node)
 
     httpd.shutdown()
 
@@ -886,6 +882,7 @@ def BBB_server(name, *args, **kwargs):
         return create_BBB_server(name, *args, **kwargs)
     else:
         print(name, "exists")
+        depends_on(existing_nodes[name], existing_nodes[name + '-NAT'])
         return existing_nodes[name]
 
 def BBB_client(name, *args, **kwargs):
@@ -1044,4 +1041,4 @@ client = BBB_client('testclient', x=300, y=-100)
 link(client, 0, nat4_switch, 1)
 depends_on(client, nat4)
 
-start_nodes_running()
+start_nodes_running(args.version)
