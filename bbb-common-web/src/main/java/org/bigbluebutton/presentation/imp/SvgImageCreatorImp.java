@@ -122,7 +122,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         while (detectFontType3tHandler.isCommandTimeout()) {
             // Took the first process of the function out of the count because it already happened above
-            log.info("Teste aqui vamso ver: {}", maxNumberOfAttempts);
             if (countOfTimeOut >= maxNumberOfAttempts - 1) {
                 log.error("Command execution (detectFontType3) exceeded the {} secs timeout within {} attempts for {} page {}.", pdfFontsTimeout, maxNumberOfAttempts, pres.getName(), page);
                 throw new TimeoutException("(Timeout error) The slide " + page +
