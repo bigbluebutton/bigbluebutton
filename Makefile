@@ -64,21 +64,36 @@ $(REPOSITORY):: $(PACKAGES)
 	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
 	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $(PACKAGES)
 
+# Download the third party packages tar file, but only if it's been updated on the Internet.
+# Untar any files in it that are missing from the repository.
+# If any files were untared, call reprepro to update the repository package files.
+#
 # double-colon rules always get run, even if the target already exists
 # wget --timestamping only downloads the file if it's newer
-
-EXTRA_PACKAGES_TAR := cache-3rd-part-packages.tar
-
-$(EXTRA_PACKAGES_TAR)::
-	wget --timestamping http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
-
+#
 # The cleanest way to include the 3rd-part-packages would be to extract the tar file
 # to a temporary directory, then call "reprepro includedeb" on all of the package
 # files therein.  I've found that I can extract the tar file directly into the
-# repository directory and call "reprepro includedeb" on the packages there.
+# repository directory and call "reprepro includedeb" on the packages there,
+# avoiding the need for a temp directory.
+#
+# Listing which files tar extracted: https://unix.stackexchange.com/a/503174/37949
+# Accepted answers suggests the use of a temp file and "find -cnewer"
+#
+# Setting a make variable in a rule: https://stackoverflow.com/a/1909390/1493790
+#
+# It's difficult to set a make variable to the output of the find command,
+# due to variable expansion order: https://stackoverflow.com/a/58410600/1493790
 
-$(REPOSITORY):: $(EXTRA_PACKAGES_TAR)
+EXTRA_PACKAGES_TAR := cache-3rd-part-packages.tar
+
+$(REPOSITORY)::
+	$(eval MYTMP := $(shell mktemp))
 	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
+	wget --timestamping http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
 	mkdir -p $(REPOSITORY)/pool/main
-	tar -f $(EXTRA_PACKAGES_TAR) -C $(REPOSITORY)/pool/main -x
-	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $(shell tar -f $(EXTRA_PACKAGES_TAR) -t --wildcards '*.deb' | sed s:^:$(REPOSITORY)/pool/main/:)
+	tar -f $(EXTRA_PACKAGES_TAR) -C $(REPOSITORY)/pool/main -x --skip-old-files
+	if find $(REPOSITORY)/pool/main -type f -cnewer $(MYTMP) | grep .; then \
+	    reprepro -b $(REPOSITORY) includedeb $(CODENAME) $$(find $(REPOSITORY)/pool/main -type f -cnewer $(MYTMP)); \
+	fi
+	rm $(MYTMP)
