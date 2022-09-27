@@ -57,7 +57,7 @@ or directly to `focal-25-dev-subnet` (client on same private network as server).
 
       `sudo loginctl enable-linger gns3`
 
-   - Append to gns3/.bashrc (so that systemctl works even if you don't login with the GUI):
+   - Append to /home/gns3/.bashrc (so that systemctl works even if you don't login with the GUI):
       ```
       export XDG_RUNTIME_DIR=/run/user/$(id -u)
       ```
@@ -86,7 +86,18 @@ or directly to `focal-25-dev-subnet` (client on same private network as server).
      systemctl --user start gns3
      ```
 
-3. Configure network access to gns3.  How to do this exactly is beyond the scope of this README.
+1. Install the gns3 GUI: `sudo apt install gns3-gui`
+
+1. You should now be able to start the gns3 GUI and access the gns3 server.  Select "Run applications on a remote server"
+   and use the credentials (gns3/PASSWORD) set above to access it.
+
+   I think you want "Run applications on a remote server" even if you're running the server on your local machine,
+   because the `gns3-bbb.py` script needs access to the server's REST API.
+
+3. Configure Internet network access to the gns3 virtual network.
+   How to do this exactly is beyond the scope of this README.
+   Internet access is required since the virtual devices need to download Internet packages during installation.
+
    Can be either routed or bridged.  For a routed configuration, add the following file as `/etc/systemd/system/veth.service`:
    ```
    [Unit]
@@ -107,16 +118,22 @@ or directly to `focal-25-dev-subnet` (client on same private network as server).
    ```
    - `sudo systemctl enable veth`
    - `sudo systemctl start veth`
+   - You should now be able to `ping 192.168.8.1`
    - `sudo apt install isc-dhcp-server`
    - Add something like the following snippet to `/etc/dhcp/dhcpd.conf` to enable DHCP
-     service on the virtual subnet, and don't forget to set `domain-name` and `domain-name-servers`
-     in that same file:
+     service on the virtual subnet:
       ```
       subnet 192.168.8.0 netmask 255.255.255.0 {
         range 192.168.8.129 192.168.8.199;
         option routers 192.168.8.1;
       }
       ```
+   - Also in `/etc/dhcp/dhcpd.conf`, set `domain-name-servers` to your local DNS servers.
+
+     They can be found by looking at the output of `resolvectl`.
+
+     This would ideally be done automatically
+   - You may also want to set `domain-name` in that same file to your local DNS name.
    - `sudo systemctl enable isc-dhcp-server`
    - `sudo systemctl start isc-dhcp-server`
    - Modify `/etc/sysctl.conf` to enable packet forwarding:
@@ -124,21 +141,64 @@ or directly to `focal-25-dev-subnet` (client on same private network as server).
       # Uncomment the next line to enable packet forwarding for IPv4
       net.ipv4.ip_forward=1
       ```
-   - Adjust your network configuration to route traffic for the virtual subnet to the server
+   - If you want to access the virtual network devices from other machines, you'll need to
+     adjust your network configuration to route traffic for the virtual subnet to the machine.
+
+     How to do this is beyond the scope of this README.
+
+   - If you don't want to access the virtual network devices from other machines, you can
+     configure the machine to act as a NAT gateway, like this:
+
+     `sudo iptables -t nat -A POSTROUTING -s 192.168.8.0/24 -j MASQUERADE`
+
+   - If you configure NAT, the following commands will make that change persist over reboots:
+
+     `sudo apt install iptables-persistent`
+
 1. Configure authentication to gns3-server in either `~/gns3_server.conf` or `~/.config/GNS3/2.2/gns3_server.conf`:
    ```
    host = localhost
    port = 3080
    ```
+
+   If you used the gns3 GUI to test access to the server, it's likely you already have a suitable
+   `~/.config/GNS3/2.2/gns3_server.conf`.
+
 1. You'll need several tools from Brent Baccala's NPDC repository on github
    ```
    git clone https://github.com/BrentBaccala/NPDC
    ```
-1. Download a current Ubuntu 20 cloud image from Canonical and upload to the gns3 server using NPDC's `GNS3/upload-image.py`
+1. Download a current Ubuntu 20 cloud image from Canonical:
 
-   `https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img`
+   `wget https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img`
 
-1. Build a GUI image using NPDC's `GNS3/ubuntu.py`
+1. Upload to the gns3 server using NPDC's `GNS3/upload-image.py`:
+
+   `./upload-image.py ubuntu-20.04-server-cloudimg-amd64.img`
+
+   The most uncommon Python3 package that this script uses is `python3-requests-toolbelt`
+
+   If this step works, then you have REST API access to the GNS3 server.
+
+1. Use the gns3 GUI to create the project "Virtual Network", and build it like this:
+
+   ![network diagram](VirtualNetwork.png)
+
+   You will need to configure the cloud, enable `show special Ethernet interfaces`, and add `veth` to the available interfaces.
+
+1. You should now be able to boot an Ubuntu instance like this:
+
+   `./ubuntu.py -r 20 -m 1024 --debug`
+
+   Double-click on the icon that appears in the GUI to access the instance's console.
+
+   The `--debug` option adds a login with username `ubuntu` and password `ubuntu`.
+
+   Login and verify, in particular, that networking is working properly.  You should have Internet access.
+
+1. Build a GUI image using NPDC's `GNS3/ubuntu.py`:
+
+   `./ubuntu.py -r 20 -s $((1024*1024)) -m 1024 --boot-script opendesktop.sh --gns3-appliance`
 
    This step adds the GUI packages to the Ubuntu 20 cloud image and creates a new cloud image used for the test clients.
 
