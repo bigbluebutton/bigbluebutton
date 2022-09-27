@@ -33,6 +33,7 @@ CODENAME := bigbluebutton-$(DISTRO)
 REPOSITORY := $(DISTRO)-$(COMMIT)
 
 $(REPOSITORY)::
+	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
 
 # PACKAGE_$(pkg) contains the package filename with wildcards NOT expanded
 #
@@ -61,7 +62,6 @@ $(REPOSITORY)/conf/distributions:
 $(REPOSITORY):: $(REPOSITORY)/conf/distributions
 
 $(REPOSITORY):: $(PACKAGES)
-	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
 	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $(PACKAGES)
 
 # Download the third party packages tar file, but only if it's been updated on the Internet.
@@ -89,7 +89,6 @@ EXTRA_PACKAGES_TAR := cache-3rd-part-packages.tar
 
 $(REPOSITORY)::
 	$(eval MYTMP := $(shell mktemp))
-	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
 	wget --timestamping http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
 	mkdir -p $(REPOSITORY)/pool/main
 	tar -f $(EXTRA_PACKAGES_TAR) -C $(REPOSITORY)/pool/main -x --skip-old-files
