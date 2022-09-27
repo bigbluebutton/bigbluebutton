@@ -241,7 +241,7 @@ public:
     # when the locale string is empty. If false, the empty
     # string will be returned.
     fallbackOnEmptyLocaleString: true
-    disableWebsocketFallback: false
+    disableWebsocketFallback: true
   externalVideoPlayer:
     enabled: true
   kurento:
