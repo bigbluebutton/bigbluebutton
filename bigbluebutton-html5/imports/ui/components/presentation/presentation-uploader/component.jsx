@@ -329,6 +329,14 @@ class PresentationUploader extends Component {
     const { presentations: prevPropPresentations } = prevProps;
 
     let shouldUpdateState = isOpen && !prevProps.isOpen;
+    
+    propPresentations.forEach(p => {
+      const indexOfPres = presentations.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId || pres.filename === p.filename);
+      if (indexOfPres === -1 && p.renderedInToast !== undefined && !p.renderedInToast) {
+        shouldUpdateState = true;
+      }
+    })
+
     const presState = Object.values({
       ...propPresentations,
       ...presentations,

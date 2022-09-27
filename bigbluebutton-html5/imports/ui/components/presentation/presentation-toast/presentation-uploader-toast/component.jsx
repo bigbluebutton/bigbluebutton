@@ -255,7 +255,7 @@ const renderToastList = (presentations, intl) => {
 	}
 
 	return (
-		<Styled.ToastWrapper>
+		<Styled.ToastWrapper data-test="presentationUploadProgressToast" >
 			<Styled.UploadToastHeader>
 				<Styled.UploadIcon iconName="upload" />
 				<Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>

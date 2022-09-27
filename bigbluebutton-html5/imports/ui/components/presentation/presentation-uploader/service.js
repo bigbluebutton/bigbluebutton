@@ -49,6 +49,8 @@ const getPresentations = () => Presentations
       current,
       downloadable,
       removable,
+      renderedInToast,
+      temporaryPresentationId,
       id,
       name,
       exportation,
@@ -59,6 +61,8 @@ const getPresentations = () => Presentations
     return {
       id,
       filename: name,
+      renderedInToast,
+      temporaryPresentationId,
       isCurrent: current || false,
       upload: { done: true, error: false },
       isDownloadable: downloadable,
