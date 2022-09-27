@@ -939,7 +939,7 @@ user_data = {'hostname': 'NAT1',
                         'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                       }],
              'write_files': [
-                 {'path': '/generateCA.sh',
+                 {'path': '/ca/generateCA.sh',
                   'permissions': '0755',
                   'content': generateCA_script
                  },
@@ -982,9 +982,20 @@ user_data = {'hostname': 'NAT1',
                         'systemctl restart apache2',
                         # we accept CSRs via POST to http://ca.test/getcert.cgi
                         'echo 128.8.8.254 ca.test >> /etc/hosts',
-                        'su ubuntu -c /generateCA.sh',
+                        '/ca/generateCA.sh',
                        ],
 }
+
+# If we have a key and certificate for the certificate authority, copy them into /ca
+#
+# Otherwise, the generateCA.sh script will generate them when the instance boots.
+
+try:
+    for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
+        with open(os.path.join(__location__, fn)) as f:
+            user_data['write_files'].append({'path': f'/ca/{fn}', 'permissions': '0444', 'content': f.read()})
+except Exception as ex:
+    print(ex)
 
 # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
 #
