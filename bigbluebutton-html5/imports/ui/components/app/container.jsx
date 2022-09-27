@@ -61,8 +61,6 @@ const AppContainer = (props) => {
 
   const {
     actionsbar,
-    meetingLayout,
-    meetingLayoutUpdatedAt,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
@@ -72,11 +70,13 @@ const AppContainer = (props) => {
     isPresenter,
     randomlySelectedUser,
     isModalOpen,
-    presentationIsOpen: layoutPresOpen,
-    isResizing: layoutIsResizing,
-    cameraPosition: layoutCamPosition,
-    focusedCamera: layoutFocusedCam,
-    presentationVideoRate: layoutRate,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isLayoutMeetingResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     ...otherProps
   } = props;
 
@@ -87,7 +87,6 @@ const AppContainer = (props) => {
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
-  const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
@@ -154,11 +153,11 @@ const AppContainer = (props) => {
           cameraWidth: cameraDock.width,
           cameraHeight: cameraDock.height,
           cameraIsResizing: cameraDockInput.isResizing,
-          layoutPresOpen,
-          layoutIsResizing,
-          layoutCamPosition,
-          layoutFocusedCam,
-          layoutRate,
+          meetingPresentationIsOpen,
+          isLayoutMeetingResizing,
+          meetingLayoutCameraPosition,
+          meetingLayoutFocusedCamera,
+          meetingLayoutVideoRate,
           horizontalPosition,
           deviceType,
           layoutContextDispatch,
@@ -222,8 +221,17 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
-  const { layout, pushLayout: pushLayoutMeeting, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
+  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const {
+    layout: meetingLayout,
+    pushLayout: pushLayoutMeeting,
+    layoutUpdatedAt: meetingLayoutUpdatedAt,
+    presentationIsOpen: meetingPresentationIsOpen,
+    isResizing: isMeetingLayoutResizing,
+    cameraPosition: meetingLayoutCameraPosition,
+    focusedCamera: meetingLayoutFocusedCamera,
+    presentationVideoRate: meetingLayoutVideoRate,
+  } = meetingLayoutObj;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -267,13 +275,13 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter,
     isModerator: currentUser?.role === ROLE_MODERATOR,
-    meetingLayout: layout,
-    meetingLayoutUpdatedAt: layoutUpdatedAt,
-    presentationIsOpen,
-    isResizing,
-    cameraPosition,
-    focusedCamera,
-    presentationVideoRate,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isMeetingLayoutResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
