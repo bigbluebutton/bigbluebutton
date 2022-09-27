@@ -512,7 +512,9 @@ public:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
-    enableEmojiPicker: false
+    emojiPicker:
+      enable: false
+      frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
   notes:
