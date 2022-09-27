@@ -71,9 +71,9 @@ function scp() {
          ;;
       *)
          if [[ -z "$TARGET_HOST" ]]; then
-            LEADING_OPTIONS+=($var)
+            LEADING_OPTIONS+=("$var")
          else
-            TRAILING_OPTIONS+=($var)
+            TRAILING_OPTIONS+=("$var")
          fi
          ;;
       esac
@@ -105,6 +105,7 @@ function scp() {
       TARGET_HOST="ubuntu@$PRIVATE_IP"
       ;;
    esac
-   echo scp ${LEADING_OPTIONS[@]} $TARGET_HOST:$TARGET_FILE $TRAILING_OPTIONS
-   command scp ${LEADING_OPTIONS[@]} $TARGET_HOST:$TARGET_FILE $TRAILING_OPTIONS
+   # Getting the quoting right was a bit tricky: https://unix.stackexchange.com/a/412647/37949
+   echo scp "${LEADING_OPTIONS[@]}" $TARGET_HOST:$TARGET_FILE "${TRAILING_OPTIONS[@]}"
+   command scp "${LEADING_OPTIONS[@]}" $TARGET_HOST:$TARGET_FILE "${TRAILING_OPTIONS[@]}"
 }
