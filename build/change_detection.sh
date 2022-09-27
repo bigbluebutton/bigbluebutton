@@ -3,12 +3,18 @@
 # This script checks which recent commits have not changed a
 # particular package and asks the repo server whether it has
 # a build of any of those versions (done for all packages).
+#
+# Alternately, if called with a --github-json switch, will output a
+# JSON list suitable to be passed to github's cache action.
+#
+# In either case, the bigbluebutton package is not cached.
 
 cd "$(dirname $0)"
 source package-names.inc.sh
 cd ..
 
 REQ_JSON=""
+GITHUB_JSON="[]"
 
 for DEBNAME in "${!DEBNAME_TO_SOURCEDIR[@]}"
 do
@@ -26,9 +32,15 @@ do
 	VALID_PACKAGE_VERSIONS="$(for HASH in $VALID_PACKAGE_VERSIONS; do echo -n "${HASH::10} "; done)"
 	VALID_PACKAGE_VERSIONS="${VALID_PACKAGE_VERSIONS::-1}"
 	REQ_JSON="${REQ_JSON} \"$DEBNAME\": [\"${VALID_PACKAGE_VERSIONS//$' '/\",\"}\"],"
+	GITHUB_JSON=$(echo ${GITHUB_JSON} | jq ". + [{id: \"$DEBNAME\", key: \"$LAST_CHANGE\", path: \"artifacts/${DEBNAME}_*\"}]")
 done
 
 REQ_JSON="{${REQ_JSON:1:-1}}"
+
+if [ "$1" == "--github-json" ]; then
+    echo $GITHUB_JSON | jq --compact-output .
+    exit
+fi
 
 curl \
     -u "${PACKAGES_UPLOAD_AUTHENTICATION}" \

@@ -13,33 +13,58 @@ on:
 permissions:
   contents: read
 jobs:
-  build-install-and-test:
+  pre-build:
+    runs-on: ubuntu-20.04
+    outputs:
+      packages: ${{ steps.set-packages.outputs.packages }}
+      cache-misses: ${{ steps.check-package-cache.outputs.cache-misses }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+         # we're about to do change detection, which requires a full history
+         fetch-depth: 0
+    - id: set-packages
+      run: echo "packages=$(./build/change_detection.sh --github-json)" >> $GITHUB_OUTPUT
+    - id: check-package-cache
+      uses: BrentBaccala/cache/restore-list@bigbluebutton-ci
+      with:
+        json: ${{ steps.set-packages.outputs.packages }}
+        lookupOnly: true
+  build-packages:
+    # now build any packages the pre-build step identified as missing from the cache
+    needs: pre-build
+    runs-on: ubuntu-20.04
+    if: ${{ needs.pre-build.outputs.cache-misses != '' && toJson(fromJson(needs.pre-build.outputs.cache-misses)) != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.pre-build.outputs.cache-misses) }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.package.key }}
+      - run: ./build/setup.sh ${{ matrix.package.id }}
+      - id: cache-package
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ matrix.package.path }}
+          key: ${{ matrix.package.key }}
+  install-and-test:
+    needs:
+      - pre-build
+      - build-packages
+    # we need an 'if' clause because the default is to skip this job if build-packages was skipped
+    # always() must do some special side effect, as this test doesn't work without it
+    if: ${{ always() && (needs.build-packages.result == 'success' || needs.build-packages.result == 'skipped') }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-apps-akka
-      - run: ./build/setup.sh bbb-config
-      - run: ./build/setup.sh bbb-etherpad
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
-      - run: ./build/setup.sh bbb-fsesl-akka
-      - run: ./build/setup.sh bbb-html5-nodejs
-      - run: ./build/setup.sh bbb-html5
-      - run: ./build/setup.sh bbb-learning-dashboard
-      - run: ./build/setup.sh bbb-libreoffice-docker
-      - run: ./build/setup.sh bbb-mkclean
-      - run: ./build/setup.sh bbb-pads
-      - run: ./build/setup.sh bbb-playback
-      - run: ./build/setup.sh bbb-playback-notes
-      - run: ./build/setup.sh bbb-playback-podcast
-      - run: ./build/setup.sh bbb-playback-presentation
-      - run: ./build/setup.sh bbb-playback-screenshare
-      - run: ./build/setup.sh bbb-playback-video
-      - run: ./build/setup.sh bbb-record-core
-      - run: ./build/setup.sh bbb-web
-      - run: ./build/setup.sh bbb-webrtc-sfu
+      - id: cache-packages
+        uses: BrentBaccala/cache/restore-list@bigbluebutton-ci
+        with:
+          json: ${{ needs.pre-build.outputs.packages }}
+          fail-on-cache-miss: true
+      # bigbluebutton package used to depend explicitly on versions of other packages, so always rebuild (for now)
+      # the change_detection script explicitly excludes it from output, and therefore from caching
       - run: ./build/setup.sh bigbluebutton
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
