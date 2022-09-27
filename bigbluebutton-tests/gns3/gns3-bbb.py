@@ -10,11 +10,13 @@
 #
 # USAGE
 #
-# ./gns3-bbb.py focal-260
+# ./gns3-bbb.py focal-260    (to install a released server)
+# ./gns3-bbb.py focal-e41349 (to install a server based on a git commit)
+# ./gns3-bbb.py testclient   (to install a test client)
 #
-# If the project infrastructure (switches, NAT gateways, testclient)
-# doesn't exist, it will be created.  In any event, a new focal-260
-# server will be added (unless one already exists).
+# By default, the GNS3 project is called "BigBlueButton".  If the
+# project infrastructure (switches and NAT gateways) doesn't exist, it
+# will be created.
 #
 # The '-d' option deletes a single server and its associated subnet and NAT nodes.
 #
@@ -108,7 +110,7 @@ parser.add_argument('--ls', action="store_true",
                     help='list running nodes')
 parser.add_argument('--create-test-client', action="store_true",
                     help='create a test client and add it to an existing network')
-parser.add_argument('version', nargs=1,
+parser.add_argument('version', nargs='*',
                     help='version of BigBlueButton server to be installed\n(bionic-240, focal-250, focal-25-dev, focal-260)')
 args = parser.parse_args()
 
@@ -883,6 +885,8 @@ def BBB_server(name, *args, **kwargs):
     else:
         print(name, "exists")
         depends_on(existing_nodes[name], existing_nodes[name + '-NAT'])
+        if 'depends_on' in kwargs:
+            depends_on(existing_nodes[name + '-NAT'], kwargs['depends_on'])
         return existing_nodes[name]
 
 def BBB_client(name, *args, **kwargs):
@@ -1025,20 +1029,20 @@ nat4_switch = switch('NAT4-subnet', x=200, y=-100)
 link(nat4, 1, nat4_switch)
 depends_on(nat4, nat1)
 
-# THE BIG BLUE BUTTON SERVER
+# THE BIG BLUE BUTTON SERVER and/or TEST CLIENT
 
-# find an unoccupied x coordinate on the GUI
-for x in (0, 200, -200, 400, -400):
-    try:
-        next(n for n in nodes if n['x'] == x and n['y'] == 100)
-    except StopIteration:
-        break
-BBB_server(args.version[0], notification_url=notification_url, x=x, depends_on=nat1)
-
-# THE TEST CLIENT
-
-client = BBB_client('testclient', x=300, y=-100)
-link(client, 0, nat4_switch, 1)
-depends_on(client, nat4)
+for v in args.version:
+    if v == 'testclient':
+        client = BBB_client('testclient', x=300, y=-100)
+        link(client, 0, nat4_switch, 1)
+        depends_on(client, nat4)
+    else:
+        # find an unoccupied x coordinate on the GUI
+        for x in (0, 200, -200, 400, -400):
+            try:
+                next(n for n in nodes if n['x'] == x and n['y'] == 100)
+            except StopIteration:
+                break
+        BBB_server(v, notification_url=notification_url, x=x, depends_on=nat1)
 
 start_nodes_running(args.version)
