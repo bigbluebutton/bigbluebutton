@@ -46,7 +46,6 @@ import org.json.JSONArray
 import javax.servlet.ServletRequest
 
 class ApiController {
-  private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
   private static final String CONTROLLER_NAME = 'ApiController'
   protected static final String RESP_CODE_SUCCESS = 'SUCCESS'
   protected static final String RESP_CODE_FAILED = 'FAILED'
@@ -407,7 +406,7 @@ class ApiController {
         us.leftGuestLobby
     )
 
-    session.setMaxInactiveInterval(SESSION_TIMEOUT);
+    session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
 
     //check if exists the param redirect
     boolean redirectClient = true;
