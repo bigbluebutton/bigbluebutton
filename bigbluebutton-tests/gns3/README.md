@@ -201,6 +201,7 @@ or directly to `focal-25-dev-subnet` (client on same private network as server).
    `./ubuntu.py -r 20 -s $((1024*1024)) -m 1024 --boot-script opendesktop.sh --gns3-appliance`
 
    This step adds the GUI packages to the Ubuntu 20 cloud image and creates a new cloud image used for the test clients.
+   It takes about half an hour.
 
 1. Upload the GUI image to the gns3 server using NPDC's `GNS3/upload-image.py`
 1. Set network interface name and GUI image name in `gns3-bbb.py`
@@ -209,9 +210,10 @@ or directly to `focal-25-dev-subnet` (client on same private network as server).
    This script will pause to trigger each gateway device booting in sequence,
    and terminate once the BigBlueButton server and the test client have begun their install sequences.
 
-1. Add another server with `./gns3-bbb.py --create-test-server focal-260`
+1. Add a test client with `./gns3-bbb.py testclient`
+1. Add another server with `./gns3-bbb.py focal-260`
 
-1. `ssh` into these devices using the `-J` or `ProxyJump` option, like this (in `.ssh/config`):
+1. `ssh` into these devices using the `-J` or `ProxyJump` option, something like this (in `.ssh/config`):
 
 ```
 Host focal-25-dev
@@ -219,3 +221,8 @@ Host focal-25-dev
   User ubuntu
   ProxyJump ubuntu@192.168.4.165, ubuntu@128.8.8.150
 ```
+
+1. For the brave: rather than figuring out the `ProxyJump` options by hand,
+   source `bigbluebutton-ssh.sh` to use a shell function for `ssh` and `scp` that finds them automatically.
+
+   You will need to set `NAT1` in that file to the IP address of `NAT1`.
