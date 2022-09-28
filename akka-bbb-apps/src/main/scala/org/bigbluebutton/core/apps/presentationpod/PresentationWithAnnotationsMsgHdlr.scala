@@ -188,32 +188,26 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
   def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
-
-    log.info("Received CaptureSharedNotesReqInternalMsg meetingId={} parentMeetingId={}", meetingId, m.parentMeetingId)
-
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
     val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
-    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId)
+    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName, m.sequence)
     val event = CaptureSharedNotesReqEvtMsg(header, body)
 
     bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
   }
 
-  def handle(m: PadCapturePubMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(m: PadCapturePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    val meetingId = liveMeeting.props.meetingProp.intId
     val userId: String = "system"
     val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
     val jobType = "PadCaptureJob"
-    val filename = s"${liveMeeting.props.meetingProp.name}-notes"
-
-    val presId = m.body.padId
+    val filename = s"${m.body.meetingName}-notes"
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
 
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
 
-    val exportJob: ExportJob = new ExportJob(jobId, jobType, filename, presId, "", true, List[Int](), m.body.parentMeetingId, presentationUploadToken)
+    val exportJob = new ExportJob(jobId, jobType, filename, m.body.padId, "", true, List(m.body.sequence), m.body.parentMeetingId, presentationUploadToken)
     val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
 
     bus.outGW.send(job)

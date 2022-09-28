@@ -5,9 +5,11 @@ export default function captureSharedNotes({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
 
-  const { parentMeetingId } = body;
+  const { parentMeetingId, meetingName, sequence } = body;
 
   check(parentMeetingId, String);
+  check(meetingName, String);
+  check(sequence, Number);
 
-  padCapture(meetingId, parentMeetingId);
+  padCapture(meetingId, parentMeetingId, meetingName, sequence);
 }

@@ -14,7 +14,8 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg): Unit = {
 
     if (liveMeeting.props.breakoutProps.captureNotes) {
-      val event = BigBlueButtonEvent(msg.breakoutId, CaptureSharedNotesReqInternalMsg(msg.parentId))
+      val meetingName: String = liveMeeting.props.meetingProp.name
+      val event = BigBlueButtonEvent(msg.breakoutId, CaptureSharedNotesReqInternalMsg(msg.parentId, meetingName, liveMeeting.props.breakoutProps.sequence))
       eventBus.publish(event)
     }
 
