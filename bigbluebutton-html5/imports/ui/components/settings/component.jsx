@@ -267,7 +267,7 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
+            this.updateSettings(current, intlMessages.savedAlertLabel);
             document.body.classList.remove(`lang-${saved.application.locale.split('-')[0]}`);
             document.body.classList.add(`lang-${current.application.locale.split('-')[0]}`);
             document.getElementsByTagName('html')[0].lang = current.application.locale;
