@@ -13,6 +13,11 @@ const setUserReaction = (reaction) => {
   }
 };
 
+const getUsersIdFromUserReaction = () => UserReaction.find(
+  { meetingId: Auth.meetingID },
+  { fields: { userId: 1 } },
+).fetch().map((user) => user.userId);
+
 const getUserReaction = (userId) => {
   const reaction = UserReaction.findOne(
     {
@@ -33,11 +38,12 @@ const getUserReaction = (userId) => {
     };
   }
 
-  return reaction;
+  return reaction.reaction;
 };
 
 export default {
   getUserReaction,
   setUserReaction,
+  getUsersIdFromUserReaction,
   isEnabled,
 };

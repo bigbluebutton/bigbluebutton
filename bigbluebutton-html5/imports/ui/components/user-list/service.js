@@ -12,6 +12,7 @@ import { makeCall } from '/imports/ui/services/api';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
@@ -206,7 +207,7 @@ const addUserReaction = (users) => {
 
   return users.map((user) => {
     let reaction = '';
-    const obj = usersReactions.find(us => us.userId === user.userId);
+    const obj = usersReactions.find((us) => us.userId === user.userId);
     if (obj !== undefined) {
       ({ reaction } = obj);
     }
@@ -218,6 +219,7 @@ const addUserReaction = (users) => {
   });
 };
 
+// TODO I think this method is no longer used, verify
 const getUsers = () => {
   let users = Users
     .find({
@@ -238,7 +240,7 @@ const getUsers = () => {
   return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
 };
 
-const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
+const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
   let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
@@ -254,11 +256,15 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
   return users.map((user) => {
     const isSharingWebcam = videoUsers?.includes(user.userId);
     const whiteboardAccess = whiteboardUsers?.includes(user.userId);
+    const reaction = reactionUsers?.includes(user.userId)
+      ? UserReactionService.getUserReaction(user.userId)
+      : 'none';
 
     return {
       ...user,
       isSharingWebcam,
       whiteboardAccess,
+      reaction,
     };
   }).sort(sortUsers);
 };
