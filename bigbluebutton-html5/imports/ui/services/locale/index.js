@@ -1,5 +1,7 @@
 import { createIntl } from 'react-intl';
 
+const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
+
 /**
  * Use this if you need any translation outside of React lifecyle.
  */
@@ -14,10 +16,15 @@ class BBBIntl {
     value: true,
   };
 
+  constructor({ fallback }) {
+    this._fallback = fallback;
+  }
+
   setLocale(locale, messages) {
     this.intl = createIntl({
       locale,
       messages,
+      fallbackOnEmptyString: this._fallback,
     });
 
     this.fetching = false;
@@ -65,4 +72,4 @@ class BBBIntl {
   }
 }
 
-export default new BBBIntl();
+export default new BBBIntl({ fallback: FALLBACK_ON_EMPTY_STRING });
