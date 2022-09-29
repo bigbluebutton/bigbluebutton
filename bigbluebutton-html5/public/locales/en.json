@@ -1079,6 +1079,7 @@
     "app.layout.modal.pushLayoutLabel": "Push to everyone",
     "app.layout.modal.layoutToastLabel": "Layout settings changed",
     "app.layout.modal.layoutSingular": "Layout",
+    "app.layout.modal.layoutBtnDesc": "Sets layout as selected option",
     "app.layout.style.custom": "Custom",
     "app.layout.style.smart": "Smart layout",
     "app.layout.style.presentationFocus": "Focus on presentation",
