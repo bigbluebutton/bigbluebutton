@@ -301,21 +301,23 @@ class MessageForm extends PureComponent {
   renderEmojiButton() {
     const { intl } = this.props;
 
-    return (
-      <Styled.EmojiButton
-        onClick={() => this.setState((prevState) => ({
-          showEmojiPicker: !prevState.showEmojiPicker,
-        }))}
-        icon="happy"
-        color="light"
-        ghost
-        type="button"
-        circle
-        hideLabel
-        label={intl.formatMessage(messages.emojiButtonLabel)}
-        data-test="emojiPickerButton"
-      />
-    );
+    if (this.emojiEnabled()) {
+      return (
+        <Styled.EmojiButton
+          onClick={() => this.setState((prevState) => ({
+            showEmojiPicker: !prevState.showEmojiPicker,
+          }))}
+          icon="happy"
+          color="light"
+          ghost
+          type="button"
+          circle
+          hideLabel
+          label={intl.formatMessage(messages.emojiButtonLabel)}
+          data-test="emojiPickerButton"
+        />
+      );
+    }
   }
 
   renderForm() {
@@ -340,6 +342,7 @@ class MessageForm extends PureComponent {
         {this.renderEmojiPicker()}
         <Styled.Wrapper>
           <Styled.Input
+            emojiEnabled={this.emojiEnabled()}
             id="message-input"
             innerRef={(ref) => { this.textarea = ref; return this.textarea; }}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
