@@ -953,6 +953,7 @@ public class ParamsProcessorUtil {
             case "sha256":
                 cs = DigestUtils.sha256Hex(data);
                 log.info("SHA256 {}", cs);
+                break;
             case "sha384":
                 cs = DigestUtils.sha384Hex(data);
                 log.info("SHA384 {}", cs);
