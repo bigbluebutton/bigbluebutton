@@ -75,7 +75,8 @@ const filterSupportedConstraints = (audioDeviceConstraints) => {
   }
 };
 
-const getAudioConstraints = ({ deviceId = '' }) => {
+const getAudioConstraints = (constraintFields = {}) => {
+  const { deviceId = '' } = constraintFields;
   const userSettingsConstraints = Settings.application.microphoneConstraints;
   const audioDeviceConstraints = userSettingsConstraints
     || AUDIO_MICROPHONE_CONSTRAINTS || {};
@@ -89,6 +90,29 @@ const getAudioConstraints = ({ deviceId = '' }) => {
   }
 
   return matchConstraints;
+};
+
+const doGUM = async (constraints, retryOnFailure = false) => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    return stream;
+  } catch (error) {
+    // This is probably a deviceId mistmatch. Retry with base constraints
+    // without an exact deviceId.
+    if (error.name === 'OverconstrainedError' && retryOnFailure) {
+      logger.warn({
+        logCode: 'audio_overconstrainederror_rollback',
+        extraInfo: {
+          constraints,
+        },
+      }, 'Audio getUserMedia returned OverconstrainedError, rollback');
+
+      return navigator.mediaDevices.getUserMedia({ audio: getAudioConstraints() });
+    }
+
+    // Not OverconstrainedError - bubble up the error.
+    throw error;
+  }
 };
 
 export {
@@ -106,4 +130,5 @@ export {
   storeAudioInputDeviceId,
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
+  doGUM,
 };

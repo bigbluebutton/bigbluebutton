@@ -238,6 +238,7 @@ class SettingsDropdown extends PureComponent {
           icon: 'help',
           iconRight: 'popout_window',
           label: intl.formatMessage(intlMessages.helpLabel),
+          dataTest: 'helpButton',
           // description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`),
         },
