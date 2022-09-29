@@ -72,6 +72,10 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.style.videoFocus',
       description: 'label for videoFocus layout style',
     },
+    layoutSingular: {
+      id: 'app.layout.modal.layoutSingular',
+      description: 'label for singular layout',
+    },
   });
 
   const handleSwitchLayout = (e) => {
@@ -125,7 +129,7 @@ const LayoutModalComponent = (props) => {
             <Styled.LabelLayoutNames>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
             <Styled.LayoutBtn
               label=""
-              customIcon={<Styled.IconSvg src={`${LAYOUTS_PATH}${layout}.svg`} alt={`${LAYOUTS_PATH}${layout}Layout`} />}
+              customIcon={<Styled.IconSvg src={`${LAYOUTS_PATH}${layout}.svg`} alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`} />}
               onClick={() => handleSwitchLayout(layout)}
               active={(layout === selectedLayout).toString()}
             />
@@ -159,7 +163,7 @@ const LayoutModalComponent = (props) => {
         <Styled.BottomButton
           label={intl.formatMessage(intlMessages.cancel)}
           onClick={closeModal}
-          color='secondary'
+          color="secondary"
         />
         <Button
           color="primary"
