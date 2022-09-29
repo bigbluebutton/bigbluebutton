@@ -48,6 +48,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
             case "sha256":
                 createdCheckSum = DigestUtils.sha256Hex(data);
                 log.info("SHA256 {}", createdCheckSum);
+                break;
             case "sha384":
                 createdCheckSum = DigestUtils.sha384Hex(data);
                 log.info("SHA384 {}", createdCheckSum);
