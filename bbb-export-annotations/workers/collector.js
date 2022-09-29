@@ -10,33 +10,23 @@ const stream = require('stream');
 const {Worker, workerData} = require('worker_threads');
 const {promisify} = require('util');
 
+const WorkerTypes = Object.freeze({
+  Notifier: 'notifier',
+  Process: 'process',
+});
+
 const jobId = workerData;
 const logger = new Logger('presAnn Collector');
-logger.info('Collecting job ' + jobId);
+logger.info(`Collecting job ${jobId}`);
 
-const kickOffProcessWorker = (jobId) => {
+const kickOffWorker = (workerType, data) => {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('./workers/process.js', {workerData: jobId});
+    const worker = new Worker(`./workers/${workerType}.js`, {workerData: data});
     worker.on('message', resolve);
     worker.on('error', reject);
     worker.on('exit', (code) => {
       if (code !== 0) {
-        reject(new Error(`Process Worker stopped with exit code ${code}`));
-      }
-    });
-  });
-};
-
-const kickOffNotifierWorker = (jobType, filename) => {
-  return new Promise((resolve, reject) => {
-    const notifierPath = './workers/notifier.js';
-    const worker = new Worker(notifierPath,
-        {workerData: [jobType, jobId, filename]});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Notifier Worker stopped with exit code ${code}`));
+        reject(new Error(`Worker '${workerType}' stopped with exit code ${code}`));
       }
     });
   });
@@ -59,7 +49,7 @@ async function collectAnnotationsFromRedis() {
 
   await client.connect();
 
-  const presAnn = await client.hGetAll(exportJob.jobId);
+  const presAnn = await client.hGetAll(jobId);
 
   // Remove annotations from Redis
   await client.del(jobId);
@@ -112,11 +102,11 @@ async function collectAnnotationsFromRedis() {
   } else if (fs.existsSync(`${presFile}.jpeg`)) {
     fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
   } else {
-    return logger.error(`Could not find presentation file ${exportJob.jobId}`);
+    return logger.error(`Could not find presentation file ${jobId}`);
   }
 
-  kickOffProcessWorker(exportJob.jobId);
-};
+  kickOffWorker(WorkerTypes.Process, jobId);
+}
 
 async function sleep(ms) {
   return new Promise((resolve) => {
@@ -166,8 +156,8 @@ async function collectSharedNotes(retries) {
     }
   }
 
-  kickOffNotifierWorker(exportJob.jobType, filename);
-};
+  kickOffWorker(WorkerTypes.Notifier, [exportJob.jobType, jobId, filename]);
+}
 
 switch (exportJob.jobType) {
   case 'PresentationWithAnnotationExportJob': return collectAnnotationsFromRedis();

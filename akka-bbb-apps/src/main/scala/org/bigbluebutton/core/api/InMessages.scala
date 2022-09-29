@@ -106,8 +106,9 @@ case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String
 
 /**
  * Sent by parent meeting to breakout room to import shared notes.
- * @param userId
  * @param parentMeetingId
+ * @param meetingName
+ * @param sequence
  */
 case class CaptureSharedNotesReqInternalMsg(parentMeetingId: String, meetingName: String, sequence: Int) extends InMessage
 
