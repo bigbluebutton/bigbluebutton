@@ -52,7 +52,6 @@ const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 const intlMessages = defineMessages({
@@ -117,14 +116,12 @@ const intlMessages = defineMessages({
 const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
-  locale: PropTypes.string,
   darkTheme: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   actionsbar: null,
   captions: null,
-  locale: OVERRIDE_LOCALE || navigator.language,
 };
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
@@ -145,7 +142,6 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      locale,
       notify,
       intl,
       validIOSVersion,
@@ -165,7 +161,6 @@ class App extends Component {
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
-    document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
     layoutContextDispatch({
@@ -181,8 +176,6 @@ class App extends Component {
     }
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
-
-    body.classList.add(`lang-${locale.split('-')[0]}`);
 
     if (!validIOSVersion()) {
       notify(
