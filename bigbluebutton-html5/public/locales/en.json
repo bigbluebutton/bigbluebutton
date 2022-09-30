@@ -540,6 +540,7 @@
     "app.audioNotification.audioFailedError1012": "Connection closed (ICE error 1012)",
     "app.audioNotification.audioFailedMessage": "Your audio connection failed to connect",
     "app.audioNotification.mediaFailedMessage": "getUserMicMedia failed as only secure origins are allowed",
+    "app.audioNotification.deviceChangeFailed": "Audio device change failed. Check if the chosen device is properly set up and available",
     "app.audioNotification.closeLabel": "Close",
     "app.audioNotificaion.reconnectingAsListenOnly": "Microphone has been locked for viewers, you are being connected as listen only",
     "app.breakoutJoinConfirmation.title": "Join breakout room",

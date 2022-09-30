@@ -750,7 +750,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderRoomsGrid() {
-    const { intl } = this.props;
+    const { intl, isUpdate } = this.props;
     const {
       leastOneUserIsValid,
       numberOfRooms,
@@ -814,6 +814,7 @@ class BreakoutRoom extends PureComponent {
                   onBlur={changeRoomName(value)}
                   aria-label={`${this.getRoomName(value)}`}
                   aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
+                  readOnly={isUpdate}
                 />
                 <div aria-hidden id={`room-input-${value}`} className="sr-only">
                   {intl.formatMessage(intlMessages.roomNameInputDesc)}
