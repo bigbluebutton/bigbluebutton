@@ -797,7 +797,7 @@ class BreakoutRoom extends PureComponent {
           <Styled.BreakoutBox id="breakoutBox-0" onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
             {this.renderUserItemByRoom(0)}
           </Styled.BreakoutBox>
-          <Styled.SpanWarn valid={leastOneUserIsValid}>
+          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={leastOneUserIsValid}>
             {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
           </Styled.SpanWarn>
         </Styled.Alert>
@@ -1189,9 +1189,7 @@ class BreakoutRoom extends PureComponent {
   renderTitle() {
     const { intl, isUpdate } = this.props;
     return (
-      <Styled.SubTitle
-        data-test='titulo'
-      >
+      <Styled.SubTitle>
         { isUpdate
           ? intl.formatMessage(intlMessages.breakoutRoomUpdateDesc)
           : intl.formatMessage(intlMessages.breakoutRoomDesc) }

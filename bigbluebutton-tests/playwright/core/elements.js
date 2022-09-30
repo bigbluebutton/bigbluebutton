@@ -64,17 +64,23 @@ exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
 exports.roomGrid = 'div[data-test="roomGrid"] >> input';
 exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
 exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
-exports.roomName = 'input[data-test="roomName-2"]';
+exports.breakoutBox2 = 'div[id="breakoutBox-2"]';
 exports.breakoutOptionsMenu = 'button[data-test="breakoutOptionsMenu"]';
 exports.openUpdateBreakoutUsersModal = 'li[data-test="openUpdateBreakoutUsersModal"]';
 exports.userTest = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
-exports.removeUser = 'div[id="breakoutBox-1"] >> p:nth-child(1)';
+exports.moveUser = 'div[id="breakoutBox-1"] >> p:nth-child(1)';
 exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
 exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
 exports.sendButtonDurationTime = 'button[data-test="sendButtonDurationTime"]';
 exports.breakoutRemainingTime = 'span[data-test="breakoutRemainingTime"]';
-exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom"]';
+exports.roomNameInput = 'input[data-test="roomName-1"]';
+exports.roomName1Test = 'span[data-test="Room 1Test"]';
+exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom-Room 1"]';
+exports.userNameBreakoutRoom2 = 'div[data-test="userNameBreakoutRoom-Room 2"]';
+exports.userNameBreakoutRoom7 = 'div[data-test="userNameBreakoutRoom-Room 7"]';
 exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
+exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
+exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';

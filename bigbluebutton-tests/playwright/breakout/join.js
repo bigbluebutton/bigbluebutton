@@ -3,6 +3,7 @@ const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
+const { expect } = require('@playwright/test');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -106,9 +107,9 @@ class Join extends Create {
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /12:00/);
+    await this.modPage.hasText(e.breakoutRemainingTime, /11:[1-5][0-9]/);
 
-    await breakoutUserPage.hasText(e.breakoutRemainingTime, /12:00/);
+    await breakoutUserPage.hasText(e.breakoutRemainingTime, /11:[1-5][0-9]/);
   }
 
   async endAllBreakoutRooms() {
@@ -116,6 +117,27 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.endAllBreakouts);
     await this.modPage.wasRemoved(e.breakoutRoomsItem);
+  }
+
+  async moveUserToOtherRoom() {
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
+
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+
+    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
+    await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox2);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.waitForSelector(e.modalConfirmButton);
+
+    await expect(breakoutUserPage.page.isClosed(), "Previous breakout room page did not close!").toBeTruthy();
+
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);
   }
 }
 

@@ -429,11 +429,10 @@ class BreakoutRoom extends PureComponent {
     } = this.state;
 
     const { animations } = Settings.application;
-
     const roomItems = breakoutRooms.map((breakout) => (
       <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`} >
         <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
-          <Styled.BreakoutRoomListNameLabel aria-hidden>
+          <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
             {breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
               : breakout.shortName}
@@ -455,7 +454,7 @@ class BreakoutRoom extends PureComponent {
           )}
         </Styled.Content>
         <Styled.JoinedUserNames
-          data-test="userNameBreakoutRoom"
+          data-test={`userNameBreakoutRoom-${breakout.shortName}`}
         >
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
@@ -469,7 +468,7 @@ class BreakoutRoom extends PureComponent {
 
     return (
       <Styled.BreakoutColumn>
-        <Styled.BreakoutScrollableList>
+        <Styled.BreakoutScrollableList data-test="breakoutRoomList">
           {roomItems}
         </Styled.BreakoutScrollableList>
       </Styled.BreakoutColumn>

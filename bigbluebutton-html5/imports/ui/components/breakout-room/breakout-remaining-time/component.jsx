@@ -2,7 +2,7 @@ import React from 'react';
 
 
 const BreakoutRemainingTime = props => (
-  <span data-test="breakoutRemainingTime">
+  <span>
     {props.children}
   </span>
 );
