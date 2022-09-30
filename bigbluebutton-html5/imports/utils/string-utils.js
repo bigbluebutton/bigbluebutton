@@ -31,10 +31,20 @@ export const unescapeHtml = (input) => {
   return e.value;
 };
 
+export const formatLocaleCode = (locale) => {
+  const formattedLocale = locale?.replace('_', '-').replace('@', '-');
+
+  return {
+    language: formattedLocale?.split('-')[0],
+    formattedLocale,
+  }
+}
+
 export default {
   capitalizeFirstLetter,
   getDateString,
   stripTags,
   escapeHtml,
   unescapeHtml,
+  formatLocaleCode,
 };

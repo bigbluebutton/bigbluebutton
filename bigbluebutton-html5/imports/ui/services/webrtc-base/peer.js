@@ -43,7 +43,7 @@ export default class WebRtcPeer extends EventEmitter2 {
       this.on('candidategatheringdone', this.oncandidategatheringdone);
     }
     if (typeof this.options.mediaStreamFactory === 'function') {
-      this.mediaStreamFactory = this.options.mediaStreamFactory.bind(this);
+      this._mediaStreamFactory = this.options.mediaStreamFactory.bind(this);
     }
   }
 
@@ -145,8 +145,7 @@ export default class WebRtcPeer extends EventEmitter2 {
       return Promise.resolve();
     }
 
-    this.logger.info('BBB::WebRtcPeer::mediaStreamFactory - running default factory', this.mediaConstraints);
-    return navigator.mediaDevices.getUserMedia(this.mediaConstraints).then((stream) => {
+    const handleGUMResolution = (stream) => {
       if (stream.getAudioTracks().length > 0) {
         this.audioStream = stream;
         this.logger.debug('BBB::WebRtcPeer::mediaStreamFactory - generated audio', this.audioStream);
@@ -155,10 +154,22 @@ export default class WebRtcPeer extends EventEmitter2 {
         this.videoStream = stream;
         this.logger.debug('BBB::WebRtcPeer::mediaStreamFactory - generated video', this.videoStream);
       }
-    }).catch((error) => {
-      this.logger.error('BBB::WebRtcPeer::mediaStreamFactory - gUM failed', error);
-      throw error;
-    });
+
+      return stream;
+    }
+
+    if (typeof this._mediaStreamFactory === 'function') {
+      return this._mediaStreamFactory(this.mediaConstraints).then(handleGUMResolution);
+    }
+
+    this.logger.info('BBB::WebRtcPeer::mediaStreamFactory - running default factory', this.mediaConstraints);
+
+    return navigator.mediaDevices.getUserMedia(this.mediaConstraints)
+      .then(handleGUMResolution)
+      .catch((error) => {
+        this.logger.error('BBB::WebRtcPeer::mediaStreamFactory - gUM failed', error);
+        throw error;
+      });
   }
 
   set peerConnection(pc) {

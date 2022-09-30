@@ -29,6 +29,7 @@ const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
+const TOOLBAR_OFFSET = 0;
 
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
@@ -270,7 +271,7 @@ export default function Whiteboard(props) {
       }
       if (props.height < SMALLEST_HEIGHT && tdTools) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
-        tdTools.parentElement.style.bottom = `${TOOLBAR_SMALL}px`;
+        tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
       }
       // removes tldraw native help menu button
       tdTools?.parentElement?.nextSibling?.remove();
@@ -313,6 +314,22 @@ export default function Whiteboard(props) {
             },
           },
           `set_hovered_id`
+        );
+      };
+      // disable selecting background slide shape
+      app.setSelectedIds = (ids) => {
+        ids = ids.filter(id => !id.includes('slide-background'))
+        app.patchState(
+          {
+            document: {
+              pageStates: {
+                [app.getPage()?.id]: {
+                  selectedIds: ids || [],
+                },
+              },
+            },
+          },
+          `selected`
         );
       };
     }
@@ -375,6 +392,30 @@ export default function Whiteboard(props) {
     if (slidePosition && reason && !isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight)
       tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], zoom);
+    }
+    // disable select for non presenter that doesn't have multi user access
+    if (!hasWBAccess && !isPresenter) {
+      if (e?.getPageState()?.brush || e?.selectedIds?.length !== 0) {
+        e.patchState(
+          {
+            document: {
+              pageStates: {
+                [e?.currentPageId]: {
+                  selectedIds: [],
+                  brush: null,
+                },
+              },
+            },
+          },
+        );
+      }
+    }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      if (patchedShape?.type === 'text') {
+        persistShape(patchedShape, whiteboardId);
+      }
     }
   };
 

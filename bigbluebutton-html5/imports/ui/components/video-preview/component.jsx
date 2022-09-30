@@ -385,15 +385,20 @@ class VideoPreview extends Component {
     });
   }
 
-  handleLocalStreamInactive() {
-    this.setState({
-      isStartSharingDisabled: true,
-    });
-    this.handlePreviewError(
-      'stream_inactive',
-      new Error('inactiveError'),
-      '- preview camera stream inactive',
-    );
+  handleLocalStreamInactive({ id }) {
+    // id === MediaStream.id
+    if (this.currentVideoStream
+      && typeof id === 'string'
+      && this.currentVideoStream?.mediaStream?.id === id) {
+      this.setState({
+        isStartSharingDisabled: true,
+      });
+      this.handlePreviewError(
+        'stream_inactive',
+        new Error('inactiveError'),
+        '- preview camera stream inactive',
+      );
+    }
   }
 
   updateVirtualBackgroundInfo = () => {
@@ -567,7 +572,7 @@ class VideoPreview extends Component {
     if (stream) {
       // Stream is being destroyed - remove gUM revocation handler to avoid false negatives
       stream.removeListener('inactive', this.handleLocalStreamInactive);
-      PreviewService.terminateCameraStream(this.currentVideoStream, deviceId);
+      PreviewService.terminateCameraStream(stream, deviceId);
     }
   }
 

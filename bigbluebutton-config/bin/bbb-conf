@@ -388,7 +388,7 @@ start_bigbluebutton () {
         }
     fi
 
-    systemctl start bigbluebutton.target nginx freeswitch $REDIS_SERVICE bbb-apps-akka bbb-fsesl-akka bbb-rap-resque-worker bbb-rap-starter.service bbb-rap-caption-inbox.service $HTML5 $WEBHOOKS $ETHERPAD $PADS $BBB_WEB $BBB_LTI
+    systemctl start bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -898,14 +898,18 @@ check_state() {
 
     if ! ss -ant | grep '8090' > /dev/null; then
         print_header
-        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
+        if [ ! -z "$TOMCAT_SERVICE" ]; then
+            NOT_RUNNING_APPS="${NOT_RUNNING_APPS} ${TOMCAT_USER} or grails"
+        fi
     else
         if ps aux |  ps -aef | grep -v grep | grep grails | grep run-app > /dev/null; then
         print_header
         RUNNING_APPS="${RUNNING_APPS} Grails"
         echo "#   ${TOMCAT_USER}:      noticed you are running grails run-app instead of ${TOMCAT_USER}"
         else
-            RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
+            if [ ! -z "$TOMCAT_SERVICE" ]; then
+                RUNNING_APPS="${RUNNING_APPS} ${TOMCAT_USER}"
+            fi
         fi
     fi
 
@@ -1117,7 +1121,6 @@ check_state() {
                 echo "#"
             fi
         fi
-
         if bbb-conf --status | grep inactive; then
             echo "# Error: Detected some processes have not started correctly"
             echo "#"
