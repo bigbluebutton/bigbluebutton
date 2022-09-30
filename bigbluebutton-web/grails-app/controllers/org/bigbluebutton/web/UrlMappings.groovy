@@ -55,11 +55,6 @@ class UrlMappings {
       action = [GET: 'downloadFile']
     }
 
-
-    "/bigbluebutton/api/setPollXML"(controller: "api") {
-      action = [POST: 'setPollXML']
-    }
-
     "/bigbluebutton/api/getMeetings"(controller: "api") {
       action = [GET: 'getMeetingsHandler', POST: 'getMeetingsHandler']
     }
