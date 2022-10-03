@@ -51,7 +51,7 @@ const serverHealth = () => {
     user: formatMemoryUsage(cpuData.user),
   }
 
-  Logger.info('Server health ', {memoryUsage, cpuUsage});
+  Logger.info('Server health', {memoryUsage, cpuUsage});
 };
 
 Meteor.startup(() => {
