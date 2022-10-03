@@ -756,7 +756,7 @@ class VideoService {
     if (this.userParameterProfile === null) {
       this.userParameterProfile = getFromUserSettings(
         'bbb_preferred_camera_profile',
-        (CAMERA_PROFILES.filter(i => i.default) || {}).id,
+        (CAMERA_PROFILES.find(i => i.default) || {}).id || null,
       );
     }
 
