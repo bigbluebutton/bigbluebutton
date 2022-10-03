@@ -603,19 +603,23 @@ function overlay_shape_label(svg, annotation) {
 
   render_textbox(fontColor, font, fontSize, textAlign, text, id);
 
-  const dimensions = probe.sync(fs.readFileSync(path.join(dropbox, `text${id}.png`)));
-  const labelWidth = dimensions.width / config.process.textScaleFactor;
-  const labelHeight = dimensions.height / config.process.textScaleFactor;
+  const shape_label = path.join(dropbox, `text${id}.png`);
 
-  svg.ele('g', {
-    transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
-  }).ele('image', {
-    'x': label_center_x - (labelWidth * x_offset),
-    'y': label_center_y - (labelHeight * y_offset),
-    'width': labelWidth,
-    'height': labelHeight,
-    'xlink:href': `file://${dropbox}/text${id}.png`,
-  }).up();
+  if (fs.existsSync(shape_label)) {
+    const dimensions = probe.sync(fs.readFileSync(shape_label));
+    const labelWidth = dimensions.width / config.process.textScaleFactor;
+    const labelHeight = dimensions.height / config.process.textScaleFactor;
+
+    svg.ele('g', {
+      transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
+    }).ele('image', {
+      'x': label_center_x - (labelWidth * x_offset),
+      'y': label_center_y - (labelHeight * y_offset),
+      'width': labelWidth,
+      'height': labelHeight,
+      'xlink:href': `file://${dropbox}/text${id}.png`,
+    }).up();
+  }
 }
 
 function overlay_sticky(svg, annotation) {
