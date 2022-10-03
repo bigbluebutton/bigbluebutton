@@ -298,7 +298,7 @@
     "app.poll.liveResult.usersTitle": "Kullanıcılar",
     "app.poll.liveResult.responsesTitle": "Yanıt",
     "app.poll.liveResult.secretLabel": "Bu isimsiz bir ankettir. Bireysel cevaplar gösterilmez.",
-    "app.poll.removePollOpt": "Kaldırılan Anket seçenekleri [0]",
+    "app.poll.removePollOpt": "Kaldırılan Anket seçenekleri {0}",
     "app.poll.emptyPollOpt": "Boş",
     "app.polling.pollingTitle": "Anket seçenekleri",
     "app.polling.pollQuestionTitle": "Anket Sorusu",

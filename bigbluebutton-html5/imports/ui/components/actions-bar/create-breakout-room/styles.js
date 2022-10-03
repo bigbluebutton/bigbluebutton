@@ -212,12 +212,9 @@ const AssignBtns = styled(Button)`
   color: ${colorPrimary};
   font-size: ${fontSizeSmall};
   white-space: nowrap;
-  margin: 0 auto 0 0;
+  margin: 3px auto;
   align-self: flex-end;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 auto;
-  }
+  width: 100%;
 `;
 
 const CheckBoxesContainer = styled(FlexRow)`

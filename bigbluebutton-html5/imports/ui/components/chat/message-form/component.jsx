@@ -69,7 +69,7 @@ const messages = defineMessages({
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
-const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.enableEmojiPicker;
+const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -312,6 +312,7 @@ class MessageForm extends PureComponent {
         circle
         hideLabel
         label={intl.formatMessage(messages.emojiButtonLabel)}
+        data-test="emojiPickerButton"
       />
     );
   }

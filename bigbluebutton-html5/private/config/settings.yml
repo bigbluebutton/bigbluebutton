@@ -241,6 +241,7 @@ public:
     # when the locale string is empty. If false, the empty
     # string will be returned.
     fallbackOnEmptyLocaleString: true
+    disableWebsocketFallback: true
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -511,7 +512,9 @@ public:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
-    enableEmojiPicker: false
+    emojiPicker:
+      enable: false
+      frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
   notes:
