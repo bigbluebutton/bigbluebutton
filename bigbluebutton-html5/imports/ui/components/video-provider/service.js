@@ -14,6 +14,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
+import LocalStorage from '/imports/ui/services/storage/local';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
 import {
@@ -688,11 +689,11 @@ class VideoService {
   }
 
   getCameraProfile() {
-    const profileId = Session.get('WebcamProfileId') || '';
+    const profileId = LocalStorage.getItem('WebcamProfileId') || '';
     const cameraProfile = CAMERA_PROFILES.find(profile => profile.id === profileId)
       || CAMERA_PROFILES.find(profile => profile.default)
       || CAMERA_PROFILES[0];
-    const deviceId = Session.get('WebcamDeviceId');
+    const deviceId = LocalStorage.getItem('WebcamDeviceId');
     if (deviceId) {
       cameraProfile.constraints = cameraProfile.constraints || {};
       cameraProfile.constraints.deviceId = { exact: deviceId };
