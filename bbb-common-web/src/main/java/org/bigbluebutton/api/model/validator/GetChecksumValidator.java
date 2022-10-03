@@ -44,6 +44,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
         String createdCheckSum = DigestUtils.sha1Hex(data);
 
         if (providedChecksum.length() == 64) {
+            log.debug("providedChecksum.length() == 64");
             createdCheckSum = DigestUtils.sha256Hex(data);
             log.info("SHA256 {}", createdCheckSum);
         }
