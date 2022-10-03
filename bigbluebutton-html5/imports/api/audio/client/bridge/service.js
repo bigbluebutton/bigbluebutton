@@ -1,6 +1,6 @@
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
-import Storage from '/imports/ui/services/storage/session';
+import Storage from '/imports/ui/services/storage/local';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';
