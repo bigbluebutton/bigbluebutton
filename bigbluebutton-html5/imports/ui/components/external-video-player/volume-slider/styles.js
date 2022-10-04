@@ -11,7 +11,7 @@ const Slider = styled.div`
   background-color: rgba(0,0,0,0.5);
   border-radius: 32px;
 
-  & > i {
+  i {
     color: white;
     transition: 0.5s;
     font-size: 200%;

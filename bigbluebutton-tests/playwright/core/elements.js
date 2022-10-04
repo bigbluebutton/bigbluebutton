@@ -78,6 +78,13 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+// Emoji picker
+exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
+exports.frequentlyUsedEmoji = '👍';
+exports.emojiSent = 'section[aria-label="Frequently Used"] button[title="+1"] span';
+// Auto Convert Emoji
+exports.autoConvertEmojiMessage = ':)';
+exports.convertedEmojiMessage = '😊';
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -108,6 +115,7 @@ exports.etherpadEditable = 'body[id="innerdocbody"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.currentPresentationToast = 'div[data-test="toastSmallMsg"] > div';
 exports.notificationsTab = 'span[id="notificationTab"]';
 exports.chatPopupAlertsBtn = 'input[data-test="chatPopupAlertsBtn"]';
 exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
@@ -190,6 +198,7 @@ exports.startShareVideoBtn = 'button[data-test="startNewVideo"]';
 exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
+exports.presentationsList = 'div[id="upload-modal"] tbody';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
@@ -314,3 +323,7 @@ exports.exportPlainButton = 'span[id="exportplain"]';
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
 exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
+
+// Help button
+exports.helpButton = 'li[data-test="helpButton"]';
+exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'

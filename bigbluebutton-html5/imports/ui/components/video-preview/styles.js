@@ -230,6 +230,28 @@ const VideoPreview = styled.video`
   `}
 `;
 
+const Marker = styled.div`
+  width: 2rem;
+  text-align: center;
+`;
+
+const MarkerDynamic = styled(Marker)`
+  position: absolute;
+  top: 0;
+`;
+
+const MarkerWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+`;
+
+const MarkerDynamicWrapper = styled.div`
+  position: relative;
+  height: 1rem;
+  user-select: none;
+`;
+
 export default {
   Warning,
   Main,
@@ -247,4 +269,8 @@ export default {
   VideoPreviewModal,
   FetchingAnimation,
   VideoPreview,
+  Marker,
+  MarkerDynamic,
+  MarkerWrapper,
+  MarkerDynamicWrapper,
 };

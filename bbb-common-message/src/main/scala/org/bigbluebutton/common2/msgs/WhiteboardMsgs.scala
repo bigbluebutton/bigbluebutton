@@ -5,9 +5,10 @@ case class AnnotationVO(id: String, annotationInfo: scala.collection.immutable.M
 
 case class PresentationPageForExport(
   page: Int,
-  xCamera: Double,
-  yCamera: Double,
-  zoom: Double,
+  xOffset: Double,
+  yOffset: Double,
+  widthRatio: Double,
+  heightRatio: Double,
   annotations: Array[AnnotationVO],
 )
 
@@ -52,7 +53,7 @@ case class SendCursorPositionPubMsgBody(whiteboardId: String, xPercent: Double, 
 
 object SendWhiteboardAnnotationsPubMsg { val NAME = "SendWhiteboardAnnotationsPubMsg" }
 case class SendWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsPubMsgBody) extends StandardMsg
-case class SendWhiteboardAnnotationsPubMsgBody(whiteboardId: String, annotations: Array[AnnotationVO])
+case class SendWhiteboardAnnotationsPubMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], html5InstanceId: String)
 
 object DeleteWhiteboardAnnotationsPubMsg { val NAME = "DeleteWhiteboardAnnotationsPubMsg" }
 case class DeleteWhiteboardAnnotationsPubMsg(header: BbbClientMsgHeader, body: DeleteWhiteboardAnnotationsPubMsgBody) extends StandardMsg

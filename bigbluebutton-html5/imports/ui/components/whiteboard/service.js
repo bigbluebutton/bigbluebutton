@@ -22,7 +22,7 @@ const clearPreview = (annotation) => {
 
 const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
-  Annotations.remove({ id: /-fake/g });
+  Annotations.remove({ id: /-fake/g, annotationType: { $ne: 'text' } });
 }
 
 function handleAddedAnnotation({

@@ -1,9 +1,9 @@
 import * as React from "react";
-import { _ } from "lodash";
-
-const RESIZE_HANDLE_HEIGHT = 8;
-const RESIZE_HANDLE_WIDTH = 18;
+const XS_OFFSET = 8;
+const SMALL_OFFSET = 18;
+const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
+const PRES_TOOLBAR_HEIGHT = 35;
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -132,99 +132,122 @@ export default function Cursors(props) {
   const start = () => setActive(true);
   
   const end = () => {
-    publishCursorUpdate({
-      xPercent: -1.0,
-      yPercent: -1.0,
-      whiteboardId: whiteboardId,
-    });
+    if (whiteboardId) {
+      publishCursorUpdate({
+        xPercent: -1.0,
+        yPercent: -1.0,
+        whiteboardId,
+      });
+    };
     setActive(false);
-  };
+  }
 
   const moved = (event) => {
     const { type, x, y } = event;
-    // If the presentation container is the full screen element we don't need any offsets
-    const fsEl = document?.webkitFullscreenElement || document?.fullscreenElement;
-    if (fsEl?.getAttribute('data-test') === "presentationContainer") {
-      return setPos({ x, y });
-    }
     const nav = document.getElementById('Navbar');
-    let yOffset = parseFloat(nav?.style?.height);
     const getSibling = (el) => el?.previousSibling || null;
     const panel = getSibling(nav);
     const webcams = document.getElementById('cameraDock');
     const subPanel = panel && getSibling(panel);
-    let xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
+    const presentationContainer = document.querySelector('[data-test="presentationContainer"]');
+    const presentation = document.getElementById('currentSlideText')?.parentElement;
+    let yOffset = 0;
+    let xOffset = 0;
+    const calcPresOffset = () => {
+      yOffset += (parseFloat(presentationContainer?.style?.height) - (parseFloat(presentation?.style?.height) + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))) / 2;
+      xOffset += (parseFloat(presentationContainer?.style?.width) - parseFloat(presentation?.style?.width)) / 2;
+    }
+    // If the presentation container is the full screen element we don't need any offsets
+    const fsEl = document?.webkitFullscreenElement || document?.fullscreenElement;
+    if (fsEl?.getAttribute('data-test') === "presentationContainer") {
+      calcPresOffset();
+      return setPos({ x: x - xOffset, y: y - yOffset });
+    }
+    if (nav) yOffset += parseFloat(nav?.style?.height);
+    if (panel) xOffset += parseFloat(panel?.style?.width);
+    if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
 
+    // disable native tldraw eraser animation
+    const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
+    if (eraserLine) eraserLine.style.display = `none`;
+        
     if (type === 'touchmove') {
+      calcPresOffset();
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
 
-    const handleCustomYOffsets = () => {
-      if (camPosition === 'contentTop' || !camPosition) {
-        yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_HEIGHT);
-      }
-      if (camPosition === 'contentBottom') {
-        yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
-      }
-    }
-
-    if (document?.documentElement?.dir === 'rtl') {
+    if (document?.documentElement?.dir === 'rtl') { 
       xOffset = 0;
-      if (webcams && sl?.includes('custom')) {
-        handleCustomYOffsets();
-        if (camPosition === 'contentRight') {
-          xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+      if (presentationContainer && presentation) {
+        calcPresOffset();
+      }
+      if (sl.includes('custom')) {
+        if (webcams) {
+          if (camPosition === 'contentTop' || !camPosition) {
+            yOffset += (parseFloat(webcams?.style?.height || 0) + BOTTOM_CAM_HANDLE_HEIGHT);
+          }
+          if (camPosition === 'contentBottom') {
+            yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+          }
+          if (camPosition === 'contentRight') {
+            xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
+          }
         }
       }
-      if (webcams && sl?.includes('smart')) {
+      if (sl?.includes('smart')) {
         if (panel || subPanel) {
           const dockPos = webcams?.getAttribute("data-position");
-          if (dockPos === 'contentRight') {
-            xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
-          }
           if (dockPos === 'contentTop') {
-            yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_WIDTH);
+            yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
           }
-        } 
-
-        if (!panel && !subPanel) {
-          xOffset = 0;
         }
       }
       if (webcams && sl?.includes('videoFocus')) {
-        xOffset = parseFloat(nav?.style?.width);
-        yOffset = parseFloat(panel?.style?.height);
+        xOffset += parseFloat(nav?.style?.width);
+        yOffset += (parseFloat(panel?.style?.height || 0) - XL_OFFSET);
       }
     } else {
-      if (webcams && sl?.includes('custom')) {
-        handleCustomYOffsets();
-        if (camPosition === 'contentLeft') {
-          xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+      if (sl.includes('custom')) {
+        if (webcams) {
+          if (camPosition === 'contentTop' || !camPosition) {
+            yOffset += (parseFloat(webcams?.style?.height) || 0) + XS_OFFSET;
+          }
+          if (camPosition === 'contentBottom') {
+            yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+          }
+          if (camPosition === 'contentLeft') {
+            xOffset += (parseFloat(webcams?.style?.width) || 0) + SMALL_OFFSET;
+          }
         }
       }
-
-      if (webcams && sl?.includes('smart')) {
-          if (panel || subPanel) {
-            const dockPos = webcams?.getAttribute("data-position");
-            if (dockPos === 'contentLeft') {
-              xOffset += (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
-            }
-            if (dockPos === 'contentTop') {
-              yOffset += (parseFloat(webcams?.style?.height) + RESIZE_HANDLE_WIDTH);
-            }
-          } 
-
-          if (!panel && !subPanel) {
-            xOffset = (parseFloat(webcams?.style?.width) + RESIZE_HANDLE_WIDTH);
+  
+      if (sl.includes('smart')) {
+        if (panel || subPanel) {
+          const dockPos = webcams?.getAttribute("data-position");
+          if (dockPos === 'contentLeft') {
+            xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
           }
+          if (dockPos === 'contentTop') {
+            yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
+          }
+        } 
+        if (!panel && !subPanel) {
+          if (webcams) {
+            xOffset = parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET;
+          }
+        }
       }
-
-      if (webcams && sl?.includes('videoFocus')) {
-        xOffset = parseFloat(subPanel?.style?.width);
-        yOffset = parseFloat(panel?.style?.height);
+      if (sl?.includes('videoFocus')) {
+        if (webcams) {
+          xOffset = parseFloat(subPanel?.style?.width);
+          yOffset = parseFloat(panel?.style?.height);
+        }
+      }
+      if (presentationContainer && presentation) {
+        calcPresOffset();
       }
     }
 
@@ -246,7 +269,7 @@ export default function Cursors(props) {
 
     !cursorWrapper.hasOwnProperty("touchmove") &&
       cursorWrapper?.addEventListener("touchmove", moved);
-  }, [cursorWrapper]);
+  }, [cursorWrapper, whiteboardId]);
 
   React.useEffect(() => {
     return () => {
@@ -263,7 +286,7 @@ export default function Cursors(props) {
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? "none" : "default";
   if (isPanning) cursorType = 'grab';
-  
+
   return (
     <span ref={(r) => (cursorWrapper = r)}>
       <div style={{ height: "100%", cursor: cursorType }}>

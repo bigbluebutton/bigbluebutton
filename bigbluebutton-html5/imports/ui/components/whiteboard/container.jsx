@@ -15,7 +15,7 @@ const WhiteboardContainer = (props) => {
     const { users } = usingUsersContext;
     const currentUser = users[Auth.meetingID][Auth.userID];
     const isPresenter = currentUser.presenter;
-    return <Whiteboard {...{isPresenter, currentUser, isRTL, width, height}} {...props} meetingId={Auth.meetingID} />
+    return <Whiteboard {...{ isPresenter, currentUser, isRTL, width, height }} {...props} meetingId={Auth.meetingID} />
 };
 
 export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger }) => {

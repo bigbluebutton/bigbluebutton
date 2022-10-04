@@ -8,6 +8,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Logger from '/imports/startup/client/logger';
+import { formatLocaleCode } from '/imports/utils/string-utils';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -17,6 +18,7 @@ const propTypes = {
 
 const DEFAULT_LANGUAGE = Meteor.settings.public.app.defaultSettings.application.fallbackLocale;
 const CLIENT_VERSION = Meteor.settings.public.app.html5ClientBuild;
+const FALLBACK_ON_EMPTY_STRING = Meteor.settings.public.app.fallbackOnEmptyLocaleString;
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 const LARGE_FONT_LANGUAGES = ['te', 'km'];
@@ -135,6 +137,8 @@ class IntlStartup extends Component {
               }
 
               const dasherizedLocale = normalizedLocale.replace('_', '-');
+              const { language, formattedLocale } = formatLocaleCode(dasherizedLocale);
+
               this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
                 Settings.application.locale = dasherizedLocale;
                 if (RTL_LANGUAGES.includes(dasherizedLocale.substring(0, 2))) {
@@ -146,6 +150,8 @@ class IntlStartup extends Component {
                 }
                 Session.set('isLargeFont', LARGE_FONT_LANGUAGES.includes(dasherizedLocale.substring(0, 2)));
                 window.dispatchEvent(new Event('localeChanged'));
+                document.getElementsByTagName('html')[0].lang = formattedLocale;
+                document.body.classList.add(`lang-${language}`);
                 Settings.save();
               });
             });
@@ -156,6 +162,7 @@ class IntlStartup extends Component {
   render() {
     const { fetching, normalizedLocale, messages } = this.state;
     const { children } = this.props;
+    const { formattedLocale } = formatLocaleCode(normalizedLocale);
 
     return (
       <>
@@ -163,7 +170,7 @@ class IntlStartup extends Component {
 
         {normalizedLocale
           && (
-          <IntlProvider locale={normalizedLocale} messages={messages}>
+          <IntlProvider fallbackOnEmptyString={FALLBACK_ON_EMPTY_STRING} locale={formattedLocale} messages={messages}>
             {children}
           </IntlProvider>
           )

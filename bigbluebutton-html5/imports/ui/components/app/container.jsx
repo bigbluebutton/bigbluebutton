@@ -44,8 +44,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const endMeeting = (code) => {
+const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
+  Session.set('errorMessageDescription', ejectedReason);
   Session.set('isMeetingEnded', true);
 };
 
@@ -60,8 +61,6 @@ const AppContainer = (props) => {
 
   const {
     actionsbar,
-    meetingLayout,
-    meetingLayoutUpdatedAt,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
@@ -71,11 +70,13 @@ const AppContainer = (props) => {
     isPresenter,
     randomlySelectedUser,
     isModalOpen,
-    presentationIsOpen: layoutPresOpen,
-    isResizing: layoutIsResizing,
-    cameraPosition: layoutCamPosition,
-    focusedCamera: layoutFocusedCam,
-    presentationVideoRate: layoutRate,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isLayoutMeetingResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     ...otherProps
   } = props;
 
@@ -86,7 +87,6 @@ const AppContainer = (props) => {
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
-  const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
@@ -153,11 +153,11 @@ const AppContainer = (props) => {
           cameraWidth: cameraDock.width,
           cameraHeight: cameraDock.height,
           cameraIsResizing: cameraDockInput.isResizing,
-          layoutPresOpen,
-          layoutIsResizing,
-          layoutCamPosition,
-          layoutFocusedCam,
-          layoutRate,
+          meetingPresentationIsOpen,
+          isLayoutMeetingResizing,
+          meetingLayoutCameraPosition,
+          meetingLayoutFocusedCamera,
+          meetingLayoutVideoRate,
           horizontalPosition,
           deviceType,
           layoutContextDispatch,
@@ -188,8 +188,15 @@ const currentUserEmoji = (currentUser) => (currentUser
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
-    removed() {
-      endMeeting('403');
+    removed(userData) {
+      // wait 3secs (before endMeeting), client will try to authenticate again
+      const delayForReconnection = userData.ejected ? 0 : 3000;
+      setTimeout(() => {
+        const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
+        if (queryCurrentUser.count() === 0) {
+          endMeeting(403, userData.ejectedReason || null);
+        }
+      }, delayForReconnection);
     },
   });
 
@@ -214,8 +221,17 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
-  const { layout, pushLayout: pushLayoutMeeting, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
+  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const {
+    layout: meetingLayout,
+    pushLayout: pushLayoutMeeting,
+    layoutUpdatedAt: meetingLayoutUpdatedAt,
+    presentationIsOpen: meetingPresentationIsOpen,
+    isResizing: isMeetingLayoutResizing,
+    cameraPosition: meetingLayoutCameraPosition,
+    focusedCamera: meetingLayoutFocusedCamera,
+    presentationVideoRate: meetingLayoutVideoRate,
+  } = meetingLayoutObj;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -258,14 +274,14 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
-    isModerator: currentUser.role === ROLE_MODERATOR,
-    meetingLayout: layout,
-    meetingLayoutUpdatedAt: layoutUpdatedAt,
-    presentationIsOpen,
-    isResizing,
-    cameraPosition,
-    focusedCamera,
-    presentationVideoRate,
+    isModerator: currentUser?.role === ROLE_MODERATOR,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isMeetingLayoutResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,

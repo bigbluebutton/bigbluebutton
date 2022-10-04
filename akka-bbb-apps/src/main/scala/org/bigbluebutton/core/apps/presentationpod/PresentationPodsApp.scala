@@ -51,9 +51,10 @@ object PresentationPodsApp {
           txtUri = page.urls.getOrElse("text", ""),
           svgUri = page.urls.getOrElse("svg", ""),
           current = page.current,
-          xCamera = page.xCamera,
-          yCamera = page.yCamera,
-          zoom = page.zoom,
+          xOffset = page.xOffset,
+          yOffset = page.yOffset,
+          widthRatio = page.widthRatio,
+          heightRatio = page.heightRatio
         )
       }
 
@@ -83,9 +84,10 @@ object PresentationPodsApp {
         txtUri = page.urls.getOrElse("text", ""),
         svgUri = page.urls.getOrElse("svg", ""),
         current = page.current,
-        xCamera = page.xCamera,
-        yCamera = page.yCamera,
-        zoom = page.zoom
+        xOffset = page.xOffset,
+        yOffset = page.yOffset,
+        widthRatio = page.widthRatio,
+        heightRatio = page.heightRatio
       )
     }
     PresentationVO(pres.id, temporaryPresentationId, pres.name, pres.current, pages.toVector, pres.downloadable, pres.removable)
