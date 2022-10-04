@@ -4,6 +4,8 @@ import Polls from '/imports/api/polls';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
+let prevUserID;
+
 export default function publishTypedVote(id, pollAnswer) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -18,59 +20,71 @@ export default function publishTypedVote(id, pollAnswer) {
     check(pollAnswer, String);
     check(id, String);
 
-    const allowedToVote = Polls.findOne({
-      id,
-      users: { $in: [requesterUserId] },
-      meetingId,
-    }, {
-      fields: {
-        users: 1,
-      },
-    });
-
-    if (!allowedToVote) {
-      Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${id}}`);
-      return null;
+    if(requesterUserId != prevUserID){
+      prevUserID = requesterUserId;
+      sendTypedVoteToRedis();
+    } else {
+      prevUserID = requesterUserId;
+      setTimeout(() => {sendTypedVoteToRedis();}, 3000);
     }
 
-    const activePoll = Polls.findOne({ meetingId, id }, {
-      fields: {
-        answers: 1,
-      },
-    });
 
-    let existingAnsId = null;
-    activePoll.answers.forEach((a) => {
-      if (a.key === pollAnswer) existingAnsId = a.id;
-    });
-  
-    if (existingAnsId !== null) {
-      check(existingAnsId, Number);
-      EVENT_NAME = 'RespondToPollReqMsg';
-
-      return RedisPubSub.publishUserMessage(
-        CHANNEL,
-        EVENT_NAME,
+    async function sendTypedVoteToRedis() {
+      const allowedToVote = Polls.findOne({
+        id,
+        users: { $in: [requesterUserId] },
         meetingId,
-        requesterUserId,
-        {
-          requesterId: requesterUserId,
-          pollId: id,
-          questionId: 0,
-          answerIds: [existingAnsId],
+      }, {
+        fields: {
+          users: 1,
         },
-      );
-    }
-  
-    const payload = {
-      requesterId: requesterUserId,
-      pollId: id,
-      questionId: 0,
-      answer: pollAnswer.substring(0, MAX_INPUT_CHARS),
-    };
+      });
 
-    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+      if (!allowedToVote) {
+        Logger.info(`Poll User={${requesterUserId}} has already voted in PollId={${id}}`);
+        return null;
+      }
+
+      const activePoll = Polls.findOne({ meetingId, id }, {
+        fields: {
+          answers: 1,
+        },
+      });
+
+      let existingAnsId = null;
+      activePoll.answers.forEach((a) => {
+        if (a.key === pollAnswer) existingAnsId = a.id;
+      });
+    
+      if (existingAnsId !== null) {
+        check(existingAnsId, Number);
+        EVENT_NAME = 'RespondToPollReqMsg';
+
+        return RedisPubSub.publishUserMessage(
+          CHANNEL,
+          EVENT_NAME,
+          meetingId,
+          requesterUserId,
+          {
+            requesterId: requesterUserId,
+            pollId: id,
+            questionId: 0,
+            answerIds: [existingAnsId],
+          },
+        );
+      }
+    
+      const payload = {
+        requesterId: requesterUserId,
+        pollId: id,
+        questionId: 0,
+        answer: pollAnswer.substring(0, MAX_INPUT_CHARS),
+      };
+
+      return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
+      }
   } catch (err) {
     Logger.error(`Exception while invoking method publishTypedVote ${err.stack}`);
   }
+  
 }
