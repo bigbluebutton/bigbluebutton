@@ -329,18 +329,27 @@ class PresentationUploader extends Component {
     const { presentations: prevPropPresentations } = prevProps;
 
     let shouldUpdateState = isOpen && !prevProps.isOpen;
-    
-    propPresentations.forEach(p => {
-      const indexOfPres = presentations.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId || pres.filename === p.filename);
-      if (indexOfPres === -1 && p.renderedInToast !== undefined && !p.renderedInToast) {
-        shouldUpdateState = true;
-      }
-    })
 
     const presState = Object.values({
       ...propPresentations,
       ...presentations,
     });
+    if (propPresentations.length > prevPropPresentations.length) {
+      shouldUpdateState = true;
+      const propsDiffs = propPresentations.filter(p => !prevPropPresentations.includes(p))
+
+      propsDiffs.forEach(p => {
+        const index = presState.findIndex(pres => {
+          if (p.isCurrent) {
+            pres.isCurrent = false;
+          }
+          return pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id;
+        }); 
+        if (index === -1) {
+          presState.push(p);
+        } 
+      })
+    }
     const presStateFiltered = presState.filter((presentation) => {
       const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
       const prevPropPres = prevPropPresentations.find((pres) => pres.id === presentation.id);
@@ -351,7 +360,7 @@ class PresentationUploader extends Component {
       if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
 
-      if(presentation?.conversion?.done !== finishedConversion) {
+      if (presentation?.conversion?.done !== finishedConversion) {
         shouldUpdateState = true;
       }
 
@@ -372,7 +381,7 @@ class PresentationUploader extends Component {
         && duplicated.id.startsWith(presentation.filename)
         && !presentation.id.startsWith(presentation.filename)
         && presentation?.conversion?.done === duplicated?.conversion?.done) {
-          return false;
+          return false; // Prioritizing propPresentations (the one with id from back-end)
       }
       return true;
     });
@@ -721,7 +730,7 @@ class PresentationUploader extends Component {
     } = this.props;
 
     const options = {
-      0: fileSizeMax/1000000,
+      0: fileSizeMax / 1000000,
       1: filePagesMax,
     };
 

@@ -225,6 +225,13 @@ const uploadAndConvertPresentation = (
   return requestPresentationUploadToken(temporaryPresentationId, podId, meetingId, file.name)
     .then((token) => {
       makeCall('setUsedToken', token);
+      UploadingPresentations.upsert({
+        temporaryPresentationId
+        }, {
+          $set: {
+            id: token,
+        }
+      })
       return futch(endpoint.replace('upload', `${token}/upload`), opts, (e) => {
         onProgress(e);
         UploadingPresentations.upsert({ temporaryPresentationId }, {$set: {progress: (e.loaded / e.total) * 100}});

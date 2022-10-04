@@ -284,10 +284,10 @@ export const PresentationUploaderToast = ({ intl }) => {
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
 		let tmpIdconvertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.conversion.done)
-			.map(p => p.temporaryPresentationId)
-		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.includes(p.temporaryPresentationId))
+			.map(p => { return {temporaryPresentationId: p.temporaryPresentationId, id: p.id}; })
+		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id) !== -1)
 			.map(p => {
-				return UploadingPresentations.remove({temporaryPresentationId: p.temporaryPresentationId})});
+				return UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]})});
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
