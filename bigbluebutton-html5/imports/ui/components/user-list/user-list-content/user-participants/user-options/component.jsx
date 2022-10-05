@@ -341,7 +341,7 @@ class UserOptions extends PureComponent {
         )}
         actions={this.renderMenuItems()}
         opts={{
-          id: "default-dropdown-menu",
+          id: "user-options-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
