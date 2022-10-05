@@ -3,12 +3,6 @@ import _ from "lodash";
 import { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
-import {
-  ColorStyle,
-  DashStyle,
-  SizeStyle,
-  TDShapeType,
-} from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 
 function usePrevious(value) {
@@ -46,6 +40,7 @@ export default function Whiteboard(props) {
     initDefaultPages,
     persistShape,
     shapes,
+    assets,
     currentUser,
     curPres,
     whiteboardId,
@@ -54,7 +49,6 @@ export default function Whiteboard(props) {
     skipToSlide,
     slidePosition,
     curPageId,
-    svgUri,
     presentationWidth,
     presentationHeight,
     isViewersCursorLocked,
@@ -118,32 +112,8 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
-      next.assets[`slide-background-asset-${curPageId}`] = {
-        id: `slide-background-asset-${curPageId}`,
-        size: [slidePosition?.width || 0, slidePosition?.height || 0],
-        src: svgUri,
-        type: "image",
-      };
-
-      next.pages[curPageId].shapes["slide-background-shape"] = {
-        assetId: `slide-background-asset-${curPageId}`,
-        childIndex: 0.5,
-        id: "slide-background-shape",
-        name: "Image",
-        type: TDShapeType.Image,
-        parentId: `${curPageId}`,
-        point: [0, 0],
-        isLocked: true,
-        size: [slidePosition?.width || 0, slidePosition?.height || 0],
-        style: {
-          dash: DashStyle.Draw,
-          size: SizeStyle.Medium,
-          color: ColorStyle.Blue,
-        },
-      };
-
-      changed = true;
+    if (curPageId && !next.assets[`slide-background-asset-${curPageId}`]) {
+      next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`]
     }
 
     if (changed) {
@@ -448,9 +418,9 @@ export default function Whiteboard(props) {
 
   // this callback is called whenever the shapes on the page are changed by the user,
   // with what changed stored in changedShapes
-  const onChangePage = (app, changedShapes) => { 
-    if (isPresenter || hasWBAccess) {
-      if (app.currentPageId !== curPageId) {
+  const onChangePage = (app, changedShapes, changedBindings, changedAssets, addToHistory) => { 
+    if (addToHistory && (isPresenter || hasWBAccess)) {
+      if (!isMounting && app.currentPageId !== curPageId) {
         // can happen then the "move to page action" is called, or using undo after changing a page
         const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(app.currentPageId)).id;
         //remove from previous page and persist on new
@@ -474,6 +444,19 @@ export default function Whiteboard(props) {
               .forEach(([id, shape]) => {
                 if (!shape) deletedShapes.push(id);
                 else {
+                  //checks to find any bindings assosiated with the changed shapes.
+                  //If any, they need to be updated as well.
+                  const pageBindings = app.page.bindings;
+                  if (pageBindings) {
+                    Object.entries(pageBindings).map(([k,b]) => {
+                      if (b.toId.includes(id)) {
+                        const boundShape = app.getShape(b.fromId);
+                        const shapeBounds = app.getShapeBounds(b.fromId);
+                        boundShape.size = [shapeBounds.width, shapeBounds.height];
+                        persistShape(boundShape, whiteboardId)
+                      }
+                    })
+                  }
                   const shapeBounds = app.getShapeBounds(id);
                   shape.size = [shapeBounds.width, shapeBounds.height];
                   persistShape(shape, whiteboardId);
