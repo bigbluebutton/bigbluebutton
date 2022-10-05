@@ -74,7 +74,7 @@ class Join extends Create {
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
+    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/);
 
     await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
   }
@@ -107,7 +107,7 @@ class Join extends Create {
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
+    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/);
 
     await breakoutUserPage.hasText(e.timeRemaining,/[11-12]:[0-5][0-9]/);
   }
