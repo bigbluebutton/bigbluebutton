@@ -50,7 +50,7 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.increaseBreakoutTime);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.breakoutRemainingTime, /15:[1-5][0-9]/);
+    await this.modPage.hasText(e.breakoutRemainingTime, /15:[0-5][0-9]/);
   }
 
   async changeRoomsName() {

@@ -81,6 +81,7 @@ exports.userNameBreakoutRoom7 = 'div[data-test="userNameBreakoutRoom-Room 7"]';
 exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
 exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
 exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
+exports.timeRemaining = 'span[data-test="timeRemaining"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';

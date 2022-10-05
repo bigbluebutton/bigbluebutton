@@ -74,8 +74,9 @@ class Join extends Create {
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
+    await this.modPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
 
-    await breakoutUserPage.hasText(e.breakoutRemainingTime, /12:00/);
+    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
   }
 
   async inviteUserAfterCreatingRooms() {
@@ -92,7 +93,6 @@ class Join extends Create {
 
   async usernameShowsBelowRoomsName() {
     const breakoutUserPage = await this.joinRoom();
-    //await breakoutUserPage.waitForSelector(e.presentationTitle);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
   }
@@ -107,9 +107,9 @@ class Join extends Create {
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '2');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /11:[1-5][0-9]/);
+    await this.modPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
 
-    await breakoutUserPage.hasText(e.breakoutRemainingTime, /11:[1-5][0-9]/);
+    await breakoutUserPage.hasText(e.timeRemaining,/[11-12]:[0-5][0-9]/);
   }
 
   async endAllBreakoutRooms() {
