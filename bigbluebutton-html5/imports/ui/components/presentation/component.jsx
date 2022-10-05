@@ -223,7 +223,7 @@ class Presentation extends PureComponent {
       const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
 
       if (
-        prevProps?.currentPresentation?.name !== currentPresentation.name
+        prevProps?.currentPresentation?.id !== currentPresentation.id
         || (downloadableOn && !userIsPresenter)
       ) {
         if (this.currentPresentationToastId) {
@@ -235,7 +235,7 @@ class Presentation extends PureComponent {
           this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
             onClose: () => { this.currentPresentationToastId = null; },
             autoClose: shouldCloseToast,
-            className: 'actionToast',
+            className: 'actionToast currentPresentationToast',
           });
         }
       }

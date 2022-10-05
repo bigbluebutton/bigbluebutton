@@ -1,5 +1,4 @@
 import * as React from "react";
-import { _ } from "lodash";
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
 const XL_OFFSET = 85;
@@ -133,13 +132,15 @@ export default function Cursors(props) {
   const start = () => setActive(true);
   
   const end = () => {
-    publishCursorUpdate({
-      xPercent: 0,
-      yPercent: 0,
-      whiteboardId: whiteboardId,
-    });
+    if (whiteboardId) {
+      publishCursorUpdate({
+        xPercent: -1.0,
+        yPercent: -1.0,
+        whiteboardId,
+      });
+    };
     setActive(false);
-  };
+  }
 
   const moved = (event) => {
     const { type, x, y } = event;
@@ -268,7 +269,7 @@ export default function Cursors(props) {
 
     !cursorWrapper.hasOwnProperty("touchmove") &&
       cursorWrapper?.addEventListener("touchmove", moved);
-  }, [cursorWrapper]);
+  }, [cursorWrapper, whiteboardId]);
 
   React.useEffect(() => {
     return () => {
