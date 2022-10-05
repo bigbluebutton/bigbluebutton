@@ -378,7 +378,7 @@ export default withTracker(() => {
   const connectionIdUpdateTime = User?.connectionIdUpdateTime;
 
   if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
-    Session.set('codeError', 403);
+    Session.set('codeError', 409);
     Session.set('errorMessageDescription', 'joined_another_window_reason')
   }
 

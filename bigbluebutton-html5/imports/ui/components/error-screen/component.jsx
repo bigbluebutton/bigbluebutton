@@ -8,12 +8,18 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
+  503: {
+    id: 'app.error.503',
+  },
   500: {
     id: 'app.error.500',
     defaultMessage: 'Oops, something went wrong',
   },
   410: {
     id: 'app.error.410',
+  },
+  409: {
+    id: 'app.error.409',
   },
   408: {
     id: 'app.error.408',
@@ -55,6 +61,9 @@ const intlMessages = defineMessages({
   not_enough_permission_eject_reason: {
     id: 'app.meeting.logout.permissionEjectReason',
   },
+  able_to_rejoin_user_disconnected_reason: {
+    id: 'app.error.disconnected.rejoin',
+  },
 });
 
 const propTypes = {
@@ -92,7 +101,7 @@ class ErrorScreen extends PureComponent {
 
     let errorMessageDescription = Session.get('errorMessageDescription');
 
-    if (code === 403 && errorMessageDescription in intlMessages) {
+    if (errorMessageDescription in intlMessages) {
       errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
     }
 

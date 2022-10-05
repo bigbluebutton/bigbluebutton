@@ -45,7 +45,7 @@ export default function userLeaving(meetingId, userId, connectionId) {
 
     ClientConnections.removeClientConnection(`${meetingId}--${userId}`, connectionId);
 
-    Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
+    Logger.info(`User '${userId}' is leaving meeting '${meetingId} due to disconnection'`);
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method userLeaving ${err.stack}`);
