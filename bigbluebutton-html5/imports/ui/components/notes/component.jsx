@@ -38,7 +38,7 @@ const Notes = ({
   layoutContextDispatch,
   isResizing,
 }) => {
-  useEffect(() => () => Service.setLastRev(), []);
+  useEffect(() => Service.setLastRev(), []);
   const { isChrome } = browserInfo;
 
   return (
