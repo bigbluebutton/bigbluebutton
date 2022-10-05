@@ -74,7 +74,8 @@ public class SwfSlidesGenerationProgressNotifier {
     DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY,
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -108,7 +109,8 @@ public class SwfSlidesGenerationProgressNotifier {
     DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY,
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -116,7 +118,8 @@ public class SwfSlidesGenerationProgressNotifier {
     DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY,
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 }

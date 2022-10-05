@@ -52,11 +52,12 @@ case class PresentationConversionUpdateSysPubMsg(
     body:   PresentationConversionUpdateSysPubMsgBody
 ) extends StandardMsg
 case class PresentationConversionUpdateSysPubMsgBody(
-    podId:          String,
-    messageKey:     String,
-    code:           String,
-    presentationId: String,
-    presName:       String
+    podId:                   String,
+    messageKey:              String,
+    code:                    String,
+    presentationId:          String,
+    presName:                String,
+    temporaryPresentationId: String
 )
 
 object PresentationPageCountErrorSysPubMsg { val NAME = "PresentationPageCountErrorSysPubMsg" }
@@ -190,7 +191,7 @@ case class PresentationUploadTokenFailRespMsgBody(podId: String, filename: Strin
 
 object PresentationConversionUpdateEvtMsg { val NAME = "PresentationConversionUpdateEvtMsg" }
 case class PresentationConversionUpdateEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionUpdateEvtMsgBody) extends BbbCoreMsg
-case class PresentationConversionUpdateEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, presName: String)
+case class PresentationConversionUpdateEvtMsgBody(podId: String, messageKey: String, code: String, presentationId: String, presName: String, temporaryPresentationId: String)
 
 object PresentationPageCountErrorEvtMsg { val NAME = "PresentationPageCountErrorEvtMsg" }
 case class PresentationPageCountErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationPageCountErrorEvtMsgBody) extends BbbCoreMsg
