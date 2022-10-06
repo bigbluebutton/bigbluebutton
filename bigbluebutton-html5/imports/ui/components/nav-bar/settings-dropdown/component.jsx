@@ -333,7 +333,7 @@ class SettingsDropdown extends PureComponent {
         )}
         actions={this.renderMenuItems()}
         opts={{
-          id: "default-dropdown-menu",
+          id: "app-settings-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,

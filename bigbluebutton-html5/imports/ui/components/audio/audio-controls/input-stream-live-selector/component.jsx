@@ -428,7 +428,7 @@ class InputStreamLiveSelector extends Component {
           )}
           actions={dropdownListComplete}
           opts={{
-            id: 'default-dropdown-menu',
+            id: 'audio-selector-dropdown-menu',
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
