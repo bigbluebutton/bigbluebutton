@@ -835,7 +835,7 @@
     "app.connection-status.next": "Next page",
     "app.connection-status.prev": "Previous page",
     "app.learning-dashboard.label": "Learning Analytics Dashboard",
-    "app.learning-dashboard.description": "Open dashboard with users activities",
+    "app.learning-dashboard.description": "Dashboard with users activities",
     "app.learning-dashboard.clickHereToOpen": "Open Learning Analytics Dashboard",
     "app.recording.startTitle": "Start recording",
     "app.recording.stopTitle": "Pause recording",

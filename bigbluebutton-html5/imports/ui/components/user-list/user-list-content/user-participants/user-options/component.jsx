@@ -124,6 +124,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.sortedLastName.heading',
     description: '',
   },
+  newTab: {
+    id: 'app.modal.newTab',
+    description: 'label used in aria description',
+  }
 });
 
 class UserOptions extends PureComponent {
@@ -310,7 +314,7 @@ class UserOptions extends PureComponent {
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',
             label: intl.formatMessage(intlMessages.learningDashboardLabel),
-            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            description: `${intl.formatMessage(intlMessages.learningDashboardDesc)} ${intl.formatMessage(intlMessages.newTab)}`,
             key: this.learningDashboardId,
             onClick: () => { openLearningDashboardUrl(locale); },
             dividerTop: true,
