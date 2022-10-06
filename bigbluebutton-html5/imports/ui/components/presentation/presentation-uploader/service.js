@@ -2,14 +2,18 @@ import Presentations from '/imports/api/presentations';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Auth from '/imports/ui/services/auth';
 import Poll from '/imports/api/polls/';
+import { Meteor } from 'meteor/meteor';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
-import { Random } from 'meteor/random'
+import update from 'immutability-helper';
+import { Random } from 'meteor/random';
+import { UploadingPresentations } from '/imports/api/presentations';
 import Meetings from '/imports/api/meetings';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 // fetch doesn't support progress. So we use xhr which support progress.
 const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
@@ -45,6 +49,8 @@ const getPresentations = () => Presentations
       current,
       downloadable,
       removable,
+      renderedInToast,
+      temporaryPresentationId,
       id,
       name,
       exportation,
@@ -55,6 +61,8 @@ const getPresentations = () => Presentations
     return {
       id,
       filename: name,
+      renderedInToast,
+      temporaryPresentationId,
       isCurrent: current || false,
       upload: { done: true, error: false },
       isDownloadable: downloadable,
@@ -74,6 +82,10 @@ const observePresentationConversion = (
   temporaryPresentationId,
   onConversion,
 ) => new Promise((resolve) => {
+  // The token is placed as an id before the original one is generated
+  // in the back-end;
+  const tokenId = PresentationUploadToken.findOne({temporaryPresentationId})?.authzToken;
+
   const conversionTimeout = setTimeout(() => {
     onConversion({
       done: true,
@@ -92,9 +104,11 @@ const observePresentationConversion = (
 
     query.observe({
       added: (doc) => {
-        if (doc.temporaryPresentationId !== temporaryPresentationId) return;
+
+        if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
         if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' || doc.conversion.status === 'CONVERSION_TIMEOUT') {
+          Presentations.update({id: tokenId}, {$set: {temporaryPresentationId, renderedInToast: false}})
           onConversion(doc.conversion);
           c.stop();
           clearTimeout(conversionTimeout);
@@ -186,10 +200,39 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
+  // If the presentation is from sharedNotes I don't want to
+  // insert another one, I just need to update it.
+  UploadingPresentations.upsert({
+      filename: file.name,
+      lastModifiedUploader: false,
+    }, {
+      $set: {
+        temporaryPresentationId,
+        progress: 0,
+        filename: file.name,
+        lastModifiedUploader: true,
+        upload: {
+          done: false,
+          error: false
+        },
+        uploadTimestamp: new Date()
+    }
+  })
+
   return requestPresentationUploadToken(temporaryPresentationId, podId, meetingId, file.name)
     .then((token) => {
       makeCall('setUsedToken', token);
-      return futch(endpoint.replace('upload', `${token}/upload`), opts, onProgress);
+      UploadingPresentations.upsert({
+        temporaryPresentationId
+        }, {
+          $set: {
+            id: token,
+        }
+      })
+      return futch(endpoint.replace('upload', `${token}/upload`), opts, (e) => {
+        onProgress(e);
+        UploadingPresentations.upsert({ temporaryPresentationId }, {$set: {progress: (e.loaded / e.total) * 100}});
+      });
     })
     .then(() => observePresentationConversion(meetingId, temporaryPresentationId, onConversion))
     // Trap the error so we can have parallel upload
@@ -271,6 +314,28 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
     .then(removePresentations.bind(null, presentationsToRemove, podId));
 };
 
+const handleSavePresentation = (presentations = [], isFromPresentationUploaderInterface = true, newPres = {}) => {
+  const currentPresentations = getPresentations();
+  if (!isFromPresentationUploaderInterface) {
+
+    if (presentations.length === 0) {
+      presentations = [...currentPresentations];
+    }
+    presentations = presentations.map(p => update(p, {
+      isCurrent: {
+        $set: false
+      }
+    }));
+    newPres.isCurrent = true;
+    presentations.push(newPres);
+  }
+  return persistPresentationChanges(
+  currentPresentations,
+  presentations,
+  PRESENTATION_CONFIG.uploadEndpoint,
+  'DEFAULT_PRESENTATION_POD'
+)}
+
 const getExternalUploadData = () => {
   const { meetingProp } = Meetings.findOne(
     { meetingId: Auth.meetingID },
@@ -322,6 +387,7 @@ const exportPresentationToChat = (presentationId, observer) => {
 };
 
 export default {
+  handleSavePresentation,
   getPresentations,
   persistPresentationChanges,
   dispatchTogglePresentationDownloadable,
@@ -329,4 +395,5 @@ export default {
   requestPresentationUploadToken,
   getExternalUploadData,
   exportPresentationToChat,
+  uploadAndConvertPresentation,
 };

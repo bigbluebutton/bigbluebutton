@@ -25,14 +25,14 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
   check(body, Object);
 
   const {
-    presentationId, podId, messageKey: status, presName: presentationName,
-    temporaryPresentationId
+    presentationId, podId, messageKey: status, presName: presentationName, temporaryPresentationId,
   } = body;
 
   check(meetingId, String);
   check(presentationId, Match.Maybe(String));
   check(podId, String);
   check(status, String);
+  check(temporaryPresentationId, Match.Maybe(String));
 
   const statusModifier = {
     'conversion.status': status,
@@ -84,14 +84,14 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
   let modifier
   if (temporaryPresentationId){
     modifier = {
-      $set: Object.assign({ meetingId, podId, temporaryPresentationId, }, statusModifier),
+      $set: Object.assign({ meetingId, podId, renderedInToast: false, temporaryPresentationId, }, statusModifier),
     };
   } else {
     modifier = {
-      $set: Object.assign({ meetingId, podId }, statusModifier),
+      $set: Object.assign({ meetingId, renderedInToast: false, podId }, statusModifier),
     };
   }
-  
+
 
   try {
     const isPresentationPersisted = Presentations.find(selector).fetch().some((item) => {
