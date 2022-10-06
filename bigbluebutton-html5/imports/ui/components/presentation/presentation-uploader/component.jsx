@@ -162,10 +162,6 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.pageCountExceeded',
     description: 'warns the user that the conversion failed because of the page count',
   },
-  CONVERSION_TIMEOUT: {
-    id:'app.presentationUploder.conversion.conversionTimeout',
-    description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
-  },
   PDF_HAS_BIG_PAGE: {
     id: 'app.presentationUploder.conversion.pdfHasBigPage',
     description: 'warns the user that the conversion failed because of the pdf page siz that exceeds the allowed limit',
