@@ -682,65 +682,6 @@ class ApiController {
     return reqParams;
   }
 
-  /***********************************************
-   * POLL API
-   ***********************************************/
-  def setPollXML = {
-    String API_CALL = "setPollXML"
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    Map<String, String[]> reqParams = getParameters(request)
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.SET_POLL_XML,
-            reqParams,
-            request.getQueryString()
-    )
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue())
-      return
-    }
-
-
-    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-
-    String pollXML = params.pollXML
-
-    String decodedPollXML;
-
-    try {
-      decodedPollXML = URLDecoder.decode(pollXML, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      log.error "Couldn't decode poll XML.", e
-      invalid("pollXMLError", "Cannot decode poll XML")
-      return;
-    }
-    def pollxml = new XmlSlurper().parseText(decodedPollXML);
-
-    pollxml.children().each { poll ->
-      String title = poll.title.text();
-      String question = poll.question.text();
-      String questionType = poll.questionType.text();
-
-      ArrayList<String> answers = new ArrayList<String>();
-      poll.answers.children().each { answer ->
-        answers.add(answer.text());
-      }
-
-      //send poll to BigBlueButton Apps
-      meetingService.createdPolls(meeting.getInternalId(), title, question, questionType, answers);
-    }
-
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {
-      xml {
-        // No need to use the response builder here until we have a more complex response
-        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
-      }
-    }
-  }
-
   /**********************************************
    * GUEST WAIT API
    *********************************************/

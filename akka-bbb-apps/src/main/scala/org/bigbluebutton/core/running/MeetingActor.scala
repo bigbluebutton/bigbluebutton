@@ -522,6 +522,7 @@ class MeetingActor(
       case m: SetPresentationDownloadablePubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationUploadedFileTimeoutErrorSysPubMsg  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

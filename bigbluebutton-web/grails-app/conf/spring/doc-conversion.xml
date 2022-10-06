@@ -98,6 +98,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
         <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
+        <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
+        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
         <property name="svgResolutionPpi" value="${svgPresentationResolutionPpi}"/>
         <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
@@ -156,6 +158,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="swfSlidesGenerationProgressNotifier"
           class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
         <property name="messagingService" ref="bbbWebApiGWApp"/>
+        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
         <property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
     </bean>
 
