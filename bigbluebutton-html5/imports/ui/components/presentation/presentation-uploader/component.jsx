@@ -329,7 +329,6 @@ class PresentationUploader extends Component {
     const { presentations: prevPropPresentations } = prevProps;
 
     let shouldUpdateState = isOpen && !prevProps.isOpen;
-
     const presState = Object.values({
       ...propPresentations,
       ...presentations,
@@ -344,10 +343,10 @@ class PresentationUploader extends Component {
             pres.isCurrent = false;
           }
           return pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id;
-        }); 
+        });
         if (index === -1) {
           presState.push(p);
-        } 
+        }
       })
     }
     const presStateFiltered = presState.filter((presentation) => {
