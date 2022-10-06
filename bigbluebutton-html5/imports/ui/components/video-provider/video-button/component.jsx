@@ -155,6 +155,7 @@ const JoinVideoButton = ({
             hideLabel
             label={intl.formatMessage(intlMessages.videoSettings)}
             rotate
+            tabIndex={0}
           />
         )}
         actions={actions}
