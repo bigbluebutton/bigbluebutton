@@ -240,7 +240,6 @@ class Base extends Component {
   }
 
   static async setExitReason(reason) {
-    console.log('setting reason=' + reason);
     return await makeCall('setExitReason', reason);
   }
 
