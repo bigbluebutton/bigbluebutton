@@ -428,10 +428,24 @@ class PresentationUploader extends Component {
       const selected = propPresentations.filter((p) => p.isCurrent);
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
+
+    if (this.exportToastId) {
+      if (!prevProps.isOpen && isOpen) {
+        this.handleDismissToast(this.exportToastId);
+      }
+
+      toast.update(this.exportToastId, {
+        render: this.renderExportToast(),
+      });
+    }
   }
 
   componentWillUnmount() {
     Session.set('showUploadPresentationView', false);
+  }
+
+  handleDismissToast() {
+    return toast.dismiss(this.toastId);
   }
 
   handleFiledrop(files, files2) {
