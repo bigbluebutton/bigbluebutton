@@ -7,6 +7,9 @@ export default function setExitReason(reason) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
+    // Unauthenticated user, just ignore and go ahead.
+    if (!meetingId || !requesterUserId) return;
+
     check(meetingId, String);
     check(requesterUserId, String);
     check(reason, String);

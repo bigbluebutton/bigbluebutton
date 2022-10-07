@@ -240,6 +240,7 @@ class Base extends Component {
   }
 
   static async setExitReason(reason) {
+    console.log('setting reason=' + reason);
     return await makeCall('setExitReason', reason);
   }
 
@@ -272,8 +273,13 @@ class Base extends Component {
     }
 
     if (ejected) {
-      Base.setExitReason('ejected');
-      return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
+      return (
+        <MeetingEnded
+          code="403"
+          ejectedReason={ejectedReason}
+          callback={() => Base.setExitReason('ejected')}
+        />
+      );
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
@@ -286,12 +292,12 @@ class Base extends Component {
     }
 
     if (meetingHasEnded && !meetingIsBreakout) {
-      Base.setExitReason('meetingEnded');
       return (
         <MeetingEnded
           code={codeError}
           endedReason={meetingEndedReason}
           ejectedReason={ejectedReason}
+          callback={() => Base.setExitReason('meetingEnded')}
         />
       );
     }
@@ -299,11 +305,9 @@ class Base extends Component {
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout.
       if (codeError !== '680') {
-        Base.setExitReason('error');
-        return (<ErrorScreen code={codeError} />);
+        return (<ErrorScreen code={codeError} callback={() => Base.setExitReason('error')} />);
       }
-      Base.setExitReason('logout');
-      return (<MeetingEnded code={codeError} />);
+      return (<MeetingEnded code={codeError} callback={() => Base.setExitReason('logout')} />);
     }
 
     return (<AppContainer {...this.props} baseControls={stateControls} />);
