@@ -1,17 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from './service';
 import Styled from './styles';
 import { useState } from 'react';
 
 const DEBOUNCE_TIMEOUT = 15000;
-const DEBOUNCE_OPTIONS = {
-  leading: true,
-  trailing: false,
-  maxWait: DEBOUNCE_TIMEOUT,
-};
 
 const intlMessages = defineMessages({
   convertAndUploadLabel: {
@@ -36,10 +30,10 @@ const ConverterButtonComponent = ({
   ? (
     <Styled.ConvertAndUpload
       disabled={converterButtonDisabled}
-      onClick={_.debounce(() => {
+      onClick={() => {
         setConverterButtonDisabled(true);
         setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-        return Service.convertAndUpload()}, DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS)}
+        return Service.convertAndUpload()}}
       label={intl.formatMessage(intlMessages.convertAndUploadLabel)}
       icon="upload"
     />
