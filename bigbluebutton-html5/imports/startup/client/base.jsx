@@ -20,6 +20,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
+import { makeCall } from '/imports/ui/services/api';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -238,6 +239,10 @@ class Base extends Component {
     });
   }
 
+  static async setExitReason(reason) {
+    return makeCall('setExitReason', reason);
+  }
+
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
@@ -259,20 +264,26 @@ class Base extends Component {
     }
 
     if (meetingIsBreakout && (ejected || userRemoved)) {
+      Base.setExitReason('removedFromBreakout');
       window.close();
       return null;
     }
 
     if (ejected) {
+      Base.setExitReason('ejected');
       return (<MeetingEnded code="403" ejectedReason={ejectedReason} />);
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
+      if (meetingHasEnded) {
+        Base.setExitReason('breakoutEnded');
+      }
       window.close();
       return null;
     }
 
     if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
+      Base.setExitReason('meetingEnded');
       return (
         <MeetingEnded
           code={codeError}
@@ -285,6 +296,8 @@ class Base extends Component {
     if (codeError && !meetingHasEnded) {
       // 680 is set for the codeError when the user requests a logout
       if (codeError !== '680') {
+        if (codeError === '503') Base.setExitReason('disconnected');
+        else Base.setExitReason('error');
         return (<ErrorScreen code={codeError} />);
       }
       return (<MeetingEnded code={codeError} />);
