@@ -195,14 +195,14 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
         const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
         if (queryCurrentUser.count() === 0) {
           if (userData.ejected) {
-            endMeeting(403, userData.ejectedReason);
+            endMeeting('403', userData.ejectedReason);
           } else {
             // Either authentication process hasn't finished yet or user did authenticate but Users
             // collection is unsynchronized. In both cases user may be able to rejoin.
             const description = Auth.isAuthenticating || Auth.loggedIn
               ? 'able_to_rejoin_user_disconnected_reason'
               : null;
-            endMeeting(503, description);
+            endMeeting('503', description);
           }
         }
       }, delayForReconnection);
