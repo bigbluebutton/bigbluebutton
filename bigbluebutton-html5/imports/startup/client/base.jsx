@@ -240,7 +240,7 @@ class Base extends Component {
   }
 
   static async setExitReason(reason) {
-    return makeCall('setExitReason', reason);
+    return await makeCall('setExitReason', reason);
   }
 
   renderByState() {
@@ -264,8 +264,10 @@ class Base extends Component {
     }
 
     if (meetingIsBreakout && (ejected || userRemoved)) {
-      Base.setExitReason('removedFromBreakout');
-      window.close();
+      Base.setExitReason('removedFromBreakout').finally(() => {
+        Meteor.disconnect();
+        window.close();
+      });
       return null;
     }
 
@@ -275,14 +277,15 @@ class Base extends Component {
     }
 
     if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
-      if (meetingHasEnded) {
-        Base.setExitReason('breakoutEnded');
-      }
-      window.close();
+      const reason = meetingHasEnded ? 'breakoutEnded' : 'logout';
+      Base.setExitReason(reason).finally(() => {
+        Meteor.disconnect();
+        window.close();
+      });
       return null;
     }
 
-    if (((meetingHasEnded && !meetingIsBreakout)) || (codeError && User?.loggedOut)) {
+    if (meetingHasEnded && !meetingIsBreakout) {
       Base.setExitReason('meetingEnded');
       return (
         <MeetingEnded
@@ -294,12 +297,12 @@ class Base extends Component {
     }
 
     if (codeError && !meetingHasEnded) {
-      // 680 is set for the codeError when the user requests a logout
+      // 680 is set for the codeError when the user requests a logout.
       if (codeError !== '680') {
-        if (codeError === '503') Base.setExitReason('disconnected');
-        else Base.setExitReason('error');
+        Base.setExitReason('error');
         return (<ErrorScreen code={codeError} />);
       }
+      Base.setExitReason('logout');
       return (<MeetingEnded code={codeError} />);
     }
 
