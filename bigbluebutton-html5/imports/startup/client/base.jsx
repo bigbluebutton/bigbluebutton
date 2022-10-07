@@ -290,7 +290,7 @@ class Base extends Component {
       return null;
     }
 
-    if (meetingHasEnded && !meetingIsBreakout) {
+    if ((meetingHasEnded && !meetingIsBreakout) || (codeError && User?.loggedOut)) {
       return (
         <MeetingEnded
           code={codeError}
