@@ -854,7 +854,7 @@ class Presentation extends PureComponent {
     const { downloadable } = currentPresentation;
 
     return (
-      <Styled.InnerToastWrapper>
+      <Styled.InnerToastWrapper data-test="currentPresentationToast">
         <Styled.ToastIcon>
           <Styled.IconWrapper>
             <Icon iconName="presentation" />
