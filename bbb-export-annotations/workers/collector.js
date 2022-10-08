@@ -129,7 +129,7 @@ async function collectSharedNotes(retries) {
   const filePath = path.join(dropbox, filename);
 
   const [sequence] = JSON.parse(exportJob.pages);
-  const timeout = (sequence - 1) * config.capture.timeout;
+  const timeout = (sequence - 1) * config.captureNotes.timeout;
 
   // Wait for the bbb-pads API to be available
   await sleep(timeout);

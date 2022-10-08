@@ -10,8 +10,8 @@
       "imagemagick": "/usr/bin/convert",
       "pdftocairo": "/usr/bin/pdftocairo"
     },
-    "capture": {
-      "timeout": 2500
+    "captureNotes": {
+      "timeout": 5000
     },
     "collector": {
       "pngWidthRasterizedSlides": 2560
