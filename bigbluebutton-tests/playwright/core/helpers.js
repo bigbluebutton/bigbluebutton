@@ -28,14 +28,6 @@ function apiCall(name, callParams) {
   return axios.get(url, { adapter: http }).then(response => xml2js.parseStringPromise(response.data));
 }
 
-function getMeetings() {
-  return apiCall('getMeetings', {});
-}
-
-function getMeetingInfo(meetingID) {
-  return apiCall('getMeetingInfo', {meetingID: meetingID});
-}
-
 function createMeetingUrl(params, customParameter) {
   const meetingID = `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
@@ -79,8 +71,6 @@ function sleep(time) {
 exports.getRandomInt = getRandomInt;
 exports.apiCallUrl = apiCallUrl;
 exports.apiCall = apiCall;
-exports.getMeetings = getMeetings;
-exports.getMeetingInfo = getMeetingInfo;
 exports.createMeetingUrl = createMeetingUrl;
 exports.createMeetingPromise = createMeetingPromise;
 exports.createMeeting = createMeeting;

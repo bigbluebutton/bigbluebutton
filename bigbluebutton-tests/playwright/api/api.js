@@ -4,8 +4,16 @@ const { expect } = require("@playwright/test");
 
 const Page = require('../core/page');
 const parameters = require('../core/parameters');
-const { createMeeting, getMeetings, getMeetingInfo } = require('../core/helpers');
+const { apiCall, createMeeting } = require('../core/helpers');
 const e = require('../core/elements');
+
+function getMeetings() {
+  return apiCall('getMeetings', {});
+}
+
+function getMeetingInfo(meetingID) {
+  return apiCall('getMeetingInfo', {meetingID: meetingID});
+}
 
 class API {
 
