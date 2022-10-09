@@ -20,7 +20,7 @@ class API {
     return this.browser.newPage();
   }
 
-  async getMeetingInfo() {
+  async testGetMeetings() {
     const meetingId = await createMeeting(parameters);
     const modPage = new Page(this.browser, await this.getNewPageTab());
     const userPage = new Page(this.browser, await this.getNewPageTab());
@@ -66,6 +66,51 @@ class API {
     // console.log(util.inspect(response, false, null));
     expect(response.response.returncode).toEqual(['SUCCESS']);
     expect(response.response.meetings[0].meeting).toContainEqual(expect.objectContaining(expectedMeeting));
+
+    await modPage.page.close();
+    await userPage.page.close();
+  }
+
+  async testGetMeetingInfo() {
+    const meetingId = await createMeeting(parameters);
+    const modPage = new Page(this.browser, await this.getNewPageTab());
+    const userPage = new Page(this.browser, await this.getNewPageTab());
+    await Promise.all([
+      modPage.init(true, false, { meetingId, fullName: 'Moderator' }),
+      userPage.init(false, false, { meetingId, fullName: 'Attendee' }),
+    ]);
+    await modPage.waitForSelector(e.audioModal);
+    await userPage.waitForSelector(e.audioModal);
+
+    await modPage.waitAndClick(e.microphoneButton);
+    await userPage.waitAndClick(e.microphoneButton);
+    await modPage.waitAndClick(e.echoYesButton, modPage.settings.listenOnlyCallTimeout);
+    await userPage.waitAndClick(e.echoYesButton, userPage.settings.listenOnlyCallTimeout);
+
+    await modPage.hasElement(e.leaveAudio);
+    await userPage.hasElement(e.leaveAudio);
+
+    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns because it isn't consistently true
+     * in the API's returned data structures.  Is there something we can await on the browser page that
+     * should ensure that the API will report hasJoinedVoice?
+     */
+
+    const expectedUsers = [expect.objectContaining({fullName: ['Moderator'],
+						    role: ['MODERATOR'],
+						    isPresenter: ['true'],
+						   }),
+			   expect.objectContaining({fullName: ['Attendee'],
+						    role: ['VIEWER'],
+						    isPresenter: ['false'],
+						   })
+			  ];
+    const expectedMeeting = {meetingName : [meetingId],
+			     running : ['true'],
+			     participantCount : ['2'],
+			     moderatorCount : ['1'],
+			     isBreakout: ['false'],
+			     attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
+			    };
 
     /* check that we can retrieve this meeting by its meetingId */
     const response2 = await getMeetingInfo(meetingId);
