@@ -554,6 +554,7 @@
     "app.breakout.dropdown.manageDuration": "Change duration",
     "app.breakout.dropdown.destroyAll": "End breakout rooms",
     "app.breakout.dropdown.options": "Breakout Options",
+    "app.breakout.dropdown.manageUsers": "Manage users",
     "app.calculatingBreakoutTimeRemaining": "Calculating remaining time ...",
     "app.audioModal.ariaTitle": "Join audio modal",
     "app.audioModal.microphoneLabel": "Microphone",

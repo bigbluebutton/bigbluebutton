@@ -17,7 +17,6 @@ const intlMessages = defineMessages({
   manageUsers: {
     id: 'app.breakout.dropdown.manageUsers',
     description: 'Manage users label',
-    defaultMessage: 'Manage Users',
   },
   destroy: {
     id: 'app.breakout.dropdown.destroyAll',
