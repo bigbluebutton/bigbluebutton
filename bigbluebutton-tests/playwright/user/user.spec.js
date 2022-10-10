@@ -69,12 +69,13 @@ test.describe.parallel('User', () => {
   test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
       test.describe.parallel('ASK_MODERATOR', ()  => {
+        // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
         test('Message to guest lobby', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page);
           await guestPolicy.messageToGuestLobby();
         });
-        test('Allow Everyone @ci', async ({ browser, context, page }) => {
+        test('Allow Everyone', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page);
           await guestPolicy.allowEveryone();
@@ -117,7 +118,7 @@ test.describe.parallel('User', () => {
         await guestPolicy.initModPage(page);
         await guestPolicy.alwaysAccept();
       });
-
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#always-deny
       test('ALWAYS_DENY', async ({ browser, context, page }) => {
         const guestPolicy = new GuestPolicy(browser, context);
         await guestPolicy.initModPage(page);
