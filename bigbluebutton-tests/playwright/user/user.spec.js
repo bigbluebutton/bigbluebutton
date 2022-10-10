@@ -68,10 +68,48 @@ test.describe.parallel('User', () => {
 
   test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
-      test('ASK_MODERATOR', async ({ browser, context, page }) => {
-        const guestPolicy = new GuestPolicy(browser, context);
-        await guestPolicy.initModPage(page);
-        await guestPolicy.askModerator();
+      test.describe.parallel('ASK_MODERATOR', ()  => {
+        test('Message to guest lobby', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.messageToGuestLobby();
+        });
+        test('Allow Everyone @ci', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.allowEveryone();
+        });
+        test('Deny Everyone', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.denyEveryone();
+        });
+  
+        test('Remember choice', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.rememberChoice();
+        });
+
+        test.describe.parallel('Actions to specific pending user', () => {
+          test('Message', async ({ browser, context, page }) => {
+            const guestPolicy = new GuestPolicy(browser, context);
+            await guestPolicy.initModPage(page);
+            await guestPolicy.messageToSpecificUser();
+          });
+    
+          test('Accept', async ({ browser, context, page }) => {
+            const guestPolicy = new GuestPolicy(browser, context);
+            await guestPolicy.initModPage(page);
+            await guestPolicy.acceptSpecificUser();
+          });
+    
+          test('Deny', async ({ browser, context, page }) => {
+            const guestPolicy = new GuestPolicy(browser, context);
+            await guestPolicy.initModPage(page);
+            await guestPolicy.denySpecificUser();
+          });
+        });
       });
 
       test('ALWAYS_ACCEPT', async ({ browser, context, page }) => {
