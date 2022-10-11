@@ -8,6 +8,8 @@ import { patch } from '@mconf/bbb-diff';
 const PADS_CONFIG = Meteor.settings.public.pads;
 const THROTTLE_TIMEOUT = 2000;
 
+const padPatchQueues = {};
+
 const getLang = () => {
   const { locale } = Settings.application;
   return locale ? locale.toLowerCase() : '';
@@ -99,6 +101,17 @@ const getPadContent = (externalId) => {
   return '';
 };
 
+const getPadContentSet = (externalId) => {
+  const content = PadsContent.findOne(
+    {
+      meetingId: Auth.meetingID,
+      externalId,
+    }, { fields: { contentSet: 1 } },
+  );
+
+  return !!content?.contentSet;
+};
+
 const setPadContent = (externalId) => {
   makeCall('getPadContent', externalId).then((payload) => {
     if (!payload) return;
@@ -109,8 +122,24 @@ const setPadContent = (externalId) => {
       $set: {
         content,
         contentLastUpdatedAt,
+        contentSet: true,
       },
     };
+
+    const padQueueLength = padPatchQueues[externalId]?.length;
+
+    if (padQueueLength) {
+      modifier.$set.content = padPatchQueues[externalId]
+        .filter(({ timestamp }) => timestamp > contentLastUpdatedAt)
+        .reduce((partialContent, patchDoc) => {
+          const { start, end, text } = patchDoc;
+          return patch(partialContent, { start, end, text });
+        }, content);
+
+      modifier.$set.contentLastUpdatedAt = padPatchQueues[externalId][padQueueLength - 1].timestamp;
+
+      delete padPatchQueues[externalId];
+    }
 
     PadsContent.upsert(selector, modifier);
   });
@@ -137,8 +166,18 @@ const padPatchWatcher = () => {
       const { meetingId, externalId, start, end, text, timestamp: patchTimestamp } = patchDoc;
       const padContent = getPadContent(externalId);
       const padLastUpdate = getPadLastUpdate(externalId);
+      const padContentSet = getPadContentSet(externalId);
 
       if (patchTimestamp < padLastUpdate) return;
+
+      if (!padContentSet) {
+        if (padPatchQueues[externalId]) {
+          padPatchQueues[externalId].push(patchDoc);
+        } else {
+          padPatchQueues[externalId] = [patchDoc];
+        }
+        return;
+      }
 
       PadsContent.upsert({ meetingId, externalId }, {
         $set: {
