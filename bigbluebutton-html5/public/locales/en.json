@@ -270,7 +270,7 @@
     "app.poll.clickHereToSelect": "Click here to select",
     "app.poll.question.label" : "Write your question...",
     "app.poll.optionalQuestion.label" : "Write your question (optional)...",
-    "app.poll.userResponse.label" : "User Response",
+    "app.poll.userResponse.label" : "Typed Response",
     "app.poll.responseTypes.label" : "Response Types",
     "app.poll.optionDelete.label" : "Delete",
     "app.poll.responseChoices.label" : "Response Choices",

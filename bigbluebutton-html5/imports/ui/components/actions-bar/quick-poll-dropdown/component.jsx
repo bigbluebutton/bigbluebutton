@@ -34,6 +34,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.abstention',
     description: 'Poll Abstention option value',
   },
+  typedRespLabel: {
+    id: 'app.poll.userResponse.label',
+    description: 'quick poll typed response label',
+  }
 });
 
 const propTypes = {
@@ -44,80 +48,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
 };
 
-const handleClickQuickPoll = (layoutContextDispatch) => {
-  layoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-    value: true,
-  });
-  layoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-    value: PANELS.POLL,
-  });
-  Session.set('forcePollOpen', true);
-  Session.set('pollInitiated', true);
-};
-
-const getAvailableQuickPolls = (
-  slideId, parsedSlides, startPoll, pollTypes, layoutContextDispatch,
-) => {
-  const pollItemElements = parsedSlides.map((poll) => {
-    const { poll: label } = poll;
-    const { type } = poll;
-    let itemLabel = label;
-    const letterAnswers = [];
-
-    if (type !== pollTypes.YesNo
-      && type !== pollTypes.YesNoAbstention
-      && type !== pollTypes.TrueFalse) {
-      const { options } = itemLabel;
-      itemLabel = options.join('/').replace(/[\n.)]/g, '');
-      if (type === pollTypes.Custom) {
-        for (let i = 0; i < options.length; i += 1) {
-          const letterOption = options[i]?.replace(/[\r.)]/g, '').toUpperCase();
-          if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
-            letterAnswers.push(letterOption);
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    // removes any whitespace from the label
-    itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
-
-    const numChars = {
-      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
-    };
-    itemLabel = itemLabel.split('').map((c) => {
-      if (numChars[c]) return numChars[c];
-      return c;
-    }).join('');
-
-    return (
-      <Dropdown.DropdownListItem
-        label={itemLabel}
-        key={_.uniqueId('quick-poll-item')}
-        onClick={() => {
-          handleClickQuickPoll(layoutContextDispatch);
-          startPoll(type, slideId, letterAnswers);
-        }}
-        answers={letterAnswers}
-      />
-    );
-  });
-
-  const sizes = [];
-  return pollItemElements.filter((el) => {
-    const { label } = el.props;
-    if (label.length === sizes[sizes.length - 1]) return false;
-    sizes.push(label.length);
-    return el;
-  });
-};
-
-class QuickPollDropdown extends Component {
-  render() {
+const QuickPollDropdown = (props) => {
     const {
       amIPresenter,
       intl,
@@ -128,7 +59,93 @@ class QuickPollDropdown extends Component {
       className,
       layoutContextDispatch,
       pollTypes,
-    } = this.props;
+    } = props;
+
+    const handleClickQuickPoll = (layoutContextDispatch) => {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.POLL,
+      });
+      Session.set('forcePollOpen', true);
+      Session.set('pollInitiated', true);
+    };
+    
+    const getAvailableQuickPolls = (
+      slideId, parsedSlides, startPoll, pollTypes, layoutContextDispatch,
+    ) => {
+      const pollItemElements = parsedSlides.map((poll) => {
+        const { poll: label } = poll;
+        const { type, poll: pollData } = poll;
+        let itemLabel = label;
+        const letterAnswers = [];
+
+        if (type === 'R-') {
+          return (
+            <Dropdown.DropdownListItem
+              label={intl.formatMessage(intlMessages.typedRespLabel)}
+              key={_.uniqueId('quick-poll-item')}
+              onClick={() => {
+                handleClickQuickPoll(layoutContextDispatch);
+                startPoll(type, slideId, letterAnswers, pollData?.question);
+              }}
+              question={pollData?.question}
+            />
+          );
+        }
+
+        if (type !== pollTypes.YesNo
+          && type !== pollTypes.YesNoAbstention
+          && type !== pollTypes.TrueFalse) {
+          const { options } = itemLabel;
+          itemLabel = options.join('/').replace(/[\n.)]/g, '');
+          if (type === pollTypes.Custom) {
+            for (let i = 0; i < options.length; i += 1) {
+              const letterOption = options[i]?.replace(/[\r.)]/g, '').toUpperCase();
+              if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
+                letterAnswers.push(letterOption);
+              } else {
+                break;
+              }
+            }
+          }
+        }
+
+        // removes any whitespace from the label
+        itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
+
+        const numChars = {
+          1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
+        };
+        itemLabel = itemLabel.split('').map((c) => {
+          if (numChars[c]) return numChars[c];
+          return c;
+        }).join('');
+
+        return (
+          <Dropdown.DropdownListItem
+            label={itemLabel}
+            key={_.uniqueId('quick-poll-item')}
+            onClick={() => {
+              handleClickQuickPoll(layoutContextDispatch);
+              startPoll(type, slideId, letterAnswers);
+            }}
+            answers={letterAnswers}
+          />
+        );
+      });
+
+      const sizes = [];
+      return pollItemElements.filter((el) => {
+        const { label } = el.props;
+        if (label.length === sizes[sizes.length - 1]) return false;
+        sizes.push(label.length);
+        return el;
+      });
+    };
 
     const parsedSlide = parseCurrentSlideContent(
       intl.formatMessage(intlMessages.yesOptionLabel),
@@ -146,11 +163,14 @@ class QuickPollDropdown extends Component {
     if (quickPollOptions.length === 0) return null;
 
     let answers = null;
+    let question = '';
     let quickPollLabel = '';
+
     if (quickPolls.length > 0) {
       const { props: pollProps } = quickPolls[0];
       quickPollLabel = pollProps.label;
       answers = pollProps.answers;
+      question = pollProps.question;
     }
 
     let singlePollType = null;
@@ -166,7 +186,7 @@ class QuickPollDropdown extends Component {
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => {
           handleClickQuickPoll(layoutContextDispatch);
-          startPoll(singlePollType, currentSlide.id, answers);
+          startPoll(singlePollType, currentSlide.id, answers, question);
         }}
         size="lg"
         disabled={!!activePoll}
@@ -208,7 +228,6 @@ class QuickPollDropdown extends Component {
     ) : (
       btn
     );
-  }
 }
 
 QuickPollDropdown.propTypes = propTypes;
