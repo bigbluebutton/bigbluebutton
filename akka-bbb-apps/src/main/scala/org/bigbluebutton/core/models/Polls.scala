@@ -355,6 +355,19 @@ object Polls {
     pvo
   }
 
+  def checkUserResponded(pollId: String, userId: String, polls: Polls): Boolean = {
+    polls.polls.get(pollId) match {
+      case Some(p) => {
+        if (p.getResponders().filter(p => p.userId == userId).length > 0) {
+          true
+        } else {
+          false
+        }
+      }
+      case None => false
+    }
+  }
+
   def showPollResult(pollId: String, polls: Polls) {
     polls.get(pollId) foreach {
       p =>
