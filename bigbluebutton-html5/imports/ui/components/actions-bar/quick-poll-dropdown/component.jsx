@@ -131,9 +131,10 @@ const QuickPollDropdown = (props) => {
           key={_.uniqueId('quick-poll-item')}
           onClick={() => {
             handleClickQuickPoll(_layoutContextDispatch);
-            funcStartPoll(type, slideId, letterAnswers);
+            funcStartPoll(type, slideId, letterAnswers, '', pollData?.multiResp);
           }}
           answers={letterAnswers}
+          multiResp={pollData?.multiResp}
         />
       );
     });
@@ -165,12 +166,14 @@ const QuickPollDropdown = (props) => {
   let answers = null;
   let question = '';
   let quickPollLabel = '';
+  let multiResponse = false;
 
   if (quickPolls.length > 0) {
     const { props: pollProps } = quickPolls[0];
-    quickPollLabel = pollProps.label;
-    answers = pollProps.answers;
-    question = pollProps.question;
+    quickPollLabel = pollProps?.label;
+    answers = pollProps?.answers;
+    question = pollProps?.question;
+    multiResponse = pollProps?.multiResp;
   }
 
   let singlePollType = null;
@@ -186,7 +189,7 @@ const QuickPollDropdown = (props) => {
       tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
       onClick={() => {
         handleClickQuickPoll(layoutContextDispatch);
-        startPoll(singlePollType, currentSlide.id, answers, question);
+        startPoll(singlePollType, currentSlide.id, answers, question, multiResponse);
       }}
       size="lg"
       disabled={!!activePoll}
