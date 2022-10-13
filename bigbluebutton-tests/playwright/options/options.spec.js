@@ -7,6 +7,12 @@ test.describe.parallel('Options', () => {
     await about.init(true, true);
     await about.openedAboutModal();
   });
+
+  test('Open Help Button', async ({ browser, page, context }) => {
+    const helpButton = new Options(browser, page);
+    await helpButton.init(true, true);
+    await helpButton.openHelp(context);
+  });
 });
 
 test.describe.parallel('Settings', () => {

@@ -79,11 +79,16 @@ class LiveResult extends PureComponent {
         if (responses) {
           const response = responses.find(r => r.userId === user.userId);
           if (response) {
-            const answerKeys = [];
+            const formattedAnswers = [];
             response.answerIds.forEach((answerId) => {
-              answerKeys.push(answers[answerId].key);
+              const formattedMessageIndex = answers[answerId].key.toLowerCase();
+              const formattedAnswer = defaultPoll && pollAnswerIds[formattedMessageIndex]
+                ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
+                : answers[answerId].key;
+
+              formattedAnswers.push(formattedAnswer);
             });
-            answer = answerKeys.join(', ');
+            answer = formattedAnswers.join(', ');
           }
         }
 
@@ -94,18 +99,13 @@ class LiveResult extends PureComponent {
       })
       .sort(Service.sortUsers)
       .reduce((acc, user) => {
-        const formattedMessageIndex = user.answer.toLowerCase();
         return ([
           ...acc,
           (
             <tr key={_.uniqueId('stats-')}>
               <Styled.ResultLeft>{user.name}</Styled.ResultLeft>
               <Styled.ResultRight data-test="receivedAnswer">
-                {
-                  defaultPoll && pollAnswerIds[formattedMessageIndex]
-                    ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
-                    : user.answer
-                }
+                {user.answer}
               </Styled.ResultRight>
             </tr>
           ),

@@ -83,7 +83,13 @@ public class ImageToSwfSlidesGenerationService {
 			createThumbnails(pres, page);
 
 			if (svgImagesRequired) {
-				createSvgImages(pres, page);
+				try {
+					createSvgImages(pres, page);
+				} catch (TimeoutException e) {
+					log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
+					notifier.sendUploadFileTimedout(pres, page);
+					break;
+				}
 			}
 
 			if (generatePngs) {
@@ -119,7 +125,7 @@ public class ImageToSwfSlidesGenerationService {
 		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile());
 	}
 	
-	private void createSvgImages(UploadedPresentation pres, int page) {
+	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
 		log.debug("Creating SVG images.");
 		notifier.sendCreatingSvgImagesUpdateMessage(pres);
 		svgImageCreator.createSvgImage(pres, page);
@@ -243,7 +249,7 @@ public class ImageToSwfSlidesGenerationService {
 	public void setMaxConversionTime(int minutes) {
 		MAX_CONVERSION_TIME = minutes * 60 * 1000L;
 	}
-	
+
 	public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
 		this.notifier = notifier;
 	}
