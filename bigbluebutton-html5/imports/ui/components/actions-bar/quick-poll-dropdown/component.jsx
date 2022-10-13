@@ -87,7 +87,7 @@ const getAvailableQuickPolls = (
     itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
 
     const numChars = {
-      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
+      1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
     };
     itemLabel = itemLabel.split('').map((c) => {
       if (numChars[c]) return numChars[c];
