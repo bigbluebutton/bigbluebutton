@@ -72,8 +72,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitForSelector(e.chatUserMessageText);
-    const messagesCount = this.userPage.getLocator(e.chatUserMessageText);
-    await expect(messagesCount).toHaveCount(1);
+    await this.userPage.checkElementCount(e.chatUserMessageText, 1);
   }
 
   async lockSendPrivateChatMessages() {
