@@ -156,7 +156,11 @@ sysctl net.ipv4.ip_forward=1
 
 # BigBlueButton test clients
 
-client_network_config = {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}}
+client_network_config = {'version': 2,
+                         'ethernets': {'ens4': {'dhcp4': 'on' },
+                                       'ens5': {'dhcp4': 'on', 'optional': True },
+                                       'ens6': {'dhcp4': 'on', 'optional': True },
+                         }}
 
 client_user_data = {'hostname': 'client1',
                     'package_upgrade': package_upgrade,
@@ -201,8 +205,8 @@ except subprocess.CalledProcessError:
 def create_BBB_client(hostname, x=0, y=0):
     client_user_data['hostname'] = hostname
     # need this many virtual CPUs to run the stress tests, which stress the client perhaps more than the server
-    return gns3_project.create_ubuntu_node(client_user_data, image=client_image, network_config=client_network_config,
-                                           cpus=12, ram=8192, disk=8192, vnc=True, x=x, y=y)
+    return gns3_project.create_ubuntu_node(client_user_data, image=args.client_image, network_config=client_network_config,
+                                           cpus=12, ram=8192, disk=8192, ethernets=3, vnc=True, x=x, y=y)
 
 # NAT gateways
 
@@ -585,8 +589,12 @@ gns3_project.depends_on(nat5, nat1)
 for v in args.version:
     if v == 'testclient':
         client = BBB_client('testclient', x=300, y=-100)
-        gns3_project.link(client, 0, nat4_switch, 1)
+        gns3_project.link(client, 0, nat5_switch)
+        gns3_project.depends_on(client, nat5)
+        gns3_project.link(client, 1, nat4_switch)
         gns3_project.depends_on(client, nat4)
+        gns3_project.link(client, 2, nat3_switch)
+        gns3_project.depends_on(client, nat3)
     else:
         # find an unoccupied x coordinate on the GUI
         for x in (0, 200, -200, 400, -400):
