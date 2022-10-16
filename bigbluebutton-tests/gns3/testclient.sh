@@ -6,6 +6,9 @@
 
 # Make some changes to .bashrc, but they won't affect the shell that is already
 # running in the GUI, so the user will need to '. ~/.bashrc' there.
+#
+# We need NODE_EXTRA_CA_CERTS so that the playwright tests can make API calls
+# without getting certificate errors.
 
 cat >> ~/.bashrc <<EOF
 export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt

@@ -552,49 +552,51 @@ PublicIP_switch = gns3_project.switch('PublicIP', x=0, y=0, ethernets=16)
 gns3_project.link(nat1, 0, internet)
 gns3_project.link(nat1, 1, PublicIP_switch)
 
-# NAT3: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, OVERLAPPING SERVER ADDRESS SPACE
+# NAT4: PUBLIC SUBNET TO CARRIER GRADE NAT SUBNET
 #
-# We put a switch on here to ensure that NAT3's interface will be up when it boots.
-#
+# We put a switch on here to ensure that NAT6's interface will be up when it boots.
 # Otherwise, if the interface is down, it won't start its DHCP server (ever).
-
-nat3 = nat_gateway('NAT3', x=100, y=0, nat_interface='192.168.1.1/24')
-gns3_project.link(nat3, 0, PublicIP_switch)
-nat3_switch = gns3_project.switch('NAT3-subnet', x=200, y=0)
-gns3_project.link(nat3, 1, nat3_switch)
-gns3_project.depends_on(nat3, nat1)
-
-# NAT4: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, NOT OVERLAPPING SERVER ADDRESS SPACE
 #
-# Put a switch on here for the same reason as NAT3.
+# NAT4, NAT5, and NAT6 are numbered to match the corresponding 'ens[456]'
+# interface names on 'testclient'.
 
-nat4 = nat_gateway('NAT4', x=100, y=-100, nat_interface='192.168.128.1/24')
+nat4 = nat_gateway('NAT4', x=100, y=-200, nat_interface='100.64.1.1/24')
 gns3_project.link(nat4, 0, PublicIP_switch)
-nat4_switch = gns3_project.switch('NAT4-subnet', x=200, y=-100)
+nat4_switch = gns3_project.switch('NAT4-subnet', x=200, y=-200)
 gns3_project.link(nat4, 1, nat4_switch)
 gns3_project.depends_on(nat4, nat1)
 
-# NAT5: PUBLIC SUBNET TO CARRIER GRADE NAT SUBNET
+# NAT5: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, NOT OVERLAPPING SERVER ADDRESS SPACE
 #
-# Put a switch on here for the same reason as NAT3.
+# Put a switch on here for the same reason as NAT4.
 
-nat5 = nat_gateway('NAT5', x=100, y=-200, nat_interface='100.64.1.1/24')
+nat5 = nat_gateway('NAT5', x=100, y=-100, nat_interface='192.168.128.1/24')
 gns3_project.link(nat5, 0, PublicIP_switch)
-nat5_switch = gns3_project.switch('NAT5-subnet', x=200, y=-200)
+nat5_switch = gns3_project.switch('NAT5-subnet', x=200, y=-100)
 gns3_project.link(nat5, 1, nat5_switch)
 gns3_project.depends_on(nat5, nat1)
+
+# NAT6: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, OVERLAPPING SERVER ADDRESS SPACE
+#
+# Put a switch on here for the same reason as NAT4.
+
+nat6 = nat_gateway('NAT6', x=100, y=0, nat_interface='192.168.1.1/24')
+gns3_project.link(nat6, 0, PublicIP_switch)
+nat6_switch = gns3_project.switch('NAT6-subnet', x=200, y=0)
+gns3_project.link(nat6, 1, nat6_switch)
+gns3_project.depends_on(nat6, nat1)
 
 # THE BIG BLUE BUTTON SERVER and/or TEST CLIENT
 
 for v in args.version:
     if v == 'testclient':
-        client = BBB_client('testclient', x=300, y=-100)
-        gns3_project.link(client, 0, nat5_switch)
-        gns3_project.depends_on(client, nat5)
-        gns3_project.link(client, 1, nat4_switch)
+        client = BBB_client('testclient', x=400, y=-100)
+        gns3_project.link(client, 0, nat4_switch)
         gns3_project.depends_on(client, nat4)
-        gns3_project.link(client, 2, nat3_switch)
-        gns3_project.depends_on(client, nat3)
+        gns3_project.link(client, 1, nat5_switch)
+        gns3_project.depends_on(client, nat5)
+        gns3_project.link(client, 2, nat6_switch)
+        gns3_project.depends_on(client, nat6)
     else:
         # find an unoccupied x coordinate on the GUI
         for x in (0, 200, -200, 400, -400):
