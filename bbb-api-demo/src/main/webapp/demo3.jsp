@@ -27,8 +27,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-<head lang="en">
+<html lang="en">
+<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Join Password</title>
 </head>
@@ -158,8 +158,8 @@ th, td { padding: 5px; }
 /* cellspacing="5" */
 table { border-collapse: separate; border-spacing: 5px; }
 </style>
-<table role="presentation" style="width: 400px;">
-	<caption>Session Information</caption>
+<table style="width: 400px;">
+	<caption>Session Parameters</caption>
 	<tbody>
 		<tr>
 			<td>
