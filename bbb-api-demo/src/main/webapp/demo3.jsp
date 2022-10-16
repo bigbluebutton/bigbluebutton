@@ -28,7 +28,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head>
+<head lang="en">
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Join Password</title>
 </head>
@@ -151,7 +151,15 @@ if (request.getParameterMap().isEmpty()) {
 
 
 <FORM NAME="form1" METHOD="GET">
-<table cellpadding="5" cellspacing="5" style="width: 400px; ">
+<style>
+/* cellpadding="5" */
+th, td { padding: 5px; }
+
+/* cellspacing="5" */
+table { border-collapse: separate; border-spacing: 5px; }
+</style>
+<table role="presentation" style="width: 400px;">
+	<caption>Session Information</caption>
 	<tbody>
 		<tr>
 			<td>
