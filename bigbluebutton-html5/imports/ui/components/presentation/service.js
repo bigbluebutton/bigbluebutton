@@ -94,7 +94,9 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   let optionsWithLabels = [];
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
-      optionsWithLabels.push(opt);
+      const MAX_CHAR_LIMIT = 30;
+      const formattedOpt = opt.substring(0, MAX_CHAR_LIMIT);
+      optionsWithLabels.push(formattedOpt);
       return `\r${opt[0]}.`
     });
   }
@@ -184,7 +186,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     poll,
   }));
 
-  const pollQuestion = (question?.length > 0 && question[0]) || '';
+  const pollQuestion = (question?.length > 0 && question[0]?.replace(/ *\([^)]*\) */g, "")) || '';
 
   return {
     slideId: currentSlide.id,

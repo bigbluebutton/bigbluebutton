@@ -61,6 +61,18 @@ const QuickPollDropdown = (props) => {
     pollTypes,
   } = props;
 
+  const parsedSlide = parseCurrentSlideContent(
+    intl.formatMessage(intlMessages.yesOptionLabel),
+    intl.formatMessage(intlMessages.noOptionLabel),
+    intl.formatMessage(intlMessages.abstentionOptionLabel),
+    intl.formatMessage(intlMessages.trueOptionLabel),
+    intl.formatMessage(intlMessages.falseOptionLabel),
+  );
+
+  const {
+    slideId, quickPollOptions, optionsWithLabels, pollQuestion,
+  } = parsedSlide;
+
   const handleClickQuickPoll = (lCDispatch) => {
     lCDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -131,7 +143,7 @@ const QuickPollDropdown = (props) => {
           key={_.uniqueId('quick-poll-item')}
           onClick={() => {
             handleClickQuickPoll(_layoutContextDispatch);
-            funcStartPoll(type, slideId, letterAnswers, '', pollData?.multiResp);
+            funcStartPoll(type, slideId, letterAnswers, pollQuestion, pollData?.multiResp);
           }}
           answers={letterAnswers}
           multiResp={pollData?.multiResp}
@@ -148,17 +160,6 @@ const QuickPollDropdown = (props) => {
     });
   };
 
-  const parsedSlide = parseCurrentSlideContent(
-    intl.formatMessage(intlMessages.yesOptionLabel),
-    intl.formatMessage(intlMessages.noOptionLabel),
-    intl.formatMessage(intlMessages.abstentionOptionLabel),
-    intl.formatMessage(intlMessages.trueOptionLabel),
-    intl.formatMessage(intlMessages.falseOptionLabel),
-  );
-
-  const {
-    slideId, quickPollOptions, optionsWithLabels, pollQuestion,
-  } = parsedSlide;
   const quickPolls = getAvailableQuickPolls(
     slideId, quickPollOptions, startPoll, pollTypes, layoutContextDispatch,
   );
@@ -192,7 +193,7 @@ const QuickPollDropdown = (props) => {
       onClick={() => {
         handleClickQuickPoll(layoutContextDispatch);
         if (singlePollType === 'R-' || singlePollType === 'TF') {
-          startPoll(singlePollType, currentSlide.id, answers, question, multiResponse);
+          startPoll(singlePollType, currentSlide.id, answers, pollQuestion, multiResponse);
         } else {
           startPoll(
             pollTypes.Custom,

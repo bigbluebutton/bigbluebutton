@@ -233,7 +233,7 @@ class PresentationToolbar extends PureComponent {
       optionList.push(
         <option value={i} key={i}>
           {intl.formatMessage(intlMessages.goToSlide, { 0: i })}
-        </option>,
+        </option>
       );
     }
 
