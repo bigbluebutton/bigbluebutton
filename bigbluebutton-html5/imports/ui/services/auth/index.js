@@ -223,10 +223,15 @@ class Auth {
     }
 
     this.loggedIn = false;
+    this.isAuthenticating = true;
+
     return this.validateAuthToken()
       .then(() => {
         this.loggedIn = true;
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
+      })
+      .finally(() => {
+        this.isAuthenticating = false;
       });
   }
 
