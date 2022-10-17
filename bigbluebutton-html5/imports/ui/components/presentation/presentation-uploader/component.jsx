@@ -330,18 +330,17 @@ class PresentationUploader extends Component {
 
     let shouldUpdateState = isOpen && !prevProps.isOpen;
     const presState = Object.values({
-      ...propPresentations,
-      ...presentations,
+      ...JSON.parse(JSON.stringify(propPresentations)),
+      ...JSON.parse(JSON.stringify(presentations)),
     });
     if (propPresentations.length > prevPropPresentations.length) {
       shouldUpdateState = true;
-      const propsDiffs = propPresentations.filter(p => !prevPropPresentations.includes(p))
+      const propsDiffs = propPresentations.filter(p => 
+        !prevPropPresentations.some(presentation => p.id === presentation.id 
+          || p.temporaryPresentationId === presentation.temporaryPresentationId))
 
       propsDiffs.forEach(p => {
         const index = presState.findIndex(pres => {
-          if (p.isCurrent) {
-            pres.isCurrent = false;
-          }
           return pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id;
         });
         if (index === -1) {
