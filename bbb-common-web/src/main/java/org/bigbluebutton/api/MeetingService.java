@@ -415,7 +415,7 @@ public class MeetingService implements MessageListener {
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
-            m.getDialNumber(), m.getMaxUsers(),
+            m.getDialNumber(), m.getMaxUsers(), m.getMaxUserConcurrentAccesses(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getMeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
@@ -434,33 +434,6 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUser(RegisterUser message) {
-    Meeting m = getMeeting(message.meetingID);
-    if (m != null) {
-      User prevUser = m.getUserWithExternalId(message.externUserID);
-      if (prevUser != null) {
-        Map<String, Object> logData = new HashMap<>();
-        logData.put("meetingId", m.getInternalId());
-        logData.put("externalMeetingId", m.getExternalId());
-        logData.put("name", m.getName());
-        logData.put("extUserId", prevUser.getExternalUserId());
-        logData.put("intUserId", prevUser.getInternalUserId());
-        logData.put("username", prevUser.getFullname());
-        logData.put("logCode", "duplicate_user_with_external_userid");
-        logData.put("description", "Duplicate user with external userid.");
-
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
-        log.info(" --analytics-- data={}", logStr);
-
-        if (!m.allowDuplicateExtUserid) {
-          gw.ejectDuplicateUser(message.meetingID,
-                  prevUser.getInternalUserId(), prevUser.getFullname(),
-                  prevUser.getExternalUserId());
-        }
-
-      }
-
-    }
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
@@ -951,7 +924,7 @@ public class MeetingService implements MessageListener {
         message.name, message.role, message.avatarURL, message.guest, message.guestStatus,
               message.clientType);
 
-      if(m.getMaxUsers() > 0 && m.getUsers().size() >= m.getMaxUsers()) {
+      if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
         m.removeEnteredUser(user.getInternalUserId());
         gw.ejectDuplicateUser(message.meetingId, user.getInternalUserId(), user.getFullname(), user.getExternalUserId());
         return;

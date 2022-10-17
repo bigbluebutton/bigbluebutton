@@ -1583,14 +1583,14 @@ class ApiController {
     // Users that passed enter once, still not joined but somehow re-entered
     Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
     // Users that already joined the meeting
-    int joinedUsers = meeting.getUsers().size()
+    // It will count only unique users in order to avoid the same user from filling all slots
+    int joinedUniqueUsers = meeting.countUniqueExtIds()
     // Users that are entering the meeting
     int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Joined users - ${joinedUsers}")
-    log.info("Entered users - ${enteredUsers}")
+    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
 
-    Boolean reachedMax = joinedUsers >= maxParticipants;
+    Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
     if (enabled && !rejoin && !reenter && reachedMax) {
       return true;
     }
