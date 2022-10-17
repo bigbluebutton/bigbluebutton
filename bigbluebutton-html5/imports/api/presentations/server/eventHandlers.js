@@ -8,6 +8,7 @@ import handlePresentationDownloadableSet from './handlers/presentationDownloadab
 RedisPubSub.on('PdfConversionInvalidErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationPageCountErrorEvtMsg', handlePresentationConversionUpdate);
+RedisPubSub.on('PresentationUploadedFileTimeoutErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationUploadedFileTooLargeErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded);
