@@ -156,7 +156,9 @@ const QuickPollDropdown = (props) => {
     intl.formatMessage(intlMessages.falseOptionLabel),
   );
 
-  const { slideId, quickPollOptions } = parsedSlide;
+  const {
+    slideId, quickPollOptions, optionsWithLabels, pollQuestion,
+  } = parsedSlide;
   const quickPolls = getAvailableQuickPolls(
     slideId, quickPollOptions, startPoll, pollTypes, layoutContextDispatch,
   );
@@ -189,7 +191,17 @@ const QuickPollDropdown = (props) => {
       tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
       onClick={() => {
         handleClickQuickPoll(layoutContextDispatch);
-        startPoll(singlePollType, currentSlide.id, answers, question, multiResponse);
+        if (singlePollType === 'R-' || singlePollType === 'TF') {
+          startPoll(singlePollType, currentSlide.id, answers, question, multiResponse);
+        } else {
+          startPoll(
+            pollTypes.Custom,
+            currentSlide.id,
+            optionsWithLabels,
+            pollQuestion,
+            multiResponse,
+          );
+        }
       }}
       size="lg"
       disabled={!!activePoll}
