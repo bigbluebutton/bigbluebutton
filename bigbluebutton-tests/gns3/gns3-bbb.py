@@ -463,8 +463,37 @@ notification_url = gns3_project.notification_url()
 
 network_config = {'version': 2,
                   'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac'},
-                                'ens5': {'addresses': ['128.8.8.254/24']},
+                                'ens5': {'addresses': ['128.8.8.254/24'],
+                                         'nameservers': {'search' : ['test'], 'addresses' : ['128.8.8.254']}},
                   }}
+
+dnsmasq_conf = """
+listen-address=128.8.8.254
+bind-interfaces
+dhcp-range=128.8.8.101,128.8.8.200,12h
+# Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
+# Otherwise, the IP address change around on reboots, and BBB doesn't like that.
+# dhcp-sequential-ip
+dhcp-authoritative
+# The server's NAT router will register itself with DHCP as 'bbb-ci'
+# This option will cause dnsmasq to announce it in DNS as 'bbb-ci.test'
+domain=test
+# Make the DNS server authoritative for these domains, or else it will hang
+# See https://unix.stackexchange.com/questions/720570
+auth-zone=test
+auth-zone=in-addr.arpa
+# auth-server is required when auth-zone is defined; use a non-existent dummy server
+auth-server=dns.test
+"""
+
+ens5_network = """
+[Match]
+Name=ens5
+
+[Network]
+DNS=128.8.8.254
+Domains=test
+"""
 
 user_data = {'hostname': 'NAT1',
              'packages': ['dnsmasq', 'coturn', 'apache2'],
@@ -482,6 +511,14 @@ user_data = {'hostname': 'NAT1',
                   'permissions': '0755',
                   'content': generateCA_script
                  },
+                 {'path': '/etc/dnsmasq.d/gns3-bbb',
+                  'permissions': '0644',
+                  'content': dnsmasq_conf
+                 },
+#                 {'path': '/etc/systemd/network/ens5.network',
+#                  'permissions': '0644',
+#                  'content': ens5_network
+#                 },
                  {'path': '/var/www/html/getcert.cgi',
                   'permissions': '0755',
                   'content': getcert_script
@@ -491,20 +528,7 @@ user_data = {'hostname': 'NAT1',
                   'content': generic_NAT_per_boot_script
                  },
              ],
-             'runcmd': ['echo listen-address=128.8.8.254 >> /etc/dnsmasq.conf',
-                        'echo bind-interfaces >> /etc/dnsmasq.conf',
-                        'echo dhcp-range=128.8.8.101,128.8.8.200,12h >> /etc/dnsmasq.conf',
-                        # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
-                        # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
-                        #'echo dhcp-sequential-ip >> /etc/dnsmasq.conf',
-                        'echo dhcp-authoritative >> /etc/dnsmasq.conf',
-                        # The server's NAT router will register itself with DHCP as 'bbb-ci'
-                        # This option will cause dnsmasq to announce it in DNS as 'bbb-ci.test'
-                        'echo domain=test >> /etc/dnsmasq.conf',
-                        # dnsmasq injects /etc/hosts into its DNS service
-                        # don't this I need this anymore
-                        #'echo 128.8.8.1 bbb-ci.test >> /etc/hosts',
-                        # resolver1.opendns.com is used by bbb-install to determine external IP address
+             'runcmd': [# resolver1.opendns.com is used by bbb-install to determine external IP address
                         'echo 128.8.8.254 resolver1.opendns.com >> /etc/hosts',
                         # configure coturn to listen on 19302, like stun.l.google.com
                         # 'echo listening-port=19302 >> /etc/turnserver.conf',
