@@ -337,7 +337,7 @@ class PresentationUploader extends Component {
       shouldUpdateState = true;
       const propsDiffs = propPresentations.filter(p => 
         !prevPropPresentations.some(presentation => p.id === presentation.id 
-          || p.temporaryPresentationId === presentation.temporaryPresentationId))
+          || p.temporaryPresentationId === presentation.temporaryPresentationId));
 
       propsDiffs.forEach(p => {
         const index = presState.findIndex(pres => {
