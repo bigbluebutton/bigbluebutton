@@ -926,7 +926,6 @@ public class MeetingService implements MessageListener {
 
       if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
         m.removeEnteredUser(user.getInternalUserId());
-        gw.ejectDuplicateUser(message.meetingId, user.getInternalUserId(), user.getFullname(), user.getExternalUserId());
         return;
       }
 

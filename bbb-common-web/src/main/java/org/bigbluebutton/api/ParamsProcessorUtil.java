@@ -713,7 +713,6 @@ public class ParamsProcessorUtil {
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
-//				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
 				.withMaxUserConcurrentAccesses(maxUserConcurrentAccesses)
                 .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
