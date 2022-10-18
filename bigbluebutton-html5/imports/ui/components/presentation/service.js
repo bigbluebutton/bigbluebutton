@@ -1,6 +1,7 @@
 import Presentations from '/imports/api/presentations';
 import { Slides, SlidePositions } from '/imports/api/slides';
 import PollService from '/imports/ui/components/poll/service';
+import { safeMatch } from '/imports/utils/string-utils';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
@@ -84,13 +85,13 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   } = currentSlide;
 
   const questionRegex = /.*?\?$/gm;
-  const question = content.match(questionRegex) || '';
+  const question = safeMatch(questionRegex, content, '');
 
   const doubleQuestionRegex = /\?{2}/gm;
-  const doubleQuestion = content.match(doubleQuestionRegex) || null;
+  const doubleQuestion = safeMatch(doubleQuestionRegex, content, null);
 
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
-  let optionsPoll = content.match(pollRegex) || [];
+  let optionsPoll = safeMatch(pollRegex, content, []);
   const optionsWithLabels = [];
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
