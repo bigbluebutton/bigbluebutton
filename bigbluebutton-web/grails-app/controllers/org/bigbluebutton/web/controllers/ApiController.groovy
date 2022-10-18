@@ -1411,9 +1411,8 @@ class ApiController {
     def presId
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
-      uploadFailReasons.add("invalid_filename")
-      uploadFailed = true
+      log.debug("presentation is null by default")
+      return
     } else {
       String presentationDir = presentationService.getPresentationDir()
       presId = Util.generatePresentationId(presFilename)
@@ -1422,13 +1421,13 @@ class ApiController {
         def newFilename = Util.createNewFilename(presId, filenameExt)
         def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
-        if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
-          pres = new File(newFilePath)
-        } else {
+        if(presDownloadService.savePresentation(meetingId, newFilePath, address)) pres = new File(newFilePath)
+        else {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
-          uploadFailed = true
+           uploadFailed = true
         }
+
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
         uploadFailReasons.add("null_presentation_dir")
