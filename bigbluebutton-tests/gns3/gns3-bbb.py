@@ -2,7 +2,8 @@
 #
 # Script to setup a GNS3 project for testing BigBlueButton.
 #
-# It will be configured to accept your ssh keys for ssh access.
+# All the Ubuntu nodes will be configured to accept the user's public
+# ssh key and entire authorized_keys file for ssh access.
 #
 # RUNTIME DEPENDENCIES
 #
@@ -22,16 +23,8 @@
 #
 # The '--delete-everything' switch deletes EVERYTHING in an existing project.
 #
-# 1. Authentication to GNS3 server
-#
-#    Provide one of the GNS3_CREDENTIAL_FILES in propfile format;
-#    minimal entries are host/port/user/password in the Server block:
-#
-#    [Server]
-#    host = localhost
-#    port = 3080
-#    user = admin
-#    password = password
+# See the comments in NPDC/GNS3/gns3.py for more options and how
+# authentication is done.
 #
 # We use an Ubuntu cloud image and a client image created using the
 # GNS3/ubuntu.py script in BrentBaccala's NPDC github repository.
@@ -59,7 +52,7 @@ SSH_AUTHORIZED_KEYS_FILES = ['~/.ssh/id_rsa.pub', "~/.ssh/authorized_keys"]
 # https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
 #
 # Updated versions are released several times a month.  If you don't have the latest version,
-# don't worry, this file's cloud-init configuration will run a package update.
+# this file's cloud-init configuration will run a package update (if package_upgrade is True).
 
 cloud_images = {
     22: 'ubuntu-22.04-server-cloudimg-amd64.img',
@@ -67,6 +60,7 @@ cloud_images = {
     18: 'ubuntu-18.04-server-cloudimg-amd64.img'
 }
 
+# We currently use Ubuntu 20 for everything
 cloud_image = cloud_images[20]
 
 # set to True to immediately upgrade to latest package versions; slows thing down a bit
@@ -74,11 +68,15 @@ package_upgrade = False
 
 # Parse the command line options
 
-parser = argparse.ArgumentParser(parents=[gns3.parser('BigBlueButton')], description='Start an BigBlueButton test network in GNS3')
+parser = argparse.ArgumentParser(parents=[gns3.parser('BigBlueButton')],
+                                 description='Start an BigBlueButton test network in GNS3',
+                                 formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--client-image', type=str,
                     help='Ubuntu image to be used for test clients')
 parser.add_argument('version', nargs='*',
-                    help='version of BigBlueButton server to be installed\n(bionic-240, focal-250, focal-25-dev, focal-260)')
+                    help="""version of BigBlueButton server to be installed
+(focal-250, focal-25-dev, focal-260, focal-GITREV)
+version names starting with 'testclient' install clients""")
 args = parser.parse_args()
 
 # Various scripts we'll use
@@ -118,6 +116,8 @@ if not cloud_image in gns3_server.images():
     exit(1)
 
 # An Ubuntu 20 image created by GNS3/ubuntu.py in Brent Baccala's NPDC github repository
+#
+# This image comes with the console GUI pre-installed, which cloud_image lacks.
 
 if any(v.startswith('testclient') for v in args.version):
     if args.client_image:
@@ -149,14 +149,19 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
 
 ### FUNCTIONS TO CREATE VARIOUS KINDS OF GNS3 OBJECTS
 
+# The gns3 library provides "declarative" functions that only create
+# nodes if they don't already exist, and we use this feature
+# throughout the script.  Running the script on a pre-built network
+# should change nothing.  A single node can be rebuilt by deleting it
+# and rerunning the script.
+
 generic_NAT_per_boot_script = """#!/bin/bash
 iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE
 sysctl net.ipv4.ip_forward=1
 """
 
 def master_gateway(hostname, x=0, y=0):
-    # DECLARE A NAT GATEWAY BETWEEN OUR PUBLIC INTERNET AND THE ACTUAL INTERNET
-    # Creates it, but only if it doesn't already exist
+    # A NAT gateway between our public "Internet" and the actual Internet
 
     # BBB's default STUN server is stun.l.google.com:19302, so we configure
     # NAT1 to mimic it.
@@ -196,7 +201,6 @@ host-record=ca.test,128.8.8.254
     user_data = {'hostname': hostname,
                  'packages': ['dnsmasq', 'coturn', 'apache2'],
                  'package_upgrade': package_upgrade,
-                 'phone_home': {'url': notification_url, 'tries': 1},
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
                             'ssh_authorized_keys': ssh_authorized_keys,
@@ -244,6 +248,9 @@ host-record=ca.test,128.8.8.254
                  ],
     }
 
+    if notification_url:
+        user_data['phone_home'] = {'url': notification_url, 'tries': 1}
+
     # If we have a key and certificate for the certificate authority, copy them into /ca
     #
     # Otherwise, the generateCA.sh script will generate them when the instance boots.
@@ -262,17 +269,17 @@ host-record=ca.test,128.8.8.254
     if apt_proxy:
         user_data['apt'] = {'http_proxy': apt_proxy}
 
-    nat1 = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     ram=1024, disk=4096, ethernets=2, x=-200, y=0)
 
 # BigBlueButton test clients
-#
-# Use dhcp-identifier: mac because I'm still having problems with
-# cloned GNS3 ubuntu nodes using the same client identifiers; it's a
-# cloud-init issue.
 
 def BBB_client(hostname, x=0, y=0):
-    # calls ubuntu_node, which creates it, but only if it doesn't already exist
+
+    # Use dhcp-identifier: mac because I'm still having problems with
+    # cloned GNS3 ubuntu nodes using the same client identifiers; it's
+    # a cloud-init issue.
+
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
                                     'ens5': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
@@ -325,9 +332,7 @@ def BBB_client(hostname, x=0, y=0):
 
 # NAT gateways
 
-def BBB_client_nat(hostname, x=0, y=0, notification_url=None, nat_interface='192.168.1.1/24'):
-
-    # calls ubuntu_node, which creates it, but only if it doesn't already exist
+def BBB_client_nat(hostname, x=0, y=0, nat_interface='192.168.1.1/24'):
 
     interface = ipaddress.ip_interface(nat_interface)
     hosts = list(interface.network.hosts())
@@ -377,7 +382,6 @@ dhcp-option = option:domain-search,test
     user_data = {'hostname': hostname,
                  'packages': ['dnsmasq'],
                  'package_upgrade': package_upgrade,
-                 'phone_home': {'url': notification_url, 'tries': 1},
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
                             'ssh_authorized_keys': ssh_authorized_keys,
@@ -397,6 +401,9 @@ dhcp-option = option:domain-search,test
                  ],
     }
 
+    if notification_url:
+        user_data['phone_home'] = {'url': notification_url, 'tries': 1}
+
     # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
     #
     # This will break things if the instance can't reach the proxy.
@@ -410,8 +417,8 @@ dhcp-option = option:domain-search,test
 
 # BigBlueButton server and server NAT gateway
 
-def BBB_server_nat(hostname, x=100, notification_url=None):
-    # PUBLIC SUBNET TO SERVER PRIVATE SUBNET
+def BBB_server_nat(hostname, x=100):
+    # A NAT gateway between our public "Internet" and a server's private subnet
 
     # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
     assert(hostname.endswith('-NAT'))
@@ -495,12 +502,12 @@ dhcp-authoritative
     if apt_proxy:
         user_data['apt'] = {'http_proxy': apt_proxy}
 
-    nat = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                   ram=1024, disk=4096, ethernets=2, x=x, y=100)
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    ram=1024, disk=4096, ethernets=2, x=x, y=100)
 
-    return nat
+def BBB_server_standalone(hostname, x=100):
 
-def BBB_server_standalone(hostname, x=100, notification_url=None):
+    # A BigBlueButton server without an associated NAT gateway
 
     network_config = {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}}
 
@@ -538,16 +545,14 @@ def BBB_server_standalone(hostname, x=100, notification_url=None):
             }
         )
 
-    server = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                      cpus=4, ram=8192, disk=16384, x=x, y=300)
-
-    return server
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    cpus=4, ram=8192, disk=16384, x=x, y=300)
 
 # BBB server with attached NAT gateway
 
 def BBB_server(name, *args, **kwargs):
     server = BBB_server_standalone(name, *args, **kwargs)
-    server_nat = BBB_server_nat(name + '-NAT', x=server['x'], notification_url=kwargs.get('notification_url'))
+    server_nat = BBB_server_nat(name + '-NAT', x=server['x'])
     switch = gns3_project.switch(hostname + '-subnet', x=server['x'], y=200)
 
     gns3_project.link(server_nat, 0, PublicIP_switch)
@@ -559,27 +564,27 @@ def BBB_server(name, *args, **kwargs):
         gns3_project.depends_on(server_nat, kwargs['depends_on'])
     return server
 
-# CREATE NEW VIRTUAL NETWORK
+# THE VIRTUAL NETWORK
 
 # Create a GNS3 "cloud" for Internet access.
 #
 # It's done early in the script like this so that the gns3 library
 # knows which interface we're using, because it might need that
-# information to construct a notification URL.
+# information to construct a notification URL (a global variable).
 
-internet = gns3_project.cloud('Internet', args.interface, x=-500, y=0)
+internet = gns3_project.cloud(args.interface, args.interface, x=-500, y=0)
 
 notification_url = gns3_project.notification_url()
 
 nat1 = master_gateway(args.project, x=-200, y=0)
 
-# CREATE A NEW ETHERNET SWITCH
+# An Ethernet switch for our public "Internet"
 
 PublicIP_switch = gns3_project.switch('128.8.8.0/24', x=0, y=0, ethernets=16)
 gns3_project.link(nat1, 0, internet)
 gns3_project.link(nat1, 1, PublicIP_switch)
 
-# NAT4: PUBLIC SUBNET TO CARRIER GRADE NAT SUBNET
+# NAT4: public subnet to carrier grade NAT subnet
 #
 # We put a switch on here to ensure that NAT6's interface will be up when it boots.
 # Otherwise, if the interface is down, it won't start its DHCP server (ever).
@@ -594,7 +599,7 @@ nat4_switch = gns3_project.switch(subnet, x=250, y=-200)
 gns3_project.link(nat4, 1, nat4_switch)
 gns3_project.depends_on(nat4, nat1)
 
-# NAT5: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, NOT OVERLAPPING SERVER ADDRESS SPACE
+# NAT5: public subnet to private client subnet, not overlapping server address space
 #
 # Put a switch on here for the same reason as NAT4.
 
@@ -605,7 +610,7 @@ nat5_switch = gns3_project.switch(subnet, x=250, y=-100)
 gns3_project.link(nat5, 1, nat5_switch)
 gns3_project.depends_on(nat5, nat1)
 
-# NAT6: PUBLIC SUBNET TO PRIVATE CLIENT SUBNET, OVERLAPPING SERVER ADDRESS SPACE
+# NAT6: public subnet to private client subnet, overlapping server address space
 #
 # Put a switch on here for the same reason as NAT4.
 
@@ -616,7 +621,7 @@ nat6_switch = gns3_project.switch(subnet, x=250, y=0)
 gns3_project.link(nat6, 1, nat6_switch)
 gns3_project.depends_on(nat6, nat1)
 
-# THE BIG BLUE BUTTON SERVER and/or TEST CLIENT
+# The BigBlueButton servers and/or test clients
 
 for v in args.version:
     if v.startswith('testclient'):
@@ -640,7 +645,7 @@ for v in args.version:
                 next(n for n in gns3_project.nodes() if n['x'] == x and n['y'] == 100)
             except StopIteration:
                 break
-        BBB_server(v, notification_url=notification_url, x=x, depends_on=nat1)
+        BBB_server(v, x=x, depends_on=nat1)
 
 # The difference between these two is that start_nodes waits for notification that
 # the nodes booted, while start_node does not.
