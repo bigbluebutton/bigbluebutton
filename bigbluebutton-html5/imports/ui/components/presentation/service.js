@@ -85,14 +85,22 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   } = currentSlide;
 
   const questionRegex = /.*?\?$/gm;
-  let question = safeMatch(questionRegex, content, '');
+  const question = safeMatch(questionRegex, content, '');
 
   const doubleQuestionRegex = /\?{2}/gm;
-  let doubleQuestion = safeMatch(doubleQuestionRegex, content, null);
+  const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
-  if (optionsPoll) optionsPoll = optionsPoll.map((opt) => `\r${opt[0]}.`);
+  const optionsWithLabels = [];
+  if (optionsPoll) {
+    optionsPoll = optionsPoll.map((opt) => {
+      const MAX_CHAR_LIMIT = 30;
+      const formattedOpt = opt.substring(0, MAX_CHAR_LIMIT);
+      optionsWithLabels.push(formattedOpt);
+      return `\r${opt[0]}.`;
+    });
+  }
 
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
@@ -129,7 +137,8 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     return acc;
   }, []).filter(({
     options,
-  }) => options.length > 1 && options.length < 10).forEach((poll) => {
+  }) => options.length > 1 && options.length < 10).forEach((p) => {
+    const poll = p;
     if (doubleQuestion) poll.multiResp = true;
     if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
       const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS
@@ -149,10 +158,10 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion) {
     quickPollOptions.push({
-      type: `R-`,
+      type: 'R-',
       poll: {
-          question: question[0],
-      }
+        question: question[0],
+      },
     });
   }
 
@@ -179,9 +188,13 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     poll,
   }));
 
+  const pollQuestion = (question?.length > 0 && question[0]?.replace(/ *\([^)]*\) */g, '')) || '';
+
   return {
     slideId: currentSlide.id,
     quickPollOptions,
+    optionsWithLabels,
+    pollQuestion,
   };
 };
 
