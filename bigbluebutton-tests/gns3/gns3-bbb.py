@@ -271,7 +271,8 @@ host-record=ca.test,128.8.8.254
 # cloned GNS3 ubuntu nodes using the same client identifiers; it's a
 # cloud-init issue.
 
-def create_BBB_client(hostname, x=0, y=0):
+def BBB_client(hostname, x=0, y=0):
+    # calls ubuntu_node, which creates it, but only if it doesn't already exist
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
                                     'ens5': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
@@ -319,12 +320,14 @@ def create_BBB_client(hostname, x=0, y=0):
         pass
 
     # need this many virtual CPUs to run the stress tests, which stress the client perhaps more than the server
-    return gns3_project.create_ubuntu_node(user_data, image=args.client_image, network_config=network_config,
-                                           cpus=12, ram=8192, disk=8192, ethernets=3, vnc=True, x=x, y=y)
+    return gns3_project.ubuntu_node(user_data, image=args.client_image, network_config=network_config,
+                                    cpus=12, ram=8192, disk=8192, ethernets=3, vnc=True, x=x, y=y)
 
 # NAT gateways
 
-def create_BBB_client_nat(hostname, x=0, y=0, notification_url=None, nat_interface='192.168.1.1/24'):
+def BBB_client_nat(hostname, x=0, y=0, notification_url=None, nat_interface='192.168.1.1/24'):
+
+    # calls ubuntu_node, which creates it, but only if it doesn't already exist
 
     interface = ipaddress.ip_interface(nat_interface)
     hosts = list(interface.network.hosts())
@@ -401,14 +404,18 @@ dhcp-option = option:domain-search,test
     if apt_proxy:
         user_data['apt'] = {'http_proxy': apt_proxy}
 
-    return gns3_project.create_ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                           ram=1024, disk=4096, ethernets=2, x=x, y=y)
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    ram=1024, disk=4096, ethernets=2, x=x, y=y)
 
 
 # BigBlueButton server and server NAT gateway
 
-def create_BBB_server_nat(hostname, x=100, notification_url=None):
+def BBB_server_nat(hostname, x=100, notification_url=None):
     # PUBLIC SUBNET TO SERVER PRIVATE SUBNET
+
+    # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
+    assert(hostname.endswith('-NAT'))
+    hostname = hostname[:-4]
 
     per_boot_script=f"""#!/bin/bash
 # $(dig +short $FQDN) returns the address this NAT gateway obtained from the NAT1 DHCP server
@@ -488,12 +495,12 @@ dhcp-authoritative
     if apt_proxy:
         user_data['apt'] = {'http_proxy': apt_proxy}
 
-    nat = gns3_project.create_ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                           ram=1024, disk=4096, ethernets=2, x=x, y=100)
+    nat = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                   ram=1024, disk=4096, ethernets=2, x=x, y=100)
 
     return nat
 
-def create_BBB_server(hostname, x=100, notification_url=None):
+def BBB_server_standalone(hostname, x=100, notification_url=None):
 
     network_config = {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}}
 
@@ -531,40 +538,17 @@ def create_BBB_server(hostname, x=100, notification_url=None):
             }
         )
 
-    server = gns3_project.create_ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                             cpus=4, ram=8192, disk=16384, x=x, y=300)
+    server = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                      cpus=4, ram=8192, disk=16384, x=x, y=300)
 
     return server
 
-### DECLARE NODES: CREATE THEM, BUT ONLY IF THEY DON'T ALREADY EXIST
-
-def BBB_client_nat(name, *args, **kwargs):
-    if name not in gns3_project.node_names():
-        return create_BBB_client_nat(name, *args, notification_url=notification_url, **kwargs)
-    else:
-        print(name, "exists")
-        return gns3_project.node(name)
+# BBB server with attached NAT gateway
 
 def BBB_server(name, *args, **kwargs):
-    if name not in gns3_project.node_names():
-        return create_BBB_server(name, *args, **kwargs)
-    else:
-        print(name, "exists")
-        server = gns3_project.node(name)
-
-    if name + '-NAT' not in gns3_project.node_names():
-        # This one is special: the name we pass is isn't the name GNS3 uses (it gets "-NAT" appended)
-        # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
-        server_nat = create_BBB_server_nat(name, x=server['x'], notification_url=kwargs.get('notification_url'))
-    else:
-        print(name + '-NAT', "exists")
-        server_nat = gns3_project.node(name + '-NAT')
-
-    if name + '-subnet' not in gns3_project.node_names():
-        switch = gns3_project.create_switch(hostname + '-subnet', x=server['x'], y=200)
-    else:
-        print(name + '-subnet', "exists")
-        switch = gns3_project.node(name + '-subnet')
+    server = BBB_server_standalone(name, *args, **kwargs)
+    server_nat = BBB_server_nat(name + '-NAT', x=server['x'], notification_url=kwargs.get('notification_url'))
+    switch = gns3_project.switch(hostname + '-subnet', x=server['x'], y=200)
 
     gns3_project.link(server_nat, 0, PublicIP_switch)
     gns3_project.link(server_nat, 1, switch)
@@ -574,13 +558,6 @@ def BBB_server(name, *args, **kwargs):
     if 'depends_on' in kwargs:
         gns3_project.depends_on(server_nat, kwargs['depends_on'])
     return server
-
-def BBB_client(name, *args, **kwargs):
-    if name not in gns3_project.node_names():
-        return create_BBB_client(name, *args, **kwargs)
-    else:
-        print(name, "exists")
-        return gns3_project.node(name)
 
 # CREATE NEW VIRTUAL NETWORK
 
