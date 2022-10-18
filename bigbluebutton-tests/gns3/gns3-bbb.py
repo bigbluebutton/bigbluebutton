@@ -511,6 +511,8 @@ auth-zone=test
 auth-zone=in-addr.arpa
 # auth-server is required when auth-zone is defined; use a non-existent dummy server
 auth-server=dns.test
+# This has to be here and not in /etc/hosts because we're authoritative for test
+host-record=ca.test,128.8.8.254
 """
 
 # I used to call this device "NAT1", and it's still referred to in
