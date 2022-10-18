@@ -484,9 +484,7 @@ def BBB_client(name, *args, **kwargs):
 # knows which interface we're using, because it might need that
 # information to construct a notification URL.
 
-cloud = gns3_project.cloud('Internet', args.interface, x=-500, y=0)
-internet = gns3_project.switch('InternetSwitch', x=-300, y=0)
-gns3_project.link(cloud, 0, internet)
+internet = gns3_project.cloud('Internet', args.interface, x=-500, y=0)
 
 notification_url = gns3_project.notification_url()
 
@@ -520,7 +518,12 @@ auth-zone=in-addr.arpa
 auth-server=dns.test
 """
 
-user_data = {'hostname': 'NAT1',
+# I used to call this device "NAT1", and it's still referred to in
+# that way in the comments, but the name it announces itself as to
+# DHCP is the name of the project, because it's the outward-facing
+# device that ssh users connect to.
+
+user_data = {'hostname': args.project,
              'packages': ['dnsmasq', 'coturn', 'apache2'],
              'package_upgrade': package_upgrade,
              'phone_home': {'url': notification_url, 'tries': 1},
@@ -589,7 +592,7 @@ if apt_proxy:
     user_data['apt'] = {'http_proxy': apt_proxy}
 
 nat1 = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                ram=1024, disk=4096, ethernets=2, x=-100, y=0)
+                                ram=1024, disk=4096, ethernets=2, x=-200, y=0)
 
 # CREATE A NEW ETHERNET SWITCH
 
