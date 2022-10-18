@@ -69,7 +69,7 @@ trait RespondToPollReqMsgHdlr {
         }
       }
     } else {
-      log.info("Ignoring answer from user {} once user already responded poll {} in meeting {}", msg.header.userId, msg.body.pollId, msg.header.meetingId)
+      log.info("Ignoring typed answer from user {} once user already added an answer to this poll {} in meeting {}", msg.header.userId, msg.body.pollId, msg.header.meetingId)
     }
   }
 }

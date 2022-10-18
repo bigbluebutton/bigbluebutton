@@ -238,7 +238,7 @@ object Polls {
   private def handleRespondToTypedPoll(poll: SimplePollResultOutVO, requesterId: String, pollId: String, questionId: Int,
                                        answer: String, lm: LiveMeeting): Option[SimplePollResultOutVO] = {
 
-    addQuestionResponse(poll.id, questionId, answer, lm.polls)
+    addQuestionResponse(poll.id, questionId, answer, requesterId, lm.polls)
     for {
       updatedPoll <- getSimplePollResult(poll.id, lm.polls)
     } yield {
@@ -368,6 +368,19 @@ object Polls {
     }
   }
 
+  def checkUserAddedQuestion(pollId: String, userId: String, polls: Polls): Boolean = {
+    polls.polls.get(pollId) match {
+      case Some(p) => {
+        if (p.getTypedPollResponders().filter(responderId => responderId == userId).length > 0) {
+          true
+        } else {
+          false
+        }
+      }
+      case None => false
+    }
+  }
+
   def showPollResult(pollId: String, polls: Polls) {
     polls.get(pollId) foreach {
       p =>
@@ -388,10 +401,13 @@ object Polls {
     }
   }
 
-  def addQuestionResponse(pollId: String, questionID: Int, answer: String, polls: Polls) {
+  def addQuestionResponse(pollId: String, questionID: Int, answer: String, requesterId: String, polls: Polls) {
     polls.polls.get(pollId) match {
       case Some(p) => {
-        p.addQuestionResponse(questionID, answer)
+        if (!p.getTypedPollResponders().contains(requesterId)) {
+          p.addTypedPollResponder(requesterId)
+          p.addQuestionResponse(questionID, answer)
+        }
       }
       case None =>
     }
@@ -558,6 +574,7 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
   private var _showResult: Boolean = false
   private var _numResponders: Int = 0
   private var _responders = new ArrayBuffer[Responder]()
+  private var _respondersTypedPoll = new ArrayBuffer[String]()
 
   def showingResult() { _showResult = true }
   def showResult(): Boolean = { _showResult }
@@ -574,6 +591,8 @@ class Poll(val id: String, val questions: Array[Question], val numRespondents: I
 
   def addResponder(responder: Responder) { _responders += (responder) }
   def getResponders(): ArrayBuffer[Responder] = { return _responders }
+  def addTypedPollResponder(responderId: String) { _respondersTypedPoll += (responderId) }
+  def getTypedPollResponders(): ArrayBuffer[String] = { return _respondersTypedPoll }
 
   def hasResponses(): Boolean = {
     questions.foreach(q => {

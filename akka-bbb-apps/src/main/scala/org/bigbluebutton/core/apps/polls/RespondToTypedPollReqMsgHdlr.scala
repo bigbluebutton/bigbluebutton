@@ -34,17 +34,22 @@ trait RespondToTypedPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    for {
-      (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToTypedPollReqMsg(msg.header.userId, msg.body.pollId,
-        msg.body.questionId, msg.body.answer, liveMeeting)
-    } yield {
-      broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
-
+    if (Polls.checkUserResponded(msg.body.pollId, msg.header.userId, liveMeeting.polls) == false &&
+      Polls.checkUserAddedQuestion(msg.body.pollId, msg.header.userId, liveMeeting.polls) == false) {
       for {
-        presenter <- Users2x.findPresenter(liveMeeting.users2x)
+        (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToTypedPollReqMsg(msg.header.userId, msg.body.pollId,
+          msg.body.questionId, msg.body.answer, liveMeeting)
       } yield {
-        broadcastUserRespondedToTypedPollRespMsg(msg, pollId, msg.body.answer, presenter.intId)
+        broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
+
+        for {
+          presenter <- Users2x.findPresenter(liveMeeting.users2x)
+        } yield {
+          broadcastUserRespondedToTypedPollRespMsg(msg, pollId, msg.body.answer, presenter.intId)
+        }
       }
+    } else {
+      log.info("Ignoring answer from user {} once user already responded poll {} in meeting {}", msg.header.userId, msg.body.pollId, msg.header.meetingId)
     }
   }
 }
