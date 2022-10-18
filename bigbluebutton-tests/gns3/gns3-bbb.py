@@ -417,7 +417,7 @@ dhcp-option = option:domain-search,test
 
 # BigBlueButton server and server NAT gateway
 
-def BBB_server_nat(hostname, x=100):
+def BBB_server_nat(hostname, x=100, y=100):
     # A NAT gateway between our public "Internet" and a server's private subnet
 
     # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
@@ -503,9 +503,9 @@ dhcp-authoritative
         user_data['apt'] = {'http_proxy': apt_proxy}
 
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                    ram=1024, disk=4096, ethernets=2, x=x, y=100)
+                                    ram=1024, disk=4096, ethernets=2, x=x, y=y)
 
-def BBB_server_standalone(hostname, x=100):
+def BBB_server_standalone(hostname, x=100, y=300):
 
     # A BigBlueButton server without an associated NAT gateway
 
@@ -546,22 +546,22 @@ def BBB_server_standalone(hostname, x=100):
         )
 
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                    cpus=4, ram=8192, disk=16384, x=x, y=300)
+                                    cpus=4, ram=8192, disk=16384, x=x, y=y)
 
 # BBB server with attached NAT gateway
 
-def BBB_server(name, *args, **kwargs):
-    server = BBB_server_standalone(name, *args, **kwargs)
-    server_nat = BBB_server_nat(name + '-NAT', x=server['x'])
-    switch = gns3_project.switch(hostname + '-subnet', x=server['x'], y=200)
+def BBB_server(name, x=100, depends_on=None):
+    server = BBB_server_standalone(name, x=x, y=300)
+    switch = gns3_project.switch(name + '-subnet', x=x, y=200)
+    server_nat = BBB_server_nat(name + '-NAT', x=x, y=100)
 
     gns3_project.link(server_nat, 0, PublicIP_switch)
     gns3_project.link(server_nat, 1, switch)
     gns3_project.link(server, 0, switch)
 
     gns3_project.depends_on(server, server_nat)
-    if 'depends_on' in kwargs:
-        gns3_project.depends_on(server_nat, kwargs['depends_on'])
+    if depends_on:
+        gns3_project.depends_on(server_nat, depends_on)
     return server
 
 # THE VIRTUAL NETWORK
