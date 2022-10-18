@@ -155,57 +155,60 @@ sysctl net.ipv4.ip_forward=1
 """
 
 # BigBlueButton test clients
-
-client_network_config = {'version': 2,
-                         'ethernets': {'ens4': {'dhcp4': 'on', 'optional': True },
-                                       'ens5': {'dhcp4': 'on', 'optional': True },
-                                       'ens6': {'dhcp4': 'on', 'optional': True },
-                         }}
-
-client_user_data = {'hostname': 'client1',
-                    'package_upgrade': package_upgrade,
-                    # We can safely writing files into /home/ubuntu without worrying about its permissions changing
-                    # because this is a chained cloud-init that has already booted once and created /home/ubuntu.
-                    # If this were an initial boot of a cloud image from Canonical, putting files into /home/ubuntu
-                    # would cause that directory's permissions to change to root.root, which would be a problem.
-                    'write_files': [
-                        {'path': '/home/ubuntu/testclient.sh',
-                         'permissions': '0755',
-                         'content': testclient_script
-                        },
-                    ],
-                    'runcmd': ['su ubuntu -c /home/ubuntu/testclient.sh'],
-}
-
-# If the system we're running on is configured to use an apt proxy, use it for the clients as well.
 #
-# This will break things if the instance can't reach the proxy.
-
-if apt_proxy:
-    client_user_data['apt'] = {'http_proxy': apt_proxy}
-    client_user_data['write_files'].append(
-        {'path': '/etc/apt/apt.conf.d/proxy.conf',
-         'permissions': '0644',
-         'content': f'Acquire::http::Proxy "{apt_proxy}";\n'
-        }
-    )
-
-# If git user name/email has been set on the current system, it's convenient to set them on the client, too.
-
-try:
-    git_user_name = subprocess.check_output('git config --get user.name'.split()).strip().decode()
-    git_user_email = subprocess.check_output('git config --get user.email'.split()).strip().decode()
-    if git_user_name != '':
-        client_user_data['runcmd'].append(f'su ubuntu -c \'git config --global --add user.name "{git_user_name}"\'')
-    if git_user_email != '':
-        client_user_data['runcmd'].append(f'su ubuntu -c \'git config --global --add user.email "{git_user_email}"\'')
-except subprocess.CalledProcessError:
-    pass
+# Use dhcp-identifier: mac because I'm still having problems with
+# cloned GNS3 ubuntu nodes using the same client identifiers; it's a
+# cloud-init issue.
 
 def create_BBB_client(hostname, x=0, y=0):
-    client_user_data['hostname'] = hostname
+    network_config = {'version': 2,
+                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
+                                    'ens5': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
+                                    'ens6': {'dhcp4': 'on', 'dhcp-identifier': 'mac', 'optional': True },
+                      }}
+
+    user_data = {'hostname': hostname,
+                 'package_upgrade': package_upgrade,
+                 # We can safely writing files into /home/ubuntu without worrying about its permissions changing
+                 # because this is a chained cloud-init that has already booted once and created /home/ubuntu.
+                 # If this were an initial boot of a cloud image from Canonical, putting files into /home/ubuntu
+                 # would cause that directory's permissions to change to root.root, which would be a problem.
+                 'write_files': [
+                     {'path': '/home/ubuntu/testclient.sh',
+                      'permissions': '0755',
+                      'content': testclient_script
+                     },
+                 ],
+                 'runcmd': ['su ubuntu -c /home/ubuntu/testclient.sh'],
+    }
+
+    # If the system we're running on is configured to use an apt proxy, use it for the clients as well.
+    #
+    # This will break things if the instance can't reach the proxy.
+
+    if apt_proxy:
+        user_data['apt'] = {'http_proxy': apt_proxy}
+        user_data['write_files'].append(
+            {'path': '/etc/apt/apt.conf.d/proxy.conf',
+             'permissions': '0644',
+             'content': f'Acquire::http::Proxy "{apt_proxy}";\n'
+            }
+        )
+
+    # If git user name/email has been set on the current system, it's convenient to set them on the client, too.
+
+    try:
+        git_user_name = subprocess.check_output('git config --get user.name'.split()).strip().decode()
+        git_user_email = subprocess.check_output('git config --get user.email'.split()).strip().decode()
+        if git_user_name != '':
+            user_data['runcmd'].append(f'su ubuntu -c \'git config --global --add user.name "{git_user_name}"\'')
+        if git_user_email != '':
+            user_data['runcmd'].append(f'su ubuntu -c \'git config --global --add user.email "{git_user_email}"\'')
+    except subprocess.CalledProcessError:
+        pass
+
     # need this many virtual CPUs to run the stress tests, which stress the client perhaps more than the server
-    return gns3_project.create_ubuntu_node(client_user_data, image=args.client_image, network_config=client_network_config,
+    return gns3_project.create_ubuntu_node(user_data, image=args.client_image, network_config=network_config,
                                            cpus=12, ram=8192, disk=8192, ethernets=3, vnc=True, x=x, y=y)
 
 # NAT gateways
