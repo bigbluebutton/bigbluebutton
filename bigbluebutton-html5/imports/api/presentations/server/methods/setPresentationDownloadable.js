@@ -13,7 +13,7 @@ export default function setPresentationDownloadable(presentationId, downloadable
 
     check(meetingId, String);
     check(requesterUserId, String);
-    check(downloadable, Boolean);
+    check(downloadable, Match.Maybe(Boolean));
     check(presentationId, String);
 
     const payload = {

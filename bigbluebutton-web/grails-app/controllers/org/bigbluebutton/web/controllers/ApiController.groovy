@@ -31,6 +31,7 @@ import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.service.ValidationService
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
@@ -229,16 +230,9 @@ class ApiController {
 
     String fullName = ParamsUtil.stripControlChars(params.fullName)
 
-    String externalMeetingId = params.meetingID
-
     String attPW = params.password
 
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     // the createTime mismatch with meeting's createTime, complain
     // In the future, the createTime param will be required
@@ -511,13 +505,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     boolean isRunning = meeting != null && meeting.isRunning();
 
     response.addHeader("Cache-Control", "no-cache")
@@ -548,10 +536,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId)
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId)
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingid", meeting.getInternalId());
@@ -595,10 +580,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     withFormat {
       xml {
@@ -698,67 +680,6 @@ class ApiController {
     }
 
     return reqParams;
-  }
-
-  /***********************************************
-   * POLL API
-   ***********************************************/
-  def setPollXML = {
-    String API_CALL = "setPollXML"
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    Map<String, String[]> reqParams = getParameters(request)
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.SET_POLL_XML,
-            reqParams,
-            request.getQueryString()
-    )
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue())
-      return
-    }
-
-
-    // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
-
-    String pollXML = params.pollXML
-
-    String decodedPollXML;
-
-    try {
-      decodedPollXML = URLDecoder.decode(pollXML, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      log.error "Couldn't decode poll XML.", e
-      invalid("pollXMLError", "Cannot decode poll XML")
-      return;
-    }
-    def pollxml = new XmlSlurper().parseText(decodedPollXML);
-
-    pollxml.children().each { poll ->
-      String title = poll.title.text();
-      String question = poll.question.text();
-      String questionType = poll.questionType.text();
-
-      ArrayList<String> answers = new ArrayList<String>();
-      poll.answers.children().each { answer ->
-        answers.add(answer.text());
-      }
-
-      //send poll to BigBlueButton Apps
-      meetingService.createdPolls(meeting.getInternalId(), title, question, questionType, answers);
-    }
-
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {
-      xml {
-        // No need to use the response builder here until we have a more complex response
-        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
-      }
-    }
   }
 
   /**********************************************
@@ -1168,10 +1089,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId)
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId)
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null){
       uploadDocuments(meeting, true);

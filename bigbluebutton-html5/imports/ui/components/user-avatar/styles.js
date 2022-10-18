@@ -100,6 +100,7 @@ const Avatar = styled.div`
   text-align: center;
   font-size: .85rem;
   border: 2px solid transparent;
+  user-select: none;
 
   ${({ animations }) => animations && `
     transition: .3s ease-in-out;

@@ -129,7 +129,6 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
-      amIModerator,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
@@ -220,7 +219,7 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if ((amIPresenter || amIModerator) && showPushLayout) {
+    if (amIPresenter && showPushLayout) {
       actions.push({
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),

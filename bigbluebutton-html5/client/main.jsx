@@ -42,10 +42,14 @@ import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
   // bridge loading
 });
 
-Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket'] ; }
+const { disableWebsocketFallback } = Meteor.settings.public.app;
 
-Meteor.disconnect();
-Meteor.reconnect();
+if (disableWebsocketFallback) {
+  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; }
+
+  Meteor.disconnect();
+  Meteor.reconnect();
+}
 
 collectionMirrorInitializer();
 liveDataEventBrokerInitializer();
