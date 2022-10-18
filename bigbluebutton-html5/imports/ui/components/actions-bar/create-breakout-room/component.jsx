@@ -783,7 +783,7 @@ class BreakoutRoom extends PureComponent {
     };
 
     return (
-      <Styled.BoxContainer key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }}>
+      <Styled.BoxContainer key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }} data-test="roomGrid">
         <Styled.Alert valid={leastOneUserIsValid} role="alert">
           <Styled.FreeJoinLabel>
             <Styled.BreakoutNameInput
@@ -797,7 +797,7 @@ class BreakoutRoom extends PureComponent {
           <Styled.BreakoutBox id="breakoutBox-0" onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
             {this.renderUserItemByRoom(0)}
           </Styled.BreakoutBox>
-          <Styled.SpanWarn valid={leastOneUserIsValid}>
+          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={leastOneUserIsValid}>
             {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
           </Styled.SpanWarn>
         </Styled.Alert>
@@ -814,6 +814,7 @@ class BreakoutRoom extends PureComponent {
                   onBlur={changeRoomName(value)}
                   aria-label={`${this.getRoomName(value)}`}
                   aria-describedby={this.getRoomName(value).length === 0 ? `room-error-${value}` : `room-input-${value}`}
+                  data-test={this.getRoomName(value).length === 0 ? `room-error-${value}` : `roomName-${value}`}
                   readOnly={isUpdate}
                 />
                 <div aria-hidden id={`room-input-${value}`} className="sr-only">
@@ -885,6 +886,7 @@ class BreakoutRoom extends PureComponent {
                 onChange={this.changeDurationTime}
                 onBlur={this.blurDurationTime}
                 aria-label={intl.formatMessage(intlMessages.duration)}
+                data-test="durationTime"
               />
               <Styled.HoldButtonWrapper
                 key="decrease-breakout-time"
@@ -902,6 +904,7 @@ class BreakoutRoom extends PureComponent {
                   hideLabel
                   circle
                   size="sm"
+                  data-test="decreaseBreakoutTime"
                 />
               </Styled.HoldButtonWrapper>
               <Styled.HoldButtonWrapper
@@ -918,6 +921,7 @@ class BreakoutRoom extends PureComponent {
                   hideLabel
                   circle
                   size="sm"
+                  data-test="increaseBreakoutTime"
                 />
               </Styled.HoldButtonWrapper>
             </Styled.DurationArea>

@@ -23,7 +23,7 @@ const propTypes = {
   cameraPosition: PropTypes.string,
   focusedCamera: PropTypes.string,
   horizontalPosition: PropTypes.bool,
-  isLayoutMeetingResizing: PropTypes.bool,
+  isMeetingLayoutResizing: PropTypes.bool,
   isPresenter: PropTypes.bool,
   isModerator: PropTypes.bool,
   layoutContextDispatch: PropTypes.func,
@@ -120,7 +120,7 @@ class PushLayoutEngine extends React.Component {
       cameraPosition,
       focusedCamera,
       horizontalPosition,
-      isLayoutMeetingResizing,
+      isMeetingLayoutResizing,
       isModerator,
       isPresenter,
       layoutContextDispatch,
@@ -205,10 +205,10 @@ class PushLayoutEngine extends React.Component {
           h = window.innerHeight * meetingLayoutVideoRate;
         }
 
-        if (isLayoutMeetingResizing !== prevProps.isLayoutMeetingResizing) {
+        if (isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
           layoutContextDispatch({
             type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
-            value: isLayoutMeetingResizing,
+            value: isMeetingLayoutResizing,
           });
         }
 

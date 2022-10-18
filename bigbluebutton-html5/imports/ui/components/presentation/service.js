@@ -83,6 +83,12 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
+  const questionRegex = /.*?\?$/gm;
+  let question = content.match(questionRegex) || '';
+
+  const doubleQuestionRegex = /\?{2}/gm;
+  let doubleQuestion = content.match(doubleQuestionRegex) || null;
+
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
   if (optionsPoll) optionsPoll = optionsPoll.map((opt) => `\r${opt[0]}.`);
@@ -123,6 +129,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   }, []).filter(({
     options,
   }) => options.length > 1 && options.length < 10).forEach((poll) => {
+    if (doubleQuestion) poll.multiResp = true;
     if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
       const maxAnswer = poll.options.length > MAX_CUSTOM_FIELDS
         ? MAX_CUSTOM_FIELDS
@@ -138,6 +145,15 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
       });
     }
   });
+
+  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion) {
+    quickPollOptions.push({
+      type: `R-`,
+      poll: {
+          question: question[0],
+      }
+    });
+  }
 
   if (quickPollOptions.length > 0) {
     content = content.replace(new RegExp(pollRegex), '');
