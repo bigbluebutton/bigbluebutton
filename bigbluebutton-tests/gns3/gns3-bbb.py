@@ -154,6 +154,117 @@ iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE
 sysctl net.ipv4.ip_forward=1
 """
 
+def master_gateway(hostname, x=0, y=0):
+    # DECLARE A NAT GATEWAY BETWEEN OUR PUBLIC INTERNET AND THE ACTUAL INTERNET
+    # Creates it, but only if it doesn't already exist
+
+    # BBB's default STUN server is stun.l.google.com:19302, so we configure
+    # NAT1 to mimic it.
+
+    network_config = {'version': 2,
+                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac'},
+                                    'ens5': {'addresses': ['128.8.8.254/24'],
+                                             'nameservers': {'search' : ['test'], 'addresses' : ['128.8.8.254']}},
+                      }}
+
+    dnsmasq_conf = """
+listen-address=128.8.8.254
+bind-interfaces
+dhcp-range=128.8.8.101,128.8.8.200,12h
+# Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
+# Otherwise, the IP address change around on reboots, and BBB doesn't like that.
+# dhcp-sequential-ip
+dhcp-authoritative
+# The server's NAT router will register itself with DHCP as 'bbb-ci'
+# This option will cause dnsmasq to announce it in DNS as 'bbb-ci.test'
+domain=test
+# Make the DNS server authoritative for these domains, or else it will hang
+# See https://unix.stackexchange.com/questions/720570
+auth-zone=test
+auth-zone=in-addr.arpa
+# auth-server is required when auth-zone is defined; use a non-existent dummy server
+auth-server=dns.test
+# This has to be here and not in /etc/hosts because we're authoritative for test
+host-record=ca.test,128.8.8.254
+"""
+
+    # I used to call this device "NAT1", and it's still referred to in
+    # that way in the comments, but the name it announces itself as to
+    # DHCP is the name of the project, because it's the outward-facing
+    # device that ssh users connect to.
+
+    user_data = {'hostname': hostname,
+                 'packages': ['dnsmasq', 'coturn', 'apache2'],
+                 'package_upgrade': package_upgrade,
+                 'phone_home': {'url': notification_url, 'tries': 1},
+                 'users': [{'name': 'ubuntu',
+                            'plain_text_passwd': 'ubuntu',
+                            'ssh_authorized_keys': ssh_authorized_keys,
+                            'lock_passwd': False,
+                            'shell': '/bin/bash',
+                            'sudo': 'ALL=(ALL) NOPASSWD:ALL',
+                 }],
+                 'write_files': [
+                     {'path': '/ca/generateCA.sh',
+                      'permissions': '0755',
+                      'content': generateCA_script
+                     },
+                     {'path': '/etc/dnsmasq.d/gns3-bbb',
+                      'permissions': '0644',
+                      'content': dnsmasq_conf
+                     },
+                     {'path': '/var/www/html/getcert.cgi',
+                      'permissions': '0755',
+                      'content': getcert_script
+                     },
+                     {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
+                      'permissions': '0755',
+                      'content': generic_NAT_per_boot_script
+                     },
+                 ],
+                 'runcmd': [
+                     # resolver1.opendns.com is used by bbb-install to determine external IP address
+                     'echo 128.8.8.254 resolver1.opendns.com >> /etc/hosts',
+                     # configure coturn to listen on 19302, like stun.l.google.com
+                     # 'echo listening-port=19302 >> /etc/turnserver.conf',
+                     'echo aux-server=128.8.8.254:19302 >> /etc/turnserver.conf',
+                     'echo 128.8.8.254 stun.l.google.com >> /etc/hosts',
+                     'systemctl restart coturn',
+                     'systemctl start dnsmasq',
+                     # now everything we need to operate a certificate authority
+                     # enable cgi scripts
+                     'a2enmod cgi',
+                     "sed -i '\|Directory /var/www/|,\|/Directory|s/Options/#Options/' /etc/apache2/apache2.conf",
+                     "sed -i '\|Directory /var/www/|aAddHandler cgi-script .cgi' /etc/apache2/apache2.conf",
+                     "sed -i '\|Directory /var/www/|aOptions ExecCGI Indexes FollowSymLinks' /etc/apache2/apache2.conf",
+                     'systemctl restart apache2',
+                     # we accept CSRs via POST to http://ca.test/getcert.cgi
+                     'echo 128.8.8.254 ca.test >> /etc/hosts',
+                     '/ca/generateCA.sh',
+                 ],
+    }
+
+    # If we have a key and certificate for the certificate authority, copy them into /ca
+    #
+    # Otherwise, the generateCA.sh script will generate them when the instance boots.
+
+    try:
+        for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
+            with open(os.path.join(__location__, fn)) as f:
+                user_data['write_files'].append({'path': f'/ca/{fn}', 'permissions': '0444', 'content': f.read()})
+    except Exception as ex:
+        print(ex)
+
+    # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
+    #
+    # This will break things if the instance can't reach the proxy.
+
+    if apt_proxy:
+        user_data['apt'] = {'http_proxy': apt_proxy}
+
+    nat1 = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    ram=1024, disk=4096, ethernets=2, x=-200, y=0)
+
 # BigBlueButton test clients
 #
 # Use dhcp-identifier: mac because I'm still having problems with
@@ -213,7 +324,7 @@ def create_BBB_client(hostname, x=0, y=0):
 
 # NAT gateways
 
-def create_nat_gateway(hostname, x=0, y=0, notification_url=None, nat_interface='192.168.1.1/24'):
+def create_BBB_client_nat(hostname, x=0, y=0, notification_url=None, nat_interface='192.168.1.1/24'):
 
     interface = ipaddress.ip_interface(nat_interface)
     hosts = list(interface.network.hosts())
@@ -427,9 +538,9 @@ def create_BBB_server(hostname, x=100, notification_url=None):
 
 ### DECLARE NODES: CREATE THEM, BUT ONLY IF THEY DON'T ALREADY EXIST
 
-def nat_gateway(name, *args, **kwargs):
+def BBB_client_nat(name, *args, **kwargs):
     if name not in gns3_project.node_names():
-        return create_nat_gateway(name, *args, notification_url=notification_url, **kwargs)
+        return create_BBB_client_nat(name, *args, notification_url=notification_url, **kwargs)
     else:
         print(name, "exists")
         return gns3_project.node(name)
@@ -483,113 +594,7 @@ internet = gns3_project.cloud('Internet', args.interface, x=-500, y=0)
 
 notification_url = gns3_project.notification_url()
 
-# CREATE A NAT GATEWAY BETWEEN OUR PUBLIC INTERNET AND THE ACTUAL INTERNET
-
-# BBB's default STUN server is stun.l.google.com:19302, so we configure
-# NAT1 to mimic it.
-
-network_config = {'version': 2,
-                  'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac'},
-                                'ens5': {'addresses': ['128.8.8.254/24'],
-                                         'nameservers': {'search' : ['test'], 'addresses' : ['128.8.8.254']}},
-                  }}
-
-dnsmasq_conf = """
-listen-address=128.8.8.254
-bind-interfaces
-dhcp-range=128.8.8.101,128.8.8.200,12h
-# Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
-# Otherwise, the IP address change around on reboots, and BBB doesn't like that.
-# dhcp-sequential-ip
-dhcp-authoritative
-# The server's NAT router will register itself with DHCP as 'bbb-ci'
-# This option will cause dnsmasq to announce it in DNS as 'bbb-ci.test'
-domain=test
-# Make the DNS server authoritative for these domains, or else it will hang
-# See https://unix.stackexchange.com/questions/720570
-auth-zone=test
-auth-zone=in-addr.arpa
-# auth-server is required when auth-zone is defined; use a non-existent dummy server
-auth-server=dns.test
-# This has to be here and not in /etc/hosts because we're authoritative for test
-host-record=ca.test,128.8.8.254
-"""
-
-# I used to call this device "NAT1", and it's still referred to in
-# that way in the comments, but the name it announces itself as to
-# DHCP is the name of the project, because it's the outward-facing
-# device that ssh users connect to.
-
-user_data = {'hostname': args.project,
-             'packages': ['dnsmasq', 'coturn', 'apache2'],
-             'package_upgrade': package_upgrade,
-             'phone_home': {'url': notification_url, 'tries': 1},
-             'users': [{'name': 'ubuntu',
-                        'plain_text_passwd': 'ubuntu',
-                        'ssh_authorized_keys': ssh_authorized_keys,
-                        'lock_passwd': False,
-                        'shell': '/bin/bash',
-                        'sudo': 'ALL=(ALL) NOPASSWD:ALL',
-                      }],
-             'write_files': [
-                 {'path': '/ca/generateCA.sh',
-                  'permissions': '0755',
-                  'content': generateCA_script
-                 },
-                 {'path': '/etc/dnsmasq.d/gns3-bbb',
-                  'permissions': '0644',
-                  'content': dnsmasq_conf
-                 },
-                 {'path': '/var/www/html/getcert.cgi',
-                  'permissions': '0755',
-                  'content': getcert_script
-                 },
-                 {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
-                  'permissions': '0755',
-                  'content': generic_NAT_per_boot_script
-                 },
-             ],
-             'runcmd': [# resolver1.opendns.com is used by bbb-install to determine external IP address
-                        'echo 128.8.8.254 resolver1.opendns.com >> /etc/hosts',
-                        # configure coturn to listen on 19302, like stun.l.google.com
-                        # 'echo listening-port=19302 >> /etc/turnserver.conf',
-                        'echo aux-server=128.8.8.254:19302 >> /etc/turnserver.conf',
-                        'echo 128.8.8.254 stun.l.google.com >> /etc/hosts',
-                        'systemctl restart coturn',
-                        'systemctl start dnsmasq',
-                        # now everything we need to operate a certificate authority
-                        # enable cgi scripts
-                        'a2enmod cgi',
-                        "sed -i '\|Directory /var/www/|,\|/Directory|s/Options/#Options/' /etc/apache2/apache2.conf",
-                        "sed -i '\|Directory /var/www/|aAddHandler cgi-script .cgi' /etc/apache2/apache2.conf",
-                        "sed -i '\|Directory /var/www/|aOptions ExecCGI Indexes FollowSymLinks' /etc/apache2/apache2.conf",
-                        'systemctl restart apache2',
-                        # we accept CSRs via POST to http://ca.test/getcert.cgi
-                        'echo 128.8.8.254 ca.test >> /etc/hosts',
-                        '/ca/generateCA.sh',
-                       ],
-}
-
-# If we have a key and certificate for the certificate authority, copy them into /ca
-#
-# Otherwise, the generateCA.sh script will generate them when the instance boots.
-
-try:
-    for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
-        with open(os.path.join(__location__, fn)) as f:
-            user_data['write_files'].append({'path': f'/ca/{fn}', 'permissions': '0444', 'content': f.read()})
-except Exception as ex:
-    print(ex)
-
-# If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
-#
-# This will break things if the instance can't reach the proxy.
-
-if apt_proxy:
-    user_data['apt'] = {'http_proxy': apt_proxy}
-
-nat1 = gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                ram=1024, disk=4096, ethernets=2, x=-200, y=0)
+nat1 = master_gateway(args.project, x=-200, y=0)
 
 # CREATE A NEW ETHERNET SWITCH
 
@@ -606,7 +611,7 @@ gns3_project.link(nat1, 1, PublicIP_switch)
 # interface names on 'testclient'.
 
 subnet = '100.64.1.1/24'
-nat4 = nat_gateway('NAT4', x=100, y=-200, nat_interface=subnet)
+nat4 = BBB_client_nat('NAT4', x=100, y=-200, nat_interface=subnet)
 gns3_project.link(nat4, 0, PublicIP_switch)
 nat4_switch = gns3_project.switch(subnet, x=250, y=-200)
 gns3_project.link(nat4, 1, nat4_switch)
@@ -617,7 +622,7 @@ gns3_project.depends_on(nat4, nat1)
 # Put a switch on here for the same reason as NAT4.
 
 subnet = '192.168.128.1/24'
-nat5 = nat_gateway('NAT5', x=100, y=-100, nat_interface=subnet)
+nat5 = BBB_client_nat('NAT5', x=100, y=-100, nat_interface=subnet)
 gns3_project.link(nat5, 0, PublicIP_switch)
 nat5_switch = gns3_project.switch(subnet, x=250, y=-100)
 gns3_project.link(nat5, 1, nat5_switch)
@@ -628,7 +633,7 @@ gns3_project.depends_on(nat5, nat1)
 # Put a switch on here for the same reason as NAT4.
 
 subnet = '192.168.1.1/24'
-nat6 = nat_gateway('NAT6', x=100, y=0, nat_interface=subnet)
+nat6 = BBB_client_nat('NAT6', x=100, y=0, nat_interface=subnet)
 gns3_project.link(nat6, 0, PublicIP_switch)
 nat6_switch = gns3_project.switch(subnet, x=250, y=0)
 gns3_project.link(nat6, 1, nat6_switch)
@@ -639,7 +644,7 @@ gns3_project.depends_on(nat6, nat1)
 for v in args.version:
     if v.startswith('testclient'):
         # find an unoccupied y coordinate on the GUI
-        for y in (-100, -200, 0, -300, 100):
+        for y in (-200, -100, 0, 100, 200):
             try:
                 next(n for n in gns3_project.nodes() if n['x'] == 450 and n['y'] == y)
             except StopIteration:
