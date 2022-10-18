@@ -157,7 +157,7 @@ sysctl net.ipv4.ip_forward=1
 # BigBlueButton test clients
 
 client_network_config = {'version': 2,
-                         'ethernets': {'ens4': {'dhcp4': 'on' },
+                         'ethernets': {'ens4': {'dhcp4': 'on', 'optional': True },
                                        'ens5': {'dhcp4': 'on', 'optional': True },
                                        'ens6': {'dhcp4': 'on', 'optional': True },
                          }}
@@ -219,6 +219,18 @@ def create_nat_gateway(hostname, x=0, y=0, notification_url=None, nat_interface=
     # We want DNS service on the NAT gateways so that when we proxy ssh through
     # them, they can resolve testclient addresses.
 
+    # This is really broken, but we have to make dnsmasq authoritative
+    # for its DNS domain, or it will hang indefinitely on AAAA
+    # lookups.  See the stackexchange link below.  We make it
+    # authoritative for the test-client domain (so we can lookup
+    # testclient), but set testclient's domain search path to test,
+    # so it can lookup names like focal-250.
+    #
+    # If we didn't set anything authoritative, AAAA lookups would
+    # hang.  If we set the test domain authoritative, server lookups
+    # like focal-250 would return nothing, because they're registered
+    # with the NAT1 gateway, not this one.
+
     dnsmasq_conf = f"""
 listen-address={hosts[0]}
 bind-interfaces
@@ -228,20 +240,22 @@ dhcp-range={hosts[1]},{hosts[-1]},12h
 # dhcp-sequential-ip
 dhcp-authoritative
 # The testclient will register itself with DHCP as 'testclient'
-# This option will cause dnsmasq to announce it in DNS as 'testclient.test'
-domain=test
+# This option will cause dnsmasq to announce it in DNS as 'testclient.test-client'
+domain=test-client
 # Make the DNS server authoritative for these domains, or else it will hang
 # See https://unix.stackexchange.com/questions/720570
-auth-zone=test
+auth-zone=test-client
 auth-zone=in-addr.arpa
 # auth-server is required when auth-zone is defined; use a non-existent dummy server
-auth-server=dns.test
+auth-server=dns.test-client
+# tell the test clients to search test and not test-client
+dhcp-option = option:domain-search,test
 """
 
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on'},
                                     'ens5': {'addresses': [nat_interface],
-                                             'nameservers': {'search' : ['test'], 'addresses' : [str(interface.ip)]}},
+                                             'nameservers': {'search' : ['test-client'], 'addresses' : [str(interface.ip)]}},
                       }}
     user_data = {'hostname': hostname,
                  'packages': ['dnsmasq'],
@@ -506,15 +520,6 @@ auth-zone=in-addr.arpa
 auth-server=dns.test
 """
 
-ens5_network = """
-[Match]
-Name=ens5
-
-[Network]
-DNS=128.8.8.254
-Domains=test
-"""
-
 user_data = {'hostname': 'NAT1',
              'packages': ['dnsmasq', 'coturn', 'apache2'],
              'package_upgrade': package_upgrade,
@@ -535,10 +540,6 @@ user_data = {'hostname': 'NAT1',
                   'permissions': '0644',
                   'content': dnsmasq_conf
                  },
-#                 {'path': '/etc/systemd/network/ens5.network',
-#                  'permissions': '0644',
-#                  'content': ens5_network
-#                 },
                  {'path': '/var/www/html/getcert.cgi',
                   'permissions': '0755',
                   'content': getcert_script
