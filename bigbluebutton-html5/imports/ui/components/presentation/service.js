@@ -91,7 +91,13 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = content.match(pollRegex) || [];
-  if (optionsPoll) optionsPoll = optionsPoll.map((opt) => `\r${opt[0]}.`);
+  let optionsWithLabels = [];
+  if (optionsPoll) {
+    optionsPoll = optionsPoll.map((opt) => {
+      optionsWithLabels.push(opt);
+      return `\r${opt[0]}.`
+    });
+  }
 
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
@@ -178,9 +184,13 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     poll,
   }));
 
+  const pollQuestion = (question?.length > 0 && question[0]) || '';
+
   return {
     slideId: currentSlide.id,
     quickPollOptions,
+    optionsWithLabels,
+    pollQuestion,
   };
 };
 
