@@ -31,6 +31,7 @@ public class SwfSlidesGenerationProgressNotifier {
   private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
 
   private IBbbWebApiGWApp messagingService;
+  private int maxNumberOfAttempts = 3;
 
   private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 
@@ -49,6 +50,15 @@ public class SwfSlidesGenerationProgressNotifier {
             uploadedFileSize,
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
+  }
+  public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
+    UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_TIMEOUT_KEY,
+            page, pres.getTemporaryPresentationId(), pres.getId(), maxNumberOfAttempts);
+    messagingService.sendDocConversionMsg(errorMessage);
   }
 
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
@@ -98,6 +108,10 @@ public class SwfSlidesGenerationProgressNotifier {
 
   public void setMessagingService(IBbbWebApiGWApp m) {
     messagingService = m;
+  }
+
+  public void setMaxNumberOfAttempts(int maxNumberOfAttempts) {
+    this.maxNumberOfAttempts = maxNumberOfAttempts;
   }
 
   public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
