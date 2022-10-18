@@ -119,7 +119,7 @@ if not cloud_image in gns3_server.images():
 
 # An Ubuntu 20 image created by GNS3/ubuntu.py in Brent Baccala's NPDC github repository
 
-if 'testclient' in args.version:
+if any(v.startswith('testclient') for v in args.version):
     if args.client_image:
         assert args.client_image in gns3_server.images()
     else:
@@ -640,8 +640,14 @@ gns3_project.depends_on(nat6, nat1)
 # THE BIG BLUE BUTTON SERVER and/or TEST CLIENT
 
 for v in args.version:
-    if v == 'testclient':
-        client = BBB_client('testclient', x=450, y=-100)
+    if v.startswith('testclient'):
+        # find an unoccupied y coordinate on the GUI
+        for y in (-100, -200, 0, -300, 100):
+            try:
+                next(n for n in gns3_project.nodes() if n['x'] == 450 and n['y'] == y)
+            except StopIteration:
+                break
+        client = BBB_client(v, x=450, y=y)
         gns3_project.link(client, 0, nat4_switch)
         gns3_project.depends_on(client, nat4)
         gns3_project.link(client, 1, nat5_switch)
