@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.api.CaptureSharedNotesReqInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -183,7 +184,32 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
 
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
-
   }
 
+  def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
+    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName, m.sequence)
+    val event = CaptureSharedNotesReqEvtMsg(header, body)
+
+    bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
+  }
+
+  def handle(m: PadCapturePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+
+    val userId: String = "system"
+    val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+    val jobType = "PadCaptureJob"
+    val filename = s"${m.body.meetingName}-notes"
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
+
+    val exportJob = new ExportJob(jobId, jobType, filename, m.body.padId, "", true, List(m.body.sequence), m.body.parentMeetingId, presentationUploadToken)
+    val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+
+    bus.outGW.send(job)
+  }
 }

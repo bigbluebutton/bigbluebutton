@@ -283,7 +283,7 @@ class MeetingActor(
     case msg: SendMessageToBreakoutRoomInternalMsg => state = handleSendMessageToBreakoutRoomInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: SendBreakoutTimeRemainingInternalMsg =>
       handleSendBreakoutTimeRemainingInternalMsg(msg)
-
+    case msg: CaptureSharedNotesReqInternalMsg => presentationPodsApp.handle(msg, liveMeeting, msgBus)
     case msg: SendRecordingTimerInternalMsg =>
       state = usersApp.handleSendRecordingTimerInternalMsg(msg, state)
 
@@ -507,6 +507,7 @@ class MeetingActor(
       case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ExportPresentationWithAnnotationReqMsg         => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: NewPresAnnFileAvailableMsg                     => presentationPodsApp.handle(m, liveMeeting, msgBus)
+      case m: PadCapturePubMsg                               => presentationPodsApp.handle(m, liveMeeting, msgBus)
 
       // Presentation Pods
       case m: CreateNewPresentationPodPubMsg                 => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

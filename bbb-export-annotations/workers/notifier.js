@@ -8,7 +8,7 @@ const path = require('path');
 
 const {workerData} = require('worker_threads');
 
-const [jobType, jobId, filename_with_extension] = workerData;
+const [jobType, jobId, filename] = workerData;
 
 const logger = new Logger('presAnn Notifier Worker');
 
@@ -30,7 +30,7 @@ async function notifyMeetingActor() {
 
   const link = path.join(`${path.sep}bigbluebutton`, 'presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
-      exportJob.presId, 'pdf', jobId, filename_with_extension);
+      exportJob.presId, 'pdf', jobId, filename);
 
   const notification = {
     envelope: {
@@ -59,27 +59,35 @@ async function notifyMeetingActor() {
   client.disconnect();
 }
 
-/** Upload PDF to a BBB room */
-async function upload() {
+/** Upload PDF to a BBB room
+ * @param {String} filePath - Absolute path to the file, including the extension
+*/
+async function upload(filePath) {
   const callbackUrl = `${config.bbbWebAPI}/bigbluebutton/presentation/${exportJob.presentationUploadToken}/upload`;
   const formData = new FormData();
-  const file = `${exportJob.presLocation}/pdfs/${jobId}/${filename_with_extension}`;
-
   formData.append('conference', exportJob.parentMeetingId);
   formData.append('pod_id', config.notifier.pod_id);
   formData.append('is_downloadable', config.notifier.is_downloadable);
   formData.append('temporaryPresentationId', jobId);
-  formData.append('fileUpload', fs.createReadStream(file));
+  formData.append('fileUpload', fs.createReadStream(filePath));
 
-  const res = await axios.post(callbackUrl, formData,
-      {headers: formData.getHeaders()});
-  logger.info(`Upload of job ${exportJob.jobId} returned ${res.data}`);
+  try {
+    const res = await axios.post(callbackUrl, formData,
+        {headers: formData.getHeaders()});
+    logger.info(`Upload of job ${exportJob.jobId} returned ${res.data}`);
+  } catch (error) {
+    return logger.error(`Could upload job ${exportJob.jobId}: ${error}`);
+  }
 }
 
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
   notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
-  upload();
+  const filePath = `${exportJob.presLocation}/pdfs/${jobId}/${filename}`;
+  upload(filePath);
+} else if (jobType == 'PadCaptureJob') {
+  const filePath = `${dropbox}/${filename}`;
+  upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);
 }

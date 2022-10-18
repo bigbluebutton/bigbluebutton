@@ -106,6 +106,7 @@ public class ParamsProcessorUtil {
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
+        private boolean defaultBreakoutRoomsCaptureNotes = false;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
 		private boolean defaultLockSettingsDisableCam;
@@ -275,7 +276,13 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled);
+            Boolean breakoutRoomsCaptureNotes = defaultBreakoutRoomsCaptureNotes;
+            String breakoutRoomsCaptureNotesParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesParam)) {
+				breakoutRoomsCaptureNotes = Boolean.parseBoolean(breakoutRoomsCaptureNotesParam);
+			}
+
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -742,6 +749,7 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
+            meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
