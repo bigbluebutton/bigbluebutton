@@ -291,14 +291,95 @@ dhcp-option = option:domain-search,test
                                            ram=1024, disk=4096, ethernets=2, x=x, y=y)
 
 
-# BigBlueButton server
-#
-# Also creates a NAT gateway and a server subnet (if use_nat is True)
-#
-# We have a depends_on argument, instead of just letting the caller call depends_on(),
-# because the dependency might (optionally) involve the NAT gateway, not just the server.
+# BigBlueButton server and server NAT gateway
 
-def create_BBB_server(hostname, x=100, notification_url=None, use_nat=True, depends_on=None):
+def create_BBB_server_nat(hostname, x=100, notification_url=None):
+    # PUBLIC SUBNET TO SERVER PRIVATE SUBNET
+
+    per_boot_script=f"""#!/bin/bash
+# $(dig +short $FQDN) returns the address this NAT gateway obtained from the NAT1 DHCP server
+FQDN={hostname}.test
+IP=$(dig +short $FQDN)
+
+# These next statements assume that the server is on 192.168.1.2, and relay ssh and web traffic to it
+# We ensure that the server is on 192.168.1.2 with a dhcp-host statement in /etc/dnsmasq.conf
+
+iptables -t nat -A PREROUTING -p tcp -d $IP --dport 22 -j DNAT --to-destination 192.168.1.2
+iptables -t nat -A PREROUTING -p tcp -d $IP --dport 80 -j DNAT --to-destination 192.168.1.2
+iptables -t nat -A PREROUTING -p tcp -d $IP --dport 443 -j DNAT --to-destination 192.168.1.2
+
+# hairpin case - we need to rewrite the source address before sending it back to bbb-ci
+# no hairpin on port 22; we can ssh into the server, then ssh back to the NAT gateway if needed
+iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 443 -j MASQUERADE
+
+iptables -t nat -A PREROUTING -p udp -d $IP --dport 16384:32768 -j DNAT --to-destination 192.168.1.2
+iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 16384:32768 -j MASQUERADE
+"""
+
+    dnsmasq_conf = f"""
+listen-address=192.168.1.1
+bind-interfaces
+dhcp-host={hostname},192.168.1.2
+dhcp-range=192.168.1.100,192.168.1.254,12h
+# Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
+# Otherwise, the IP address change around on reboots, and BBB doesn't like that.
+# dhcp-sequential-ip
+dhcp-authoritative
+"""
+
+    # Note that 'hostname-NAT' announces itself into DHCP as 'hostname'
+    #
+    # This is so that the testclients will connect to the NAT gateway to reach the server.
+
+    network_config = {'version': 2,
+                      'ethernets': {'ens4': {'dhcp4': 'on',
+                                             'dhcp4-overrides' : {'hostname' : hostname}},
+                                    'ens5': {'addresses': ['192.168.1.1/24']},
+                      }}
+
+    user_data = {'hostname': hostname + '-NAT',
+                 'packages': ['dnsmasq'],
+                 'package_upgrade': package_upgrade,
+                 'users': [{'name': 'ubuntu',
+                            'plain_text_passwd': 'ubuntu',
+                            'ssh_authorized_keys': ssh_authorized_keys,
+                            'lock_passwd': False,
+                            'shell': '/bin/bash',
+                            'sudo': 'ALL=(ALL) NOPASSWD:ALL',
+                 }],
+                 'write_files': [
+                     {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
+                      'permissions': '0755',
+                      'content': generic_NAT_per_boot_script
+                     },
+                     {'path': '/var/lib/cloud/scripts/per-boot/NAT',
+                      'permissions': '0755',
+                      'content': per_boot_script
+                     },
+                     {'path': '/etc/dnsmasq.d/gns3-bbb',
+                      'permissions': '0644',
+                      'content': dnsmasq_conf
+                     },
+                 ],
+    }
+
+    if notification_url:
+        user_data['phone_home'] = {'url': notification_url, 'tries': 1}
+
+    # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
+    #
+    # This will break things if the instance can't reach the proxy.
+
+    if apt_proxy:
+        user_data['apt'] = {'http_proxy': apt_proxy}
+
+    nat = gns3_project.create_ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                           ram=1024, disk=4096, ethernets=2, x=x, y=100)
+
+    return nat
+
+def create_BBB_server(hostname, x=100, notification_url=None):
 
     network_config = {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}}
 
@@ -339,114 +420,7 @@ def create_BBB_server(hostname, x=100, notification_url=None, use_nat=True, depe
     server = gns3_project.create_ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                              cpus=4, ram=8192, disk=16384, x=x, y=300)
 
-    # NAT2: PUBLIC SUBNET TO SERVER PRIVATE SUBNET
-
-    if use_nat:
-
-        per_boot_script=f"""#!/bin/bash
-# $(dig +short $FQDN) returns the address this NAT gateway obtained from the NAT1 DHCP server
-FQDN={hostname}.test
-IP=$(dig +short $FQDN)
-
-# These next statements assume that the server is on 192.168.1.2, and relay web traffic to it
-# We ensure that the server is on 192.168.1.2 with a dhcp-host statement in /etc/dnsmasq.conf
-
-# Don't do this anymore; now we accept packets on ens5 as well as ens4 to do hairpin NAT
-# iptables -t nat -A PREROUTING -i ens4 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.2
-# iptables -t nat -A PREROUTING -i ens4 -p tcp --dport 443 -j DNAT --to-destination 192.168.1.2
-
-iptables -t nat -A PREROUTING -p tcp -d $IP --dport 80 -j DNAT --to-destination 192.168.1.2
-iptables -t nat -A PREROUTING -p tcp -d $IP --dport 443 -j DNAT --to-destination 192.168.1.2
-
-# hairpin case - we need to rewrite the source address before sending it back to bbb-ci
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 443 -j MASQUERADE
-
-iptables -t nat -A PREROUTING -p udp -d $IP --dport 16384:32768 -j DNAT --to-destination 192.168.1.2
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 16384:32768 -j MASQUERADE
-"""
-
-        # Note that 'hostname-NAT' announces itself into DHCP as 'hostname'
-        #
-        # This is so that the testclients will connect to the NAT gateway to reach the server.
-
-        network_config = {'version': 2,
-                          'ethernets': {'ens4': {'dhcp4': 'on',
-                                                 'dhcp4-overrides' : {'hostname' : hostname}},
-                                        'ens5': {'addresses': ['192.168.1.1/24']},
-                          }}
-
-        user_data = {'hostname': hostname + '-NAT',
-                     'packages': ['dnsmasq'],
-                     'package_upgrade': package_upgrade,
-                     'users': [{'name': 'ubuntu',
-                                'plain_text_passwd': 'ubuntu',
-                                'ssh_authorized_keys': ssh_authorized_keys,
-                                'lock_passwd': False,
-                                'shell': '/bin/bash',
-                                'sudo': 'ALL=(ALL) NOPASSWD:ALL',
-                     }],
-                     'write_files': [
-                         {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
-                          'permissions': '0755',
-                          'content': generic_NAT_per_boot_script
-                         },
-                         {'path': '/var/lib/cloud/scripts/per-boot/NAT',
-                          'permissions': '0755',
-                          'content': per_boot_script
-                         },
-                     ],
-                     'runcmd': ['echo listen-address=192.168.1.1 >> /etc/dnsmasq.conf',
-                                'echo bind-interfaces >> /etc/dnsmasq.conf',
-                                f'echo dhcp-host={hostname},192.168.1.2 >> /etc/dnsmasq.conf',
-                                'echo dhcp-range=192.168.1.100,192.168.1.254,12h >> /etc/dnsmasq.conf',
-                                # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
-                                # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
-                                #'echo dhcp-sequential-ip >> /etc/dnsmasq.conf',
-                                'echo dhcp-authoritative >> /etc/dnsmasq.conf',
-                                # The server will register itself with DHCP as 'hostname'
-                                # Actually, the server is registering itself as 'ubuntu'
-                                # This option is causing 'test' to be announced into DHCP as the domain,
-                                #    so once 'bbb-ci' is set as the hostname, we get 'bbb-ci.test' as the fqdn
-                                #       bbb-ci.test resolves to 128.8.8.101
-                                #       ubuntu.test resolves to 192.168.1.2
-                                # After a reboot, however,
-                                #       bbb-ci.test resolves to 192.168.1.2 (from bbb-ci; we've reassigned the hostname)
-                                #                            to 128.8.8.101 (from NAT3, or even NAT2)
-                                #       ubuntu.test resolves to 128.8.8.103 (NAT4, the last NAT box to DHCP boot and register with NAT1)
-                                # This option will cause it to appear in DNS as 'bbb-ci.test' (and in its hostname --fqdn)
-                                'echo domain=test >> /etc/dnsmasq.conf',
-                                'systemctl start dnsmasq',
-                     ],
-        }
-
-        if notification_url:
-            user_data['phone_home'] = {'url': notification_url, 'tries': 1}
-
-        # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
-        #
-        # This will break things if the instance can't reach the proxy.
-
-        if apt_proxy:
-            user_data['apt'] = {'http_proxy': apt_proxy}
-
-        nat2 = gns3_project.create_ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                               ram=1024, disk=4096, ethernets=2, x=x, y=100)
-
-        gns3_project.create_link(nat2, 0, PublicIP_switch)
-
-        switch2 = gns3_project.create_switch(hostname + '-subnet', x=x, y=200)
-
-        gns3_project.create_link(nat2, 1, switch2, 0)
-
-        gns3_project.create_link(server, 0, switch2, 1)
-
-        if depends_on:
-            gns3_project.depends_on(nat2, depends_on)
-        gns3_project.depends_on(server, nat2)
-
-        # Management link for ssh access to NAT2
-        # create_link(nat2, 2, internet, 2)
+    return server
 
 ### DECLARE NODES: CREATE THEM, BUT ONLY IF THEY DON'T ALREADY EXIST
 
@@ -463,11 +437,29 @@ def BBB_server(name, *args, **kwargs):
     else:
         print(name, "exists")
         server = gns3_project.node(name)
-        server_NAT = gns3_project.node(name + '-NAT')
-        gsn3_project.depends_on(server, server_NAT)
-        if 'depends_on' in kwargs:
-            gns3_project.depends_on(server_NAT, kwargs['depends_on'])
-        return server
+
+    if name + '-NAT' not in gns3_project.node_names():
+        # This one is special: the name we pass is isn't the name GNS3 uses (it gets "-NAT" appended)
+        # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
+        server_nat = create_BBB_server_nat(name, x=server['x'], notification_url=kwargs.get('notification_url'))
+    else:
+        print(name + '-NAT', "exists")
+        server_nat = gns3_project.node(name + '-NAT')
+
+    if name + '-subnet' not in gns3_project.node_names():
+        switch = gns3_project.create_switch(hostname + '-subnet', x=server['x'], y=200)
+    else:
+        print(name + '-subnet', "exists")
+        switch = gns3_project.node(name + '-subnet')
+
+    gns3_project.link(server_nat, 0, PublicIP_switch)
+    gns3_project.link(server_nat, 1, switch)
+    gns3_project.link(server, 0, switch)
+
+    gns3_project.depends_on(server, server_nat)
+    if 'depends_on' in kwargs:
+        gns3_project.depends_on(server_nat, kwargs['depends_on'])
+    return server
 
 def BBB_client(name, *args, **kwargs):
     if name not in gns3_project.node_names():
