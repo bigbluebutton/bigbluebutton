@@ -216,9 +216,32 @@ def create_nat_gateway(hostname, x=0, y=0, notification_url=None, nat_interface=
     hosts = list(interface.network.hosts())
     assert hosts[0] == interface.ip
 
+    # We want DNS service on the NAT gateways so that when we proxy ssh through
+    # them, they can resolve testclient addresses.
+
+    dnsmasq_conf = f"""
+listen-address={hosts[0]}
+bind-interfaces
+dhcp-range={hosts[1]},{hosts[-1]},12h
+# Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
+# Otherwise, the IP address change around on reboots, and BBB doesn't like that.
+# dhcp-sequential-ip
+dhcp-authoritative
+# The testclient will register itself with DHCP as 'testclient'
+# This option will cause dnsmasq to announce it in DNS as 'testclient.test'
+domain=test
+# Make the DNS server authoritative for these domains, or else it will hang
+# See https://unix.stackexchange.com/questions/720570
+auth-zone=test
+auth-zone=in-addr.arpa
+# auth-server is required when auth-zone is defined; use a non-existent dummy server
+auth-server=dns.test
+"""
+
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on'},
-                                    'ens5': {'addresses': [nat_interface], 'optional': True},
+                                    'ens5': {'addresses': [nat_interface],
+                                             'nameservers': {'search' : ['test'], 'addresses' : [str(interface.ip)]}},
                       }}
     user_data = {'hostname': hostname,
                  'packages': ['dnsmasq'],
@@ -236,16 +259,11 @@ def create_nat_gateway(hostname, x=0, y=0, notification_url=None, nat_interface=
                       'permissions': '0755',
                       'content': generic_NAT_per_boot_script
                      },
+                     {'path': '/etc/dnsmasq.d/gns3-bbb',
+                      'permissions': '0644',
+                      'content': dnsmasq_conf
+                     },
                  ],
-                 'runcmd': [f'echo listen-address={hosts[0]} >> /etc/dnsmasq.conf',
-                            'echo bind-interfaces >> /etc/dnsmasq.conf',
-                            f'echo dhcp-range={hosts[1]},{hosts[-1]},12h >> /etc/dnsmasq.conf',
-                            # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
-                            # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
-                            #'echo dhcp-sequential-ip >> /etc/dnsmasq.conf',
-                            'echo dhcp-authoritative >> /etc/dnsmasq.conf',
-                            'systemctl start dnsmasq'
-                           ],
     }
 
     # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
@@ -335,6 +353,8 @@ iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 1
 """
 
         # Note that 'hostname-NAT' announces itself into DHCP as 'hostname'
+        #
+        # This is so that the testclients will connect to the NAT gateway to reach the server.
 
         network_config = {'version': 2,
                           'ethernets': {'ens4': {'dhcp4': 'on',
