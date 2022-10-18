@@ -366,7 +366,7 @@ const ShortcutHelpComponent = (props) => {
           </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        <Styled.TabPanel selectedClassName="is-selected">
         {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
           : (
             <Styled.TableWrapper>
@@ -382,8 +382,8 @@ const ShortcutHelpComponent = (props) => {
             </Styled.TableWrapper>
           )
         }
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
           <Styled.TableWrapper>
             <Styled.ShortcutTable>
               <tbody>
@@ -395,8 +395,8 @@ const ShortcutHelpComponent = (props) => {
               </tbody>
             </Styled.ShortcutTable>
           </Styled.TableWrapper>
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
           <Styled.TableWrapper>
             <Styled.ShortcutTable>
               <tbody>
@@ -408,7 +408,7 @@ const ShortcutHelpComponent = (props) => {
               </tbody>
             </Styled.ShortcutTable>
           </Styled.TableWrapper>
-        </StyledSettings.SettingsTabPanel>
+        </Styled.TabPanel>
 
       </Styled.SettingsTabs>
     </Modal>

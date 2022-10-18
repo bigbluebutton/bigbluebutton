@@ -3,6 +3,7 @@ import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { colorOffWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { Tabs } from 'react-tabs';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import StyledSettings from '../settings/styles';
 
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
@@ -47,10 +48,19 @@ const TableWrapper = styled(ScrollboxVertical)`
   width: 100%;
 `;
 
+const TabPanel = styled(StyledSettings.SettingsTabPanel)`
+  margin-top: ${smPaddingX};
+
+  @media ${smallOnly} {
+    padding: 0;
+  }
+`;
+
 export default {
   KeyCell,
   DescCell,
   ShortcutTable,
   SettingsTabs,
   TableWrapper,
+  TabPanel,
 };
