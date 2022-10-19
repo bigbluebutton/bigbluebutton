@@ -924,6 +924,7 @@ class ApiController {
               breakoutRooms {
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
+                captureNotes meeting.breakoutRoomsParams.captureNotes
               }
             }
             customdata (

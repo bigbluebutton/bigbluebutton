@@ -85,7 +85,7 @@ const intlMessages = defineMessages({
   pan: {
     id: 'app.whiteboard.toolbar.tools.hand',
     description: 'presentation toolbar pan label',
-  }
+  },
 });
 
 class PresentationToolbar extends PureComponent {
@@ -95,47 +95,24 @@ class PresentationToolbar extends PureComponent {
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
-    this.switchSlide = this.switchSlide.bind(this);
     this.nextSlideHandler = this.nextSlideHandler.bind(this);
     this.previousSlideHandler = this.previousSlideHandler.bind(this);
     this.fullscreenToggleHandler = this.fullscreenToggleHandler.bind(this);
-    this.handleSwitchWhiteboardMode =
-      this.handleSwitchWhiteboardMode.bind(this);
+    this.switchSlide = this.switchSlide.bind(this);
+    this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener('keydown', this.switchSlide);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { zoom, setIsPanning } = this.props;
     if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom) setIsPanning();
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
-  }
-
-  switchSlide(event) {
-    const { target, which } = event;
-    const isBody = target.nodeName === 'BODY';
-
-    if (isBody) {
-      switch (which) {
-        case KEY_CODES.ARROW_LEFT:
-        case KEY_CODES.PAGE_UP:
-          this.previousSlideHandler();
-          break;
-        case KEY_CODES.ARROW_RIGHT:
-        case KEY_CODES.PAGE_DOWN:
-          this.nextSlideHandler();
-          break;
-        case KEY_CODES.ENTER:
-          this.fullscreenToggleHandler();
-          break;
-        default:
-      }
-    }
   }
 
   handleSkipToSlideChange(event) {
@@ -146,18 +123,17 @@ class PresentationToolbar extends PureComponent {
     skipToSlide(requestedSlideNum, podId);
   }
 
-  nextSlideHandler(event) {
-    const { nextSlide, currentSlideNum, numberOfSlides, podId } = this.props;
-
-    if (event) event.currentTarget.blur();
-    nextSlide(currentSlideNum, numberOfSlides, podId);
-  }
-
-  previousSlideHandler(event) {
-    const { previousSlide, currentSlideNum, podId } = this.props;
-
-    if (event) event.currentTarget.blur();
-    previousSlide(currentSlideNum, podId);
+  handleSwitchWhiteboardMode() {
+    const {
+      multiUser,
+      whiteboardId,
+      removeWhiteboardGlobalAccess,
+      addWhiteboardGlobalAccess,
+    } = this.props;
+    if (multiUser) {
+      return removeWhiteboardGlobalAccess(whiteboardId);
+    }
+    return addWhiteboardGlobalAccess(whiteboardId);
   }
 
   fullscreenToggleHandler() {
@@ -180,6 +156,44 @@ class PresentationToolbar extends PureComponent {
         group: '',
       },
     });
+  }
+
+  nextSlideHandler(event) {
+    const {
+      nextSlide, currentSlideNum, numberOfSlides, podId,
+    } = this.props;
+
+    if (event) event.currentTarget.blur();
+    nextSlide(currentSlideNum, numberOfSlides, podId);
+  }
+
+  previousSlideHandler(event) {
+    const { previousSlide, currentSlideNum, podId } = this.props;
+
+    if (event) event.currentTarget.blur();
+    previousSlide(currentSlideNum, podId);
+  }
+
+  switchSlide(event) {
+    const { target, which } = event;
+    const isBody = target.nodeName === 'BODY';
+
+    if (isBody) {
+      switch (which) {
+        case KEY_CODES.ARROW_LEFT:
+        case KEY_CODES.PAGE_UP:
+          this.previousSlideHandler();
+          break;
+        case KEY_CODES.ARROW_RIGHT:
+        case KEY_CODES.PAGE_DOWN:
+          this.nextSlideHandler();
+          break;
+        case KEY_CODES.ENTER:
+          this.fullscreenToggleHandler();
+          break;
+        default:
+      }
+    }
   }
 
   change(value) {
@@ -232,19 +246,6 @@ class PresentationToolbar extends PureComponent {
     return optionList;
   }
 
-  handleSwitchWhiteboardMode() {
-    const {
-      multiUser,
-      whiteboardId,
-      removeWhiteboardGlobalAccess,
-      addWhiteboardGlobalAccess,
-    } = this.props;
-    if (multiUser) {
-      return removeWhiteboardGlobalAccess(whiteboardId);
-    }
-    addWhiteboardGlobalAccess(whiteboardId);
-  }
-
   render() {
     const {
       currentSlideNum,
@@ -261,7 +262,6 @@ class PresentationToolbar extends PureComponent {
       startPoll,
       currentSlide,
       slidePosition,
-      toolbarWidth,
       multiUserSize,
       multiUser,
       setIsPanning,
@@ -276,173 +276,166 @@ class PresentationToolbar extends PureComponent {
     const prevSlideAriaLabel = startOfSlides
       ? intl.formatMessage(intlMessages.previousSlideLabel)
       : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${
-          currentSlideNum <= 1 ? "" : currentSlideNum - 1
-        })`;
+        currentSlideNum <= 1 ? '' : currentSlideNum - 1
+      })`;
 
     const nextSlideAriaLabel = endOfSlides
       ? intl.formatMessage(intlMessages.nextSlideLabel)
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${
-          currentSlideNum >= 1 ? currentSlideNum + 1 : ""
-        })`;
+        currentSlideNum >= 1 ? currentSlideNum + 1 : ''
+      })`;
 
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
       >
         {this.renderAriaDescs()}
-        {
-          <div>
-            {isPollingEnabled ? (
-              <Styled.QuickPollButton
-                {...{
-                  currentSlidHasContent,
-                  intl,
-                  amIPresenter,
-                  parseCurrentSlideContent,
-                  startPoll,
-                  currentSlide,
-                }}
-              />
-            ) : null}
-          </div>
-        }
-        {
-          <Styled.PresentationSlideControls>
-            <Styled.PrevSlideButton
-              role="button"
-              aria-label={prevSlideAriaLabel}
-              aria-describedby={
-                startOfSlides ? "noPrevSlideDesc" : "prevSlideDesc"
-              }
-              disabled={startOfSlides || !isMeteorConnected}
-              color="light"
-              circle
-              icon="left_arrow"
-              size="md"
-              onClick={this.previousSlideHandler}
-              label={intl.formatMessage(intlMessages.previousSlideLabel)}
-              hideLabel
-              data-test="prevSlide"
+        <div>
+          {isPollingEnabled ? (
+            <Styled.QuickPollButton
+              {...{
+                currentSlidHasContent,
+                intl,
+                amIPresenter,
+                parseCurrentSlideContent,
+                startPoll,
+                currentSlide,
+              }}
             />
+          ) : null}
+        </div>
+        <Styled.PresentationSlideControls>
+          <Styled.PrevSlideButton
+            role="button"
+            aria-label={prevSlideAriaLabel}
+            aria-describedby={
+                startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
+              }
+            disabled={startOfSlides || !isMeteorConnected}
+            color="light"
+            circle
+            icon="left_arrow"
+            size="md"
+            onClick={this.previousSlideHandler}
+            label={intl.formatMessage(intlMessages.previousSlideLabel)}
+            hideLabel
+            data-test="prevSlide"
+          />
 
-            <TooltipContainer
-              title={intl.formatMessage(intlMessages.selectLabel)}
+          <TooltipContainer
+            title={intl.formatMessage(intlMessages.selectLabel)}
+          >
+            <Styled.SkipSlideSelect
+              id="skipSlide"
+              aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
+              aria-describedby="skipSlideDesc"
+              aria-live="polite"
+              aria-relevant="all"
+              disabled={!isMeteorConnected}
+              value={currentSlideNum}
+              onChange={this.handleSkipToSlideChange}
+              data-test="skipSlide"
             >
-              <Styled.SkipSlideSelect
-                id="skipSlide"
-                aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
-                aria-describedby="skipSlideDesc"
-                aria-live="polite"
-                aria-relevant="all"
-                disabled={!isMeteorConnected}
-                value={currentSlideNum}
-                onChange={this.handleSkipToSlideChange}
-                data-test="skipSlide"
-              >
-                {this.renderSkipSlideOpts(numberOfSlides)}
-              </Styled.SkipSlideSelect>
-            </TooltipContainer>
-            <Styled.NextSlideButton
-              role="button"
-              aria-label={nextSlideAriaLabel}
-              aria-describedby={
+              {this.renderSkipSlideOpts(numberOfSlides)}
+            </Styled.SkipSlideSelect>
+          </TooltipContainer>
+          <Styled.NextSlideButton
+            role="button"
+            aria-label={nextSlideAriaLabel}
+            aria-describedby={
                 endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
               }
-              disabled={endOfSlides || !isMeteorConnected}
-              color="light"
-              circle
-              icon="right_arrow"
-              size="md"
-              onClick={this.nextSlideHandler}
-              label={intl.formatMessage(intlMessages.nextSlideLabel)}
-              hideLabel
-              data-test="nextSlide"
-            />
-          </Styled.PresentationSlideControls>
-        }
-        {
-          <Styled.PresentationZoomControls>
-            <Styled.WBAccessButton
-              data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
-              role="button"
-              aria-label={
+            disabled={endOfSlides || !isMeteorConnected}
+            color="light"
+            circle
+            icon="right_arrow"
+            size="md"
+            onClick={this.nextSlideHandler}
+            label={intl.formatMessage(intlMessages.nextSlideLabel)}
+            hideLabel
+            data-test="nextSlide"
+          />
+        </Styled.PresentationSlideControls>
+        <Styled.PresentationZoomControls>
+          <Styled.WBAccessButton
+            data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
+            role="button"
+            aria-label={
                 multiUser
                   ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
                   : intl.formatMessage(intlMessages.toolbarMultiUserOn)
               }
-              color="light"
-              disabled={!isMeteorConnected}
-              icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
-              size="md"
-              circle
-              onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
-              label={
+            color="light"
+            disabled={!isMeteorConnected}
+            icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
+            size="md"
+            circle
+            onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+            label={
                 multiUser
                   ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
                   : intl.formatMessage(intlMessages.toolbarMultiUserOn)
               }
-              hideLabel
-            />
-            {multiUser ? (
-              <Styled.MultiUserTool>{multiUserSize}</Styled.MultiUserTool>
-            ) : (
-              <Styled.MUTPlaceholder />
-            )}
-            {!isMobile ? (
-              <TooltipContainer>
-                <ZoomTool
-                  slidePosition={slidePosition}
-                  zoomValue={zoom}
-                  currentSlideNum={currentSlideNum}
-                  change={this.change}
-                  minBound={HUNDRED_PERCENT}
-                  maxBound={MAX_PERCENT}
-                  step={STEP}
-                  isMeteorConnected={isMeteorConnected}
-                />
-              </TooltipContainer>
-            ) : null}
-            <Styled.FitToWidthButton
-              role="button"
-              data-test="panButton"
-              aria-label={intl.formatMessage(intlMessages.pan)}
-              color="light"
-              disabled={(zoom <= HUNDRED_PERCENT)}
-              icon="hand"
-              size="md"
-              circle
-              onClick={setIsPanning}
-              label={intl.formatMessage(intlMessages.pan)}
-              hideLabel
-              panning={isPanning}
-            />
-            <Styled.FitToWidthButton
-              role="button"
-              data-test="fitToWidthButton"
-              aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
-              aria-label={
+            hideLabel
+          />
+          {multiUser ? (
+            <Styled.MultiUserTool>{multiUserSize}</Styled.MultiUserTool>
+          ) : (
+            <Styled.MUTPlaceholder />
+          )}
+          {!isMobile ? (
+            <TooltipContainer>
+              <ZoomTool
+                slidePosition={slidePosition}
+                zoomValue={zoom}
+                currentSlideNum={currentSlideNum}
+                change={this.change}
+                minBound={HUNDRED_PERCENT}
+                maxBound={MAX_PERCENT}
+                step={STEP}
+                isMeteorConnected={isMeteorConnected}
+              />
+            </TooltipContainer>
+          ) : null}
+          <Styled.FitToWidthButton
+            role="button"
+            data-test="panButton"
+            aria-label={intl.formatMessage(intlMessages.pan)}
+            color="light"
+            disabled={(zoom <= HUNDRED_PERCENT)}
+            icon="hand"
+            size="md"
+            circle
+            onClick={setIsPanning}
+            label={intl.formatMessage(intlMessages.pan)}
+            hideLabel
+            panning={isPanning}
+          />
+          <Styled.FitToWidthButton
+            role="button"
+            data-test="fitToWidthButton"
+            aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
+            aria-label={
                 fitToWidth
                   ? `${intl.formatMessage(
-                      intlMessages.presentationLabel
-                    )} ${intl.formatMessage(intlMessages.fitToPage)}`
+                    intlMessages.presentationLabel,
+                  )} ${intl.formatMessage(intlMessages.fitToPage)}`
                   : `${intl.formatMessage(
-                      intlMessages.presentationLabel
-                    )} ${intl.formatMessage(intlMessages.fitToWidth)}`
+                    intlMessages.presentationLabel,
+                  )} ${intl.formatMessage(intlMessages.fitToWidth)}`
               }
-              color="light"
-              disabled={!isMeteorConnected}
-              icon="fit_to_width"
-              size="md"
-              circle
-              onClick={fitToWidthHandler}
-              label={fitToWidth
-                ? intl.formatMessage(intlMessages.fitToPage)
-                : intl.formatMessage(intlMessages.fitToWidth)
-              }
-              hideLabel
-            />
-          </Styled.PresentationZoomControls>
-        }
+            color="light"
+            disabled={!isMeteorConnected}
+            icon="fit_to_width"
+            size="md"
+            circle
+            onClick={fitToWidthHandler}
+            label={fitToWidth
+              ? intl.formatMessage(intlMessages.fitToPage)
+              : intl.formatMessage(intlMessages.fitToWidth)}
+            hideLabel
+          />
+        </Styled.PresentationZoomControls>
       </Styled.PresentationToolbarWrapper>
     );
   }

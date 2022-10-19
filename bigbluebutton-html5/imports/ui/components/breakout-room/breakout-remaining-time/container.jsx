@@ -68,7 +68,7 @@ class breakoutRemainingTimeContainer extends React.Component {
         <BreakoutRemainingTimeComponent>
           <Text>{text}</Text>
           <br />
-          <Time>{time}</Time>
+          <Time data-test="breakoutRemainingTime">{time}</Time>
         </BreakoutRemainingTimeComponent>
       );
     }

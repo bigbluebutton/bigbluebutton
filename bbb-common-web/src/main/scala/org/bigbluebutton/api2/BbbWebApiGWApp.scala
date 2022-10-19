@@ -189,7 +189,8 @@ class BbbWebApiGWApp(
       freeJoin = freeJoin.booleanValue(),
       breakoutRooms = Vector(),
       record = breakoutParams.record.booleanValue(),
-      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
+      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
+      captureNotes = breakoutParams.captureNotes.booleanValue()
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
@@ -340,6 +341,9 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[UploadFileTooLargeMessage]) {
       val event = MsgBuilder.buildPresentationUploadedFileTooLargeErrorSysMsg(msg.asInstanceOf[UploadFileTooLargeMessage])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[UploadFileTimedoutMessage]) {
+      val event = MsgBuilder.buildPresentationUploadedFileTimedoutErrorSysMsg(msg.asInstanceOf[UploadFileTimedoutMessage])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
