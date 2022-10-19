@@ -85,23 +85,9 @@ args = parser.parse_args()
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-with open(os.path.join(__location__, 'testclient.sh')) as f:
-    testclient_script = f.read()
-
-with open(os.path.join(__location__, 'testserver.sh')) as f:
-    testserver_script = f.read()
-
-with open(os.path.join(__location__, 'generateCA.sh')) as f:
-    generateCA_script = f.read()
-
-with open(os.path.join(__location__, 'getcert.cgi')) as f:
-    getcert_script = f.read()
-
-with open(os.path.join(__location__, 'getportrange.cgi')) as f:
-    getportrange_script = f.read()
-
-with open(os.path.join(__location__, 'new-dhcp-lease.sh')) as f:
-    new_dhcp_lease_script = f.read()
+def file(fn):
+    with open(os.path.join(__location__, fn)) as f:
+        return f.read()
 
 # This lets me pull scripts from the github automated tests, but
 # I don't use it anymore, because I wanted to change the scripts around too much
@@ -219,7 +205,7 @@ dhcp-script=/root/new-dhcp-lease.sh
                  'write_files': [
                      {'path': '/opt/ca/generateCA.sh',
                       'permissions': '0755',
-                      'content': generateCA_script
+                      'content': file('generateCA.sh')
                      },
                      {'path': '/etc/dnsmasq.d/gns3-bbb',
                       'permissions': '0644',
@@ -227,15 +213,15 @@ dhcp-script=/root/new-dhcp-lease.sh
                      },
                      {'path': '/root/new-dhcp-lease.sh',
                       'permissions': '0755',
-                      'content': new_dhcp_lease_script
+                      'content': file('new-dhcp-lease.sh')
                      },
                      {'path': '/var/www/html/getcert.cgi',
                       'permissions': '0755',
-                      'content': getcert_script
+                      'content': file('getcert.cgi')
                      },
                      {'path': '/var/www/html/getportrange.cgi',
                       'permissions': '0755',
-                      'content': getportrange_script
+                      'content': file('getportrange.cgi')
                      },
                      {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
                       'permissions': '0755',
@@ -319,7 +305,7 @@ def BBB_client(hostname, x=0, y=0):
                  'write_files': [
                      {'path': '/home/ubuntu/testclient.sh',
                       'permissions': '0755',
-                      'content': testclient_script
+                      'content': file('testclient.sh')
                      },
                  ],
                  'runcmd': ['su ubuntu -c /home/ubuntu/testclient.sh'],
@@ -547,7 +533,7 @@ def BBB_server_standalone(hostname, x=100, y=300):
                  'write_files': [
                      {'path': '/root/testserver.sh',
                       'permissions': '0755',
-                      'content': testserver_script
+                      'content': file('testserver.sh')
                      },
                  ],
                  'runcmd': ['su ubuntu -c /root/testserver.sh']
