@@ -179,8 +179,11 @@ export default function Whiteboard(props) {
       if (cameraZoom && cameraZoom === 1) {
           tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom);
       } else if (isMounting) {
-        if (!fitToWidth) {
-          setIsMounting(false);
+        setIsMounting(false);
+        const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
+        const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
+        // case where the presenter had fit-to-width enabled and he reloads the page
+        if (!fitToWidth && currentAspectRatio !== previousAspectRatio) {
           // wee need this to ensure tldraw updates the viewport size after re-mounting
           setTimeout(() => {
             tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom, 'zoomed');
@@ -222,32 +225,34 @@ export default function Whiteboard(props) {
     }
   }, [zoomValue]);
 
-  // update zoom when presenter changes
+  // update zoom when presenter changes if the aspectRatio has changed
   React.useEffect(() => {
     if (tldrawAPI && isPresenter && curPageId && slidePosition && !isMounting) {
       const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
       const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
-      if (previousAspectRatio !== currentAspectRatio && fitToWidth) {
-        const zoom = calculateZoom(slidePosition.width, slidePosition.height)
-        tldrawAPI?.setCamera([0, 0], zoom);
-        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
-        zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
-        setZoom(HUNDRED_PERCENT);
-        zoomChanger(HUNDRED_PERCENT);
-      } else {
-        let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
-        let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
-        const camera = tldrawAPI?.getPageState()?.camera;
-        const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
-        if (!fitToWidth && camera.zoom === zoomFitSlide) {
-          viewedRegionW = HUNDRED_PERCENT;
-          viewedRegionH = HUNDRED_PERCENT;
-        }
-        zoomSlide(parseInt(curPageId), podId, viewedRegionW, viewedRegionH, camera.point[0], camera.point[1]);
-        const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
-        if (zoom !== zoomToolbar) {
-          setZoom(zoomToolbar);
-          zoomChanger(zoomToolbar);
+      if (previousAspectRatio !== currentAspectRatio) {
+        if (fitToWidth) {
+          const zoom = calculateZoom(slidePosition.width, slidePosition.height)
+          tldrawAPI?.setCamera([0, 0], zoom);
+          const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+          zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+          setZoom(HUNDRED_PERCENT);
+          zoomChanger(HUNDRED_PERCENT);
+        } else if (!isMounting) {
+          let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
+          let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+          const camera = tldrawAPI?.getPageState()?.camera;
+          const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
+          if (!fitToWidth && camera.zoom === zoomFitSlide) {
+            viewedRegionW = HUNDRED_PERCENT;
+            viewedRegionH = HUNDRED_PERCENT;
+          }
+          zoomSlide(parseInt(curPageId), podId, viewedRegionW, viewedRegionH, camera.point[0], camera.point[1]);
+          const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
+          if (zoom !== zoomToolbar) {
+            setZoom(zoomToolbar);
+            zoomChanger(zoomToolbar);
+          }
         }
       }
     }
@@ -342,6 +347,7 @@ export default function Whiteboard(props) {
 
     if (curPageId) {
       app.changePage(curPageId);
+      setIsMounting(true);
     }
   };
 
