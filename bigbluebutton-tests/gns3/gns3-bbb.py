@@ -193,7 +193,7 @@ dhcp-script=/root/new-dhcp-lease.sh
     # device that ssh users connect to.
 
     user_data = {'hostname': hostname,
-                 'packages': ['dnsmasq', 'coturn', 'apache2', 'bird'],
+                 'packages': ['dnsmasq', 'coturn', 'apache2', 'bird', 'iptables-persistent'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -222,10 +222,6 @@ dhcp-script=/root/new-dhcp-lease.sh
                      {'path': '/var/www/html/getportrange.cgi',
                       'permissions': '0755',
                       'content': file('getportrange.cgi')
-                     },
-                     {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
-                      'permissions': '0755',
-                      'content': generic_NAT_per_boot_script
                      },
                      {'path': '/etc/bird/bird.conf',
                       'permissions': '0644',
@@ -256,8 +252,15 @@ dhcp-script=/root/new-dhcp-lease.sh
                      'a2enmod proxy_http',
                      'a2enmod proxy_wstunnel',
                      'a2enmod rewrite',
+                     # enable packet forwarding
+                     'sysctl net.ipv4.ip_forward=1',
+                     'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
+                     # enable NAT
+                     'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
+                     'dpkg-reconfigure iptables-persistent',
                      # we accept CSRs via POST to http://ca.test/getcert.cgi
                      'echo 128.8.8.254 ca.test >> /etc/hosts',
+                     # initialize the SSL certificate authority, if needed
                      '/opt/ca/generateCA.sh',
                  ],
     }
@@ -394,7 +397,7 @@ dhcp-option = option:domain-search,test
                                              'nameservers': {'search' : ['test-client'], 'addresses' : [str(interface.ip)]}},
                       }}
     user_data = {'hostname': hostname,
-                 'packages': ['dnsmasq'],
+                 'packages': ['dnsmasq', 'iptables-persistent'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -404,14 +407,18 @@ dhcp-option = option:domain-search,test
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                           }],
                  'write_files': [
-                     {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
-                      'permissions': '0755',
-                      'content': generic_NAT_per_boot_script
-                     },
                      {'path': '/etc/dnsmasq.d/gns3-bbb',
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
+                 ],
+                 'runcmd': [
+                     # enable packet forwarding
+                     'sysctl net.ipv4.ip_forward=1',
+                     'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
+                     # enable NAT
+                     'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
+                     'dpkg-reconfigure iptables-persistent',
                  ],
     }
 
@@ -438,27 +445,6 @@ def BBB_server_nat(hostname, x=100, y=100):
     assert(hostname.endswith('-NAT'))
     hostname = hostname[:-4]
 
-    per_boot_script=f"""#!/bin/bash
-# $(dig +short $FQDN) returns the address this NAT gateway obtained from the NAT1 DHCP server
-FQDN={hostname}.test
-IP=$(dig +short $FQDN)
-
-# These next statements assume that the server is on 192.168.1.2, and relay ssh and web traffic to it
-# We ensure that the server is on 192.168.1.2 with a dhcp-host statement in /etc/dnsmasq.conf
-
-iptables -t nat -A PREROUTING -p tcp -d $IP --dport 22 -j DNAT --to-destination 192.168.1.2
-iptables -t nat -A PREROUTING -p tcp -d $IP --dport 80 -j DNAT --to-destination 192.168.1.2
-iptables -t nat -A PREROUTING -p tcp -d $IP --dport 443 -j DNAT --to-destination 192.168.1.2
-
-# hairpin case - we need to rewrite the source address before sending it back to bbb-ci
-# no hairpin on port 22; we can ssh into the server, then ssh back to the NAT gateway if needed
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 443 -j MASQUERADE
-
-iptables -t nat -A PREROUTING -p udp -d $IP --dport 16384:32768 -j DNAT --to-destination 192.168.1.2
-iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 16384:32768 -j MASQUERADE
-"""
-
     dnsmasq_conf = f"""
 listen-address=192.168.1.1
 bind-interfaces
@@ -481,7 +467,7 @@ dhcp-authoritative
                       }}
 
     user_data = {'hostname': hostname + '-NAT',
-                 'packages': ['dnsmasq'],
+                 'packages': ['dnsmasq', 'iptables-persistent'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -491,18 +477,29 @@ dhcp-authoritative
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
                  'write_files': [
-                     {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
-                      'permissions': '0755',
-                      'content': generic_NAT_per_boot_script
-                     },
-                     {'path': '/var/lib/cloud/scripts/per-boot/NAT',
-                      'permissions': '0755',
-                      'content': per_boot_script
-                     },
                      {'path': '/etc/dnsmasq.d/gns3-bbb',
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
+                 ],
+                 'runcmd': [
+                     # enable packet forwarding
+                     'sysctl net.ipv4.ip_forward=1',
+                     'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
+                     # enable NAT
+                     'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
+                     # These next statements assume that the server is on 192.168.1.2, and relay ssh, web and UDP traffic to it
+                     # We ensure that the server is on 192.168.1.2 with a dhcp-host statement in /etc/dnsmasq.conf
+                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 22 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 80 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 443 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p udp -i ens4 --dport 16384:32768 -j DNAT --to-destination 192.168.1.2'
+                     # hairpin case - we need to rewrite the source address before sending the packets back to the server
+                     # no hairpin on port 22; we can ssh into the server, then ssh back to the NAT gateway if needed
+                     'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE',
+                     'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 443 -j MASQUERADE',
+                     'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 16384:32768 -j MASQUERADE',
+                     'dpkg-reconfigure iptables-persistent',
                  ],
     }
 
