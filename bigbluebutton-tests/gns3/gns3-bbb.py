@@ -521,12 +521,12 @@ def BBB_server_standalone(hostname, x=100, y=300):
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
                  'write_files': [
-                     {'path': '/testserver.sh',
+                     {'path': '/root/testserver.sh',
                       'permissions': '0755',
                       'content': testserver_script
                      },
                  ],
-                 'runcmd': ['su ubuntu -c /testserver.sh']
+                 'runcmd': ['su ubuntu -c /root/testserver.sh']
     }
 
     if notification_url:
