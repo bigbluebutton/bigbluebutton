@@ -665,7 +665,7 @@ for v in args.version:
 # a local IP address suitable for a callback.
 
 if notification_url:
-    gns3_project.start_nodes(*args.version)
+    gns3_project.start_nodes()
 else:
     for node in args.version:
         gns3_project.start_node(node)
