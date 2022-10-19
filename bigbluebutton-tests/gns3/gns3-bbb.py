@@ -193,7 +193,7 @@ dhcp-script=/root/new-dhcp-lease.sh
     # device that ssh users connect to.
 
     user_data = {'hostname': hostname,
-                 'packages': ['dnsmasq', 'coturn', 'apache2'],
+                 'packages': ['dnsmasq', 'coturn', 'apache2', 'bird'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -226,6 +226,10 @@ dhcp-script=/root/new-dhcp-lease.sh
                      {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
                       'permissions': '0755',
                       'content': generic_NAT_per_boot_script
+                     },
+                     {'path': '/etc/bird/bird.conf',
+                      'permissions': '0644',
+                      'content': file('bird.conf')
                      },
                  ],
                  'runcmd': [
