@@ -97,6 +97,12 @@ with open(os.path.join(__location__, 'generateCA.sh')) as f:
 with open(os.path.join(__location__, 'getcert.cgi')) as f:
     getcert_script = f.read()
 
+with open(os.path.join(__location__, 'getportrange.cgi')) as f:
+    getportrange_script = f.read()
+
+with open(os.path.join(__location__, 'new-dhcp-lease.sh')) as f:
+    new_dhcp_lease_script = f.read()
+
 # This lets me pull scripts from the github automated tests, but
 # I don't use it anymore, because I wanted to change the scripts around too much
 
@@ -191,6 +197,8 @@ auth-zone=in-addr.arpa
 auth-server=dns.test
 # This has to be here and not in /etc/hosts because we're authoritative for test
 host-record=ca.test,128.8.8.254
+
+dhcp-script=/root/new-dhcp-lease.sh
 """
 
     # I used to call this device "NAT1", and it's still referred to in
@@ -217,9 +225,17 @@ host-record=ca.test,128.8.8.254
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
+                     {'path': '/root/new-dhcp-lease.sh',
+                      'permissions': '0755',
+                      'content': new_dhcp_lease_script
+                     },
                      {'path': '/var/www/html/getcert.cgi',
                       'permissions': '0755',
                       'content': getcert_script
+                     },
+                     {'path': '/var/www/html/getportrange.cgi',
+                      'permissions': '0755',
+                      'content': getportrange_script
                      },
                      {'path': '/var/lib/cloud/scripts/per-boot/generic-NAT',
                       'permissions': '0755',
@@ -234,7 +250,9 @@ host-record=ca.test,128.8.8.254
                      'echo aux-server=128.8.8.254:19302 >> /etc/turnserver.conf',
                      'echo 128.8.8.254 stun.l.google.com >> /etc/hosts',
                      'systemctl restart coturn',
-                     'systemctl start dnsmasq',
+                     # simplest way to let new-dhcp-lease.sh run as root
+                     'echo DNSMASQ_USER=root >> /etc/default/dnsmasq',
+                     'systemctl restart dnsmasq',
                      # now everything we need to operate a certificate authority
                      # enable cgi scripts
                      'a2enmod cgi',
@@ -242,6 +260,12 @@ host-record=ca.test,128.8.8.254
                      "sed -i '\|Directory /var/www/|aAddHandler cgi-script .cgi' /etc/apache2/apache2.conf",
                      "sed -i '\|Directory /var/www/|aOptions ExecCGI Indexes FollowSymLinks' /etc/apache2/apache2.conf",
                      'systemctl restart apache2',
+                     # enable Apache modules that we need to reverse proxy BigBlueButton (see new-dhcp-lease.sh)
+                     'a2enmod ssl',
+                     'a2enmod proxy',
+                     'a2enmod proxy_http',
+                     'a2enmod proxy_wstunnel',
+                     'a2enmod rewrite',
                      # we accept CSRs via POST to http://ca.test/getcert.cgi
                      'echo 128.8.8.254 ca.test >> /etc/hosts',
                      '/opt/ca/generateCA.sh',
