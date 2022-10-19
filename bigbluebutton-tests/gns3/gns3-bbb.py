@@ -209,7 +209,7 @@ host-record=ca.test,128.8.8.254
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
                  'write_files': [
-                     {'path': '/ca/generateCA.sh',
+                     {'path': '/opt/ca/generateCA.sh',
                       'permissions': '0755',
                       'content': generateCA_script
                      },
@@ -244,7 +244,7 @@ host-record=ca.test,128.8.8.254
                      'systemctl restart apache2',
                      # we accept CSRs via POST to http://ca.test/getcert.cgi
                      'echo 128.8.8.254 ca.test >> /etc/hosts',
-                     '/ca/generateCA.sh',
+                     '/opt/ca/generateCA.sh',
                  ],
     }
 
@@ -258,7 +258,7 @@ host-record=ca.test,128.8.8.254
     try:
         for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
             with open(os.path.join(__location__, fn)) as f:
-                user_data['write_files'].append({'path': f'/ca/{fn}', 'permissions': '0444', 'content': f.read()})
+                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': f.read()})
     except Exception as ex:
         print(ex)
 

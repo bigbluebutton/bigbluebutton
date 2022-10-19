@@ -2,7 +2,7 @@
 #
 # CGI script to accept POSTs with a hostname in the query string and an X.509 CSR as post data.
 #
-# Returns a signed certificate.  Expects our pre-configured CA data to be in /ca.
+# Returns a signed certificate.  Expects our pre-configured CA data to be in /opt/ca.
 #
 # Basic outline of a bash CGI script https://sodocumentation.net/bash/topic/9603/cgi-scripts
 # (Stack Overflow documentation)
@@ -43,7 +43,7 @@ subjectAltName = @alt_names
 DNS.1 = $HOSTNAME
 EOF
     TIMESTAMP=$(date +%s%N)
-    openssl x509 -req -in $HOSTNAME.csr -CA /ca/bbb-dev-ca.crt -CAkey /ca/bbb-dev-ca.key \
+    openssl x509 -req -in $HOSTNAME.csr -CA /opt/ca/bbb-dev-ca.crt -CAkey /opt/ca/bbb-dev-ca.key \
         -set_serial $TIMESTAMP -out $HOSTNAME.crt -days 825 -sha256 \
         -extfile $HOSTNAME.ext
 
