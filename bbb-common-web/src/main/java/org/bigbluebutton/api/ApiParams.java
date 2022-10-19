@@ -76,7 +76,8 @@ public class ApiParams {
     public static final String UPLOAD_EXTERNAL_DESCRIPTION = "uploadExternalDescription";
     public static final String UPLOAD_EXTERNAL_URL = "uploadExternalUrl";
 
-    public static final String BREAKOUT_ROOMS_CAPTURE = "capture";
+    public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES = "breakoutRoomsCaptureSlides";
+    public static final String BREAKOUT_ROOMS_CAPTURE_NOTES  = "breakoutRoomsCaptureNotes";
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
     public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";

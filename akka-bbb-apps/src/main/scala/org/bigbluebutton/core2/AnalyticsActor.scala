@@ -200,6 +200,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PadUpdatedEvtMsg => logMessage(msg)
       case m: PadUpdatePubMsg => logMessage(msg)
       case m: PadUpdateCmdMsg => logMessage(msg)
+      case m: PadCapturePubMsg => logMessage(msg)
 
       case _ => // ignore message
     }

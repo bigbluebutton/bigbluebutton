@@ -28,7 +28,8 @@ case class BreakoutProps(
     breakoutRooms:      Vector[String],
     record:             Boolean,
     privateChatEnabled: Boolean,
-    capture:            Boolean
+    captureNotes:       Boolean,
+    captureSlides:      Boolean,
 )
 
 case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String)

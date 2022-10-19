@@ -80,14 +80,10 @@ class MultiUsers {
   }
 
   async userPresence() {
-    const firstUserOnModPage = this.modPage.getLocator(e.currentUser);
-    const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
-    const firstUserOnUserPage = this.userPage.getLocator(e.currentUser);
-    const secondUserOnUserPage = this.userPage.getLocator(e.userListItem);
-    await expect(firstUserOnModPage).toHaveCount(1);
-    await expect(secondUserOnModPage).toHaveCount(1);
-    await expect(firstUserOnUserPage).toHaveCount(1);
-    await expect(secondUserOnUserPage).toHaveCount(1);
+    await this.modPage.checkElementCount(e.currentUser, 1);
+    await this.modPage.checkElementCount(e.userListItem, 1);
+    await this.userPage.checkElementCount(e.currentUser, 1);
+    await this.userPage.checkElementCount(e.userListItem, 1);
   }
 
   async makePresenter() {

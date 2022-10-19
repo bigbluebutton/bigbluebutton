@@ -10,9 +10,9 @@ const serverInfoFormat = format.printf(({ level, message, timestamp, ...metadata
   const role = process.env.BBB_HTML5_ROLE;
   const server = includeServerInfo && !Meteor?.isDevelopment ? `${role}-${instanceId} ` : "";
 
-  let msg = `${timestamp} ${server}[${level}] : ${message}`;
-  if (metadata) msg += JSON.stringify(metadata)
-  return msg
+  const msg = `${timestamp} ${server}[${level}] : ${message}`;
+  const meta = Object.keys(metadata).length ? JSON.stringify(metadata) : '';
+  return `${msg} ${meta}`;
 });
 
 const Logger = createLogger({

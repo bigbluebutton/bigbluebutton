@@ -49,7 +49,7 @@ trait TestFixtures {
     meetingCameraCap = meetingCameraCap,
     maxPinnedCameras = maxPinnedCameras,
     isBreakout = isBreakout.booleanValue())
-  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, capture = false, breakoutRooms = Vector())
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, captureNotes = false, captureSlides = false, breakoutRooms = Vector())
 
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,

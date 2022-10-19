@@ -377,7 +377,8 @@ public class MeetingService implements MessageListener {
         breakoutMetadata.put("meetingId", m.getExternalId());
         breakoutMetadata.put("sequence", m.getSequence().toString());
         breakoutMetadata.put("freeJoin", m.isFreeJoin().toString());
-        breakoutMetadata.put("capture", m.isCaptured().toString());
+        breakoutMetadata.put("captureSlides", m.isSlideCaptured().toString());
+        breakoutMetadata.put("captureNotes", m.isNoteCaptured().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
@@ -389,7 +390,8 @@ public class MeetingService implements MessageListener {
     if (m.isBreakout()) {
       logData.put("sequence", m.getSequence());
       logData.put("freeJoin", m.isFreeJoin());
-      logData.put("capture",  m.isCaptured());
+      logData.put("captureSlides",  m.isSlideCaptured());
+      logData.put("captureNotes", m.isNoteCaptured());
       logData.put("parentMeetingId", m.getParentMeetingId());
     }
     logData.put("name", m.getName());
@@ -663,7 +665,8 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
-      params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE, message.capture.toString());
+      params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES, message.captureSlides.toString());
+      params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
       params.put(ApiParams.DIAL_NUMBER, message.dialNumber);

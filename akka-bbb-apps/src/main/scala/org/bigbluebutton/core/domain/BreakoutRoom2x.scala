@@ -15,7 +15,8 @@ case class BreakoutRoom2x(
     voiceUsers:    Vector[BreakoutVoiceUser],
     startedOn:     Option[Long],
     started:       Boolean,
-    capture:       Boolean
+    captureNotes:  Boolean,
+    captureSlides: Boolean,
 ) {
 
 }

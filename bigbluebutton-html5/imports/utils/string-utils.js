@@ -37,8 +37,15 @@ export const formatLocaleCode = (locale) => {
   return {
     language: formattedLocale?.split('-')[0],
     formattedLocale,
-  }
-}
+  };
+};
+
+export const safeMatch = (regex, content, defaultValue) => {
+  const regexLimit = 50000;
+
+  if (content.length > regexLimit) return defaultValue;
+  return content.match(regex) || defaultValue;
+};
 
 export default {
   capitalizeFirstLetter,
@@ -47,4 +54,5 @@ export default {
   escapeHtml,
   unescapeHtml,
   formatLocaleCode,
+  safeMatch,
 };

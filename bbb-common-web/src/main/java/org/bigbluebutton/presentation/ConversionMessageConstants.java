@@ -38,6 +38,7 @@ public class ConversionMessageConstants {
     public static final String GENERATED_SVGIMAGES_KEY = "GENERATED_SVGIMAGES";
     public static final String CONVERSION_STARTED_KEY = "CONVERSION_STARTED_KEY";
     public static final String CONVERSION_COMPLETED_KEY = "CONVERSION_COMPLETED";
+    public static final String CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
 
     private ConversionMessageConstants() {
         throw new IllegalStateException("ConversionMessageConstants is a utility class. Instanciation is forbidden.");

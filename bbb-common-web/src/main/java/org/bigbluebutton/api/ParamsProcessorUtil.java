@@ -106,7 +106,8 @@ public class ParamsProcessorUtil {
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
-        private boolean defaultBreakoutRoomsCapture = false;
+        private boolean defaultBreakoutRoomsCaptureSlides = false;
+        private boolean defaultBreakoutRoomsCaptureNotes = false;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
 		private boolean defaultLockSettingsDisableCam;
@@ -276,13 +277,19 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-            Boolean breakoutRoomsCapture = defaultBreakoutRoomsCapture;
-            String breakoutRoomsCaptureParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE);
+            Boolean breakoutRoomsCaptureSlides = defaultBreakoutRoomsCaptureSlides;
+            String breakoutRoomsCaptureParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES);
             if (!StringUtils.isEmpty(breakoutRoomsCaptureParam)) {
-				breakoutRoomsCapture = Boolean.parseBoolean(breakoutRoomsCaptureParam);
+				breakoutRoomsCaptureSlides = Boolean.parseBoolean(breakoutRoomsCaptureParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCapture);
+            Boolean breakoutRoomsCaptureNotes = defaultBreakoutRoomsCaptureNotes;
+            String breakoutRoomsCaptureNotesParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesParam)) {
+				breakoutRoomsCaptureNotes = Boolean.parseBoolean(breakoutRoomsCaptureNotesParam);
+			}
+
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -749,7 +756,8 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
-            meeting.setCapture(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE)));
+            meeting.setCaptureSlides(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES)));
+            meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
