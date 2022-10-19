@@ -7,16 +7,17 @@
 # it from outside the virtual network.
 #
 # This is what it does:
-#    - get an ssl cert to mimic the new server
+#    - gets an ssl cert to mimic the new server
 #    - creates a new dummy network interface
 #    - uses it to register with the outside DHCP server using the new
 #      server's name (so now we appear as that name to the outside)
-#    - add an entry to the /etc/hosts table, because it's unreliable now
+#    - adds an entry to the /etc/hosts table, because it's unreliable now
 #      which IP address we get for the new name (we want the internal one)
-#    - create a new apache2 site file with the reverse proxy configuration
+#    - creates a new apache2 site file with the reverse proxy configuration,
+#      enables the site and restarts apache2
+#    - punches a UDP port range through NAT for RTP traffic
 #
 # TODO:
-#    - negotiate a UDP port range with the new server and punch it through NAT
 #    - handle "del" when a lease is dropped
 #
 # Outside users still have to:
@@ -30,7 +31,9 @@ if [ "$1" = "add" -o "$1" = "old" ]; then
    if echo "$HOSTNAME" | grep -q ^focal- ; then
        if ! ip link list $HOSTNAME &> /dev/null; then
 	   # Create a new virtual link that will announce $HOSTNAME into DHCP
-	   ip link add link ens4 address 00:11:22:33:44:55 $HOSTNAME type macvlan
+	   # MAC address generation from https://serverfault.com/a/299563/495252
+	   MACADDR=$(echo $HOSTNAME|md5sum|sed 's/^\(..\)\(..\)\(..\)\(..\)\(..\).*$/02:\1:\2:\3:\4:\5/')
+	   ip link add link ens4 address $MACADDR $HOSTNAME type macvlan
 	   cat > /run/systemd/network/$HOSTNAME.network <<EOF
 [Match]
 Name=$HOSTNAME
@@ -74,7 +77,7 @@ EOF
 
 		RewriteEngine On
 		RewriteCond %{HTTP:Upgrade} =websocket               [NC]
-		RewriteRule /(.*)           wss://focal-260.test/\$1 [P,L]
+		RewriteRule /(.*)           wss://$HOSTNAME.test/\$1 [P,L]
 
 		SSLProxyEngine on
 		ProxyPass "/" "https://$HOSTNAME.test/"
@@ -83,7 +86,7 @@ EOF
 	</VirtualHost>
 </IfModule>
 EOF
-	   a2ensite focal-260
+	   a2ensite $HOSTNAME
 	   systemctl restart apache2
 
 	   # Mimics the logic in getportrange.cgi
