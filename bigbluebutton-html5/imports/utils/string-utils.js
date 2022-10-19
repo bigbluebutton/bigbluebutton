@@ -31,10 +31,18 @@ export const unescapeHtml = (input) => {
   return e.value;
 };
 
+export const safeMatch = (regex, content, defaultValue) => {
+  const regexLimit = 50000;
+
+  if (content.length > regexLimit) return defaultValue;
+  return content.match(regex) || defaultValue;
+};
+
 export default {
   capitalizeFirstLetter,
   getDateString,
   stripTags,
   escapeHtml,
   unescapeHtml,
+  safeMatch,
 };
