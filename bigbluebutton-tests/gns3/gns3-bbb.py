@@ -604,7 +604,7 @@ gns3_project.link(nat1, 1, PublicIP_switch)
 # interface names on 'testclient'.
 
 subnet = '100.64.1.1/24'
-nat4 = BBB_client_nat('NAT4', x=100, y=-200, nat_interface=subnet)
+nat4 = BBB_client_nat('NAT4', x=150, y=-200, nat_interface=subnet)
 gns3_project.link(nat4, 0, PublicIP_switch)
 nat4_switch = gns3_project.switch(subnet, x=250, y=-200)
 gns3_project.link(nat4, 1, nat4_switch)
@@ -615,7 +615,7 @@ gns3_project.depends_on(nat4, nat1)
 # Put a switch on here for the same reason as NAT4.
 
 subnet = '192.168.128.1/24'
-nat5 = BBB_client_nat('NAT5', x=100, y=-100, nat_interface=subnet)
+nat5 = BBB_client_nat('NAT5', x=150, y=-100, nat_interface=subnet)
 gns3_project.link(nat5, 0, PublicIP_switch)
 nat5_switch = gns3_project.switch(subnet, x=250, y=-100)
 gns3_project.link(nat5, 1, nat5_switch)
@@ -626,7 +626,7 @@ gns3_project.depends_on(nat5, nat1)
 # Put a switch on here for the same reason as NAT4.
 
 subnet = '192.168.1.1/24'
-nat6 = BBB_client_nat('NAT6', x=100, y=0, nat_interface=subnet)
+nat6 = BBB_client_nat('NAT6', x=150, y=0, nat_interface=subnet)
 gns3_project.link(nat6, 0, PublicIP_switch)
 nat6_switch = gns3_project.switch(subnet, x=250, y=0)
 gns3_project.link(nat6, 1, nat6_switch)
