@@ -76,7 +76,7 @@ async function upload(filePath) {
         {headers: formData.getHeaders()});
     logger.info(`Upload of job ${exportJob.jobId} returned ${res.data}`);
   } catch (error) {
-    return logger.error(`Could upload job ${exportJob.jobId}: ${error}`);
+    return logger.error(`Could not upload job ${exportJob.jobId}: ${error}`);
   }
 }
 

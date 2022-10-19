@@ -26,11 +26,12 @@ export default function padCapture(meetingId, parentMeetingId, meetingName, sequ
       },
     );
 
+    const filename = `${meetingName}-notes`;
     const payload = {
       parentMeetingId,
       breakoutId: meetingId,
       padId: pad.padId,
-      meetingName,
+      filename,
       sequence,
     };
 

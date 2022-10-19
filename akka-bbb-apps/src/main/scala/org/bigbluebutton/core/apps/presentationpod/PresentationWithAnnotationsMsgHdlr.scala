@@ -200,9 +200,9 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   def handle(m: PadCapturePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     val userId: String = "system"
-    val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+    val jobId: String = s"${m.body.breakoutId}-notes" // Used as the temporaryPresentationId upon upload
     val jobType = "PadCaptureJob"
-    val filename = s"${m.body.meetingName}-notes"
+    val filename = m.body.filename
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
 
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
