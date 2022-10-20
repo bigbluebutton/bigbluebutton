@@ -10,6 +10,7 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import { importSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -155,6 +156,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.roomNameInputDesc',
     description: 'aria description for room name change',
   },
+  movedUserLabel: {
+    id: 'app.createBreakoutRoom.movedUserLabel',
+    description: 'screen reader alert when users are moved to rooms',
+  }
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -317,6 +322,7 @@ class BreakoutRoom extends PureComponent {
       users.forEach((u, index) => {
         if (`roomUserItem-${u.userId}` === document.activeElement.id) {
           users[index].room = text.substr(text.length - 1).includes(')') ? 0 : parseInt(roomNumber, 10);
+          this.changeUserRoom(u.userId, users[index].room);
         }
       });
     }
@@ -619,12 +625,18 @@ class BreakoutRoom extends PureComponent {
     const idxUser = users.findIndex((user) => user.userId === userId.replace('roomUserItem-', ''));
 
     const usersCopy = [...users];
+    let userName = null;
 
-    if (idxUser >= 0) usersCopy[idxUser].room = room;
+    if (idxUser >= 0) {
+      usersCopy[idxUser].room = room;
+      userName = usersCopy[idxUser].userName;
+    };
 
     this.setState({
       users: usersCopy,
       leastOneUserIsValid: (this.getUserByRoom(0).length !== users.length || freeJoin),
+    }, () => {
+      addNewAlert(intl.formatMessage(intlMessages.movedUserLabel, { 0: userName, 1: room }))
     });
   }
 

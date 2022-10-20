@@ -1045,6 +1045,7 @@
     "app.createBreakoutRoom.setTimeCancel": "Cancel",
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "The breakout rooms duration can't exceed the meeting remaining time.",
     "app.createBreakoutRoom.roomNameInputDesc": "Updates breakout room name",
+    "app.createBreakoutRoom.movedUserLabel": "Assigned {0} to room {1}",
     "app.updateBreakoutRoom.modalDesc": "To update or invite a user, simply drag them into the desired room.",
     "app.updateBreakoutRoom.cancelLabel": "Cancel",
     "app.updateBreakoutRoom.title": "Update Breakout Rooms",
