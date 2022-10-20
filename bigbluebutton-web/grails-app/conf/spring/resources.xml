@@ -203,7 +203,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="testRoomMock" value="${beans.presentationService.testRoomMock}"/>
         <property name="testPresentationName" value="${beans.presentationService.testPresentationName}"/>
         <property name="testUploadedPresentation" value="${beans.presentationService.testUploadedPresentation}"/>
-        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation:null}"/>
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
         <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
     </bean>
