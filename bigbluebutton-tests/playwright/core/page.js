@@ -4,9 +4,81 @@ const { readFileSync } = require('fs');
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
+const { env } = require('node:process');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
+
+async function strcolors(msg) {
+  var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
+  var s = arguments[0];
+  var split_str = s.split("%");
+  var result = "";
+
+  for (i=1; i<arguments.length; i++) {
+    if (split_str[i].startsWith('s')) {
+    } else if (split_str[i].startsWith('c')) {
+      // arguments[i] is css formatting
+      var styles = arguments[i].split(';');
+      for (style of styles) {
+	style = style.trim();
+	if (style.startsWith('color:')) {
+	  var color = style.substr(6).trim();
+	  result += color + " ";
+	}
+      }
+    } else {
+    }
+  }
+
+  return result;
+}
+
+async function strformat(msg) {
+  var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
+  var s = arguments[0];
+  var split_str = s.split("%");
+  var result = split_str[0];
+
+  for (i=1; i<arguments.length; i++) {
+    if (split_str[i].startsWith('s')) {
+      // format is %s; arguments[i] is a string
+      result += arguments[i] + split_str[i].substr(1);
+    } else if (split_str[i].startsWith('c')) {
+      // format is %c; arguments[i] is css style
+      var styles = arguments[i].split(';');
+      for (style of styles) {
+	style = style.trim();
+	if (style.startsWith('color:')) {
+	  var color = style.substr(6).trim();
+	  switch(color) {
+	  case 'DarkTurquoise':
+	    result += "\033[38;5;44m";
+	    break;
+	  case 'GoldenRod':
+	    result += "\033[38;5;136m";
+	    break;
+	  case 'SteelBlue':
+	    result += "\033[38;5;67m";
+	    break;
+	  case 'DimGray':
+	    result += "\033[38;5;0m";
+	    break;
+	  default:
+	  }
+	} else if (style.startsWith('font-size:')) {
+	  return result;
+	}
+      }
+      result += split_str[i].substr(1);
+    } else {
+      // format is %% or unrecognized; just drop first %
+      result += split_str[i];
+    }
+  }
+
+  return result;
+}
 
 class Page {
   constructor(browser, page) {
@@ -30,6 +102,10 @@ class Page {
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
+
+    if (env?.CONSOLE == 'log') {
+      this.page.on('console', async (msg) => console.log(this.username, await strformat(msg)));
+    }
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
