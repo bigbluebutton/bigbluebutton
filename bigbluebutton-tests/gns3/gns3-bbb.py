@@ -167,7 +167,7 @@ def master_gateway(hostname, x=0, y=0):
     dnsmasq_conf = """
 listen-address=128.8.8.254
 bind-interfaces
-dhcp-range=128.8.8.101,128.8.8.200,12h
+dhcp-range=128.8.8.101,128.8.8.200,2m
 # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
 # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
 # dhcp-sequential-ip
@@ -373,7 +373,7 @@ def BBB_client_nat(hostname, x=0, y=0, nat_interface='192.168.1.1/24'):
     dnsmasq_conf = f"""
 listen-address={hosts[0]}
 bind-interfaces
-dhcp-range={hosts[1]},{hosts[-1]},12h
+dhcp-range={hosts[1]},{hosts[-1]},2m
 # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
 # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
 # dhcp-sequential-ip
@@ -449,7 +449,7 @@ def BBB_server_nat(hostname, x=100, y=100):
 listen-address=192.168.1.1
 bind-interfaces
 dhcp-host={hostname},192.168.1.2
-dhcp-range=192.168.1.100,192.168.1.254,12h
+dhcp-range=192.168.1.100,192.168.1.254,2m
 # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
 # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
 # dhcp-sequential-ip
