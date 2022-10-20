@@ -52,6 +52,54 @@
   <X-PRE-PROCESS cmd="set" data="sound_prefix=$${sounds_dir}/en/us/callie"/>
 
   <!--
+      Noise gate.
+
+      Energy level required for audio to be sent to the other users. The energy
+      level is a minimum threshold of 'voice energy' that must be present
+      before audio is bridged into the conference. Useful if a participant is
+      in a noisy environment, so their background noise is heard only when they
+      speak. 0 disables the noise gate and will bridge all packets even if they
+      are only background noise.
+
+      Allowed value: 0-1800
+  -->
+  <X-PRE-PROCESS cmd="set" data="conference_energy_level=100"/>
+
+  <!--
+      Number of milliseconds per frame. Which may be different from ptime in SIP
+      SDP, or driver with TDM. Higher numbers require less CPU but can degrade
+      conversation quality, so experimentation with your setup is best. The
+      default is good for conversation quality. Special "auto" value sets
+      interval based on interval of the first member who enters.
+
+      Allowed value: 10-120 (only if divisible by 10) or auto
+  -->
+  <X-PRE-PROCESS cmd="set" data="conference_interval=20"/>
+
+  <!--
+      The number of audio channels. Special value "auto" sets this based on the
+      channels of the first member to enter
+
+      Allowed value: 1 or 2 or auto
+  -->
+  <X-PRE-PROCESS cmd="set" data="conference_channels=1"/>
+
+  <!--
+      Sets the volume level of background white noise to add to the conference.
+      Special value "true" sets to default value. 0 for no CN (total silence).
+
+      Allowed value: 0-10000 or true
+  -->
+  <X-PRE-PROCESS cmd="set" data="conference_comfort_noise=1400"/>
+
+  <!--
+      Milliseconds of speaking before a speaker gets the floor.
+
+      Allowed value: Integer >= 0
+  -->
+  <X-PRE-PROCESS cmd="set" data="conference_auto_floor_msec=2000"/>
+
+  <!--
       This setting is what sets the default domain FreeSWITCH will use if all else fails.
 
       FreeSWICH will default to $${local_ip_v4} unless changed.  Changing this setting does
@@ -318,14 +366,6 @@
        Used to turn on sip loopback unrolling.
   -->
   <X-PRE-PROCESS cmd="set" data="unroll_loops=true"/>
-
-  <!-- outbound_caller_id and outbound_caller_name
-       The caller ID telephone number we should use when calling out.
-       Used by: conference.conf.xml and user directory for default
-       outbound callerid name and number.
-  -->
-  <X-PRE-PROCESS cmd="set" data="outbound_caller_name=FreeSWITCH"/>
-  <X-PRE-PROCESS cmd="set" data="outbound_caller_id=0000000000"/>
 
   <!-- various debug and defaults -->
   <X-PRE-PROCESS cmd="set" data="call_debug=false"/>
