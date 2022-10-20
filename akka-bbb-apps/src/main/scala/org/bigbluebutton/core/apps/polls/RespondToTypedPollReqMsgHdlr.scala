@@ -34,7 +34,8 @@ trait RespondToTypedPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    if (Polls.checkUserResponded(msg.body.pollId, msg.header.userId, liveMeeting.polls) == false &&
+    if (Polls.isResponsePollType(msg.body.pollId, liveMeeting.polls) &&
+      Polls.checkUserResponded(msg.body.pollId, msg.header.userId, liveMeeting.polls) == false &&
       Polls.checkUserAddedQuestion(msg.body.pollId, msg.header.userId, liveMeeting.polls) == false) {
       for {
         (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToTypedPollReqMsg(msg.header.userId, msg.body.pollId,
