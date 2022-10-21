@@ -13,6 +13,8 @@ import {
   TDShapeType,
 } from "@tldraw/tldraw";
 
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+
 const WhiteboardContainer = (props) => {
     const usingUsersContext = useContext(UsersContext);
     const isRTL = layoutSelect((i) => i.isRTL);
@@ -21,7 +23,8 @@ const WhiteboardContainer = (props) => {
     const { users } = usingUsersContext;
     const currentUser = users[Auth.meetingID][Auth.userID];
     const isPresenter = currentUser.presenter;
-    return <Whiteboard {...{ isPresenter, currentUser, isRTL, width, height }} {...props} meetingId={Auth.meetingID} />
+    const isModerator = currentUser.role === ROLE_MODERATOR;
+    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height }} {...props} meetingId={Auth.meetingID} />
 };
 
 export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slidePosition, svgUri }) => {
@@ -30,7 +33,7 @@ export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slideP
 
   shapes["slide-background-shape"] = {
     assetId: `slide-background-asset-${curPageId}`,
-    childIndex: 0.5,
+    childIndex: 0,
     id: "slide-background-shape",
     name: "Image",
     type: TDShapeType.Image,
@@ -66,5 +69,6 @@ export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slideP
     zoomSlide: PresentationToolbarService.zoomSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     zoomChanger: zoomChanger,
+    notifyNotAllowedChange: Service.notifyNotAllowedChange,
   };
 })(WhiteboardContainer);
