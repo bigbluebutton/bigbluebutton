@@ -483,6 +483,12 @@ dhcp-authoritative
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
+                     # Our NAT configuration tunnels port 22 through to the BigBlueButton server
+                     # Use port 2222 for ssh connections to the server's NAT gateway
+                     {'path': '/etc/ssh/sshd_config.d/port.conf',
+                      'permissions': '0644',
+                      'content': "Port 2222"
+                     },
                  ],
                  'runcmd': [
                      # enable packet forwarding
