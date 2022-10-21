@@ -28,12 +28,7 @@ function response_with_html(){
     echo "</body></html>"
 }
 
-if [ "$REQUEST_METHOD" = "GET" -o "$REQUEST_METHOD" = "POST" ]; then
-
-    # The environment variable $CONTENT_LENGTH describes the size of the data
-    read -d '' -n "$CONTENT_LENGTH" QUERY_STRING_POST        # read datastream
-
-    HOSTNAME="$QUERY_STRING"
+if [ "$REQUEST_METHOD" = "GET" ]; then
 
     echo "Content-type: text/plain"
     echo ""
