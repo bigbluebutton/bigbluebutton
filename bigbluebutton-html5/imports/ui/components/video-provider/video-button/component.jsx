@@ -104,8 +104,9 @@ const JoinVideoButton = ({
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
-  const handleOpenAdvancedOptions = (props) => {
-    mountVideoPreview(isMobileSharingCamera, props);
+  const handleOpenAdvancedOptions = (e) => {
+    e.stopPropagation();
+    mountVideoPreview(isDesktopSharingCamera);
   };
 
   const getMessageFromStatus = () => {

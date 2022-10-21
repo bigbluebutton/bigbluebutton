@@ -50,7 +50,6 @@ public class SwfSlidesGenerationProgressNotifier {
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
   }
-
   public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
     UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
             pres.getPodId(),

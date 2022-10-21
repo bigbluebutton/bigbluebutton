@@ -88,7 +88,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const question = safeMatch(questionRegex, content, '');
 
   const doubleQuestionRegex = /\?{2}/gm;
-  const doubleQuestion = safeMatch(doubleQuestionRegex, content, null);
+  const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
