@@ -70,6 +70,18 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  toolbarMultiUserOn: {
+    id: 'app.whiteboard.toolbar.multiUserOn',
+    description: 'Whiteboard toolbar turn multi-user on menu',
+  },
+  toolbarMultiUserOff: {
+    id: 'app.whiteboard.toolbar.multiUserOff',
+    description: 'Whiteboard toolbar turn multi-user off menu',
+  },
+  pan: {
+    id: 'app.whiteboard.toolbar.tools.hand',
+    description: 'presentation toolbar pan label',
+  },
 });
 
 class PresentationToolbar extends PureComponent {
@@ -79,10 +91,11 @@ class PresentationToolbar extends PureComponent {
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
-    this.switchSlide = this.switchSlide.bind(this);
     this.nextSlideHandler = this.nextSlideHandler.bind(this);
     this.previousSlideHandler = this.previousSlideHandler.bind(this);
     this.fullscreenToggleHandler = this.fullscreenToggleHandler.bind(this);
+    this.switchSlide = this.switchSlide.bind(this);
+    this.handleSwitchWhiteboardMode = this.handleSwitchWhiteboardMode.bind(this);
   }
 
   componentDidMount() {
@@ -91,28 +104,6 @@ class PresentationToolbar extends PureComponent {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
-  }
-
-  switchSlide(event) {
-    const { target, which } = event;
-    const isBody = target.nodeName === 'BODY';
-
-    if (isBody) {
-      switch (which) {
-        case KEY_CODES.ARROW_LEFT:
-        case KEY_CODES.PAGE_UP:
-          this.previousSlideHandler();
-          break;
-        case KEY_CODES.ARROW_RIGHT:
-        case KEY_CODES.PAGE_DOWN:
-          this.nextSlideHandler();
-          break;
-        case KEY_CODES.ENTER:
-          this.fullscreenToggleHandler();
-          break;
-        default:
-      }
-    }
   }
 
   handleSkipToSlideChange(event) {
@@ -126,27 +117,17 @@ class PresentationToolbar extends PureComponent {
     skipToSlide(requestedSlideNum, podId);
   }
 
-  nextSlideHandler(event) {
+  handleSwitchWhiteboardMode() {
     const {
-      nextSlide,
-      currentSlideNum,
-      numberOfSlides,
-      podId,
+      multiUser,
+      whiteboardId,
+      removeWhiteboardGlobalAccess,
+      addWhiteboardGlobalAccess,
     } = this.props;
-
-    if (event) event.currentTarget.blur();
-    nextSlide(currentSlideNum, numberOfSlides, podId);
-  }
-
-  previousSlideHandler(event) {
-    const {
-      previousSlide,
-      currentSlideNum,
-      podId,
-    } = this.props;
-
-    if (event) event.currentTarget.blur();
-    previousSlide(currentSlideNum, podId);
+    if (multiUser) {
+      return removeWhiteboardGlobalAccess(whiteboardId);
+    }
+    return addWhiteboardGlobalAccess(whiteboardId);
   }
 
   fullscreenToggleHandler() {
@@ -169,6 +150,44 @@ class PresentationToolbar extends PureComponent {
         group: '',
       },
     });
+  }
+
+  nextSlideHandler(event) {
+    const {
+      nextSlide, currentSlideNum, numberOfSlides, podId,
+    } = this.props;
+
+    if (event) event.currentTarget.blur();
+    nextSlide(currentSlideNum, numberOfSlides, podId);
+  }
+
+  previousSlideHandler(event) {
+    const { previousSlide, currentSlideNum, podId } = this.props;
+
+    if (event) event.currentTarget.blur();
+    previousSlide(currentSlideNum, podId);
+  }
+
+  switchSlide(event) {
+    const { target, which } = event;
+    const isBody = target.nodeName === 'BODY';
+
+    if (isBody) {
+      switch (which) {
+        case KEY_CODES.ARROW_LEFT:
+        case KEY_CODES.PAGE_UP:
+          this.previousSlideHandler();
+          break;
+        case KEY_CODES.ARROW_RIGHT:
+        case KEY_CODES.PAGE_DOWN:
+          this.nextSlideHandler();
+          break;
+        case KEY_CODES.ENTER:
+          this.fullscreenToggleHandler();
+          break;
+        default:
+      }
+    }
   }
 
   change(value) {
@@ -211,15 +230,11 @@ class PresentationToolbar extends PureComponent {
     const { intl } = this.props;
     const optionList = [];
     for (let i = 1; i <= numberOfSlides; i += 1) {
-      optionList.push((
-        <option
-          value={i}
-          key={i}
-        >
-          {
-            intl.formatMessage(intlMessages.goToSlide, { 0: i })
-          }
-        </option>));
+      optionList.push(
+        <option value={i} key={i}>
+          {intl.formatMessage(intlMessages.goToSlide, { 0: i })}
+        </option>
+      );
     }
 
     return optionList;
@@ -250,11 +265,15 @@ class PresentationToolbar extends PureComponent {
 
     const prevSlideAriaLabel = startOfSlides
       ? intl.formatMessage(intlMessages.previousSlideLabel)
-      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${currentSlideNum <= 1 ? '' : (currentSlideNum - 1)})`;
+      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${
+        currentSlideNum <= 1 ? '' : currentSlideNum - 1
+      })`;
 
     const nextSlideAriaLabel = endOfSlides
       ? intl.formatMessage(intlMessages.nextSlideLabel)
-      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? (currentSlideNum + 1) : ''})`;
+      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${
+        currentSlideNum >= 1 ? currentSlideNum + 1 : ''
+      })`;
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -265,39 +284,37 @@ class PresentationToolbar extends PureComponent {
           }
         }>
         {this.renderAriaDescs()}
-        {
-          <div>
-            {isPollingEnabled
-              ? (
-                <Styled.QuickPollButton
-                  {...{
-                    currentSlidHasContent,
-                    intl,
-                    amIPresenter,
-                    parseCurrentSlideContent,
-                    startPoll,
-                    currentSlide,
-                  }}
-                />
-              ) : null
-            }
-          </div>
-        }
-        {
-          <Styled.PresentationSlideControls>
-            <Styled.PrevSlideButton
-              role="button"
-              aria-label={prevSlideAriaLabel}
-              aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
-              disabled={startOfSlides || !isMeteorConnected}
-              color="default"
-              icon="left_arrow"
-              size="md"
-              onClick={this.previousSlideHandler}
-              label={intl.formatMessage(intlMessages.previousSlideLabel)}
-              hideLabel
-              data-test="prevSlide"
+        <div>
+          {isPollingEnabled ? (
+            <Styled.QuickPollButton
+              {...{
+                currentSlidHasContent,
+                intl,
+                amIPresenter,
+                parseCurrentSlideContent,
+                startPoll,
+                currentSlide,
+              }}
             />
+          ) : null}
+        </div>
+        <Styled.PresentationSlideControls>
+          <Styled.PrevSlideButton
+            role="button"
+            aria-label={prevSlideAriaLabel}
+            aria-describedby={
+                startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
+              }
+            disabled={startOfSlides || !isMeteorConnected}
+            color="light"
+            circle
+            icon="left_arrow"
+            size="md"
+            onClick={this.previousSlideHandler}
+            label={intl.formatMessage(intlMessages.previousSlideLabel)}
+            hideLabel
+            data-test="prevSlide"
+          />
 
             <TooltipContainer title={intl.formatMessage(intlMessages.selectLabel)}>
               <Styled.SkipSlideSelect
@@ -328,8 +345,6 @@ class PresentationToolbar extends PureComponent {
               data-test="nextSlide"
             />
           </Styled.PresentationSlideControls>
-        }
-        {
           <Styled.PresentationZoomControls>
             {
               !isMobile
@@ -368,7 +383,6 @@ class PresentationToolbar extends PureComponent {
               hideLabel
             />
           </Styled.PresentationZoomControls>
-        }
       </Styled.PresentationToolbarWrapper>
     );
   }

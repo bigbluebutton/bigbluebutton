@@ -90,7 +90,7 @@ const JoinVideoButton = ({
 
   const handleOpenAdvancedOptions = (e) => {
     e.stopPropagation();
-    mountVideoPreview(isMobileSharingCamera);
+    mountVideoPreview(isDesktopSharingCamera);
   };
 
   const getMessageFromStatus = () => {

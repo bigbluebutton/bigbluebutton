@@ -29,9 +29,11 @@ const process = () => {
   Meteor.setTimeout(process, ANNOTATION_PROCESS_INTERVAL);
 };
 
-export default function handleWhiteboardSend({ header, body }, meetingId) {
+export default function handleWhiteboardSend({ envelope, header, body }, meetingId) {
   const userId = header.userId;
   const annotation = body.annotation;
+  const instanceIdFromMessage = parseInt(envelope.routing.html5InstanceId, 10) || 1;
+  const myInstanceId = parseInt(body.myInstanceId, 10) || 1;
 
   check(userId, String);
   check(annotation, Object);
@@ -49,5 +51,7 @@ export default function handleWhiteboardSend({ header, body }, meetingId) {
   }
   if (!annotationsRecieverIsRunning) process();
 
-  return addAnnotation(meetingId, whiteboardId, userId, annotation);
+  if (instanceIdFromMessage === myInstanceId) {
+    return addAnnotation(meetingId, whiteboardId, userId, annotation);
+  }
 }
