@@ -34,13 +34,23 @@ async function strcolors(msg) {
   return result;
 }
 
-async function strformat(msg) {
+async function strformat(msg, CONSOLE_options) {
   var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
   var s = arguments[0];
   var split_str = s.split("%");
   var result = split_str[0];
+  var surpress_further_output = false;
 
-  for (i=1; i<arguments.length; i++) {
+  if (CONSOLE_options.line_label) {
+    if (CONSOLE_options.colorize) {
+      result = "\033[38;5;34m" + CONSOLE_options.line_label + "\033[38;5;0m" + result;
+    } else {
+      result = CONSOLE_options.line_label + result;
+    }
+  }
+
+  argloop:
+  for (i=1, j=1; i<split_str.length; i++, j++) {
     if (split_str[i].startsWith('s')) {
       // format is %s; arguments[i] is a string
       result += arguments[i] + split_str[i].substr(1);
@@ -49,7 +59,7 @@ async function strformat(msg) {
       var styles = arguments[i].split(';');
       for (style of styles) {
 	style = style.trim();
-	if (style.startsWith('color:')) {
+	if (style.startsWith('color:') && CONSOLE_options.colorize) {
 	  var color = style.substr(6).trim();
 	  switch(color) {
 	  case 'DarkTurquoise':
@@ -64,17 +74,48 @@ async function strformat(msg) {
 	  case 'DimGray':
 	    result += "\033[38;5;0m";
 	    break;
+	  case 'Crimson':
+	    result += "\033[38;5;160m";
+	    break;
 	  default:
 	  }
-	} else if (style.startsWith('font-size:')) {
-	  return result;
+	} else if (style.startsWith('font-size:') && CONSOLE_options.drop_references) {
+	  // For Chrome, we "drop references" by discarding everything after a font size change
+	  surpress_further_output = true;
+	  break argloop;
 	}
       }
       result += split_str[i].substr(1);
+    } else if (split_str[i] == "") {
+      // format is "%%", output a literal "%" and don't do special processing
+      // for the next split_str
+      // XXX this case causes split_str and argument numbering to get out of sync
+      result += "%" + split_str[i+1];
+      i ++;
     } else {
-      // format is %% or unrecognized; just drop first %
+      // format is unrecognized; just drop first %
       result += split_str[i];
     }
+  }
+
+  while (!surpress_further_output && (j < arguments.length)) {
+    result += arguments[j];
+    j++;
+  }
+
+  if (CONSOLE_options?.drop_references) {
+    // For Firefox, we "drop references" by discarding a URL at the end of the line
+    result = result.replace(/https:\/\/\S*$/, '');
+  }
+
+  if (CONSOLE_options?.noClientLogger) {
+    result = result.replace(/clientLogger: /, '');
+  }
+
+  if (CONSOLE_options?.drop_timestamps) {
+    // timestamp formatting is a bit complicated, with four "%s" fields and corresponding arguments,
+    // so just filter them out (if requested) after all the other formatting is done
+    result = result.replace(/\[\d\d:\d\d:\d\d:\d\d\d\d\] /, '');
   }
 
   return result;
@@ -103,8 +144,16 @@ class Page {
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
 
-    if (env?.CONSOLE == 'log') {
-      this.page.on('console', async (msg) => console.log(this.username, await strformat(msg)));
+    if (env.CONSOLE !== undefined) {
+      const CONSOLE_strings = env.CONSOLE.split(',').map(opt => opt.trim().toLowerCase());
+      const CONSOLE_options = {
+	colorize: CONSOLE_strings.includes('color') || CONSOLE_strings.includes('colour'),
+	drop_references: CONSOLE_strings.includes('norefs'),
+	drop_timestamps: CONSOLE_strings.includes('nots'),
+	line_label: CONSOLE_strings.includes('label') ? this.username + " " : undefined,
+	noClientLogger: CONSOLE_strings.includes('nocl') || CONSOLE_strings.includes('noclientlogger'),
+      };
+      this.page.on('console', async (msg) => console.log(await strformat(msg, CONSOLE_options)));
     }
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);

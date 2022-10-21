@@ -28,9 +28,9 @@ $ npm test
 
 You can also run a single test suite and limit the execution to only one browser:
 ```bash
-$ npx playwright test chat --project=firefox
+$ npx playwright test chat --browser=firefox
 or
-$ npm test chat -- --project=firefox
+$ npm test chat -- --browser=firefox
 ```
 #### Additional commands
 
@@ -49,3 +49,18 @@ You can also use this also through the test tree, adding the test suite / group 
 ```bash
 $ npm run test:filter "notifications chat"
 ```
+
+You can print the browser console log to standard output by setting the environment variable `CONSOLE`:
+```
+$ CONSOLE= npm test chat -- --project=firefox
+```
+
+`CONSOLE` can be blank (as in the example), or can be a comma-separated list of the following options:
+
+| Option | Meaning |
+| ------ | ------- |
+| color  | (or "colour") colorize the output |
+| label  | label each line with the BigBlueButton user |
+| norefs | remove JavaScript reference URLs |
+| nots   | remove timestamps |
+| nocl   | remove "clientLogger:" strings |
