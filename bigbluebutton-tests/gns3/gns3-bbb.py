@@ -259,7 +259,7 @@ dhcp-script=/root/new-dhcp-lease.sh
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
                      # enable NAT
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
-                     'dpkg-reconfigure iptables-persistent',
+                     'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
                      # we accept CSRs via POST to http://ca.test/getcert.cgi
                      'echo 128.8.8.254 ca.test >> /etc/hosts',
                      # initialize the SSL certificate authority, if needed
@@ -503,7 +503,7 @@ dhcp-authoritative
                      'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE',
                      'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 443 -j MASQUERADE',
                      'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 16384:32768 -j MASQUERADE',
-                     'dpkg-reconfigure iptables-persistent',
+                     'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
                  ],
     }
 
