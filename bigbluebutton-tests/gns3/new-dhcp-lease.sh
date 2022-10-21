@@ -11,8 +11,6 @@
 #    - creates a new dummy network interface
 #    - uses it to register with the outside DHCP server using the new
 #      server's name (so now we appear as that name to the outside)
-#    - adds an entry to the /etc/hosts table, because it's unreliable now
-#      which IP address we get for the new name (we want the internal one)
 #    - creates a new apache2 site file with the reverse proxy configuration,
 #      enables the site and restarts apache2
 #    - punches a UDP port range through NAT for RTP traffic
@@ -46,10 +44,9 @@ DHCP=ipv4
 
 [DHCPv4]
 Hostname=$HOSTNAME
+UseDomains=false
 EOF
 	   networkctl reload
-
-	   echo "$IPADDR $HOSTNAME.test" | sudo tee -a /etc/hosts
 
 	   # create /etc/ssl/certs/$HOSTNAME.pem
 	   # create /etc/ssl/private/$HOSTNAME.key

@@ -159,7 +159,9 @@ def master_gateway(hostname, x=0, y=0):
     # NAT1 to mimic it.
 
     network_config = {'version': 2,
-                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac'},
+                      'ethernets': {'ens4': {'dhcp4': 'on',
+                                             'dhcp-identifier': 'mac',
+                                             'dhcp4-overrides': {'use-domains': False}},
                                     'ens5': {'addresses': ['128.8.8.254/24'],
                                              'nameservers': {'search' : ['test'], 'addresses' : ['128.8.8.254']}},
                       }}
