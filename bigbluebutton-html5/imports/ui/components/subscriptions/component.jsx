@@ -122,22 +122,6 @@ export default withTracker(() => {
     oldRole = currentUser?.role;
   }
 
-  const annotationsHandler = Meteor.subscribe('annotations', {
-    onReady: () => {
-      const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
-      AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
-      Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
-        try {
-          AnnotationsLocal.insert(a);
-        } catch (e) {
-          // TODO
-        }
-      });
-      annotationsHandler.stop();
-    },
-    ...subscriptionErrorHandler,
-  });
-
   subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
   const ready = subscriptionsHandlers.every(handler => handler.ready());
   let groupChatMessageHandler = {};
@@ -165,6 +149,21 @@ export default withTracker(() => {
   let usersPersistentDataHandler = {};
   if (ready) {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
+    const annotationsHandler = Meteor.subscribe('annotations', {
+      onReady: () => {
+        const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
+        AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
+        Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
+          try {
+            AnnotationsLocal.insert(a);
+          } catch (e) {
+            // TODO
+          }
+        });
+        annotationsHandler.stop();
+      },
+      ...subscriptionErrorHandler,
+    });
   }
 
   return {

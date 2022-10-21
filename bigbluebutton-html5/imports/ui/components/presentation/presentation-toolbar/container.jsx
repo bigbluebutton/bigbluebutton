@@ -44,12 +44,12 @@ export default withTracker((params) => {
     presentationId,
   } = params;
 
-  const startPoll = (type, id, answers) => {
+  const startPoll = (type, id, answers = [], question = '', multiResp = false) => {
     Session.set('openPanel', 'poll');
     Session.set('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', PollService.pollTypes, type, id, false, '', false, answers);
+    makeCall('startPoll', PollService.pollTypes, type, id, false, question, multiResp, answers);
   };
 
   return {

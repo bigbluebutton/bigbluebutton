@@ -270,7 +270,7 @@
     "app.poll.clickHereToSelect": "Seçmek için buraya tıklayın",
     "app.poll.question.label" : "Sorunuzu yazın...",
     "app.poll.optionalQuestion.label" : "Sorunuzu yazın (isteğe bağlı)...",
-    "app.poll.userResponse.label" : "Kullanıcı yanıtı",
+    "app.poll.userResponse.label" : "Yazılan yanıt",
     "app.poll.responseTypes.label" : "Yanıt türleri",
     "app.poll.optionDelete.label" : "Sil",
     "app.poll.responseChoices.label" : "Yanıt seçenekleri",

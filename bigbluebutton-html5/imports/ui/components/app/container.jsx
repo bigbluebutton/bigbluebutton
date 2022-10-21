@@ -50,8 +50,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const endMeeting = (code) => {
+const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
+  Session.set('errorMessageDescription', ejectedReason);
   Session.set('isMeetingEnded', true);
 };
 
@@ -143,8 +144,24 @@ const currentUserEmoji = (currentUser) => (currentUser
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
-    removed() {
-      endMeeting('403');
+    removed(userData) {
+      // wait 3secs (before endMeeting), client will try to authenticate again
+      const delayForReconnection = userData.ejected ? 0 : 3000;
+      setTimeout(() => {
+        const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
+        if (queryCurrentUser.count() === 0) {
+          if (userData.ejected) {
+            endMeeting('403', userData.ejectedReason);
+          } else {
+            // Either authentication process hasn't finished yet or user did authenticate but Users
+            // collection is unsynchronized. In both cases user may be able to rejoin.
+            const description = Auth.isAuthenticating || Auth.loggedIn
+              ? 'able_to_rejoin_user_disconnected_reason'
+              : null;
+            endMeeting('503', description);
+          }
+        }
+      }, delayForReconnection);
     },
   });
 

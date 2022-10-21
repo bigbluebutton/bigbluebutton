@@ -10,8 +10,8 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: SendWhiteboardAnnotationPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: SendWhiteboardAnnotationPubMsg, annotation: AnnotationVO): Unit = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+    def broadcastEvent(msg: SendWhiteboardAnnotationPubMsg, annotation: AnnotationVO, html5InstanceId: String): Unit = {
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, html5InstanceId)
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendWhiteboardAnnotationEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
@@ -94,7 +94,7 @@ trait SendWhiteboardAnnotationPubMsgHdlr extends RightsManagementTrait {
       //printAnnotationInfo(sanitizedShape)
       //println("============= Printed Sanitized annotation  ============")
       val annotation = sendWhiteboardAnnotation(sanitizedShape, msg.body.drawEndOnly, liveMeeting)
-      broadcastEvent(msg, annotation)
+      broadcastEvent(msg, annotation, msg.body.html5InstanceId)
     } else {
       //val meetingId = liveMeeting.props.meetingProp.intId
       //val reason = "No permission to send a whiteboard annotation."

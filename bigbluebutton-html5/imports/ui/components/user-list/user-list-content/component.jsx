@@ -15,6 +15,7 @@ const propTypes = {
 };
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const ALWAYS_SHOW_WAITING_ROOM = Meteor.settings.public.app.alwaysShowWaitingRoomUI;
 
 class UserContent extends PureComponent {
   render() {
@@ -26,7 +27,7 @@ class UserContent extends PureComponent {
       compact,
     } = this.props;
 
-    const showWaitingRoom = (isGuestLobbyMessageEnabled && isWaitingRoomEnabled)
+    const showWaitingRoom = (ALWAYS_SHOW_WAITING_ROOM && isWaitingRoomEnabled)
       || pendingUsers.length > 0;
 
     return (

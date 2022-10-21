@@ -137,6 +137,10 @@ const intlMessages = defineMessages({
   TIMEOUT: {
     id: 'app.presentationUploder.conversion.timeout',
   },
+  CONVERSION_TIMEOUT: {
+		id:'app.presentationUploder.conversion.conversionTimeout',
+		description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+	},
   GENERATING_THUMBNAIL: {
     id: 'app.presentationUploder.conversion.generatingThumbnail',
     description: 'indicatess that it is generating thumbnails',
@@ -1036,6 +1040,10 @@ class PresentationUploader extends Component {
       const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
 
       switch (item.conversion.status) {
+        case 'CONVERSION_TIMEOUT': 
+          constraint['0'] = item.conversion.numberPageError;
+          constraint['1'] = item.conversion.maxNumberOfAttempts;
+          break;
         case 'PAGE_COUNT_EXCEEDED':
           constraint['0'] = item.conversion.maxNumberPages;
           break;
