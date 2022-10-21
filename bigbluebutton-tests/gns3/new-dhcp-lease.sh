@@ -57,9 +57,21 @@ EOF
 	   CSRFILE=/tmp/$HOSTNAME.pem
 	   CERTFILE=/etc/ssl/certs/$HOSTNAME.pem
 	   openssl req -nodes -newkey rsa:2048 -keyout $KEYFILE -out $CSRFILE -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=$FQDN" -addext "subjectAltName = DNS:$FQDN"
-	   wget -q -O $CERTFILE --post-file=$CSRFILE http://ca.test/getcert.cgi?$FQDN
 
-	   cat > /etc/apache2/sites-available/$HOSTNAME.conf <<EOF
+	   # Try this five times, because there's a race condition when we're starting up,
+	   # we've got a bunch of servers getting leases, we're reloading apache each
+	   # time a few lines down in this script, and we depend on apache running
+	   # to be able to do this step.  Maybe just re-write getcert.cgi a bit so
+	   # that we can call it directly from here.
+	   for i in {1..5}; do
+	       wget -q -O $CERTFILE --post-file=$CSRFILE http://ca.test/getcert.cgi?$FQDN
+	       if [ -s $CERTFILE ] && openssl x509 -in $CERTFILE >& /dev/null; then break; fi
+	       sleep 1
+	   done
+
+	   # make extra sure CERTFILE is valid X.509, because apache won't start anymore if it's broken
+	   if [ -s $CERTFILE ] && openssl x509 -in $CERTFILE >& /dev/null; then
+	       cat > /etc/apache2/sites-available/$HOSTNAME.conf <<EOF
 <IfModule mod_ssl.c>
 	<VirtualHost _default_:80>
 		ServerName $HOSTNAME.test
@@ -87,8 +99,13 @@ EOF
 	</VirtualHost>
 </IfModule>
 EOF
-	   a2ensite $HOSTNAME
-	   systemctl restart apache2
+	       a2ensite $HOSTNAME
+	       systemctl restart apache2
+	   else
+	       echo $CERTFILE not properly generated
+	       exit 1
+	   fi
+       fi
 
 	   # Mimics the logic in getportrange.cgi
 	   # iptables -t nat -A PREROUTING -p udp --dport 20000:20999 -j DNAT --to-destination 128.8.8.155
