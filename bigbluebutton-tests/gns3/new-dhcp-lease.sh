@@ -61,6 +61,10 @@ EOF
 
 	   cat > /etc/apache2/sites-available/$HOSTNAME.conf <<EOF
 <IfModule mod_ssl.c>
+	<VirtualHost _default_:80>
+		ServerName $HOSTNAME.test
+		Redirect permanent / https://$HOSTNAME.test/
+	</VirtualHost>
 	<VirtualHost _default_:443>
 		ServerName $HOSTNAME.test
 		ServerAdmin webmaster@localhost
