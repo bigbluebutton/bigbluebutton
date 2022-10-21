@@ -74,14 +74,14 @@ const propTypes = {
 };
 
 const defaultProps = {
-  code: 500,
+  code: '500',
   callback: async () => {},
 };
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
     const { code, callback } = this.props;
-    const log = code === 403 ? 'warn' : 'error';
+    const log = code === '403' ? 'warn' : 'error';
     AudioManager.exitAudio();
     callback().finally(() => {
       Meteor.disconnect();

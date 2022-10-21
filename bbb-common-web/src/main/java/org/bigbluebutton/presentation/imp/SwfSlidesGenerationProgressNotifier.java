@@ -50,6 +50,15 @@ public class SwfSlidesGenerationProgressNotifier {
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
   }
+  public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
+    UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_TIMEOUT_KEY,
+            page, pres.getTemporaryPresentationId(), pres.getId(), maxNumberOfAttempts);
+    messagingService.sendDocConversionMsg(errorMessage);
+  }
 
   public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
     UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
