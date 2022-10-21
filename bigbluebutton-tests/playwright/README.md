@@ -28,9 +28,9 @@ $ npm test
 
 You can also run a single test suite and limit the execution to only one browser:
 ```bash
-$ npx playwright test chat --browser=firefox
+$ npx playwright test chat --project=firefox
 or
-$ npm test chat -- --browser=firefox
+$ npm test chat -- --project=firefox
 ```
 #### Additional commands
 
