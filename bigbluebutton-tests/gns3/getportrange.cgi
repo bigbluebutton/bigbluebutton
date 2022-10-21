@@ -33,7 +33,7 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     echo "Content-type: text/plain"
     echo ""
     hostnum=$(echo $REMOTE_ADDR | cut -d . -f 4)
-    echo $((100*hostnum + 6384))-$((100*hostnum + 6384 + 999))
+    echo $((100*hostnum + 6384))-$((100*hostnum + 6384 + 99))
 else
     response_with_html
     exit 0

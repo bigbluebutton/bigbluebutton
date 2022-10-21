@@ -107,11 +107,17 @@ EOF
 	   fi
        fi
 
-	   # Mimics the logic in getportrange.cgi
-	   # iptables -t nat -A PREROUTING -p udp --dport 20000:20999 -j DNAT --to-destination 128.8.8.155
-	   hostnum=$(echo $IPADDR | cut -d . -f 4)
-	   iptables -t nat -A PREROUTING -p udp --dport $((100*hostnum + 6384)):$((100*hostnum + 6384 + 999)) -j DNAT --to-destination $IPADDR
+       # Punch through a UDP port range for RTP traffic
+       # Mimics the logic in getportrange.cgi
+       # It's outside the previous 'if' block in case we've already got
+       #    a dummy link configured, but the address changed
 
+       hostnum=$(echo $IPADDR | cut -d . -f 4)
+       portrange=$((100*hostnum + 6384)):$((100*hostnum + 6384 + 99))
+       rule="-p udp --dport $portrange -j DNAT --to-destination $IPADDR"
+
+       if ! iptables -t nat -C PREROUTING $rule; then
+	   iptables -t nat -A PREROUTING $rule
        fi
    fi
 fi
