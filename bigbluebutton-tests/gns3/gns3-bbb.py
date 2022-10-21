@@ -492,12 +492,20 @@ dhcp-authoritative
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
                      # These next statements assume that the server is on 192.168.1.2, and relay ssh, web and UDP traffic to it
                      # We ensure that the server is on 192.168.1.2 with a dhcp-host statement in /etc/dnsmasq.conf
-                     # Use "-d 128.8.8.0/24" and not "-i ens4" because bbb-install requires the server
-                     #    to have the ability to connect to itself using its DNS name.
-                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.0/24 --dport 22 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 22 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 80 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 443 -j DNAT --to-destination 192.168.1.2',
+                     'iptables -t nat -A PREROUTING -p udp -i ens4 --dport 16384:32768 -j DNAT --to-destination 192.168.1.2',
+                     # Also, bbb-install requires the server to have the ability to connect to itself using its DNS name,
+                     #    - we don't know our own IP address at this point
+                     #    - rule has to be on PREROUTING, else we can't use DNAT
+                     #    - since it's on PREROUTING, we can't use -o lo
+                     #    - so grab traffic bound for everything on the subnet except the gateway (128.8.8.254),
+                     #      which we need to connect to for things like getcert.cgi and getportrange.cgi
+                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.254 --dport 80 -j ACCEPT',
+                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.254 --dport 443 -j ACCEPT',
                      'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.0/24 --dport 80 -j DNAT --to-destination 192.168.1.2',
                      'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.0/24 --dport 443 -j DNAT --to-destination 192.168.1.2',
-                     'iptables -t nat -A PREROUTING -p udp -d 128.8.8.0/24 --dport 16384:32768 -j DNAT --to-destination 192.168.1.2'
                      # hairpin case - we need to rewrite the source address before sending the packets back to the server
                      # no hairpin on port 22; we can ssh into the server, then ssh back to the NAT gateway if needed
                      'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE',
