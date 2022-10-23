@@ -149,9 +149,9 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
 
 def master_gateway(hostname, x=0, y=0):
     # A NAT gateway between our public "Internet" and the actual Internet
-
+    #
     # BBB's default STUN server is stun.l.google.com:19302, so we configure
-    # NAT1 to mimic it.
+    # the master gateway to mimic it.
 
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
@@ -186,10 +186,8 @@ subnet 128.8.8.0 netmask 255.255.255.0 {
 
 """
 
-    # I used to call this device "NAT1", and it's still referred to in
-    # that way in the comments, but the name it announces itself as to
-    # DHCP is the name of the project, because it's the outward-facing
-    # device that ssh users connect to.
+    # The master gateway's name is the name of the project, and that's
+    # what it announces itself as to DHCP and DNS.
 
     user_data = {'hostname': hostname,
                  'packages': ['dnsmasq', 'isc-dhcp-server', 'coturn', 'apache2', 'bird', 'iptables-persistent'],
@@ -363,7 +361,7 @@ def BBB_client_nat(hostname, x=0, y=0, nat_interface='192.168.1.1/24'):
     # If we didn't set anything authoritative, AAAA lookups would
     # hang.  If we set the test domain authoritative, server lookups
     # like focal-250 would return nothing, because they're registered
-    # with the NAT1 gateway, not this one.
+    # with the master gateway, not this one.
 
     dnsmasq_conf = f"""
 listen-address={hosts[0]}
@@ -598,13 +596,13 @@ internet = gns3_project.cloud(args.interface, args.interface, x=-500, y=0)
 
 notification_url = gns3_project.notification_url()
 
-nat1 = master_gateway(args.project, x=-200, y=0)
+master = master_gateway(args.project, x=-200, y=0)
 
 # An Ethernet switch for our public "Internet"
 
 PublicIP_switch = gns3_project.switch('128.8.8.0/24', x=0, y=0, ethernets=16)
-gns3_project.link(nat1, 0, internet)
-gns3_project.link(nat1, 1, PublicIP_switch)
+gns3_project.link(master, 0, internet)
+gns3_project.link(master, 1, PublicIP_switch)
 
 # NAT4: public subnet to carrier grade NAT subnet
 #
@@ -619,7 +617,7 @@ nat4 = BBB_client_nat('NAT4', x=150, y=-200, nat_interface=subnet)
 gns3_project.link(nat4, 0, PublicIP_switch)
 nat4_switch = gns3_project.switch(subnet, x=250, y=-200)
 gns3_project.link(nat4, 1, nat4_switch)
-gns3_project.depends_on(nat4, nat1)
+gns3_project.depends_on(nat4, master)
 
 # NAT5: public subnet to private client subnet, not overlapping server address space
 #
@@ -630,7 +628,7 @@ nat5 = BBB_client_nat('NAT5', x=150, y=-100, nat_interface=subnet)
 gns3_project.link(nat5, 0, PublicIP_switch)
 nat5_switch = gns3_project.switch(subnet, x=250, y=-100)
 gns3_project.link(nat5, 1, nat5_switch)
-gns3_project.depends_on(nat5, nat1)
+gns3_project.depends_on(nat5, master)
 
 # NAT6: public subnet to private client subnet, overlapping server address space
 #
@@ -641,7 +639,7 @@ nat6 = BBB_client_nat('NAT6', x=150, y=0, nat_interface=subnet)
 gns3_project.link(nat6, 0, PublicIP_switch)
 nat6_switch = gns3_project.switch(subnet, x=250, y=0)
 gns3_project.link(nat6, 1, nat6_switch)
-gns3_project.depends_on(nat6, nat1)
+gns3_project.depends_on(nat6, master)
 
 # The BigBlueButton servers and/or test clients
 
@@ -667,7 +665,7 @@ for v in args.version:
                 next(n for n in gns3_project.nodes() if n['x'] == x and n['y'] == 100)
             except StopIteration:
                 break
-        BBB_server(v, x=x, depends_on=nat1)
+        BBB_server(v, x=x, depends_on=master)
 
 # The difference between these two is that start_nodes waits for notification that
 # the nodes booted, while start_node does not.
