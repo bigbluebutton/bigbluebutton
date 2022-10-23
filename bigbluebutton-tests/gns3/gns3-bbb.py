@@ -218,10 +218,6 @@ subnet 128.8.8.0 netmask 255.255.255.0 {
                       'permissions': '0755',
                       'content': file('getcert.cgi')
                      },
-                     {'path': '/var/www/html/getportrange.cgi',
-                      'permissions': '0755',
-                      'content': file('getportrange.cgi')
-                     },
                      {'path': '/etc/bird/bird.conf',
                       'permissions': '0644',
                       'content': file('bird.conf')
@@ -504,7 +500,7 @@ dhcp-authoritative
                      #    - rule has to be on PREROUTING, else we can't use DNAT
                      #    - since it's on PREROUTING, we can't use -o lo
                      #    - so grab traffic bound for everything on the subnet except the gateway (128.8.8.254),
-                     #      which we need to connect to for things like getcert.cgi and getportrange.cgi
+                     #      which we need to connect to for getcert.cgi
                      'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.254 --dport 80 -j ACCEPT',
                      'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.254 --dport 443 -j ACCEPT',
                      'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.0/24 --dport 80 -j DNAT --to-destination 192.168.1.2',

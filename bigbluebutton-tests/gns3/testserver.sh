@@ -99,10 +99,6 @@ sudo sed -i '/salt/s/"[^"]*"/"bbbci"/'  /var/lib/tomcat9/webapps/demo/bbb_api_co
 # nginx won't start without this change
 sudo sed -i '/server_names_hash_bucket_size/s/^\(\s*\)# /\1/' /etc/nginx/nginx.conf
 
-# Set a port range to separate us from other servers when running through a reverse proxy.
-
-sudo bbb-conf --set-port-range $(wget -qO- http://ca.test/getportrange.cgi)
-
 # We can't restart if nginx isn't running.  It'll just complain "nginx.service is not active, cannot reload"
 # sudo bbb-conf --restart
 sudo bbb-conf --stop
