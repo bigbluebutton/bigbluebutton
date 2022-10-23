@@ -229,10 +229,6 @@ subnet 128.8.8.0 netmask 255.255.255.0 {
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
-                     {'path': '/root/new-dhcp-lease.sh',
-                      'permissions': '0755',
-                      'content': file('new-dhcp-lease.sh')
-                     },
                      {'path': '/var/www/html/getcert.cgi',
                       'permissions': '0755',
                       'content': file('getcert.cgi')
