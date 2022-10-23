@@ -159,34 +159,42 @@ def master_gateway(hostname, x=0, y=0):
     # NAT1 to mimic it.
 
     network_config = {'version': 2,
-                      'ethernets': {'ens4': {'dhcp4': 'on',
-                                             'dhcp-identifier': 'mac',
-                                             'dhcp4-overrides': {'use-domains': False}},
-                                    'ens5': {'addresses': ['128.8.8.254/24'],
-                                             'nameservers': {'search' : ['test'], 'addresses' : ['128.8.8.254']}},
+                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
+                                    'ens5': {'addresses': ['128.8.8.254/24'] }
                       }}
 
     dnsmasq_conf = """
 listen-address=128.8.8.254
 bind-interfaces
-dhcp-range=128.8.8.101,128.8.8.200,2m
-# Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
-# Otherwise, the IP address change around on reboots, and BBB doesn't like that.
-# dhcp-sequential-ip
-dhcp-authoritative
-# The server's NAT router will register itself with DHCP as 'bbb-ci'
-# This option will cause dnsmasq to announce it in DNS as 'bbb-ci.test'
-domain=test
-# Make the DNS server authoritative for these domains, or else it will hang
-# See https://unix.stackexchange.com/questions/720570
-auth-zone=test
-auth-zone=in-addr.arpa
-# auth-server is required when auth-zone is defined; use a non-existent dummy server
-auth-server=dns.test
-# This has to be here and not in /etc/hosts because we're authoritative for test
-host-record=ca.test,128.8.8.254
+"""
 
-dhcp-script=/root/new-dhcp-lease.sh
+    dhcpd_conf = """
+ddns-updates on;
+ddns-update-style standard;
+update-optimization off;
+authoritative;
+
+include "/etc/dhcp/rndc.key";
+
+allow unknown-clients;
+default-lease-time 60;
+max-lease-time 28800;
+log-facility local7;
+
+zone test. {
+ primary 192.168.8.1;
+ key rndc-key;
+}
+
+subnet 128.8.8.0 netmask 255.255.255.0 {
+ range 128.8.8.101 128.8.8.200;
+ option subnet-mask 255.255.255.0;
+ option domain-name-servers 128.8.8.254;
+ option domain-name "test";
+ option routers 128.8.8.254;
+ option broadcast-address 128.8.8.255;
+}
+
 """
 
     # I used to call this device "NAT1", and it's still referred to in
@@ -195,7 +203,7 @@ dhcp-script=/root/new-dhcp-lease.sh
     # device that ssh users connect to.
 
     user_data = {'hostname': hostname,
-                 'packages': ['dnsmasq', 'coturn', 'apache2', 'bird', 'iptables-persistent'],
+                 'packages': ['dnsmasq', 'isc-dhcp-server', 'coturn', 'apache2', 'bird', 'iptables-persistent'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -208,6 +216,14 @@ dhcp-script=/root/new-dhcp-lease.sh
                      {'path': '/opt/ca/generateCA.sh',
                       'permissions': '0755',
                       'content': file('generateCA.sh')
+                     },
+                     {'path': '/etc/dhcp/dhcpd.conf',
+                      'permissions': '0644',
+                      'content': dhcpd_conf
+                     },
+                     {'path': '/etc/dhcp/rndc.key',
+                      'permissions': '0644',
+                      'content': file('/etc/dhcp/rndc.key')
                      },
                      {'path': '/etc/dnsmasq.d/gns3-bbb',
                       'permissions': '0644',
