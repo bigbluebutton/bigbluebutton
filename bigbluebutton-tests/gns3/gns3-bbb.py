@@ -173,18 +173,12 @@ ddns-updates on;
 ddns-update-style standard;
 update-optimization off;
 authoritative;
-
-include "/etc/dhcp/rndc.key";
+zone test. { }
 
 allow unknown-clients;
 default-lease-time 60;
 max-lease-time 28800;
 log-facility local7;
-
-zone test. {
- primary 192.168.8.1;
- key rndc-key;
-}
 
 subnet 128.8.8.0 netmask 255.255.255.0 {
  range 128.8.8.101 128.8.8.200;
@@ -220,10 +214,6 @@ subnet 128.8.8.0 netmask 255.255.255.0 {
                      {'path': '/etc/dhcp/dhcpd.conf',
                       'permissions': '0644',
                       'content': dhcpd_conf
-                     },
-                     {'path': '/etc/dhcp/rndc.key',
-                      'permissions': '0644',
-                      'content': file('/etc/dhcp/rndc.key')
                      },
                      {'path': '/etc/dnsmasq.d/gns3-bbb',
                       'permissions': '0644',
