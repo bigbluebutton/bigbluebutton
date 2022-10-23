@@ -5,6 +5,12 @@
 # All the Ubuntu nodes will be configured to accept the user's public
 # ssh key and entire authorized_keys file for ssh access.
 #
+# The gns3 library provides "declarative" functions that only create
+# nodes if they don't already exist, and we use this feature
+# throughout the script.  Running the script on a pre-built network
+# should change nothing.  A single node can be rebuilt by deleting it
+# and rerunning the script.
+
 # RUNTIME DEPENDENCIES
 #
 # genisoimage must be installed
@@ -140,17 +146,6 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
                     ssh_authorized_keys.append(l)
 
 ### FUNCTIONS TO CREATE VARIOUS KINDS OF GNS3 OBJECTS
-
-# The gns3 library provides "declarative" functions that only create
-# nodes if they don't already exist, and we use this feature
-# throughout the script.  Running the script on a pre-built network
-# should change nothing.  A single node can be rebuilt by deleting it
-# and rerunning the script.
-
-generic_NAT_per_boot_script = """#!/bin/bash
-iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE
-sysctl net.ipv4.ip_forward=1
-"""
 
 def master_gateway(hostname, x=0, y=0):
     # A NAT gateway between our public "Internet" and the actual Internet
