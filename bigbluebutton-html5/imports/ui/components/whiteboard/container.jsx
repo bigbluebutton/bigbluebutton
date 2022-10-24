@@ -33,7 +33,7 @@ export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slideP
 
   shapes["slide-background-shape"] = {
     assetId: `slide-background-asset-${curPageId}`,
-    childIndex: 0,
+    childIndex: -1,
     id: "slide-background-shape",
     name: "Image",
     type: TDShapeType.Image,
