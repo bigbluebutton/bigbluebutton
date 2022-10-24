@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
-import pinPadModifier from '../modifiers/pinPad';
 
 export default function pinPad(externalId, pinned) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
@@ -22,8 +21,6 @@ export default function pinPad(externalId, pinned) {
       externalId,
       pinned,
     };
-
-    pinPadModifier(meetingId, externalId, pinned);
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
