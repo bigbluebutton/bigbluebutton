@@ -620,6 +620,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   changeUserRoom(userId, room) {
+    const { intl } = this.props;
     const { users, freeJoin } = this.state;
 
     const idxUser = users.findIndex((user) => user.userId === userId.replace('roomUserItem-', ''));
