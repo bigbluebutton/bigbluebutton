@@ -21,6 +21,7 @@
  * @version $Id: $
  */
 package org.bigbluebutton.presentation;
+import java.util.concurrent.TimeoutException;
 
 import java.util.concurrent.TimeoutException;
 

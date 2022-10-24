@@ -80,6 +80,12 @@ const LayoutBtn = styled(Button)`
     border-radius: 10px;
     width: fit-content;
   }
+
+  &:focus,
+  &:hover {
+    border: ${colorPrimary} solid 6px;
+    border-radius: 5px;
+  }
   
   ${({ active }) => (active === 'true') && `
     border: ${colorPrimary} solid 6px;

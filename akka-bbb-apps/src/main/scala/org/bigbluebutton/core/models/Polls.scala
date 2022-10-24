@@ -381,6 +381,19 @@ object Polls {
     }
   }
 
+  def isResponsePollType(pollId: String, polls: Polls): Boolean = {
+    polls.polls.get(pollId) match {
+      case Some(p) => {
+        if (p.questions.filter(q => q.questionType == PollType.ResponsePollType).length > 0) {
+          true
+        } else {
+          false
+        }
+      }
+      case None => false
+    }
+  }
+
   def showPollResult(pollId: String, polls: Polls) {
     polls.get(pollId) foreach {
       p =>

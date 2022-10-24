@@ -148,7 +148,7 @@ const UserActions = (props) => {
             )}
             actions={getAvailableActions()}
             opts={{
-              id: 'default-dropdown-menu',
+              id: `webcam-${user?.userId}-dropdown-menu`,
               keepMounted: true,
               transitionDuration: 0,
               elevation: 3,
