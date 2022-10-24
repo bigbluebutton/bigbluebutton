@@ -421,6 +421,8 @@
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "Minimize presentation",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Button used to minimize presentation",
     "app.actionsBar.actionsDropdown.layoutModal": "Layout Settings Modal",
+    "app.actionsBar.actionsDropdown.pinNotes": "Pin Shared Notes",
+    "app.actionsBar.actionsDropdown.unpinNotes": "Unpin Shared Notes",
     "app.screenshare.screenShareLabel" : "Screen share",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.animationsLabel": "Animations",

@@ -31,38 +31,72 @@ const propTypes = {
   layoutContextDispatch: PropTypes.func.isRequired,
 };
 
+const defaultProps = {
+  area: 'sidebarContent',
+};
+
 const Notes = ({
   hasPermission,
   intl,
   isRTL,
   layoutContextDispatch,
   isResizing,
+  area,
+  sidebarContent,
+  sharedNotesOutput,
 }) => {
   useEffect(() => () => Service.setLastRev(), []);
   const { isChrome } = browserInfo;
+  const isOnMediaArea = area === 'media';
+  const style = isOnMediaArea ? {
+    position: 'absolute',
+    ...sharedNotesOutput,
+  } : {};
+  const isHidden = isOnMediaArea && (style.width === 0 || style.height === 0);
+
+  if (isHidden) style.padding = 0;
+
+  useEffect(() => {
+    if (
+      isOnMediaArea
+      && sidebarContent.isOpen
+      && sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
+    ) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: false,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.NONE,
+      });
+    }
+  }, []);
 
   return (
-    <Styled.Notes data-test="notes" isChrome={isChrome}>
-      <Header
-        leftButtonProps={{
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-          'data-test': 'hideNotesLabel',
-          'aria-label': intl.formatMessage(intlMessages.hide),
-          label: intl.formatMessage(intlMessages.title),
-        }}
-        customRightButton={
-          <ConverterButtonContainer />
-        }
-      />
+    <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
+      {!isOnMediaArea ? (
+        <Header
+          leftButtonProps={{
+            onClick: () => {
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
+            },
+            'data-test': 'hideNotesLabel',
+            'aria-label': intl.formatMessage(intlMessages.hide),
+            label: intl.formatMessage(intlMessages.title),
+          }}
+          customRightButton={
+            <ConverterButtonContainer />
+          }
+        />
+      ): null}
       <PadContainer
         externalId={Service.ID}
         hasPermission={hasPermission}
@@ -74,5 +108,6 @@ const Notes = ({
 };
 
 Notes.propTypes = propTypes;
+Notes.defaultProps = defaultProps;
 
 export default injectWbResizeEvent(injectIntl(Notes));

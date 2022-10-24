@@ -1149,6 +1149,37 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { sharedNotes } = state.output;
+      if (sharedNotes.width === width
+        && sharedNotes.height === height
+        && sharedNotes.top === top
+        && sharedNotes.left === left
+        && sharedNotes.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          sharedNotes: {
+            ...sharedNotes,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
+      };
+    }
     default: {
       throw new Error('Unexpected action');
     }

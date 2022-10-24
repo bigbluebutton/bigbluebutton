@@ -3,6 +3,7 @@ import Auth from '/imports/ui/services/auth';
 
 import { getStreamer } from '/imports/api/external-videos';
 import { makeCall } from '/imports/ui/services/api';
+import NotesService from '/imports/ui/components/notes/service';
 
 import ReactPlayer from 'react-player';
 
@@ -18,6 +19,9 @@ const startWatching = (url) => {
   if (Panopto.canPlay(url)) {
     externalVideoUrl = Panopto.getSocialUrl(url);
   }
+
+  // Close Shared Notes if open.
+  NotesService.pinSharedNotes(false);
 
   makeCall('startWatchingExternalVideo', externalVideoUrl);
 };

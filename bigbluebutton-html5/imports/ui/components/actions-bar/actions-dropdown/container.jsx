@@ -7,6 +7,7 @@ import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
+import NotesService from '/imports/ui/components/notes/service';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -33,11 +34,14 @@ const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
+  const isSharedNotesPinned = NotesService.isSharedNotesPinned();
   return ({
     presentations,
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    isSharedNotesPinned,
+    toggleSharedNotes: () => NotesService.pinSharedNotes(!isSharedNotesPinned),
   });
 })(ActionsDropdownContainer);

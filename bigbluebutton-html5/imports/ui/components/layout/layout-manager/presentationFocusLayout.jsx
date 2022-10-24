@@ -470,6 +470,17 @@ const PresentationFocusLayout = (props) => {
         right: mediaBounds.right,
       },
     });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
+      value: {
+        width: isOpen ? mediaBounds.width : 0,
+        height: isOpen ? mediaBounds.height : 0,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: mediaBounds.right,
+      },
+    });
   };
 
   return null;

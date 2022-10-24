@@ -121,9 +121,9 @@ class UserNotes extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, isPinned } = this.props;
 
-    if (!NotesService.isEnabled()) return null;
+    if (!NotesService.isEnabled() || isPinned) return null;
 
     return (
       <Styled.Messages>

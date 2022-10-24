@@ -95,6 +95,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
   },
+  pinNotes: {
+    id: 'app.actionsBar.actionsDropdown.pinNotes',
+    description: 'Label for pin shared notes button',
+  },
+  unpinNotes: {
+    id: 'app.actionsBar.actionsDropdown.unpinNotes',
+    description: 'Label for unpin shared notes button',
+  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
@@ -141,6 +149,9 @@ class ActionsDropdown extends PureComponent {
       setMeetingLayout,
       setPushLayout,
       showPushLayout,
+      toggleSharedNotes,
+      isSharedNotesPinned,
+      sidebarContent,
     } = this.props;
 
     const {
@@ -234,6 +245,19 @@ class ActionsDropdown extends PureComponent {
       key: 'layoutModal',
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
     });
+
+    if (amIPresenter) {
+      actions.push({
+        icon: 'send',
+        label: isSharedNotesPinned
+          ? intl.formatMessage(intlMessages.unpinNotes)
+          : intl.formatMessage(intlMessages.pinNotes),
+        key: 'sharedNotes',
+        onClick: () => {
+          toggleSharedNotes();
+        },
+      });
+    }
 
     return actions;
   }
