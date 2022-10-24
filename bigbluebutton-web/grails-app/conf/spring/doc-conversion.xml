@@ -23,6 +23,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:bigbluebutton.properties</value>
+                <value>file:/etc/bigbluebutton/bbb-web.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+    </bean>
+
     <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
         <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
@@ -87,6 +98,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
         <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
+        <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
+        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
         <property name="svgResolutionPpi" value="${svgPresentationResolutionPpi}"/>
         <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
@@ -145,6 +158,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="swfSlidesGenerationProgressNotifier"
           class="org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier">
         <property name="messagingService" ref="bbbWebApiGWApp"/>
+        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
         <property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
     </bean>
 

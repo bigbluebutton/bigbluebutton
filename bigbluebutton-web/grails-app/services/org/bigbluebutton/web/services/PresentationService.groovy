@@ -26,6 +26,7 @@ import org.bigbluebutton.presentation.UploadedPresentation
 class PresentationService {
 
 	static transactional = false
+	@Autowired
 	DocumentConversionService documentConversionService
 	def presentationDir
 	def testConferenceMock
@@ -84,7 +85,9 @@ class PresentationService {
 		t.runAfter(5000) {
 			try {
 				documentConversionService.processDocument(uploadedPres)
-			} finally {
+			} catch(Throwable e) {
+				log.error "\nError in Presentation service:\n${e}\n"
+			}finally {
 				t.cancel()
 			}
 		}

@@ -11,10 +11,12 @@ public class DocConversionProgress implements IDocConversionMsg {
   public final Boolean downloadable;
   public final Boolean removable;
   public final String key;
+  public final String temporaryPresentationId;
 
   public DocConversionProgress(String podId, String meetingId, String presId, String presInstance,
                                String filename, String uploaderId, String authzToken,
-                               Boolean downloadable, Boolean removable, String key) {
+                               Boolean downloadable, Boolean removable, String key,
+                               String temporaryPresentationId) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -25,5 +27,6 @@ public class DocConversionProgress implements IDocConversionMsg {
     this.downloadable = downloadable;
     this.removable = removable;
     this.key = key;
+    this.temporaryPresentationId = temporaryPresentationId;
   }
 }

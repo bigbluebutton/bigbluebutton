@@ -5,6 +5,7 @@ import { Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
 
 const DISABLE_EMOJIS = Meteor.settings.public.chat.disableEmojis;
+const FREQUENT_SORT_ON_CLICK = Meteor.settings.public.chat.emojiPicker.frequentEmojiSortOnClick;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -66,7 +67,7 @@ const EmojiPicker = (props) => {
     <Picker
       emoji=""
       onSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
-      enableFrequentEmojiSort
+      enableFrequentEmojiSort={FREQUENT_SORT_ON_CLICK}
       native
       title=""
       emojiSize={24}

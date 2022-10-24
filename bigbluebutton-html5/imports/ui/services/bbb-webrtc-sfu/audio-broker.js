@@ -84,6 +84,7 @@ class AudioBroker extends BaseBroker {
           },
           trace: this.traceLogs,
           networkPriorities: this.networkPriority ? { audio: this.networkPriority } : undefined,
+          mediaStreamFactory: this.mediaStreamFactory,
         };
 
         const peerRole = this.role === 'sendrecv' ? this.role : 'recvonly';

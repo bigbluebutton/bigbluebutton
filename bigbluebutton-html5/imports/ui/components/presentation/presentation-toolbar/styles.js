@@ -30,6 +30,7 @@ const PresentationToolbarWrapper = styled.div`
   bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  padding: 2px;
 
   select {
     &:-moz-focusring {
