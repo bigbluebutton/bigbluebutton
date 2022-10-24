@@ -1296,7 +1296,11 @@ class ApiController {
       def Boolean isDownloadable = false;
 
       if (document.name != null && "default".equals(document.name)) {
-        downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        if(presentationService.defaultUploadedPresentation){
+          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        } else {
+          log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
+        }
       } else{
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
