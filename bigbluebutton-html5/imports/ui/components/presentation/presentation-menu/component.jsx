@@ -283,7 +283,7 @@ const PresentationMenu = (props) => {
           </TooltipContainer>
         }
         opts={{
-          id: "default-dropdown-menu",
+          id: "presentation-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,

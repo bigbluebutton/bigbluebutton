@@ -144,7 +144,7 @@ class ChatDropdown extends PureComponent {
             />                    
           }
           opts={{
-            id: 'default-dropdown-menu',
+            id: 'chat-options-dropdown-menu',
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
