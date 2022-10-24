@@ -64,10 +64,12 @@ class WhiteboardModel extends SystemConfiguration {
         } else {
           println("User doesn't have permission to edit this annotation, ignoring...")
         }
-      } else {
+      } else if (annotation.annotationInfo.contains("type")) {
         newAnnotationsMap = newAnnotationsMap + (annotation.id -> annotation)
         annotationsAdded = annotationsAdded :+ annotation
         println("Adding annotation to page [" + wb.id + "]. After numAnnotations=[" + newAnnotationsMap.size + "].")
+      } else {
+        println("New annotation with no type, ignoring (probably received a remove message before and now the shape is incomplete, ignoring...")
       }
     }
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
