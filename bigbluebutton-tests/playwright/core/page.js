@@ -1,6 +1,10 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
 const { readFileSync } = require('fs');
+
+// This is version 4 of chalk, not version 5, which uses ESM
+const chalk = require('chalk');
+
 const parameters = require('./parameters');
 const helpers = require('./helpers');
 const e = require('./elements');
@@ -9,45 +13,11 @@ const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } =
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
 
-async function strcolors(msg) {
-  var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
-  var s = arguments[0];
-  var split_str = s.split("%");
-  var result = "";
-
-  for (i=1; i<arguments.length; i++) {
-    if (split_str[i].startsWith('s')) {
-    } else if (split_str[i].startsWith('c')) {
-      // arguments[i] is css formatting
-      var styles = arguments[i].split(';');
-      for (style of styles) {
-	style = style.trim();
-	if (style.startsWith('color:')) {
-	  var color = style.substr(6).trim();
-	  result += color + " ";
-	}
-      }
-    } else {
-    }
-  }
-
-  return result;
-}
-
 async function strformat(msg, CONSOLE_options) {
-  var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
-  var s = arguments[0];
-  var split_str = s.split("%");
+  const arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
+  const split_str = arguments[0].split("%");
   var result = split_str[0];
   var surpress_further_output = false;
-
-  if (CONSOLE_options.line_label) {
-    if (CONSOLE_options.colorize) {
-      result = "\033[38;5;34m" + CONSOLE_options.line_label + "\033[38;5;0m" + result;
-    } else {
-      result = CONSOLE_options.line_label + result;
-    }
-  }
 
   argloop:
   for (i=1, j=1; i<split_str.length; i++, j++) {
@@ -56,29 +26,12 @@ async function strformat(msg, CONSOLE_options) {
       result += arguments[i] + split_str[i].substr(1);
     } else if (split_str[i].startsWith('c')) {
       // format is %c; arguments[i] is css style
-      var styles = arguments[i].split(';');
+      const styles = arguments[i].split(';');
       for (style of styles) {
 	style = style.trim();
 	if (style.startsWith('color:') && CONSOLE_options.colorize) {
-	  var color = style.substr(6).trim();
-	  switch(color) {
-	  case 'DarkTurquoise':
-	    result += "\033[38;5;44m";
-	    break;
-	  case 'GoldenRod':
-	    result += "\033[38;5;136m";
-	    break;
-	  case 'SteelBlue':
-	    result += "\033[38;5;67m";
-	    break;
-	  case 'DimGray':
-	    result += "\033[38;5;0m";
-	    break;
-	  case 'Crimson':
-	    result += "\033[38;5;160m";
-	    break;
-	  default:
-	  }
+	  const color = style.substr(6).trim().toLowerCase();
+	  result += chalk.keyword(color)._styler.open;
 	} else if (style.startsWith('font-size:') && CONSOLE_options.drop_references) {
 	  // For Chrome, we "drop references" by discarding everything after a font size change
 	  surpress_further_output = true;
@@ -98,6 +51,8 @@ async function strformat(msg, CONSOLE_options) {
     }
   }
 
+  // For Firefox, the first argument was not a format string and we were just
+  // passed a list of strings, so append any unused arguments to the output.
   while (!surpress_further_output && (j < arguments.length)) {
     result += arguments[j];
     j++;
@@ -116,6 +71,14 @@ async function strformat(msg, CONSOLE_options) {
     // timestamp formatting is a bit complicated, with four "%s" fields and corresponding arguments,
     // so just filter them out (if requested) after all the other formatting is done
     result = result.replace(/\[\d\d:\d\d:\d\d:\d\d\d\d\] /, '');
+  }
+
+  if (CONSOLE_options.line_label) {
+    if (CONSOLE_options.colorize) {
+      result = chalk.keyword('green')(CONSOLE_options.line_label) + result;
+    } else {
+      result = CONSOLE_options.line_label + result;
+    }
   }
 
   return result;
