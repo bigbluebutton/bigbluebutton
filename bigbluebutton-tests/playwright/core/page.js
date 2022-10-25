@@ -24,17 +24,17 @@ function formatWithCss(CONSOLE_options, ...args) {
   // See https://console.spec.whatwg.org/ sections 2.2.1 and 2.3.4
 
   let split_arg0 = args[0].split("%");
-  for (var i=1, j=1; i<split_arg0.length; i++, j++) {
+  for (let i=1, j=1; i<split_arg0.length; i++, j++) {
     if (split_arg0[i].startsWith('c')) {
       split_arg0[i] = 's' + split_arg0[i].substr(1);
       const styles = args[j].split(';');
       args[j] = '';
-      for (var style of styles) {
-	style = style.trim();
-	if (style.startsWith('color:') && CONSOLE_options.colorize) {
-	  const color = style.substr(6).trim().toLowerCase();
+      for (const style of styles) {
+	const stdStyle = style.trim().toLowerCase();
+	if (stdStyle.startsWith('color:') && CONSOLE_options.colorize) {
+	  const color = stdStyle.substr(6).trim();
 	  args[j] = chalk.keyword(color)._styler.open;
-	} else if (style.startsWith('font-size:') && CONSOLE_options.drop_references) {
+	} else if (stdStyle.startsWith('font-size:') && CONSOLE_options.drop_references) {
           // For Chrome, we "drop references" by discarding everything after a font size change
 	  split_arg0.length = i;
 	  args.length = j;
@@ -43,7 +43,7 @@ function formatWithCss(CONSOLE_options, ...args) {
     } else if (split_arg0[i] == "") {
       // format is "%%", so don't do special processing for
       // split_arg0[i+1], and only increment i, not j
-      i ++;
+      i ++;  // NOSONAR
     }
   }
   args[0] = split_arg0.join('%');
