@@ -146,6 +146,10 @@ const intlMessages = defineMessages({
   TIMEOUT: {
     id: 'app.presentationUploder.conversion.timeout',
   },
+  CONVERSION_TIMEOUT: {
+		id:'app.presentationUploder.conversion.conversionTimeout',
+		description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+	},
   GENERATING_THUMBNAIL: {
     id: 'app.presentationUploder.conversion.generatingThumbnail',
     description: 'indicatess that it is generating thumbnails',

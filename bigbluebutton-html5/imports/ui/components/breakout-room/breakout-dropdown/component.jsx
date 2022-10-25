@@ -102,7 +102,7 @@ class BreakoutDropdown extends PureComponent {
             />
           }
           opts={{
-            id: "default-dropdown-menu",
+            id: "breakoutroom-dropdown-menu",
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,

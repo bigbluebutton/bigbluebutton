@@ -256,19 +256,10 @@ class Base extends Component {
       meetingEndedReason,
       meetingIsBreakout,
       subscriptionsReady,
-      User,
     } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
-    }
-
-    if (meetingIsBreakout && (ejected || userRemoved)) {
-      Base.setExitReason('removedFromBreakout').finally(() => {
-        Meteor.disconnect();
-        window.close();
-      });
-      return null;
     }
 
     if (ejected) {
@@ -281,21 +272,19 @@ class Base extends Component {
       );
     }
 
-    if ((meetingHasEnded || User?.loggedOut) && meetingIsBreakout) {
-      const reason = meetingHasEnded ? 'breakoutEnded' : 'logout';
-      Base.setExitReason(reason).finally(() => {
+    if (meetingHasEnded && meetingIsBreakout) {
+      Base.setExitReason('breakoutEnded').finally(() => {
         Meteor.disconnect();
         window.close();
       });
       return null;
     }
 
-    if ((meetingHasEnded && !meetingIsBreakout) || (codeError && User?.loggedOut)) {
+    if (meetingHasEnded && !meetingIsBreakout) {
       return (
         <MeetingEnded
           code={codeError}
           endedReason={meetingEndedReason}
-          ejectedReason={ejectedReason}
           callback={() => Base.setExitReason('meetingEnded')}
         />
       );

@@ -366,8 +366,8 @@ class InputStreamLiveSelector extends Component {
       currentInputDeviceId,
       currentOutputDeviceId,
       isListenOnly,
-      isRTL,
       shortcuts,
+      isMobile,
     } = this.props;
 
     const inputDeviceList = !isListenOnly
@@ -399,6 +399,7 @@ class InputStreamLiveSelector extends Component {
     };
 
     const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
+    const customStyles = { top: '-1rem' };
 
     return (
       <>
@@ -411,6 +412,7 @@ class InputStreamLiveSelector extends Component {
           />
         ) : null}
         <BBBMenu
+          customStyles={!isMobile ? customStyles : null}
           trigger={(
             <>
               {isListenOnly
@@ -428,14 +430,14 @@ class InputStreamLiveSelector extends Component {
           )}
           actions={dropdownListComplete}
           opts={{
-            id: 'default-dropdown-menu',
+            id: 'audio-selector-dropdown-menu',
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
             getContentAnchorEl: null,
             fullwidth: 'true',
-            anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
-            transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            anchorOrigin: { vertical: 'top', horizontal: 'center' },
+            transformOrigin: { vertical: 'bottom', horizontal: 'center'},
           }}
         />
       </>
