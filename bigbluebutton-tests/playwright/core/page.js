@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { expect, default: test } = require('@playwright/test');
 const { readFileSync } = require('fs');
+const { format } = require('node:util');
 
 // This is version 4 of chalk, not version 5, which uses ESM
 const chalk = require('chalk');
@@ -13,61 +14,54 @@ const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } =
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
 
-async function strformat(msg, CONSOLE_options) {
-  const arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
-  const split_str = arguments[0].split("%");
-  var result = split_str[0];
-  var surpress_further_output = false;
+async function console_format(msg, CONSOLE_options) {
+  // see playwright consoleMessage class documentation
+  var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
 
-  argloop:
-  for (i=1, j=1; i<split_str.length; i++, j++) {
-    if (split_str[i].startsWith('s')) {
-      // format is %s; arguments[i] is a string
-      result += arguments[i] + split_str[i].substr(1);
-    } else if (split_str[i].startsWith('c')) {
-      // format is %c; arguments[i] is css style
-      const styles = arguments[i].split(';');
+  // For Chrome, arguments[0] is a format string that we will process
+  // using node.js's util.format, but that function discards css style
+  // information from "%c" format specifiers.  So loop over the format
+  // string, replacing every "%c" with "%s" and replacing the
+  // corresponding css style with an ANSI color sequence.
+  //
+  // See https://console.spec.whatwg.org/ sections 2.2.1 and 2.3.4
+
+  var split_arg0 = arguments[0].split("%");
+  for (i=1, j=1; i<split_arg0.length; i++, j++) {
+    if (split_arg0[i].startsWith('c')) {
+      split_arg0[i] = 's' + split_arg0[i].substr(1);
+      const styles = arguments[j].split(';');
+      arguments[j] = '';
       for (style of styles) {
 	style = style.trim();
 	if (style.startsWith('color:') && CONSOLE_options.colorize) {
 	  const color = style.substr(6).trim().toLowerCase();
-	  result += chalk.keyword(color)._styler.open;
+	  arguments[j] = chalk.keyword(color)._styler.open;
 	} else if (style.startsWith('font-size:') && CONSOLE_options.drop_references) {
-	  // For Chrome, we "drop references" by discarding everything after a font size change
-	  surpress_further_output = true;
-	  break argloop;
+          // For Chrome, we "drop references" by discarding everything after a font size change
+	  split_arg0.length = i;
+	  arguments.length = j;
 	}
       }
-      result += split_str[i].substr(1);
-    } else if (split_str[i] == "") {
-      // format is "%%", output a literal "%" and don't do special processing
-      // for the next split_str
-      // XXX this case causes split_str and argument numbering to get out of sync
-      result += "%" + split_str[i+1];
+    } else if (split_arg0[i] == "") {
+      // format is "%%", so don't do special processing for
+      // split_arg0[i+1], and only increment i, not j
       i ++;
-    } else {
-      // format is unrecognized; just drop first %
-      result += split_str[i];
     }
   }
+  arguments[0] = split_arg0.join('%');
+  var result = format(...arguments);
 
-  // For Firefox, the first argument was not a format string and we were just
-  // passed a list of strings, so append any unused arguments to the output.
-  while (!surpress_further_output && (j < arguments.length)) {
-    result += arguments[j];
-    j++;
-  }
-
-  if (CONSOLE_options?.drop_references) {
+  if (CONSOLE_options.drop_references) {
     // For Firefox, we "drop references" by discarding a URL at the end of the line
     result = result.replace(/https:\/\/\S*$/, '');
   }
 
-  if (CONSOLE_options?.noClientLogger) {
+  if (CONSOLE_options.noClientLogger) {
     result = result.replace(/clientLogger: /, '');
   }
 
-  if (CONSOLE_options?.drop_timestamps) {
+  if (CONSOLE_options.drop_timestamps) {
     // timestamp formatting is a bit complicated, with four "%s" fields and corresponding arguments,
     // so just filter them out (if requested) after all the other formatting is done
     result = result.replace(/\[\d\d:\d\d:\d\d:\d\d\d\d\] /, '');
@@ -116,7 +110,7 @@ class Page {
 	line_label: CONSOLE_strings.includes('label') ? this.username + " " : undefined,
 	noClientLogger: CONSOLE_strings.includes('nocl') || CONSOLE_strings.includes('noclientlogger'),
       };
-      this.page.on('console', async (msg) => console.log(await strformat(msg, CONSOLE_options)));
+      this.page.on('console', async (msg) => console.log(await console_format(msg, CONSOLE_options)));
     }
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
