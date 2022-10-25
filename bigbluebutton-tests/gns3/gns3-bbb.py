@@ -163,6 +163,9 @@ listen-address=128.8.8.254
 bind-interfaces
 """
 
+    # Ten second DHCP lease times because I change things around so
+    # much in the virtual network
+
     dhcpd_conf = """
 ddns-updates on;
 ddns-update-style standard;
@@ -171,8 +174,8 @@ authoritative;
 zone test. { }
 
 allow unknown-clients;
-default-lease-time 60;
-max-lease-time 28800;
+default-lease-time 10;
+max-lease-time 10;
 log-facility local7;
 
 subnet 128.8.8.0 netmask 255.255.255.0 {
