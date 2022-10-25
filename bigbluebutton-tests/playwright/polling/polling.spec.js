@@ -40,6 +40,31 @@ test.describe.parallel('Polling', () => {
       await polling.initPages(page);
       await polling.manageResponseChoices();
     });
+
+    test('Start new poll without presentation', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.startNewPollWithoutPresentation();
+    });
+
+    test('Custom input', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.customInput();
+    });
+
+    test('Allow multiple choices', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.allowMultipleChoices();
+    });
+
+    test.only('Smart Slides', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.smartSlidesQuestions();
+    });
+    
   });
 
   test.describe.parallel('Results', () => {

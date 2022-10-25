@@ -567,7 +567,7 @@ class Poll extends Component {
             </span>
           </Styled.OptionWrapper>
           {!hasVal && type !== pollTypes.Response && error ? (
-            <Styled.InputError>{error}</Styled.InputError>
+            <Styled.InputError data-test="errorNoValueInput">{error}</Styled.InputError>
           ) : (
             <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
           )}
@@ -674,7 +674,7 @@ class Poll extends Component {
       <Styled.ResponseArea>
         {defaultPoll && (
           <div>
-            <Styled.PollCheckbox>
+            <Styled.PollCheckbox data-test="allowMultiple">
               <Checkbox
                 onChange={this.toggleIsMultipleResponse}
                 checked={isMultipleResponse}
@@ -941,7 +941,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <Styled.NoSlidePanelContainer>
-        <Styled.SectionHeading>
+        <Styled.SectionHeading data-test="noPresentation">
           {intl.formatMessage(intlMessages.noPresentationSelected)}
         </Styled.SectionHeading>
         <Styled.PollButton

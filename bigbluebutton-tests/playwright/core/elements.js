@@ -193,7 +193,24 @@ exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
-
+exports.noPresentation = 'h4[data-test="noPresentation"]';
+exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
+exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
+exports.allowMultiple = 'div[data-test="allowMultiple"] > div > input[type="checkbox"]';
+exports.pollOptionItem1 = 'input[data-test="pollOptionItem"]>>nth=0';
+exports.pollOptionItem2 = 'input[data-test="pollOptionItem"]>>nth=1';
+exports.pollAnswerDescTest1 = 'input[aria-describedby="pollAnswerDesctest1"]';
+exports.pollAnswerDescTest2 = 'input[aria-describedby="pollAnswerDesctest2"]';
+exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
+exports.numberVotes = 'div[data-test="numberVotes"]';
+exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
+exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
+exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
+exports.smartSlides1 = 'presentation.pdf';
+exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
+exports.optionsAnswers = 'input[aria-describedby="pollAnswerDescA) 2222"]';
+exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]>>nth=0';
+exports.checkboxInput = 'div[data-test="pollingContainer"]>>nth=0 > input[data-test="checkboxInput"]';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
