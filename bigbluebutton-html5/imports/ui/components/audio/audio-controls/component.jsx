@@ -81,6 +81,8 @@ class AudioControls extends PureComponent {
       handleLeaveAudio, handleToggleMuteMicrophone, muted, disable, talking,
     } = this.props;
 
+    const { isMobile } = deviceInfo;
+
     return (
       <InputStreamLiveSelectorContainer {...{
         handleLeaveAudio,
@@ -88,6 +90,7 @@ class AudioControls extends PureComponent {
         muted,
         disable,
         talking,
+        isMobile,
         _enableDynamicDeviceSelection,
       }}
       />
