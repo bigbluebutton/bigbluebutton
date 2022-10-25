@@ -173,22 +173,24 @@ export default function Whiteboard(props) {
       });
 
       const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)))
-      removed && tldrawAPI?.patchState(
-        {
-          document: {
-            pageStates: {
-              [curPageId]: {
-                selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+      if (removed && removed.length > 0) {
+        tldrawAPI?.patchState(
+          {
+            document: {
+              pageStates: {
+                [curPageId]: {
+                  selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+                },
               },
-            },
-            pages: {
-              [curPageId]: {
-                shapes: Object.fromEntries(removed.map((id) => [id, undefined])),
+              pages: {
+                [curPageId]: {
+                  shapes: Object.fromEntries(removed.map((id) => [id, undefined])),
+                },
               },
             },
           },
-        },
-      );
+        );
+      }
       next.pages[curPageId].shapes = shapes;
       changed = true;
     }
@@ -215,8 +217,9 @@ export default function Whiteboard(props) {
       };
       const prevState = tldrawAPI._state;
       const nextState = Utils.deepMerge(tldrawAPI._state, patch);
-      const final = tldrawAPI.cleanup(nextState, prevState, patch, '')
-      tldrawAPI._state = final
+      const final = tldrawAPI.cleanup(nextState, prevState, patch, '');
+      tldrawAPI._state = final;
+      tldrawAPI?.forceUpdate();
     }
 
     // move poll result text to bottom right
