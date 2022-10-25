@@ -107,7 +107,7 @@ class GuestPolicy extends MultiUsers {
     await setGuestPolicyOption(this.modPage, e.alwaysDeny);
     await sleep(1500);
     await this.initUserPage(false);
-    await this.userPage.hasElement(e.joinMeetingDemoPage);
+    await this.userPage.hasElement(e.welcomeMessage);
   }
 }
 
