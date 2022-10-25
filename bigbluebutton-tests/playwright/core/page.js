@@ -14,33 +14,30 @@ const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } =
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData, getSettings } = require('./settings');
 
-async function console_format(msg, CONSOLE_options) {
-  // see playwright consoleMessage class documentation
-  var arguments = await Promise.all(msg.args().map(itm => itm.jsonValue()));
-
-  // For Chrome, arguments[0] is a format string that we will process
-  // using node.js's util.format, but that function discards css style
-  // information from "%c" format specifiers.  So loop over the format
-  // string, replacing every "%c" with "%s" and replacing the
+function formatWithCss(CONSOLE_options, ...args) {
+  // For Chrome, args[0] is a format string that we will process using
+  // node.js's util.format, but that function discards css style
+  // information from "%c" format specifiers.  So first loop over the
+  // format string, replacing every "%c" with "%s" and replacing the
   // corresponding css style with an ANSI color sequence.
   //
   // See https://console.spec.whatwg.org/ sections 2.2.1 and 2.3.4
 
-  var split_arg0 = arguments[0].split("%");
-  for (i=1, j=1; i<split_arg0.length; i++, j++) {
+  let split_arg0 = args[0].split("%");
+  for (var i=1, j=1; i<split_arg0.length; i++, j++) {
     if (split_arg0[i].startsWith('c')) {
       split_arg0[i] = 's' + split_arg0[i].substr(1);
-      const styles = arguments[j].split(';');
-      arguments[j] = '';
-      for (style of styles) {
+      const styles = args[j].split(';');
+      args[j] = '';
+      for (var style of styles) {
 	style = style.trim();
 	if (style.startsWith('color:') && CONSOLE_options.colorize) {
 	  const color = style.substr(6).trim().toLowerCase();
-	  arguments[j] = chalk.keyword(color)._styler.open;
+	  args[j] = chalk.keyword(color)._styler.open;
 	} else if (style.startsWith('font-size:') && CONSOLE_options.drop_references) {
           // For Chrome, we "drop references" by discarding everything after a font size change
 	  split_arg0.length = i;
-	  arguments.length = j;
+	  args.length = j;
 	}
       }
     } else if (split_arg0[i] == "") {
@@ -49,8 +46,14 @@ async function console_format(msg, CONSOLE_options) {
       i ++;
     }
   }
-  arguments[0] = split_arg0.join('%');
-  var result = format(...arguments);
+  args[0] = split_arg0.join('%');
+  return format(...args);
+}
+
+async function console_format(msg, CONSOLE_options) {
+  // see playwright consoleMessage class documentation
+  const args = await Promise.all(msg.args().map(itm => itm.jsonValue()));
+  let result = formatWithCss(CONSOLE_options, ...args);
 
   if (CONSOLE_options.drop_references) {
     // For Firefox, we "drop references" by discarding a URL at the end of the line
