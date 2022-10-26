@@ -41,10 +41,10 @@ test.describe.parallel('Polling', () => {
       await polling.manageResponseChoices();
     });
 
-    test('Start new poll without presentation', async ({ browser, context, page }) => {
+    test('Not able to start new poll without presentation', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
-      await polling.startNewPollWithoutPresentation();
+      await polling.notAbleStartNewPollWithoutPresentation();
     });
 
     test('Custom input', async ({ browser, context, page }) => {
@@ -59,7 +59,7 @@ test.describe.parallel('Polling', () => {
       await polling.allowMultipleChoices();
     });
 
-    test.only('Smart Slides', async ({ browser, context, page }) => {
+    test('Smart slides questions', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
       await polling.smartSlidesQuestions();

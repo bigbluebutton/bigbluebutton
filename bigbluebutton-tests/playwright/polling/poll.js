@@ -149,7 +149,7 @@ class Polling extends MultiUsers {
     await expect(lastOptionText).toHaveText(this.newInputText);
   }
 
-  async startNewPollWithoutPresentation() {
+  async notAbleStartNewPollWithoutPresentation() {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.removePresentation);
@@ -171,8 +171,10 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.hasElement(e.pollingContainer);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
 
     await this.modPage.hasText(e.currentPollQuestion, /Test/);
+    await this.modPage.hasText(e.answer1, '1');
   }
 
   async allowMultipleChoices() {
@@ -193,8 +195,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.startPoll);
     await this.modPage.hasText(e.currentPollQuestion, /Test/);
 
-    await this.userPage.waitAndClickElement(e.pollAnswerDescTest1);
-    await this.userPage.waitAndClickElement(e.pollAnswerDescTest2);
+    await this.userPage.waitAndClick(e.pollAnswerDescTest1);
+    await this.userPage.waitAndClick(e.pollAnswerDescTest2);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
     await this.modPage.hasText(e.answer1, '1');
@@ -210,10 +212,12 @@ class Polling extends MultiUsers {
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
 
+    await this.modPage.hasText(e.receivedAnswer, 'test');
+
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.waitAndClickElement(e.checkboxInput);
+    await this.userPage.waitAndClick(e.checkboxInput);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
 
     await this.modPage.hasText(e.answer1, '1');
@@ -222,8 +226,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.answer1, '1');
 
+    await this.modPage.hasText(e.answer1, '1');
     await this.modPage.hasElementDisabled(e.nextSlide);
   }
 }
