@@ -620,7 +620,7 @@ gns3_project.link(master, 1, PublicIP_switch)
 subnet = '100.64.1.1/24'
 nat4 = BBB_client_nat('NAT4', x=150, y=-200, nat_interface=subnet)
 gns3_project.link(nat4, 0, PublicIP_switch)
-nat4_switch = gns3_project.switch(subnet, x=250, y=-200)
+nat4_switch = gns3_project.switch(subnet, x=350, y=-200)
 gns3_project.link(nat4, 1, nat4_switch)
 gns3_project.depends_on(nat4, master)
 
@@ -631,7 +631,7 @@ gns3_project.depends_on(nat4, master)
 subnet = '192.168.128.1/24'
 nat5 = BBB_client_nat('NAT5', x=150, y=-100, nat_interface=subnet)
 gns3_project.link(nat5, 0, PublicIP_switch)
-nat5_switch = gns3_project.switch(subnet, x=250, y=-100)
+nat5_switch = gns3_project.switch(subnet, x=350, y=-100)
 gns3_project.link(nat5, 1, nat5_switch)
 gns3_project.depends_on(nat5, master)
 
@@ -642,7 +642,7 @@ gns3_project.depends_on(nat5, master)
 subnet = '192.168.1.1/24'
 nat6 = BBB_client_nat('NAT6', x=150, y=0, nat_interface=subnet)
 gns3_project.link(nat6, 0, PublicIP_switch)
-nat6_switch = gns3_project.switch(subnet, x=250, y=0)
+nat6_switch = gns3_project.switch(subnet, x=350, y=0)
 gns3_project.link(nat6, 1, nat6_switch)
 gns3_project.depends_on(nat6, master)
 
@@ -653,10 +653,10 @@ for v in args.version:
         # find an unoccupied y coordinate on the GUI
         for y in (-200, -100, 0, 100, 200):
             try:
-                next(n for n in gns3_project.nodes() if n['x'] == 450 and n['y'] == y)
+                next(n for n in gns3_project.nodes() if n['x'] == 550 and n['y'] == y)
             except StopIteration:
                 break
-        client = BBB_client(v, x=450, y=y)
+        client = BBB_client(v, x=550, y=y)
         gns3_project.link(client, 0, nat4_switch)
         gns3_project.depends_on(client, nat4)
         gns3_project.link(client, 1, nat5_switch)
