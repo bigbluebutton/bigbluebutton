@@ -130,12 +130,14 @@ if not cloud_image in gns3_server.images():
 # An Ubuntu 20 image created by GNS3/ubuntu.py in Brent Baccala's NPDC github repository
 #
 # This image comes with the console GUI pre-installed, which cloud_image lacks.
+#
+# Default is the most recent ubuntu-open-desktop image (last in the sort order)
 
 if any(v.startswith('testclient') for v in args.version):
     if args.client_image:
         assert args.client_image in gns3_server.images()
     else:
-        args.client_image = next(image for image in gns3_server.images() if image.startswith('ubuntu-open-desktop'))
+        args.client_image = sorted(image for image in gns3_server.images() if image.startswith('ubuntu-open-desktop'))[-1]
 
 # Find out if the system we're running on is configured to use an apt proxy.
 
