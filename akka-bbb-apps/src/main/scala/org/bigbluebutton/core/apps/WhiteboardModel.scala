@@ -1,9 +1,6 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
-import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
-import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
@@ -24,7 +21,7 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(
+    Whiteboard(
       wbId,
       Array.empty[String],
       Array.empty[String],
@@ -53,23 +50,23 @@ class WhiteboardModel extends SystemConfiguration {
     val wb = getWhiteboard(wbId)
     var newAnnotationsMap = wb.annotationsMap
     for (annotation <- annotations) {
-      var oldAnnotation = wb.annotationsMap.get(annotation.id)
+      val oldAnnotation = wb.annotationsMap.get(annotation.id)
       if (!oldAnnotation.isEmpty) {
         val hasPermission = isPresenter || isModerator || oldAnnotation.get.userId == userId
         if (hasPermission) {
           val newAnnotation = oldAnnotation.get.copy(annotationInfo = deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo))
-          newAnnotationsMap = newAnnotationsMap + (annotation.id -> newAnnotation)
-          annotationsAdded = annotationsAdded :+ annotation
-          println("Updated annotation onpage [" + wb.id + "]. After numAnnotations=[" + newAnnotationsMap.size + "].")
+          newAnnotationsMap += (annotation.id -> newAnnotation)
+          annotationsAdded :+= annotation
+          println(s"Updated annotation onpage [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
         } else {
-          println("User doesn't have permission to edit this annotation, ignoring...")
+          println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
         }
       } else if (annotation.annotationInfo.contains("type")) {
-        newAnnotationsMap = newAnnotationsMap + (annotation.id -> annotation)
-        annotationsAdded = annotationsAdded :+ annotation
-        println("Adding annotation to page [" + wb.id + "]. After numAnnotations=[" + newAnnotationsMap.size + "].")
+        newAnnotationsMap += (annotation.id -> annotation)
+        annotationsAdded :+= annotation
+        println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       } else {
-        println("New annotation with no type, ignoring (probably received a remove message before and now the shape is incomplete, ignoring...")
+        println(s"New annotation [${annotation.id}] with no type, ignoring (probably received a remove message before and now the shape is incomplete, ignoring...")
       }
     }
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
@@ -83,7 +80,7 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   def clearWhiteboard(wbId: String, userId: String): Option[Boolean] = {
-    var cleared: Option[Boolean] = None
+    val cleared: Option[Boolean] = None
 
     /*if (hasWhiteboard(wbId)) {
       val wb = getWhiteboard(wbId)
@@ -116,9 +113,9 @@ class WhiteboardModel extends SystemConfiguration {
       if (!annotation.isEmpty) {
         val hasPermission = isPresenter || isModerator || annotation.get.userId == userId
         if (hasPermission) {
-          newAnnotationsMap = newAnnotationsMap - annotationId
+          newAnnotationsMap -= annotationId
           println("Removing annotation on page [" + wb.id + "]. After numAnnotations=[" + newAnnotationsMap.size + "].")
-          annotationsIdsRemoved = annotationsIdsRemoved :+ annotationId
+          annotationsIdsRemoved :+= annotationId
         } else {
           println("User doesn't have permission to remove this annotation, ignoring...")
         }
