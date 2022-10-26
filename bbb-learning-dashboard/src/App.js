@@ -177,7 +177,7 @@ class App extends React.Component {
         });
     } else if (sessionToken !== '') {
       const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
-      fetch(`${url}?sessionToken=${sessionToken}`)
+      fetch(`${url}?sessionToken=${sessionToken}`, { credentials: 'include' })
         .then((response) => response.json())
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
