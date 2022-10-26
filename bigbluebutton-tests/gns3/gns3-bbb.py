@@ -79,11 +79,25 @@ parser = argparse.ArgumentParser(parents=[gns3.parser('BigBlueButton')],
                                  formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--client-image', type=str,
                     help='Ubuntu image to be used for test clients')
+parser.add_argument('--public-subnet', type=str, default='128.8.8.0/24',
+                    help='public IP subnet to be "stolen" for our use')
+parser.add_argument('--domain', type=str, default='test',
+                    help='DNS domain name for virtual devices')
 parser.add_argument('version', nargs='*',
                     help="""version of BigBlueButton server to be installed
 (focal-250, focal-25-dev, focal-260, focal-GITREV)
 version names starting with 'testclient' install clients""")
 args = parser.parse_args()
+
+public_subnet = ipaddress.ip_network(args.public_subnet)
+if not public_subnet.is_global:
+    print(f"{args.public_subnet} must be a public IP prefix")
+    exit(1)
+
+# Use the first host address on the subnet for our master gateway
+# The rest of them will be available for assignment with DHCP
+public_subnet_hosts = list(public_subnet.hosts())
+master_gateway_address = str(public_subnet_hosts[0])
 
 # Various scripts we'll use
 #
@@ -155,37 +169,38 @@ def master_gateway(hostname, x=0, y=0):
 
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
-                                    'ens5': {'addresses': ['128.8.8.254/24'] }
+                                    'ens5': {'addresses': [f'{master_gateway_address}/{public_subnet.prefixlen}'] }
                       }}
 
-    dnsmasq_conf = """
-listen-address=128.8.8.254
+    dnsmasq_conf = f"""
+listen-address={master_gateway_address}
 bind-interfaces
 """
 
     # Ten second DHCP lease times because I change things around so
     # much in the virtual network
 
-    dhcpd_conf = """
+    dhcpd_conf = f"""
 ddns-updates on;
 ddns-update-style standard;
 update-optimization off;
 authoritative;
-zone test. { }
+# double curlies because it's a Python f-string
+zone {args.domain}. {{ }}
 
 allow unknown-clients;
 default-lease-time 10;
 max-lease-time 10;
 log-facility local7;
 
-subnet 128.8.8.0 netmask 255.255.255.0 {
- range 128.8.8.101 128.8.8.200;
- option subnet-mask 255.255.255.0;
- option domain-name-servers 128.8.8.254;
- option domain-name "test";
- option routers 128.8.8.254;
- option broadcast-address 128.8.8.255;
-}
+subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)} {{
+ range {str(public_subnet_hosts[1])} {str(public_subnet_hosts[-1])};
+ option subnet-mask {str(public_subnet.netmask)};
+ option domain-name-servers {master_gateway_address};
+ option domain-name "{args.domain}";
+ option routers {master_gateway_address};
+ option broadcast-address {str(public_subnet.broadcast_address)};
+}}
 
 """
 
@@ -226,11 +241,11 @@ subnet 128.8.8.0 netmask 255.255.255.0 {
                  ],
                  'runcmd': [
                      # resolver1.opendns.com is used by bbb-install to determine external IP address
-                     'echo 128.8.8.254 resolver1.opendns.com >> /etc/hosts',
+                     f'echo {master_gateway_address} resolver1.opendns.com >> /etc/hosts',
                      # configure coturn to listen on 19302, like stun.l.google.com
                      # 'echo listening-port=19302 >> /etc/turnserver.conf',
-                     'echo aux-server=128.8.8.254:19302 >> /etc/turnserver.conf',
-                     'echo 128.8.8.254 stun.l.google.com >> /etc/hosts',
+                     f'echo aux-server={master_gateway_address}:19302 >> /etc/turnserver.conf',
+                     f'echo {master_gateway_address} stun.l.google.com >> /etc/hosts',
                      'systemctl restart coturn',
                      # simplest way to let new-dhcp-lease.sh run as root
                      'echo DNSMASQ_USER=root >> /etc/default/dnsmasq',
@@ -255,7 +270,7 @@ subnet 128.8.8.0 netmask 255.255.255.0 {
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
                      'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
                      # we accept CSRs via POST to http://ca.test/getcert.cgi
-                     'echo 128.8.8.254 ca.test >> /etc/hosts',
+                     f'echo {master_gateway_address} ca.{args.domain} >> /etc/hosts',
                      # initialize the SSL certificate authority, if needed
                      '/opt/ca/generateCA.sh',
                  ],
@@ -383,8 +398,8 @@ auth-zone=test-client
 auth-zone=in-addr.arpa
 # auth-server is required when auth-zone is defined; use a non-existent dummy server
 auth-server=dns.test-client
-# tell the test clients to search test and not test-client
-dhcp-option = option:domain-search,test
+# tell the test clients to search args.domain and not test-client
+dhcp-option = option:domain-search,{args.domain}
 """
 
     network_config = {'version': 2,
@@ -500,12 +515,12 @@ dhcp-authoritative
                      #    - we don't know our own IP address at this point
                      #    - rule has to be on PREROUTING, else we can't use DNAT
                      #    - since it's on PREROUTING, we can't use -o lo
-                     #    - so grab traffic bound for everything on the subnet except the gateway (128.8.8.254),
+                     #    - so grab traffic bound for everything on the subnet except the gateway,
                      #      which we need to connect to for getcert.cgi
-                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.254 --dport 80 -j ACCEPT',
-                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.254 --dport 443 -j ACCEPT',
-                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.0/24 --dport 80 -j DNAT --to-destination 192.168.1.2',
-                     'iptables -t nat -A PREROUTING -p tcp -d 128.8.8.0/24 --dport 443 -j DNAT --to-destination 192.168.1.2',
+                     f'iptables -t nat -A PREROUTING -p tcp -d {master_gateway_address} --dport 80 -j ACCEPT',
+                     f'iptables -t nat -A PREROUTING -p tcp -d {master_gateway_address} --dport 443 -j ACCEPT',
+                     f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 80 -j DNAT --to-destination 192.168.1.2',
+                     f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 443 -j DNAT --to-destination 192.168.1.2',
                      # hairpin case - we need to rewrite the source address before sending the packets back to the server
                      # no hairpin on port 22; we can ssh into the server, then ssh back to the NAT gateway if needed
                      'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE',
@@ -605,7 +620,7 @@ master = master_gateway(args.project, x=-200, y=0)
 
 # An Ethernet switch for our public "Internet"
 
-PublicIP_switch = gns3_project.switch('128.8.8.0/24', x=0, y=0, ethernets=16)
+PublicIP_switch = gns3_project.switch(public_subnet.with_prefixlen, x=0, y=0, ethernets=16)
 gns3_project.link(master, 0, internet)
 gns3_project.link(master, 1, PublicIP_switch)
 
