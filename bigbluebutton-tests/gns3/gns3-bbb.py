@@ -543,13 +543,15 @@ def BBB_server_standalone(hostname, x=100, y=300):
                             'shell': '/bin/bash',
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
+                 # I'd like to put this in /home/ubuntu, but then /home/ubuntu will be owned by root
+                 # Alternately, I'd put this in /root, but then user ubuntu can't read it
                  'write_files': [
-                     {'path': '/root/testserver.sh',
+                     {'path': '/testserver.sh',
                       'permissions': '0755',
                       'content': file('testserver.sh')
                      },
                  ],
-                 'runcmd': ['su ubuntu -c /root/testserver.sh']
+                 'runcmd': ['su ubuntu -c /testserver.sh']
     }
 
     if notification_url:
