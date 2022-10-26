@@ -1000,7 +1000,7 @@ class VideoProvider extends Component {
       },
     }, `Failed to restore virtual background after reentering the room: ${error.message}`);
 
-    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
+    notify(intl.formatMessage(intlClientErrors.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream, video) {
