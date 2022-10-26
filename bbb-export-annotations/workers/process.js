@@ -6,7 +6,7 @@ const cp = require('child_process');
 const {Worker, workerData} = require('worker_threads');
 const path = require('path');
 const sanitize = require('sanitize-filename');
-const {getStroke, getStrokePoints} = require('perfect-freehand');
+const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
 
 const jobId = workerData;
@@ -193,17 +193,17 @@ function get_gap(dash, size) {
 function get_stroke_width(dash, size) {
   switch (size) {
     case 'small': if (dash === 'draw') {
-      return 1;
+      return 2;
     } else {
       return 4;
     }
     case 'medium': if (dash === 'draw') {
-      return 1.75;
+      return 3.5;
     } else {
       return 6.25;
     }
     case 'large': if (dash === 'draw') {
-      return 2.5;
+      return 5;
     } else {
       return 8.5;
     }
@@ -236,61 +236,26 @@ function text_size_to_px(size, scale = 1, isStickyNote = false) {
   }
 }
 
-// Methods based on tldraw's utilities
-function getPath(annotationPoints) {
-  // Gets inner path of a stroke outline
-  // For solid, dashed, and dotted types
-  const stroke = getStrokePoints(annotationPoints)
-      .map((strokePoint) => strokePoint.point);
-
-  let [max_x, max_y] = [0, 0];
-  const inner_path = stroke.reduce(
+/**
+ * Turns an array of points into a path of quadradic curves.
+ * @param {Array} annotationPoints
+ * @param {Boolean} closed - whether the path end and start should be connected (default)
+ * @return {Array} - an SVG quadratic curve path
+ */
+function getSvgPath(annotationPoints, closed = true) {
+  const svgPath = annotationPoints.reduce(
       (acc, [x0, y0], i, arr) => {
         if (!arr[i + 1]) return acc;
         const [x1, y1] = arr[i + 1];
-        if (x1 >= max_x) {
-          max_x = x1;
-        }
-        if (y1 >= max_y) {
-          max_y = y1;
-        }
-        acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+        acc.push(x0.toFixed(2), y0.toFixed(2), ((x0 + x1) / 2).toFixed(2), ((y0 + y1) / 2).toFixed(2));
         return acc;
       },
 
-      ['M', ...stroke[0], 'Q'],
+      ['M', ...annotationPoints[0], 'Q'],
   );
 
-  return [inner_path, max_x, max_y];
-}
-
-function getOutlinePath(annotationPoints) {
-  // Gets outline of a hand-drawn input, with pressure
-  const stroke = getStroke(annotationPoints, {
-    simulatePressure: true,
-    size: 8,
-  });
-
-  let [max_x, max_y] = [0, 0];
-  const outline_path = stroke.reduce(
-      (acc, [x0, y0], i, arr) => {
-        const [x1, y1] = arr[(i + 1) % arr.length];
-        if (x1 >= max_x) {
-          max_x = x1;
-        }
-        if (y1 >= max_y) {
-          max_y = y1;
-        }
-        acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
-        return acc;
-      },
-
-      ['M', ...stroke[0], 'Q'],
-  );
-
-  outline_path.push('Z');
-
-  return [outline_path, max_x, max_y];
+  if (closed) svgPath.push('Z');
+  return svgPath;
 }
 
 function circleFromThreePoints(A, B, C) {
@@ -471,49 +436,94 @@ function overlay_arrow(svg, annotation) {
 }
 
 function overlay_draw(svg, annotation) {
+  const shapePoints = annotation.points;
+  const shapePointsLength = shapePoints.length;
+
+  if (shapePointsLength < 2) return;
+
   const dash = annotation.style.dash;
-  const [calculated_path, max_x, max_y] = (dash == 'draw') ? getOutlinePath(annotation.points) : getPath(annotation.points);
+  const isDashDraw = (dash == 'draw');
 
-  if (!calculated_path.length) return;
-
-  const shapeColor = color_to_hex(annotation.style.color);
-  const rotation = rad_to_degree(annotation.rotation);
   const thickness = get_stroke_width(dash, annotation.style.size);
   const gap = get_gap(dash, annotation.style.size);
-
-  const [x, y] = annotation.point;
-
   const stroke_dasharray = determine_dasharray(dash, gap);
-  const fill = (dash === 'draw') ? shapeColor : 'none';
 
+  const shapeColor = color_to_hex(annotation.style.color);
   const shapeFillColor = color_to_hex(`fill-${annotation.style.color}`);
-  const shapeTransform = `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`;
+  const fill = isDashDraw ? shapeColor : 'none';
 
-  // Fill assuming solid, small pencil used
-  // when path start- and end points overlap
-  const shapeIsFilled =
+  const rotation = rad_to_degree(annotation.rotation);
+  const [x, y] = annotation.point;
+  const [width, height] = annotation.size;
+  const shapeTransform = `translate(${x} ${y}), rotate(${rotation} ${width / 2} ${height / 2})`;
+
+  const simulatePressure = {
+    easing: (t) => Math.sin((t * Math.PI) / 2),
+    simulatePressure: true,
+  };
+
+  const realPressure = {
+    easing: (t) => t * t,
+    simulatePressure: false,
+  };
+
+  const options = {
+    size: 1 + thickness * 1.5,
+    thinning: 0.65,
+    streamline: 0.65,
+    smoothing: 0.65,
+    ...(shapePoints[1][2] === 0.5 ? simulatePressure : realPressure),
+    last: annotation.isComplete,
+  };
+
+  const strokePoints = getStrokePoints(shapePoints, options);
+
+  // Fill when path start- and end points overlap
+  const isShapeFilled =
         annotation.style.isFilled &&
-        annotation.points.length > 3 &&
+        shapePointsLength > 3 &&
         Math.round(distance(
-            annotation.points[0][0],
-            annotation.points[0][1],
-            annotation.points[annotation.points.length - 1][0],
-            annotation.points[annotation.points.length - 1][1],
-        )) <= 2 * get_stroke_width('solid', 'small');
+            shapePoints[0][0],
+            shapePoints[0][1],
+            shapePoints[shapePointsLength - 1][0],
+            shapePoints[shapePointsLength - 1][1],
+        )) <= 2 * thickness;
 
-  if (shapeIsFilled) {
+  if (isShapeFilled) {
+    const shapeArea = strokePoints.map((strokePoint) => strokePoint.point);
     svg.ele('path', {
       style: `fill:${shapeFillColor};`,
-      d: getPath(annotation.points)[0] + 'Z',
+      d: getSvgPath(shapeArea),
       transform: shapeTransform,
     }).up();
   }
 
-  svg.ele('path', {
-    style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
-    d: calculated_path,
-    transform: shapeTransform,
-  });
+  if (isDashDraw) {
+    const strokeOutlinePoints = getStrokeOutlinePoints(strokePoints, options);
+    const svgPath = getSvgPath(strokeOutlinePoints);
+
+    svg.ele('path', {
+      style: `fill:${fill};${stroke_dasharray}`,
+      d: svgPath,
+      transform: shapeTransform,
+    });
+  } else {
+    const last = shapePoints[shapePointsLength - 1];
+
+    // Avoid single dots from not being drawn
+    if (strokePoints[0].point[0] == last[0] && strokePoints[0].point[1] == last[1]) {
+      strokePoints.push({point: last});
+    }
+
+    const solidPath = strokePoints.map((strokePoint) => strokePoint.point);
+    const svgPath = getSvgPath(solidPath, false);
+
+    svg.ele('path', {
+      style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
+      d: svgPath,
+      transform: shapeTransform,
+    });
+  }
 }
 
 function overlay_ellipse(svg, annotation) {
@@ -712,32 +722,30 @@ function overlay_text(svg, annotation) {
 }
 
 function overlay_annotation(svg, currentAnnotation) {
-  if (currentAnnotation.childIndex >= 1) {
-    switch (currentAnnotation.type) {
-      case 'arrow':
-        overlay_arrow(svg, currentAnnotation);
-        break;
-      case 'draw':
-        overlay_draw(svg, currentAnnotation);
-        break;
-      case 'ellipse':
-        overlay_ellipse(svg, currentAnnotation);
-        break;
-      case 'rectangle':
-        overlay_rectangle(svg, currentAnnotation);
-        break;
-      case 'sticky':
-        overlay_sticky(svg, currentAnnotation);
-        break;
-      case 'triangle':
-        overlay_triangle(svg, currentAnnotation);
-        break;
-      case 'text':
-        overlay_text(svg, currentAnnotation);
-        break;
-      default:
-        logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
-    }
+  switch (currentAnnotation.type) {
+    case 'arrow':
+      overlay_arrow(svg, currentAnnotation);
+      break;
+    case 'draw':
+      overlay_draw(svg, currentAnnotation);
+      break;
+    case 'ellipse':
+      overlay_ellipse(svg, currentAnnotation);
+      break;
+    case 'rectangle':
+      overlay_rectangle(svg, currentAnnotation);
+      break;
+    case 'sticky':
+      overlay_sticky(svg, currentAnnotation);
+      break;
+    case 'triangle':
+      overlay_triangle(svg, currentAnnotation);
+      break;
+    case 'text':
+      overlay_text(svg, currentAnnotation);
+      break;
+    default:
+      logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
   }
 }
 
