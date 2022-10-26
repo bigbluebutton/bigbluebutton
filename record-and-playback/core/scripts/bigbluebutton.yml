@@ -64,6 +64,10 @@ captions_dir: /var/bigbluebutton/captions
 playback_host: 127.0.0.1
 playback_protocol: http
 
+# Utils
+script_utils_dir: /usr/local/bigbluebutton/core/scripts/utils
+diff_to_events_filename: extractEventsFromDiffs.js
+
 # For DEVELOPMENT
 # This allows us to run the scripts manually
 #scripts_dir: /home/ubuntu/dev/bigbluebutton/record-and-playback/core/scripts
