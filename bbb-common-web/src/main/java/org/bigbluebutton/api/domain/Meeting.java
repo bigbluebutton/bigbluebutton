@@ -209,6 +209,17 @@ public class Meeting {
 		return uniqueExtIds.size();
 	}
 
+	public List<String> getUsersWithExtId(String externalUserId) {
+		List<String> usersWithExtId = new ArrayList<String>();
+		for (User user : users.values()) {
+			if(user.getExternalUserId().equals(externalUserId)) {
+				usersWithExtId.add(user.getInternalUserId());
+			}
+		}
+
+		return usersWithExtId;
+	}
+
 	public void guestIsWaiting(String userId) {
 		RegisteredUser ruser = registeredUsers.get(userId);
 		if (ruser != null) {

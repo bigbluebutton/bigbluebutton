@@ -643,6 +643,7 @@
     "app.meeting.logout.ejectedFromMeeting": "You have been removed from the meeting",
     "app.meeting.logout.validateTokenFailedEjectReason": "Failed to validate authorization token",
     "app.meeting.logout.userInactivityEjectReason": "User inactive for too long",
+    "app.meeting.logout.maxParticipantsReached": "The maximum number of participants allowed for this meeting has been reached",
     "app.meeting-ended.rating.legendLabel": "Feedback rating",
     "app.meeting-ended.rating.starLabel": "Star",
     "app.modal.close": "Close",
