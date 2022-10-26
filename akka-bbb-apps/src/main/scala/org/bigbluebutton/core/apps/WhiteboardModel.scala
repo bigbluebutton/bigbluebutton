@@ -79,29 +79,6 @@ class WhiteboardModel extends SystemConfiguration {
     wb.annotationsMap.values.toArray
   }
 
-  def clearWhiteboard(wbId: String, userId: String): Option[Boolean] = {
-    val cleared: Option[Boolean] = None
-
-    /*if (hasWhiteboard(wbId)) {
-      val wb = getWhiteboard(wbId)
-
-      if (wb.multiUser.contains(userId)) {
-        if (wb.annotationsMap.contains(userId)) {
-          val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
-          saveWhiteboard(newWb)
-          cleared = Some(false)
-        }
-      } else {
-        if (wb.annotationsMap.nonEmpty) {
-          val newWb = wb.copy(annotationsMap = new HashMap[String, Map[String, AnnotationVO]]())
-          saveWhiteboard(newWb)
-          cleared = Some(true)
-        }
-      }
-    }*/
-    cleared
-  }
-
   def deleteAnnotations(wbId: String, userId: String, annotationsIds: Array[String], isPresenter: Boolean, isModerator: Boolean): Array[String] = {
     var annotationsIdsRemoved = Array[String]()
     val wb = getWhiteboard(wbId)
