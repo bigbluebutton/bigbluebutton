@@ -106,6 +106,8 @@ const intlMessages = defineMessages({
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
+const NOTES_CONFIG = Meteor.settings.public.notes;
+const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 class ActionsDropdown extends PureComponent {
   constructor(props) {
@@ -246,7 +248,7 @@ class ActionsDropdown extends PureComponent {
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
     });
 
-    if (amIPresenter) {
+    if (amIPresenter && NOTES_IS_PINNABLE) {
       actions.push({
         icon: 'send',
         label: isSharedNotesPinned
