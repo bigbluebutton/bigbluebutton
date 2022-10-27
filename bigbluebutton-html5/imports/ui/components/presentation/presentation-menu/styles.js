@@ -7,6 +7,7 @@ import {
   colorGrayDark,
   colorSuccess,
   colorGrayLightest,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSizeLarge,
@@ -35,9 +36,18 @@ const Right = styled.div`
   cursor: pointer;
   position: absolute;
   left: auto;
-  top: .5rem;
-  right: .5rem;
+  right: 0px;
   z-index: 999;
+
+  > div {
+    background-color: ${colorWhite};
+    width: 50px;
+    height: 41px;
+  }
+
+  button {
+    margin-top: .45rem;
+  }
 
   [dir="rtl"] & {
     right: auto;
