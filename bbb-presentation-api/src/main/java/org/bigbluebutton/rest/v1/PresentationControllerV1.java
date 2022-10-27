@@ -259,12 +259,12 @@ public class PresentationControllerV1 implements PresentationApiV1 {
         String presentationName = params.get("presentation_name")[0];
         String conference = params.get("conference")[0];
         String room = params.get("room")[0];
-        String slide = params.get("id")[0];
+        String svg = params.get("id")[0];
 
-        logger.error("Nginx should be serving this SVG file! meetingId={},presId={},page={}",conference, presentationName, slide);
+        logger.error("Nginx should be serving this SVG file! meetingId={},presId={},page={}",conference, presentationName, svg);
 
         try {
-            File presentation = presentationService.showSvgImage(conference, room, presentationName, slide);
+            File presentation = presentationService.showSvgImage(conference, room, presentationName, svg);
             if (presentation.exists()) {
                 byte[] bytes = Files.readAllBytes(presentation.toPath());
                 HttpHeaders responseHeaders = new HttpHeaders();
@@ -272,7 +272,7 @@ public class PresentationControllerV1 implements PresentationApiV1 {
                 return ResponseEntity.ok().headers(responseHeaders).contentType(MediaType.parseMediaType("image/svg+xml")).body(bytes);
             }
         } catch (IOException e) {
-            logger.error("Failed to read SVG file. meetingId=" + conference + ",presId=" + presentationName + ",page=" + slide);
+            logger.error("Failed to read SVG file. meetingId=" + conference + ",presId=" + presentationName + ",page=" + svg);
             logger.error("Error reading SVG file.\n" + e.getMessage());
         }
 
@@ -438,17 +438,104 @@ public class PresentationControllerV1 implements PresentationApiV1 {
 
     @Override
     public ResponseEntity<String> numThumbnails(HttpServletRequest request) {
-        return null;
+        Map<String, String[]> params = request.getParameterMap();
+        String presentationName = params.get("presentation_name")[0];
+        String conference = params.get("conference")[0];
+        String room = params.get("room")[0];
+
+        int numThumbs = presentationService.numberOfThumbnails(conference, room, presentationName);
+
+        Document document = constructXmlResponse(conference, room, presentationName);
+
+        String response = "";
+
+        if(document != null) {
+            Element presentationElement = (Element) document.getElementsByTagName("presentation").item(0);
+
+            Element slidesElement = document.createElement("thumbnails");
+            slidesElement.setAttribute("count", String.valueOf(numThumbs));
+
+            for(int i = 0; i <= numThumbs; i++) {
+                Element element = document.createElement("thumb");
+                element.setAttribute("name", "thumbnails/" + i);
+                slidesElement.appendChild(element);
+            }
+
+            presentationElement.appendChild(slidesElement);
+            response = documentToString(document);
+        }
+
+        return ResponseEntity
+                .ok()
+                .body(response);
     }
 
     @Override
     public ResponseEntity<String> numSvgs(HttpServletRequest request) {
-        return null;
+        Map<String, String[]> params = request.getParameterMap();
+        String presentationName = params.get("presentation_name")[0];
+        String conference = params.get("conference")[0];
+        String room = params.get("room")[0];
+
+        int numThumbs = presentationService.numberOfSvgs(conference, room, presentationName);
+
+        Document document = constructXmlResponse(conference, room, presentationName);
+
+        String response = "";
+
+        if(document != null) {
+            Element presentationElement = (Element) document.getElementsByTagName("presentation").item(0);
+
+            Element slidesElement = document.createElement("thumbnails");
+            slidesElement.setAttribute("count", String.valueOf(numThumbs));
+
+            for(int i = 0; i <= numThumbs; i++) {
+                Element element = document.createElement("thumb");
+                element.setAttribute("name", "thumbnails/" + i);
+                slidesElement.appendChild(element);
+            }
+
+            presentationElement.appendChild(slidesElement);
+            response = documentToString(document);
+        }
+
+        return ResponseEntity
+                .ok()
+                .body(response);
     }
 
     @Override
     public ResponseEntity<String> numTextFiles(HttpServletRequest request) {
-        return null;
+        Map<String, String[]> params = request.getParameterMap();
+        String presentationName = params.get("presentation_name")[0];
+        String conference = params.get("conference")[0];
+        String room = params.get("room")[0];
+
+        int numThumbs = presentationService.numberOfTextFiles(conference, room, presentationName);
+
+        Document document = constructXmlResponse(conference, room, presentationName);
+
+        String response = "";
+
+        if(document != null) {
+            Element presentationElement = (Element) document.getElementsByTagName("presentation").item(0);
+
+            Element slidesElement = document.createElement("thumbnails");
+            slidesElement.setAttribute("count", String.valueOf(numThumbs));
+
+            for(int i = 0; i <= numThumbs; i++) {
+                Element element = document.createElement("thumb");
+                element.setAttribute("name", "textfiles/" + i);
+                slidesElement.appendChild(element);
+            }
+
+            presentationElement.appendChild(slidesElement);
+            response = documentToString(document);
+        }
+
+        return ResponseEntity
+                .ok()
+                .body(response);
     }
 
     private Document constructXmlResponse(String conference, String room, String presentationName) {

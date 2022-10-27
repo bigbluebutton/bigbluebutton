@@ -35,7 +35,7 @@ public interface PresentationApiV1 {
     @RequestMapping(value = "/showPng", produces = MediaType.APPLICATION_XML_VALUE, method = RequestMethod.GET)
     ResponseEntity<byte[]> showPng(HttpServletRequest request);
 
-    @RequestMapping(value = "/ShowTextFie", produces = MediaType.APPLICATION_XML_VALUE, method = RequestMethod.GET)
+    @RequestMapping(value = "/ShowTextFile", produces = MediaType.APPLICATION_XML_VALUE, method = RequestMethod.GET)
     ResponseEntity<byte[]> showTextFile(HttpServletRequest request);
 
     @RequestMapping(value = "/downloadFile", produces = MediaType.APPLICATION_XML_VALUE, method = RequestMethod.GET)

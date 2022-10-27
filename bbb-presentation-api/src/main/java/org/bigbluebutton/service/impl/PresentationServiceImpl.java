@@ -16,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 @Service
 public class PresentationServiceImpl implements PresentationService {
@@ -131,8 +128,8 @@ public class PresentationServiceImpl implements PresentationService {
     }
 
     @Override
-    public File showSvgImage(String conference, String room, String presentationName, String slide) {
-        String svgFile = "slide" + slide + ".svg";
+    public File showSvgImage(String conference, String room, String presentationName, String svg) {
+        String svgFile = "slide" + svg + ".svg";
         return new File(roomDirectory(conference, room).getAbsolutePath()
                 + File.separatorChar + presentationName + File.separatorChar + svgFile);
     }
@@ -163,7 +160,7 @@ public class PresentationServiceImpl implements PresentationService {
         logger.info("Find downloadable presentation for meetingId={} presId={} filename={}", meetingId, presId,
                 presentationFilename);
 
-        if (! Util.isPresFileIdValidFormat(presentationFilename)) {
+        if (!Util.isPresFileIdValidFormat(presentationFilename)) {
             logger.error("Invalid presentation filename for meetingId={} presId={} filename={}", meetingId, presId,
                     presentationFilename);
             return null;
@@ -193,7 +190,23 @@ public class PresentationServiceImpl implements PresentationService {
     public int numberOfThumbnails(String conference, String room, String presentationName) {
         File thumbDir = new File(roomDirectory(conference, room).getAbsolutePath() + File.separatorChar +
                 presentationName + File.separatorChar + "thumbnails");
-        return thumbDir.listFiles().length;
+        return Objects.requireNonNull(thumbDir.listFiles()).length;
+    }
+
+    @Override
+    public int numberOfSvgs(String conference, String room, String presentationName) {
+        File svgsDir = new File(roomDirectory(conference, room).getAbsolutePath() + File.separatorChar +
+                presentationName + File.separatorChar + "svgs");
+        return Objects.requireNonNull(svgsDir.listFiles()).length;
+    }
+
+    @Override
+    public int numberOfTextFiles(String conference, String room, String presentationName) {
+        logger.debug("{}", roomDirectory(conference, room).getAbsolutePath() + File.separatorChar +
+                presentationName + File.separatorChar + "textfiles");
+        File textFileDir = new File(roomDirectory(conference, room).getAbsolutePath() + File.separatorChar +
+                presentationName + File.separatorChar + "textfiles");
+        return Objects.requireNonNull(textFileDir.listFiles()).length;
     }
 
 

@@ -20,10 +20,12 @@ public interface PresentationService {
                                                       boolean uploadFailed, List<String> uploadFailedReasons, boolean isDownloadable);
     void processUploadedPresentation(UploadedPresentation uploadedPresentation);
     File showSlide(String conference, String room, String presentationName, String slide);
-    File showSvgImage(String conference, String room, String presentationName, String slide);
+    File showSvgImage(String conference, String room, String presentationName, String svg);
     File showThumbnail(String conference, String room, String presentationName, String thumbnail);
     File showPng(String conference, String room, String presentationName, String png);
     File showTextFile(String conference, String room, String presentationName, String file);
     File getDownloadablePresentationFile(String meetingId, String presId, String presentationFilename);
     int numberOfThumbnails(String conference, String room, String presentationName);
+    int numberOfSvgs(String conference, String room, String presentationName);
+    int numberOfTextFiles(String conference, String room, String presentationName);
 }
