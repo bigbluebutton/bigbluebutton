@@ -270,21 +270,7 @@ class SettingsDropdown extends PureComponent {
       },
     );
 
-    if (allowedToEndMeeting && isMeteorConnected) {
-      this.menuItems.push(
-        {
-          key: 'list-item-end-meeting',
-          icon: 'application',
-          label: intl.formatMessage(intlMessages.endMeetingLabel),
-          // description: intl.formatMessage(intlMessages.endMeetingDesc),
-          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
-        },
-      );
-    }
-
     if (allowLogoutSetting && isMeteorConnected) {
-      const customStyles = { color: colorDanger };
-
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -292,8 +278,22 @@ class SettingsDropdown extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           // description: intl.formatMessage(intlMessages.leaveSessionDesc),
-          customStyles,
           onClick: () => this.leaveSession(),
+        },
+      );
+    }
+
+    if (allowedToEndMeeting && isMeteorConnected) {
+      const customStyles = { color: colorDanger };
+
+      this.menuItems.push(
+        {
+          key: 'list-item-end-meeting',
+          icon: 'application',
+          label: intl.formatMessage(intlMessages.endMeetingLabel),
+          // description: intl.formatMessage(intlMessages.endMeetingDesc),
+          customStyles,
+          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
         },
       );
     }
