@@ -1149,6 +1149,8 @@ const reducer = (state, action) => {
         },
       };
     }
+
+    // NOTES
     case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
       const {
         width,
@@ -1176,6 +1178,22 @@ const reducer = (state, action) => {
             top,
             left,
             right,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_NOTES_IS_PINNED: {
+      const { sharedNotes } = state.input;
+      if (sharedNotes.isPinned === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sharedNotes: {
+            ...sharedNotes,
+            isPinned: action.value,
           },
         },
       };

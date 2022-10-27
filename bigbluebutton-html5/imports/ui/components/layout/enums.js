@@ -96,6 +96,7 @@ export const ACTIONS = {
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
 
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
+  SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 };
 
 export const PANELS = {

@@ -66,10 +66,23 @@ const Notes = ({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
       });
+
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.NONE,
       });
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_NOTES_IS_PINNED,
+        value: true,
+      });
+
+      return () => {
+        layoutContextDispatch({
+          type: ACTIONS.SET_NOTES_IS_PINNED,
+          value: false,
+        });
+      };
     }
   }, []);
 
