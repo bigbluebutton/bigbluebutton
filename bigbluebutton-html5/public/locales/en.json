@@ -719,6 +719,8 @@
     "app.toast.chat.public": "New Public Chat message",
     "app.toast.chat.private": "New Private Chat message",
     "app.toast.chat.system": "System",
+    "app.toast.chat.poll": "Poll Results",
+    "app.toast.chat.pollClick": "Poll results were published. Click here to see.",
     "app.toast.clearedEmoji.label": "Emoji status cleared",
     "app.toast.setEmoji.label": "Emoji status set to {0}",
     "app.toast.meetingMuteOn.label": "All users have been muted",
