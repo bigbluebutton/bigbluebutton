@@ -312,7 +312,10 @@ class TimeWindowChatItem extends PureComponent {
     const dateTime = new Date(timestamp);
 
     return messages ? (
-      <Styled.Item key={_.uniqueId('message-presentation-item-')}>
+      <Styled.Item
+        key={_.uniqueId('message-presentation-item-')}
+        onMouseDown={(e) => { e.stopPropagation(); }}
+      >
         <Styled.PresentationWrapper ref={(ref) => { this.item = ref; }}>
           <Styled.AvatarWrapper>
             <UserAvatar color="#0F70D7">

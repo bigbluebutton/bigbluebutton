@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from "react-intl";
 
 import Menu from "@material-ui/core/Menu";
 import { Divider } from "@material-ui/core";
-
 import Icon from "/imports/ui/components/common/icon/component";
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
@@ -65,7 +64,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled } = a;
+      const { dataTest, label, onClick, key, disabled, description } = a;
 
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
@@ -101,7 +100,8 @@ class BBBMenu extends React.Component {
           }}>
           <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <Styled.Option>{label}</Styled.Option>
+            <Styled.Option aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+            {description && <div className="sr-only" id={`${key}-option-desc`}>{description}</div>}
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
           </Styled.MenuItemWrapper>
         </Styled.BBBMenuItem>,

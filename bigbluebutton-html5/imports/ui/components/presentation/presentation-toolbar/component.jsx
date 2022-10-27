@@ -106,9 +106,9 @@ class PresentationToolbar extends PureComponent {
     document.addEventListener('keydown', this.switchSlide);
   }
 
-  componentDidUpdate(prevProps) {
-    const { zoom, setIsPanning } = this.props;
-    if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom) setIsPanning();
+  componentDidUpdate(prevProps, prevState) {
+    const { zoom, setIsPanning, fitToWidth } = this.props;
+    if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
   }
 
   componentWillUnmount() {
@@ -402,7 +402,7 @@ class PresentationToolbar extends PureComponent {
             data-test="panButton"
             aria-label={intl.formatMessage(intlMessages.pan)}
             color="light"
-            disabled={(zoom <= HUNDRED_PERCENT)}
+            disabled={(zoom <= HUNDRED_PERCENT && !fitToWidth)}
             icon="hand"
             size="md"
             circle

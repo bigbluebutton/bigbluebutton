@@ -28,11 +28,7 @@ trait ClearWhiteboardPubMsgHdlr extends RightsManagementTrait {
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       }
     } else {
-      for {
-        fullClear <- clearWhiteboard(msg.body.whiteboardId, msg.header.userId, liveMeeting)
-      } yield {
-        broadcastEvent(msg, fullClear)
-      }
+      log.error("Ignoring message ClearWhiteboardPubMsg since this functions is not available in the new Whiteboard")
     }
   }
 }
