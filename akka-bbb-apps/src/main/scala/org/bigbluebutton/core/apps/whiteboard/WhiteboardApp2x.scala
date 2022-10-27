@@ -41,10 +41,6 @@ class WhiteboardApp2x(implicit val context: ActorContext)
     liveMeeting.wbModel.getHistory(whiteboardId)
   }
 
-  def clearWhiteboard(whiteboardId: String, requesterId: String, liveMeeting: LiveMeeting): Option[Boolean] = {
-    liveMeeting.wbModel.clearWhiteboard(whiteboardId, requesterId)
-  }
-
   def deleteWhiteboardAnnotations(
       whiteboardId:   String,
       requesterId:    String,
