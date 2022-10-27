@@ -400,7 +400,7 @@
     "app.endMeeting.description": "This action will end the session for {0} active user(s). Are you sure you want to end this session?",
     "app.endMeeting.noUserDescription": "Are you sure you want to end this session?",
     "app.endMeeting.contentWarning": "Chat messages, shared notes, whiteboard content and shared documents for this session will no longer be directly accessible",
-    "app.endMeeting.yesLabel": "Yes",
+    "app.endMeeting.yesLabel": "End session for all users",
     "app.endMeeting.noLabel": "No",
     "app.about.title": "About",
     "app.about.version": "Client build:",
