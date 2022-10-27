@@ -112,7 +112,7 @@ object Polls {
       shape = pollResultToWhiteboardShape(result)
       annot <- send(result, shape)
     } yield {
-      lm.wbModel.addAnnotations(annot.wbId, requesterId, Array[AnnotationVO](annot))
+      lm.wbModel.addAnnotations(annot.wbId, requesterId, Array[AnnotationVO](annot), false, false)
       showPollResult(pollId, lm.polls)
       (result, annot)
     }

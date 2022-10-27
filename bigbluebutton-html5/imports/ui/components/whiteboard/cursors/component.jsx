@@ -305,7 +305,7 @@ export default function Cursors(props) {
         {children}
       </div>
       {otherCursors
-        .filter((c) => c?.xPercent && c?.yPercent)
+        .filter((c) => c?.xPercent && c.xPercent !== -1.0 && c?.yPercent && c.yPercent !== -1.0)
         .filter((c) => {
           if ((isViewersCursorLocked && c?.role !== "VIEWER") || !isViewersCursorLocked || currentUser?.presenter) {
             return c;

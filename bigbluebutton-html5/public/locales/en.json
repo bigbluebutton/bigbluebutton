@@ -952,6 +952,7 @@
     "app.whiteboard.annotations.poll": "Poll results were published",
     "app.whiteboard.annotations.pollResult": "Poll Result",
     "app.whiteboard.annotations.noResponses": "No responses",
+    "app.whiteboard.annotations.notAllowed": "You are not allowed to make this change",
     "app.whiteboard.toolbar.tools": "Tools",
     "app.whiteboard.toolbar.tools.hand": "Pan",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
