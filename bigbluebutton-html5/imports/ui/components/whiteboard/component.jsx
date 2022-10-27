@@ -366,6 +366,7 @@ export default function Whiteboard(props) {
       const tdDelete = document.getElementById("TD-Delete");
       const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
       const tdTools = document.getElementById("TD-Tools");
+
       if (tdToolsDots && tdDelete && tdPrimaryTools) {
         const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
         tdToolsDots.style.height = `${size}px`;
@@ -401,6 +402,21 @@ export default function Whiteboard(props) {
   }, [isPanning]);
 
   const onMount = (app) => {
+    const menu = document.getElementById("TD-Styles")?.parentElement;
+    if (menu) {
+      const MENU_OFFSET = `48px`;
+      menu.style.position = `relative`;
+      if (isRTL) {
+        menu.style.left = MENU_OFFSET;
+      } else {
+        menu.style.right = MENU_OFFSET;
+      }
+
+      [...menu.children]
+        .sort((a,b)=> a?.id>b?.id?-1:1)
+        .forEach(n=> menu.appendChild(n));
+    }
+
     app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
@@ -456,6 +472,7 @@ export default function Whiteboard(props) {
         e.pageState.hoveredId = undefined;
       }
     }
+
     if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
