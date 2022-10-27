@@ -1432,9 +1432,6 @@ begin
         presentation_text = "#{@process_dir}/presentation_text.json"
         FileUtils.cp(presentation_text, package_dir) if File.exist?(presentation_text)
 
-        notes = "#{@process_dir}/notes/notes.html"
-        FileUtils.cp(notes, package_dir) if File.exist?(notes)
-
         processing_time = File.read("#{@process_dir}/processing_time")
 
         @doc = Nokogiri::XML(File.read("#{@process_dir}/events.xml"))
