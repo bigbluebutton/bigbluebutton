@@ -404,8 +404,14 @@ export default function Whiteboard(props) {
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
+      const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
-      menu.style.right = `48px`;
+      if (isRTL) {
+        menu.style.left = MENU_OFFSET;
+      } else {
+        menu.style.right = MENU_OFFSET;
+      }
+
       [...menu.children]
         .sort((a,b)=> a?.id>b?.id?-1:1)
         .forEach(n=> menu.appendChild(n));
