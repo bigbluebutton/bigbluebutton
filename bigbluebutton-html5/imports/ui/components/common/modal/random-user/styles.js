@@ -14,10 +14,14 @@ const ModalViewContainer = styled.div`
   display: flex;
   flex-flow: column;
   align-items: center;
+
+  & > div {
+    margin-bottom: 1rem;
+  }
 `;
 
 const ModalViewTitle = styled.div`
-  font-weight: 600;
+  font-weight: 400;
   font-size: ${fontSizeLarge};
   margin-bottom: ${mdPaddingX};
 `;

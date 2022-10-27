@@ -14,7 +14,7 @@ import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 
 const WriterMenuModal = styled(Modal)`
-  padding: 1.5rem;
+  padding: 1rem;
   min-height: 20rem;
 `;
 
@@ -51,7 +51,6 @@ const Content = styled.div`
 const StartBtn = styled(Button)`
   align-self: center;
   margin: 0;
-  width: 40%;
   display: block;
   position: absolute;
   bottom: 20px;
