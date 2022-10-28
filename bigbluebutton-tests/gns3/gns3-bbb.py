@@ -81,6 +81,8 @@ parser.add_argument('--client-image', type=str,
                     help='Ubuntu image to be used for test clients')
 parser.add_argument('--public-subnet', type=str, default='128.8.8.0/24',
                     help='public IP subnet to be "stolen" for our use')
+parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
+                    help='public IP subnet to be "stolen" for our use')
 parser.add_argument('--domain', type=str, default='test',
                     help='DNS domain name for virtual devices')
 parser.add_argument('version', nargs='*',
@@ -92,6 +94,11 @@ args = parser.parse_args()
 public_subnet = ipaddress.ip_network(args.public_subnet)
 if not public_subnet.is_global:
     print(f"{args.public_subnet} must be a public IP prefix")
+    exit(1)
+
+server_subnet = ipaddress.ip_network(args.server_subnet)
+if not server_subnet.is_private:
+    print(f"{args.server_subnet} must be a private IP prefix")
     exit(1)
 
 # Use the first host address on the subnet for our master gateway
@@ -458,15 +465,23 @@ def BBB_server_nat(hostname, x=100, y=100):
     assert(hostname.endswith('-NAT'))
     hostname = hostname[:-4]
 
+    server_subnet_hosts = list(server_subnet.hosts())
+    server_nat_address = str(server_subnet_hosts[0])
+    server_address = str(server_subnet_hosts[1])
+    first_dhcp_address = str(server_subnet_hosts[2])
+    last_dhcp_address = str(server_subnet_hosts[-1])
+
     dnsmasq_conf = f"""
-listen-address=192.168.1.1
+listen-address={server_nat_address}
 bind-interfaces
-dhcp-host={hostname},192.168.1.2
-dhcp-range=192.168.1.100,192.168.1.254,2m
+dhcp-host={hostname},{server_address}
+dhcp-range={first_dhcp_address},{last_dhcp_address},2m
 # Don't use dhcp-sequential-ip; assign IP addresses based on hash of client MAC
 # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
 # dhcp-sequential-ip
 dhcp-authoritative
+# tell the test clients to search args.domain
+dhcp-option = option:domain-search,{args.domain}
 """
 
     # Note that 'hostname-NAT' announces itself into DHCP as 'hostname'
@@ -476,7 +491,7 @@ dhcp-authoritative
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on',
                                              'dhcp4-overrides' : {'hostname' : hostname}},
-                                    'ens5': {'addresses': ['192.168.1.1/24']},
+                                    'ens5': {'addresses': [f'{server_nat_address}/{server_subnet.prefixlen}']},
                       }}
 
     user_data = {'hostname': hostname + '-NAT',
@@ -507,27 +522,27 @@ dhcp-authoritative
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
                      # enable NAT
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
-                     # These next statements assume that the server is on 192.168.1.2, and relay ssh, web and UDP traffic to it
-                     # We ensure that the server is on 192.168.1.2 with a dhcp-host statement in /etc/dnsmasq.conf
-                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 22 -j DNAT --to-destination 192.168.1.2',
-                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 80 -j DNAT --to-destination 192.168.1.2',
-                     'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 443 -j DNAT --to-destination 192.168.1.2',
-                     'iptables -t nat -A PREROUTING -p udp -i ens4 --dport 16384:32768 -j DNAT --to-destination 192.168.1.2',
+                     # These NAT statements assume that the server is on server_address, and relay ssh, web and UDP traffic to it
+                     # We ensure that the server is on server_address with a dhcp-host statement in /etc/dnsmasq.conf
+                     f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 22 -j DNAT --to-destination {server_address}',
+                     f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 80 -j DNAT --to-destination {server_address}',
+                     f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 443 -j DNAT --to-destination {server_address}',
+                     f'iptables -t nat -A PREROUTING -p udp -i ens4 --dport 16384:32768 -j DNAT --to-destination {server_address}',
                      # Also, bbb-install requires the server to have the ability to connect to itself using its DNS name,
                      #    - we don't know our own IP address at this point
                      #    - rule has to be on PREROUTING, else we can't use DNAT
                      #    - since it's on PREROUTING, we can't use -o lo
-                     #    - so grab traffic bound for everything on the subnet except the gateway,
+                     #    - so grab traffic bound for everything on the public subnet except the master gateway,
                      #      which we need to connect to for getcert.cgi
                      f'iptables -t nat -A PREROUTING -p tcp -d {master_gateway_address} --dport 80 -j ACCEPT',
                      f'iptables -t nat -A PREROUTING -p tcp -d {master_gateway_address} --dport 443 -j ACCEPT',
-                     f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 80 -j DNAT --to-destination 192.168.1.2',
-                     f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 443 -j DNAT --to-destination 192.168.1.2',
+                     f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 80 -j DNAT --to-destination {server_address}',
+                     f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 443 -j DNAT --to-destination {server_address}',
                      # hairpin case - we need to rewrite the source address before sending the packets back to the server
                      # no hairpin on port 22; we can ssh into the server, then ssh back to the NAT gateway if needed
-                     'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 80 -j MASQUERADE',
-                     'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p tcp --dport 443 -j MASQUERADE',
-                     'iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -d 192.168.1.2 -p udp --dport 16384:32768 -j MASQUERADE',
+                     f'iptables -t nat -A POSTROUTING -s {server_subnet.with_prefixlen} -d {server_address} -p tcp --dport 80 -j MASQUERADE',
+                     f'iptables -t nat -A POSTROUTING -s {server_subnet.with_prefixlen} -d {server_address} -p tcp --dport 443 -j MASQUERADE',
+                     f'iptables -t nat -A POSTROUTING -s {server_subnet.with_prefixlen} -d {server_address} -p udp --dport 16384:32768 -j MASQUERADE',
                      'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
                  ],
     }
