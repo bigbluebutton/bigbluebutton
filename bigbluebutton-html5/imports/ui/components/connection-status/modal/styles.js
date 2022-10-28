@@ -14,7 +14,6 @@ import {
   smPaddingY,
   mdPaddingY,
   lgPaddingY,
-  lgPaddingX,
   titlePositionLeft,
   mdPaddingX,
   borderSizeLarge,
@@ -328,52 +327,6 @@ const Body = styled.div`
   position: relative;
 `;
 
-const Navigation = styled.div`
-  display: flex;
-  border: none;
-  border-bottom: 1px solid ${colorOffWhite};
-  user-select: none;
-  overflow-y: auto;
-  scrollbar-width: none;
-  padding: 4px;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & :not(:last-child) {
-    margin: 0;
-    margin-right: ${lgPaddingX};
-  }
-
-  .activeConnectionStatusTab {
-    border: none;
-    border-bottom: 2px solid ${colorPrimary};
-    color: ${colorPrimary};
-  }
-
-  div {
-    padding: .1rem .25rem;
-
-    &:focus {
-      outline: 2px solid ${colorPrimary};
-      border-radius: 4px;
-    }
-  }
-
-  & * {
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  [dir="rtl"] & {
-    & :not(:last-child) {
-      margin: 0;
-      margin-left: ${lgPaddingX};
-    }
-  }
-`;
-
 const Prev = styled.div`
   display: none;
   margin: 0 .5rem 0 .25rem;
@@ -585,7 +538,6 @@ export default {
   NetworkDataContent,
   Main,
   Body,
-  Navigation,
   FullName,
   DataColumn,
   Prev,

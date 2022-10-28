@@ -642,65 +642,6 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
-  /**
-   * The navigation bar.
-   * @returns {Object} The component to be renderized.
-  */
-  renderNavigation() {
-    const { intl } = this.props;
-
-    const handleTabClick = (event) => {
-      const activeTabElement = document.querySelector('.activeConnectionStatusTab');
-      const { target } = event;
-
-      if (activeTabElement) {
-        activeTabElement.classList.remove('activeConnectionStatusTab');
-      }
-
-      target.classList.add('activeConnectionStatusTab');
-      this.setState({
-        selectedTab: target.dataset.tab,
-      });
-    }
-
-    return (
-      <Styled.Navigation>
-        <div
-          data-tab="1"
-          className="activeConnectionStatusTab"
-          onClick={handleTabClick}
-          onKeyDown={handleTabClick}
-          role="button"
-          tabIndex={0}
-        >
-          {intl.formatMessage(intlMessages.connectionStats)}
-        </div>
-        <div
-          data-tab="2"
-          onClick={handleTabClick}
-          onKeyDown={handleTabClick}
-          role="button"
-          tabIndex={0}
-        >
-          {intl.formatMessage(intlMessages.myLogs)}
-        </div>
-        {Service.isModerator()
-          && (
-            <div
-              data-tab="3"
-              onClick={handleTabClick}
-              onKeyDown={handleTabClick}
-              role="button"
-              tabIndex={0}
-            >
-              {intl.formatMessage(intlMessages.sessionLogs)}
-            </div>
-          )
-        }
-      </Styled.Navigation>
-    );
-  }
-
   render() {
     const {
       closeModal,
@@ -734,9 +675,13 @@ class ConnectionStatusComponent extends PureComponent {
               <Styled.ConnectionTabSelector selectedClassName="is-selected">
                 <span id="my-logs-tab">{intl.formatMessage(intlMessages.myLogs)}</span>
               </Styled.ConnectionTabSelector>
-              <Styled.ConnectionTabSelector selectedClassName="is-selected">
-                <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
-              </Styled.ConnectionTabSelector>
+              {Service.isModerator()
+                && (
+                  <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                    <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
+                  </Styled.ConnectionTabSelector>
+                )
+              }
             </Styled.ConnectionTabList>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
               <div>
@@ -747,9 +692,13 @@ class ConnectionStatusComponent extends PureComponent {
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
                 <div>{this.renderConnections()}</div>
             </Styled.ConnectionTabPanel>
-            <Styled.ConnectionTabPanel selectedClassName="is-selected">
-                <div>{this.renderConnections()}</div>
-            </Styled.ConnectionTabPanel>
+            {Service.isModerator()
+              && (
+                <Styled.ConnectionTabPanel selectedClassName="is-selected">
+                  <div>{this.renderConnections()}</div>
+                </Styled.ConnectionTabPanel>
+              )
+            }
           </Styled.ConnectionTabs>
         </Styled.Container>
       </Styled.ConnectionStatusModal>
