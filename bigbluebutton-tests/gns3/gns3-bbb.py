@@ -609,7 +609,11 @@ def BBB_server_standalone(hostname, x=100, y=300):
 
 def BBB_server(name, x=100, depends_on=None):
     server = BBB_server_standalone(name, x=x, y=300)
-    switch = gns3_project.switch(name + '-subnet', x=x, y=200)
+    if server_subnet.with_prefixlen not in gns3_project.node_names():
+        switch = gns3_project.switch(server_subnet.with_prefixlen, x=x, y=200)
+    else:
+        # can't have two gns3 nodes with the same name, so do this instead
+        switch = gns3_project.switch(name + '-subnet', x=x, y=200)
     server_nat = BBB_server_nat(name + '-NAT', x=x, y=100)
 
     gns3_project.link(server_nat, 0, PublicIP_switch)
