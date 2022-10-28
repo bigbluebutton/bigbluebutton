@@ -197,6 +197,12 @@ authoritative;
 # double curlies because it's a Python f-string
 zone {args.domain}. {{ }}
 
+# Update conflict detection prevents a DHCP server from changing
+# a DNS entry that it didn't create.  Since I often delete the
+# virtual network devices and recreate them, it's best to keep
+# this turned off.
+update-conflict-detection off;
+
 allow unknown-clients;
 default-lease-time 10;
 max-lease-time 10;
