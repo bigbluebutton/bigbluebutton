@@ -7,7 +7,7 @@ import Logger from '/imports/startup/server/logger';
 export default function pinPad(externalId, pinned) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'PinPadReqMsg';
+  const EVENT_NAME = 'PadPinnedReqMsg';
 
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
