@@ -7,10 +7,12 @@ import {
   colorGrayLabel,
   colorGrayLightest,
   colorPrimary,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
+  mdPaddingY,
   lgPaddingY,
   lgPaddingX,
   titlePositionLeft,
@@ -26,7 +28,11 @@ import {
   hasPhoneDimentions,
   mediumDown,
   hasPhoneWidth,
+  smallOnly,
 } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import {
+  Tab, Tabs, TabList, TabPanel,
+} from 'react-tabs';
 
 const Item = styled.div`
   display: flex;
@@ -276,11 +282,12 @@ const Helper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: .5rem;
 
   @media ${mediumDown} {
-    ${({ page }) => page === '1'
+    ${({ page }) => (page === '1'
     ? 'display: flex;'
-    : 'display: none;'}
+    : 'display: none;')}
   }
 `;
 
@@ -291,9 +298,9 @@ const NetworkDataContent = styled.div`
   flex-grow: 1;
 
   @media ${mediumDown} {
-    ${({ page }) => page === '2'
+    ${({ page }) => (page === '2'
     ? 'display: flex;'
-    : 'display: none;'}
+    : 'display: none;')}
   }
 `;
 
@@ -328,6 +335,7 @@ const Navigation = styled.div`
   user-select: none;
   overflow-y: auto;
   scrollbar-width: none;
+  padding: 4px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -342,6 +350,15 @@ const Navigation = styled.div`
     border: none;
     border-bottom: 2px solid ${colorPrimary};
     color: ${colorPrimary};
+  }
+
+  div {
+    padding: .1rem .25rem;
+
+    &:focus {
+      outline: 2px solid ${colorPrimary};
+      border-radius: 4px;
+    }
   }
 
   & * {
@@ -399,8 +416,9 @@ const Button = styled.button`
     opacity: .75;
   }
 
+  &:hover,
   &:focus {
-    outline: none;
+    outline: 2px solid ${colorPrimary};
   }
 
   @media ${hasPhoneWidth} {
@@ -433,6 +451,105 @@ const Chevron = styled.svg`
 
   [dir="rtl"] & {
     transform: rotate(180deg);
+  }
+`;
+
+const ConnectionTabs = styled(Tabs)`
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: column;
+  }
+`;
+
+const ConnectionTabList = styled(TabList)`
+  display: flex;
+  flex-flow: row;
+  margin: 0;
+  margin-bottom: .5rem;
+  border: none;
+  padding: 0;
+  width: calc(100% / 3);
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+`;
+
+const ConnectionTabPanel = styled(TabPanel)`
+  display: none;
+  margin: 0 0 0 1rem;
+  height: 13rem;
+
+  [dir="rtl"] & {
+    margin: 0 1rem 0 0;
+  }
+
+  &.is-selected {
+    display: block;
+  }
+
+  @media ${smallOnly} {
+    width: 100%;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+
+const ConnectionTabSelector = styled(Tab)`
+  display: flex;
+  flex-flow: row;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  border: none !important;
+  padding: ${mdPaddingY} ${mdPaddingX};
+
+  border-radius: .2rem;
+  cursor: pointer;
+  margin-bottom: ${smPaddingY};
+  align-items: center;
+  flex-grow: 0;
+  min-width: 0;
+
+  & > span {
+    min-width: 0;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media ${smallOnly} {
+    max-width: 100%;
+    margin: 0 ${smPaddingX} 0 0;
+    & > i {
+      display: none;
+    }
+
+    [dir="rtl"] & {
+       margin: 0 0 0 ${smPaddingX};
+    }
+  }
+
+  span {
+    border-bottom: 2px solid ${colorWhite};
+  }
+
+  &.is-selected {
+    border: none;
+    color: ${colorPrimary};
+
+    span {
+      border-bottom: 2px solid ${colorPrimary};
+    }
   }
 `;
 
@@ -476,4 +593,8 @@ export default {
   ButtonLeft,
   ButtonRight,
   Chevron,
+  ConnectionTabs,
+  ConnectionTabList,
+  ConnectionTabSelector,
+  ConnectionTabPanel,
 };

@@ -158,7 +158,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     this.help = Service.getHelp();
     this.state = {
-      selectedTab: '1',
+      selectedTab: 0,
       dataPage: '1',
       dataSaving: props.dataSaving,
       hasNetworkData: false,
@@ -187,6 +187,7 @@ class ConnectionStatusComponent extends PureComponent {
     this.audioDownloadLabel = intl.formatMessage(intlMessages.audioDownloadRate);
     this.videoUploadLabel = intl.formatMessage(intlMessages.videoUploadRate);
     this.videoDownloadLabel = intl.formatMessage(intlMessages.videoDownloadRate);
+    this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
   async componentDidMount() {
@@ -197,10 +198,22 @@ class ConnectionStatusComponent extends PureComponent {
     Meteor.clearInterval(this.rateInterval);
   }
 
+  handleSelectTab(tab) {
+    this.setState({
+      selectedTab: tab,
+    });
+  }
+
   handleDataSavingChange(key) {
     const { dataSaving } = this.state;
     dataSaving[key] = !dataSaving[key];
     this.setState(dataSaving);
+  }
+
+  setButtonMessage(msg) {
+    this.setState({
+      copyButtonText: msg,
+    });
   }
 
   /**
@@ -262,6 +275,43 @@ class ConnectionStatusComponent extends PureComponent {
     }, NETWORK_MONITORING_INTERVAL_MS);
   }
 
+  displaySettingsStatus(status) {
+    const { intl } = this.props;
+
+    return (
+      <Styled.ToggleLabel>
+        {status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)}
+      </Styled.ToggleLabel>
+    );
+  }
+
+  /**
+   * Copy network data to clipboard
+   * @return {Promise}   A Promise that is resolved after data is copied.
+   *
+   *
+   */
+  async copyNetworkData() {
+    const { intl } = this.props;
+    const {
+      networkData,
+      hasNetworkData,
+    } = this.state;
+
+    if (!hasNetworkData) return;
+
+    this.setButtonMessage(intl.formatMessage(intlMessages.copied));
+
+    const data = JSON.stringify(networkData, null, 2);
+
+    await navigator.clipboard.writeText(data);
+
+    this.copyNetworkDataTimeout = setTimeout(() => {
+      this.setButtonMessage(intl.formatMessage(intlMessages.copy));
+    }, MIN_TIMEOUT);
+  }
+
   renderEmpty() {
     const { intl } = this.props;
 
@@ -276,52 +326,6 @@ class ConnectionStatusComponent extends PureComponent {
         </Styled.Left>
       </Styled.Item>
     );
-  }
-
-  displaySettingsStatus(status) {
-    const { intl } = this.props;
-
-    return (
-      <Styled.ToggleLabel>
-        {status ? intl.formatMessage(intlMessages.on)
-          : intl.formatMessage(intlMessages.off)}
-      </Styled.ToggleLabel>
-    );
-  }
-
-  setButtonMessage(msg) {
-    this.setState({
-      copyButtonText: msg,
-    });
-  }
-
-  /**
-   * Copy network data to clipboard
-   * @param  {Object}  e              Event object from click event
-   * @return {Promise}   A Promise that is resolved after data is copied.
-   *
-   *
-   */
-  async copyNetworkData(e) {
-    const { intl } = this.props;
-    const {
-      networkData,
-      hasNetworkData,
-    } = this.state;
-
-    if (!hasNetworkData) return;
-
-    const { target: copyButton } = e;
-
-    this.setButtonMessage(intl.formatMessage(intlMessages.copied));
-
-    const data = JSON.stringify(networkData, null, 2);
-
-    await navigator.clipboard.writeText(data);
-
-    this.copyNetworkDataTimeout = setTimeout(() => {
-      this.setButtonMessage(intl.formatMessage(intlMessages.copy));
-    }, MIN_TIMEOUT);
   }
 
   renderConnections() {
@@ -345,7 +349,7 @@ class ConnectionStatusComponent extends PureComponent {
 
       return (
         <Styled.Item
-          key={index}
+          key={`${conn?.name}-${dateTime}`}
           last={(index + 1) === connections.length}
           data-test="connectionStatusItemUser"
         >
@@ -521,6 +525,7 @@ class ConnectionStatusComponent extends PureComponent {
         <Styled.Prev>
           <Styled.ButtonLeft
             role="button"
+            tabIndex={0}
             disabled={dataPage === '1'}
             aria-label={`${intl.formatMessage(intlMessages.prev)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
             onClick={handlePaginationClick.bind(this, 'prev')}
@@ -585,6 +590,7 @@ class ConnectionStatusComponent extends PureComponent {
         <Styled.Next>
           <Styled.ButtonRight
             role="button"
+            tabIndex={0}
             disabled={dataPage === '2'}
             aria-label={`${intl.formatMessage(intlMessages.next)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
             onClick={handlePaginationClick.bind(this, 'next')}
@@ -619,20 +625,18 @@ class ConnectionStatusComponent extends PureComponent {
       return null;
     }
 
-    const { intl } = this.props;
-
-    const { hasNetworkData } = this.state;
+    const { hasNetworkData, copyButtonText } = this.state;
     return (
       <Styled.CopyContainer aria-live="polite">
         <Styled.Copy
           disabled={!hasNetworkData}
           role="button"
-	  data-test="copyStats"
+	        data-test="copyStats"
           onClick={this.copyNetworkData.bind(this)}
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
         >
-          {this.state.copyButtonText}
+          {copyButtonText}
         </Styled.Copy>
       </Styled.CopyContainer>
     );
@@ -667,6 +671,7 @@ class ConnectionStatusComponent extends PureComponent {
           onClick={handleTabClick}
           onKeyDown={handleTabClick}
           role="button"
+          tabIndex={0}
         >
           {intl.formatMessage(intlMessages.connectionStats)}
         </div>
@@ -675,6 +680,7 @@ class ConnectionStatusComponent extends PureComponent {
           onClick={handleTabClick}
           onKeyDown={handleTabClick}
           role="button"
+          tabIndex={0}
         >
           {intl.formatMessage(intlMessages.myLogs)}
         </div>
@@ -685,6 +691,7 @@ class ConnectionStatusComponent extends PureComponent {
               onClick={handleTabClick}
               onKeyDown={handleTabClick}
               role="button"
+              tabIndex={0}
             >
               {intl.formatMessage(intlMessages.sessionLogs)}
             </div>
@@ -715,18 +722,35 @@ class ConnectionStatusComponent extends PureComponent {
               {intl.formatMessage(intlMessages.title)}
             </Styled.Title>
           </Styled.Header>
-          {this.renderNavigation()}
-          <Styled.Main>
-            <Styled.Body>
-              {selectedTab === '1'
-                ? this.renderNetworkData()
-                : this.renderConnections()
-              }
-            </Styled.Body>
-            {selectedTab === '1' &&
-              this.renderCopyDataButton()
-            }
-          </Styled.Main>
+
+          <Styled.ConnectionTabs
+            onSelect={this.handleSelectTab}
+            selectedIndex={selectedTab}
+          >
+            <Styled.ConnectionTabList>
+              <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                <span id="connection-status-tab">{'Connection Status'}</span>
+              </Styled.ConnectionTabSelector>
+              <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                <span id="my-logs-tab">{'My Logs'}</span>
+              </Styled.ConnectionTabSelector>
+              <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                <span id="session-logs-tab">{'Session Logs'}</span>
+              </Styled.ConnectionTabSelector>
+            </Styled.ConnectionTabList>
+            <Styled.ConnectionTabPanel selectedClassName="is-selected">
+              <div>
+                {this.renderNetworkData()}
+                {this.renderCopyDataButton()}
+              </div>
+            </Styled.ConnectionTabPanel>
+            <Styled.ConnectionTabPanel selectedClassName="is-selected">
+                <div>{this.renderConnections()}</div>
+            </Styled.ConnectionTabPanel>
+            <Styled.ConnectionTabPanel selectedClassName="is-selected">
+                <div>{this.renderConnections()}</div>
+            </Styled.ConnectionTabPanel>
+          </Styled.ConnectionTabs>
         </Styled.Container>
       </Styled.ConnectionStatusModal>
     );
