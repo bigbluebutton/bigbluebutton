@@ -15,13 +15,15 @@ sudo DEBIAN_FRONTEND=noninteractive apt -y upgrade
 
 cd /home/ubuntu
 
+DOMAIN=$(hostname --domain)
 FQDN=$(hostname --fqdn)
+CA=ca.$DOMAIN
 RELEASE=$(hostname)
 
 if [[ ! -r $FQDN.key ]]; then
 
     # Get the CA root certificate and install it
-    wget -q http://ca.test/bbb-dev-ca.crt
+    wget -q http://$CA/bbb-dev-ca.crt
 
     sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
     sudo cp bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
@@ -29,7 +31,7 @@ if [[ ! -r $FQDN.key ]]; then
 
     # Generate a CSR and get it signed by our CA
     openssl req -nodes -newkey rsa:2048 -keyout $FQDN.key -out $FQDN.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=$FQDN" -addext "subjectAltName = DNS:$FQDN"
-    wget -q -O $FQDN.crt --post-file=$FQDN.csr http://ca.test/getcert.cgi?$FQDN
+    wget -q -O $FQDN.crt --post-file=$FQDN.csr http://$CA/getcert.cgi?$FQDN
 
     # Install the certificates where the BBB install scripts wants them
 
