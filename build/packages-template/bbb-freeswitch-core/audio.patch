@@ -1,13 +1,14 @@
 --- src/mod/applications/mod_conference/mod_conference.c
 +++ src/mod/applications/mod_conference/mod_conference.c
-@@ -2477,9 +2477,7 @@ SWITCH_STANDARD_APP(conference_function)
+@@ -2476,9 +2476,7 @@ SWITCH_STANDARD_APP(conference_function)
  
   /* Run the conference loop */
   do {
 -   switch_media_flow_t audio_flow = switch_core_session_media_flow(session, SWITCH_MEDIA_TYPE_AUDIO);
 -   
--   if (switch_channel_test_flag(channel, CF_AUDIO) && (audio_flow == SWITCH_MEDIA_FLOW_SENDRECV || audio_flow == SWITCH_MEDIA_FLOW_RECVONLY)) {
+-   if (switch_channel_test_flag(channel, CF_AUDIO) && (audio_flow == SWITCH_MEDIA_FLOW_SENDRECV || audio_flow == SWITCH_MEDIA_FLOW_SENDONLY)) {
 +   if (switch_channel_test_flag(channel, CF_AUDIO)) {
       conference_loop_output(&member);
     } else {
-      if (conference_utils_member_test_flag((&member), MFLAG_RUNNING) && switch_channel_ready(channel)) {
+      if (!conference_utils_member_test_flag(&member, MFLAG_ITHREAD)) {
+
