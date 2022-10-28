@@ -186,8 +186,11 @@ listen-address={master_gateway_address}
 bind-interfaces
 """
 
-    # Ten second DHCP lease times because I change things around so
-    # much in the virtual network
+    # 120 second DHCP lease times because I change things around so
+    # much in the virtual network.  I tried 10 second lease times,
+    # but had problems with OSPF route flaps for 10 seconds lease
+    # time on the bare metal system, so it's probably best to
+    # use 120 second leases throughout.
 
     dhcpd_conf = f"""
 ddns-updates on;
@@ -204,8 +207,8 @@ zone {args.domain}. {{ }}
 update-conflict-detection off;
 
 allow unknown-clients;
-default-lease-time 10;
-max-lease-time 10;
+default-lease-time 120;
+max-lease-time 120;
 log-facility local7;
 
 subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)} {{
