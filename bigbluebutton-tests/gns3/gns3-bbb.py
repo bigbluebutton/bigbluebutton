@@ -438,7 +438,7 @@ dhcp-option = option:domain-search,{args.domain}
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
                      # enable NAT
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
-                     'dpkg-reconfigure iptables-persistent',
+                     'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
                  ],
     }
 
