@@ -729,13 +729,13 @@ class ConnectionStatusComponent extends PureComponent {
           >
             <Styled.ConnectionTabList>
               <Styled.ConnectionTabSelector selectedClassName="is-selected">
-                <span id="connection-status-tab">{'Connection Status'}</span>
+                <span id="connection-status-tab">{intl.formatMessage(intlMessages.title)}</span>
               </Styled.ConnectionTabSelector>
               <Styled.ConnectionTabSelector selectedClassName="is-selected">
-                <span id="my-logs-tab">{'My Logs'}</span>
+                <span id="my-logs-tab">{intl.formatMessage(intlMessages.myLogs)}</span>
               </Styled.ConnectionTabSelector>
               <Styled.ConnectionTabSelector selectedClassName="is-selected">
-                <span id="session-logs-tab">{'Session Logs'}</span>
+                <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
               </Styled.ConnectionTabSelector>
             </Styled.ConnectionTabList>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
