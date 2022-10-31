@@ -24,7 +24,7 @@ const TimerSidebarContent = styled.div`
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  height: 100vh;
+  height: 100%;
   transform: translateZ(0);
 `;
 
