@@ -83,8 +83,6 @@ export default function Whiteboard(props) {
     isRTL,
     fitToWidth,
     zoomValue,
-    width,
-    height,
     isPanning,
     intl,
   } = props;
@@ -645,7 +643,7 @@ export default function Whiteboard(props) {
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <Tldraw
-      key={`wb-${isRTL}-${width}-${height}-${dockPos}-${forcePanning}`}
+      key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
