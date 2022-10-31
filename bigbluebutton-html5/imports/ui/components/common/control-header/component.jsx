@@ -22,7 +22,7 @@ const Header = ({
 
   return (
     <Styled.Header data-test={dataTest ? dataTest : ''}>
-      <Left {...leftButtonProps} />
+      {leftButtonProps ? <Left {...leftButtonProps} /> : <div />}
       {customRightButton
         ? renderCustomRightButton()
         : rightButtonProps

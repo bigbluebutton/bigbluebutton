@@ -4,11 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Service from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/container';
-import ConverterButtonContainer from './converter-button/container';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
+import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container';
 
 const intlMessages = defineMessages({
   hide: {
@@ -18,6 +18,10 @@ const intlMessages = defineMessages({
   title: {
     id: 'app.notes.title',
     description: 'Title for the shared notes',
+  },
+  unpinNotes: {
+    id: 'app.notes.notesDropdown.unpinNotes',
+    description: 'Label for unpin shared notes button',
   },
 });
 
@@ -106,10 +110,22 @@ const Notes = ({
             label: intl.formatMessage(intlMessages.title),
           }}
           customRightButton={
-            <ConverterButtonContainer />
+            <NotesDropdown />
           }
         />
-      ): null}
+      ) : (
+        <Header
+          rightButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.unpinNotes),
+            'data-test': 'unpinNotes',
+            icon: 'close',
+            label: intl.formatMessage(intlMessages.unpinNotes),
+            onClick: () => {
+              Service.pinSharedNotes(false);
+            },
+          }}
+        />
+      )}
       <PadContainer
         externalId={Service.ID}
         hasPermission={hasPermission}

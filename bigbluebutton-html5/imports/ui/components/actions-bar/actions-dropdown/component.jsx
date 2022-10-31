@@ -95,19 +95,9 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
   },
-  pinNotes: {
-    id: 'app.actionsBar.actionsDropdown.pinNotes',
-    description: 'Label for pin shared notes button',
-  },
-  unpinNotes: {
-    id: 'app.actionsBar.actionsDropdown.unpinNotes',
-    description: 'Label for unpin shared notes button',
-  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
-const NOTES_CONFIG = Meteor.settings.public.notes;
-const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 class ActionsDropdown extends PureComponent {
   constructor(props) {
@@ -151,9 +141,6 @@ class ActionsDropdown extends PureComponent {
       setMeetingLayout,
       setPushLayout,
       showPushLayout,
-      toggleSharedNotes,
-      isSharedNotesPinned,
-      sidebarContent,
     } = this.props;
 
     const {
@@ -247,19 +234,6 @@ class ActionsDropdown extends PureComponent {
       key: 'layoutModal',
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
     });
-
-    if (amIPresenter && NOTES_IS_PINNABLE) {
-      actions.push({
-        icon: 'send',
-        label: isSharedNotesPinned
-          ? intl.formatMessage(intlMessages.unpinNotes)
-          : intl.formatMessage(intlMessages.pinNotes),
-        key: 'sharedNotes',
-        onClick: () => {
-          toggleSharedNotes();
-        },
-      });
-    }
 
     return actions;
   }
