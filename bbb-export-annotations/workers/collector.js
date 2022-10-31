@@ -124,7 +124,7 @@ async function collectSharedNotes(retries) {
   const padId = exportJob.presId;
   const notesFormat = 'pdf';
 
-  const filename = `${sanitize(exportJob.filename)}.${notesFormat}`;
+  const filename = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.${notesFormat}`;
   const notes_endpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
   const filePath = path.join(dropbox, filename);
 

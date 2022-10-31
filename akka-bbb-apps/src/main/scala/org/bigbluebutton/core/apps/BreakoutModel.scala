@@ -15,8 +15,9 @@ object BreakoutModel {
       voiceConf:     String,
       assignedUsers: Vector[String],
       captureNotes:  Boolean,
+      captureSlides: Boolean,
   ): BreakoutRoom2x = {
-    new BreakoutRoom2x(id, externalId, name, parentId, sequence, shortName, isDefaultName, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false, captureNotes)
+    new BreakoutRoom2x(id, externalId, name, parentId, sequence, shortName, isDefaultName, freeJoin, voiceConf, assignedUsers, Vector(), Vector(), None, false, captureNotes, captureSlides)
   }
 
 }

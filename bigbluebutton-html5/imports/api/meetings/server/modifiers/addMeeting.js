@@ -75,6 +75,7 @@ export default function addMeeting(meeting) {
       record: Boolean,
       privateChatEnabled: Boolean,
       captureNotes: Boolean,
+      captureSlides: Boolean,
     },
     meetingProp: {
       intId: String,

@@ -29,6 +29,7 @@ case class BreakoutProps(
     record:             Boolean,
     privateChatEnabled: Boolean,
     captureNotes:       Boolean,
+    captureSlides:      Boolean,
 )
 
 case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String)
