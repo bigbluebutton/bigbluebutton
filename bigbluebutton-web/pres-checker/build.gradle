@@ -15,6 +15,7 @@ task resolveDeps(type: Copy) {
 }
 
 repositories {
+    mavenCentral()
     mavenLocal()
 }
 
