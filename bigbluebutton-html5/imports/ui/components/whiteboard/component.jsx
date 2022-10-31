@@ -5,6 +5,7 @@ import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
+import Settings from '/imports/ui/services/settings';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -19,6 +20,28 @@ const findRemoved = (A, B) => {
     return !B.includes(a);
   });
 };
+
+// map different localeCodes from bbb to tldraw
+const mapLanguage = (language) => {
+  switch(language) {
+    case 'fa-ir':
+      return 'fa';
+    case 'it-it':
+      return 'it';
+    case 'nb-no':
+      return 'no';
+    case 'pl-pl':
+      return 'pl';
+    case 'sv-se':
+      return 'sv';
+    case 'uk-ua':
+      return 'uk';
+    case 'zh-cn':
+      return 'zh-ch';
+    default:
+      return language;
+  }
+}
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
@@ -83,6 +106,7 @@ export default function Whiteboard(props) {
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevFitToWidth = usePrevious(fitToWidth);
+  const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -401,6 +425,10 @@ export default function Whiteboard(props) {
     }
   }, [isPanning]);
 
+  React.useEffect(() => {
+    tldrawAPI?.setSetting('language', language);
+  }, [language]);
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
@@ -417,7 +445,7 @@ export default function Whiteboard(props) {
         .forEach(n=> menu.appendChild(n));
     }
 
-    app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
+    app.setSetting('language', language);
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
