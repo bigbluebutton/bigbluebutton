@@ -55,6 +55,14 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
+  ${({ hideCursor }) => hideCursor && `
+    #canvas {
+      cursor: none;
+    }
+  `}
+  #TD-PrimaryTools-Image {
+    display: none;
+  }
 `;
 
 export default function Whiteboard(props) {
@@ -698,7 +706,10 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
-        <TldrawGlobalStyle hideContextMenu={!hasWBAccess && !isPresenter} />
+        <TldrawGlobalStyle 
+          hideContextMenu={!hasWBAccess && !isPresenter} 
+          hideCursor={!isPanning && (isPresenter || hasWBAccess)} 
+        />
       </Cursors>
     </>
   );
