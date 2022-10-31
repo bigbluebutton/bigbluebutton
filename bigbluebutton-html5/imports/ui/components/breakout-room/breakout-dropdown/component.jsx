@@ -17,7 +17,6 @@ const intlMessages = defineMessages({
   manageUsers: {
     id: 'app.breakout.dropdown.manageUsers',
     description: 'Manage users label',
-    defaultMessage: 'Manage Users',
   },
   destroy: {
     id: 'app.breakout.dropdown.destroyAll',
@@ -102,7 +101,7 @@ class BreakoutDropdown extends PureComponent {
             />
           }
           opts={{
-            id: "default-dropdown-menu",
+            id: "breakoutroom-dropdown-menu",
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,

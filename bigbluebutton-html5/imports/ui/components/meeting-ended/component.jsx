@@ -116,6 +116,7 @@ const propTypes = {
 const defaultProps = {
   ejectedReason: null,
   endedReason: null,
+  callback: async () => {},
 };
 
 class MeetingEnded extends PureComponent {
@@ -159,7 +160,9 @@ class MeetingEnded extends PureComponent {
     AudioManager.exitAudio();
     Storage.removeItem('getEchoTest');
     Storage.removeItem('isFirstJoin');
-    Meteor.disconnect();
+    this.props.callback().finally(() => {
+      Meteor.disconnect();
+    });
   }
 
   setSelectedStar(starNumber) {

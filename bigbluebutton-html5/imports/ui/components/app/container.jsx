@@ -73,7 +73,7 @@ const AppContainer = (props) => {
     meetingLayout,
     meetingLayoutUpdatedAt,
     meetingPresentationIsOpen,
-    isLayoutMeetingResizing,
+    isMeetingLayoutResizing,
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
@@ -154,7 +154,7 @@ const AppContainer = (props) => {
           cameraHeight: cameraDock.height,
           cameraIsResizing: cameraDockInput.isResizing,
           meetingPresentationIsOpen,
-          isLayoutMeetingResizing,
+          isMeetingLayoutResizing,
           meetingLayoutCameraPosition,
           meetingLayoutFocusedCamera,
           meetingLayoutVideoRate,
@@ -194,7 +194,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       setTimeout(() => {
         const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
         if (queryCurrentUser.count() === 0) {
-          endMeeting(403, userData.ejectedReason || null);
+          if (userData.ejected) {
+            endMeeting('403', userData.ejectedReason);
+          } else {
+            // Either authentication process hasn't finished yet or user did authenticate but Users
+            // collection is unsynchronized. In both cases user may be able to rejoin.
+            const description = Auth.isAuthenticating || Auth.loggedIn
+              ? 'able_to_rejoin_user_disconnected_reason'
+              : null;
+            endMeeting('503', description);
+          }
         }
       }, delayForReconnection);
     },

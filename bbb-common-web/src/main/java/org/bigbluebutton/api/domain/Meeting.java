@@ -42,7 +42,9 @@ public class Meeting {
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Boolean freeJoin = false;
-  private Integer duration = 0;
+	private Boolean captureSlides = false;
+	private Boolean captureNotes = false;
+  	private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -287,6 +289,22 @@ public class Meeting {
     public void setFreeJoin(Boolean freeJoin) {
         this.freeJoin = freeJoin;
     }
+
+	public Boolean isCaptureSlides() {
+        return captureSlides;
+    }
+
+	public void setCaptureSlides(Boolean capture) {
+		this.captureSlides = captureSlides;
+	}
+	
+	public Boolean isCaptureNotes() {
+        return captureNotes;
+    }
+
+	public void setCaptureNotes(Boolean capture) {
+		this.captureNotes = captureNotes;
+	}
 
 	public Integer getDuration() {
 		return duration;

@@ -210,6 +210,20 @@ class Page {
   async up(key) {
     await this.page.keyboard.up(key);
   }
+
+  async dragDropSelector(selector, position) {
+    await this.page.locator(selector).dragTo(this.page.locator(position));
+  }
+
+  async checkElementCount(selector, count) {
+    const locator = await this.page.locator(selector);
+    await expect(locator).toHaveCount(count);
+  }
+
+  async hasValue(selector, value) {
+    const locator  = await this.page.locator(selector);
+    await expect(locator).toHaveValue(value);
+  }
 }
 
 module.exports = exports = Page;

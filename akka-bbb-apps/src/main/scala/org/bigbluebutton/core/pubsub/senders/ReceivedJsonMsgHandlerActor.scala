@@ -175,6 +175,8 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[PadPatchSysMsg](envelope, jsonNode)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
+      case PadCapturePubMsg.NAME =>
+        routePadMsg[PadCapturePubMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
@@ -286,6 +288,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>
@@ -308,8 +312,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
       case MakePresentationWithAnnotationDownloadReqMsg.NAME =>
         routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
-      case ExportPresentationWithAnnotationReqMsg.NAME =>
-        routeGenericMsg[ExportPresentationWithAnnotationReqMsg](envelope, jsonNode)
       case NewPresAnnFileAvailableMsg.NAME =>
         routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
 

@@ -45,27 +45,31 @@ trait RespondToPollReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    for {
-      (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, msg.body.pollId,
-        msg.body.questionId, msg.body.answerIds, liveMeeting)
-    } yield {
-      broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
+    if (Polls.checkUserResponded(msg.body.pollId, msg.header.userId, liveMeeting.polls) == false) {
       for {
-        poll <- Polls.getPoll(pollId, liveMeeting.polls)
+        (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, msg.body.pollId,
+          msg.body.questionId, msg.body.answerIds, liveMeeting)
       } yield {
+        broadcastPollUpdatedEvent(msg, pollId, updatedPoll)
         for {
-          answerId <- msg.body.answerIds
+          poll <- Polls.getPoll(pollId, liveMeeting.polls)
         } yield {
-          val answerText = poll.questions(0).answers.get(answerId).key
-          broadcastUserRespondedToPollRecordMsg(msg, pollId, answerId, answerText, poll.isSecret)
+          for {
+            answerId <- msg.body.answerIds
+          } yield {
+            val answerText = poll.questions(0).answers.get(answerId).key
+            broadcastUserRespondedToPollRecordMsg(msg, pollId, answerId, answerText, poll.isSecret)
+          }
+        }
+
+        for {
+          presenter <- Users2x.findPresenter(liveMeeting.users2x)
+        } yield {
+          broadcastUserRespondedToPollRespMsg(msg, pollId, msg.body.answerIds, presenter.intId)
         }
       }
-
-      for {
-        presenter <- Users2x.findPresenter(liveMeeting.users2x)
-      } yield {
-        broadcastUserRespondedToPollRespMsg(msg, pollId, msg.body.answerIds, presenter.intId)
-      }
+    } else {
+      log.info("Ignoring typed answer from user {} once user already added an answer to this poll {} in meeting {}", msg.header.userId, msg.body.pollId, msg.header.meetingId)
     }
   }
 }

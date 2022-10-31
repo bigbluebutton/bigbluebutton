@@ -28,7 +28,7 @@ trait BreakoutRoomsListMsgHdlr {
       breakoutModel <- state.breakout
     } yield {
       val rooms = breakoutModel.rooms.values.toVector map { r =>
-        new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.shortName, r.isDefaultName, r.freeJoin, Map())
+        new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.shortName, r.isDefaultName, r.freeJoin, Map(), r.captureNotes, r.captureSlides)
       }
       val ready = breakoutModel.hasAllStarted()
       broadcastEvent(rooms, ready)

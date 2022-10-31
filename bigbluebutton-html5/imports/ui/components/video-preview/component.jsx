@@ -201,6 +201,14 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.wholeImageBrightnessLabel',
     description: 'Whole image brightness label',
   },
+  wholeImageBrightnessDesc: {
+    id: 'app.videoPreview.wholeImageBrightnessDesc',
+    description: 'Whole image brightness aria description',
+  },
+  sliderDesc: {
+    id: 'app.videoPreview.sliderDesc',
+    description: 'Brightness slider aria description',
+  },
 });
 
 class VideoPreview extends Component {
@@ -801,7 +809,7 @@ class VideoPreview extends Component {
         <Styled.Label htmlFor="brightness">
           {intl.formatMessage(intlMessages.brightness)}
         </Styled.Label>
-        <div>
+        <div aria-hidden>
           <Styled.MarkerDynamicWrapper>
             <Styled.MarkerDynamic
               ref={(ref) => this.brightnessMarker = ref}
@@ -818,6 +826,7 @@ class VideoPreview extends Component {
           min={0}
           max={200}
           value={brightness}
+          aria-describedBy={'brightness-slider-desc'}
           onChange={(e) => {
             const brightness = e.target.valueAsNumber;
             this.currentVideoStream.changeCameraBrightness(brightness);
@@ -825,7 +834,10 @@ class VideoPreview extends Component {
           }}
           disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
         />
-        <Styled.MarkerWrapper>
+        <div style={{ display: 'none' }} id={'brightness-slider-desc'}>
+          {intl.formatMessage(intlMessages.sliderDesc)}
+        </div>
+        <Styled.MarkerWrapper aria-hidden>
           <Styled.Marker>{'-100'}</Styled.Marker>
           <Styled.Marker>{'0'}</Styled.Marker>
           <Styled.Marker>{'100'}</Styled.Marker>
@@ -834,17 +846,14 @@ class VideoPreview extends Component {
           <Checkbox
             onChange={this.handleBrightnessAreaChange}
             checked={wholeImageBrightness}
-            ariaLabelledBy="brightnessAreaLabel"
-            id="brightnessArea"
+            ariaLabel={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
+            ariaDescribedBy={'whole-image-desc'}
+            ariaDesc={intl.formatMessage(intlMessages.wholeImageBrightnessDesc)}
             disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
           />
-          <label
-            htmlFor="brightnessArea"
-            id="brightnessAreaLabel"
-            style={{ margin: '0 .5rem' }}
-          >
+          <div aria-hidden style={{ margin: '0 .5rem' }}>
             {intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
-          </label>
+          </div>
         </div>
       </>
     );
