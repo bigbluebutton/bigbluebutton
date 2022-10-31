@@ -290,7 +290,7 @@ public class Meeting {
         this.freeJoin = freeJoin;
     }
 
-	public Boolean isSlideCaptured() {
+	public Boolean isCaptureSlides() {
         return captureSlides;
     }
 
@@ -298,7 +298,7 @@ public class Meeting {
 		this.captureSlides = captureSlides;
 	}
 	
-	public Boolean isNoteCaptured() {
+	public Boolean isCaptureNotes() {
         return captureNotes;
     }
 
