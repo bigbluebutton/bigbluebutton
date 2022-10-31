@@ -377,8 +377,8 @@ public class MeetingService implements MessageListener {
         breakoutMetadata.put("meetingId", m.getExternalId());
         breakoutMetadata.put("sequence", m.getSequence().toString());
         breakoutMetadata.put("freeJoin", m.isFreeJoin().toString());
-        breakoutMetadata.put("captureSlides", m.isSlideCaptured().toString());
-        breakoutMetadata.put("captureNotes", m.isNoteCaptured().toString());
+        breakoutMetadata.put("captureSlides", m.isCaptureSlidesEnabled().toString());
+        breakoutMetadata.put("captureNotes", m.isCaptureNotesEnabled().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
@@ -390,8 +390,8 @@ public class MeetingService implements MessageListener {
     if (m.isBreakout()) {
       logData.put("sequence", m.getSequence());
       logData.put("freeJoin", m.isFreeJoin());
-      logData.put("captureSlides",  m.isSlideCaptured());
-      logData.put("captureNotes", m.isNoteCaptured());
+      logData.put("captureSlides",  m.isCaptureSlidesEnabled());
+      logData.put("captureNotes", m.isCaptureNotesEnabled());
       logData.put("parentMeetingId", m.getParentMeetingId());
     }
     logData.put("name", m.getName());
