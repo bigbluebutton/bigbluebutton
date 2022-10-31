@@ -46,13 +46,18 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )
 
+    val isUserModerator = !permissionFailed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
+    )
+
     if (isUserOneOfPermited || isUserAmongPresenters) {
       println("============= Printing Sanitized annotations ============")
       for (annotation <- msg.body.annotations) {
         printAnnotationInfo(annotation)
       }
       println("============= Printed Sanitized annotations  ============")
-      val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting)
+      val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting, isUserAmongPresenters, isUserModerator)
       broadcastEvent(msg, msg.body.whiteboardId, annotations, msg.body.html5InstanceId)
     } else {
       //val meetingId = liveMeeting.props.meetingProp.intId

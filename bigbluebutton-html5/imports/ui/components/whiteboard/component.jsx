@@ -3,13 +3,8 @@ import _ from "lodash";
 import { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
-import {
-  ColorStyle,
-  DashStyle,
-  SizeStyle,
-  TDShapeType,
-} from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
+import { Utils } from "@tldraw/core";
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -42,10 +37,13 @@ const TldrawGlobalStyle = createGlobalStyle`
 export default function Whiteboard(props) {
   const {
     isPresenter,
+    isModerator,
     removeShapes,
     initDefaultPages,
     persistShape,
+    notifyNotAllowedChange,
     shapes,
+    assets,
     currentUser,
     curPres,
     whiteboardId,
@@ -54,7 +52,6 @@ export default function Whiteboard(props) {
     skipToSlide,
     slidePosition,
     curPageId,
-    svgUri,
     presentationWidth,
     presentationHeight,
     isViewersCursorLocked,
@@ -66,6 +63,7 @@ export default function Whiteboard(props) {
     width,
     height,
     isPanning,
+    intl,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -97,66 +95,137 @@ export default function Whiteboard(props) {
     return zoom;
   }
 
+  const hasShapeAccess = (id) => {
+    const owner = shapes[id]?.userId;
+    const isBackgroundShape = id?.includes('slide-background');
+    const hasShapeAccess = !isBackgroundShape && ((owner && owner === currentUser?.userId) || !owner || isPresenter || isModerator);
+    return hasShapeAccess;
+  }
+
+  const sendShapeChanges= (app, changedShapes, redo = false) => {
+    const invalidChange = Object.keys(changedShapes)
+                                .find(id => !hasShapeAccess(id));
+    if (invalidChange) {
+      notifyNotAllowedChange(intl);
+      // undo last command without persisting to not generate the onUndo/onRedo callback
+      if (!redo) {
+        const command = app.stack[app.pointer];
+        app.pointer--;
+        return app.applyPatch(command.before, `undo`);
+      } else {
+        app.pointer++
+        const command = app.stack[app.pointer]
+        return app.applyPatch(command.after, 'redo');
+      }
+    };
+    let deletedShapes = [];
+    Object.entries(changedShapes)
+          .forEach(([id, shape]) => {
+            if (!shape) deletedShapes.push(id);
+            else {
+              //checks to find any bindings assosiated with the changed shapes.
+              //If any, they may need to be updated as well.
+              const pageBindings = app.page.bindings;
+              if (pageBindings) {
+                Object.entries(pageBindings).map(([k,b]) => {
+                  if (b.toId.includes(id)) {
+                    const boundShape = app.getShape(b.fromId);
+                    if (shapes[b.fromId] && !_.isEqual(boundShape, shapes[b.fromId])) {
+                      const shapeBounds = app.getShapeBounds(b.fromId);
+                      boundShape.size = [shapeBounds.width, shapeBounds.height];
+                      persistShape(boundShape, whiteboardId)
+                    }
+                  }
+                })
+              }
+              if (!shape.id) {
+                // check it already exists (otherwise we need the full shape)
+                if (!shapes[id]) {
+                  shape = app.getShape(id);
+                }
+                shape.id = id;
+              }
+              const shapeBounds = app.getShapeBounds(id);
+              const size = [shapeBounds.width, shapeBounds.height];
+              if (!shapes[id] || (shapes[id] && !_.isEqual(shapes[id].size, size))) {
+                shape.size = size;
+              }
+              if (!shapes[id] || (shapes[id] && !shapes[id].userId)) shape.userId = currentUser?.userId;
+              persistShape(shape, whiteboardId);
+            }
+          });
+    removeShapes(deletedShapes, whiteboardId);
+  }
+
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
 
     let next = { ...currentDoc };
 
-    let pageBindings = null;
-    let history = null;
-    let stack = null;
     let changed = false;
 
     if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
-      // mergeDocument loses bindings and history, save it
-      pageBindings = tldrawAPI?.getPage(curPageId)?.bindings;
-      history = tldrawAPI?.history
-      stack = tldrawAPI?.stack
+      // set shapes as locked for those who aren't allowed to edit it
+      Object.entries(shapes).forEach(([shapeId, shape]) => {
+        if (!shape.isLocked && !hasShapeAccess(shapeId)) {
+          shape.isLocked = true;
+        }
+      });
 
+      const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)))
+      if (removed && removed.length > 0) {
+        tldrawAPI?.patchState(
+          {
+            document: {
+              pageStates: {
+                [curPageId]: {
+                  selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+                },
+              },
+              pages: {
+                [curPageId]: {
+                  shapes: Object.fromEntries(removed.map((id) => [id, undefined])),
+                },
+              },
+            },
+          },
+        );
+      }
       next.pages[curPageId].shapes = shapes;
-
       changed = true;
     }
 
-    if (curPageId && next.pages[curPageId] && !next.pages[curPageId].shapes["slide-background-shape"]) {
-      next.assets[`slide-background-asset-${curPageId}`] = {
-        id: `slide-background-asset-${curPageId}`,
-        size: [slidePosition?.width || 0, slidePosition?.height || 0],
-        src: svgUri,
-        type: "image",
-      };
+    if (curPageId && !next.assets[`slide-background-asset-${curPageId}`]) {
+      next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`]
+      tldrawAPI?.patchState(
+        {
+          document: {
+            assets: assets
+          },
+        },
+      );
+    }
 
-      next.pages[curPageId].shapes["slide-background-shape"] = {
-        assetId: `slide-background-asset-${curPageId}`,
-        childIndex: -1,
-        id: "slide-background-shape",
-        name: "Image",
-        type: TDShapeType.Image,
-        parentId: `${curPageId}`,
-        point: [0, 0],
-        isLocked: true,
-        size: [slidePosition?.width || 0, slidePosition?.height || 0],
-        style: {
-          dash: DashStyle.Draw,
-          size: SizeStyle.Medium,
-          color: ColorStyle.Blue,
+    if (changed && tldrawAPI) {
+      // merge patch manually (this improves performance and reduce side effects on fast updates)
+      const patch = {
+        document: {
+          pages: {
+            [curPageId]: { shapes: shapes }
+          },
         },
       };
-
-      changed = true;
-    }
-
-    if (changed) {
-      if (pageBindings) next.pages[curPageId].bindings = pageBindings;
-      tldrawAPI?.mergeDocument(next);
-      if (tldrawAPI && history) tldrawAPI.history = history;
-      if (tldrawAPI && stack) tldrawAPI.stack = stack;
+      const prevState = tldrawAPI._state;
+      const nextState = Utils.deepMerge(tldrawAPI._state, patch);
+      const final = tldrawAPI.cleanup(nextState, prevState, patch, '');
+      tldrawAPI._state = final;
+      tldrawAPI?.forceUpdate();
     }
 
     // move poll result text to bottom right
     if (next.pages[curPageId]) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
-                                .filter(([id, shape]) => shape.name.includes("poll-result"))
+                                .filter(([id, shape]) => shape.name?.includes("poll-result"))
       for (const [id, shape] of pollResults) {
         if (_.isEqual(shape.point, [0, 0])) {
           const shapeBounds = tldrawAPI?.getShapeBounds(id);
@@ -209,8 +278,11 @@ export default function Whiteboard(props) {
       if (cameraZoom && cameraZoom === 1) {
           tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom);
       } else if (isMounting) {
-        if (!fitToWidth) {
-          setIsMounting(false);
+        setIsMounting(false);
+        const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
+        const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
+        // case where the presenter had fit-to-width enabled and he reloads the page
+        if (!fitToWidth && currentAspectRatio !== previousAspectRatio) {
           // wee need this to ensure tldraw updates the viewport size after re-mounting
           setTimeout(() => {
             tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom, 'zoomed');
@@ -252,32 +324,34 @@ export default function Whiteboard(props) {
     }
   }, [zoomValue]);
 
-  // update zoom when presenter changes
+  // update zoom when presenter changes if the aspectRatio has changed
   React.useEffect(() => {
     if (tldrawAPI && isPresenter && curPageId && slidePosition && !isMounting) {
       const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
       const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
-      if (previousAspectRatio !== currentAspectRatio && fitToWidth) {
-        const zoom = calculateZoom(slidePosition.width, slidePosition.height)
-        tldrawAPI?.setCamera([0, 0], zoom);
-        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
-        zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
-        setZoom(HUNDRED_PERCENT);
-        zoomChanger(HUNDRED_PERCENT);
-      } else {
-        let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
-        let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
-        const camera = tldrawAPI?.getPageState()?.camera;
-        const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
-        if (!fitToWidth && camera.zoom === zoomFitSlide) {
-          viewedRegionW = HUNDRED_PERCENT;
-          viewedRegionH = HUNDRED_PERCENT;
-        }
-        zoomSlide(parseInt(curPageId), podId, viewedRegionW, viewedRegionH, camera.point[0], camera.point[1]);
-        const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
-        if (zoom !== zoomToolbar) {
-          setZoom(zoomToolbar);
-          zoomChanger(zoomToolbar);
+      if (previousAspectRatio !== currentAspectRatio) {
+        if (fitToWidth) {
+          const zoom = calculateZoom(slidePosition.width, slidePosition.height)
+          tldrawAPI?.setCamera([0, 0], zoom);
+          const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+          zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
+          setZoom(HUNDRED_PERCENT);
+          zoomChanger(HUNDRED_PERCENT);
+        } else if (!isMounting) {
+          let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
+          let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+          const camera = tldrawAPI?.getPageState()?.camera;
+          const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
+          if (!fitToWidth && camera.zoom === zoomFitSlide) {
+            viewedRegionW = HUNDRED_PERCENT;
+            viewedRegionH = HUNDRED_PERCENT;
+          }
+          zoomSlide(parseInt(curPageId), podId, viewedRegionW, viewedRegionH, camera.point[0], camera.point[1]);
+          const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
+          if (zoom !== zoomToolbar) {
+            setZoom(zoomToolbar);
+            zoomChanger(zoomToolbar);
+          }
         }
       }
     }
@@ -292,6 +366,7 @@ export default function Whiteboard(props) {
       const tdDelete = document.getElementById("TD-Delete");
       const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
       const tdTools = document.getElementById("TD-Tools");
+
       if (tdToolsDots && tdDelete && tdPrimaryTools) {
         const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
         tdToolsDots.style.height = `${size}px`;
@@ -327,6 +402,21 @@ export default function Whiteboard(props) {
   }, [isPanning]);
 
   const onMount = (app) => {
+    const menu = document.getElementById("TD-Styles")?.parentElement;
+    if (menu) {
+      const MENU_OFFSET = `48px`;
+      menu.style.position = `relative`;
+      if (isRTL) {
+        menu.style.left = MENU_OFFSET;
+      } else {
+        menu.style.right = MENU_OFFSET;
+      }
+
+      [...menu.children]
+        .sort((a,b)=> a?.id>b?.id?-1:1)
+        .forEach(n=> menu.appendChild(n));
+    }
+
     app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
@@ -335,47 +425,54 @@ export default function Whiteboard(props) {
       app.onPan = () => {};
       app.setSelectedIds = () => {};
       app.setHoveredId = () => {};
-    } else {
-      // disable hover highlight for background slide shape
-      app.setHoveredId = (id) => {
-        if (id?.includes('slide-background')) return null;
-        app.patchState(
-          {
-            document: {
-              pageStates: {
-                [app.getPage()?.id]: {
-                  hoveredId: id || [],
-                },
-              },
-            },
-          },
-          `set_hovered_id`
-        );
-      };
-      // disable selecting background slide shape
-      app.setSelectedIds = (ids) => {
-        ids = ids.filter(id => !id.includes('slide-background'))
-        app.patchState(
-          {
-            document: {
-              pageStates: {
-                [app.getPage()?.id]: {
-                  selectedIds: ids || [],
-                },
-              },
-            },
-          },
-          `selected`
-        );
-      };
     }
 
     if (curPageId) {
       app.changePage(curPageId);
+      setIsMounting(true);
     }
   };
 
   const onPatch = (e, t, reason) => {
+    // don't allow select others shapes for editing if don't have permission
+    if (reason && reason.includes("set_editing_id")) {
+      if (!hasShapeAccess(e.pageState.editingId)) {
+        e.pageState.editingId = null;
+      }
+    }
+    // don't allow hover others shapes for editing if don't have permission
+    if (reason && reason.includes("set_hovered_id")) {
+      if (!hasShapeAccess(e.pageState.hoveredId)) {
+        e.pageState.hoveredId = null;
+      }
+    }
+    // don't allow select others shapes if don't have permission
+    if (reason && reason.includes("selected")) {
+      const validIds = [];
+      e.pageState.selectedIds.forEach(id => hasShapeAccess(id) && validIds.push(id));
+      e.pageState.selectedIds = validIds;
+      e.patchState(
+        {
+          document: {
+            pageStates: {
+              [e.getPage()?.id]: {
+                selectedIds: validIds,
+              },
+            },
+          },
+        }
+      );
+    }
+    // don't allow selecting others shapes with ctrl (brush)
+    if (e?.session?.type === "brush" && e?.session?.status === "brushing") {
+      const validIds = [];
+      e.pageState.selectedIds.forEach(id => hasShapeAccess(id) && validIds.push(id));
+      e.pageState.selectedIds = validIds;
+      if (!validIds.find(id => id === e.pageState.hoveredId)) {
+        e.pageState.hoveredId = undefined;
+      }
+    }
+
     if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
@@ -438,11 +535,81 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && reason === 'patched_shapes') {
+    if (reason && reason === 'patched_shapes' && e?.session?.type === "edit" && e?.session?.initialShape?.type === "text") {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
-      if (patchedShape?.type === 'text') {
+      if (!shapes[patchedShape.id]) {
+        patchedShape.userId = currentUser?.userId;
         persistShape(patchedShape, whiteboardId);
+      } else {
+        const diff = {
+          id: patchedShape.id,
+          point: patchedShape.point,
+          text: patchedShape.text
+        }
+        persistShape(diff, whiteboardId);
       }
+    }
+  };
+
+  const onUndo = (app) => {
+    if (app.currentPageId !== curPageId) {
+      if (isPresenter) {
+        // change slide for others
+        skipToSlide(Number.parseInt(app.currentPageId), podId)
+      } else {
+        // ignore, stay on same page
+        app.changePage(curPageId);
+      }
+      return;
+    }
+    const lastCommand = app.stack[app.pointer+1];
+    const changedShapes = lastCommand?.before?.document?.pages[app.currentPageId]?.shapes;
+    if (changedShapes) {
+      sendShapeChanges(app, changedShapes, true);
+    }
+  };
+
+  const onRedo = (app) => { 
+    if (app.currentPageId !== curPageId) {
+      if (isPresenter) {
+        // change slide for others
+        skipToSlide(Number.parseInt(app.currentPageId), podId)
+      } else {
+        // ignore, stay on same page
+        app.changePage(curPageId);
+      }
+      return;
+    }
+    const lastCommand = app.stack[app.pointer];
+    const changedShapes = lastCommand?.after?.document?.pages[app.currentPageId]?.shapes;
+    if (changedShapes) {
+      sendShapeChanges(app, changedShapes);
+    }
+  };
+
+  const onCommand = (app, command, reason) => { 
+    const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
+    if (!isMounting && app.currentPageId !== curPageId) {
+      // can happen then the "move to page action" is called, or using undo after changing a page
+      const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(app.currentPageId)).id;
+      //remove from previous page and persist on new
+      changedShapes && removeShapes(Object.keys(changedShapes), whiteboardId);
+      changedShapes && Object.entries(changedShapes)
+                             .forEach(([id, shape]) => {
+                               const shapeBounds = app.getShapeBounds(id);
+                               shape.size = [shapeBounds.width, shapeBounds.height];
+                               persistShape(shape, newWhiteboardId);
+                             });
+      if (isPresenter) {
+        // change slide for others
+        skipToSlide(Number.parseInt(app.currentPageId), podId)
+      } else {
+        // ignore, stay on same page
+        app.changePage(curPageId);
+      }
+    }
+    else if (changedShapes) {
+      sendShapeChanges(app, changedShapes);
     }
   };
 
@@ -466,174 +633,9 @@ export default function Whiteboard(props) {
       showMultiplayerMenu={false}
       readOnly={false}
       onPatch={onPatch}
-      onUndo={(e, s) => {
-        e?.selectedIds?.map(id => {
-          const shape = e.getShape(id);
-          persistShape(shape, whiteboardId);
-          const children = shape.children;
-          children && children.forEach(c => {
-            const childShape = e.getShape(c);
-            const shapeBounds = e.getShapeBounds(c);
-            childShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(childShape, whiteboardId)
-          });
-        })
-        const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
-        let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-        if (shapesIdsToRemove.length) {
-          // add a little delay, wee need to make sure children are updated first
-          setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
-        }
-      }}
-
-      onRedo={(e, s) => {
-        e?.selectedIds?.map(id => {
-          const shape = e.getShape(id);
-          persistShape(shape, whiteboardId);
-          const children = shape.children;
-          children && children.forEach(c => {
-            const childShape = e.getShape(c);
-            const shapeBounds = e.getShapeBounds(c);
-            childShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(childShape, whiteboardId)
-          });
-        });
-        const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
-        let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-        if (shapesIdsToRemove.length) {
-          // add a little delay, wee need to make sure children are updated first
-          setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
-        }
-      }}
-
-      onCommand={(e, s, g) => {
-        if (s?.id.includes('move_to_page')) {
-          let groupShapes = [];
-          let nonGroupShapes = [];
-          let movedShapes = {};
-          e.selectedIds.forEach(id => {
-            const shape = e.getShape(id);
-            if (shape.type === 'group')
-              groupShapes.push(id);
-            else
-              nonGroupShapes.push(id);
-            movedShapes[id] = e.getShape(id);
-          });
-          //remove shapes on origin page
-          let idsToRemove = nonGroupShapes.concat(groupShapes);
-          removeShapes(idsToRemove, whiteboardId);
-          //persist shapes for destination page
-          const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(e.getPage()?.id)).id;
-          let idsToInsert = groupShapes.concat(nonGroupShapes);
-          idsToInsert.forEach(id => {
-            persistShape(movedShapes[id], newWhiteboardId);
-            const children = movedShapes[id].children;
-            children && children.forEach(c => {
-              persistShape(e.getShape(c), newWhiteboardId)
-            });
-          });
-          if (isPresenter) {
-            // change slide for others
-            skipToSlide(Number.parseInt(e.getPage()?.id), podId)
-          } else {
-            // ignore, stay on same page
-            e.changePage(curPageId);
-          }
-          return;
-        }
-
-        if (s?.id.includes('ungroup')) {
-          e?.selectedIds?.map(id => {
-            persistShape(e.getShape(id), whiteboardId);
-          })
-
-          // check for deleted shapes
-          const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
-          let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-          if (shapesIdsToRemove.length) {
-            // add a little delay, wee need to make sure children are updated first
-            setTimeout(() => removeShapes(shapesIdsToRemove, whiteboardId), 200);
-          }
-          return;
-        }
-
-        const conditions = [
-          "session:complete", "style", "updated_shapes", "duplicate", "stretch", 
-          "align", "move", "delete", "create", "flip", "toggle", "group", "translate",
-          "transform_single", "arrow", "edit", "erase", "rotate",   
-        ]
-        if (conditions.some(el => s?.id?.startsWith(el))) {
-          e.selectedIds.forEach(id => {
-            const shape = e.getShape(id);
-            const shapeBounds = e.getShapeBounds(id);
-            shape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(shape, whiteboardId);
-            //checks to find any bindings assosiated with the selected shapes.
-            //If any, they need to be updated as well.
-            const pageBindings = e.bindings;
-            const boundShapes = {};
-            if (pageBindings) {
-              Object.entries(pageBindings).map(([k,b]) => {
-                if (b.toId.includes(id)) {
-                  boundShapes[b.fromId] = e.getShape(b.fromId);
-                }
-              })
-            }
-            //persist shape(s) that was updated by the client and any shapes bound to it.
-            Object.entries(boundShapes).map(([k,bs]) => {
-              const shapeBounds = e.getShapeBounds(k);
-              bs.size = [shapeBounds.width, shapeBounds.height];
-              persistShape(bs, whiteboardId)
-            })
-            const children = e.getShape(id).children;
-            //also persist children of the selected shape (grouped shapes)
-            children && children.forEach(c => {
-              const shape = e.getShape(c);
-              const shapeBounds = e.getShapeBounds(c);
-              shape.size = [shapeBounds.width, shapeBounds.height];
-              persistShape(shape, whiteboardId)
-              // also persist shapes that are bound to the children
-              if (pageBindings) {
-                Object.entries(pageBindings).map(([k,b]) => {
-                  if (!(b.fromId in boundShapes) && b.toId.includes(c)) {
-                    const shape = e.getShape(b.fromId);
-                    persistShape(shape, whiteboardId)
-                    boundShapes[b.fromId] = shape;
-                  }
-                })
-              }
-            })
-          });
-          // draw shapes
-          Object.entries(e.state.document.pages[e.getPage()?.id]?.shapes)
-            .filter(([k, s]) => s?.type === 'draw')
-            .forEach(([k, s]) => {
-              if (!prevShapes[k] && !k.includes('slide-background')) {
-                const shapeBounds = e.getShapeBounds(k);
-                s.size = [shapeBounds.width, shapeBounds.height];
-                persistShape(s, whiteboardId);
-              }
-          });
-
-          // check for deleted shapes
-          const pageShapes = e.state.document.pages[e.getPage()?.id]?.shapes;
-          let shapesIdsToRemove = findRemoved(Object.keys(shapes), Object.keys(pageShapes))
-          let groups = [];
-          let nonGroups = [];
-          // if we have groups, we need to make sure they are removed lastly
-          shapesIdsToRemove.forEach(shape => {
-            if (shapes[shape].type === 'group') {
-              groups.push(shape);
-            } else {
-              nonGroups.push(shape);
-            }
-          });
-          if (shapesIdsToRemove.length) {
-            shapesIdsToRemove = nonGroups.concat(groups);
-            removeShapes(shapesIdsToRemove, whiteboardId);
-          }
-        }
-      }}
+      onUndo={onUndo}
+      onRedo={onRedo}
+      onCommand={onCommand}
     />
   );
 

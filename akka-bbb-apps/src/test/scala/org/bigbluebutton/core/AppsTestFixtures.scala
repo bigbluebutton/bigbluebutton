@@ -47,7 +47,7 @@ trait AppsTestFixtures {
   val meetingLayout = ""
 
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
-  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, captureNotes = false, breakoutRooms = Vector())
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, captureNotes = false, captureSlides = false, breakoutRooms = Vector())
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,

@@ -366,10 +366,10 @@ const ShortcutHelpComponent = (props) => {
           </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        <Styled.TabPanel selectedClassName="is-selected">
         {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
           : (
-            <span>
+            <Styled.TableWrapper>
               <Styled.ShortcutTable>
                 <tbody>
                   <tr>           
@@ -379,12 +379,13 @@ const ShortcutHelpComponent = (props) => {
                   {generalShortcutItems}
                 </tbody>
               </Styled.ShortcutTable>
-            </span>
+            </Styled.TableWrapper>
           )
         }
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
-          <Styled.ShortcutTable>
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
               <tbody>
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
@@ -393,9 +394,11 @@ const ShortcutHelpComponent = (props) => {
                 {shortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
-          <Styled.ShortcutTable>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
               <tbody>
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
@@ -404,7 +407,8 @@ const ShortcutHelpComponent = (props) => {
                 {whiteboardShortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-        </StyledSettings.SettingsTabPanel>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
 
       </Styled.SettingsTabs>
     </Modal>

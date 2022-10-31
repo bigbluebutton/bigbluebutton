@@ -108,6 +108,7 @@ public class ParamsProcessorUtil {
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
+        private boolean defaultBreakoutRoomsCaptureSlides = false;
         private boolean defaultBreakoutRoomsCaptureNotes = false;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
@@ -278,13 +279,19 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
+            Boolean breakoutRoomsCaptureSlides = defaultBreakoutRoomsCaptureSlides;
+            String breakoutRoomsCaptureParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureParam)) {
+				breakoutRoomsCaptureSlides = Boolean.parseBoolean(breakoutRoomsCaptureParam);
+			}
+
             Boolean breakoutRoomsCaptureNotes = defaultBreakoutRoomsCaptureNotes;
             String breakoutRoomsCaptureNotesParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES);
             if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesParam)) {
 				breakoutRoomsCaptureNotes = Boolean.parseBoolean(breakoutRoomsCaptureNotesParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes);
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -751,6 +758,7 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
+            meeting.setCaptureSlides(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES)));
             meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
             meeting.setParentMeetingId(parentMeetingId);
         }

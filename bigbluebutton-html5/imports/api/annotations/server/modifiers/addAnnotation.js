@@ -8,7 +8,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
   check(whiteboardId, String);
   check(annotation, Object);
 
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
+  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   try {
     const { insertedId } = Annotations.upsert(query.selector, query.modifier);

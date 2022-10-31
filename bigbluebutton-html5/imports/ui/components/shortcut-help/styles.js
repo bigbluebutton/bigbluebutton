@@ -1,12 +1,13 @@
 import styled from 'styled-components';
-import { borderSize, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import { colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import { colorOffWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { Tabs } from 'react-tabs';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import StyledSettings from '../settings/styles';
 
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const KeyCell = styled.td`
-  border: ${borderSize} solid ${colorGrayLighter};
   text-align: center;
   padding: ${smPaddingX};
   margin: auto;
@@ -15,16 +16,19 @@ const KeyCell = styled.td`
 `;
 
 const DescCell = styled.td`
-  border: ${borderSize} solid ${colorGrayLighter};
   padding: ${smPaddingX};
   margin: auto;
 `;
 
 const ShortcutTable = styled.table`
-  border: ${borderSize} solid ${colorGrayLighter};
   border-collapse: collapse;
   margin: 0;
   width: 100%;
+
+  > tbody > tr:nth-child(even) {
+    background-color: ${colorOffWhite};
+    color: ${colorPrimary};
+  }
 `;
 
 const SettingsTabs = styled(Tabs)`
@@ -39,9 +43,24 @@ const SettingsTabs = styled(Tabs)`
   }
 `;
 
+const TableWrapper = styled(ScrollboxVertical)`
+  height: 50vh;
+  width: 100%;
+`;
+
+const TabPanel = styled(StyledSettings.SettingsTabPanel)`
+  margin-top: ${smPaddingX};
+
+  @media ${smallOnly} {
+    padding: 0;
+  }
+`;
+
 export default {
   KeyCell,
   DescCell,
   ShortcutTable,
   SettingsTabs,
+  TableWrapper,
+  TabPanel,
 };

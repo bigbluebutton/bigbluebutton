@@ -190,7 +190,8 @@ class BbbWebApiGWApp(
       breakoutRooms = Vector(),
       record = breakoutParams.record.booleanValue(),
       privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
-      captureNotes = breakoutParams.captureNotes.booleanValue()
+      captureNotes = breakoutParams.captureNotes.booleanValue(),
+      captureSlides = breakoutParams.captureSlides.booleanValue(),
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
