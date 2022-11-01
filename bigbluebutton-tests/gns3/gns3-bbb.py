@@ -286,7 +286,7 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
                      # enable NAT
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
-                     'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
+                     'netfilter-persistent save',
                      # we accept CSRs via POST to http://ca.test/getcert.cgi
                      f'echo {master_gateway_address} ca.{args.domain} >> /etc/hosts',
                      # initialize the SSL certificate authority, if needed
@@ -447,7 +447,7 @@ dhcp-option = option:domain-search,{args.domain}
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
                      # enable NAT
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
-                     'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
+                     'netfilter-persistent save',
                  ],
     }
 
@@ -552,7 +552,7 @@ dhcp-option = option:domain-search,{args.domain}
                      f'iptables -t nat -A POSTROUTING -s {server_subnet.with_prefixlen} -d {server_address} -p tcp --dport 80 -j MASQUERADE',
                      f'iptables -t nat -A POSTROUTING -s {server_subnet.with_prefixlen} -d {server_address} -p tcp --dport 443 -j MASQUERADE',
                      f'iptables -t nat -A POSTROUTING -s {server_subnet.with_prefixlen} -d {server_address} -p udp --dport 16384:32768 -j MASQUERADE',
-                     'DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent',
+                     'netfilter-persistent save',
                  ],
     }
 
