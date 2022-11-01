@@ -5,10 +5,13 @@ import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrap
 import Service from '/imports/ui/components/notes/service';
 import PadContainer from '/imports/ui/components/pads/container';
 import Styled from './styles';
-import { PANELS, ACTIONS } from '../layout/enums';
+import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container';
+
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
 const intlMessages = defineMessages({
   hide: {
@@ -33,10 +36,15 @@ const propTypes = {
   hasPermission: PropTypes.bool.isRequired,
   isResizing: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  sidebarContent: PropTypes.object.isRequired,
+  sharedNotesOutput: PropTypes.object.isRequired,
+  area: PropTypes.string,
+  layoutType: PropTypes.string,
 };
 
 const defaultProps = {
   area: 'sidebarContent',
+  layoutType: null,
 };
 
 const Notes = ({
@@ -46,6 +54,7 @@ const Notes = ({
   layoutContextDispatch,
   isResizing,
   area,
+  layoutType,
   sidebarContent,
   sharedNotesOutput,
 }) => {
@@ -66,15 +75,27 @@ const Notes = ({
       && sidebarContent.isOpen
       && sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
     ) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-        value: false,
-      });
+      if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.CHAT,
+        });
 
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: PANELS.NONE,
-      });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: PUBLIC_CHAT_ID,
+        });
+      } else {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
+  
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.NONE,
+        });
+      }
 
       layoutContextDispatch({
         type: ACTIONS.SET_NOTES_IS_PINNED,
@@ -114,7 +135,7 @@ const Notes = ({
           }
         />
       ) : (
-        <Header
+        <Styled.Header
           rightButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.unpinNotes),
             'data-test': 'unpinNotes',

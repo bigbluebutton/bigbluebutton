@@ -9,6 +9,7 @@ const Header = ({
   rightButtonProps,
   customRightButton,
   'data-test': dataTest,
+  ...rest
 }) => {
   const renderCloseButton = () => (
     <Right {...rightButtonProps} />
@@ -21,7 +22,7 @@ const Header = ({
   );
 
   return (
-    <Styled.Header data-test={dataTest ? dataTest : ''}>
+    <Styled.Header data-test={dataTest ? dataTest : ''} {...rest}>
       {leftButtonProps ? <Left {...leftButtonProps} /> : <div />}
       {customRightButton
         ? renderCustomRightButton()

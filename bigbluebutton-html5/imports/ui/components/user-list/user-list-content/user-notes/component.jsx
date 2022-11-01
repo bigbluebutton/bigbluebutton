@@ -34,6 +34,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.byModerator',
     description: '',
   },
+  disabled: {
+    id: 'app.notes.disabled',
+    description: 'Aria description for disabled notes button',
+  },
 });
 
 class UserNotes extends Component {
@@ -79,6 +83,7 @@ class UserNotes extends Component {
       disableNotes,
       sidebarContentPanel,
       layoutContextDispatch,
+      isPinned,
     } = this.props;
     const { unread } = this.state;
 
@@ -101,6 +106,9 @@ class UserNotes extends Component {
         tabIndex={0}
         onClick={() => NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         onKeyPress={() => { }}
+        as={isPinned ? 'button' : 'div'}
+        disabled={isPinned}
+        $disabled={isPinned}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
@@ -114,6 +122,10 @@ class UserNotes extends Component {
                 <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </Styled.NotesLock>
             ) : null}
+          {isPinned
+            ? (
+              <span className='sr-only'>{`${intl.formatMessage(intlMessages.disabled)}`}</span>
+            ) : null}
         </div>
         {notification}
       </Styled.ListItem>
@@ -121,9 +133,9 @@ class UserNotes extends Component {
   }
 
   render() {
-    const { intl, isPinned } = this.props;
+    const { intl } = this.props;
 
-    if (!NotesService.isEnabled() || isPinned) return null;
+    if (!NotesService.isEnabled()) return null;
 
     return (
       <Styled.Messages>
