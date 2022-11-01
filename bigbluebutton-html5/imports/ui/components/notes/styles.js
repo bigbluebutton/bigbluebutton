@@ -25,7 +25,7 @@ const Notes = styled.div`
 `;
 
 const Header = styled(CommonHeader)`
-  padding: 0;
+  padding-bottom: .2rem;
 `;
 
 export default {
