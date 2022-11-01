@@ -106,6 +106,7 @@ export default function Whiteboard(props) {
     assets: {},
   });
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const [history, setHistory] = React.useState(null);
   const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [isMounting, setIsMounting] = React.useState(true);
@@ -465,6 +466,10 @@ export default function Whiteboard(props) {
       app.changePage(curPageId);
       setIsMounting(true);
     }
+
+    if (history) {
+      app.replaceHistory(history);
+    }
   };
 
   const onPatch = (e, t, reason) => {
@@ -621,7 +626,8 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onCommand = (app, command, reason) => { 
+  const onCommand = (app, command, reason) => {
+    setHistory(app.history);
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -708,7 +714,7 @@ export default function Whiteboard(props) {
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
         <TldrawGlobalStyle 
           hideContextMenu={!hasWBAccess && !isPresenter} 
-          hideCursor={!isPanning && (isPresenter || hasWBAccess)} 
+          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
         />
       </Cursors>
     </>
