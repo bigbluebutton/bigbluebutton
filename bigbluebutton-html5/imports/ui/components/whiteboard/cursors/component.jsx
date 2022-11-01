@@ -5,25 +5,18 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
-function usePrevious(value) {
-  const ref = React.useRef();
-  React.useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-}
+const Cursor = (props) => {
+  const {
+    name,
+    color,
+    x,
+    y,
+    currentPoint,
+    pageState,
+    isMultiUserActive,
+    owner = false,
+  } = props;
 
-const renderCursor = (
-  name,
-  color,
-  x,
-  y,
-  currentPoint,
-  pageState,
-  isMultiUserActive,
-  owner = false,
-
-) => {
   const z = !owner ? 2 : 1;
   let _x = null;
   let _y = null;
@@ -36,7 +29,6 @@ const renderCursor = (
   return (
     <>
       <div
-        key={`${name}-${color}-${x}-${y}`}
         style={{
           zIndex: z,
           position: "absolute",
@@ -84,8 +76,7 @@ const PositionLabel = (props) => {
     isMultiUserActive,
   } = props;
 
-  const { name, color } = currentUser;
-  const prevCurrentPoint = usePrevious(currentPoint);
+  const { name, color, userId } = currentUser;
 
   React.useEffect(() => {
     try {
@@ -105,7 +96,16 @@ const PositionLabel = (props) => {
   return (
     <>
       <div style={{ position: "absolute", height: "100%", width: "100%" }}>
-        {renderCursor(name, color, pos.x, pos.y, currentPoint, props.pageState, isMultiUserActive(whiteboardId))}
+        <Cursor
+          key={`${userId}-label`}
+          name={name}
+          color={color}
+          x={pos.x}
+          y={pos.y}
+          currentPoint={currentPoint}
+          pageState={props.pageState}
+          isMultiUserActive={isMultiUserActive(whiteboardId)}
+        />
       </div>
     </>
   );
@@ -130,7 +130,7 @@ export default function Cursors(props) {
   } = props;
 
   const start = () => setActive(true);
-  
+
   const end = () => {
     if (whiteboardId) {
       publishCursorUpdate({
@@ -172,14 +172,14 @@ export default function Cursors(props) {
     // disable native tldraw eraser animation
     const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
     if (eraserLine) eraserLine.style.display = `none`;
-        
+
     if (type === 'touchmove') {
       calcPresOffset();
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
 
-    if (document?.documentElement?.dir === 'rtl') { 
+    if (document?.documentElement?.dir === 'rtl') {
       xOffset = 0;
       if (presentationContainer && presentation) {
         calcPresOffset();
@@ -223,7 +223,7 @@ export default function Cursors(props) {
           }
         }
       }
-  
+
       if (sl.includes('smart')) {
         if (panel || subPanel) {
           const dockPos = webcams?.getAttribute("data-position");
@@ -233,7 +233,7 @@ export default function Cursors(props) {
           if (dockPos === 'contentTop') {
             yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
           }
-        } 
+        }
         if (!panel && !subPanel) {
           if (webcams) {
             xOffset = parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET;
@@ -315,30 +315,29 @@ export default function Cursors(props) {
         .map((c) => {
           if (c && currentUser.userId !== c?.userId) {
             if (c.presenter) {
-              return renderCursor(
-                c?.userName,
-                "#C70039",
-                c?.xPercent,
-                c?.yPercent,
-                null,
-                tldrawAPI?.getPageState(),
-                isMultiUserActive(whiteboardId),
-                true
-              );
+              return <Cursor
+                key={`${c?.userId}`}
+                name={c?.userName}
+                color={"#C70039"}
+                x={c?.xPercent}
+                y={c?.yPercent}
+                pageState={tldrawAPI?.getPageState()}
+                isMultiUserActive={isMultiUserActive(whiteboardId)}
+                owner={true}
+              />
             }
 
-            return hasMultiUserAccess(whiteboardId, c?.userId) && (
-              renderCursor(
-                c?.userName,
-                "#AFE1AF",
-                c?.xPercent,
-                c?.yPercent,
-                null,
-                tldrawAPI?.getPageState(),
-                isMultiUserActive(whiteboardId),
-                true
-              )
-            );
+            return hasMultiUserAccess(whiteboardId, c?.userId) &&
+              <Cursor
+                key={`${c?.userId}`}
+                name={c?.userName}
+                color={"#AFE1AF"}
+                x={c?.xPercent}
+                y={c?.yPercent}
+                pageState={tldrawAPI?.getPageState()}
+                isMultiUserActive={isMultiUserActive(whiteboardId)}
+                owner={true}
+              />
           }
         })}
     </span>
