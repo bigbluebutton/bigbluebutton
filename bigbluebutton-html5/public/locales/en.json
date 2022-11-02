@@ -1062,6 +1062,7 @@
     "app.updateBreakoutRoom.title": "Update Breakout Rooms",
     "app.updateBreakoutRoom.confirm": "Apply",
     "app.updateBreakoutRoom.userChangeRoomNotification": "You were moved to room {0}.",
+    "app.smartMediaShare.externalVideo": "External video(s)",
     "app.update.resetRoom": "Reset user room",
     "app.externalVideo.start": "Share a new video",
     "app.externalVideo.title": "Share an external video",
