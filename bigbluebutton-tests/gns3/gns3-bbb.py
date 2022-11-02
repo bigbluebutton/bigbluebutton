@@ -316,7 +316,57 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
         user_data['apt'] = {'http_proxy': apt_proxy}
 
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                    ram=1024, disk=4096, ethernets=2, x=-200, y=0)
+                                    ram=1024, disk=4096, ethernets=2, x=x, y=y)
+
+def boulder(hostname, x=0, y=0):
+    # A server running letsencrypt's boulder server, for mock certbot.
+
+    network_config = {'version': 2,
+                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
+                      }}
+
+    user_data = {'hostname': hostname,
+                 'packages': ['git', 'docker', 'docker-compose', 'jq', 'moreutils'],
+                 'package_upgrade': package_upgrade,
+                 'users': [{'name': 'ubuntu',
+                            'plain_text_passwd': 'ubuntu',
+                            'ssh_authorized_keys': ssh_authorized_keys,
+                            'lock_passwd': False,
+                            'shell': '/bin/bash',
+                            'sudo': 'ALL=(ALL) NOPASSWD:ALL',
+                 }],
+                 'runcmd': [
+                     'su ubuntu -l -c "git clone https://github.com/letsencrypt/boulder.git"',
+                     # --devmode because otherwise, running as root, won't have permission to modify ubuntu's files
+                     'snap install yq --devmode',
+                     # turn off boulder's FAKE_DNS
+                     '''yq -i '.services.boulder.environment.FAKE_DNS = "none"' /home/ubuntu/boulder/docker-compose.yml''',
+                     # point its DNS resolver at our dnsmasq server
+                     '''sed -i -E -e '/name.*dns/,+2s/[0-9.]+/53/' /home/ubuntu/boulder/test/consul/config.hcl''',
+                     '''sed -i -E -e '/name.*dns/,+1s/[0-9.]+/128.8.8.1/' /home/ubuntu/boulder/test/consul/config.hcl''',
+                     # make it listen for http on port 80
+                     '''yq -i '.services.boulder.ports[0] = "80:4001"' /home/ubuntu/boulder/docker-compose.yml''',
+                     # make it conduct verifications on port 80
+                     '''jq '.va.portConfig.httpPort = 80' /home/ubuntu/boulder/test/config/va.json | sponge /home/ubuntu/boulder/test/config/va.json''',
+                     '''jq '.va.portConfig.httpPort = 80' /home/ubuntu/boulder/test/config/va-remote-a.json | sponge /home/ubuntu/boulder/test/config/va-remote-a.json''',
+                     '''jq '.va.portConfig.httpPort = 80' /home/ubuntu/boulder/test/config/va-remote-b.json | sponge /home/ubuntu/boulder/test/config/va-remote-b.json''',
+                     # start Boulder
+                     'cd /home/ubuntu/boulder; docker-compose up -d',
+                 ],
+    }
+
+    if notification_url:
+        user_data['phone_home'] = {'url': notification_url, 'tries': 1}
+
+    # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
+    #
+    # This will break things if the instance can't reach the proxy.
+
+    if apt_proxy:
+        user_data['apt'] = {'http_proxy': apt_proxy}
+
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    ram=2048, disk=2*4096, x=x, y=y)
 
 # BigBlueButton test clients
 
@@ -653,6 +703,9 @@ master = master_gateway(args.project, x=-200, y=0)
 PublicIP_switch = gns3_project.switch(public_subnet.with_prefixlen, x=0, y=0, ethernets=16)
 gns3_project.link(master, 0, internet)
 gns3_project.link(master, 1, PublicIP_switch)
+
+boulder_node = boulder('certbot', x=-200, y=-200)
+gns3_project.link(boulder_node, 0, PublicIP_switch)
 
 # NAT4: public subnet to carrier grade NAT subnet
 #
