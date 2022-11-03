@@ -116,6 +116,8 @@ class ExternalVideoModal extends Component {
                 disabled={sharing}
                 aria-describedby="exernal-video-note"
                 onPaste={(e) => { e.stopPropagation(); }}
+                onCut={(e) => { e.stopPropagation(); }}
+                onCopy={(e) => { e.stopPropagation(); }}
               />
             </label>
             <Styled.ExternalVideoNote id="external-video-note">
