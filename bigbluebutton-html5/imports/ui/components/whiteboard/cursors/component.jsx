@@ -153,6 +153,7 @@ export default function Cursors(props) {
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
     const presentationContainer = document.querySelector('[data-test="presentationContainer"]');
     const presentation = document.getElementById('currentSlideText')?.parentElement;
+    const banners = document.querySelectorAll('[data-test="notificationBannerBar"]');
     let yOffset = 0;
     let xOffset = 0;
     const calcPresOffset = () => {
@@ -249,6 +250,12 @@ export default function Cursors(props) {
       if (presentationContainer && presentation) {
         calcPresOffset();
       }
+    }
+
+    if (banners) {
+      banners.forEach((el) => {
+        yOffset += parseFloat(window.getComputedStyle(el).height);
+      });
     }
 
     return setPos({ x: event.x - xOffset, y: event.y - yOffset });
