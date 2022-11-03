@@ -173,7 +173,6 @@ const TimerTracks = styled.div`
   ${TimerCol}
   margin-top: 0.8rem;
   margin-bottom: 2rem;
-  width: 15rem;
   
   .row {
     margin: 0.5rem auto;
