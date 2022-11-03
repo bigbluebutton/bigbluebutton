@@ -30,6 +30,8 @@ export const SmartMediaShare = (props) => {
     }
   });
 
+  if (actions?.length === 0) return null;
+
   const customStyles = { top: '-1rem' };
 
   return (
