@@ -117,7 +117,7 @@ async function sleep(ms) {
 /** Export shared notes via bbb-pads in the desired format
  * @param {Integer} retries - Number of retries to get the shared notes
 */
-async function collectSharedNotes(retries) {
+async function collectSharedNotes(retries = 1) {
   /** One of the following formats is supported:
     etherpad / html / pdf / txt / doc / odf */
 
@@ -128,12 +128,6 @@ async function collectSharedNotes(retries) {
   const notes_endpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
   const filePath = path.join(dropbox, filename);
 
-  const [sequence] = JSON.parse(exportJob.pages);
-  const timeout = (sequence - 1) * config.captureNotes.timeout;
-
-  // Wait for the bbb-pads API to be available
-  await sleep(timeout);
-
   const finishedDownload = promisify(stream.finished);
   const writer = fs.createWriteStream(filePath);
 
@@ -142,13 +136,15 @@ async function collectSharedNotes(retries) {
       method: 'GET',
       url: notes_endpoint,
       responseType: 'stream',
-      timeout: timeout,
     });
     response.data.pipe(writer);
     await finishedDownload(writer);
   } catch (err) {
-    if (retries > 0) {
-      logger.info(`Retrying ${jobId} in ${timeout}ms...`);
+    if (retries > 0 && err?.response?.status == 429) {
+      // Wait for the bbb-pads API to be available due to rate limiting
+      const backoff = err.response.headers['retry-after'] * 1000;
+      logger.info(`Retrying ${jobId} in ${backoff}ms...`);
+      await sleep(backoff);
       return collectSharedNotes(retries - 1);
     } else {
       logger.error(`Could not download notes in job ${jobId}`);

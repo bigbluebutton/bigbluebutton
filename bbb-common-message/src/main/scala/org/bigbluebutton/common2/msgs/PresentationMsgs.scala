@@ -43,6 +43,6 @@ case class NewPresAnnFileAvailableEvtMsgBody(fileURI: String, presId: String)
 
 object CaptureSharedNotesReqEvtMsg { val NAME = "CaptureSharedNotesReqEvtMsg" }
 case class CaptureSharedNotesReqEvtMsg(header: BbbClientMsgHeader, body: CaptureSharedNotesReqEvtMsgBody) extends BbbCoreMsg
-case class CaptureSharedNotesReqEvtMsgBody(parentMeetingId: String, meetingName: String, sequence: Int)
+case class CaptureSharedNotesReqEvtMsgBody(parentMeetingId: String, meetingName: String)
 
 // ------------ akka-apps to client ------------

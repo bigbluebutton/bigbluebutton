@@ -191,7 +191,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
     val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
-    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName, m.sequence)
+    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName)
     val event = CaptureSharedNotesReqEvtMsg(header, body)
 
     bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
@@ -207,7 +207,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
 
-    val exportJob = new ExportJob(jobId, jobType, filename, m.body.padId, "", true, List(m.body.sequence), m.body.parentMeetingId, presentationUploadToken)
+    val exportJob = new ExportJob(jobId, jobType, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
     val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
 
     bus.outGW.send(job)

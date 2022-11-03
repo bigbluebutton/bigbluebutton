@@ -7,6 +7,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
+import _ from 'lodash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -48,6 +49,7 @@ const setCapturedNotesUploading = () => {
         temporaryPresentationId,
       }, {
         $set: {
+          id: _.uniqueId(filename),
           temporaryPresentationId,
           progress: 0,
           filename,

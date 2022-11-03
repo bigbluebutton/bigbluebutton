@@ -3,7 +3,7 @@ import Pads from '/imports/api/pads';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 
-export default function padCapture(meetingId, parentMeetingId, meetingName, sequence) {
+export default function padCapture(meetingId, parentMeetingId, meetingName) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'PadCapturePubMsg';
@@ -12,7 +12,6 @@ export default function padCapture(meetingId, parentMeetingId, meetingName, sequ
     check(meetingId, String);
     check(parentMeetingId, String);
     check(meetingName, String);
-    check(sequence, Number);
 
     const pad = Pads.findOne(
       {
@@ -32,7 +31,6 @@ export default function padCapture(meetingId, parentMeetingId, meetingName, sequ
       breakoutId: meetingId,
       padId: pad.padId,
       filename,
-      sequence,
     };
 
     Logger.info(`Sending PadCapturePubMsg for meetingId=${meetingId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
