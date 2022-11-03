@@ -182,9 +182,17 @@ def master_gateway(hostname, x=0, y=0):
                                     'ens5': {'addresses': [f'{master_gateway_address}/{public_subnet.prefixlen}'] }
                       }}
 
+    # The cname is designed to send certbot traffic to certbot, but it doesn't work, because
+    # dnsmasq (according it its man page) imposes "significant limitations on the target".
+    # In particular, it's not in /etc/hosts, not from DHCP (because we're not using dnsmasq's
+    # DHCP), not from --interface-name, and not from another cname.
+    #
+    # In short, this doesn't work.
+
     dnsmasq_conf = f"""
 listen-address={master_gateway_address}
 bind-interfaces
+cname=acme-staging-v02.api.letsencrypt.org,certbot
 """
 
     # 120 second DHCP lease times because I change things around so
@@ -332,8 +340,7 @@ def certbot(hostname, x=0, y=0):
 	"crt": "/opt/ca/bbb-dev-ca.crt",
 	"key": "/opt/ca/bbb-dev-ca.key",
 	"address": ":8000",
-	"insecureAddress": "",
-	"dnsNames": [ hostname ],
+	"dnsNames": [ "acme-staging-v02.api.letsencrypt.org" ],
 	"logger": {
 	    "format": "text"
 	},
@@ -351,7 +358,31 @@ def certbot(hostname, x=0, y=0):
 	}
     }
 
+    # nginx is used to redirect /directory to /acme/acme/directory, so that certbot can be used
+    # without a server argument.  It's configured to mimic acme-staging-v02.api.letsencrypt.org
+
+    nginx_site=f"""
+server {{
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+  server_name acme-staging-v02.api.letsencrypt.org;
+
+  ssl_certificate /etc/letsencrypt/live/acme-staging-v02.api.letsencrypt.org/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/acme-staging-v02.api.letsencrypt.org/privkey.pem;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+  ssl_dhparam /etc/nginx/ssl/dhp-4096.pem;
+
+  access_log  /var/log/nginx/access.log;
+
+  return 301 https://acme-staging-v02.api.letsencrypt.org:8000/acme/acme$request_uri;
+}}
+"""
+
     user_data = {'hostname': hostname,
+                 'packages': ['certbot', 'nginx'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -365,16 +396,28 @@ def certbot(hostname, x=0, y=0):
                       'permissions': '0644',
                       'content': file('step-ca.service')
                      },
+                     {'path': '/etc/nginx/sites-available/redirect-ca',
+                      'permissions': '0644',
+                      'content': nginx_site
+                     },
                      {'path': '/opt/ca/ca.json',
                       'permissions': '0755',
                       'content': json.dumps(ca)
                      },
                  ],
                  'runcmd': [
-                     "wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
+                     "wget -q https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
                      "dpkg -i step-ca_0.21.0_amd64.deb",
                      "rm step-ca_0.21.0_amd64.deb",
                      "systemctl start step-ca",
+                     "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
+                     # stop nginx because we need port 80 available for certbot
+                     "systemctl stop nginx",
+                     f"certbot --server https://localhost:8000/acme/acme/directory --no-verify-ssl certonly --standalone --non-interactive --agree-tos -d acme-staging-v02.api.letsencrypt.org -m root@localhost",
+                     "mkdir -p /etc/nginx/ssl",
+                     "openssl dhparam -dsaparam  -out /etc/nginx/ssl/dhp-4096.pem 4096",
+                     "ln -s /etc/nginx/sites-available/redirect-ca /etc/nginx/sites-enabled/",
+                     "systemctl start nginx",
                  ],
     }
 
