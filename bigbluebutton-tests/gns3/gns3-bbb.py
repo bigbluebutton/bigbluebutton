@@ -174,25 +174,28 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
 def master_gateway(hostname, x=0, y=0):
     # A NAT gateway between our public "Internet" and the actual Internet
     #
-    # BBB's default STUN server is stun.l.google.com:19302, so we configure
-    # the master gateway to mimic it.
+    # BBB's default STUN server is stun.l.google.com:19302, so we run
+    # coturn and configure the master gateway to mimic it.
+    #
+    # It also operates an ACME server and mimics acme-v02.api.letsencrypt.org,
+    # so our test servers can run certbot to get their SSL certificates.
 
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
                                     'ens5': {'addresses': [f'{master_gateway_address}/{public_subnet.prefixlen}'] }
                       }}
 
-    # The cname is designed to send certbot traffic to certbot, but it doesn't work, because
-    # dnsmasq (according it its man page) imposes "significant limitations on the target".
-    # In particular, it's not in /etc/hosts, not from DHCP (because we're not using dnsmasq's
-    # DHCP), not from --interface-name, and not from another cname.
-    #
-    # In short, this doesn't work.
+    # resolver1.opendns.com is used by bbb-install to determine external IP address
+    # stun.l.google.com is used by clients to determine their external IP address (and maybe the servers too)
+    # I'd like {acme_server} to be a cname, too, but that isn't good enough (see below)
+
+    acme_server="acme-v02.api.letsencrypt.org"
 
     dnsmasq_conf = f"""
 listen-address={master_gateway_address}
 bind-interfaces
-cname=acme-staging-v02.api.letsencrypt.org,certbot
+cname=resolver1.opendns.com,{master_gateway_address}
+cname=stun.l.google.com,{master_gateway_address}
 """
 
     # 120 second DHCP lease times because I change things around so
@@ -231,11 +234,58 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
 
 """
 
+    # step-ca's JSON configuration file
+    ca = {
+	"root": "/opt/ca/bbb-dev-ca.crt",
+	"crt": "/opt/ca/bbb-dev-ca.crt",
+	"key": "/opt/ca/bbb-dev-ca.key",
+	"address": ":8000",
+	"dnsNames": [ acme_server ],
+	"logger": {
+	    "format": "text"
+	},
+	"db": {
+	    "type": "badgerv2",
+	    "dataSource": "/opt/ca/db"
+	},
+	"authority": {
+	    "provisioners": [
+		{
+		    "type": "ACME",
+		    "name": "acme"
+		}
+	    ]
+	}
+    }
+
+    # nginx is used to redirect /directory to /acme/acme/directory, so that certbot can be used
+    # without a server argument.  It's configured to mimic {acme_server}
+
+    nginx_site=f"""
+server {{
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+  server_name {acme_server};
+
+  ssl_certificate /etc/letsencrypt/live/{acme_server}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{acme_server}/privkey.pem;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+  ssl_dhparam /etc/nginx/ssl/dhp-4096.pem;
+
+  access_log  /var/log/nginx/access.log;
+
+  return 301 https://{acme_server}:8000/acme/acme$request_uri;
+}}
+"""
+
     # The master gateway's name is the name of the project, and that's
     # what it announces itself as to DHCP and DNS.
 
     user_data = {'hostname': hostname,
-                 'packages': ['dnsmasq', 'isc-dhcp-server', 'coturn', 'apache2', 'bird', 'iptables-persistent'],
+                 'packages': ['dnsmasq', 'isc-dhcp-server', 'coturn', 'bird', 'iptables-persistent', 'nginx', 'certbot'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -245,10 +295,6 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
                  'write_files': [
-                     {'path': '/opt/ca/generateCA.sh',
-                      'permissions': '0755',
-                      'content': file('generateCA.sh')
-                     },
                      {'path': '/etc/dhcp/dhcpd.conf',
                       'permissions': '0644',
                       'content': dhcpd_conf
@@ -257,49 +303,49 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
-                     {'path': '/var/www/html/getcert.cgi',
-                      'permissions': '0755',
-                      'content': file('getcert.cgi')
-                     },
                      {'path': '/etc/bird/bird.conf',
                       'permissions': '0644',
                       'content': file('bird.conf')
                      },
+                     {'path': '/etc/systemd/system/step-ca.service',
+                      'permissions': '0644',
+                      'content': file('step-ca.service')
+                     },
+                     {'path': '/etc/nginx/sites-available/redirect-ca',
+                      'permissions': '0644',
+                      'content': nginx_site
+                     },
+                     {'path': '/opt/ca/ca.json',
+                      'permissions': '0755',
+                      'content': json.dumps(ca)
+                     },
                  ],
                  'runcmd': [
-                     # resolver1.opendns.com is used by bbb-install to determine external IP address
-                     f'echo {master_gateway_address} resolver1.opendns.com >> /etc/hosts',
                      # configure coturn to listen on 19302, like stun.l.google.com
-                     # 'echo listening-port=19302 >> /etc/turnserver.conf',
                      f'echo aux-server={master_gateway_address}:19302 >> /etc/turnserver.conf',
-                     f'echo {master_gateway_address} stun.l.google.com >> /etc/hosts',
                      'systemctl restart coturn',
-                     # simplest way to let new-dhcp-lease.sh run as root
-                     'echo DNSMASQ_USER=root >> /etc/default/dnsmasq',
-                     'systemctl restart dnsmasq',
                      # now everything we need to operate a certificate authority
-                     # enable cgi scripts
-                     'a2enmod cgi',
-                     "sed -i '\|Directory /var/www/|,\|/Directory|s/Options/#Options/' /etc/apache2/apache2.conf",
-                     "sed -i '\|Directory /var/www/|aAddHandler cgi-script .cgi' /etc/apache2/apache2.conf",
-                     "sed -i '\|Directory /var/www/|aOptions ExecCGI Indexes FollowSymLinks' /etc/apache2/apache2.conf",
-                     'systemctl restart apache2',
-                     # enable Apache modules that we need to reverse proxy BigBlueButton (see new-dhcp-lease.sh)
-                     'a2enmod ssl',
-                     'a2enmod proxy',
-                     'a2enmod proxy_http',
-                     'a2enmod proxy_wstunnel',
-                     'a2enmod rewrite',
+                     "wget -q https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
+                     "dpkg -i step-ca_0.21.0_amd64.deb",
+                     "rm step-ca_0.21.0_amd64.deb",
+                     # putting {acme_server} in dnsmasq as a cname isn't enough,
+                     # because the local step-ca server doesn't do hostname lookups using dnsmasq
+                     f'echo {master_gateway_address} {acme_server} >> /etc/hosts',
+                     "systemctl start step-ca",
+                     "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
+                     # stop nginx because we need port 80 available for certbot
+                     "systemctl stop nginx",
+                     f"certbot --server https://localhost:8000/acme/acme/directory --no-verify-ssl certonly --standalone --non-interactive --agree-tos -d {acme_server} -m root@localhost",
+                     "mkdir -p /etc/nginx/ssl",
+                     "openssl dhparam -dsaparam  -out /etc/nginx/ssl/dhp-4096.pem 4096",
+                     "ln -s /etc/nginx/sites-available/redirect-ca /etc/nginx/sites-enabled/",
+                     "systemctl start nginx",
                      # enable packet forwarding
                      'sysctl net.ipv4.ip_forward=1',
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
                      # enable NAT
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
                      'netfilter-persistent save',
-                     # we accept CSRs via POST to http://ca.test/getcert.cgi
-                     f'echo {master_gateway_address} ca.{args.domain} >> /etc/hosts',
-                     # initialize the SSL certificate authority, if needed
-                     '/opt/ca/generateCA.sh',
                  ],
     }
 
@@ -326,124 +372,6 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
 
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     ram=1024, disk=4096, ethernets=2, x=x, y=y)
-
-def certbot(hostname, x=0, y=0):
-    # A server running smallstep's step-ca server, for mock certbot.
-
-    network_config = {'version': 2,
-                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
-                      }}
-
-    # step-ca's JSON configuration file
-    ca = {
-	"root": "/opt/ca/bbb-dev-ca.crt",
-	"crt": "/opt/ca/bbb-dev-ca.crt",
-	"key": "/opt/ca/bbb-dev-ca.key",
-	"address": ":8000",
-	"dnsNames": [ "acme-staging-v02.api.letsencrypt.org" ],
-	"logger": {
-	    "format": "text"
-	},
-	"db": {
-	    "type": "badgerv2",
-	    "dataSource": "/opt/ca/db"
-	},
-	"authority": {
-	    "provisioners": [
-		{
-		    "type": "ACME",
-		    "name": "acme"
-		}
-	    ]
-	}
-    }
-
-    # nginx is used to redirect /directory to /acme/acme/directory, so that certbot can be used
-    # without a server argument.  It's configured to mimic acme-staging-v02.api.letsencrypt.org
-
-    nginx_site=f"""
-server {{
-  listen 443 ssl http2;
-  listen [::]:443 ssl http2;
-  server_name acme-staging-v02.api.letsencrypt.org;
-
-  ssl_certificate /etc/letsencrypt/live/acme-staging-v02.api.letsencrypt.org/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/acme-staging-v02.api.letsencrypt.org/privkey.pem;
-  ssl_session_cache shared:SSL:10m;
-  ssl_session_timeout 10m;
-  ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
-  ssl_dhparam /etc/nginx/ssl/dhp-4096.pem;
-
-  access_log  /var/log/nginx/access.log;
-
-  return 301 https://acme-staging-v02.api.letsencrypt.org:8000/acme/acme$request_uri;
-}}
-"""
-
-    user_data = {'hostname': hostname,
-                 'packages': ['certbot', 'nginx'],
-                 'package_upgrade': package_upgrade,
-                 'users': [{'name': 'ubuntu',
-                            'plain_text_passwd': 'ubuntu',
-                            'ssh_authorized_keys': ssh_authorized_keys,
-                            'lock_passwd': False,
-                            'shell': '/bin/bash',
-                            'sudo': 'ALL=(ALL) NOPASSWD:ALL',
-                 }],
-                 'write_files': [
-                     {'path': '/etc/systemd/system/step-ca.service',
-                      'permissions': '0644',
-                      'content': file('step-ca.service')
-                     },
-                     {'path': '/etc/nginx/sites-available/redirect-ca',
-                      'permissions': '0644',
-                      'content': nginx_site
-                     },
-                     {'path': '/opt/ca/ca.json',
-                      'permissions': '0755',
-                      'content': json.dumps(ca)
-                     },
-                 ],
-                 'runcmd': [
-                     "wget -q https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
-                     "dpkg -i step-ca_0.21.0_amd64.deb",
-                     "rm step-ca_0.21.0_amd64.deb",
-                     "systemctl start step-ca",
-                     "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
-                     # stop nginx because we need port 80 available for certbot
-                     "systemctl stop nginx",
-                     f"certbot --server https://localhost:8000/acme/acme/directory --no-verify-ssl certonly --standalone --non-interactive --agree-tos -d acme-staging-v02.api.letsencrypt.org -m root@localhost",
-                     "mkdir -p /etc/nginx/ssl",
-                     "openssl dhparam -dsaparam  -out /etc/nginx/ssl/dhp-4096.pem 4096",
-                     "ln -s /etc/nginx/sites-available/redirect-ca /etc/nginx/sites-enabled/",
-                     "systemctl start nginx",
-                 ],
-    }
-
-    if notification_url:
-        user_data['phone_home'] = {'url': notification_url, 'tries': 1}
-
-    # If we have a key and certificate for the certificate authority, copy them into /ca
-    #
-    # Otherwise, we will need to generate them when the instance boots.
-
-    try:
-        for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
-            with open(os.path.join(__location__, fn)) as f:
-                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': f.read()})
-    except Exception as ex:
-        print(ex)
-
-    # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
-    #
-    # This will break things if the instance can't reach the proxy.
-
-    if apt_proxy:
-        user_data['apt'] = {'http_proxy': apt_proxy}
-
-    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
-                                    ram=2048, disk=2*4096, x=x, y=y)
 
 # BigBlueButton test clients
 
@@ -780,9 +708,6 @@ master = master_gateway(args.project, x=-200, y=0)
 PublicIP_switch = gns3_project.switch(public_subnet.with_prefixlen, x=0, y=0, ethernets=16)
 gns3_project.link(master, 0, internet)
 gns3_project.link(master, 1, PublicIP_switch)
-
-certbot_node = certbot('certbot', x=-200, y=-200)
-gns3_project.link(certbot_node, 0, PublicIP_switch)
 
 # NAT4: public subnet to carrier grade NAT subnet
 #
