@@ -5,6 +5,7 @@ import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
+import Settings from '/imports/ui/services/settings';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -20,6 +21,28 @@ const findRemoved = (A, B) => {
   });
 };
 
+// map different localeCodes from bbb to tldraw
+const mapLanguage = (language) => {
+  switch(language) {
+    case 'fa-ir':
+      return 'fa';
+    case 'it-it':
+      return 'it';
+    case 'nb-no':
+      return 'no';
+    case 'pl-pl':
+      return 'pl';
+    case 'sv-se':
+      return 'sv';
+    case 'uk-ua':
+      return 'uk';
+    case 'zh-cn':
+      return 'zh-ch';
+    default:
+      return language;
+  }
+}
+
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
 const TOOLBAR_SMALL = 28;
@@ -32,6 +55,14 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
+  ${({ hideCursor }) => hideCursor && `
+    #canvas {
+      cursor: none;
+    }
+  `}
+  #TD-PrimaryTools-Image {
+    display: none;
+  }
 `;
 
 export default function Whiteboard(props) {
@@ -60,8 +91,6 @@ export default function Whiteboard(props) {
     isRTL,
     fitToWidth,
     zoomValue,
-    width,
-    height,
     isPanning,
     intl,
   } = props;
@@ -77,12 +106,14 @@ export default function Whiteboard(props) {
     assets: {},
   });
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const [history, setHistory] = React.useState(null);
   const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevFitToWidth = usePrevious(fitToWidth);
+  const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -401,6 +432,10 @@ export default function Whiteboard(props) {
     }
   }, [isPanning]);
 
+  React.useEffect(() => {
+    tldrawAPI?.setSetting('language', language);
+  }, [language]);
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
@@ -417,7 +452,7 @@ export default function Whiteboard(props) {
         .forEach(n=> menu.appendChild(n));
     }
 
-    app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
+    app.setSetting('language', language);
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -430,6 +465,10 @@ export default function Whiteboard(props) {
     if (curPageId) {
       app.changePage(curPageId);
       setIsMounting(true);
+    }
+
+    if (history) {
+      app.replaceHistory(history);
     }
   };
 
@@ -587,7 +626,8 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onCommand = (app, command, reason) => { 
+  const onCommand = (app, command, reason) => {
+    setHistory(app.history);
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -617,7 +657,7 @@ export default function Whiteboard(props) {
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <Tldraw
-      key={`wb-${isRTL}-${width}-${height}-${dockPos}-${forcePanning}`}
+      key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
@@ -672,7 +712,10 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
-        <TldrawGlobalStyle hideContextMenu={!hasWBAccess && !isPresenter} />
+        <TldrawGlobalStyle 
+          hideContextMenu={!hasWBAccess && !isPresenter} 
+          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
+        />
       </Cursors>
     </>
   );

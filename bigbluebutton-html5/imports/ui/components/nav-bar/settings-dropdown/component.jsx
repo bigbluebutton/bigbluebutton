@@ -180,7 +180,7 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-fullscreen',
           icon: fullscreenIcon,
           label: fullscreenLabel,
-          // description: fullscreenDesc,
+          description: fullscreenDesc,
           onClick: handleToggleFullscreen,
         },
       )
@@ -218,7 +218,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'settings',
         dataTest: 'settings',
         label: intl.formatMessage(intlMessages.settingsLabel),
-        // description: intl.formatMessage(intlMessages.settingsDesc),
+        description: intl.formatMessage(intlMessages.settingsDesc),
         onClick: () => mountModal(<SettingsMenuContainer />),
       },
       {
@@ -226,7 +226,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'about',
         dataTest: 'aboutModal',
         label: intl.formatMessage(intlMessages.aboutLabel),
-        // description: intl.formatMessage(intlMessages.aboutDesc),
+        description: intl.formatMessage(intlMessages.aboutDesc),
         onClick: () => mountModal(<AboutContainer />),
       },
     );
@@ -239,7 +239,7 @@ class SettingsDropdown extends PureComponent {
           iconRight: 'popout_window',
           label: intl.formatMessage(intlMessages.helpLabel),
           dataTest: 'helpButton',
-          // description: intl.formatMessage(intlMessages.helpDesc),
+          description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`),
         },
       );
@@ -264,7 +264,7 @@ class SettingsDropdown extends PureComponent {
         key: 'list-item-shortcuts',
         icon: 'shortcuts',
         label: intl.formatMessage(intlMessages.hotkeysLabel),
-        // description: intl.formatMessage(intlMessages.hotkeysDesc),
+        description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => mountModal(<ShortcutHelpComponent />),
         divider: true,
       },
@@ -276,7 +276,7 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-end-meeting',
           icon: 'application',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
-          // description: intl.formatMessage(intlMessages.endMeetingDesc),
+          description: intl.formatMessage(intlMessages.endMeetingDesc),
           onClick: () => mountModal(<EndMeetingConfirmationContainer />),
         },
       );
@@ -291,7 +291,7 @@ class SettingsDropdown extends PureComponent {
           dataTest: 'logout',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          // description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          description: intl.formatMessage(intlMessages.leaveSessionDesc),
           customStyles,
           onClick: () => this.leaveSession(),
         },
@@ -333,12 +333,12 @@ class SettingsDropdown extends PureComponent {
         )}
         actions={this.renderMenuItems()}
         opts={{
-          id: "app-settings-dropdown-menu",
+          id: 'app-settings-dropdown-menu',
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
           getContentAnchorEl: null,
-          fullwidth: "true",
+          fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
           transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
         }}

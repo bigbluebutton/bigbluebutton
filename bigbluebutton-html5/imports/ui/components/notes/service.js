@@ -50,9 +50,7 @@ const setLastRev = () => {
   }
 };
 
-const hasUnreadNotes = (sidebarContentPanel) => {
-  if (sidebarContentPanel === PANELS.SHARED_NOTES) return false;
-
+const hasUnreadNotes = () => {
   const rev = PadsService.getRev(NOTES_CONFIG.id);
   const lastRev = getLastRev();
 

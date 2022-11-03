@@ -321,28 +321,6 @@ class VideoPreview extends Component {
                 viewState: VIEW_STATES.found,
               });
               this.displayPreview();
-
-              if (CAMERA_BRIGHTNESS_AVAILABLE) {
-                const setBrightnessInfo = () => {
-                  const stream = this.currentVideoStream || {};
-                  const service = stream.virtualBgService || {};
-                  const { brightness = 100, wholeImageBrightness = false } = service;
-                  this.setState({ brightness, wholeImageBrightness });
-                };
-
-                if (!this.currentVideoStream.virtualBgService) {
-                  this.startVirtualBackground(
-                    this.currentVideoStream,
-                    EFFECT_TYPES.NONE_TYPE
-                  ).then((switched) => {
-                    if (switched) {
-                      setBrightnessInfo();
-                    }
-                  });
-                } else {
-                  setBrightnessInfo();
-                }
-              }
             });
         } else {
           // There were no webcams coming from enumerateDevices. Throw an error.
@@ -383,6 +361,30 @@ class VideoPreview extends Component {
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
+  }
+
+  startCameraBrightness() {
+    if (CAMERA_BRIGHTNESS_AVAILABLE) {
+      const setBrightnessInfo = () => {
+        const stream = this.currentVideoStream || {};
+        const service = stream.virtualBgService || {};
+        const { brightness = 100, wholeImageBrightness = false } = service;
+        this.setState({ brightness, wholeImageBrightness });
+      };
+
+      if (!this.currentVideoStream.virtualBgService) {
+        this.startVirtualBackground(
+          this.currentVideoStream,
+          EFFECT_TYPES.NONE_TYPE,
+        ).then((switched) => {
+          if (switched) {
+            setBrightnessInfo();
+          }
+        });
+      } else {
+        setBrightnessInfo();
+      }
+    }
   }
 
   handleSelectWebcam(event) {
@@ -645,6 +647,7 @@ class VideoPreview extends Component {
       if (!this._isMounted) return this.terminateCameraStream(bbbVideoStream, deviceId);
 
       this.currentVideoStream = bbbVideoStream;
+      this.startCameraBrightness();
       this.setState({
         isStartSharingDisabled: false,
       });
