@@ -57,6 +57,7 @@ const Notes = ({
   layoutType,
   sidebarContent,
   sharedNotesOutput,
+  amIPresenter,
 }) => {
   useEffect(() => () => Service.setLastRev(), []);
   const { isChrome } = browserInfo;
@@ -111,6 +112,22 @@ const Notes = ({
     }
   }, []);
 
+  const renderHeaderOnMedia = () => {
+    return amIPresenter ? (
+      <Styled.Header
+        rightButtonProps={{
+          'aria-label': intl.formatMessage(intlMessages.unpinNotes),
+          'data-test': 'unpinNotes',
+          icon: 'close',
+          label: intl.formatMessage(intlMessages.unpinNotes),
+          onClick: () => {
+            Service.pinSharedNotes(false);
+          },
+        }}
+      />
+    ) : null;
+  };
+
   return (
     <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
       {!isOnMediaArea ? (
@@ -134,19 +151,7 @@ const Notes = ({
             <NotesDropdown />
           }
         />
-      ) : (
-        <Styled.Header
-          rightButtonProps={{
-            'aria-label': intl.formatMessage(intlMessages.unpinNotes),
-            'data-test': 'unpinNotes',
-            icon: 'close',
-            label: intl.formatMessage(intlMessages.unpinNotes),
-            onClick: () => {
-              Service.pinSharedNotes(false);
-            },
-          }}
-        />
-      )}
+      ) : renderHeaderOnMedia()}
       <PadContainer
         externalId={Service.ID}
         hasPermission={hasPermission}
