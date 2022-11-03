@@ -115,6 +115,7 @@ class ExternalVideoModal extends Component {
                 placeholder={intl.formatMessage(intlMessages.urlInput)}
                 disabled={sharing}
                 aria-describedby="exernal-video-note"
+                onPaste={(e) => { e.stopPropagation(); }}
               />
             </label>
             <Styled.ExternalVideoNote id="external-video-note">

@@ -226,6 +226,7 @@ class MessageForm extends PureComponent {
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
             async
+            onPaste={(e) => { e.stopPropagation(); }}
           />
           <Styled.SendButton
             hideLabel
