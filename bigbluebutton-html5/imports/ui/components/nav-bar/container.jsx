@@ -42,11 +42,13 @@ const NavBarContainer = ({ children, ...props }) => {
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const navBar = layoutSelectOutput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
+  const sharedNotes = layoutSelectInput((i) => i.sharedNotes);
+  const { isPinned: notesIsPinned } = sharedNotes;
 
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;
 
-  const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread;
+  const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
   const hasUnreadMessages = checkUnreadMessages(
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );

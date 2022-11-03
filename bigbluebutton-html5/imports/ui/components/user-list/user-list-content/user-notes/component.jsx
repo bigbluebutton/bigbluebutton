@@ -61,7 +61,7 @@ class UserNotes extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { sidebarContentPanel, rev } = this.props;
+    const { sidebarContentPanel, rev, isPinned } = this.props;
     const { unread } = this.state;
 
     if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
@@ -71,6 +71,8 @@ class UserNotes extends Component {
     if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
       this.setUnread(false);
     }
+
+    if (!isPinned && prevProps.isPinned && unread) this.setUnread(false);
   }
 
   setUnread(unread) {
@@ -88,7 +90,7 @@ class UserNotes extends Component {
     const { unread } = this.state;
 
     let notification = null;
-    if (unread) {
+    if (unread && !isPinned) {
       notification = (
         <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
           <Styled.UnreadMessagesText aria-hidden="true">
