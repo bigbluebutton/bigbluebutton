@@ -12,7 +12,7 @@ const NOTES_IS_PINNABLE = NOTES_CONFIG.pinnable;
 
 const intlMessages = defineMessages({
   convertAndUploadLabel: {
-    id: 'app.note.converter-button.convertAndUpload',
+    id: 'app.notes.notesDropdown.covertAndUpload',
     description: 'Export shared notes as a PDF and upload to the main room',
   },
   pinNotes: {
