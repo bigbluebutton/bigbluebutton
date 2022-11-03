@@ -1,5 +1,5 @@
 import Storage from '/imports/ui/services/storage/session';
-import LocalStorage from '/imports/ui/services/storage/local';
+import BBBStorage from '/imports/ui/services/storage';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -16,7 +16,7 @@ const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles || [];
 const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
 
 const getDefaultProfile = () => {
-  return CAMERA_PROFILES.find(profile => profile.id === LocalStorage.getItem('WebcamProfileId'))
+  return CAMERA_PROFILES.find(profile => profile.id === BBBStorage.getItem('WebcamProfileId'))
     || CAMERA_PROFILES.find(profile => profile.id === VideoService.getUserParameterProfile())
     || CAMERA_PROFILES.find(profile => profile.default)
     || CAMERA_PROFILES[0];
@@ -223,11 +223,11 @@ export default {
   CAMERA_PROFILES,
   promiseTimeout,
   changeWebcam: (deviceId) => {
-    LocalStorage.setItem('WebcamDeviceId', deviceId);
+    BBBStorage.setItem('WebcamDeviceId', deviceId);
   },
-  webcamDeviceId: () => LocalStorage.getItem('WebcamDeviceId'),
+  webcamDeviceId: () => Storage.getItem('WebcamDeviceId'),
   changeProfile: (profileId) => {
-    LocalStorage.setItem('WebcamProfileId', profileId);
+    BBBStorage.setItem('WebcamProfileId', profileId);
   },
   getSkipVideoPreview,
   storeStream,
