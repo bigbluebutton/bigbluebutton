@@ -17,31 +17,16 @@ cd /home/ubuntu
 
 DOMAIN=$(hostname --domain)
 FQDN=$(hostname --fqdn)
-CA=ca.$DOMAIN
+CA=128.8.8.1
 RELEASE=$(hostname)
 
-if [[ ! -r $FQDN.key ]]; then
+EMAIL="root@$FQDN"
 
-    # Get the CA root certificate and install it
-    wget -q http://$CA/bbb-dev-ca.crt
+# Get the custom CA certificate from the server and install it.
 
-    sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
-    sudo cp bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
-    sudo update-ca-certificates
-
-    # Generate a CSR and get it signed by our CA
-    openssl req -nodes -newkey rsa:2048 -keyout $FQDN.key -out $FQDN.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=$FQDN" -addext "subjectAltName = DNS:$FQDN"
-    wget -q -O $FQDN.crt --post-file=$FQDN.csr http://$CA/getcert.cgi?$FQDN
-
-    # Install the certificates where the BBB install scripts wants them
-
-    sudo mkdir -p /local/certs/
-    sudo cp bbb-dev-ca.crt /local/certs/
-    sudo cp $FQDN.crt /local/certs/fullchain.pem
-    cat bbb-dev-ca.crt | sudo tee -a /local/certs/fullchain.pem >/dev/null
-    sudo cp $FQDN.key /local/certs/privkey.pem
-
-fi
+sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
+sudo wget --directory-prefix=/usr/local/share/ca-certificates/bbb-dev/ http://$CA/bbb-dev-ca.crt
+sudo update-ca-certificates
 
 # Currently assumes that hostname is the same as the release name
 #
@@ -90,7 +75,7 @@ case $RELEASE in
       ;;
 esac
 
-wget -qO- https://ubuntu.bigbluebutton.org/$INSTALL_SCRIPT | sudo bash -s -- -v $RELEASE -s $FQDN -d $INSTALL_OPTIONS
+wget -qO- https://ubuntu.bigbluebutton.org/$INSTALL_SCRIPT | sudo bash -s -- -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
 
 sudo bbb-conf --salt bbbci
 echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" | sudo tee -a /usr/share/meteor/bundle/bbb-html5-with-roles.conf

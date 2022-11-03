@@ -360,6 +360,9 @@ server {{
         for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
             with open(os.path.join(__location__, fn)) as f:
                 user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': f.read()})
+        for fn in ('bbb-dev-ca.crt'):
+            with open(os.path.join(__location__, fn)) as f:
+                user_data['write_files'].append({'path': f'/var/www/html/{fn}', 'permissions': '0444', 'content': f.read()})
     except Exception as ex:
         print(ex)
 
