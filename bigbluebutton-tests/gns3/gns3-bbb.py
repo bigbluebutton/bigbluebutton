@@ -295,6 +295,10 @@ server {{
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
                  'write_files': [
+                     {'path': '/opt/ca/generateCA.sh',
+                      'permissions': '0755',
+                      'content': file('generateCA.sh')
+                     },
                      {'path': '/etc/dhcp/dhcpd.conf',
                       'permissions': '0644',
                       'content': dhcpd_conf
@@ -324,6 +328,8 @@ server {{
                      # configure coturn to listen on 19302, like stun.l.google.com
                      f'echo aux-server={master_gateway_address}:19302 >> /etc/turnserver.conf',
                      'systemctl restart coturn',
+                     # initialize the SSL certificate authority, if needed
+                     '/opt/ca/generateCA.sh',
                      # now everything we need to operate a certificate authority
                      "wget -q https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
                      "dpkg -i step-ca_0.21.0_amd64.deb",
@@ -335,7 +341,10 @@ server {{
                      "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
                      # stop nginx because we need port 80 available for certbot
                      "systemctl stop nginx",
+                     # get a certificate for nginx without ssl verification, both because we didn't install root cert,
+                     # and because we're not talking to localhost as {acme_server}
                      f"certbot --server https://localhost:8000/acme/acme/directory --no-verify-ssl certonly --standalone --non-interactive --agree-tos -d {acme_server} -m root@localhost",
+                     # complete nginx ssl configuration and restart nginx
                      "mkdir -p /etc/nginx/ssl",
                      "openssl dhparam -dsaparam  -out /etc/nginx/ssl/dhp-4096.pem 4096",
                      "ln -s /etc/nginx/sites-available/redirect-ca /etc/nginx/sites-enabled/",
