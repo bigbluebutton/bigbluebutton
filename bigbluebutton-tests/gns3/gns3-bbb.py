@@ -39,6 +39,7 @@ from NPDC.GNS3 import gns3
 
 import sys
 import os
+import json
 import ipaddress
 
 import argparse
@@ -318,15 +319,39 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     ram=1024, disk=4096, ethernets=2, x=x, y=y)
 
-def boulder(hostname, x=0, y=0):
-    # A server running letsencrypt's boulder server, for mock certbot.
+def certbot(hostname, x=0, y=0):
+    # A server running smallstep's step-ca server, for mock certbot.
 
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
                       }}
 
+    # step-ca's JSON configuration file
+    ca = {
+	"root": "/opt/ca/bbb-dev-ca.crt",
+	"crt": "/opt/ca/bbb-dev-ca.crt",
+	"key": "/opt/ca/bbb-dev-ca.key",
+	"address": ":8000",
+	"insecureAddress": "",
+	"dnsNames": [ hostname ],
+	"logger": {
+	    "format": "text"
+	},
+	"db": {
+	    "type": "badgerv2",
+	    "dataSource": "/opt/ca/db"
+	},
+	"authority": {
+	    "provisioners": [
+		{
+		    "type": "ACME",
+		    "name": "acme"
+		}
+	    ]
+	}
+    }
+
     user_data = {'hostname': hostname,
-                 'packages': ['git', 'docker', 'docker-compose', 'jq', 'moreutils'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -335,28 +360,37 @@ def boulder(hostname, x=0, y=0):
                             'shell': '/bin/bash',
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
+                 'write_files': [
+                     {'path': '/etc/systemd/system/step-ca.service',
+                      'permissions': '0644',
+                      'content': file('step-ca.service')
+                     },
+                     {'path': '/opt/ca/ca.json',
+                      'permissions': '0755',
+                      'content': json.dumps(ca)
+                     },
+                 ],
                  'runcmd': [
-                     'su ubuntu -l -c "git clone https://github.com/letsencrypt/boulder.git"',
-                     # --devmode because otherwise, running as root, won't have permission to modify ubuntu's files
-                     'snap install yq --devmode',
-                     # turn off boulder's FAKE_DNS
-                     '''yq -i '.services.boulder.environment.FAKE_DNS = "none"' /home/ubuntu/boulder/docker-compose.yml''',
-                     # point its DNS resolver at our dnsmasq server
-                     '''sed -i -E -e '/name.*dns/,+2s/[0-9.]+/53/' /home/ubuntu/boulder/test/consul/config.hcl''',
-                     '''sed -i -E -e '/name.*dns/,+1s/[0-9.]+/128.8.8.1/' /home/ubuntu/boulder/test/consul/config.hcl''',
-                     # make it listen for http on port 80
-                     '''yq -i '.services.boulder.ports[0] = "80:4001"' /home/ubuntu/boulder/docker-compose.yml''',
-                     # make it conduct verifications on port 80
-                     '''jq '.va.portConfig.httpPort = 80' /home/ubuntu/boulder/test/config/va.json | sponge /home/ubuntu/boulder/test/config/va.json''',
-                     '''jq '.va.portConfig.httpPort = 80' /home/ubuntu/boulder/test/config/va-remote-a.json | sponge /home/ubuntu/boulder/test/config/va-remote-a.json''',
-                     '''jq '.va.portConfig.httpPort = 80' /home/ubuntu/boulder/test/config/va-remote-b.json | sponge /home/ubuntu/boulder/test/config/va-remote-b.json''',
-                     # start Boulder
-                     'cd /home/ubuntu/boulder; docker-compose up -d',
+                     "wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
+                     "dpkg -i step-ca_0.21.0_amd64.deb",
+                     "rm step-ca_0.21.0_amd64.deb",
+                     "systemctl start step-ca",
                  ],
     }
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}
+
+    # If we have a key and certificate for the certificate authority, copy them into /ca
+    #
+    # Otherwise, we will need to generate them when the instance boots.
+
+    try:
+        for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
+            with open(os.path.join(__location__, fn)) as f:
+                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': f.read()})
+    except Exception as ex:
+        print(ex)
 
     # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
     #
@@ -704,8 +738,8 @@ PublicIP_switch = gns3_project.switch(public_subnet.with_prefixlen, x=0, y=0, et
 gns3_project.link(master, 0, internet)
 gns3_project.link(master, 1, PublicIP_switch)
 
-boulder_node = boulder('certbot', x=-200, y=-200)
-gns3_project.link(boulder_node, 0, PublicIP_switch)
+certbot_node = certbot('certbot', x=-200, y=-200)
+gns3_project.link(certbot_node, 0, PublicIP_switch)
 
 # NAT4: public subnet to carrier grade NAT subnet
 #
