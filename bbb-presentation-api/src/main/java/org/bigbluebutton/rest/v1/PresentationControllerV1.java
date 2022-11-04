@@ -118,7 +118,11 @@ public class PresentationControllerV1 implements PresentationApiV1 {
             logger.info("WARNING! AuthzToken={} was not valid in meetingId={}", presentationToken, meetingId);
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.add("Cache-Control", "no-cache");
-            return ResponseEntity.ok().headers(responseHeaders).contentType(MediaType.TEXT_PLAIN).body("invalid auth token");
+            return ResponseEntity
+                    .ok()
+                    .headers(responseHeaders)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("invalid auth token");
         }
 
         if(Util.isMeetingIdValidFormat(meetingId)) {
@@ -351,8 +355,8 @@ public class PresentationControllerV1 implements PresentationApiV1 {
                 return ResponseEntity.ok().headers(responseHeaders).contentType(MediaType.parseMediaType("image/svg+xml")).body(bytes);
             }
         } catch (IOException e) {
-            logger.error("Failed to read SVG file. meetingId=" + conference + ",presId=" + presentationName + ",page=" + file);
-            logger.error("Error reading SVG file.\n" + e.getMessage());
+            logger.error("Failed to read text file. meetingId=" + conference + ",presId=" + presentationName + ",page=" + file);
+            logger.error("Error reading text file.\n" + e.getMessage());
         }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new byte[] {});
@@ -370,7 +374,7 @@ public class PresentationControllerV1 implements PresentationApiV1 {
         try {
             File pres = presentationService.getDownloadablePresentationFile(meetingId, presId, presFilename);
             if (pres != null && pres.exists()) {
-                logger.debug("Controller: Sending pdf reply for $presFilename");
+                logger.debug("Controller: Sending pdf reply for {}", presFilename);
 
                 byte[] bytes = Files.readAllBytes(pres.toPath());
                 String responseName = pres.getName();

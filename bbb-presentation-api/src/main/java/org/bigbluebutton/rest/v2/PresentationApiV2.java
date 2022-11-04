@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 public interface PresentationApiV2 {
@@ -25,7 +24,7 @@ public interface PresentationApiV2 {
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.POST)
     ResponseEntity<Response> upload(
             @RequestPart(value = "info") @Valid PresentationUploadInfo info,
-            @RequestPart("fileUpload") MultipartFile file, HttpServletRequest request
+            @RequestPart(value = "file") MultipartFile file
     );
 
 //    @RequestMapping(value = "/testConversion", produces = MediaType.APPLICATION_XML_VALUE, method = RequestMethod.GET)
@@ -114,7 +113,7 @@ public interface PresentationApiV2 {
     @RequestMapping(value = "/{meeting}/{id}/{name}", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     ResponseEntity<Response> downloadFile(
-            @Parameter(in = ParameterIn.PATH, description = "Meeting the  presentation belongs to", required = true) @PathVariable("conference") String conference,
+            @Parameter(in = ParameterIn.PATH, description = "Meeting the  presentation belongs to", required = true) @PathVariable("conference") String meeting,
             @Parameter(in = ParameterIn.PATH, description = "Presentation ID", required = true) @PathVariable("id") String id,
             @Parameter(in = ParameterIn.PATH, description = "Name of the presentation", required = true) @PathVariable("name") String name
     );

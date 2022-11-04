@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class PresentationUploadInfo {
 
-    String token;
-    String meetingId;
+    private String token;
+    private String meetingId;
+    private Boolean isDownloadable;
+    private String podId;
+    private Boolean current;
+    private String tempPresentationId;
 }
