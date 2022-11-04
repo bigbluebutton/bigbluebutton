@@ -32,11 +32,11 @@ TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-freeswitch-core bbb-freeswi
 COMMIT := $(shell git rev-parse HEAD | cut -c 1-6)
 COMMIT_DATE := $(shell git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')
 
-# The BigBlueButton release, only used to determine the Ubuntu distribution
-RELEASE := $(shell cut -d = -f 2 bigbluebutton-config/bigbluebutton-release | sed 's/-/~/')
+# The BigBlueButton version number
+VERSION_NUMBER := $(shell cat "bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f1)
 
 # Ubuntu distribution, currently bionic for BigBlueButton 2.4 and focal for BigBlueButton 2.5 and 2.6
-DISTRO := $(shell if echo $(RELEASE) | grep -q 2\\.4; then echo bionic; else echo focal; fi)
+DISTRO := $(shell if echo $(VERSION_NUMBER) | grep -q 2\\.4; then echo bionic; else echo focal; fi)
 
 # Package repository codename
 CODENAME := bigbluebutton-$(DISTRO)
@@ -52,8 +52,14 @@ $(REPOSITORY)::
 # The point is to trigger a build when the file doesn't exist, even
 # though all we know is its wildcard pattern
 
+ifeq ($(BUILD_TYPE),release)
+   PACKAGE_LABEL=$(VERSION_NUMBER)
+else
+   PACKAGE_LABEL=$(COMMIT_DATE)
+endif
+
 define makerule =
-  PACKAGE_$1 = artifacts/$1_*$(COMMIT_DATE)*.deb
+  PACKAGE_$1 = artifacts/$1_*$(PACKAGE_LABEL)*.deb
   $$(PACKAGE_$1):
 	./build/setup.sh $1
 endef
