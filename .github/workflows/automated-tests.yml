@@ -15,29 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-apps-akka
-      - run: ./build/setup.sh bbb-config
-      - run: ./build/setup.sh bbb-etherpad
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
-      - run: ./build/setup.sh bbb-fsesl-akka
-      - run: ./build/setup.sh bbb-html5-nodejs
-      - run: ./build/setup.sh bbb-html5
-      - run: ./build/setup.sh bbb-learning-dashboard
-      - run: ./build/setup.sh bbb-libreoffice-docker
-      - run: ./build/setup.sh bbb-mkclean
-      - run: ./build/setup.sh bbb-pads
-      - run: ./build/setup.sh bbb-playback
-      - run: ./build/setup.sh bbb-playback-notes
-      - run: ./build/setup.sh bbb-playback-podcast
-      - run: ./build/setup.sh bbb-playback-presentation
-      - run: ./build/setup.sh bbb-playback-screenshare
-      - run: ./build/setup.sh bbb-playback-video
-      - run: ./build/setup.sh bbb-record-core
-      - run: ./build/setup.sh bbb-web
-      - run: ./build/setup.sh bbb-webrtc-sfu
-      - run: ./build/setup.sh bigbluebutton
+      - run: make REPOSITORY=/repo SIGNWITH=none
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
@@ -99,12 +77,7 @@ jobs:
       - name: Setup local repository
         run: |
             sudo sh -c '
-            apt install -yq dpkg-dev
-            cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
-            cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
-            cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
-            cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-            echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
+            echo "deb [trusted=yes] file:/repo/ ./" >> /etc/apt/sources.list
             '
       - name: Prepare for install
         run: |
