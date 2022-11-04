@@ -9,7 +9,14 @@
 # build scripts to leave the .deb packages in the "artifacts"
 # directory.
 #
-# The repository is signed with the current user's GPG key.
+# The repository by default is unsigned, but the SIGNWITH variable,
+# if present, is passed to reprepro via a config file.
+#
+# SIGNWITH=yes signs with the current user's default GPG key.
+#
+# The BUILD_TYPE variable is passed on to the docker build scripts.
+#
+# BUILD_TYPE=release is the sensible alternative.
 #
 # Requirements: docker and reprepro
 #
@@ -57,12 +64,15 @@ $(foreach pkg,${TARGETS},$(eval $(call makerule,$(pkg))))
 
 PACKAGES=$(foreach pkg,${TARGETS},$(PACKAGE_$(pkg)))
 
-$(REPOSITORY)/conf/distributions:
+# double-colon to recreate this file every time we call make,
+# so that SIGNWITH always reflects the current setting
+
+$(REPOSITORY)/conf/distributions::
 	mkdir -p $(REPOSITORY)/conf/
 	echo Codename: $(CODENAME)  > $(REPOSITORY)/conf/distributions
 	echo Architectures: amd64  >> $(REPOSITORY)/conf/distributions
 	echo Components: main      >> $(REPOSITORY)/conf/distributions
-	echo SignWith: yes         >> $(REPOSITORY)/conf/distributions
+	if [ -n "$(SIGNWITH)" ]; then echo SignWith: $(SIGNWITH) >> $(REPOSITORY)/conf/distributions; fi
 
 $(REPOSITORY):: $(REPOSITORY)/conf/distributions
 
