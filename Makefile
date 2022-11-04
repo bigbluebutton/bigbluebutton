@@ -1,5 +1,7 @@
 
-# Makefile to build a Debian repository in a directory named
+# Makefile to build a Debian repository in directory REPOSITORY.
+#
+# If REPOSITORY isn't specified as a make option, the default is
 # $(DISTRO)-$(COMMIT), where $(DISTRO) is either focal or bionic and
 # $(COMMIT) is the first six characters of the current git commit.
 #
@@ -13,8 +15,11 @@
 #
 # sudo access is required to run docker
 
-# These are the list of packages that we'll build, pulled from the CI configuration
-TARGETS := $(shell grep build/setup .github/workflows/automated-tests.yml  | sed 's|^.*./build/setup.sh ||')
+export BUILD_TYPE
+
+# These are the list of packages that we'll build
+
+TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5 bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean bbb-pads bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-record-core bbb-web bbb-webrtc-sfu bigbluebutton
 
 # The current commit's hash (used for the name of the repository) and date (used for the package names)
 COMMIT := $(shell git rev-parse HEAD | cut -c 1-6)
@@ -30,7 +35,7 @@ DISTRO := $(shell if echo $(RELEASE) | grep -q 2\\.4; then echo bionic; else ech
 CODENAME := bigbluebutton-$(DISTRO)
 
 # The directory in which we'll build the Debian package repository
-REPOSITORY := $(DISTRO)-$(COMMIT)
+REPOSITORY ?= $(DISTRO)-$(COMMIT)
 
 $(REPOSITORY)::
 	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
