@@ -193,9 +193,9 @@ def master_gateway(hostname, x=0, y=0):
 
     dnsmasq_conf = f"""
 listen-address={master_gateway_address}
-bind-interfaces
-cname=resolver1.opendns.com,{master_gateway_address}
-cname=stun.l.google.com,{master_gateway_address}
+bind-dynamic
+interface-name=resolver1.opendns.com,ens5
+interface-name=stun.l.google.com,ens5
 """
 
     # 120 second DHCP lease times because I change things around so
