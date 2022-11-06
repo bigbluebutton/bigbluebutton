@@ -28,6 +28,10 @@ export BUILD_TYPE
 
 TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5 bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean bbb-pads bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-record-core bbb-web bbb-webrtc-sfu bigbluebutton
 
+# Placeholders are shell scripts that are run to create subdirectories, typically by running a git checkout.
+
+PLACEHOLDERS := $(shell echo *.placeholder.sh | sed 's/.placeholder.sh//g')
+
 # The current commit's hash (used for the name of the repository) and date (used for the package names)
 COMMIT := $(shell git rev-parse HEAD | cut -c 1-6)
 COMMIT_DATE := $(shell git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')
@@ -84,6 +88,14 @@ $(REPOSITORY):: $(REPOSITORY)/conf/distributions
 
 $(REPOSITORY):: $(PACKAGES)
 	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $(PACKAGES)
+
+# It's not clear which placeholders need to be created to be any given package, so depend
+# all of the packages on all of the placeholders.
+
+$(PACKAGES): $(PLACEHOLDERS)
+
+%: %.placeholder.sh
+	./$<
 
 # Download the third party packages tar file, but only if it's been updated on the Internet.
 # Untar any files in it that are missing from the repository.
