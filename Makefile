@@ -24,7 +24,7 @@ export BUILD_TYPE
 
 # These are the list of packages that we'll build
 
-TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5 bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean bbb-pads bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-record-core bbb-web bbb-webrtc-sfu bigbluebutton
+TARGETS := $(shell basename -a $(shell dirname build/packages-template/*/build.sh))
 
 # Placeholders are shell scripts that are run to create subdirectories, typically by running a git checkout.
 
@@ -68,7 +68,7 @@ endef
 
 $(foreach pkg,${TARGETS},$(eval $(call makerule,$(pkg))))
 
-# PACKAGES is the list of package with wildcards NOT expanded
+# PACKAGES is the list of packages with wildcards NOT expanded
 
 PACKAGES=$(foreach pkg,${TARGETS},$(PACKAGE_$(pkg)))
 
@@ -82,6 +82,7 @@ $(REPOSITORY):: $(REPOSITORY)/conf/distributions
 
 $(REPOSITORY):: $(PACKAGES)
 	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $(PACKAGES)
+	touch $(REPOSITORY)
 
 # It's not clear which placeholders need to be created to be any given package, so depend
 # all of the packages on all of the placeholders.
