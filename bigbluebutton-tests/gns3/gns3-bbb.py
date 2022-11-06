@@ -366,12 +366,15 @@ server {{
     # Otherwise, the generateCA.sh script will generate them when the instance boots.
 
     try:
-        for fn in ('bbb-dev-ca.key', 'bbb-dev-ca.crt'):
+        for fn in ('bbb-dev-ca.key',):
             with open(os.path.join(__location__, fn)) as f:
-                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': f.read()})
-        for fn in ('bbb-dev-ca.crt'):
+                content = f.read()
+                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0400', 'content': content})
+        for fn in ('bbb-dev-ca.crt',):
             with open(os.path.join(__location__, fn)) as f:
-                user_data['write_files'].append({'path': f'/var/www/html/{fn}', 'permissions': '0444', 'content': f.read()})
+                content = f.read()
+                user_data['write_files'].append({'path': f'/var/www/html/{fn}', 'permissions': '0444', 'content': content})
+                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': content})
     except Exception as ex:
         print(ex)
 
@@ -654,7 +657,7 @@ dhcp-option = option:domain-search,{args.domain}
                      #    - rule has to be on PREROUTING, else we can't use DNAT
                      #    - since it's on PREROUTING, we can't use -o lo
                      #    - so grab traffic bound for everything on the public subnet except the master gateway,
-                     #      which we need to connect to for getcert.cgi
+                     #      which we need to connect to for certbot to work
                      f'iptables -t nat -A PREROUTING -p tcp -d {master_gateway_address} --dport 80 -j ACCEPT',
                      f'iptables -t nat -A PREROUTING -p tcp -d {master_gateway_address} --dport 443 -j ACCEPT',
                      f'iptables -t nat -A PREROUTING -p tcp -d {public_subnet.with_prefixlen} --dport 80 -j DNAT --to-destination {server_address}',
