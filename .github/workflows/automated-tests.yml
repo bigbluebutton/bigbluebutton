@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - run: ./build/get_external_dependencies.sh
       - run: make REPOSITORY=/repo SIGNWITH=none
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
