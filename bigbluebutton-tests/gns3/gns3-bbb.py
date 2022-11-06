@@ -385,6 +385,51 @@ server {{
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     ram=1024, disk=4096, ethernets=2, x=x, y=y)
 
+# BigBlueButton TURN server
+
+def turn_server(hostname, x=0, y=0):
+
+    # Use dhcp-identifier: mac because I'm still having problems with
+    # cloned GNS3 ubuntu nodes using the same client identifiers; it's
+    # a cloud-init issue.
+
+    network_config = {'version': 2,
+                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
+                      }}
+
+    user_data = {'hostname': hostname,
+                 'package_upgrade': package_upgrade,
+                 'users': [{'name': 'ubuntu',
+                            'plain_text_passwd': 'ubuntu',
+                            'ssh_authorized_keys': ssh_authorized_keys,
+                            'lock_passwd': False,
+                            'shell': '/bin/bash',
+                            'sudo': 'ALL=(ALL) NOPASSWD:ALL',
+                 }],
+                 'runcmd': [
+                     'mkdir -p /usr/local/share/ca-certificates/',
+                     'wget --directory-prefix=/usr/local/share/ca-certificates/ http://128.8.8.1/bbb-dev-ca.crt',
+                     'update-ca-certificates',
+                     f'wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -c {hostname}.{args.domain}:secret -e root@{hostname}.{args.domain}',
+                 ]
+    }
+
+    # If the system we're running on is configured to use an apt proxy, use it for the clients as well.
+    #
+    # This will break things if the instance can't reach the proxy.
+
+    if apt_proxy:
+        user_data['apt'] = {'http_proxy': apt_proxy}
+        user_data['write_files'].append(
+            {'path': '/etc/apt/apt.conf.d/proxy.conf',
+             'permissions': '0644',
+             'content': f'Acquire::http::Proxy "{apt_proxy}";\n'
+            }
+        )
+
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    ram=1024, disk=4096, x=x, y=y)
+
 # BigBlueButton test clients
 
 def BBB_client(hostname, x=0, y=0):
@@ -720,6 +765,12 @@ master = master_gateway(args.project, x=-200, y=0)
 PublicIP_switch = gns3_project.switch(public_subnet.with_prefixlen, x=0, y=0, ethernets=16)
 gns3_project.link(master, 0, internet)
 gns3_project.link(master, 1, PublicIP_switch)
+
+# A standard BigBlueButton TURN server
+
+turn_node = turn_server('turn', x=-200, y=-200)
+gns3_project.link(turn_node, 0, PublicIP_switch)
+gns3_project.depends_on(turn_node, master)
 
 # NAT4: public subnet to carrier grade NAT subnet
 #
