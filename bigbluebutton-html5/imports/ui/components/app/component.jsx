@@ -46,6 +46,7 @@ import LayoutService from '/imports/ui/components/layout/service';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import MediaService from '/imports/ui/components/media/service';
+import { toast } from 'react-toastify';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -127,6 +128,8 @@ const defaultProps = {
 };
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
+
+let publishedPollToast = null;
 
 class App extends Component {
   static renderWebcamsContainer() {
@@ -252,6 +255,7 @@ class App extends Component {
       pushLayoutToEveryone, // is layout pushed
       layoutContextDispatch,
       mountRandomUserModal,
+      ignorePollNotifications,
     } = this.props;
 
     if (meetingLayout !== prevProps.meetingLayout) {
@@ -313,10 +317,11 @@ class App extends Component {
         intl.formatMessage(intlMessages.meetingMuteOff), 'info', 'unmute',
       );
     }
-    if (!prevProps.hasPublishedPoll && hasPublishedPoll) {
-      notify(
+    if (!prevProps.hasPublishedPoll && hasPublishedPoll && !ignorePollNotifications) {
+      const id = notify(
         intl.formatMessage(intlMessages.pollPublishedLabel), 'info', 'polling',
       );
+      if (id) publishedPollToast = id;
     }
     if (prevProps.currentUserRole === VIEWER && currentUserRole === MODERATOR) {
       notify(
@@ -330,6 +335,8 @@ class App extends Component {
     }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
+
+    if (ignorePollNotifications && publishedPollToast) toast.dismiss(publishedPollToast);
   }
 
   componentWillUnmount() {
