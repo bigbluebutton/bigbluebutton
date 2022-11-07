@@ -143,6 +143,8 @@ const StopwatchTimeColon = styled.span`
 
 const TimerSongsWrapper = styled.div`
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-flow: column;
   margin-top: 4rem;
   margin-bottom: -2rem;
@@ -156,21 +158,21 @@ const TimerRow = `
 
 const TimerCol = `
   display: flex;
+  flex-flow: column;
   flex-grow: 1;
   flex-basis: 0;
-  justify-content: center;
-  align-items: center;
 `;
-// talvez deva haver um col dentro desse estilo
 const TimerSongsTitle = styled.div`
   ${TimerRow}
+  display: flex;
   font-weight: bold;
   font-size: 1.1rem;
-  opacity: ${(stopwatch) => (stopwatch ? '50%' : '100%')}
+  opacity: ${({ stopwatch }) => (stopwatch ? '50%' : '100%')}
 `;
 
 const TimerTracks = styled.div`
   ${TimerCol}
+  display: flex;
   margin-top: 0.8rem;
   margin-bottom: 2rem;
   
