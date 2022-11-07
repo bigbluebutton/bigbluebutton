@@ -36,6 +36,7 @@ const ConverterButtonComponent = ({
         return Service.convertAndUpload()}}
       label={intl.formatMessage(intlMessages.convertAndUploadLabel)}
       icon="upload"
+      data-test="sendNotesToWhiteboard"
     />
   )
   : null)};
