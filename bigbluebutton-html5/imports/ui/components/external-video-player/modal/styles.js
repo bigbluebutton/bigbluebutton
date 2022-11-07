@@ -26,7 +26,7 @@ const UrlError = styled.div`
 `;
 
 const ExternalVideoModal = styled(Modal)`
-  padding: 1.5rem;
+  padding: 1rem;
   min-height: 23rem;
 `;
 
@@ -114,7 +114,6 @@ const StartButton = styled(Button)`
   }
 
   margin: 0;
-  width: 40%;
   display: block;
   position: absolute;
   bottom: 20px;

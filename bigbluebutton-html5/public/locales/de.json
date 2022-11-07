@@ -781,7 +781,7 @@
     "app.video.securityError": "Medienunterstützung ist für das Dokument deaktiviert",
     "app.video.typeError": "Liste der angegebenen Bedingungen ist leer oder alle Bedingungen sind auf falsch gesetzt",
     "app.video.notFoundError": "Konnte keine Webcam finden. Bitte prüfen, dass eine Kamera angeschlossen ist und nicht von einem anderen Programm blockiert wird.",
-    "app.video.notAllowed": "Fehlende Berechtigung für die Webcamfreigabe. Bitte die Berechtigungen iim Browser prüfen",
+    "app.video.notAllowed": "Fehlende Berechtigung für die Webcamfreigabe. Bitte die Berechtigungen im Browser prüfen",
     "app.video.notSupportedError": "Webcam kann nur über eine sichere Verbindung freigegeben werden, bitte prüfen ob das SSL-Zertifikat gültig ist",
     "app.video.notReadableError": "Konnte nicht auf die Webcam zugreifen. Bitte prüfen, dass kein anderes Programm auf die Webcam zugreift",
     "app.video.timeoutError": "Der Browser hat nicht rechtzeitig reagiert.",
