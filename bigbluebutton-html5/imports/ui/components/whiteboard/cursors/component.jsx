@@ -1,4 +1,5 @@
-import * as React from "react";
+import * as React from 'react';
+
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
 const XL_OFFSET = 85;
@@ -31,36 +32,38 @@ const Cursor = (props) => {
       <div
         style={{
           zIndex: z,
-          position: "absolute",
+          position: 'absolute',
           left: (_x || x) - 2.5,
           top: (_y || y) - 2.5,
           width: 5,
           height: 5,
-          borderRadius: "50%",
+          borderRadius: '50%',
           background: `${color}`,
-          pointerEvents: "none",
+          pointerEvents: 'none',
         }}
       />
 
-      {isMultiUserActive && <div
+      {isMultiUserActive && (
+      <div
         style={{
           zIndex: z,
-          position: "absolute",
-          pointerEvents: "none",
+          position: 'absolute',
+          pointerEvents: 'none',
           left: (_x || x) + 3.75,
           top: (_y || y) + 3,
-          paddingLeft: ".25rem",
-          paddingRight: ".25rem",
-          paddingBottom: ".1rem",
-          lineHeight: "1rem",
-          borderRadius: "2px",
-          color: "#FFF",
+          paddingLeft: '.25rem',
+          paddingRight: '.25rem',
+          paddingBottom: '.1rem',
+          lineHeight: '1rem',
+          borderRadius: '2px',
+          color: '#FFF',
           backgroundColor: color,
           border: `1px solid ${color}`,
         }}
       >
         {name}
-      </div>}
+      </div>
+      )}
     </>
   );
 };
@@ -77,10 +80,11 @@ const PositionLabel = (props) => {
   } = props;
 
   const { name, color, userId } = currentUser;
+  const { x, y } = pos;
 
   React.useEffect(() => {
     try {
-      const point = [pos.x, pos.y];
+      const point = [x, y];
       publishCursorUpdate({
         xPercent:
           point[0] / pageState?.camera?.zoom - pageState?.camera?.point[0],
@@ -91,19 +95,19 @@ const PositionLabel = (props) => {
     } catch (e) {
       console.log(e);
     }
-  }, [pos?.x, pos?.y]);
+  }, [x, y]);
 
   return (
     <>
-      <div style={{ position: "absolute", height: "100%", width: "100%" }}>
+      <div style={{ position: 'absolute', height: '100%', width: '100%' }}>
         <Cursor
           key={`${userId}-label`}
           name={name}
           color={color}
-          x={pos.x}
-          y={pos.y}
+          x={x}
+          y={y}
           currentPoint={currentPoint}
-          pageState={props.pageState}
+          pageState={pageState}
           isMultiUserActive={isMultiUserActive(whiteboardId)}
         />
       </div>
@@ -125,7 +129,6 @@ export default function Cursors(props) {
     isViewersCursorLocked,
     hasMultiUserAccess,
     isMultiUserActive,
-    application,
     isPanning,
   } = props;
 
@@ -138,14 +141,19 @@ export default function Cursors(props) {
         yPercent: -1.0,
         whiteboardId,
       });
-    };
+    }
     setActive(false);
-  }
+  };
 
   const moved = (event) => {
     const { type, x, y } = event;
     const nav = document.getElementById('Navbar');
-    const getSibling = (el) => el?.previousSibling || null;
+    const getSibling = (el) => {
+      if (el?.previousSibling && !el?.previousSibling?.hasAttribute('data-test')) {
+        return el?.previousSibling;
+      }
+      return null;
+    };
     const panel = getSibling(nav);
     const webcams = document.getElementById('cameraDock');
     const subPanel = panel && getSibling(panel);
@@ -157,12 +165,21 @@ export default function Cursors(props) {
     let yOffset = 0;
     let xOffset = 0;
     const calcPresOffset = () => {
-      yOffset += (parseFloat(presentationContainer?.style?.height) - (parseFloat(presentation?.style?.height) + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))) / 2;
-      xOffset += (parseFloat(presentationContainer?.style?.width) - parseFloat(presentation?.style?.width)) / 2;
-    }
-    // If the presentation container is the full screen element we don't need any offsets
-    const fsEl = document?.webkitFullscreenElement || document?.fullscreenElement;
-    if (fsEl?.getAttribute('data-test') === "presentationContainer") {
+      yOffset
+        += (parseFloat(presentationContainer?.style?.height)
+          - (parseFloat(presentation?.style?.height)
+          + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))
+        ) / 2;
+      xOffset
+        += (parseFloat(presentationContainer?.style?.width)
+          - parseFloat(presentation?.style?.width)
+        ) / 2;
+    };
+    // If the presentation container is the full screen element we don't
+    // need any offsets
+    const { webkitFullscreenElement, fullscreenElement } = document;
+    const fsEl = webkitFullscreenElement || fullscreenElement;
+    if (fsEl?.getAttribute('data-test') === 'presentationContainer') {
       calcPresOffset();
       return setPos({ x: x - xOffset, y: y - yOffset });
     }
@@ -172,12 +189,16 @@ export default function Cursors(props) {
 
     // disable native tldraw eraser animation
     const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
-    if (eraserLine) eraserLine.style.display = `none`;
+    if (eraserLine) eraserLine.style.display = 'none';
 
     if (type === 'touchmove') {
       calcPresOffset();
-      !active && setActive(true);
-      return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
+      if (!active) {
+        setActive(true);
+      }
+      const newX = event?.changedTouches[0]?.clientX - xOffset;
+      const newY = event?.changedTouches[0]?.clientY - yOffset;
+      return setPos({ x: newX, y: newY });
     }
 
     if (document?.documentElement?.dir === 'rtl') {
@@ -200,7 +221,7 @@ export default function Cursors(props) {
       }
       if (sl?.includes('smart')) {
         if (panel || subPanel) {
-          const dockPos = webcams?.getAttribute("data-position");
+          const dockPos = webcams?.getAttribute('data-position');
           if (dockPos === 'contentTop') {
             yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
           }
@@ -227,7 +248,7 @@ export default function Cursors(props) {
 
       if (sl.includes('smart')) {
         if (panel || subPanel) {
-          const dockPos = webcams?.getAttribute("data-position");
+          const dockPos = webcams?.getAttribute('data-position');
           if (dockPos === 'contentLeft') {
             xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
           }
@@ -259,45 +280,44 @@ export default function Cursors(props) {
     }
 
     return setPos({ x: event.x - xOffset, y: event.y - yOffset });
-  }
+  };
 
   React.useEffect(() => {
-    !cursorWrapper.hasOwnProperty("mouseenter") &&
-      cursorWrapper?.addEventListener("mouseenter", start);
-
-    !cursorWrapper.hasOwnProperty("mouseleave") &&
-      cursorWrapper?.addEventListener("mouseleave", end);
-
-    !cursorWrapper.hasOwnProperty("touchend") &&
-      cursorWrapper?.addEventListener("touchend", end);
-
-    !cursorWrapper.hasOwnProperty("mousemove") &&
-      cursorWrapper?.addEventListener("mousemove", moved);
-
-    !cursorWrapper.hasOwnProperty("touchmove") &&
-      cursorWrapper?.addEventListener("touchmove", moved);
+    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseenter')) {
+      cursorWrapper?.addEventListener('mouseenter', start);
+    }
+    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseleave')) {
+      cursorWrapper?.addEventListener('mouseleave', end);
+    }
+    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchend')) {
+      cursorWrapper?.addEventListener('touchend', end);
+    }
+    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mousemove')) {
+      cursorWrapper?.addEventListener('mousemove', moved);
+    }
+    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchmove')) {
+      cursorWrapper?.addEventListener('touchmove', moved);
+    }
   }, [cursorWrapper, whiteboardId]);
 
-  React.useEffect(() => {
-    return () => {
-      if (cursorWrapper) {
-        cursorWrapper.removeEventListener('mouseenter', start);
-        cursorWrapper.removeEventListener('mouseleave', end);
-        cursorWrapper.removeEventListener('mousemove', moved);
-        cursorWrapper.removeEventListener('touchend', end);
-        cursorWrapper.removeEventListener('touchmove', moved);
-      }
+  React.useEffect(() => () => {
+    if (cursorWrapper) {
+      cursorWrapper.removeEventListener('mouseenter', start);
+      cursorWrapper.removeEventListener('mouseleave', end);
+      cursorWrapper.removeEventListener('mousemove', moved);
+      cursorWrapper.removeEventListener('touchend', end);
+      cursorWrapper.removeEventListener('touchmove', moved);
     }
   });
 
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
-  let cursorType = multiUserAccess || currentUser?.presenter ? "none" : "default";
+  let cursorType = multiUserAccess || currentUser?.presenter ? 'none' : 'default';
   if (isPanning) cursorType = 'grab';
 
   return (
-    <span ref={(r) => (cursorWrapper = r)}>
-      <div style={{ height: "100%", cursor: cursorType }}>
-        {(active && multiUserAccess || (active && currentUser?.presenter)) && (
+    <span ref={(r) => { cursorWrapper = r; }}>
+      <div style={{ height: '100%', cursor: cursorType }}>
+        {((active && multiUserAccess) || (active && currentUser?.presenter)) && (
           <PositionLabel
             pos={pos}
             otherCursors={otherCursors}
@@ -314,7 +334,10 @@ export default function Cursors(props) {
       {otherCursors
         .filter((c) => c?.xPercent && c.xPercent !== -1.0 && c?.yPercent && c.yPercent !== -1.0)
         .filter((c) => {
-          if ((isViewersCursorLocked && c?.role !== "VIEWER") || !isViewersCursorLocked || currentUser?.presenter) {
+          if ((isViewersCursorLocked && c?.role !== 'VIEWER')
+            || !isViewersCursorLocked
+            || currentUser?.presenter
+          ) {
             return c;
           }
           return null;
@@ -322,30 +345,35 @@ export default function Cursors(props) {
         .map((c) => {
           if (c && currentUser.userId !== c?.userId) {
             if (c.presenter) {
-              return <Cursor
-                key={`${c?.userId}`}
-                name={c?.userName}
-                color={"#C70039"}
-                x={c?.xPercent}
-                y={c?.yPercent}
-                pageState={tldrawAPI?.getPageState()}
-                isMultiUserActive={isMultiUserActive(whiteboardId)}
-                owner={true}
-              />
+              return (
+                <Cursor
+                  key={`${c?.userId}`}
+                  name={c?.userName}
+                  color="#C70039"
+                  x={c?.xPercent}
+                  y={c?.yPercent}
+                  pageState={tldrawAPI?.getPageState()}
+                  isMultiUserActive={isMultiUserActive(whiteboardId)}
+                  owner
+                />
+              );
             }
 
-            return hasMultiUserAccess(whiteboardId, c?.userId) &&
+            return hasMultiUserAccess(whiteboardId, c?.userId)
+              && (
               <Cursor
                 key={`${c?.userId}`}
                 name={c?.userName}
-                color={"#AFE1AF"}
+                color="#AFE1AF"
                 x={c?.xPercent}
                 y={c?.yPercent}
                 pageState={tldrawAPI?.getPageState()}
                 isMultiUserActive={isMultiUserActive(whiteboardId)}
-                owner={true}
+                owner
               />
+              );
           }
+          return null;
         })}
     </span>
   );
