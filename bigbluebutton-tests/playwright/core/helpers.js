@@ -52,7 +52,7 @@ function createMeetingPromise(params, customParameter) {
 async function createMeeting(params, customParameter) {
   const promise = createMeetingPromise(params, customParameter);
   const response = await promise;
-  expect(response.data.response.returncode).toEqual('SUCCESS');
+  expect(response.status).toEqual(200);
   const xmlresponse = await xml2js.parseStringPromise(response.data);
   return xmlresponse.response.meetingID[0];
 }
