@@ -4,6 +4,8 @@ const path = require('path');
 const axios = require('axios');
 const xml2js = require('xml2js');
 
+const { expect } = require("@playwright/test");
+
 const parameters = require('./parameters');
 
 const httpPath = path.join(path.dirname(require.resolve('axios')), 'lib/adapters/http');
@@ -49,8 +51,10 @@ function createMeetingPromise(params, customParameter) {
 
 async function createMeeting(params, customParameter) {
   const promise = createMeetingPromise(params, customParameter);
-  const response = await promise.then(response => xml2js.parseStringPromise(response.data));
-  return response.response.meetingID[0];
+  const response = await promise;
+  expect(response.data.response.returncode).toEqual('SUCCESS');
+  const xmlresponse = await xml2js.parseStringPromise(response.data);
+  return xmlresponse.response.meetingID[0];
 }
 
 function getJoinURL(meetingID, params, moderator, customParameter) {
