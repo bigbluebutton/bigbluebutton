@@ -138,6 +138,10 @@ exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
+exports.sendNotesToWhiteboard = 'button[data-test="sendNotesToWhiteboard"]';
+exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProgressToast"]';
+exports.sharedNotesViewingMode = 'iframe[data-test="sharedNotesViewingMode"]';
+exports.currentSlideText = 'span[id="currentSlideText"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
