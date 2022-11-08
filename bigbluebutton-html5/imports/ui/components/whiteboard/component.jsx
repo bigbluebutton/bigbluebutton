@@ -93,6 +93,7 @@ export default function Whiteboard(props) {
     zoomValue,
     isPanning,
     intl,
+    svgUri,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -113,6 +114,7 @@ export default function Whiteboard(props) {
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevFitToWidth = usePrevious(fitToWidth);
+  const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
 
   const calculateZoom = (width, height) => {
@@ -226,7 +228,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && !next.assets[`slide-background-asset-${curPageId}`]) {
+    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`]) || (svgUri && !_.isEqual(prevSvgUri, svgUri))) {
       next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`]
       tldrawAPI?.patchState(
         {
