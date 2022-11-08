@@ -6,6 +6,7 @@ const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -67,15 +68,22 @@ class MultiUsers {
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
+  async muteAnotherUser() {
+    await this.userPage.joinMicrophone();
+    await this.modPage.hasElement(e.joinAudio);
+    await this.modPage.waitAndClick(e.isTalking);
+    await this.userPage.hasElement(e.unmuteMicButton);
+    await this.modPage.hasElement(e.wasTalking);
+    await this.userPage.hasElement(e.wasTalking);
+    await this.userPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.talkingIndicator);
+  }
+
   async userPresence() {
-    const firstUserOnModPage = this.modPage.getLocator(e.currentUser);
-    const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
-    const firstUserOnUserPage = this.userPage.getLocator(e.currentUser);
-    const secondUserOnUserPage = this.userPage.getLocator(e.userListItem);
-    await expect(firstUserOnModPage).toHaveCount(1);
-    await expect(secondUserOnModPage).toHaveCount(1);
-    await expect(firstUserOnUserPage).toHaveCount(1);
-    await expect(secondUserOnUserPage).toHaveCount(1);
+    await this.modPage.checkElementCount(e.currentUser, 1);
+    await this.modPage.checkElementCount(e.userListItem, 1);
+    await this.userPage.checkElementCount(e.currentUser, 1);
+    await this.userPage.checkElementCount(e.userListItem, 1);
   }
 
   async makePresenter() {

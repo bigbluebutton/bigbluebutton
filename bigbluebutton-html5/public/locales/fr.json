@@ -1046,7 +1046,7 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Vignette de présentation",
     "app.learningDashboard.errors.invalidToken": "Jeton de session invalide",
     "app.learningDashboard.errors.dataUnavailable": "Les données ne sont plus disponibles",
-    "mobileApp.portals.list.empty.addFirstPortal.label": "Ajoutez votre premier portail en utilisant le bouton ci-dessus",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Ajoutez votre premier portail en utilisant le bouton ci-dessus,",
     "mobileApp.portals.list.empty.orUseOurDemoServer.label": "ou utilisez notre serveur de démo.",
     "mobileApp.portals.list.add.button.label": "Ajouter un portail",
     "mobileApp.portals.fields.name.label": "Nom du portail",

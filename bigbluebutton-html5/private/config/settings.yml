@@ -59,6 +59,7 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     # Allow users to open webcam video modal/preview when video is already
@@ -66,6 +67,7 @@ public:
     # restarting webcam.
     enableWebcamSelectorButton: true
     enableTalkingIndicator: true
+    enableCameraBrightness: true
     mirrorOwnWebcam: false
     viewersInWebcam: 8
     ipv4FallbackDomain: ''
@@ -73,6 +75,37 @@ public:
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    # Allows users to enable automatic transcription when joining a meeting.
+    # Automatic transcription requires the browser to support the web
+    # speech API, which involves sending voice data to third-party servers!
+    # https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API#speech_recognition
+    audioCaptions:
+      enabled: false
+      # mobile: <Boolean> - controls speech transcription availability on mobile
+      mobile: false
+      language:
+        available:
+        # - de-DE
+          - en-US
+          - es-ES
+        # - fr-FR
+        # - hi-ID
+        # - it-IT
+        # - ja-JP
+          - pt-BR
+        # - ru-RU
+        # - zh-CN
+        # If true, automatically uses the below locale field content as transcription language
+        # and the language selector in audio modal won't show up!
+        forceLocale: false
+        # If true, the default selected value for language selector in audio modal
+        # is the below locale field content
+        defaultSelectLocale: true
+        # Possible Values:
+        # browserLanguage: to set browser language
+        # [en-US, es-ES, pt-BR,...]: to set a specific locale
+        # disabled: to set disabled
+        locale: disabled
     mutedAlert:
       enabled: true
       interval: 200
@@ -207,6 +240,11 @@ public:
       - critical
       - danger
       - warning
+    # Whether the fallback mechanism should be used
+    # when the locale string is empty. If false, the empty
+    # string will be returned.
+    fallbackOnEmptyLocaleString: true
+    disableWebsocketFallback: true
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -221,6 +259,8 @@ public:
     signalCandidates: false
     # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
     forceRelayOnFirefox: false
+    # traceLogs: <Boolean> - enable trace logs in SFU peers
+    traceLogs: false
     cameraTimeouts:
       # Base camera timeout: used as the camera *sharing* timeout and
       # as the minimum camera subscribe reconnection timeout
@@ -470,11 +510,16 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
-    enableEmojiPicker: false
+    emojiPicker:
+      enable: false
+      frequentEmojiSortOnClick: false
+    # e.g.: disableEmojis: ['1F595','1F922']
+    disableEmojis: []
   notes:
     enabled: true
     id: notes
@@ -587,6 +632,13 @@ public:
       useRtcLoopbackInChromium: true
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
+    # networkPriorities: DSCP markings for each media type. Chromium only, applies
+    # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
+    # for further info.
+    #networkPriorities:
+    #  audio: high
+    #  webcam: medium
+    #  screenshare: medium
   stats:
     enabled: true
     interval: 10000
@@ -812,6 +864,10 @@ private:
   serverLog:
     level: info
     streamerLog: false
+    includeServerInfo: true
+    healthChecker:
+      enable: true
+      intervalMs: 30000
   minBrowserVersions:
     - browser: chrome
       version: 72

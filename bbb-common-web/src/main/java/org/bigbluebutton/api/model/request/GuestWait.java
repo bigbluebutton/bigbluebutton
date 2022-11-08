@@ -1,6 +1,5 @@
 package org.bigbluebutton.api.model.request;
 
-import org.bigbluebutton.api.model.constraint.MaxParticipantsConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingEndedConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
 import org.bigbluebutton.api.model.constraint.UserSessionConstraint;

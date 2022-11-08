@@ -1,9 +1,5 @@
 import styled from 'styled-components';
 import {
-  borderSizeLarge,
-  borderSize,
-} from '/imports/ui/stylesheets/styled-components/general';
-import {
   colorWhite,
   colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';

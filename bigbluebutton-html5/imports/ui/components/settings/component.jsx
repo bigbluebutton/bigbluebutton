@@ -8,6 +8,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
+import { formatLocaleCode } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -267,10 +268,13 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
-            document.body.classList.remove(`lang-${saved.application.locale.split('-')[0]}`);
-            document.body.classList.add(`lang-${current.application.locale.split('-')[0]}`);
-            document.getElementsByTagName('html')[0].lang = current.application.locale;
+            this.updateSettings(current, intlMessages.savedAlertLabel);
+
+            if (saved.application.locale !== current.application.locale) {
+              const { language } = formatLocaleCode(saved.application.locale);
+              document.body.classList.remove(`lang-${language}`);
+            }
+
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */

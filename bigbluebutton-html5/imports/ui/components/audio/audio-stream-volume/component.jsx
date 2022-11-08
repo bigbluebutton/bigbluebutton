@@ -74,6 +74,7 @@ const AudioStreamVolume = ({
 
   return (
     <Styled.VolumeMeter
+      data-test={volume > 0 ? 'hasVolume' : 'hasNoVolume'}
       min={volumeFloor}
       low={low}
       max={high * 1.25}

@@ -31,10 +31,28 @@ export const unescapeHtml = (input) => {
   return e.value;
 };
 
+export const formatLocaleCode = (locale) => {
+  const formattedLocale = locale?.replace('_', '-').replace('@', '-');
+
+  return {
+    language: formattedLocale?.split('-')[0],
+    formattedLocale,
+  };
+};
+
+export const safeMatch = (regex, content, defaultValue) => {
+  const regexLimit = 50000;
+
+  if (content.length > regexLimit) return defaultValue;
+  return content.match(regex) || defaultValue;
+};
+
 export default {
   capitalizeFirstLetter,
   getDateString,
   stripTags,
   escapeHtml,
   unescapeHtml,
+  formatLocaleCode,
+  safeMatch,
 };

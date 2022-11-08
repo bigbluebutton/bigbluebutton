@@ -21,6 +21,7 @@ export default function sendAnnotationHelper(annotations, meetingId, requesterUs
       const payload = {
         whiteboardId,
         annotations: whiteboardAnnotations,
+        html5InstanceId: parseInt(process.env.INSTANCE_ID, 10) || 1,
       };
   
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

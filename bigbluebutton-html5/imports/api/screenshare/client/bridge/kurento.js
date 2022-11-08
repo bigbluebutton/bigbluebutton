@@ -11,6 +11,8 @@ const SFU_CONFIG = Meteor.settings.public.kurento;
 const SFU_URL = SFU_CONFIG.wsUrl;
 const OFFERING = SFU_CONFIG.screenshare.subscriberOffering;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
+const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
+const { screenshare: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
 
 const BRIDGE_NAME = 'kurento'
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
@@ -238,6 +240,7 @@ export default class KurentoScreenshareBridge {
       mediaServer: BridgeService.getMediaServerAdapter(),
       signalCandidates: SIGNAL_CANDIDATES,
       forceRelay: shouldForceRelay(),
+      traceLogs: TRACE_LOGS,
     };
 
     this.broker = new ScreenshareBroker(
@@ -304,6 +307,8 @@ export default class KurentoScreenshareBridge {
         mediaServer: BridgeService.getMediaServerAdapter(),
         signalCandidates: SIGNAL_CANDIDATES,
         forceRelay: shouldForceRelay(),
+        traceLogs: TRACE_LOGS,
+        networkPriority: NETWORK_PRIORITY,
       };
 
       this.broker = new ScreenshareBroker(

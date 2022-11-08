@@ -44,9 +44,10 @@ export default function addPresentation(meetingId, podId, presentation) {
         txtUri: String,
         svgUri: String,
         current: Boolean,
-        xCamera: Number,
-        yCamera: Number,
-        zoom: Number,
+        xOffset: Number,
+        yOffset: Number,
+        widthRatio: Number,
+        heightRatio: Number,
       },
     ],
     downloadable: Boolean,
@@ -65,6 +66,7 @@ export default function addPresentation(meetingId, podId, presentation) {
       podId,
       'conversion.done': true,
       'conversion.error': false,
+      'exportation.status': null,
     }, flat(presentation, { safe: true })),
   };
 

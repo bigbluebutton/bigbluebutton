@@ -10,8 +10,8 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: SendWhiteboardAnnotationsPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: SendWhiteboardAnnotationsPubMsg, whiteboardId: String, annotations: Array[AnnotationVO]): Unit = {
-      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, liveMeeting.props.systemProps.html5InstanceId.toString)
+    def broadcastEvent(msg: SendWhiteboardAnnotationsPubMsg, whiteboardId: String, annotations: Array[AnnotationVO], html5InstanceId: String): Unit = {
+      val routing = Routing.addMsgToHtml5InstanceIdRouting(liveMeeting.props.meetingProp.intId, html5InstanceId)
       val envelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
@@ -46,14 +46,19 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId
     )
 
+    val isUserModerator = !permissionFailed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
+    )
+
     if (isUserOneOfPermited || isUserAmongPresenters) {
       println("============= Printing Sanitized annotations ============")
       for (annotation <- msg.body.annotations) {
         printAnnotationInfo(annotation)
       }
       println("============= Printed Sanitized annotations  ============")
-      val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting)
-      broadcastEvent(msg, msg.body.whiteboardId, annotations)
+      val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting, isUserAmongPresenters, isUserModerator)
+      broadcastEvent(msg, msg.body.whiteboardId, annotations, msg.body.html5InstanceId)
     } else {
       //val meetingId = liveMeeting.props.meetingProp.intId
       //val reason = "No permission to send a whiteboard annotation."

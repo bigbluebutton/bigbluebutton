@@ -21,7 +21,12 @@ export const unregisterTitleView = () => {
     title.text = data.join(' - ');
 };
 
+export const convertRemToPixels = (rem) => {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
 export default {
   registerTitleView,
   unregisterTitleView,
+  convertRemToPixels,
 };

@@ -53,6 +53,11 @@ const intlMessages = defineMessages({
     description: 'Snapshot of current slide label',
     defaultMessage: 'Snapshot of current slide',
   },
+  whiteboardLabel: {
+    id: "app.shortcut-help.whiteboard",
+    description: 'used for aria whiteboard options button label',
+    defaultMessage: 'Whiteboard',
+  }
 });
 
 const propTypes = {
@@ -89,7 +94,7 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    getScreenshotRef,
+    tldrawAPI,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
@@ -171,7 +176,8 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
-          onClick: () => {
+          dataTest: "presentationSnapshot",
+          onClick: async () => {
             setState({
               loading: true,
               hasError: false,
@@ -188,38 +194,37 @@ const PresentationMenu = (props) => {
             });
 
             try {
-              const wbRef = document.getElementById('Navbar')?.nextSibling?.childNodes[1]?.querySelector('[tabindex = "0"]');
-              toPng(wbRef, {
-                width: window.screen.width,
-                height: window.screen.height,
-              }).then((data) => {
-                const anchor = document.createElement('a');
-                anchor.href = data;
-                anchor.setAttribute(
-                  'download',
-                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-                );
-                anchor.click();
-  
-                setState({
-                  loading: false,
-                  hasError: false,
-                });
-              }).catch((error) => {
-                logger.warn({
-                  logCode: 'presentation_snapshot_error',
-                  extraInfo: error,
-                });
-  
-                setState({
-                  loading: false,
-                  hasError: true,
-                });
+              const { copySvg, getShapes, currentPageId } = tldrawAPI;
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const container = document.createElement('div');
+              container.innerHTML = svgString;
+              const svgElem = container.firstChild;
+              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
+              const anchor = document.createElement('a');
+              anchor.href = data;
+              anchor.setAttribute(
+                'download',
+                `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
+              );
+              anchor.click();
+
+              setState({
+                loading: false,
+                hasError: false,
               });
-            } catch (err) {
+            } catch (e) {
+              setState({
+                loading: false,
+                hasError: true,
+              });
+
               logger.warn({
                 logCode: 'presentation_snapshot_error',
-                extraInfo: err,
+                extraInfo: e,
               });
             }
           },
@@ -267,7 +272,7 @@ const PresentationMenu = (props) => {
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
             <Styled.DropdownButton
               state={isDropdownOpen ? 'open' : 'closed'}
-              aria-label={intl.formatMessage(intlMessages.optionsLabel)}
+              aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
               data-test="whiteboardOptionsButton"
               onClick={() => {
                 setIsDropdownOpen((isOpen) => !isOpen)
@@ -278,7 +283,7 @@ const PresentationMenu = (props) => {
           </TooltipContainer>
         }
         opts={{
-          id: "default-dropdown-menu",
+          id: "presentation-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,

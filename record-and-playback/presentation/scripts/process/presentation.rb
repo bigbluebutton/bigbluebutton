@@ -144,6 +144,7 @@ unless FileTest.directory?(target_dir)
     metadata_file.close
     BigBlueButton.logger.info('Created an updated metadata.xml with start_time and end_time')
 
+    version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(@doc, 2, 6, 0)
     # Start processing raw files
     presentation_text = {}
     presentations.each do |pres|
@@ -176,7 +177,7 @@ unless FileTest.directory?(target_dir)
           1.upto(num_pages) do |page|
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
-            )
+            ) if !version_atleast_2_6_0
             next unless File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt")
             t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
             text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
@@ -187,13 +188,13 @@ unless FileTest.directory?(target_dir)
       else
         BigBlueButton::Presentation.convert_image_to_png(
           images[0], "#{target_pres_dir}/slide-1.png", '1600x1600'
-        )
+        ) if !version_atleast_2_6_0
       end
 
       # Copy thumbnails from raw files
       FileUtils.cp_r("#{pres_dir}/thumbnails", "#{target_pres_dir}/thumbnails") if File.exist?("#{pres_dir}/thumbnails")
-      tldraw = BigBlueButton::Events.check_for_tldraw_events(@doc);
-      if (tldraw)
+      if version_atleast_2_6_0
+        # Copy svgs from raw files (needed for Tldraw)
         FileUtils.cp_r("#{pres_dir}/svgs", "#{target_pres_dir}/svgs") if File.exist?("#{pres_dir}/svgs")
       end
     end

@@ -51,3 +51,19 @@ export function isLayoutsEnabled() {
 export function isVirtualBackgroundsEnabled() {
   return getDisabledFeatures().indexOf('virtualBackgrounds') === -1 && Meteor.settings.public.virtualBackgrounds.enabled;
 }
+
+export function isCustomVirtualBackgroundsEnabled() {
+  return getDisabledFeatures().indexOf('customVirtualBackgrounds') === -1;
+}
+
+export function isDownloadPresentationWithAnnotationsEnabled() {
+  return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadable;
+}
+
+export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
+}
+
+export function isImportSharedNotesFromBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('importSharedNotesFromBreakoutRooms') === -1;
+}

@@ -14,7 +14,6 @@ const LayoutModalComponent = (props) => {
   const {
     intl,
     closeModal,
-    isModerator,
     isPresenter,
     showToggleLabel,
     application,
@@ -73,6 +72,14 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.style.videoFocus',
       description: 'label for videoFocus layout style',
     },
+    layoutSingular: {
+      id: 'app.layout.modal.layoutSingular',
+      description: 'label for singular layout',
+    },
+    layoutBtnDesc: {
+      id: 'app.layout.modal.layoutBtnDesc',
+      description: 'label for singular layout',
+    },
   });
 
   const handleSwitchLayout = (e) => {
@@ -94,7 +101,7 @@ const LayoutModalComponent = (props) => {
   };
 
   const renderPushLayoutsOptions = () => {
-    if (!isPresenter && !isModerator) {
+    if (!isPresenter) {
       return null;
     }
 
@@ -123,12 +130,18 @@ const LayoutModalComponent = (props) => {
       {Object.values(LAYOUT_TYPE)
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
-            <Styled.LabelLayoutNames>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
+            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
             <Styled.LayoutBtn
               label=""
-              customIcon={<Styled.IconSvg src={`${LAYOUTS_PATH}${layout}.svg`} alt={`${LAYOUTS_PATH}${layout}Layout`} />}
+              customIcon={(
+                <Styled.IconSvg
+                  src={`${LAYOUTS_PATH}${layout}.svg`}
+                  alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`}
+                />
+                )}
               onClick={() => handleSwitchLayout(layout)}
               active={(layout === selectedLayout).toString()}
+              aria-describedby="layout-btn-desc"
             />
           </Styled.ButtonLayoutContainer>
         ))}
@@ -160,7 +173,7 @@ const LayoutModalComponent = (props) => {
         <Styled.BottomButton
           label={intl.formatMessage(intlMessages.cancel)}
           onClick={closeModal}
-          color='secondary'
+          color="secondary"
         />
         <Button
           color="primary"
@@ -168,6 +181,7 @@ const LayoutModalComponent = (props) => {
           onClick={handleCloseModal}
         />
       </Styled.ButtonBottomContainer>
+      <div style={{ display: 'none' }} id="layout-btn-desc">{intl.formatMessage(intlMessages.layoutBtnDesc)}</div>
     </Styled.LayoutModal>
   );
 };

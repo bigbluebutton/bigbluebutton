@@ -31,7 +31,7 @@ public class SwfSlidesGenerationProgressNotifier {
   private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
 
   private IBbbWebApiGWApp messagingService;
-
+  private int maxNumberOfAttempts = 3;
   private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 
 
@@ -49,6 +49,15 @@ public class SwfSlidesGenerationProgressNotifier {
             uploadedFileSize,
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
+  }
+  public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
+    UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_TIMEOUT_KEY,
+            page, pres.getTemporaryPresentationId(), pres.getId(), maxNumberOfAttempts);
+    messagingService.sendDocConversionMsg(errorMessage);
   }
 
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {
@@ -71,10 +80,11 @@ public class SwfSlidesGenerationProgressNotifier {
   }
 
   public void sendCreatingThumbnailsUpdateMessage(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY,
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -100,23 +110,29 @@ public class SwfSlidesGenerationProgressNotifier {
     messagingService = m;
   }
 
+  public void setMaxNumberOfAttempts(int maxNumberOfAttempts) {
+    this.maxNumberOfAttempts = maxNumberOfAttempts;
+  }
+
   public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
     generatedSlidesInfoHelper = helper;
   }
 
   public void sendCreatingTextFilesUpdateMessage(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY,
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 
   public void sendCreatingSvgImagesUpdateMessage(UploadedPresentation pres) {
-    OfficeDocConversionProgress progress = new OfficeDocConversionProgress(pres.getPodId(), pres.getMeetingId(),
+    DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
-      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY);
+      pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY,
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 }

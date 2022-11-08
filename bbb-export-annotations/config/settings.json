@@ -4,28 +4,31 @@
     },
     "shared": {
       "presDir": "/var/bigbluebutton",
-      "presAnnDropboxDir": "/tmp/pres-ann-dropbox"
+      "presAnnDropboxDir": "/tmp/pres-ann-dropbox",
+      "cairosvg": "/usr/bin/cairosvg",
+      "ghostscript": "/usr/bin/gs",
+      "imagemagick": "/usr/bin/convert",
+      "pdftocairo": "/usr/bin/pdftocairo"
+    },
+    "captureNotes": {
+      "timeout": 5000
     },
     "collector": {
-      "backgroundSlideDPI": 300,
-      "backgroundSlidePPI": 200
+      "pngWidthRasterizedSlides": 2560
     },
     "process": {
       "whiteboardTextEncoding": "utf-8",
+      "textScaleFactor": 4,
       "pointsPerInch": 72,
       "pixelsPerInch": 96
     },
     "notifier": {
       "pod_id": "DEFAULT_PRESENTATION_POD",
       "is_downloadable": "false",
-      "msgName": "NewPresAnnFileAvailableMsg",
-      "protocol": "https",
-      "host": "localhost"
+      "msgName": "NewPresAnnFileAvailableMsg"
     },
-    "bbbWeb": {
-      "host": "127.0.0.1",
-      "port": 8090
-    },
+    "bbbWebAPI": "http://127.0.0.1:8090",
+    "bbbPadsAPI": "http://127.0.0.1:9002",
     "redis": {
       "host": "127.0.0.1",
       "port": 6379,

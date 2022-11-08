@@ -31,6 +31,7 @@ require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
 require 'json'
+require "active_support"
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
@@ -39,7 +40,7 @@ filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
   presOverrideProps = YAML::load(File.open(filepathPresOverride))
-  $presentation_props = $presentation_props.merge(presOverrideProps)
+  @presentation_props = @presentation_props.merge(presOverrideProps)
 end
 
 # There's a couple of places where stuff is mysteriously divided or multiplied
@@ -503,14 +504,19 @@ def svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   end
 end
 
-def panzoom_viewbox(panzoom)
+def panzoom_viewbox(panzoom, tldraw)
   if panzoom[:deskshare]
     panzoom[:x_offset] = panzoom[:y_offset] = 0.0
     panzoom[:width_ratio] = panzoom[:height_ratio] = 100.0
   end
 
-  x = (-panzoom[:x_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:width]).round(5)
-  y = (-panzoom[:y_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:height]).round(5)
+  if tldraw
+    x = panzoom[:x_offset]
+    y = panzoom[:y_offset]
+  else 
+    x = (-panzoom[:x_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:width]).round(5)
+    y = (-panzoom[:y_offset] * MAGIC_MYSTERY_NUMBER / 100.0 * panzoom[:height]).round(5)
+  end
   w = shape_scale_width(panzoom, panzoom[:width_ratio])
   h = shape_scale_height(panzoom, panzoom[:height_ratio])
 
@@ -521,15 +527,9 @@ def panzooms_emit_event(rec, panzoom, tldraw)
   panzoom_in = panzoom[:in]
   return if panzoom_in == panzoom[:out]
 
-  if !tldraw
-    rec.event(timestamp: panzoom_in) do
-      x, y, w, h = panzoom_viewbox(panzoom)
-      rec.viewBox("#{x} #{y} #{w} #{h}")
-    end
-  else 
-    rec.event(timestamp: panzoom_in) do
-      rec.cameraAndZoom("#{panzoom[:x_camera]} #{panzoom[:y_camera]} #{panzoom[:zoom]}")
-    end
+  rec.event(timestamp: panzoom_in) do
+    x, y, w, h = panzoom_viewbox(panzoom, tldraw)
+    rec.viewBox("#{x} #{y} #{w} #{h}")
   end
 end
 
@@ -608,12 +608,13 @@ def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide
   prev_shape = nil
   if shape_id
     # If we have a shape ID, look up the previous shape by ID
-    prev_shape_pos = shapes.rindex { |s| s[:shade_id] == shape_id }
+    prev_shape_pos = shapes.rindex { |s| s[:id] == shape_id }
     prev_shape = prev_shape_pos ? shapes[prev_shape_pos] : nil
   end
   if prev_shape
     prev_shape[:out] = timestamp
     shape[:shape_unique_id] = prev_shape[:shape_unique_id]
+    shape[:shape_data] = prev_shape[:shape_data].deep_merge(shape[:shape_data])
   else
     shape[:shape_unique_id] = @svg_shape_unique_id
     @svg_shape_unique_id += 1
@@ -891,7 +892,7 @@ def process_presentation(package_dir)
   panzooms = []
   cursors = []
   shapes = {}
-  tldraw = BigBlueButton::Events.check_for_tldraw_events(@doc)
+  tldraw = @version_atleast_2_6_0
   tldraw_shapes = {}
 
   # Iterate through the events.xml and store the events, building the
@@ -925,12 +926,6 @@ def process_presentation(package_dir)
       current_y_offset = event.at_xpath('yOffset').text.to_f
       current_width_ratio = event.at_xpath('widthRatio').text.to_f
       current_height_ratio = event.at_xpath('heightRatio').text.to_f
-      panzoom_changed = true
-
-    when 'TldrawCameraChangedEvent'
-      current_x_camera = event.at_xpath('xCamera').text.to_f
-      current_y_camera = event.at_xpath('yCamera').text.to_f
-      current_zoom = event.at_xpath('zoom').text.to_f
       panzoom_changed = true
 
     when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
@@ -1009,19 +1004,13 @@ def process_presentation(package_dir)
       slide_width = slide[:width]
       slide_height = slide[:height]
       if panzoom &&
-        (panzoom[:deskshare] == deskshare) &&
-        ((!tldraw &&
          (panzoom[:x_offset] == current_x_offset) &&
          (panzoom[:y_offset] == current_y_offset) &&
          (panzoom[:width_ratio] == current_width_ratio) &&
          (panzoom[:height_ratio] == current_height_ratio) &&
          (panzoom[:width] == slide_width) &&
-         (panzoom[:height] == slide_height)) ||
-        (tldraw &&
-         (panzoom[:x_camera] == current_x_camera) &&
-         (panzoom[:y_camera] == current_y_camera) &&
-         (panzoom[:zoom] == current_zoom))
-        )
+         (panzoom[:height] == slide_height) &&
+         (panzoom[:deskshare] == deskshare)
         BigBlueButton.logger.info('Panzoom: skipping, no changes')
         panzoom_changed = false
       else
@@ -1029,28 +1018,17 @@ def process_presentation(package_dir)
           panzoom[:out] = timestamp
           panzooms_emit_event(panzooms_rec, panzoom, tldraw)
         end
-        if !tldraw
-          BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
-          panzoom = {
-            x_offset: current_x_offset,
-            y_offset: current_y_offset,
-            width_ratio: current_width_ratio,
-            height_ratio: current_height_ratio,
-            width: slide[:width],
-            height: slide[:height],
-            in: timestamp,
-            deskshare: deskshare,
-          }
-        else 
-          BigBlueButton.logger.info("Panzoom: #{current_x_camera} #{current_y_camera} #{current_zoom} (#{slide_width}x#{slide_height})")
-          panzoom = {
-            x_camera: current_x_camera,
-            y_camera: current_y_camera,
-            zoom: current_zoom,
-            in: timestamp,
-            deskshare: deskshare,
-          }
-        end
+        BigBlueButton.logger.info("Panzoom: #{current_x_offset} #{current_y_offset} #{current_width_ratio} #{current_height_ratio} (#{slide_width}x#{slide_height})")
+        panzoom = {
+          x_offset: current_x_offset,
+          y_offset: current_y_offset,
+          width_ratio: current_width_ratio,
+          height_ratio: current_height_ratio,
+          width: slide[:width],
+          height: slide[:height],
+          in: timestamp,
+          deskshare: deskshare,
+        }
         panzooms << panzoom
       end
     end
@@ -1387,6 +1365,9 @@ begin
         )
         @version_atleast_2_0_0 = BigBlueButton::Events.bbb_version_compare(
           @doc, 2, 0, 0
+        )
+        @version_atleast_2_6_0 = BigBlueButton::Events.bbb_version_compare(
+          @doc, 2, 6, 0
         )
         BigBlueButton.logger.info('Creating metadata.xml')
 

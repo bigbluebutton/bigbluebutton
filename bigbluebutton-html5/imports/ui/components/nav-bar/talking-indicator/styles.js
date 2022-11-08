@@ -14,15 +14,18 @@ import {
   colorWhite,
   colorSuccess,
   colorDanger,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
   talkerFontWeight,
   fontSizeXS,
   fontSizeSmaller,
+  fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const TalkingIndicatorButton = styled(Button)`
   display: flex;
@@ -38,8 +41,6 @@ const TalkingIndicatorButton = styled(Button)`
   border-radius: ${talkerBorderRadius} ${talkerBorderRadius};
   font-size: ${fontSizeBase};
   padding: ${talkerPaddingXsm} ${talkerPaddingLg} ${talkerPaddingXsm} ${talkerPaddingLg};
-  margin-left: ${borderRadius};
-  margin-right: ${borderRadius};
   box-shadow: none !important;
 
   @media ${phoneLandscape} {
@@ -113,6 +114,25 @@ const TalkingIndicatorButton = styled(Button)`
   `}
 `;
 
+const CCIcon = styled(Icon)`
+  align-self: center;
+  color: ${colorWhite};
+  margin: 0 ${borderRadius};
+  font-size: calc(${fontSizeSmall} * .85);
+  opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`)
+    || '1;'};
+`;
+
+const TalkingIndicatorWrapper = styled.div`
+  border-radius: ${talkerBorderRadius} ${talkerBorderRadius};
+  display: flex;
+  margin: 0 ${borderRadius};
+  opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`)
+    || '1;'};
+  background: ${({ muted, talking, floor }) => ((muted || !talking || !floor) && `${colorBackground};`)
+    || `${colorSuccess}`}
+`;
+
 const Hidden = styled.div`
   display: none;
 `;
@@ -144,6 +164,8 @@ const Speaking = styled.div`
 
 export default {
   TalkingIndicatorButton,
+  TalkingIndicatorWrapper,
+  CCIcon,
   Hidden,
   IsTalkingWrapper,
   Speaking,

@@ -111,6 +111,9 @@ class RedisRecorderActor(
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
       //case m: DeskShareNotifyViewersRTMP  => handleDeskShareNotifyViewersRTMP(m)
 
+      // AudioCaptions
+      case m: TranscriptUpdatedEvtMsg               => handleTranscriptUpdatedEvtMsg(m)
+
       // Meeting
       case m: RecordingStatusChangedEvtMsg          => handleRecordingStatusChangedEvtMsg(m)
       case m: RecordStatusResetSysMsg               => handleRecordStatusResetSysMsg(m)
@@ -184,14 +187,15 @@ class RedisRecorderActor(
   }
 
   private def handleResizeAndMovePageEvtMsg(msg: ResizeAndMovePageEvtMsg) {
-    val ev = new TldrawCameraChangedRecordEvent()
+    val ev = new ResizeAndMoveSlideRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPodId(msg.body.podId)
     ev.setPresentationName(msg.body.presentationId)
     ev.setId(msg.body.pageId)
-    ev.setXCamera(msg.body.xCamera)
-    ev.setYCamera(msg.body.yCamera)
-    ev.setZoom(msg.body.zoom)
+    ev.setXOffset(msg.body.xOffset)
+    ev.setYOffset(msg.body.yOffset)
+    ev.setWidthRatio(msg.body.widthRatio)
+    ev.setHeightRatio(msg.body.heightRatio)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
@@ -504,6 +508,15 @@ class RedisRecorderActor(
     record(msg.header.meetingId, JavaConverters.mapAsScalaMap(ev.toMap).toMap)
   }
   */
+
+  private def handleTranscriptUpdatedEvtMsg(msg: TranscriptUpdatedEvtMsg) {
+    val ev = new TranscriptUpdatedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setLocale(msg.body.locale)
+    ev.setTranscript(msg.body.transcript)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
 
   private def handleStartExternalVideoEvtMsg(msg: StartExternalVideoEvtMsg) {
     val ev = new StartExternalVideoRecordEvent()
