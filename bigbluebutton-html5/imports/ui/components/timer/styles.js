@@ -83,6 +83,7 @@ const TimerContent = styled.div`
   flex-direction: column;
   width: 100%;
   height: 100%;
+  overflow: auto;
 `;
 
 const TimerCurrent = styled.span`
