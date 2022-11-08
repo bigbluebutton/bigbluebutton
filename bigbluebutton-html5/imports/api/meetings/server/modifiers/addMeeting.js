@@ -90,11 +90,12 @@ export default function addMeeting(meeting) {
       uploadExternalUrl: String,
     },
     usersProp: {
+      maxUsers: Number,
+      maxUserConcurrentAccesses: Number,
       webcamsOnlyForModerator: Boolean,
       userCameraCap: Number,
       guestPolicy: String,
       authenticatedGuest: Boolean,
-      maxUsers: Number,
       allowModsToUnmuteUsers: Boolean,
       allowModsToEjectCameras: Boolean,
       meetingLayout: String,

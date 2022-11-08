@@ -132,6 +132,8 @@ public class ParamsProcessorUtil {
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+
+    private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
   	private Integer defaultHtml5InstanceId = 1;
@@ -696,6 +698,11 @@ public class ParamsProcessorUtil {
 
         int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
 
+        if(defaultAllowDuplicateExtUserid == false) {
+            log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
+            maxUserConcurrentAccesses = 1;
+        }
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -722,7 +729,7 @@ public class ParamsProcessorUtil {
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
-				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
+				.withMaxUserConcurrentAccesses(maxUserConcurrentAccesses)
                 .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
@@ -1415,6 +1422,10 @@ public class ParamsProcessorUtil {
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {
 		this.defaultAllowDuplicateExtUserid = allow;
+	}
+
+    public void setMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
+		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
 	}
 
 	public void setEndWhenNoModerator(Boolean val) {
