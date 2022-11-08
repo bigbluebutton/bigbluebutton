@@ -260,8 +260,8 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-help',
           icon: 'popout_window',
           label: intl.formatMessage(intlMessages.openAppLabel),
-          onClick: () => mountModal(<MobileAppModal/>),
-        }
+          onClick: () => mountModal(<MobileAppModal />),
+         }
       );
     }
 
