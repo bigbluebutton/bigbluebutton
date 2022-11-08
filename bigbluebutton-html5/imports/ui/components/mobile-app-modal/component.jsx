@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import Styled from './styles';
 import Meetings from '/imports/api/meetings';
 
-const APP_CONFIG = Meteor.settings.public.app;
+const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
 
 const intlMessages = defineMessages({
   title: {
@@ -116,7 +116,7 @@ class MobileAppModal extends Component {
               color="primary"
               disabled={url === ''}
               label={intl.formatMessage(intlMessages.openApp)}
-              onClick={() => window.open(`${APP_CONFIG.iosAppUrlScheme}://${meetingName}/${url}`, '_blank')}
+              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${meetingName}/${url}`, '_blank')}
               role="button"
               size="lg"
             />
@@ -124,13 +124,13 @@ class MobileAppModal extends Component {
           </Styled.ButtonContainer>
 
           {
-            APP_CONFIG.iosAppStoreUrl === '' ? null
+            BBB_TABLET_APP_CONFIG.iosAppStoreUrl === '' ? null
               : (
                 <Styled.ButtonContainer>
                   <Button
                     color="default"
                     label={intl.formatMessage(intlMessages.openStore)}
-                    onClick={() => window.open(`${APP_CONFIG.iosAppStoreUrl}`, '_blank')}
+                    onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppStoreUrl}`, '_blank')}
                     role="button"
                     size="lg"
                   />
