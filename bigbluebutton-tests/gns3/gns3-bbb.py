@@ -125,6 +125,26 @@ def file(fn):
 #def add_step_to_runcmd(user_data, stepname):
 #    user_data['runcmd'].extend([i['run'] for i in automated_tests['jobs']['build-install-and-test']['steps'] if i.get('name', '') == stepname])
 
+# Check if our SSL root Certificate Authority key and certificate are available, create them if not
+
+ssl_root_key_fn = os.path.join(__location__, 'bbb-dev-ca.key')
+ssl_root_crt_fn = os.path.join(__location__, 'bbb-dev-ca.crt')
+try:
+    with open(ssl_root_key_fn) as f:
+        ssl_root_key = f.read()
+except:
+    subprocess.run(f'openssl genrsa -out {ssl_root_key_fn} 2048'.split())
+    with open(ssl_root_key_fn) as f:
+        ssl_root_key = f.read()
+
+try:
+    with open(ssl_root_crt_fn) as f:
+        ssl_root_crt = f.read()
+except:
+    subprocess.run(f'openssl req -x509 -new -nodes -key {ssl_root_key_fn} -sha256 -days 1460 -out {ssl_root_crt_fn} -subj /C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV'.split())
+    with open(ssl_root_crt_fn) as f:
+        ssl_root_crt = f.read()
+
 # Open the GNS3 server
 
 gns3_server, gns3_project = gns3.open_project_with_standard_options(args)
@@ -295,10 +315,6 @@ server {{
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
                  'write_files': [
-                     {'path': '/opt/ca/generateCA.sh',
-                      'permissions': '0755',
-                      'content': file('generateCA.sh')
-                     },
                      {'path': '/etc/dhcp/dhcpd.conf',
                       'permissions': '0644',
                       'content': dhcpd_conf
@@ -323,13 +339,28 @@ server {{
                       'permissions': '0755',
                       'content': json.dumps(ca)
                      },
+                     {'path': '/opt/ca/bbb-dev-ca.key',
+                      'permissions': '0400',
+                      'content': ssl_root_key
+                     },
+                     {'path': '/opt/ca/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
+                     # /var/www/html/bbb-dev-ca.crt should no longer be used for anything
+                     {'path': '/var/www/html/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
                  ],
                  'runcmd': [
                      # configure coturn to listen on 19302, like stun.l.google.com
                      f'echo aux-server={master_gateway_address}:19302 >> /etc/turnserver.conf',
                      'systemctl restart coturn',
-                     # initialize the SSL certificate authority, if needed
-                     '/opt/ca/generateCA.sh',
                      # add CA root certificate from /usr/local/share/ca-certificates
                      'update-ca-certificates',
                      # now everything we need to operate a certificate authority
@@ -363,24 +394,6 @@ server {{
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}
 
-    # If we have a key and certificate for the certificate authority, copy them into /ca
-    #
-    # Otherwise, the generateCA.sh script will generate them when the instance boots.
-
-    try:
-        for fn in ('bbb-dev-ca.key',):
-            with open(os.path.join(__location__, fn)) as f:
-                content = f.read()
-                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0400', 'content': content})
-        for fn in ('bbb-dev-ca.crt',):
-            with open(os.path.join(__location__, fn)) as f:
-                content = f.read()
-                user_data['write_files'].append({'path': f'/usr/local/share/ca-certificates/{fn}', 'permissions': '0444', 'content': content})
-                user_data['write_files'].append({'path': f'/var/www/html/{fn}', 'permissions': '0444', 'content': content})
-                user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': content})
-    except Exception as ex:
-        print(ex)
-
     # If the system we're running on is configured to use an apt proxy, use it for the NAT instance as well.
     #
     # This will break things if the instance can't reach the proxy.
@@ -412,9 +425,13 @@ def turn_server(hostname, x=0, y=0):
                             'shell': '/bin/bash',
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
+                 'write_files': [
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
+                 ],
                  'runcmd': [
-                     'mkdir -p /usr/local/share/ca-certificates/',
-                     'wget --directory-prefix=/usr/local/share/ca-certificates/ http://128.8.8.1/bbb-dev-ca.crt',
                      'update-ca-certificates',
                      f'wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -c {hostname}.{args.domain}:secret -e root@{hostname}.{args.domain}',
                  ]
@@ -461,8 +478,15 @@ def BBB_client(hostname, x=0, y=0):
                       'permissions': '0755',
                       'content': file('testclient.sh')
                      },
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
                  ],
-                 'runcmd': ['su ubuntu -c /home/ubuntu/testclient.sh'],
+                 'runcmd': [
+                     'update-ca-certificates',
+                     'su ubuntu -c /home/ubuntu/testclient.sh',
+                 ],
     }
 
     # If the system we're running on is configured to use an apt proxy, use it for the clients as well.
@@ -558,8 +582,13 @@ dhcp-option = option:domain-search,{args.domain}
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
                  ],
                  'runcmd': [
+                     'update-ca-certificates',
                      # enable packet forwarding
                      'sysctl net.ipv4.ip_forward=1',
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
@@ -636,6 +665,10 @@ dhcp-option = option:domain-search,{args.domain}
                       'permissions': '0644',
                       'content': dnsmasq_conf
                      },
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': ssl_root_crt
+                     },
                      # Our NAT configuration tunnels port 22 through to the BigBlueButton server
                      # Use port 2222 for ssh connections to the server's NAT gateway
                      {'path': '/etc/ssh/sshd_config.d/port.conf',
@@ -644,6 +677,7 @@ dhcp-option = option:domain-search,{args.domain}
                      },
                  ],
                  'runcmd': [
+                     'update-ca-certificates',
                      # enable packet forwarding
                      'sysctl net.ipv4.ip_forward=1',
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
@@ -709,9 +743,9 @@ def BBB_server_standalone(hostname, x=100, y=300):
                       'permissions': '0755',
                       'content': file('testserver.sh')
                      },
-                     {'path': '/usr/local/share/ca-certificates/bbb-dev-ca.crt',
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
                       'permissions': '0444',
-                      'content': file('bbb-dev-ca.crt')
+                      'content': ssl_root_crt
                      },
                  ],
                  'runcmd': [

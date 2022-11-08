@@ -17,12 +17,6 @@ export BBB_URL=https://bbb-ci.test/bigbluebutton/api
 export BBB_SECRET=bbbci
 EOF
 
-# Get the custom CA certificate from the server and install it.
-
-sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
-sudo wget --directory-prefix=/usr/local/share/ca-certificates/bbb-dev/ http://ca.test/bbb-dev-ca.crt
-sudo update-ca-certificates
-
 # Which version of the repository should we use for the client test cases
 
 BRANCH=v2.5.x-release
@@ -91,7 +85,11 @@ sudo DEBIAN_FRONTEND=noninteractive apt -y install chromium-browser libnss3-tool
 
 # chromium snap - we now need to install nssdb in ~/snap/chromium/2051/.pki instead of ~/.pki
 # NSSDB=/home/ubuntu/.pki/nssdb
-NSSDB=/home/ubuntu/snap/chromium/$(curl -s --unix-socket /run/snapd.socket http://localhost/v2/snaps?snaps=chromium | jq -r .result[0].revision)/.pki/nssdb
-mkdir --parents $NSSDB
-certutil -d sql:$NSSDB -N --empty-password
-certutil -d sql:$NSSDB -A -t 'C,,' -n bbb-dev-ca -i /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+for CHROMIUM_SNAP in $(find /home/ubuntu/snap/chromium/ -mindepth 1 -maxdepth 1 -type d); do
+    NSSDB=$CHROMIUM_SNAP/.pki/nssdb
+    if [ ! -r $NSSDB ]; then
+	mkdir --parents $NSSDB
+	certutil -d sql:$NSSDB -N --empty-password
+    fi
+    certutil -d sql:$NSSDB -A -t 'C,,' -n bbb-dev-ca -i /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+done
