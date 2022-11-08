@@ -604,7 +604,7 @@ dhcp-range={first_dhcp_address},{last_dhcp_address},2m
 # Otherwise, the IP address change around on reboots, and BBB doesn't like that.
 # dhcp-sequential-ip
 dhcp-authoritative
-# tell the test clients to search args.domain
+# tell the test servers to search args.domain
 dhcp-option = option:domain-search,{args.domain}
 """
 
@@ -706,8 +706,16 @@ def BBB_server_standalone(hostname, x=100, y=300):
                       'permissions': '0755',
                       'content': file('testserver.sh')
                      },
+                     {'path': '/usr/local/share/ca-certificates/bbb-dev-ca.crt',
+                      'permissions': '0444',
+                      'content': file('bbb-dev-ca.crt')
+                     },
                  ],
-                 'runcmd': ['su ubuntu -c /testserver.sh']
+                 'runcmd': [
+                     # add CA root certificate from /usr/local/share/ca-certificates
+                     'update-ca-certificates',
+                     'su ubuntu -c /testserver.sh',
+                 ],
     }
 
     if notification_url:

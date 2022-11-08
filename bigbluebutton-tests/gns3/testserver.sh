@@ -13,20 +13,11 @@ sudo systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive apt -y upgrade
 
-cd /home/ubuntu
-
 DOMAIN=$(hostname --domain)
 FQDN=$(hostname --fqdn)
-CA=128.8.8.1
 RELEASE=$(hostname)
 
 EMAIL="root@$FQDN"
-
-# Get the custom CA certificate from the server and install it.
-
-sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
-sudo wget --directory-prefix=/usr/local/share/ca-certificates/bbb-dev/ http://$CA/bbb-dev-ca.crt
-sudo update-ca-certificates
 
 # Currently assumes that hostname is the same as the release name
 #
