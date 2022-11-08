@@ -240,7 +240,7 @@ subnet {str(public_subnet.network_address)} netmask {str(public_subnet.netmask)}
 	"crt": "/opt/ca/bbb-dev-ca.crt",
 	"key": "/opt/ca/bbb-dev-ca.key",
 	"address": ":8000",
-	"dnsNames": [ acme_server ],
+	"dnsNames": [ acme_server, hostname, f'{hostname}.{args.domain}', 'localhost' ],
 	"logger": {
 	    "format": "text"
 	},
@@ -330,20 +330,22 @@ server {{
                      'systemctl restart coturn',
                      # initialize the SSL certificate authority, if needed
                      '/opt/ca/generateCA.sh',
+                     # add CA root certificate from /usr/local/share/ca-certificates
+                     'update-ca-certificates',
                      # now everything we need to operate a certificate authority
                      "wget -q https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.21.0/step-ca_0.21.0_amd64.deb",
                      "dpkg -i step-ca_0.21.0_amd64.deb",
                      "rm step-ca_0.21.0_amd64.deb",
                      # putting {acme_server} in dnsmasq as a cname isn't enough,
-                     # because the local step-ca server doesn't do hostname lookups using dnsmasq
+                     # because the local step-ca server doesn't do hostname lookups using dnsmasq,
+                     # and it will contact {acme_server} to do verification for certbot below
                      f'echo {master_gateway_address} {acme_server} >> /etc/hosts',
                      "systemctl start step-ca",
                      "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
                      # stop nginx because we need port 80 available for certbot
                      "systemctl stop nginx",
-                     # get a certificate for nginx without ssl verification, both because we didn't install root cert,
-                     # and because we're not talking to localhost as {acme_server}
-                     f"certbot --server https://localhost:8000/acme/acme/directory --no-verify-ssl certonly --standalone --non-interactive --agree-tos -d {acme_server} -m root@localhost",
+                     # get a certificate for nginx
+                     f"certbot --server https://localhost:8000/acme/acme/directory certonly --standalone --non-interactive --agree-tos -d {acme_server} -m root@localhost",
                      # complete nginx ssl configuration and restart nginx
                      "mkdir -p /etc/nginx/ssl",
                      "openssl dhparam -dsaparam  -out /etc/nginx/ssl/dhp-4096.pem 4096",
@@ -373,6 +375,7 @@ server {{
         for fn in ('bbb-dev-ca.crt',):
             with open(os.path.join(__location__, fn)) as f:
                 content = f.read()
+                user_data['write_files'].append({'path': f'/usr/local/share/ca-certificates/{fn}', 'permissions': '0444', 'content': content})
                 user_data['write_files'].append({'path': f'/var/www/html/{fn}', 'permissions': '0444', 'content': content})
                 user_data['write_files'].append({'path': f'/opt/ca/{fn}', 'permissions': '0444', 'content': content})
     except Exception as ex:
