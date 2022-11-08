@@ -786,47 +786,51 @@ turn_node = turn_server('turn', x=-200, y=-200)
 gns3_project.link(turn_node, 0, PublicIP_switch)
 gns3_project.depends_on(turn_node, master)
 
-# NAT4: public subnet to carrier grade NAT subnet
-#
-# We put a switch on here to ensure that NAT6's interface will be up when it boots.
-# Otherwise, if the interface is down, it won't start its DHCP server (ever).
-#
-# NAT4, NAT5, and NAT6 are numbered to match the corresponding 'ens[456]'
-# interface names on 'testclient'.
-
-subnet = '100.64.1.1/24'
-nat4 = BBB_client_nat('NAT4', x=150, y=-200, nat_interface=subnet)
-gns3_project.link(nat4, 0, PublicIP_switch)
-nat4_switch = gns3_project.switch(subnet, x=350, y=-200)
-gns3_project.link(nat4, 1, nat4_switch)
-gns3_project.depends_on(nat4, master)
-
-# NAT5: public subnet to private client subnet, not overlapping server address space
-#
-# Put a switch on here for the same reason as NAT4.
-
-subnet = '192.168.128.1/24'
-nat5 = BBB_client_nat('NAT5', x=150, y=-100, nat_interface=subnet)
-gns3_project.link(nat5, 0, PublicIP_switch)
-nat5_switch = gns3_project.switch(subnet, x=350, y=-100)
-gns3_project.link(nat5, 1, nat5_switch)
-gns3_project.depends_on(nat5, master)
-
-# NAT6: public subnet to private client subnet, overlapping server address space
-#
-# Put a switch on here for the same reason as NAT4.
-
-subnet = '192.168.1.1/24'
-nat6 = BBB_client_nat('NAT6', x=150, y=0, nat_interface=subnet)
-gns3_project.link(nat6, 0, PublicIP_switch)
-nat6_switch = gns3_project.switch(subnet, x=350, y=0)
-gns3_project.link(nat6, 1, nat6_switch)
-gns3_project.depends_on(nat6, master)
-
 # The BigBlueButton servers and/or test clients
 
 for v in args.version:
     if v.startswith('testclient'):
+        # Create client NAT gateways first
+        # Remember, they won't be created if they already exist
+        #
+        # NAT4: public subnet to carrier grade NAT subnet
+        #
+        # We put a switch on here to ensure that NAT6's interface will be up when it boots.
+        # Otherwise, if the interface is down, it won't start its DHCP server (ever).
+        #
+        # NAT4, NAT5, and NAT6 are numbered to match the corresponding 'ens[456]'
+        # interface names on 'testclient'.
+
+        subnet = '100.64.1.1/24'
+        nat4 = BBB_client_nat('NAT4', x=150, y=-200, nat_interface=subnet)
+        gns3_project.link(nat4, 0, PublicIP_switch)
+        nat4_switch = gns3_project.switch(subnet, x=350, y=-200)
+        gns3_project.link(nat4, 1, nat4_switch)
+        gns3_project.depends_on(nat4, master)
+
+        # NAT5: public subnet to private client subnet, not overlapping server address space
+        #
+        # Put a switch on here for the same reason as NAT4.
+
+        subnet = '192.168.128.1/24'
+        nat5 = BBB_client_nat('NAT5', x=150, y=-100, nat_interface=subnet)
+        gns3_project.link(nat5, 0, PublicIP_switch)
+        nat5_switch = gns3_project.switch(subnet, x=350, y=-100)
+        gns3_project.link(nat5, 1, nat5_switch)
+        gns3_project.depends_on(nat5, master)
+
+        # NAT6: public subnet to private client subnet, overlapping server address space
+        #
+        # Put a switch on here for the same reason as NAT4.
+
+        subnet = '192.168.1.1/24'
+        nat6 = BBB_client_nat('NAT6', x=150, y=0, nat_interface=subnet)
+        gns3_project.link(nat6, 0, PublicIP_switch)
+        nat6_switch = gns3_project.switch(subnet, x=350, y=0)
+        gns3_project.link(nat6, 1, nat6_switch)
+        gns3_project.depends_on(nat6, master)
+
+        # Create actual test client, now
         # find an unoccupied y coordinate on the GUI
         for y in (-200, -100, 0, 100, 200):
             try:
