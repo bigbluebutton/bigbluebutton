@@ -25,7 +25,7 @@ const propTypes = {
 const defaultProps = {
   shouldCloseOnOverlayClick: true,
   shouldShowCloseButton: true,
-  overlayClassName: "modalOverlay",
+  overlayClassName: 'modalOverlay',
 };
 
 class ModalSimple extends Component {
@@ -73,6 +73,7 @@ class ModalSimple extends Component {
         }
       }
     }
+
     return (
       <Styled.SimpleModal
         isOpen={modalisOpen}
@@ -80,26 +81,26 @@ class ModalSimple extends Component {
         onRequestClose={handleRequestClose}
         contentLabel={title || contentLabel}
         data={{
-          test: dataTest ?? null
+          test: dataTest ?? null,
         }}
         {...otherProps}
       >
         {shouldShowCloseButton || title ? (
-        <Styled.Header hideBorder={hideBorder}>
-          <Styled.Title hasLeftMargin={shouldShowCloseButton}>{title}</Styled.Title>
-          {shouldShowCloseButton ? (
-            <Styled.DismissButton
-              label={intl.formatMessage(intlMessages.modalClose)}
-              aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`}
-              data-test="closeModal"
-              icon="close"
-              circle
-              hideLabel
-              onClick={handleRequestClose}
-              aria-describedby="modalDismissDescription"
-            />
-          ) : null}
-        </Styled.Header>
+          <Styled.Header hideBorder={hideBorder}>
+            <Styled.Title hasLeftMargin={shouldShowCloseButton}>{title}</Styled.Title>
+            {shouldShowCloseButton ? (
+              <Styled.DismissButton
+                label={intl.formatMessage(intlMessages.modalClose)}
+                aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`}
+                data-test="closeModal"
+                icon="close"
+                circle
+                hideLabel
+                onClick={handleRequestClose}
+                aria-describedby="modalDismissDescription"
+              />
+            ) : null}
+          </Styled.Header>
         ) : null}
         <Styled.Content>
           {this.props.children}

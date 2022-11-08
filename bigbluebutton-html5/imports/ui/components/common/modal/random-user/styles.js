@@ -21,7 +21,7 @@ const ModalViewContainer = styled.div`
 `;
 
 const ModalViewTitle = styled.div`
-  font-weight: 400;
+  font-weight: ${headingsFontWeight};
   font-size: ${fontSizeLarge};
   margin-bottom: ${mdPaddingX};
 `;
@@ -41,7 +41,7 @@ const ModalAvatar = styled.div`
 `;
 
 const SelectedUserName = styled.div`
-  margin-bottom: ${mdPaddingX};;
+  margin-bottom: ${mdPaddingX};
   font-weight: ${headingsFontWeight};
   font-size: 2rem;
   white-space: nowrap;

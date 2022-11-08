@@ -4,6 +4,8 @@ import {
   borderSize,
   borderRadius,
   smPaddingY,
+  jumboPaddingY,
+  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
@@ -12,7 +14,11 @@ import {
   colorBlueLight,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeSmall,
+  headingsFontWeight,
+  fontSizeLarger,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -39,9 +45,11 @@ const Header = styled.header`
 
 const Title = styled.h3`
   text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
+  font-weight: ${headingsFontWeight};
+  font-size: ${fontSizeLarger};
   white-space: normal;
+  margin: 0;
+  margin-bottom: ${mdPaddingX};
 
   @media ${smallOnly} {
     font-size: 1rem;
@@ -116,7 +124,7 @@ const StartButton = styled(Button)`
   margin: 0;
   display: block;
   position: absolute;
-  bottom: 20px;
+  bottom: ${mdPaddingX};
 `;
 
 export default {

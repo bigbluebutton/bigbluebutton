@@ -3,10 +3,8 @@ import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import {
   smPaddingX,
-  smPaddingY,
-  lgPaddingX,
+  mdPaddingX,
   lgPaddingY,
-  descriptionMargin,
   titlePositionLeft,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -20,7 +18,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 
 const ConfirmationModal = styled(Modal)`
-  padding: ${smPaddingY};
+  padding: ${mdPaddingX};
 `;
 
 const Container = styled.div`
@@ -29,9 +27,7 @@ const Container = styled.div`
   flex-direction: column;
   padding: 0;
   margin-top: 0;
-  margin-right: ${descriptionMargin};
-  margin-left: ${descriptionMargin};
-  margin-bottom: ${lgPaddingX};
+  margin: auto;
 `;
 
 const Header = styled.div`
@@ -63,14 +59,16 @@ const Checkbox = styled.input`
   position: relative;
   top: 0.134rem;
   margin-right: 0.5rem;
+
   [dir="rtl"] & {
-      margin-right: 0;
-      margin-left: 0.5rem;
+    margin-right: 0;
+    margin-left: 0.5rem;
   }
 `;
 
 const Footer = styled.div`
   display:flex;
+  margin-bottom: ${lgPaddingY};
 `;
 
 const ConfirmationButton = styled(Button)`
@@ -81,6 +79,10 @@ const ConfirmationButton = styled(Button)`
   [dir="rtl"] & {
     margin: 0 0 0 ${smPaddingX};
   }
+`;
+
+const CancelButton = styled(ConfirmationButton)`
+  margin: 0;
 `;
 
 const Label = styled.label`
@@ -97,5 +99,6 @@ export default {
   Checkbox,
   Footer,
   ConfirmationButton,
+  CancelButton,
   Label,
 };

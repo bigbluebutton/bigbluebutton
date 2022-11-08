@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  borderSize,
+  borderSizeLarge,
+  mdPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorLink,
@@ -23,6 +27,7 @@ const Header = styled.header`
   padding: 0;
   border: none;
   line-height: 2rem;
+  margin-bottom: ${mdPaddingX};
 `;
 
 const Title = styled(HeaderElipsis)`
@@ -53,7 +58,7 @@ const StartBtn = styled(Button)`
   margin: 0;
   display: block;
   position: absolute;
-  bottom: 20px;
+  bottom: ${mdPaddingX};
   color: ${colorWhite} !important;
   background-color: ${colorLink} !important;
 

@@ -99,7 +99,7 @@ class ConfirmationModal extends Component {
                 mountModal(null);
               }}
             />
-            <Styled.ConfirmationButton
+            <Styled.CancelButton
               label={intl.formatMessage(messages.noLabel)}
               onClick={() => mountModal(null)}
             />

@@ -1,10 +1,14 @@
 import styled from 'styled-components';
 import Styled from '../base/styles';
 import Button from '/imports/ui/components/common/button/component';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  borderSize,
+  mdPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,
   fontSizeLarge,
+  headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorWhite,
@@ -18,7 +22,7 @@ const SimpleModal = styled(Styled.BaseModal)`
   outline-style: solid;
   display: flex;
   flex-direction: column;
-  padding: calc(${lineHeightComputed} / 2) ${lineHeightComputed};
+  padding: ${mdPaddingX};
   box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
   background-color: ${colorWhite} !important;
 `;
@@ -41,7 +45,7 @@ const Title = styled.h1`
   text-overflow: ellipsis;
   flex: 1;
   margin: 0;
-  font-weight: 400;
+  font-weight: ${headingsFontWeight};
   font-size: ${fontSizeLarge};
   text-align: center;
   align-self: flex-end;

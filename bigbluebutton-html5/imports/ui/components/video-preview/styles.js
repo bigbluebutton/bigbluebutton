@@ -13,6 +13,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
+  fontSizeLarger,
   lineHeightComputed,
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
@@ -118,8 +119,9 @@ const BrowserWarning = styled.p`
 const Title = styled.div`
   display: block;
   color: ${colorGrayDark};
-  font-size: 1.4rem;
+  font-size: ${fontSizeLarger};
   text-align: center;
+  font-weight: ${headingsFontWeight};
 `;
 
 const Footer = styled.div`
