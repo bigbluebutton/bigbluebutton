@@ -16,7 +16,7 @@ const isValidSafariVersion = Bowser.getParser(userAgent).satisfies({
   safari: '>12',
 });
 
-const isMobileApp =  !!(userAgent.match(/BBBMobile/i));
+const isTabletApp =  !!(userAgent.match(/BigBlueButton-Tablet/i));
 
 const browserInfo = {
   isChrome,
@@ -27,7 +27,7 @@ const browserInfo = {
   browserName,
   versionNumber,
   isValidSafariVersion,
-  isMobileApp
+  isTabletApp
 };
 
 export default browserInfo;
