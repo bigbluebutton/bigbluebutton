@@ -476,9 +476,18 @@ class VideoPreview extends Component {
   }
 
   handleStartSharing() {
-    const { resolve, startSharing } = this.props;
-    const { webcamDeviceId, brightness } = this.state;
-    // Only streams that will be shared should be stored in the service.  // If the store call returns false, we're duplicating stuff. So clean this one
+    const {
+      resolve,
+      startSharing,
+    } = this.props;
+    const {
+      webcamDeviceId,
+      selectedProfile,
+      brightness,
+    } = this.state;
+
+    // Only streams that will be shared should be stored in the service.
+    // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
     if(!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
       this.currentVideoStream.stop();
@@ -494,6 +503,8 @@ class VideoPreview extends Component {
 
     this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
+    PreviewService.changeProfile(selectedProfile);
+    PreviewService.changeWebcam(webcamDeviceId);
     startSharing(webcamDeviceId);
     if (resolve) resolve();
   }
@@ -617,7 +628,6 @@ class VideoPreview extends Component {
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });
-    PreviewService.changeWebcam(actualDeviceId);
   }
 
   getInitialCameraStream(deviceId) {
@@ -637,7 +647,6 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
 
-    PreviewService.changeProfile(profile.id);
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
