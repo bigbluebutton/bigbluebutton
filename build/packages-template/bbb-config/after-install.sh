@@ -130,7 +130,7 @@ if [ -d /var/mediasoup/screenshare ]; then
 fi
 
 sed -i 's/worker_connections 768/worker_connections 4000/g' /etc/nginx/nginx.conf
-sed -i '/include \/etc\/nginx\/conf\.d\/\*\.conf\;/ a \\tlimit_conn_zone $uri zone=ws_zone:5m;' /etc/nginx/nginx.conf
+echo 'limit_conn_zone $uri zone=ws_zone:5m;' | tee /etc/nginx/conf.d/html5-conn-limit.conf
 if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
   num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*')
   if [[ "$num" -lt 10000 ]]; then
