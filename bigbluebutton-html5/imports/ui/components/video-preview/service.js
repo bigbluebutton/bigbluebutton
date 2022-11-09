@@ -225,7 +225,7 @@ export default {
   changeWebcam: (deviceId) => {
     BBBStorage.setItem('WebcamDeviceId', deviceId);
   },
-  webcamDeviceId: () => Storage.getItem('WebcamDeviceId'),
+  webcamDeviceId: () => BBBStorage.getItem('WebcamDeviceId'),
   changeProfile: (profileId) => {
     BBBStorage.setItem('WebcamProfileId', profileId);
   },
