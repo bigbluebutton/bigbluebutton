@@ -131,8 +131,8 @@ const getVolume = () => KurentoBridge.getVolume();
 const shouldEnableVolumeControl = () => VOLUME_CONTROL_ENABLED && screenshareHasAudio();
 
 const attachLocalPreviewStream = (mediaElement) => {
-  const {isMobileApp} = browserInfo;
-  if (isMobileApp) {
+  const {isTabletApp} = browserInfo;
+  if (isTabletApp) {
     // We don't show preview for mobile app, as the stream is only available in native code
     return;
   }
