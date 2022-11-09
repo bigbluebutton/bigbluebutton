@@ -1,5 +1,8 @@
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
+import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
+
 (function (){
     // This function must be executed during the import time, that's why it's not exported to the caller component.
     // It's needed because it changes some functions provided by browser, and these functions are verified during
@@ -32,7 +35,7 @@ import logger from '/imports/startup/client/logger';
 
             // addTransceiver is the first call for screensharing and it has a startScreensharing in its stackTrace
             if( peerConnection.detectWebRtcCallTypeEvaluations == 1) {
-                if(caller == 'addTransceiver' && stackTrace.indexOf('startScreensharing') !== -1) {
+                if(caller == 'addEventListener' && stackTrace.indexOf('startScreensharing') !== -1) {
                     peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_SCREEN_SHARE; // this uses mobile app broadcast upload extension
                 } else if(caller == 'addEventListener' && stackTrace.indexOf('invite') !== -1) {
                     peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_FULL_AUDIO; // this uses mobile app webRTC
@@ -131,7 +134,7 @@ import logger from '/imports/startup/client/logger';
         const prototype = window.RTCPeerConnection.prototype;
 
         prototype.originalCreateOffer = prototype.createOffer;
-        prototype.createOffer = function (options) {
+        prototype.createOffer = async function (options) {
             const webRtcCallType = detectWebRtcCallType('createOffer', this);
 
             if(webRtcCallType === WEBRTC_CALL_TYPE_STANDARD){
@@ -139,10 +142,12 @@ import logger from '/imports/startup/client/logger';
             }
             logger.info(`BBB-MOBILE - createOffer called`, {options});
 
+            const stunTurn = await fetchStunTurnServers(Auth._authToken);
+
             const createOfferMethod = (webRtcCallType === WEBRTC_CALL_TYPE_SCREEN_SHARE) ? 'createScreenShareOffer' : 'createFullAudioOffer';
 
-            return new Promise( (resolve, reject) => {
-                callNativeMethod(createOfferMethod).then ( sdp => {
+            return await new Promise( (resolve, reject) => {
+                callNativeMethod(createOfferMethod, [stunTurn]).then ( sdp => {
                     logger.info(`BBB-MOBILE - createOffer resolved`, {sdp});
 
                     // send offer to BBB code
