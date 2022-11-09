@@ -33,7 +33,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             const stackTrace = e.stack;
             logger.info(`BBB-MOBILE - detectWebRtcCallType (evaluating)`, {caller, peerConnection, stackTrace: stackTrace.split('\n'), detectWebRtcCallTypeEvaluations: peerConnection.detectWebRtcCallTypeEvaluations, args});
 
-            // addTransceiver is the first call for screensharing and it has a startScreensharing in its stackTrace
+            // addEventListener is the first call for screensharing and it has a startScreensharing in its stackTrace
             if( peerConnection.detectWebRtcCallTypeEvaluations == 1) {
                 if(caller == 'addEventListener' && stackTrace.indexOf('startScreensharing') !== -1) {
                     peerConnection.webRtcCallType = WEBRTC_CALL_TYPE_SCREEN_SHARE; // this uses mobile app broadcast upload extension
