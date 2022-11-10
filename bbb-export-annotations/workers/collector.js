@@ -117,7 +117,7 @@ async function sleep(ms) {
 /** Export shared notes via bbb-pads in the desired format
  * @param {Integer} retries - Number of retries to get the shared notes
 */
-async function collectSharedNotes(retries = 1) {
+async function collectSharedNotes(retries = 3) {
   /** One of the following formats is supported:
     etherpad / html / pdf / txt / doc / odf */
 
@@ -158,6 +158,6 @@ async function collectSharedNotes(retries = 1) {
 switch (exportJob.jobType) {
   case 'PresentationWithAnnotationExportJob': return collectAnnotationsFromRedis();
   case 'PresentationWithAnnotationDownloadJob': return collectAnnotationsFromRedis();
-  case 'PadCaptureJob': return collectSharedNotes(3);
+  case 'PadCaptureJob': return collectSharedNotes();
   default: return logger.error(`Unknown job type ${exportJob.jobType}`);
 }
