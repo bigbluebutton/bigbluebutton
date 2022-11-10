@@ -83,7 +83,7 @@ class Tooltip extends Component {
 
   componentDidUpdate() {
     const { animations } = Settings.application;
-    const { title, fullscreen } = this.props;
+    const { title } = this.props;
     const elements = document.querySelectorAll('[id^="tippy-"]');
 
     Array.from(elements).filter((e) => {
@@ -107,7 +107,7 @@ class Tooltip extends Component {
     });
 
     const elem = document.getElementById(this.tippySelectorId);
-    const opts = { content: title, appendTo: fullscreen || document.body };
+    const opts = { content: title, appendTo: document.body };
     if (elem && elem._tippy) elem._tippy.setProps(opts);
   }
 
