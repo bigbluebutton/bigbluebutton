@@ -12,7 +12,7 @@ import Modal from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
 const GuestPolicyModal = styled(Modal)`
-  padding: ${jumboPaddingY};
+  padding: 1rem;
 `;
 
 const Container = styled.div`

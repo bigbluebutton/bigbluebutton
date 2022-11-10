@@ -124,6 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
         <property name="securitySalt" value="${securitySalt}"/>
+        <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
     </bean>
 
@@ -136,6 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="apiVersion" value="${apiVersion}"/>
         <property name="serviceEnabled" value="${serviceEnabled}"/>
         <property name="securitySalt" value="${securitySalt}"/>
+        <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
         <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
         <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
         <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
@@ -188,7 +190,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
-        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
+        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid:true}"/>
+        <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
         <property name="disabledFeatures" value="${disabledFeatures}"/>

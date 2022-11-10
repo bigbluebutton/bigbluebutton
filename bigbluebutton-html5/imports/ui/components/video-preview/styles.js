@@ -128,7 +128,7 @@ const Footer = styled.div`
 
 const Actions = styled.div`
   margin-left: auto;
-  margin-right: ${borderSizeLarge};
+  margin-right: auto;
 
   [dir="rtl"] & {
     margin-right: auto;

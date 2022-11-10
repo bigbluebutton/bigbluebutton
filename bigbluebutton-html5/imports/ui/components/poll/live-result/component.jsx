@@ -81,7 +81,7 @@ class LiveResult extends PureComponent {
           if (response) {
             const formattedAnswers = [];
             response.answerIds.forEach((answerId) => {
-              const formattedMessageIndex = answers[answerId].key.toLowerCase();
+              const formattedMessageIndex = answers[answerId]?.key?.toLowerCase();
               const formattedAnswer = defaultPoll && pollAnswerIds[formattedMessageIndex]
                 ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
                 : answers[answerId].key;
@@ -115,7 +115,7 @@ class LiveResult extends PureComponent {
     const pollStats = [];
 
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
-      const formattedMessageIndex = obj.key.toLowerCase();
+      const formattedMessageIndex = obj?.key?.toLowerCase();
       const pct = Math.round(obj.numVotes / numResponders * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
 

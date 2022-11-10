@@ -31,6 +31,7 @@ require 'yaml'
 require 'builder'
 require 'fastimage' # require fastimage to get the image size of the slides (gem install fastimage)
 require 'json'
+require "active_support"
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 bbb_props = BigBlueButton.read_props
@@ -607,12 +608,13 @@ def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide
   prev_shape = nil
   if shape_id
     # If we have a shape ID, look up the previous shape by ID
-    prev_shape_pos = shapes.rindex { |s| s[:shade_id] == shape_id }
+    prev_shape_pos = shapes.rindex { |s| s[:id] == shape_id }
     prev_shape = prev_shape_pos ? shapes[prev_shape_pos] : nil
   end
   if prev_shape
     prev_shape[:out] = timestamp
     shape[:shape_unique_id] = prev_shape[:shape_unique_id]
+    shape[:shape_data] = prev_shape[:shape_data].deep_merge(shape[:shape_data])
   else
     shape[:shape_unique_id] = @svg_shape_unique_id
     @svg_shape_unique_id += 1

@@ -42,7 +42,9 @@ public class Meeting {
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Boolean freeJoin = false;
-  private Integer duration = 0;
+	private Boolean captureSlides = false;
+	private Boolean captureNotes = false;
+  	private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -109,7 +111,7 @@ public class Meeting {
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
 
-	public final Boolean allowDuplicateExtUserid;
+	public final Integer maxUserConcurrentAccesses;
 
 	private String meetingEndedCallbackURL = "";
 
@@ -163,7 +165,7 @@ public class Meeting {
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
-        allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+		maxUserConcurrentAccesses = builder.maxUserConcurrentAccesses;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
@@ -195,6 +197,28 @@ public class Meeting {
 
 	public ConcurrentMap<String, User> getUsersMap() {
 	    return users;
+	}
+
+	public Integer countUniqueExtIds() {
+		List<String> uniqueExtIds = new ArrayList<String>();
+		for (User user : users.values()) {
+			if(!uniqueExtIds.contains(user.getExternalUserId())) {
+				uniqueExtIds.add(user.getExternalUserId());
+			}
+		}
+
+		return uniqueExtIds.size();
+	}
+
+	public List<String> getUsersWithExtId(String externalUserId) {
+		List<String> usersWithExtId = new ArrayList<String>();
+		for (User user : users.values()) {
+			if(user.getExternalUserId().equals(externalUserId)) {
+				usersWithExtId.add(user.getInternalUserId());
+			}
+		}
+
+		return usersWithExtId;
 	}
 
 	public void guestIsWaiting(String userId) {
@@ -287,6 +311,22 @@ public class Meeting {
     public void setFreeJoin(Boolean freeJoin) {
         this.freeJoin = freeJoin;
     }
+
+	public Boolean isCaptureSlides() {
+        return captureSlides;
+    }
+
+	public void setCaptureSlides(Boolean capture) {
+		this.captureSlides = captureSlides;
+	}
+	
+	public Boolean isCaptureNotes() {
+        return captureNotes;
+    }
+
+	public void setCaptureNotes(Boolean capture) {
+		this.captureNotes = captureNotes;
+	}
 
 	public Integer getDuration() {
 		return duration;
@@ -504,6 +544,10 @@ public class Meeting {
 		return maxUsers;
 	}
 
+	public Integer getMaxUserConcurrentAccesses() {
+		return maxUserConcurrentAccesses;
+	}
+
 	public int getLogoutTimer() {
 		return logoutTimer;
 	}
@@ -632,17 +676,6 @@ public class Meeting {
 	public User getUserById(String id){
 		return this.users.get(id);
 	}
-
-    public User getUserWithExternalId(String externalUserId) {
-        for (Map.Entry<String, User> entry : users.entrySet()) {
-            User u = entry.getValue();
-            if (u.getExternalUserId().equals(externalUserId)) {
-                return u;
-            }
-        }
-        return null;
-    }
-
 
 	public int getNumUsers(){
 		return this.users.size();
@@ -843,7 +876,8 @@ public class Meeting {
 		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
-		private Boolean allowDuplicateExtUserid;
+
+		private Integer maxUserConcurrentAccesses;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
@@ -1035,8 +1069,8 @@ public class Meeting {
     		return  this;
 		}
 
-		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
-    		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+		public Builder withMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
+    		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
     		return this;
 		}
 

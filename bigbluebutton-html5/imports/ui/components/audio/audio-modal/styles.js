@@ -94,7 +94,7 @@ const ConnectingAnimation = styled.span`
 `;
 
 const AudioModal = styled(Modal)`
-  padding: 1.5rem;
+  padding: 1rem;
   min-height: 20rem;
 `;
 

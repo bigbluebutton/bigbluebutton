@@ -3,6 +3,7 @@ const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
+const { expect } = require('@playwright/test');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -50,6 +51,93 @@ class Join extends Create {
 
     await breakoutUserPage.waitForSelector(e.talkingIndicator);
     await breakoutUserPage.hasElement(e.isTalking);
+  }
+
+  async messageToAllRooms() {
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.type(e.chatBox, "test");
+    await this.modPage.waitAndClick(e.sendButton);
+
+    await breakoutUserPage.hasElement(e.chatUserMessageText);
+  }
+
+  async changeDurationTime() {
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.openBreakoutTimeManager);
+    await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
+    await this.modPage.type(e.inputSetTimeSelector, '2');
+    await this.modPage.waitAndClick(e.sendButtonDurationTime);
+    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/);
+
+    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
+  }
+
+  async inviteUserAfterCreatingRooms() {
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
+    await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
+    await this.modPage.hasText(e.breakoutBox1, /Attendee/);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.hasElement(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+  }
+
+  async usernameShowsBelowRoomsName() {
+    const breakoutUserPage = await this.joinRoom();
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
+  }
+
+  async showBreakoutRoomTimeRemaining() {
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.openBreakoutTimeManager);
+    await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
+    await this.modPage.type(e.inputSetTimeSelector, '2');
+    await this.modPage.waitAndClick(e.sendButtonDurationTime);
+    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/);
+
+    await breakoutUserPage.hasText(e.timeRemaining,/[11-12]:[0-5][0-9]/);
+  }
+
+  async endAllBreakoutRooms() {
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.wasRemoved(e.breakoutRoomsItem);
+  }
+
+  async moveUserToOtherRoom() {
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/);
+
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+
+    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
+    await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox2);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.waitForSelector(e.modalConfirmButton);
+
+    await expect(breakoutUserPage.page.isClosed(), "Previous breakout room page did not close!").toBeTruthy();
+
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);
   }
 }
 
