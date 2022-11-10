@@ -206,7 +206,7 @@ exports.numberVotes = 'div[data-test="numberVotes"]';
 exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
 exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
-exports.smartSlides1 = 'presentation.pdf';
+exports.smartSlides1 = 'smartSlidesPresentation.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
 exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]>>nth=0';
 exports.checkboxInput = 'div[data-test="optionsAnswers"] > div';
