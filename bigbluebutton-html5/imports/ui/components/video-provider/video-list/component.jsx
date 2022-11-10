@@ -358,7 +358,7 @@ class VideoList extends Component {
             }}
             style={{
               width: `${optimalGrid.width}px`,
-              height: `${optimalGrid.height}px`,
+              maxHeight: `${optimalGrid.height}px`,
               gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
               gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
             }}
