@@ -10,7 +10,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 
@@ -284,7 +284,7 @@ class SettingsDropdown extends PureComponent {
     }
 
     if (allowedToEndMeeting && isMeteorConnected) {
-      const customStyles = { color: colorDanger };
+      const customStyles = { background: colorDanger, color: colorWhite };
 
       this.menuItems.push(
         {
