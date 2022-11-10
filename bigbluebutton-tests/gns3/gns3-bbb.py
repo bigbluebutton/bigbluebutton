@@ -374,6 +374,7 @@ server {{
                      # because the local step-ca server doesn't do hostname lookups using dnsmasq,
                      # and it will contact {acme_server} to do verification for certbot below
                      f'echo {master_gateway_address} {acme_server} >> /etc/hosts',
+                     "systemctl enable step-ca",
                      "systemctl start step-ca",
                      "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
                      # get a certificate for nginx
