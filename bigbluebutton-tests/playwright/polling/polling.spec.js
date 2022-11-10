@@ -64,7 +64,6 @@ test.describe.parallel('Polling', () => {
       await polling.initPages(page);
       await polling.smartSlidesQuestions();
     });
-    
   });
 
   test.describe.parallel('Results', () => {
