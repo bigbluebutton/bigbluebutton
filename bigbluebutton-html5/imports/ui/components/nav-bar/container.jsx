@@ -12,6 +12,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { PANELS } from '/imports/ui/components/layout/enums';
 
 const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
@@ -35,17 +36,19 @@ const NavBarContainer = ({ children, ...props }) => {
   const { users } = usingUsersContext;
   const { groupChat: groupChats } = usingGroupChatContext;
   const activeChats = userListService.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
-  const { ...rest } = props;
+  const { unread, ...rest } = props;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const navBar = layoutSelectOutput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
+  const sharedNotes = layoutSelectInput((i) => i.sharedNotes);
+  const { isPinned: notesIsPinned } = sharedNotes;
 
   const { sidebarContentPanel } = sidebarContent;
   const { sidebarNavPanel } = sidebarNavigation;
 
-  const hasUnreadNotes = NotesService.hasUnreadNotes(sidebarContentPanel);
+  const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
   const hasUnreadMessages = checkUnreadMessages(
     { groupChatsMessages, groupChats, users: users[Auth.meetingID] },
   );
@@ -83,6 +86,7 @@ const NavBarContainer = ({ children, ...props }) => {
 
 export default withTracker(() => {
   const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
+  const unread = NotesService.hasUnreadNotes();
 
   let meetingTitle, breakoutNum, breakoutName, meetingName;
   const meetingId = Auth.meetingID;
@@ -116,5 +120,6 @@ export default withTracker(() => {
     breakoutNum,
     breakoutName,
     meetingName,
+    unread,
   };
 })(NavBarContainer);

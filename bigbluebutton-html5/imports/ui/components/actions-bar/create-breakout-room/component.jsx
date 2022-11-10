@@ -10,7 +10,8 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
-import { importSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -87,6 +88,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.captureNotes',
     description: 'capture shared notes label',
   },
+  captureSlidesLabel: {
+    id: 'app.createBreakoutRoom.captureSlides',
+    description: 'capture slides label',
+  },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
     description: 'Room label',
@@ -155,6 +160,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.roomNameInputDesc',
     description: 'aria description for room name change',
   },
+  movedUserLabel: {
+    id: 'app.createBreakoutRoom.movedUserLabel',
+    description: 'screen reader alert when users are moved to rooms',
+  }
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -206,6 +215,7 @@ class BreakoutRoom extends PureComponent {
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
     this.setCaptureNotes = this.setCaptureNotes.bind(this);
+    this.setCaptureSlides = this.setCaptureSlides.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
     this.renderErrorMessages = this.renderErrorMessages.bind(this);
@@ -227,6 +237,7 @@ class BreakoutRoom extends PureComponent {
       roomNameEmptyIsValid: true,
       record: false,
       captureNotes: false,
+      captureSlides: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
     };
@@ -317,6 +328,7 @@ class BreakoutRoom extends PureComponent {
       users.forEach((u, index) => {
         if (`roomUserItem-${u.userId}` === document.activeElement.id) {
           users[index].room = text.substr(text.length - 1).includes(')') ? 0 : parseInt(roomNumber, 10);
+          this.changeUserRoom(u.userId, users[index].room);
         }
       });
     }
@@ -394,6 +406,7 @@ class BreakoutRoom extends PureComponent {
       freeJoin,
       record,
       captureNotes,
+      captureSlides,
       numberOfRoomsIsValid,
       numberOfRooms,
       durationTime,
@@ -438,7 +451,7 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
     }));
 
-    createBreakoutRoom(rooms, durationTime, record, captureNotes);
+    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides);
     Session.set('isUserListOpen', true);
   }
 
@@ -579,6 +592,10 @@ class BreakoutRoom extends PureComponent {
     this.setState({ captureNotes: e.target.checked });
   }
 
+  setCaptureSlides(e) {
+    this.setState({ captureSlides: e.target.checked });
+  }
+
   getUserByRoom(room) {
     const { users } = this.state;
     return users.filter((user) => user.room === room);
@@ -614,17 +631,24 @@ class BreakoutRoom extends PureComponent {
   }
 
   changeUserRoom(userId, room) {
+    const { intl } = this.props;
     const { users, freeJoin } = this.state;
 
     const idxUser = users.findIndex((user) => user.userId === userId.replace('roomUserItem-', ''));
 
     const usersCopy = [...users];
+    let userName = null;
 
-    if (idxUser >= 0) usersCopy[idxUser].room = room;
+    if (idxUser >= 0) {
+      usersCopy[idxUser].room = room;
+      userName = usersCopy[idxUser].userName;
+    };
 
     this.setState({
       users: usersCopy,
       leastOneUserIsValid: (this.getUserByRoom(0).length !== users.length || freeJoin),
+    }, () => {
+      addNewAlert(intl.formatMessage(intlMessages.movedUserLabel, { 0: userName, 1: room }))
     });
   }
 
@@ -995,12 +1019,15 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderCheckboxes() {
-    const { intl, isUpdate, isBreakoutRecordable } = this.props;
+    const {
+      intl, isUpdate, isBreakoutRecordable,
+    } = this.props;
     if (isUpdate) return null;
     const {
       freeJoin,
       record,
       captureNotes,
+      captureSlides,
     } = this.state;
     return (
       <Styled.CheckBoxesContainer key="breakout-checkboxes">
@@ -1031,7 +1058,23 @@ class BreakoutRoom extends PureComponent {
           ) : null
         }
         {
-          importSharedNotesFromBreakoutRoomsEnabled() ? (
+          isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() ? (
+            <Styled.FreeJoinLabel htmlFor="captureSlidesBreakoutCheckbox" key="capture-slides-breakouts">
+              <Styled.FreeJoinCheckbox
+                id="captureSlidesBreakoutCheckbox"
+                type="checkbox"
+                onChange={this.setCaptureSlides}
+                checked={captureSlides}
+                aria-label={intl.formatMessage(intlMessages.captureSlidesLabel)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.captureSlidesLabel)}
+              </span>
+            </Styled.FreeJoinLabel>
+          ) : null
+        }
+        {
+          isImportSharedNotesFromBreakoutRoomsEnabled() ? (
             <Styled.FreeJoinLabel htmlFor="captureNotesBreakoutCheckbox" key="capture-notes-breakouts">
               <Styled.FreeJoinCheckbox
                 id="captureNotesBreakoutCheckbox"

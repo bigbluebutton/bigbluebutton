@@ -146,6 +146,10 @@ const intlMessages = defineMessages({
   TIMEOUT: {
     id: 'app.presentationUploder.conversion.timeout',
   },
+  CONVERSION_TIMEOUT: {
+		id:'app.presentationUploder.conversion.conversionTimeout',
+		description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+	},
   GENERATING_THUMBNAIL: {
     id: 'app.presentationUploder.conversion.generatingThumbnail',
     description: 'indicatess that it is generating thumbnails',
@@ -1164,7 +1168,7 @@ class PresentationUploader extends Component {
         <Styled.UploaderModal id="upload-modal">
           <Styled.ModalInner>
             <Styled.ModalHeader>
-              <h1>{intl.formatMessage(intlMessages.title)}</h1>
+              <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
               <Styled.ActionWrapper>
                 <Styled.DismissButton
                   color="secondary"

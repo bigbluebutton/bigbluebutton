@@ -16,6 +16,7 @@ case class BreakoutRoom2x(
     startedOn:     Option[Long],
     started:       Boolean,
     captureNotes:  Boolean,
+    captureSlides: Boolean,
 ) {
 
 }

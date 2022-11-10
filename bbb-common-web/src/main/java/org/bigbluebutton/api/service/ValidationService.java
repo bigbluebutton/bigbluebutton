@@ -55,6 +55,7 @@ public class ValidationService {
     }
 
     private String securitySalt;
+    private String supportedChecksumAlgorithms;
     private Boolean allowRequestsWithoutSession;
 
     private ValidatorFactory validatorFactory;
@@ -265,6 +266,9 @@ public class ValidationService {
 
     public void setSecuritySalt(String securitySalt) { this.securitySalt = securitySalt; }
     public String getSecuritySalt() { return securitySalt; }
+
+    public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
+    public String getSupportedChecksumAlgorithms() { return supportedChecksumAlgorithms; }
 
     public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
         this.allowRequestsWithoutSession = allowRequestsWithoutSession;

@@ -64,6 +64,6 @@ export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
 }
 
-export function importSharedNotesFromBreakoutRoomsEnabled() {
+export function isImportSharedNotesFromBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('importSharedNotesFromBreakoutRooms') === -1;
 }

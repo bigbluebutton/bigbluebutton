@@ -105,6 +105,14 @@ case class SendMessageToBreakoutRoomInternalMsg(parentId: String, breakoutId: St
 case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String, extUserId: String, ejectedBy: String, reason: String, reasonCode: String, ban: Boolean) extends InMessage
 
 /**
+ * Sent by parent meeting to breakout room to import annotated slides.
+ * @param userId
+ * @param parentMeetingId
+ * @param allPages
+ */
+case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, allPages: Boolean = true) extends InMessage
+
+/**
  * Sent by parent meeting to breakout room to import shared notes.
  * @param parentMeetingId
  * @param meetingName

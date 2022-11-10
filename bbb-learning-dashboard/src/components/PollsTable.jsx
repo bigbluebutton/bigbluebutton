@@ -51,6 +51,44 @@ class PollsTable extends React.Component {
       );
     }
 
+    // Here we count each poll vote in order to find out the most common answer.
+    const pollVotesCount = Object.keys(polls || {}).reduce((prevPollVotesCount, pollId) => {
+      const currPollVotesCount = { ...prevPollVotesCount };
+      currPollVotesCount[pollId] = {};
+
+      if (polls[pollId].anonymous) {
+        polls[pollId].anonymousAnswers.forEach((answer) => {
+          const answerLowerCase = answer.toLowerCase();
+          if (currPollVotesCount[pollId][answerLowerCase] === undefined) {
+            currPollVotesCount[pollId][answerLowerCase] = 1;
+          } else {
+            currPollVotesCount[pollId][answerLowerCase] += 1;
+          }
+        });
+
+        return currPollVotesCount;
+      }
+
+      Object.values(allUsers).forEach((currUser) => {
+        if (currUser.answers[pollId] !== undefined) {
+          const userAnswers = Array.isArray(currUser.answers[pollId])
+            ? currUser.answers[pollId]
+            : [currUser.answers[pollId]];
+
+          userAnswers.forEach((answer) => {
+            const answerLowerCase = answer.toLowerCase();
+            if (currPollVotesCount[pollId][answerLowerCase] === undefined) {
+              currPollVotesCount[pollId][answerLowerCase] = 1;
+            } else {
+              currPollVotesCount[pollId][answerLowerCase] += 1;
+            }
+          });
+        }
+      });
+
+      return currPollVotesCount;
+    }, {});
+
     return (
       <table className="w-full">
         <thead>
@@ -104,7 +142,16 @@ class PollsTable extends React.Component {
                       .sort((a, b) => ((a.createdOn > b.createdOn) ? 1 : -1))
                       .map((poll) => (
                         <td className="px-4 py-3 text-sm text-center">
-                          { getUserAnswer(user, poll).map((answer) => <p>{answer}</p>) }
+                          { getUserAnswer(user, poll).map((answer) => {
+                            const answersSorted = Object
+                              .entries(pollVotesCount[poll?.pollId])
+                              .sort(([, countA], [, countB]) => countB - countA);
+                            const isMostCommonAnswer = (
+                              answersSorted[0]?.[0]?.toLowerCase() === answer?.toLowerCase()
+                              && answersSorted[0]?.[1] > 1
+                            );
+                            return <p className={isMostCommonAnswer ? 'font-bold' : ''}>{answer}</p>;
+                          }) }
                           { poll.anonymous
                             ? (
                               <span title={intl.formatMessage({

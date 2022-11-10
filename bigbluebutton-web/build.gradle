@@ -1,6 +1,6 @@
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
     mavenLocal()
     maven { url "https://repo1.maven.org/maven2" }
     maven { url "https://repo.grails.org/artifactory/core" }
@@ -45,7 +45,7 @@ task copyWebInf(type: Copy) {
 processResources.dependsOn copyWebInf
 
 repositories {
-  jcenter()
+  mavenCentral()
   mavenLocal()
   maven { url "https://repo1.maven.org/maven2" }
   maven { url "https://repo.grails.org/artifactory/core" }

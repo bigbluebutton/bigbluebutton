@@ -601,9 +601,17 @@ class AudioModal extends Component {
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
         <Styled.AudioModal
           onRequestClose={closeModal}
-          hideBorder
           data-test="audioModal"
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+          title={
+            !this.skipAudioOptions()
+              ? (
+                content
+                  ? intl.formatMessage(this.contents[content].title)
+                  : intl.formatMessage(intlMessages.audioChoiceLabel)
+              )
+              : null
+          }
         >
           {isIE ? (
             <Styled.BrowserWarning>
@@ -617,19 +625,6 @@ class AudioModal extends Component {
               />
             </Styled.BrowserWarning>
           ) : null}
-          {
-            !this.skipAudioOptions()
-              ? (
-                <Styled.Header>
-                  <Styled.Title>
-                    {content
-                      ? intl.formatMessage(this.contents[content].title)
-                      : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                  </Styled.Title>
-                </Styled.Header>
-              )
-              : null
-          }
           <Styled.Content>
             {this.renderContent()}
           </Styled.Content>

@@ -132,17 +132,19 @@ const SkipSlideSelect = styled.select`
   &:-moz-focusring {
     outline: none;
   }
-  
+
+  &:focus,
   &:hover {
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
+    background-color: #DCE4EC;
+    border-radius: 4px;
   }
 
   &:focus {
-    outline: transparent;
-    outline-width: ${borderSize};
     outline-style: solid;
+    box-shadow: 0 0 0 1px #cdd6e0 !important;
   }
 `;
 

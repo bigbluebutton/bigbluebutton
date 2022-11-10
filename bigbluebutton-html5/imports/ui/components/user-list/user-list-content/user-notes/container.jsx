@@ -18,5 +18,6 @@ export default lockContextContainer(withTracker(({ userLocks }) => {
   return {
     rev: PadsService.getRev(NotesService.ID),
     disableNotes: shouldDisableNotes,
+    isPinned: NotesService.isSharedNotesPinned(),
   };
 })(UserNotesContainer));

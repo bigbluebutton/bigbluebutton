@@ -254,6 +254,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || currentUser?.presenter);
@@ -298,8 +299,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowSharedNotes,
     shouldShowExternalVideo,
+    shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
