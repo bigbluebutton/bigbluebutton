@@ -224,6 +224,15 @@ class Page {
     const locator  = await this.page.locator(selector);
     await expect(locator).toHaveValue(value);
   }
+
+
+  async getBackgroundColor(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
+  }
+
+  async getTextColor(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
+  }
 }
 
 module.exports = exports = Page;

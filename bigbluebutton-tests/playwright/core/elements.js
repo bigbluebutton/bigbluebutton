@@ -364,3 +364,21 @@ exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 // Help button
 exports.helpButton = 'li[data-test="helpButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
+
+// Dark mode
+exports.darkModeToggleBtn = 'input[ data-test="darkModeToggleBtn"]';
+exports.actionsBarBackground = 'section[id="ActionsBar"]';
+exports.navbarBackground = 'header[id="Navbar"]';
+exports.modalSettings = 'div[aria-label="Settings"]';
+exports.guestPolicyBackground = 'div[aria-label="Guest policy settings modal"]';
+exports.lockViewersBackground = 'div[aria-label="Lock viewers settings modal"]';
+exports.minimizePresentationBackground = 'button[data-test="minimizePresentation"] >> span';
+exports.actionsBackground = 'button[data-test="actionsButton"] >> span';
+exports.sendButtonBackground = 'button[data-test="sendMessageButton"] >> span';
+exports.userListToggleBackground = 'button[data-test="toggleUserList"] >> span';
+exports.optionsButtonBackground = 'button[data-test="optionsButton"] >> span';
+exports.joinAudioBackgroundDisabled = 'button[data-test="joinAudio"] >> span';
+exports.joinVideoBackgroundDisabled = 'button[data-test="joinVideo"] >> span';
+exports.startScreenShareBackground = 'button[data-test="startScreenShare"] >> span';
+exports.raiseHandBtnBackground = 'button[data-test="raiseHandLabel"] >> span';
+exports.sharedNotesBackground = 'div[aria-label="Shared Notes"]';
