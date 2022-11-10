@@ -86,6 +86,8 @@ parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
                     help='public IP subnet to be "stolen" for our use')
 parser.add_argument('--domain', type=str, default='test',
                     help='DNS domain name for virtual devices')
+parser.add_argument('--no-nat', action='store_true',
+                    help='install BBB server without a NAT gateway')
 parser.add_argument('version', nargs='*',
                     help="""version of BigBlueButton server to be installed
 (focal-250, focal-25-dev, focal-260, focal-GITREV)
@@ -773,24 +775,29 @@ def BBB_server_standalone(hostname, x=100, y=300):
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     cpus=4, ram=8192, disk=16384, x=x, y=y)
 
-# BBB server with attached NAT gateway
+# BBB server with optional attached NAT gateway
 
 def BBB_server(name, x=100, depends_on=None):
     server = BBB_server_standalone(name, x=x, y=300)
-    if server_subnet.with_prefixlen not in gns3_project.node_names():
-        switch = gns3_project.switch(server_subnet.with_prefixlen, x=x, y=200)
+    if args.no_nat:
+        gns3_project.link(server, 0, PublicIP_switch)
+        if depends_on:
+            gns3_project.depends_on(server, depends_on)
     else:
-        # can't have two gns3 nodes with the same name, so do this instead
-        switch = gns3_project.switch(name + '-subnet', x=x, y=200)
-    server_nat = BBB_server_nat(name + '-NAT', x=x, y=100)
+        if server_subnet.with_prefixlen not in gns3_project.node_names():
+            switch = gns3_project.switch(server_subnet.with_prefixlen, x=x, y=200)
+        else:
+            # can't have two gns3 nodes with the same name, so do this instead
+            switch = gns3_project.switch(name + '-subnet', x=x, y=200)
+        server_nat = BBB_server_nat(name + '-NAT', x=x, y=100)
 
-    gns3_project.link(server_nat, 0, PublicIP_switch)
-    gns3_project.link(server_nat, 1, switch)
-    gns3_project.link(server, 0, switch)
+        gns3_project.link(server_nat, 0, PublicIP_switch)
+        gns3_project.link(server_nat, 1, switch)
+        gns3_project.link(server, 0, switch)
 
-    gns3_project.depends_on(server, server_nat)
-    if depends_on:
-        gns3_project.depends_on(server_nat, depends_on)
+        gns3_project.depends_on(server, server_nat)
+        if depends_on:
+            gns3_project.depends_on(server_nat, depends_on)
     return server
 
 # THE VIRTUAL NETWORK
