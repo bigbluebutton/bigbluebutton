@@ -7,6 +7,7 @@ import padContent from './handlers/padContent';
 import padTail from './handlers/padTail';
 import sessionDeleted from './handlers/sessionDeleted';
 import captureSharedNotes from './handlers/captureSharedNotes';
+import padPinned from './handlers/padPinned';
 
 RedisPubSub.on('PadGroupCreatedRespMsg', groupCreated);
 RedisPubSub.on('PadCreatedRespMsg', padCreated);
@@ -16,3 +17,4 @@ RedisPubSub.on('PadContentEvtMsg', padContent);
 RedisPubSub.on('PadTailEvtMsg', padTail);
 RedisPubSub.on('PadSessionDeletedEvtMsg', sessionDeleted);
 RedisPubSub.on('CaptureSharedNotesReqEvtMsg', captureSharedNotes);
+RedisPubSub.on('PadPinnedEvtMsg', padPinned);

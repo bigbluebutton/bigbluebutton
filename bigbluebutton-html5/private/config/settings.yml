@@ -528,6 +528,7 @@ public:
   notes:
     enabled: true
     id: notes
+    pinnable: true
   layout:
     hidePresentation: false
     showParticipantsOnLogin: true

@@ -492,6 +492,7 @@ class MeetingActor(
       case m: PadContentSysMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPatchSysMsg          => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatePubMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadPinnedReqMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
 
       // Lock Settings
       case m: ChangeLockSettingsInMeetingCmdMsg =>

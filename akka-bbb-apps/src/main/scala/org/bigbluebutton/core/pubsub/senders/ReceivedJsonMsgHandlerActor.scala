@@ -175,6 +175,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
       case PadCapturePubMsg.NAME =>
         routePadMsg[PadCapturePubMsg](envelope, jsonNode)
+      case PadPinnedReqMsg.NAME =>
+        routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
