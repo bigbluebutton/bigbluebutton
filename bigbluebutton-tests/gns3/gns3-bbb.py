@@ -305,7 +305,8 @@ server {{
     # what it announces itself as to DHCP and DNS.
 
     user_data = {'hostname': hostname,
-                 'packages': ['dnsmasq', 'isc-dhcp-server', 'coturn', 'bird', 'iptables-persistent', 'nginx', 'certbot'],
+                 'packages': ['dnsmasq', 'isc-dhcp-server', 'coturn', 'bird', 'iptables-persistent',
+                              'nginx', 'python3-certbot-nginx'],
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
                             'plain_text_passwd': 'ubuntu',
@@ -373,15 +374,13 @@ server {{
                      f'echo {master_gateway_address} {acme_server} >> /etc/hosts',
                      "systemctl start step-ca",
                      "bash -c 'while ! nc -z localhost 8000; do sleep 1; done'",
-                     # stop nginx because we need port 80 available for certbot
-                     "systemctl stop nginx",
                      # get a certificate for nginx
-                     f"certbot --server https://localhost:8000/acme/acme/directory certonly --standalone --non-interactive --agree-tos -d {acme_server} -m root@localhost",
+                     f"certbot --server https://localhost:8000/acme/acme/directory certonly --nginx --non-interactive --agree-tos -d {acme_server} -m root@localhost",
                      # complete nginx ssl configuration and restart nginx
                      "mkdir -p /etc/nginx/ssl",
                      "openssl dhparam -dsaparam  -out /etc/nginx/ssl/dhp-4096.pem 4096",
                      "ln -s /etc/nginx/sites-available/redirect-ca /etc/nginx/sites-enabled/",
-                     "systemctl start nginx",
+                     "systemctl restart nginx",
                      # enable packet forwarding
                      'sysctl net.ipv4.ip_forward=1',
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
