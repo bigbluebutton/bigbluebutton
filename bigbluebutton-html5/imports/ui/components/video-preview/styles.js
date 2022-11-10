@@ -7,7 +7,6 @@ import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
-  colorGrayDark,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -112,13 +111,6 @@ const BrowserWarning = styled.p`
   border-style: solid;
   border-radius: 0.25rem;
   margin: ${lineHeightComputed};
-  text-align: center;
-`;
-
-const Title = styled.div`
-  display: block;
-  color: ${colorGrayDark};
-  font-size: 1.4rem;
   text-align: center;
 `;
 
@@ -262,7 +254,6 @@ export default {
   Select,
   Content,
   BrowserWarning,
-  Title,
   Footer,
   Actions,
   ExtraActions,

@@ -65,17 +65,12 @@ class GuestPolicyComponent extends PureComponent {
     return (
       <Styled.GuestPolicyModal
         onRequestClose={closeModal}
-        hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={intl.formatMessage(intlMessages.guestPolicyTitle)}
       >
         <Styled.Container
           data-test="guestPolicySettingsModal"
         >
-          <Styled.Header>
-            <Styled.Title>
-              {intl.formatMessage(intlMessages.guestPolicyTitle)}
-            </Styled.Title>
-          </Styled.Header>
           <Styled.Description>
             {intl.formatMessage(intlMessages.guestPolicyDescription)}
           </Styled.Description>

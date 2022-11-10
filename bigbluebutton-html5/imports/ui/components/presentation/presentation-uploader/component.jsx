@@ -1168,7 +1168,7 @@ class PresentationUploader extends Component {
         <Styled.UploaderModal id="upload-modal">
           <Styled.ModalInner>
             <Styled.ModalHeader>
-              <h1>{intl.formatMessage(intlMessages.title)}</h1>
+              <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
               <Styled.ActionWrapper>
                 <Styled.DismissButton
                   color="secondary"
