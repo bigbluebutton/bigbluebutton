@@ -7,13 +7,11 @@ import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
-  colorGrayDark,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarge,
-  fontSizeLarger,
   lineHeightComputed,
   headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
@@ -114,14 +112,6 @@ const BrowserWarning = styled.p`
   border-radius: 0.25rem;
   margin: ${lineHeightComputed};
   text-align: center;
-`;
-
-const Title = styled.div`
-  display: block;
-  color: ${colorGrayDark};
-  font-size: ${fontSizeLarger};
-  text-align: center;
-  font-weight: ${headingsFontWeight};
 `;
 
 const Footer = styled.div`
@@ -264,7 +254,6 @@ export default {
   Select,
   Content,
   BrowserWarning,
-  Title,
   Footer,
   Actions,
   ExtraActions,

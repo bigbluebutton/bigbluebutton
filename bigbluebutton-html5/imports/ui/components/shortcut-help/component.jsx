@@ -338,11 +338,12 @@ const ShortcutHelpComponent = (props) => {
 
   return (
     <Modal
-      title={intl.formatMessage(intlMessages.title)}
+      contentLabel={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.closeLabel),
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
+      title={intl.formatMessage(intlMessages.title)}
     >
       <Styled.SettingsTabs
         onSelect={(tab) => setSelectedTab(tab)}

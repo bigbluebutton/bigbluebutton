@@ -968,10 +968,6 @@ class VideoPreview extends Component {
 
     const { isIe } = browserInfo;
 
-    const title = isVisualEffects
-      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
-      : intl.formatMessage(intlMessages.webcamSettingsTitle);
-
     return (
       <>
         {isIe ? (
@@ -986,9 +982,6 @@ class VideoPreview extends Component {
             />
           </Styled.BrowserWarning>
         ) : null}
-        <Styled.Title>
-          {title}
-        </Styled.Title>
 
         {this.renderContent()}
 
@@ -1029,6 +1022,7 @@ class VideoPreview extends Component {
       intl,
       isCamLocked,
       forceOpen,
+      isVisualEffects,
     } = this.props;
 
     if (isCamLocked === true) {
@@ -1049,15 +1043,19 @@ class VideoPreview extends Component {
     || !PreviewService.getSkipVideoPreview()
     || forceOpen;
 
+    const title = isVisualEffects
+      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
+      : intl.formatMessage(intlMessages.webcamSettingsTitle);
+
     return (
       <Styled.VideoPreviewModal
         onRequestClose={this.handleProceed}
-        hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
         data-test="webcamSettingsModal"
+        title={title}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

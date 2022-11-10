@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   borderSize,
   borderSizeLarge,
@@ -8,42 +7,15 @@ import {
 import {
   colorWhite,
   colorLink,
-  colorGrayDark,
   colorGrayLighter,
   colorGrayLabel,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { HeaderElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 
 const WriterMenuModal = styled(Modal)`
-  padding: 1rem;
   min-height: 20rem;
-`;
-
-const Header = styled.header`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: 2rem;
-  margin-bottom: ${mdPaddingX};
-`;
-
-const Title = styled(HeaderElipsis)`
-  text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
-  color: ${colorGrayDark};
-  white-space: normal;
-  flex: 1;
-  margin: 0;
-  align-self: flex-end;
-
-  @media ${smallOnly} {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
 `;
 
 const Content = styled.div`
@@ -103,8 +75,6 @@ const WriterMenuSelect = styled.div`
 
 export default {
   WriterMenuModal,
-  Header,
-  Title,
   Content,
   StartBtn,
   WriterMenuSelect,

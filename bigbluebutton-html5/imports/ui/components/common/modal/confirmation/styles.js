@@ -5,17 +5,10 @@ import {
   smPaddingX,
   mdPaddingX,
   lgPaddingY,
-  titlePositionLeft,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
-import {
-  colorGrayDark,
-  colorGray,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  headingsFontWeight,
-  lineHeightBase,
-} from '/imports/ui/stylesheets/styled-components/typography';
+import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
+import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const ConfirmationModal = styled(Modal)`
   padding: ${mdPaddingX};
@@ -28,20 +21,6 @@ const Container = styled.div`
   padding: 0;
   margin-top: 0;
   margin: auto;
-`;
-
-const Header = styled.div`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: ${titlePositionLeft};
-  margin-bottom: ${lgPaddingY};
-`;
-
-const Title = styled.div`
-  color: ${colorGrayDark};
-  font-weight: ${headingsFontWeight};
-  font-size: ${jumboPaddingY};
 `;
 
 const Description = styled.div`
@@ -92,8 +71,6 @@ const Label = styled.label`
 export default {
   ConfirmationModal,
   Container,
-  Header,
-  Title,
   Description,
   DescriptionText,
   Checkbox,
