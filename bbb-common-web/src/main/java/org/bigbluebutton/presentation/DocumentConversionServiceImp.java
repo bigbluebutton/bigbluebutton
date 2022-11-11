@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
@@ -27,6 +28,8 @@ import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
+
+import static org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
   private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
@@ -93,6 +96,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
       }
 
     } else {
+      File presentationFile = pres.getUploadedFile();
+      deleteDirectoryFromFileHandlingErrors(presentationFile);
+
       Map<String, Object> logData = new HashMap<String, Object>();
       logData = new HashMap<String, Object>();
       logData.put("podId", pres.getPodId());

@@ -26,7 +26,7 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
 import org.bigbluebutton.api.*
-import org.bigbluebutton.api.domain.Config
+import org.bigbluebutton.presentation.MimeTypeUtils
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
@@ -44,6 +44,7 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
 import javax.servlet.ServletRequest
+import java.util.regex.*
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
@@ -53,6 +54,7 @@ class ApiController {
   private static final String ROLE_MODERATOR = "MODERATOR"
   private static final String ROLE_ATTENDEE = "VIEWER"
   protected static Boolean REDIRECT_RESPONSE = true
+  MimeTypeUtils mimeTypeUtils = new MimeTypeUtils();
 
   MeetingService meetingService;
   PresentationService presentationService
@@ -1351,6 +1353,7 @@ class ApiController {
     def filenameExt = FilenameUtils.getExtension(presOrigFilename)
     def pres = null
     def presId = null
+    def mimeType
 
     if (presFilename == "" || filenameExt == "") {
       log.debug("Upload failed. Invalid filename " + presOrigFilename)
@@ -1369,6 +1372,7 @@ class ApiController {
         fos.write(bytes)
         fos.flush()
         fos.close()
+        mimeType = detectMimeType(pres)
       } else {
         log.warn "Upload failed. File Empty."
         uploadFailReasons.add("failed_to_download_file")
@@ -1377,7 +1381,8 @@ class ApiController {
     }
 
     // Hardcode pre-uploaded presentation to the default presentation window
-    processUploadedFile("DEFAULT_PRESENTATION_POD",
+    if (isPresentationMimeTypeOK(mimeType)) {
+      processUploadedFile("DEFAULT_PRESENTATION_POD",
               meetingId,
               presId,
               presFilename,
@@ -1388,7 +1393,53 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable
-    )
+      )
+    } else {
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.error("The document in base64 sent is not supported as a presentation - mimeType: {}, filename: {}",
+              mimeType, presFilename)
+    }
+  }
+
+  def detectMimeType(File pres) {
+    def mimeType = ""
+    if (pres != null){
+      try {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("bash", "-c", "file -i " + pres.toPath().toString());
+        Process process = processBuilder.start();
+        StringBuilder output = new StringBuilder();
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()));
+        String line;
+        while ((line = reader.readLine()) != null) {
+          output.append(line + "\n");
+        }
+        int exitVal = process.waitFor();
+        if (exitVal == 0) {
+          Pattern pattern = Pattern.compile(" [-\\w.]+\\/[-\\w.+]+");
+          def match = pattern.matcher(output.toString())
+          if (match.find()) {
+            mimeType = match.group().trim()
+          }
+        } else {
+          log.error("Error while executing command {} for file {}, error: {}",
+                  process.toString(), pres.toPath().toString(), process.getErrorStream())
+        }
+      } catch (IOException e) {
+        log.error("Could not read file [{}]", pres.toPath().toString(), e.getMessage())
+      } catch (InterruptedException e) {
+        log.error("Flow interrupted for file [{}]", pres.toPath().toString(), e.getMessage())
+      }
+    }
+    return mimeType
+  }
+
+  def isPresentationMimeTypeOK (String mimeType) {
+    String mimeName = ( mimeType != null || mimeType != "" ) ? mimeType : 'application/octet-stream'
+
+    boolean isMimeInValidTypes = mimeTypeUtils.getValidMimeTypes().contains(mimeName)
+    return isMimeInValidTypes
   }
 
   def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
@@ -1415,6 +1466,7 @@ class ApiController {
     def filenameExt = FilenameUtils.getExtension(presOrigFilename)
     def pres = null
     def presId
+    def mimeType
 
     if (presFilename == "" || filenameExt == "") {
       log.debug("presentation is null by default")
@@ -1431,9 +1483,9 @@ class ApiController {
         else {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
-           uploadFailed = true
+          uploadFailed = true
         }
-
+        mimeType = detectMimeType(pres)
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
         uploadFailReasons.add("null_presentation_dir")
@@ -1441,20 +1493,25 @@ class ApiController {
       }
     }
 
-    // Hardcode pre-uploaded presentation to the default presentation window
-    processUploadedFile(
-            "DEFAULT_PRESENTATION_POD",
-            meetingId,
-            presId,
-            presFilename,
-            pres,
-            current,
-            "preupload-download-authz-token",
-            uploadFailed,
-            uploadFailReasons,
-            isDownloadable,
-            isRemovable
-    )
+    if (isPresentationMimeTypeOK(mimeType)) {
+      // Hardcode pre-uploaded presentation to the default presentation window
+      processUploadedFile(
+              "DEFAULT_PRESENTATION_POD",
+              meetingId,
+              presId,
+              presFilename,
+              pres,
+              current,
+              "preupload-download-authz-token",
+              uploadFailed,
+              uploadFailReasons,
+              isDownloadable,
+              isRemovable
+      )
+    } else {
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.error("Document [${address}] sent is not supported as a presentation")
+    }
   }
 
 
