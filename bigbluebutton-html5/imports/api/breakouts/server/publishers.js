@@ -32,6 +32,7 @@ function breakouts() {
       sequence: 1,
       shortName: 1,
       timeRemaining: 1,
+      captureNotes: 1,
     },
   };
 
