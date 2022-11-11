@@ -203,7 +203,6 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   }
 
   def handle(m: PresAnnStatusMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    log.info(s"Received PresAnnStatusMsg meetingId=${liveMeeting.props.meetingProp.intId} presId=${m.body.presId} pageNumber=${m.body.pageNumber} totalPages=${m.body.totalPages} status=${m.body.status} error=${m.body.error}")
     bus.outGW.send(buildBroadcastPresAnnStatusMsg(m, liveMeeting))
   }
 

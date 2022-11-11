@@ -3,7 +3,8 @@ const config = require('../config');
 const fs = require('fs');
 const {create} = require('xmlbuilder2', {encoding: 'utf-8'});
 const cp = require('child_process');
-const {Worker, workerData} = require('worker_threads');
+const WorkerStarter = require('../lib/utils/worker-starter');
+const {workerData} = require('worker_threads');
 const path = require('path');
 const sanitize = require('sanitize-filename');
 const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
@@ -15,21 +16,6 @@ const [jobId, statusUpdate] = [workerData.jobId, workerData.statusUpdate];
 const logger = new Logger('presAnn Process Worker');
 logger.info('Processing PDF for job ' + jobId);
 statusUpdate.core.body.status = 'PROCESSING';
-
-const kickOffNotifierWorker = (jobType, filename) => {
-  return new Promise((resolve, reject) => {
-    const notifierPath = './workers/notifier.js';
-    const worker = new Worker(notifierPath,
-        {workerData: {jobType, jobId, filename}});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Notifier Worker stopped with exit code ${code}`));
-      }
-    });
-  });
-};
 
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
@@ -927,7 +913,8 @@ async function process_presentation_annotations() {
   // Launch Notifier Worker depending on job type
   logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
 
-  kickOffNotifierWorker(exportJob.jobType, filename_with_extension);
+  const notifier = new WorkerStarter({jobType: exportJob.jobType, jobId, filename: filename_with_extension});
+  notifier.notify();
   await client.disconnect();
 }
 

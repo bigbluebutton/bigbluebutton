@@ -7,30 +7,13 @@ const path = require('path');
 const redis = require('redis');
 const sanitize = require('sanitize-filename');
 const stream = require('stream');
-const {Worker, workerData} = require('worker_threads');
+const WorkerStarter = require('../lib/utils/worker-starter');
+const {workerData} = require('worker_threads');
 const {promisify} = require('util');
 
-const WorkerTypes = Object.freeze({
-  Notifier: 'notifier',
-  Process: 'process',
-});
-
-const jobId = workerData;
+const jobId = workerData.jobId;
 const logger = new Logger('presAnn Collector');
 logger.info(`Collecting job ${jobId}`);
-
-const kickOffWorker = (workerType, workerData) => {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(`./workers/${workerType}.js`, {workerData});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Worker '${workerType}' stopped with exit code ${code}`));
-      }
-    });
-  });
-};
 
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
@@ -147,7 +130,9 @@ async function collectAnnotationsFromRedis() {
   }
 
   client.disconnect();
-  kickOffWorker(WorkerTypes.Process, {jobId, statusUpdate});
+
+  const process = new WorkerStarter({jobId, statusUpdate});
+  process.process();
 }
 
 async function sleep(ms) {
@@ -194,7 +179,8 @@ async function collectSharedNotes(retries = 3) {
     }
   }
 
-  kickOffWorker(WorkerTypes.Notifier, {jobType, jobId, filename});
+  const notifier = new WorkerStarter({jobType, jobId, filename});
+  notifier.notify();
 }
 
 switch (jobType) {
