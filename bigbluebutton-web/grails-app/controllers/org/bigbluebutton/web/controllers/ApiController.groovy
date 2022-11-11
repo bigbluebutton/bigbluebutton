@@ -1088,6 +1088,7 @@ class ApiController {
             request.getQueryString()
     )
 
+    def externalMeetingId = params.meetingID.toString()
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
       return
@@ -1104,12 +1105,11 @@ class ApiController {
         }
       }
     }else {
-      log.warn("Meeting with externalID ${externalMeetingId} and internalID ${internalMeetingId} " +
-              "doesn't exist.")
+      log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
       withFormat {
         xml {
           render(text: responseBuilder.buildInsertDocumentResponse(
-                  "The meeting with id \"${externalMeetingId}\" doesn't exist.", RESP_CODE_FAILED),
+                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
         }
       }
