@@ -66,6 +66,7 @@ export default class Checkbox extends PureComponent {
         ref={(node) => { this.checkbox = node; }}
       >
         <Styled.CheckboxInput
+          tabIndex={-1}
           type="checkbox"
           onChange={this.handleChange}
           checked={checked}

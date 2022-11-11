@@ -18,15 +18,20 @@ import {
   SHOW_THUMBNAILS,
   setSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfo,
+  isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
 import Settings from '/imports/ui/services/settings';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+import Checkbox from '/imports/ui/components/common/checkbox/component'
 
 const VIEW_STATES = {
   finding: 'finding',
   found: 'found',
   error: 'error',
 };
+
+const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
+const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -188,6 +193,22 @@ const intlMessages = defineMessages({
     id: 'app.video.inactiveError',
     description: 'Camera stopped unexpectedly',
   },
+  brightness: {
+    id: 'app.videoPreview.brightness',
+    description: 'Brightness label',
+  },
+  wholeImageBrightnessLabel: {
+    id: 'app.videoPreview.wholeImageBrightnessLabel',
+    description: 'Whole image brightness label',
+  },
+  wholeImageBrightnessDesc: {
+    id: 'app.videoPreview.wholeImageBrightnessDesc',
+    description: 'Whole image brightness aria description',
+  },
+  sliderDesc: {
+    id: 'app.videoPreview.sliderDesc',
+    description: 'Brightness slider aria description',
+  },
 });
 
 class VideoPreview extends Component {
@@ -206,6 +227,7 @@ class VideoPreview extends Component {
     this.handleSelectProfile = this.handleSelectProfile.bind(this);
     this.handleVirtualBgSelected = this.handleVirtualBgSelected.bind(this);
     this.handleLocalStreamInactive = this.handleLocalStreamInactive.bind(this);
+    this.handleBrightnessAreaChange = this.handleBrightnessAreaChange.bind(this);
 
     this._isMounted = false;
 
@@ -217,6 +239,8 @@ class VideoPreview extends Component {
       viewState: VIEW_STATES.finding,
       deviceError: null,
       previewError: null,
+      brightness: 100,
+      wholeImageBrightness: false,
     };
   }
 
@@ -316,11 +340,51 @@ class VideoPreview extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if (this.brightnessMarker) {
+      const markerStyle = window.getComputedStyle(this.brightnessMarker);
+      const left = parseFloat(markerStyle.left);
+      const right = parseFloat(markerStyle.right);
+
+      if (left < 0) {
+        this.brightnessMarker.style.left = '0px';
+        this.brightnessMarker.style.right = 'auto';
+      } else if (right < 0) {
+        this.brightnessMarker.style.right = '0px';
+        this.brightnessMarker.style.left = 'auto';
+      }
+    }
+  }
+
   componentWillUnmount() {
     const { webcamDeviceId } = this.state;
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
+  }
+
+  startCameraBrightness() {
+    if (CAMERA_BRIGHTNESS_AVAILABLE) {
+      const setBrightnessInfo = () => {
+        const stream = this.currentVideoStream || {};
+        const service = stream.virtualBgService || {};
+        const { brightness = 100, wholeImageBrightness = false } = service;
+        this.setState({ brightness, wholeImageBrightness });
+      };
+
+      if (!this.currentVideoStream.virtualBgService) {
+        this.startVirtualBackground(
+          this.currentVideoStream,
+          EFFECT_TYPES.NONE_TYPE,
+        ).then((switched) => {
+          if (switched) {
+            setBrightnessInfo();
+          }
+        });
+      } else {
+        setBrightnessInfo();
+      }
+    }
   }
 
   handleSelectWebcam(event) {
@@ -331,23 +395,49 @@ class VideoPreview extends Component {
     });
   }
 
-  handleLocalStreamInactive() {
-    this.setState({
-      isStartSharingDisabled: true,
-    });
-    this.handlePreviewError(
-      'stream_inactive',
-      new Error('inactiveError'),
-      '- preview camera stream inactive',
-    );
+  handleLocalStreamInactive({ id }) {
+    // id === MediaStream.id
+    if (this.currentVideoStream
+      && typeof id === 'string'
+      && this.currentVideoStream?.mediaStream?.id === id) {
+      this.setState({
+        isStartSharingDisabled: true,
+      });
+      this.handlePreviewError(
+        'stream_inactive',
+        new Error('inactiveError'),
+        '- preview camera stream inactive',
+      );
+    }
   }
+
+  updateVirtualBackgroundInfo = () => {
+    const { webcamDeviceId } = this.state;
+
+    // Update this session's virtual camera effect information if it's enabled
+    setSessionVirtualBackgroundInfo(
+      this.currentVideoStream.virtualBgType,
+      this.currentVideoStream.virtualBgName,
+      webcamDeviceId,
+    );
+  };
 
   // Resolves into true if the background switch is successful, false otherwise
   handleVirtualBgSelected(type, name, customParams) {
-    if (type !== EFFECT_TYPES.NONE_TYPE) {
-      return this.startVirtualBackground(this.currentVideoStream, type, name, customParams);
+    const { sharedDevices } = this.props;
+    const { webcamDeviceId } = this.state;
+    const shared = sharedDevices.includes(webcamDeviceId);
+
+    if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
+      return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
+        // If it's not shared we don't have to update here because
+        // it will be updated in the handleStartSharing method.
+        if (switched && shared) this.updateVirtualBackgroundInfo();
+        return switched;
+      });
     } else {
       this.stopVirtualBackground(this.currentVideoStream);
+      if (shared) this.updateVirtualBackgroundInfo();
       return Promise.resolve(true);
     }
   }
@@ -386,21 +476,35 @@ class VideoPreview extends Component {
   }
 
   handleStartSharing() {
-    const { resolve, startSharing } = this.props;
-    const { webcamDeviceId } = this.state;
-    // Only streams that will be shared should be stored in the service.  // If the store call returns false, we're duplicating stuff. So clean this one
+    const {
+      resolve,
+      startSharing,
+    } = this.props;
+    const {
+      webcamDeviceId,
+      selectedProfile,
+      brightness,
+    } = this.state;
+
+    // Only streams that will be shared should be stored in the service.
+    // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
     if(!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
       this.currentVideoStream.stop();
     }
 
-    // Update this session's virtual camera effect information if it's enabled
-    setSessionVirtualBackgroundInfo(
-      this.currentVideoStream.virtualBgType,
-      this.currentVideoStream.virtualBgName,
-      webcamDeviceId,
-    );
+    if (
+      this.currentVideoStream.virtualBgService
+      && brightness === 100
+      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+    ) {
+      this.stopVirtualBackground(this.currentVideoStream);
+    }
+
+    this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
+    PreviewService.changeProfile(selectedProfile);
+    PreviewService.changeWebcam(webcamDeviceId);
     startSharing(webcamDeviceId);
     if (resolve) resolve();
   }
@@ -421,8 +525,18 @@ class VideoPreview extends Component {
   }
 
   handleProceed() {
-    const { resolve, closeModal } = this.props;
-    const { webcamDeviceId } = this.state;
+    const { resolve, closeModal, sharedDevices, isVisualEffects } = this.props;
+    const { webcamDeviceId, brightness } = this.state;
+    const shared = sharedDevices.includes(webcamDeviceId);
+
+    if (
+      (shared || isVisualEffects)
+      && this.currentVideoStream.virtualBgService
+      && brightness === 100
+      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+    ) {
+      this.stopVirtualBackground(this.currentVideoStream);
+    }
 
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     closeModal();
@@ -479,7 +593,7 @@ class VideoPreview extends Component {
     if (stream) {
       // Stream is being destroyed - remove gUM revocation handler to avoid false negatives
       stream.removeListener('inactive', this.handleLocalStreamInactive);
-      PreviewService.terminateCameraStream(this.currentVideoStream, deviceId);
+      PreviewService.terminateCameraStream(stream, deviceId);
     }
   }
 
@@ -514,7 +628,6 @@ class VideoPreview extends Component {
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });
-    PreviewService.changeWebcam(actualDeviceId);
   }
 
   getInitialCameraStream(deviceId) {
@@ -534,7 +647,6 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
 
-    PreviewService.changeProfile(profile.id);
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
@@ -544,6 +656,7 @@ class VideoPreview extends Component {
       if (!this._isMounted) return this.terminateCameraStream(bbbVideoStream, deviceId);
 
       this.currentVideoStream = bbbVideoStream;
+      this.startCameraBrightness();
       this.setState({
         isStartSharingDisabled: false,
       });
@@ -610,14 +723,14 @@ class VideoPreview extends Component {
 
     if (isVisualEffects) {
       return (
-        <Styled.Col>
+        <>
           {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
-        </Styled.Col>
-      )
+        </>
+      );
     }
 
     return (
-      <Styled.Col>
+      <>
         <Styled.Label htmlFor="setCam">
           {intl.formatMessage(intlMessages.cameraLabel)}
         </Styled.Label>
@@ -682,7 +795,79 @@ class VideoPreview extends Component {
           )
         }
         {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
-      </Styled.Col>
+      </>
+    );
+  }
+
+  handleBrightnessAreaChange() {
+    const { wholeImageBrightness } = this.state;
+    this.currentVideoStream.toggleCameraBrightnessArea(!wholeImageBrightness);
+    this.setState({ wholeImageBrightness: !wholeImageBrightness });
+  }
+
+  renderBrightnessInput() {
+    if (!ENABLE_CAMERA_BRIGHTNESS) return null;
+
+    const { intl } = this.props;
+    const { brightness, wholeImageBrightness, isStartSharingDisabled } = this.state;
+
+    const origin = brightness <= 100 ? 'left' : 'right';
+    const offset = origin === 'left'
+      ? (brightness * 100) / 200
+      : ((200 - brightness) * 100) / 200;
+
+    return (
+      <>
+        <Styled.Label htmlFor="brightness">
+          {intl.formatMessage(intlMessages.brightness)}
+        </Styled.Label>
+        <div aria-hidden>
+          <Styled.MarkerDynamicWrapper>
+            <Styled.MarkerDynamic
+              ref={(ref) => this.brightnessMarker = ref}
+              style={{ [origin]: `calc(${offset}% - 1rem)` }}
+            >
+              {brightness - 100}
+            </Styled.MarkerDynamic>
+          </Styled.MarkerDynamicWrapper>
+        </div>
+        <input
+          id="brightness"
+          style={{ width: '100%' }}
+          type="range"
+          min={0}
+          max={200}
+          value={brightness}
+          aria-describedBy={'brightness-slider-desc'}
+          onChange={(e) => {
+            const brightness = e.target.valueAsNumber;
+            this.currentVideoStream.changeCameraBrightness(brightness);
+            this.setState({ brightness });
+          }}
+          disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
+        />
+        <div style={{ display: 'none' }} id={'brightness-slider-desc'}>
+          {intl.formatMessage(intlMessages.sliderDesc)}
+        </div>
+        <Styled.MarkerWrapper aria-hidden>
+          <Styled.Marker>{'-100'}</Styled.Marker>
+          <Styled.Marker>{'0'}</Styled.Marker>
+          <Styled.Marker>{'100'}</Styled.Marker>
+        </Styled.MarkerWrapper>
+        <div style={{ display: 'flex', marginTop: '.5rem' }}>
+          <Checkbox
+            onChange={this.handleBrightnessAreaChange}
+            checked={wholeImageBrightness}
+            ariaLabel={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
+            ariaDescribedBy={'whole-image-desc'}
+            ariaDesc={intl.formatMessage(intlMessages.wholeImageBrightnessDesc)}
+            disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
+          />
+          <div aria-hidden style={{ margin: '0 .5rem' }}>
+            {intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -759,7 +944,10 @@ class VideoPreview extends Component {
                   )
               }
             </Styled.VideoCol>
-            {this.renderDeviceSelectors()}
+            <Styled.Col>
+              {this.renderDeviceSelectors()}
+              {this.renderBrightnessInput()}
+            </Styled.Col>
           </Styled.Content>
         );
     }
@@ -789,10 +977,6 @@ class VideoPreview extends Component {
 
     const { isIe } = browserInfo;
 
-    const title = isVisualEffects
-      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
-      : intl.formatMessage(intlMessages.webcamSettingsTitle);
-
     return (
       <>
         {isIe ? (
@@ -807,9 +991,6 @@ class VideoPreview extends Component {
             />
           </Styled.BrowserWarning>
         ) : null}
-        <Styled.Title>
-          {title}
-        </Styled.Title>
 
         {this.renderContent()}
 
@@ -850,6 +1031,7 @@ class VideoPreview extends Component {
       intl,
       isCamLocked,
       forceOpen,
+      isVisualEffects,
     } = this.props;
 
     if (isCamLocked === true) {
@@ -870,15 +1052,19 @@ class VideoPreview extends Component {
     || !PreviewService.getSkipVideoPreview()
     || forceOpen;
 
+    const title = isVisualEffects
+      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
+      : intl.formatMessage(intlMessages.webcamSettingsTitle);
+
     return (
       <Styled.VideoPreviewModal
         onRequestClose={this.handleProceed}
-        hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
         data-test="webcamSettingsModal"
+        title={title}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

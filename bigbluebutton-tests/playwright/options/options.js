@@ -1,13 +1,29 @@
+const { expect } = require('@playwright/test');
 const Page = require('../core/page');
-const { openSettings, getLocaleValues } = require('./util');
+const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
 
-class Language extends Page {
+
+class Options extends Page {
   constructor(browser, page) {
     super(browser, page);
   }
 
-  async test() {
+  async openedAboutModal() {
+    await openAboutModal(this);
+    await this.hasElement(e.closeModal);
+  }
+
+  async openHelp(context) {
+    await this.waitAndClick(e.optionsButton);
+
+    const newPage = await this.handleNewTab(e.helpButton, context);
+
+    await expect(newPage).toHaveTitle(/BigBlueButton Tutorials/);
+    await this.hasElement(e.presentationTitle);
+  }
+
+  async localesTest() {
     const selectedKeysBySelector = {
       [e.messageTitle]: 'app.userList.messagesTitle',
       [e.notesTitle]: 'app.userList.notesTitle',
@@ -42,4 +58,4 @@ class Language extends Page {
   }
 }
 
-exports.Language = Language;
+exports.Options = Options;

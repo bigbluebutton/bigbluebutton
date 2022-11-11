@@ -47,6 +47,7 @@ const propTypes = {
   changeInputStream: PropTypes.func.isRequired,
   localEchoEnabled: PropTypes.bool.isRequired,
   showVolumeMeter: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -512,6 +513,7 @@ class AudioModal extends Component {
       changeOutputDevice,
       localEchoEnabled,
       showVolumeMeter,
+      notify,
     } = this.props;
 
     const confirmationCallback = !localEchoEnabled
@@ -542,6 +544,7 @@ class AudioModal extends Component {
         withVolumeMeter={showVolumeMeter}
         withEcho={localEchoEnabled}
         produceStreams={localEchoEnabled || showVolumeMeter}
+        notify={notify}
       />
     );
   }
@@ -598,9 +601,17 @@ class AudioModal extends Component {
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
         <Styled.AudioModal
           onRequestClose={closeModal}
-          hideBorder
           data-test="audioModal"
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+          title={
+            !this.skipAudioOptions()
+              ? (
+                content
+                  ? intl.formatMessage(this.contents[content].title)
+                  : intl.formatMessage(intlMessages.audioChoiceLabel)
+              )
+              : null
+          }
         >
           {isIE ? (
             <Styled.BrowserWarning>
@@ -614,19 +625,6 @@ class AudioModal extends Component {
               />
             </Styled.BrowserWarning>
           ) : null}
-          {
-            !this.skipAudioOptions()
-              ? (
-                <Styled.Header>
-                  <Styled.Title>
-                    {content
-                      ? intl.formatMessage(this.contents[content].title)
-                      : intl.formatMessage(intlMessages.audioChoiceLabel)}
-                  </Styled.Title>
-                </Styled.Header>
-              )
-              : null
-          }
           <Styled.Content>
             {this.renderContent()}
           </Styled.Content>

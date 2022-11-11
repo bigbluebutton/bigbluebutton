@@ -156,6 +156,15 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case UpdateExternalVideoEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
+      case NotifyAllInMeetingEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case NotifyUserInMeetingEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case NotifyRoleInMeetingEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)
     }

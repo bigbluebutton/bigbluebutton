@@ -4,8 +4,8 @@ TARGET=`basename $(pwd)`
 
 # inject dependency to bigbluebutton.target
 for unit in freeswitch nginx redis-server; do
-  mkdir -p "staging/lib/systemd/system/${unit}.service.d"
-  cp bigbluebutton.conf "staging/lib/systemd/system/${unit}.service.d/"
+  mkdir -p "staging/usr/lib/systemd/system/${unit}.service.d"
+  cp bigbluebutton.conf "staging/usr/lib/systemd/system/${unit}.service.d/"
 done
 
 
@@ -20,7 +20,7 @@ rm -rf staging
 #
 # Create build directories for markign by fpm
 DIRS="/etc/bigbluebutton \
-      /lib/systemd/system \
+      /usr/lib/systemd/system \
       /var/bigbluebutton/blank \
       /usr/share/bigbluebutton/blank \
       /var/www/bigbluebutton-default/assets"
@@ -51,7 +51,11 @@ cp cron.daily/* staging/etc/cron.daily
 mkdir -p staging/etc/cron.hourly
 cp cron.hourly/bbb-resync-freeswitch staging/etc/cron.hourly
 
-cp bigbluebutton.target staging/lib/systemd/system/
+mkdir -p staging/usr/share/bigbluebutton/nginx
+
+cp include_default.nginx staging/usr/share/bigbluebutton/
+
+cp bigbluebutton.target staging/usr/lib/systemd/system/
 
 . ./opts-$DISTRO.sh
 
@@ -60,6 +64,7 @@ cp bigbluebutton.target staging/lib/systemd/system/
 fpm -s dir -C ./staging -n $PACKAGE \
     --version $VERSION --epoch $EPOCH \
     --after-install after-install.sh \
+    --after-remove after-remove.sh \
     --before-install before-install.sh \
     --description "BigBlueButton configuration utilities" \
     $DIRECTORIES \

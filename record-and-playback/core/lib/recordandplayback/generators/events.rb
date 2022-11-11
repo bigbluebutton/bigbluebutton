@@ -1093,11 +1093,5 @@ module BigBlueButton
       return false
     end
 
-    # Check if doc has tldraw events
-    def self.check_for_tldraw_events(events)  
-      return !(events.xpath("recording/event[@eventname='TldrawCameraChangedEvent']").empty? && 
-               events.xpath("recording/event[@eventname='AddTldrawShapeEvent']").empty?)
-    end
-
   end
 end

@@ -270,6 +270,12 @@ class RedisPubSub {
         }
       }
 
+      if (eventName === 'SendWhiteboardAnnotationsEvtMsg') {
+        // we need the instanceId in the handler to avoid calling the same upsert on the
+        // Annotations collection multiple times
+        parsedMessage.core.body.myInstanceId = this.instanceId;
+      }
+
       if (!this.meetingsQueues[meetingIdFromMessageCoreHeader]) {
         Logger.warn(`Frontend meeting queue had not been initialized   ${message}`, { eventName, meetingIdFromMessageCoreHeader });
         this.meetingsQueues[NO_MEETING_ID].add({

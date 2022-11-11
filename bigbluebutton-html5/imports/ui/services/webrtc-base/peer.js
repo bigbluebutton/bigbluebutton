@@ -19,6 +19,12 @@ export default class WebRtcPeer extends EventEmitter2 {
     this.configuration = this.options.configuration;
     this.onicecandidate = this.options.onicecandidate;
     this.oncandidategatheringdone = this.options.oncandidategatheringdone;
+    // this.networkPriorities: <{
+    //  audio: <'very-low' | 'low' | 'medium' | 'high' | undefined>
+    //  video: <'very-low' | 'low' | 'medium' | 'high' | undefined>
+    // } | undefined >
+    this.networkPriorities = this.options.networkPriorities;
+
     this.candidateGatheringDone = false;
 
     this._outboundCandidateQueue = [];
@@ -37,8 +43,42 @@ export default class WebRtcPeer extends EventEmitter2 {
       this.on('candidategatheringdone', this.oncandidategatheringdone);
     }
     if (typeof this.options.mediaStreamFactory === 'function') {
-      this.mediaStreamFactory = this.options.mediaStreamFactory.bind(this);
+      this._mediaStreamFactory = this.options.mediaStreamFactory.bind(this);
     }
+  }
+
+  _processEncodingOptions() {
+    this.peerConnection?.getSenders().forEach((sender) => {
+      const { track } = sender;
+      if (track) {
+        // TODO: this is not ideal and a bit anti-spec. The correct thing to do
+        // would be to set this in the transceiver creation via sendEncodings in
+        // addTransceiver, but FF doesn't support that. So we should split this
+        // between Chromium/WebKit (addTransceiver) and FF (this way) later - prlanzarin
+        const parameters = sender.getParameters();
+        // The encoder parameters might not be up yet; if that's the case,
+        // add a filler object so we can alter the parameters anyways
+        if (parameters.encodings == null || parameters.encodings.length === 0) {
+          parameters.encodings = [{}];
+        }
+
+        parameters.encodings.forEach((encoding) => {
+          // networkPriority
+          if (this.networkPriorities && this.networkPriorities[track.kind]) {
+            // eslint-disable-next-line no-param-reassign
+            encoding.networkPriority = this.networkPriorities[track.kind];
+          }
+
+          // Add further custom encoding parameters here
+        });
+
+        try {
+          sender.setParameters(parameters);
+        } catch (error) {
+          this.logger.error('BBB::WebRtcPeer::_processEncodingOptions - setParameters failed', error);
+        }
+      }
+    });
   }
 
   _flushInboundCandidateQueue() {
@@ -105,8 +145,7 @@ export default class WebRtcPeer extends EventEmitter2 {
       return Promise.resolve();
     }
 
-    this.logger.info('BBB::WebRtcPeer::mediaStreamFactory - running default factory', this.mediaConstraints);
-    return navigator.mediaDevices.getUserMedia(this.mediaConstraints).then((stream) => {
+    const handleGUMResolution = (stream) => {
       if (stream.getAudioTracks().length > 0) {
         this.audioStream = stream;
         this.logger.debug('BBB::WebRtcPeer::mediaStreamFactory - generated audio', this.audioStream);
@@ -115,10 +154,22 @@ export default class WebRtcPeer extends EventEmitter2 {
         this.videoStream = stream;
         this.logger.debug('BBB::WebRtcPeer::mediaStreamFactory - generated video', this.videoStream);
       }
-    }).catch((error) => {
-      this.logger.error('BBB::WebRtcPeer::mediaStreamFactory - gUM failed', error);
-      throw error;
-    });
+
+      return stream;
+    }
+
+    if (typeof this._mediaStreamFactory === 'function') {
+      return this._mediaStreamFactory(this.mediaConstraints).then(handleGUMResolution);
+    }
+
+    this.logger.info('BBB::WebRtcPeer::mediaStreamFactory - running default factory', this.mediaConstraints);
+
+    return navigator.mediaDevices.getUserMedia(this.mediaConstraints)
+      .then(handleGUMResolution)
+      .catch((error) => {
+        this.logger.error('BBB::WebRtcPeer::mediaStreamFactory - gUM failed', error);
+        throw error;
+      });
   }
 
   set peerConnection(pc) {
@@ -282,6 +333,7 @@ export default class WebRtcPeer extends EventEmitter2 {
         return this.peerConnection.setLocalDescription(offer);
       })
       .then(() => {
+        this._processEncodingOptions();
         const localDescription = this.getLocalSessionDescriptor();
         this.logger.debug('BBB::WebRtcPeer::generateOffer - local description set', localDescription);
         return localDescription.sdp;

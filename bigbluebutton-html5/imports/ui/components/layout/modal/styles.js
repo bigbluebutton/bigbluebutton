@@ -8,13 +8,6 @@ import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
 
-const Header = styled.div`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: 2rem;
-`;
-
 const Content = styled.div`
   align-items: center;
   display: flex;
@@ -80,6 +73,12 @@ const LayoutBtn = styled(Button)`
     border-radius: 10px;
     width: fit-content;
   }
+
+  &:focus,
+  &:hover {
+    border: ${colorPrimary} solid 6px;
+    border-radius: 5px;
+  }
   
   ${({ active }) => (active === 'true') && `
     border: ${colorPrimary} solid 6px;
@@ -143,16 +142,7 @@ const LabelPushLayout = styled.div`
   padding-right: 0.5rem;
 `;
 
-const Title = styled.h3`
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.5rem;
-  white-space: normal;
-  color: ${colorPrimary};
-`;
-
 export default {
-  Header,
   Content,
   LayoutModal,
   BodyContainer,
@@ -165,5 +155,4 @@ export default {
   BottomButton,
   PushContainer,
   LabelPushLayout,
-  Title,
 };

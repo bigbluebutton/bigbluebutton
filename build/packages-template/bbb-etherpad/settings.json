@@ -539,7 +539,7 @@
     "windowMs": 90000,
 
     // maximum number of requests per IP to allow during the rate limit window
-    "max": 10
+    "max": 16
   },
 
   /*

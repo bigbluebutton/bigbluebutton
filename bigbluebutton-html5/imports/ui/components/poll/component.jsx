@@ -544,6 +544,9 @@ class Poll extends Component {
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
             />
             {optList.length > MIN_OPTIONS_LENGTH && (
               <Styled.DeletePollOptionButton
@@ -785,7 +788,9 @@ class Poll extends Component {
           data-test="pollQuestionArea"
           value={customInput ? questionAndOptions : question}
           onChange={(e) => this.handleTextareaChange(e)}
-          onPaste={() => this.setState({ isPasting: true })}
+          onPaste={(e) => { e.stopPropagation(); this.setState({ isPasting: true }); }}
+          onCut={(e) => { e.stopPropagation(); }}
+          onCopy={(e) => { e.stopPropagation(); }}
           onKeyPress={(event) => {
             if (event.key === 'Enter' && customInput) {
               this.handlePollLetterOptions();

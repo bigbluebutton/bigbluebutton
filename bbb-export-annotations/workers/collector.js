@@ -1,24 +1,32 @@
 const Logger = require('../lib/utils/logger');
+const axios = require('axios').default;
 const config = require('../config');
-const fs = require('fs');
-const redis = require('redis');
-const {Worker, workerData} = require('worker_threads');
-const path = require('path');
 const cp = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const redis = require('redis');
+const sanitize = require('sanitize-filename');
+const stream = require('stream');
+const {Worker, workerData} = require('worker_threads');
+const {promisify} = require('util');
+
+const WorkerTypes = Object.freeze({
+  Notifier: 'notifier',
+  Process: 'process',
+});
 
 const jobId = workerData;
-
 const logger = new Logger('presAnn Collector');
-logger.info('Collecting job ' + jobId);
+logger.info(`Collecting job ${jobId}`);
 
-const kickOffProcessWorker = (jobId, statusUpdate) => {
+const kickOffWorker = (workerType, workerData) => {
   return new Promise((resolve, reject) => {
-    const worker = new Worker('./workers/process.js', {workerData: [jobId, statusUpdate]});
+    const worker = new Worker(`./workers/${workerType}.js`, {workerData});
     worker.on('message', resolve);
     worker.on('error', reject);
     worker.on('exit', (code) => {
       if (code !== 0) {
-        reject(new Error(`Process Worker stopped with exit code ${code}`));
+        reject(new Error(`Worker '${workerType}' stopped with exit code ${code}`));
       }
     });
   });
@@ -29,9 +37,9 @@ const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 // Takes the Job from the dropbox
 const job = fs.readFileSync(path.join(dropbox, 'job'));
 const exportJob = JSON.parse(job);
+const jobType = exportJob.jobType;
 
-// Collect the annotations from Redis
-(async () => {
+async function collectAnnotationsFromRedis() {
   const client = redis.createClient({
     host: config.redis.host,
     port: config.redis.port,
@@ -42,7 +50,7 @@ const exportJob = JSON.parse(job);
 
   await client.connect();
 
-  const presAnn = await client.hGetAll(exportJob.jobId);
+  const presAnn = await client.hGetAll(jobId);
 
   // Remove annotations from Redis
   await client.del(jobId);
@@ -119,6 +127,7 @@ const exportJob = JSON.parse(job);
       }
 
       statusUpdate.core.body.pageNumber = pageNumber;
+      statusUpdate.envelope.timestamp = (new Date()).getTime();
       await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
       statusUpdate.core.body.error = false;
     }
@@ -138,5 +147,59 @@ const exportJob = JSON.parse(job);
   }
 
   client.disconnect();
-  kickOffProcessWorker(exportJob.jobId, statusUpdate);
-})();
+  kickOffWorker(WorkerTypes.Process, {jobId, statusUpdate});
+}
+
+async function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+/** Export shared notes via bbb-pads in the desired format
+ * @param {Integer} retries - Number of retries to get the shared notes
+*/
+async function collectSharedNotes(retries = 3) {
+  /** One of the following formats is supported:
+    etherpad / html / pdf / txt / doc / odf */
+
+  const padId = exportJob.presId;
+  const notesFormat = 'pdf';
+
+  const filename = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.${notesFormat}`;
+  const notes_endpoint = `${config.bbbPadsAPI}/p/${padId}/export/${notesFormat}`;
+  const filePath = path.join(dropbox, filename);
+
+  const finishedDownload = promisify(stream.finished);
+  const writer = fs.createWriteStream(filePath);
+
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: notes_endpoint,
+      responseType: 'stream',
+    });
+    response.data.pipe(writer);
+    await finishedDownload(writer);
+  } catch (err) {
+    if (retries > 0 && err?.response?.status == 429) {
+      // Wait for the bbb-pads API to be available due to rate limiting
+      const backoff = err.response.headers['retry-after'] * 1000;
+      logger.info(`Retrying ${jobId} in ${backoff}ms...`);
+      await sleep(backoff);
+      return collectSharedNotes(retries - 1);
+    } else {
+      logger.error(`Could not download notes in job ${jobId}`);
+      return;
+    }
+  }
+
+  kickOffWorker(WorkerTypes.Notifier, {jobType, jobId, filename});
+}
+
+switch (jobType) {
+  case 'PresentationWithAnnotationExportJob': return collectAnnotationsFromRedis();
+  case 'PresentationWithAnnotationDownloadJob': return collectAnnotationsFromRedis();
+  case 'PadCaptureJob': return collectSharedNotes();
+  default: return logger.error(`Unknown job type ${jobType}`);
+}

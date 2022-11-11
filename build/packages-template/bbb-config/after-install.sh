@@ -130,7 +130,7 @@ if [ -d /var/mediasoup/screenshare ]; then
 fi
 
 sed -i 's/worker_connections 768/worker_connections 4000/g' /etc/nginx/nginx.conf
-
+echo 'limit_conn_zone $uri zone=ws_zone:5m;' > /etc/nginx/conf.d/html5-conn-limit.conf
 if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
   num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*')
   if [[ "$num" -lt 10000 ]]; then
@@ -138,6 +138,12 @@ if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then
   fi
 else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
+fi
+
+# symlink default bbb nginx config from package if it does not exist
+if [ ! -e /etc/bigbluebutton/nginx/include_default.nginx ] ; then
+  mkdir -p /etc/bigbluebutton/nginx
+  ln -s /usr/share/bigbluebutton/include_default.nginx /etc/bigbluebutton/nginx/include_default.nginx
 fi
 
 # set full BBB version in settings.yml so it can be displayed in the client

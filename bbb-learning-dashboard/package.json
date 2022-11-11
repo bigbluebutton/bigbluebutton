@@ -10,7 +10,11 @@
   },
   "dependencies": {
     "@babel/core": "^7.15.0",
-    "@testing-library/jest-dom": "^5.14.1",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/material": "^5.10.13",
+    "@mui/x-data-grid": "^5.17.10",
+    "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "react": "^17.0.2",

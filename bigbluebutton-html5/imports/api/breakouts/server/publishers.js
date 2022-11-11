@@ -19,6 +19,23 @@ function breakouts() {
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
   Logger.debug('Publishing Breakouts', { meetingId, userId });
 
+  const fields = {
+    fields: {
+      [`url_${userId}`]: 1,
+      breakoutId: 1,
+      externalId: 1,
+      freeJoin: 1,
+      isDefaultName: 1,
+      joinedUsers: 1,
+      name: 1,
+      parentMeetingId: 1,
+      sequence: 1,
+      shortName: 1,
+      timeRemaining: 1,
+      captureNotes: 1,
+    },
+  };
+
   if (!!User && User.role === ROLE_MODERATOR) {
     const presenterSelector = {
       $or: [
@@ -39,7 +56,7 @@ function breakouts() {
       return condition;
     };
     publicationSafeGuard(comparisonFunc, this);
-    return Breakouts.find(presenterSelector);
+    return Breakouts.find(presenterSelector, fields);
   }
 
   const selector = {
@@ -56,22 +73,6 @@ function breakouts() {
         breakoutId: meetingId,
       },
     ],
-  };
-
-  const fields = {
-    fields: {
-      [`url_${userId}`]: 1,
-      breakoutId: 1,
-      externalId: 1,
-      freeJoin: 1,
-      isDefaultName: 1,
-      joinedUsers: 1,
-      name: 1,
-      parentMeetingId: 1,
-      sequence: 1,
-      shortName: 1,
-      timeRemaining: 1,
-    },
   };
 
   return Breakouts.find(selector, fields);
