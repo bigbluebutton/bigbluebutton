@@ -249,16 +249,18 @@ const PollsTable = (props) => {
       field: v?.pollId,
       headerName,
       flex: 1,
-      sortable: false,
     };
 
     anonGridCols.push({
       ...commonColProps,
+      sortable: false,
       renderCell: (params) => <GridCellExpand value={params?.value || ''} width={params?.colDef?.computedWidth} />,
     });
 
     gridCols.push({
       ...commonColProps,
+      sortable: true,
+      valueGetter: (params) => params?.row[params?.field]?.join(', '),
       renderCell: (params) => {
         // Here we count each poll vote in order to find out the most common answer.
         const pollVotesCount = Object.keys(polls || {}).reduce((prevPollVotesCount, pollId) => {
