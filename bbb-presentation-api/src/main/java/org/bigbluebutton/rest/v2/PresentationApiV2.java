@@ -13,18 +13,18 @@ import javax.validation.Valid;
 
 public interface PresentationApiV2 {
 
+    @RequestMapping(value = "", produces = { MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.POST)
+    ResponseEntity<Response> uploadPresentation(
+            @RequestPart(value = "info") @Valid PresentationUploadInfo info,
+            @RequestPart(value = "file") MultipartFile file
+    );
+
     @RequestMapping(value = "/{token}/check", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.GET)
     ResponseEntity<Response> checkPresentation(
-            @Parameter(in = ParameterIn.PATH, description = "Unique presentation token", required = true) @PathVariable("token") String token,
+            @Parameter(in = ParameterIn.PATH, description = "Presentation auth token", required = true) @PathVariable("token") String token,
             @Parameter(in = ParameterIn.QUERY, description = "Original content length", required = true) @RequestParam("length") String length
-    );
-
-    @RequestMapping(value = "", produces = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE }, method = RequestMethod.POST)
-    ResponseEntity<Response> upload(
-            @RequestPart(value = "info") @Valid PresentationUploadInfo info,
-            @RequestPart(value = "file") MultipartFile file
     );
 
 //    @RequestMapping(value = "/testConversion", produces = MediaType.APPLICATION_XML_VALUE, method = RequestMethod.GET)
@@ -107,7 +107,7 @@ public interface PresentationApiV2 {
             @Parameter(in = ParameterIn.PATH, description = "Conference the presentation belongs to", required = true) @PathVariable("conference") String conference,
             @Parameter(in = ParameterIn.PATH, description = "Room in the conference", required = true) @PathVariable("room") String room,
             @Parameter(in = ParameterIn.PATH, description = "Name of the presentation", required = true) @PathVariable("name") String name,
-            @Parameter(in = ParameterIn.PATH, description = "File to be shown", required = true) @PathVariable("file") String file
+            @Parameter(in = ParameterIn.PATH, description = "Text file to be shown", required = true) @PathVariable("file") String file
     );
 
     @RequestMapping(value = "/{meeting}/{id}/{name}", produces = { MediaType.APPLICATION_JSON_VALUE,

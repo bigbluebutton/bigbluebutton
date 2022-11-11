@@ -52,7 +52,7 @@ import java.util.Objects;
 
 @RestController
 @ConditionalOnProperty("bbb.api.v2.enabled")
-@RequestMapping("/v2/recordings")
+@RequestMapping("/v2/presentations")
 @EnableHypermediaSupport(type = HypermediaType.HAL)
 public class PresentationControllerV2 implements PresentationApiV2 {
 
@@ -100,7 +100,6 @@ public class PresentationControllerV2 implements PresentationApiV2 {
             responseHeaders.set("Cache-Control", "no-cache");
             return ResponseEntity
                     .ok()
-                    .contentType(MediaType.TEXT_PLAIN)
                     .headers(responseHeaders)
                     .body(response);
         }
@@ -120,13 +119,12 @@ public class PresentationControllerV2 implements PresentationApiV2 {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .contentType(MediaType.TEXT_PLAIN)
                 .headers(responseHeaders)
                 .body(response);
     }
 
     @Override
-    public ResponseEntity<Response> upload(
+    public ResponseEntity<Response> uploadPresentation(
             @RequestPart(value = "info") @Valid PresentationUploadInfo info,
             @RequestPart(value = "file") MultipartFile file
     ) {
@@ -144,7 +142,6 @@ public class PresentationControllerV2 implements PresentationApiV2 {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .headers(responseHeaders)
-                    .contentType(MediaType.TEXT_PLAIN)
                     .body(response);
         }
 
@@ -161,7 +158,6 @@ public class PresentationControllerV2 implements PresentationApiV2 {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .headers(responseHeaders)
-                    .contentType(MediaType.TEXT_PLAIN)
                     .body(response);
         }
 
@@ -219,7 +215,6 @@ public class PresentationControllerV2 implements PresentationApiV2 {
         return ResponseEntity
                 .ok()
                 .headers(responseHeaders)
-                .contentType(MediaType.TEXT_PLAIN)
                 .body(response);
     }
 
