@@ -7,6 +7,8 @@ on:
       - 'v[3-9].*.x-release'
   pull_request:
     types: [opened, synchronize, reopened]
+permissions:
+  contents: read
 jobs:
   build-install-and-test:
     runs-on: ubuntu-20.04
@@ -16,9 +18,11 @@ jobs:
       - run: ./build/setup.sh bbb-apps-akka
       - run: ./build/setup.sh bbb-config
       - run: ./build/setup.sh bbb-etherpad
+      - run: ./build/setup.sh bbb-export-annotations
       - run: ./build/setup.sh bbb-freeswitch-core
       - run: ./build/setup.sh bbb-freeswitch-sounds
       - run: ./build/setup.sh bbb-fsesl-akka
+      - run: ./build/setup.sh bbb-html5-nodejs
       - run: ./build/setup.sh bbb-html5
       - run: ./build/setup.sh bbb-learning-dashboard
       - run: ./build/setup.sh bbb-libreoffice-docker
@@ -109,8 +113,8 @@ jobs:
       - name: Install BBB
         run: |
             sudo sh -c '
-            cd /root/ && wget -q https://ubuntu.bigbluebutton.org/bbb-install-2.5.sh -O bbb-install.sh
-            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-25-dev -s bbb-ci.test -d /certs/
+            cd /root/ && wget -q https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh -O bbb-install.sh
+            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-26-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
             bbb-conf --restart
@@ -130,7 +134,22 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-ci
+        run: npm run test-chromium-ci
+      - name: Run Firefox tests
+        working-directory: ./bigbluebutton-tests/playwright
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'test Firefox')
+                || contains(github.event.pull_request.labels.*.name, 'Test Firefox') }}
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+        # patch playwright's firefox so that it uses the system's root certificate authority
+        run: |
+          sh -c '
+          find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
+          npm run test-firefox-ci
+          '
       - if: always()
         uses: actions/upload-artifact@v3
         with:

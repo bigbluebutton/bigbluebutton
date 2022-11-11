@@ -27,8 +27,8 @@ public class HTML5ProcessLine {
 
     public HTML5ProcessLine(String input) {
         // $ ps -u meteor -o pcpu,cmd= | grep NODEJS_BACKEND_INSTANCE_ID
-        // 1.1 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=1
-        // 1.0 /usr/share/node-v12.16.1-linux-x64/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=2
+        // 1.1 /usr/lib/bbb-html5/node/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=1
+        // 1.0 /usr/lib/bbb-html5/node/bin/node --max-old-space-size=2048 --max_semi_space_size=128 main.js NODEJS_BACKEND_INSTANCE_ID=2
 
         String[] a = input.trim().split(" ");
         this.percentageCPU = Double.parseDouble(a[0]);

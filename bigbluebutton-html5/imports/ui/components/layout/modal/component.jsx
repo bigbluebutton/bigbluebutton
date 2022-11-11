@@ -14,7 +14,6 @@ const LayoutModalComponent = (props) => {
   const {
     intl,
     closeModal,
-    isModerator,
     isPresenter,
     showToggleLabel,
     application,
@@ -94,7 +93,7 @@ const LayoutModalComponent = (props) => {
   };
 
   const renderPushLayoutsOptions = () => {
-    if (!isPresenter && !isModerator) {
+    if (!isPresenter) {
       return null;
     }
 
@@ -160,6 +159,7 @@ const LayoutModalComponent = (props) => {
         <Styled.BottomButton
           label={intl.formatMessage(intlMessages.cancel)}
           onClick={closeModal}
+          color='secondary'
         />
         <Button
           color="primary"

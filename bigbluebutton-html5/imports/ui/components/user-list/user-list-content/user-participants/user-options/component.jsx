@@ -332,10 +332,10 @@ class UserOptions extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             data-test="manageUsers"
             icon="settings"
-            ghost
-            color="primary"
+            color="light"
             hideLabel
-            size="sm"
+            size="md"
+            circle
             onClick={() => null}
           />
         )}

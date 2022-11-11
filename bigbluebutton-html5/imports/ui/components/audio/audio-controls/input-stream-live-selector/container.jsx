@@ -18,5 +18,6 @@ export default withTracker(({ handleLeaveAudio }) => ({
   currentOutputDeviceId: Service.outputDeviceId(),
   liveChangeInputDevice: Service.liveChangeInputDevice,
   liveChangeOutputDevice: Service.changeOutputDevice,
+  notify: Service.notify,
   handleLeaveAudio,
 }))(InputStreamLiveSelectorContainer);

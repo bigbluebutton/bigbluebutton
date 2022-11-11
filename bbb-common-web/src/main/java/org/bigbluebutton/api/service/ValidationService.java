@@ -35,7 +35,6 @@ public class ValidationService {
         GET_MEETING_INFO("getMeetingInfo", RequestType.GET),
         GET_MEETINGS("getMeetings", RequestType.GET),
         GET_SESSIONS("getSessions", RequestType.GET),
-        SET_POLL_XML("setPollXML", RequestType.POST),
         GUEST_WAIT("guestWait", RequestType.GET),
         ENTER("enter", RequestType.GET),
         STUNS("stuns", RequestType.GET),
@@ -68,7 +67,6 @@ public class ValidationService {
 
     public Map<String, String> validate(ApiCall apiCall, Map<String, String[]> params, String queryString) {
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
-
         params = sanitizeParams(params);
 
         Request request = initializeRequest(apiCall, params, queryString);
@@ -116,9 +114,6 @@ public class ValidationService {
                     case GET_MEETING_INFO:
                         request = new MeetingInfo(checksum);
                         break;
-                    case SET_POLL_XML:
-                        request = new SetPollXML(checksum);
-                        break;
                     case GET_MEETINGS:
                     case GET_SESSIONS:
                         request = new SimpleRequest(checksum);
@@ -141,12 +136,6 @@ public class ValidationService {
                     case LEARNING_DASHBOARD:
                         request = new LearningDashboard();
                         break;
-                }
-            case POST:
-                checksum = new PostChecksum(apiCall.getName(), checksumValue, params);
-                switch(apiCall) {
-                    case SET_POLL_XML:
-                        request = new SetPollXML(checksum);
                 }
         }
 

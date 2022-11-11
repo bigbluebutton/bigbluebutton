@@ -213,7 +213,8 @@ class NavBar extends Component {
               && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
-              ghost
+              color='dark'
+              size='md'
               circle
               hideLabel
               data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}

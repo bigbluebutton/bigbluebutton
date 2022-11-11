@@ -63,6 +63,13 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", true, System.currentTimeMillis())
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
         notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+
+        VoiceApp.toggleUserAudioInVoiceConf(
+          liveMeeting,
+          outGW,
+          msg.body.voiceUserId,
+          false
+        )
       }
     }
 

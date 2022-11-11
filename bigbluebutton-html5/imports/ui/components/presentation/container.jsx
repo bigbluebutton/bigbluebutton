@@ -138,5 +138,6 @@ export default lockContextContainer(
     removeWhiteboardGlobalAccess: WhiteboardService.removeGlobalAccess,
     multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
     isViewersCursorLocked,
+    clearFakeAnnotations: WhiteboardService.clearFakeAnnotations,
   };
 })(PresentationContainer));

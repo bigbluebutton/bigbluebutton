@@ -40,11 +40,15 @@ trait SystemConfiguration {
   lazy val checkVoiceRecordingInterval = Try(config.getInt("voiceConf.checkRecordingInterval")).getOrElse(19)
   lazy val syncVoiceUsersStatusInterval = Try(config.getInt("voiceConf.syncUserStatusInterval")).getOrElse(43)
   lazy val ejectRogueVoiceUsers = Try(config.getBoolean("voiceConf.ejectRogueVoiceUsers")).getOrElse(true)
+  lazy val dialInApprovalAudioPath = Try(config.getString("voiceConf.dialInApprovalAudioPath")).getOrElse("ivr/ivr-please_hold_while_party_contacted.wav")
 
   lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
+
+  lazy val transcriptWords = Try(config.getInt("transcript.words")).getOrElse(8)
+  lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)
 
   lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
 

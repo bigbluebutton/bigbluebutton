@@ -2,9 +2,13 @@ import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { BBBVideoStream } from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import browserInfo from '/imports/utils/browserInfo';
 
 const GUM_TIMEOUT = Meteor.settings.public.kurento.gUMTimeout;
+// GUM retry + delay params (Chrome only for now)
+const GUM_MAX_RETRIES = 5;
+const GUM_RETRY_DELAY = 200;
 // Unfiltered, includes hidden profiles
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles || [];
 // Filtered, without hidden profiles
@@ -40,7 +44,7 @@ const storeStream = (deviceId, stream) => {
   VIDEO_STREAM_STORAGE.set(deviceId, stream);
 
   // Stream insurance: clean it up if it ends (see the events being listened to below)
-  stream.on('inactive', () => {
+  stream.once('inactive', () => {
     deleteStream(deviceId);
   });
 
@@ -134,7 +138,36 @@ const digestVideoDevices = (devices, priorityDevice) => {
     areLabelled,
     areIdentified,
   };
-}
+};
+
+const _retry = (foo, opts) => new Promise((resolve, reject) => {
+  const {
+    retries = 1,
+    delay = 0,
+    error: bubbledError,
+    errorRetryList = [],
+  } = opts;
+
+  if (!retries) return reject(bubbledError);
+
+  return foo().then(resolve).catch((_error) => {
+    if (errorRetryList.length > 0
+      && !errorRetryList.some((eName) => _error.name === eName)) {
+      reject(_error);
+      return;
+    }
+
+    const newOpts = {
+      ...opts,
+      retries: retries - 1,
+      error: _error,
+    };
+
+    setTimeout(() => {
+      _retry(foo, newOpts).then(resolve).catch(reject);
+    }, delay);
+  });
+});
 
 // Returns a promise that resolves an instance of BBBVideoStream or rejects an *Error
 const doGUM = (deviceId, profile) => {
@@ -153,13 +186,28 @@ const doGUM = (deviceId, profile) => {
   }
 
   const postProcessedgUM = (cts) => {
-    return navigator.mediaDevices.getUserMedia(cts).then((stream) => {
-      return (new BBBVideoStream(stream));
-    });
+    const ppGUM = () => navigator.mediaDevices.getUserMedia(cts)
+      .then((stream) => new BBBVideoStream(stream));
+
+    // Chrome/Edge sometimes bork gUM calls when switching camera
+    // profiles. This looks like a browser bug. Track release not
+    // being done synchronously -> quick subsequent gUM calls for the same
+    // device (profile switching) -> device becoming unavaible while previous
+    // tracks aren't finished - prlanzarin
+    if (browserInfo.isChrome || browserInfo.isEdge) {
+      const opts = {
+        retries: GUM_MAX_RETRIES,
+        errorRetryList: ['NotReadableError'],
+        delay: GUM_RETRY_DELAY,
+      };
+      return _retry(ppGUM, opts);
+    }
+
+    return ppGUM();
   };
 
   return promiseTimeout(GUM_TIMEOUT, postProcessedgUM(constraints));
-}
+};
 
 const terminateCameraStream = (bbbVideoStream, deviceId) => {
   // Cleanup current stream if it wasn't shared/stored

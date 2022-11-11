@@ -94,35 +94,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       color: var(--palette-placeholder-text);
       opacity: 1;
     }
-    
-    #TD-PrimaryTools {
-      flex-direction: column;
-    }
-
-    #TD-Tools {
-        position: absolute;
-        right: 1rem;
-        bottom: 5rem;
-    }
-
-    [dir="rtl"] #TD-Tools {
-        left: 1rem;
-        right: auto;
-    }
-
-    #TD-Tools > div {
-      flex-direction: column;
-    }
-
-    #TD-Styles + div {
-      display: flex;
-      padding-right: 2.5rem;
-    }
-
-    [dir="rtl"] #TD-Styles + div  {
-      padding-left: 2.5rem;
-      padding-right: 0px;
-    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
@@ -130,7 +101,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     });
   </script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
-  <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
   <!-- fonts -->

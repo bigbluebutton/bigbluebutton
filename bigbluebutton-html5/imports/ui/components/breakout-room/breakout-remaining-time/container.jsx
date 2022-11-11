@@ -61,11 +61,14 @@ class breakoutRemainingTimeContainer extends React.Component {
       return null;
     }
     if (bold) {
+      const words = message.split(' ');
+      const time = words.pop();
+      const text = words.join(' ');
       return (
         <BreakoutRemainingTimeComponent>
-          <Text>{message.split(' ')[0]}</Text>
+          <Text>{text}</Text>
           <br />
-          <Time>{message.split(' ')[1]}</Time>
+          <Time>{time}</Time>
         </BreakoutRemainingTimeComponent>
       );
     }

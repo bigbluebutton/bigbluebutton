@@ -16,6 +16,7 @@ import {
   screenshareHasEnded,
   screenshareHasStarted,
   getMediaElement,
+  getMediaElementDimensions,
   attachLocalPreviewStream,
   setVolume,
   getVolume,
@@ -67,6 +68,7 @@ const intlMessages = defineMessages({
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 const MOBILE_HOVER_TIMEOUT = 5000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;
+const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
 
 class ScreenshareComponent extends React.Component {
   static renderScreenshareContainerInside(mainText) {
@@ -89,6 +91,8 @@ class ScreenshareComponent extends React.Component {
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
+    this.onLoadedMetadata = this.onLoadedMetadata.bind(this);
+    this.onVideoResize = this.onVideoResize.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.failedMediaElements = [];
@@ -96,6 +100,11 @@ class ScreenshareComponent extends React.Component {
     this.onSwitched = this.onSwitched.bind(this);
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
+    this.debouncedDispatchScreenShareSize = _.debounce(
+      this.dispatchScreenShareSize,
+      SCREEN_SIZE_DISPATCH_INTERVAL,
+      { leading: false, trailing: true },
+    );
 
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
@@ -244,6 +253,44 @@ class ScreenshareComponent extends React.Component {
     }, MEDIA_FLOW_PROBE_INTERVAL);
   }
 
+  dispatchScreenShareSize() {
+    const {
+      layoutContextDispatch,
+    } = this.props;
+
+    const { width, height } = getMediaElementDimensions();
+    const value = {
+      width,
+      height,
+      browserWidth: window.innerWidth,
+      browserHeight: window.innerHeight,
+    }
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SCREEN_SHARE_SIZE,
+      value,
+    });
+  }
+
+  onVideoResize() {
+    // Debounced version of the dispatcher to pace things out - we don't want
+    // to hog the CPU just for resize recalculations...
+    this.debouncedDispatchScreenShareSize();
+  }
+
+  onLoadedMetadata() {
+    const element = getMediaElement();
+
+    // Track HTMLVideo's resize event to propagate stream size changes to the
+    // layout engine. See this.onVideoResize;
+    if (element && typeof element.onresize !== 'function') {
+      element.onresize = this.onVideoResize;
+    }
+
+    // Dispatch the initial stream size to the layout engine
+    this.dispatchScreenShareSize();
+  }
+
   onLoadedData() {
     this.setState({ loaded: true });
   }
@@ -385,6 +432,7 @@ class ScreenshareComponent extends React.Component {
           : { maxHeight: '25%', width: '25%', height: '25%' }}
         playsInline
         onLoadedData={this.onLoadedData}
+        onLoadedMetadata={this.onLoadedMetadata}
         ref={(ref) => {
           this.videoTag = ref;
         }}
@@ -435,6 +483,7 @@ class ScreenshareComponent extends React.Component {
         ref={(ref) => {
           this.screenshareContainer = ref;
         }}
+        id="screenshareContainer"
       >
         {loaded && this.renderFullscreenButton()}
         {this.renderVideo(true)}

@@ -7,6 +7,7 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 TAG=$(echo $TARGET | cut -d'_' -f4)
+BUILD=$1
 
 #
 # Clean up directories
@@ -17,7 +18,7 @@ rm -rf staging
 
 # New format
 if [ -f private/config/settings.yml ]; then
-  sed -i "s/HTML5_CLIENT_VERSION/$(($1))/" private/config/settings.yml
+  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
@@ -47,6 +48,11 @@ cat .meteor/release
 # Argument 'c' means package-lock.json will be respected
 # --production means we won't be installing devDependencies
 meteor npm ci --production
+
+# deleting links as they were repeatedly broken (node_modules/acorn/bin mostly)
+# I have not seen this on npm 8+ but meteor npm is still at 6.x right now
+# https://forums.meteor.com/t/broken-symbolic-link-on-running-app/57770/3
+find node_modules/.bin -xtype l -delete
 
 # Build the HTML5 client https://guide.meteor.com/deployment.html#custom-deployment
 # https://docs.meteor.com/environment-variables.html#METEOR-DISABLE-OPTIMISTIC-CACHING - disable caching because we're only building once
@@ -92,15 +98,12 @@ cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
 
 mkdir -p staging/usr/share
 
-if [ ! -f node-v14.19.1-linux-x64.tar.gz ]; then
-  wget https://nodejs.org/dist/v14.19.1/node-v14.19.1-linux-x64.tar.gz
-fi
-
-cp node-v14.19.1-linux-x64.tar.gz staging/usr/share
-
+# replace v=VERSION with build number in head and css files
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
-  sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
+  sed -i "s/VERSION/$(($BUILD))/g" staging/usr/share/meteor/bundle/programs/web.browser/head.html
 fi
+
+find staging/usr/share/meteor/bundle/programs/web.browser -name '*.css' -exec sed -i "s/VERSION/$(($BUILD))/g" '{}' \;
 
 # Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
 # uncompressed versions as well so it works with mismatched nginx location blocks

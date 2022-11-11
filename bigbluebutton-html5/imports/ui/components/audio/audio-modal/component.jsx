@@ -12,6 +12,7 @@ import Help from '../help/component';
 import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
+import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -46,6 +47,7 @@ const propTypes = {
   changeInputStream: PropTypes.func.isRequired,
   localEchoEnabled: PropTypes.bool.isRequired,
   showVolumeMeter: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -455,15 +457,15 @@ class AudioModal extends Component {
           <Styled.AudioDial
             label={dialAudioLabel}
             size="md"
-            color="primary"
+            color="secondary"
             onClick={() => {
               this.setState({
                 content: 'audioDial',
               });
             }}
-            ghost
           />
         ) : null}
+        <CaptionsSelectContainer />
       </div>
     );
   }
@@ -480,7 +482,7 @@ class AudioModal extends Component {
     if (this.skipAudioOptions()) {
       return (
         <Styled.Connecting role="alert">
-          <span data-test={!isEchoTest ? 'connecting' : 'connectingToEchoTest'}>
+          <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
             {intl.formatMessage(intlMessages.connecting)}
           </span>
           <Styled.ConnectingAnimation animations={animations} />
@@ -511,6 +513,7 @@ class AudioModal extends Component {
       changeOutputDevice,
       localEchoEnabled,
       showVolumeMeter,
+      notify,
     } = this.props;
 
     const confirmationCallback = !localEchoEnabled
@@ -541,6 +544,7 @@ class AudioModal extends Component {
         withVolumeMeter={showVolumeMeter}
         withEcho={localEchoEnabled}
         produceStreams={localEchoEnabled || showVolumeMeter}
+        notify={notify}
       />
     );
   }

@@ -96,6 +96,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
+    notify: Service.notify,
     isRTL,
     AudioError,
   });

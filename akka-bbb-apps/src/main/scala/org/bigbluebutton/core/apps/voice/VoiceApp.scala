@@ -353,4 +353,66 @@ object VoiceApp extends SystemConfiguration {
       )
     }
   }
+
+/** Toggle audio for the given user in voice conference.
+ *
+ * We first stop the current audio being played, preventing the playback
+ * to also mix the "You are the first person ..." audio.
+ * After that we check if we are turning on/off based on enabled param. If
+ * enabled is false we:
+ *  - play a sound to let user know that an action is required
+ *       (eg. guest approval) from the server/room.
+ *  - put the user on hold, so DTMFs for mute / deaf mute are also disabled
+ *  - mute the user (other participants won't hear users's audio)
+ *  - deaf the user (user won't hear other participant's audio)
+ * If disabled, we remove user from hold, mute and deaf states, allowing the
+ * user to interact with the room.
+ */
+  def toggleUserAudioInVoiceConf(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUserId: String,
+    enabled: Boolean
+  ): Unit = {
+    val stopEvent = MsgBuilder.buildStopSoundInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      ""
+    )
+    outGW.send(stopEvent)
+
+    if (!enabled) {
+      val playEvent = MsgBuilder.buildPlaySoundInVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        voiceUserId,
+        dialInApprovalAudioPath
+      )
+      outGW.send(playEvent)
+    }
+
+    val holdEvent = MsgBuilder.buildHoldUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(holdEvent)
+
+    val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(muteEvent)
+
+    val deafEvent = MsgBuilder.buildDeafUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(deafEvent)
+  }
 }

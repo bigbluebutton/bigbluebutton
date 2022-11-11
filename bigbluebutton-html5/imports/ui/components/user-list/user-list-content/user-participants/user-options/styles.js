@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 import Button from '/imports/ui/components/common/button/component';
-import { colorOffWhite, colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const OptionsButton = styled(Button)`
@@ -10,16 +9,12 @@ const OptionsButton = styled(Button)`
   padding: 0;
   margin: 0 0.25rem;
 
-  i {
-    width: auto;
-    font-size: ${fontSizeBase} !important;
-    color: ${colorGrayDark} !important;
-    background-color: transparent !important;
+  span {
+    padding: inherit;
   }
 
-  &:hover,
-  &:focus {
-    background-color: ${colorOffWhite} !important;
+  i {
+    font-size: ${fontSizeBase} !important;
   }
 `;
 

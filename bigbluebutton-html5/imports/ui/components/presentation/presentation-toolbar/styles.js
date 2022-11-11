@@ -30,6 +30,7 @@ const PresentationToolbarWrapper = styled.div`
   bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  padding: 2px;
 
   select {
     &:-moz-focusring {
@@ -72,7 +73,6 @@ const QuickPollButton = styled(QuickPollDropdownContainer)`
 
   &:focus {
     background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -83,7 +83,6 @@ const PresentationSlideControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   & > button {
     padding: ${whiteboardToolbarPadding};
@@ -91,10 +90,9 @@ const PresentationSlideControls = styled.div`
 `;
 
 const PrevSlideButton = styled(Button)`
-  border: none !important;
-
-  & > i {
+  i {
     font-size: 1rem;
+    padding-left: 20%;
 
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
@@ -103,27 +101,14 @@ const PrevSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
 const NextSlideButton = styled(Button)`
-  border: none !important;
-
-  & > i {
+  i {
     font-size: 1rem;
-
+    padding-left: 60%;
+    
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
       -moz-transform: scale(-1, 1);
@@ -131,18 +116,6 @@ const NextSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -184,7 +157,6 @@ const PresentationZoomControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   button {
     padding: ${whiteboardToolbarPadding};
@@ -224,6 +196,12 @@ const FitToWidthButton = styled(Button)`
     background-color: ${colorOffWhite};
     border: 0;
   }
+
+  ${({ panning }) => panning && `
+    > span {
+      background-color: #DCE4EC;
+    }
+  `}
 `;
 
 const MultiUserTool = styled.span`
@@ -233,7 +211,6 @@ const MultiUserTool = styled.span`
   height: 1rem;
   position: relative;
   z-index: 2;
-  right: 1rem;
   bottom: 0.5rem;
   color: ${colorWhite};
   display: flex;
@@ -241,20 +218,35 @@ const MultiUserTool = styled.span`
   align-items: center;
   box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
   font-size: ${smPaddingX};
+
+  [dir="ltr"] & {
+    right: 1rem;
+  }
+
+  [dir="rtl"] & {
+    left: 1rem;
+  }
 `;
 
 const MUTPlaceholder = styled.div`
   width: 1rem;
   height: 1rem;
   position: relative;
-  right: 1rem;
   bottom: 0.5rem;
+
+  [dir="ltr"] & {
+    right: 1rem;
+  }
+
+  [dir="rtl"] & {
+    left: 1rem;
+  }
 `;
 
 const WBAccessButton = styled(Button)`
   border: none !important;
 
-  & > i {
+  i {
     font-size: 1.2rem;
 
     [dir="rtl"] & {

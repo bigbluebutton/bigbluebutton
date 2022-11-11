@@ -702,7 +702,7 @@ class VideoService {
   }
 
   addCandidateToPeer(peer, candidate, cameraId) {
-    peer.addIceCandidate(candidate, (error) => {
+    peer.addIceCandidate(candidate).catch((error) => {
       if (error) {
         // Just log the error. We can't be sure if a candidate failure on add is
         // fatal or not, so that's why we have a timeout set up for negotiations

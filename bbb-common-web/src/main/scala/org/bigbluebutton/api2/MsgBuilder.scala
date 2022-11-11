@@ -127,12 +127,13 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildPresentationConversionUpdateSysPubMsg(msg: OfficeDocConversionProgress): BbbCommonEnvCoreMsg = {
+  def buildPresentationConversionUpdateSysPubMsg(msg: DocConversionProgress): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionUpdateSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionUpdateSysPubMsg.NAME, msg.meetingId, msg.authzToken)
     val body = PresentationConversionUpdateSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
-      code = msg.key, presentationId = msg.presId, presName = msg.filename)
+      code = msg.key, presentationId = msg.presId, presName = msg.filename,
+      temporaryPresentationId = msg.temporaryPresentationId)
     val req = PresentationConversionUpdateSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -193,7 +194,7 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationPageCountErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
     val body = PresentationPageCountErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
-      code = msg.key, msg.presId, 0, 0, msg.filename)
+      code = msg.key, msg.presId, 0, 0, msg.filename, msg.temporaryPresentationId)
     val req = PresentationPageCountErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -204,7 +205,7 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationPageCountErrorSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
     val body = PresentationPageCountErrorSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
-      code = msg.key, msg.presId, msg.numPages.intValue(), msg.maxNumPages.intValue(), msg.filename)
+      code = msg.key, msg.presId, msg.numPages.intValue(), msg.maxNumPages.intValue(), msg.filename, msg.temporaryPresentationId)
     val req = PresentationPageCountErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -294,6 +295,20 @@ object MsgBuilder {
       code = msg.key, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize)
 
     val req = PresentationUploadedFileTooLargeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationUploadedFileTimedoutErrorSysMsg(msg: UploadFileTimedoutMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationUploadedFileTimeoutErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      page = msg.page, meetingId = msg.meetingId, messageKey = msg.messageKey,
+      temporaryPresentationId = msg.temporaryPresentationId, presentationId = msg.presentationId,
+      maxNumberOfAttempts = msg.maxNumberOfAttempts)
+
+    val req = PresentationUploadedFileTimeoutErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

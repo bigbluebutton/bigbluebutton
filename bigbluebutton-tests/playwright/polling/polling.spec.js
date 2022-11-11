@@ -5,16 +5,18 @@ test.describe.parallel('Polling', () => {
   test.describe.parallel('Manage', () => {
     test('Create Poll @ci', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
-      await polling.initPages(page);
+      await polling.initPages(page, true);
       await polling.createPoll();
     });
 
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#start-an-anonymous-poll-automated
     test('Create anonymous poll @ci', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
       await polling.pollAnonymous();
     });
 
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#quick-poll-option-automated
     test('Create quick poll - from the slide', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);

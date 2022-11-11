@@ -1,5 +1,9 @@
 import * as React from "react";
-import { _ } from "lodash";
+const XS_OFFSET = 8;
+const SMALL_OFFSET = 18;
+const XL_OFFSET = 85;
+const BOTTOM_CAM_HANDLE_HEIGHT = 10;
+const PRES_TOOLBAR_HEIGHT = 35;
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -80,7 +84,7 @@ const PositionLabel = (props) => {
     isMultiUserActive,
   } = props;
 
-  const { name, color, userId, presenter } = currentUser;
+  const { name, color } = currentUser;
   const prevCurrentPoint = usePrevious(currentPoint);
 
   React.useEffect(() => {
@@ -121,30 +125,132 @@ export default function Cursors(props) {
     isViewersCursorLocked,
     hasMultiUserAccess,
     isMultiUserActive,
+    application,
+    isPanning,
   } = props;
 
   const start = () => setActive(true);
   
   const end = () => {
-    publishCursorUpdate({
-      xPercent: null,   
-      yPercent: null,
-      whiteboardId: whiteboardId,
-    });
+    if (whiteboardId) {
+      publishCursorUpdate({
+        xPercent: -1.0,
+        yPercent: -1.0,
+        whiteboardId,
+      });
+    };
     setActive(false);
-  };
+  }
 
   const moved = (event) => {
-    const { type } = event;
-    const yOffset = parseFloat(document.getElementById('Navbar')?.style?.height);
+    const { type, x, y } = event;
+    const nav = document.getElementById('Navbar');
     const getSibling = (el) => el?.previousSibling || null;
-    const panel = getSibling(document.getElementById('Navbar'));
+    const panel = getSibling(nav);
+    const webcams = document.getElementById('cameraDock');
     const subPanel = panel && getSibling(panel);
-    const xOffset = (parseFloat(panel?.style?.width) || 0) + (parseFloat(subPanel?.style?.width) || 0);
+    const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
+    const sl = document.getElementById('layout')?.getAttribute('data-layout');
+    const presentationContainer = document.querySelector('[data-test="presentationContainer"]');
+    const presentation = document.getElementById('currentSlideText')?.parentElement;
+    let yOffset = 0;
+    let xOffset = 0;
+    const calcPresOffset = () => {
+      yOffset += (parseFloat(presentationContainer?.style?.height) - (parseFloat(presentation?.style?.height) + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))) / 2;
+      xOffset += (parseFloat(presentationContainer?.style?.width) - parseFloat(presentation?.style?.width)) / 2;
+    }
+    // If the presentation container is the full screen element we don't need any offsets
+    const fsEl = document?.webkitFullscreenElement || document?.fullscreenElement;
+    if (fsEl?.getAttribute('data-test') === "presentationContainer") {
+      calcPresOffset();
+      return setPos({ x: x - xOffset, y: y - yOffset });
+    }
+    if (nav) yOffset += parseFloat(nav?.style?.height);
+    if (panel) xOffset += parseFloat(panel?.style?.width);
+    if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
+
+    // disable native tldraw eraser animation
+    const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
+    if (eraserLine) eraserLine.style.display = `none`;
+        
     if (type === 'touchmove') {
+      calcPresOffset();
       !active && setActive(true);
       return setPos({ x: event?.changedTouches[0]?.clientX - xOffset, y: event?.changedTouches[0]?.clientY - yOffset });
     }
+
+    if (document?.documentElement?.dir === 'rtl') { 
+      xOffset = 0;
+      if (presentationContainer && presentation) {
+        calcPresOffset();
+      }
+      if (sl.includes('custom')) {
+        if (webcams) {
+          if (camPosition === 'contentTop' || !camPosition) {
+            yOffset += (parseFloat(webcams?.style?.height || 0) + BOTTOM_CAM_HANDLE_HEIGHT);
+          }
+          if (camPosition === 'contentBottom') {
+            yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+          }
+          if (camPosition === 'contentRight') {
+            xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
+          }
+        }
+      }
+      if (sl?.includes('smart')) {
+        if (panel || subPanel) {
+          const dockPos = webcams?.getAttribute("data-position");
+          if (dockPos === 'contentTop') {
+            yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
+          }
+        }
+      }
+      if (webcams && sl?.includes('videoFocus')) {
+        xOffset += parseFloat(nav?.style?.width);
+        yOffset += (parseFloat(panel?.style?.height || 0) - XL_OFFSET);
+      }
+    } else {
+      if (sl.includes('custom')) {
+        if (webcams) {
+          if (camPosition === 'contentTop' || !camPosition) {
+            yOffset += (parseFloat(webcams?.style?.height) || 0) + XS_OFFSET;
+          }
+          if (camPosition === 'contentBottom') {
+            yOffset -= BOTTOM_CAM_HANDLE_HEIGHT;
+          }
+          if (camPosition === 'contentLeft') {
+            xOffset += (parseFloat(webcams?.style?.width) || 0) + SMALL_OFFSET;
+          }
+        }
+      }
+  
+      if (sl.includes('smart')) {
+        if (panel || subPanel) {
+          const dockPos = webcams?.getAttribute("data-position");
+          if (dockPos === 'contentLeft') {
+            xOffset += (parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET);
+          }
+          if (dockPos === 'contentTop') {
+            yOffset += (parseFloat(webcams?.style?.height || 0) + SMALL_OFFSET);
+          }
+        } 
+        if (!panel && !subPanel) {
+          if (webcams) {
+            xOffset = parseFloat(webcams?.style?.width || 0) + SMALL_OFFSET;
+          }
+        }
+      }
+      if (sl?.includes('videoFocus')) {
+        if (webcams) {
+          xOffset = parseFloat(subPanel?.style?.width);
+          yOffset = parseFloat(panel?.style?.height);
+        }
+      }
+      if (presentationContainer && presentation) {
+        calcPresOffset();
+      }
+    }
+
     return setPos({ x: event.x - xOffset, y: event.y - yOffset });
   }
 
@@ -163,22 +269,28 @@ export default function Cursors(props) {
 
     !cursorWrapper.hasOwnProperty("touchmove") &&
       cursorWrapper?.addEventListener("touchmove", moved);
-  }, [cursorWrapper]);
+  }, [cursorWrapper, whiteboardId]);
 
   React.useEffect(() => {
     return () => {
-      cursorWrapper.removeEventListener('mouseenter', start);
-      cursorWrapper.removeEventListener('mouseleave', end);
-      cursorWrapper.removeEventListener('mousemove', moved);
-      cursorWrapper.removeEventListener('touchend', end);
-      cursorWrapper.removeEventListener('touchmove', moved);
+      if (cursorWrapper) {
+        cursorWrapper.removeEventListener('mouseenter', start);
+        cursorWrapper.removeEventListener('mouseleave', end);
+        cursorWrapper.removeEventListener('mousemove', moved);
+        cursorWrapper.removeEventListener('touchend', end);
+        cursorWrapper.removeEventListener('touchmove', moved);
+      }
     }
-  }, []);
+  });
+
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
+  let cursorType = multiUserAccess || currentUser?.presenter ? "none" : "default";
+  if (isPanning) cursorType = 'grab';
 
   return (
-    <span disabled={true} ref={(r) => (cursorWrapper = r)}>
-      <div style={{ height: "100%", cursor: "none" }}>
-        {active && (
+    <span ref={(r) => (cursorWrapper = r)}>
+      <div style={{ height: "100%", cursor: cursorType }}>
+        {(active && multiUserAccess || (active && currentUser?.presenter)) && (
           <PositionLabel
             pos={pos}
             otherCursors={otherCursors}
