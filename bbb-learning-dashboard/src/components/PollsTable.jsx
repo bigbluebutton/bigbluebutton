@@ -260,7 +260,10 @@ const PollsTable = (props) => {
     gridCols.push({
       ...commonColProps,
       sortable: true,
-      valueGetter: (params) => params?.row[params?.field]?.join(', '),
+      valueGetter: (params) => {
+        const colVal = params?.row[params?.field];
+        return colVal === '' ? '' : colVal?.join(', ');
+      },
       renderCell: (params) => {
         // Here we count each poll vote in order to find out the most common answer.
         const pollVotesCount = Object.keys(polls || {}).reduce((prevPollVotesCount, pollId) => {
