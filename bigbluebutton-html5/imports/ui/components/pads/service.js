@@ -3,6 +3,14 @@ import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
+import {
+  getVideoUrl,
+  stopWatching,
+} from '/imports/ui/components/external-video-player/service';
+import {
+  screenshareHasEnded,
+  isVideoBroadcasting,
+} from '/imports/ui/components/screenshare/service';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 const THROTTLE_TIMEOUT = 2000;
@@ -96,6 +104,36 @@ const getPadContent = (externalId) => {
   return '';
 };
 
+const getPinnedPad = () => {
+  const pad = Pads.findOne({
+    meetingId: Auth.meetingID,
+    pinned: true,
+  }, {
+    fields: {
+      externalId: 1,
+    },
+  });
+
+  return pad;
+};
+
+const pinPad = (externalId, pinned) => {
+  if (pinned) {
+    // Stop external video sharing if it's running.
+    if (getVideoUrl()) stopWatching();
+
+    // Stop screen sharing if it's running.
+    if (isVideoBroadcasting()) screenshareHasEnded();
+  }
+
+  makeCall('pinPad', externalId, pinned);
+};
+
+const throttledPinPad = _.throttle(pinPad, 1000, {
+  leading: true,
+  trailing: false,
+});
+
 export default {
   getPadId,
   createGroup,
@@ -106,4 +144,6 @@ export default {
   getPadTail,
   getPadContent,
   getParams,
+  getPinnedPad,
+  pinPad: throttledPinPad,
 };

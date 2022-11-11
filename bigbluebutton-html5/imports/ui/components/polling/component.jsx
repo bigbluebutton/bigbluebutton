@@ -194,6 +194,9 @@ class Polling extends Component {
                 placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
                 maxLength={MAX_INPUT_CHARS}
                 ref={(r) => { this.responseInput = r; }}
+                onPaste={(e) => { e.stopPropagation(); }}
+                onCut={(e) => { e.stopPropagation(); }}
+                onCopy={(e) => { e.stopPropagation(); }}
               />
               <Styled.SubmitVoteButton
                 data-test="submitAnswer"

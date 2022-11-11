@@ -128,6 +128,7 @@ class SharedNotes extends MultiUsers {
     await notesLocator.type('test');
     await sleep(1000);
 
+    await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
     
     await this.modPage.hasText(e.currentSlideText, /test/, 20000);

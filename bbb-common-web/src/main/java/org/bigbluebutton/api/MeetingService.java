@@ -377,7 +377,8 @@ public class MeetingService implements MessageListener {
         breakoutMetadata.put("meetingId", m.getExternalId());
         breakoutMetadata.put("sequence", m.getSequence().toString());
         breakoutMetadata.put("freeJoin", m.isFreeJoin().toString());
-        breakoutMetadata.put("captureNotes", m.isNoteCaptured().toString());
+        breakoutMetadata.put("captureSlides", m.isCaptureSlides().toString());
+        breakoutMetadata.put("captureNotes", m.isCaptureNotes().toString());
         breakoutMetadata.put("parentMeetingId", m.getParentMeetingId());
         storeService.recordBreakoutInfo(m.getInternalId(), breakoutMetadata);
       }
@@ -389,7 +390,8 @@ public class MeetingService implements MessageListener {
     if (m.isBreakout()) {
       logData.put("sequence", m.getSequence());
       logData.put("freeJoin", m.isFreeJoin());
-      logData.put("captureNotes", m.isNoteCaptured());
+      logData.put("captureSlides",  m.isCaptureSlides());
+      logData.put("captureNotes", m.isCaptureNotes());
       logData.put("parentMeetingId", m.getParentMeetingId());
     }
     logData.put("name", m.getName());
@@ -417,7 +419,7 @@ public class MeetingService implements MessageListener {
             m.getLearningDashboardAccessToken(), m.getCreateTime(),
             formatPrettyDate(m.getCreateTime()), m.isBreakout(), m.getSequence(), m.isFreeJoin(), m.getMetadata(),
             m.getGuestPolicy(), m.getAuthenticatedGuest(), m.getMeetingLayout(), m.getWelcomeMessageTemplate(), m.getWelcomeMessage(), m.getModeratorOnlyMessage(),
-            m.getDialNumber(), m.getMaxUsers(),
+            m.getDialNumber(), m.getMaxUsers(), m.getMaxUserConcurrentAccesses(),
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getMeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
@@ -436,33 +438,6 @@ public class MeetingService implements MessageListener {
   }
 
   private void processRegisterUser(RegisterUser message) {
-    Meeting m = getMeeting(message.meetingID);
-    if (m != null) {
-      User prevUser = m.getUserWithExternalId(message.externUserID);
-      if (prevUser != null) {
-        Map<String, Object> logData = new HashMap<>();
-        logData.put("meetingId", m.getInternalId());
-        logData.put("externalMeetingId", m.getExternalId());
-        logData.put("name", m.getName());
-        logData.put("extUserId", prevUser.getExternalUserId());
-        logData.put("intUserId", prevUser.getInternalUserId());
-        logData.put("username", prevUser.getFullname());
-        logData.put("logCode", "duplicate_user_with_external_userid");
-        logData.put("description", "Duplicate user with external userid.");
-
-        Gson gson = new Gson();
-        String logStr = gson.toJson(logData);
-        log.info(" --analytics-- data={}", logStr);
-
-        if (!m.allowDuplicateExtUserid) {
-          gw.ejectDuplicateUser(message.meetingID,
-                  prevUser.getInternalUserId(), prevUser.getFullname(),
-                  prevUser.getExternalUserId());
-        }
-
-      }
-
-    }
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.avatarURL, message.guest,
@@ -663,6 +638,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
+      params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES, message.captureSlides.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.ATTENDEE_PW, message.viewerPassword);
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
@@ -954,9 +930,8 @@ public class MeetingService implements MessageListener {
         message.name, message.role, message.avatarURL, message.guest, message.guestStatus,
               message.clientType);
 
-      if(m.getMaxUsers() > 0 && m.getUsers().size() >= m.getMaxUsers()) {
+      if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
         m.removeEnteredUser(user.getInternalUserId());
-        gw.ejectDuplicateUser(message.meetingId, user.getInternalUserId(), user.getFullname(), user.getExternalUserId());
         return;
       }
 

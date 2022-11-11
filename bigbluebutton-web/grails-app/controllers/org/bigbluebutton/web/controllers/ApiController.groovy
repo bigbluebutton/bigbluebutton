@@ -925,6 +925,7 @@ class ApiController {
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
                 captureNotes meeting.breakoutRoomsParams.captureNotes
+                captureSlides meeting.breakoutRoomsParams.captureSlides
               }
             }
             customdata (
@@ -1296,7 +1297,11 @@ class ApiController {
       def Boolean isDownloadable = false;
 
       if (document.name != null && "default".equals(document.name)) {
-        downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        if(presentationService.defaultUploadedPresentation){
+          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        } else {
+          log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
+        }
       } else{
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
@@ -1582,16 +1587,18 @@ class ApiController {
     Boolean rejoin = meeting.getUserById(us.internalUserId) != null;
     // Users that passed enter once, still not joined but somehow re-entered
     Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
+    // User are able to rejoin if he already joined previously with the same extId
+    Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
     // Users that already joined the meeting
-    int joinedUsers = meeting.getUsers().size()
+    // It will count only unique users in order to avoid the same user from filling all slots
+    int joinedUniqueUsers = meeting.countUniqueExtIds()
     // Users that are entering the meeting
     int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Joined users - ${joinedUsers}")
-    log.info("Entered users - ${enteredUsers}")
+    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
 
-    Boolean reachedMax = joinedUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && reachedMax) {
+    Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
+    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax) {
       return true;
     }
 

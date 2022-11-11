@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Logger from '/imports/startup/client/logger';
 import { formatLocaleCode } from '/imports/utils/string-utils';
+import Intl from '/imports/ui/services/locale';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -66,6 +67,7 @@ class IntlStartup extends Component {
     const url = `./locale?locale=${locale}&init=${init}`;
     const localesPath = 'locales';
 
+    Intl.fetching = true;
     this.setState({ fetching: true }, () => {
       fetch(url)
         .then((response) => {
@@ -138,6 +140,7 @@ class IntlStartup extends Component {
 
               const dasherizedLocale = normalizedLocale.replace('_', '-');
               const { language, formattedLocale } = formatLocaleCode(dasherizedLocale);
+              Intl.setLocale(formattedLocale, mergedMessages);
 
               this.setState({ messages: mergedMessages, fetching: false, normalizedLocale: dasherizedLocale }, () => {
                 Settings.application.locale = dasherizedLocale;

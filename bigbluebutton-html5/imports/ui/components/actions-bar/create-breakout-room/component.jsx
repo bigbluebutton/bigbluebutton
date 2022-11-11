@@ -10,8 +10,8 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
+import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
-import { importSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -87,6 +87,10 @@ const intlMessages = defineMessages({
   captureNotesLabel: {
     id: 'app.createBreakoutRoom.captureNotes',
     description: 'capture shared notes label',
+  },
+  captureSlidesLabel: {
+    id: 'app.createBreakoutRoom.captureSlides',
+    description: 'capture slides label',
   },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
@@ -211,6 +215,7 @@ class BreakoutRoom extends PureComponent {
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
     this.setCaptureNotes = this.setCaptureNotes.bind(this);
+    this.setCaptureSlides = this.setCaptureSlides.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
     this.renderErrorMessages = this.renderErrorMessages.bind(this);
@@ -232,6 +237,7 @@ class BreakoutRoom extends PureComponent {
       roomNameEmptyIsValid: true,
       record: false,
       captureNotes: false,
+      captureSlides: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
     };
@@ -400,6 +406,7 @@ class BreakoutRoom extends PureComponent {
       freeJoin,
       record,
       captureNotes,
+      captureSlides,
       numberOfRoomsIsValid,
       numberOfRooms,
       durationTime,
@@ -444,7 +451,7 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
     }));
 
-    createBreakoutRoom(rooms, durationTime, record, captureNotes);
+    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides);
     Session.set('isUserListOpen', true);
   }
 
@@ -583,6 +590,10 @@ class BreakoutRoom extends PureComponent {
 
   setCaptureNotes(e) {
     this.setState({ captureNotes: e.target.checked });
+  }
+
+  setCaptureSlides(e) {
+    this.setState({ captureSlides: e.target.checked });
   }
 
   getUserByRoom(room) {
@@ -1008,12 +1019,15 @@ class BreakoutRoom extends PureComponent {
   }
 
   renderCheckboxes() {
-    const { intl, isUpdate, isBreakoutRecordable } = this.props;
+    const {
+      intl, isUpdate, isBreakoutRecordable,
+    } = this.props;
     if (isUpdate) return null;
     const {
       freeJoin,
       record,
       captureNotes,
+      captureSlides,
     } = this.state;
     return (
       <Styled.CheckBoxesContainer key="breakout-checkboxes">
@@ -1044,7 +1058,23 @@ class BreakoutRoom extends PureComponent {
           ) : null
         }
         {
-          importSharedNotesFromBreakoutRoomsEnabled() ? (
+          isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() ? (
+            <Styled.FreeJoinLabel htmlFor="captureSlidesBreakoutCheckbox" key="capture-slides-breakouts">
+              <Styled.FreeJoinCheckbox
+                id="captureSlidesBreakoutCheckbox"
+                type="checkbox"
+                onChange={this.setCaptureSlides}
+                checked={captureSlides}
+                aria-label={intl.formatMessage(intlMessages.captureSlidesLabel)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.captureSlidesLabel)}
+              </span>
+            </Styled.FreeJoinLabel>
+          ) : null
+        }
+        {
+          isImportSharedNotesFromBreakoutRoomsEnabled() ? (
             <Styled.FreeJoinLabel htmlFor="captureNotesBreakoutCheckbox" key="capture-notes-breakouts">
               <Styled.FreeJoinCheckbox
                 id="captureNotesBreakoutCheckbox"

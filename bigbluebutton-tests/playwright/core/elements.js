@@ -104,6 +104,20 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
+exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
+exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
+exports.positionInWaitingQueue = 'div[id="positionInWaitingQueue"]';
+exports.allowEveryone = 'button[data-test="allowEveryone"]';
+exports.denyEveryone = 'button[data-test="denyEveryone"]';
+exports.guestMessage = 'p[data-test="guestMessage"]';
+exports.privateMessageGuest = 'button[data-test="privateMessageGuest"]';
+exports.acceptGuest = 'button[data-test="acceptGuest"]';
+exports.denyGuest = 'button[data-test="denyGuest"]';
+exports.inputPrivateLobbyMesssage = 'div[data-test="privateLobbyMessage"] >> textarea';
+exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
+exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
+exports.welcomeMessage = 'h1[id="welcome-message"]';
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
 exports.frequentlyUsedEmoji = '👍';
@@ -138,10 +152,11 @@ exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
-exports.sendNotesToWhiteboard = 'button[data-test="sendNotesToWhiteboard"]';
+exports.sendNotesToWhiteboard = 'li[data-test="moveNotesToWhiteboard"]';
 exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProgressToast"]';
 exports.sharedNotesViewingMode = 'iframe[data-test="sharedNotesViewingMode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
+exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';

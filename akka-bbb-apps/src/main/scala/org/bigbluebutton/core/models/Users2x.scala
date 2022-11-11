@@ -407,4 +407,5 @@ object EjectReasonCode {
   val USER_INACTIVITY = "user_inactivity_eject_reason"
   val BANNED_USER_REJOINING = "banned_user_rejoining_reason"
   val USER_LOGGED_OUT = "user_logged_out_reason"
+  val MAX_PARTICIPANTS = "max_participants_reason"
 }
