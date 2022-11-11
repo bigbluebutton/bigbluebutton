@@ -64,17 +64,18 @@ class Options extends Page {
     await this.waitAndClick(e.modalConfirmButton);
 
     //Checking user list
-    await this.getBackgroundColor(e.chatButton, 'rgb(39, 42, 42)');
-    await this.getTextColor(e.chatButton, 'rgb(208, 205, 201)');
-    await this.getBackgroundColor(e.chatBox, 'rgb(34, 36, 37)');
-    await this.getTextColor(e.chatBox, 'rgb(170, 164, 155)');
     await this.getBackgroundColor(e.sharedNotesBackground, 'rgb(39, 42, 42)');
     await this.getTextColor(e.sharedNotesBackground, 'rgb(208, 205, 201)');
     await this.waitAndClick(e.manageUsers);
     await this.waitAndClick(e.guestPolicyLabel);
     await this.getBackgroundColor(e.guestPolicyBackground, 'rgb(34, 36, 37)');
     await this.waitAndClick(e.closeModal);
+    await this.getBackgroundColor(e.chatButton, 'rgb(39, 42, 42)');
+    await this.getTextColor(e.chatButton, 'rgb(208, 205, 201)');
+    await this.getTextColor(e.hidePublicChat, 'rgb(170, 164, 155)');
+    await this.getTextColor(e.chatOptionsColor, 'rgb(170, 164, 155)'); 
 
+    await this.getTextColor(e.manageUsersColor, 'rgb(170, 164, 155)');
     await this.waitAndClick(e.manageUsers);
     await this.waitAndClick(e.lockViewersButton);
     await this.getBackgroundColor(e.lockViewersBackground, 'rgb(34, 36, 37)');
@@ -84,29 +85,33 @@ class Options extends Page {
     await this.getBackgroundColor(e.publicChat, 'rgb(34, 36, 37)');
     await this.getBackgroundColor(e.chatWelcomeMessageText, 'rgb(37, 39, 40)');
     await this.getBackgroundColor(e.sendButtonBackground, 'rgb(24, 94, 168)');
+    await this.getBackgroundColor(e.chatBox, 'rgb(34, 36, 37)');
+    await this.getTextColor(e.chatBox, 'rgb(170, 164, 155)');
 
     // Checking actions background and buttons color
     await this.getBackgroundColor(e.actionsBarBackground, 'rgb(30, 32, 33)')
     await this.getTextColor(e.joinAudioBackgroundDisabled, 'rgb(222, 220, 217)');
+    await this.getBackgroundColor(e.joinAudioBackgroundDisabled, 'rgba(0, 0, 0, 0)');
     await this.getTextColor(e.joinVideoBackgroundDisabled, 'rgb(222, 220, 217)');
+    await this.getBackgroundColor(e.joinVideoBackgroundDisabled, 'rgba(0, 0, 0, 0)');
     await this.getTextColor(e.startScreenShareBackground, 'rgb(222, 220, 217)');
+    await this.getBackgroundColor(e.startScreenShareBackground, 'rgba(0, 0, 0, 0)');
     await this.getTextColor(e.raiseHandBtnBackground, 'rgb(222, 220, 217)');
+    await this.getBackgroundColor(e.raiseHandBtnBackground, 'rgba(0, 0, 0, 0)');
     await this.getBackgroundColor(e.actionsBackground, 'rgb(24, 94, 168)');
     await this.getBackgroundColor(e.minimizePresentationBackground, 'rgb(24, 94, 168)');
-
+    
     // Checking buttons background and navbar background
     await this.getBackgroundColor(e.navbarBackground, 'rgb(30, 32, 33)');
     await this.getTextColor(e.userListToggleBackground, 'rgb(222, 220, 217)');
     await this.getTextColor(e.optionsButtonBackground, 'rgb(222, 220, 217)');
+    
 
     await this.waitAndClick(e.optionsButton);
     await this.waitAndClick(e.settings);
     await this.getBackgroundColor(e.modalSettings, 'rgb(34, 36, 37)');
     await this.waitAndClick(e.modalConfirmButton);
-    await this.getBackgroundColor(e.presentationToolbarWrapper, 'rgb(39, 42, 42)');
-        
-    
-  
+    await this.getBackgroundColor(e.presentationToolbarWrapper, 'rgb(39, 42, 42)');  
   }
 }
 

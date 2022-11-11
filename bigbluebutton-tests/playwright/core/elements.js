@@ -382,3 +382,5 @@ exports.joinVideoBackgroundDisabled = 'button[data-test="joinVideo"] >> span';
 exports.startScreenShareBackground = 'button[data-test="startScreenShare"] >> span';
 exports.raiseHandBtnBackground = 'button[data-test="raiseHandLabel"] >> span';
 exports.sharedNotesBackground = 'div[aria-label="Shared Notes"]';
+exports.manageUsersColor = 'button[data-test="manageUsers"] >> span';
+exports.chatOptionsColor = 'button[data-test="chatOptionsMenu"] >> span';
