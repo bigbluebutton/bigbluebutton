@@ -1046,9 +1046,15 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "Миниатюра презентации",
     "app.learningDashboard.errors.invalidToken": "Неверный токен сеанса",
     "app.learningDashboard.errors.dataUnavailable": "Данные больше не доступны",
+    "mobileApp.portals.list.empty.addFirstPortal.label": "Создайте ваш первый портал с помощью кнопки вверху,",
+    "mobileApp.portals.list.empty.orUseOurDemoServer.label": "или используйте наш демо-сервер.",
+    "mobileApp.portals.list.add.button.label": "Создать портал",
+    "mobileApp.portals.fields.name.label": "Имя портала",
     "mobileApp.portals.fields.name.placeholder": "Демонстрация BigBlueButton",
     "mobileApp.portals.fields.url.label": "URL сервера",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "Сохранить",
+    "mobileApp.portals.drawerNavigation.button.label": "Порталы",
+    "mobileApp.portals.addPortalPopup.validation.emptyFields": "Обязательные поля",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Имя уже используется",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Ошибка при загрузке страницы. Проверьте URL и сетевое подключение."
 
