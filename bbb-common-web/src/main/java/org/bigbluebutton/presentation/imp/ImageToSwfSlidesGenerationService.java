@@ -127,6 +127,11 @@ public class ImageToSwfSlidesGenerationService {
 	
 	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
 		log.debug("Creating SVG images.");
+		if (pres.getUploadedFile().length() > maxImageSize) {
+	        DecimalFormat percentFormat= new DecimalFormat("#.##%");
+			resizeImage(pres, percentFormat
+					.format(Double.valueOf(maxImageSize) / Double.valueOf(pres.getUploadedFile().length())));
+		}
 		notifier.sendCreatingSvgImagesUpdateMessage(pres);
 		svgImageCreator.createSvgImage(pres, page);
 	}
