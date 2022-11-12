@@ -21,12 +21,12 @@ const intlMessages = defineMessages({
   downloaded: {
     id: 'app.presentation.options.downloaded',
     description: 'Downloaded label',
-    defaultMessage: 'Current presentation was downloaded',
+    defaultMessage: 'Current snapshot was downloaded',
   },
   downloadFailed: {
     id: 'app.presentation.options.downloadFailed',
     description: 'Downloaded failed label',
-    defaultMessage: 'Could not download current presentation',
+    defaultMessage: 'Could not download current snapshot',
   },
   fullscreenLabel: {
     id: 'app.presentation.options.fullscreen',
