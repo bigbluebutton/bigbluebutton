@@ -49,14 +49,14 @@ const PollsTable = (props) => {
 
   const commonUserProps = {
     field: 'User',
-    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.userLabel', default: 'User' }),
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.userLabel', defaultMessage: 'User' }),
     flex: 1,
     sortable: true,
   };
 
   const commonCountProps = {
     field: 'count',
-    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', default: 'Total of answers' }),
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', defaultMessage: 'Total of answers' }),
     flex: 1,
     sortable: true,
   };
