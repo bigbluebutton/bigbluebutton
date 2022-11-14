@@ -57,7 +57,7 @@ const PollsTable = (props) => {
   const commonCountProps = {
     field: 'count',
     headerName: 'Counter',
-    width: 100,
+    flex: 1,
     sortable: true,
   };
 
