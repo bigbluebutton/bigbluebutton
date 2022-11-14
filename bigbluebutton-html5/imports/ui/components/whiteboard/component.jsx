@@ -590,6 +590,16 @@ export default function Whiteboard(props) {
         persistShape(diff, whiteboardId);
       }
     }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      const diff = {
+        id: patchedShape.id,
+        point: patchedShape.point,
+        text: patchedShape.text
+      }
+      persistShape(diff, whiteboardId);
+    }
   };
 
   const onUndo = (app) => {
