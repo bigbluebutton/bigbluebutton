@@ -1193,7 +1193,7 @@ class ApiController {
         String method = 'join'
         String extId = validationService.encodeString(meeting.getExternalId())
         String fullName = validationService.encodeString(us.fullname)
-        String query = "fullName=${fullName}&meetingID=${extId}&password=${us.role.equals(ROLE_MODERATOR) ? meeting.moderatorPassword : meeting.viewerPassword}&redirect=true&userID=${us.getExternUserID()}"
+        String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
         String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
         String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
         response.addHeader("Cache-Control", "no-cache")
