@@ -80,8 +80,12 @@ $(REPOSITORY)/conf/distributions:
 
 $(REPOSITORY):: $(REPOSITORY)/conf/distributions
 
+# reprepro won't overwrite an existing package in the repository, so when updating,
+# remove the packages first and just ignore any errors that occur
+
 $(REPOSITORY):: $(PACKAGES)
-	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $(PACKAGES)
+	reprepro -b $(REPOSITORY) remove $(CODENAME) $(shell basename -a $? | sed 's/_[^ ]*//g')
+	reprepro -b $(REPOSITORY) includedeb $(CODENAME) $?
 	touch $(REPOSITORY)
 
 # It's not clear which placeholders need to be created to be any given package, so depend
