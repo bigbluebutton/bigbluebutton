@@ -46,15 +46,15 @@ class Header extends React.Component {
 
     return (
       <Styled.Header
-        hideBorder={hideBorder}
-        headerOnTop={headerOnTop}
-        innerHeader={innerHeader}
+        $hideBorder={hideBorder}
+        $headerOnTop={headerOnTop}
+        $innerHeader={innerHeader}
         {...other}
       >
         <Styled.Title
-          hasMarginBottom={innerHeader}
-          headerOnTop={headerOnTop}
-          innerHeader={innerHeader}
+          $hasMarginBottom={innerHeader}
+          $headerOnTop={headerOnTop}
+          $innerHeader={innerHeader}
         >
           {children}
         </Styled.Title>
@@ -65,8 +65,8 @@ class Header extends React.Component {
             circle
             hideLabel
             aria-describedby="modalDismissDescription"
-            headerOnTop={headerOnTop}
-            innerHeader={innerHeader}
+            $headerOnTop={headerOnTop}
+            $innerHeader={innerHeader}
             {...closeButtonProps}
           />
         ) : null}
