@@ -1,0 +1,1910 @@
+openapi: 3.0.1
+info:
+  title: Big Blue Button
+  description: API specification for Big Blue Button
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: ralam@blindsidenetworks.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 2.0.0
+externalDocs:
+  description: Find out more about Big Blue Button
+  url: http://docs.bigbluebutton.org
+servers:
+- url: https://bigbluebutton.org/bigbluebutton/api/v2
+tags:
+- name: meeting
+  description: API governing interaction with meetings and presentations
+  externalDocs:
+    description: Find out more
+    url: http://docs.bigbluebutton.org
+- name: recording
+  description: Access to meeting recordings
+  externalDocs:
+    description: Find out more
+    url: http://docs.bigbluebutton.org
+    
+paths:
+  /meetings:
+    get:
+      tags:
+      - meeting
+      summary: Retrieve meetings on the server
+      operationId: getMeetings
+      parameters:
+        - in: query
+          name: meetingName
+          schema:
+            type: string
+          description: "Comma separated list of meeting names"
+        - in: query
+          name: meetingId
+          schema:
+            type: string
+          description: "Comma separated list of meeting IDs"
+        - in: query
+          name: meta
+          schema:
+            type: string
+          description: "You can pass one or more metadata values to filter the meetings returned. The format of these parameters is the same as the metadata passed to the create call."
+          example: "meta_presenter=joe&meta_category=education"
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+          description: "Page number to be retrieved"
+        - in: query
+          name: size
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          description: "Number of items to be included on each page"  
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []    
+    post:
+      tags:
+      - meeting
+      summary: Create a new meeting
+      operationId: createMeeting
+      requestBody:
+        description: Meeting object to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Create'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Create'
+        required: true
+      responses:
+        201:
+          $ref: '#/components/responses/Hateoas'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body 
+  /meetings/{meetingId}:
+    get:
+      tags:
+      - meeting
+      summary: Retrieve info for the specified meeting
+      operationId: getMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to be retrieved
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Meeting'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'  
+      security:
+      - api_key: []
+    post:
+      tags:
+      - meeting
+      summary: Insert document(s) into a running meeting (WIP)
+      operationId: insertDocument
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to insert document(s) into
+        required: true
+        schema:
+          type: string
+      responses:
+        201:
+          $ref: '#/components/responses/Empty'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - meeting
+      summary: End a running meeting
+      operationId: endMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to end
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: Meeting was successfully ended
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []    
+  /meetings/{meetingId}/running:
+    get:
+      tags:
+      - meeting
+      operationId: isMeetingRunning
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to check
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Request successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties:
+                      running:
+                        type: boolean
+                  errors:
+                    type: object
+                    properties: {}
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties: 
+                      running:
+                        type: boolean
+                  errors:
+                    type: object
+                    properties: {}
+                xml:
+                  name: response
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'          
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []    
+  /meetings/{meetingId}/join:
+    post:
+      tags:
+      - meeting
+      operationId: joinMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to join
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Join'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Join'
+        required: true
+      responses:
+        200:
+          description: "Successfully joined meeting (response returned if redirect is set to false)"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties:
+                      meetingId:
+                        type: string
+                      userId:
+                        type: string
+                      authToken:
+                        type: string
+                      sessionToken:
+                        type: string
+                      url:
+                        type: string
+                  errors:
+                    type: object
+                    properties: {}
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  payload:
+                    type: object
+                    properties:
+                      meetingId:
+                        type: string
+                      userId:
+                        type: string
+                      authToken:
+                        type: string
+                      sessionToken:
+                        type: string
+                      url:
+                        type: string
+                  errors:
+                    type: object
+                    properties: {}
+                xml:
+                  name: response
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'          
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []  
+  /meetings/{meetingId}/presentations:
+    post:
+      tags:
+      - meeting
+      summary: Upload a presentation file
+      operationId: uploadMeeting
+      parameters:
+      - name: meetingId
+        in: path
+        description: ID of the meeting to join
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                isDownloadable:
+                  type: boolean
+                podId:
+                  type: string
+                current: 
+                  type: boolean
+                tempPresenationId:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          $ref: '#/components/responses/Empty'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized' 
+        500:
+          $ref: '#/components/responses/Default'
+      security:
+      - api_key: []    
+  /meetings/{meetingId}/presentations/{presId}/{name}:        
+    get:
+      tags:
+      - meeting
+      summary: Download the specified presentation file
+      operationId: downloadFile
+      parameters:
+      - name: meetingId
+        in: path
+        description: Meeting the presentation belongs to
+        required: true
+        schema:
+          type: string
+      - name: presId
+        in: path
+        description: Presentation ID
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns presentation PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'        
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/Default'
+      security:
+      - api_key: []    
+  /meetings/presentations/{token}/check:
+    get:
+      tags:
+      - meeting
+      summary: Check presentation before upload
+      operationId: check
+      parameters:
+      - name: token
+        in: path
+        description: Presentation auth token
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: length
+        schema:
+          type: string
+        description: "Original content length"
+      responses:
+        200:
+          $ref: '#/components/responses/Empty'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/slides:
+    get:
+      tags: 
+      - meeting
+      summary: Get the number of slides for a presentation
+      operationId: numSlides
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Files'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/slides/{slide}:
+    get:
+      tags: 
+      - meeting
+      summary: Retrieve the specified slide
+      operationId: showSlide
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      - name: slide
+        in: path
+        description: The slide to be shown
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns specified slide file
+          content:
+            application/x-shockwave-flash:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'        
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/Default'        
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/svgs:
+    get:
+      tags: 
+      - meeting
+      summary: Get the number of SVGs for a presentation
+      operationId: numSvgs
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Files'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/svgs/{svg}:
+    get:
+      tags: 
+      - meeting
+      summary: Retrieve the specified SVG
+      operationId: showSvg
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      - name: svg
+        in: path
+        description: The SVG to be shown
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns specified SVG file
+          content:
+            image/svg+xml:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'        
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/Default'
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/thumbnails:
+    get:
+      tags: 
+      - meeting
+      summary: Get the number of thumbnails for a presentation
+      operationId: numThumbnails
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Files'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/thumbnails/{thumbnail}:
+    get:
+      tags: 
+      - meeting
+      summary: Retrieve the specified thumbnail
+      operationId: showThumnail
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      - name: thumbnail
+        in: path
+        description: The thumbnail to be shown
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns specified thumbnail file
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'        
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/Default'
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/pngs:
+    get:
+      tags: 
+      - meeting
+      summary: Get the number of PNGs for a presentation
+      operationId: numPngs
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Files'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/pngs/{png}:
+    get:
+      tags: 
+      - meeting
+      summary: Retrieve the specified PNG
+      operationId: showPng
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      - name: png
+        in: path
+        description: The png to be shown
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns specified PNG file
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'        
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/Default'
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/files:
+    get:
+      tags: 
+      - meeting
+      summary: Get the number of text files for a presentation
+      operationId: numTextFiles
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Files'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+      security:
+      - api_key: []    
+  /meetings/presentations/{conference}/{room}/{name}/files/{file}:
+    get:
+      tags: 
+      - meeting
+      summary: Retrieve the specified text file
+      operationId: showTextFile
+      parameters:
+      - name: conference
+        in: path
+        description: Conference the presenation belongs to
+        required: true
+        schema:
+          type: string
+      - name: room
+        in: path
+        description: Room in the conference
+        required: true
+        schema:
+          type: string
+      - name: name
+        in: path
+        description: Name of the presentation
+        required: true
+        schema:
+          type: string
+      - name: file
+        in: path
+        description: The text file to be shown
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns specified text file
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'        
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/Default'
+      security:
+      - api_key: []    
+        
+  /recordings:
+    get:
+      tags:
+      - recording
+      summary: Retrieve recordings on the server
+      operationId: getRecordings
+      parameters:
+        - in: query
+          name: meetingId
+          schema:
+            type: string
+          description: "A meeting ID for get the recordings. It can be a set of meetingIDs separate by commas. If the meeting ID is not specified, it will get ALL the recordings. If a recordID is specified, the meetingID is ignored."
+        - in: query
+          name: recordId
+          schema:
+            type: string
+          description: "A record ID for get the recordings. It can be a set of recordIDs separate by commas. If the record ID is not specified, it will use meeting ID as the main criteria. If neither the meeting ID or recordID is specified, it will get ALL the recordings."
+        - in: query
+          name: state
+          schema:
+            type: string
+          description: "Since version 1.0 the recording has an attribute that shows a state that Indicates if the recording is [processing|processed|published|unpublished|deleted]. The parameter state can be used to filter results. It can be a set of states separate by commas. If it is not specified only the states [published|unpublished] are considered (same as in previous versions). If it is specified as “any”, recordings in all states are included."
+        - in: query
+          name: meta
+          schema:
+            type: string
+          description: "You can pass one or more metadata values to filter the recordings returned. The format of these parameters is the same as the metadata passed to the create call."
+          example: "meta_presenter=joe&meta_category=education"
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: "Page number to be retrieved"  
+        - in: query
+          name: size
+          schema:
+            type: integer
+          description: "Number of items to be included on each page"  
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+  /recordings/{recordID}:
+    get:
+      tags:
+      - recording
+      summary: Retrieve a single recording
+      operationId: getRecording
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording to be retrieved
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Recording'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - recording
+      summary: Delete a recording
+      operationId: deleteRecording
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        204:
+          description: Recording was successfully deleted
+          content: {}
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+    post:
+      tags:
+      - recording
+      summary: Update the metadata of an existing recording
+      operationId: updateRecording
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Metadata key/value pairs to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Metadata'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Metadata'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+    put:
+      tags:
+      - recording
+      summary: Publish/unpublish recording
+      operationId: publishRecording
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording to be updated
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: publish
+        schema:
+          type: string
+        description: "Boolean value indicating whether the recording should be published"    
+      responses:
+        200:
+          $ref: '#/components/responses/Hateoas'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+  /recordings/{recordID}/tracks:
+    get:
+      tags:
+      - recording
+      summary: Retrieve recording text tracks
+      operationId: getRecordingTextTracks
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Tracks'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body    
+    post:
+      tags:
+      - recording
+      summary: Upload text track for a recording
+      operationId: addRecordingTextTrack
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Text track file and details
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                kind:
+                  type: string
+                lang:
+                  type: string
+                label:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+        required: true
+      responses:
+        200:
+          $ref: '#/components/responses/Empty'
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'  
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+  /recordings/{recordID}/events:
+    get:
+      tags:
+      - recording
+      summary: Retrieve summary of meeting events
+      operationId: getMeetingSummary
+      parameters:
+      - name: recordID
+        in: path
+        description: ID of the recording
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Returns events json file
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'          
+        404:
+          $ref: '#/components/responses/NotFound'
+      security:
+      - api_key: []
+      x-codegen-request-body-name: body
+      
+components:
+  schemas:
+    Recording:
+      type: object
+      properties:
+        recordId:
+          type: string
+        meetingId:
+          type: string
+        internalMeetingId:
+          type: string
+        name:
+          type: string
+        isBreakout:
+          type: boolean
+        published:
+          type: boolean
+        state:
+          type: string
+        startTime:
+          type: integer
+          format: int64
+        endTime:
+          type: integer
+          format: int64
+        participants:
+          type: integer
+          format: int32
+        rawSize:
+          type: integer
+          format: int64
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        size:
+          type: integer
+          format: int64
+        playback:
+          $ref: '#/components/schemas/Playback'
+      xml:
+        name: recordingResponse
+    Metadata:
+      type: object
+      additionalProperties:
+        type: string
+      xml:
+        name: recordingMetadata
+    Playback:
+      type: object
+      properties:
+        format:
+          type: object
+          properties:
+            type:
+              type: string
+            url:
+              type: string
+            processingTime:
+              type: integer
+              format: int32
+            length:
+              type: integer
+              format: int32
+            size:
+              type: integer
+              format: int64
+            preview:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Image'
+      xml:
+        name: playback
+    Image:
+      type: object
+      properties:
+        alt:
+          type: string
+          xml:
+            attribute: true
+        height:
+          type: integer
+          format: int32
+          xml:
+            attribute: true
+        width:
+          type: integer
+          format: int32
+          xml:
+            attribute: true
+        src:
+          type: string
+          xml:
+            attribute: true
+      xml:
+        name: img
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        description:
+          type: string
+      xml:
+        name: error
+    Link:
+      type: object
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+      xml:
+        name: link
+    Track:
+      type: object
+      properties:
+        href:
+          type: string
+        kind:
+          type: string
+        label:
+          type: string
+        lang:
+          type: string
+        source:
+          type: string
+      xml:
+        name: track
+    Create:
+      required:
+      - name
+      - meetingID
+      type: object
+      properties:
+        name:
+          type: string
+        meetingID:
+          type: string
+        attendeePW:
+          type: string
+        moderatorPW:
+          type: string
+        welcome:
+          type: string
+        dialNumber:
+          type: string
+        voiceBridge:
+          type: integer
+          format: int32
+          example: "Number between 10000 and 99999"
+        maxParticipants:
+          type: integer
+          format: int32
+        logoutURL:
+          type: string
+        record:
+          type: boolean
+        duration:
+          type: integer
+          format: int32
+        isBreakout:
+          type: boolean
+        parentMeetingID:
+          type: string
+        sequence:
+          type: integer
+          format: int32
+        freeJoin:
+          type: boolean
+        breakoutRoomsEnabled:
+          type: boolean
+          default: true
+        breakoutRoomsPrivateChatEnabled:
+          type: boolean
+          default: true
+        breakoutRoomsRecord:
+          type: boolean
+          default: true
+        meta_*: 
+          type: string
+        moderatorOnlyMessage:
+          type: string
+        autoStartRecording:
+          type: boolean
+          default: false
+        allowStartStopRecording:
+          type: boolean
+          default: true
+        webcamsOnlyForModerator:
+          type: boolean
+        logo:
+          type: string
+        bannerText:
+          type: string
+        bannerColor:
+          type: string
+        copyright:
+          type: string
+        muteOnStart:
+          type: boolean
+        allowModsToUnmuteUsers:
+          type: boolean
+          default: false
+        lockSettingsDisableCam:
+          type: boolean
+          default: false
+        lockSettingsDisableMic:
+          type: boolean
+          default: false
+        lockSettingsDisablePrivateChat:
+          type: boolean
+          default: false
+        lockSettingsDisablePublicChat:
+          type: boolean
+          default: false
+        lockSettingsDisableNote:
+          type: boolean
+          default: false
+        lockSettingLockedLayout:
+          type: boolean
+          default: false
+        lockSettingsLockOnJoin:
+          type: boolean
+          default: true
+        lockSettingsLockOnJoinConfigurable:
+          type: boolean
+          default: false
+        guestPolicy:
+          type: string
+          example: "[ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR]"
+        meetingKeepEvents:
+          type: boolean
+          default: false
+        endWhenNoModerator:
+          type: boolean
+          default: false
+        endWhenNoModeratorDelayInMinutes:
+          type: integer
+          format: int32
+          default: 1
+        meetingLayout:
+          type: string
+          example: "[SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS]"
+        learningDashboardEnabled:
+          type: boolean
+          default: true
+        learningDashboardCleanupDelayInMinutes:
+          type: integer
+          format: int32
+          default: 2
+      xml:
+        name: createMeeting
+    Join:
+      required:
+      - fullName
+      - meetingId
+      - role
+      type: object
+      properties:
+        fullName:
+          type: string
+        meetingId:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+        createTime:
+          type: integer
+          format: int64
+        userId:
+          type: string
+        webVoiceConf:
+          type: string
+        configToken:
+          type: string
+        defaultLayout:
+          type: string
+        avatarUrl:
+          type: string
+        redirect:
+          type: string
+        clientUrl:
+          type: string
+        guest:
+          type: boolean
+        excludeFromDashboard:
+          type: boolean
+      xml:
+        name: joinMeeting    
+    Attendee:
+      type: object
+      properties:
+        userId:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+        isPresenter:
+          type: boolean
+        isListeningOnly:
+          type: boolean
+        hasJoinedVoice:
+          type: boolean
+        hasVideo:
+          type: boolean
+        clientType:
+          type: string
+      xml:
+        name: attendee
+    Meeting:
+      type: object
+      properties:
+        meetingName:
+          type: string
+        meetingId:
+          type: string
+        internalMeetingId:
+          type: string
+        createTime:
+          type: integer
+          format: int64
+        createDate:
+          type: string
+          format: dateTime
+        voiceBridge:
+          type: integer
+          format: int32
+        dialNumber:
+          type: string
+        attendeePW:
+          type: string
+        moderatorPW:
+          type: string
+        running:
+          type: boolean
+        duration:
+          type: integer
+          format: int32
+        hasUserJoined:
+          type: boolean
+        recording:
+          type: boolean
+        hasBeenForciblyEnded:
+          type: boolean
+        startTime:
+          type: integer
+          format: int64
+        endTime:
+          type: integer
+          format: int64
+        participantCount:
+          type: integer
+          format: int32
+        listenerCounter:
+          type: integer
+          format: int32
+        voiceParticipantCount:
+          type: integer
+          format: int32
+        videoCount:
+          type: integer
+          format: int32
+        maxUsers:
+          type: integer
+          format: int32
+        moderatorCount:
+          type: integer
+          format: int32
+        isBreakout:
+          type: boolean
+        attendees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attendee'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+      xml:
+        name: meeting
+          
+  responses:
+    Default:
+      description: An error occurred
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: response
+    Empty:
+      description: Request successful
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+    Hateoas:
+      description: Request successful
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+    InvalidID:
+      description: Invalid ID provided
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:   
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: response
+    NotFound:
+      description: The specified resource could not be found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: response
+    Recording:
+      description: Recording successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recording:
+                    $ref: '#/components/schemas/Recording'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recording:
+                    $ref: '#/components/schemas/Recording'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+    Recordings:
+      description: Recordings successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recording'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recording'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+    Meeting:
+      description: Meeting successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  meeting:
+                    $ref: '#/components/schemas/Meeting'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recording:
+                    $ref: '#/components/schemas/Meeting'
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'  
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+    Meetings:
+      description: Recordings successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  meetings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Meeting'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  recordings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Meeting'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+    Tracks:
+      description: Tracks successfully retrieved
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  tracks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Track'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  tracks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Track'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response           
+    BadRequest:
+      description: Request does not conform to the expected format
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: response
+    Unauthorized:
+      description: Request authentication failed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties: {}
+              errors:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Error'
+            xml:
+              name: response
+    Files:
+      description: Request successful
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+              errors:
+                type: object
+                properties: {}
+        application/xml:
+          schema:
+            type: object
+            properties:
+              payload:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  links:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Link'
+              errors:
+                type: object
+                properties: {}
+            xml:
+              name: response
+                    
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
