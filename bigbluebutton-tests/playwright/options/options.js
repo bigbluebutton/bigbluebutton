@@ -106,12 +106,16 @@ class Options extends Page {
     await this.getTextColor(e.userListToggleBackground, 'rgb(222, 220, 217)');
     await this.getTextColor(e.optionsButtonBackground, 'rgb(222, 220, 217)');
     
-
+    // Checking presentation area
+    await this.getBackgroundColor(e.whiteboardOptionsButton, 'rgb(34, 36, 37)');
+    await this.getTextColor(e.whiteboardOptionsButton, 'rgb(208, 205, 201)');
     await this.waitAndClick(e.optionsButton);
     await this.waitAndClick(e.settings);
     await this.getBackgroundColor(e.modalSettings, 'rgb(34, 36, 37)');
     await this.waitAndClick(e.modalConfirmButton);
-    await this.getBackgroundColor(e.presentationToolbarWrapper, 'rgb(39, 42, 42)');  
+    await this.getBackgroundColor(e.presentationToolbarWrapper, 'rgb(39, 42, 42)');
+    await this.getBackgroundColor(e.whiteboardOptionsButton, 'rgb(34, 36, 37)');
+    await this.getTextColor(e.whiteboardOptionsButton, 'rgb(208, 205, 201)');
   }
 }
 
