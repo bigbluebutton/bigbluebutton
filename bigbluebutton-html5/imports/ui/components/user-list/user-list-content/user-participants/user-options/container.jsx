@@ -37,21 +37,15 @@ const UserOptionsContainer = withTracker((props) => {
     users,
     clearAllEmojiStatus,
     intl,
+    isMeetingMuteOnStart,
   } = props;
-
+  
   const toggleStatus = () => {
     clearAllEmojiStatus(users);
 
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
-  };
-
-  const isMeetingMuteOnStart = () => {
-    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceProp.muteOnStart': 1 } });
-    const { muteOnStart } = voiceProp;
-    return muteOnStart;
   };
 
   const getMeetingName = () => {
@@ -66,7 +60,7 @@ const UserOptionsContainer = withTracker((props) => {
   return {
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
-      if (isMeetingMuteOnStart()) {
+      if (isMeetingMuteOnStart) {
         return meetingMuteDisabledLog();
       }
       return logger.info({
@@ -76,7 +70,7 @@ const UserOptionsContainer = withTracker((props) => {
     },
     toggleMuteAllUsersExceptPresenter: () => {
       UserListService.muteAllExceptPresenter(Auth.userID);
-      if (isMeetingMuteOnStart()) {
+      if (isMeetingMuteOnStart) {
         return meetingMuteDisabledLog();
       }
       return logger.info({
@@ -85,7 +79,7 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted except presenter');
     },
     toggleStatus,
-    isMeetingMuted: isMeetingMuteOnStart(),
+    isMeetingMuted: isMeetingMuteOnStart,
     amIModerator: ActionsBarService.amIModerator(),
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),

@@ -1,13 +1,5 @@
 package org.bigbluebutton.common2.msgs
 
-object EjectDuplicateUserReqMsg { val NAME = "EjectDuplicateUserReqMsg" }
-case class EjectDuplicateUserReqMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   EjectDuplicateUserReqMsgBody
-) extends BbbCoreMsg
-case class EjectDuplicateUserReqMsgBody(meetingId: String, intUserId: String, name: String,
-                                        extUserId: String)
-
 object RegisterUserReqMsg { val NAME = "RegisterUserReqMsg" }
 case class RegisterUserReqMsg(
     header: BbbCoreHeaderWithMeetingId,

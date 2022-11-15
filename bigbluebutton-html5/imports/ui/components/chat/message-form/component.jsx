@@ -351,6 +351,9 @@ class MessageForm extends PureComponent {
             value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
+            onPaste={(e) => { e.stopPropagation(); }}
+            onCut={(e) => { e.stopPropagation(); }}
+            onCopy={(e) => { e.stopPropagation(); }}
             async
           />
           {ENABLE_EMOJI_PICKER && this.renderEmojiButton()}

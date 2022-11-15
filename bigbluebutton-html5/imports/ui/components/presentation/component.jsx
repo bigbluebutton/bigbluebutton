@@ -95,8 +95,6 @@ class Presentation extends PureComponent {
     this.setIsPanning = this.setIsPanning.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
-    this.setIsPanning = this.setIsPanning.bind(this);
-    this.handlePanShortcut = this.handlePanShortcut.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
@@ -192,7 +190,7 @@ class Presentation extends PureComponent {
       clearFakeAnnotations,
     } = this.props;
 
-    const { presentationWidth, presentationHeight, zoom, isPanning } = this.state;
+    const { presentationWidth, presentationHeight, zoom, isPanning, fitToWidth } = this.state;
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
@@ -223,7 +221,7 @@ class Presentation extends PureComponent {
       const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
 
       if (
-        prevProps?.currentPresentation?.name !== currentPresentation.name
+        prevProps?.currentPresentation?.id !== currentPresentation.id
         || (downloadableOn && !userIsPresenter)
       ) {
         if (this.currentPresentationToastId) {
@@ -294,7 +292,7 @@ class Presentation extends PureComponent {
       });
     }
 
-    if (zoom <= HUNDRED_PERCENT && isPanning || !userIsPresenter && prevProps.userIsPresenter) {
+    if ((zoom <= HUNDRED_PERCENT && isPanning && !fitToWidth) || !userIsPresenter && prevProps.userIsPresenter) {
       this.setIsPanning();
     }
   }
@@ -323,13 +321,6 @@ class Presentation extends PureComponent {
   setTldrawAPI(api) {
     this.setState({
       tldrawAPI: api,
-    });
-  }
-
-
-  setIsPanning() {
-    this.setState({
-      isPanning: !this.state.isPanning,
     });
   }
 
@@ -854,7 +845,7 @@ class Presentation extends PureComponent {
     const { downloadable } = currentPresentation;
 
     return (
-      <Styled.InnerToastWrapper>
+      <Styled.InnerToastWrapper data-test="currentPresentationToast">
         <Styled.ToastIcon>
           <Styled.IconWrapper>
             <Icon iconName="presentation" />

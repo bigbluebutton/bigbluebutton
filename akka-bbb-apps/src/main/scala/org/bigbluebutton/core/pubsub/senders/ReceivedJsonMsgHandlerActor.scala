@@ -65,8 +65,6 @@ class ReceivedJsonMsgHandlerActor(
         // Route via meeting manager as there is a race condition if we send directly to meeting
         // because the meeting actor might not have been created yet.
         route[RegisterUserReqMsg](meetingManagerChannel, envelope, jsonNode)
-      case EjectDuplicateUserReqMsg.NAME =>
-        route[EjectDuplicateUserReqMsg](meetingManagerChannel, envelope, jsonNode)
       case UserJoinMeetingReqMsg.NAME =>
         routeGenericMsg[UserJoinMeetingReqMsg](envelope, jsonNode)
       case UserJoinMeetingAfterReconnectReqMsg.NAME =>
@@ -175,6 +173,10 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[PadPatchSysMsg](envelope, jsonNode)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
+      case PadCapturePubMsg.NAME =>
+        routePadMsg[PadCapturePubMsg](envelope, jsonNode)
+      case PadPinnedReqMsg.NAME =>
+        routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
@@ -286,6 +288,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
+      case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>
@@ -308,8 +312,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
       case MakePresentationWithAnnotationDownloadReqMsg.NAME =>
         routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
-      case ExportPresentationWithAnnotationReqMsg.NAME =>
-        routeGenericMsg[ExportPresentationWithAnnotationReqMsg](envelope, jsonNode)
       case NewPresAnnFileAvailableMsg.NAME =>
         routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
 

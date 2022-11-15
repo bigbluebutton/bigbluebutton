@@ -3,24 +3,15 @@ import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import {
   smPaddingX,
-  smPaddingY,
-  lgPaddingX,
+  mdPaddingX,
   lgPaddingY,
-  descriptionMargin,
-  titlePositionLeft,
   jumboPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
-import {
-  colorGrayDark,
-  colorGray,
-} from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  headingsFontWeight,
-  lineHeightBase,
-} from '/imports/ui/stylesheets/styled-components/typography';
+import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
+import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const ConfirmationModal = styled(Modal)`
-  padding: ${smPaddingY};
+  padding: ${mdPaddingX};
 `;
 
 const Container = styled.div`
@@ -29,23 +20,7 @@ const Container = styled.div`
   flex-direction: column;
   padding: 0;
   margin-top: 0;
-  margin-right: ${descriptionMargin};
-  margin-left: ${descriptionMargin};
-  margin-bottom: ${lgPaddingX};
-`;
-
-const Header = styled.div`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: ${titlePositionLeft};
-  margin-bottom: ${lgPaddingY};
-`;
-
-const Title = styled.div`
-  color: ${colorGrayDark};
-  font-weight: ${headingsFontWeight};
-  font-size: ${jumboPaddingY};
+  margin: auto;
 `;
 
 const Description = styled.div`
@@ -63,14 +38,16 @@ const Checkbox = styled.input`
   position: relative;
   top: 0.134rem;
   margin-right: 0.5rem;
+
   [dir="rtl"] & {
-      margin-right: 0;
-      margin-left: 0.5rem;
+    margin-right: 0;
+    margin-left: 0.5rem;
   }
 `;
 
 const Footer = styled.div`
   display:flex;
+  margin-bottom: ${lgPaddingY};
 `;
 
 const ConfirmationButton = styled(Button)`
@@ -83,6 +60,10 @@ const ConfirmationButton = styled(Button)`
   }
 `;
 
+const CancelButton = styled(ConfirmationButton)`
+  margin: 0;
+`;
+
 const Label = styled.label`
   display: block;
 `;
@@ -90,12 +71,11 @@ const Label = styled.label`
 export default {
   ConfirmationModal,
   Container,
-  Header,
-  Title,
   Description,
   DescriptionText,
   Checkbox,
   Footer,
   ConfirmationButton,
+  CancelButton,
   Label,
 };

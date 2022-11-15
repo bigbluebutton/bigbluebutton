@@ -7,7 +7,6 @@ import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
-  colorGrayDark,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -115,20 +114,13 @@ const BrowserWarning = styled.p`
   text-align: center;
 `;
 
-const Title = styled.div`
-  display: block;
-  color: ${colorGrayDark};
-  font-size: 1.4rem;
-  text-align: center;
-`;
-
 const Footer = styled.div`
   display: flex;
 `;
 
 const Actions = styled.div`
   margin-left: auto;
-  margin-right: ${borderSizeLarge};
+  margin-right: auto;
 
   [dir="rtl"] & {
     margin-right: auto;
@@ -243,11 +235,13 @@ const MarkerDynamic = styled(Marker)`
 const MarkerWrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  user-select: none;
 `;
 
 const MarkerDynamicWrapper = styled.div`
   position: relative;
   height: 1rem;
+  user-select: none;
 `;
 
 export default {
@@ -260,7 +254,6 @@ export default {
   Select,
   Content,
   BrowserWarning,
-  Title,
   Footer,
   Actions,
   ExtraActions,

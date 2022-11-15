@@ -98,6 +98,7 @@ class AudioSettings extends React.Component {
   componentDidMount() {
     const { inputDeviceId, outputDeviceId } = this.state;
 
+    Session.set('inEchoTest', true);
     this._isMounted = true;
     // Guarantee initial in/out devices are initialized on all ends
     this.setInputDevice(inputDeviceId);
@@ -107,6 +108,7 @@ class AudioSettings extends React.Component {
   componentWillUnmount() {
     const { stream } = this.state;
 
+    Session.set('inEchoTest', false);
     this._mounted = false;
 
     if (stream) {

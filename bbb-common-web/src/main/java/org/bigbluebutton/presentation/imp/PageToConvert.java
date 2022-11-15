@@ -3,6 +3,7 @@ package org.bigbluebutton.presentation.imp;
 
 import org.bigbluebutton.presentation.*;
 import java.io.File;
+import java.util.concurrent.TimeoutException;
 
 public class PageToConvert {
 
@@ -24,6 +25,7 @@ public class PageToConvert {
   private PageConverter pdfToSwfConverter;
   private SwfSlidesGenerationProgressNotifier notifier;
   private File pageFile;
+  private String messageErrorInConversion;
 
   public PageToConvert(UploadedPresentation pres,
                        int page,
@@ -71,6 +73,14 @@ public class PageToConvert {
     return pres.getMeetingId();
   }
 
+  public String getMessageErrorInConversion() {
+    return messageErrorInConversion;
+  }
+
+  public void setMessageErrorInConversion(String messageErrorInConversion) {
+    this.messageErrorInConversion = messageErrorInConversion;
+  }
+
   public PageToConvert convert() {
 
     // Only create SWF files if the configuration requires it
@@ -85,7 +95,11 @@ public class PageToConvert {
 
     // only create SVG images if the configuration requires it
     if (svgImagesRequired) {
-      createSvgImages(pres, page);
+      try{
+        createSvgImages(pres, page);
+      } catch (TimeoutException e) {
+        messageErrorInConversion = e.getMessage();
+      }
     }
 
     // only create PNG images if the configuration requires it
@@ -106,7 +120,7 @@ public class PageToConvert {
     textFileCreator.createTextFile(pres, page);
   }
 
-  private void createSvgImages(UploadedPresentation pres, int page) {
+  private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException {
     //notifier.sendCreatingSvgImagesUpdateMessage(pres);
     svgImageCreator.createSvgImage(pres, page);
   }

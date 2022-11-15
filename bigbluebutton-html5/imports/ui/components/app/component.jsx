@@ -49,6 +49,7 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import PadsService from '/imports/ui/components/pads/service';
+import NotesContainer from '/imports/ui/components/notes/container';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -423,7 +424,7 @@ class App extends Component {
       cameraPosition,
       focusedCamera,
       horizontalPosition,
-      isLayoutMeetingResizing,
+      isMeetingLayoutResizing,
       isPresenter,
       isModerator,
       layoutContextDispatch,
@@ -452,7 +453,7 @@ class App extends Component {
           cameraPosition,
           focusedCamera,
           horizontalPosition,
-          isLayoutMeetingResizing,
+          isMeetingLayoutResizing,
           isPresenter,
           isModerator,
           layoutContextDispatch,
@@ -484,6 +485,7 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowSharedNotes,
       isPresenter,
       selectedLayout,
       presentationIsOpen,
@@ -518,6 +520,7 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
+          {shouldShowSharedNotes ? <NotesContainer area="media" layoutType={selectedLayout} /> : null}
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}

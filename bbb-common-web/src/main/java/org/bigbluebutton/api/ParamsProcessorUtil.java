@@ -66,6 +66,8 @@ public class ParamsProcessorUtil {
     private String apiVersion;
     private boolean serviceEnabled = false;
     private String securitySalt;
+    private String supportedChecksumAlgorithms;
+    private String checksumHash;
     private int defaultMaxUsers = 20;
     private String defaultWelcomeMessage;
     private String defaultWelcomeMessageFooter;
@@ -106,6 +108,8 @@ public class ParamsProcessorUtil {
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
+        private boolean defaultBreakoutRoomsCaptureSlides = false;
+        private boolean defaultBreakoutRoomsCaptureNotes = false;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
 		private boolean defaultLockSettingsDisableCam;
@@ -128,6 +132,8 @@ public class ParamsProcessorUtil {
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+
+    private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
   	private Integer defaultHtml5InstanceId = 1;
@@ -275,7 +281,19 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled);
+            Boolean breakoutRoomsCaptureSlides = defaultBreakoutRoomsCaptureSlides;
+            String breakoutRoomsCaptureParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureParam)) {
+				breakoutRoomsCaptureSlides = Boolean.parseBoolean(breakoutRoomsCaptureParam);
+			}
+
+            Boolean breakoutRoomsCaptureNotes = defaultBreakoutRoomsCaptureNotes;
+            String breakoutRoomsCaptureNotesParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesParam)) {
+				breakoutRoomsCaptureNotes = Boolean.parseBoolean(breakoutRoomsCaptureNotesParam);
+			}
+
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -680,6 +698,11 @@ public class ParamsProcessorUtil {
 
         int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
 
+        if(defaultAllowDuplicateExtUserid == false) {
+            log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
+            maxUserConcurrentAccesses = 1;
+        }
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -706,7 +729,7 @@ public class ParamsProcessorUtil {
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
-				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
+				.withMaxUserConcurrentAccesses(maxUserConcurrentAccesses)
                 .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
@@ -742,6 +765,8 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
+            meeting.setCaptureSlides(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES)));
+            meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
@@ -978,11 +1003,39 @@ public class ParamsProcessorUtil {
 		log.info("CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = apiCall + queryString + securitySalt;
-		String cs = DigestUtils.sha1Hex(data);
-		if (checksum.length() == 64) {
-			cs = DigestUtils.sha256Hex(data);
-			log.info("SHA256 {}", cs);
-		}
+
+		int checksumLength = checksum.length();
+        String cs = null;
+
+        switch(checksumLength) {
+            case 40:
+                if(supportedChecksumAlgorithms.contains("sha1")) {
+                    cs = DigestUtils.sha1Hex(data);
+                    log.info("SHA1 {}", cs);
+                }
+                break;
+            case 64:
+                if(supportedChecksumAlgorithms.contains("sha256")) {
+                    cs = DigestUtils.sha256Hex(data);
+                    log.info("SHA256 {}", cs);
+                }
+                break;
+            case 96:
+                if(supportedChecksumAlgorithms.contains("sha384")) {
+                    cs = DigestUtils.sha384Hex(data);
+                    log.info("SHA384 {}", cs);
+                }
+                break;
+            case 128:
+                if(supportedChecksumAlgorithms.contains("sha512")) {
+                    cs = DigestUtils.sha512Hex(data);
+                    log.info("SHA512 {}", cs);
+                }
+                break;
+            default:
+                log.info("No algorithm could be found that matches the provided checksum length");
+        }
+
 		if (cs == null || !cs.equals(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
@@ -1067,6 +1120,10 @@ public class ParamsProcessorUtil {
 	public void setSecuritySalt(String securitySalt) {
 		this.securitySalt = securitySalt;
 	}
+
+    public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
+
+	public void setChecksumHash(String checksumHash) { this.checksumHash = checksumHash; }
 
 	public void setDefaultMaxUsers(int defaultMaxUsers) {
 		this.defaultMaxUsers = defaultMaxUsers;
@@ -1365,6 +1422,10 @@ public class ParamsProcessorUtil {
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {
 		this.defaultAllowDuplicateExtUserid = allow;
+	}
+
+    public void setMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
+		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
 	}
 
 	public void setEndWhenNoModerator(Boolean val) {
