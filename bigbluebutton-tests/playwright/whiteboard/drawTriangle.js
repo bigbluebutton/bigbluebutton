@@ -3,7 +3,6 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
-const { clearNotificationIfPresent } = require('../notifications/util');
 
 class DrawTriangle extends MultiUsers {
   constructor(browser, context) {
@@ -22,11 +21,9 @@ class DrawTriangle extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await clearNotificationIfPresent(this.modPage);
     await expect(this.modPage.page).toHaveScreenshot('moderator1-triangle.png', { maxDiffPixels: 2000 });
 
     await this.modPage2.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await clearNotificationIfPresent(this.modPage2);
     await expect(this.modPage2.page).toHaveScreenshot('moderator2-triangle.png', { maxDiffPixels: 2000 });
   }
 }
