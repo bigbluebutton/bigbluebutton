@@ -453,8 +453,18 @@ export default function Whiteboard(props) {
         .sort((a,b)=> a?.id>b?.id?-1:1)
         .forEach(n=> menu.appendChild(n));
     }
-
     app.setSetting('language', language);
+    app?.setSetting('isDarkMode', false);
+    app?.patchState(
+      {
+        appState: {
+          currentStyle: {
+            textAlign: isRTL ? "end" : "start",
+          },
+        },
+      }
+    );
+
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -589,6 +599,16 @@ export default function Whiteboard(props) {
         }
         persistShape(diff, whiteboardId);
       }
+    }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      const diff = {
+        id: patchedShape.id,
+        point: patchedShape.point,
+        text: patchedShape.text
+      }
+      persistShape(diff, whiteboardId);
     }
   };
 

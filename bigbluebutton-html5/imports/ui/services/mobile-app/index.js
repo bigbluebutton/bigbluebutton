@@ -5,7 +5,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
 (function (){
     // This function must be executed during the import time, that's why it's not exported to the caller component.
-    // It's needed because it changes some functions provided by browser, and these functions are verified during 
+    // It's needed because it changes some functions provided by browser, and these functions are verified during
     // import time (like in ScreenshareBridgeService)
     if(browserInfo.isTabletApp) {
         logger.debug(`BBB-MOBILE - Mobile APP detected`);
@@ -17,9 +17,9 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
         // This function detects if the call happened to publish a screenshare
         function detectWebRtcCallType(caller, peerConnection = null, args = null) {
             // Keep track of how many webRTC evaluations was done
-            if(!peerConnection.detectWebRtcCallTypeEvaluations) 
+            if(!peerConnection.detectWebRtcCallTypeEvaluations)
                 peerConnection.detectWebRtcCallTypeEvaluations = 0;
-            
+
             peerConnection.detectWebRtcCallTypeEvaluations ++;
 
             // If already successfully evaluated, reuse
@@ -32,7 +32,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             const e = new Error('dummy');
             const stackTrace = e.stack;
             logger.info(`BBB-MOBILE - detectWebRtcCallType (evaluating)`, {caller, peerConnection, stackTrace: stackTrace.split('\n'), detectWebRtcCallTypeEvaluations: peerConnection.detectWebRtcCallTypeEvaluations, args});
-            
+
             // addEventListener is the first call for screensharing and it has a startScreensharing in its stackTrace
             if( peerConnection.detectWebRtcCallTypeEvaluations == 1) {
                 if(caller == 'addEventListener' && stackTrace.indexOf('startScreensharing') !== -1) {
@@ -62,12 +62,12 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
                     promisesHolder[sequence] = {
                         resolve, reject
                     };
-                    
+
                     window.ReactNativeWebView.postMessage(JSON.stringify({
                         sequence: sequenceHolder.sequence,
                         method: method,
                         arguments: args,
-                    })); 
+                    }));
                 } );
             } catch(e) {
                 logger.error(`Error on callNativeMethod ${e.message}`, e);
@@ -76,7 +76,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
         // This method is called from the mobile app to notify us about a method invocation result
         window.nativeMethodCallResult = (sequence, isResolve, resultOrException) => {
-            
+
             const promise = promisesHolder[sequence];
             if(promise) {
                 if(isResolve) {
@@ -89,7 +89,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             }
             return true;
         }
-        
+
         // WebRTC replacement functions
         const buildVideoTrack = function () {}
         const stream = {};
@@ -112,7 +112,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
                         fakeVideoTrack.onended = null; // callbacks added from screenshare (we can use it later)
                         fakeVideoTrack.oninactive = null; // callbacks added from screenshare (we can use it later)
                         fakeVideoTrack.addEventListener = function() {}; // skip listeners
-                        
+
                         const videoTracks = [
                             fakeVideoTrack
                         ];
@@ -123,7 +123,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
                         resolve(stream);
                     }
                 ).catch(
-                    (e) => { 
+                    (e) => {
                         logger.error(`Failure calling native initializeScreenShare`, e.message)
                     }
                 );
@@ -164,7 +164,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             if(WEBRTC_CALL_TYPE_STANDARD === detectWebRtcCallType('addEventListener', this, arguments)){
                 return prototype.originalAddEventListener.call(this, ...arguments);
             }
-            
+
             logger.info(`BBB-MOBILE - addEventListener called`, {event, callback});
 
             switch(event) {
@@ -212,10 +212,10 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             }
 
             logger.info(`BBB-MOBILE - setRemoteDescription called`, {description, successCallback, failureCallback});
-            
+
             this._remoteDescription = JSON.parse(JSON.stringify(description));
             Object.defineProperty(this, 'remoteDescription', {get: function() {return this._remoteDescription;},set: function(newValue) {}});
-            
+
             const setRemoteDescriptionMethod = (webRtcCallType === WEBRTC_CALL_TYPE_SCREEN_SHARE) ? 'setScreenShareRemoteSDP' : 'setFullAudioRemoteSDP';
 
             return new Promise( (resolve, reject) => {
@@ -250,7 +250,7 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             }
             logger.info(`BBB-MOBILE - getLocalStreams called`, arguments);
 
-            // 
+            //
             return [
                 stream
             ];
@@ -281,14 +281,14 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
         }
 
         // Handle screenshare stop
-        const KurentoScreenShareBridge = require('/imports/api/screenshare/client/bridge/index.js').default;          
+        const KurentoScreenShareBridge = require('/imports/api/screenshare/client/bridge/index.js').default;
         //Kurento Screen Share
         var stopOriginal = KurentoScreenShareBridge.stop.bind(KurentoScreenShareBridge);
-        KurentoScreenShareBridge.stop = function(){  
+        KurentoScreenShareBridge.stop = function(){
             callNativeMethod('stopScreenShare')
             logger.debug(`BBB-MOBILE - Click on stop screen share`);
-            stopOriginal() 
-        } 
+            stopOriginal()
+        }
 
         // Handle screenshare stop requested by application (i.e. stopped the broadcast extension)
         window.bbbMobileScreenShareBroadcastFinishedCallback = function () {
