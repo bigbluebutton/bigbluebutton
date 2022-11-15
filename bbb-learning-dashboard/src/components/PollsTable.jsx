@@ -56,7 +56,7 @@ const PollsTable = (props) => {
 
   const commonCountProps = {
     field: 'count',
-    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', defaultMessage: 'Total of answers' }),
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', defaultMessage: 'Total' }),
     flex: 1,
     sortable: true,
   };
