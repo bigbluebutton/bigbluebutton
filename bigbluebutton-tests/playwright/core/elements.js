@@ -49,6 +49,7 @@ exports.muteMicButton = 'button[data-test="muteMicButton"]';
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
 exports.randomlyAssign = 'button[data-test="randomlyAssign"]';
+exports.resetAssignments = 'button[data-test="resetAssignments"]'
 exports.breakoutRoomsItem = 'div[data-test="breakoutRoomsItem"]';
 exports.alreadyConnected = 'span[data-test="alreadyConnected"]';
 exports.askJoinRoom1 = 'button[data-test="askToJoinRoom1"]';
@@ -56,6 +57,31 @@ exports.joinRoom1 = 'button[data-test="joinRoom1"]';
 exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
 exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
+exports.durationTime = 'input[data-test="durationTime"]';
+exports.decreaseBreakoutTime = 'button[data-test="decreaseBreakoutTime"]';
+exports.increaseBreakoutTime = 'button[data-test="increaseBreakoutTime"]';
+exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
+exports.roomGrid = 'div[data-test="roomGrid"] >> input';
+exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
+exports.breakoutBox1 = 'div[id="breakoutBox-1"]';
+exports.breakoutBox2 = 'div[id="breakoutBox-2"]';
+exports.breakoutOptionsMenu = 'button[data-test="breakoutOptionsMenu"]';
+exports.openUpdateBreakoutUsersModal = 'li[data-test="openUpdateBreakoutUsersModal"]';
+exports.userTest = 'div[id="breakoutBox-0"] >> p:nth-child(2)';
+exports.moveUser = 'div[id="breakoutBox-1"] >> p:nth-child(1)';
+exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
+exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
+exports.sendButtonDurationTime = 'button[data-test="sendButtonDurationTime"]';
+exports.breakoutRemainingTime = 'span[data-test="breakoutRemainingTime"]';
+exports.roomNameInput = 'input[data-test="roomName-1"]';
+exports.roomName1Test = 'span[data-test="Room 1Test"]';
+exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom-Room 1"]';
+exports.userNameBreakoutRoom2 = 'div[data-test="userNameBreakoutRoom-Room 2"]';
+exports.userNameBreakoutRoom7 = 'div[data-test="userNameBreakoutRoom-Room 7"]';
+exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
+exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
+exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
+exports.timeRemaining = 'span[data-test="timeRemaining"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
@@ -78,6 +104,27 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
+exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
+exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
+exports.positionInWaitingQueue = 'div[id="positionInWaitingQueue"]';
+exports.allowEveryone = 'button[data-test="allowEveryone"]';
+exports.denyEveryone = 'button[data-test="denyEveryone"]';
+exports.guestMessage = 'p[data-test="guestMessage"]';
+exports.privateMessageGuest = 'button[data-test="privateMessageGuest"]';
+exports.acceptGuest = 'button[data-test="acceptGuest"]';
+exports.denyGuest = 'button[data-test="denyGuest"]';
+exports.inputPrivateLobbyMesssage = 'div[data-test="privateLobbyMessage"] >> textarea';
+exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
+exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
+exports.welcomeMessage = 'h1[id="welcome-message"]';
+// Emoji picker
+exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
+exports.frequentlyUsedEmoji = '👍';
+exports.emojiSent = 'section[aria-label="Frequently Used"] button[title="+1"] span';
+// Auto Convert Emoji
+exports.autoConvertEmojiMessage = ':)';
+exports.convertedEmojiMessage = '😊';
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -191,6 +238,7 @@ exports.startShareVideoBtn = 'button[data-test="startNewVideo"]';
 exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
+exports.presentationsList = 'div[id="upload-modal"] tbody';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
@@ -312,3 +360,7 @@ exports.exportPlainButton = 'span[id="exportplain"]';
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
 exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
+
+// Help button
+exports.helpButton = 'li[data-test="helpButton"]';
+exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'

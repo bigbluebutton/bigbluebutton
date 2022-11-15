@@ -5,6 +5,7 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
+import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
@@ -13,6 +14,7 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -71,6 +73,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.helpLabel',
     description: 'Help options label',
   },
+  openAppLabel: {
+    id: 'app.navBar.settingsDropdown.openAppLabel',
+    description: 'Open mobile app label',
+  },
   helpDesc: {
     id: 'app.navBar.settingsDropdown.helpDesc',
     description: 'Describes help option',
@@ -120,7 +126,8 @@ const defaultProps = {
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const { isSafari } = browserInfo;
+const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class SettingsDropdown extends PureComponent {
@@ -180,7 +187,7 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-fullscreen',
           icon: fullscreenIcon,
           label: fullscreenLabel,
-          // description: fullscreenDesc,
+          description: fullscreenDesc,
           onClick: handleToggleFullscreen,
         },
       )
@@ -200,6 +207,8 @@ class SettingsDropdown extends PureComponent {
       audioCaptionsActive, audioCaptionsSet, isMobile,
     } = this.props;
 
+    const { isIos } = deviceInfo;
+
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
     const {
@@ -218,7 +227,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'settings',
         dataTest: 'settings',
         label: intl.formatMessage(intlMessages.settingsLabel),
-        // description: intl.formatMessage(intlMessages.settingsDesc),
+        description: intl.formatMessage(intlMessages.settingsDesc),
         onClick: () => mountModal(<SettingsMenuContainer />),
       },
       {
@@ -226,7 +235,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'about',
         dataTest: 'aboutModal',
         label: intl.formatMessage(intlMessages.aboutLabel),
-        // description: intl.formatMessage(intlMessages.aboutDesc),
+        description: intl.formatMessage(intlMessages.aboutDesc),
         onClick: () => mountModal(<AboutContainer />),
       },
     );
@@ -238,9 +247,24 @@ class SettingsDropdown extends PureComponent {
           icon: 'help',
           iconRight: 'popout_window',
           label: intl.formatMessage(intlMessages.helpLabel),
-          // description: intl.formatMessage(intlMessages.helpDesc),
+          dataTest: 'helpButton',
+          description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`),
         },
+      );
+    }
+
+    if (isIos &&
+      !isTabletApp &&
+      BBB_TABLET_APP_CONFIG.enabled == true &&
+      BBB_TABLET_APP_CONFIG.iosAppStoreUrl !== '') {
+      this.menuItems.push(
+        {
+          key: 'list-item-help',
+          icon: 'popout_window',
+          label: intl.formatMessage(intlMessages.openAppLabel),
+          onClick: () => mountModal(<MobileAppModal />),
+         }
       );
     }
 
@@ -263,7 +287,7 @@ class SettingsDropdown extends PureComponent {
         key: 'list-item-shortcuts',
         icon: 'shortcuts',
         label: intl.formatMessage(intlMessages.hotkeysLabel),
-        // description: intl.formatMessage(intlMessages.hotkeysDesc),
+        description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => mountModal(<ShortcutHelpComponent />),
         divider: true,
       },
@@ -275,7 +299,7 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-end-meeting',
           icon: 'application',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
-          // description: intl.formatMessage(intlMessages.endMeetingDesc),
+          description: intl.formatMessage(intlMessages.endMeetingDesc),
           onClick: () => mountModal(<EndMeetingConfirmationContainer />),
         },
       );
@@ -290,7 +314,7 @@ class SettingsDropdown extends PureComponent {
           dataTest: 'logout',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          // description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          description: intl.formatMessage(intlMessages.leaveSessionDesc),
           customStyles,
           onClick: () => this.leaveSession(),
         },
@@ -332,12 +356,12 @@ class SettingsDropdown extends PureComponent {
         )}
         actions={this.renderMenuItems()}
         opts={{
-          id: "default-dropdown-menu",
+          id: 'app-settings-dropdown-menu',
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
           getContentAnchorEl: null,
-          fullwidth: "true",
+          fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
           transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
         }}

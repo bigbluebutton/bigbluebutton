@@ -33,6 +33,10 @@ public:
     copyright: '©2022 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
+    bbbTabletApp:
+      enabled: false
+      iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
+      iosAppUrlScheme: 'bigbluebutton-tablet'
     lockOnJoin: true
     cdn: ''
     basename: '/html5client'
@@ -57,6 +61,7 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     # Allow users to open webcam video modal/preview when video is already
@@ -144,6 +149,13 @@ public:
     enableNetworkStats: true
     # Enable the button to allow users to copy network stats to clipboard
     enableCopyNetworkStatsButton: true
+    # where should client settings be stored? if you run a single BBB server or
+    # a cluster with a reverse proxy in front of it, you may set this to 'local'
+    # See https://docs.bigbluebutton.org/admin/clusterproxy.html
+    # allowed values:
+    # 'session' -> settings are stored in browser sessionStorage
+    # 'local' -> settings are stored in browser localStorage
+    userSettingsStorage: session
     defaultSettings:
       application:
         animations: true
@@ -241,6 +253,7 @@ public:
     # when the locale string is empty. If false, the empty
     # string will be returned.
     fallbackOnEmptyLocaleString: true
+    disableWebsocketFallback: true
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -511,12 +524,15 @@ public:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
-    enableEmojiPicker: false
+    emojiPicker:
+      enable: false
+      frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
   notes:
     enabled: true
     id: notes
+    pinnable: true
   layout:
     hidePresentation: false
     showParticipantsOnLogin: true
@@ -858,6 +874,10 @@ private:
   serverLog:
     level: info
     streamerLog: false
+    includeServerInfo: true
+    healthChecker:
+      enable: true
+      intervalMs: 30000
   minBrowserVersions:
     - browser: chrome
       version: 72

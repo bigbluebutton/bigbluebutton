@@ -58,6 +58,14 @@ class Page {
     }
   }
 
+  async handleNewTab(selector, context){
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      this.waitAndClick(selector),
+    ]);
+    return newPage;
+  }
+
   async joinMicrophone() {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
@@ -89,9 +97,9 @@ class Page {
       await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamConnecting);
     await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(e.webcamConnecting);
   }
 
   getLocator(selector) {
@@ -105,6 +113,11 @@ class Page {
   async getSelectorCount(selector) {
     const locator = this.getLocator(selector);
     return locator.count();
+  }
+
+  async getCopiedText(context) {
+    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL});
+    return this.page.evaluate(async () => navigator.clipboard.readText());
   }
 
   async closeAudioModal() {
@@ -196,6 +209,20 @@ class Page {
 
   async up(key) {
     await this.page.keyboard.up(key);
+  }
+
+  async dragDropSelector(selector, position) {
+    await this.page.locator(selector).dragTo(this.page.locator(position));
+  }
+
+  async checkElementCount(selector, count) {
+    const locator = await this.page.locator(selector);
+    await expect(locator).toHaveCount(count);
+  }
+
+  async hasValue(selector, value) {
+    const locator  = await this.page.locator(selector);
+    await expect(locator).toHaveValue(value);
   }
 }
 

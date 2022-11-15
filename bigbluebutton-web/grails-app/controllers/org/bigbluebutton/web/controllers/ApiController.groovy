@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import org.apache.commons.codec.binary.Base64
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
@@ -31,6 +32,7 @@ import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.service.ValidationService
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
@@ -229,16 +231,9 @@ class ApiController {
 
     String fullName = ParamsUtil.stripControlChars(params.fullName)
 
-    String externalMeetingId = params.meetingID
-
     String attPW = params.password
 
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     // the createTime mismatch with meeting's createTime, complain
     // In the future, the createTime param will be required
@@ -511,13 +506,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     boolean isRunning = meeting != null && meeting.isRunning();
 
     response.addHeader("Cache-Control", "no-cache")
@@ -548,10 +537,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId)
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId)
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingid", meeting.getInternalId());
@@ -595,10 +581,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     withFormat {
       xml {
@@ -698,67 +681,6 @@ class ApiController {
     }
 
     return reqParams;
-  }
-
-  /***********************************************
-   * POLL API
-   ***********************************************/
-  def setPollXML = {
-    String API_CALL = "setPollXML"
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    Map<String, String[]> reqParams = getParameters(request)
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.SET_POLL_XML,
-            reqParams,
-            request.getQueryString()
-    )
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue())
-      return
-    }
-
-
-    // Translate the external meeting id into an internal meeting id.
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
-    Meeting meeting = meetingService.getMeeting(internalMeetingId);
-
-    String pollXML = params.pollXML
-
-    String decodedPollXML;
-
-    try {
-      decodedPollXML = URLDecoder.decode(pollXML, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      log.error "Couldn't decode poll XML.", e
-      invalid("pollXMLError", "Cannot decode poll XML")
-      return;
-    }
-    def pollxml = new XmlSlurper().parseText(decodedPollXML);
-
-    pollxml.children().each { poll ->
-      String title = poll.title.text();
-      String question = poll.question.text();
-      String questionType = poll.questionType.text();
-
-      ArrayList<String> answers = new ArrayList<String>();
-      poll.answers.children().each { answer ->
-        answers.add(answer.text());
-      }
-
-      //send poll to BigBlueButton Apps
-      meetingService.createdPolls(meeting.getInternalId(), title, question, questionType, answers);
-    }
-
-    response.addHeader("Cache-Control", "no-cache")
-    withFormat {
-      xml {
-        // No need to use the response builder here until we have a more complex response
-        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
-      }
-    }
   }
 
   /**********************************************
@@ -1003,6 +925,8 @@ class ApiController {
               breakoutRooms {
                 record meeting.breakoutRoomsParams.record
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
+                captureNotes meeting.breakoutRoomsParams.captureNotes
+                captureSlides meeting.breakoutRoomsParams.captureSlides
               }
             }
             customdata (
@@ -1168,10 +1092,7 @@ class ApiController {
       return
     }
 
-    String externalMeetingId = params.meetingID
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId)
-    log.info("Retrieving meeting ${internalMeetingId}")
-    Meeting meeting = meetingService.getMeeting(internalMeetingId)
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null){
       uploadDocuments(meeting, true);
@@ -1189,6 +1110,103 @@ class ApiController {
           render(text: responseBuilder.buildInsertDocumentResponse(
                   "The meeting with id \"${externalMeetingId}\" doesn't exist.", RESP_CODE_FAILED),
                   contentType: "text/xml")
+        }
+      }
+    }
+  }
+
+  def getJoinUrl = {
+    String API_CALL = 'getJoinUrl'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    String respMessage = ""
+    boolean reject = false
+
+    String sessionToken
+    UserSession us
+    Meeting meeting
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.GET_JOIN_URL,
+            request.getParameterMap(),
+            request.getQueryString(),
+    )
+
+    //Validate Session
+    if(!(validationResponse == null)) {
+      respMessage = validationResponse.getValue()
+      reject = true
+    } else {
+      sessionToken = sanitizeSessionToken(params.sessionToken)
+      if (!hasValidSession(sessionToken)) {
+        reject = true
+        respMessage = "Invalid Session"
+      }
+    }
+
+    //Validate User
+    if(reject == false) {
+      us = getUserSession(sessionToken)
+
+      if(us == null) {
+        reject = true;
+        respMessage = "Access denied"
+      }
+    }
+
+    //Validate Meeting
+    if(reject == false) {
+      meeting = meetingService.getMeeting(us.meetingID)
+      boolean isRunning = meeting != null && meeting.isRunning();
+      if(!isRunning) {
+        reject = true
+        respMessage = "Meeting not found"
+      }
+
+      if (reject) {
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder.response {
+              returncode RESP_CODE_FAILED
+              message respMessage
+              sessionToken
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
+        }
+      } else {
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("logCode", "getJoinUrl");
+        logData.put("description", "Request join URL.");
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+
+        log.info(" --analytics-- data=" + logStr);
+
+        String method = 'join'
+        String extId = validationService.encodeString(meeting.getExternalId())
+        String fullName = validationService.encodeString(us.fullname)
+        String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
+        String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
+        String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder.response {
+              returncode RESP_CODE_SUCCESS
+              message "Join URL provided successfully."
+              url "${defaultServerUrl}/bigbluebutton/api/${method}?${query}&checksum=${checksum}"
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
         }
       }
     }
@@ -1377,7 +1395,11 @@ class ApiController {
       def Boolean isDownloadable = false;
 
       if (document.name != null && "default".equals(document.name)) {
-        downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        if(presentationService.defaultUploadedPresentation){
+          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        } else {
+          log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
+        }
       } else{
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
@@ -1493,9 +1515,8 @@ class ApiController {
     def presId
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
-      uploadFailReasons.add("invalid_filename")
-      uploadFailed = true
+      log.debug("presentation is null by default")
+      return
     } else {
       String presentationDir = presentationService.getPresentationDir()
       presId = Util.generatePresentationId(presFilename)
@@ -1504,13 +1525,13 @@ class ApiController {
         def newFilename = Util.createNewFilename(presId, filenameExt)
         def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
-        if (presDownloadService.savePresentation(meetingId, newFilePath, address)) {
-          pres = new File(newFilePath)
-        } else {
+        if(presDownloadService.savePresentation(meetingId, newFilePath, address)) pres = new File(newFilePath)
+        else {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
-          uploadFailed = true
+           uploadFailed = true
         }
+
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
         uploadFailReasons.add("null_presentation_dir")
@@ -1664,16 +1685,18 @@ class ApiController {
     Boolean rejoin = meeting.getUserById(us.internalUserId) != null;
     // Users that passed enter once, still not joined but somehow re-entered
     Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
+    // User are able to rejoin if he already joined previously with the same extId
+    Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
     // Users that already joined the meeting
-    int joinedUsers = meeting.getUsers().size()
+    // It will count only unique users in order to avoid the same user from filling all slots
+    int joinedUniqueUsers = meeting.countUniqueExtIds()
     // Users that are entering the meeting
     int enteredUsers = meeting.getEnteredUsers().size()
 
-    log.info("Joined users - ${joinedUsers}")
-    log.info("Entered users - ${enteredUsers}")
+    log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
 
-    Boolean reachedMax = joinedUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && reachedMax) {
+    Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
+    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax) {
       return true;
     }
 

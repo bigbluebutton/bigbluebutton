@@ -55,7 +55,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
             outGW.send(notifyEvent)
 
             LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
-            
+
             // Dial-in
             def buildLockMessage(meetingId: String, userId: String, lockedBy: String, locked: Boolean): BbbCommonEnvCoreMsg = {
               val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)

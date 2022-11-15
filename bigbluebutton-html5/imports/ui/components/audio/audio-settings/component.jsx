@@ -11,6 +11,7 @@ import LocalEchoContainer from '/imports/ui/components/audio/local-echo/containe
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import {
   getAudioConstraints,
+  doGUM,
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
@@ -97,6 +98,7 @@ class AudioSettings extends React.Component {
   componentDidMount() {
     const { inputDeviceId, outputDeviceId } = this.state;
 
+    Session.set('inEchoTest', true);
     this._isMounted = true;
     // Guarantee initial in/out devices are initialized on all ends
     this.setInputDevice(inputDeviceId);
@@ -106,6 +108,7 @@ class AudioSettings extends React.Component {
   componentWillUnmount() {
     const { stream } = this.state;
 
+    Session.set('inEchoTest', false);
     this._mounted = false;
 
     if (stream) {
@@ -245,7 +248,7 @@ class AudioSettings extends React.Component {
       audio: getAudioConstraints({ deviceId: inputDeviceId }),
     };
 
-    return navigator.mediaDevices.getUserMedia(constraints);
+    return doGUM(constraints, true);
   }
 
   renderOutputTest() {

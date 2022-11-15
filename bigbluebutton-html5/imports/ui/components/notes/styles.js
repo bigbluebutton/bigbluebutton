@@ -4,6 +4,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import CommonHeader from '/imports/ui/components/common/control-header/component';
 
 const Notes = styled.div`
   background-color: ${colorWhite};
@@ -23,4 +24,11 @@ const Notes = styled.div`
   }
 `;
 
-export default { Notes };
+const Header = styled(CommonHeader)`
+  padding-bottom: .2rem;
+`;
+
+export default {
+  Notes,
+  Header,
+};

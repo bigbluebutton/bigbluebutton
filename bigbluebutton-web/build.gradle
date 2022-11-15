@@ -1,6 +1,6 @@
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
     mavenLocal()
     maven { url "https://repo1.maven.org/maven2" }
     maven { url "https://repo.grails.org/artifactory/core" }
@@ -11,7 +11,8 @@ buildscript {
     classpath "org.grails.plugins:hibernate5:${gormVersion}"
     classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
     classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
-    classpath "org.grails.plugins:views-gradle:2.1.0"
+    classpath "org.grails.plugins:views-gradle:2.1.1"
+    classpath "org.grails.plugins:views-json:2.1.1"
   }
 }
 
@@ -44,7 +45,7 @@ task copyWebInf(type: Copy) {
 processResources.dependsOn copyWebInf
 
 repositories {
-  jcenter()
+  mavenCentral()
   mavenLocal()
   maven { url "https://repo1.maven.org/maven2" }
   maven { url "https://repo.grails.org/artifactory/core" }
@@ -53,11 +54,14 @@ repositories {
 
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
-  implementation "org.springframework.boot:spring-boot-starter-logging"
-  implementation "org.springframework.boot:spring-boot-autoconfigure"
+  implementation "org.springframework:spring-core:5.3.21"
+  implementation "org.springframework:spring-context:5.3.21"
+  implementation "org.springframework.boot:spring-boot:${springVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
+  implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
   implementation "org.grails:grails-core"
-  implementation "org.springframework.boot:spring-boot-starter-actuator"
-  implementation "org.springframework.boot:spring-boot-starter-tomcat:2.6.6"
+  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
   implementation "org.grails:grails-web-boot"
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest"
@@ -67,7 +71,11 @@ dependencies {
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
   implementation 'org.grails.plugins:external-config:1.2.2'
-  implementation "org.grails.plugins:cache"
+  //implementation "org.grails.plugins:cache"
+  implementation "org.grails.plugins:views-json:2.1.1"
+  implementation "org.grails.plugins:cache:5.0.1"
+  implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
+  implementation "org.grails:grails-gradle-plugin:5.1.4"
   implementation "org.grails.plugins:async"
   implementation "org.grails.plugins:scaffolding"
   implementation "org.grails.plugins:events"
@@ -79,20 +87,20 @@ dependencies {
   //--- BigBlueButton Dependencies Start - Transitive dependencies have to be re-defined below
   implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.21-SNAPSHOT"
   implementation "org.bigbluebutton:bbb-common-web:0.0.3-SNAPSHOT"
-  implementation "io.lettuce:lettuce-core:6.1.5.RELEASE"
+  implementation "io.lettuce:lettuce-core:6.1.9.RELEASE"
   implementation "org.reactivestreams:reactive-streams:1.0.3"
   implementation "io.projectreactor:reactor-core:3.4.12"
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
   implementation "org.json:json:20211205"
-  implementation "com.zaxxer:nuprocess:2.0.2"
+  implementation "com.zaxxer:nuprocess:2.0.5"
   implementation "net.java.dev.jna:jna:5.10.0"
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
   implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
-  implementation 'org.springframework.boot:spring-boot-starter-validation:2.6.1'
-  implementation 'org.postgresql:postgresql:42.2.16'
+  implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
+  implementation 'org.postgresql:postgresql:42.4.1'
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
@@ -102,10 +110,14 @@ dependencies {
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.0.0"
   testRuntimeOnly "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-  testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.18"
+  testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.63.0"
   testImplementation "com.github.javafaker:javafaker:0.12"
+}
+
+tasks.named('bootWarMainClassName') {
+    it.mustRunAfter(tasks.named('compileGsonViews'))
 }
 
 configurations.implementation {
@@ -121,6 +133,7 @@ configurations {
 
 bootRun {
   jvmArgs('-Dspring.output.ansi.enabled=always')
+  jvmArgs('-Dspring.main.allow-circular-references=true')
   sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
