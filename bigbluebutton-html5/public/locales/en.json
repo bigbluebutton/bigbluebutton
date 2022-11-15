@@ -411,7 +411,7 @@
     "app.about.confirmDesc": "OK",
     "app.about.dismissLabel": "Cancel",
     "app.about.dismissDesc": "Close about client information",
-    "app.mobileAppModal.title": "Open BigBlueButton tablet app",
+    "app.mobileAppModal.title": "Open BigBlueButton Tablet app",
     "app.mobileAppModal.description": "Do you have the BigBlueButton Tablet app installed on your device?",
     "app.mobileAppModal.openApp": "Yes, open the app now",
     "app.mobileAppModal.obtainUrlMsg": "Obtaining meeting URL",
