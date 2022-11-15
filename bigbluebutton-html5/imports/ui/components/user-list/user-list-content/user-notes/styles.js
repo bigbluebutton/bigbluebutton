@@ -13,7 +13,12 @@ const UnreadMessages = styled(StyledContent.UnreadMessages)``;
 
 const UnreadMessagesText = styled(StyledContent.UnreadMessagesText)``;
 
-const ListItem = styled(StyledContent.ListItem)``;
+const ListItem = styled(StyledContent.ListItem)`
+  ${({ $disabled }) => $disabled && `
+    cursor: not-allowed;
+    border: none;
+  `}
+`;
 
 const NotesTitle = styled.div`
   font-weight: 400;

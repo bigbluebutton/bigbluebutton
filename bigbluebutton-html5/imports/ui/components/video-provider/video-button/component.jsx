@@ -105,7 +105,7 @@ const JoinVideoButton = ({
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
   const handleOpenAdvancedOptions = (props) => {
-    mountVideoPreview(isMobileSharingCamera, props);
+    mountVideoPreview(isDesktopSharingCamera, props);
   };
 
   const getMessageFromStatus = () => {
@@ -146,18 +146,31 @@ const JoinVideoButton = ({
     }
 
     if (actions.length === 0) return null;
+    const customStyles = { top: '-3.6rem' };
 
     return (
       <BBBMenu
+        customStyles={!isMobile ? customStyles : null}
         trigger={(
           <ButtonEmoji
             emoji="device_list_selector"
             hideLabel
             label={intl.formatMessage(intlMessages.videoSettings)}
             rotate
+            tabIndex={0}
           />
         )}
         actions={actions}
+        opts={{
+          id: "video-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'top', horizontal: 'center' },
+          transformOrigin: { vertical: 'top', horizontal: 'center'},
+      }}
       />
     );
   }

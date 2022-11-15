@@ -64,6 +64,10 @@ const intlMessages = defineMessages({
     id: 'app.video.virtualBackground.camBgAriaDesc',
     description: 'Label for virtual background button aria',
   },
+  customDesc: {
+    id: 'app.video.virtualBackground.button.customDesc',
+    description: 'Aria description for upload virtual background button',
+  },
   background: {
     id: 'app.video.virtualBackground.background',
     description: 'Label for the background word',
@@ -338,6 +342,7 @@ const VirtualBgSelector = ({
               disabled={disabled}
               label={intl.formatMessage(intlMessages.removeLabel)}
               aria-label={intl.formatMessage(intlMessages.removeLabel)}
+              aria-describedby={`vr-cam-btn-${index + 1}`}
               data-test="removeCustomBackground"
               icon="close"
               size="sm"
@@ -384,7 +389,7 @@ const VirtualBgSelector = ({
           accept={MIME_TYPES_ALLOWED.join(', ')}
         />
         <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
-          {intl.formatMessage(intlMessages.customLabel)}
+          {intl.formatMessage(intlMessages.customDesc)}
         </div>
       </>
     );

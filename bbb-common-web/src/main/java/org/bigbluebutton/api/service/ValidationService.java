@@ -35,7 +35,6 @@ public class ValidationService {
         GET_MEETING_INFO("getMeetingInfo", RequestType.GET),
         GET_MEETINGS("getMeetings", RequestType.GET),
         GET_SESSIONS("getSessions", RequestType.GET),
-        SET_POLL_XML("setPollXML", RequestType.POST),
         GUEST_WAIT("guestWait", RequestType.GET),
         ENTER("enter", RequestType.GET),
         STUNS("stuns", RequestType.GET),
@@ -56,6 +55,7 @@ public class ValidationService {
     }
 
     private String securitySalt;
+    private String supportedChecksumAlgorithms;
     private Boolean allowRequestsWithoutSession;
 
     private ValidatorFactory validatorFactory;
@@ -115,9 +115,6 @@ public class ValidationService {
                     case GET_MEETING_INFO:
                         request = new MeetingInfo(checksum);
                         break;
-                    case SET_POLL_XML:
-                        request = new SetPollXML(checksum);
-                        break;
                     case GET_MEETINGS:
                     case GET_SESSIONS:
                         request = new SimpleRequest(checksum);
@@ -140,12 +137,6 @@ public class ValidationService {
                     case LEARNING_DASHBOARD:
                         request = new LearningDashboard();
                         break;
-                }
-            case POST:
-                checksum = new PostChecksum(apiCall.getName(), checksumValue, params);
-                switch(apiCall) {
-                    case SET_POLL_XML:
-                        request = new SetPollXML(checksum);
                 }
         }
 
@@ -275,6 +266,9 @@ public class ValidationService {
 
     public void setSecuritySalt(String securitySalt) { this.securitySalt = securitySalt; }
     public String getSecuritySalt() { return securitySalt; }
+
+    public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
+    public String getSupportedChecksumAlgorithms() { return supportedChecksumAlgorithms; }
 
     public void setAllowRequestsWithoutSession(Boolean allowRequestsWithoutSession) {
         this.allowRequestsWithoutSession = allowRequestsWithoutSession;

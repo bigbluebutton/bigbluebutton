@@ -2,10 +2,14 @@ import styled from 'styled-components';
 import Styled from '../base/styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
-import { borderSize, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  borderSize,
+  smPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,
-  modalTitleFw,
+  headingsFontWeight,
+  fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayLightest,
@@ -41,7 +45,8 @@ const Title = styled.h1`
   text-overflow: ellipsis;
   flex: 1;
   margin: 0;
-  font-weight: ${modalTitleFw};
+  font-size: ${fontSizeLarger};
+  font-weight: ${headingsFontWeight};
 `;
 
 const Actions = styled.div`

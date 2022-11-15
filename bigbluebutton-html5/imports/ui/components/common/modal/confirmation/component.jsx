@@ -61,15 +61,10 @@ class ConfirmationModal extends Component {
     return (
       <Styled.ConfirmationModal
         onRequestClose={() => mountModal(null)}
-        hideBorder
         contentLabel={title}
+        title={title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
       >
         <Styled.Container>
-          <Styled.Header>
-            <Styled.Title>
-              { title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
-            </Styled.Title>
-          </Styled.Header>
           <Styled.Description>
             <Styled.DescriptionText>
               {description}
@@ -99,7 +94,7 @@ class ConfirmationModal extends Component {
                 mountModal(null);
               }}
             />
-            <Styled.ConfirmationButton
+            <Styled.CancelButton
               label={intl.formatMessage(messages.noLabel)}
               onClick={() => mountModal(null)}
             />
