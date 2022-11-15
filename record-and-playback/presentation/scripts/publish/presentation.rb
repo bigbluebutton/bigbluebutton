@@ -1151,58 +1151,54 @@ def process_notes_events(events, bbb_props, notes_event_dir, fileNameToRead, fil
       # recorded session (not the entire meeting itself). 
       offset = start_time
       last_stop_timestamp = start_time
-      xml_notes_events = Nokogiri::XML::Builder.new do |xml|
-        xml.root {
-          xml.events {
-            # meeting_start.to_i, @meeting_end.to_i
-            events_after_record = []
-            events.xpath('/recording/event').each do |event|
-              status_timestamp = event[:timestamp].to_i - initial_timestamp
-              case event[:eventname]
-              when "RecordStatusEvent"
-                status = event.at_xpath('./status')&.content == 'true'
-                # This is start record event, so we stash all notes events
-                # with timestamp greater than this.
-                if (status)
-                  offset += status_timestamp - last_stop_timestamp
-                  json_content.each_with_index do |json_event, index|
-                    timestamp = json_event["timestamp"] - initial_timestamp_UTC
-                    break if timestamp >= end_time
-                    if (timestamp >= status_timestamp)
-                      events_after_record = events_after_record.push({:index => index, :timestamp => timestamp})
-                    end
-                  end
-                # For this case, recording is stopped, so we need to check
-                # for note events that have timestamp lower than this one's,
-                # which will mean that it is within a recording interval.
-                else
-                  last_stop_timestamp = status_timestamp
-                  events_after_record.each do |event_recorded|
-                    timestamp = event_recorded[:timestamp]
-                    if (timestamp < status_timestamp)
-                      xml.event(:text => json_content[event_recorded[:index]]["text"], :timestamp => timestamp - offset)
-                    end 
-                    events_after_record = []
-                  end
-                end
-              # Same case as stop recording, once when ended, there is no
-              # other event.
-              when "EndAndKickAllEvent"
-                events_after_record.each do |event_recorded|
-                  timestamp = event_recorded[:timestamp]
-                  if (timestamp < status_timestamp)
-                    xml.event(:text => json_content[event_recorded[:index]]["text"], :timestamp => timestamp - offset)
-                  end 
-                  events_after_record = []
-                end
+      hash_notes_events = {:root => {:events => []}}
+
+      # meeting_start.to_i, @meeting_end.to_i
+      events_after_record = []
+      events.xpath('/recording/event').each do |event|
+        status_timestamp = event[:timestamp].to_i - initial_timestamp
+        case event[:eventname]
+        when "RecordStatusEvent"
+          status = event.at_xpath('./status')&.content == 'true'
+          # This is start record event, so we stash all notes events
+          # with timestamp greater than this.
+          if (status)
+            offset += status_timestamp - last_stop_timestamp
+            json_content.each_with_index do |json_event, index|
+              timestamp = json_event["timestamp"] - initial_timestamp_UTC
+              break if timestamp >= end_time
+              if (timestamp >= status_timestamp)
+                events_after_record = events_after_record.push({:index => index, :timestamp => timestamp})
               end
+            end
+          # For this case, recording is stopped, so we need to check
+          # for note events that have timestamp lower than this one's,
+          # which will mean that it is within a recording interval.
+          else
+            last_stop_timestamp = status_timestamp
+            events_after_record.each do |event_recorded|
+              timestamp = event_recorded[:timestamp]
+              if (timestamp < status_timestamp)
+                hash_notes_events[:root][:events] << {:text => json_content[event_recorded[:index]]["text"], :timestamp => timestamp - offset}
+              end 
+              events_after_record = []
+            end
+          end
+        # Same case as stop recording, once when ended, there is no
+        # other event.
+        when "EndAndKickAllEvent"
+          events_after_record.each do |event_recorded|
+            timestamp = event_recorded[:timestamp]
+            if (timestamp < status_timestamp)
+              hash_notes_events[:root][:events] << {:text => json_content[event_recorded[:index]]["text"], :timestamp => timestamp - offset}
             end 
-          }
-        }
-      end
-      return xml_notes_events.to_xml 
+            events_after_record = []
+          end
+        end
+      end 
+      notes_html = "<body>\n#{hash_notes_events[:root][:events][-1][:text].to_s}\n</body>" 
+      return hash_notes_events.to_json, notes_html
     end
-  else
   end
   return nil
 end
@@ -1510,9 +1506,12 @@ begin
         File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts slides_doc.target! }
 
         # Write notes_events.xml to file
-        notes_events_doc = process_notes_events(@doc, bbb_props, "#{@process_dir}/notes", "notes.etherpad", "notes_events.json")
+        notes_events_doc, notes_last_event = process_notes_events(@doc, bbb_props, "#{@process_dir}/notes", "notes.etherpad", "notes_events.json")
         if (!notes_events_doc.nil?)
-          File.open("#{package_dir}/notes_events.xml", 'w') { |f| f.puts notes_events_doc }
+          File.open("#{package_dir}/notes_events.json", 'w') { |f| f.puts notes_events_doc }
+        end
+        if (!notes_last_event.nil?)
+          File.open("#{package_dir}/notes.html", 'w') { |f| f.puts notes_last_event }
         end
 
         process_presentation(package_dir)
