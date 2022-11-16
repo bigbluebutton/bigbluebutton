@@ -25,8 +25,8 @@ test.describe.parallel('Settings', () => {
   });
 
   test('Dark mode', async ({ browser, page }) => {
-    const language = new Options(browser, page);
-    await language.init(true, true);
-    await language.darkMode();
+    const darkModeTest = new Options(browser, page);
+    await darkModeTest.init(true, true);
+    await darkModeTest.darkMode();
   });
 });
