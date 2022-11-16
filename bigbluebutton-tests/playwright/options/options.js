@@ -88,7 +88,7 @@ class Options extends Page {
     await this.getBackgroundColor(e.chatBox, 'rgb(34, 36, 37)');
     await this.getTextColor(e.chatBox, 'rgb(170, 164, 155)');
 
-    // Checking actions background and buttons color
+    // Checking actions bar background and buttons color
     await this.getBackgroundColor(e.actionsBarBackground, 'rgb(30, 32, 33)')
     await this.getTextColor(e.joinAudioBackgroundDisabled, 'rgb(222, 220, 217)');
     await this.getBackgroundColor(e.joinAudioBackgroundDisabled, 'rgba(0, 0, 0, 0)');

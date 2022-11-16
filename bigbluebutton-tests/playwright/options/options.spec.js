@@ -24,7 +24,7 @@ test.describe.parallel('Settings', () => {
     await language.localesTest();
   });
 
-  test.only('Dark mode', async ({ browser, page }) => {
+  test('Dark mode', async ({ browser, page }) => {
     const language = new Options(browser, page);
     await language.init(true, true);
     await language.darkMode();
