@@ -88,7 +88,7 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.message);
-    this.formatMessage(notesLocator);
+    await this.formatMessage(notesLocator);
     const html = await notesLocator.innerHTML();
 
     const uText = '<u>!</u>';
@@ -98,7 +98,7 @@ class SharedNotes extends MultiUsers {
     await expect(html.includes(bText)).toBeTruthy();
 
     const iText = '<i>Hello</i>'
-    await expect(html.includes(bText)).toBeTruthy();
+    await expect(html.includes(iText)).toBeTruthy();
   }
 
   async exportSharedNotes(page) {
@@ -120,7 +120,7 @@ class SharedNotes extends MultiUsers {
     await sleep(500);
   }
 
-  async moveNotesToWhiteboard() {
+  async convertNotesToWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
     test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
     await startSharedNotes(this.modPage);
@@ -158,7 +158,7 @@ class SharedNotes extends MultiUsers {
 
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    notesLocator.type('Hello');
+    await notesLocator.type('Hello');
 
     await startSharedNotes(this.userPage);
 
@@ -169,8 +169,22 @@ class SharedNotes extends MultiUsers {
 
     const notesLocatorUser  = getSharedNotesUserWithoutPermission(this.userPage);
     await expect(notesLocatorUser).toContainText(/Hello/, { timeout : 20000 });
-    await this.userPage.wasRemoved(e.etherpadFrame);
-    
+    await this.userPage.wasRemoved(e.etherpadFrame); 
+  }
+
+  async pinNotesOntoWhiteboard() {
+    const { sharedNotesEnabled } = getSettings();
+    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+
+    await startSharedNotes(this.modPage);
+    // /await this.modPage.hasElement(e.sharedNotes);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.hasElement(e.unpinNotes);
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type('Hello');
+
+    await expect(notesLocator).toContainText(/Hello/, { timeout : 20000 });
   }
 }
 

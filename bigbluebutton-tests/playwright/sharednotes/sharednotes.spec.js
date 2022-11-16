@@ -25,10 +25,10 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.initPages(page);
     await sharedNotes.exportSharedNotes(page);
   });
-  test('Move notes to whiteboard', async ({ browser, page, context }) => {
+  test('Convert notes to whiteboard', async ({ browser, page, context }) => {
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initPages(page);
-    await sharedNotes.moveNotesToWhiteboard();
+    await sharedNotes.convertNotesToWhiteboard();
   });
   test('Multi users edit', async ({ browser, page, context }) => {
     const sharedNotes = new SharedNotes(browser, context);
@@ -39,5 +39,10 @@ test.describe.parallel('Shared Notes', () => {
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initPages(page);
     await sharedNotes.seeNotesWithoutEditPermission();
+  });
+  test('Pin notes onto whiteboard', async ({ browser, page, context }) => {
+    const sharedNotes = new SharedNotes(browser, context);
+    await sharedNotes.initModPage(page);
+    await sharedNotes.pinNotesOntoWhiteboard();
   });
 });

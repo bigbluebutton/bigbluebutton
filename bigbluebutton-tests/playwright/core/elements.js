@@ -361,6 +361,8 @@ exports.pencil = 'button[data-test="pencilTool"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
 exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
 exports.exportPlainButton = 'span[id="exportplain"]';
+exports.pinNotes = 'li[data-test="pinNotes"]';
+exports.unpinNotes = 'button[data-test="unpinNotes"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
