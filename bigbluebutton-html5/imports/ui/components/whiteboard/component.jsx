@@ -198,6 +198,10 @@ export default function Whiteboard(props) {
     let changed = false;
 
     if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+      const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
+      if (editingShape) {
+        shapes[editingShape?.id] = editingShape;
+      }
       // set shapes as locked for those who aren't allowed to edit it
       Object.entries(shapes).forEach(([shapeId, shape]) => {
         if (!shape.isLocked && !hasShapeAccess(shapeId)) {
