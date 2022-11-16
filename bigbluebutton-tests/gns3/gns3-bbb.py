@@ -88,6 +88,8 @@ parser.add_argument('--domain', type=str,
                     help='DNS domain name for virtual devices (default "test")')
 parser.add_argument('--no-nat', action='store_true',
                     help='install BBB server without a NAT gateway')
+parser.add_argument('--no-install', action='store_true',
+                    help="don't install BBB server")
 parser.add_argument('version', nargs='*',
                     help="""version of BigBlueButton server to be installed
 (focal-250, focal-25-dev, focal-260, focal-GITREV)
@@ -770,9 +772,11 @@ def BBB_server_standalone(hostname, x=100, y=300):
                  'runcmd': [
                      # add CA root certificate from /usr/local/share/ca-certificates
                      'update-ca-certificates',
-                     'su ubuntu -c /testserver.sh',
                  ],
     }
+
+    if not args.no_install:
+        user_data['runcmd'].append('su ubuntu -c /testserver.sh')
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}
