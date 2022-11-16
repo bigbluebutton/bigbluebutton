@@ -84,8 +84,8 @@ parser.add_argument('--public-subnet', type=str, default='128.8.8.0/24',
                     help='public IP subnet to be "stolen" for our use')
 parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
                     help='public IP subnet to be "stolen" for our use')
-parser.add_argument('--domain', type=str, default='test',
-                    help='DNS domain name for virtual devices')
+parser.add_argument('--domain', type=str,
+                    help='DNS domain name for virtual devices (default "test")')
 parser.add_argument('--no-nat', action='store_true',
                     help='install BBB server without a NAT gateway')
 parser.add_argument('version', nargs='*',
@@ -150,6 +150,23 @@ except:
 # Open the GNS3 server
 
 gns3_server, gns3_project = gns3.open_project_with_standard_options(args)
+
+# Get GNS3 project variables and either extract DNS domain from them,
+# or set the DNS domain there for future reference
+
+gns3_variables = gns3_project.variables()
+
+if 'domain' in gns3_variables:
+    if not args.domain:
+        args.domain = gns3_variables['domain']
+    elif args.domain != gns3_variables['domain']:
+        print(f"DNS domain '{args.domain}' doesn't match project DNS domain '{gns3_variables['domain']}'")
+        exit(1)
+else:
+    if not args.domain:
+        args.domain = 'test'
+    gns3_variables['domain'] = args.domain
+    gns3_project.set_variables(gns3_variables)
 
 # Make sure the cloud and client images exist on the GNS3 server
 
