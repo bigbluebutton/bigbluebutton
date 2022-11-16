@@ -199,6 +199,7 @@ export default function Whiteboard(props) {
 
     if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
       const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
+
       if (editingShape) {
         shapes[editingShape?.id] = editingShape;
       }
@@ -607,12 +608,14 @@ export default function Whiteboard(props) {
 
     if (reason && reason === 'patched_shapes') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
-      const diff = {
-        id: patchedShape.id,
-        point: patchedShape.point,
-        text: patchedShape.text
+      if (patchedShape) {
+        const diff = {
+          id: patchedShape.id,
+          point: patchedShape.point,
+          text: patchedShape.text
+        }
+        persistShape(diff, whiteboardId);
       }
-      persistShape(diff, whiteboardId);
     }
   };
 
