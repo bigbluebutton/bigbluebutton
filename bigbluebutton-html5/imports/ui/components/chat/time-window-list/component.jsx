@@ -309,6 +309,7 @@ class TimeWindowList extends PureComponent {
           data-test="chatMessages"
           aria-live="polite"
           ref={node => this.messageListWrapper = node}
+          onCopy={(e) => { e.stopPropagation(); }}
         >
           <AutoSizer disableWidth>
             {({ height }) => {
