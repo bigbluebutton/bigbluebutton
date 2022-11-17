@@ -118,7 +118,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // case m: StoreExportJobInRedisSysMsg => logMessage(msg)
       case m: MakePresentationWithAnnotationDownloadReqMsg => logMessage(msg)
       case m: NewPresAnnFileAvailableMsg => logMessage(msg)
-      // case m: PresAnnStatusMsg => logMessage(msg)
       case m: PresentationPageConversionStartedSysMsg => logMessage(msg)
       case m: PresentationConversionEndedSysMsg => logMessage(msg)
       case m: PresentationConversionRequestReceivedSysMsg => logMessage(msg)

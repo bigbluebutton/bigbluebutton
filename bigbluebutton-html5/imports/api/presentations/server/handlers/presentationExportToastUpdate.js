@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import setPresentationExportingProgress from '/imports/api/presentations/server/modifiers/setPresentationExportingProgress';
+import setPresentationExporting from '/imports/api/presentations/server/modifiers/setPresentationExporting';
 
 export default function handlePresentationExportToastUpdate({ body }, meetingId) {
   check(body, Object);
@@ -15,7 +15,7 @@ export default function handlePresentationExportToastUpdate({ body }, meetingId)
   check(status, String);
   check(error, Boolean);
 
-  setPresentationExportingProgress(meetingId, presId, {
+  setPresentationExporting(meetingId, presId, {
     pageNumber, totalPages, status, error,
   });
 }
