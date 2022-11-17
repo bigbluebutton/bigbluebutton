@@ -148,6 +148,88 @@ class Polling extends MultiUsers {
     const lastOptionText = this.userPage.getLocatorByIndex(e.pollAnswerOptionBtn, -1);
     await expect(lastOptionText).toHaveText(this.newInputText);
   }
+
+  async notAbleStartNewPollWithoutPresentation() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.hasElement(e.noPresentation);
+  }
+
+  async customInput() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem, 'test1');
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await this.userPage.hasElement(e.pollingContainer);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+
+    await this.modPage.hasText(e.currentPollQuestion, /Test/);
+    await this.modPage.hasText(e.answer1, '1');
+  }
+
+  async allowMultipleChoices() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClickElement(e.allowMultiple);
+
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasElement(e.errorNoValueInput);
+
+    await this.modPage.type(e.pollOptionItem1, 'test1');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem2, 'test2');
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasText(e.currentPollQuestion, /Test/);
+
+    await this.userPage.waitAndClick(e.pollAnswerDescTest1);
+    await this.userPage.waitAndClick(e.pollAnswerDescTest2);
+    await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
+
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.answer2, '1');
+  }
+
+  async smartSlidesQuestions() {
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.presentationTitle);
+    
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.hasElement(e.responsePollQuestion);
+    await this.userPage.type(e.pollAnswerOptionInput, 'test');
+    await this.userPage.waitAndClick(e.pollSubmitAnswer);
+
+    await this.modPage.hasText(e.receivedAnswer, 'test');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.checkboxInput);
+    await this.userPage.waitAndClick(e.submitAnswersMultiple);
+
+    await this.modPage.hasText(e.answer1, '1');
+    
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasElementDisabled(e.nextSlide);
+  }
 }
 
 exports.Polling = Polling;
