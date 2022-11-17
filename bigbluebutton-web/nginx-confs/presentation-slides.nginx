@@ -35,13 +35,6 @@
                 }
         }
 
-        location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/slide\/(?<page_num>\d+)$ {
-                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/slide-$page_num.swf;
-                if ($bbb_loadbalancer_node) {
-                    add_header 'Access-Control-Allow-Origin' $bbb_loadbalancer_node always;
-                }
-        }
-
         location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/thumbnail\/(?<page_num>\d+)$ {
 		default_type image/png;
                 alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/thumbnails/thumb-$page_num.png;
