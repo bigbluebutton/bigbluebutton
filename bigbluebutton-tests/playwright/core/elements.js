@@ -239,6 +239,9 @@ exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 exports.presentationsList = 'div[id="upload-modal"] tbody';
+exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
+exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
+exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink

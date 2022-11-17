@@ -846,7 +846,7 @@ class PresentationUploader extends Component {
       : 'exportToastHeaderPlural';
 
     return (
-      <Styled.ToastWrapper>
+      <Styled.ToastWrapper data-test="downloadPresentationToast">
         <Styled.UploadToastHeader>
           <Styled.UploadIcon iconName="download" />
           <Styled.UploadToastTitle>
