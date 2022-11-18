@@ -187,7 +187,7 @@ function renderToastItem(item, intl) {
 
 	return (
 		<Styled.UploadRow
-			key={item.id || item.temporaryPresentationId }
+			key={item.id || item.temporaryPresentationId}
 			onClick={() => {
 				if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
 			}}

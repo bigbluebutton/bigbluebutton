@@ -26,7 +26,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 public final class Util {
-	private static Logger log = LoggerFactory.getLogger(DocumentConversionServiceImp.class);
+	private static Logger log = LoggerFactory.getLogger(Util.class);
 
 	public static void deleteDirectory(File directory) {
 		/**

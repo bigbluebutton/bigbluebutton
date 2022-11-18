@@ -36,6 +36,7 @@ import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
@@ -1372,7 +1373,7 @@ class ApiController {
         fos.write(bytes)
         fos.flush()
         fos.close()
-        mimeType = detectMimeType(pres)
+        mimeType = SupportedFileTypes.detectMimeType(pres)
       } else {
         log.warn "Upload failed. File Empty."
         uploadFailReasons.add("failed_to_download_file")
@@ -1399,40 +1400,6 @@ class ApiController {
       log.error("The document in base64 sent is not supported as a presentation - mimeType: {}, filename: {}",
               mimeType, presFilename)
     }
-  }
-
-  def detectMimeType(File pres) {
-    def mimeType = ""
-    if (pres != null){
-      try {
-        ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command("bash", "-c", "file -i " + pres.toPath().toString());
-        Process process = processBuilder.start();
-        StringBuilder output = new StringBuilder();
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
-        String line;
-        while ((line = reader.readLine()) != null) {
-          output.append(line + "\n");
-        }
-        int exitVal = process.waitFor();
-        if (exitVal == 0) {
-          Pattern pattern = Pattern.compile(" [-\\w.]+\\/[-\\w.+]+");
-          def match = pattern.matcher(output.toString())
-          if (match.find()) {
-            mimeType = match.group().trim()
-          }
-        } else {
-          log.error("Error while executing command {} for file {}, error: {}",
-                  process.toString(), pres.toPath().toString(), process.getErrorStream())
-        }
-      } catch (IOException e) {
-        log.error("Could not read file [{}]", pres.toPath().toString(), e.getMessage())
-      } catch (InterruptedException e) {
-        log.error("Flow interrupted for file [{}]", pres.toPath().toString(), e.getMessage())
-      }
-    }
-    return mimeType
   }
 
   def isPresentationMimeTypeOK (String mimeType) {
@@ -1485,7 +1452,7 @@ class ApiController {
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
         }
-        mimeType = detectMimeType(pres)
+        mimeType = SupportedFileTypes.detectMimeType(pres)
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
         uploadFailReasons.add("null_presentation_dir")
