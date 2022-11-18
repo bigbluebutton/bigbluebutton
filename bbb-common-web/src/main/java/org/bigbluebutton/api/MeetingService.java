@@ -98,7 +98,6 @@ public class MeetingService implements MessageListener {
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
-  private HTML5LoadBalancingService html5LoadBalancingService;
   private SlidesGenerationProgressNotifier notifier;
 
   private long usersTimeout;
