@@ -178,6 +178,7 @@ const NetworkDataContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  padding-bottom: 1.25rem;
   
   @media ${mediumDown} {
     justify-content: space-between;
@@ -207,6 +208,8 @@ const CopyContainer = styled.div`
 
 const ConnectionStatusModal = styled(Modal)`
   padding: 1rem;
+  height: 28rem;
+
 `;
 
 const Container = styled.div`
@@ -440,7 +443,8 @@ const ConnectionTabPanel = styled(TabPanel)`
   }
 
   &.is-selected {
-    display: block;
+    display: flex;
+    flex-flow: column;
   }
 
   @media ${smallOnly} {
