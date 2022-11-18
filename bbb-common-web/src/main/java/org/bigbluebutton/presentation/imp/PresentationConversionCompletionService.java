@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 public class PresentationConversionCompletionService {
     private static Logger log = LoggerFactory.getLogger(PresentationConversionCompletionService.class);
 
-    private SwfSlidesGenerationProgressNotifier notifier;
+    private SlidesGenerationProgressNotifier notifier;
 
     private ExecutorService executor;
     private volatile boolean processProgress = false;
@@ -105,7 +105,7 @@ public class PresentationConversionCompletionService {
         processProgress = false;
     }
 
-    public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+    public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
         this.notifier = notifier;
     }
 }
