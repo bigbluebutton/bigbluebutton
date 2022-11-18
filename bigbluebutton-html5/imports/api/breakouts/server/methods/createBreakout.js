@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function createBreakoutRoom(rooms, durationInMinutes, record = false) {
+export default function createBreakoutRoom(rooms, durationInMinutes, record = false, captureNotes = false, captureSlides = false) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -24,6 +24,8 @@ export default function createBreakoutRoom(rooms, durationInMinutes, record = fa
     }
     const payload = {
       record,
+      captureNotes,
+      captureSlides,
       durationInMinutes,
       rooms,
       meetingId,

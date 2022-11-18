@@ -1,6 +1,6 @@
 buildscript {
   repositories {
-    jcenter()
+    mavenCentral()
     mavenLocal()
     maven { url "https://repo1.maven.org/maven2" }
     maven { url "https://repo.grails.org/artifactory/core" }
@@ -45,7 +45,7 @@ task copyWebInf(type: Copy) {
 processResources.dependsOn copyWebInf
 
 repositories {
-  jcenter()
+  mavenCentral()
   mavenLocal()
   maven { url "https://repo1.maven.org/maven2" }
   maven { url "https://repo.grails.org/artifactory/core" }
@@ -87,20 +87,20 @@ dependencies {
   //--- BigBlueButton Dependencies Start - Transitive dependencies have to be re-defined below
   implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.21-SNAPSHOT"
   implementation "org.bigbluebutton:bbb-common-web:0.0.3-SNAPSHOT"
-  implementation "io.lettuce:lettuce-core:6.1.5.RELEASE"
+  implementation "io.lettuce:lettuce-core:6.1.9.RELEASE"
   implementation "org.reactivestreams:reactive-streams:1.0.3"
   implementation "io.projectreactor:reactor-core:3.4.12"
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
   implementation "org.json:json:20211205"
-  implementation "com.zaxxer:nuprocess:2.0.2"
+  implementation "com.zaxxer:nuprocess:2.0.5"
   implementation "net.java.dev.jna:jna:5.10.0"
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
   implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
-  implementation 'org.postgresql:postgresql:42.2.16'
+  implementation 'org.postgresql:postgresql:42.4.1'
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
@@ -110,9 +110,9 @@ dependencies {
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.0.0"
   testRuntimeOnly "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-  testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.18"
+  testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.63.0"
   testImplementation "com.github.javafaker:javafaker:0.12"
 }
 

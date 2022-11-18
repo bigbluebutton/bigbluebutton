@@ -38,8 +38,13 @@ const ContentMessage = styled.div`
   max-height: calc(${fontSizeSmall} * 10);
 `;
 
+const ContentMessagePoll = styled(ContentMessage)`
+  margin-top: ${fontSizeSmall};
+`;
+
 export default {
   PushMessageContent,
   UserNameMessage,
   ContentMessage,
+  ContentMessagePoll,
 };

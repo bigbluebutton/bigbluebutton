@@ -131,7 +131,9 @@ class BbbWebApiGWApp(
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                    dialNumber: String, maxUsers: java.lang.Integer,
+                    dialNumber:                             String,
+                    maxUsers:                               java.lang.Integer,
+                    maxUserConcurrentAccesses:              java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
@@ -189,17 +191,23 @@ class BbbWebApiGWApp(
       freeJoin = freeJoin.booleanValue(),
       breakoutRooms = Vector(),
       record = breakoutParams.record.booleanValue(),
-      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
+      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
+      captureNotes = breakoutParams.captureNotes.booleanValue(),
+      captureSlides = breakoutParams.captureSlides.booleanValue(),
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
-    val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+    val usersProp = UsersProp(
+      maxUsers = maxUsers.intValue(),
+      maxUserConcurrentAccesses = maxUserConcurrentAccesses,
+      webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue())
+      authenticatedGuest = authenticatedGuest.booleanValue()
+    )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
     val lockSettingsProps = LockSettingsProps(
@@ -258,11 +266,6 @@ class BbbWebApiGWApp(
       excludeFromDashboard = excludeFromDashboard)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
-    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
-  }
-
-  def ejectDuplicateUser(meetingId: String, intUserId: String, name: String, extUserId: String): Unit = {
-    val event = MsgBuilder.buildEjectDuplicateUserRequestToAkkaApps(meetingId, intUserId, name, extUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 

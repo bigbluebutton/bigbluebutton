@@ -27,7 +27,9 @@ case class BreakoutProps(
     freeJoin:           Boolean,
     breakoutRooms:      Vector[String],
     record:             Boolean,
-    privateChatEnabled: Boolean
+    privateChatEnabled: Boolean,
+    captureNotes:       Boolean,
+    captureSlides:      Boolean,
 )
 
 case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String)
@@ -39,14 +41,15 @@ case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMe
 case class VoiceProp(telVoice: String, voiceConf: String, dialNumber: String, muteOnStart: Boolean)
 
 case class UsersProp(
-    maxUsers:                Int,
-    webcamsOnlyForModerator: Boolean,
-    userCameraCap:           Int,
-    guestPolicy:             String,
-    meetingLayout:           String,
-    allowModsToUnmuteUsers:  Boolean,
-    allowModsToEjectCameras: Boolean,
-    authenticatedGuest:      Boolean
+    maxUsers:                 Int,
+    maxUserConcurrentAccesses:Int,
+    webcamsOnlyForModerator:  Boolean,
+    userCameraCap:            Int,
+    guestPolicy:              String,
+    meetingLayout:            String,
+    allowModsToUnmuteUsers:   Boolean,
+    allowModsToEjectCameras:  Boolean,
+    authenticatedGuest:       Boolean
 )
 
 case class MetadataProp(metadata: collection.immutable.Map[String, String])

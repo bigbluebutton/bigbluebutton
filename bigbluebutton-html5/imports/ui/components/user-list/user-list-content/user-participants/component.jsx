@@ -195,6 +195,7 @@ class UserParticipants extends Component {
       clearAllEmojiStatus,
       currentUser,
       meetingIsBreakout,
+      isMeetingMuteOnStart,
     } = this.props;
     const { isOpen, scrollArea } = this.state;
 
@@ -214,6 +215,7 @@ class UserParticipants extends Component {
                       users,
                       clearAllEmojiStatus,
                       meetingIsBreakout,
+                      isMeetingMuteOnStart,
                     }}
                     />
                   ) : null

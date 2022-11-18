@@ -52,7 +52,7 @@ trait BreakoutRoomCreatedMsgHdlr {
         (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, user, r.externalId, r.sequence.toString())
       } yield (user -> redirectToHtml5JoinURL)
 
-      new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.shortName, r.isDefaultName, r.freeJoin, html5JoinUrls.toMap)
+      new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.shortName, r.isDefaultName, r.freeJoin, html5JoinUrls.toMap, r.captureNotes, r.captureSlides)
     }
 
     log.info("Sending breakout rooms list to {} with containing {} room(s)", liveMeeting.props.meetingProp.intId, breakoutRooms.length)
@@ -79,7 +79,7 @@ trait BreakoutRoomCreatedMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val breakoutInfo = BreakoutRoomInfo(room.name, room.externalId, room.id, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, Map())
+    val breakoutInfo = BreakoutRoomInfo(room.name, room.externalId, room.id, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, Map(), room.captureNotes, room.captureSlides)
     val event = build(liveMeeting.props.meetingProp.intId, breakoutInfo)
     outGW.send(event)
 

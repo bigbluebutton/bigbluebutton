@@ -90,6 +90,10 @@ const intlMessage = defineMessages({
     id: 'app.meeting.logout.ejectedFromMeeting',
     description: 'message when the user is removed by someone',
   },
+  max_participants_reason: {
+    id: 'app.meeting.logout.maxParticipantsReached',
+    description: 'message when the user is rejected due to max participants limit',
+  },
   validate_token_failed_eject_reason: {
     id: 'app.meeting.logout.validateTokenFailedEjectReason',
     description: 'invalid auth token',

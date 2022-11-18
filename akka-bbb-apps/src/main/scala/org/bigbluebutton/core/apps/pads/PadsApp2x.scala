@@ -13,6 +13,7 @@ class PadsApp2x(implicit val context: ActorContext)
   with PadUpdatedSysMsgHdlr
   with PadContentSysMsgHdlr
   with PadPatchSysMsgHdlr
-  with PadUpdatePubMsgHdlr {
+  with PadUpdatePubMsgHdlr
+  with PadPinnedReqMsgHdlr {
 
 }
