@@ -9,13 +9,13 @@ const { CUSTOM_MEETING_ID } = require('../core/constants');
 const { encodeCustomParams } = require('../customparameters/util');
 
 test.describe.parallel('Whiteboard @ci', () => {
-  test.skip('Draw rectangle', async ({ browser, page }) => {
+  test('Draw rectangle', async ({ browser, page }) => {
     const draw = new Draw(browser, page);
     await draw.init(true, true);
     await draw.test();
   })
 
-  test.skip('Give Additional Whiteboard Access', async ({ browser, context, page }) => {
+  test('Give Additional Whiteboard Access', async ({ browser, context, page }) => {
     const multiusers = new MultiUsers(browser, context);
     await multiusers.initPages(page);
     await multiusers.whiteboardAccess();
