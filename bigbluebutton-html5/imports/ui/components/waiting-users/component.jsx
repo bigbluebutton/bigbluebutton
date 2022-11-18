@@ -126,7 +126,8 @@ const renderGuestUserItem = (
         size="lg"
         ghost
         label={intl.formatMessage(intlMessages.privateMessageLabel)}
-        onClick={privateMessageVisible} 
+        onClick={privateMessageVisible}
+        data-test="privateMessageGuest" 
       />
     ) : null}
         |
@@ -137,6 +138,7 @@ const renderGuestUserItem = (
         ghost
         label={intl.formatMessage(intlMessages.accept)}
         onClick={handleAccept}
+        data-test="acceptGuest"
       />
       |
       <Styled.WaitingUsersButton
@@ -146,12 +148,14 @@ const renderGuestUserItem = (
         ghost
         label={intl.formatMessage(intlMessages.deny)}
         onClick={handleDeny}
+        data-test="denyGuest"
       />
     </Styled.ButtonContainer>
   </Styled.ListItem>
   { isGuestLobbyMessageEnabled ? (
     <Styled.PrivateLobbyMessage
-      id={`privateMessage-${userId}`}>
+      id={`privateMessage-${userId}`}
+      data-test="privateLobbyMessage">
         <TextInput
           maxLength={128}
           placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
@@ -269,13 +273,14 @@ const WaitingUsers = (props) => {
     return cb();
   };
 
-  const renderButton = (message, { key, color, policy, action }) => (
+  const renderButton = (message, { key, color, policy, action, dataTest }) => (
     <Styled.CustomButton
       key={key}
       color={color}
       label={message}
       size="lg"
       onClick={changePolicy(rememberChoice, policy, action, message)}
+      data-test={dataTest}
     />
   );
 
@@ -306,6 +311,7 @@ const WaitingUsers = (props) => {
       key: 'allow-everyone',
       color: 'primary',
       policy: 'ALWAYS_ACCEPT',
+      dataTest: 'allowEveryone',
     },
     {
       messageId: intlMessages.denyEveryone,
@@ -313,6 +319,7 @@ const WaitingUsers = (props) => {
       key: 'deny-everyone',
       color: 'danger',
       policy: 'ALWAYS_DENY',
+      dataTest: 'denyEveryone',
     },
   ];
 
@@ -332,7 +339,7 @@ const WaitingUsers = (props) => {
       />
       <Styled.ScrollableArea>
         {isGuestLobbyMessageEnabled ? (
-          <Styled.LobbyMessage>
+          <Styled.LobbyMessage data-test="lobbyMessage">
             <TextInput
               maxLength={128}
               placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
@@ -361,8 +368,8 @@ const WaitingUsers = (props) => {
           }
           {allowRememberChoice ? (
             <Styled.RememberContainer>
-              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-              <label htmlFor="rememderCheckboxId">
+              <input id="rememberCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememberCheckboxId">
                 {intl.formatMessage(intlMessages.rememberChoice)}
               </label>
             </Styled.RememberContainer>

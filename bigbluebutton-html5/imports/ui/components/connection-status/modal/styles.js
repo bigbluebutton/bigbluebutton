@@ -206,12 +206,7 @@ const CopyContainer = styled.div`
 `;
 
 const ConnectionStatusModal = styled(Modal)`
-  padding: 1.5rem;
-  border-radius: 7.5px;
-
-  @media ${hasPhoneDimentions} {
-    padding: 1rem;
-  }
+  padding: 1rem;
 `;
 
 const Container = styled.div`

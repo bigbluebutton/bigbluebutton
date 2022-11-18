@@ -321,28 +321,6 @@ class VideoPreview extends Component {
                 viewState: VIEW_STATES.found,
               });
               this.displayPreview();
-
-              if (CAMERA_BRIGHTNESS_AVAILABLE) {
-                const setBrightnessInfo = () => {
-                  const stream = this.currentVideoStream || {};
-                  const service = stream.virtualBgService || {};
-                  const { brightness = 100, wholeImageBrightness = false } = service;
-                  this.setState({ brightness, wholeImageBrightness });
-                };
-
-                if (!this.currentVideoStream.virtualBgService) {
-                  this.startVirtualBackground(
-                    this.currentVideoStream,
-                    EFFECT_TYPES.NONE_TYPE
-                  ).then((switched) => {
-                    if (switched) {
-                      setBrightnessInfo();
-                    }
-                  });
-                } else {
-                  setBrightnessInfo();
-                }
-              }
             });
         } else {
           // There were no webcams coming from enumerateDevices. Throw an error.
@@ -383,6 +361,30 @@ class VideoPreview extends Component {
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
     this._isMounted = false;
+  }
+
+  startCameraBrightness() {
+    if (CAMERA_BRIGHTNESS_AVAILABLE) {
+      const setBrightnessInfo = () => {
+        const stream = this.currentVideoStream || {};
+        const service = stream.virtualBgService || {};
+        const { brightness = 100, wholeImageBrightness = false } = service;
+        this.setState({ brightness, wholeImageBrightness });
+      };
+
+      if (!this.currentVideoStream.virtualBgService) {
+        this.startVirtualBackground(
+          this.currentVideoStream,
+          EFFECT_TYPES.NONE_TYPE,
+        ).then((switched) => {
+          if (switched) {
+            setBrightnessInfo();
+          }
+        });
+      } else {
+        setBrightnessInfo();
+      }
+    }
   }
 
   handleSelectWebcam(event) {
@@ -474,9 +476,18 @@ class VideoPreview extends Component {
   }
 
   handleStartSharing() {
-    const { resolve, startSharing } = this.props;
-    const { webcamDeviceId, brightness } = this.state;
-    // Only streams that will be shared should be stored in the service.  // If the store call returns false, we're duplicating stuff. So clean this one
+    const {
+      resolve,
+      startSharing,
+    } = this.props;
+    const {
+      webcamDeviceId,
+      selectedProfile,
+      brightness,
+    } = this.state;
+
+    // Only streams that will be shared should be stored in the service.
+    // If the store call returns false, we're duplicating stuff. So clean this one
     // up because it's an impostor.
     if(!PreviewService.storeStream(webcamDeviceId, this.currentVideoStream)) {
       this.currentVideoStream.stop();
@@ -492,6 +503,8 @@ class VideoPreview extends Component {
 
     this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
+    PreviewService.changeProfile(selectedProfile);
+    PreviewService.changeWebcam(webcamDeviceId);
     startSharing(webcamDeviceId);
     if (resolve) resolve();
   }
@@ -615,7 +628,6 @@ class VideoPreview extends Component {
     }
 
     this.setState({ webcamDeviceId: actualDeviceId, });
-    PreviewService.changeWebcam(actualDeviceId);
   }
 
   getInitialCameraStream(deviceId) {
@@ -635,7 +647,6 @@ class VideoPreview extends Component {
       previewError: undefined,
     });
 
-    PreviewService.changeProfile(profile.id);
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
@@ -645,6 +656,7 @@ class VideoPreview extends Component {
       if (!this._isMounted) return this.terminateCameraStream(bbbVideoStream, deviceId);
 
       this.currentVideoStream = bbbVideoStream;
+      this.startCameraBrightness();
       this.setState({
         isStartSharingDisabled: false,
       });
@@ -965,10 +977,6 @@ class VideoPreview extends Component {
 
     const { isIe } = browserInfo;
 
-    const title = isVisualEffects
-      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
-      : intl.formatMessage(intlMessages.webcamSettingsTitle);
-
     return (
       <>
         {isIe ? (
@@ -983,9 +991,6 @@ class VideoPreview extends Component {
             />
           </Styled.BrowserWarning>
         ) : null}
-        <Styled.Title>
-          {title}
-        </Styled.Title>
 
         {this.renderContent()}
 
@@ -1026,6 +1031,7 @@ class VideoPreview extends Component {
       intl,
       isCamLocked,
       forceOpen,
+      isVisualEffects,
     } = this.props;
 
     if (isCamLocked === true) {
@@ -1046,15 +1052,19 @@ class VideoPreview extends Component {
     || !PreviewService.getSkipVideoPreview()
     || forceOpen;
 
+    const title = isVisualEffects
+      ? intl.formatMessage(intlMessages.webcamEffectsTitle)
+      : intl.formatMessage(intlMessages.webcamSettingsTitle);
+
     return (
       <Styled.VideoPreviewModal
         onRequestClose={this.handleProceed}
-        hideBorder
         contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
         shouldShowCloseButton={allowCloseModal}
         shouldCloseOnOverlayClick={allowCloseModal}
         isPhone={deviceInfo.isPhone}
         data-test="webcamSettingsModal"
+        title={title}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

@@ -5,7 +5,7 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   this: UsersApp =>
@@ -24,10 +24,16 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       liveMeeting.registeredUsers)
     regUser match {
       case Some(u) =>
+        // Check if maxParticipants has been reached
+        // User are able to reenter if he already joined previously with the same extId
+        val hasReachedMaxParticipants = liveMeeting.props.usersProp.maxUsers > 0 &&
+          RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= liveMeeting.props.usersProp.maxUsers &&
+          RegisteredUsers.checkUserExtIdHasJoined(u.externId, liveMeeting.registeredUsers) == false
+
         // Check if banned user is rejoining.
         // Fail validation if ejected user is rejoining.
         // ralam april 21, 2020
-        if (u.guestStatus == GuestStatus.ALLOW && !u.banned && !u.loggedOut) {
+        if (u.guestStatus == GuestStatus.ALLOW && !u.banned && !u.loggedOut && !hasReachedMaxParticipants) {
           userValidated(u, state)
         } else {
           if (u.banned) {
@@ -36,6 +42,9 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
           } else if (u.loggedOut) {
             failReason = "User had logged out"
             failReasonCode = EjectReasonCode.USER_LOGGED_OUT
+          } else if (hasReachedMaxParticipants) {
+            failReason = "The maximum number of participants allowed for this meeting has been reached."
+            failReasonCode = EjectReasonCode.MAX_PARTICIPANTS
           }
           validateTokenFailed(
             outGW,

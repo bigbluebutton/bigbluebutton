@@ -194,6 +194,9 @@ class Polling extends Component {
                 placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
                 maxLength={MAX_INPUT_CHARS}
                 ref={(r) => { this.responseInput = r; }}
+                onPaste={(e) => { e.stopPropagation(); }}
+                onCut={(e) => { e.stopPropagation(); }}
+                onCopy={(e) => { e.stopPropagation(); }}
               />
               <Styled.SubmitVoteButton
                 data-test="submitAnswer"
@@ -246,7 +249,7 @@ class Polling extends Component {
                 key={pollAnswer.id}
               >
                 <td>
-                  <Styled.PollingCheckbox>
+                  <Styled.PollingCheckbox data-test="optionsAnswers">
                     <Checkbox
                       disabled={!isMeteorConnected}
                       id={`answerInput${pollAnswer.key}`}
@@ -277,6 +280,7 @@ class Polling extends Component {
             label={intl.formatMessage(intlMessages.submitLabel)}
             aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
             onClick={() => this.handleSubmit(poll.pollId)}
+            data-test="submitAnswersMultiple"
           />
         </div>
       </div>

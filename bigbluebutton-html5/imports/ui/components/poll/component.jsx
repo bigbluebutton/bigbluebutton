@@ -544,6 +544,9 @@ class Poll extends Component {
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
             />
             {optList.length > MIN_OPTIONS_LENGTH && (
               <Styled.DeletePollOptionButton
@@ -567,7 +570,7 @@ class Poll extends Component {
             </span>
           </Styled.OptionWrapper>
           {!hasVal && type !== pollTypes.Response && error ? (
-            <Styled.InputError>{error}</Styled.InputError>
+            <Styled.InputError data-test="errorNoValueInput">{error}</Styled.InputError>
           ) : (
             <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
           )}
@@ -674,7 +677,7 @@ class Poll extends Component {
       <Styled.ResponseArea>
         {defaultPoll && (
           <div>
-            <Styled.PollCheckbox>
+            <Styled.PollCheckbox data-test="allowMultiple">
               <Checkbox
                 onChange={this.toggleIsMultipleResponse}
                 checked={isMultipleResponse}
@@ -785,7 +788,9 @@ class Poll extends Component {
           data-test="pollQuestionArea"
           value={customInput ? questionAndOptions : question}
           onChange={(e) => this.handleTextareaChange(e)}
-          onPaste={() => this.setState({ isPasting: true })}
+          onPaste={(e) => { e.stopPropagation(); this.setState({ isPasting: true }); }}
+          onCut={(e) => { e.stopPropagation(); }}
+          onCopy={(e) => { e.stopPropagation(); }}
           onKeyPress={(event) => {
             if (event.key === 'Enter' && customInput) {
               this.handlePollLetterOptions();
@@ -941,7 +946,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <Styled.NoSlidePanelContainer>
-        <Styled.SectionHeading>
+        <Styled.SectionHeading data-test="noPresentation">
           {intl.formatMessage(intlMessages.noPresentationSelected)}
         </Styled.SectionHeading>
         <Styled.PollButton

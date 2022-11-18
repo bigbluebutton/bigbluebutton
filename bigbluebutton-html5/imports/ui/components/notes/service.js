@@ -50,9 +50,7 @@ const setLastRev = () => {
   }
 };
 
-const hasUnreadNotes = (sidebarContentPanel) => {
-  if (sidebarContentPanel === PANELS.SHARED_NOTES) return false;
-
+const hasUnreadNotes = () => {
   const rev = PadsService.getRev(NOTES_CONFIG.id);
   const lastRev = getLastRev();
 
@@ -75,6 +73,15 @@ const toggleNotesPanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
+const pinSharedNotes = (pinned) => {
+  PadsService.pinPad(NOTES_CONFIG.id, pinned);
+};
+
+const isSharedNotesPinned = () => {
+  const pinnedPad = PadsService.getPinnedPad();
+  return pinnedPad?.externalId === NOTES_CONFIG.id;
+};
+
 export default {
   ID: NOTES_CONFIG.id,
   toggleNotesPanel,
@@ -83,4 +90,6 @@ export default {
   setLastRev,
   getLastRev,
   hasUnreadNotes,
+  isSharedNotesPinned,
+  pinSharedNotes,
 };

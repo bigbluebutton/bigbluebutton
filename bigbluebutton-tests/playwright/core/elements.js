@@ -104,6 +104,20 @@ exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
+exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
+exports.sendLobbyMessage = 'div[data-test="lobbyMessage"] >> button';
+exports.lobbyMessage = 'div[data-test="lobbyMessage"] >> p';
+exports.positionInWaitingQueue = 'div[id="positionInWaitingQueue"]';
+exports.allowEveryone = 'button[data-test="allowEveryone"]';
+exports.denyEveryone = 'button[data-test="denyEveryone"]';
+exports.guestMessage = 'p[data-test="guestMessage"]';
+exports.privateMessageGuest = 'button[data-test="privateMessageGuest"]';
+exports.acceptGuest = 'button[data-test="acceptGuest"]';
+exports.denyGuest = 'button[data-test="denyGuest"]';
+exports.inputPrivateLobbyMesssage = 'div[data-test="privateLobbyMessage"] >> textarea';
+exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
+exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
+exports.welcomeMessage = 'h1[id="welcome-message"]';
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
 exports.frequentlyUsedEmoji = '👍';
@@ -193,7 +207,23 @@ exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
-
+exports.noPresentation = 'h4[data-test="noPresentation"]';
+exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
+exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
+exports.allowMultiple = 'div[data-test="allowMultiple"] > div > input[type="checkbox"]';
+exports.pollOptionItem1 = 'input[data-test="pollOptionItem"]>>nth=0';
+exports.pollOptionItem2 = 'input[data-test="pollOptionItem"]>>nth=1';
+exports.pollAnswerDescTest1 = 'div[data-test="optionsAnswers"]>>nth=0';
+exports.pollAnswerDescTest2 = 'div[data-test="optionsAnswers"]>>nth=1';
+exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
+exports.numberVotes = 'div[data-test="numberVotes"]';
+exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
+exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
+exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
+exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
+exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]>>nth=0';
+exports.checkboxInput = 'div[data-test="optionsAnswers"] > div';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -225,6 +255,9 @@ exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 exports.presentationsList = 'div[id="upload-modal"] tbody';
+exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
+exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
+exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink

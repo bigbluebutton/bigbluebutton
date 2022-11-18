@@ -55,6 +55,9 @@ const intlMessages = defineMessages({
   user_requested_eject_reason: {
     id: 'app.meeting.logout.ejectedFromMeeting',
   },
+  max_participants_reason: {
+    id: 'app.meeting.logout.maxParticipantsReached',
+  },
   duplicate_user_in_meeting_eject_reason: {
     id: 'app.meeting.logout.duplicateUserEjectReason',
   },

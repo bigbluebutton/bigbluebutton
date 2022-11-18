@@ -10,6 +10,7 @@ import {
 } from '/imports/utils/slideCalcUtils';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
+import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
 
@@ -106,7 +107,7 @@ class PresentationToolbar extends PureComponent {
     document.addEventListener('keydown', this.switchSlide);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { zoom, setIsPanning, fitToWidth } = this.props;
     if (zoom <= HUNDRED_PERCENT && zoom !== prevProps.zoom && !fitToWidth) setIsPanning();
   }
@@ -239,7 +240,7 @@ class PresentationToolbar extends PureComponent {
       optionList.push(
         <option value={i} key={i}>
           {intl.formatMessage(intlMessages.goToSlide, { 0: i })}
-        </option>
+        </option>,
       );
     }
 
@@ -290,7 +291,7 @@ class PresentationToolbar extends PureComponent {
         id="presentationToolbarWrapper"
       >
         {this.renderAriaDescs()}
-        <div>
+        <div style={{ display: 'flex' }}>
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
@@ -303,6 +304,8 @@ class PresentationToolbar extends PureComponent {
               }}
             />
           ) : null}
+
+          <SmartMediaShareContainer {...{ intl, currentSlide }} />
         </div>
         <Styled.PresentationSlideControls>
           <Styled.PrevSlideButton

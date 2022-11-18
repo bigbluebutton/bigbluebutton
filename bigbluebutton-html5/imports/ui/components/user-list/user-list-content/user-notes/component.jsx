@@ -34,6 +34,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.byModerator',
     description: '',
   },
+  disabled: {
+    id: 'app.notes.disabled',
+    description: 'Aria description for disabled notes button',
+  },
 });
 
 class UserNotes extends Component {
@@ -57,7 +61,7 @@ class UserNotes extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { sidebarContentPanel, rev } = this.props;
+    const { sidebarContentPanel, rev, isPinned } = this.props;
     const { unread } = this.state;
 
     if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
@@ -67,6 +71,8 @@ class UserNotes extends Component {
     if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
       this.setUnread(false);
     }
+
+    if (!isPinned && prevProps.isPinned && unread) this.setUnread(false);
   }
 
   setUnread(unread) {
@@ -79,11 +85,12 @@ class UserNotes extends Component {
       disableNotes,
       sidebarContentPanel,
       layoutContextDispatch,
+      isPinned,
     } = this.props;
     const { unread } = this.state;
 
     let notification = null;
-    if (unread) {
+    if (unread && !isPinned) {
       notification = (
         <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
           <Styled.UnreadMessagesText aria-hidden="true">
@@ -101,6 +108,9 @@ class UserNotes extends Component {
         tabIndex={0}
         onClick={() => NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         onKeyPress={() => { }}
+        as={isPinned ? 'button' : 'div'}
+        disabled={isPinned}
+        $disabled={isPinned}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
@@ -113,6 +123,10 @@ class UserNotes extends Component {
                 <Icon iconName="lock" />
                 <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
               </Styled.NotesLock>
+            ) : null}
+          {isPinned
+            ? (
+              <span className='sr-only'>{`${intl.formatMessage(intlMessages.disabled)}`}</span>
             ) : null}
         </div>
         {notification}

@@ -5,6 +5,7 @@ import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
+import Settings from '/imports/ui/services/settings';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -20,6 +21,28 @@ const findRemoved = (A, B) => {
   });
 };
 
+// map different localeCodes from bbb to tldraw
+const mapLanguage = (language) => {
+  switch(language) {
+    case 'fa-ir':
+      return 'fa';
+    case 'it-it':
+      return 'it';
+    case 'nb-no':
+      return 'no';
+    case 'pl-pl':
+      return 'pl';
+    case 'sv-se':
+      return 'sv';
+    case 'uk-ua':
+      return 'uk';
+    case 'zh-cn':
+      return 'zh-ch';
+    default:
+      return language;
+  }
+}
+
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
 const TOOLBAR_SMALL = 28;
@@ -32,6 +55,14 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
+  ${({ hideCursor }) => hideCursor && `
+    #canvas {
+      cursor: none;
+    }
+  `}
+  #TD-PrimaryTools-Image {
+    display: none;
+  }
 `;
 
 export default function Whiteboard(props) {
@@ -60,10 +91,9 @@ export default function Whiteboard(props) {
     isRTL,
     fitToWidth,
     zoomValue,
-    width,
-    height,
     isPanning,
     intl,
+    svgUri,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -77,12 +107,15 @@ export default function Whiteboard(props) {
     assets: {},
   });
   const [tldrawAPI, setTLDrawAPI] = React.useState(null);
+  const [history, setHistory] = React.useState(null);
   const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
   const prevFitToWidth = usePrevious(fitToWidth);
+  const prevSvgUri = usePrevious(svgUri);
+  const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -165,6 +198,11 @@ export default function Whiteboard(props) {
     let changed = false;
 
     if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+      const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
+
+      if (editingShape) {
+        shapes[editingShape?.id] = editingShape;
+      }
       // set shapes as locked for those who aren't allowed to edit it
       Object.entries(shapes).forEach(([shapeId, shape]) => {
         if (!shape.isLocked && !hasShapeAccess(shapeId)) {
@@ -195,7 +233,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && !next.assets[`slide-background-asset-${curPageId}`]) {
+    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`]) || (svgUri && !_.isEqual(prevSvgUri, svgUri))) {
       next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`]
       tldrawAPI?.patchState(
         {
@@ -366,6 +404,7 @@ export default function Whiteboard(props) {
       const tdDelete = document.getElementById("TD-Delete");
       const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
       const tdTools = document.getElementById("TD-Tools");
+
       if (tdToolsDots && tdDelete && tdPrimaryTools) {
         const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
         tdToolsDots.style.height = `${size}px`;
@@ -400,8 +439,37 @@ export default function Whiteboard(props) {
     }
   }, [isPanning]);
 
+  React.useEffect(() => {
+    tldrawAPI?.setSetting('language', language);
+  }, [language]);
+
   const onMount = (app) => {
-    app.setSetting('language', document.getElementsByTagName('html')[0]?.lang || 'en');
+    const menu = document.getElementById("TD-Styles")?.parentElement;
+    if (menu) {
+      const MENU_OFFSET = `48px`;
+      menu.style.position = `relative`;
+      if (isRTL) {
+        menu.style.left = MENU_OFFSET;
+      } else {
+        menu.style.right = MENU_OFFSET;
+      }
+
+      [...menu.children]
+        .sort((a,b)=> a?.id>b?.id?-1:1)
+        .forEach(n=> menu.appendChild(n));
+    }
+    app.setSetting('language', language);
+    app?.setSetting('isDarkMode', false);
+    app?.patchState(
+      {
+        appState: {
+          currentStyle: {
+            textAlign: isRTL ? "end" : "start",
+          },
+        },
+      }
+    );
+
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -414,6 +482,10 @@ export default function Whiteboard(props) {
     if (curPageId) {
       app.changePage(curPageId);
       setIsMounting(true);
+    }
+
+    if (history) {
+      app.replaceHistory(history);
     }
   };
 
@@ -456,6 +528,7 @@ export default function Whiteboard(props) {
         e.pageState.hoveredId = undefined;
       }
     }
+
     if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
@@ -532,6 +605,18 @@ export default function Whiteboard(props) {
         persistShape(diff, whiteboardId);
       }
     }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      if (patchedShape) {
+        const diff = {
+          id: patchedShape.id,
+          point: patchedShape.point,
+          text: patchedShape.text
+        }
+        persistShape(diff, whiteboardId);
+      }
+    }
   };
 
   const onUndo = (app) => {
@@ -570,7 +655,8 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onCommand = (app, command, reason) => { 
+  const onCommand = (app, command, reason) => {
+    setHistory(app.history);
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -600,7 +686,7 @@ export default function Whiteboard(props) {
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <Tldraw
-      key={`wb-${isRTL}-${width}-${height}-${dockPos}-${forcePanning}`}
+      key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
       document={doc}
       // disable the ability to drag and drop files onto the whiteboard
       // until we handle saving of assets in akka.
@@ -655,7 +741,10 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
-        <TldrawGlobalStyle hideContextMenu={!hasWBAccess && !isPresenter} />
+        <TldrawGlobalStyle 
+          hideContextMenu={!hasWBAccess && !isPresenter} 
+          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
+        />
       </Cursors>
     </>
   );

@@ -14,10 +14,6 @@ object MakePresentationWithAnnotationDownloadReqMsg { val NAME = "MakePresentati
 case class MakePresentationWithAnnotationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationWithAnnotationDownloadReqMsgBody) extends StandardMsg
 case class MakePresentationWithAnnotationDownloadReqMsgBody(presId: String, allPages: Boolean, pages: List[Int])
 
-object ExportPresentationWithAnnotationReqMsg { val NAME = "ExportPresentationWithAnnotationReqMsg" }
-case class ExportPresentationWithAnnotationReqMsg(header: BbbClientMsgHeader, body: ExportPresentationWithAnnotationReqMsgBody) extends StandardMsg
-case class ExportPresentationWithAnnotationReqMsgBody(parentMeetingId: String, allPages: Boolean)
-
 object NewPresAnnFileAvailableMsg { val NAME = "NewPresAnnFileAvailableMsg" }
 case class NewPresAnnFileAvailableMsg(header: BbbClientMsgHeader, body: NewPresAnnFileAvailableMsgBody) extends StandardMsg
 case class NewPresAnnFileAvailableMsgBody(fileURI: String, presId: String)
@@ -43,6 +39,6 @@ case class NewPresAnnFileAvailableEvtMsgBody(fileURI: String, presId: String)
 
 object CaptureSharedNotesReqEvtMsg { val NAME = "CaptureSharedNotesReqEvtMsg" }
 case class CaptureSharedNotesReqEvtMsg(header: BbbClientMsgHeader, body: CaptureSharedNotesReqEvtMsgBody) extends BbbCoreMsg
-case class CaptureSharedNotesReqEvtMsgBody(parentMeetingId: String, meetingName: String, sequence: Int)
+case class CaptureSharedNotesReqEvtMsgBody(parentMeetingId: String, meetingName: String)
 
 // ------------ akka-apps to client ------------
