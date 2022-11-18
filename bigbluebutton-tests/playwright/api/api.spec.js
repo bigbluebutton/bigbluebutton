@@ -1,5 +1,6 @@
 const { test } = require('@playwright/test');
-const { API, APIBreakout } = require('./api.js');
+const { API } = require('./api.js');
+const { APIBreakout } = require('./breakout.js');
 
 test.describe.parallel('API', () => {
 
