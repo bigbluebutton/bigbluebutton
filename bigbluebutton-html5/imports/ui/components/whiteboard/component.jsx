@@ -45,6 +45,8 @@ const mapLanguage = (language) => {
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
+const SMALL_WIDTH = 800;
+const SMALLEST_WIDTH = 645;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
@@ -406,7 +408,8 @@ export default function Whiteboard(props) {
       const tdTools = document.getElementById("TD-Tools");
 
       if (tdToolsDots && tdDelete && tdPrimaryTools) {
-        const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
+        const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
+          ? TOOLBAR_SMALL : TOOLBAR_LARGE;
         tdToolsDots.style.height = `${size}px`;
         tdToolsDots.style.width = `${size}px`;
         const delButton = tdDelete.getElementsByTagName('button')[0];
@@ -418,7 +421,7 @@ export default function Whiteboard(props) {
           item.style.width = `${size}px`;
         }
       }
-      if (props.height < SMALLEST_HEIGHT && tdTools) {
+      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH)) && tdTools) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
         tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
       }
