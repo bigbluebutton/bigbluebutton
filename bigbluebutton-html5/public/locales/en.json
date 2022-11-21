@@ -240,6 +240,8 @@
     "app.presentationUploader.exportToastHeaderPlural": "Sending to chat ({0} items)",
     "app.presentationUploader.exporting": "Sending to chat",
     "app.presentationUploader.sending": "Sending...",
+    "app.presentationUploader.collecting": "Extracting slide {0} of {1}...",
+    "app.presentationUploader.processing": "Annotating slide {0} of {1}...",
     "app.presentationUploader.sent": "Sent",
     "app.presentationUploader.exportingTimeout": "The export is taking too long...",
     "app.presentationUploader.export": "Send to chat",
