@@ -22,27 +22,21 @@ package org.bigbluebutton.presentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.MimetypesFileTypeMap;
-
 import static org.bigbluebutton.presentation.FileTypeConstants.*;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.FileNameMap;
-import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public final class SupportedFileTypes {
 
 	private static Logger log = LoggerFactory.getLogger(SupportedFileTypes.class);
+	private static MimeTypeUtils mimeTypeUtils = new MimeTypeUtils();
 
 	private static final List<String> SUPPORTED_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(15) {		
 		{				
@@ -93,12 +87,20 @@ public final class SupportedFileTypes {
 		return IMAGE_FILE_LIST.contains(fileExtension.toLowerCase());
 	}
 
+	/*
+	 * It was tested native java methods to detect mimetypes, such as:
+	 *   - URLConnection.guessContentTypeFromStream(InputStream is);
+	 *   - Files.probeContentType(Path path);
+	 *   - FileNameMap fileNameMap.getContentTypeFor(String file.getName());
+	 *   - MimetypesFileTypeMap fileTypeMap.getContentType(File file);
+	 * But none of them was as successful as the linux based command
+	 */
 	public static String detectMimeType(File pres) {
 		String mimeType = "";
 		if (pres != null){
 			try {
 				ProcessBuilder processBuilder = new ProcessBuilder();
-				processBuilder.command("bash", "-c", "file -i " + pres.toPath().toString());
+				processBuilder.command("bash", "-c", "file -b --mime-type " + pres.toPath().toString());
 				Process process = processBuilder.start();
 				StringBuilder output = new StringBuilder();
 				BufferedReader reader = new BufferedReader(
@@ -109,11 +111,7 @@ public final class SupportedFileTypes {
 				}
 				int exitVal = process.waitFor();
 				if (exitVal == 0) {
-					Pattern pattern = Pattern.compile(" [-\\w.]+\\/[-\\w.+]+");
-					Matcher match = pattern.matcher(output.toString());
-					if (match.find()) {
-						mimeType = match.group().trim();
-					}
+					mimeType = output.toString().trim();
 				} else {
 					log.error("Error while executing command {} for file {}, error: {}",
 							process.toString(), pres.toPath().toString(), process.getErrorStream());
@@ -125,5 +123,19 @@ public final class SupportedFileTypes {
 			}
 		}
 		return mimeType;
+	}
+
+	public static Boolean isPresentationMimeTypeOK(String mimeType, String finalExtension) throws Exception {
+		String mimeName = ( mimeType != null || mimeType != "" ) ? mimeType : "application/octet-stream";
+
+		boolean isMimeInValidTypes = mimeTypeUtils.getValidMimeTypes().contains(mimeName);
+		if (isMimeInValidTypes) {
+			Boolean isExtensionMatchMimeType = mimeTypeUtils.extensionMatchMimeType(mimeName, finalExtension);
+			if (!isExtensionMatchMimeType)
+				throw new Exception("Tried to save file with a different extension " +
+						"from the mimeType, this may cause problems: extention [" + finalExtension +
+						"]; mimeType [" + mimeName + "]");
+		}
+		return isMimeInValidTypes;
 	}
 }

@@ -26,7 +26,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
 import org.bigbluebutton.api.*
-import org.bigbluebutton.presentation.MimeTypeUtils
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
@@ -55,7 +54,6 @@ class ApiController {
   private static final String ROLE_MODERATOR = "MODERATOR"
   private static final String ROLE_ATTENDEE = "VIEWER"
   protected static Boolean REDIRECT_RESPONSE = true
-  MimeTypeUtils mimeTypeUtils = new MimeTypeUtils();
 
   MeetingService meetingService;
   PresentationService presentationService
@@ -1382,7 +1380,7 @@ class ApiController {
     }
 
     // Hardcode pre-uploaded presentation to the default presentation window
-    if (isPresentationMimeTypeOK(mimeType)) {
+    if (SupportedFileTypes.isPresentationMimeTypeOK(mimeType, presFilename)) {
       processUploadedFile("DEFAULT_PRESENTATION_POD",
               meetingId,
               presId,
@@ -1400,13 +1398,6 @@ class ApiController {
       log.error("The document in base64 sent is not supported as a presentation - mimeType: {}, filename: {}",
               mimeType, presFilename)
     }
-  }
-
-  def isPresentationMimeTypeOK (String mimeType) {
-    String mimeName = ( mimeType != null || mimeType != "" ) ? mimeType : 'application/octet-stream'
-
-    boolean isMimeInValidTypes = mimeTypeUtils.getValidMimeTypes().contains(mimeName)
-    return isMimeInValidTypes
   }
 
   def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
@@ -1460,24 +1451,28 @@ class ApiController {
       }
     }
 
-    if (isPresentationMimeTypeOK(mimeType)) {
-      // Hardcode pre-uploaded presentation to the default presentation window
-      processUploadedFile(
-              "DEFAULT_PRESENTATION_POD",
-              meetingId,
-              presId,
-              presFilename,
-              pres,
-              current,
-              "preupload-download-authz-token",
-              uploadFailed,
-              uploadFailReasons,
-              isDownloadable,
-              isRemovable
-      )
-    } else {
-      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-      log.error("Document [${address}] sent is not supported as a presentation")
+    try {
+      if (SupportedFileTypes.isPresentationMimeTypeOK(mimeType, filenameExt)) {
+        // Hardcode pre-uploaded presentation to the default presentation window
+        processUploadedFile(
+                "DEFAULT_PRESENTATION_POD",
+                meetingId,
+                presId,
+                presFilename,
+                pres,
+                current,
+                "preupload-download-authz-token",
+                uploadFailed,
+                uploadFailReasons,
+                isDownloadable,
+                isRemovable
+        )
+      } else {
+        org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+        log.error("Document [${address}] sent is not supported as a presentation")
+      }
+    } catch (Exception e) {
+      log.error(e.getMessage())
     }
   }
 
