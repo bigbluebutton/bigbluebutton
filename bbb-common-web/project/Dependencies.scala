@@ -31,7 +31,7 @@ object Dependencies {
     val lang = "3.9"
     val io = "2.6"
     val pool = "2.8.0"
-    val text = "1.9"
+    val text = "1.10.0"
 
     // BigBlueButton
     val bbbCommons = "0.0.20-SNAPSHOT"
