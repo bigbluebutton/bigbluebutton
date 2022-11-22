@@ -379,8 +379,13 @@ module BigBlueButton
         duration = cut[:next_timestamp] - cut[:timestamp]
         BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
-        ffmpeg_inputs = []
-        ffmpeg_filter = "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+        ffmpeg_inputs = [
+          {
+            format: 'lavfi',
+            filename: "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+          }
+        ]
+        ffmpeg_filter = '[0]null'
         layout[:areas].each do |layout_area|
           area = cut[:areas][layout_area[:name]]
           video_count = area.length
@@ -478,9 +483,16 @@ module BigBlueButton
               tile_y += 1
             end
 
-            # Only create the video input if the seekpoint is before the end of the file
+            input_index = ffmpeg_inputs.length
+
+            # If the seekpoint is at or after the end of the file, the filter chain will
+            # have problems. Substitute in a blank video.
             if seek >= this_videoinfo[:duration]
-              ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}[#{pad_name}];"
+              ffmpeg_inputs << {
+                format: 'lavfi',
+                filename: "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}"
+              }
+              ffmpeg_filter << "[#{input_index}]null[#{pad_name}];"
               next
             end
 
@@ -491,7 +503,6 @@ module BigBlueButton
             if seek > 0
               seek = seek + seek_offset
             end
-            input_index = ffmpeg_inputs.length
             ffmpeg_inputs << {
               filename: video[:filename],
               seek: seek,
@@ -501,16 +512,15 @@ module BigBlueButton
             if !scale.nil?
               ffmpeg_filter << "setpts=PTS*#{scale},"
             end
-            # Subtract away the offset from the timestamps, so the trimming
-            # in the fps filter is accurate
-            ffmpeg_filter << "setpts=PTS-#{ms_to_s(seek_offset)}/TB"
-            # fps filter fills in frames up to the desired start point, and
-            # cuts the video there
-            ffmpeg_filter << ",fps=#{layout[:framerate]}:start_time=#{ms_to_s(video[:timestamp])}"
-            # Reset the timestamps to start at 0 so that everything is synced
-            # for the video tiling, and scale to the desired size.
-            ffmpeg_filter << ",setpts=PTS-STARTPTS,scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,setsar=1"
-            # And finally, pad the video to the desired aspect ratio
+            # Subtract away the offset from the timestamps, so the trimming is accurate
+            ffmpeg_filter << "setpts=PTS-#{ms_to_s(video[:timestamp])}/TB"
+            # Clean up the video framerate
+            ffmpeg_filter << ",fps=#{layout[:framerate]}"
+            # Trim any frames from before the desired start point (seek offset strangeness)
+            ffmpeg_filter << ',trim=start=0'
+            # Scale to the desired size
+            ffmpeg_filter << ",scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,setsar=1"
+            # Pad the video to the desired aspect ratio
             ffmpeg_filter << ",pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white"
             # Extend the video to the desired length
             ffmpeg_filter << ",tpad=stop=-1:stop_mode=add:color=white"
@@ -549,7 +559,9 @@ module BigBlueButton
 
         ffmpeg_cmd = [*FFMPEG, '-copyts']
         ffmpeg_inputs.each do |input|
-          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-i', input[:filename]]
+          ffmpeg_cmd << '-ss' << ms_to_s(input[:seek]) if input.include?(:seek)
+          ffmpeg_cmd << '-f' << input[:format] if input.include?(:format)
+          ffmpeg_cmd << '-i' << input[:filename]
         end
 
         BigBlueButton.logger.debug('  ffmpeg filter_complex_script:')
