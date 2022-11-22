@@ -51,7 +51,6 @@ const getCurrentSlide = (podId) => {
     fields: {
       meetingId: 0,
       thumbUri: 0,
-      swfUri: 0,
       txtUri: 0,
     },
   });

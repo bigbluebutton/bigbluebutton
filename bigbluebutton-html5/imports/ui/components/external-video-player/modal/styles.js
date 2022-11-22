@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   borderSize,
   borderRadius,
   smPaddingY,
+  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
@@ -28,25 +28,6 @@ const UrlError = styled.div`
 const ExternalVideoModal = styled(Modal)`
   padding: 1rem;
   min-height: 23rem;
-`;
-
-const Header = styled.header`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: 2rem;
-`;
-
-const Title = styled.h3`
-  text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
-  white-space: normal;
-
-  @media ${smallOnly} {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
 `;
 
 const Content = styled.div`
@@ -116,14 +97,12 @@ const StartButton = styled(Button)`
   margin: 0;
   display: block;
   position: absolute;
-  bottom: 20px;
+  bottom: ${mdPaddingX};
 `;
 
 export default {
   UrlError,
   ExternalVideoModal,
-  Header,
-  Title,
   Content,
   VideoUrl,
   ExternalVideoNote,

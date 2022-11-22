@@ -156,13 +156,8 @@ const LayoutModalComponent = (props) => {
       isPhone={deviceInfo.isPhone}
       data-test="layoutChangeModal"
       onRequestClose={closeModal}
-      hideBorder
+      title={intl.formatMessage(intlMessages.title)}
     >
-      <Styled.Header>
-        <Styled.Title>
-          {intl.formatMessage(intlMessages.title)}
-        </Styled.Title>
-      </Styled.Header>
       <Styled.Content>
         <Styled.BodyContainer>
           {renderLayoutButtons()}

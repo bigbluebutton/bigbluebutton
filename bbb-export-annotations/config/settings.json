@@ -1,6 +1,7 @@
 {
     "log": {
-      "level": "info"
+      "level": "info",
+      "msgName": "PresAnnStatusMsg"
     },
     "shared": {
       "presDir": "/var/bigbluebutton",
@@ -9,9 +10,6 @@
       "ghostscript": "/usr/bin/gs",
       "imagemagick": "/usr/bin/convert",
       "pdftocairo": "/usr/bin/pdftocairo"
-    },
-    "captureNotes": {
-      "timeout": 5000
     },
     "collector": {
       "pngWidthRasterizedSlides": 2560

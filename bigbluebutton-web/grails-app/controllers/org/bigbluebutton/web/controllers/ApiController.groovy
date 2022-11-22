@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import org.apache.commons.codec.binary.Base64
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
@@ -1110,6 +1111,103 @@ class ApiController {
           render(text: responseBuilder.buildInsertDocumentResponse(
                   "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
+        }
+      }
+    }
+  }
+
+  def getJoinUrl = {
+    String API_CALL = 'getJoinUrl'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    String respMessage = ""
+    boolean reject = false
+
+    String sessionToken
+    UserSession us
+    Meeting meeting
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.GET_JOIN_URL,
+            request.getParameterMap(),
+            request.getQueryString(),
+    )
+
+    //Validate Session
+    if(!(validationResponse == null)) {
+      respMessage = validationResponse.getValue()
+      reject = true
+    } else {
+      sessionToken = sanitizeSessionToken(params.sessionToken)
+      if (!hasValidSession(sessionToken)) {
+        reject = true
+        respMessage = "Invalid Session"
+      }
+    }
+
+    //Validate User
+    if(reject == false) {
+      us = getUserSession(sessionToken)
+
+      if(us == null) {
+        reject = true;
+        respMessage = "Access denied"
+      }
+    }
+
+    //Validate Meeting
+    if(reject == false) {
+      meeting = meetingService.getMeeting(us.meetingID)
+      boolean isRunning = meeting != null && meeting.isRunning();
+      if(!isRunning) {
+        reject = true
+        respMessage = "Meeting not found"
+      }
+
+      if (reject) {
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder.response {
+              returncode RESP_CODE_FAILED
+              message respMessage
+              sessionToken
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
+        }
+      } else {
+        Map<String, Object> logData = new HashMap<String, Object>();
+        logData.put("meetingid", us.meetingID);
+        logData.put("extMeetingid", us.externMeetingID);
+        logData.put("name", us.fullname);
+        logData.put("userid", us.internalUserId);
+        logData.put("sessionToken", sessionToken);
+        logData.put("logCode", "getJoinUrl");
+        logData.put("description", "Request join URL.");
+        Gson gson = new Gson();
+        String logStr = gson.toJson(logData);
+
+        log.info(" --analytics-- data=" + logStr);
+
+        String method = 'join'
+        String extId = validationService.encodeString(meeting.getExternalId())
+        String fullName = validationService.encodeString(us.fullname)
+        String query = "fullName=${fullName}&meetingID=${extId}&role=${us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE}&redirect=true&userID=${us.getExternUserID()}"
+        String checksum = DigestUtils.sha1Hex(method + query + validationService.getSecuritySalt())
+        String defaultServerUrl = paramsProcessorUtil.defaultServerUrl
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder.response {
+              returncode RESP_CODE_SUCCESS
+              message "Join URL provided successfully."
+              url "${defaultServerUrl}/bigbluebutton/api/${method}?${query}&checksum=${checksum}"
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
         }
       }
     }

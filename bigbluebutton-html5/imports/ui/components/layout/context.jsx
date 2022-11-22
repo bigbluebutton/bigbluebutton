@@ -1149,6 +1149,55 @@ const reducer = (state, action) => {
         },
       };
     }
+
+    // NOTES
+    case ACTIONS.SET_SHARED_NOTES_OUTPUT: {
+      const {
+        width,
+        height,
+        top,
+        left,
+        right,
+      } = action.value;
+      const { sharedNotes } = state.output;
+      if (sharedNotes.width === width
+        && sharedNotes.height === height
+        && sharedNotes.top === top
+        && sharedNotes.left === left
+        && sharedNotes.right === right) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          sharedNotes: {
+            ...sharedNotes,
+            width,
+            height,
+            top,
+            left,
+            right,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_NOTES_IS_PINNED: {
+      const { sharedNotes } = state.input;
+      if (sharedNotes.isPinned === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sharedNotes: {
+            ...sharedNotes,
+            isPinned: action.value,
+          },
+        },
+      };
+    }
     default: {
       throw new Error('Unexpected action');
     }

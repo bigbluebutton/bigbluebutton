@@ -681,6 +681,15 @@ public class Meeting {
 		return this.users.size();
 	}
 
+	public int getNumUsersOnline(){
+		int countUsersOnline = 0;
+		for (User user : this.users.values()) {
+			if(!user.hasLeft()) countUsersOnline++;
+		}
+
+		return countUsersOnline;
+	}
+
     public int getNumModerators() {
         int sum = 0;
         for (Map.Entry<String, User> entry : users.entrySet()) {

@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
-        <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">

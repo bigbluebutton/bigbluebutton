@@ -201,33 +201,6 @@ class PresentationController {
     redirect(action: list)
   }
 
-  def showSlide = {
-    log.debug "############### HERE"
-    def presentationName = params.presentation_name
-    def conf = params.conference
-    def rm = params.room
-    def slide = params.id
-
-    log.error "Nginx should be serving this SWF file! meetingId={} ,presId={} ,page={}", conf, presentationName, slide
-
-    InputStream is = null;
-    try {
-      def pres = presentationService.showSlide(conf, rm, presentationName, slide)
-      if (pres.exists()) {
-        log.debug "###### SLIDE FOUND ######"
-        def bytes = pres.readBytes()
-        response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'application/x-shockwave-flash'
-        response.outputStream << bytes;
-      } else {
-        log.debug "###### SLIDE NNOOOOOOT FOUND ######"
-      }
-    } catch (IOException e) {
-      log.error("Failed to read SWF file. meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
-      log.error("Error reading SWF file.\n" + e.getMessage());
-    }
-  }
-
   def showSvgImage = {
     def presentationName = params.presentation_name
     def conf = params.conference

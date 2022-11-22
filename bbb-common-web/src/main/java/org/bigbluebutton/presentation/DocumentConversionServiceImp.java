@@ -36,7 +36,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   private IBbbWebApiGWApp gw;
   private OfficeToPdfConversionService officeToPdfConversionService;
-  private SwfSlidesGenerationProgressNotifier notifier;
+  private SlidesGenerationProgressNotifier notifier;
 
   private PresentationFileProcessor presentationFileProcessor;
 
@@ -172,7 +172,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     officeToPdfConversionService = s;
   }
 
-  public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+  public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
       this.notifier = notifier;
   }
 

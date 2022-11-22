@@ -322,7 +322,8 @@ class TimeWindowChatItem extends PureComponent {
               <Styled.PollIcon iconName="download" />
             </UserAvatar>
           </Styled.AvatarWrapper>
-          <Styled.Content>
+          <Styled.Content 
+              data-test="downloadPresentationContainer">
             <Styled.Meta>
               <Styled.Time dateTime={dateTime} style={{ margin: 0 }}>
                 <FormattedTime value={dateTime} />
