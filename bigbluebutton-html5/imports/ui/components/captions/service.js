@@ -39,6 +39,32 @@ const getCaptionsData = () => {
   return { locale, revs, data };
 };
 
+const getLocalesAutoTranslated = () => {
+  const { meetingID } = Auth;
+  const locales = [];
+  Captions.find({ meetingId: meetingID, autoTranslation: true },
+    { fields: { ownerId: 1, locale: 1, name: 1 } })
+    .forEach((caption) => {
+      if (caption.ownerId !== '') {
+        locales.push({
+          locale: caption.locale,
+          name: caption.name,
+        });
+      }
+    });
+  return locales;
+};
+
+const isAutoTranslated = (locale) => {
+  const { meetingID } = Auth;
+  const loc = Captions.findOne({ meetingId: meetingID, locale });
+  return loc.autoTranslation;
+};
+
+const toggleAutoTranslation = (locale) => {
+  makeCall('toggleAutoTranslation', locale);
+};
+
 const getAvailableLocales = () => {
   const { meetingID } = Auth;
   const locales = [];
@@ -79,8 +105,17 @@ const takeOwnership = (locale) => {
 const appendText = (text, locale) => {
   if (typeof text !== 'string' || text.length === 0) return;
 
-  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase())}\n\n`;
-  makeCall('appendText', formattedText, locale);
+  const formattedText = `${text.trim().replace(/^\w/, (c) => c?.toUpperCase())}\n`;
+  const localedAutoTranslated = getLocalesAutoTranslated();
+
+  let locales = [locale];
+  for (let localeTrans of localedAutoTranslated) {
+    if (localeTrans.locale != locale) {
+      locales.push(localeTrans.locale);
+    }
+  }
+
+  makeCall('appendText', formattedText, locales);
 };
 
 const canIOwnThisPad = (ownerId) => {
@@ -99,6 +134,10 @@ const canIDictateThisPad = (ownerId) => {
   const SpeechRecognitionAPI = getSpeechRecognitionAPI();
   if (!SpeechRecognitionAPI) return false;
   return ownerId === userID;
+};
+
+const isAutoTranslationEnabled = () => {
+  return CAPTIONS_CONFIG.enableAutomaticTranslation;
 };
 
 const setActiveCaptions = (locale) => {
@@ -196,4 +235,7 @@ export default {
   formatCaptionsText,
   amIModerator,
   initSpeechRecognition,
+  isAutoTranslated,
+  toggleAutoTranslation,
+  isAutoTranslationEnabled,
 };

@@ -438,6 +438,9 @@ public:
   captions:
     enabled: true
     enableDictation: false
+    enableAutomaticTranslation: false
+    googleTranslateUrl: https://script.google.com/macros/s/YOUR_ID
+    deeplTranslateUrl: https://api-free.deepl.com/v2/translate?auth_key=YOUR_KEY
     backgroundColor: '#000000'
     fontColor: '#FFFFFF'
     fontFamily: Calibri

@@ -9,6 +9,8 @@ import CaptionsService from '/imports/ui/components/captions/service';
 import { notify } from '/imports/ui/services/notification';
 import { styles } from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
+import Toggle from '/imports/ui/components/switch/component';
+import cx from 'classnames';
 import _ from 'lodash';
 
 const intlMessages = defineMessages({
@@ -27,6 +29,14 @@ const intlMessages = defineMessages({
   takeOwnershipTooltip: {
     id: 'app.captions.pad.ownershipTooltip',
     description: 'Text for button for taking ownership of closed captions pad',
+  },
+  autoTranslation: {
+    id: 'app.captions.pad.autoTranslation',
+    description: 'Label for auto translation of closed captions pad',
+  },
+  autoTranslationDesc: {
+    id: 'app.captions.pad.autoTranslationDesc',
+    description: 'Descriotion for auto translation of closed captions pad',
   },
   interimResult: {
     id: 'app.captions.pad.interimResult',
@@ -91,6 +101,7 @@ class Pad extends PureComponent {
 
     this.toggleListen = _.debounce(this.toggleListen.bind(this), DEBOUNCE_TIMEOUT, DEBOUNCE_OPTIONS);
     this.handleListen = this.handleListen.bind(this);
+    this.handleToggleAutoTranslation = this.handleToggleAutoTranslation.bind(this);
 
     if (this.recognition) {
       this.recognition.addEventListener('end', () => {
@@ -219,6 +230,15 @@ class Pad extends PureComponent {
     }, this.handleListen);
   }
 
+  handleToggleAutoTranslation() {
+    const {
+      locale,
+      toggleAutoTranslation,
+    } = this.props;
+    
+    toggleAutoTranslation(locale);
+  }
+
   stopListen() {
     this.setState({ listening: false });
   }
@@ -231,6 +251,8 @@ class Pad extends PureComponent {
       name,
       layoutContextDispatch,
       isResizing,
+      isAutoTranslated,
+      ownedLocales,
     } = this.props;
 
     const {
@@ -290,6 +312,33 @@ class Pad extends PureComponent {
               />
             ) : null}
         </header>
+        {CaptionsService.canIDictateThisPad(ownerId) && CaptionsService.isAutoTranslationEnabled() && ownedLocales.length > 1 && !listening
+          ? (
+          <div className={styles.form}>
+            <div className={styles.row}>
+              <div className={styles.col} aria-hidden="true">
+                <div className={styles.formElement}>
+                  <label className={styles.label}>
+                    {intl.formatMessage(intlMessages.autoTranslationDesc)}
+                  </label>
+                </div>
+              </div>
+              <div className={styles.col}>
+                <div className={cx(styles.formElement, styles.pullContentRight)}>
+                  <Toggle
+                    icons={false}
+                    disabled={listening}
+                    checked={isAutoTranslated}
+                    onChange={this.handleToggleAutoTranslation}
+                    ariaLabelledBy="autoTransToggle"
+                    ariaLabel={intl.formatMessage(intlMessages.autoTranslation)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          )
+          : null}
         {listening ? (
           <div>
             <span className={styles.interimTitle}>

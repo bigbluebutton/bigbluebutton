@@ -107,6 +107,55 @@
   }
 }
 
+.pullContentRight {
+  display: flex;
+  justify-content: flex-end;
+  flex-flow: row;
+  align-items: center;
+}
+
+.formElement {
+  position: relative;
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+}
+
+.label {
+  color: var(--color-gray-label);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.form {
+  display: flex;
+  flex-flow: column;
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+  flex-grow: 1;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.col {
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+
+  &:last-child {
+    padding-right: 0;
+    padding-left: 1rem;
+
+    [dir="rtl"] & {
+      padding-right: 0.1rem;
+      padding-left: 0;
+    }
+  }
+}
+
 iframe {
   display: flex;
   flex-flow: column;
