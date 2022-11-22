@@ -146,7 +146,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       log.error(s"No presentation set in meeting ${meetingId}")
     } else {
 
-      val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+      val jobId: String = s"${meetingId}-slides" // Used as the temporaryPresentationId upon upload
       val jobType = "PresentationWithAnnotationExportJob"
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
