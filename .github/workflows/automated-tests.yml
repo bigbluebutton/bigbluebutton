@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: sudo apt install reprepro
-      - run: sudo make REPOSITORY=/repo SIGNWITH=none
+      - run: sudo make REPOSITORY=/repo
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
