@@ -89,8 +89,6 @@ const CaptionsButton = ({
   isSupported,
   isVoiceUser,
 }) => {
-  if (!enabled) return null;
-
   const isTranscriptionDisabled = () => (
     currentSpeechLocale === DISABLED
   );
@@ -105,6 +103,8 @@ const CaptionsButton = ({
   useEffect(() => {
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
+
+  if (!enabled) return null;
 
   const shouldRenderChevron = isSupported && isVoiceUser;
 
