@@ -45,6 +45,8 @@ const mapLanguage = (language) => {
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
+const SMALL_WIDTH = 800;
+const SMALLEST_WIDTH = 645;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
@@ -198,6 +200,11 @@ export default function Whiteboard(props) {
     let changed = false;
 
     if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+      const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
+
+      if (editingShape) {
+        shapes[editingShape?.id] = editingShape;
+      }
       // set shapes as locked for those who aren't allowed to edit it
       Object.entries(shapes).forEach(([shapeId, shape]) => {
         if (!shape.isLocked && !hasShapeAccess(shapeId)) {
@@ -401,7 +408,8 @@ export default function Whiteboard(props) {
       const tdTools = document.getElementById("TD-Tools");
 
       if (tdToolsDots && tdDelete && tdPrimaryTools) {
-        const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
+        const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
+          ? TOOLBAR_SMALL : TOOLBAR_LARGE;
         tdToolsDots.style.height = `${size}px`;
         tdToolsDots.style.width = `${size}px`;
         const delButton = tdDelete.getElementsByTagName('button')[0];
@@ -413,7 +421,7 @@ export default function Whiteboard(props) {
           item.style.width = `${size}px`;
         }
       }
-      if (props.height < SMALLEST_HEIGHT && tdTools) {
+      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH)) && tdTools) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
         tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
       }
@@ -453,8 +461,18 @@ export default function Whiteboard(props) {
         .sort((a,b)=> a?.id>b?.id?-1:1)
         .forEach(n=> menu.appendChild(n));
     }
-
     app.setSetting('language', language);
+    app?.setSetting('isDarkMode', false);
+    app?.patchState(
+      {
+        appState: {
+          currentStyle: {
+            textAlign: isRTL ? "end" : "start",
+          },
+        },
+      }
+    );
+
     setTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
@@ -582,6 +600,18 @@ export default function Whiteboard(props) {
         patchedShape.userId = currentUser?.userId;
         persistShape(patchedShape, whiteboardId);
       } else {
+        const diff = {
+          id: patchedShape.id,
+          point: patchedShape.point,
+          text: patchedShape.text
+        }
+        persistShape(diff, whiteboardId);
+      }
+    }
+
+    if (reason && reason === 'patched_shapes') {
+      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+      if (patchedShape) {
         const diff = {
           id: patchedShape.id,
           point: patchedShape.point,

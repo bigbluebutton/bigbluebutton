@@ -211,7 +211,8 @@ class JoinHandler extends Component {
       }, 'User successfully went through main.joinRouteHandler');
     } else {
       const e = new Error(response.message);
-      if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
+      JoinHandler.setError('401');
+      Session.set('errorMessageDescription', response.message);
       logger.error({
         logCode: 'joinhandler_component_joinroutehandler_error',
         extraInfo: {

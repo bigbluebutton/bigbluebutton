@@ -7,8 +7,7 @@ const axios = require('axios').default;
 const path = require('path');
 
 const {workerData} = require('worker_threads');
-
-const [jobType, jobId, filename] = workerData;
+const [jobType, jobId, filename] = [workerData.jobType, workerData.jobId, workerData.filename];
 
 const logger = new Logger('presAnn Notifier Worker');
 

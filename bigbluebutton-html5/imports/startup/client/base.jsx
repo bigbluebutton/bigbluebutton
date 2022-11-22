@@ -304,6 +304,7 @@ class Base extends Component {
   render() {
     const {
       meetingExist,
+      codeError,
     } = this.props;
     const { meetingExisted } = this.state;
 
@@ -311,7 +312,7 @@ class Base extends Component {
       <>
         {meetingExist && Auth.loggedIn && <DebugWindow />}
         {
-          (!meetingExisted && !meetingExist && Auth.loggedIn)
+          (!meetingExisted && !meetingExist && Auth.loggedIn && !codeError)
             ? <LoadingScreen />
             : this.renderByState()
         }

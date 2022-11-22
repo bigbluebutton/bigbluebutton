@@ -249,7 +249,7 @@ class Polling extends Component {
                 key={pollAnswer.id}
               >
                 <td>
-                  <Styled.PollingCheckbox>
+                  <Styled.PollingCheckbox data-test="optionsAnswers">
                     <Checkbox
                       disabled={!isMeteorConnected}
                       id={`answerInput${pollAnswer.key}`}
@@ -280,6 +280,7 @@ class Polling extends Component {
             label={intl.formatMessage(intlMessages.submitLabel)}
             aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
             onClick={() => this.handleSubmit(poll.pollId)}
+            data-test="submitAnswersMultiple"
           />
         </div>
       </div>

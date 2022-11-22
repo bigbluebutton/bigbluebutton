@@ -24,17 +24,17 @@ const Header = styled.header`
   border: none;
   display: grid;
 
-  ${({ headerOnTop }) => headerOnTop && `
-    grid-template-columns: auto max-content;
+  ${({ $headerOnTop }) => $headerOnTop && `
+    grid-template-columns: auto min-content;
     grid-template-rows: min-content;
   `}
 
-  ${({ innerHeader }) => innerHeader && `
+  ${({ $innerHeader }) => $innerHeader && `
     grid-template-columns: auto;
     grid-template-rows: min-content min-content;
   `}
 
-  ${({ hideBorder }) => !hideBorder && `
+  ${({ $hideBorder }) => !$hideBorder && `
     padding: calc(${lineHeightComputed} / 2) 0;
     border-bottom: ${borderSize} solid ${colorGrayLighter};
   `}
@@ -55,15 +55,15 @@ const Title = styled(TitleElipsis)`
     padding: 0 ${mdPaddingX};
   }
 
-  ${({ headerOnTop }) => headerOnTop && `
+  ${({ $headerOnTop }) => $headerOnTop && `
     grid-area: 1 / 1 / 2 / 3;
   `}
 
-  ${({ innerHeader }) => innerHeader && `
-    grid-area: 2 / 1 / 3 / 3;
+  ${({ $innerHeader }) => $innerHeader && `
+    grid-area: 2 / 1 / 3 / 2;
   `}
 
-  ${({ hasMarginBottom }) => hasMarginBottom && `
+  ${({ $hasMarginBottom }) => $hasMarginBottom && `
     margin-bottom: ${mdPaddingX};
   `}
 `;
@@ -76,12 +76,12 @@ const DismissButton = styled(Button)`
     & > i { color: ${colorText}; }
   }
 
-  ${({ headerOnTop }) => headerOnTop && `
+  ${({ $headerOnTop }) => $headerOnTop && `
     grid-area: 1 / 2 / 2 / 3;
   `}
 
-  ${({ innerHeader }) => innerHeader && `
-    grid-area: 1 / 1 / 2 / 3;
+  ${({ $innerHeader }) => $innerHeader && `
+    grid-area: 1 / 1 / 2 / 2;
   `}
 
   justify-self: end;

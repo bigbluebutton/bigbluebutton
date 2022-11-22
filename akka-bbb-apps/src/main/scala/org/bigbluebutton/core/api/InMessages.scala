@@ -116,9 +116,8 @@ case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: St
  * Sent by parent meeting to breakout room to import shared notes.
  * @param parentMeetingId
  * @param meetingName
- * @param sequence
  */
-case class CaptureSharedNotesReqInternalMsg(parentMeetingId: String, meetingName: String, sequence: Int) extends InMessage
+case class CaptureSharedNotesReqInternalMsg(parentMeetingId: String, meetingName: String) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage

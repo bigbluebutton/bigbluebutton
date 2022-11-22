@@ -47,16 +47,23 @@ const PollsTable = (props) => {
     );
   }
 
-  const commonFieldProps = {
+  const commonUserProps = {
     field: 'User',
-    headerName: 'User',
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.userLabel', defaultMessage: 'User' }),
+    flex: 1,
+    sortable: true,
+  };
+
+  const commonCountProps = {
+    field: 'count',
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', defaultMessage: 'Total' }),
     flex: 1,
     sortable: true,
   };
 
   const anonGridCols = [
     {
-      ...commonFieldProps,
+      ...commonUserProps,
       valueGetter: (params) => params?.row?.User?.name,
       renderCell: () => (
         <div className="flex items-center text-sm">
@@ -92,7 +99,7 @@ const PollsTable = (props) => {
 
   const gridCols = [
     {
-      ...commonFieldProps,
+      ...commonUserProps,
       valueGetter: (params) => params?.row?.User?.name,
       renderCell: (params) => (
         <>
@@ -104,6 +111,17 @@ const PollsTable = (props) => {
       ),
     },
   ];
+
+  anonGridCols.push({
+    ...commonCountProps,
+    renderCell: () => '',
+  });
+
+  gridCols.push({
+    ...commonCountProps,
+    valueGetter: (params) => Object.keys(params?.row?.User?.answers)?.length || 0,
+    renderCell: (params) => params?.value,
+  });
 
   const isOverflown = (element) => (
     element.scrollHeight > element.clientHeight
@@ -303,7 +321,7 @@ const PollsTable = (props) => {
         const answersSorted = Object.entries(pollVotesCount[v?.pollId])
           .sort(([, countA], [, countB]) => countB - countA);
         const isMostCommonAnswer = (
-          answersSorted[0]?.[0]?.toLowerCase() === params?.value[0]?.toLowerCase()
+          answersSorted[0]?.[0]?.toLowerCase() === params?.value?.toLowerCase()
           && answersSorted[0]?.[1] > 1
         );
         return <GridCellExpand anonymous={v?.anonymous} isMostCommonAnswer={isMostCommonAnswer} value={params?.value || ''} width={params?.colDef?.computedWidth} />;

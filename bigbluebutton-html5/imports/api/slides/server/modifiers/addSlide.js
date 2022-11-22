@@ -50,7 +50,6 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
     id: String,
     num: Number,
     thumbUri: String,
-    swfUri: String,
     txtUri: String,
     svgUri: String,
     current: Boolean,
