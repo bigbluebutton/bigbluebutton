@@ -43,7 +43,7 @@ test.describe.parallel('Shared Notes', () => {
   test('Pin notes onto whiteboard', async ({ browser, page, context }) => {
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initModPage(page);
-    await sharedNotes.initModPage2();
+    await sharedNotes.initUserPage1();
     await sharedNotes.pinNotesOntoWhiteboard();
   });
 });

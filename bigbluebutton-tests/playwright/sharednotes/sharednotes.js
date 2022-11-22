@@ -179,9 +179,10 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes);
+
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
-    const notesLocatorUser = getNotesLocator(this.modPage2);
+    const notesLocatorUser = getNotesLocator(this.userPage1);
 
     await expect(notesLocator).toContainText(/Hello/, { timeout : 20000 });
     await expect(notesLocatorUser).toContainText(/Hello/);

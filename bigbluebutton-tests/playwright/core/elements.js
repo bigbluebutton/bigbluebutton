@@ -154,7 +154,7 @@ exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
 exports.sendNotesToWhiteboard = 'li[data-test="moveNotesToWhiteboard"]';
 exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProgressToast"]';
-exports.sharedNotesViewingMode = 'iframe[data-test="sharedNotesViewingMode"]';
+exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
 exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 
