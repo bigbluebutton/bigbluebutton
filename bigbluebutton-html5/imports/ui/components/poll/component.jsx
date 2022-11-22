@@ -739,12 +739,12 @@ class Poll extends Component {
     return (
       <>
         <Styled.CustomInputRow>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+          <Styled.CustomInputHeadingCol aria-hidden="true">
+            <Styled.CustomInputHeading>
               {intl.formatMessage(intlMessages.customInputToggleLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.CustomInputHeading>
+          </Styled.CustomInputHeadingCol>
+          <Styled.CustomInputToggleCol>
             <Styled.Toggle>
               {this.displayAutoOptionToggleStatus(customInput)}
               <Toggle
@@ -756,7 +756,7 @@ class Poll extends Component {
                 data-test="autoOptioningPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
+          </Styled.CustomInputToggleCol>
         </Styled.CustomInputRow>
         {customInput && (
           <Styled.PollParagraph>

@@ -215,7 +215,7 @@ const Warning = styled.div`
 
 const CustomInputRow = styled.div`
   display: flex;
-  flex-flow: wrap;
+  flex-flow: nowrap;
   flex-grow: 1;
   justify-content: space-between;
 `;
@@ -349,6 +349,20 @@ const ResponseArea = styled.div`
   flex-flow: column wrap;
 `;
 
+const CustomInputHeading = styled(SectionHeading)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const CustomInputHeadingCol = styled(Col)`
+  overflow: hidden;
+`;
+
+const CustomInputToggleCol = styled(Col)`
+  flex-shrink: 0;
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -376,4 +390,7 @@ export default {
   Question,
   OptionWrapper,
   ResponseArea,
+  CustomInputHeading,
+  CustomInputHeadingCol,
+  CustomInputToggleCol,
 };
