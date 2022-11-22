@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: apt install reprepro
+      - run: sudo apt install reprepro
       - run: make REPOSITORY=/repo SIGNWITH=none
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
