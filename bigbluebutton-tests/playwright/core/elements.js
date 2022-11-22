@@ -258,6 +258,9 @@ exports.presentationsList = 'div[id="upload-modal"] tbody';
 exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
 exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
 exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
+exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
+exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink

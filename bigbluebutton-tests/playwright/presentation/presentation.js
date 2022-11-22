@@ -200,6 +200,30 @@ class Presentation extends MultiUsers {
     await frame.waitForSelector(e.ytFrameTitle);
     return frame;
   }
+
+  async presentationFullscreen() {
+    const element = await this.modPage.getLocator(e.presentationContainer);
+    const value = await element.evaluate((e) => {
+      return window.getComputedStyle(e).getPropertyValue("height")
+    });
+    const height = parseInt(value);
+
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.waitAndClick(e.presentationFullscreen);
+
+    const element1 = await this.modPage.getLocator(e.presentationContainer);
+    const value1 = await element1.evaluate((e) => {
+      return window.getComputedStyle(e).getPropertyValue("height")
+    });
+    const height1 = parseInt(value1);
+
+    await expect(height1).toBeGreaterThan(height);
+  }
+
+  async presentationSnapshot(testInfo) {
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.handleDownload(e.presentationSnapshot, testInfo);
+  }
 }
 
 exports.Presentation = Presentation;
