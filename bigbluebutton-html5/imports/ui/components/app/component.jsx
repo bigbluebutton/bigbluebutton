@@ -214,6 +214,8 @@ class App extends Component {
       selectedLayout,
       sidebarContentIsOpen,
       layoutContextDispatch,
+      numCameras,
+      presentationIsOpen,
     } = this.props;
 
     this.renderDarkMode();
@@ -252,6 +254,9 @@ class App extends Component {
       selectedLayout !== prevProps.selectedLayout
       && selectedLayout?.toLowerCase?.()?.includes?.('focus')
       && !sidebarContentIsOpen
+      && deviceType !== DEVICE_TYPE.MOBILE
+      && numCameras > 0
+      && presentationIsOpen
     ) {
       setTimeout(() => {
         layoutContextDispatch({
