@@ -1,7 +1,8 @@
 package org.bigbluebutton.presentation;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
+import static org.bigbluebutton.presentation.FileTypeConstants.*;
 
 public class MimeTypeUtils {
     private  static final String XLS = "application/vnd.ms-excel";
@@ -20,59 +21,34 @@ public class MimeTypeUtils {
     private  static final String PNG = "image/png";
     private  static final String SVG = "image/svg+xml";
 
-    public Boolean extensionMatchMimeType(String mimeType, String finalExtension) {
-        String mimeExtension = "";
-        switch (mimeType) {
-            case XLS:
-                mimeExtension = FileTypeConstants.XLS;
-                break;
-            case XLSX:
-                mimeExtension = FileTypeConstants.XLSX;
-                break;
-            case DOC:
-                mimeExtension = FileTypeConstants.DOC;
-                break;
-            case DOCX:
-                mimeExtension = FileTypeConstants.DOCX;
-                break;
-            case PPT:
-                mimeExtension = FileTypeConstants.PPT;
-                break;
-            case PPTX:
-                mimeExtension = FileTypeConstants.PPTX;
-                break;
-            case ODT:
-                mimeExtension = FileTypeConstants.ODT;
-                break;
-            case RTF:
-                mimeExtension = FileTypeConstants.RTF;
-            case TXT:
-                mimeExtension = FileTypeConstants.TXT;
-                break;
-            case ODS:
-                mimeExtension = FileTypeConstants.ODS;
-                break;
-            case ODP:
-                mimeExtension = FileTypeConstants.ODP;
-                break;
-            case PDF:
-                mimeExtension = FileTypeConstants.PDF;
-                break;
-            case JPEG:
-                if (finalExtension.equals(FileTypeConstants.JPG) || finalExtension.equals(FileTypeConstants.JPEG)){
-                    mimeExtension = finalExtension;
-                }
-                break;
-            case PNG:
-                mimeExtension = FileTypeConstants.PNG;
-                break;
-            case SVG:
-                mimeExtension = FileTypeConstants.SVG;
-                break;
-            default:
-                return null;
+    private static final HashMap<String,String> EXTENSIONS_MIME = new HashMap<String,String>(16) {
+        {
+            // Add all the supported files
+            put(FileTypeConstants.XLS, XLS);
+            put(FileTypeConstants.XLSX, XLSX);
+            put(FileTypeConstants.DOC, DOC);
+            put(FileTypeConstants.DOCX, DOCX);
+            put(FileTypeConstants.PPT, PPT);
+            put(FileTypeConstants.PPTX, PPTX);
+            put(FileTypeConstants.ODT, ODT);
+            put(FileTypeConstants.RTF, RTF);
+            put(FileTypeConstants.TXT, TXT);
+            put(FileTypeConstants.ODS, ODS);
+            put(FileTypeConstants.ODP, ODP);
+            put(FileTypeConstants.PDF, PDF);
+            put(FileTypeConstants.JPG, JPEG);
+            put(FileTypeConstants.JPEG, JPEG);
+            put(FileTypeConstants.PNG, PNG);
+            put(FileTypeConstants.SVG, SVG);
         }
-        return mimeExtension.equals(finalExtension);
+    };
+
+    public Boolean extensionMatchMimeType(String mimeType, String finalExtension) {
+        if(EXTENSIONS_MIME.containsKey(finalExtension.toLowerCase())) {
+            return EXTENSIONS_MIME.get(finalExtension.toLowerCase()).equalsIgnoreCase(mimeType);
+        }
+
+        return false;
     }
 
     public List<String> getValidMimeTypes() {
