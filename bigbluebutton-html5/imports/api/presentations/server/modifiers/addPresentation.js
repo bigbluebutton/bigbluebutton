@@ -71,7 +71,7 @@ export default function addPresentation(meetingId, podId, presentation) {
   };
 
   try {
-    const { insertedId } = Presentations.upsert(selector, modifier);
+    Presentations.upsert(selector, modifier);
 
     addSlides(meetingId, podId, presentation.id, presentation.pages);
     

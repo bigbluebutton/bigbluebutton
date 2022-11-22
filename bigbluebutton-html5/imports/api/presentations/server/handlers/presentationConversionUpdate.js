@@ -25,7 +25,11 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
   check(body, Object);
 
   const {
-    presentationId, podId, messageKey: status, presName: presentationName, temporaryPresentationId,
+    presentationId,
+    podId,
+    messageKey: status,
+    presName: presentationName,
+    temporaryPresentationId,
   } = body;
 
   check(meetingId, String);
@@ -45,7 +49,6 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier.id = presentationId;
       statusModifier.name = presentationName;
       break;
-
     case FILE_TOO_LARGE_KEY:
       statusModifier['conversion.maxFileSize'] = body.maxFileSize;
     case UNSUPPORTED_DOCUMENT_KEY:
@@ -64,13 +67,11 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier['conversion.error'] = true;
       statusModifier['conversion.maxNumberOfAttempts'] = body.maxNumberOfAttempts;
       statusModifier['conversion.numberPageError'] = body.page;
-      
       break;
     case GENERATED_SLIDE_KEY:
       statusModifier['conversion.pagesCompleted'] = body.pagesCompleted;
       statusModifier['conversion.numPages'] = body.numberOfPages;
       break;
-
     default:
       break;
   }
@@ -81,10 +82,15 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     id: presentationId ?? body.presentationToken,
   };
 
-  let modifier
-  if (temporaryPresentationId){
+  let modifier;
+  if (temporaryPresentationId) {
     modifier = {
-      $set: Object.assign({ meetingId, podId, renderedInToast: false, temporaryPresentationId, }, statusModifier),
+      $set: Object.assign({
+        meetingId,
+        podId,
+        renderedInToast: false,
+        temporaryPresentationId,
+      }, statusModifier),
     };
   } else {
     modifier = {
@@ -92,15 +98,15 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     };
   }
 
-
   try {
     const isPresentationPersisted = Presentations.find(selector).fetch().some((item) => {
-      if (item.temporaryPresentationId && temporaryPresentationId){
+      if (item.temporaryPresentationId && temporaryPresentationId) {
         return item.temporaryPresentationId === temporaryPresentationId;
-      } else{
+      } else {
         return item.id === presentationId;
       } 
     });
+
     let insertedID;
     if (!isPresentationPersisted) {
       const { insertedId } = Presentations.upsert(selector, modifier);

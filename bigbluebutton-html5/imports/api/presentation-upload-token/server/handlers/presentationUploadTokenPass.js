@@ -12,7 +12,7 @@ export default function handlePresentationUploadTokenPass({ body, header }, meet
   check(podId, String);
   check(authzToken, String);
   check(filename, String);
-  check(temporaryPresentationId, String)
+  check(temporaryPresentationId, String);
 
   const selector = {
     meetingId,

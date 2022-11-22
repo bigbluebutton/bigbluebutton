@@ -11,6 +11,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -97,8 +98,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
-
 class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -161,7 +160,7 @@ class ActionsDropdown extends PureComponent {
         dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
-        onClick: handlePresentationClick,
+        onClick: () => mountModal(<UploaderContainer />),
         dividerTop: this.props?.presentations?.length > 1 ? true : false,
       })
     }

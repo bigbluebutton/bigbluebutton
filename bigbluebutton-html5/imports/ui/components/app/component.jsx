@@ -21,7 +21,6 @@ import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
-import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
@@ -48,6 +47,7 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import NotesContainer from '/imports/ui/components/notes/container';
+import { PresentationUploaderToast } from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -484,6 +484,7 @@ class App extends Component {
       isPresenter,
       selectedLayout,
       presentationIsOpen,
+      intl,
     } = this.props;
 
     return (
@@ -519,7 +520,7 @@ class App extends Component {
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
-          <UploaderContainer />
+          {/* <UploaderContainer /> */}
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
           <AudioContainer />
@@ -536,6 +537,7 @@ class App extends Component {
           <PollingContainer />
           <ModalContainer />
           <PadsSessionsContainer />
+          <PresentationUploaderToast intl={intl} />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}

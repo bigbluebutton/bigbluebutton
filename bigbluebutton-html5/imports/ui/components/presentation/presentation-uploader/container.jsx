@@ -27,15 +27,19 @@ const PresentationUploaderContainer = (props) => {
 
 export default withTracker(() => {
   const currentPresentations = Service.getPresentations();
+  const uploadingPresentations = Service.getUploadingPresentations();
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
     exportPresentationToChat,
+    sendBulkPresentations,
+    clearErrors,
   } = Service;
 
   return {
     presentations: currentPresentations,
+    uploadingPresentations,
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
@@ -52,5 +56,7 @@ export default withTracker(() => {
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
+    sendBulkPresentations,
+    clearErrors,
   };
 })(PresentationUploaderContainer);

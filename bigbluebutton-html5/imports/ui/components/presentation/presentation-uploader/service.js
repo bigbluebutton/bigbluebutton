@@ -39,9 +39,7 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 });
 
 const getPresentations = () => Presentations
-  .find({
-    'conversion.error': false,
-  })
+  .find()
   .fetch()
   .map((presentation) => {
     const {
@@ -64,7 +62,6 @@ const getPresentations = () => Presentations
       renderedInToast,
       temporaryPresentationId,
       isCurrent: current || false,
-      upload: { done: true, error: false },
       isDownloadable: downloadable,
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
@@ -80,22 +77,12 @@ const dispatchTogglePresentationDownloadable = (presentation, newState) => {
 const observePresentationConversion = (
   meetingId,
   temporaryPresentationId,
-  onConversion,
 ) => new Promise((resolve) => {
   // The token is placed as an id before the original one is generated
-  // in the back-end;
-  const tokenId = PresentationUploadToken.findOne({temporaryPresentationId})?.authzToken;
-
-  const conversionTimeout = setTimeout(() => {
-    onConversion({
-      done: true,
-      error: true,
-      status: 'TIMEOUT',
-    });
-  }, CONVERSION_TIMEOUT);
+  // in the back-end.
+  const tokenId = PresentationUploadToken.findOne({ temporaryPresentationId })?.authzToken;
 
   const didValidate = (doc) => {
-    clearTimeout(conversionTimeout);
     resolve(doc);
   };
 
@@ -104,24 +91,25 @@ const observePresentationConversion = (
 
     query.observe({
       added: (doc) => {
-
         if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
-        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' || doc.conversion.status === 'CONVERSION_TIMEOUT') {
-          Presentations.update({id: tokenId}, {$set: {temporaryPresentationId, renderedInToast: false}})
-          onConversion(doc.conversion);
+        if (
+          doc.conversion.status === 'FILE_TOO_LARGE' ||
+          doc.conversion.status === 'UNSUPPORTED_DOCUMENT' ||
+          doc.conversion.status === 'CONVERSION_TIMEOUT'
+        ) {
+          Presentations.update(
+            { id: tokenId },
+            { $set: { temporaryPresentationId, renderedInToast: false } },
+          );
           c.stop();
-          clearTimeout(conversionTimeout);
         }
       },
       changed: (newDoc) => {
         if (newDoc.temporaryPresentationId !== temporaryPresentationId) return;
 
-        onConversion(newDoc.conversion);
-
         if (newDoc.conversion.error) {
           c.stop();
-          clearTimeout(conversionTimeout);
         }
 
         if (newDoc.conversion.done) {
@@ -172,17 +160,21 @@ const requestPresentationUploadToken = (
   });
 });
 
-const uploadAndConvertPresentation = (
-  file,
-  downloadable,
+const uploadAndConvertPresentation = async (
+  presentation,
   podId,
   meetingId,
   endpoint,
-  onUpload,
-  onProgress,
-  onConversion,
 ) => {
-  const temporaryPresentationId = _.uniqueId(Random.id(20))
+  const temporaryPresentationId = _.uniqueId(Random.id(20));
+  const {
+    file,
+    isDownloadable,
+    isRemovable,
+    isCurrent,
+    id,
+    onUpload,
+  } = presentation;
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -193,7 +185,7 @@ const uploadAndConvertPresentation = (
   // TODO: Currently the uploader is not related to a POD so the id is fixed to the default
   data.append('pod_id', podId);
 
-  data.append('is_downloadable', downloadable);
+  data.append('is_downloadable', isDownloadable);
 
   const opts = {
     method: 'POST',
@@ -203,39 +195,62 @@ const uploadAndConvertPresentation = (
   // If the presentation is from sharedNotes I don't want to
   // insert another one, I just need to update it.
   UploadingPresentations.upsert({
+    filename: file.name,
+    lastModifiedUploader: false,
+  }, {
+    $set: {
+      id,
+      temporaryPresentationId,
+      progress: 0,
       filename: file.name,
-      lastModifiedUploader: false,
-    }, {
-      $set: {
-        temporaryPresentationId,
-        progress: 0,
-        filename: file.name,
-        lastModifiedUploader: true,
-        upload: {
-          done: false,
-          error: false
-        },
-        uploadTimestamp: new Date()
-    }
-  })
+      lastModifiedUploader: true,
+      isDownloadable,
+      isRemovable,
+      isCurrent,
+      upload: {
+        done: false,
+        error: false,
+      },
+      uploadTimestamp: new Date(),
+    },
+  });
 
   return requestPresentationUploadToken(temporaryPresentationId, podId, meetingId, file.name)
     .then((token) => {
       makeCall('setUsedToken', token);
-      UploadingPresentations.upsert({
-        temporaryPresentationId
-        }, {
-          $set: {
-            id: token,
-        }
-      })
+      UploadingPresentations.upsert(
+        { temporaryPresentationId },
+        { $set: { id: token },
+      });
       return futch(endpoint.replace('upload', `${token}/upload`), opts, (e) => {
-        onProgress(e);
-        UploadingPresentations.upsert({ temporaryPresentationId }, {$set: {progress: (e.loaded / e.total) * 100}});
+        let modifier;
+
+        if (!e.lengthComputable) {
+          modifier = {
+            $set: {
+              progress: 100,
+              upload: { done: true, error: false },
+            },
+          };
+        } else {
+          modifier = {
+            $set: {
+              progress: (e.loaded / e.total) * 100,
+              upload: { done: e.loaded === e.total },
+            },
+          }
+        }
+
+        if (typeof onUpload === 'function') onUpload(modifier);
+
+        UploadingPresentations.upsert(
+          { temporaryPresentationId },
+          modifier,
+        );
       });
     })
-    .then(() => observePresentationConversion(meetingId, temporaryPresentationId, onConversion))
-    // Trap the error so we can have parallel upload
+    .then(() => observePresentationConversion(meetingId, temporaryPresentationId))
+    // Trap the error so we can have parallel upload.
     .catch((error) => {
       logger.debug({
         logCode: 'presentation_uploader_service',
@@ -243,8 +258,15 @@ const uploadAndConvertPresentation = (
           error,
         },
       }, 'Generic presentation upload exception catcher');
-      observePresentationConversion(meetingId, temporaryPresentationId, onConversion);
-      onUpload({ error: true, done: true, status: error.code });
+      observePresentationConversion(meetingId, temporaryPresentationId);
+      UploadingPresentations.upsert(
+        { temporaryPresentationId },
+        {
+          $set: {
+            upload: { error: true, done: true, status: error.code },
+          },
+        },
+      );
       return Promise.resolve();
     });
 };
@@ -255,8 +277,7 @@ const uploadAndConvertPresentations = (
   podId,
   uploadEndpoint,
 ) => Promise.all(presentationsToUpload.map((p) => uploadAndConvertPresentation(
-  p.file, p.isDownloadable, podId, meetingId, uploadEndpoint,
-  p.onUpload, p.onProgress, p.onConversion,
+  p, podId, meetingId, uploadEndpoint,
 )));
 
 const setPresentation = (presentationId, podId) => {
@@ -314,27 +335,79 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
     .then(removePresentations.bind(null, presentationsToRemove, podId));
 };
 
-const handleSavePresentation = (presentations = [], isFromPresentationUploaderInterface = true, newPres = {}) => {
+const handleSavePresentation = (
+  presentations = [],
+  isFromPresentationUploaderInterface = true,
+  newPres = {},
+) => {
   const currentPresentations = getPresentations();
-  if (!isFromPresentationUploaderInterface) {
 
+  if (!isFromPresentationUploaderInterface) {
     if (presentations.length === 0) {
       presentations = [...currentPresentations];
     }
-    presentations = presentations.map(p => update(p, {
-      isCurrent: {
-        $set: false
-      }
-    }));
+    presentations = presentations.map(p => update(p, { isCurrent: { $set: false } }));
     newPres.isCurrent = true;
     presentations.push(newPres);
   }
+
   return persistPresentationChanges(
-  currentPresentations,
-  presentations,
-  PRESENTATION_CONFIG.uploadEndpoint,
-  'DEFAULT_PRESENTATION_POD'
-)}
+    currentPresentations,
+    presentations,
+    PRESENTATION_CONFIG.uploadEndpoint,
+    'DEFAULT_PRESENTATION_POD',
+  );
+}
+
+const sendBulkPresentations = (
+  presentationsToUpload,
+  presentationsToRemove,
+  selectedCurrentId,
+) => {
+  const POD_ID = 'DEFAULT_PRESENTATION_POD';
+  const currentToUpload = presentationsToUpload.find((p) => p.id === selectedCurrentId);
+  let uploadStatus;
+
+  if (currentToUpload) {
+    currentToUpload.isCurrent = true;
+    currentToUpload.onUpload = (status) => {
+      uploadStatus = status;
+    };
+  }
+
+  return uploadAndConvertPresentations(
+    presentationsToUpload,
+    Auth.meetingID,
+    POD_ID,
+    PRESENTATION_CONFIG.uploadEndpoint,
+  ).then((uploadedPresentations) => {
+    if (!uploadedPresentations.length && !currentToUpload) return Promise.resolve();
+
+    return Promise.resolve(uploadedPresentations);
+  }).then((uploadedPresentations) => {
+    if (selectedCurrentId === undefined) {
+      setPresentation('', POD_ID);
+      return Promise.resolve();
+    }
+
+    let currentId = selectedCurrentId;
+
+    if (currentToUpload) {
+      const currentIndex = presentationsToUpload.findIndex((p) => p === currentToUpload);
+      const uploadedPresentation = uploadedPresentations[currentIndex];
+
+      if (uploadedPresentation.conversion.error || uploadStatus?.upload?.error) {
+        currentId = Session.get('selectedToBeNextCurrent');
+      } else {
+        currentId = uploadedPresentation.id;
+      } 
+    } else {
+      currentId = selectedCurrentId;
+    }
+
+    return setPresentation(currentId, POD_ID);
+  }).then(removePresentations.bind(null, presentationsToRemove, POD_ID));
+};
 
 const getExternalUploadData = () => {
   const { meetingProp } = Meetings.findOne(
@@ -386,6 +459,13 @@ const exportPresentationToChat = (presentationId, observer) => {
   makeCall('exportPresentationToChat', presentationId);
 };
 
+const getUploadingPresentations = () => UploadingPresentations.find().fetch();
+
+const clearErrors = () => {
+  UploadingPresentations.remove({ 'upload.error': true });
+  return makeCall('clearErrors', 'DEFAULT_PRESENTATION_POD');
+};
+
 export default {
   handleSavePresentation,
   getPresentations,
@@ -396,4 +476,7 @@ export default {
   getExternalUploadData,
   exportPresentationToChat,
   uploadAndConvertPresentation,
+  getUploadingPresentations,
+  sendBulkPresentations,
+  clearErrors,
 };
