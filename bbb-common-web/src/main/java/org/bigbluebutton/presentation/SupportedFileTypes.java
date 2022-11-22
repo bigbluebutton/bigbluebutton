@@ -97,14 +97,13 @@ public final class SupportedFileTypes {
 	 */
 	public static String detectMimeType(File pres) {
 		String mimeType = "";
-		if (pres != null){
+		if (pres != null && pres.isFile()){
 			try {
 				ProcessBuilder processBuilder = new ProcessBuilder();
-				processBuilder.command("bash", "-c", "file -b --mime-type " + pres.toPath().toString());
+				processBuilder.command("bash", "-c", "file -b --mime-type " + pres.getAbsolutePath());
 				Process process = processBuilder.start();
 				StringBuilder output = new StringBuilder();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(process.getInputStream()));
+				BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
 				while ((line = reader.readLine()) != null) {
 					output.append(line + "\n");
@@ -114,28 +113,29 @@ public final class SupportedFileTypes {
 					mimeType = output.toString().trim();
 				} else {
 					log.error("Error while executing command {} for file {}, error: {}",
-							process.toString(), pres.toPath().toString(), process.getErrorStream());
+							process.toString(), pres.getAbsolutePath(), process.getErrorStream());
 				}
 			} catch (IOException e) {
-				log.error("Could not read file [{}]", pres.toPath().toString(), e.getMessage());
+				log.error("Could not read file [{}]", pres.getAbsolutePath(), e.getMessage());
 			} catch (InterruptedException e) {
-				log.error("Flow interrupted for file [{}]", pres.toPath().toString(), e.getMessage());
+				log.error("Flow interrupted for file [{}]", pres.getAbsolutePath(), e.getMessage());
 			}
 		}
 		return mimeType;
 	}
 
-	public static Boolean isPresentationMimeTypeOK(String mimeType, String finalExtension) throws Exception {
-		String mimeName = ( mimeType != null || mimeType != "" ) ? mimeType : "application/octet-stream";
+	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) throws Exception {
+		String mimeType = detectMimeType(pres);
 
-		boolean isMimeInValidTypes = mimeTypeUtils.getValidMimeTypes().contains(mimeName);
-		if (isMimeInValidTypes) {
-			Boolean isExtensionMatchMimeType = mimeTypeUtils.extensionMatchMimeType(mimeName, finalExtension);
-			if (!isExtensionMatchMimeType)
-				throw new Exception("Tried to save file with a different extension " +
-						"from the mimeType, this may cause problems: extention [" + finalExtension +
-						"]; mimeType [" + mimeName + "]");
+		if(mimeType == null || mimeType == "") return false;
+
+		if(!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
+
+		if(!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
+			log.error("File with extension [" + fileExtension + "] doesn't match with mimeType [" + mimeType + "].");
+			return false;
 		}
-		return isMimeInValidTypes;
+
+		return true;
 	}
 }

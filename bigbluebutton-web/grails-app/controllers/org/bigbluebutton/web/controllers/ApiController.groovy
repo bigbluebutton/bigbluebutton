@@ -1371,7 +1371,6 @@ class ApiController {
         fos.write(bytes)
         fos.flush()
         fos.close()
-        mimeType = SupportedFileTypes.detectMimeType(pres)
       } else {
         log.warn "Upload failed. File Empty."
         uploadFailReasons.add("failed_to_download_file")
@@ -1380,7 +1379,7 @@ class ApiController {
     }
 
     // Hardcode pre-uploaded presentation to the default presentation window
-    if (SupportedFileTypes.isPresentationMimeTypeOK(mimeType, presFilename)) {
+    if (SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)) {
       processUploadedFile("DEFAULT_PRESENTATION_POD",
               meetingId,
               presId,
@@ -1443,7 +1442,6 @@ class ApiController {
           uploadFailReasons.add("failed_to_download_file")
           uploadFailed = true
         }
-        mimeType = SupportedFileTypes.detectMimeType(pres)
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
         uploadFailReasons.add("null_presentation_dir")
@@ -1451,28 +1449,24 @@ class ApiController {
       }
     }
 
-    try {
-      if (SupportedFileTypes.isPresentationMimeTypeOK(mimeType, filenameExt)) {
-        // Hardcode pre-uploaded presentation to the default presentation window
-        processUploadedFile(
-                "DEFAULT_PRESENTATION_POD",
-                meetingId,
-                presId,
-                presFilename,
-                pres,
-                current,
-                "preupload-download-authz-token",
-                uploadFailed,
-                uploadFailReasons,
-                isDownloadable,
-                isRemovable
-        )
-      } else {
-        org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-        log.error("Document [${address}] sent is not supported as a presentation")
-      }
-    } catch (Exception e) {
-      log.error(e.getMessage())
+    if (SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)) {
+      // Hardcode pre-uploaded presentation to the default presentation window
+      processUploadedFile(
+              "DEFAULT_PRESENTATION_POD",
+              meetingId,
+              presId,
+              presFilename,
+              pres,
+              current,
+              "preupload-download-authz-token",
+              uploadFailed,
+              uploadFailReasons,
+              isDownloadable,
+              isRemovable
+      )
+    } else {
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.error("Document [${address}] sent is not supported as a presentation")
     }
   }
 
