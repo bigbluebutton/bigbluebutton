@@ -25,6 +25,7 @@ import java.util.Map;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.*;
 import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
+import org.bigbluebutton.presentation.messages.DocInvalidMimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -128,6 +129,11 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
       notifier.sendConversionCompletedMessage(pres);
     }
+  }
+
+  public void sendDocConversionFailedOnMimeType(UploadedPresentation pres, String actualMime,
+                                                String actualExtension) {
+    notifier.sendInvalidMimeTypeMessage(pres, actualMime, actualExtension);
   }
 
   private void sendDocConversionRequestReceived(UploadedPresentation pres) {

@@ -1450,7 +1450,6 @@ class ApiController {
     def filenameExt = FilenameUtils.getExtension(presOrigFilename)
     def pres = null
     def presId = null
-    def mimeType
 
     if (presFilename == "" || filenameExt == "") {
       log.debug("Upload failed. Invalid filename " + presOrigFilename)
@@ -1492,8 +1491,6 @@ class ApiController {
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-      log.error("The document in base64 sent is not supported as a presentation - mimeType: {}, filename: {}",
-              mimeType, presFilename)
     }
   }
 
@@ -1521,7 +1518,6 @@ class ApiController {
     def filenameExt = FilenameUtils.getExtension(presOrigFilename)
     def pres = null
     def presId
-    def mimeType
 
     if (presFilename == "" || filenameExt == "") {
       log.debug("presentation is null by default")

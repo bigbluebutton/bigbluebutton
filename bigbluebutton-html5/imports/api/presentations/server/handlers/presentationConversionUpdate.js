@@ -13,6 +13,7 @@ const PDF_HAS_BIG_PAGE_KEY = 'PDF_HAS_BIG_PAGE';
 const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 const FILE_TOO_LARGE_KEY = 'FILE_TOO_LARGE';
 const CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
+const IVALID_MIME_TYPE_KEY = "IVALID_MIME_TYPE";
 // const GENERATING_THUMBNAIL_KEY = 'GENERATING_THUMBNAIL';
 // const GENERATED_THUMBNAIL_KEY = 'GENERATED_THUMBNAIL';
 // const GENERATING_TEXTFILES_KEY = 'GENERATING_TEXTFILES';
@@ -50,6 +51,10 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier['conversion.maxFileSize'] = body.maxFileSize;
     case UNSUPPORTED_DOCUMENT_KEY:
     case OFFICE_DOC_CONVERSION_FAILED_KEY:
+    case IVALID_MIME_TYPE_KEY:
+      statusModifier['conversion.error'] = true;
+      statusModifier['conversion.actualMime'] = body.actualMime;
+      statusModifier['conversion.actualExtension'] = body.actualExtension;
     case OFFICE_DOC_CONVERSION_INVALID_KEY:
     case PAGE_COUNT_FAILED_KEY:
     case PAGE_COUNT_EXCEEDED_KEY:

@@ -124,7 +124,7 @@ public final class SupportedFileTypes {
 		return mimeType;
 	}
 
-	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) throws Exception {
+	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
 		String mimeType = detectMimeType(pres);
 
 		if(mimeType == null || mimeType == "") return false;
@@ -132,7 +132,7 @@ public final class SupportedFileTypes {
 		if(!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
 
 		if(!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
-			log.error("File with extension [" + fileExtension + "] doesn't match with mimeType [" + mimeType + "].");
+			log.error("File with extension [{}] doesn't match with mimeType [{}].", fileExtension, mimeType);
 			return false;
 		}
 
