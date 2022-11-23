@@ -30,7 +30,7 @@ export default function padCapture(breakoutId, parentMeetingId, meetingName) {
         parentMeetingId,
         breakoutId,
         padId: pad.padId,
-        filename: meetingName,
+        filename: `${meetingName}-notes`,
       };
 
       Logger.info(`Sending PadCapturePubMsg for meetingId=${breakoutId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
