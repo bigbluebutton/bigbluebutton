@@ -15,7 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: sudo apt install reprepro
-      - run: sudo make REPOSITORY=/repo
+        # default github CI runner has two cores, so tell make to run two jobs simultaneously
+      - run: sudo make REPOSITORY=/repo -j2
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
