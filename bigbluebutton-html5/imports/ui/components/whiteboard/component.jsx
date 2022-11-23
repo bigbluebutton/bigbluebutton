@@ -96,6 +96,7 @@ export default function Whiteboard(props) {
     isPanning,
     intl,
     svgUri,
+    maxStickyNoteLength,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -611,6 +612,11 @@ export default function Whiteboard(props) {
 
     if (reason && reason === 'patched_shapes') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+
+      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
       if (patchedShape) {
         const diff = {
           id: patchedShape.id,

@@ -736,6 +736,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    maxStickyNoteLength: 1000
     annotations:
       status:
         start: DRAW_START
