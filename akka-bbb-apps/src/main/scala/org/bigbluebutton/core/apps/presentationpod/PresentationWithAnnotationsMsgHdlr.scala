@@ -192,11 +192,11 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   }
 
   def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val parentMeetingId = liveMeeting.props.meetingProp.intId
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
-    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
-    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName)
+    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, parentMeetingId, "not-used")
+    val body = CaptureSharedNotesReqEvtMsgBody(m.breakoutId, m.meetingName)
     val event = CaptureSharedNotesReqEvtMsg(header, body)
 
     bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
