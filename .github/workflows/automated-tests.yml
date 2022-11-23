@@ -77,7 +77,7 @@ jobs:
       - name: Setup local repository
         run: |
             sudo sh -c '
-            echo "deb [trusted=yes] file:/repo/ ./" >> /etc/apt/sources.list
+            echo "deb [trusted=yes] file:/repo/ bigbluebutton-focal main" >> /etc/apt/sources.list
             '
       - name: Prepare for install
         run: |
