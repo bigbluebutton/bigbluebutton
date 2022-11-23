@@ -9,8 +9,8 @@ public class DocInvalidMimeType implements IDocConversionMsg{
     public final String filename;
     public final String authzToken;
     public final String messageKey;
-    public final String actualMime;
-    public final String actualExtension;
+    public final String fileMime;
+    public final String fileExtension;
 
     public DocInvalidMimeType(  String podId,
                                 String meetingId,
@@ -19,8 +19,8 @@ public class DocInvalidMimeType implements IDocConversionMsg{
                                 String filename,
                                 String authzToken,
                                 String messageKey,
-                                String actualMime,
-                                String actualExtension) {
+                                String fileMime,
+                                String fileExtension) {
         this.podId = podId;
         this.meetingId = meetingId;
         this.presId = presId;
@@ -28,7 +28,7 @@ public class DocInvalidMimeType implements IDocConversionMsg{
         this.filename = filename;
         this.authzToken = authzToken;
         this.messageKey = messageKey;
-        this.actualMime = actualMime;
-        this.actualExtension = actualExtension;
+        this.fileMime = fileMime;
+        this.fileExtension = fileExtension;
     }
 }

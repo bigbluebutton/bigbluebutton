@@ -26,7 +26,7 @@ trait PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
 
       val body = PresentationHasInvalidMimeTypeErrorEvtMsgBody(msg.body.podId, msg.body.meetingId,
         msg.body.presentationName, msg.body.temporaryPresentationId,
-        msg.body.presentationId, msg.body.messageKey, msg.body.actualMime, msg.body.actualExtension)
+        msg.body.presentationId, msg.body.messageKey, msg.body.fileMime, msg.body.fileExtension)
       val event = PresentationHasInvalidMimeTypeErrorEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

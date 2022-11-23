@@ -50,7 +50,7 @@ public class SlidesGenerationProgressNotifier {
             maxUploadFileSize);
     messagingService.sendDocConversionMsg(progress);
   }
-  public void sendInvalidMimeTypeMessage(UploadedPresentation pres, String actualMime, String actualExtension) {
+  public void sendInvalidMimeTypeMessage(UploadedPresentation pres, String fileMime, String fileExtension) {
     DocInvalidMimeType invalidMimeType = new DocInvalidMimeType(
             pres.getPodId(),
             pres.getMeetingId(),
@@ -59,8 +59,8 @@ public class SlidesGenerationProgressNotifier {
             pres.getName(),
             pres.getAuthzToken(),
             "IVALID_MIME_TYPE",
-            actualMime,
-            actualExtension
+            fileMime,
+            fileExtension
     );
     messagingService.sendDocConversionMsg(invalidMimeType);
   }

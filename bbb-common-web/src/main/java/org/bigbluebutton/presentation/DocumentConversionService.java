@@ -21,5 +21,5 @@ package org.bigbluebutton.presentation;
 
 public interface DocumentConversionService {
 	void processDocument(UploadedPresentation pres);
-	void sendDocConversionFailedOnMimeType(UploadedPresentation pres, String actualMime, String actualExtension);
+	void sendDocConversionFailedOnMimeType(UploadedPresentation pres, String fileMime, String fileExtension);
 }

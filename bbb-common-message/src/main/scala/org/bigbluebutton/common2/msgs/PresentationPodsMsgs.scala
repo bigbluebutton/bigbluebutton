@@ -178,8 +178,8 @@ case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
     temporaryPresentationId: String,
     presentationId:          String,
     messageKey:              String,
-    actualMime:              String,
-    actualExtension:         String,
+    fileMime:              String,
+    fileExtension:         String,
 )
 
 
@@ -258,7 +258,7 @@ object PresentationHasInvalidMimeTypeErrorEvtMsg { val NAME = "PresentationHasIn
 case class PresentationHasInvalidMimeTypeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationHasInvalidMimeTypeErrorEvtMsgBody) extends BbbCoreMsg
 case class PresentationHasInvalidMimeTypeErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                           temporaryPresentationId: String, presentationId: String,
-                                                          messageKey: String, actualMime: String, actualExtension: String,
+                                                          messageKey: String, fileMime: String, fileExtension: String,
                                                         )
 
 object PresentationUploadedFileTimeoutErrorEvtMsg { val NAME = "PresentationUploadedFileTimeoutErrorEvtMsg" }

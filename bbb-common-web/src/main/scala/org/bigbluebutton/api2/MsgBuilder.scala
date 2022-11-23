@@ -292,7 +292,7 @@ object MsgBuilder {
 
     val body = PresentationHasInvalidMimeTypeErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
       temporaryPresentationId = msg.temporaryPresentationId, presentationId = msg.presId, meetingId = msg.meetingId,
-      messageKey = msg.messageKey, actualMime = msg.actualMime, actualExtension = msg.actualExtension)
+      messageKey = msg.messageKey, fileMime = msg.fileMime, fileExtension = msg.fileExtension)
 
     val req = PresentationHasInvalidMimeTypeErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

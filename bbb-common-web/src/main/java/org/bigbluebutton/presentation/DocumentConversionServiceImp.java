@@ -131,9 +131,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     }
   }
 
-  public void sendDocConversionFailedOnMimeType(UploadedPresentation pres, String actualMime,
-                                                String actualExtension) {
-    notifier.sendInvalidMimeTypeMessage(pres, actualMime, actualExtension);
+  public void sendDocConversionFailedOnMimeType(UploadedPresentation pres, String fileMime,
+                                                String fileExtension) {
+    notifier.sendInvalidMimeTypeMessage(pres, fileMime, fileExtension);
   }
 
   private void sendDocConversionRequestReceived(UploadedPresentation pres) {

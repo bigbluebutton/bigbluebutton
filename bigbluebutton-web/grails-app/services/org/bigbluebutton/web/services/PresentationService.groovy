@@ -92,8 +92,8 @@ class PresentationService {
 		}
 	}
 
-	def sendDocConversionFailedOnMimeType(UploadedPresentation pres, String actualMime, String actualExtension) {
-		documentConversionService.sendDocConversionFailedOnMimeType(pres, actualMime, actualExtension)
+	def sendDocConversionFailedOnMimeType(UploadedPresentation pres, String fileMime, String fileExtension) {
+		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
 	def showSvgImage(String conf, String room, String presentationName, String id) {

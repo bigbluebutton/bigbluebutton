@@ -152,8 +152,8 @@ function renderPresentationItemStatus(item, intl) {
 				constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
 				break;
 			case 'IVALID_MIME_TYPE':
-				constraint['0'] = item.conversion.actualExtension;
-				constraint['1'] = item.conversion.actualMime;
+				constraint['0'] = item.conversion.fileExtension;
+				constraint['1'] = item.conversion.fileMime;
 				break;
 			default:
 				break;

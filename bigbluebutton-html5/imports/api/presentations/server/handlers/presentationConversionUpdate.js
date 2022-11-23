@@ -53,8 +53,8 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     case OFFICE_DOC_CONVERSION_FAILED_KEY:
     case IVALID_MIME_TYPE_KEY:
       statusModifier['conversion.error'] = true;
-      statusModifier['conversion.actualMime'] = body.actualMime;
-      statusModifier['conversion.actualExtension'] = body.actualExtension;
+      statusModifier['conversion.fileMime'] = body.fileMime;
+      statusModifier['conversion.fileExtension'] = body.fileExtension;
     case OFFICE_DOC_CONVERSION_INVALID_KEY:
     case PAGE_COUNT_FAILED_KEY:
     case PAGE_COUNT_EXCEEDED_KEY:
