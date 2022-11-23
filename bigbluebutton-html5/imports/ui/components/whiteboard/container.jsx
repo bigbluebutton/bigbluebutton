@@ -14,6 +14,7 @@ import {
 } from "@tldraw/tldraw";
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
+const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 
 const WhiteboardContainer = (props) => {
     const usingUsersContext = useContext(UsersContext);
@@ -24,7 +25,8 @@ const WhiteboardContainer = (props) => {
     const currentUser = users[Auth.meetingID][Auth.userID];
     const isPresenter = currentUser.presenter;
     const isModerator = currentUser.role === ROLE_MODERATOR;
-    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height }} {...props} meetingId={Auth.meetingID} />
+    const maxStickyNoteLength = WHITEBOARD_CONFIG.maxStickyNoteLength;
+    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height, maxStickyNoteLength }} {...props} meetingId={Auth.meetingID} />
 };
 
 export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slidePosition, svgUri }) => {
