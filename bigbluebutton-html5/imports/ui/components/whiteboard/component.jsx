@@ -319,6 +319,7 @@ export default function Whiteboard(props) {
           tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom);
       } else if (isMounting) {
         setIsMounting(false);
+        props.setTldrawIsMounting(false);
         const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
         // case where the presenter had fit-to-width enabled and he reloads the page
@@ -485,6 +486,7 @@ export default function Whiteboard(props) {
     if (curPageId) {
       app.changePage(curPageId);
       setIsMounting(true);
+      props.setTldrawIsMounting(true);
     }
 
     if (history) {
