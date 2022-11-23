@@ -363,6 +363,17 @@ const CustomInputToggleCol = styled(Col)`
   flex-shrink: 0;
 `;
 
+const AnonymousHeading = styled(CustomInputHeading)``;
+
+const AnonymousHeadingCol = styled(CustomInputHeadingCol)``;
+
+const AnonymousToggleCol = styled(CustomInputToggleCol)``;
+
+const AnonymousRow = styled(Row)`
+  flex-flow: nowrap;
+  width: 100%;
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -393,4 +404,8 @@ export default {
   CustomInputHeading,
   CustomInputHeadingCol,
   CustomInputToggleCol,
+  AnonymousHeading,
+  AnonymousHeadingCol,
+  AnonymousToggleCol,
+  AnonymousRow,
 };
