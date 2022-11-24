@@ -801,6 +801,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
     String respMessage = "Session not found."
+    String respMessageKey = "sessionMissing"
     boolean reject = false;
 
     String sessionToken
@@ -814,6 +815,7 @@ class ApiController {
     )
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
+      respMessageKey = validationResponse.getKey()
       reject = true
     } else {
       sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -826,6 +828,7 @@ class ApiController {
         if(hasReachedMaxParticipants(meeting, us)) {
           reject = true
           respMessage = "The maximum number of participants allowed for this meeting has been reached."
+          respMessageKey = "maxParticipantsReached"
         } else {
           log.info("User ${us.internalUserId} has entered")
           meeting.userEntered(us.internalUserId)
@@ -850,6 +853,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
+            messageKey respMessageKey
             sessionToken
             logoutURL logoutUrl
           }
@@ -1824,9 +1828,23 @@ class ApiController {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
       }
-      for(Map.Entry<String, String> violation: violations.entrySet()) {
-        response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
-        break
+
+      if(apiCall == ValidationService.ApiCall.ENTER) {
+        //Check if error exist following an order (to avoid showing guestDeny when the meeting doesn't even exist)
+        String[] enterConstraintsKeys = new String[] {"sessionMissing","meetingForciblyEnded","meetingNotFound","guestDeny"}
+        for (String constraintKey : enterConstraintsKeys) {
+          if(violations.containsKey(constraintKey)) {
+            response = new AbstractMap.SimpleEntry<String, String>(constraintKey, violations.get(constraintKey))
+            break
+          }
+        }
+      }
+
+      if(response == null) {
+        for(Map.Entry<String, String> violation: violations.entrySet()) {
+          response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
+          break
+        }
       }
     }
 

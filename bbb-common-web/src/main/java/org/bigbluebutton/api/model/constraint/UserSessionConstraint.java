@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface UserSessionConstraint {
 
-    String key() default "missingSession";
+    String key() default "sessionMissing";
     String message() default "Invalid session token";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
