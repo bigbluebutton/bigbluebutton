@@ -207,7 +207,23 @@ exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
-
+exports.noPresentation = 'h4[data-test="noPresentation"]';
+exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
+exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
+exports.allowMultiple = 'div[data-test="allowMultiple"] > div > input[type="checkbox"]';
+exports.pollOptionItem1 = 'input[data-test="pollOptionItem"]>>nth=0';
+exports.pollOptionItem2 = 'input[data-test="pollOptionItem"]>>nth=1';
+exports.pollAnswerDescTest1 = 'div[data-test="optionsAnswers"]>>nth=0';
+exports.pollAnswerDescTest2 = 'div[data-test="optionsAnswers"]>>nth=1';
+exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
+exports.numberVotes = 'div[data-test="numberVotes"]';
+exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
+exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
+exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
+exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
+exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]>>nth=0';
+exports.checkboxInput = 'div[data-test="optionsAnswers"] > div';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -239,6 +255,9 @@ exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 exports.presentationsList = 'div[id="upload-modal"] tbody';
+exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
+exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
+exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
@@ -342,6 +361,9 @@ exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
 exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
 exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
+exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
+exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
+exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
 exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
@@ -366,22 +388,10 @@ exports.helpButton = 'li[data-test="helpButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
 
 // Dark mode
-exports.darkModeToggleBtn = 'input[ data-test="darkModeToggleBtn"]';
+exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
 exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
-exports.modalSettings = 'div[aria-label="Settings"]';
-exports.guestPolicyBackground = 'div[aria-label="Guest policy settings modal"]';
-exports.lockViewersBackground = 'div[aria-label="Lock viewers settings modal"]';
-exports.minimizePresentationBackground = 'button[data-test="minimizePresentation"] >> span';
-exports.actionsBackground = 'button[data-test="actionsButton"] >> span';
-exports.sendButtonBackground = 'button[data-test="sendMessageButton"] >> span';
-exports.userListToggleBackground = 'button[data-test="toggleUserList"] >> span';
-exports.optionsButtonBackground = 'button[data-test="optionsButton"] >> span';
-exports.joinAudioBackgroundDisabled = 'button[data-test="joinAudio"] >> span';
-exports.joinVideoBackgroundDisabled = 'button[data-test="joinVideo"] >> span';
-exports.startScreenShareBackground = 'button[data-test="startScreenShare"] >> span';
-exports.raiseHandBtnBackground = 'button[data-test="raiseHandLabel"] >> span';
-exports.sharedNotesBackground = 'div[aria-label="Shared Notes"]';
-exports.manageUsersColor = 'button[data-test="manageUsers"] >> span';
-exports.chatOptionsColor = 'button[data-test="chatOptionsMenu"] >> span';
+exports.fullscreenModal = 'div[id="fsmodal"]';
+exports.simpleModal = 'div[id="simpleModal"]';
+exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';

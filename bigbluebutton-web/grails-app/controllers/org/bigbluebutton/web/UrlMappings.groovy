@@ -19,20 +19,22 @@ class UrlMappings {
       action = [GET: 'numberOfSlides']
     }
 
-    "/bigbluebutton/presentation/$conference/$room/$presentation_name/slide/$id"(controller: "presentation") {
-      action = [GET: 'showSlide']
-    }
-
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/thumbnails"(controller: "presentation") {
       action = [GET: 'numberOfThumbnails']
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/thumbnail/$id"(controller: "presentation") {
       action = [GET: 'showThumbnail']
+      constraints {
+        id matches: /\d+/
+      }
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/png/$id"(controller: "presentation") {
       action = [GET: 'showPng']
+      constraints {
+        id matches: /\d+/
+      }
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/svgs"(controller: "presentation") {
@@ -41,6 +43,9 @@ class UrlMappings {
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/svg/$id"(controller: "presentation") {
       action = [GET: 'showSvgImage']
+      constraints {
+        id matches: /\d+/
+      }
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/textfiles"(controller: "presentation") {
@@ -49,6 +54,9 @@ class UrlMappings {
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/textfiles/$id"(controller: "presentation") {
       action = [GET: 'showTextfile']
+      constraints {
+        id matches: /\d+/
+      }
     }
 
     "/bigbluebutton/presentation/download/$meetingId/$presId"(controller: "presentation") {

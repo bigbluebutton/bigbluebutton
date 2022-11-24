@@ -6,7 +6,6 @@ import { UploadingPresentations } from '/imports/api/presentations';
 import _ from 'lodash';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 async function convertAndUpload() {
 
@@ -30,8 +29,8 @@ async function convertAndUpload() {
       done: false,
       error: false
     },
-    uploadTimestamp: new Date()
-  })
+    uploadTimestamp: new Date(),
+  });
 
   const exportUrl = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/${extension}?${params}`);
   const sharedNotesAsFile = await fetch(exportUrl, { credentials: 'include' });
@@ -51,13 +50,14 @@ async function convertAndUpload() {
     conversion: { done: false, error: false },
     upload: { done: false, error: false, progress: 0 },
     exportation: { isRunning: false, error: false },
-    onConversion: () => {},
-    onUpload: () => {},
-    onProgress: () => {},
-    onDone: () => {},
-  })
+    onConversion: () => { },
+    onUpload: () => { },
+    onProgress: () => { },
+    onDone: () => { },
+  });
 }
 
 export default {
   convertAndUpload,
+  pinSharedNotes: () => NotesService.pinSharedNotes(true),
 };

@@ -1665,7 +1665,7 @@ if [ -n "$HOST" ]; then
     fi
 
     echo -n "Assigning $HOST for playback of recordings: "
-    for metadata in $(find /var/bigbluebutton/published /var/bigbluebutton/unpublished -name metadata.xml); do
+    for metadata in $(find -L /var/bigbluebutton/published /var/bigbluebutton/unpublished -name metadata.xml); do
         echo -n "."
         # Ensure we update both types of URLs
         xmlstarlet edit --inplace --update '//link[starts-with(normalize-space(), "https://")]' --expr "concat(\"https://\", \"$HOST/\", substring-after(substring-after(., \"https://\"),\"/\"))" $metadata

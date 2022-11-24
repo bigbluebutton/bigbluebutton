@@ -25,13 +25,13 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, customParameter } = initOptions || {};
+    const { fullName, meetingId, customParameter, customMeetingId } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
 
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter, customMeetingId);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
@@ -226,11 +226,11 @@ class Page {
   }
 
 
-  async getBackgroundColor(selector, color) {
+  async backgroundColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
   }
 
-  async getTextColor(selector, color) {
+  async textColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
   }
 }

@@ -40,7 +40,6 @@ export default function addPresentation(meetingId, podId, presentation) {
         id: String,
         num: Number,
         thumbUri: String,
-        swfUri: String,
         txtUri: String,
         svgUri: String,
         current: Boolean,
@@ -74,7 +73,7 @@ export default function addPresentation(meetingId, podId, presentation) {
     const { insertedId } = Presentations.upsert(selector, modifier);
 
     addSlides(meetingId, podId, presentation.id, presentation.pages);
-    
+
     if (presentation.current) {
       setCurrentPresentation(meetingId, podId, presentation.id);
       Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);
