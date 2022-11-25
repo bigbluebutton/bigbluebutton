@@ -45,7 +45,6 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
 import javax.servlet.ServletRequest
-import java.util.regex.*
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours

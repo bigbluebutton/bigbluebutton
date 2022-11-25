@@ -44,8 +44,14 @@ public class MimeTypeUtils {
     };
 
     public Boolean extensionMatchMimeType(String mimeType, String finalExtension) {
-        if(EXTENSIONS_MIME.containsKey(finalExtension.toLowerCase())) {
-            return EXTENSIONS_MIME.get(finalExtension.toLowerCase()).equalsIgnoreCase(mimeType);
+        if(EXTENSIONS_MIME.containsKey(finalExtension.toLowerCase()) &&
+            EXTENSIONS_MIME.get(finalExtension.toLowerCase()).equalsIgnoreCase(mimeType)) {
+            return true;
+        } else if(EXTENSIONS_MIME.containsKey(finalExtension.toLowerCase() + 'x') &&
+                    EXTENSIONS_MIME.get(finalExtension.toLowerCase() + 'x').equalsIgnoreCase(mimeType)) {
+            //Exception for MS Office files named with old extension but using internally the new mime type
+            //e.g. a file named with extension `ppt` but has the content of a `pptx`
+            return true;
         }
 
         return false;
