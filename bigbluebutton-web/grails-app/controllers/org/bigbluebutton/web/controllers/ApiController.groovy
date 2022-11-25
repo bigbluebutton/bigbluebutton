@@ -801,7 +801,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
     String respMessage = "Session not found."
-    String respMessageKey = "sessionMissing"
+    String respMessageKey = "missingSession"
     boolean reject = false;
 
     String sessionToken
@@ -1831,7 +1831,7 @@ class ApiController {
 
       if(apiCall == ValidationService.ApiCall.ENTER) {
         //Check if error exist following an order (to avoid showing guestDeny when the meeting doesn't even exist)
-        String[] enterConstraintsKeys = new String[] {"sessionMissing","meetingForciblyEnded","meetingNotFound","guestDeny"}
+        String[] enterConstraintsKeys = new String[] {"missingSession","meetingForciblyEnded","notFound","guestDeny"}
         for (String constraintKey : enterConstraintsKeys) {
           if(violations.containsKey(constraintKey)) {
             response = new AbstractMap.SimpleEntry<String, String>(constraintKey, violations.get(constraintKey))

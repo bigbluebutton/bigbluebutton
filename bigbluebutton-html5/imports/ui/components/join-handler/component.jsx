@@ -211,7 +211,7 @@ class JoinHandler extends Component {
       }, 'User successfully went through main.joinRouteHandler');
     } else {
 
-      if(['sessionMissing','meetingForciblyEnded','meetingNotFound'].includes(response.messageKey)) {
+      if(['missingSession','meetingForciblyEnded','notFound'].includes(response.messageKey)) {
         JoinHandler.setError('410');
         Session.set('errorMessageDescription', 'meeting_ended');
       } else if(response.messageKey == "guestDeny") {
