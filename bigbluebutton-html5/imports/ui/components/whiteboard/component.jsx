@@ -193,6 +193,10 @@ export default function Whiteboard(props) {
     removeShapes(deletedShapes, whiteboardId);
   }
 
+  React.useEffect(() => {
+    props.setTldrawIsMounting(true);
+  }, []);
+
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
 
@@ -487,7 +491,6 @@ export default function Whiteboard(props) {
     if (curPageId) {
       app.changePage(curPageId);
       setIsMounting(true);
-      props.setTldrawIsMounting(true);
     }
 
     if (history) {
