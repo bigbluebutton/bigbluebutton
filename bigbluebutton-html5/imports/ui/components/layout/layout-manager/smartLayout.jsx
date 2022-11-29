@@ -421,7 +421,7 @@ const SmartLayout = (props) => {
         left: sidebarNavBounds.left,
         right: sidebarNavBounds.right,
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
-        isResizable: !isMobile && !isTablet,
+        isResizable: !isMobile && !isTablet && !sidebarNavigationInput.isCompact,
         zIndex: sidebarNavBounds.zIndex,
       },
     });
