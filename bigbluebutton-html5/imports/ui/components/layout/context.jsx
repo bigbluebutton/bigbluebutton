@@ -300,6 +300,22 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT: {
+      const { sidebarNavigation } = state.input;
+      if (sidebarNavigation.isCompact === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            isCompact: action.value,
+          },
+        },
+      };
+    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
       const { sidebarNavigation } = state.input;
       if (sidebarNavigation.sidebarNavPanel === action.value) {

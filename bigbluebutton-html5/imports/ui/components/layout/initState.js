@@ -25,6 +25,7 @@ export const INITIAL_INPUT_STATE = {
   },
   sidebarNavigation: {
     isOpen: true,
+    isCompact: false,
     width: 0,
     height: 0,
     browserWidth: 0,

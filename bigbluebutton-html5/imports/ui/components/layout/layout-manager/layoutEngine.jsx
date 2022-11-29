@@ -136,7 +136,7 @@ const LayoutEngine = ({ layoutType }) => {
       sidebarNavMaxWidth,
     } = DEFAULT_VALUES;
 
-    const { isOpen, width: sidebarNavWidth } = sidebarNavigationInput;
+    const { isOpen, isCompact, width: sidebarNavWidth } = sidebarNavigationInput;
 
     let minWidth = 0;
     let width = 0;
@@ -147,13 +147,19 @@ const LayoutEngine = ({ layoutType }) => {
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
-        if (sidebarNavWidth === 0) {
-          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
-        } else {
-          width = min(max(sidebarNavWidth, sidebarNavMinWidth), sidebarNavMaxWidth);
+        if ( isCompact ) {
+          minWidth = sidebarNavMinWidth;
+          width = sidebarNavMinWidth;
+          maxWidth = sidebarNavMinWidth;
+        }else{
+          if (sidebarNavWidth === 0) {
+            width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
+          } else {
+            width = min(max(sidebarNavWidth, sidebarNavMinWidth), sidebarNavMaxWidth);
+          }
+          minWidth = sidebarNavMinWidth;
+          maxWidth = sidebarNavMaxWidth;
         }
-        minWidth = sidebarNavMinWidth;
-        maxWidth = sidebarNavMaxWidth;
       }
     }
     return {

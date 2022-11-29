@@ -49,6 +49,7 @@ export const ACTIONS = {
   SET_ACTIONBAR_OUTPUT: 'setActionBarOutput',
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',
+  SET_SIDEBAR_NAVIGATION_IS_COMPACT: 'setSidebarNavigationIsCompact',
   SET_SIDEBAR_NAVIGATION_SIZE: 'setSidebarNavigationSize',
   SET_SIDEBAR_NAVIGATION_OUTPUT: 'setSidebarNavigationOutput',
   SET_SIDEBAR_NAVIGATION_IS_RESIZABLE: 'setSidebarNavigationIsResizable',

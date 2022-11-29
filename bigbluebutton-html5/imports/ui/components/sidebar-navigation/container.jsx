@@ -1,9 +1,11 @@
 import React from 'react';
-import { layoutDispatch, layoutSelectOutput } from '../layout/context';
+import { layoutDispatch, layoutSelectInput, layoutSelectOutput } from '../layout/context';
 import SidebarNavigation from './component';
 
 const SidebarNavigationContainer = () => {
   const sidebarNavigation = layoutSelectOutput((i) => i.sidebarNavigation);
+  const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
+  const { isCompact } = sidebarNavigationInput;
   const layoutContextDispatch = layoutDispatch();
 
   if (sidebarNavigation.display === false) return null;
@@ -11,6 +13,7 @@ const SidebarNavigationContainer = () => {
   return (
     <SidebarNavigation
       {...sidebarNavigation}
+      isCompact={isCompact}
       contextDispatch={layoutContextDispatch}
     />
   );

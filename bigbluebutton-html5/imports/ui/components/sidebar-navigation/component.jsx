@@ -16,6 +16,7 @@ const propTypes = {
   isResizable: PropTypes.bool.isRequired,
   resizableEdge: PropTypes.objectOf(PropTypes.bool).isRequired,
   contextDispatch: PropTypes.func.isRequired,
+  isCompact: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
@@ -36,6 +37,7 @@ const SidebarNavigation = (props) => {
     isResizable,
     resizableEdge,
     contextDispatch,
+    isCompact,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -103,7 +105,7 @@ const SidebarNavigation = (props) => {
         height,
       }}
     >
-      <UserListContainer />
+      <UserListContainer compact={isCompact}/>
     </Resizable>
   );
 };
