@@ -2,7 +2,9 @@ import styled from 'styled-components';
 
 import Styled from '/imports/ui/components/user-list/styles';
 import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import { borderSize, lgPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import Button from '/imports/ui/components/common/button/component';
 
 const Messages = styled(Styled.Messages)``;
 
@@ -56,6 +58,27 @@ const ListTransition = styled.div`
   }
 `;
 
+const MinimizeButton = styled(Button)`
+  border-radius: 50%;
+  display: block;
+  padding: 0;
+  margin: 0 0.25rem;
+
+  span {
+    padding: inherit;
+  }
+
+  i {
+    font-size: ${fontSizeBase} !important;
+  }
+`;
+
+const ListItem = styled(StyledContent.ListItem)`
+  i {
+    margin:auto;
+  }
+`;
+
 export default {
   Messages,
   Container,
@@ -64,4 +87,6 @@ export default {
   ScrollableList,
   List,
   ListTransition,
+  MinimizeButton,
+  ListItem,
 };

@@ -86,6 +86,7 @@ class UserNotes extends Component {
       sidebarContentPanel,
       layoutContextDispatch,
       isPinned,
+      compact,
     } = this.props;
     const { unread } = this.state;
 
@@ -111,12 +112,16 @@ class UserNotes extends Component {
         as={isPinned ? 'button' : 'div'}
         disabled={isPinned}
         $disabled={isPinned}
+        $compact={compact}
       >
         <Icon iconName="copy" />
         <div aria-hidden>
-          <Styled.NotesTitle data-test="sharedNotes">
-            {intl.formatMessage(intlMessages.sharedNotes)}
-          </Styled.NotesTitle>
+          {!compact
+            ? (
+              <Styled.NotesTitle data-test="sharedNotes">
+                {intl.formatMessage(intlMessages.sharedNotes)}
+              </Styled.NotesTitle>
+            ) : null}          
           {disableNotes
             ? (
               <Styled.NotesLock>
@@ -135,19 +140,22 @@ class UserNotes extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, compact } = this.props;
 
     if (!NotesService.isEnabled()) return null;
 
     return (
       <Styled.Messages>
-        <Styled.Container>
-          <Styled.SmallTitle data-test="notesTitle">
-            {intl.formatMessage(intlMessages.title)}
-          </Styled.SmallTitle>
-        </Styled.Container>
+        {!compact
+          ? (
+            <Styled.Container>
+              <Styled.SmallTitle data-test="notesTitle">
+                {intl.formatMessage(intlMessages.title)}
+              </Styled.SmallTitle>
+            </Styled.Container>
+          ) : null}
         <Styled.ScrollableList>
-          <Styled.List>
+          <Styled.List compact={compact}>
             {this.renderNotes()}
           </Styled.List>
         </Styled.ScrollableList>

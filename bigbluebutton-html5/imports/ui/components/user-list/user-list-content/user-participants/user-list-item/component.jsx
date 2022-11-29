@@ -830,6 +830,7 @@ class UserListItem extends PureComponent {
               onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
               onKeyPress={() => { }}
               role="button"
+              compact={compact}
             >
               {contents}
             </Styled.UserItemContents>

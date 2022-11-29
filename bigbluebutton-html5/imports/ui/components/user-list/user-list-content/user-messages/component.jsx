@@ -6,18 +6,17 @@ import Styled from './styles';
 import { findDOMNode } from 'react-dom';
 import ChatListItemContainer from '../../chat-list-item/container';
 import { injectIntl } from 'react-intl';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
-  compact: PropTypes.bool,
+  compact: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   roving: PropTypes.func.isRequired,
-};
-
-const defaultProps = {
-  compact: false,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -103,28 +102,61 @@ class UserMessages extends PureComponent {
   render() {
     const {
       intl,
+      layoutContextDispatch,
       compact,
     } = this.props;
 
     return (
       <Styled.Messages>
-        <Styled.Container>
           {
             !compact ? (
+            <Styled.Container>
               <Styled.MessagesTitle data-test="messageTitle">
                 {intl.formatMessage(intlMessages.messagesTitle)}
               </Styled.MessagesTitle>
+              <Styled.MinimizeButton
+                size="md"
+                color="light"
+                label="Minimize userlist"
+                hideLabel
+                circle
+                icon="left_arrow"
+                onClick={() => {
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,
+                    value: !compact,
+                  });
+                }}
+              />
+            </Styled.Container>
             ) : (
-              <Styled.Separator />
+              <>
+                <Styled.ScrollableList>
+                  <Styled.List compact={compact}>
+                    <Styled.ListItem
+                      label="Expand userlist"
+                      $compact={compact}
+                      onClick={() => {
+                        layoutContextDispatch({
+                          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,
+                          value: !compact,
+                        });
+                      }}
+                    >
+                      <Icon iconName="right_arrow" />
+                    </Styled.ListItem>
+                  </Styled.List>
+                </Styled.ScrollableList>
+                <Styled.Separator />
+              </>
             )
           }
-        </Styled.Container>
         <Styled.ScrollableList
           role="tabpanel"
           tabIndex={0}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <Styled.List aria-live="polite">
+          <Styled.List aria-live="polite" compact={compact}>
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.getActiveChats()}
             </TransitionGroup>
@@ -136,6 +168,5 @@ class UserMessages extends PureComponent {
 }
 
 UserMessages.propTypes = propTypes;
-UserMessages.defaultProps = defaultProps;
 
 export default injectIntl(UserMessages);

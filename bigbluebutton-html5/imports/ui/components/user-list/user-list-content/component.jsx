@@ -31,10 +31,10 @@ class UserContent extends PureComponent {
       || pendingUsers.length > 0;
 
     return (
-      <Styled.Content data-test="userListContent">
-        {isChatEnabled() ? <UserMessagesContainer /> : null}
+      <Styled.Content data-test="userListContent" compact={compact}>
+        {isChatEnabled() ? <UserMessagesContainer compact={compact}/> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
-        <UserNotesContainer />
+        <UserNotesContainer compact={compact}/>
         {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsersContainer {...{ pendingUsers }} />
