@@ -20,6 +20,7 @@ package org.bigbluebutton.web.controllers
 
 import grails.converters.*
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
+import org.bigbluebutton.presentation.SupportedFileTypes
 import org.grails.web.mime.DefaultMimeUtility
 import org.bigbluebutton.api.ParamsProcessorUtil;
 
@@ -158,6 +159,7 @@ class PresentationController {
 
     log.debug("processing file upload " + presFilename)
     def presentationBaseUrl = presentationService.presentationBaseUrl
+    def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
             podId,
             meetingId,
@@ -170,17 +172,26 @@ class PresentationController {
             uploadFailed,
             uploadFailReasons
     )
-
-    if (isDownloadable) {
-      log.debug "@Setting file to be downloadable..."
-      uploadedPres.setDownloadable();
+    if (isPresentationMimeTypeValid) {
+      if (isDownloadable) {
+        log.debug "@Setting file to be downloadable..."
+        uploadedPres.setDownloadable();
+      }
+      uploadedPres.setUploadedFile(pres);
+      presentationService.processUploadedPresentation(uploadedPres)
+      log.debug("file upload success " + presFilename)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'upload-success'
+    } else {
+      def mimeType = SupportedFileTypes.detectMimeType(pres)
+      presentationService.sendDocConversionFailedOnMimeType(uploadedPres, mimeType, filenameExt)
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.debug("file upload failed " + presFilename)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'upload-failed'
     }
-    uploadedPres.setUploadedFile(pres);
-    presentationService.processUploadedPresentation(uploadedPres)
-    log.debug("file upload success " + presFilename)
-    response.addHeader("Cache-Control", "no-cache")
-    response.contentType = 'plain/text'
-    response.outputStream << 'upload-success'
   }
 
   def testConversion = {

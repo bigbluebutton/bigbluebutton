@@ -11,7 +11,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -293,21 +293,7 @@ class SettingsDropdown extends PureComponent {
       },
     );
 
-    if (allowedToEndMeeting && isMeteorConnected) {
-      this.menuItems.push(
-        {
-          key: 'list-item-end-meeting',
-          icon: 'application',
-          label: intl.formatMessage(intlMessages.endMeetingLabel),
-          description: intl.formatMessage(intlMessages.endMeetingDesc),
-          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
-        },
-      );
-    }
-
     if (allowLogoutSetting && isMeteorConnected) {
-      const customStyles = { color: colorDanger };
-
       this.menuItems.push(
         {
           key: 'list-item-logout',
@@ -315,8 +301,22 @@ class SettingsDropdown extends PureComponent {
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
           description: intl.formatMessage(intlMessages.leaveSessionDesc),
-          customStyles,
           onClick: () => this.leaveSession(),
+        },
+      );
+    }
+
+    if (allowedToEndMeeting && isMeteorConnected) {
+      const customStyles = { background: colorDanger, color: colorWhite };
+
+      this.menuItems.push(
+        {
+          key: 'list-item-end-meeting',
+          icon: 'application',
+          label: intl.formatMessage(intlMessages.endMeetingLabel),
+          description: intl.formatMessage(intlMessages.endMeetingDesc),
+          customStyles,
+          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
         },
       );
     }

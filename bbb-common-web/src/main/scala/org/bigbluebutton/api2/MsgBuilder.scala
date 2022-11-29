@@ -285,6 +285,19 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationHasInvalidMimeType(msg: DocInvalidMimeType): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationHasInvalidMimeTypeErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      temporaryPresentationId = msg.temporaryPresentationId, presentationId = msg.presId, meetingId = msg.meetingId,
+      messageKey = msg.messageKey, fileMime = msg.fileMime, fileExtension = msg.fileExtension)
+
+    val req = PresentationHasInvalidMimeTypeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationUploadedFileTimedoutErrorSysMsg(msg: UploadFileTimedoutMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, routing)
