@@ -79,6 +79,7 @@
     "app.confirmation.skipConfirm": "Don't ask again",
     "app.confirmation.virtualBackground.title": "Start new virtual background",
     "app.confirmation.virtualBackground.description": "{0} will be added as virtual background. Continue?",
+    "app.confirmationModal.yesLabel": "Yes",
     "app.textInput.sendLabel": "Send",
     "app.title.defaultViewLabel": "Default presentation view",
     "app.notes.title": "Shared Notes",
