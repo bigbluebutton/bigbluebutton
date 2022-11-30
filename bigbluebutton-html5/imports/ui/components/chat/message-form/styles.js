@@ -24,6 +24,8 @@ const Form = styled.form`
   position: relative;
   margin-bottom: calc(-1 * ${smPaddingX});
   margin-top: .2rem;
+  position: relative;
+  z-index: 10;
 `;
 
 const Wrapper = styled.div`

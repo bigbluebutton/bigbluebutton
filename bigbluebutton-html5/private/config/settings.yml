@@ -524,6 +524,7 @@ public:
       enabled: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
+    emojiList: true
     emojiPicker:
       enable: false
       frequentEmojiSortOnClick: false

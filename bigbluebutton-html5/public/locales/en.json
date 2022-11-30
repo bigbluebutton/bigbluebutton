@@ -30,6 +30,8 @@
     "app.chat.two.typing": "{0} and {1} are typing",
     "app.chat.copySuccess": "Copied chat transcript",
     "app.chat.copyErr": "Copy chat transcript failed",
+    "app.chat.emojiList.selectEmoji": "Select emoji",
+    "app.chat.emojiList.list": "Navigate through the list to select an emoji",
     "app.emojiPicker.search": "Search",
     "app.emojiPicker.notFound": "No Emoji Found",
     "app.emojiPicker.skintext": "Choose your default skin tone",

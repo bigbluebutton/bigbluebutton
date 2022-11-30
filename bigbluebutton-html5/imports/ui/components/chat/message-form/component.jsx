@@ -9,6 +9,7 @@ import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
 import { escapeHtml } from '/imports/utils/string-utils';
 import { isChatEnabled } from '/imports/ui/services/features';
+import EmojiList from '../emoji-list/component';
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -70,6 +71,8 @@ const messages = defineMessages({
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
+const ENABLE_EMOJI_LIST = CHAT_CONFIG.emojiList;
+const EMOJI_COLON_REG = /:(?<emoji_key>\S+)$/;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -80,6 +83,11 @@ class MessageForm extends PureComponent {
       error: null,
       hasErrors: false,
       showEmojiPicker: false,
+      // Emoji list related.
+      showEmojiList: false,
+      emojiKey: '',
+      focusedEmojiListItem: 0,
+      selectedEmoji: null,
     };
 
     this.handleMessageChange = this.handleMessageChange.bind(this);
@@ -88,6 +96,8 @@ class MessageForm extends PureComponent {
     this.setMessageHint = this.setMessageHint.bind(this);
     this.handleUserTyping = _.throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
     this.typingIndicator = CHAT_CONFIG.typingIndicator.enabled;
+    this.applyEmoji = this.applyEmoji.bind(this);
+    this.resetEmojiList = this.resetEmojiList.bind(this);
   }
 
   componentDidMount() {
@@ -141,9 +151,12 @@ class MessageForm extends PureComponent {
   }
 
   handleClickOutside() {
-    const { showEmojiPicker } = this.state;
+    const { showEmojiPicker, showEmojiList } = this.state;
     if (showEmojiPicker) {
       this.setState({ showEmojiPicker: false });
+    }
+    if (showEmojiList) {
+      this.setState({ showEmojiList: false });
     }
   }
 
@@ -190,6 +203,8 @@ class MessageForm extends PureComponent {
   }
 
   handleMessageKeyDown(e) {
+    const { showEmojiList, selectedEmoji } = this.state;
+
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -199,7 +214,30 @@ class MessageForm extends PureComponent {
         cancelable: true,
       });
 
-      this.handleSubmit(event);
+      if (showEmojiList) {
+        this.applyEmoji(selectedEmoji);
+      } else {
+        this.handleSubmit(event);
+      }
+
+      return;
+    }
+
+    if (
+      (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Escape')
+      && showEmojiList
+    ) {
+      this.resetEmojiList();
+    }
+
+    if (e.key === 'ArrowUp' && showEmojiList) {
+      e.preventDefault();
+      this.setState(({ focusedEmojiListItem: v }) => ({ focusedEmojiListItem: v - 1 }));
+    }
+
+    if (e.key === 'ArrowDown' && showEmojiList) {
+      e.preventDefault();
+      this.setState(({ focusedEmojiListItem: v }) => ({ focusedEmojiListItem: v + 1 }));
     }
   }
 
@@ -215,13 +253,31 @@ class MessageForm extends PureComponent {
       maxMessageLength,
     } = this.props;
 
+    const { showEmojiList } = this.state;
+
+    const cursor = this.textarea.selectionStart;
+
     let message = null;
     let error = null;
 
-    if (AUTO_CONVERT_EMOJI) {
+    if (AUTO_CONVERT_EMOJI && !ENABLE_EMOJI_LIST) {
       message = checkText(e.target.value);
     } else {
       message = e.target.value;
+    }
+
+    const chunks = [message.slice(0, cursor), message.slice(cursor)];
+
+    if (EMOJI_COLON_REG.test(chunks[0])) {
+      const emoji_key = EMOJI_COLON_REG.exec(chunks[0]).groups.emoji_key || '';
+
+      this.setState({
+        showEmojiPicker: false,
+        showEmojiList: true,
+        emojiKey: emoji_key.toLowerCase(),
+      });
+    } else if (showEmojiList) {
+      this.resetEmojiList();
     }
 
     if (message.length > maxMessageLength) {
@@ -235,6 +291,15 @@ class MessageForm extends PureComponent {
       message,
       error,
     }, this.handleUserTyping(error));
+  }
+
+  resetEmojiList(callback = () => {}) {
+    this.setState({
+      emojiKey: '',
+      focusedEmojiListItem: 0,
+      showEmojiList: false,
+      selectedEmoji: null,
+    }, callback);
   }
 
   handleSubmit(e) {
@@ -297,6 +362,39 @@ class MessageForm extends PureComponent {
     return null;
   }
 
+  applyEmoji(emoji) {
+    const { message } = this.state;
+    const cursor = this.textarea.selectionStart;
+    const chunks = [message.slice(0, cursor), message.slice(cursor)];
+    chunks[0] = chunks[0].replace(EMOJI_COLON_REG, emoji.native);
+
+    this.setState({ message: chunks[0] + chunks[1] });
+
+    this.resetEmojiList(() => {
+      this.textarea.focus();
+      this.textarea.setSelectionRange(chunks[0].length, chunks[0].length);
+    });
+  }
+
+  renderEmojiList() {
+    const { showEmojiList, emojiKey, focusedEmojiListItem } = this.state;
+
+    if (showEmojiList) {
+      return (
+        <EmojiList
+          emojiKey={emojiKey}
+          focusedEmojiListItem={focusedEmojiListItem}
+          onSelect={this.applyEmoji}
+          onUpdate={(emoji) => this.setState({ selectedEmoji: emoji })}
+          setFocusedItem={(item) => this.setState({ focusedEmojiListItem: item })}
+          onEmpty={this.resetEmojiList}
+        />
+      );
+    }
+
+    return null;
+  }
+
   renderEmojiButton() {
     const { intl } = this.props;
 
@@ -304,6 +402,7 @@ class MessageForm extends PureComponent {
       <Styled.EmojiButton
         onClick={() => this.setState((prevState) => ({
           showEmojiPicker: !prevState.showEmojiPicker,
+          showEmojiList: !prevState.showEmojiPicker ? false : !prevState.showEmojiList,
         }))}
         icon="happy"
         color="light"
@@ -337,6 +436,7 @@ class MessageForm extends PureComponent {
         onSubmit={this.handleSubmit}
       >
         {this.renderEmojiPicker()}
+        {this.renderEmojiList()}
         <Styled.Wrapper>
           <Styled.Input
             id="message-input"
@@ -378,7 +478,7 @@ class MessageForm extends PureComponent {
   render() {
     if (!isChatEnabled()) return null;
 
-    return ENABLE_EMOJI_PICKER ? (
+    return ENABLE_EMOJI_PICKER || ENABLE_EMOJI_LIST ? (
       <ClickOutside
         onClick={() => this.handleClickOutside()}
       >
