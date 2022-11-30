@@ -1,10 +1,6 @@
 require('dotenv').config();
 const sha1 = require('sha1');
-const path = require('path');
 const axios = require('axios');
-
-const httpPath = path.join(path.dirname(require.resolve('axios')), 'lib/adapters/http');
-const http = require(httpPath);
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -23,7 +19,7 @@ async function createMeeting(params, customParameter, customMeetingId) {
   const apicall = `create${query}${params.secret}`;
   const checksum = sha1(apicall);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
-  await axios.get(url, { adapter: http });
+  await axios.get(url, { adapter: 'http' });
   return meetingID;
 }
 

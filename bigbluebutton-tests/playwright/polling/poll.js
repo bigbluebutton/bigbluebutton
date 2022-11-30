@@ -172,7 +172,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.hasElement(e.pollingContainer);
-    await this.userPage.waitAndClick(e.firstPollAnswerOptionBtn);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
 
     await this.modPage.hasText(e.currentPollQuestion, /Test/);
     await this.modPage.hasText(e.answer1, '1');
