@@ -34,6 +34,7 @@ import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
+import org.bigbluebutton.web.services.MessageInGroupChat
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.presentation.SupportedFileTypes;
@@ -64,6 +65,7 @@ class ApiController {
   HTML5LoadBalancingService html5LoadBalancingService
   ResponseBuilder responseBuilder = initResponseBuilder()
   ValidationService validationService
+  MessageInGroupChat messageInGroupChat
 
   def initResponseBuilder = {
     String protocol = this.getClass().getResource("").getProtocol();
@@ -1112,6 +1114,60 @@ class ApiController {
                   contentType: "text/xml")
         }
       }
+    }
+  }
+
+  def sendMessage = {
+    String API_CALL = 'sendMessage'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.SEND_MESSAGE,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
+
+    def externalMeetingId = params.meetingID.toString()
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+
+    if (meeting != null && params.message != null){
+      String chatId;
+      if (params.chatId != null) {
+        chatId = params.chatId
+      }
+
+      String userNameInMessage;
+      String message = params.message;
+
+      if (params.name != null) {
+        userNameInMessage = params.name;
+      } else {
+        userNameInMessage = "System user";
+      }
+      messageInGroupChat.sendMessageInChatFromApi(meeting.internalId, userNameInMessage, message);
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildSendMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                  , contentType: "text/xml")
+        }
+      }
+    }else if (meeting == null && params.message != null) {
+      log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
+      withFormat {
+        xml {
+
+          render(text: responseBuilder.buildSendMessageResponse(
+                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
+                  contentType: "text/xml")
+        }
+      }
+    }else if (meeting != null && params.message == null) {
+      log.warn("No message sent... Ignoring.");
     }
   }
 

@@ -2,6 +2,7 @@ package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.meeting.RegisterUser
+import org.bigbluebutton.chat.messages.SendMessageToChatFromAPI
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
@@ -295,6 +296,18 @@ object MsgBuilder {
       messageKey = msg.messageKey, fileMime = msg.fileMime, fileExtension = msg.fileExtension)
 
     val req = PresentationHasInvalidMimeTypeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+  def buildSendMessageToChatFromApi(msg: SendMessageToChatFromAPI): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(SendMessageToChatFromApiSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(SendMessageToChatFromApiSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = SendMessageToChatFromApiSysPubMsgBody(
+      userName = msg.name, message = msg.message, meetingId = msg.meetingId
+    )
+
+    val req = SendMessageToChatFromApiSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

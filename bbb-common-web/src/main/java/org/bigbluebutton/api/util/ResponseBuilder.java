@@ -231,6 +231,19 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
+    public String buildSendMessageResponse(String message, String returnCode) {
+
+        StringWriter xmlText = new StringWriter();
+
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("returnCode", returnCode);
+        data.put("message", message);
+
+        processData(getTemplate("insert-document.ftlx"), data, xmlText);
+
+        return xmlText.toString();
+    }
+
     private Template getTemplate(String templateName) {
         Template ftl = null;
         try {

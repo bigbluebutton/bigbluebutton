@@ -113,6 +113,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
     </bean>
 
+    <bean id="messageInGroupChat" class="org.bigbluebutton.web.services.MessageInGroupChat">
+        <property name="gw" ref="bbbWebApiGWApp"/>
+    </bean>
+
     <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
 
     <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>

@@ -1,0 +1,8 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+  <#-- Where code is a 'SUCCESS' or 'FAILED' String -->
+  <returncode>${returnCode}</returncode>
+  <message>${message}</message>
+</response>
+</#compress>

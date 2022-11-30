@@ -578,7 +578,8 @@ class MeetingActor(
       case m: SendGroupChatMessageMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.body.msg.sender.id)
-
+      case m: SendMessageToChatFromApiSysPubMsg =>
+        groupChatApp.handle(m, state, liveMeeting, msgBus)
       // Webcams
       case m: UserBroadcastCamStartMsg            => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: UserBroadcastCamStopMsg             => webcamApp2x.handle(m, liveMeeting, msgBus)

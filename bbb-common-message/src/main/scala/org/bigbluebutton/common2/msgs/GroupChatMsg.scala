@@ -7,6 +7,18 @@ object GroupChatAccess {
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
 case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
+object SendMessageToChatFromApiSysPubMsg { val NAME = "SendMessageToChatFromApiSysPubMsg" }
+
+case class SendMessageToChatFromApiSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   SendMessageToChatFromApiSysPubMsgBody
+) extends StandardMsg
+case class SendMessageToChatFromApiSysPubMsgBody(
+                                  userName: String,
+                                  message: String,
+                                  meetingId: String,
+                                )
+
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 

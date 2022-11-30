@@ -14,6 +14,8 @@ object GroupChatFactory {
 
 case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
   def find(id: String): Option[GroupChat] = chats.get(id)
+  def findDefaultChat(): Vector[GroupChat] = chats.values.toVector filter (c => c.access == GroupChatAccess.PUBLIC &&
+    c.createdBy.id == "SYSTEM")
   def add(chat: GroupChat): GroupChats = copy(chats = chats + (chat.id -> chat))
   def remove(id: String): GroupChats = copy(chats = chats - id)
   def update(chat: GroupChat): GroupChats = add(chat)
