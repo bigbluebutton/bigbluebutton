@@ -557,14 +557,15 @@ class BreakoutRoom extends PureComponent {
     return (
       <Styled.Panel ref={(n) => this.panel = n}>
         <Header
-          leftButtonProps={{
+          title={intl.formatMessage(intlMessages.breakoutTitle)}
+          rightButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),
             label: intl.formatMessage(intlMessages.breakoutTitle),
             onClick: () => {
               this.closePanel();
             },
           }}
-          customRightButton={amIModerator && (
+          customLeftButton={amIModerator && (
             <BreakoutDropdown
               openBreakoutTimeManager={this.showSetTimeForm}
               endAllBreakouts={() => {

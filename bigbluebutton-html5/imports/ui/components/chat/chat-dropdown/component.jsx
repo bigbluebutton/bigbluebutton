@@ -141,6 +141,7 @@ class ChatDropdown extends PureComponent {
               label={intl.formatMessage(intlMessages.options)}
               aria-label={intl.formatMessage(intlMessages.options)}
               onClick={() => null}
+              hideLabel
             />                    
           }
           opts={{

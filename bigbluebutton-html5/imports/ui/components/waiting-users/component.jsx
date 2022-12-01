@@ -332,7 +332,8 @@ const WaitingUsers = (props) => {
   return (
     <Styled.Panel data-test="note" isChrome={isChrome}>
       <Header
-        leftButtonProps={{
+        title={intl.formatMessage(intlMessages.title)}
+        rightButtonProps={{
           onClick: () => closePanel(),
           label: intl.formatMessage(intlMessages.title),
         }}

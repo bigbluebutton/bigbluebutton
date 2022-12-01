@@ -9,11 +9,11 @@ class Right extends Component {
 
   render() {
     return (
-      <Styled.CloseButton
-        size="md"
-        color="light"
+      <Styled.HideButton
+        className="buttonWrapper"
+        icon="left_arrow"
+        tabIndex={0}
         hideLabel
-        circle
         {...this.props}
       />
     );
@@ -24,7 +24,6 @@ Right.propTypes = {
   accessKey: PropTypes.any,
   'aria-label': PropTypes.string,
   'data-test': PropTypes.string,
-  icon: PropTypes.string,
   label: PropTypes.string,
   onClick: PropTypes.func,
 };

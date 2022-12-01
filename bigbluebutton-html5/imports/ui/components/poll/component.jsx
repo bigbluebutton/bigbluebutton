@@ -984,7 +984,8 @@ class Poll extends Component {
     return (
       <div>
         <Header
-          leftButtonProps={{
+          title={intl.formatMessage(intlMessages.pollPaneTitle)}
+          rightButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
             'data-test': "hidePollDesc",
             label: intl.formatMessage(intlMessages.pollPaneTitle),
@@ -1000,7 +1001,7 @@ class Poll extends Component {
             },
             ref: (node) => { this.hideBtn = node; },
           }}
-          rightButtonProps={{
+          leftButtonProps={{
             'aria-label': `${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`,
             'data-test': "closePolling",
             icon: "close",

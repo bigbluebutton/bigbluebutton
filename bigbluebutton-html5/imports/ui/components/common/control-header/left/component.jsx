@@ -9,10 +9,11 @@ class Left extends Component {
 
   render() {
     return (
-      <Styled.HideButton
-        className="buttonWrapper"
-        icon="left_arrow"
-        tabIndex={0}
+      <Styled.CloseButton
+        size="md"
+        color="light"
+        hideLabel
+        circle
         {...this.props}
       />
     );
@@ -23,6 +24,7 @@ Left.propTypes = {
   accessKey: PropTypes.any,
   'aria-label': PropTypes.string,
   'data-test': PropTypes.string,
+  icon: PropTypes.string,
   label: PropTypes.string,
   onClick: PropTypes.func,
 };

@@ -73,7 +73,8 @@ const Captions = ({
   return (
     <Styled.Captions isChrome={isChrome}>
       <Header
-        leftButtonProps={{
+        title={name}
+        rightButtonProps={{
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -87,7 +88,7 @@ const Captions = ({
           'aria-label': intl.formatMessage(intlMessages.hide),
           label: name,
         }}
-        customRightButton={Service.amICaptionsOwner(ownerId) ? (
+        customLeftButton={Service.amICaptionsOwner(ownerId) ? (
           <span>
             <Button
               onClick={dictating

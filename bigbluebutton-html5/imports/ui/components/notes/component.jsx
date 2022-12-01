@@ -132,7 +132,8 @@ const Notes = ({
     <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
       {!isOnMediaArea ? (
         <Header
-          leftButtonProps={{
+          title={intl.formatMessage(intlMessages.title)}
+          rightButtonProps={{
             onClick: () => {
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -147,7 +148,7 @@ const Notes = ({
             'aria-label': intl.formatMessage(intlMessages.hide),
             label: intl.formatMessage(intlMessages.title),
           }}
-          customRightButton={
+          customLeftButton={
             <NotesDropdown />
           }
         />

@@ -70,11 +70,11 @@ const Chat = (props) => {
     >
       <Header
         data-test="chatTitle"
-        leftButtonProps={{
+        title={title}
+        rightButtonProps={{
           accessKey: chatID !== 'public' ? HIDE_CHAT_AK : null,
           'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
           'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
-          label: title,
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -90,7 +90,7 @@ const Chat = (props) => {
             });
           },
         }}
-        rightButtonProps={{
+        leftButtonProps={{
           accessKey: CLOSE_CHAT_AK,
           'aria-label': intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
           'data-test': "closePrivateChat",
@@ -112,7 +112,7 @@ const Chat = (props) => {
             });
           },
         }}
-        customRightButton={isPublicChat && (
+        customLeftButton={isPublicChat && (
           <ChatDropdownContainer {...{
             meetingIsBreakout, isMeteorConnected, amIModerator, timeWindowsValues,
           }}

@@ -7,28 +7,30 @@ import Right from './right/component';
 const Header = ({
   leftButtonProps,
   rightButtonProps,
-  customRightButton,
+  customLeftButton,
   'data-test': dataTest,
+  title,
   ...rest
 }) => {
   const renderCloseButton = () => (
-    <Right {...rightButtonProps} />
+    <Left {...leftButtonProps} />
   );
 
-  const renderCustomRightButton = () => (
-    <Styled.RightWrapper>
-      {customRightButton}
-    </Styled.RightWrapper>
+  const renderCustomLeftButton = () => (
+    <Styled.LeftWrapper>
+      {customLeftButton}
+    </Styled.LeftWrapper>
   );
 
   return (
     <Styled.Header data-test={dataTest ? dataTest : ''} {...rest}>
-      {leftButtonProps ? <Left {...leftButtonProps} /> : <div />}
-      {customRightButton
-        ? renderCustomRightButton()
-        : rightButtonProps
+      { customLeftButton
+        ? renderCustomLeftButton()
+        : leftButtonProps
           ? renderCloseButton()
-          : null}
+          : <div />}
+      { title ? <Styled.Title>{title}</Styled.Title> : null}
+      { rightButtonProps ? <Right {...rightButtonProps} /> : null}
     </Styled.Header>
   );
 }
@@ -36,7 +38,7 @@ const Header = ({
 Header.propTypes = {
   leftButtonProps: PropTypes.object,
   rightButtonProps: PropTypes.object,
-  customRightButton: PropTypes.element,
+  customLeftButton: PropTypes.element,
   dataTest: PropTypes.string,
 };
 
