@@ -13,6 +13,7 @@ import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
+import Icon from '/imports/ui/components/common/icon/component.jsx';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -201,6 +202,38 @@ class UserOptions extends PureComponent {
     mountModal(<CaptionsWriterMenu />);
   }
 
+  renderTriggerButton() {
+    const { intl, compact } = this.props;
+
+    if (compact) {
+      return (
+        <Styled.ScrollableList>
+          <Styled.List compact={compact}>
+            <Styled.ListItem
+              label={intl.formatMessage(intlMessages.optionsLabel)}
+              $compact={compact}
+              onClick={() => null}
+            >
+              <Icon iconName="settings" />
+            </Styled.ListItem>
+          </Styled.List>
+        </Styled.ScrollableList>);
+    }
+
+    return (
+      <Styled.OptionsButton
+        label={intl.formatMessage(intlMessages.optionsLabel)}
+        data-test="manageUsers"
+        icon="settings"
+        color="light"
+        hideLabel
+        size="md"
+        circle
+        onClick={() => null}
+      />
+    );
+  }
+
   renderMenuItems() {
     const {
       intl,
@@ -327,22 +360,11 @@ class UserOptions extends PureComponent {
   }
 
   render() {
-    const { intl, isRTL } = this.props;
+    const { isRTL } = this.props;
 
     return (
       <BBBMenu
-        trigger={(
-          <Styled.OptionsButton
-            label={intl.formatMessage(intlMessages.optionsLabel)}
-            data-test="manageUsers"
-            icon="settings"
-            color="light"
-            hideLabel
-            size="md"
-            circle
-            onClick={() => null}
-          />
-        )}
+        trigger={this.renderTriggerButton()}
         actions={this.renderMenuItems()}
         opts={{
           id: "user-options-dropdown-menu",
