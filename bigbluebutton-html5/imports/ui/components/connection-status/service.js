@@ -16,7 +16,7 @@ const STATS = Meteor.settings.public.stats;
 const NOTIFICATION = STATS.notification;
 const STATS_INTERVAL = STATS.interval;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
-
+let c = 0;
 const intlMessages = defineMessages({
   saved: {
     id: 'app.settings.save-notification.label',
@@ -43,6 +43,7 @@ const getHelp = () => {
 
 const getStats = () => {
   statsDep.depend();
+  
   return STATS.level[stats];
 };
 
@@ -391,7 +392,11 @@ const getAudioData = async () => {
   if (!data) return {};
 
   addExtraInboundNetworkParameters(data);
-
+  
+  if(c<=10) {
+	console.log(data);
+	c = c+1;
+	}
   return data;
 };
 
@@ -405,7 +410,7 @@ const getAudioData = async () => {
  */
 const getVideoData = async () => {
   const camerasData = await VideoService.getStats() || {};
-
+	
   const screenshareData = await ScreenshareService.getStats() || {};
 
   return {

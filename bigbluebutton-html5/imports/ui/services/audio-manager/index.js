@@ -46,6 +46,8 @@ const BREAKOUT_AUDIO_TRANSFER_STATES = {
 const FILTER_AUDIO_STATS = [
   'outbound-rtp',
   'inbound-rtp',
+  'remote-inbound-rtp',
+  'remote-outbound-rtp',
   'candidate-pair',
   'local-candidate',
   'transport',
@@ -1107,15 +1109,16 @@ class AudioManager {
     if (!peer) return null;
 
     const peerStats = await peer.getStats();
-
+	console.log(peerStats);
     const audioStats = {};
 
     peerStats.forEach((stat) => {
+    console.log(stat);
       if (FILTER_AUDIO_STATS.includes(stat.type)) {
         audioStats[stat.id] = stat;
       }
     });
-
+	console.log(audioStats);
     const transportStats = await this.getInternalExternalIpAddresses(
       audioStats
     );

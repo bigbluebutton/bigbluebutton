@@ -111,6 +111,7 @@ export default class FullAudioBridge extends BaseAudioBridge {
 
   get inputStream() {
     if (this.broker) {
+    console.log(this.broker.getLocalStream());
       return this.broker.getLocalStream();
     }
 
@@ -120,9 +121,9 @@ export default class FullAudioBridge extends BaseAudioBridge {
   async setInputStream(stream) {
     try {
       if (this.broker == null) return null;
-
+	
       await this.broker.setLocalStream(stream);
-
+	console.log("hello");
       return stream;
     } catch (error) {
       logger.warn({

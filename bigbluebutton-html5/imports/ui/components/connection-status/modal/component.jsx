@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useEffect,PureComponent, useRef} from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -6,11 +6,23 @@ import Icon from '/imports/ui/components/connection-status/icon/component';
 import Switch from '/imports/ui/components/common/switch/component';
 import Service from '../service';
 import Styled from './styles';
+//import start from '/imports/ui/components/connection-status/modal/js/main.js';
+//import '/imports/ui/components/connection-status/modal/js/soundmeter.js';
 import ConnectionStatusHelper from '../status-helper/container';
-
-const NETWORK_MONITORING_INTERVAL_MS = 2000; 
+let loudness = 0.0;
+let prevLoudness = 0.0;
+let prevPacketSent = 0;
+let prevPacketReceived = 0;
+let prevPacketRemoteLost = 0;
+//startButton.addEventListener("click", start);
+const NETWORK_MONITORING_INTERVAL_MS = 200; 
 const MIN_TIMEOUT = 3000;
-
+let prevOnAir = 0;
+let packetSent = 0;
+let packetRemoteLost = 0;
+let packetreceived =0;
+let boxes = [];
+let numCount = 0;
 const intlMessages = defineMessages({
   ariaTitle: {
     id: 'app.connection-status.ariaTitle',
@@ -129,6 +141,11 @@ const intlMessages = defineMessages({
     description: 'Label for the previous page of the connection stats tab',
   },
 });
+const constraints = window.constraints = {
+  audio: true,
+  video: false
+};
+let meterRefresh = null;
 
 const propTypes = {
   closeModal: PropTypes.func.isRequired,
@@ -149,13 +166,52 @@ const isConnectionStatusEmpty = (connectionStatus) => {
 
   return false;
 };
-
+function SoundMeter(context) {
+  this.context = context;
+  this.instant = 0.0;
+  this.slow = 0.0;
+  this.clip = 0.0;
+  this.script = context.createScriptProcessor(2048, 1, 1);
+  const that = this;
+  this.script.onaudioprocess = function(event) {
+    const input = event.inputBuffer.getChannelData(0);
+    let i;
+    let sum = 0.0;
+    let clipcount = 0;
+    for (i = 0; i < input.length; ++i) {
+      sum += input[i] * input[i];
+      if (Math.abs(input[i]) > 0.99) {
+        clipcount += 1;
+      }
+    }
+    that.instant = Math.sqrt(sum / input.length);
+    that.slow = 0.95 * that.slow + 0.05 * that.instant;
+    that.clip = clipcount / input.length;
+  };
+  SoundMeter.prototype.connectToSource = function(stream, callback) {
+  console.log('SoundMeter connecting');
+  try {
+    this.mic = this.context.createMediaStreamSource(stream);
+    this.mic.connect(this.script);
+    // necessary to make sample run, but should not be.
+    this.script.connect(this.context.destination);
+    if (typeof callback !== 'undefined') {
+      callback(null);
+    }
+  } catch (e) {
+    console.error(e);
+    if (typeof callback !== 'undefined') {
+      callback(e);
+    }
+  }
+};
+}
 class ConnectionStatusComponent extends PureComponent {
   constructor(props) {
     super(props);
 
     const { intl } = this.props;
-
+	   
     this.help = Service.getHelp();
     this.state = {
       selectedTab: '1',
@@ -172,6 +228,8 @@ class ConnectionStatusComponent extends PureComponent {
           audioCurrentDownloadRate: 0,
           jitter: 0,
           packetsLost: 0,
+          
+          
           transportStats: {},
         },
         video: {
@@ -188,14 +246,81 @@ class ConnectionStatusComponent extends PureComponent {
     this.videoUploadLabel = intl.formatMessage(intlMessages.videoUploadRate);
     this.videoDownloadLabel = intl.formatMessage(intlMessages.videoDownloadRate);
   }
-
+	//componentDidMount() {
+  //RNSoundLevel.start()
+  //RNSoundLevel.onNewFrame = (data) => {
+    // see "Returned data" section below
+    //console.log('Sound level info', data)
+  //}
+//}
+//componentWillUnmount() {
+ // RNSoundLevel.stop()
+//}
   async componentDidMount() {
     this.startMonitoringNetwork();
+    this.start();
   }
 
   componentWillUnmount() {
     Meteor.clearInterval(this.rateInterval);
   }
+   handleSuccess(stream) {
+  // Put variables in global scope to make them available to the
+  // browser console.
+  window.stream = stream;
+  const soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
+  soundMeter.connectToSource(stream, function(e) {
+    if (e) {
+      alert(e);
+      return;
+    }
+    meterRefresh = setInterval(() => {
+     // instantMeter.value = instantValueDisplay.innerText =
+     console.log(soundMeter.instant.toFixed(2));
+       // loudness = (soundMeter.instant.toFixed(2));
+     // slowMeter.value = slowValueDisplay.innerText =
+        soundMeter.slow.toFixed(2);
+     // clipMeter.value = clipValueDisplay.innerText =
+        soundMeter.clip;
+    }, 0.00001);
+  });
+}
+     start() {
+  console.log('Requesting local stream');
+
+
+  try {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    window.audioContext = new AudioContext();
+  } catch (e) {
+    alert('Web Audio API not supported.');
+  }
+
+  
+  navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then(this.handleSuccess)
+      .catch(handleError);
+}
+
+handleError(error) {
+  console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+}
+stop() {
+  console.log('Stopping local stream');
+  startButton.disabled = false;
+  stopButton.disabled = true;
+
+  window.stream.getTracks().forEach(track => track.stop());
+  window.soundMeter.stop();
+  window.audioContext.close();
+  clearInterval(meterRefresh);
+  instantMeter.value = instantValueDisplay.innerText = '';
+  slowMeter.value = slowValueDisplay.innerText = '';
+  clipMeter.value = clipValueDisplay.innerText = '';
+}
+
+
 
   handleDataSavingChange(key) {
     const { dataSaving } = this.state;
@@ -216,9 +341,10 @@ class ConnectionStatusComponent extends PureComponent {
         outbound: audioCurrentUploadRate,
         inbound: audioCurrentDownloadRate,
       } = Service.calculateBitsPerSecond(data.audio, previousData.audio);
-
+	
       const inboundRtp = Service.getDataType(data.audio, 'inbound-rtp')[0];
-
+	const outboundRtp = Service.getDataType(data.audio, 'outbound-rtp')[0];
+	const remoteInboundRtp = Service.getDataType(data.audio, 'remote-inbound-rtp')[0];
       const jitter = inboundRtp
         ? inboundRtp.jitterBufferAverage
         : 0;
@@ -226,7 +352,18 @@ class ConnectionStatusComponent extends PureComponent {
       const packetsLost = inboundRtp
         ? inboundRtp.packetsLost
         : 0;
-
+	 packetSent = outboundRtp
+	? outboundRtp.packetsSent
+	: 0;
+	console.log(packetSent);
+	 packetreceived = remoteInboundRtp
+	? remoteInboundRtp.packetsReceived
+	: 0;
+	console.log(packetreceived);
+	 packetRemoteLost = remoteInboundRtp
+	? remoteInboundRtp.packetsLost
+	: 0;
+	console.log(packetRemoteLost);
       const audio = {
         audioCurrentUploadRate,
         audioCurrentDownloadRate,
@@ -261,7 +398,26 @@ class ConnectionStatusComponent extends PureComponent {
       });
     }, NETWORK_MONITORING_INTERVAL_MS);
   }
+  //-----------------------------------------------------------------------------
+  //MONITORING SOUND VOLUME
+  'use strict';
 
+// Meter class that generates a number correlated to audio volume.
+// The meter class itself displays nothing, but it makes the
+// instantaneous and time-decaying volumes available for inspection.
+// It also reports on the fraction of samples that were at or near
+// the top of the measurement range.
+
+  
+	 rec() {
+
+  return (
+    <div className="rectangle">
+      
+      
+    </div>
+  );
+}
   renderEmpty() {
     const { intl } = this.props;
 
@@ -515,8 +671,213 @@ class ConnectionStatusComponent extends PureComponent {
         this.setState({ dataPage: '1' });
       }
     }
+ 
+
+  
+	//function Shape(x, y, w, h, fill) {
+  // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
+  // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
+  // But we aren't checking anything else! We could put "Lalala" for the value of x 
+  //this.x = x || 0;
+ // this.y = y || 0;
+ // this.w = w || 1;
+  //this.h = h || 1;
+ // this.fill = fill || '#AAAAAA';
+//}
+//const draw = () => {
+   // ctx.clearRect(0, 0, canvas.current.clientWidth, canvas.current.clientHeight);
+   // boxes.map(info => drawFillRect(info));
+  //}
+//const drawFillRect = (info, style = {}) => {
+    //const { x, y, w, h } = info;
+    
+    
+    //const { backgroundColor = 'black' } = style;
+
+   // ctx.beginPath();
+   // ctx.fillStyle = backgroundColor;
+   // ctx.fillRect(x, y, w, h);
+  //}
+    //let boxes = [];
+    //let numCount = 0;
+  
+    //const Canvas = () => {
+    //const canvasRef = useRef(null);
+    //let currOnAir = packetSent - packetreceived - packetRemoteLost;
+    //useEffect(() => {
+    //const canvas = canvasRef.current;
+    //canvas.width = 200;
+    //canvas.height = 200;
+    //if(!canvas) {
+   // return;
+  //  }
+   
+    //const context = canvas.getContext('2d');
+   // if(!context) {
+   // return;
+   // }
+    //context.fillStyle = "blue";
+    //context.fillRect(0,80,10,20);
+    //if(prevOnAir > 99) {
+    //prevOnAir = 99;
+    //}
+   // if(currOnAir > 99) {
+   // currOnAir = 99;
+   // }
+    //if(currOnAir>=prevOnAir) {
+    //for (let i = prevOnAir - 1; i >=0; i--) {
+      //const box = boxes[i];
+     // box.x+=2*(currOnAir - prevOnAir);
+     
+     // if(i+1 > 50 && i+1 < 75) {
+      //context.fillStyle = 'yellow';
+     // }
+      //if(i + 1 >= 75) {
+      //context.fillStyle = 'red';
+      //}
+      //if(i+1>=0 && i+1<=50) {
+      //context.fillStyle = 'green';
+      //}
+     // context.fillRect(box.x,box.y,box.w,box.h);
+     // boxes[i+currOnAir - prevOnAir] =  boxes[i];
+    //}
+   // for(let i =0;i<(currOnAir-prevOnAir);i++) {
+   // boxes[i] = new Shape(2*i,80,1,20);
+   // context.fillRect(2*i,80,1,20);
+   // }
+    //prevOnAir = currOnAir;
+    //}
+    //else {
+   // for (let i = currOnAir - 1; i >=0; i--) {
+    	
+      //const box = boxes[i];
+      //box.x+=2*(currOnAir - prevOnAir);
+     //const box = boxes[i];
+     // if(i+1 > 50 && i+1 < 75) {
+     // context.fillStyle = 'yellow';
+     // }
+      //if(i + 1 >= 75) {
+      //context.fillStyle = 'red';
+      //}
+     // if(i+1>=0 && i+1<=50) {
+     // context.fillStyle = 'green';
+     // }
+     // context.fillRect(box.x,box.y,box.w,box.h);
+      
+   // }
+   // prevOnAir = currOnAir;
+   // }
+    
+    
+    
+    
+    
+    
+   // },[]);
+    
+    
+   // return <canvas ref = {canvasRef} />;
+   // };
+	
+	function Shape(x, y, w, h, fill) {
+  // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
+  // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
+   //But we aren't checking anything else! We could put "Lalala" for the value of x 
+  this.x = x || 0;
+  this.y = y || 0;
+  this.w = w || 1;
+  this.h = h || 1;
+  this.fill = fill || '#AAAAAA';
+}
+  
+	const Canvas = () => {
+    const canvasRef = useRef(null);
+    let currOnAir = packetSent - packetreceived - packetRemoteLost;
+    useEffect(() => {
+    const canvas = canvasRef.current;
+    canvas.width = 200;
+    canvas.height = 200;
+    if(!canvas) {
+    return;
+    }
+   
+    const context = canvas.getContext('2d');
+    if(!context) {
+    return;
+    }
+    
+    if(prevOnAir > 99) {
+    prevOnAir = 99;
+    }
+    if(currOnAir > 99) {
+    currOnAir = 99;
+    }
+    let interval_packet_sent = packetSent - prevPacketSent;
+   if(prevOnAir + interval_packet_sent > 99) {
+   	interval_packet_sent = 99 - prevOnAir;
+   }
+    
+    for (let i = prevOnAir - 1; i >=0; i--) {
+      const box = boxes[i];
+      box.x+=2*(interval_packet_sent);
+     
+      if(i+1 > 50 && i+1 < 75) {
+      context.fillStyle = 'yellow';
+      }
+      if(i + 1 >= 75) {
+      context.fillStyle = 'red';
+      }
+      if(i+1>=0 && i+1<=50) {
+      context.fillStyle = 'green';
+      }
+      context.fillRect(box.x,box.y,box.w,box.h);
+      boxes[i+interval_packet_sent] =  boxes[i];
+    }
+    for(let i =0;i<(interval_packet_sent);i++) {
+    console.log(soundMeter.instant.toFixed(3));
+    loudness = (soundMeter.instant.toFixed(3));
+    if(((loudness - prevLoudness < 0) && (prevLoudness - loudness < 0.01)) || ((loudness - prevLoudness > 0) && (loudness - prevLoudness < 0.01))) {
+    loudness = loudness + 0.1;
+    }
+    
+    boxes[i] = new Shape(2*i,190 - loudness*1900,1,10 + loudness*1900);
+    context.fillRect(2*i,190-loudness*1900,1,10 + 1900*loudness);
+    prevLoudness = loudness;
+    
+    }
+    const interval_packet_received = packetreceived - prevPacketReceived;
+    
+    //prevOnAir = currOnAir;
+    //}
+    for(let i = currOnAir;i< prevOnAir - 1 + interval_packet_sent;i++) {
+    const box = boxes[i];
+    context.fillStyle = 'white';
+    context.fillRect(box.x,box.y,box.w,box.h);
+    }
+    prevOnAir = currOnAir;
+    prevPacketSent = packetSent;
+    prevPacketReceived = packetreceived;
+    prevPacketRemoteLost = packetRemoteLost;
+    
+   
+    
+    
+    
+    
+    
+    
+    },[]);
+    
+    
+    return <canvas ref = {canvasRef} />;
+    };
+    
+    
+
+
 
     return (
+
       <Styled.NetworkDataContainer data-test="networkDataContainer">
         <Styled.Prev>
           <Styled.ButtonLeft
@@ -575,6 +936,17 @@ class ConnectionStatusComponent extends PureComponent {
             <Styled.NetworkData>
               <div>{`${intl.formatMessage(intlMessages.lostPackets)}`}</div>
               <div>{`${packetsLost}`}</div>
+            </Styled.NetworkData>
+            <Styled.NetworkData>
+            
+            <Canvas />
+		
+
+ 
+
+
+
+
             </Styled.NetworkData>
             <Styled.NetworkData invisible>
               <div>Content Hidden</div>

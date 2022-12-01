@@ -65,6 +65,7 @@
     "react-intl": "^6.1.0",
     "react-loading-skeleton": "^3.0.3",
     "react-modal": "~3.6.1",
+    "react-native-sound-level": "^1.1.5",
     "react-player": "^2.10.0",
     "react-render-in-browser": "^1.1.1",
     "react-tabs": "^2.3.1",
