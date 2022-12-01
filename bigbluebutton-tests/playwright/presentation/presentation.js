@@ -2,7 +2,7 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations } = require('./util.js');
+const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
@@ -202,22 +202,16 @@ class Presentation extends MultiUsers {
   }
 
   async presentationFullscreen() {
-    const element = await this.modPage.getLocator(e.presentationContainer);
-    const value = await element.evaluate((e) => {
-      return window.getComputedStyle(e).getPropertyValue("height")
-    });
-    const height = parseInt(value);
+    const presentationLocator = await this.modPage.getLocator(e.presentationContainer);
+    const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
 
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.waitAndClick(e.presentationFullscreen);
 
-    const element1 = await this.modPage.getLocator(e.presentationContainer);
-    const value1 = await element1.evaluate((e) => {
-      return window.getComputedStyle(e).getPropertyValue("height")
-    });
-    const height1 = parseInt(value1);
+    // Gets fullscreen mode height
+    const heightFullscreen = parseInt(await getCurrentPresentationHeight(presentationLocator));
 
-    await expect(height1).toBeGreaterThan(height);
+    await expect(heightFullscreen).toBeGreaterThan(height);
   }
 
   async presentationSnapshot(testInfo) {
