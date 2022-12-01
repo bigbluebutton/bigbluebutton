@@ -1,4 +1,5 @@
 const { test } = require('@playwright/test');
+const { linkIssue } = require('../core/helpers');
 const { Chat } = require('./chat');
 const { PrivateChat } = require('./privateChat');
 
@@ -51,6 +52,7 @@ test.describe.parallel('Chat', () => {
   });
 
   test('Copy and paste public message', async ({ browser, page }) => {
+    linkIssue('15948');
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.copyPastePublicMessage();
