@@ -14,6 +14,7 @@ import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -209,13 +210,14 @@ class UserOptions extends PureComponent {
       return (
         <Styled.ScrollableList>
           <Styled.List compact={compact}>
+            <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
             <Styled.ListItem
-              label={intl.formatMessage(intlMessages.optionsLabel)}
               $compact={compact}
               onClick={() => null}
             >
               <Icon iconName="settings" />
             </Styled.ListItem>
+            </TooltipContainer>
           </Styled.List>
         </Styled.ScrollableList>);
     }

@@ -4,6 +4,7 @@ import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import CaptionsListItem from '/imports/ui/components/user-list/captions-list-item/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const propTypes = {
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -55,26 +56,33 @@ class UserCaptions extends Component {
     const {
       intl,
       ownedLocales,
+      compact,
     } = this.props;
 
     if (ownedLocales.length < 1) return null;
 
     return (
       <Styled.Messages>
-        <Styled.Container>
-          <Styled.SmallTitle>
-            {intl.formatMessage(intlMessages.title)}
-          </Styled.SmallTitle>
-        </Styled.Container>
+        {!compact
+          ? (
+            <Styled.Container>
+              <Styled.SmallTitle>
+                {intl.formatMessage(intlMessages.title)}
+              </Styled.SmallTitle>
+            </Styled.Container>
+          ) : null
+        }
         <Styled.ScrollableList
           role="tabpanel"
           tabIndex={0}
           ref={(ref) => { this._msgsList = ref; }}
         >
           <Styled.List>
+            <TooltipContainer title={intl.formatMessage(intlMessages.title)}>
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.renderCaptions()}
             </TransitionGroup>
+            </TooltipContainer>
           </Styled.List>
         </Styled.ScrollableList>
       </Styled.Messages>

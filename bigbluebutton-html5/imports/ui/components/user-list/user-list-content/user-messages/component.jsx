@@ -8,6 +8,7 @@ import ChatListItemContainer from '../../chat-list-item/container';
 import { injectIntl } from 'react-intl';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Icon from '/imports/ui/components/common/icon/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const propTypes = {
   activeChats: PropTypes.arrayOf(String).isRequired,
@@ -23,6 +24,10 @@ const intlMessages = defineMessages({
   messagesTitle: {
     id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',
+  },
+  toggleCompactView: {
+    id: 'app.userList.toggleCompactView.label',
+    description: 'Title for the compact userlist toggle button',
   },
 });
 
@@ -117,7 +122,7 @@ class UserMessages extends PureComponent {
               <Styled.MinimizeButton
                 size="md"
                 color="light"
-                label="Minimize userlist"
+                label={intl.formatMessage(intlMessages.toggleCompactView)}
                 hideLabel
                 circle
                 icon="left_arrow"
@@ -133,18 +138,19 @@ class UserMessages extends PureComponent {
               <>
                 <Styled.ScrollableList>
                   <Styled.List compact={compact}>
-                    <Styled.ListItem
-                      label="Expand userlist"
-                      $compact={compact}
-                      onClick={() => {
-                        layoutContextDispatch({
-                          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,
-                          value: !compact,
-                        });
-                      }}
-                    >
-                      <Icon iconName="right_arrow" />
-                    </Styled.ListItem>
+                    <TooltipContainer title={intl.formatMessage(intlMessages.toggleCompactView)}>
+                      <Styled.ListItem
+                        $compact={compact}
+                        onClick={() => {
+                          layoutContextDispatch({
+                            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,
+                            value: !compact,
+                          });
+                        }}
+                      >
+                        <Icon iconName="right_arrow" />
+                      </Styled.ListItem>
+                    </TooltipContainer>
                   </Styled.List>
                 </Styled.ScrollableList>
                 <Styled.Separator />

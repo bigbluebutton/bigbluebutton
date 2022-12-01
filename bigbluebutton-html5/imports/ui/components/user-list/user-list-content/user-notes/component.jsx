@@ -5,6 +5,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import Styled from './styles';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -102,6 +103,7 @@ class UserNotes extends Component {
     }
 
     return (
+      <TooltipContainer title={intl.formatMessage(intlMessages.sharedNotes)}>
       <Styled.ListItem
         aria-label={intl.formatMessage(intlMessages.sharedNotes)}
         aria-describedby="lockedNotes"
@@ -136,6 +138,7 @@ class UserNotes extends Component {
         </div>
         {notification}
       </Styled.ListItem>
+      </TooltipContainer>
     );
   }
 

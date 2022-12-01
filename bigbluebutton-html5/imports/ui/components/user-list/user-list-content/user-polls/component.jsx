@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   pollLabel: {
@@ -19,6 +20,7 @@ const UserPolls = ({
   forcePollOpen,
   sidebarContentPanel,
   layoutContextDispatch,
+  compact,
 }) => {
   if (!isPresenter) return null;
   if (!pollIsOpen && !forcePollOpen) return null;
@@ -38,13 +40,18 @@ const UserPolls = ({
 
   return (
     <Styled.Messages>
-      <Styled.Container>
-        <Styled.SmallTitle>
-          {intl.formatMessage(intlMessages.pollLabel)}
-        </Styled.SmallTitle>
-      </Styled.Container>
+      {!compact
+        ? (
+          <Styled.Container>
+            <Styled.SmallTitle>
+              {intl.formatMessage(intlMessages.pollLabel)}
+            </Styled.SmallTitle>
+          </Styled.Container>
+        ) : null
+      }
       <Styled.List>
         <Styled.ScrollableList>
+          <TooltipContainer title={intl.formatMessage(intlMessages.pollLabel)}>
           <Styled.ListItem
             role="button"
             tabIndex={0}
@@ -55,6 +62,7 @@ const UserPolls = ({
             <Icon iconName="polling" />
             <span>{intl.formatMessage(intlMessages.pollLabel)}</span>
           </Styled.ListItem>
+          </TooltipContainer>
         </Styled.ScrollableList>
       </Styled.List>
     </Styled.Messages>

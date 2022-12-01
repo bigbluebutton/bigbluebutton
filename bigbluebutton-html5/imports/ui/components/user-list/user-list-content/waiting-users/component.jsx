@@ -4,6 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -27,6 +28,7 @@ const WaitingUsers = ({
   pendingUsers,
   sidebarContentPanel,
   layoutContextDispatch,
+  compact,
 }) => {
   const toggleWaitingPanel = () => {
     layoutContextDispatch({
@@ -43,13 +45,18 @@ const WaitingUsers = ({
 
   return (
     <Styled.Messages>
-      <Styled.Container>
-        <Styled.SmallTitle>
-          {intl.formatMessage(intlMessages.waitingUsersTitle)}
-        </Styled.SmallTitle>
-      </Styled.Container>
+      {!compact
+        ? (
+          <Styled.Container>
+            <Styled.SmallTitle>
+              {intl.formatMessage(intlMessages.waitingUsersTitle)}
+            </Styled.SmallTitle>
+          </Styled.Container>
+        ) : null
+      }
       <Styled.ScrollableList>
         <Styled.List>
+          <TooltipContainer title={intl.formatMessage(intlMessages.waitingUsersTitle)}>
           <Styled.ListItem
             role="button"
             data-test="waitingUsersBtn"
@@ -67,6 +74,7 @@ const WaitingUsers = ({
               </Styled.UnreadMessages>
             )}
           </Styled.ListItem>
+          </TooltipContainer>
         </Styled.List>
       </Styled.ScrollableList>
     </Styled.Messages>

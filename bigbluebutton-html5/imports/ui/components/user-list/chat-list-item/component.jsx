@@ -7,6 +7,7 @@ import Styled from './styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import Icon from '/imports/ui/components/common/icon/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const DEBOUNCE_TIME = 1000;
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -141,6 +142,7 @@ const ChatListItem = (props) => {
       : intl.formatMessage(intlMessages.unreadSingular)}`;
 
   return (
+    <TooltipContainer title={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}>
     <Styled.ChatListItem
       data-test="chatButton"
       role="button"
@@ -191,6 +193,7 @@ const ChatListItem = (props) => {
           : null}
       </Styled.ChatListItemLink>
     </Styled.ChatListItem>
+    </TooltipContainer>
   );
 };
 

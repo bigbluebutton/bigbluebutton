@@ -761,42 +761,42 @@ class UserListItem extends PureComponent {
     }
 
     const innerContents = (
-      <Styled.UserItemInnerContents>
-        <Styled.UserAvatar data-test="userAvatar" data-test-presenter={user.presenter ? '' : undefined}>
-          {this.renderUserAvatar()}
-        </Styled.UserAvatar>
-        {!compact
-          ? (
-            <Styled.UserName
-              role="button"
-              aria-label={userAriaLabel}
-              aria-expanded={isActionsOpen}
-            >
-              <Styled.UserNameMain>
-                <TooltipContainer title={user.name}>
+      <TooltipContainer title={user.name}>
+        <Styled.UserItemInnerContents>
+          <Styled.UserAvatar data-test="userAvatar" data-test-presenter={user.presenter ? '' : undefined}>
+            {this.renderUserAvatar()}
+          </Styled.UserAvatar>
+          {!compact
+            ? (
+              <Styled.UserName
+                role="button"
+                aria-label={userAriaLabel}
+                aria-expanded={isActionsOpen}
+              >
+                <Styled.UserNameMain>
                   <span>
                     {user.name}
                     &nbsp;
                   </span>
-                </TooltipContainer>
-                <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
-              </Styled.UserNameMain>
-              {
-                userNameSub.length
-                  ? (
-                    <Styled.UserNameSub
-                      aria-hidden
-                      data-test={user.mobile ? 'mobileUser' : undefined}
-                    >
-                      {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
-                    </Styled.UserNameSub>
-                  )
-                  : null
-              }
-            </Styled.UserName>
-          )
-          : null}
-      </Styled.UserItemInnerContents>
+                  <i>{(isMe(user.userId)) ? `(${intl.formatMessage(messages.you)})` : ''}</i>
+                </Styled.UserNameMain>
+                {
+                  userNameSub.length
+                    ? (
+                      <Styled.UserNameSub
+                        aria-hidden
+                        data-test={user.mobile ? 'mobileUser' : undefined}
+                      >
+                        {userNameSub.reduce((prev, curr) => [prev, ' | ', curr])}
+                      </Styled.UserNameSub>
+                    )
+                    : null
+                }
+              </Styled.UserName>
+            )
+            : null}
+        </Styled.UserItemInnerContents>
+      </TooltipContainer>
     );
 
     const contents = !actions.length

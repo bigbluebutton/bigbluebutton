@@ -5,7 +5,7 @@ import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 
-const BreakoutRoomContainer = ({ breakoutRoom }) => {
+const BreakoutRoomContainer = ({ breakoutRoom, compact }) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
@@ -18,6 +18,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
       sidebarContentPanel,
       hasBreakoutRoom,
       breakoutRoom,
+      compact,
     }}
     />
   );
