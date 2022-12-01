@@ -152,6 +152,11 @@ exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
+exports.sendNotesToWhiteboard = 'li[data-test="moveNotesToWhiteboard"]';
+exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProgressToast"]';
+exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
+exports.currentSlideText = 'span[id="currentSlideText"]';
+exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
@@ -378,6 +383,8 @@ exports.pencil = 'button[data-test="pencilTool"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
 exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
 exports.exportPlainButton = 'span[id="exportplain"]';
+exports.pinNotes = 'li[data-test="pinNotes"]';
+exports.unpinNotes = 'button[data-test="unpinNotes"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
