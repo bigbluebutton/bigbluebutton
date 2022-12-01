@@ -50,6 +50,12 @@ test.describe.parallel('Chat', () => {
     await chat.emptyMessage();
   });
 
+  test('Copy and paste public message', async ({ browser, page }) => {
+    const chat = new Chat(browser, page);
+    await chat.init(true, true);
+    await chat.copyPastePublicMessage();
+  });
+
   test('Close private chat @ci', async ({ browser, context, page }) => {
     const privateChat = new PrivateChat(browser, context);
     await privateChat.initPages(page);
