@@ -81,6 +81,14 @@ const List = styled.div`
       margin: 0 ${mdPaddingY} 1px 0;
     }
   `}
+
+  ${({ compact }) => compact && `
+    margin: 0;
+
+    [dir="rtl"] & {
+      margin: 0;
+    }
+  `}
 `;
 
 const ListItem = styled(Styled.ListItem)`
@@ -155,8 +163,14 @@ const UnreadMessages = styled(FlexColumn)`
   }
 
   ${({ compact }) => compact && `
-    margin-left: -20px;
+    margin-left: -20px !important;
     z-index: 1;
+
+    [dir="rtl"] & {
+      margin-left: 0 !important;
+      margin-right: -20px;
+      z-index: 1;
+    }
   `}
 `;
 
@@ -165,7 +179,7 @@ const UnreadMessagesText = styled(FlexColumn)`
   justify-content: center;
   color: ${colorWhite};
   line-height: calc(1rem + 1px);
-  padding: 0 0.5rem;
+  padding: 0 0.5rem !important;
   text-align: center;
   border-radius: 0.5rem/50%;
   font-size: 0.8rem;

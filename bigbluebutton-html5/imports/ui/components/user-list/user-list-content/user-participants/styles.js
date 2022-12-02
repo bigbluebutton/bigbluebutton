@@ -60,6 +60,13 @@ const VirtualizedScrollableList = styled(ScrollboxVertical)`
   }
   margin-left: 0;
   padding-top: 1px;
+
+
+  ${({ compact }) => compact && `
+    [dir="rtl"] & {
+      margin: 0;
+    }
+  `}
 `;
 
 const VirtualizedList = styled(VirtualizedScrollboxVertical)`

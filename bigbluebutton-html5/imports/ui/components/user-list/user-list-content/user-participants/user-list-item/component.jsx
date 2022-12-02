@@ -762,7 +762,7 @@ class UserListItem extends PureComponent {
 
     const innerContents = (
       <TooltipContainer title={user.name}>
-        <Styled.UserItemInnerContents>
+        <Styled.UserItemInnerContents compact={compact}>
           <Styled.UserAvatar data-test="userAvatar" data-test-presenter={user.presenter ? '' : undefined}>
             {this.renderUserAvatar()}
           </Styled.UserAvatar>

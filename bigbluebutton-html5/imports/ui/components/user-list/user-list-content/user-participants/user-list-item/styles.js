@@ -97,6 +97,13 @@ const UserItemContents = styled.div`
     i {
       margin: 0.3rem;
     }
+
+    [dir="rtl"] & {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
   `}
 `;
 
@@ -117,6 +124,12 @@ const UserItemInnerContents = styled.div`
   [dir="rtl"] & {
     padding: ${lgPaddingY} ${lgPaddingY} ${lgPaddingY} 0;
   }
+
+  ${({ compact }) => compact && `
+    [dir="rtl"] & {
+      padding: 0;
+    }
+  `}
 `;
 
 const UserAvatar = styled.div`

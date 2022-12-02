@@ -71,11 +71,19 @@ const MinimizeButton = styled(Button)`
   i {
     font-size: ${fontSizeBase} !important;
   }
+
+  [dir="rtl"]  & {
+    transform: scale(-1, 1);
+  }
 `;
 
 const ListItem = styled(StyledContent.ListItem)`
   i {
     margin-left:0.7rem;
+  }
+
+  [dir="rtl"]  & {
+    transform: scale(-1, 1);
   }
 `;
 

@@ -82,6 +82,18 @@ const ListItem = styled.div`
     i {
       margin: 0.3rem;
     }
+
+    [dir="rtl"] & {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+
+      & > i {
+        margin-left: 0 !important;
+        margin-right: 0.3rem !important;
+      }
+    }
   `}
 
 `;

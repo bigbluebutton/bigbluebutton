@@ -244,6 +244,7 @@ class UserParticipants extends Component {
           ref={(ref) => {
             this.refScrollContainer = ref;
           }}
+          compact={compact}
         >
           <span id="participants-destination" />
           <AutoSizer>
