@@ -90,6 +90,8 @@ export const ACTIONS = {
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
+
+  SET_HAS_REMOTE_DESKTOP: 'setHasRemoteDesktop',
 };
 
 export const PANELS = {

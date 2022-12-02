@@ -60,6 +60,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.exitFullscreenLabel',
     description: 'Exit fullscreen option label',
   },
+  clipboardLabel: {
+    id: 'app.navBar.settingsDropdown.clipboardLabel',
+    description: 'Enable clipboard options label',
+  },
+  clipboardDesc: {
+    id: 'app.navBar.settingsDropdown.clipboardDesc',
+    description: 'Describes clipboard option',
+  },
   hotkeysLabel: {
     id: 'app.navBar.settingsDropdown.hotkeysLabel',
     description: 'Hotkeys options label',
@@ -238,6 +246,17 @@ class SettingsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.hotkeysLabel),
         // description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => mountModal(<ShortcutHelpComponent />),
+        divider: true,
+      },
+    );
+
+    this.menuItems.push(
+      {
+        key: 'enable-clipboard',
+        icon: 'copy',
+        label: intl.formatMessage(intlMessages.clipboardLabel),
+        // description: intl.formatMessage(intlMessages.clipboardDesc),
+        onClick: () => navigator.clipboard.readText().then(text => window.allowClipboard = true),
         divider: true,
       },
     );

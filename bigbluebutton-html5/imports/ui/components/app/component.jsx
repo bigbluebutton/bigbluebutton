@@ -28,6 +28,7 @@ import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
+import RemoteDesktopContainer from '../remote-desktop/container';
 import { styles } from './styles';
 import {
   LAYOUT_TYPE, DEVICE_TYPE, ACTIONS,
@@ -159,6 +160,7 @@ class App extends Component {
       autoSwapLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowRemoteDesktop,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -171,7 +173,7 @@ class App extends Component {
     });
 
     const presentationOpen = !(autoSwapLayout || hidePresentation)
-      || shouldShowExternalVideo || shouldShowScreenshare;
+      || shouldShowExternalVideo || shouldShowRemoteDesktop || shouldShowScreenshare;
 
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
@@ -465,6 +467,7 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowRemoteDesktop,
       isPresenter,
     } = this.props;
 
@@ -493,6 +496,11 @@ class App extends Component {
           {
             shouldShowExternalVideo
               ? <ExternalVideoContainer isPresenter={isPresenter} />
+              : null
+          }
+          {
+            (shouldShowRemoteDesktop && !MediaService.getSwapLayout())
+              ? <RemoteDesktopContainer isPresenter={isPresenter} />
               : null
           }
           {this.renderCaptions()}

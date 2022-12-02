@@ -8,7 +8,9 @@ import ActionsDropdown from './actions-dropdown/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
+import LockRemoteDesktopContainer from '../remote-desktop/lock-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -22,7 +24,10 @@ class ActionsBar extends PureComponent {
       intl,
       isSharingVideo,
       hasScreenshare,
+      canIOperateDesktop,
       stopExternalVideoShare,
+      isSharingDesktop,
+      stopRemoteDesktop,
       isCaptionsAvailable,
       isMeteorConnected,
       isPollingEnabled,
@@ -37,6 +42,7 @@ class ActionsBar extends PureComponent {
       layoutContextDispatch,
       actionsBarStyle,
       isOldMinimizeButtonEnabled,
+      allowRemoteDesktop,
     } = this.props;
 
     return (
@@ -55,10 +61,13 @@ class ActionsBar extends PureComponent {
             isPollingEnabled,
             isSelectRandomUserEnabled,
             allowExternalVideo,
+            allowRemoteDesktop,
             handleTakePresenter,
             intl,
             isSharingVideo,
+            isSharingDesktop,
             stopExternalVideoShare,
+            stopRemoteDesktop,
             isMeteorConnected,
           }}
           />
@@ -80,16 +89,21 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
+          {canIOperateDesktop
+            ? (
+              <LockRemoteDesktopContainer />
+            )
+            : null}
         </div>
         <div className={styles.right}>
           {!isOldMinimizeButtonEnabled ||
-            (isOldMinimizeButtonEnabled && isLayoutSwapped && !isPresentationDisabled)
+            (isOldMinimizeButtonEnabled && (isLayoutSwapped || (MediaService.shouldShowRemoteDesktop() && getSwapLayout())) && !isPresentationDisabled)
             ? (
               <PresentationOptionsContainer
                 isLayoutSwapped={isLayoutSwapped}
                 toggleSwapLayout={toggleSwapLayout}
                 layoutContextDispatch={layoutContextDispatch}
-                hasPresentation={isThereCurrentPresentation}
+                hasPresentation={MediaService.shouldShowRemoteDesktop() || isThereCurrentPresentation}
                 hasExternalVideo={isSharingVideo}
                 hasScreenshare={hasScreenshare}
               />

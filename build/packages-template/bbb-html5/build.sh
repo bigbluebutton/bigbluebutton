@@ -43,6 +43,8 @@ cat .meteor/release
 # meteor version control was moved to the Dockerfile of the image used in .gitlab-ci.yml
 # meteor update --allow-superuser --release 2.3.6
 
+apt install -y libpng-dev
+
 # Install the npm dependencies needed for the HTML5 client.
 # Argument 'c' means package-lock.json will be respected
 # --production means we won't be installing devDependencies

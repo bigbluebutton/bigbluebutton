@@ -123,6 +123,9 @@ class SmartLayout extends Component {
           externalVideo: {
             hasExternalVideo: input.externalVideo.hasExternalVideo,
           },
+          remoteDesktop: {
+            hasRemoteDesktop: input.remoteDesktop.hasRemoteDesktop,
+          },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,
           },
@@ -349,12 +352,13 @@ class SmartLayout extends Component {
     const {
       input, fullscreen, isRTL, deviceType,
     } = layoutContextState;
-    const { presentation, externalVideo, screenShare } = input;
+    const { presentation, externalVideo, remoteDesktop, screenShare } = input;
     const { isOpen, currentSlide } = presentation;
     const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const { num: currentSlideNumber } = currentSlide;
     const { hasExternalVideo } = externalVideo;
+    const { hasRemoteDesktop } = remoteDesktop;
     const { hasScreenShare } = screenShare;
 
     const cameraDockBounds = {};
@@ -370,7 +374,7 @@ class SmartLayout extends Component {
       cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.zIndex = 1;
 
-      if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
+      if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare)) {
         cameraDockBounds.width = mediaAreaBounds.width;
         cameraDockBounds.maxWidth = mediaAreaBounds.width;
         cameraDockBounds.height = mediaAreaBounds.height;
@@ -456,15 +460,16 @@ class SmartLayout extends Component {
     const {
       input, fullscreen, isRTL, deviceType,
     } = layoutContextState;
-    const { presentation, externalVideo, screenShare } = input;
+    const { presentation, externalVideo, remoteDesktop, screenShare } = input;
     const { isOpen, currentSlide } = presentation;
     const { num: currentSlideNumber } = currentSlide;
     const { hasExternalVideo } = externalVideo;
+    const { hasRemoteDesktop } = remoteDesktop;
     const { hasScreenShare } = screenShare;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
-    if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
+    if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare)) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;
@@ -474,7 +479,7 @@ class SmartLayout extends Component {
       return mediaBounds;
     }
 
-    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
+    if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo' || fullscreenElement == 'RemoteDesktop') {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
       mediaBounds.top = 0;
@@ -485,7 +490,7 @@ class SmartLayout extends Component {
     }
 
     if (input.cameraDock.numCameras > 0 && !input.cameraDock.isDragging) {
-      if (slideSize.width !== 0 && slideSize.height !== 0 && !hasExternalVideo && !hasScreenShare) {
+      if (slideSize.width !== 0 && slideSize.height !== 0 && !hasExternalVideo && !hasRemoteDesktop && !hasScreenShare) {
         if (slideSize.width < mediaAreaBounds.width && deviceType !== DEVICE_TYPE.MOBILE) {
           if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
             mediaBounds.width = slideSize.width;

@@ -1,0 +1,14 @@
+@import "/imports/ui/stylesheets/mixins/focus";
+@import "/imports/ui/stylesheets/variables/_all";
+
+.remoteDesktop {
+  display: flex;
+  flex-flow: column;
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: absolute;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-style: none;
+  border-bottom: none;
+}
