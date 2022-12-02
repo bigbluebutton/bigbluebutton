@@ -109,6 +109,7 @@ class UserMessages extends PureComponent {
       intl,
       layoutContextDispatch,
       compact,
+      isMobile,
     } = this.props;
 
     return (
@@ -119,22 +120,23 @@ class UserMessages extends PureComponent {
               <Styled.MessagesTitle data-test="messageTitle">
                 {intl.formatMessage(intlMessages.messagesTitle)}
               </Styled.MessagesTitle>
-              <Styled.MinimizeButton
-                size="md"
-                color="light"
-                label={intl.formatMessage(intlMessages.toggleCompactView)}
-                hideLabel
-                circle
-                icon="left_arrow"
-                onClick={() => {
-                  layoutContextDispatch({
-                    type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,
-                    value: !compact,
-                  });
-                }}
-              />
+              {!isMobile ? (
+                <Styled.MinimizeButton
+                  size="md"
+                  color="light"
+                  label={intl.formatMessage(intlMessages.toggleCompactView)}
+                  hideLabel
+                  circle
+                  icon="left_arrow"
+                  onClick={() => {
+                    layoutContextDispatch({
+                      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,
+                      value: !compact,
+                    });
+                  }}
+                />) : null}
             </Styled.Container>
-            ) : (
+            ) : !isMobile && (
               <>
                 <Styled.ScrollableList>
                   <Styled.List compact={compact}>

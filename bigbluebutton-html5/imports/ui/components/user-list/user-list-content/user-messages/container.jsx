@@ -7,7 +7,8 @@ import Service from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import { withTracker } from 'meteor/react-meteor-data';
 import Storage from '/imports/ui/services/storage/session';
-import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
+import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
@@ -21,8 +22,10 @@ const UserMessagesContainer = ({compact}) => {
   const activeChats = Service.getActiveChats({ groupChatsMessages, groupChats, users:users[Auth.meetingID] });
   const { roving } = Service;
   const layoutContextDispatch = layoutDispatch();
+  const { width: browserWidth } = layoutSelectInput((i) => i.browser);
+  const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
 
-  return <UserMessages {...{ activeChats, roving, layoutContextDispatch, compact }} />;
+  return <UserMessages {...{ activeChats, roving, layoutContextDispatch, compact, isMobile }} />;
 };
 
 export default withTracker(() => {
