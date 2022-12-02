@@ -30,6 +30,11 @@ const Content = styled(FlexColumn)`
 
   ${({ compact }) => compact && `
     padding: ${lgPaddingY};
+
+    & div {
+      margin: 0;
+      padding: 0;
+    }
   `}
 `;
 

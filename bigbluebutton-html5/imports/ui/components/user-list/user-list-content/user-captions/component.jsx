@@ -25,6 +25,7 @@ class UserCaptions extends Component {
       ownedLocales,
       sidebarContentPanel,
       layoutContextDispatch,
+      compact,
     } = this.props;
 
     return ownedLocales.map((ownedLocale) => (
@@ -44,6 +45,7 @@ class UserCaptions extends Component {
               name: ownedLocale.name,
               layoutContextDispatch,
               sidebarContentPanel,
+              compact,
             }}
             tabIndex={-1}
           />

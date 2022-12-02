@@ -8,7 +8,7 @@ import {
   listItemBgHover,
   itemFocusBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { smPaddingX, borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingX, borderSize, lgPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 
 const UserList = styled(FlexColumn)`
   justify-content: flex-start;
@@ -70,6 +70,20 @@ const ListItem = styled.div`
     background-color: ${listItemBgHover};
     box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
   }
+
+  ${({ compact }) => compact && `
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    padding: ${lgPaddingY} !important;
+
+    i {
+      margin: 0.3rem;
+    }
+  `}
+
 `;
 
 export default {

@@ -23,11 +23,7 @@ const ScrollableList = styled(StyledContent.ScrollableList)``;
 
 const List = styled(StyledContent.List)``;
 
-const ListItem = styled(StyledContent.ListItem)`
-  i {
-    margin:auto;
-  }
-`;
+const ListItem = styled(StyledContent.ListItem)``;
 
 export default {
   OptionsButton,

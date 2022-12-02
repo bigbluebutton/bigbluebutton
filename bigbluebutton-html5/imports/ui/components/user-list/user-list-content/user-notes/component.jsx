@@ -114,7 +114,7 @@ class UserNotes extends Component {
         as={isPinned ? 'button' : 'div'}
         disabled={isPinned}
         $disabled={isPinned}
-        $compact={compact}
+        compact={compact}
       >
         <Icon iconName="copy" />
         <div aria-hidden>

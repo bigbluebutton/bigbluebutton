@@ -58,9 +58,10 @@ const UserPolls = ({
             data-test="pollMenuButton"
             onClick={handleClickTogglePoll}
             onKeyPress={() => {}}
+            compact={compact}
           >
             <Icon iconName="polling" />
-            <span>{intl.formatMessage(intlMessages.pollLabel)}</span>
+            {!compact ? <span>{intl.formatMessage(intlMessages.pollLabel)}</span> : null}
           </Styled.ListItem>
           </TooltipContainer>
         </Styled.ScrollableList>

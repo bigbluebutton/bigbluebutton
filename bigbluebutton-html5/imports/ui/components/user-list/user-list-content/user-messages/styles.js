@@ -75,7 +75,7 @@ const MinimizeButton = styled(Button)`
 
 const ListItem = styled(StyledContent.ListItem)`
   i {
-    margin:auto;
+    margin-left:0.7rem;
   }
 `;
 

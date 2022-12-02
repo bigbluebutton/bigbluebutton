@@ -212,7 +212,7 @@ class UserOptions extends PureComponent {
           <Styled.List compact={compact}>
             <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
             <Styled.ListItem
-              $compact={compact}
+              compact={compact}
               onClick={() => null}
             >
               <Icon iconName="settings" />

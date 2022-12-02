@@ -140,7 +140,7 @@ class UserMessages extends PureComponent {
                   <Styled.List compact={compact}>
                     <TooltipContainer title={intl.formatMessage(intlMessages.toggleCompactView)}>
                       <Styled.ListItem
-                        $compact={compact}
+                        compact={compact}
                         onClick={() => {
                           layoutContextDispatch({
                             type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_COMPACT,

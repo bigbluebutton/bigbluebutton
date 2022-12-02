@@ -61,19 +61,22 @@ const BreakoutRoomItem = ({
               data-test="breakoutRoomsItem"
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
               onKeyPress={() => {}}
+              compact={compact}
             >
               <Icon iconName="rooms" />
-              <div aria-hidden>
-                <Styled.BreakoutTitle>
-                  {intl.formatMessage(intlMessages.breakoutTitle)}
-                </Styled.BreakoutTitle>
-                <Styled.BreakoutDuration>
-                  <BreakoutRemainingTime
-                    messageDuration={intlMessages.breakoutTimeRemaining}
-                    breakoutRoom={breakoutRoom}
-                  />
-                </Styled.BreakoutDuration>
-              </div>
+              {!compact ? (
+                <div aria-hidden>
+                  <Styled.BreakoutTitle>
+                    {intl.formatMessage(intlMessages.breakoutTitle)}
+                  </Styled.BreakoutTitle>
+                  <Styled.BreakoutDuration>
+                    <BreakoutRemainingTime
+                      messageDuration={intlMessages.breakoutTimeRemaining}
+                      breakoutRoom={breakoutRoom}
+                    />
+                  </Styled.BreakoutDuration>
+                </div>
+              ) : null}
             </Styled.ListItem>
             </TooltipContainer>
           </Styled.List>

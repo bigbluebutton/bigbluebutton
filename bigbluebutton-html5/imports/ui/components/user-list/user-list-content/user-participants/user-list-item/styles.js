@@ -85,6 +85,19 @@ const UserItemContents = styled.div`
       outline-color: transparent !important;
     }
   `}
+
+  ${({ compact }) => compact && `
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    padding: ${lgPaddingY} !important;
+
+    i {
+      margin: 0.3rem;
+    }
+  `}
 `;
 
 const SkeletonUserItemContents = styled.div`

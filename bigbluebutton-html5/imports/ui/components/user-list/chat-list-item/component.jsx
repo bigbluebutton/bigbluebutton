@@ -154,7 +154,7 @@ const ChatListItem = (props) => {
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
       onKeyPress={() => {}}
-      $compact={compact}
+      compact={compact}
     >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>

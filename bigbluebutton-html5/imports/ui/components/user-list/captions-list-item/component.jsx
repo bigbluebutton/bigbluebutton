@@ -30,6 +30,7 @@ const CaptionsListItem = (props) => {
     tabIndex,
     sidebarContentPanel,
     layoutContextDispatch,
+    compact,
   } = props;
 
   const handleClickToggleCaptions = () => {
@@ -68,9 +69,10 @@ const CaptionsListItem = (props) => {
       onClick={handleClickToggleCaptions}
       aria-label={`${name} ${intl.formatMessage(intlMessages.captionLabel)}`}
       onKeyPress={() => {}}
+      compact={compact}
     >
       <Icon iconName="closed_caption" />
-      <span aria-hidden>{name}</span>
+      {!compact ? <span aria-hidden>{name}</span> : null}
     </Styled.ListItem>
   );
 };

@@ -63,9 +63,10 @@ const WaitingUsers = ({
             tabIndex={0}
             onClick={toggleWaitingPanel}
             onKeyPress={() => { }}
+            compact={compact}
           >
             <Icon iconName="user" />
-            <span>{intl.formatMessage(intlMessages.title)}</span>
+            {!compact ? <span>{intl.formatMessage(intlMessages.title)}</span> : null}
             {pendingUsers.length > 0 && (
               <Styled.UnreadMessages>
                 <Styled.UnreadMessagesText>
