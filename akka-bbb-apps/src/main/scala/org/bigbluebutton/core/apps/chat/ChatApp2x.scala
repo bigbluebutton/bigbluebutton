@@ -7,6 +7,8 @@ class ChatApp2x(implicit val context: ActorContext)
   with SendPublicMessagePubMsgHdlr
   with SendPrivateMessagePubMsgHdlr
   with ClearPublicChatHistoryPubMsgHdlr
-  with UserTypingPubMsgHdlr {
+  with UserTypingPubMsgHdlr
+  with AddMessageReactionReqMsgHdlr
+  with UndoMessageReactionReqMsgHdlr {
 
 }

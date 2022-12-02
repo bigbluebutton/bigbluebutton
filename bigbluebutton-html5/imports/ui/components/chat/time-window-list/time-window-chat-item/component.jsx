@@ -6,6 +6,11 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import PollService from '/imports/ui/components/poll/service';
 import Styled from './styles';
+import Popover from "@material-ui/core/Popover";
+import { Emoji } from 'emoji-mart';
+import { makeCall } from '/imports/ui/services/api';
+import Auth from '/imports/ui/services/auth';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
@@ -56,6 +61,22 @@ const intlMessages = defineMessages({
     id: 'app.chat.breakoutDurationUpdated',
     description: 'used when the breakout duration is updated',
   },
+  reactedBy: {
+    id: 'app.chat.reactions.reactedByLabel',
+    description: 'used in the reactions tooltip',
+  },
+  youLabel: {
+    id: 'app.chat.reactions.youLabel',
+    description: 'used in the reactions tooltip',
+  },
+  andLabel: {
+    id: 'app.chat.reactions.andLabel',
+    description: 'used in the reactions tooltip',
+  },
+  findReaction: {
+    id: 'app.chat.reactions.findReactionButtonLabel',
+    description: 'used for the reactions button',
+  },
 });
 
 class TimeWindowChatItem extends PureComponent {
@@ -63,7 +84,10 @@ class TimeWindowChatItem extends PureComponent {
     super(props);
     this.state = {
       forcedUpdateCount: 0,
+      reactionsAnchor: null,
+      showReactionsButton: false,
     };
+    this.handleClose = this.handleClose.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -137,6 +161,56 @@ class TimeWindowChatItem extends PureComponent {
     );
   }
 
+  handleEmojiSelect(emojiId) {
+    const {
+      chatId,
+      messageId,
+    } = this.props;
+
+    this.setState({ reactionsAnchor: null });
+    makeCall('addMessageReaction', chatId, messageId, emojiId);
+  }
+
+  handleUndoReaction(emojiId) {
+    const {
+      chatId,
+      messageId,
+    } = this.props;
+
+    makeCall('undoMessageReaction', chatId, messageId, emojiId);
+  }
+
+  renderReactionsButton() {
+    const {
+      chatId,
+      messageId,
+      intl,
+    } = this.props;
+
+    return (
+      <Styled.EmojiButtonWrapper>
+        <Styled.EmojiButton
+          onClick={() => this.setState({
+            reactionsAnchor: this.itemRef,
+          })}
+          icon="happy"
+          color="secondary"
+          ghost
+          type="button"
+          circle
+          hideLabel
+          label={intl.formatMessage(intlMessages.findReaction)}
+          data-test={`reactions-${chatId}-${messageId}`}
+          size="sm"
+        />
+      </Styled.EmojiButtonWrapper>
+    );
+  }
+
+  handleClose() {
+    this.setState({ reactionsAnchor: null });
+  };
+
   renderMessageItem() {
     const {
       timestamp,
@@ -154,7 +228,24 @@ class TimeWindowChatItem extends PureComponent {
       avatar,
       isOnline,
       isSystemSender,
+      reactions,
+      users,
+      isRTL,
     } = this.props;
+    const { reactionsAnchor, showReactionsButton } = this.state;
+
+    const reactionsCount = {};
+    reactions.forEach((reaction) => {
+      if (!reactionsCount[reaction.emojiId]) {
+        reactionsCount[reaction.emojiId] = 1;
+      } else {
+        reactionsCount[reaction.emojiId] += 1;
+      }
+    });
+
+    const reactionsOrdered = Object
+      .keys(reactionsCount)
+      .sort((a, b) => reactionsCount[b] - reactionsCount[a]);
 
     const dateTime = new Date(timestamp);
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
@@ -165,6 +256,8 @@ class TimeWindowChatItem extends PureComponent {
       <Styled.Item
         key={`time-window-${messageKey}`}
         ref={element => this.itemRef = element}
+        onMouseEnter={() => { this.setState({ showReactionsButton: true }); }}
+        onMouseLeave={() => { this.setState({ showReactionsButton: false }); }}
       >
         <Styled.Wrapper isSystemSender={isSystemSender}>
           <Styled.AvatarWrapper>
@@ -220,6 +313,70 @@ class TimeWindowChatItem extends PureComponent {
             </Styled.Messages>
           </Styled.Content>
         </Styled.Wrapper>
+        {showReactionsButton && this.renderReactionsButton()}
+        <Styled.ReactionsWrapper>
+          {reactionsOrdered.map((emojiId) => {
+            const reactedBy = reactions
+              .filter((reaction) => reaction.emojiId === emojiId)
+              .map((reaction) => reaction.userId);
+            const reactedByWithoutMe = reactedBy.filter((userId) => userId !== Auth.userID);
+            const reactedByTheUser = reactedBy.includes(Auth.userID);
+            let tooltipText = intl.formatMessage(intlMessages.reactedBy) + ' ';
+            const youLabel = intl.formatMessage(intlMessages.youLabel);
+            const andLabel = intl.formatMessage(intlMessages.andLabel);
+
+            reactedByWithoutMe
+              .filter((userId) => userId !== Auth.userID)
+              .forEach((userId, idx) => {
+                tooltipText += users[userId]?.name;
+
+                if (idx !== reactedByWithoutMe.length - 1) tooltipText += ', ';
+              });
+
+            if (reactedByTheUser && reactedBy.length === 1) {
+              tooltipText += youLabel + '.';
+            } else if (reactedByTheUser && reactedBy.length > 1) {
+              tooltipText += `, ${andLabel} ${youLabel}.`;
+            } else {
+              tooltipText += '.';
+            }
+
+            return (
+              <TooltipContainer title={tooltipText}>
+                <Styled.EmojiWrapper
+                  highlighted={reactedByTheUser}
+                  onClick={() => {
+                    if (reactedByTheUser) return this.handleUndoReaction(emojiId);
+                    this.handleEmojiSelect(emojiId);
+                  }}>
+                  <Emoji emoji={emojiId} size={16} native />
+                  <span>{reactionsCount[emojiId]}</span>
+                </Styled.EmojiWrapper>
+              </TooltipContainer>
+            );
+          })}
+        </Styled.ReactionsWrapper>
+        <Popover
+          open={Boolean(reactionsAnchor)}
+          anchorEl={reactionsAnchor}
+          onClose={this.handleClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: isRTL ? 'left' : 'right',
+          }}
+          transformOrigin={{
+            horizontal: 'top',
+            horizontal: isRTL ? 'right' : 'left',
+          }}
+        >
+          <Styled.EmojiPickerWrapper>
+            <Styled.EmojiPicker
+              onEmojiSelect={(emojiObject) => this.handleEmojiSelect(emojiObject.id)}
+              showPreview={false}
+              showSkinTones={false}
+            />
+          </Styled.EmojiPickerWrapper>
+        </Popover>
       </Styled.Item>
     );
   }

@@ -558,6 +558,8 @@ class MeetingActor(
         updateUserLastActivity(m.body.message.fromUserId)
       case m: ClearPublicChatHistoryPubMsg                   => state = chatApp2x.handle(m, state, liveMeeting, msgBus)
       case m: UserTypingPubMsg                               => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: AddMessageReactionReqMsg                       => chatApp2x.handle(m, liveMeeting, msgBus)
+      case m: UndoMessageReactionReqMsg                      => chatApp2x.handle(m, liveMeeting, msgBus)
 
       // Screenshare
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)

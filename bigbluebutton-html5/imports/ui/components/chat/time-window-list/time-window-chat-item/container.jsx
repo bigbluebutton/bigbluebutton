@@ -5,6 +5,8 @@ import ChatService from '../../service';
 import { layoutSelect } from '../../../layout/context';
 import PollService from '/imports/ui/components/poll/service';
 import Auth from '/imports/ui/services/auth';
+import { withTracker } from 'meteor/react-meteor-data';
+import { Reactions } from '/imports/api/group-chat-msg';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -14,6 +16,7 @@ const TimeWindowChatItemContainer = (props) => {
   const { message, messageId } = props;
 
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
@@ -59,6 +62,9 @@ const TimeWindowChatItemContainer = (props) => {
         messageKey,
         handleReadMessage,
         getExportedPresentationString: ChatService.getExportedPresentationString,
+        messageId,
+        users: users[Auth.meetingID],
+        isRTL,
         ...props,
       }
       }
@@ -66,4 +72,11 @@ const TimeWindowChatItemContainer = (props) => {
   );
 };
 
-export default TimeWindowChatItemContainer;
+export default withTracker(({ chatId, messageId }) => {
+  const reactions = Reactions.find({
+    chatId,
+    msgId: messageId,
+  }).fetch();
+
+  return { reactions };
+})(TimeWindowChatItemContainer);

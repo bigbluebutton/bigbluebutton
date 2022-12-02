@@ -4,9 +4,13 @@ import handleClearPublicGroupChat from './handlers/clearPublicGroupChat';
 import handleUserTyping from './handlers/userTyping';
 import handleSyncGroupChatMsg from './handlers/syncGroupsChat';
 import { processForHTML5ServerOnly } from '/imports/api/common/server/helpers';
+import handleMsgReaction from './handlers/msgReaction';
+import handleMsgReactionUndone from './handlers/msgReactionUndone';
 
 RedisPubSub.on('GetGroupChatMsgsRespMsg', processForHTML5ServerOnly(handleSyncGroupChatMsg));
 RedisPubSub.on('GroupChatMessageBroadcastEvtMsg', handleGroupChatMsgBroadcast);
 RedisPubSub.on('ClearPublicChatHistoryEvtMsg', handleClearPublicGroupChat);
 RedisPubSub.on('SyncGetGroupChatMsgsRespMsg', handleSyncGroupChatMsg);
 RedisPubSub.on('UserTypingEvtMsg', handleUserTyping);
+RedisPubSub.on('AddMessageReactionEvtMsg', handleMsgReaction);
+RedisPubSub.on('UndoMessageReactionEvtMsg', handleMsgReactionUndone);

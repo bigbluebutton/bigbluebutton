@@ -1,4 +1,4 @@
-import { GroupChatMsg, UsersTyping } from '/imports/api/group-chat-msg';
+import { GroupChatMsg, UsersTyping, Reactions } from '/imports/api/group-chat-msg';
 import Users from '/imports/api/users';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
@@ -69,3 +69,25 @@ function pubishUsersTyping(...args) {
 }
 
 Meteor.publish('users-typing', pubishUsersTyping);
+
+function reactions() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing msg-reactions was requested by unauth connection ${this.connection.id}`);
+    return Reactions.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug('Publishing msg-reactions', { meetingId, userId });
+
+  return Reactions.find({ meetingId });
+}
+
+function pubishMsgReactions(...args) {
+  const boundReactions = reactions.bind(this);
+  return boundReactions(...args);
+}
+
+Meteor.publish('msg-reactions', pubishMsgReactions);

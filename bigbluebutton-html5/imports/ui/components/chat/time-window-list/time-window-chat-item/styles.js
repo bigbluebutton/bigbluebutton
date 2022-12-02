@@ -3,6 +3,7 @@ import {
   borderRadius,
   borderSize,
   chatPollMarginSm,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { lineHeightComputed, fontSizeBase, btnFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -17,9 +18,15 @@ import {
   colorGrayLighter,
   colorPrimary,
   colorText,
+  colorOffWhite,
+  colorBlueLightest,
+  colorBlueLighter,
+  colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import MessageChatItem from './message-chat-item/component';
 import Icon from '/imports/ui/components/common/icon/component';
+import Button from '/imports/ui/components/common/button/component';
+import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 
 const Item = styled.div`
   padding: calc(${lineHeightComputed} / 4) 0 calc(${lineHeightComputed} / 2) 0;
@@ -27,6 +34,10 @@ const Item = styled.div`
   pointer-events: auto;
   [dir="rtl"] & {
     direction: rtl;
+  }
+  position: relative;
+  &:hover {
+    background-color: ${colorOffWhite};
   }
 `;
 
@@ -224,6 +235,78 @@ const PresentationChatItem = styled(MessageChatItem)`
   word-wrap: break-word;
 `;
 
+const EmojiButton = styled(Button)`
+  margin: 0 0 0 ${smPaddingX};
+  align-self: center;
+  font-size: 0.5rem;
+
+  [dir="rtl"]  & {
+    margin: 0 ${smPaddingX} 0 0;
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
+`;
+
+const EmojiButtonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+
+  [dir="ltr"] & {
+    right: 0;
+  }
+  [dir="rtl"] & {
+    left: 0;
+  }
+`;
+
+const EmojiPickerWrapper = styled.div`
+  .emoji-mart {
+    max-width: 100% !important;
+  }
+  .emoji-mart-anchor {
+    cursor: pointer;
+  }
+  .emoji-mart-emoji {
+    cursor: pointer !important;
+  }
+  .emoji-mart-category-list {
+    span {
+      cursor: pointer !important;
+      display: inline-block !important;
+    }
+  }
+`;
+
+const EmojiPicker = styled(EmojiPickerComponent)``;
+
+const ReactionsWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const EmojiWrapper = styled.div`
+  background-color: ${colorBlueLightest};
+  border-radius: 10px;
+  margin-left: 3px;
+  margin-top: 3px;
+  padding: 3px;
+  display: flex;
+  flex-wrap: nowrap;
+  border: 1px solid transparent;
+  cursor: pointer;
+
+  ${({ highlighted }) => highlighted && `
+    background-color: ${colorBlueLighter};
+  `}
+
+  &:hover {
+    border: 1px solid ${colorGray};
+  }
+`;
+
 export default {
   Item,
   Messages,
@@ -240,4 +323,10 @@ export default {
   PollMessageChatItem,
   PresentationChatItem,
   PresentationWrapper,
+  EmojiButton,
+  EmojiPickerWrapper,
+  EmojiPicker,
+  ReactionsWrapper,
+  EmojiButtonWrapper,
+  EmojiWrapper,
 };
