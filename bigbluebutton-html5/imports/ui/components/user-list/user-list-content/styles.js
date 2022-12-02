@@ -148,6 +148,11 @@ const UnreadMessages = styled(FlexColumn)`
     margin-right: auto;
     margin-left: 0;
   }
+
+  ${({ compact }) => compact && `
+    margin-left: -20px;
+    z-index: 1;
+  `}
 `;
 
 const UnreadMessagesText = styled(FlexColumn)`

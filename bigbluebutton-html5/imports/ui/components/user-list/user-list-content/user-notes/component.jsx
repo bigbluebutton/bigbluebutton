@@ -94,7 +94,7 @@ class UserNotes extends Component {
     let notification = null;
     if (unread && !isPinned) {
       notification = (
-        <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)}>
+        <Styled.UnreadMessages aria-label={intl.formatMessage(intlMessages.unreadContent)} compact={compact}>
           <Styled.UnreadMessagesText aria-hidden="true">
             ···
           </Styled.UnreadMessagesText>
