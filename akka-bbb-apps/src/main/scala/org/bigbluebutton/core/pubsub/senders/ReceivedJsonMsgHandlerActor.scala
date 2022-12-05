@@ -288,6 +288,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PreuploadedPresentationsSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTooLargeErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
+      case PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationHasInvalidMimeTypeErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
@@ -314,6 +316,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
       case NewPresAnnFileAvailableMsg.NAME =>
         routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
+      case PresAnnStatusMsg.NAME =>
+        routeGenericMsg[PresAnnStatusMsg](envelope, jsonNode)
 
       // Presentation Pods
       case CreateNewPresentationPodPubMsg.NAME =>

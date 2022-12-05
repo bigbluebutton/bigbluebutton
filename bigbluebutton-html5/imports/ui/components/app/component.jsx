@@ -30,7 +30,7 @@ import PresentationAreaContainer from '../presentation/presentation-area/contain
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import Styled from './styles';
-import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
@@ -48,6 +48,7 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import NotesContainer from '/imports/ui/components/notes/container';
+import DEFAULT_VALUES from '../layout/defaultValues';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -210,6 +211,11 @@ class App extends Component {
       mountModal,
       deviceType,
       mountRandomUserModal,
+      selectedLayout,
+      sidebarContentIsOpen,
+      layoutContextDispatch,
+      numCameras,
+      presentationIsOpen,
     } = this.props;
 
     this.renderDarkMode();
@@ -243,6 +249,30 @@ class App extends Component {
     }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
+
+    if (
+      selectedLayout !== prevProps.selectedLayout
+      && selectedLayout?.toLowerCase?.()?.includes?.('focus')
+      && !sidebarContentIsOpen
+      && deviceType !== DEVICE_TYPE.MOBILE
+      && numCameras > 0
+      && presentationIsOpen
+    ) {
+      setTimeout(() => {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: true,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: DEFAULT_VALUES.idChatOpen,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.CHAT,
+        });
+      }, 0);
+    }
   }
 
   componentWillUnmount() {

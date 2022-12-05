@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
@@ -106,30 +106,18 @@ class Presentation extends MultiUsers {
     await expect(Number(width2) > Number(width1)).toBeTruthy();
   }
 
-  async allowAndDisallowDownload(testInfo) {
+  async downloadPresentation(testInfo) {
     const { presentationDownloadable } = getSettings();
     test.fail(!presentationDownloadable, 'Presentation download is disable');
 
-    // allow the presentation download
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.allowPresentationDownload);
-    await this.userPage.wasRemoved(e.smallToastMsg);
-    await this.modPage.waitAndClick(e.confirmManagePresentation);
-    await this.userPage.waitForSelector(e.toastDownload);
-    // check download button in presentation after ALLOW it - should be true
-    await this.userPage.hasElement(e.presentationDownloadBtn);
-    await this.userPage.handleDownload(e.presentationDownloadBtn, testInfo);
-
-    // disallow the presentation download
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.disallowPresentationDownload);
-    await this.modPage.waitAndClick(e.confirmManagePresentation);
-    await this.userPage.wasRemoved(e.toastDownload);
-    // check download button in presentation after DISALLOW it - should be false
-    await this.userPage.wasRemoved(e.presentationDownloadBtn);
+    await this.modPage.waitAndClick(e.exportPresentationToPublicChat);
+    await this.modPage.hasElement(e.downloadPresentationToast);
+    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.handleDownload(e.downloadPresentation, testInfo);
   }
 
   async removeAllPresentation() {

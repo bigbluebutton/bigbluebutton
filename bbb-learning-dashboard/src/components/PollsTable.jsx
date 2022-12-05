@@ -56,7 +56,7 @@ const PollsTable = (props) => {
 
   const commonCountProps = {
     field: 'count',
-    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', defaultMessage: 'Total of answers' }),
+    headerName: intl.formatMessage({ id: 'app.learningDashboard.pollsTable.answerTotal', defaultMessage: 'Total' }),
     flex: 1,
     sortable: true,
   };
@@ -321,7 +321,7 @@ const PollsTable = (props) => {
         const answersSorted = Object.entries(pollVotesCount[v?.pollId])
           .sort(([, countA], [, countB]) => countB - countA);
         const isMostCommonAnswer = (
-          answersSorted[0]?.[0]?.toLowerCase() === params?.value[0]?.toLowerCase()
+          answersSorted[0]?.[0]?.toLowerCase() === params?.value?.toLowerCase()
           && answersSorted[0]?.[1] > 1
         );
         return <GridCellExpand anonymous={v?.anonymous} isMostCommonAnswer={isMostCommonAnswer} value={params?.value || ''} width={params?.colDef?.computedWidth} />;

@@ -12,8 +12,8 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-async function createMeeting(params, customParameter) {
-  const meetingID = `random-${getRandomInt(1000000, 10000000).toString()}`;
+async function createMeeting(params, customParameter, customMeetingId) {
+  const meetingID = (customMeetingId) ? customMeetingId : `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
   const query = customParameter !== undefined ? `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`

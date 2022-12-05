@@ -19,13 +19,6 @@ class UrlMappings {
       action = [GET: 'numberOfSlides']
     }
 
-    "/bigbluebutton/presentation/$conference/$room/$presentation_name/slide/$id"(controller: "presentation") {
-      action = [GET: 'showSlide']
-      constraints {
-        id matches: /\d+/
-      }
-    }
-
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/thumbnails"(controller: "presentation") {
       action = [GET: 'numberOfThumbnails']
     }

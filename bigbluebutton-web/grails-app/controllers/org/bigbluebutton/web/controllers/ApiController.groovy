@@ -27,7 +27,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang.RandomStringUtils
 import org.apache.commons.lang.StringUtils
 import org.bigbluebutton.api.*
-import org.bigbluebutton.api.domain.Config
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
@@ -37,6 +36,7 @@ import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
 import org.bigbluebutton.presentation.UploadedPresentation
+import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
@@ -1087,6 +1087,7 @@ class ApiController {
             request.getQueryString()
     )
 
+    def externalMeetingId = params.meetingID.toString()
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
       return
@@ -1103,12 +1104,11 @@ class ApiController {
         }
       }
     }else {
-      log.warn("Meeting with externalID ${externalMeetingId} and internalID ${internalMeetingId} " +
-              "doesn't exist.")
+      log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
       withFormat {
         xml {
           render(text: responseBuilder.buildInsertDocumentResponse(
-                  "The meeting with id \"${externalMeetingId}\" doesn't exist.", RESP_CODE_FAILED),
+                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
         }
       }
@@ -1475,7 +1475,8 @@ class ApiController {
     }
 
     // Hardcode pre-uploaded presentation to the default presentation window
-    processUploadedFile("DEFAULT_PRESENTATION_POD",
+    if (SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)) {
+      processUploadedFile("DEFAULT_PRESENTATION_POD",
               meetingId,
               presId,
               presFilename,
@@ -1486,7 +1487,10 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable
-    )
+      )
+    } else {
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+    }
   }
 
   def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
@@ -1529,9 +1533,8 @@ class ApiController {
         else {
           log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
           uploadFailReasons.add("failed_to_download_file")
-           uploadFailed = true
+          uploadFailed = true
         }
-
       } else {
         log.error("Null presentation directory meeting=[${meetingId}], presentationDir=[${presentationDir}], presId=[${presId}]")
         uploadFailReasons.add("null_presentation_dir")
@@ -1539,20 +1542,25 @@ class ApiController {
       }
     }
 
-    // Hardcode pre-uploaded presentation to the default presentation window
-    processUploadedFile(
-            "DEFAULT_PRESENTATION_POD",
-            meetingId,
-            presId,
-            presFilename,
-            pres,
-            current,
-            "preupload-download-authz-token",
-            uploadFailed,
-            uploadFailReasons,
-            isDownloadable,
-            isRemovable
-    )
+    if (SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)) {
+      // Hardcode pre-uploaded presentation to the default presentation window
+      processUploadedFile(
+              "DEFAULT_PRESENTATION_POD",
+              meetingId,
+              presId,
+              presFilename,
+              pres,
+              current,
+              "preupload-download-authz-token",
+              uploadFailed,
+              uploadFailReasons,
+              isDownloadable,
+              isRemovable
+      )
+    } else {
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.error("Document [${address}] sent is not supported as a presentation")
+    }
   }
 
 

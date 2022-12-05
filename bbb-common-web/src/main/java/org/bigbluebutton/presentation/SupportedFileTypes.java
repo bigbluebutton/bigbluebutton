@@ -19,15 +19,25 @@
 
 package org.bigbluebutton.presentation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.bigbluebutton.presentation.FileTypeConstants.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 
 @SuppressWarnings("serial")
 public final class SupportedFileTypes {
-	
+
+	private static Logger log = LoggerFactory.getLogger(SupportedFileTypes.class);
+	private static MimeTypeUtils mimeTypeUtils = new MimeTypeUtils();
+
 	private static final List<String> SUPPORTED_FILE_LIST = Collections.unmodifiableList(new ArrayList<String>(15) {		
 		{				
 			// Add all the supported files				
@@ -75,5 +85,57 @@ public final class SupportedFileTypes {
 	 */
 	public static boolean isImageFile(String fileExtension) {
 		return IMAGE_FILE_LIST.contains(fileExtension.toLowerCase());
+	}
+
+	/*
+	 * It was tested native java methods to detect mimetypes, such as:
+	 *   - URLConnection.guessContentTypeFromStream(InputStream is);
+	 *   - Files.probeContentType(Path path);
+	 *   - FileNameMap fileNameMap.getContentTypeFor(String file.getName());
+	 *   - MimetypesFileTypeMap fileTypeMap.getContentType(File file);
+	 * But none of them was as successful as the linux based command
+	 */
+	public static String detectMimeType(File pres) {
+		String mimeType = "";
+		if (pres != null && pres.isFile()){
+			try {
+				ProcessBuilder processBuilder = new ProcessBuilder();
+				processBuilder.command("bash", "-c", "file -b --mime-type " + pres.getAbsolutePath());
+				Process process = processBuilder.start();
+				StringBuilder output = new StringBuilder();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				String line;
+				while ((line = reader.readLine()) != null) {
+					output.append(line + "\n");
+				}
+				int exitVal = process.waitFor();
+				if (exitVal == 0) {
+					mimeType = output.toString().trim();
+				} else {
+					log.error("Error while executing command {} for file {}, error: {}",
+							process.toString(), pres.getAbsolutePath(), process.getErrorStream());
+				}
+			} catch (IOException e) {
+				log.error("Could not read file [{}]", pres.getAbsolutePath(), e.getMessage());
+			} catch (InterruptedException e) {
+				log.error("Flow interrupted for file [{}]", pres.getAbsolutePath(), e.getMessage());
+			}
+		}
+		return mimeType;
+	}
+
+	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
+		String mimeType = detectMimeType(pres);
+
+		if(mimeType == null || mimeType == "") return false;
+
+		if(!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
+
+		if(!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
+			log.error("File with extension [{}] doesn't match with mimeType [{}].", fileExtension, mimeType);
+			return false;
+		}
+
+		return true;
 	}
 }

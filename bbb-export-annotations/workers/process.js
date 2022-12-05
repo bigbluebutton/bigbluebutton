@@ -3,31 +3,21 @@ const config = require('../config');
 const fs = require('fs');
 const {create} = require('xmlbuilder2', {encoding: 'utf-8'});
 const cp = require('child_process');
-const {Worker, workerData} = require('worker_threads');
+const WorkerStarter = require('../lib/utils/worker-starter');
+const {workerData} = require('worker_threads');
 const path = require('path');
 const sanitize = require('sanitize-filename');
 const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
+const redis = require('redis');
 
-const jobId = workerData;
+const [jobId, statusUpdate] = [workerData.jobId, workerData.statusUpdate];
 
 const logger = new Logger('presAnn Process Worker');
 logger.info('Processing PDF for job ' + jobId);
+statusUpdate.core.body.status = 'PROCESSING';
 
-const kickOffNotifierWorker = (jobType, filename) => {
-  return new Promise((resolve, reject) => {
-    const notifierPath = './workers/notifier.js';
-    const worker = new Worker(notifierPath,
-        {workerData: [jobType, jobId, filename]});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Notifier Worker stopped with exit code ${code}`));
-      }
-    });
-  });
-};
+const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // General utilities for rendering SVGs resembling Tldraw as much as possible
 function align_to_pango(alignment) {
@@ -104,7 +94,7 @@ function determine_font_from_family(family) {
     case 'script': return 'Caveat Brush';
     case 'sans': return 'Source Sans Pro';
     case 'serif': return 'Crimson Pro';
-      // Temporary workaround due to typo in messages
+    // Temporary workaround due to typo in messages
     case 'erif': return 'Crimson Pro';
     case 'mono': return 'Source Code Pro';
 
@@ -164,7 +154,14 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
         path.join(dropbox, `text${id}.png`),
       ]);
 
-  cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
+  try {
+    cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
+  } catch (error) {
+    const error_reason = 'ImageMagick failed to render textbox';
+    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
+    statusUpdate.core.body.status = error_reason;
+    statusUpdate.core.body.error = true;
+  }
 }
 
 function get_gap(dash, size) {
@@ -266,14 +263,14 @@ function circleFromThreePoints(A, B, C) {
   const a = x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2;
 
   const b =
-        (x1 * x1 + y1 * y1) * (y3 - y2) +
-        (x2 * x2 + y2 * y2) * (y1 - y3) +
-        (x3 * x3 + y3 * y3) * (y2 - y1);
+    (x1 * x1 + y1 * y1) * (y3 - y2) +
+    (x2 * x2 + y2 * y2) * (y1 - y3) +
+    (x3 * x3 + y3 * y3) * (y2 - y1);
 
   const c =
-        (x1 * x1 + y1 * y1) * (x2 - x3) +
-        (x2 * x2 + y2 * y2) * (x3 - x1) +
-        (x3 * x3 + y3 * y3) * (x1 - x2);
+    (x1 * x1 + y1 * y1) * (x2 - x3) +
+    (x2 * x2 + y2 * y2) * (x3 - x1) +
+    (x3 * x3 + y3 * y3) * (x1 - x2);
 
   const x = -b / (2 * a);
   const y = -c / (2 * a);
@@ -779,114 +776,146 @@ function overlay_annotations(svg, currentSlideAnnotations) {
 }
 
 // Process the presentation pages and annotations into a PDF file
-
-// 1. Get the job
-const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
-const job = fs.readFileSync(path.join(dropbox, 'job'));
-const exportJob = JSON.parse(job);
-
-// 2. Get the annotations
-const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
-const whiteboard = JSON.parse(annotations);
-const pages = JSON.parse(whiteboard.pages);
-const ghostScriptInput = [];
-
-// 3. Convert annotations to SVG
-for (const currentSlide of pages) {
-  const bgImagePath = path.join(dropbox, `slide${currentSlide.page}`);
-  const svgBackgroundSlide = path.join(exportJob.presLocation,
-      'svgs', `slide${currentSlide.page}.svg`);
-  const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
-  const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
-
-  // Output dimensions in pixels even if stated otherwise (pt)
-  // CairoSVG didn't like attempts to read the dimensions from a stream
-  // that would prevent loading file in memory
-  // Ideally, use dimensions provided by tldraw's background image asset
-  // (this is not yet always provided)
-  const dimensions = svgBackgroundExists ?
-        probe.sync(fs.readFileSync(svgBackgroundSlide)) :
-        probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
-
-  const slideWidth = parseInt(dimensions.width, 10);
-  const slideHeight = parseInt(dimensions.height, 10);
-
-  // Create the SVG slide with the background image
-  let svg = create({version: '1.0', encoding: 'UTF-8'})
-      .ele('svg', {
-        'xmlns': 'http://www.w3.org/2000/svg',
-        'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-        'width': `${slideWidth}px`,
-        'height': `${slideHeight}px`,
-      })
-      .dtd({
-        pubID: '-//W3C//DTD SVG 1.1//EN',
-        sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd',
-      })
-      .ele('image', {
-        'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-        'width': `${slideWidth}px`,
-        'height': `${slideHeight}px`,
-      })
-      .up()
-      .ele('g', {
-        class: 'canvas',
-      });
-
-  // 4. Overlay annotations onto slides
-  overlay_annotations(svg, currentSlide.annotations);
-
-  svg = svg.end({prettyPrint: true});
-
-  // Write annotated SVG file
-  const SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`);
-  const PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`);
-
-  fs.writeFileSync(SVGfile, svg, function(err) {
-    if (err) {
-      return logger.error(err);
-    }
+async function process_presentation_annotations() {
+  const client = redis.createClient({
+    host: config.redis.host,
+    port: config.redis.port,
+    password: config.redis.password,
   });
 
-  // Dimensions converted to a pixel size which,
-  // when converted to points, will yield the desired
-  // dimension in pixels when read without conversion
+  await client.connect();
 
-  // e.g. say the background SVG dimensions are set to 1920x1080 pt
-  // Resize output to 2560x1440 px so that the SVG
-  // generates with the original size in pt.
+  client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const convertAnnotatedSlide = [
-    SVGfile,
-    '--output-width', to_px(slideWidth),
-    '--output-height', to_px(slideHeight),
-    '-o', PDFfile,
-  ];
+  // 1. Get the job
+  const job = fs.readFileSync(path.join(dropbox, 'job'));
+  const exportJob = JSON.parse(job);
 
-  cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
+  // 2. Get the annotations
+  const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
+  const whiteboard = JSON.parse(annotations);
+  const pages = JSON.parse(whiteboard.pages);
+  const ghostScriptInput = [];
 
-  ghostScriptInput.push(PDFfile);
+  // 3. Convert annotations to SVG
+  for (const currentSlide of pages) {
+    const bgImagePath = path.join(dropbox, `slide${currentSlide.page}`);
+    const svgBackgroundSlide = path.join(exportJob.presLocation,
+        'svgs', `slide${currentSlide.page}.svg`);
+    const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
+    const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
+
+    // Output dimensions in pixels even if stated otherwise (pt)
+    // CairoSVG didn't like attempts to read the dimensions from a stream
+    // that would prevent loading file in memory
+    // Ideally, use dimensions provided by tldraw's background image asset
+    // (this is not yet always provided)
+    const dimensions = svgBackgroundExists ?
+    probe.sync(fs.readFileSync(svgBackgroundSlide)) :
+    probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
+
+    const slideWidth = parseInt(dimensions.width, 10);
+    const slideHeight = parseInt(dimensions.height, 10);
+
+    // Create the SVG slide with the background image
+    let svg = create({version: '1.0', encoding: 'UTF-8'})
+        .ele('svg', {
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'xmlns:xlink': 'http://www.w3.org/1999/xlink',
+          'width': `${slideWidth}px`,
+          'height': `${slideHeight}px`,
+        })
+        .dtd({
+          pubID: '-//W3C//DTD SVG 1.1//EN',
+          sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd',
+        })
+        .ele('image', {
+          'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
+          'width': `${slideWidth}px`,
+          'height': `${slideHeight}px`,
+        })
+        .up()
+        .ele('g', {
+          class: 'canvas',
+        });
+
+    // 4. Overlay annotations onto slides
+    overlay_annotations(svg, currentSlide.annotations);
+
+    svg = svg.end({prettyPrint: true});
+
+    // Write annotated SVG file
+    const SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`);
+    const PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`);
+
+    fs.writeFileSync(SVGfile, svg, function(err) {
+      if (err) {
+        return logger.error(err);
+      }
+    });
+
+    // Dimensions converted to a pixel size which,
+    // when converted to points, will yield the desired
+    // dimension in pixels when read without conversion
+
+    // e.g. say the background SVG dimensions are set to 1920x1080 pt
+    // Resize output to 2560x1440 px so that the SVG
+    // generates with the original size in pt.
+
+    const convertAnnotatedSlide = [
+      SVGfile,
+      '--output-width', to_px(slideWidth),
+      '--output-height', to_px(slideHeight),
+      '-o', PDFfile,
+    ];
+
+    try {
+      cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
+    } catch (error) {
+      logger.error(`Processing slide ${currentSlide.page} failed for job ${jobId}: ${error.message}`);
+      statusUpdate.core.body.error = true;
+    }
+
+    statusUpdate.core.body.pageNumber = currentSlide.page;
+    statusUpdate.envelope.timestamp = (new Date()).getTime();
+
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    ghostScriptInput.push(PDFfile);
+    statusUpdate.core.body.error = false;
+  }
+
+  // Create PDF output directory if it doesn't exist
+  const outputDir = path.join(exportJob.presLocation, 'pdfs', jobId);
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, {recursive: true});
+  }
+
+  const filename_with_extension = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.pdf`;
+
+  const mergePDFs = [
+    '-dNOPAUSE',
+    '-sDEVICE=pdfwrite',
+    `-sOUTPUTFILE="${path.join(outputDir, filename_with_extension)}"`,
+    `-dBATCH`].concat(ghostScriptInput);
+
+  // Resulting PDF file is stored in the presentation dir
+  try {
+    cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
+  } catch (error) {
+    const error_reason = 'GhostScript failed to merge PDFs';
+    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
+    statusUpdate.core.body.status = error_reason;
+    statusUpdate.core.body.error = true;
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+  }
+
+  // Launch Notifier Worker depending on job type
+  logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
+
+  const notifier = new WorkerStarter({jobType: exportJob.jobType, jobId, filename: filename_with_extension});
+  notifier.notify();
+  await client.disconnect();
 }
 
-// Create PDF output directory if it doesn't exist
-const outputDir = path.join(exportJob.presLocation, 'pdfs', jobId);
-
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, {recursive: true});
-}
-
-const filename_with_extension = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.pdf`;
-
-const mergePDFs = [
-  '-dNOPAUSE',
-  '-sDEVICE=pdfwrite',
-  `-sOUTPUTFILE="${path.join(outputDir, filename_with_extension)}"`,
-  `-dBATCH`].concat(ghostScriptInput);
-
-// Resulting PDF file is stored in the presentation dir
-cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
-
-// Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
-
-kickOffNotifierWorker(exportJob.jobType, filename_with_extension);
+process_presentation_annotations();
