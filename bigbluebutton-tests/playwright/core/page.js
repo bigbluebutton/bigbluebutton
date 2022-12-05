@@ -210,6 +210,10 @@ class Page {
   async up(key) {
     await this.page.keyboard.up(key);
   }
+  
+  async mouseDoubleClick(x, y) {
+    await this.page.mouse.dblclick(x, y);
+  }
 
   async dragDropSelector(selector, position) {
     await this.page.locator(selector).dragTo(this.page.locator(position));
