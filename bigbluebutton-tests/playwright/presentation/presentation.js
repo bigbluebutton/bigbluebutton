@@ -2,7 +2,7 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations } = require('./util.js');
+const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
@@ -199,6 +199,24 @@ class Presentation extends MultiUsers {
     const frame = new Page(page.browser, handleFrame);
     await frame.waitForSelector(e.ytFrameTitle);
     return frame;
+  }
+
+  async presentationFullscreen() {
+    const presentationLocator = await this.modPage.getLocator(e.presentationContainer);
+    const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
+
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.waitAndClick(e.presentationFullscreen);
+
+    // Gets fullscreen mode height
+    const heightFullscreen = parseInt(await getCurrentPresentationHeight(presentationLocator));
+
+    await expect(heightFullscreen).toBeGreaterThan(height);
+  }
+
+  async presentationSnapshot(testInfo) {
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.handleDownload(e.presentationSnapshot, testInfo);
   }
 }
 
