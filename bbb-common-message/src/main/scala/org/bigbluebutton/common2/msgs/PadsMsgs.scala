@@ -113,3 +113,18 @@ case class PadUpdatePubMsgBody(externalId: String, text: String)
 object PadUpdateCmdMsg { val NAME = "PadUpdateCmdMsg" }
 case class PadUpdateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: PadUpdateCmdMsgBody) extends BbbCoreMsg
 case class PadUpdateCmdMsgBody(groupId: String, name: String, text: String)
+
+// pads -> apps
+object PadCapturePubMsg { val NAME = "PadCapturePubMsg" }
+case class PadCapturePubMsg(header: BbbCoreHeaderWithMeetingId, body: PadCapturePubMsgBody) extends PadStandardMsg
+case class PadCapturePubMsgBody(parentMeetingId: String, breakoutId: String, padId: String, filename: String)
+
+// client -> apps
+object PadPinnedReqMsg { val NAME = "PadPinnedReqMsg" }
+case class PadPinnedReqMsg(header: BbbClientMsgHeader, body: PadPinnedReqMsgBody) extends StandardMsg
+case class PadPinnedReqMsgBody(externalId: String, pinned: Boolean)
+
+// apps -> client
+object PadPinnedEvtMsg { val NAME = "PadPinnedEvtMsg" }
+case class PadPinnedEvtMsg(header: BbbClientMsgHeader, body: PadPinnedEvtMsgBody) extends BbbCoreMsg
+case class PadPinnedEvtMsgBody(externalId: String, pinned: Boolean)

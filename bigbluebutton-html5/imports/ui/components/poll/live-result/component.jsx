@@ -81,7 +81,7 @@ class LiveResult extends PureComponent {
           if (response) {
             const formattedAnswers = [];
             response.answerIds.forEach((answerId) => {
-              const formattedMessageIndex = answers[answerId].key.toLowerCase();
+              const formattedMessageIndex = answers[answerId]?.key?.toLowerCase();
               const formattedAnswer = defaultPoll && pollAnswerIds[formattedMessageIndex]
                 ? intl.formatMessage(pollAnswerIds[formattedMessageIndex])
                 : answers[answerId].key;
@@ -115,7 +115,7 @@ class LiveResult extends PureComponent {
     const pollStats = [];
 
     answers.reduce(caseInsensitiveReducer, []).map((obj) => {
-      const formattedMessageIndex = obj.key.toLowerCase();
+      const formattedMessageIndex = obj?.key?.toLowerCase();
       const pct = Math.round(obj.numVotes / numResponders * 100);
       const pctFotmatted = `${Number.isNaN(pct) ? 0 : pct}%`;
 
@@ -134,7 +134,7 @@ class LiveResult extends PureComponent {
           </Styled.Left>
           <Styled.Center>
             <Styled.BarShade style={calculatedWidth} />
-            <Styled.BarVal>{obj.numVotes || 0}</Styled.BarVal>
+            <Styled.BarVal data-test="numberOfVotes">{obj.numVotes || 0}</Styled.BarVal>
           </Styled.Center>
           <Styled.Right>
             {pctFotmatted}
@@ -191,7 +191,7 @@ class LiveResult extends PureComponent {
     return (
       <div>
         <Styled.Stats>
-          {currentPollQuestion ? <Styled.Title>{currentPollQuestion}</Styled.Title> : null}
+          {currentPollQuestion ? <Styled.Title data-test="currentPollQuestion">{currentPollQuestion}</Styled.Title> : null}
           <Styled.Status>
             {waiting
               ? (

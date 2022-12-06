@@ -42,16 +42,11 @@ const RecordingNotifyModal = ({ intl, closeModal, toggleShouldNotify }) => {
 
   return (
     <Styled.RecordingNotifyModal
-      hideBorder
       contentLabel={intl.formatMessage(intlMessages.title)}
       shouldShowCloseButton={false}
+      title={intl.formatMessage(intlMessages.title)}
     >
       <Styled.Container>
-        <Styled.Header>
-          <Styled.Title aria-hidden>
-            {intl.formatMessage(intlMessages.title)}
-          </Styled.Title>
-        </Styled.Header>
         <Styled.Description>
           {intl.formatMessage(intlMessages.description)}
         </Styled.Description>

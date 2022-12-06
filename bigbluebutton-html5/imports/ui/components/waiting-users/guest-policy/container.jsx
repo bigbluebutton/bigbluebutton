@@ -8,7 +8,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-const guestPolicyContainer = (props) => {
+const GuestPolicyContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
@@ -21,4 +21,4 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   closeModal: () => mountModal(null),
   guestPolicy: Service.getGuestPolicy(),
   changeGuestPolicy: Service.changeGuestPolicy,
-}))(guestPolicyContainer));
+}))(GuestPolicyContainer));

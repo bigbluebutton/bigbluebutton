@@ -155,14 +155,10 @@ class LockViewersComponent extends Component {
     return (
       <Styled.LockViewersModal
         onRequestClose={closeModal}
-        hideBorder
-        shouldShowCloseButton={false}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={intl.formatMessage(intlMessages.lockViewersTitle)}
       >
         <Styled.Container>
-          <Styled.Header>
-            <Styled.Title>{intl.formatMessage(intlMessages.lockViewersTitle)}</Styled.Title>
-          </Styled.Header>
           <Styled.Description>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
           </Styled.Description>

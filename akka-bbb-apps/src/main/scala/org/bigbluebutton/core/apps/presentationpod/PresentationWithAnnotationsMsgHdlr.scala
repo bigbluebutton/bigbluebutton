@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, CaptureSharedNotesReqInternalMsg }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -38,6 +39,16 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val header = BbbClientMsgHeader(NewPresAnnFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
     val body = NewPresAnnFileAvailableEvtMsgBody(fileURI = newPresAnnFileAvailableMsg.body.fileURI, presId = newPresAnnFileAvailableMsg.body.presId)
     val event = NewPresAnnFileAvailableEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildBroadcastPresAnnStatusMsg(presAnnStatusMsg: PresAnnStatusMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresAnnStatusEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
+    val body = PresAnnStatusEvtMsgBody(presId = presAnnStatusMsg.body.presId, pageNumber = presAnnStatusMsg.body.pageNumber, totalPages = presAnnStatusMsg.body.totalPages, status = presAnnStatusMsg.body.status, error = presAnnStatusMsg.body.error)
+    val event = PresAnnStatusEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -122,32 +133,27 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     }
   }
 
-  def handle(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(m: CapturePresentationReqInternalMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
-    val userId = m.header.userId
-
+    val userId = m.userId
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
-      val reason = "Importing slides from breakout rooms disabled for this meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
-      val reason = "No permission to export presentation."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+      log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
     } else {
 
       val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
       val jobType = "PresentationWithAnnotationExportJob"
-      val allPages: Boolean = m.body.allPages
+      val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
 
       val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
       val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
-      val parentMeetingId: String = m.body.parentMeetingId
+      val parentMeetingId: String = m.parentMeetingId
 
       val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
@@ -183,7 +189,36 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
 
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
-
   }
 
+  def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
+    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName)
+    val event = CaptureSharedNotesReqEvtMsg(header, body)
+
+    bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
+  }
+
+  def handle(m: PresAnnStatusMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    bus.outGW.send(buildBroadcastPresAnnStatusMsg(m, liveMeeting))
+  }
+
+  def handle(m: PadCapturePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+
+    val userId: String = "system"
+    val jobId: String = s"${m.body.breakoutId}-notes" // Used as the temporaryPresentationId upon upload
+    val jobType = "PadCaptureJob"
+    val filename = m.body.filename
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
+
+    val exportJob = new ExportJob(jobId, jobType, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
+    val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+
+    bus.outGW.send(job)
+  }
 }

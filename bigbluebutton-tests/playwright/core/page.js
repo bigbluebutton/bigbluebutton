@@ -25,13 +25,13 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, customParameter } = initOptions || {};
+    const { fullName, meetingId, customParameter, customMeetingId } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
 
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter, customMeetingId);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
@@ -209,6 +209,33 @@ class Page {
 
   async up(key) {
     await this.page.keyboard.up(key);
+  }
+  
+  async mouseDoubleClick(x, y) {
+    await this.page.mouse.dblclick(x, y);
+  }
+
+  async dragDropSelector(selector, position) {
+    await this.page.locator(selector).dragTo(this.page.locator(position));
+  }
+
+  async checkElementCount(selector, count) {
+    const locator = await this.page.locator(selector);
+    await expect(locator).toHaveCount(count);
+  }
+
+  async hasValue(selector, value) {
+    const locator  = await this.page.locator(selector);
+    await expect(locator).toHaveValue(value);
+  }
+
+
+  async backgroundColorTest(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
+  }
+
+  async textColorTest(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
   }
 }
 

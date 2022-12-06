@@ -34,16 +34,6 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildEjectDuplicateUserRequestToAkkaApps(meetingId: String, intUserId: String, name: String, extUserId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
-    val envelope = BbbCoreEnvelope(EjectDuplicateUserReqMsg.NAME, routing)
-    val header = BbbCoreHeaderWithMeetingId(EjectDuplicateUserReqMsg.NAME, meetingId)
-    val body = EjectDuplicateUserReqMsgBody(meetingId = meetingId, intUserId = intUserId,
-      name = name, extUserId = extUserId)
-    val req = EjectDuplicateUserReqMsg(header, body)
-    BbbCommonEnvCoreMsg(envelope, req)
-  }
-
   def buildRegisterUserRequestToAkkaApps(msg: RegisterUser): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
@@ -78,13 +68,12 @@ object MsgBuilder {
     val id = presId + "/" + page
     val current = if (page == 1) true else false
     val thumbUrl = presBaseUrl + "/thumbnail/" + page
-    val swfUrl = presBaseUrl + "/slide/" + page
 
     val txtUrl = presBaseUrl + "/textfiles/" + page
     val svgUrl = presBaseUrl + "/svg/" + page
     val pngUrl = presBaseUrl + "/png/" + page
 
-    val urls = Map("swf" -> swfUrl, "thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
+    val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
     PresentationPageConvertedVO(
       id = id,
@@ -174,14 +163,12 @@ object MsgBuilder {
       val num = i
       val current = if (i == 1) true else false
       val thumbnail = presBaseUrl + "/thumbnail/" + i
-      val swfUri = presBaseUrl + "/slide/" + i
 
       val txtUri = presBaseUrl + "/textfiles/" + i
       val svgUri = presBaseUrl + "/svg/" + i
 
-      val p = PageVO(id = id, num = num, thumbUri = thumbnail, swfUri = swfUri,
-        txtUri = txtUri, svgUri = svgUri,
-        current = current)
+      val p = PageVO(id = id, num = num, thumbUri = thumbnail,
+        txtUri = txtUri, svgUri = svgUri, current = current)
       pages += p.id -> p
     }
 
@@ -295,6 +282,33 @@ object MsgBuilder {
       code = msg.key, presentationName = msg.filename, presentationToken = msg.authzToken, fileSize = msg.uploadedFileSize.intValue(), maxFileSize = msg.maxUploadFileSize)
 
     val req = PresentationUploadedFileTooLargeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationHasInvalidMimeType(msg: DocInvalidMimeType): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationHasInvalidMimeTypeErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      temporaryPresentationId = msg.temporaryPresentationId, presentationId = msg.presId, meetingId = msg.meetingId,
+      messageKey = msg.messageKey, fileMime = msg.fileMime, fileExtension = msg.fileExtension)
+
+    val req = PresentationHasInvalidMimeTypeErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationUploadedFileTimedoutErrorSysMsg(msg: UploadFileTimedoutMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationUploadedFileTimeoutErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.filename,
+      page = msg.page, meetingId = msg.meetingId, messageKey = msg.messageKey,
+      temporaryPresentationId = msg.temporaryPresentationId, presentationId = msg.presentationId,
+      maxNumberOfAttempts = msg.maxNumberOfAttempts)
+
+    val req = PresentationUploadedFileTimeoutErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

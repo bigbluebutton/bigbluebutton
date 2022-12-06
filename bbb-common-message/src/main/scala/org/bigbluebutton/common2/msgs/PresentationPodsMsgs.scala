@@ -166,6 +166,39 @@ case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
     maxFileSize:       Int
 )
 
+object PresentationHasInvalidMimeTypeErrorSysPubMsg { val NAME = "PresentationHasInvalidMimeTypeErrorSysPubMsg" }
+case class PresentationHasInvalidMimeTypeErrorSysPubMsg(
+      header: BbbClientMsgHeader,
+      body:   PresentationHasInvalidMimeTypeErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
+    podId:                   String,
+    meetingId:               String,
+    presentationName:        String,
+    temporaryPresentationId: String,
+    presentationId:          String,
+    messageKey:              String,
+    fileMime:              String,
+    fileExtension:         String,
+)
+
+
+object PresentationUploadedFileTimeoutErrorSysPubMsg { val NAME = "PresentationUploadedFileTimeoutErrorSysPubMsg" }
+case class PresentationUploadedFileTimeoutErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationUploadedFileTimeoutErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationUploadedFileTimeoutErrorSysPubMsgBody(
+    podId:                   String,
+    meetingId:               String,
+    presentationName:        String,
+    page:                    Int,
+    messageKey:              String,
+    temporaryPresentationId: String,
+    presentationId:          String,
+    maxNumberOfAttempts:     Int,
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -220,6 +253,20 @@ case class PresentationPageConvertedEventMsgBody(
 object PresentationUploadedFileTooLargeErrorEvtMsg { val NAME = "PresentationUploadedFileTooLargeErrorEvtMsg" }
 case class PresentationUploadedFileTooLargeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTooLargeErrorEvtMsgBody) extends BbbCoreMsg
 case class PresentationUploadedFileTooLargeErrorEvtMsgBody(podId: String, messageKey: String, code: String, presentationName: String, presentationToken: String, fileSize: Int, maxFileSize: Int)
+
+object PresentationHasInvalidMimeTypeErrorEvtMsg { val NAME = "PresentationHasInvalidMimeTypeErrorEvtMsg" }
+case class PresentationHasInvalidMimeTypeErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationHasInvalidMimeTypeErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationHasInvalidMimeTypeErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                          temporaryPresentationId: String, presentationId: String,
+                                                          messageKey: String, fileMime: String, fileExtension: String,
+                                                        )
+
+object PresentationUploadedFileTimeoutErrorEvtMsg { val NAME = "PresentationUploadedFileTimeoutErrorEvtMsg" }
+case class PresentationUploadedFileTimeoutErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTimeoutErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedFileTimeoutErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                          page: Int, messageKey: String,
+                                                          temporaryPresentationId: String, presentationId: String,
+                                                          maxNumberOfAttempts: Int)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(

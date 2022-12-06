@@ -146,6 +146,10 @@ const intlMessages = defineMessages({
   TIMEOUT: {
     id: 'app.presentationUploder.conversion.timeout',
   },
+  CONVERSION_TIMEOUT: {
+		id:'app.presentationUploder.conversion.conversionTimeout',
+		description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+	},
   GENERATING_THUMBNAIL: {
     id: 'app.presentationUploder.conversion.generatingThumbnail',
     description: 'indicatess that it is generating thumbnails',
@@ -270,6 +274,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.sending',
     description: 'sending label',
   },
+  collecting: {
+    id: 'app.presentationUploader.collecting',
+    description: 'collecting label',
+  },
+  processing: {
+    id: 'app.presentationUploader.processing',
+    description: 'processing label',
+  },
   sent: {
     id: 'app.presentationUploader.sent',
     description: 'sent label',
@@ -282,6 +294,8 @@ const intlMessages = defineMessages({
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
+  COLLECTING: 'COLLECTING',
+  PROCESSING: 'PROCESSING',
   TIMEOUT: 'TIMEOUT',
   EXPORTED: 'EXPORTED',
 };
@@ -329,25 +343,23 @@ class PresentationUploader extends Component {
     const { presentations: prevPropPresentations } = prevProps;
 
     let shouldUpdateState = isOpen && !prevProps.isOpen;
-
     const presState = Object.values({
-      ...propPresentations,
-      ...presentations,
+      ...JSON.parse(JSON.stringify(propPresentations)),
+      ...JSON.parse(JSON.stringify(presentations)),
     });
     if (propPresentations.length > prevPropPresentations.length) {
       shouldUpdateState = true;
-      const propsDiffs = propPresentations.filter(p => !prevPropPresentations.includes(p))
+      const propsDiffs = propPresentations.filter(p => 
+        !prevPropPresentations.some(presentation => p.id === presentation.id 
+          || p.temporaryPresentationId === presentation.temporaryPresentationId));
 
       propsDiffs.forEach(p => {
         const index = presState.findIndex(pres => {
-          if (p.isCurrent) {
-            pres.isCurrent = false;
-          }
           return pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id;
-        }); 
+        });
         if (index === -1) {
           presState.push(p);
-        } 
+        }
       })
     }
     const presStateFiltered = presState.filter((presentation) => {
@@ -429,10 +441,24 @@ class PresentationUploader extends Component {
       const selected = propPresentations.filter((p) => p.isCurrent);
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
+
+    if (this.exportToastId) {
+      if (!prevProps.isOpen && isOpen) {
+        this.handleDismissToast(this.exportToastId);
+      }
+
+      toast.update(this.exportToastId, {
+        render: this.renderExportToast(),
+      });
+    }
   }
 
   componentWillUnmount() {
     Session.set('showUploadPresentationView', false);
+  }
+
+  handleDismissToast() {
+    return toast.dismiss(this.toastId);
   }
 
   handleFiledrop(files, files2) {
@@ -457,7 +483,7 @@ class PresentationUploader extends Component {
         isCurrent: false,
         conversion: { done: false, error: false },
         upload: { done: false, error: false, progress: 0 },
-        exportation: { isRunning: false, error: false },
+        exportation: { error: false },
         onProgress: (event) => {
           if (!event.lengthComputable) {
             this.deepMergeUpdateFileKey(id, 'upload', {
@@ -663,8 +689,9 @@ class PresentationUploader extends Component {
 
     const observer = (exportation) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
-
-      if (exportation.status === EXPORT_STATUSES.RUNNING) {
+      if ([EXPORT_STATUSES.RUNNING,
+        EXPORT_STATUSES.COLLECTING,
+        EXPORT_STATUSES.PROCESSING].includes(exportation.status)) {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {
@@ -683,12 +710,12 @@ class PresentationUploader extends Component {
               closeOnClick: true,
               onClose: () => {
                 this.exportToastId = null;
-
                 const presToShow = this.getPresentationsToShow();
                 const isAnyRunning = presToShow.some(
                   (p) => p.exportation.status === EXPORT_STATUSES.RUNNING
+                  || p.exportation.status === EXPORT_STATUSES.COLLECTING
+                  || p.exportation.status === EXPORT_STATUSES.PROCESSING,
                 );
-
                 if (!isAnyRunning) {
                   this.setState({ presExporting: new Set() });
                 }
@@ -805,7 +832,7 @@ class PresentationUploader extends Component {
     const presToShow = this.getPresentationsToShow();
 
     const isAllExported = presToShow.every(
-      (p) => p.exportation.status === EXPORT_STATUSES.EXPORTED
+      (p) => p.exportation.status === EXPORT_STATUSES.EXPORTED,
     );
     const shouldDismiss = isAllExported && this.exportToastId;
 
@@ -815,12 +842,13 @@ class PresentationUploader extends Component {
       if (presExporting.size) {
         this.setState({ presExporting: new Set() });
       }
-
       return;
     }
 
     const presToShowSorted = [
       ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.RUNNING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.COLLECTING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.PROCESSING),
       ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.TIMEOUT),
       ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.EXPORTED),
     ];
@@ -830,7 +858,7 @@ class PresentationUploader extends Component {
       : 'exportToastHeaderPlural';
 
     return (
-      <Styled.ToastWrapper>
+      <Styled.ToastWrapper data-test="downloadPresentationToast">
         <Styled.UploadToastHeader>
           <Styled.UploadIcon iconName="download" />
           <Styled.UploadToastTitle>
@@ -850,19 +878,27 @@ class PresentationUploader extends Component {
 
   renderToastExportItem(item) {
     const { status } = item.exportation;
-    const loading = status === EXPORT_STATUSES.RUNNING;
+    const loading = (status === EXPORT_STATUSES.RUNNING
+                || status === EXPORT_STATUSES.COLLECTING
+                || status === EXPORT_STATUSES.PROCESSING);
     const done = status === EXPORT_STATUSES.EXPORTED;
     let icon;
 
     switch (status) {
       case EXPORT_STATUSES.RUNNING:
-        icon = 'blank'
+        icon = 'blank';
+        break;
+      case EXPORT_STATUSES.COLLECTING:
+        icon = 'blank';
+        break;
+      case EXPORT_STATUSES.PROCESSING:
+        icon = 'blank';
         break;
       case EXPORT_STATUSES.EXPORTED:
-        icon = 'check'
+        icon = 'check';
         break;
       case EXPORT_STATUSES.TIMEOUT:
-        icon = 'warning'
+        icon = 'warning';
         break;
       default:
         break;
@@ -870,7 +906,7 @@ class PresentationUploader extends Component {
 
     return (
       <Styled.UploadRow
-        key={item.temporaryPresentationId}
+        key={item.id || item.temporaryPresentationId}
       >
         <Styled.FileLine>
           <span>
@@ -903,6 +939,12 @@ class PresentationUploader extends Component {
     switch (item.exportation.status) {
       case EXPORT_STATUSES.RUNNING:
         return intl.formatMessage(intlMessages.sending);
+      case EXPORT_STATUSES.COLLECTING:
+        return intl.formatMessage(intlMessages.collecting,
+          { 0: item.exportation.pageNumber, 1: item.exportation.totalPages });
+      case EXPORT_STATUSES.PROCESSING:
+        return intl.formatMessage(intlMessages.processing,
+          { 0: item.exportation.pageNumber, 1: item.exportation.totalPages });
       case EXPORT_STATUSES.TIMEOUT:
         return intl.formatMessage(intlMessages.exportingTimeout);
       case EXPORT_STATUSES.EXPORTED:
@@ -1152,7 +1194,7 @@ class PresentationUploader extends Component {
         <Styled.UploaderModal id="upload-modal">
           <Styled.ModalInner>
             <Styled.ModalHeader>
-              <h1>{intl.formatMessage(intlMessages.title)}</h1>
+              <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
               <Styled.ActionWrapper>
                 <Styled.DismissButton
                   color="secondary"

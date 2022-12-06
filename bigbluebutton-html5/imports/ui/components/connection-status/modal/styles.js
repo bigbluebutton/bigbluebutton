@@ -7,12 +7,13 @@ import {
   colorGrayLabel,
   colorGrayLightest,
   colorPrimary,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
+  mdPaddingY,
   lgPaddingY,
-  lgPaddingX,
   titlePositionLeft,
   mdPaddingX,
   borderSizeLarge,
@@ -26,7 +27,11 @@ import {
   hasPhoneDimentions,
   mediumDown,
   hasPhoneWidth,
+  smallOnly,
 } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import {
+  Tab, Tabs, TabList, TabPanel,
+} from 'react-tabs';
 
 const Item = styled.div`
   display: flex;
@@ -173,6 +178,7 @@ const NetworkDataContainer = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
+  padding-bottom: 1.25rem;
   
   @media ${mediumDown} {
     justify-content: space-between;
@@ -201,12 +207,9 @@ const CopyContainer = styled.div`
 `;
 
 const ConnectionStatusModal = styled(Modal)`
-  padding: 1.5rem;
-  border-radius: 7.5px;
+  padding: 1rem;
+  height: 28rem;
 
-  @media ${hasPhoneDimentions} {
-    padding: 1rem;
-  }
 `;
 
 const Container = styled.div`
@@ -276,11 +279,12 @@ const Helper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: .5rem;
 
   @media ${mediumDown} {
-    ${({ page }) => page === '1'
+    ${({ page }) => (page === '1'
     ? 'display: flex;'
-    : 'display: none;'}
+    : 'display: none;')}
   }
 `;
 
@@ -291,9 +295,9 @@ const NetworkDataContent = styled.div`
   flex-grow: 1;
 
   @media ${mediumDown} {
-    ${({ page }) => page === '2'
+    ${({ page }) => (page === '2'
     ? 'display: flex;'
-    : 'display: none;'}
+    : 'display: none;')}
   }
 `;
 
@@ -319,42 +323,6 @@ const Body = styled.div`
   flex-grow: 1;
   overflow: auto;
   position: relative;
-`;
-
-const Navigation = styled.div`
-  display: flex;
-  border: none;
-  border-bottom: 1px solid ${colorOffWhite};
-  user-select: none;
-  overflow-y: auto;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & :not(:last-child) {
-    margin: 0;
-    margin-right: ${lgPaddingX};
-  }
-
-  .activeConnectionStatusTab {
-    border: none;
-    border-bottom: 2px solid ${colorPrimary};
-    color: ${colorPrimary};
-  }
-
-  & * {
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  [dir="rtl"] & {
-    & :not(:last-child) {
-      margin: 0;
-      margin-left: ${lgPaddingX};
-    }
-  }
 `;
 
 const Prev = styled.div`
@@ -399,8 +367,9 @@ const Button = styled.button`
     opacity: .75;
   }
 
+  &:hover,
   &:focus {
-    outline: none;
+    outline: 2px solid ${colorPrimary};
   }
 
   @media ${hasPhoneWidth} {
@@ -436,6 +405,106 @@ const Chevron = styled.svg`
   }
 `;
 
+const ConnectionTabs = styled(Tabs)`
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: column;
+  }
+`;
+
+const ConnectionTabList = styled(TabList)`
+  display: flex;
+  flex-flow: row;
+  margin: 0;
+  margin-bottom: .5rem;
+  border: none;
+  padding: 0;
+  width: calc(100% / 3);
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+`;
+
+const ConnectionTabPanel = styled(TabPanel)`
+  display: none;
+  margin: 0 0 0 1rem;
+  height: 13rem;
+
+  [dir="rtl"] & {
+    margin: 0 1rem 0 0;
+  }
+
+  &.is-selected {
+    display: flex;
+    flex-flow: column;
+  }
+
+  @media ${smallOnly} {
+    width: 100%;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+
+const ConnectionTabSelector = styled(Tab)`
+  display: flex;
+  flex-flow: row;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  border: none !important;
+  padding: ${mdPaddingY} ${mdPaddingX};
+
+  border-radius: .2rem;
+  cursor: pointer;
+  margin-bottom: ${smPaddingY};
+  align-items: center;
+  flex-grow: 0;
+  min-width: 0;
+
+  & > span {
+    min-width: 0;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media ${smallOnly} {
+    max-width: 100%;
+    margin: 0 ${smPaddingX} 0 0;
+    & > i {
+      display: none;
+    }
+
+    [dir="rtl"] & {
+       margin: 0 0 0 ${smPaddingX};
+    }
+  }
+
+  span {
+    border-bottom: 2px solid ${colorWhite};
+  }
+
+  &.is-selected {
+    border: none;
+    color: ${colorPrimary};
+
+    span {
+      border-bottom: 2px solid ${colorPrimary};
+    }
+  }
+`;
+
 export default {
   Item,
   Left,
@@ -468,7 +537,6 @@ export default {
   NetworkDataContent,
   Main,
   Body,
-  Navigation,
   FullName,
   DataColumn,
   Prev,
@@ -476,4 +544,8 @@ export default {
   ButtonLeft,
   ButtonRight,
   Chevron,
+  ConnectionTabs,
+  ConnectionTabList,
+  ConnectionTabSelector,
+  ConnectionTabPanel,
 };

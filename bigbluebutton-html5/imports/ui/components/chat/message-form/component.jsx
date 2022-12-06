@@ -227,8 +227,9 @@ class MessageForm extends PureComponent {
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
         messages.errorMaxMessageLength,
-        { 0: message.length - maxMessageLength },
+        { 0: maxMessageLength },
       );
+      message = message.substring(0, maxMessageLength);
     }
 
     this.setState({
@@ -351,6 +352,9 @@ class MessageForm extends PureComponent {
             value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
+            onPaste={(e) => { e.stopPropagation(); }}
+            onCut={(e) => { e.stopPropagation(); }}
+            onCopy={(e) => { e.stopPropagation(); }}
             async
           />
           {ENABLE_EMOJI_PICKER && this.renderEmojiButton()}

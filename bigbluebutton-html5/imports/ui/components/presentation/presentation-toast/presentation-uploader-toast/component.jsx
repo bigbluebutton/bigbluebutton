@@ -49,9 +49,17 @@ const intlMessages = defineMessages({
 		id: 'app.presentationUploder.upload.413',
 		description: 'error that file exceed the size limit',
 	},
+	CONVERSION_TIMEOUT: {
+		id:'app.presentationUploder.conversion.conversionTimeout',
+		description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+	},
 	FILE_TOO_LARGE: {
 		id: 'app.presentationUploder.upload.413',
 		description: 'error that file exceed the size limit',
+	},
+	IVALID_MIME_TYPE: {
+		id: 'app.presentationUploder.conversion.invalidMimeType',
+		description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
 	},
 	PAGE_COUNT_EXCEEDED: {
 		id: 'app.presentationUploder.conversion.pageCountExceeded',
@@ -130,6 +138,10 @@ function renderPresentationItemStatus(item, intl) {
 		const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
 
 		switch (item.conversion.status) {
+			case 'CONVERSION_TIMEOUT': 
+				constraint['0'] = item.conversion.numberPageError;
+				constraint['1'] = item.conversion.maxNumberOfAttempts;
+				break;
 			case 'FILE_TOO_LARGE':
 				constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
 				break;
@@ -138,6 +150,10 @@ function renderPresentationItemStatus(item, intl) {
 				break;
 			case 'PDF_HAS_BIG_PAGE':
 				constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
+				break;
+			case 'IVALID_MIME_TYPE':
+				constraint['0'] = item.conversion.fileExtension;
+				constraint['1'] = item.conversion.fileMime;
 				break;
 			default:
 				break;
@@ -179,7 +195,7 @@ function renderToastItem(item, intl) {
 
 	return (
 		<Styled.UploadRow
-			key={item.temporaryPresentationId}
+			key={item.id || item.temporaryPresentationId}
 			onClick={() => {
 				if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
 			}}

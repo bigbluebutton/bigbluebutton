@@ -69,7 +69,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
-      exportation: exportation || { isRunning: false, error: false },
+      exportation: exportation || { error: false },
     };
   });
 
@@ -83,7 +83,7 @@ const observePresentationConversion = (
   onConversion,
 ) => new Promise((resolve) => {
   // The token is placed as an id before the original one is generated
-  // in the back-end; 
+  // in the back-end;
   const tokenId = PresentationUploadToken.findOne({temporaryPresentationId})?.authzToken;
 
   const conversionTimeout = setTimeout(() => {
@@ -102,13 +102,13 @@ const observePresentationConversion = (
   Tracker.autorun((c) => {
     const query = Presentations.find({ meetingId });
 
-
     query.observe({
       added: (doc) => {
 
         if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
-        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT') {
+        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' 
+          || doc.conversion.status === 'CONVERSION_TIMEOUT' || doc.conversion.status === "IVALID_MIME_TYPE") {
           Presentations.update({id: tokenId}, {$set: {temporaryPresentationId, renderedInToast: false}})
           onConversion(doc.conversion);
           c.stop();
@@ -116,11 +116,9 @@ const observePresentationConversion = (
         }
       },
       changed: (newDoc) => {
-
         if (newDoc.temporaryPresentationId !== temporaryPresentationId) return;
 
         onConversion(newDoc.conversion);
-
 
         if (newDoc.conversion.error) {
           c.stop();
@@ -203,7 +201,7 @@ const uploadAndConvertPresentation = (
     body: data,
   };
 
-  // If the presentation is from sharedNotes I don't want to 
+  // If the presentation is from sharedNotes I don't want to
   // insert another one, I just need to update it.
   UploadingPresentations.upsert({
       filename: file.name,
@@ -238,6 +236,7 @@ const uploadAndConvertPresentation = (
       });
     })
     .then(() => observePresentationConversion(meetingId, temporaryPresentationId, onConversion))
+    // Trap the error so we can have parallel upload
     .catch((error) => {
       logger.debug({
         logCode: 'presentation_uploader_service',
@@ -278,7 +277,6 @@ const removePresentations = (
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) => {
   const presentationsToUpload = newState.filter((p) => !p.upload.done);
-
   const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
 
   let currentPresentation = newState.find((p) => p.isCurrent);
@@ -365,7 +363,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     const cursor = Presentations.find({ id: presentationId });
 
     const checkStatus = (exportation) => {
-      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+      const shouldStop = lastStatus.status === 'PROCESSING' && exportation.status === 'EXPORTED';
 
       if (shouldStop) {
         observer(exportation, true);

@@ -3,31 +3,21 @@ const config = require('../config');
 const fs = require('fs');
 const {create} = require('xmlbuilder2', {encoding: 'utf-8'});
 const cp = require('child_process');
-const {Worker, workerData} = require('worker_threads');
+const WorkerStarter = require('../lib/utils/worker-starter');
+const {workerData} = require('worker_threads');
 const path = require('path');
 const sanitize = require('sanitize-filename');
-const {getStroke, getStrokePoints} = require('perfect-freehand');
+const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
+const redis = require('redis');
 
-const jobId = workerData;
+const [jobId, statusUpdate] = [workerData.jobId, workerData.statusUpdate];
 
 const logger = new Logger('presAnn Process Worker');
 logger.info('Processing PDF for job ' + jobId);
+statusUpdate.core.body.status = 'PROCESSING';
 
-const kickOffNotifierWorker = (jobType, filename) => {
-  return new Promise((resolve, reject) => {
-    const notifierPath = './workers/notifier.js';
-    const worker = new Worker(notifierPath,
-        {workerData: [jobType, jobId, filename]});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Notifier Worker stopped with exit code ${code}`));
-      }
-    });
-  });
-};
+const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // General utilities for rendering SVGs resembling Tldraw as much as possible
 function align_to_pango(alignment) {
@@ -104,7 +94,7 @@ function determine_font_from_family(family) {
     case 'script': return 'Caveat Brush';
     case 'sans': return 'Source Sans Pro';
     case 'serif': return 'Crimson Pro';
-      // Temporary workaround due to typo in messages
+    // Temporary workaround due to typo in messages
     case 'erif': return 'Crimson Pro';
     case 'mono': return 'Source Code Pro';
 
@@ -164,7 +154,14 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
         path.join(dropbox, `text${id}.png`),
       ]);
 
-  cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
+  try {
+    cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
+  } catch (error) {
+    const error_reason = 'ImageMagick failed to render textbox';
+    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
+    statusUpdate.core.body.status = error_reason;
+    statusUpdate.core.body.error = true;
+  }
 }
 
 function get_gap(dash, size) {
@@ -193,17 +190,17 @@ function get_gap(dash, size) {
 function get_stroke_width(dash, size) {
   switch (size) {
     case 'small': if (dash === 'draw') {
-      return 1;
+      return 2;
     } else {
       return 4;
     }
     case 'medium': if (dash === 'draw') {
-      return 1.75;
+      return 3.5;
     } else {
       return 6.25;
     }
     case 'large': if (dash === 'draw') {
-      return 2.5;
+      return 5;
     } else {
       return 8.5;
     }
@@ -236,61 +233,26 @@ function text_size_to_px(size, scale = 1, isStickyNote = false) {
   }
 }
 
-// Methods based on tldraw's utilities
-function getPath(annotationPoints) {
-  // Gets inner path of a stroke outline
-  // For solid, dashed, and dotted types
-  const stroke = getStrokePoints(annotationPoints)
-      .map((strokePoint) => strokePoint.point);
-
-  let [max_x, max_y] = [0, 0];
-  const inner_path = stroke.reduce(
+/**
+ * Turns an array of points into a path of quadradic curves.
+ * @param {Array} annotationPoints
+ * @param {Boolean} closed - whether the path end and start should be connected (default)
+ * @return {Array} - an SVG quadratic curve path
+ */
+function getSvgPath(annotationPoints, closed = true) {
+  const svgPath = annotationPoints.reduce(
       (acc, [x0, y0], i, arr) => {
         if (!arr[i + 1]) return acc;
         const [x1, y1] = arr[i + 1];
-        if (x1 >= max_x) {
-          max_x = x1;
-        }
-        if (y1 >= max_y) {
-          max_y = y1;
-        }
-        acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
+        acc.push(x0.toFixed(2), y0.toFixed(2), ((x0 + x1) / 2).toFixed(2), ((y0 + y1) / 2).toFixed(2));
         return acc;
       },
 
-      ['M', ...stroke[0], 'Q'],
+      ['M', ...annotationPoints[0], 'Q'],
   );
 
-  return [inner_path, max_x, max_y];
-}
-
-function getOutlinePath(annotationPoints) {
-  // Gets outline of a hand-drawn input, with pressure
-  const stroke = getStroke(annotationPoints, {
-    simulatePressure: true,
-    size: 8,
-  });
-
-  let [max_x, max_y] = [0, 0];
-  const outline_path = stroke.reduce(
-      (acc, [x0, y0], i, arr) => {
-        const [x1, y1] = arr[(i + 1) % arr.length];
-        if (x1 >= max_x) {
-          max_x = x1;
-        }
-        if (y1 >= max_y) {
-          max_y = y1;
-        }
-        acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
-        return acc;
-      },
-
-      ['M', ...stroke[0], 'Q'],
-  );
-
-  outline_path.push('Z');
-
-  return [outline_path, max_x, max_y];
+  if (closed) svgPath.push('Z');
+  return svgPath;
 }
 
 function circleFromThreePoints(A, B, C) {
@@ -301,14 +263,14 @@ function circleFromThreePoints(A, B, C) {
   const a = x1 * (y2 - y3) - y1 * (x2 - x3) + x2 * y3 - x3 * y2;
 
   const b =
-        (x1 * x1 + y1 * y1) * (y3 - y2) +
-        (x2 * x2 + y2 * y2) * (y1 - y3) +
-        (x3 * x3 + y3 * y3) * (y2 - y1);
+    (x1 * x1 + y1 * y1) * (y3 - y2) +
+    (x2 * x2 + y2 * y2) * (y1 - y3) +
+    (x3 * x3 + y3 * y3) * (y2 - y1);
 
   const c =
-        (x1 * x1 + y1 * y1) * (x2 - x3) +
-        (x2 * x2 + y2 * y2) * (x3 - x1) +
-        (x3 * x3 + y3 * y3) * (x1 - x2);
+    (x1 * x1 + y1 * y1) * (x2 - x3) +
+    (x2 * x2 + y2 * y2) * (x3 - x1) +
+    (x3 * x3 + y3 * y3) * (x1 - x2);
 
   const x = -b / (2 * a);
   const y = -c / (2 * a);
@@ -471,49 +433,94 @@ function overlay_arrow(svg, annotation) {
 }
 
 function overlay_draw(svg, annotation) {
+  const shapePoints = annotation.points;
+  const shapePointsLength = shapePoints.length;
+
+  if (shapePointsLength < 2) return;
+
   const dash = annotation.style.dash;
-  const [calculated_path, max_x, max_y] = (dash == 'draw') ? getOutlinePath(annotation.points) : getPath(annotation.points);
+  const isDashDraw = (dash == 'draw');
 
-  if (!calculated_path.length) return;
-
-  const shapeColor = color_to_hex(annotation.style.color);
-  const rotation = rad_to_degree(annotation.rotation);
   const thickness = get_stroke_width(dash, annotation.style.size);
   const gap = get_gap(dash, annotation.style.size);
-
-  const [x, y] = annotation.point;
-
   const stroke_dasharray = determine_dasharray(dash, gap);
-  const fill = (dash === 'draw') ? shapeColor : 'none';
 
+  const shapeColor = color_to_hex(annotation.style.color);
   const shapeFillColor = color_to_hex(`fill-${annotation.style.color}`);
-  const shapeTransform = `translate(${x} ${y}), rotate(${rotation} ${max_x / 2} ${max_y / 2})`;
+  const fill = isDashDraw ? shapeColor : 'none';
 
-  // Fill assuming solid, small pencil used
-  // when path start- and end points overlap
-  const shapeIsFilled =
+  const rotation = rad_to_degree(annotation.rotation);
+  const [x, y] = annotation.point;
+  const [width, height] = annotation.size;
+  const shapeTransform = `translate(${x} ${y}), rotate(${rotation} ${width / 2} ${height / 2})`;
+
+  const simulatePressure = {
+    easing: (t) => Math.sin((t * Math.PI) / 2),
+    simulatePressure: true,
+  };
+
+  const realPressure = {
+    easing: (t) => t * t,
+    simulatePressure: false,
+  };
+
+  const options = {
+    size: 1 + thickness * 1.5,
+    thinning: 0.65,
+    streamline: 0.65,
+    smoothing: 0.65,
+    ...(shapePoints[1][2] === 0.5 ? simulatePressure : realPressure),
+    last: annotation.isComplete,
+  };
+
+  const strokePoints = getStrokePoints(shapePoints, options);
+
+  // Fill when path start- and end points overlap
+  const isShapeFilled =
         annotation.style.isFilled &&
-        annotation.points.length > 3 &&
+        shapePointsLength > 3 &&
         Math.round(distance(
-            annotation.points[0][0],
-            annotation.points[0][1],
-            annotation.points[annotation.points.length - 1][0],
-            annotation.points[annotation.points.length - 1][1],
-        )) <= 2 * get_stroke_width('solid', 'small');
+            shapePoints[0][0],
+            shapePoints[0][1],
+            shapePoints[shapePointsLength - 1][0],
+            shapePoints[shapePointsLength - 1][1],
+        )) <= 2 * thickness;
 
-  if (shapeIsFilled) {
+  if (isShapeFilled) {
+    const shapeArea = strokePoints.map((strokePoint) => strokePoint.point);
     svg.ele('path', {
       style: `fill:${shapeFillColor};`,
-      d: getPath(annotation.points)[0] + 'Z',
+      d: getSvgPath(shapeArea),
       transform: shapeTransform,
     }).up();
   }
 
-  svg.ele('path', {
-    style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
-    d: calculated_path,
-    transform: shapeTransform,
-  });
+  if (isDashDraw) {
+    const strokeOutlinePoints = getStrokeOutlinePoints(strokePoints, options);
+    const svgPath = getSvgPath(strokeOutlinePoints);
+
+    svg.ele('path', {
+      style: `fill:${fill};${stroke_dasharray}`,
+      d: svgPath,
+      transform: shapeTransform,
+    });
+  } else {
+    const last = shapePoints[shapePointsLength - 1];
+
+    // Avoid single dots from not being drawn
+    if (strokePoints[0].point[0] == last[0] && strokePoints[0].point[1] == last[1]) {
+      strokePoints.push({point: last});
+    }
+
+    const solidPath = strokePoints.map((strokePoint) => strokePoint.point);
+    const svgPath = getSvgPath(solidPath, false);
+
+    svg.ele('path', {
+      style: `stroke:${shapeColor};stroke-width:${thickness};fill:${fill};${stroke_dasharray}`,
+      d: svgPath,
+      transform: shapeTransform,
+    });
+  }
 }
 
 function overlay_ellipse(svg, annotation) {
@@ -603,19 +610,23 @@ function overlay_shape_label(svg, annotation) {
 
   render_textbox(fontColor, font, fontSize, textAlign, text, id);
 
-  const dimensions = probe.sync(fs.readFileSync(path.join(dropbox, `text${id}.png`)));
-  const labelWidth = dimensions.width / config.process.textScaleFactor;
-  const labelHeight = dimensions.height / config.process.textScaleFactor;
+  const shape_label = path.join(dropbox, `text${id}.png`);
 
-  svg.ele('g', {
-    transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
-  }).ele('image', {
-    'x': label_center_x - (labelWidth * x_offset),
-    'y': label_center_y - (labelHeight * y_offset),
-    'width': labelWidth,
-    'height': labelHeight,
-    'xlink:href': `file://${dropbox}/text${id}.png`,
-  }).up();
+  if (fs.existsSync(shape_label)) {
+    const dimensions = probe.sync(fs.readFileSync(shape_label));
+    const labelWidth = dimensions.width / config.process.textScaleFactor;
+    const labelHeight = dimensions.height / config.process.textScaleFactor;
+
+    svg.ele('g', {
+      transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
+    }).ele('image', {
+      'x': label_center_x - (labelWidth * x_offset),
+      'y': label_center_y - (labelHeight * y_offset),
+      'width': labelWidth,
+      'height': labelHeight,
+      'xlink:href': `file://${dropbox}/text${id}.png`,
+    }).up();
+  }
 }
 
 function overlay_sticky(svg, annotation) {
@@ -712,32 +723,30 @@ function overlay_text(svg, annotation) {
 }
 
 function overlay_annotation(svg, currentAnnotation) {
-  if (currentAnnotation.childIndex >= 1) {
-    switch (currentAnnotation.type) {
-      case 'arrow':
-        overlay_arrow(svg, currentAnnotation);
-        break;
-      case 'draw':
-        overlay_draw(svg, currentAnnotation);
-        break;
-      case 'ellipse':
-        overlay_ellipse(svg, currentAnnotation);
-        break;
-      case 'rectangle':
-        overlay_rectangle(svg, currentAnnotation);
-        break;
-      case 'sticky':
-        overlay_sticky(svg, currentAnnotation);
-        break;
-      case 'triangle':
-        overlay_triangle(svg, currentAnnotation);
-        break;
-      case 'text':
-        overlay_text(svg, currentAnnotation);
-        break;
-      default:
-        logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
-    }
+  switch (currentAnnotation.type) {
+    case 'arrow':
+      overlay_arrow(svg, currentAnnotation);
+      break;
+    case 'draw':
+      overlay_draw(svg, currentAnnotation);
+      break;
+    case 'ellipse':
+      overlay_ellipse(svg, currentAnnotation);
+      break;
+    case 'rectangle':
+      overlay_rectangle(svg, currentAnnotation);
+      break;
+    case 'sticky':
+      overlay_sticky(svg, currentAnnotation);
+      break;
+    case 'triangle':
+      overlay_triangle(svg, currentAnnotation);
+      break;
+    case 'text':
+      overlay_text(svg, currentAnnotation);
+      break;
+    default:
+      logger.info(`Unknown annotation type ${currentAnnotation.type}.`);
   }
 }
 
@@ -767,114 +776,146 @@ function overlay_annotations(svg, currentSlideAnnotations) {
 }
 
 // Process the presentation pages and annotations into a PDF file
-
-// 1. Get the job
-const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
-const job = fs.readFileSync(path.join(dropbox, 'job'));
-const exportJob = JSON.parse(job);
-
-// 2. Get the annotations
-const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
-const whiteboard = JSON.parse(annotations);
-const pages = JSON.parse(whiteboard.pages);
-const ghostScriptInput = [];
-
-// 3. Convert annotations to SVG
-for (const currentSlide of pages) {
-  const bgImagePath = path.join(dropbox, `slide${currentSlide.page}`);
-  const svgBackgroundSlide = path.join(exportJob.presLocation,
-      'svgs', `slide${currentSlide.page}.svg`);
-  const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
-  const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
-
-  // Output dimensions in pixels even if stated otherwise (pt)
-  // CairoSVG didn't like attempts to read the dimensions from a stream
-  // that would prevent loading file in memory
-  // Ideally, use dimensions provided by tldraw's background image asset
-  // (this is not yet always provided)
-  const dimensions = svgBackgroundExists ?
-        probe.sync(fs.readFileSync(svgBackgroundSlide)) :
-        probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
-
-  const slideWidth = parseInt(dimensions.width, 10);
-  const slideHeight = parseInt(dimensions.height, 10);
-
-  // Create the SVG slide with the background image
-  let svg = create({version: '1.0', encoding: 'UTF-8'})
-      .ele('svg', {
-        'xmlns': 'http://www.w3.org/2000/svg',
-        'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-        'width': `${slideWidth}px`,
-        'height': `${slideHeight}px`,
-      })
-      .dtd({
-        pubID: '-//W3C//DTD SVG 1.1//EN',
-        sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd',
-      })
-      .ele('image', {
-        'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-        'width': `${slideWidth}px`,
-        'height': `${slideHeight}px`,
-      })
-      .up()
-      .ele('g', {
-        class: 'canvas',
-      });
-
-  // 4. Overlay annotations onto slides
-  overlay_annotations(svg, currentSlide.annotations);
-
-  svg = svg.end({prettyPrint: true});
-
-  // Write annotated SVG file
-  const SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`);
-  const PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`);
-
-  fs.writeFileSync(SVGfile, svg, function(err) {
-    if (err) {
-      return logger.error(err);
-    }
+async function process_presentation_annotations() {
+  const client = redis.createClient({
+    host: config.redis.host,
+    port: config.redis.port,
+    password: config.redis.password,
   });
 
-  // Dimensions converted to a pixel size which,
-  // when converted to points, will yield the desired
-  // dimension in pixels when read without conversion
+  await client.connect();
 
-  // e.g. say the background SVG dimensions are set to 1920x1080 pt
-  // Resize output to 2560x1440 px so that the SVG
-  // generates with the original size in pt.
+  client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const convertAnnotatedSlide = [
-    SVGfile,
-    '--output-width', to_px(slideWidth),
-    '--output-height', to_px(slideHeight),
-    '-o', PDFfile,
-  ];
+  // 1. Get the job
+  const job = fs.readFileSync(path.join(dropbox, 'job'));
+  const exportJob = JSON.parse(job);
 
-  cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
+  // 2. Get the annotations
+  const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
+  const whiteboard = JSON.parse(annotations);
+  const pages = JSON.parse(whiteboard.pages);
+  const ghostScriptInput = [];
 
-  ghostScriptInput.push(PDFfile);
+  // 3. Convert annotations to SVG
+  for (const currentSlide of pages) {
+    const bgImagePath = path.join(dropbox, `slide${currentSlide.page}`);
+    const svgBackgroundSlide = path.join(exportJob.presLocation,
+        'svgs', `slide${currentSlide.page}.svg`);
+    const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
+    const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
+
+    // Output dimensions in pixels even if stated otherwise (pt)
+    // CairoSVG didn't like attempts to read the dimensions from a stream
+    // that would prevent loading file in memory
+    // Ideally, use dimensions provided by tldraw's background image asset
+    // (this is not yet always provided)
+    const dimensions = svgBackgroundExists ?
+    probe.sync(fs.readFileSync(svgBackgroundSlide)) :
+    probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
+
+    const slideWidth = parseInt(dimensions.width, 10);
+    const slideHeight = parseInt(dimensions.height, 10);
+
+    // Create the SVG slide with the background image
+    let svg = create({version: '1.0', encoding: 'UTF-8'})
+        .ele('svg', {
+          'xmlns': 'http://www.w3.org/2000/svg',
+          'xmlns:xlink': 'http://www.w3.org/1999/xlink',
+          'width': `${slideWidth}px`,
+          'height': `${slideHeight}px`,
+        })
+        .dtd({
+          pubID: '-//W3C//DTD SVG 1.1//EN',
+          sysID: 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd',
+        })
+        .ele('image', {
+          'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
+          'width': `${slideWidth}px`,
+          'height': `${slideHeight}px`,
+        })
+        .up()
+        .ele('g', {
+          class: 'canvas',
+        });
+
+    // 4. Overlay annotations onto slides
+    overlay_annotations(svg, currentSlide.annotations);
+
+    svg = svg.end({prettyPrint: true});
+
+    // Write annotated SVG file
+    const SVGfile = path.join(dropbox, `annotated-slide${currentSlide.page}.svg`);
+    const PDFfile = path.join(dropbox, `annotated-slide${currentSlide.page}.pdf`);
+
+    fs.writeFileSync(SVGfile, svg, function(err) {
+      if (err) {
+        return logger.error(err);
+      }
+    });
+
+    // Dimensions converted to a pixel size which,
+    // when converted to points, will yield the desired
+    // dimension in pixels when read without conversion
+
+    // e.g. say the background SVG dimensions are set to 1920x1080 pt
+    // Resize output to 2560x1440 px so that the SVG
+    // generates with the original size in pt.
+
+    const convertAnnotatedSlide = [
+      SVGfile,
+      '--output-width', to_px(slideWidth),
+      '--output-height', to_px(slideHeight),
+      '-o', PDFfile,
+    ];
+
+    try {
+      cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
+    } catch (error) {
+      logger.error(`Processing slide ${currentSlide.page} failed for job ${jobId}: ${error.message}`);
+      statusUpdate.core.body.error = true;
+    }
+
+    statusUpdate.core.body.pageNumber = currentSlide.page;
+    statusUpdate.envelope.timestamp = (new Date()).getTime();
+
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    ghostScriptInput.push(PDFfile);
+    statusUpdate.core.body.error = false;
+  }
+
+  // Create PDF output directory if it doesn't exist
+  const outputDir = path.join(exportJob.presLocation, 'pdfs', jobId);
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, {recursive: true});
+  }
+
+  const filename_with_extension = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.pdf`;
+
+  const mergePDFs = [
+    '-dNOPAUSE',
+    '-sDEVICE=pdfwrite',
+    `-sOUTPUTFILE="${path.join(outputDir, filename_with_extension)}"`,
+    `-dBATCH`].concat(ghostScriptInput);
+
+  // Resulting PDF file is stored in the presentation dir
+  try {
+    cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
+  } catch (error) {
+    const error_reason = 'GhostScript failed to merge PDFs';
+    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
+    statusUpdate.core.body.status = error_reason;
+    statusUpdate.core.body.error = true;
+    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+  }
+
+  // Launch Notifier Worker depending on job type
+  logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
+
+  const notifier = new WorkerStarter({jobType: exportJob.jobType, jobId, filename: filename_with_extension});
+  notifier.notify();
+  await client.disconnect();
 }
 
-// Create PDF output directory if it doesn't exist
-const outputDir = path.join(exportJob.presLocation, 'pdfs', jobId);
-
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir, {recursive: true});
-}
-
-const filename_with_extension = `${sanitize(exportJob.filename.replace(/\s/g, '_'))}.pdf`;
-
-const mergePDFs = [
-  '-dNOPAUSE',
-  '-sDEVICE=pdfwrite',
-  `-sOUTPUTFILE="${path.join(outputDir, filename_with_extension)}"`,
-  `-dBATCH`].concat(ghostScriptInput);
-
-// Resulting PDF file is stored in the presentation dir
-cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
-
-// Launch Notifier Worker depending on job type
-logger.info(`Saved PDF at ${outputDir}/${jobId}/${filename_with_extension}`);
-
-kickOffNotifierWorker(exportJob.jobType, filename_with_extension);
+process_presentation_annotations();
