@@ -1,4 +1,4 @@
-import React, { Component, useContext } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { withTracker } from "meteor/react-meteor-data";
 import Auth from "/imports/ui/services/auth";
@@ -6,13 +6,14 @@ import lockContextContainer from "/imports/ui/components/lock-viewers/context/co
 import { UsersContext } from "/imports/ui/components/components-data/users-context/context";
 import CursorService from "./service";
 import Cursor from "./component";
+import WhiteboardService from "/imports/ui/components/whiteboard/service";
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const CursorContainer = (props) => {
   const { cursorX, cursorY, presenter, uid, isViewersCursorLocked } = props;
+  const usingUsersContext = useContext(UsersContext);
   if (cursorX > 0 && cursorY > 0) {
-    const usingUsersContext = useContext(UsersContext);
     const { users } = usingUsersContext;
     const role = users[Auth.meetingID][Auth.userID].role;
     const userId = users[Auth.meetingID][Auth.userID].userId;
@@ -34,10 +35,12 @@ const CursorContainer = (props) => {
 
 export default lockContextContainer(
   withTracker((params) => {
-    const { cursorId, userLocks } = params;
+    const { cursorId, userLocks, whiteboardId, presenter } = params;
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
     const cursor = CursorService.getCurrentCursor(cursorId);
-    if (cursor) {
+    const hasPermission = presenter || WhiteboardService.hasMultiUserAccess(whiteboardId, cursor.userId);
+
+    if (cursor&& hasPermission) {
       const {
         xPercent: cursorX,
         yPercent: cursorY,

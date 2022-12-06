@@ -7,7 +7,7 @@ import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers
 import ClientConnections from '/imports/startup/server/ClientConnections';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import userEjected from '/imports/api/users/server/modifiers/userEjected';
-import VoiceUsers from '/imports/api/voice-users/';
+import clearVoiceUser from '/imports/api/voice-users/server/modifiers/clearVoiceUser';
 
 const disconnectUser = (meetingId, userId) => {
   const sessionUserId = `${meetingId}--${userId}`;
@@ -54,8 +54,9 @@ export default function removeUser(body, meetingId) {
       if (!hasMessages && !hasConnectionStatus) {
         UsersPersistentData.remove(selector);
       }
+
       Users.remove(selector);
-      VoiceUsers.remove({ intId: userId, meetingId });
+      clearVoiceUser(meetingId, userId);
     }
 
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {

@@ -14,15 +14,20 @@ class LockViewers extends MultiUsers {
 
   async lockShareWebcam() {
     await this.modPage.shareWebcam();
+    await this.modPage.hasElement(e.webcamVideoItem);
     await this.userPage.hasElement(e.webcamVideoItem);
     await this.userPage2.hasElement(e.webcamVideoItem);
     await this.userPage.shareWebcam();
+    await this.modPage.hasNElements(e.webcamVideoItem, 2);
+    await this.userPage.hasNElements(e.webcamVideoItem, 2);
+    await this.userPage2.hasNElements(e.webcamVideoItem, 2);
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    // await waitAndClearNotification(this.modPage); // notification check is unstable
-    const videoContainerLockedCount = await this.userPage2.getSelectorCount(e.webcamVideoItem);
-    expect(videoContainerLockedCount).toBe(1);
+    await waitAndClearNotification(this.modPage);
+    await this.modPage.wasNthElementRemoved(e.webcamVideoItem, 2);
+    await this.userPage.wasNthElementRemoved(e.webcamVideoItem, 2);
+    await this.userPage2.wasNthElementRemoved(e.webcamVideoItem, 2);
 
     await this.userPage2.waitForSelector(e.dropdownWebcamButton);
     await this.userPage2.hasText(e.dropdownWebcamButton, this.modPage.username);
@@ -51,10 +56,11 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareMicrophone);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.userPage.wasRemoved(e.toggleMicrophoneButton);
+    await this.userPage.wasRemoved(e.isTalking);
+    await this.userPage.waitForSelector(e.unmuteMicButton);
     await this.userPage2.waitAndClick(e.joinAudio);
-    await this.userPage2.waitForSelector(e.connecting);
-    await this.userPage2.hasElement(e.leaveAudio, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage2.waitForSelector(e.establishingAudioLabel);
+    await this.userPage2.hasElement(e.leaveListenOnly, ELEMENT_WAIT_LONGER_TIME);
   }
 
   async lockSendPublicChatMessages() {
@@ -66,8 +72,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitForSelector(e.chatUserMessageText);
-    const messagesCount = this.userPage.getLocator(e.chatUserMessageText);
-    await expect(messagesCount).toHaveCount(1);
+    await this.userPage.checkElementCount(e.chatUserMessageText, 1);
   }
 
   async lockSendPrivateChatMessages() {
@@ -86,7 +91,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sharedNotes);
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
-    await sharedNotesLocator.type(e.message);
+    await sharedNotesLocator.type(e.message, { timeout: ELEMENT_WAIT_TIME });
     expect(sharedNotesLocator).toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
 
     await openLockViewers(this.modPage);

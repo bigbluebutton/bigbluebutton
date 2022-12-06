@@ -7,10 +7,9 @@ class GroupsChatTests extends UnitSpec {
 
   "A GroupChat" should "be able to add and remove user" in {
     val gcId = "gc-id"
-    val chatName = "Public"
     val userId = "uid-1"
     val createBy = GroupChatUser("groupId")
-    val gc = GroupChatFactory.create(gcId, chatName, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
+    val gc = GroupChatFactory.create(gcId, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
     val user = GroupChatUser(userId)
     val gc2 = gc.add(user)
     assert(gc2.users.size == 1)
@@ -26,8 +25,7 @@ class GroupsChatTests extends UnitSpec {
   "A GroupChat" should "be able to add, update, and remove msg" in {
     val createBy = GroupChatUser("groupId")
     val gcId = "gc-id"
-    val chatName = "Public"
-    val gc = GroupChatFactory.create(gcId, chatName, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
+    val gc = GroupChatFactory.create(gcId, GroupChatAccess.PUBLIC, createBy, Vector.empty, Vector.empty)
     val msgId1 = "msgid-1"
     val ts = System.currentTimeMillis()
     val hello = "Hello World!"

@@ -45,6 +45,11 @@ const EmojiButton = styled.button`
   z-index: 2;
   border: none;
 
+  [dir="rtl"] & {
+    right: initial;
+    left: -.2em;
+  }
+
   &:hover {
     transform: scale(1.5);
     transition-duration: 150ms;
@@ -70,6 +75,11 @@ const EmojiButtonSpace = styled.div`
   right: -.4em;
   bottom: -.2em;
   border-radius: 50%;
+
+  [dir="rtl"] & {
+    right: initial;
+    left: -.4em;
+  }
 `;
 
 export default {

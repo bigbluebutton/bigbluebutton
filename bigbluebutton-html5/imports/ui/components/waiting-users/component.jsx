@@ -8,6 +8,8 @@ import Styled from './styles';
 import { PANELS, ACTIONS } from '../layout/enums';
 import Settings from '/imports/ui/services/settings';
 import browserInfo from '/imports/utils/browserInfo';
+import Header from '/imports/ui/components/common/control-header/component';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   waitingUsersTitle: {
@@ -78,6 +80,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.guest.denyLabel',
     description: 'Deny guest button label',
   },
+  feedbackMessage: {
+    id: 'app.userList.guest.feedbackMessage',
+    description: 'Feedback message moderator action',
+  },
 });
 
 const ALLOW_STATUS = 'ALLOW';
@@ -120,7 +126,8 @@ const renderGuestUserItem = (
         size="lg"
         ghost
         label={intl.formatMessage(intlMessages.privateMessageLabel)}
-        onClick={privateMessageVisible} 
+        onClick={privateMessageVisible}
+        data-test="privateMessageGuest" 
       />
     ) : null}
         |
@@ -131,6 +138,7 @@ const renderGuestUserItem = (
         ghost
         label={intl.formatMessage(intlMessages.accept)}
         onClick={handleAccept}
+        data-test="acceptGuest"
       />
       |
       <Styled.WaitingUsersButton
@@ -140,12 +148,14 @@ const renderGuestUserItem = (
         ghost
         label={intl.formatMessage(intlMessages.deny)}
         onClick={handleDeny}
+        data-test="denyGuest"
       />
     </Styled.ButtonContainer>
   </Styled.ListItem>
   { isGuestLobbyMessageEnabled ? (
     <Styled.PrivateLobbyMessage
-      id={`privateMessage-${userId}`}>
+      id={`privateMessage-${userId}`}
+      data-test="privateLobbyMessage">
         <TextInput
           maxLength={128}
           placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
@@ -251,21 +261,26 @@ const WaitingUsers = (props) => {
     setRememberChoice(checked);
   };
 
-  const changePolicy = (shouldExecutePolicy, policyRule, cb) => () => {
+  const changePolicy = (shouldExecutePolicy, policyRule, cb, message) => () => {   
     if (shouldExecutePolicy) {
       changeGuestPolicy(policyRule);
     }
+
     closePanel();
+    
+    notify(intl.formatMessage(intlMessages.feedbackMessage) + message.toUpperCase(), 'success');
+    
     return cb();
   };
 
-  const renderButton = (message, { key, color, policy, action }) => (
+  const renderButton = (message, { key, color, policy, action, dataTest }) => (
     <Styled.CustomButton
       key={key}
       color={color}
       label={message}
       size="lg"
-      onClick={changePolicy(rememberChoice, policy, action)}
+      onClick={changePolicy(rememberChoice, policy, action, message)}
+      data-test={dataTest}
     />
   );
 
@@ -296,6 +311,7 @@ const WaitingUsers = (props) => {
       key: 'allow-everyone',
       color: 'primary',
       policy: 'ALWAYS_ACCEPT',
+      dataTest: 'allowEveryone',
     },
     {
       messageId: intlMessages.denyEveryone,
@@ -303,6 +319,7 @@ const WaitingUsers = (props) => {
       key: 'deny-everyone',
       color: 'danger',
       policy: 'ALWAYS_DENY',
+      dataTest: 'denyEveryone',
     },
   ];
 
@@ -314,18 +331,15 @@ const WaitingUsers = (props) => {
 
   return (
     <Styled.Panel data-test="note" isChrome={isChrome}>
-      <Styled.Header>
-        <Styled.Title data-test="noteTitle">
-          <Styled.HideButton
-            onClick={() => closePanel()}
-            label={intl.formatMessage(intlMessages.title)}
-            icon="left_arrow"
-          />
-        </Styled.Title>
-      </Styled.Header>
+      <Header
+        leftButtonProps={{
+          onClick: () => closePanel(),
+          label: intl.formatMessage(intlMessages.title),
+        }}
+      />
       <Styled.ScrollableArea>
         {isGuestLobbyMessageEnabled ? (
-          <Styled.LobbyMessage>
+          <Styled.LobbyMessage data-test="lobbyMessage">
             <TextInput
               maxLength={128}
               placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
@@ -354,8 +368,8 @@ const WaitingUsers = (props) => {
           }
           {allowRememberChoice ? (
             <Styled.RememberContainer>
-              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-              <label htmlFor="rememderCheckboxId">
+              <input id="rememberCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememberCheckboxId">
                 {intl.formatMessage(intlMessages.rememberChoice)}
               </label>
             </Styled.RememberContainer>

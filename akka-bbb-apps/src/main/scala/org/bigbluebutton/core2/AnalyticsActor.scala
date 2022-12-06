@@ -65,6 +65,10 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)
       case m: MuteUserCmdMsg                                 => logMessage(msg)
       case m: MuteUserInVoiceConfSysMsg                      => logMessage(msg)
+      case m: DeafUserInVoiceConfSysMsg                      => logMessage(msg)
+      case m: HoldUserInVoiceConfSysMsg                      => logMessage(msg)
+      case m: PlaySoundInVoiceConfSysMsg                     => logMessage(msg)
+      case m: StopSoundInVoiceConfSysMsg                     => logMessage(msg)
       case m: MuteAllExceptPresentersCmdMsg                  => logMessage(msg)
       case m: EjectUserFromVoiceCmdMsg                       => logMessage(msg)
       case m: MuteMeetingCmdMsg                              => logMessage(msg)
@@ -110,6 +114,10 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: SetPresentationDownloadableEvtMsg => logMessage(msg)
       //case m: PresentationPageConvertedSysMsg => logMessage(msg)
       //case m: PresentationPageConvertedEventMsg => logMessage(msg)
+      // case m: StoreAnnotationsInRedisSysMsg => logMessage(msg)
+      // case m: StoreExportJobInRedisSysMsg => logMessage(msg)
+      case m: MakePresentationWithAnnotationDownloadReqMsg => logMessage(msg)
+      case m: NewPresAnnFileAvailableMsg => logMessage(msg)
       case m: PresentationPageConversionStartedSysMsg => logMessage(msg)
       case m: PresentationConversionEndedSysMsg => logMessage(msg)
       case m: PresentationConversionRequestReceivedSysMsg => logMessage(msg)
@@ -192,6 +200,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PadUpdatedEvtMsg => logMessage(msg)
       case m: PadUpdatePubMsg => logMessage(msg)
       case m: PadUpdateCmdMsg => logMessage(msg)
+      case m: PadCapturePubMsg => logMessage(msg)
 
       case _ => // ignore message
     }

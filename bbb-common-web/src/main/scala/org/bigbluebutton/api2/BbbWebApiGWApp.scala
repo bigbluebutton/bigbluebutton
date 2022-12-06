@@ -3,7 +3,6 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.event.Logging
-import java.util
 import org.bigbluebutton.api.domain.{ BreakoutRoomsParams, Group, LockSettingsParams }
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
@@ -131,7 +130,9 @@ class BbbWebApiGWApp(
                     freeJoin: java.lang.Boolean,
                     metadata: java.util.Map[String, String], guestPolicy: String, authenticatedGuest: java.lang.Boolean, meetingLayout: String,
                     welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String,
-                    dialNumber: String, maxUsers: java.lang.Integer,
+                    dialNumber:                             String,
+                    maxUsers:                               java.lang.Integer,
+                    maxUserConcurrentAccesses:              java.lang.Integer,
                     meetingExpireIfNoUserJoinedInMinutes:   java.lang.Integer,
                     meetingExpireWhenLastUserLeftInMinutes: java.lang.Integer,
                     userInactivityInspectTimerInMinutes:    java.lang.Integer,
@@ -148,7 +149,9 @@ class BbbWebApiGWApp(
                     html5InstanceId:                        java.lang.Integer,
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
-                    notifyRecordingIsOn:                    java.lang.Boolean): Unit = {
+                    notifyRecordingIsOn:                    java.lang.Boolean,
+                    uploadExternalDescription:              String,
+                    uploadExternalUrl:                      String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -160,7 +163,9 @@ class BbbWebApiGWApp(
       maxPinnedCameras = maxPinnedCameras.intValue(),
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
-      notifyRecordingIsOn
+      notifyRecordingIsOn,
+      uploadExternalDescription,
+      uploadExternalUrl
     )
 
     val durationProps = DurationProps(
@@ -185,17 +190,23 @@ class BbbWebApiGWApp(
       freeJoin = freeJoin.booleanValue(),
       breakoutRooms = Vector(),
       record = breakoutParams.record.booleanValue(),
-      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue()
+      privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
+      captureNotes = breakoutParams.captureNotes.booleanValue(),
+      captureSlides = breakoutParams.captureSlides.booleanValue(),
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
       modOnlyMessage = modOnlyMessage)
     val voiceProp = VoiceProp(telVoice = voiceBridge, voiceConf = voiceBridge, dialNumber = dialNumber, muteOnStart = muteOnStart.booleanValue())
-    val usersProp = UsersProp(maxUsers = maxUsers.intValue(), webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+    val usersProp = UsersProp(
+      maxUsers = maxUsers.intValue(),
+      maxUserConcurrentAccesses = maxUserConcurrentAccesses,
+      webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
-      authenticatedGuest = authenticatedGuest.booleanValue())
+      authenticatedGuest = authenticatedGuest.booleanValue()
+    )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
     val lockSettingsProps = LockSettingsProps(
@@ -257,11 +268,6 @@ class BbbWebApiGWApp(
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 
-  def ejectDuplicateUser(meetingId: String, intUserId: String, name: String, extUserId: String): Unit = {
-    val event = MsgBuilder.buildEjectDuplicateUserRequestToAkkaApps(meetingId, intUserId, name, extUserId)
-    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
-  }
-
   def guestWaitingLeft(meetingId: String, intUserId: String): Unit = {
     val event = MsgBuilder.buildGuestWaitingLeftMsg(meetingId, intUserId)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
@@ -308,8 +314,8 @@ class BbbWebApiGWApp(
       // Send new event with page urls
       val newEvent = MsgBuilder.buildPresentationPageConvertedSysMsg(msg.asInstanceOf[DocPageGeneratedProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, newEvent))
-    } else if (msg.isInstanceOf[OfficeDocConversionProgress]) {
-      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[OfficeDocConversionProgress])
+    } else if (msg.isInstanceOf[DocConversionProgress]) {
+      val event = MsgBuilder.buildPresentationConversionUpdateSysPubMsg(msg.asInstanceOf[DocConversionProgress])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[DocPageCompletedProgress]) {
       val event = MsgBuilder.buildPresentationConversionCompletedSysPubMsg(msg.asInstanceOf[DocPageCompletedProgress])
@@ -336,6 +342,12 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[UploadFileTooLargeMessage]) {
       val event = MsgBuilder.buildPresentationUploadedFileTooLargeErrorSysMsg(msg.asInstanceOf[UploadFileTooLargeMessage])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[UploadFileTimedoutMessage]) {
+      val event = MsgBuilder.buildPresentationUploadedFileTimedoutErrorSysMsg(msg.asInstanceOf[UploadFileTimedoutMessage])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocInvalidMimeType]) {
+      val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }

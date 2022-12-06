@@ -62,7 +62,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
           }
         }
 
-        val gc = GroupChatApp.createGroupChat(msg.body.name, msg.body.access, createdBy, users, msgs)
+        val gc = GroupChatApp.createGroupChat(msg.body.access, createdBy, users, msgs)
         sendMessages(msg, gc, liveMeeting, bus)
 
         val groupChats = state.groupChats.add(gc)
@@ -84,12 +84,14 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
       BbbCoreEnvelope(name, routing)
     }
 
-    def makeBody(chatId: String, name: String,
-                 access: String, correlationId: String,
-                 createdBy: GroupChatUser, users: Vector[GroupChatUser],
-                 msgs: Vector[GroupChatMsgToUser]): GroupChatCreatedEvtMsgBody = {
+    def makeBody(
+        chatId: String,
+        access: String, correlationId: String,
+        createdBy: GroupChatUser, users: Vector[GroupChatUser],
+        msgs: Vector[GroupChatMsgToUser]
+    ): GroupChatCreatedEvtMsgBody = {
       GroupChatCreatedEvtMsgBody(correlationId, chatId, createdBy,
-        name, access, users, msgs)
+        access, users, msgs)
     }
 
     val meetingId = liveMeeting.props.meetingProp.intId
@@ -102,7 +104,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
         val envelope = makeEnvelope(MessageTypes.DIRECT, GroupChatCreatedEvtMsg.NAME, meetingId, userId)
         val header = makeHeader(GroupChatCreatedEvtMsg.NAME, meetingId, userId)
 
-        val body = makeBody(gc.id, gc.name, gc.access, correlationId, gc.createdBy, users, msgs)
+        val body = makeBody(gc.id, gc.access, correlationId, gc.createdBy, users, msgs)
         val event = GroupChatCreatedEvtMsg(header, body)
         val outEvent = BbbCommonEnvCoreMsg(envelope, event)
         bus.outGW.send(outEvent)
@@ -117,7 +119,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
         meetingId, userId)
       val header = makeHeader(GroupChatCreatedEvtMsg.NAME, meetingId, userId)
 
-      val body = makeBody(gc.id, gc.name, gc.access, correlationId, gc.createdBy, users, msgs)
+      val body = makeBody(gc.id, gc.access, correlationId, gc.createdBy, users, msgs)
       val event = GroupChatCreatedEvtMsg(header, body)
 
       val outEvent = BbbCommonEnvCoreMsg(envelope, event)

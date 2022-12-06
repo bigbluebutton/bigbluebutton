@@ -1,11 +1,13 @@
 import Breakouts from '/imports/api/breakouts';
-import { MeetingTimeRemaining, Meetings } from '/imports/api/meetings';
+import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
+import { UploadingPresentations } from '/imports/api/presentations';
+import _ from 'lodash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -36,7 +38,35 @@ const getBreakoutRoomUrl = (breakoutId) => {
   return breakoutUrlData;
 };
 
+const setCapturedNotesUploading = () => {
+  const breakoutRooms = findBreakouts();
+  breakoutRooms.forEach((breakout) => {
+    if (breakout.captureNotes) {
+      const filename = breakout.shortName;
+      const temporaryPresentationId = `${breakout.breakoutId}-notes`;
+
+      UploadingPresentations.upsert({
+        temporaryPresentationId,
+      }, {
+        $set: {
+          id: _.uniqueId(filename),
+          temporaryPresentationId,
+          progress: 0,
+          filename,
+          lastModifiedUploader: false,
+          upload: {
+            done: false,
+            error: false,
+          },
+          uploadTimestamp: new Date(),
+        },
+      });
+    }
+  });
+};
+
 const endAllBreakouts = () => {
+  setCapturedNotesUploading();
   makeCall('endAllBreakouts');
 };
 
@@ -214,4 +244,5 @@ export default {
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,
+  setCapturedNotesUploading,
 };

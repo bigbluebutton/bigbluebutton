@@ -5,9 +5,9 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object GroupChatFactory {
   def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
-  def create(id: String, name: String, access: String, createdBy: GroupChatUser,
+  def create(id: String, access: String, createdBy: GroupChatUser,
              users: Vector[GroupChatUser], msgs: Vector[GroupChatMessage]): GroupChat = {
-    new GroupChat(id, name, access, createdBy, users, msgs)
+    new GroupChat(id, access, createdBy, users, msgs)
   }
 
 }
@@ -23,7 +23,7 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
   def getAllGroupChatsInMeeting(): Vector[GroupChat] = chats.values.toVector
 }
 
-case class GroupChat(id: String, name: String, access: String, createdBy: GroupChatUser,
+case class GroupChat(id: String, access: String, createdBy: GroupChatUser,
                      users: Vector[GroupChatUser],
                      msgs:  Vector[GroupChatMessage]) {
   def findMsgWithId(id: String): Option[GroupChatMessage] = msgs.find(m => m.id == id)

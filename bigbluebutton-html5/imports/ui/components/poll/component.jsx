@@ -8,9 +8,10 @@ import DraggableTextArea from '/imports/ui/components/poll/dragAndDrop/component
 import LiveResult from '/imports/ui/components/poll/live-result/component';
 import Styled from './styles';
 import Toggle from '/imports/ui/components/common/switch/component';
-import { alertScreenReader } from '/imports/utils/dom-utils';
-import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import { PANELS, ACTIONS } from '../layout/enums';
+import { addNewAlert } from '../screenreader-alert/service';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   pollPaneTitle: {
@@ -426,7 +427,7 @@ class Poll extends Component {
         : [],
       warning: clearWarning ? null : warning,
     }, () => {
-      alertScreenReader(`${intl.formatMessage(intlMessages.removePollOpt,
+      addNewAlert(`${intl.formatMessage(intlMessages.removePollOpt,
         { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
     });
   }
@@ -543,6 +544,9 @@ class Poll extends Component {
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
             />
             {optList.length > MIN_OPTIONS_LENGTH && (
               <Styled.DeletePollOptionButton
@@ -566,7 +570,7 @@ class Poll extends Component {
             </span>
           </Styled.OptionWrapper>
           {!hasVal && type !== pollTypes.Response && error ? (
-            <Styled.InputError>{error}</Styled.InputError>
+            <Styled.InputError data-test="errorNoValueInput">{error}</Styled.InputError>
           ) : (
             <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
           )}
@@ -673,7 +677,7 @@ class Poll extends Component {
       <Styled.ResponseArea>
         {defaultPoll && (
           <div>
-            <Styled.PollCheckbox>
+            <Styled.PollCheckbox data-test="allowMultiple">
               <Checkbox
                 onChange={this.toggleIsMultipleResponse}
                 checked={isMultipleResponse}
@@ -697,13 +701,13 @@ class Poll extends Component {
             onClick={() => this.handleAddOption()}
           />
         )}
-        <Styled.Row>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+        <Styled.AnonymousRow>
+          <Styled.AnonymousHeadingCol aria-hidden="true">
+            <Styled.AnonymousHeading>
               {intl.formatMessage(intlMessages.secretPollLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.AnonymousHeading>
+          </Styled.AnonymousHeadingCol>
+          <Styled.AnonymousToggleCol>
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <Styled.Toggle>
               {this.displayToggleStatus(secretPoll)}
@@ -716,8 +720,8 @@ class Poll extends Component {
                 data-test="anonymousPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
-        </Styled.Row>
+          </Styled.AnonymousToggleCol>
+        </Styled.AnonymousRow>
         {secretPoll && (
           <Styled.PollParagraph>
             {intl.formatMessage(intlMessages.isSecretPollLabel)}
@@ -735,12 +739,12 @@ class Poll extends Component {
     return (
       <>
         <Styled.CustomInputRow>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+          <Styled.CustomInputHeadingCol aria-hidden="true">
+            <Styled.CustomInputHeading>
               {intl.formatMessage(intlMessages.customInputToggleLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.CustomInputHeading>
+          </Styled.CustomInputHeadingCol>
+          <Styled.CustomInputToggleCol>
             <Styled.Toggle>
               {this.displayAutoOptionToggleStatus(customInput)}
               <Toggle
@@ -752,7 +756,7 @@ class Poll extends Component {
                 data-test="autoOptioningPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
+          </Styled.CustomInputToggleCol>
         </Styled.CustomInputRow>
         {customInput && (
           <Styled.PollParagraph>
@@ -784,7 +788,9 @@ class Poll extends Component {
           data-test="pollQuestionArea"
           value={customInput ? questionAndOptions : question}
           onChange={(e) => this.handleTextareaChange(e)}
-          onPaste={() => this.setState({ isPasting: true })}
+          onPaste={(e) => { e.stopPropagation(); this.setState({ isPasting: true }); }}
+          onCut={(e) => { e.stopPropagation(); }}
+          onCopy={(e) => { e.stopPropagation(); }}
           onKeyPress={(event) => {
             if (event.key === 'Enter' && customInput) {
               this.handlePollLetterOptions();
@@ -940,7 +946,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <Styled.NoSlidePanelContainer>
-        <Styled.SectionHeading>
+        <Styled.SectionHeading data-test="noPresentation">
           {intl.formatMessage(intlMessages.noPresentationSelected)}
         </Styled.SectionHeading>
         <Styled.PollButton
@@ -977,15 +983,12 @@ class Poll extends Component {
 
     return (
       <div>
-        <Styled.Header>
-          <Styled.PollHideButton
-            ref={(node) => { this.hideBtn = node; }}
-            data-test="hidePollDesc"
-            tabIndex={0}
-            label={intl.formatMessage(intlMessages.pollPaneTitle)}
-            icon="left_arrow"
-            aria-label={intl.formatMessage(intlMessages.hidePollDesc)}
-            onClick={() => {
+        <Header
+          leftButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
+            'data-test': "hidePollDesc",
+            label: intl.formatMessage(intlMessages.pollPaneTitle),
+            onClick: () => {
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,
@@ -994,12 +997,15 @@ class Poll extends Component {
                 type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
                 value: PANELS.NONE,
               });
-            }}
-          />
-          <Styled.PollCloseButton
-            label={intl.formatMessage(intlMessages.closeLabel)}
-            aria-label={`${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`}
-            onClick={() => {
+            },
+            ref: (node) => { this.hideBtn = node; },
+          }}
+          rightButtonProps={{
+            'aria-label': `${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`,
+            'data-test': "closePolling",
+            icon: "close",
+            label: intl.formatMessage(intlMessages.closeLabel),
+            onClick: () => {
               if (currentPoll) stopPoll();
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -1011,13 +1017,9 @@ class Poll extends Component {
               });
               Session.set('forcePollOpen', false);
               Session.set('pollInitiated', false);
-            }}
-            icon="close"
-            size="sm"
-            hideLabel
-            data-test="closePolling"
-          />
-        </Styled.Header>
+            },
+          }}
+        />
         {this.renderPollPanel()}
         <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
         <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>

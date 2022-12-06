@@ -7,6 +7,7 @@ import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
+import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -41,6 +42,7 @@ export default withTracker(() => {
     fields: {
       callerName: 1,
       talking: 1,
+      floor: 1,
       color: 1,
       startTime: 1,
       muted: 1,
@@ -59,11 +61,13 @@ export default withTracker(() => {
 
     for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
-        callerName, talking, color, muted, intId,
+        callerName, talking, floor, color, muted, intId,
       } = usersTalking[i];
 
       talkers[`${intId}`] = {
         color,
+        transcribing: SpeechService.hasSpeechLocale(intId),
+        floor,
         talking,
         muted,
         callerName,

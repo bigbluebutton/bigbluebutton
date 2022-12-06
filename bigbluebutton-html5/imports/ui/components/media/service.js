@@ -5,6 +5,8 @@ import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
+import UserService from '/imports/ui/components/user-list/service';
+import NotesService from '/imports/ui/components/notes/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -26,11 +28,15 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && viewScreenshare && isVideoBroadcasting();
+  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter()) && isVideoBroadcasting();
 }
 
 function shouldShowExternalVideo() {
   return isExternalVideoEnabled() && getVideoUrl();
+}
+
+function shouldShowSharedNotes() {
+  return NotesService.isSharedNotesPinned();
 }
 
 function shouldShowOverlay() {
@@ -52,4 +58,5 @@ export default {
   shouldShowOverlay,
   isVideoBroadcasting,
   setPresentationIsOpen,
+  shouldShowSharedNotes,
 };

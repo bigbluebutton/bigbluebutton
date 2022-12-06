@@ -15,6 +15,7 @@ import Settings from '/imports/ui/services/settings';
 import BreakoutDropdown from '/imports/ui/components/breakout-room/breakout-dropdown/component';
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -428,11 +429,10 @@ class BreakoutRoom extends PureComponent {
     } = this.state;
 
     const { animations } = Settings.application;
-
     const roomItems = breakoutRooms.map((breakout) => (
       <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`} >
         <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
-          <Styled.BreakoutRoomListNameLabel aria-hidden>
+          <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
             {breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
               : breakout.shortName}
@@ -453,7 +453,9 @@ class BreakoutRoom extends PureComponent {
             breakout.shortName,
           )}
         </Styled.Content>
-        <Styled.JoinedUserNames>
+        <Styled.JoinedUserNames
+          data-test={`userNameBreakoutRoom-${breakout.shortName}`}
+        >
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
@@ -466,7 +468,7 @@ class BreakoutRoom extends PureComponent {
 
     return (
       <Styled.BreakoutColumn>
-        <Styled.BreakoutScrollableList>
+        <Styled.BreakoutScrollableList data-test="breakoutRoomList">
           {roomItems}
         </Styled.BreakoutScrollableList>
       </Styled.BreakoutColumn>
@@ -517,6 +519,7 @@ class BreakoutRoom extends PureComponent {
               &nbsp;
               &nbsp;
               <Styled.EndButton
+                data-test="sendButtonDurationTime"
                 color="primary"
                 disabled={!isMeteorConnected}
                 size="sm"
@@ -549,19 +552,19 @@ class BreakoutRoom extends PureComponent {
       intl,
       endAllBreakouts,
       amIModerator,
+      isRTL,
     } = this.props;
     return (
       <Styled.Panel ref={(n) => this.panel = n}>
-        <Styled.Header>
-          <Styled.HeaderButton
-            icon="left_arrow"
-            label={intl.formatMessage(intlMessages.breakoutTitle)}
-            aria-label={intl.formatMessage(intlMessages.breakoutAriaTitle)}
-            onClick={() => {
+        <Header
+          leftButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),
+            label: intl.formatMessage(intlMessages.breakoutTitle),
+            onClick: () => {
               this.closePanel();
-            }}
-          />
-          { amIModerator && (
+            },
+          }}
+          customRightButton={amIModerator && (
             <BreakoutDropdown
               openBreakoutTimeManager={this.showSetTimeForm}
               endAllBreakouts={() => {
@@ -570,9 +573,10 @@ class BreakoutRoom extends PureComponent {
               }}
               isMeteorConnected={isMeteorConnected}
               amIModerator={amIModerator}
+              isRTL={isRTL}
             />
-          ) }
-        </Styled.Header>
+          )}
+        />
         {this.renderDuration()}
         {amIModerator
           ? (

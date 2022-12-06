@@ -1,5 +1,4 @@
 import Users from '/imports/api/users';
-import Captions from "/imports/api/captions";
 import Auth from '/imports/ui/services/auth';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 import addAnnotationQuery from '/imports/api/annotations/addAnnotation';
@@ -8,14 +7,21 @@ import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import PollService from '/imports/ui/components/poll/service';
 import logger from '/imports/startup/client/logger';
+import { defineMessages } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
 
 const Annotations = new Mongo.Collection(null);
 
 const UnsentAnnotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
-const DRAW_START = ANNOTATION_CONFIG.status.start;
-const DRAW_UPDATE = ANNOTATION_CONFIG.status.update;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
+
+const intlMessages = defineMessages({
+  notifyNotAllowedChange: {
+    id: 'app.whiteboard.annotations.notAllowed',
+    description: 'Label shown in toast when the user make a change on a shape he doesnt have permission',
+  },
+});
 
 let annotationsStreamListener = null;
 
@@ -23,9 +29,9 @@ const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
 };
 
-function clearFakeAnnotations() {
+const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
-  Annotations.remove({ id: /-fake/g });
+  Annotations.remove({ id: /-fake/g, annotationType: { $ne: 'text' } });
 }
 
 function handleAddedAnnotation({
@@ -35,7 +41,7 @@ function handleAddedAnnotation({
   annotation,
 }) {
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
+  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   Annotations.upsert(query.selector, query.modifier);
 
@@ -149,7 +155,12 @@ const sendAnnotation = (annotation) => {
   // reconnected. With this it will miss things
   if (!Meteor.status().connected) return;
 
-  annotationsQueue.push(annotation);
+  const index = annotationsQueue.findIndex(ann => ann.id === annotation.id);
+  if (index !== -1) {
+    annotationsQueue[index] = annotation;
+  } else {
+    annotationsQueue.push(annotation);
+  }
   if (!annotationsSenderIsRunning)
     setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 };
@@ -221,8 +232,13 @@ const getMultiUserSize = (whiteboardId) => {
   const multiUserSize = Users.find(
     {
       meetingId: Auth.meetingID,
-      userId: { $in: multiUser },
-      presenter: false,
+      $or: [
+        {
+          userId: { $in: multiUser },
+          presenter: false,
+        },
+        { presenter: true },
+      ],
     },
     { fields: { userId: 1 } }
   ).fetch();
@@ -293,13 +309,11 @@ const persistShape = (shape, whiteboardId) => {
     id: shape.id,
     annotationInfo: shape,
     wbId: whiteboardId,
-    userId: shape.userId ? shape.userId : Auth.userID,
+    userId: Auth.userID,
   };
 
   sendAnnotation(annotation);
 };
-
-const persistAsset = (asset) => makeCall("persistAsset", asset);
 
 const removeShapes = (shapes, whiteboardId) => makeCall("deleteAnnotations", shapes, whiteboardId);
 
@@ -343,8 +357,8 @@ const getShapes = (whiteboardId, curPageId, intl) => {
           dash: "draw"
         },
       }
+      annotation.annotationInfo.questionType = false;
     }
-    annotation.annotationInfo.userId = annotation.userId;
     result[annotation.annotationInfo.id] = annotation.annotationInfo;
   });
   return result;
@@ -353,18 +367,6 @@ const getShapes = (whiteboardId, curPageId, intl) => {
 const getCurrentPres = () => {
   const podId = "DEFAULT_PRESENTATION_POD";
   return  PresentationService.getCurrentPresentation(podId);
-}
-
-const getAssets = () => {
-  // temporary storage for assets
-  let a = Captions.find().fetch().filter(s => s.src);
-  let _assets = {}
-  Object.entries(a).map(([k,v]) => {
-    _assets[v.id] = v;
-    return v.src && v;
-  });
-
-  return _assets;
 }
 
 const initDefaultPages = (count = 1) => {
@@ -391,6 +393,10 @@ const initDefaultPages = (count = 1) => {
   return { pages, pageStates };
 };
 
+const notifyNotAllowedChange = (intl) => {
+  if (intl) notify(intl.formatMessage(intlMessages.notifyNotAllowedChange), 'warning', 'whiteboard');
+};
+
 export {
   initDefaultPages,
   Annotations,
@@ -409,11 +415,10 @@ export {
   removeGlobalAccess,
   removeIndividualAccess,
   persistShape,
-  persistAsset,
   getShapes,
-  getAssets,
   getCurrentPres,
   removeShapes,
   changeCurrentSlide,
-  getCurSlide,
+  clearFakeAnnotations,
+  notifyNotAllowedChange,
 };

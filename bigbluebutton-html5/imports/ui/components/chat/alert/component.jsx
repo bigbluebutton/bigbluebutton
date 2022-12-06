@@ -6,12 +6,15 @@ import _ from 'lodash';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
+import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import Service from '../service';
 import Styled from './styles';
+import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const POLL_RESULT_KEY = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 
 const propTypes = {
   pushAlertEnabled: PropTypes.bool.isRequired,
@@ -54,6 +57,14 @@ const intlMessages = defineMessages({
     id: 'app.toast.chat.private',
     description: 'private chat toast message title',
   },
+  pollResults: {
+    id: 'app.toast.chat.poll',
+    description: 'chat toast message for polls',
+  },
+  pollResultsClick: {
+    id: 'app.toast.chat.pollClick',
+    description: 'chat toast click message for polls',
+  },
 });
 
 const ALERT_INTERVAL = 5000; // 5 seconds
@@ -74,6 +85,7 @@ const ChatAlert = (props) => {
   const [unreadMessages, setUnreadMessages] = useState([]);
   const [lastAlertTimestampByChat, setLastAlertTimestampByChat] = useState({});
   const [alertEnabledTimestamp, setAlertEnabledTimestamp] = useState(null);
+  const prevUnreadMessages = usePreviousValue(unreadMessages);
 
   // audio alerts
   useEffect(() => {
@@ -146,11 +158,8 @@ const ChatAlert = (props) => {
         if (content.text === PUBLIC_CHAT_CLEAR) {
           return intl.formatMessage(intlMessages.publicChatClear);
         }
-        /* this code is to remove html tags that come in the server's messages */
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = content.text;
-        const textWithoutTag = tempDiv.innerText;
-        return textWithoutTag;
+
+        return unescapeHtml(stripTags(content.text));
       });
 
     return contentMessage;
@@ -168,12 +177,29 @@ const ChatAlert = (props) => {
     </Styled.PushMessageContent>
   );
 
+  const createPollMessage = () => (
+    <Styled.PushMessageContent>
+      <Styled.UserNameMessage>{intl.formatMessage(intlMessages.pollResults)}</Styled.UserNameMessage>
+      <Styled.ContentMessagePoll>{intl.formatMessage(intlMessages.pollResultsClick)}</Styled.ContentMessagePoll>
+    </Styled.PushMessageContent>
+  );
+
+  if (_.isEqual(prevUnreadMessages, unreadMessages)) {
+    return null;
+  }
+
   return pushAlertEnabled
     ? unreadMessages.map((timeWindow) => {
       const mappedMessage = Service.mapGroupMessage(timeWindow);
-      const content = mappedMessage
-        ? createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5))
-        : null;
+
+      let content = null;
+      if (mappedMessage) {
+        if (mappedMessage.id.includes(POLL_RESULT_KEY)) {
+          content = createPollMessage();
+        } else {
+          content = createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5));
+        }
+      }
 
       const messageChatId = mappedMessage.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ? PUBLIC_CHAT_ID : mappedMessage.chatId;
 

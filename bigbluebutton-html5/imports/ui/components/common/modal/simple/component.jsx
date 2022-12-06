@@ -20,12 +20,14 @@ const propTypes = {
   dismiss: PropTypes.shape({
     callback: PropTypes.func,
   }),
+  headerPosition: PropTypes.string,
 };
 
 const defaultProps = {
   shouldCloseOnOverlayClick: true,
   shouldShowCloseButton: true,
-  overlayClassName: "modalOverlay",
+  overlayClassName: 'modalOverlay',
+  headerPosition: 'inner',
 };
 
 class ModalSimple extends Component {
@@ -45,6 +47,7 @@ class ModalSimple extends Component {
 
   render() {
     const {
+      id,
       intl,
       title,
       hideBorder,
@@ -54,6 +57,7 @@ class ModalSimple extends Component {
       onRequestClose,
       shouldShowCloseButton,
       contentLabel,
+      headerPosition,
       'data-test': dataTest,
       ...otherProps
     } = this.props;
@@ -73,38 +77,35 @@ class ModalSimple extends Component {
         }
       }
     }
+
     return (
       <Styled.SimpleModal
+        id="simpleModal"
         isOpen={modalisOpen}
         className={className}
         onRequestClose={handleRequestClose}
         contentLabel={title || contentLabel}
         data={{
-          test: dataTest ?? null
+          test: dataTest ?? null,
         }}
         {...otherProps}
       >
-        {shouldShowCloseButton || title ? (
-        <Styled.Header hideBorder={hideBorder}>
-          <Styled.Title hasLeftMargin={shouldShowCloseButton}>{title}</Styled.Title>
-          {shouldShowCloseButton ? (
-            <Styled.DismissButton
-              label={intl.formatMessage(intlMessages.modalClose)}
-              aria-label={`${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`}
-              data-test="closeModal"
-              icon="close"
-              circle
-              hideLabel
-              onClick={handleRequestClose}
-              aria-describedby="modalDismissDescription"
-            />
-          ) : null}
+        <Styled.Header
+          hideBorder={hideBorder}
+          headerPosition={headerPosition}
+          shouldShowCloseButton={shouldShowCloseButton}
+          modalDismissDescription={intl.formatMessage(intlMessages.modalCloseDescription)}
+          closeButtonProps={{
+            label: intl.formatMessage(intlMessages.modalClose),
+            'aria-label': `${intl.formatMessage(intlMessages.modalClose)} ${title || contentLabel}`,
+            onClick: handleRequestClose,
+          }}
+        >
+          {title}
         </Styled.Header>
-        ) : null}
         <Styled.Content>
           {this.props.children}
         </Styled.Content>
-        <div id="modalDismissDescription" hidden>{intl.formatMessage(intlMessages.modalCloseDescription)}</div>
       </Styled.SimpleModal>
     );
   }

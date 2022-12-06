@@ -23,7 +23,7 @@ const LocalEchoTestButton = styled(Button)`
   background-color: transparent !important;
   color: ${colorPrimary} !important;
 
-  ${({ hearing }) => hearing && `
+  ${({ $hearing }) => $hearing && `
     background-color: ${colorPrimary} !important;
     color: ${colorWhite} !important;
   `}

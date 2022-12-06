@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {
   toolbarButtonWidth,
   toolbarButtonHeight,
-  toolbarButtonBorderRadius,
   toolbarItemTrianglePadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -80,14 +79,6 @@ const ToolbarButton = styled(Button)`
 
     & > i {
       color: ${toolbarListColor};
-    }
-
-    border-top-left-radius: 0;
-    border-top-right-radius: ${toolbarButtonBorderRadius};
-
-    [dir="rtl"] & {
-      border-top-left-radius: ${toolbarButtonBorderRadius};
-      border-top-right-radius: 0;
     }
   `}
 `;

@@ -3,6 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import Styled from './styles';
+import { escapeHtml } from '/imports/utils/string-utils';
 import { isChatEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
@@ -114,14 +115,15 @@ class MessageForm extends PureComponent {
       maxMessageLength,
     } = this.props;
 
-    const message = e.target.value;
+    let message = e.target.value;
     let error = null;
 
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
         messages.errorMaxMessageLength,
-        { 0: message.length - maxMessageLength },
+        { 0: maxMessageLength },
       );
+      message = message.substring(0, maxMessageLength);
     }
 
     this.setState({
@@ -140,7 +142,7 @@ class MessageForm extends PureComponent {
       handleSendMessage,
     } = this.props;
     const { message } = this.state;
-    let msg = message.trim();
+    const msg = message.trim();
 
     if (msg.length < minMessageLength) return;
 
@@ -150,13 +152,7 @@ class MessageForm extends PureComponent {
       return;
     }
 
-    // Sanitize. See: http://shebang.brandonmintern.com/foolproof-html-escaping-in-javascript/
-
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(msg));
-    msg = div.innerHTML;
-
-    handleSendMessage(msg);
+    handleSendMessage(escapeHtml(msg));
     this.setState({ message: '', hasErrors: false });
   }
 
@@ -231,6 +227,9 @@ class MessageForm extends PureComponent {
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
             async
+            onPaste={(e) => { e.stopPropagation(); }}
+            onCut={(e) => { e.stopPropagation(); }}
+            onCopy={(e) => { e.stopPropagation(); }}
           />
           <Styled.SendButton
             hideLabel

@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import UserOptions from './component';
+import { layoutSelect } from '/imports/ui/components/layout/context';
 
 const propTypes = {
   users: PropTypes.arrayOf(Object).isRequired,
@@ -36,21 +37,15 @@ const UserOptionsContainer = withTracker((props) => {
     users,
     clearAllEmojiStatus,
     intl,
+    isMeetingMuteOnStart,
   } = props;
-
+  
   const toggleStatus = () => {
     clearAllEmojiStatus(users);
 
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',
     );
-  };
-
-  const isMeetingMuteOnStart = () => {
-    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceProp.muteOnStart': 1 } });
-    const { muteOnStart } = voiceProp;
-    return muteOnStart;
   };
 
   const getMeetingName = () => {
@@ -60,10 +55,12 @@ const UserOptionsContainer = withTracker((props) => {
     return name;
   };
 
+  const isRTL = layoutSelect((i) => i.isRTL);
+
   return {
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
-      if (isMeetingMuteOnStart()) {
+      if (isMeetingMuteOnStart) {
         return meetingMuteDisabledLog();
       }
       return logger.info({
@@ -73,7 +70,7 @@ const UserOptionsContainer = withTracker((props) => {
     },
     toggleMuteAllUsersExceptPresenter: () => {
       UserListService.muteAllExceptPresenter(Auth.userID);
-      if (isMeetingMuteOnStart()) {
+      if (isMeetingMuteOnStart) {
         return meetingMuteDisabledLog();
       }
       return logger.info({
@@ -82,7 +79,7 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted except presenter');
     },
     toggleStatus,
-    isMeetingMuted: isMeetingMuteOnStart(),
+    isMeetingMuted: isMeetingMuteOnStart,
     amIModerator: ActionsBarService.amIModerator(),
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
@@ -91,6 +88,7 @@ const UserOptionsContainer = withTracker((props) => {
     meetingName: getMeetingName(),
     openLearningDashboardUrl: LearningDashboardService.openLearningDashboardUrl,
     dynamicGuestPolicy,
+    isRTL,
   };
 })(UserOptions);
 

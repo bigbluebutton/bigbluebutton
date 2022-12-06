@@ -1,11 +1,13 @@
 const { expect, default: test } = require('@playwright/test');
+const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { waitAndClearNotification } = require('../notifications/util');
+const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter } = require('./util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -13,8 +15,11 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
+  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
     await this.initModPage(page1);
+    if (waitAndClearDefaultPresentationNotificationModPage) {
+        await waitAndClearDefaultPresentationNotification(this.modPage);
+    }
     await this.initUserPage();
   }
 
@@ -52,6 +57,18 @@ class MultiUsers {
     await this.userPage.init(false, shouldCloseAudioModal, options);
   }
 
+  async initUserPage1(shouldCloseAudioModal = true, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
+    const options = {
+      ...restOptions,
+      fullName,
+      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
+    };
+
+    const page = await (await playwright.chromium.launch()).newPage();
+    this.userPage1 = new Page(this.browser, page);
+    await this.userPage1.init(false, shouldCloseAudioModal, options);
+  }
+
   async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, ...restOptions } = {}) {
     const options = {
       ...restOptions,
@@ -64,24 +81,32 @@ class MultiUsers {
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
+  async muteAnotherUser() {
+    await this.userPage.joinMicrophone();
+    await this.modPage.hasElement(e.joinAudio);
+    await this.modPage.waitAndClick(e.isTalking);
+    await this.userPage.hasElement(e.unmuteMicButton);
+    await this.modPage.hasElement(e.wasTalking);
+    await this.userPage.hasElement(e.wasTalking);
+    await this.userPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.talkingIndicator);
+  }
+
   async userPresence() {
-    const firstUserOnModPage = this.modPage.getLocator(e.currentUser);
-    const secondUserOnModPage = this.modPage.getLocator(e.userListItem);
-    const firstUserOnUserPage = this.userPage.getLocator(e.currentUser);
-    const secondUserOnUserPage = this.userPage.getLocator(e.userListItem);
-    await expect(firstUserOnModPage).toHaveCount(1);
-    await expect(secondUserOnModPage).toHaveCount(1);
-    await expect(firstUserOnUserPage).toHaveCount(1);
-    await expect(secondUserOnUserPage).toHaveCount(1);
+    await this.modPage.checkElementCount(e.currentUser, 1);
+    await this.modPage.checkElementCount(e.userListItem, 1);
+    await this.userPage.checkElementCount(e.currentUser, 1);
+    await this.userPage.checkElementCount(e.userListItem, 1);
   }
 
   async makePresenter() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
+    await this.modPage.wasRemoved(e.wbToolbar);
 
     await this.userPage.hasElement(e.startScreenSharing);
     await this.userPage.hasElement(e.presentationToolbarWrapper);
-    await this.userPage.hasElement(e.toolsButton);
+    await this.userPage.hasElement(e.wbToolbar);
     await this.userPage.hasElement(e.actions);
     const isPresenter = await checkIsPresenter(this.userPage);
     expect(isPresenter).toBeTruthy();
@@ -90,9 +115,10 @@ class MultiUsers {
   async takePresenter() {
     await this.modPage2.waitAndClick(e.currentUser);
     await this.modPage2.waitAndClick(e.takePresenter);
+    await this.modPage.wasRemoved(e.wbToolbar);
 
     await this.modPage2.hasElement(e.startScreenSharing);
-    await this.modPage2.hasElement(e.toolsButton);
+    await this.modPage2.hasElement(e.wbToolbar);
     await this.modPage2.hasElement(e.presentationToolbarWrapper);
     const isPresenter = await checkIsPresenter(this.modPage2);
     expect(isPresenter).toBeTruthy();
@@ -124,13 +150,15 @@ class MultiUsers {
     const { raiseHandButton } = getSettings();
     test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
 
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.initUserPage();
     await this.userPage.waitAndClick(e.raiseHandBtn);
+    await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
     const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
     const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
     const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
-    await waitAndClearNotification(this.userPage);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
@@ -197,10 +225,10 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
-    await this.modPage.waitForSelector(e.multiWhiteboardTool);
-    const resp = await this.modPage.page.evaluate((multiWhiteboardTool) => {
-      return document.querySelector(multiWhiteboardTool).children[0].innerText === '1';
-    }, e.multiWhiteboardTool);
+    await this.modPage.waitForSelector(e.multiUsersWhiteboardOff);
+    const resp = await this.modPage.page.evaluate((multiUsersWbBtn) => {
+      return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
+    }, e.multiUsersWhiteboardOff);
     await expect(resp).toBeTruthy();
   }
 }

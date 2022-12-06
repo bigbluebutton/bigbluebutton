@@ -8,6 +8,7 @@ import Service from '/imports/ui/components/captions/service';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
+import Header from '/imports/ui/components/common/control-header/component';
 
 const intlMessages = defineMessages({
   hide: {
@@ -71,54 +72,50 @@ const Captions = ({
 
   return (
     <Styled.Captions isChrome={isChrome}>
-      <Styled.Header>
-        <Styled.Title>
-          <Styled.HideBtn
-            onClick={() => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            }}
-            aria-label={intl.formatMessage(intlMessages.hide)}
-            label={name}
-            icon={isRTL ? 'right_arrow' : 'left_arrow'}
-          />
-        </Styled.Title>
-        {Service.amICaptionsOwner(ownerId)
-          ? (
-            <span>
-              <Button
-                onClick={dictating
-                  ? () => Service.stopDictation(locale)
-                  : () => Service.startDictation(locale)}
-                label={dictating
-                  ? intl.formatMessage(intlMessages.dictationStop)
-                  : intl.formatMessage(intlMessages.dictationStart)}
-                aria-describedby="dictationBtnDesc"
-                color={dictating ? 'danger' : 'primary'}
-                disabled={!dictation}
-              />
-              <div id="dictationBtnDesc" hidden>
-                {dictating
-                  ? intl.formatMessage(intlMessages.dictationOffDesc)
-                  : intl.formatMessage(intlMessages.dictationOnDesc)}
-              </div>
-            </span>
-          ) : (
+      <Header
+        leftButtonProps={{
+          onClick: () => {
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+              value: false,
+            });
+            layoutContextDispatch({
+              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+              value: PANELS.NONE,
+            });
+          },
+          'aria-label': intl.formatMessage(intlMessages.hide),
+          label: name,
+        }}
+        customRightButton={Service.amICaptionsOwner(ownerId) ? (
+          <span>
             <Button
-              color="primary"
-              tooltipLabel={intl.formatMessage(intlMessages.takeOwnershipTooltip, { 0: name })}
-              onClick={() => Service.updateCaptionsOwner(locale, name)}
-              aria-label={intl.formatMessage(intlMessages.takeOwnership)}
-              label={intl.formatMessage(intlMessages.takeOwnership)}
+              onClick={dictating
+                ? () => Service.stopDictation(locale)
+                : () => Service.startDictation(locale)}
+              label={dictating
+                ? intl.formatMessage(intlMessages.dictationStop)
+                : intl.formatMessage(intlMessages.dictationStart)}
+              aria-describedby="dictationBtnDesc"
+              color={dictating ? 'danger' : 'primary'}
+              disabled={!dictation}
             />
-          )}
-      </Styled.Header>
+            <div id="dictationBtnDesc" hidden>
+              {dictating
+                ? intl.formatMessage(intlMessages.dictationOffDesc)
+                : intl.formatMessage(intlMessages.dictationOnDesc)}
+            </div>
+          </span>
+        ) : (
+          <Button
+            color="primary"
+            tooltipLabel={intl.formatMessage(intlMessages.takeOwnershipTooltip, { 0: name })}
+            onClick={() => Service.updateCaptionsOwner(locale, name)}
+            aria-label={intl.formatMessage(intlMessages.takeOwnership)}
+            label={intl.formatMessage(intlMessages.takeOwnership)}
+          />
+        )}
+      />
       <PadContainer
         externalId={locale}
         hasPermission={hasPermission}

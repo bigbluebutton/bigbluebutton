@@ -6,8 +6,8 @@ export const INITIAL_INPUT_STATE = {
 
   },
   browser: {
-    width: 0,
-    height: 0,
+    width: window.document.documentElement.clientWidth,
+    height: window.document.documentElement.clientHeight,
   },
   bannerBar: {
     hasBanner: false,
@@ -95,11 +95,18 @@ export const INITIAL_INPUT_STATE = {
     browserWidth: 0,
     browserHeight: 0,
   },
+  sharedNotes: {
+    isPinned: false,
+    width: 0,
+    height: 0,
+    browserWidth: 0,
+    browserHeight: 0,
+  },
 };
 
 export const INITIAL_OUTPUT_STATE = {
   navBar: {
-    display: true,
+    display: false,
     width: 0,
     height: 0,
     top: 0,
@@ -108,7 +115,7 @@ export const INITIAL_OUTPUT_STATE = {
     zIndex: 1,
   },
   actionBar: {
-    display: true,
+    display: false,
     width: 0,
     height: 0,
     top: 0,
@@ -219,6 +226,15 @@ export const INITIAL_OUTPUT_STATE = {
     zIndex: 1,
   },
   externalVideo: {
+    display: false,
+    width: 0,
+    height: 0,
+    top: 0,
+    left: 0,
+    tabOrder: 0,
+    zIndex: 1,
+  },
+  sharedNotes: {
     display: false,
     width: 0,
     height: 0,

@@ -13,6 +13,7 @@ const VideoListItemContainer = (props) => {
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
   const layoutContextDispatch = layoutDispatch();
+  const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
     <VideoListItem
@@ -20,6 +21,7 @@ const VideoListItemContainer = (props) => {
       {...{
         isFullscreenContext,
         layoutContextDispatch,
+        isRTL,
       }}
     />
   );

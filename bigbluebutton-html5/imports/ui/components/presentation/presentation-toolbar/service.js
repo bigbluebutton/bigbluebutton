@@ -29,8 +29,8 @@ const nextSlide = (currentSlideNum, numberOfSlides, podId) => {
   }
 };
 
-const zoomSlide = throttle((currentSlideNum, podId, zoom, xCamera, yCamera) => {
-  makeCall('zoomSlide', currentSlideNum, podId, zoom, xCamera, yCamera);
+const zoomSlide = throttle((currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset) => {
+  makeCall('zoomSlide', currentSlideNum, podId, widthRatio, heightRatio, xOffset, yOffset);
 }, PAN_ZOOM_INTERVAL);
 
 const skipToSlide = (requestedSlideNum, podId) => {

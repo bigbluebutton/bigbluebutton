@@ -139,6 +139,7 @@ class RandomUserSelect extends Component {
       mappedRandomlySelectedUsers.length - this.state.count - 1 : 0;
 
     let viewElement;
+    let title;
 
     const amISelectedUser = currentUser.userId === selectedUser.userId;
     if (numAvailableViewers < 1 || (currentUser.presenter && amISelectedUser)) { // there's no viewers to select from,
@@ -147,29 +148,18 @@ class RandomUserSelect extends Component {
       // display modal informing presenter that there's no viewers to select from
       viewElement = (
         <Styled.ModalViewContainer>
-          <Styled.ModalViewTitle>
-            {intl.formatMessage(messages.randUserTitle)}
-          </Styled.ModalViewTitle>
           <div data-test="noViewersSelectedMessage">
             {intl.formatMessage(messages.noViewers)}
           </div>
         </Styled.ModalViewContainer>
       );
+      title = intl.formatMessage(messages.randUserTitle);
     } else { // viewers are available
       if (!selectedUser) return null; // rendering triggered before selectedUser is available
 
       // display modal with random user selection
       viewElement = (
         <Styled.ModalViewContainer>
-          <Styled.ModalViewTitle>
-            {countDown == 0
-              ? amISelectedUser
-                ? `${intl.formatMessage(messages.selected)}`
-                : numAvailableViewers == 1 && currentUser.presenter
-                  ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
-                  : `${intl.formatMessage(messages.randUserTitle)}`
-              : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`}
-          </Styled.ModalViewTitle>
           <Styled.ModalAvatar aria-hidden style={{ backgroundColor: `${selectedUser.color}` }}>
             {selectedUser.name.slice(0, 2)}
           </Styled.ModalAvatar>
@@ -189,17 +179,24 @@ class RandomUserSelect extends Component {
             )}
         </Styled.ModalViewContainer>
       );
+      title = countDown == 0
+        ? amISelectedUser
+          ? `${intl.formatMessage(messages.selected)}`
+          : numAvailableViewers == 1 && currentUser.presenter
+            ? `${intl.formatMessage(messages.onlyOneViewerTobeSelected)}`
+            : `${intl.formatMessage(messages.randUserTitle)}`
+        : `${intl.formatMessage(messages.whollbeSelected)} ${countDown}`;
     }
     if (keepModalOpen) {
       return (
         <Modal
-          hideBorder
           onRequestClose={() => {
             if (currentUser.presenter) clearRandomlySelectedUser();
             toggleKeepModalOpen();
             mountModal(null);
           }}
           contentLabel={intl.formatMessage(messages.ariaModalTitle)}
+          title={title}
         >
           {viewElement}
         </Modal>

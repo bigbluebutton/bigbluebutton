@@ -32,6 +32,13 @@ const ButtonWrapper = styled.div`
   &:first-child > button {
     border-top-left-radius: ${toolbarButtonBorderRadius};
     border-bottom-left-radius: ${toolbarButtonBorderRadius};
+
+    [dir="rtl"] & {
+      border-top-right-radius: ${toolbarButtonBorderRadius};
+      border-bottom-right-radius: ${toolbarButtonBorderRadius};
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
   }
 `;
 

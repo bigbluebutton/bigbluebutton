@@ -100,6 +100,7 @@ const Avatar = styled.div`
   text-align: center;
   font-size: .85rem;
   border: 2px solid transparent;
+  user-select: none;
 
   ${({ animations }) => animations && `
     transition: .3s ease-in-out;
@@ -152,7 +153,7 @@ const Avatar = styled.div`
   ${({ presenter }) => presenter && `
     &:before {
       content: "\\00a0\\e90b\\00a0";
-      padding: ${mdPaddingY};
+      padding: ${mdPaddingY} !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
       left: ${userIndicatorsOffset};
@@ -173,14 +174,14 @@ const Avatar = styled.div`
     presenter, isChrome, isFirefox, isEdge,
   }) => presenter && (isChrome || isFirefox || isEdge) && `
     &:before {
-      padding: ${indicatorPadding};
+      padding: ${indicatorPadding} !important;
     }
   `}
 
   ${({ whiteboardAccess }) => whiteboardAccess && `
     &:before {
       content: "\\00a0\\e925\\00a0";
-      padding: ${mdPaddingY};
+      padding: ${mdPaddingY} !important;
       border-radius: 50% !important;
       opacity: 1;
       top: ${userIndicatorsOffset};
@@ -194,6 +195,7 @@ const Avatar = styled.div`
         left: auto;
         right: ${userIndicatorsOffset};
         letter-spacing: -.33rem;
+        transform: scale(-1, 1);
       }
     }
   `}

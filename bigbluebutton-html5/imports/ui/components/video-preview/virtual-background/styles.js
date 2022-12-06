@@ -34,6 +34,10 @@ const BgWrapper = styled(ScrollboxVertical)`
     flex-wrap: wrap;
     align-content: flex-start;
   `}
+
+  ${({ brightnessEnabled, isVisualEffects }) => brightnessEnabled && isVisualEffects && `
+    height: 10rem;
+  `}
 `;
 
 const BgNoneButton = styled(Button)`
@@ -41,11 +45,11 @@ const BgNoneButton = styled(Button)`
   height: 48px;
   width: 48px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  margin: 0 0.15em;
+  margin: 0 0.15rem;
   flex-shrink: 0;
 
   ${({ isVisualEffects }) => isVisualEffects && `
-    margin: 0.15em;
+    margin: 0.15rem;
   `}
 `;
 
@@ -62,14 +66,7 @@ const ThumbnailButton = styled(Button)`
   z-index: 1;
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  margin: 0 0.15em;
   flex-shrink: 0;
-
-  ${({ isVisualEffects }) => isVisualEffects && `
-    background-size: cover;
-    background-position: center;
-    margin: 0.15em;
-  `}
 
   & + img {
     border-radius: ${borderSizeLarge};
@@ -89,15 +86,16 @@ const ThumbnailButton = styled(Button)`
       filter: grayscale(1);
     }
   `}
-`;
 
-const Thumbnail = styled.img`
-  position: absolute;
-  cursor: pointer;
-  width: 47px;
-  height: 47px;
-  top: 0.063rem;
-  left: 0.188rem;
+  ${({ background }) => background && `
+    background-image: url(${background});
+    background-size: 46px 46px;
+    background-origin: padding-box;
+
+    &:active {
+      background-image: url(${background});
+    }
+  `}
 `;
 
 const Select = styled.select`
@@ -133,6 +131,11 @@ const Label = styled.label`
 
 const ThumbnailButtonWrapper = styled.div`
   position: relative;
+  margin: 0 0.15rem;
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    margin: 0.15rem;
+  `}
 `;
 
 const ButtonWrapper = styled.div`
@@ -151,16 +154,27 @@ const ButtonRemove = styled(Button)`
 
 const BgCustomButton = styled(BgNoneButton)``;
 
+const SkeletonWrapper = styled.div`
+  flex-basis: 0 0 48px;
+  margin: 0 0.15rem;
+  height: 48px;
+
+  & .react-loading-skeleton {    
+    height: 48px;
+    width: 48px;
+  }
+`;
+
 export default {
   VirtualBackgroundRowThumbnail,
   BgWrapper,
   BgNoneButton,
   ThumbnailButton,
-  Thumbnail,
   Select,
   Label,
   ThumbnailButtonWrapper,
   ButtonWrapper,
   ButtonRemove,
   BgCustomButton,
+  SkeletonWrapper,
 };

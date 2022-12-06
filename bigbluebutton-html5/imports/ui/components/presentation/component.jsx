@@ -4,12 +4,13 @@ import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteb
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
+import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
-import { politeSRAlert } from '/imports/utils/dom-utils';
 import { Session } from 'meteor/session';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationPlaceholder from './presentation-placeholder/component';
+import PresentationMenu from './presentation-menu/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
@@ -25,6 +26,8 @@ import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
+import { addNewAlert } from '../screenreader-alert/service';
+import { clearCursors } from '/imports/ui/components/cursor/service';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -74,6 +77,8 @@ class Presentation extends PureComponent {
       fitToWidth: false,
       isFullscreen: false,
       tldrawAPI: null,
+      isPanning: false,
+      tldrawIsMounting: true,
     };
 
     this.currentPresentationToastId = null;
@@ -88,10 +93,14 @@ class Presentation extends PureComponent {
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
+    this.setIsPanning = this.setIsPanning.bind(this);
+    this.handlePanShortcut = this.handlePanShortcut.bind(this);
+    this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
+    this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.set('componentPresentationWillUnmount', false);
   }
 
@@ -119,8 +128,28 @@ class Presentation extends PureComponent {
     return stateChange;
   }
 
+  setIsPanning() {
+    this.setState({
+      isPanning: !this.state.isPanning,
+    });
+  }
+
+  handlePanShortcut(e) {
+    const { userIsPresenter } = this.props;
+    if (e.keyCode === SPACE && userIsPresenter) {
+      switch(e.type) {
+        case 'keyup':
+          return this.state.isPanning && this.setIsPanning();
+        case 'keydown':
+          return !this.state.isPanning && this.setIsPanning(); 
+      }
+    }
+  }
+
   componentDidMount() {
     this.getInitialPresentationSizes();
+    this.refPresentationContainer.addEventListener('keydown', this.handlePanShortcut);
+    this.refPresentationContainer.addEventListener('keyup', this.handlePanShortcut);
     this.refPresentationContainer
       .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     window.addEventListener('resize', this.onResize, false);
@@ -159,14 +188,21 @@ class Presentation extends PureComponent {
       presentationBounds,
       numCameras,
       intl,
+      multiUser,
+      clearFakeAnnotations,
     } = this.props;
 
-    const { presentationWidth, presentationHeight } = this.state;
-
+    const { presentationWidth, presentationHeight, zoom, isPanning, fitToWidth } = this.state;
     const {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
+      multiUser: prevMultiUser,
     } = prevProps;
+
+    if (prevMultiUser && !multiUser) {
+      clearFakeAnnotations();
+      clearCursors();
+    }
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
@@ -177,7 +213,7 @@ class Presentation extends PureComponent {
       && prevProps?.currentSlide?.num != null
       && currentSlide?.num !== prevProps.currentSlide?.num
     ) {
-      politeSRAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
+      addNewAlert(intl.formatMessage(intlMessages.slideContentChanged, { 0: currentSlide.num }));
     }
 
     if (currentPresentation) {
@@ -187,7 +223,7 @@ class Presentation extends PureComponent {
       const shouldCloseToast = !(currentPresentation.downloadable && !userIsPresenter);
 
       if (
-        prevProps?.currentPresentation?.name !== currentPresentation.name
+        prevProps?.currentPresentation?.id !== currentPresentation.id
         || (downloadableOn && !userIsPresenter)
       ) {
         if (this.currentPresentationToastId) {
@@ -199,7 +235,7 @@ class Presentation extends PureComponent {
           this.currentPresentationToastId = toast(this.renderCurrentPresentationToast(), {
             onClose: () => { this.currentPresentationToastId = null; },
             autoClose: shouldCloseToast,
-            className: 'actionToast',
+            className: 'actionToast currentPresentationToast',
           });
         }
       }
@@ -257,6 +293,10 @@ class Presentation extends PureComponent {
         value: currentSlide.num,
       });
     }
+
+    if ((zoom <= HUNDRED_PERCENT && isPanning && !fitToWidth) || !userIsPresenter && prevProps.userIsPresenter) {
+      this.setIsPanning();
+    }
   }
 
   componentWillUnmount() {
@@ -266,6 +306,8 @@ class Presentation extends PureComponent {
     window.removeEventListener('resize', this.onResize, false);
     this.refPresentationContainer
       .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
+    this.refPresentationContainer.removeEventListener('keydown', this.handlePanShortcut);
+    this.refPresentationContainer.removeEventListener('keyup', this.handlePanShortcut);
 
     if (fullscreenContext) {
       layoutContextDispatch({
@@ -281,7 +323,7 @@ class Presentation extends PureComponent {
   setTldrawAPI(api) {
     this.setState({
       tldrawAPI: api,
-    })
+    });
   }
 
   handleResize() {
@@ -316,10 +358,10 @@ class Presentation extends PureComponent {
   }
 
   getToolbarHeight() {
-    const { refPresentationToolbar } = this;
     let height = 0;
-    if (refPresentationToolbar) {
-      const { clientHeight } = refPresentationToolbar;
+    const toolbarEl = document.getElementById('presentationToolbarWrapper');
+    if (toolbarEl) {
+      const { clientHeight } = toolbarEl;
       height = clientHeight;
     }
     return height;
@@ -424,20 +466,8 @@ class Presentation extends PureComponent {
     };
   }
 
-  zoomChanger(incomingZoom) {
-    const {
-      zoom,
-    } = this.state;
-
-    let newZoom = incomingZoom;
-
-    if (newZoom <= HUNDRED_PERCENT) {
-      newZoom = HUNDRED_PERCENT;
-    } else if (incomingZoom >= MAX_PERCENT) {
-      newZoom = MAX_PERCENT;
-    }
-
-    if (newZoom !== zoom) this.setState({ zoom: newZoom });
+  zoomChanger(zoom) {
+    this.setState({ zoom });
   }
 
   fitToWidthHandler() {
@@ -641,9 +671,10 @@ class Presentation extends PureComponent {
         }}
       >
         <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
-        {this.renderPresentationClose()}
+        {/* {this.renderPresentationClose()}
         {this.renderPresentationDownload()}
-        {this.renderPresentationFullscreen()}
+        {this.renderPresentationFullscreen()} */}
+        {this.renderPresentationMenu()}
         <Styled.PresentationSvg
           key={currentSlide.id}
           data-test={!presentationIsOpen ? 'hiddenWhiteboard' : 'whiteboard'}
@@ -713,6 +744,7 @@ class Presentation extends PureComponent {
       fullscreenContext,
       layoutContextDispatch,
       presentationIsOpen,
+      slidePosition,
     } = this.props;
     const { zoom, fitToWidth } = this.state;
 
@@ -732,12 +764,14 @@ class Presentation extends PureComponent {
           zoom,
           podId,
           currentSlide,
+          slidePosition,
           toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
         }}
-        tldrawAPI={this.state.tldrawAPI}
+        setIsPanning={this.setIsPanning}
+        isPanning={this.state.isPanning}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
@@ -790,6 +824,7 @@ class Presentation extends PureComponent {
       intl,
       fullscreenElementId,
     } = this.props;
+    const { isFullscreen } = this.state;
 
     if (!ALLOW_FULLSCREEN) return null;
 
@@ -812,7 +847,7 @@ class Presentation extends PureComponent {
     const { downloadable } = currentPresentation;
 
     return (
-      <Styled.InnerToastWrapper>
+      <Styled.InnerToastWrapper data-test="currentPresentationToast">
         <Styled.ToastIcon>
           <Styled.IconWrapper>
             <Icon iconName="presentation" />
@@ -843,6 +878,29 @@ class Presentation extends PureComponent {
     );
   }
 
+  renderPresentationMenu() {
+    const {
+      intl,
+      fullscreenElementId,
+      layoutContextDispatch,
+    } = this.props;
+
+    return (
+      <PresentationMenu
+        fullscreenRef={this.refPresentationContainer}
+        tldrawAPI={this.state.tldrawAPI}
+        elementName={intl.formatMessage(intlMessages.presentationLabel)}
+        elementId={fullscreenElementId}
+        toggleSwapLayout={MediaService.toggleSwapLayout}
+        layoutContextDispatch={layoutContextDispatch}
+      />
+    );
+  }
+
+  setTldrawIsMounting(value) {
+    this.setState({ tldrawIsMounting: value });
+  }
+
   render() {
     const {
       userIsPresenter,
@@ -859,12 +917,18 @@ class Presentation extends PureComponent {
       podId,
       intl,
       isViewersCursorLocked,
+      fullscreenElementId,
+      layoutContextDispatch,
+      presentationIsOpen,
     } = this.props;
 
     const {
       showSlide,
       isFullscreen,
       localPosition,
+      fitToWidth,
+      zoom,
+      tldrawIsMounting,
     } = this.state;
 
     let viewBoxDimensions;
@@ -901,6 +965,10 @@ class Presentation extends PureComponent {
       ? svgWidth
       : presentationToolbarMinWidth;
 
+    const slideContent = currentSlide?.content ? `${intl.formatMessage(intlMessages.slideContentStart)}
+    ${currentSlide.content}
+    ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
+
     if (!currentPresentation && this.refPresentationContainer) {
       return (
         <></>
@@ -914,10 +982,10 @@ class Presentation extends PureComponent {
     }
 
     return (
-      <>   
+      <>
         <Styled.PresentationContainer
           role="region"
-
+          data-test="presentationContainer"
           ref={(ref) => { this.refPresentationContainer = ref; }}
           style={{
             top: presentationBounds.top,
@@ -933,21 +1001,59 @@ class Presentation extends PureComponent {
               : null,
           }}
         >
-          <WhiteboardContainer 
-            whiteboardId={currentSlide?.id}
-            podId={podId}
-            slidePosition={slidePosition}
-            getSvgRef={this.getSvgRef}
-            setTldrawAPI={this.setTldrawAPI}
-            curPageId={currentSlide?.num.toString()}
-            svgUri={currentSlide?.svgUri}
-            intl={intl}
-            presentationBounds={presentationBounds}
-            isViewersCursorLocked={isViewersCursorLocked}
-          />
-          {isFullscreen && <PollingContainer />}
-          {this.renderPresentationToolbar()}
-        {/* 
+          <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
+            <Styled.SvgContainer
+              style={{
+                height: svgHeight + toolbarHeight,
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
+                  height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
+                  textAlign: 'center',
+                  display: !presentationIsOpen ? 'none' : 'block',
+                }}
+              >
+                <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
+                {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}
+                <WhiteboardContainer
+                  whiteboardId={currentSlide?.id}
+                  podId={podId}
+                  slidePosition={slidePosition}
+                  getSvgRef={this.getSvgRef}
+                  setTldrawAPI={this.setTldrawAPI}
+                  curPageId={currentSlide?.num.toString()}
+                  svgUri={currentSlide?.svgUri}
+                  intl={intl}
+                  presentationWidth={svgWidth}
+                  presentationHeight={svgHeight}
+                  isViewersCursorLocked={isViewersCursorLocked}
+                  isPanning={this.state.isPanning}
+                  zoomChanger={this.zoomChanger}
+                  fitToWidth={fitToWidth}
+                  zoomValue={zoom}
+                  setTldrawIsMounting={this.setTldrawIsMounting}
+                />
+                {isFullscreen && <PollingContainer />}
+              </div>
+              {!tldrawIsMounting && (
+                <Styled.PresentationToolbar
+                  ref={(ref) => { this.refPresentationToolbar = ref; }}
+                  style={
+                    {
+                      width: containerWidth,
+                    }
+                  }
+                >
+                  {this.renderPresentationToolbar(svgWidth)}
+                </Styled.PresentationToolbar>
+              )}
+              {/*this.renderPresentationToolbar()*/}
+            </Styled.SvgContainer>
+          </Styled.Presentation>
+          {/*
         <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
           <Styled.WhiteboardSizeAvailable ref={(ref) => { this.refWhiteboardArea = ref; }} />
           <Styled.SvgContainer

@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import BBBMenu from "/imports/ui/components/common/menu/component";
-import Button from '/imports/ui/components/common/button/component';
 import CreateBreakoutRoomModal from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import Trigger from "/imports/ui/components/common/control-header/right/component";
 
 const intlMessages = defineMessages({
   options: {
@@ -17,7 +17,6 @@ const intlMessages = defineMessages({
   manageUsers: {
     id: 'app.breakout.dropdown.manageUsers',
     description: 'Manage users label',
-    defaultMessage: 'Manage Users',
   },
   destroy: {
     id: 'app.breakout.dropdown.destroyAll',
@@ -86,34 +85,30 @@ class BreakoutDropdown extends PureComponent {
   render() {
     const {
       intl,
+      isRTL,
     } = this.props;
 
     return (
       <>
         <BBBMenu
           trigger={
-            <Button
+            <Trigger
               data-test="breakoutOptionsMenu"
               icon="more"
-              size="sm"
-              ghost
-              circle
-              hideLabel
-              color="dark"
               label={intl.formatMessage(intlMessages.options)}
               aria-label={intl.formatMessage(intlMessages.options)}
               onClick={() => null}
             />
           }
           opts={{
-            id: "default-dropdown-menu",
+            id: "breakoutroom-dropdown-menu",
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
             getContentAnchorEl: null,
             fullwidth: "true",
-            anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-            transformorigin: { vertical: 'bottom', horizontal: 'left' },
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           }}
           actions={this.getAvailableActions()}
         />

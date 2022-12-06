@@ -3,11 +3,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import _ from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import Button from '/imports/ui/components/common/button/component';
-
-import { alertScreenReader } from '/imports/utils/dom-utils';
+import { getDateString } from '/imports/utils/string-utils';
+import Trigger from '/imports/ui/components/common/control-header/right/component';
 
 import ChatService from '../service';
+import { addNewAlert } from '../../screenreader-alert/service';
 
 const intlMessages = defineMessages({
   clear: {
@@ -58,7 +58,6 @@ class ChatDropdown extends PureComponent {
       meetingIsBreakout,
       meetingName,
       timeWindowsValues,
-      users,
     } = this.props;
 
     const clearIcon = 'delete';
@@ -77,14 +76,11 @@ class ChatDropdown extends PureComponent {
           onClick: () => {
             const link = document.createElement('a');
             const mimeType = 'text/plain';
-            const date = new Date();
-            const time = `${date.getHours()}-${date.getMinutes()}`;
-            const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}_${time}`;
-            link.setAttribute('download', `bbb-${meetingName}[public-chat]_${dateString}.txt`);
+            link.setAttribute('download', `bbb-${meetingName}[public-chat]_${getDateString()}.txt`);
             link.setAttribute(
               'href',
-              `data: ${mimeType} ;charset=utf-8,`
-              + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, users, intl))}`,
+              `data: ${mimeType};charset=utf-8,`
+              + `${encodeURIComponent(ChatService.exportChat(timeWindowsValues, intl))}`,
             );
             link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
           },
@@ -101,11 +97,11 @@ class ChatDropdown extends PureComponent {
           dataTest: 'chatCopy',
           label: intl.formatMessage(intlMessages.copy),
           onClick: () => {
-            const chatHistory = ChatService.exportChat(timeWindowsValues, users, intl);
+            const chatHistory = ChatService.exportChat(timeWindowsValues, intl);
             navigator.clipboard.writeText(chatHistory).then(() => {
-              alertScreenReader(intl.formatMessage(intlMessages.copySuccess));
+              addNewAlert(intl.formatMessage(intlMessages.copySuccess));
             }).catch(() => {
-              alertScreenReader(intl.formatMessage(intlMessages.copyErr));
+              addNewAlert(intl.formatMessage(intlMessages.copyErr));
             });
           },
         },
@@ -131,35 +127,31 @@ class ChatDropdown extends PureComponent {
     const {
       intl,
       amIModerator,
+      isRTL,
     } = this.props;
 
     if (!amIModerator && !ENABLE_SAVE_AND_COPY_PUBLIC_CHAT) return null;
     return (
       <>
         <BBBMenu
-          trigger={(
-            <Button
+          trigger={
+            <Trigger
               data-test="chatOptionsMenu"
               icon="more"
-              size="sm"
-              ghost
-              circle
-              hideLabel
-              color="dark"
               label={intl.formatMessage(intlMessages.options)}
               aria-label={intl.formatMessage(intlMessages.options)}
               onClick={() => null}
-            />
-        )}
+            />                    
+          }
           opts={{
-            id: 'default-dropdown-menu',
+            id: 'chat-options-dropdown-menu',
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
             getContentAnchorEl: null,
             fullwidth: 'true',
-            anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-            transformorigin: { vertical: 'bottom', horizontal: 'left' },
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           }}
           actions={this.getAvailableActions()}
         />

@@ -64,6 +64,14 @@ object RegisteredUsers {
     } yield user
   }
 
+  def checkUserExtIdHasJoined(externId: String, regUsers: RegisteredUsers): Boolean = {
+    regUsers.toVector.filter(_.externId == externId).filter(_.joined).length > 0
+  }
+
+  def numUniqueJoinedUsers(regUsers: RegisteredUsers): Int = {
+    regUsers.toVector.filter(_.joined).map(_.externId).distinct.length
+  }
+
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
 
     findWithExternUserId(user.externId, users) match {

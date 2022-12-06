@@ -23,7 +23,7 @@
   <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
   <startTime>${meeting.getStartTime()?c}</startTime>
   <endTime>${meeting.getEndTime()?c}</endTime>
-  <participantCount>${meeting.getNumUsers()?c}</participantCount>
+  <participantCount>${meeting.getNumUsersOnline()?c}</participantCount>
   <listenerCount>${meeting.getNumListenOnly()?c}</listenerCount>
   <voiceParticipantCount>${meeting.getNumVoiceJoined()?c}</voiceParticipantCount>
   <videoCount>${meeting.getNumVideos()?c}</videoCount>

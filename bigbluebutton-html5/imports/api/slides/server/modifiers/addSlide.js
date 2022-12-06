@@ -50,21 +50,22 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
     id: String,
     num: Number,
     thumbUri: String,
-    swfUri: String,
     txtUri: String,
     svgUri: String,
     current: Boolean,
-    xCamera: Number,
-    yCamera: Number,
-    zoom: Number,
+    xOffset: Number,
+    yOffset: Number,
+    widthRatio: Number,
+    heightRatio: Number,
     content: String,
   });
 
   const {
     id: slideId,
-    xCamera,
-    yCamera,
-    zoom,
+    xOffset,
+    yOffset,
+    widthRatio,
+    heightRatio,
     ...restSlide
   } = slide;
 
@@ -101,13 +102,14 @@ export default function addSlide(meetingId, podId, presentationId, slide) {
         const slideData = {
           width,
           height,
-          xCamera,
-          yCamera,
-          zoom,
+          xOffset,
+          yOffset,
+          widthRatio,
+          heightRatio,
         };
-        //const slidePosition = calculateSlideData(slideData);
+        const slidePosition = calculateSlideData(slideData);
 
-        addSlidePositions(meetingId, podId, presentationId, slideId, slideData);
+        addSlidePositions(meetingId, podId, presentationId, slideId, slidePosition);
       }
 
       try {

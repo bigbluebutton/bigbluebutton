@@ -58,10 +58,6 @@ class Auth {
     Storage.setItem('sessionToken', this._sessionToken);
   }
 
-  get sessionToken() {
-    return this._sessionToken;
-  }
-
   get userID() {
     return this._userID;
   }
@@ -151,15 +147,6 @@ class Auth {
     };
   }
 
-  set _connectionID(connectionId) {
-    this._connectionID = connectionId;
-    Storage.setItem('sessionToken', this._connectionID);
-  }
-
-  get sessionToken() {
-    return this._sessionToken;
-  }
-
   set(
     meetingId,
     requesterUserId,
@@ -223,10 +210,15 @@ class Auth {
     }
 
     this.loggedIn = false;
+    this.isAuthenticating = true;
+
     return this.validateAuthToken()
       .then(() => {
         this.loggedIn = true;
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
+      })
+      .finally(() => {
+        this.isAuthenticating = false;
       });
   }
 
@@ -253,6 +245,7 @@ class Auth {
             initAnnotationsStreamListener();
             clearTimeout(validationTimeout);
             this.connectionID = authenticationTokenValidation.connectionId;
+            this.connectionAuthTime = new Date().getTime();
             Session.set('userWillAuth', false);
             setTimeout(() => resolve(true), 100);
             break;

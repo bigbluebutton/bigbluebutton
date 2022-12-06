@@ -65,11 +65,14 @@ class Tooltip extends Component {
       aria: null,
       allowHTML: false,
       animation: animations ? DEFAULT_ANIMATION : ANIMATION_NONE,
+      appendTo: document.body,
       arrow: roundArrow,
       boundary: 'window',
       content: title,
       delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
       duration: animations ? ANIMATION_DURATION : 0,
+      interactive: true,
+      interactiveBorder: 10,
       onShow: this.onShow,
       onHide: this.onHide,
       offset: TIP_OFFSET,
@@ -83,7 +86,7 @@ class Tooltip extends Component {
 
   componentDidUpdate() {
     const { animations } = Settings.application;
-    const { title, fullscreen } = this.props;
+    const { title } = this.props;
     const elements = document.querySelectorAll('[id^="tippy-"]');
 
     Array.from(elements).filter((e) => {
@@ -107,12 +110,15 @@ class Tooltip extends Component {
     });
 
     const elem = document.getElementById(this.tippySelectorId);
-    const opts = { content: title, appendTo: fullscreen || document.body };
+    const opts = { content: title, appendTo: document.body };
     if (elem && elem._tippy) elem._tippy.setProps(opts);
   }
 
   componentWillUnmount() {
-    if (this.tooltip[0]) this.tooltip[0].hide();
+    setTimeout(() => {
+      const tooltip = this.tooltip[0];
+      if (tooltip) tooltip.hide();
+    }, 150);
   }
 
   onShow() {

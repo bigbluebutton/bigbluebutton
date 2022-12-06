@@ -5,14 +5,16 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
+import MobileAppModal from '/imports/ui/components/mobile-app-modal/container';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import { colorDanger } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -71,6 +73,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.settingsDropdown.helpLabel',
     description: 'Help options label',
   },
+  openAppLabel: {
+    id: 'app.navBar.settingsDropdown.openAppLabel',
+    description: 'Open mobile app label',
+  },
   helpDesc: {
     id: 'app.navBar.settingsDropdown.helpDesc',
     description: 'Describes help option',
@@ -82,6 +88,14 @@ const intlMessages = defineMessages({
   endMeetingDesc: {
     id: 'app.navBar.settingsDropdown.endMeetingDesc',
     description: 'Describes settings option closing the current meeting',
+  },
+  startCaption: {
+    id: 'app.audio.captions.button.start',
+    description: 'Start audio captions',
+  },
+  stopCaption: {
+    id: 'app.audio.captions.button.stop',
+    description: 'Stop audio captions',
   },
 });
 
@@ -97,6 +111,9 @@ const propTypes = {
   isBreakoutRoom: PropTypes.bool,
   isMeteorConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
+  audioCaptionsEnabled: PropTypes.bool.isRequired,
+  audioCaptionsActive: PropTypes.bool.isRequired,
+  audioCaptionsSet: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
 };
 
@@ -109,7 +126,8 @@ const defaultProps = {
 };
 
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
-const { isSafari } = browserInfo;
+const BBB_TABLET_APP_CONFIG = Meteor.settings.public.app.bbbTabletApp;
+const { isSafari, isTabletApp } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
 class SettingsDropdown extends PureComponent {
@@ -169,7 +187,7 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-fullscreen',
           icon: fullscreenIcon,
           label: fullscreenLabel,
-          // description: fullscreenDesc,
+          description: fullscreenDesc,
           onClick: handleToggleFullscreen,
         },
       )
@@ -185,8 +203,11 @@ class SettingsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected,
+      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
+      audioCaptionsActive, audioCaptionsSet, isMobile,
     } = this.props;
+
+    const { isIos } = deviceInfo;
 
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
@@ -206,14 +227,15 @@ class SettingsDropdown extends PureComponent {
         icon: 'settings',
         dataTest: 'settings',
         label: intl.formatMessage(intlMessages.settingsLabel),
-        // description: intl.formatMessage(intlMessages.settingsDesc),
+        description: intl.formatMessage(intlMessages.settingsDesc),
         onClick: () => mountModal(<SettingsMenuContainer />),
       },
       {
         key: 'list-item-about',
         icon: 'about',
+        dataTest: 'aboutModal',
         label: intl.formatMessage(intlMessages.aboutLabel),
-        // description: intl.formatMessage(intlMessages.aboutDesc),
+        description: intl.formatMessage(intlMessages.aboutDesc),
         onClick: () => mountModal(<AboutContainer />),
       },
     );
@@ -225,8 +247,37 @@ class SettingsDropdown extends PureComponent {
           icon: 'help',
           iconRight: 'popout_window',
           label: intl.formatMessage(intlMessages.helpLabel),
-          // description: intl.formatMessage(intlMessages.helpDesc),
+          dataTest: 'helpButton',
+          description: intl.formatMessage(intlMessages.helpDesc),
           onClick: () => window.open(`${helpLink}`),
+        },
+      );
+    }
+
+    if (isIos &&
+      !isTabletApp &&
+      BBB_TABLET_APP_CONFIG.enabled == true &&
+      BBB_TABLET_APP_CONFIG.iosAppStoreUrl !== '') {
+      this.menuItems.push(
+        {
+          key: 'list-item-help',
+          icon: 'popout_window',
+          label: intl.formatMessage(intlMessages.openAppLabel),
+          onClick: () => mountModal(<MobileAppModal />),
+         }
+      );
+    }
+
+    if (audioCaptionsEnabled && isMobile) {
+      this.menuItems.push(
+        {
+          key: 'audioCaptions',
+          dataTest: 'audioCaptions',
+          icon: audioCaptionsActive ? 'closed_caption_stop' : 'closed_caption',
+          label: intl.formatMessage(
+            audioCaptionsActive ? intlMessages.stopCaption : intlMessages.startCaption,
+          ),
+          onClick: () => audioCaptionsSet(!audioCaptionsActive),
         },
       );
     }
@@ -236,36 +287,36 @@ class SettingsDropdown extends PureComponent {
         key: 'list-item-shortcuts',
         icon: 'shortcuts',
         label: intl.formatMessage(intlMessages.hotkeysLabel),
-        // description: intl.formatMessage(intlMessages.hotkeysDesc),
+        description: intl.formatMessage(intlMessages.hotkeysDesc),
         onClick: () => mountModal(<ShortcutHelpComponent />),
         divider: true,
       },
     );
 
-    if (allowedToEndMeeting && isMeteorConnected) {
-      this.menuItems.push(
-        {
-          key: 'list-item-end-meeting',
-          icon: 'application',
-          label: intl.formatMessage(intlMessages.endMeetingLabel),
-          // description: intl.formatMessage(intlMessages.endMeetingDesc),
-          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
-        },
-      );
-    }
-
     if (allowLogoutSetting && isMeteorConnected) {
-      const customStyles = { color: colorDanger };
-
       this.menuItems.push(
         {
           key: 'list-item-logout',
           dataTest: 'logout',
           icon: 'logout',
           label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          // description: intl.formatMessage(intlMessages.leaveSessionDesc),
-          customStyles,
+          description: intl.formatMessage(intlMessages.leaveSessionDesc),
           onClick: () => this.leaveSession(),
+        },
+      );
+    }
+
+    if (allowedToEndMeeting && isMeteorConnected) {
+      const customStyles = { background: colorDanger, color: colorWhite };
+
+      this.menuItems.push(
+        {
+          key: 'list-item-end-meeting',
+          icon: 'application',
+          label: intl.formatMessage(intlMessages.endMeetingLabel),
+          description: intl.formatMessage(intlMessages.endMeetingDesc),
+          customStyles,
+          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
         },
       );
     }
@@ -279,9 +330,10 @@ class SettingsDropdown extends PureComponent {
       shortcuts: OPEN_OPTIONS_AK,
       isDropdownOpen,
       isMobile,
+      isRTL,
     } = this.props;
 
-    const customStyles = { top: '3rem' };
+    const customStyles = { top: '1rem' };
 
     return (
       <BBBMenu
@@ -293,7 +345,8 @@ class SettingsDropdown extends PureComponent {
             label={intl.formatMessage(intlMessages.optionsLabel)}
             icon="more"
             data-test="optionsButton"
-            ghost
+            color="dark"
+            size="md"
             circle
             hideLabel
             // FIXME: Without onClick react proptypes keep warning
@@ -302,6 +355,16 @@ class SettingsDropdown extends PureComponent {
           />
         )}
         actions={this.renderMenuItems()}
+        opts={{
+          id: 'app-settings-dropdown-menu',
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: 'true',
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
+          transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+        }}
       />
     );
   }

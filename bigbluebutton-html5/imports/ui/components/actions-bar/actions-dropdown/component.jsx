@@ -129,7 +129,6 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
-      amIModerator,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
@@ -220,7 +219,7 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if ((amIPresenter || amIModerator) && showPushLayout) {
+    if (amIPresenter && showPushLayout) {
       actions.push({
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
@@ -284,6 +283,7 @@ class ActionsDropdown extends PureComponent {
       isMeteorConnected,
       isDropdownOpen,
       isMobile,
+      isRTL,
     } = this.props;
 
     const availableActions = this.getAvailableActions();
@@ -296,7 +296,7 @@ class ActionsDropdown extends PureComponent {
       || !isMeteorConnected) {
       return null;
     }
-    const customStyles = { top: '-3rem' };
+    const customStyles = { top: '-1rem' };
 
     return (
       <BBBMenu
@@ -318,14 +318,14 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
-          id: "default-dropdown-menu",
+          id: "actions-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
           getContentAnchorEl: null,
           fullwidth: "true",
-          anchorOrigin: { vertical: 'top', horizontal: 'left' },
-          transformorigin: { vertical: 'top', horizontal: 'left' },
+          anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
         }}
       />
     );

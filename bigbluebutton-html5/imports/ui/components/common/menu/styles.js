@@ -6,6 +6,13 @@ import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-compone
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
+const MenuItemWrapper = styled.div`
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+  align-items: center;
+`;
+
 const Option = styled.div`
   line-height: 1;
   margin-right: 1.65rem;
@@ -78,6 +85,7 @@ const BBBMenuItem = styled(MenuItem)`
 `;
 
 export default {
+  MenuItemWrapper,
   Option,
   CloseButton,
   IconRight,

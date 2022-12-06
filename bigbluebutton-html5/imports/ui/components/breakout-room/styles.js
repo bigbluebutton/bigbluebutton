@@ -10,7 +10,6 @@ import {
   colorPrimary,
   colorGray,
   colorDanger,
-  colorGrayDark,
   userListBg,
   colorWhite,
   colorGrayLighter,
@@ -68,6 +67,11 @@ const Content = styled.div`
   justify-content: space-between;
   font-size: ${fontSizeSmall};
   font-weight: bold;
+  padding: ${borderSize} ${borderSize} ${borderSize} 0;
+
+  [dir="rtl"] & {
+    padding: ${borderSize} 0 ${borderSize} ${borderSize};
+  }
 `;
 
 const BreakoutRoomListNameLabel = styled.span`
@@ -228,33 +232,6 @@ const Panel = styled(ScrollboxVertical)`
   height: 100%;
 `;
 
-const HeaderButton = styled(Button)`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  position: relative;
-  padding-left: 0;
-  padding-right: inherit;
-  background: none !important;
-
-  [dir="rtl"] & {
-    margin: 0 0 2rem auto;
-    padding-left: inherit;
-    padding-right: 0;
-  }
-  
-  & > i  {
-    color: ${colorGrayDark};
-
-    [dir="rtl"] & {
-      -webkit-transform: scale(-1, 1);
-      -moz-transform: scale(-1, 1);
-      -ms-transform: scale(-1, 1);
-      -o-transform: scale(-1, 1);
-      transform: scale(-1, 1);
-    }
-  }`;
-
 const Separator = styled.div`
   position: relative;
   width: 100%;
@@ -262,13 +239,6 @@ const Separator = styled.div`
   height: ${borderSizeSmall};
   background-color: ${colorGrayLighter};
   margin: 30px 0px;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: ${jumboPaddingY};
 `;
 
 const FlexRow = styled.div`
@@ -296,8 +266,6 @@ export default {
   EndButton,
   Duration,
   Panel,
-  HeaderButton,
   Separator,
-  Header,
   FlexRow,
 };

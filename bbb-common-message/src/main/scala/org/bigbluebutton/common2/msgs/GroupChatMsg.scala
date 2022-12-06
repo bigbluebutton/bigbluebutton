@@ -8,7 +8,7 @@ object GroupChatAccess {
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")
 case class GroupChatMsgFromUser(correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
 case class GroupChatMsgToUser(id: String, timestamp: Long, correlationId: String, sender: GroupChatUser, chatEmphasizedText: Boolean = false, message: String)
-case class GroupChatInfo(id: String, name: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
+case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
 object OpenGroupChatWindowReqMsg { val NAME = "OpenGroupChatWindowReqMsg" }
 case class OpenGroupChatWindowReqMsg(header: BbbClientMsgHeader, body: OpenGroupChatWindowReqMsgBody) extends StandardMsg
@@ -36,14 +36,14 @@ case class GetGroupChatMsgsRespMsgBody(chatId: String, msgs: Vector[GroupChatMsg
 
 object CreateGroupChatReqMsg { val NAME = "CreateGroupChatReqMsg" }
 case class CreateGroupChatReqMsg(header: BbbClientMsgHeader, body: CreateGroupChatReqMsgBody) extends StandardMsg
-case class CreateGroupChatReqMsgBody(correlationId: String, name: String, access: String,
+case class CreateGroupChatReqMsgBody(correlationId: String, access: String,
                                      users: Vector[String], msg: Vector[GroupChatMsgFromUser])
 
 object GroupChatCreatedEvtMsg { val NAME = "GroupChatCreatedEvtMsg" }
 case class GroupChatCreatedEvtMsg(header: BbbClientMsgHeader, body: GroupChatCreatedEvtMsgBody) extends BbbCoreMsg
 case class GroupChatCreatedEvtMsgBody(correlationId: String, chatId: String, createdBy: GroupChatUser,
-                                      name: String, access: String,
-                                      users: Vector[GroupChatUser], msg: Vector[GroupChatMsgToUser])
+                                      access: String,
+                                      users:  Vector[GroupChatUser], msg: Vector[GroupChatMsgToUser])
 
 object DestroyGroupChatReqMsg { val NAME = "DestroyGroupChatReqMsg" }
 case class DestroyGroupChatReqMsg(header: BbbClientMsgHeader, body: DestroyGroupChatReqMsgBody) extends StandardMsg

@@ -155,6 +155,14 @@ const CustomLayout = (props) => {
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -183,9 +191,18 @@ const CustomLayout = (props) => {
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: input.externalVideo.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
+          },
         }, INITIAL_INPUT_STATE),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 
@@ -659,6 +676,17 @@ const CustomLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

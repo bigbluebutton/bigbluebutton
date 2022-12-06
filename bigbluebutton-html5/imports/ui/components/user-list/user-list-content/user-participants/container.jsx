@@ -22,9 +22,9 @@ const UserParticipantsContainer = (props) => {
   const { videoUsers, whiteboardUsers } = props;
   const { users: contextUsers, isReady } = useContextUsers();
 
-  const currentUser = contextUsers ? contextUsers[Auth.meetingID][Auth.userID] : null;
-  const usersArray = contextUsers ? Object.values(contextUsers[Auth.meetingID]) : null;
-  const users = contextUsers ? formatUsers(usersArray, videoUsers, whiteboardUsers) : [];
+  const currentUser = contextUsers && isReady ? contextUsers[Auth.meetingID][Auth.userID] : null;
+  const usersArray = contextUsers && isReady ? Object.values(contextUsers[Auth.meetingID]) : null;
+  const users = contextUsers && isReady ? formatUsers(usersArray, videoUsers, whiteboardUsers) : [];
 
   return (
     <UserParticipants {
@@ -54,7 +54,15 @@ export default withTracker(() => {
   const currentMeeting = Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { lockSettingsProps: 1 } });
 
+  const isMeetingMuteOnStart = () => {
+    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
+      { fields: { 'voiceProp.muteOnStart': 1 } });
+    const { muteOnStart } = voiceProp;
+    return muteOnStart;
+  };
+  
   return ({
+    isMeetingMuteOnStart: isMeetingMuteOnStart(),
     meetingIsBreakout: meetingIsBreakout(),
     videoUsers: VideoService.getUsersIdFromVideoStreams(),
     whiteboardUsers,

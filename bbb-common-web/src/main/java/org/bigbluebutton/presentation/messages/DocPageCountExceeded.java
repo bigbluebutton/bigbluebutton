@@ -13,11 +13,12 @@ public class DocPageCountExceeded implements IDocConversionMsg {
   public final String key;
   public final Integer numPages;
   public final Integer maxNumPages;
+  public final String temporaryPresentationId;
 
   public DocPageCountExceeded(String podId, String meetingId, String presId, String presInstance,
                               String filename, String uploaderId, String authzToken,
                               Boolean downloadable, Boolean removable,  String key,
-                              Integer numPages, Integer maxNumPages) {
+                              Integer numPages, Integer maxNumPages, String temporaryPresentationId) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.presId = presId;
@@ -30,5 +31,6 @@ public class DocPageCountExceeded implements IDocConversionMsg {
     this.key = key;
     this.numPages = numPages;
     this.maxNumPages = maxNumPages;
+    this.temporaryPresentationId = temporaryPresentationId;
   }
 }

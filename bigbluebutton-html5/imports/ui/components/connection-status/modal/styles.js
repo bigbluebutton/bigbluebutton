@@ -7,12 +7,13 @@ import {
   colorGrayLabel,
   colorGrayLightest,
   colorPrimary,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
+  mdPaddingY,
   lgPaddingY,
-  lgPaddingX,
   titlePositionLeft,
   mdPaddingX,
   borderSizeLarge,
@@ -26,10 +27,14 @@ import {
   hasPhoneDimentions,
   mediumDown,
   hasPhoneWidth,
+  smallOnly,
 } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   ScrollboxVertical,
 } from '/imports/ui/stylesheets/styled-components/scrollable';
+import {
+  Tab, Tabs, TabList, TabPanel,
+} from 'react-tabs';
 
 const Item = styled.div`
   display: flex;
@@ -180,6 +185,7 @@ const NetworkDataContainer = styled(ScrollboxVertical)`
   flex-wrap: nowrap;
   overflow: auto;
   scroll-snap-type: x mandatory;
+  padding-bottom: 1.25rem;
 
   &:focus {
     outline: none;
@@ -187,6 +193,10 @@ const NetworkDataContainer = styled(ScrollboxVertical)`
     &::-webkit-scrollbar-thumb {
       background: rgba(0,0,0,.5);
     }
+  }
+
+  @media ${mediumDown} {
+    justify-content: space-between;
   }
 `;
 
@@ -212,12 +222,9 @@ const CopyContainer = styled.div`
 `;
 
 const ConnectionStatusModal = styled(Modal)`
-  padding: 1.5rem;
-  border-radius: 7.5px;
+  padding: 1rem;
+  height: 28rem;
 
-  @media ${hasPhoneDimentions} {
-    padding: 1rem;
-  }
 `;
 
 const Container = styled.div`
@@ -300,6 +307,7 @@ const Helper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: .5rem;
 `;
 
 const NetworkDataContent = styled.div`
@@ -325,52 +333,102 @@ const DataColumn = styled.div`
   }
 `;
 
-const Main = styled.div`
-  height: 19.5rem;
+const ConnectionTabs = styled(Tabs)`
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
+  justify-content: flex-start;
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: column;
+  }
 `;
 
-const Body = styled.div`
-  padding-top: ${jumboPaddingY};
+const ConnectionTabList = styled(TabList)`
+  display: flex;
+  flex-flow: row;
   margin: 0;
-  flex-grow: 1;
-  overflow: auto;
-  position: relative;
+  margin-bottom: .5rem;
+  border: none;
+  padding: 0;
+  width: calc(100% / 3);
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 `;
 
-const Navigation = styled.div`
-  display: flex;
-  border: none;
-  border-bottom: 1px solid ${colorOffWhite};
-  user-select: none;
-  overflow-y: auto;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & :not(:last-child) {
-    margin: 0;
-    margin-right: ${lgPaddingX};
-  }
-
-  .activeConnectionStatusTab {
-    border: none;
-    border-bottom: 2px solid ${colorPrimary};
-    color: ${colorPrimary};
-  }
-
-  & * {
-    cursor: pointer;
-    white-space: nowrap;
-  }
+const ConnectionTabPanel = styled(TabPanel)`
+  display: none;
+  margin: 0 0 0 1rem;
+  height: 13rem;
 
   [dir="rtl"] & {
-    & :not(:last-child) {
-      margin: 0;
-      margin-left: ${lgPaddingX};
+    margin: 0 1rem 0 0;
+  }
+
+  &.is-selected {
+    display: flex;
+    flex-flow: column;
+  }
+
+  @media ${smallOnly} {
+    width: 100%;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+
+const ConnectionTabSelector = styled(Tab)`
+  display: flex;
+  flex-flow: row;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  border: none !important;
+  padding: ${mdPaddingY} ${mdPaddingX};
+
+  border-radius: .2rem;
+  cursor: pointer;
+  margin-bottom: ${smPaddingY};
+  align-items: center;
+  flex-grow: 0;
+  min-width: 0;
+
+  & > span {
+    min-width: 0;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media ${smallOnly} {
+    max-width: 100%;
+    margin: 0 ${smPaddingX} 0 0;
+    & > i {
+      display: none;
+    }
+
+    [dir="rtl"] & {
+       margin: 0 0 0 ${smPaddingX};
+    }
+  }
+
+  span {
+    border-bottom: 2px solid ${colorWhite};
+  }
+
+  &.is-selected {
+    border: none;
+    color: ${colorPrimary};
+
+    span {
+      border-bottom: 2px solid ${colorPrimary};
     }
   }
 `;
@@ -405,10 +463,11 @@ export default {
   Copy,
   Helper,
   NetworkDataContent,
-  Main,
-  Body,
-  Navigation,
   FullName,
   DataColumn,
   HelperWrapper,
+  ConnectionTabs,
+  ConnectionTabList,
+  ConnectionTabSelector,
+  ConnectionTabPanel,
 };

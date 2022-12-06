@@ -10,7 +10,7 @@ const getSlideText = async (url) => {
   let content = '';
   try {
     const request = await axios(url);
-    content = request.data;
+    content = request.data.toString();
   } catch (error) {
     Logger.error(`No file found. ${error}`);
   }
@@ -40,13 +40,13 @@ export default function addPresentation(meetingId, podId, presentation) {
         id: String,
         num: Number,
         thumbUri: String,
-        swfUri: String,
         txtUri: String,
         svgUri: String,
         current: Boolean,
-        xCamera: Number,
-        yCamera: Number,
-        zoom: Number,
+        xOffset: Number,
+        yOffset: Number,
+        widthRatio: Number,
+        heightRatio: Number,
       },
     ],
     downloadable: Boolean,
@@ -65,6 +65,7 @@ export default function addPresentation(meetingId, podId, presentation) {
       podId,
       'conversion.done': true,
       'conversion.error': false,
+      'exportation.status': null,
     }, flat(presentation, { safe: true })),
   };
 
@@ -72,7 +73,7 @@ export default function addPresentation(meetingId, podId, presentation) {
     const { insertedId } = Presentations.upsert(selector, modifier);
 
     addSlides(meetingId, podId, presentation.id, presentation.pages);
-    
+
     if (presentation.current) {
       setCurrentPresentation(meetingId, podId, presentation.id);
       Logger.info(`Added presentation id=${presentation.id} meeting=${meetingId}`);

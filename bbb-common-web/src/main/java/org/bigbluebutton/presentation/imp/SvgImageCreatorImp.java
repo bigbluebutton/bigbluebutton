@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
@@ -27,17 +28,19 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 public class SvgImageCreatorImp implements SvgImageCreator {
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
-    private SwfSlidesGenerationProgressNotifier notifier;
+    private SlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
     private int convPdfToSvgTimeout = 60;
+    private int pdfFontsTimeout = 3;
     private int svgResolutionPpi = 300;
     private boolean forceRasterizeSlides = false;
     private int pngWidthRasterizedSlides = 2048;
 	private String BLANK_SVG;
+    private int maxNumberOfAttempts = 3;
 
     @Override
-    public boolean createSvgImage(UploadedPresentation pres, int page) {
+    public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
         boolean success = false;
         File svgImagesPresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
         if (!svgImagesPresentationDir.exists())
@@ -45,7 +48,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         try {
             success = generateSvgImage(svgImagesPresentationDir, pres, page);
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("Interrupted Exception while generating images {}", pres.getName(), e);
             success = false;
         }
@@ -53,10 +56,30 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         return success;
     }
 
+    private PdfFontType3DetectorHandler createDetectFontType3tHandler(boolean done, int page, String source, UploadedPresentation pres) {
+        //Detect if PDF contains text with font Type 3
+        //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
+        //Case detects type 3, rasterize will be forced to avoid the problem
+        NuProcessBuilder detectFontType3Process = this.createDetectFontType3Process(source, page);
+        PdfFontType3DetectorHandler detectFontType3tHandler = new PdfFontType3DetectorHandler();
+        detectFontType3Process.setProcessListener(detectFontType3tHandler);
+
+        NuProcess processDetectFontType3 = detectFontType3Process.start();
+        try {
+            processDetectFontType3.waitFor(pdfFontsTimeout + 1, TimeUnit.SECONDS);
+            done = true;
+        } catch (InterruptedException e) {
+            done = false;
+            log.error("InterruptedException while verifing font type 3 on {} page {}: {}", pres.getName(), page, e);
+        }
+        return detectFontType3tHandler;
+    }
+
     private boolean generateSvgImage(File imagePresentationDir, UploadedPresentation pres, int page)
-            throws InterruptedException {
+            throws InterruptedException, TimeoutException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
+        int countOfTimeOut = 0;
 
         int numSlides = 1;
         boolean done = false;
@@ -95,25 +118,19 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         // Continue image processing
         long startConv = System.currentTimeMillis();
 
+        PdfFontType3DetectorHandler detectFontType3tHandler = this.createDetectFontType3tHandler(done, page, source, pres);
 
-        //Detect if PDF contains text with font Type 3
-        //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
-        //Case detects type 3, rasterize will be forced to avoid the problem
-        NuProcessBuilder detectFontType3Process = this.createDetectFontType3Process(source,page);
-        PdfFontType3DetectorHandler detectFontType3tHandler = new PdfFontType3DetectorHandler();
-        detectFontType3Process.setProcessListener(detectFontType3tHandler);
-
-        NuProcess processDetectFontType3 = detectFontType3Process.start();
-        try {
-            processDetectFontType3.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
-            done = true;
-        } catch (InterruptedException e) {
-            done = false;
-            log.error("InterruptedException while verifing font type 3 on {} page {}: {}", pres.getName(), page, e);
-        }
-
-        if(detectFontType3tHandler.isCommandTimeout()) {
-            log.error("Command execution (detectFontType3) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
+        while (detectFontType3tHandler.isCommandTimeout()) {
+            // Took the first process of the function out of the count because it already happened above
+            if (countOfTimeOut >= maxNumberOfAttempts - 1) {
+                log.error("Command execution (detectFontType3) exceeded the {} secs timeout within {} attempts for {} page {}.", pdfFontsTimeout, maxNumberOfAttempts, pres.getName(), page);
+                throw new TimeoutException("(Timeout error) The slide " + page +
+                        " could not be processed within "
+                        + convPdfToSvgTimeout +
+                        " seconds.");
+            }
+            detectFontType3tHandler = this.createDetectFontType3tHandler(done, page, source, pres);
+            countOfTimeOut += 1;
         }
 
         if(detectFontType3tHandler.hasFontType3()) {
@@ -316,7 +333,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         rawCommand += " | grep -m 1 'Type 3'";
         rawCommand += " | wc -l";
 
-        return new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("timeout", pdfFontsTimeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private File determineSvgImagesDirectory(File presentationFile) {
@@ -349,6 +366,12 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 	public void setBlankSvg(String blankSvg) {
 		BLANK_SVG = blankSvg;
 	}
+    public void setMaxNumberOfAttempts(int maxNumberOfAttempts) {
+        this.maxNumberOfAttempts = maxNumberOfAttempts;
+    }
+    public void setPdfFontsTimeout(int pdfFontsTimeout) {
+        this.pdfFontsTimeout = pdfFontsTimeout;
+    }
 
     public void setImageTagThreshold(long threshold) {
         imageTagThreshold = threshold;
@@ -358,8 +381,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         pathsThreshold = threshold;
     }
     
-    public void setSwfSlidesGenerationProgressNotifier(
-        SwfSlidesGenerationProgressNotifier notifier) {
+    public void setSlidesGenerationProgressNotifier(
+        SlidesGenerationProgressNotifier notifier) {
       this.notifier = notifier;
     }
 

@@ -51,7 +51,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer,
+    isVideoSqueezed, videoContainer, isRTL
   } = props;
 
   const intl = useIntl();
@@ -148,14 +148,14 @@ const UserActions = (props) => {
             )}
             actions={getAvailableActions()}
             opts={{
-              id: 'default-dropdown-menu',
+              id: `webcam-${user?.userId}-dropdown-menu`,
               keepMounted: true,
               transitionDuration: 0,
               elevation: 3,
               getContentAnchorEl: null,
               fullwidth: 'true',
-              anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
-              transformorigin: { vertical: 'bottom', horizontal: 'left' },
+              anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+              transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
             }}
           />
         )

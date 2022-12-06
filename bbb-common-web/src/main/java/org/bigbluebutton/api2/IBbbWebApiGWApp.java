@@ -1,7 +1,6 @@
 package org.bigbluebutton.api2;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
@@ -26,7 +25,7 @@ public interface IBbbWebApiGWApp {
                      String moderatorPass, String viewerPass, String learningDashboardAccessToken, Long createTime,
                      String createDate, Boolean isBreakout, Integer sequence, Boolean freejoin, Map<String, String> metadata,
                      String guestPolicy, Boolean authenticatedGuest, String meetingLayout, String welcomeMsgTemplate, String welcomeMsg, String modOnlyMessage,
-                     String dialNumber, Integer maxUsers,
+                     String dialNumber, Integer maxUsers, Integer maxUserConcurrentAccesses,
                      Integer meetingExpireIfNoUserJoinedInMinutes,
                      Integer meetingExpireWhenLastUserLeftInMinutes,
                      Integer userInactivityInspectTimerInMinutes,
@@ -43,13 +42,13 @@ public interface IBbbWebApiGWApp {
                      Integer html5InstanceId,
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
-                     Boolean notifyRecordingIsOn);
+                     Boolean notifyRecordingIsOn,
+                     String uploadExternalDescription,
+                     String uploadExternalUrl);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,
                     Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
-  void ejectDuplicateUser(String meetingID, String internalUserId, String fullname,
-                    String externUserID);
   void guestWaitingLeft(String meetingID, String internalUserId);
 
   void destroyMeeting(DestroyMeetingMessage msg);

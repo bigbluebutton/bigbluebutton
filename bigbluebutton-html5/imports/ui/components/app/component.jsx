@@ -20,20 +20,21 @@ import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
+import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
+import ScreenReaderAlertContainer from '../screenreader-alert/container';
 import NewWebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
 import Styled from './styles';
-import { LAYOUT_TYPE, DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS, SMALL_VIEWPORT_BREAKPOINT, PANELS } from '../layout/enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 } from '../layout/utils';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
@@ -44,22 +45,16 @@ import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
-import MediaService from '/imports/ui/components/media/service';
 import ActionsBarContainer from '../actions-bar/container';
+import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
+import NotesContainer from '/imports/ui/components/notes/container';
+import DEFAULT_VALUES from '../layout/defaultValues';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
-const OVERRIDE_LOCALE = APP_CONFIG.defaultSettings.application.overrideLocale;
-const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentation;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
-
-const equalDouble = (n1, n2) => {
-  const precision = 0.01;
-
-  return Math.abs(n1 - n2) <= precision;
-};
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -123,14 +118,12 @@ const intlMessages = defineMessages({
 const propTypes = {
   actionsbar: PropTypes.element,
   captions: PropTypes.element,
-  locale: PropTypes.string,
   darkTheme: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
   actionsbar: null,
   captions: null,
-  locale: OVERRIDE_LOCALE || navigator.language,
 };
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
@@ -151,23 +144,11 @@ class App extends Component {
 
   componentDidMount() {
     const {
-      locale,
       notify,
       intl,
       validIOSVersion,
       layoutContextDispatch,
-      meetingLayout,
-      settingsLayout,
-      cameraWidth,
-      cameraHeight,
-      layoutPresOpen,
-      layoutCamPosition,
-      layoutFocusedCam,
-      layoutRate,
-      horizontalPosition,
       isRTL,
-      shouldShowScreenshare,
-      shouldShowExternalVideo,
     } = this.props;
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
@@ -182,64 +163,12 @@ class App extends Component {
     Modal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
-    document.getElementsByTagName('html')[0].lang = locale;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
 
     layoutContextDispatch({
       type: ACTIONS.SET_FONT_SIZE,
       value: parseInt(fontSize.slice(0, -2), 10),
     });
-
-    const userLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', false)];
-    Settings.application.selectedLayout = settingsLayout
-      || userLayout
-      || meetingLayout;
-
-    let selectedLayout = Settings.application.selectedLayout;
-    if (isMobile()) {
-      selectedLayout = selectedLayout === 'custom' ? 'smart' : selectedLayout;
-      Settings.application.selectedLayout = selectedLayout;
-    }
-    Settings.save();
-
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !layoutPresOpen) || shouldShowScreenshare || shouldShowExternalVideo;
-    MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
-
-    if (selectedLayout === 'custom') {
-      setTimeout(() => {
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-          value: layoutFocusedCam,
-        });
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: layoutCamPosition,
-        });
-
-        if (!equalDouble(layoutRate, 0)) {
-          let w, h;
-          if (horizontalPosition) {
-            w = window.innerWidth * layoutRate;
-            h = cameraHeight;
-          } else {
-            w = cameraWidth;
-            h = window.innerHeight * layoutRate;
-          }
-
-          layoutContextDispatch({
-            type: ACTIONS.SET_CAMERA_DOCK_SIZE,
-            value: {
-              width: w,
-              height: h,
-              browserWidth: window.innerWidth,
-              browserHeight: window.innerHeight,
-            }
-          });
-        }
-      }, 0);
-    }
 
     const body = document.getElementsByTagName('body')[0];
 
@@ -249,8 +178,6 @@ class App extends Component {
     }
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
-
-    body.classList.add(`lang-${locale.split('-')[0]}`);
 
     if (!validIOSVersion()) {
       notify(
@@ -283,131 +210,15 @@ class App extends Component {
       intl,
       mountModal,
       deviceType,
-      meetingLayout,
-      meetingLayoutUpdatedAt,
-      presentationIsOpen,
-      focusedCamera,
-      cameraPosition,
-      presentationVideoRate,
-      cameraWidth,
-      cameraHeight,
-      cameraIsResizing,
-      isPresenter,
-      isModerator,
-      layoutPresOpen,
-      layoutIsResizing,
-      layoutCamPosition,
-      layoutFocusedCam,
-      layoutRate,
-      horizontalPosition,
-      selectedLayout, // layout name
-      pushLayout, // is layout pushed
-      pushLayoutMeeting,
-      layoutContextDispatch,
       mountRandomUserModal,
-      setPushLayout,
-      setMeetingLayout,
+      selectedLayout,
+      sidebarContentIsOpen,
+      layoutContextDispatch,
+      numCameras,
+      presentationIsOpen,
     } = this.props;
 
     this.renderDarkMode();
-
-    if (meetingLayout !== prevProps.meetingLayout) {
-
-      let contextLayout = meetingLayout;
-      if (isMobile()) {
-        contextLayout = meetingLayout === 'custom' ? 'smart' : meetingLayout;
-      }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_LAYOUT_TYPE,
-        value: contextLayout,
-      });
-
-      Settings.application.selectedLayout = contextLayout;
-      Settings.save();
-    }
-
-    if (pushLayoutMeeting !== prevProps.pushLayoutMeeting) {
-      Settings.application.pushLayout = pushLayoutMeeting;
-      Settings.save();
-    }
-
-    if (meetingLayout === "custom" && !isPresenter) {
-
-      if (layoutFocusedCam !== prevProps.layoutFocusedCam
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_FOCUSED_CAMERA_ID,
-          value: layoutFocusedCam,
-        });
-      }
-
-      if (layoutCamPosition !== prevProps.layoutCamPosition
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: layoutCamPosition,
-        });
-      }
-
-      if (!equalDouble(layoutRate, prevProps.layoutRate)
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-        let w, h;
-        if (horizontalPosition) {
-          w = window.innerWidth * layoutRate;
-          h = cameraHeight;
-        } else {
-          w = cameraWidth;
-          h = window.innerHeight * layoutRate;
-        }
-
-        if (layoutIsResizing !== prevProps.layoutIsResizing) {
-          layoutContextDispatch({
-            type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
-            value: layoutIsResizing,
-          });
-        }
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_CAMERA_DOCK_SIZE,
-          value: {
-            width: w,
-            height: h,
-            browserWidth: window.innerWidth,
-            browserHeight: window.innerHeight,
-          }
-        });
-      }
-
-      if (layoutPresOpen !== prevProps.layoutPresOpen
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
-
-        layoutContextDispatch({
-          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-          value: layoutPresOpen,
-        });
-      }
-    }
-
-    const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
-      || selectedLayout !== prevProps.selectedLayout
-      || cameraIsResizing !== prevProps.cameraIsResizing
-      || cameraPosition !== prevProps.cameraPosition
-      || focusedCamera !== prevProps.focusedCamera
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
-
-    if ((pushLayout && layoutChanged) // change layout sizes / states
-      || (pushLayout !== prevProps.pushLayout) // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
-    ) {
-      if (isPresenter) {
-        setMeetingLayout();
-      } else if (isModerator) {
-        setPushLayout();
-      }
-    }
 
     if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
 
@@ -438,6 +249,30 @@ class App extends Component {
     }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
+
+    if (
+      selectedLayout !== prevProps.selectedLayout
+      && selectedLayout?.toLowerCase?.()?.includes?.('focus')
+      && !sidebarContentIsOpen
+      && deviceType !== DEVICE_TYPE.MOBILE
+      && numCameras > 0
+      && presentationIsOpen
+    ) {
+      setTimeout(() => {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: true,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: DEFAULT_VALUES.idChatOpen,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: PANELS.CHAT,
+        });
+      }, 0);
+    }
   }
 
   componentWillUnmount() {
@@ -499,6 +334,31 @@ class App extends Component {
         }
       >
         {captions}
+      </Styled.CaptionsWrapper>
+    );
+  }
+
+  renderAudioCaptions() {
+    const {
+      audioCaptions,
+      captionsStyle,
+    } = this.props;
+
+    if (!audioCaptions) return null;
+
+    return (
+      <Styled.CaptionsWrapper
+        role="region"
+        style={
+          {
+            position: 'absolute',
+            left: captionsStyle.left,
+            right: captionsStyle.right,
+            maxWidth: captionsStyle.maxWidth,
+          }
+        }
+      >
+        {audioCaptions}
       </Styled.CaptionsWrapper>
     );
   }
@@ -581,6 +441,66 @@ class App extends Component {
       : DarkReader.disable();
   }
 
+  mountPushLayoutEngine() {
+    const {
+      cameraWidth,
+      cameraHeight,
+      cameraIsResizing,
+      cameraPosition,
+      focusedCamera,
+      horizontalPosition,
+      isMeetingLayoutResizing,
+      isPresenter,
+      isModerator,
+      layoutContextDispatch,
+      meetingLayout,
+      meetingLayoutCameraPosition,
+      meetingLayoutFocusedCamera,
+      meetingLayoutVideoRate,
+      meetingPresentationIsOpen,
+      meetingLayoutUpdatedAt,
+      presentationIsOpen,
+      presentationVideoRate,
+      pushLayout,
+      pushLayoutMeeting,
+      selectedLayout,
+      setMeetingLayout,
+      shouldShowScreenshare,
+      shouldShowExternalVideo,
+    } = this.props;
+
+    return (
+      <PushLayoutEngine
+        {...{
+          cameraWidth,
+          cameraHeight,
+          cameraIsResizing,
+          cameraPosition,
+          focusedCamera,
+          horizontalPosition,
+          isMeetingLayoutResizing,
+          isPresenter,
+          isModerator,
+          layoutContextDispatch,
+          meetingLayout,
+          meetingLayoutCameraPosition,
+          meetingLayoutFocusedCamera,
+          meetingLayoutVideoRate,
+          meetingPresentationIsOpen,
+          meetingLayoutUpdatedAt,
+          presentationIsOpen,
+          presentationVideoRate,
+          pushLayout,
+          pushLayoutMeeting,
+          selectedLayout,
+          setMeetingLayout,
+          shouldShowScreenshare,
+          shouldShowExternalVideo,
+        }}
+      />
+    );
+  }
+
   render() {
     const {
       customStyle,
@@ -590,6 +510,7 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       shouldShowExternalVideo,
+      shouldShowSharedNotes,
       isPresenter,
       selectedLayout,
       presentationIsOpen,
@@ -598,7 +519,8 @@ class App extends Component {
     return (
       <>
         <Notifications />
-        <LayoutEngine layoutType={selectedLayout} />
+        {this.mountPushLayoutEngine()}
+        {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
         <GlobalStyles />
         <Styled.Layout
           id="layout"
@@ -609,6 +531,7 @@ class App extends Component {
         >
           {this.renderActivityCheck()}
           {this.renderUserInformation()}
+          <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
@@ -622,7 +545,10 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
+          {shouldShowSharedNotes ? <NotesContainer area="media" layoutType={selectedLayout} /> : null}
           {this.renderCaptions()}
+          <AudioCaptionsSpeechContainer />
+          {this.renderAudioCaptions()}
           <UploaderContainer />
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />

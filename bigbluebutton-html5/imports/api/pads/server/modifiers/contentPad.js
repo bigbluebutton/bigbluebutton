@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { patch } from 'bbb-diff';
+import { patch } from '@mconf/bbb-diff';
 import { PadsUpdates } from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 

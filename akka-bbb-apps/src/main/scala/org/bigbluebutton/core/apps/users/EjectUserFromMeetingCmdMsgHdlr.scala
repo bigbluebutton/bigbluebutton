@@ -51,7 +51,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
               breakoutModel <- state.breakout
             } yield {
               breakoutModel.rooms.values.foreach { room =>
-                room.users.filter(u => u.id == ru.externId + "-" + room.sequence).foreach(user => {
+                room.users.filter(u => u.id == ru.id + "-" + room.sequence).foreach(user => {
                   eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(meetingId, room.id, user.id, ejectedBy, reason, EjectReasonCode.EJECT_USER, ban)))
                 })
               }
