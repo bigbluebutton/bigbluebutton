@@ -180,7 +180,6 @@ const Label = styled.span`
 const NetworkDataContainer = styled(ScrollboxVertical)`
   width: 100%;
   height: 100%;
-  padding-bottom: 1.5rem;
   display: flex;
   flex-wrap: nowrap;
   overflow: auto;
