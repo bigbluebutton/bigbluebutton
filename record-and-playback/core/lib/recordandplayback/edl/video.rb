@@ -510,7 +510,7 @@ module BigBlueButton
             # Pre-filtering: scaling, padding, and extending.
             ffmpeg_preprocess_filter = \
               "[0:v:0]scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,setsar=1,"\
-              "pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white,tpad=stop=-1:stop_mode=clone[out]"
+              "pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white[out]"
 
             # Set up filters and inputs for video pre-processing ffmpeg command
             ffmpeg_preprocess_command = [
@@ -536,10 +536,10 @@ module BigBlueButton
             ffmpeg_filter << "[#{input_index}]"
             # Scale the video length for the deskshare timestamp workaround
             ffmpeg_filter << "setpts=PTS*#{scale}," unless scale.nil?
-            # Clean up the video framerate and set exact start time
-            ffmpeg_filter << "fps=#{layout[:framerate]}:start_time=#{ms_to_s(video[:timestamp])}"
-            # Apply PTS offset so '0' time is aligned
-            ffmpeg_filter << ",setpts=PTS-#{ms_to_s(video[:timestamp])}/TB"
+            # Clean up the video framerate and extend the video if needed
+            ffmpeg_filter << "fps=#{layout[:framerate]},tpad=stop=-1:stop_mode=clone"
+            # Apply PTS offset so '0' time is aligned, and trim frames before start point
+            ffmpeg_filter << ",setpts=PTS-#{ms_to_s(video[:timestamp])}/TB,trim=start=0"
             ffmpeg_filter << "[#{pad_name}];"
           end
 
