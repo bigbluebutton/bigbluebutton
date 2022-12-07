@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
@@ -8,6 +8,7 @@ import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -23,12 +24,16 @@ const TalkingIndicatorContainer = (props) => {
   const { sidebarNavPanel } = sidebarNavigation;
   const layoutContextDispatch = layoutDispatch();
 
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+
   return (
     <TalkingIndicator
       {...{
         sidebarNavPanel,
         sidebarContentPanel,
         layoutContextDispatch,
+        users: users[Auth.meetingID],
         ...props,
       }}
     />
