@@ -170,7 +170,6 @@ class App extends React.Component {
             invalidSessionCount: 0,
             lastUpdated: Date.now(),
           });
-          document.title = `Learning Dashboard - ${json.name}`;
           this.updateModalUser();
         }).catch(() => {
           this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
@@ -188,7 +187,6 @@ class App extends React.Component {
               invalidSessionCount: 0,
               lastUpdated: Date.now(),
             });
-            document.title = `Learning Dashboard - ${jsonData.name}`;
             this.updateModalUser();
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
@@ -215,7 +213,7 @@ class App extends React.Component {
     } = this.state;
     const { intl } = this.props;
 
-    document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
+    document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
     function totalOfEmojis() {
       if (activitiesJson && activitiesJson.users) {

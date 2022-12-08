@@ -1166,6 +1166,7 @@
     "playback.player.thumbnails.wrapper.aria": "Thumbnails area",
     "playback.player.webcams.wrapper.aria": "Webcams area",
     "app.learningDashboard.dashboardTitle": "Learning Analytics Dashboard",
+    "app.learningDashboard.bigbluebuttonTitle": "BigBlueButton",
     "app.learningDashboard.downloadSessionDataLabel": "Download Session Data",
     "app.learningDashboard.lastUpdatedLabel": "Last updated at",
     "app.learningDashboard.sessionDataDownloadedLabel": "Downloaded!",
