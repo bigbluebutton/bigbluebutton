@@ -134,7 +134,7 @@ class LiveResult extends PureComponent {
           </Styled.Left>
           <Styled.Center>
             <Styled.BarShade style={calculatedWidth} />
-            <Styled.BarVal>{obj.numVotes || 0}</Styled.BarVal>
+            <Styled.BarVal data-test="numberOfVotes">{obj.numVotes || 0}</Styled.BarVal>
           </Styled.Center>
           <Styled.Right>
             {pctFotmatted}
@@ -191,7 +191,7 @@ class LiveResult extends PureComponent {
     return (
       <div>
         <Styled.Stats>
-          {currentPollQuestion ? <Styled.Title>{currentPollQuestion}</Styled.Title> : null}
+          {currentPollQuestion ? <Styled.Title data-test="currentPollQuestion">{currentPollQuestion}</Styled.Title> : null}
           <Styled.Status>
             {waiting
               ? (

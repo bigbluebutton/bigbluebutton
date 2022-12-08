@@ -1,6 +1,7 @@
 {
     "log": {
-      "level": "info"
+      "level": "info",
+      "msgName": "PresAnnStatusMsg"
     },
     "shared": {
       "presDir": "/var/bigbluebutton",

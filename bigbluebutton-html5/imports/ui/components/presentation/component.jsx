@@ -78,6 +78,7 @@ class Presentation extends PureComponent {
       isFullscreen: false,
       tldrawAPI: null,
       isPanning: false,
+      tldrawIsMounting: true,
     };
 
     this.currentPresentationToastId = null;
@@ -99,6 +100,7 @@ class Presentation extends PureComponent {
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
+    this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.set('componentPresentationWillUnmount', false);
   }
 
@@ -895,6 +897,10 @@ class Presentation extends PureComponent {
     );
   }
 
+  setTldrawIsMounting(value) {
+    this.setState({ tldrawIsMounting: value });
+  }
+
   render() {
     const {
       userIsPresenter,
@@ -922,6 +928,7 @@ class Presentation extends PureComponent {
       localPosition,
       fitToWidth,
       zoom,
+      tldrawIsMounting,
     } = this.state;
 
     let viewBoxDimensions;
@@ -1010,7 +1017,7 @@ class Presentation extends PureComponent {
                 }}
               >
                 <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
-                {this.renderPresentationMenu()}
+                {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}
                 <WhiteboardContainer
                   whiteboardId={currentSlide?.id}
                   podId={podId}
@@ -1027,19 +1034,22 @@ class Presentation extends PureComponent {
                   zoomChanger={this.zoomChanger}
                   fitToWidth={fitToWidth}
                   zoomValue={zoom}
+                  setTldrawIsMounting={this.setTldrawIsMounting}
                 />
                 {isFullscreen && <PollingContainer />}
               </div>
-              <Styled.PresentationToolbar
-                ref={(ref) => { this.refPresentationToolbar = ref; }}
-                style={
-                  {
-                    width: containerWidth,
+              {!tldrawIsMounting && (
+                <Styled.PresentationToolbar
+                  ref={(ref) => { this.refPresentationToolbar = ref; }}
+                  style={
+                    {
+                      width: containerWidth,
+                    }
                   }
-                }
-              >
-                {this.renderPresentationToolbar(svgWidth)}
-              </Styled.PresentationToolbar>
+                >
+                  {this.renderPresentationToolbar(svgWidth)}
+                </Styled.PresentationToolbar>
+              )}
               {/*this.renderPresentationToolbar()*/}
             </Styled.SvgContainer>
           </Styled.Presentation>

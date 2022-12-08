@@ -168,6 +168,7 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           mountRandomUserModal,
           isPresenter,
+          numCameras: cameraDockInput.numCameras,
         }}
         {...otherProps}
       />
