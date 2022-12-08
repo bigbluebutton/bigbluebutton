@@ -7,7 +7,7 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 
-NODE_VERSION="14.19.3"
+NODE_VERSION="14.21.1"
 NODE_DIRNAME="node-v${NODE_VERSION}-linux-x64"
 
 #
