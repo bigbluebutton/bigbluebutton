@@ -7,12 +7,13 @@ import {
   colorGrayLabel,
   colorGrayLightest,
   colorPrimary,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
   smPaddingY,
+  mdPaddingY,
   lgPaddingY,
-  lgPaddingX,
   titlePositionLeft,
   mdPaddingX,
   borderSizeLarge,
@@ -26,7 +27,14 @@ import {
   hasPhoneDimentions,
   mediumDown,
   hasPhoneWidth,
+  smallOnly,
 } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import {
+  ScrollboxVertical,
+} from '/imports/ui/stylesheets/styled-components/scrollable';
+import {
+  Tab, Tabs, TabList, TabPanel,
+} from 'react-tabs';
 
 const Item = styled.div`
   display: flex;
@@ -169,11 +177,23 @@ const Label = styled.span`
   margin-bottom: ${lgPaddingY};
 `;
 
-const NetworkDataContainer = styled.div`
+const NetworkDataContainer = styled(ScrollboxVertical)`
   width: 100%;
   height: 100%;
   display: flex;
-  
+  flex-wrap: nowrap;
+  overflow: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 1.25rem;
+
+  &:focus {
+    outline: none;
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,.5);
+    }
+  }
+
   @media ${mediumDown} {
     justify-content: space-between;
   }
@@ -202,6 +222,8 @@ const CopyContainer = styled.div`
 
 const ConnectionStatusModal = styled(Modal)`
   padding: 1rem;
+  height: 28rem;
+
 `;
 
 const Container = styled.div`
@@ -262,6 +284,19 @@ const Copy = styled.span`
   `}
 `;
 
+const HelperWrapper = styled.div`
+  min-width: 12.5rem;
+  height: 100%;
+
+  @media ${mediumDown} {
+    flex: none;
+    width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    justify-content: center;
+  }
+`;
+
 const Helper = styled.div`
   width: 12.5rem;
   height: 100%;
@@ -271,12 +306,7 @@ const Helper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  @media ${mediumDown} {
-    ${({ page }) => page === '1'
-    ? 'display: flex;'
-    : 'display: none;'}
-  }
+  padding: .5rem;
 `;
 
 const NetworkDataContent = styled.div`
@@ -286,9 +316,9 @@ const NetworkDataContent = styled.div`
   flex-grow: 1;
 
   @media ${mediumDown} {
-    ${({ page }) => page === '2'
-    ? 'display: flex;'
-    : 'display: none;'}
+    flex: none;
+    width: 100%;
+    scroll-snap-align: start;
   }
 `;
 
@@ -302,132 +332,103 @@ const DataColumn = styled.div`
   }
 `;
 
-const Main = styled.div`
-  height: 19.5rem;
+const ConnectionTabs = styled(Tabs)`
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
+  justify-content: flex-start;
+
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: column;
+  }
 `;
 
-const Body = styled.div`
-  padding: ${jumboPaddingY} 0;
+const ConnectionTabList = styled(TabList)`
+  display: flex;
+  flex-flow: row;
   margin: 0;
-  flex-grow: 1;
-  overflow: auto;
-  position: relative;
-`;
-
-const Navigation = styled.div`
-  display: flex;
+  margin-bottom: .5rem;
   border: none;
-  border-bottom: 1px solid ${colorOffWhite};
-  user-select: none;
-  overflow-y: auto;
-  scrollbar-width: none;
+  padding: 0;
+  width: calc(100% / 3);
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  & :not(:last-child) {
-    margin: 0;
-    margin-right: ${lgPaddingX};
-  }
-
-  .activeConnectionStatusTab {
-    border: none;
-    border-bottom: 2px solid ${colorPrimary};
-    color: ${colorPrimary};
-  }
-
-  & * {
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  [dir="rtl"] & {
-    & :not(:last-child) {
-      margin: 0;
-      margin-left: ${lgPaddingX};
-    }
-  }
-`;
-
-const Prev = styled.div`
-  display: none;
-  margin: 0 .5rem 0 .25rem;
-
-  @media ${mediumDown} {
-    display: flex;
-    flex-direction: column;
+  @media ${smallOnly} {
+    width: 100%;
+    flex-flow: row;
+    flex-wrap: wrap;
     justify-content: center;
   }
-
-  @media ${hasPhoneWidth} {
-    margin: 0;
-  }
 `;
 
-const Next = styled(Prev)`
-  margin: 0 .25rem 0 .5rem;
-
-  @media ${hasPhoneWidth} {
-    margin: 0;
-  }
-`;
-
-const Button = styled.button`
-  flex: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  border-radius: 50%;
-  cursor: pointer;
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: .5;
-  }
-
-  &:hover {
-    opacity: .75;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  @media ${hasPhoneWidth} {
-    position: absolute;
-    bottom: 0;
-    padding: .25rem;
-  }
-`;
-
-const ButtonLeft = styled(Button)`
-  left: calc(50% - 2rem);
+const ConnectionTabPanel = styled(TabPanel)`
+  display: none;
+  margin: 0 0 0 1rem;
+  height: 13rem;
 
   [dir="rtl"] & {
-    left: calc(50%);
+    margin: 0 1rem 0 0;
+  }
+
+  &.is-selected {
+    display: flex;
+    flex-flow: column;
+  }
+
+  @media ${smallOnly} {
+    width: 100%;
+    margin: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 `;
 
-const ButtonRight = styled(Button)`
-  right: calc(50% - 2rem);
-
-  [dir="rtl"] & {
-    right: calc(50%);
-  }
-`;
-
-const Chevron = styled.svg`
+const ConnectionTabSelector = styled(Tab)`
   display: flex;
-  width: 1rem;
-  height: 1rem;
+  flex-flow: row;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  border: none !important;
+  padding: ${mdPaddingY} ${mdPaddingX};
 
-  [dir="rtl"] & {
-    transform: rotate(180deg);
+  border-radius: .2rem;
+  cursor: pointer;
+  margin-bottom: ${smPaddingY};
+  align-items: center;
+  flex-grow: 0;
+  min-width: 0;
+
+  & > span {
+    min-width: 0;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media ${smallOnly} {
+    max-width: 100%;
+    margin: 0 ${smPaddingX} 0 0;
+    & > i {
+      display: none;
+    }
+
+    [dir="rtl"] & {
+       margin: 0 0 0 ${smPaddingX};
+    }
+  }
+
+  span {
+    border-bottom: 2px solid ${colorWhite};
+  }
+
+  &.is-selected {
+    border: none;
+    color: ${colorPrimary};
+
+    span {
+      border-bottom: 2px solid ${colorPrimary};
+    }
   }
 `;
 
@@ -461,14 +462,11 @@ export default {
   Copy,
   Helper,
   NetworkDataContent,
-  Main,
-  Body,
-  Navigation,
   FullName,
   DataColumn,
-  Prev,
-  Next,
-  ButtonLeft,
-  ButtonRight,
-  Chevron,
+  HelperWrapper,
+  ConnectionTabs,
+  ConnectionTabList,
+  ConnectionTabSelector,
+  ConnectionTabPanel,
 };

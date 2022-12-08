@@ -47,6 +47,7 @@ class ModalSimple extends Component {
 
   render() {
     const {
+      id,
       intl,
       title,
       hideBorder,
@@ -79,6 +80,7 @@ class ModalSimple extends Component {
 
     return (
       <Styled.SimpleModal
+        id="simpleModal"
         isOpen={modalisOpen}
         className={className}
         onRequestClose={handleRequestClose}

@@ -71,6 +71,21 @@ const init = (messages, intl) => {
   return AudioManager.init(userData, audioEventHandler);
 };
 
+const muteMicrophone = () => {
+  const user = VoiceUsers.findOne({
+    meetingId: Auth.meetingID, intId: Auth.userID,
+  }, { fields: { muted: 1 } });
+
+  if (!user.muted) {
+    logger.info({
+      logCode: 'audiomanager_mute_audio',
+      extraInfo: { logType: 'user_action' },
+    }, 'User wants to leave conference. Microphone muted');
+    AudioManager.setSenderTrackEnabled(false);
+    makeCall('toggleVoice');
+  }
+};
+
 const isVoiceUser = () => {
   const voiceUser = VoiceUsers.findOne({ intId: Auth.userID },
     { fields: { joined: 1 } });
@@ -133,6 +148,7 @@ export default {
   updateAudioConstraints:
     (constraints) => AudioManager.updateAudioConstraints(constraints),
   recoverMicState,
+  muteMicrophone: () => muteMicrophone(),
   isReconnecting: () => AudioManager.isReconnecting,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),

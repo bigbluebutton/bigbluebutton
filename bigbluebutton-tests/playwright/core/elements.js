@@ -102,6 +102,7 @@ exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
 exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
@@ -152,6 +153,11 @@ exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
+exports.sendNotesToWhiteboard = 'li[data-test="moveNotesToWhiteboard"]';
+exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProgressToast"]';
+exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
+exports.currentSlideText = 'span[id="currentSlideText"]';
+exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
@@ -207,7 +213,23 @@ exports.addPollItem = 'button[data-test="addPollItem"]';
 exports.deletePollOption = 'button[data-test="deletePollOption"]';
 exports.cancelPollBtn = 'button[data-test="cancelPollLabel"]';
 exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
-
+exports.noPresentation = 'h4[data-test="noPresentation"]';
+exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
+exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
+exports.allowMultiple = 'div[data-test="allowMultiple"] > div > input[type="checkbox"]';
+exports.pollOptionItem1 = 'input[data-test="pollOptionItem"]>>nth=0';
+exports.pollOptionItem2 = 'input[data-test="pollOptionItem"]>>nth=1';
+exports.pollAnswerDescTest1 = 'div[data-test="optionsAnswers"]>>nth=0';
+exports.pollAnswerDescTest2 = 'div[data-test="optionsAnswers"]>>nth=1';
+exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
+exports.numberVotes = 'div[data-test="numberVotes"]';
+exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
+exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
+exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
+exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
+exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]>>nth=0';
+exports.checkboxInput = 'div[data-test="optionsAnswers"] > div';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -239,6 +261,12 @@ exports.videoPlayer = 'div[data-test="videoPlayer"]';
 exports.presentationTitle = 'h1[data-test="presentationTitle"]';
 exports.fitToWidthButton = 'button[data-test="fitToWidthButton"]';
 exports.presentationsList = 'div[id="upload-modal"] tbody';
+exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
+exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
+exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
+exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
+exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
@@ -342,6 +370,9 @@ exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
 exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
 exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
+exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
+exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
+exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
 exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
@@ -356,6 +387,8 @@ exports.pencil = 'button[data-test="pencilTool"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
 exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
 exports.exportPlainButton = 'span[id="exportplain"]';
+exports.pinNotes = 'li[data-test="pinNotes"]';
+exports.unpinNotes = 'button[data-test="unpinNotes"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -364,3 +397,12 @@ exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 // Help button
 exports.helpButton = 'li[data-test="helpButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
+
+// Dark mode
+exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
+exports.actionsBarBackground = 'section[id="ActionsBar"]';
+exports.navbarBackground = 'header[id="Navbar"]';
+exports.fullscreenModal = 'div[id="fsmodal"]';
+exports.simpleModal = 'div[id="simpleModal"]';
+exports.sharedNotesBackground = 'div[data-test="notes"]';
+exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';

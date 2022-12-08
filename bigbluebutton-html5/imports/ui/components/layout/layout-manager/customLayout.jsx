@@ -202,6 +202,7 @@ const CustomLayout = (props) => {
         }, INITIAL_INPUT_STATE),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 

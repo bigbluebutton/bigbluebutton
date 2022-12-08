@@ -69,7 +69,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
-      exportation: exportation || { isRunning: false, error: false },
+      exportation: exportation || { error: false },
     };
   });
 
@@ -107,7 +107,8 @@ const observePresentationConversion = (
 
         if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
-        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' || doc.conversion.status === 'CONVERSION_TIMEOUT') {
+        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' 
+          || doc.conversion.status === 'CONVERSION_TIMEOUT' || doc.conversion.status === "IVALID_MIME_TYPE") {
           Presentations.update({id: tokenId}, {$set: {temporaryPresentationId, renderedInToast: false}})
           onConversion(doc.conversion);
           c.stop();
@@ -362,7 +363,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     const cursor = Presentations.find({ id: presentationId });
 
     const checkStatus = (exportation) => {
-      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+      const shouldStop = lastStatus.status === 'PROCESSING' && exportation.status === 'EXPORTED';
 
       if (shouldStop) {
         observer(exportation, true);

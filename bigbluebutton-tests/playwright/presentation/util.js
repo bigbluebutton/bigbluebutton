@@ -16,6 +16,12 @@ async function getSlideOuterHtml(testPage) {
   }, [e.currentSlideImg]);
 }
 
+async function getCurrentPresentationHeight(locator) {
+  return locator.evaluate((e) => {
+    return window.getComputedStyle(e).getPropertyValue("height");
+  });
+}
+
 async function uploadSinglePresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
@@ -46,3 +52,4 @@ exports.checkSvgIndex = checkSvgIndex;
 exports.getSlideOuterHtml = getSlideOuterHtml;
 exports.uploadSinglePresentation = uploadSinglePresentation;
 exports.uploadMultiplePresentations = uploadMultiplePresentations;
+exports.getCurrentPresentationHeight = getCurrentPresentationHeight;

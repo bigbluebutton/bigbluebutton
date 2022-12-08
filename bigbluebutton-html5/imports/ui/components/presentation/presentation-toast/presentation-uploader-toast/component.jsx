@@ -57,6 +57,10 @@ const intlMessages = defineMessages({
 		id: 'app.presentationUploder.upload.413',
 		description: 'error that file exceed the size limit',
 	},
+	IVALID_MIME_TYPE: {
+		id: 'app.presentationUploder.conversion.invalidMimeType',
+		description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
+	},
 	PAGE_COUNT_EXCEEDED: {
 		id: 'app.presentationUploder.conversion.pageCountExceeded',
 		description: 'warns the user that the conversion failed because of the page count',
@@ -147,6 +151,10 @@ function renderPresentationItemStatus(item, intl) {
 			case 'PDF_HAS_BIG_PAGE':
 				constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
 				break;
+			case 'IVALID_MIME_TYPE':
+				constraint['0'] = item.conversion.fileExtension;
+				constraint['1'] = item.conversion.fileMime;
+				break;
 			default:
 				break;
 		}
@@ -187,7 +195,7 @@ function renderToastItem(item, intl) {
 
 	return (
 		<Styled.UploadRow
-			key={item.temporaryPresentationId}
+			key={item.id || item.temporaryPresentationId}
 			onClick={() => {
 				if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
 			}}
