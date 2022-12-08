@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Meteor } from 'meteor/meteor';
+import { makeCall } from '/imports/ui/services/api';
 import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
@@ -9,18 +10,30 @@ import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
+import { toast } from 'react-toastify';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
+
+const unmount = () => {
+  Session.set('showUploadPresentationView', false);
+    let id = Session.get("presentationUploaderToastId");
+    if (id) {
+      toast.dismiss(id);
+      makeCall('setPresentationRenderedInToast').then(() => {
+        Session.set("presentationUploaderToastId", null);
+      });
+    }
+}
 
 const PresentationUploaderContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
-  const userIsPresenter = currentUser.presenter;
+  const userIsPresenter = currentUser.presenter
 
   return userIsPresenter && (
     <ErrorBoundary Fallback={() => <FallbackModal />}>
-      <PresentationUploader isPresenter={userIsPresenter} {...props} />
+      <PresentationUploader isPresenter={userIsPresenter} unmount={unmount} {...props} />
     </ErrorBoundary>
   );
 };
@@ -52,5 +65,6 @@ export default withTracker(() => {
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
+    handleFiledrop: Service.handleFiledrop,
   };
 })(PresentationUploaderContainer);

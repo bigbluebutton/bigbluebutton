@@ -284,21 +284,27 @@ function handleDismissToast(toastId) {
     return toast.dismiss(toastId);
 }
 
-const alreadyRenderedPresList = []
+
+
+const alreadyRenderedPresList = [];
 export const PresentationUploaderToast = ({ intl }) => {
 
 	useTracker(() => {
 		
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
-		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
-		let tmpIdconvertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.conversion.done)
-			.map(p => { return {temporaryPresentationId: p.temporaryPresentationId, id: p.id}; })
-		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id) !== -1)
-			.map(p => {
-				return UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]})});
-		const uploadingPresentations = UploadingPresentations.find().fetch();
-		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
+		
+		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast );
+		
+		let toRemove = [];
+		UploadingPresentations.find().fetch().map(p => {
+			if ((p.upload && p.upload.done) || !p.subscriptionId) toRemove.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+		});
 
+		toRemove.forEach(p => UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]}));
+
+		const uploadingPresentations = UploadingPresentations.find().fetch();
+
+		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 		// Updating or populating the "state" presentation list
 		presentationsToConvert.map(p => {
 			return {
@@ -330,6 +336,7 @@ export const PresentationUploaderToast = ({ intl }) => {
 		})
 		let activeToast = Session.get("presentationUploaderToastId");
 		const showToast = presentationsToConvert.length > 0;
+
 		if (showToast && !activeToast) {
 			activeToast = toast.info(() => renderToastList(presentationsToConvert, intl), {
 				hideProgressBar: true,
@@ -376,7 +383,7 @@ export const PresentationUploaderToast = ({ intl }) => {
 			}, TIMEOUT_CLOSE_TOAST * 1000);
 		}
 		
-	}, [])
+	}, []);
 	return null;
 }
 
