@@ -27,8 +27,14 @@ const playEchoStream = async (stream, loopbackAgent = null) => {
         loopbackAgent.stop();
       }
     }
-
-    audioElement.srcObject = streamToPlay;
+    const audioCtx = new AudioContext();
+    const source = audioCtx.createMediaStreamSource(stream);
+    const delayNode = new DelayNode(audioCtx, {delayTime: 0.5, maxDelayTime: 2});
+    delayNode.delayTime.setValueAtTime(0.5, audioCtx.currentTime);
+    const streamdest = audioCtx.createMediaStreamDestination();
+    source.connect(delayNode);
+    delayNode.connect(audioCtx.destination)
+    audioElement.srcObject = streamdest.stream;
     audioElement.play();
   }
 };
