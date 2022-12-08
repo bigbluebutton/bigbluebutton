@@ -353,6 +353,7 @@ class ApplicationMenu extends BaseMenu {
               defaultChecked={settings.darkTheme}
               onChange={() => this.handleToggle('darkTheme')}
               showToggleLabel={showToggleLabel}
+              data-test="darkModeToggleBtn"
             />
           </Styled.FormElementRight>
         </Styled.Col>

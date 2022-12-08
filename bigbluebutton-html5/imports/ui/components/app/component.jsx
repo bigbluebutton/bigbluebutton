@@ -47,6 +47,7 @@ import Notifications from '../notifications/container';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
+import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 
@@ -55,6 +56,7 @@ const APP_CONFIG = Meteor.settings.public.app;
 const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
+const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -196,6 +198,16 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
+    if (CONFIRMATION_ON_LEAVE) {
+      window.onbeforeunload = (event) => {
+        AudioService.muteMicrophone();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      };
+    }
+
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
@@ -277,6 +289,7 @@ class App extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize, false);
+    window.onbeforeunload = null;
     ConnectionStatusService.stopRoundTripTime();
   }
 

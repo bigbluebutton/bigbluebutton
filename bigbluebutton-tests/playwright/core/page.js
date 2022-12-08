@@ -210,6 +210,10 @@ class Page {
   async up(key) {
     await this.page.keyboard.up(key);
   }
+  
+  async mouseDoubleClick(x, y) {
+    await this.page.mouse.dblclick(x, y);
+  }
 
   async dragDropSelector(selector, position) {
     await this.page.locator(selector).dragTo(this.page.locator(position));
@@ -223,6 +227,15 @@ class Page {
   async hasValue(selector, value) {
     const locator  = await this.page.locator(selector);
     await expect(locator).toHaveValue(value);
+  }
+
+
+  async backgroundColorTest(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
+  }
+
+  async textColorTest(selector, color) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
   }
 }
 

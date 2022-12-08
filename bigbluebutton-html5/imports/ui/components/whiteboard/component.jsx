@@ -96,6 +96,7 @@ export default function Whiteboard(props) {
     isPanning,
     intl,
     svgUri,
+    maxStickyNoteLength,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -191,6 +192,10 @@ export default function Whiteboard(props) {
           });
     removeShapes(deletedShapes, whiteboardId);
   }
+
+  React.useEffect(() => {
+    props.setTldrawIsMounting(true);
+  }, []);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -486,7 +491,6 @@ export default function Whiteboard(props) {
     if (curPageId) {
       app.changePage(curPageId);
       setIsMounting(true);
-      props.setTldrawIsMounting(true);
     }
 
     if (history) {
@@ -613,6 +617,11 @@ export default function Whiteboard(props) {
 
     if (reason && reason === 'patched_shapes') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+
+      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
       if (patchedShape) {
         const diff = {
           id: patchedShape.id,

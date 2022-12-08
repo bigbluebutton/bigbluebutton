@@ -839,7 +839,7 @@ class PresentationUploader extends Component {
 
     return (
       <Styled.UploadRow
-        key={item.temporaryPresentationId}
+        key={item.id || item.temporaryPresentationId}
       >
         <Styled.FileLine>
           <span>

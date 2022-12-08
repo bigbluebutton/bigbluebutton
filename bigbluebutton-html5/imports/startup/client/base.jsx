@@ -171,7 +171,7 @@ class Base extends Component {
       HTML.classList.add('animationsDisabled');
     }
 
-    if (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true)) {
+    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE || Session.equals('subscriptionsReady', true))) {
       if (!checkedUserSettings) {
         if (getFromUserSettings('bbb_show_participants_on_login', Meteor.settings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
           if (isChatEnabled() && getFromUserSettings('bbb_show_public_chat_on_login', !Meteor.settings.public.chat.startClosed)) {

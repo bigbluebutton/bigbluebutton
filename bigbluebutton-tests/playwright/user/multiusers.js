@@ -1,4 +1,5 @@
 const { expect, default: test } = require('@playwright/test');
+const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
@@ -54,6 +55,18 @@ class MultiUsers {
     const page = await context.newPage();
     this.userPage = new Page(this.browser, page);
     await this.userPage.init(false, shouldCloseAudioModal, options);
+  }
+
+  async initUserPage1(shouldCloseAudioModal = true, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
+    const options = {
+      ...restOptions,
+      fullName,
+      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
+    };
+
+    const page = await (await playwright.chromium.launch()).newPage();
+    this.userPage1 = new Page(this.browser, page);
+    await this.userPage1.init(false, shouldCloseAudioModal, options);
   }
 
   async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, ...restOptions } = {}) {
