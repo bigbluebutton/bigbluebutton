@@ -16,6 +16,9 @@ const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 const TALKING_INDICATORS_MAX = 8;
 
 const TalkingIndicatorContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+
   if (!enableTalkingIndicator) return null;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -23,9 +26,6 @@ const TalkingIndicatorContainer = (props) => {
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const { sidebarNavPanel } = sidebarNavigation;
   const layoutContextDispatch = layoutDispatch();
-
-  const usingUsersContext = useContext(UsersContext);
-  const { users } = usingUsersContext;
 
   return (
     <TalkingIndicator
