@@ -1,14 +1,20 @@
 import { check } from 'meteor/check';
 import padCapture from '../methods/padCapture';
 
-export default function captureSharedNotes({ body }, parentMeetingId) {
+export default function captureSharedNotes({ header, body }) {
+  check(header, Object);
   check(body, Object);
-  check(parentMeetingId, String);
 
-  const { breakoutId, meetingName } = body;
+  const {
+    meetingId: parentMeetingId,
+  } = header;
+
+  const {
+    breakoutId,
+  } = body;
 
   check(breakoutId, String);
-  check(meetingName, String);
+  check(parentMeetingId, String);
 
-  padCapture(breakoutId, parentMeetingId, meetingName);
+  padCapture(breakoutId, parentMeetingId);
 }
