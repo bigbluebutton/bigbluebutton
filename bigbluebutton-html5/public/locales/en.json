@@ -1196,6 +1196,7 @@
     "app.learningDashboard.userDetails.emojis": "Emojis",
     "app.learningDashboard.userDetails.raiseHands": "Raise Hands",
     "app.learningDashboard.userDetails.pollVotes": "Poll Votes",
+    "app.learningDashboard.userDetails.onlineIndicator": "{0} online time",
     "app.learningDashboard.usersTable.title": "Overview",
     "app.learningDashboard.usersTable.colOnline": "Online time",
     "app.learningDashboard.usersTable.colTalk": "Talk time",

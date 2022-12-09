@@ -347,17 +347,25 @@ const UserDatailsComponent = (props) => {
             <div className="h-6 relative before:bg-gray-500 before:absolute before:w-[10px] before:h-[10px] before:rounded-full before:left-0 before:top-[calc(50%-5px)] after:bg-gray-500 after:absolute after:w-[10px] after:h-[10px] after:rounded-full after:right-0 after:top-[calc(50%-5px)]">
               <div className="bg-gray-500 [--line-height:2px] h-[var(--line-height)] absolute top-[calc(50%-var(--line-height)/2)] left-[10px] right-[10px] rounded-2xl" />
               <div
+                role="progressbar"
                 className="ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute h-full rounded-2xl text-right rtl:text-left text-ellipsis overflow-hidden"
                 style={{
                   right: `calc(${document.dir === 'ltr' ? userEndOffsetTime : userStartOffsetTime}% + 10px)`,
                   left: `calc(${document.dir === 'ltr' ? userStartOffsetTime : userEndOffsetTime}% + 10px)`,
                 }}
               >
-                <div className="mx-3 inline-block text-white">
+                <div
+                  aria-describedby={`online-indicator-desc-${user.userKey}`}
+                  aria-label={intl.formatMessage({ id: 'app.learningDashboard.usersTable.colOnline', defaultMessage: 'Online time' })}
+                  className="mx-3 inline-block text-white"
+                >
                   { new Date(getSumOfTime(Object.values(user.intIds)))
                     .toISOString()
                     .substring(11, 19) }
                 </div>
+                <p id={`online-indicator-desc-${user.userKey}`} className="absolute w-0 h-0 p-0 border-0 m-0 overflow-hidden">
+                  {`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.onlineIndicator', defaultMessage: '{0} online time' }, { 0: user.name })} ${new Date(getSumOfTime(Object.values(user.intIds))).toISOString().substring(11, 19)}`}
+                </p>
               </div>
             </div>
             <div className="flex flex-row justify-between font-light text-gray-700">
