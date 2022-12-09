@@ -15,8 +15,6 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
     if (liveMeeting.props.breakoutProps.captureSlides) {
       val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId))
       eventBus.publish(captureSlidesEvent)
-
-      println(liveMeeting.props.breakoutProps.breakoutRooms);
     }
 
     if (liveMeeting.props.breakoutProps.captureNotes) {
