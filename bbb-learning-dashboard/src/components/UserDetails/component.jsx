@@ -422,7 +422,7 @@ const UserDatailsComponent = (props) => {
           <>
             <div className="bg-white shadow rounded mb-4 table w-full">
               <div className="p-6 text-lg flex items-center">
-                <div className="p-2 rounded-full bg-green-200 text-green-500">
+                <div className="p-2 rounded-full bg-green-100 text-green-700">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
@@ -473,7 +473,7 @@ const UserDatailsComponent = (props) => {
             </div>
             <div className="bg-white shadow rounded">
               <div className="p-6 text-lg flex items-center">
-                <div className="p-2 rounded-full bg-blue-100 text-blue-500">
+                <div className="p-2 rounded-full bg-blue-100 text-blue-700">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                   </svg>

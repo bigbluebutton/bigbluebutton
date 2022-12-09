@@ -181,7 +181,7 @@ class StatusTable extends React.Component {
     return (
       <table className="w-full">
         <thead>
-          <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
+          <tr className="text-xs font-semibold tracking-wide text-gray-700 uppercase border-b bg-gray-100">
             <th className={`z-30 bg-inherit px-4 py-3 col-text-left sticky ${isRTL ? 'right-0' : 'left-0'}`}>
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
             </th>

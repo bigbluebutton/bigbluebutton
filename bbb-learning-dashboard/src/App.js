@@ -555,7 +555,7 @@ class App extends React.Component {
         </TabsUnstyled>
         <UserDetails dataJson={activitiesJson} />
         <hr className="my-8" />
-        <div className="flex justify-between pb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
+        <div className="flex justify-between pb-8 text-xs text-gray-800 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
           <div className="flex flex-col justify-center mb-4 sm:mb-0">
             <p>
               {
