@@ -883,6 +883,8 @@ class Presentation extends PureComponent {
       intl,
       fullscreenElementId,
       layoutContextDispatch,
+      currentSlide,
+      userIsPresenter
     } = this.props;
 
     return (
@@ -893,6 +895,8 @@ class Presentation extends PureComponent {
         elementId={fullscreenElementId}
         toggleSwapLayout={MediaService.toggleSwapLayout}
         layoutContextDispatch={layoutContextDispatch}
+        currentSlide={currentSlide}
+        userIsPresenter={userIsPresenter}
       />
     );
   }
