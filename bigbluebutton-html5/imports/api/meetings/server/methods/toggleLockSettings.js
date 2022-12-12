@@ -25,6 +25,7 @@ export default function toggleLockSettings(lockSettingsProps) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       hideViewersCursor: Boolean,
+      hideViewersAnnotation: Boolean,
       setBy: Match.Maybe(String),
     });
 
@@ -39,6 +40,7 @@ export default function toggleLockSettings(lockSettingsProps) {
       lockOnJoin,
       lockOnJoinConfigurable,
       hideViewersCursor,
+      hideViewersAnnotation,
     } = lockSettingsProps;
 
     const payload = {
@@ -52,6 +54,7 @@ export default function toggleLockSettings(lockSettingsProps) {
       lockOnJoin,
       lockOnJoinConfigurable,
       hideViewersCursor,
+      hideViewersAnnotation,
       setBy: requesterUserId,
     };
 

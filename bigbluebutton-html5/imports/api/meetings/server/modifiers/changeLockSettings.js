@@ -15,6 +15,7 @@ export default function changeLockSettings(meetingId, payload) {
     lockOnJoin: Boolean,
     lockOnJoinConfigurable: Boolean,
     hideViewersCursor: Boolean,
+    hideViewersAnnotation: Boolean,
     setBy: Match.Maybe(String),
   });
 
@@ -29,6 +30,7 @@ export default function changeLockSettings(meetingId, payload) {
     lockOnJoin,
     lockOnJoinConfigurable,
     hideViewersCursor,
+    hideViewersAnnotation,
     setBy,
   } = payload;
 
@@ -49,6 +51,7 @@ export default function changeLockSettings(meetingId, payload) {
         lockOnJoin,
         lockOnJoinConfigurable,
         hideViewersCursor,
+        hideViewersAnnotation,
         setBy,
       },
     },

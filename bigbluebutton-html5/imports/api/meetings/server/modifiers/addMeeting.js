@@ -146,6 +146,7 @@ export default function addMeeting(meeting) {
       lockOnJoinConfigurable: Boolean,
       lockedLayout: Boolean,
       hideViewersCursor: Boolean,
+      hideViewersAnnotation: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,

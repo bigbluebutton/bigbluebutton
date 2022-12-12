@@ -25,7 +25,8 @@ trait GetLockSettingsReqMsgHdlr {
       lockedLayout = settings.lockedLayout,
       lockOnJoin = settings.lockOnJoin,
       lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
-      hideViewersCursor = settings.hideViewersCursor
+      hideViewersCursor = settings.hideViewersCursor,
+      hideViewersAnnotation = settings.hideViewersAnnotation
     )
     val header = BbbClientMsgHeader(GetLockSettingsRespMsg.NAME, meetingId, requestedBy)
     val event = GetLockSettingsRespMsg(header, body)
