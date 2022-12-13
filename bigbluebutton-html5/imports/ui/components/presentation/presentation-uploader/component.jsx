@@ -290,6 +290,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.exportingTimeout',
     description: 'exporting timeout label',
   },
+  linkAvailable: {
+    id: 'app.presentationUploader.export.linkAvailable',
+    description: 'download presentation link available on public chat',
+  },
 });
 
 const EXPORT_STATUSES = {
@@ -685,10 +689,18 @@ class PresentationUploader extends Component {
   }
 
   handleSendToChat(item) {
-    const { exportPresentationToChat } = this.props;
+    const {
+      exportPresentationToChat,
+      intl,
+    } = this.props;
 
-    const observer = (exportation) => {
+    const observer = (exportation, stopped) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
+
+      if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
+        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+      }
+
       if ([EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING].includes(exportation.status)) {

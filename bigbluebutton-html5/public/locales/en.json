@@ -246,6 +246,7 @@
     "app.presentationUploader.sent": "Sent",
     "app.presentationUploader.exportingTimeout": "The export is taking too long...",
     "app.presentationUploader.export": "Send to chat",
+    "app.presentationUploader.export.linkAvailable": "Link for downloading {0} available on the public chat.",
     "app.presentationUploader.currentPresentationLabel": "Current presentation",
     "app.presentationUploder.extraHint": "IMPORTANT: each file may not exceed {0} MB and {1} pages.",
     "app.presentationUploder.uploadLabel": "Upload",
