@@ -1112,7 +1112,7 @@
     "app.layout.modal.confirm": "Confirm",
     "app.layout.modal.cancel": "Cancel",
     "app.layout.modal.layoutLabel": "Select your layout",
-    "app.layout.modal.keepPushingLayoutLabel": "Keep pushing to everyone",
+    "app.layout.modal.keepPushingLayoutLabel": "Push layout to all",
     "app.layout.modal.pushLayoutLabel": "Push to everyone",
     "app.layout.modal.layoutToastLabel": "Layout settings changed",
     "app.layout.modal.layoutSingular": "Layout",
