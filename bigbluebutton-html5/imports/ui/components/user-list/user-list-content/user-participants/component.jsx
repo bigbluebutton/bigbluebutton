@@ -229,7 +229,7 @@ class UserParticipants extends Component {
           id={'user-list-virtualized-scroll'}
           aria-label="Users list"
           role="region"
-          tabIndex={0}
+          tabIndex={-1}
           ref={(ref) => {
             this.refScrollContainer = ref;
           }}
