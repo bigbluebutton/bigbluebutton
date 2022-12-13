@@ -102,6 +102,7 @@ exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
 exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
@@ -263,6 +264,9 @@ exports.presentationsList = 'div[id="upload-modal"] tbody';
 exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
 exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
 exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
+exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
+exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink

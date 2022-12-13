@@ -6,7 +6,7 @@ import Styled from './styles';
 
 const messages = defineMessages({
   yesLabel: {
-    id: 'app.endMeeting.yesLabel',
+    id: 'app.confirmationModal.yesLabel',
     description: 'confirm button label',
   },
   noLabel: {
@@ -46,6 +46,7 @@ class ConfirmationModal extends Component {
       titleMessageExtra,
       checkboxMessageId,
       confirmButtonColor,
+      confirmButtonLabel,
       confirmButtonDataTest,
       confirmParam,
       disableConfirmButton,
@@ -86,7 +87,7 @@ class ConfirmationModal extends Component {
           <Styled.Footer>
             <Styled.ConfirmationButton
               color={confirmButtonColor}
-              label={intl.formatMessage(messages.yesLabel)}
+              label={confirmButtonLabel ? confirmButtonLabel : intl.formatMessage(messages.yesLabel)}
               disabled={disableConfirmButton}
               data-test={confirmButtonDataTest}
               onClick={() => {

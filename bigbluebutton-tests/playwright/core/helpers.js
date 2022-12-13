@@ -1,6 +1,7 @@
 require('dotenv').config();
 const sha1 = require('sha1');
 const axios = require('axios');
+const { test } = require('@playwright/test');
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -32,6 +33,13 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
   return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 
+function linkIssue(issueNumber) {
+  test.info().annotations.push({
+    type: 'Issue/PR',
+    description: `https://github.com/bigbluebutton/bigbluebutton/issues/${issueNumber}`,
+  });
+}
+
 function sleep(time) {
   return new Promise((resolve) => {
     setTimeout(resolve, time);
@@ -41,4 +49,5 @@ function sleep(time) {
 exports.getRandomInt = getRandomInt;
 exports.createMeeting = createMeeting;
 exports.getJoinURL = getJoinURL;
+exports.linkIssue = linkIssue;
 exports.sleep = sleep;
