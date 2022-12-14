@@ -654,7 +654,7 @@
     "app.toast.meetingMuteOn.label": "Alle Teilnehmer wurden stummgeschaltet",
     "app.toast.meetingMuteOff.label": "Konferenz-Stummschaltung ausgeschaltet",
     "app.toast.setEmoji.raiseHand": "Sie haben Ihre Hand gehoben",
-    "app.toast.setEmoji.lowerHand": "Habe meine Hand gesenkt",
+    "app.toast.setEmoji.lowerHand": "Ihre Hand wurde gesenkt",
     "app.toast.promotedLabel": "Zur Moderation ernannt worden",
     "app.toast.demotedLabel": "Nun wieder in der Rolle eine:r Teilnehmer:in",
     "app.notification.recordingStart": "Diese Konferenz wird jetzt aufgezeichnet",
