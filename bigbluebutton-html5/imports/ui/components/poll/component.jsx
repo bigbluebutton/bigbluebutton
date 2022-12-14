@@ -682,11 +682,12 @@ class Poll extends Component {
                 onChange={this.toggleIsMultipleResponse}
                 checked={isMultipleResponse}
                 ariaLabelledBy="multipleResponseCheckboxLabel"
+                label={intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
               />
             </Styled.PollCheckbox>
-            <Styled.InstructionsLabel id="multipleResponseCheckboxLabel">
+            <div id="multipleResponseCheckboxLabel" hidden>
               {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
-            </Styled.InstructionsLabel>
+            </div>
           </div>
         )}
         {defaultPoll && this.renderInputs()}

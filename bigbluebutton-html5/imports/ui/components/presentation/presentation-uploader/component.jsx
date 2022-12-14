@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
+import Radio from '/imports/ui/components/common/radio/component';
 
 const { isMobile } = deviceInfo;
 
@@ -1012,7 +1012,7 @@ class PresentationUploader extends Component {
         animations={animations}
       >
         <Styled.SetCurrentAction>
-          <Checkbox
+          <Radio
             animations={animations}
             ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
             checked={item.isCurrent}
