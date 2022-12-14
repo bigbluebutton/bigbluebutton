@@ -47,6 +47,7 @@ import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Group;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -685,7 +686,7 @@ public class ParamsProcessorUtil {
         String parentMeetingId = "";
         if (isBreakout) {
             internalMeetingId = params.get(ApiParams.MEETING_ID);
-            parentMeetingId = params.get(ApiParams.PARENT_MEETING_ID);
+            parentMeetingId = ServiceUtils.findMeetingFromMeetingID(params.get(ApiParams.PARENT_MEETING_ID)).getInternalId();
             // We rebuild the the external meeting using the has of the parent
             // meeting, the shared timestamp and the sequence number
             String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");

@@ -8,11 +8,7 @@ import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import {
-  localBreakoutsSync,
-  localBreakoutsHistorySync,
-  localGuestUsersSync,
-  localMeetingsSync,
-  localUsersSync,
+  localCollectionRegistry,
 } from '/client/collection-mirror-initializer';
 import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -30,6 +26,13 @@ const SUBSCRIPTIONS = [
   'pads', 'pads-sessions', 'pads-updates', 'notifications', 'audio-captions',
   'layout-meetings',
 ];
+const {
+  localBreakoutsSync,
+  localBreakoutsHistorySync,
+  localGuestUsersSync,
+  localMeetingsSync,
+  localUsersSync,
+} = localCollectionRegistry;
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
 const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
@@ -165,6 +168,10 @@ export default withTracker(() => {
       },
       ...subscriptionErrorHandler,
     });
+
+    Object.values(localCollectionRegistry).forEach(
+      (localCollection) => localCollection.checkForStaleData(),
+    );
   }
 
   return {

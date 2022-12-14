@@ -311,5 +311,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
+    ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
 })(AppContainer)));
