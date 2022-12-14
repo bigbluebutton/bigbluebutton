@@ -56,7 +56,7 @@
     "meteor-node-stubs": "^1.2.1",
     "postcss-nested": "^5.0.6",
     "mobx": "6.4.2",
-    "probe-image-size": "^4.1.1",
+    "probe-image-size": "^7.2.3",
     "prom-client": "^13.2.0",
     "prop-types": "^15.8.1",
     "queue": "^6.0.2",
