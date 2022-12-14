@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container'
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
+import Vision from '/imports/ui/components/whiteboard/vision';
+import Service from '/imports/ui/components/whiteboard/service';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -79,10 +81,12 @@ class Presentation extends PureComponent {
       tldrawAPI: null,
       isPanning: false,
       tldrawIsMounting: true,
+      wbVision: false,
     };
 
     this.currentPresentationToastId = null;
 
+    this.toggleVision = this.toggleVision.bind(this);
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
     this.zoomChanger = this.zoomChanger.bind(this);
@@ -126,6 +130,13 @@ class Presentation extends PureComponent {
     }
 
     return stateChange;
+  }
+
+  toggleVision() {
+    const { wbVision } = this.state;
+    this.setState({
+      wbVision: !wbVision,
+    });    
   }
 
   setIsPanning() {
@@ -746,7 +757,7 @@ class Presentation extends PureComponent {
       presentationIsOpen,
       slidePosition,
     } = this.props;
-    const { zoom, fitToWidth } = this.state;
+    const { zoom, fitToWidth, wbVision } = this.state;
 
     if (!currentSlide) return null;
 
@@ -769,7 +780,9 @@ class Presentation extends PureComponent {
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
+          wbVision,
         }}
+        toggleVision={this.toggleVision}
         setIsPanning={this.setIsPanning}
         isPanning={this.state.isPanning}
         curPageId={this.state.tldrawAPI?.getPage()?.id}
@@ -929,6 +942,7 @@ class Presentation extends PureComponent {
       fitToWidth,
       zoom,
       tldrawIsMounting,
+      wbVision,
     } = this.state;
 
     let viewBoxDimensions;
@@ -1007,37 +1021,35 @@ class Presentation extends PureComponent {
                 height: svgHeight + toolbarHeight,
               }}
             >
-              <div
+              <Styled.Scrollable
                 style={{
                   position: 'absolute',
                   width: svgDimensions.width < 0 ? 0 : svgDimensions.width,
                   height: svgDimensions.height < 0 ? 0 : svgDimensions.height,
                   textAlign: 'center',
                   display: !presentationIsOpen ? 'none' : 'block',
+                  overflow: wbVision ? 'auto' : 'hidden',
                 }}
               >
                 <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
-                {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}
+                {!tldrawIsMounting && currentSlide && !wbVision && this.renderPresentationMenu()}
                 <WhiteboardContainer
                   whiteboardId={currentSlide?.id}
                   podId={podId}
-                  slidePosition={slidePosition}
+                  {...{ podId, slidePosition, intl, fitToWidth, isViewersCursorLocked, wbVision }}
                   getSvgRef={this.getSvgRef}
                   setTldrawAPI={this.setTldrawAPI}
                   curPageId={currentSlide?.num.toString()}
                   svgUri={currentSlide?.svgUri}
-                  intl={intl}
                   presentationWidth={svgWidth}
                   presentationHeight={svgHeight}
-                  isViewersCursorLocked={isViewersCursorLocked}
                   isPanning={this.state.isPanning}
                   zoomChanger={this.zoomChanger}
-                  fitToWidth={fitToWidth}
                   zoomValue={zoom}
                   setTldrawIsMounting={this.setTldrawIsMounting}
                 />
                 {isFullscreen && <PollingContainer />}
-              </div>
+              </Styled.Scrollable>
               {!tldrawIsMounting && (
                 <Styled.PresentationToolbar
                   ref={(ref) => { this.refPresentationToolbar = ref; }}

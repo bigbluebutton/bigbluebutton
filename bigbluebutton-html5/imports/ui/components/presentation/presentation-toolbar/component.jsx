@@ -267,6 +267,9 @@ class PresentationToolbar extends PureComponent {
       multiUser,
       setIsPanning,
       isPanning,
+      wbVision,
+      toggleVision,
+      hideViewersAnnotation,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -285,6 +288,11 @@ class PresentationToolbar extends PureComponent {
       : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${
         currentSlideNum >= 1 ? currentSlideNum + 1 : ''
       })`;
+
+    let visionLabel = 'Whiteboard vision';
+    if (!multiUser && !hideViewersAnnotation) visionLabel += ' - enable annotations lock and multi user';
+    if (!multiUser && hideViewersAnnotation) visionLabel += ' - enable multi user';
+    if (!hideViewersAnnotation && multiUser) visionLabel += ' - enable annotations lock';
 
     return (
       <Styled.PresentationToolbarWrapper
@@ -314,7 +322,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
                 startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
               }
-            disabled={startOfSlides || !isMeteorConnected}
+            disabled={startOfSlides || !isMeteorConnected || wbVision}
             color="light"
             circle
             icon="left_arrow"
@@ -334,7 +342,7 @@ class PresentationToolbar extends PureComponent {
               aria-describedby="skipSlideDesc"
               aria-live="polite"
               aria-relevant="all"
-              disabled={!isMeteorConnected}
+              disabled={!isMeteorConnected || wbVision}
               value={currentSlideNum}
               onChange={this.handleSkipToSlideChange}
               data-test="skipSlide"
@@ -348,7 +356,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
                 endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
               }
-            disabled={endOfSlides || !isMeteorConnected}
+            disabled={endOfSlides || !isMeteorConnected || wbVision}
             color="light"
             circle
             icon="right_arrow"
@@ -360,6 +368,18 @@ class PresentationToolbar extends PureComponent {
           />
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls>
+          <Styled.PrevSlideButton
+            role="button"
+            color="light"
+            circle
+            icon={!wbVision ? "whiteboard" : "multi_whiteboard"}
+            size="md"
+            onClick={toggleVision}
+            label={visionLabel}
+            hideLabel
+            data-test="whiteboardVision"
+            disabled={!hideViewersAnnotation || !multiUser}
+          />
           <Styled.WBAccessButton
             data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
             role="button"

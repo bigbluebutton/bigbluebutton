@@ -8,6 +8,7 @@ import PresentationToolbar from './component';
 import PresentationToolbarService from './service';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
 
@@ -61,6 +62,11 @@ export default withTracker((params) => {
     currentSlidHasContent: PresentationService.currentSlidHasContent(),
     parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
     startPoll,
+    hideViewersAnnotation: Meetings.findOne({ meetingId: Auth.meetingID }, {
+      fields: {
+        lockSettingsProps: 1,
+      }
+    })?.lockSettingsProps?.hideViewersAnnotation,
   };
 })(PresentationToolbarContainer);
 

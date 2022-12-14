@@ -4,6 +4,7 @@ import Whiteboard from "./component";
 import React, { useContext } from "react";
 import { UsersContext } from "../components-data/users-context/context";
 import Auth from "/imports/ui/services/auth";
+import Meetings from '/imports/api/meetings';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import { layoutSelect } from '../layout/context';
 import {
@@ -26,7 +27,7 @@ const WhiteboardContainer = (props) => {
     const isPresenter = currentUser.presenter;
     const isModerator = currentUser.role === ROLE_MODERATOR;
     const maxStickyNoteLength = WHITEBOARD_CONFIG.maxStickyNoteLength;
-    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height, maxStickyNoteLength }} {...props} meetingId={Auth.meetingID} />
+    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height, maxStickyNoteLength, users }} {...props} meetingId={Auth.meetingID} />
 };
 
 export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slidePosition, svgUri }) => {
@@ -72,5 +73,11 @@ export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slideP
     skipToSlide: PresentationToolbarService.skipToSlide,
     zoomChanger: zoomChanger,
     notifyNotAllowedChange: Service.notifyNotAllowedChange,
+    isPresenterShape: Service.isPresenterShape,
+    hideViewersAnnotation: Meetings.findOne({ meetingId: Auth.meetingID }, {
+      fields: {
+        lockSettingsProps: 1,
+      }
+    })?.lockSettingsProps?.hideViewersAnnotation,
   };
 })(WhiteboardContainer);

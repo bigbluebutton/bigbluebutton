@@ -397,6 +397,11 @@ const notifyNotAllowedChange = (intl) => {
   if (intl) notify(intl.formatMessage(intlMessages.notifyNotAllowedChange), 'warning', 'whiteboard');
 };
 
+const isPresenterShape = (id) => {
+  if (!id) return null;
+  return Users.findOne({ meetingId: Auth.meetingID, userId: id })?.presenter;
+}
+
 export {
   initDefaultPages,
   Annotations,
@@ -421,4 +426,5 @@ export {
   changeCurrentSlide,
   clearFakeAnnotations,
   notifyNotAllowedChange,
+  isPresenterShape,
 };
