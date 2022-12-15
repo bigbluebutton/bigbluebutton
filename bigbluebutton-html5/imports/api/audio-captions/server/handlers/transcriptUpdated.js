@@ -12,12 +12,15 @@ export default function transcriptUpdated({ header, body }) {
     transcriptId,
     transcript,
     locale,
+    result,
   } = body;
 
-  const user = Users.findOne({ userId }, { fields: { name: 1 } });
-  const datetime = new Date(Date.now());
-  const userSpoke = `\n ${user.name} (${datetime.getHours()}:${datetime.getMinutes()}): ${transcript}`;
-  updatePad(meetingId, userId, 'en', userSpoke);
+  if (result) {
+    const user = Users.findOne({ userId }, { fields: { name: 1 } });
+    const datetime = new Date(Date.now());
+    const userSpoke = `\n ${user.name} (${datetime.getHours()}:${datetime.getMinutes()}): ${transcript}`;
+    updatePad(meetingId, userId, 'en', userSpoke);
+  }
 
   setTranscript(meetingId, transcriptId, transcript);
 }

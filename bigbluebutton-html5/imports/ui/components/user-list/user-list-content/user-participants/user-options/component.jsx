@@ -145,7 +145,6 @@ class UserOptions extends PureComponent {
     this.captionsId = _.uniqueId('list-item-');
 
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
-    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
@@ -194,11 +193,6 @@ class UserOptions extends PureComponent {
         }}
       />,
     );
-  }
-
-  handleCaptionsClick() {
-    const { mountModal } = this.props;
-    mountModal(<CaptionsWriterMenu />);
   }
 
   renderMenuItems() {
@@ -299,15 +293,6 @@ class UserOptions extends PureComponent {
         });
       }
 
-      if (amIModerator && CaptionsService.isCaptionsEnabled()) {
-        this.menuItems.push({
-          icon: 'closed_caption',
-          label: intl.formatMessage(intlMessages.captionsLabel),
-          description: intl.formatMessage(intlMessages.captionsDesc),
-          key: this.captionsId,
-          onClick: this.handleCaptionsClick,
-        });
-      }
       if (amIModerator) {
         if (isLearningDashboardEnabled()) {
           this.menuItems.push({

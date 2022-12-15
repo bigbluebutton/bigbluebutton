@@ -11,11 +11,11 @@ trait UpdateTranscriptPubMsgHdlr {
   def handle(msg: UpdateTranscriptPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
 
-    def broadcastEvent(userId: String, transcriptId: String, transcript: String, locale: String): Unit = {
+    def broadcastEvent(userId: String, transcriptId: String, transcript: String, locale: String, result: Boolean): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(TranscriptUpdatedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(TranscriptUpdatedEvtMsg.NAME, meetingId, userId)
-      val body = TranscriptUpdatedEvtMsgBody(transcriptId, transcript, locale)
+      val body = TranscriptUpdatedEvtMsgBody(transcriptId, transcript, locale, result)
       val event = TranscriptUpdatedEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
@@ -65,7 +65,8 @@ trait UpdateTranscriptPubMsgHdlr {
         msg.header.userId,
         msg.body.transcriptId,
         transcript,
-        msg.body.locale
+        msg.body.locale,
+        msg.body.result,
       )
     }
   }
