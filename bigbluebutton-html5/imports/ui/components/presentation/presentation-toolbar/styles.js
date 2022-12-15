@@ -87,7 +87,7 @@ const PresentationSlideControls = styled.div`
 const PrevSlideButton = styled(Button)`
   border: none !important;
 
-  & > i {
+  i {
     font-size: 1rem;
 
     [dir="rtl"] & {

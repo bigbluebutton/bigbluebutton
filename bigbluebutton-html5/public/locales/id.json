@@ -64,7 +64,7 @@
     "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Opsi yang tersedia",
     "app.userList.chatListItem.unreadSingular": "Satu pesan baru",
-    "app.userList.chatListItem.unreadPlural": "[0] pesan baru",
+    "app.userList.chatListItem.unreadPlural": "{0} pesan baru",
     "app.userList.menu.chat.label": "Mulai obrolan privat",
     "app.userList.menu.clearStatus.label": "Bersihkan status",
     "app.userList.menu.removeUser.label": "Hapus pengguna",

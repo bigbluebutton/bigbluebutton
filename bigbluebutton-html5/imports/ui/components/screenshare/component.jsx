@@ -416,6 +416,7 @@ class ScreenshareComponent extends React.Component {
         ref={(ref) => {
           this.screenshareContainer = ref;
         }}
+        id="screenshareContainer"
       >
         {loaded && this.renderFullscreenButton()}
         {this.renderVideo(true)}

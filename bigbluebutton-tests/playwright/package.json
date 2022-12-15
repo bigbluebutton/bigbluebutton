@@ -4,13 +4,16 @@
     "test:filter": "npx playwright test -g",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug -g",
-    "test-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci"
+    "test-chromium-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci",
+    "test-firefox-ci": "export CI='true' && npx playwright test --project=firefox --grep @ci"
   },
   "dependencies": {
     "@playwright/test": "^1.19.2",
-    "playwright": "^1.19.2",
     "axios": "^0.26.1",
+    "chalk": "^4.1.2",
     "dotenv": "^16.0.0",
-    "sha1": "^1.1.1"
+    "playwright": "^1.19.2",
+    "sha1": "^1.1.1",
+    "xml2js": "^0.4.23"
   }
 }

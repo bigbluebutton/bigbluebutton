@@ -47,6 +47,7 @@ import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Group;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,8 @@ public class ParamsProcessorUtil {
     private String apiVersion;
     private boolean serviceEnabled = false;
     private String securitySalt;
+    private String supportedChecksumAlgorithms;
+    private String checksumHash;
     private int defaultMaxUsers = 20;
     private String defaultWelcomeMessage;
     private String defaultWelcomeMessageFooter;
@@ -638,7 +641,7 @@ public class ParamsProcessorUtil {
         String parentMeetingId = "";
         if (isBreakout) {
             internalMeetingId = params.get(ApiParams.MEETING_ID);
-            parentMeetingId = params.get(ApiParams.PARENT_MEETING_ID);
+            parentMeetingId = ServiceUtils.findMeetingFromMeetingID(params.get(ApiParams.PARENT_MEETING_ID)).getInternalId();
             // We rebuild the the external meeting using the has of the parent
             // meeting, the shared timestamp and the sequence number
             String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
@@ -945,11 +948,39 @@ public class ParamsProcessorUtil {
 		log.info("CHECKSUM={} length={}", checksum, checksum.length());
 
 		String data = apiCall + queryString + securitySalt;
-		String cs = DigestUtils.sha1Hex(data);
-		if (checksum.length() == 64) {
-			cs = DigestUtils.sha256Hex(data);
-			log.info("SHA256 {}", cs);
-		}
+
+		int checksumLength = checksum.length();
+        String cs = null;
+
+        switch(checksumLength) {
+            case 40:
+                if(supportedChecksumAlgorithms.contains("sha1")) {
+                    cs = DigestUtils.sha1Hex(data);
+                    log.info("SHA1 {}", cs);
+                }
+                break;
+            case 64:
+                if(supportedChecksumAlgorithms.contains("sha256")) {
+                    cs = DigestUtils.sha256Hex(data);
+                    log.info("SHA256 {}", cs);
+                }
+                break;
+            case 96:
+                if(supportedChecksumAlgorithms.contains("sha384")) {
+                    cs = DigestUtils.sha384Hex(data);
+                    log.info("SHA384 {}", cs);
+                }
+                break;
+            case 128:
+                if(supportedChecksumAlgorithms.contains("sha512")) {
+                    cs = DigestUtils.sha512Hex(data);
+                    log.info("SHA512 {}", cs);
+                }
+                break;
+            default:
+                log.info("No algorithm could be found that matches the provided checksum length");
+        }
+
 		if (cs == null || !cs.equals(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
@@ -1034,6 +1065,10 @@ public class ParamsProcessorUtil {
 	public void setSecuritySalt(String securitySalt) {
 		this.securitySalt = securitySalt;
 	}
+
+    public void setSupportedChecksumAlgorithms(String supportedChecksumAlgorithms) { this.supportedChecksumAlgorithms = supportedChecksumAlgorithms; }
+
+	public void setChecksumHash(String checksumHash) { this.checksumHash = checksumHash; }
 
 	public void setDefaultMaxUsers(int defaultMaxUsers) {
 		this.defaultMaxUsers = defaultMaxUsers;
