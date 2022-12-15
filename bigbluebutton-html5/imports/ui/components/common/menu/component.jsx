@@ -64,8 +64,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled, description } = a;
-
+      const { dataTest, label, onClick, key, disabled, description, selected } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -101,7 +100,7 @@ class BBBMenu extends React.Component {
           <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
             <Styled.Option aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
-            {description && <div className="sr-only" id={`${key}-option-desc`}>{description}</div>}
+            {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ' - selected' : ''}`}</div>}
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
           </Styled.MenuItemWrapper>
         </Styled.BBBMenuItem>,
