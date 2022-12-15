@@ -13,6 +13,8 @@ import { unique } from 'radash';
 const THROTTLE_TIMEOUT = 1000;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
+const ENABLED = CONFIG.enabled;
+const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
@@ -32,8 +34,9 @@ const setSpeechVoices = () => {
 setSpeechVoices();
 
 const getSpeechVoices = () => {
-  const voices = Session.get('speechVoices') || [];
+  if (!isWebSpeechApi()) return LANGUAGES;
 
+  const voices = Session.get('speechVoices') || [];
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
@@ -51,7 +54,7 @@ const setSpeechLocale = (value) => {
 const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
 const initSpeechRecognition = () => {
-  if (!isEnabled()) return null;
+  if (!isEnabled() || !isWebSpeechApi()) return null;
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
     setSpeechVoices();
@@ -129,7 +132,15 @@ const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
 const isEnabled = () => isLiveTranscriptionEnabled();
 
-const isActive = () => isEnabled() && hasSpeechRecognitionSupport() && hasSpeechLocale();
+const isWebSpeechApi = () => PROVIDER === 'webspeech' && hasSpeechRecognitionSupport() && hasSpeechLocale();
+
+const isVosk = () => PROVIDER === 'vosk';
+
+const isWhispering = () => PROVIDER === 'whisper';
+
+const isDeepSpeech = () => PROVIDER === 'deepSpeech'
+
+const isActive = () => isEnabled() && (isWebSpeechApi() || isVosk() || isWhispering() || isDeepSpeech());
 
 const getStatus = () => {
   const active = isActive();
