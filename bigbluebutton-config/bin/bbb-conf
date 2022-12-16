@@ -832,21 +832,6 @@ check_configuration() {
         echo "# is not owned by $BBB_USER"
     fi
 
-    if [ -n "$HTML5_CONFIG" ]; then
-        SVG_IMAGES_REQUIRED=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')
-        if [ "$SVG_IMAGES_REQUIRED" != "true" ]; then
-            echo
-            echo "# Warning: You have the HTML5 client installed but in"
-            echo "#"
-            echo "#    $BBB_WEB_CONFIG"
-            echo "#"
-            echo "# the setting for svgImagesRequired is false. To fix, run the commnad"
-            echo "#"
-            echo "# sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $BBB_WEB_CONFIG "
-            echo "#"
-        fi
-    fi
-
     CHECK_STUN=$(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=stun://g')
     if [ "$CHECK_STUN" == "stun.freeswitch.org" ]; then
        echo
@@ -1370,7 +1355,6 @@ if [ $CHECK ]; then
     echo "$BBB_WEB_CONFIG (bbb-web)"
     echo "       bigbluebutton.web.serverURL: $(get_bbb_web_config_value bigbluebutton.web.serverURL)"
     echo "                defaultGuestPolicy: $(get_bbb_web_config_value defaultGuestPolicy)"
-    echo "                 svgImagesRequired: $(get_bbb_web_config_value svgImagesRequired)"
     echo "              defaultMeetingLayout: $(get_bbb_web_config_value defaultMeetingLayout)"
 
     echo

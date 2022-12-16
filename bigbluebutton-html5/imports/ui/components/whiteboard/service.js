@@ -25,13 +25,17 @@ const intlMessages = defineMessages({
 
 let annotationsStreamListener = null;
 
+export function addAnnotationToDiscardedList(annotation) {
+  if (!discardedList.includes(annotation)) discardedList.push(annotation);
+}
+
 const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
 };
 
 const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
-  Annotations.remove({ id: /-fake/g, annotationType: { $ne: 'text' } });
+  Annotations.remove({ id: /-fake/g });
 }
 
 function handleAddedAnnotation({

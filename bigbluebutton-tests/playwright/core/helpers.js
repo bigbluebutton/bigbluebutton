@@ -2,6 +2,12 @@ require('dotenv').config();
 const sha1 = require('sha1');
 const path = require('path');
 const axios = require('axios');
+const { test } = require('@playwright/test');
+const xml2js = require('xml2js');
+
+const { expect } = require("@playwright/test");
+
+const parameters = require('./parameters');
 
 const httpPath = path.join(path.dirname(require.resolve('axios')), 'lib/adapters/http');
 const http = require(httpPath);
@@ -12,7 +18,20 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-async function createMeeting(params, customParameter) {
+function apiCallUrl(name, callParams) {
+  const query = new URLSearchParams(callParams).toString();
+  const apicall = `${name}${query}${parameters.secret}`;
+  const checksum = sha1(apicall);
+  const url = `${parameters.server}/${name}?${query}&checksum=${checksum}`;
+  return url;
+}
+
+function apiCall(name, callParams) {
+  const url = apiCallUrl(name, callParams);
+  return axios.get(url, { adapter: http }).then(response => xml2js.parseStringPromise(response.data));
+}
+
+function createMeetingUrl(params, customParameter) {
   const meetingID = `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
@@ -23,8 +42,20 @@ async function createMeeting(params, customParameter) {
   const apicall = `create${query}${params.secret}`;
   const checksum = sha1(apicall);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
-  await axios.get(url, { adapter: http });
-  return meetingID;
+  return url;
+}
+
+function createMeetingPromise(params, customParameter) {
+  const url = createMeetingUrl(params, customParameter);
+  return axios.get(url, { adapter: http });
+}
+
+async function createMeeting(params, customParameter) {
+  const promise = createMeetingPromise(params, customParameter);
+  const response = await promise;
+  expect(response.status).toEqual(200);
+  const xmlresponse = await xml2js.parseStringPromise(response.data);
+  return xmlresponse.response.meetingID[0];
 }
 
 function getJoinURL(meetingID, params, moderator, customParameter) {
@@ -36,6 +67,13 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
   return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 
+function linkIssue(issueNumber) {
+  test.info().annotations.push({
+    type: 'Issue/PR',
+    description: `https://github.com/bigbluebutton/bigbluebutton/issues/${issueNumber}`,
+  });
+}
+
 function sleep(time) {
   return new Promise((resolve) => {
     setTimeout(resolve, time);
@@ -43,6 +81,11 @@ function sleep(time) {
 }
 
 exports.getRandomInt = getRandomInt;
+exports.apiCallUrl = apiCallUrl;
+exports.apiCall = apiCall;
+exports.createMeetingUrl = createMeetingUrl;
+exports.createMeetingPromise = createMeetingPromise;
 exports.createMeeting = createMeeting;
 exports.getJoinURL = getJoinURL;
+exports.linkIssue = linkIssue;
 exports.sleep = sleep;

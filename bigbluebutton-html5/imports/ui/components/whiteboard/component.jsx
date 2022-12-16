@@ -45,6 +45,8 @@ const mapLanguage = (language) => {
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
+const SMALL_WIDTH = 800;
+const SMALLEST_WIDTH = 645;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
@@ -94,6 +96,7 @@ export default function Whiteboard(props) {
     isPanning,
     intl,
     svgUri,
+    maxStickyNoteLength,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -189,6 +192,10 @@ export default function Whiteboard(props) {
           });
     removeShapes(deletedShapes, whiteboardId);
   }
+
+  React.useEffect(() => {
+    props.setTldrawIsMounting(true);
+  }, []);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -317,6 +324,7 @@ export default function Whiteboard(props) {
           tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom);
       } else if (isMounting) {
         setIsMounting(false);
+        props.setTldrawIsMounting(false);
         const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
         // case where the presenter had fit-to-width enabled and he reloads the page
@@ -406,7 +414,8 @@ export default function Whiteboard(props) {
       const tdTools = document.getElementById("TD-Tools");
 
       if (tdToolsDots && tdDelete && tdPrimaryTools) {
-        const size = props.height < SMALL_HEIGHT ? TOOLBAR_SMALL : TOOLBAR_LARGE;
+        const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
+          ? TOOLBAR_SMALL : TOOLBAR_LARGE;
         tdToolsDots.style.height = `${size}px`;
         tdToolsDots.style.width = `${size}px`;
         const delButton = tdDelete.getElementsByTagName('button')[0];
@@ -418,7 +427,7 @@ export default function Whiteboard(props) {
           item.style.width = `${size}px`;
         }
       }
-      if (props.height < SMALLEST_HEIGHT && tdTools) {
+      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH)) && tdTools) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
         tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
       }
@@ -608,6 +617,11 @@ export default function Whiteboard(props) {
 
     if (reason && reason === 'patched_shapes') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+
+      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
       if (patchedShape) {
         const diff = {
           id: patchedShape.id,

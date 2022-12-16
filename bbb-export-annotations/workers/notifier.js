@@ -7,8 +7,7 @@ const axios = require('axios').default;
 const path = require('path');
 
 const {workerData} = require('worker_threads');
-
-const [jobType, jobId, filename] = workerData;
+const [jobType, jobId, filename] = [workerData.jobType, workerData.jobId, workerData.filename];
 
 const logger = new Logger('presAnn Notifier Worker');
 
@@ -28,7 +27,7 @@ async function notifyMeetingActor() {
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const link = path.join(`${path.sep}bigbluebutton`, 'presentation',
+  const link = config.bbbWebPublicAPI + path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
       exportJob.presId, 'pdf', jobId, filename);
 

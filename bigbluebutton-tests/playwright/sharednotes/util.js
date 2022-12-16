@@ -27,8 +27,19 @@ function getExportPlainTextLocator(test) {
   return test.page.frameLocator(e.etherpadFrame).locator(e.exportPlainButton);
 }
 
+function getMoveToWhiteboardLocator(test) {
+  return test.page.locator(e.sendNotesToWhiteboard);
+}
+
+function getSharedNotesUserWithoutPermission(test) {
+  return test.page.frameLocator(e.sharedNotesViewingMode)
+    .locator('body');
+}
+
 exports.startSharedNotes = startSharedNotes;
 exports.getNotesLocator = getNotesLocator;
 exports.getShowMoreButtonLocator = getShowMoreButtonLocator;
 exports.getExportButtonLocator = getExportButtonLocator;
 exports.getExportPlainTextLocator = getExportPlainTextLocator;
+exports.getMoveToWhiteboardLocator = getMoveToWhiteboardLocator;
+exports.getSharedNotesUserWithoutPermission = getSharedNotesUserWithoutPermission;
