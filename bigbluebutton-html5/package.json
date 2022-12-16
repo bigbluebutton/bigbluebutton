@@ -80,7 +80,7 @@
     "reconnecting-websocket": "~v4.4.0",
     "redis": "^3.1.2",
     "sanitize-html": "2.3.3",
-    "scheduler": "^0.20.2",
+    "scheduler": "^0.23.0",
     "sdp-transform": "2.7.0",
     "smile2emoji": "^2.8.0",
     "string-hash": "~1.1.3",
