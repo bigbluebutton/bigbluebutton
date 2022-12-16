@@ -8,7 +8,7 @@
     "test-firefox-ci": "export CI='true' && npx playwright test --project=firefox --grep @ci"
   },
   "dependencies": {
-    "@playwright/test": "^1.25.0",
+    "@playwright/test": "^1.28.1",
     "playwright": "^1.19.2",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
