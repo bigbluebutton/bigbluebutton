@@ -40,6 +40,10 @@ export function isCaptionsEnabled() {
   return getDisabledFeatures().indexOf('captions') === -1 && Meteor.settings.public.captions.enabled;
 }
 
+export function isAudioCaptionsEnabled() {
+  return getDisabledFeatures().indexOf('audioCaptions') === -1 && Meteor.settings.public.app.audioCaptions.enabled;
+}
+
 export function isBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
