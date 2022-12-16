@@ -1,6 +1,5 @@
 require('dotenv').config();
 const sha1 = require('sha1');
-const path = require('path');
 const axios = require('axios');
 const { test } = require('@playwright/test');
 const xml2js = require('xml2js');
@@ -8,9 +7,6 @@ const xml2js = require('xml2js');
 const { expect } = require("@playwright/test");
 
 const parameters = require('./parameters');
-
-const httpPath = path.join(path.dirname(require.resolve('axios')), 'lib/adapters/http');
-const http = require(httpPath);
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -28,7 +24,7 @@ function apiCallUrl(name, callParams) {
 
 function apiCall(name, callParams) {
   const url = apiCallUrl(name, callParams);
-  return axios.get(url, { adapter: http }).then(response => xml2js.parseStringPromise(response.data));
+  return axios.get(url, { adapter: 'http' }).then(response => xml2js.parseStringPromise(response.data));
 }
 
 function createMeetingUrl(params, customParameter) {
@@ -47,7 +43,7 @@ function createMeetingUrl(params, customParameter) {
 
 function createMeetingPromise(params, customParameter) {
   const url = createMeetingUrl(params, customParameter);
-  return axios.get(url, { adapter: http });
+  return axios.get(url, { adapter: 'http' });
 }
 
 async function createMeeting(params, customParameter) {
