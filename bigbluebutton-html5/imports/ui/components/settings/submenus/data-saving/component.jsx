@@ -54,7 +54,7 @@ class DataSaving extends BaseMenu {
           {isVideoEnabled
             ? (
               <Styled.Row>
-                <Styled.Col aria-hidden="true">
+                <Styled.Col aria-hidden>
                   <Styled.FormElement>
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.webcamLabel)}
@@ -69,7 +69,7 @@ class DataSaving extends BaseMenu {
                       defaultChecked={viewParticipantsWebcams}
                       onChange={() => this.handleToggle('viewParticipantsWebcams')}
                       ariaLabelledBy="webcamToggle"
-                      ariaLabel={intl.formatMessage(intlMessages.webcamLabel)}
+                      ariaLabel={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
                       showToggleLabel={showToggleLabel}
                     />
                   </Styled.FormElementRight>
@@ -80,7 +80,7 @@ class DataSaving extends BaseMenu {
           {isScreenSharingEnabled
             ? (
               <Styled.Row>
-                <Styled.Col aria-hidden="true">
+                <Styled.Col aria-hidden>
                   <Styled.FormElement>
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.screenShareLabel)}
@@ -95,7 +95,7 @@ class DataSaving extends BaseMenu {
                       defaultChecked={viewScreenshare}
                       onChange={() => this.handleToggle('viewScreenshare')}
                       ariaLabelledBy="screenShare"
-                      ariaLabel={intl.formatMessage(intlMessages.screenShareLabel)}
+                      ariaLabel={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
                       showToggleLabel={showToggleLabel}
                     />
                   </Styled.FormElementRight>
