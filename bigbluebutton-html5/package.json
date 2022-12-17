@@ -52,7 +52,7 @@
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "lodash": "^4.17.21",
-    "makeup-screenreader-trap": "0.0.5",
+    "makeup-screenreader-trap": "0.4.1",
     "meteor-node-stubs": "^1.2.1",
     "postcss-nested": "^5.0.6",
     "mobx": "6.4.2",
