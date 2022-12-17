@@ -9,15 +9,9 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.models.{ PresentationPod, PresentationPage, PresentationInPod }
 import java.io.File
-import java.util.Calendar
 
 trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
-
-  def generateFilename(filename: String): String = {
-    val calendar = Calendar.getInstance()
-    s"${filename}-${calendar.get(Calendar.HOUR_OF_DAY)}_${calendar.get(Calendar.MINUTE)}"
-  }
 
   def buildStoreAnnotationsInRedisSysMsg(annotations: StoredAnnotations, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
@@ -165,7 +159,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
 
       val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-      val filename: String = generateFilename(liveMeeting.props.meetingProp.name)
+      val filename: String = liveMeeting.props.meetingProp.name
 
       // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
       bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
@@ -185,7 +179,6 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
   def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
-
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
   }
 
@@ -209,7 +202,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val userId: String = "system"
     val jobId: String = s"${m.body.breakoutId}-notes" // Used as the temporaryPresentationId upon upload
     val jobType = "PadCaptureJob"
-    val filename = generateFilename(m.body.filename)
+    val filename = m.body.filename
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
 
     bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
