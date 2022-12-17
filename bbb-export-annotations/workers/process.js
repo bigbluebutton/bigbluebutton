@@ -596,7 +596,7 @@ function overlay_shape_label(svg, annotation) {
   const fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
   const textAlign = 'center';
   const text = annotation.label;
-  const id = annotation.id;
+  const id = sanitize(annotation.id);
   const rotation = rad_to_degree(annotation.rotation);
 
   const [shape_width, shape_height] = annotation.size;
@@ -641,7 +641,7 @@ function overlay_sticky(svg, annotation) {
 
   const textColor = '#0d0d0d'; // For sticky notes
   const text = annotation.text;
-  const id = annotation.id;
+  const id = sanitize(annotation.id);
 
   render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth);
 
@@ -701,7 +701,7 @@ function overlay_text(svg, annotation) {
   const fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
   const textAlign = align_to_pango(annotation.style.textAlign);
   const text = annotation.text;
-  const id = annotation.id;
+  const id = sanitize(annotation.id);
 
   const rotation = rad_to_degree(annotation.rotation);
   const [textBox_x, textBox_y] = annotation.point;
@@ -854,14 +854,7 @@ async function process_presentation_annotations() {
       }
     });
 
-    // Dimensions converted to a pixel size which,
-    // when converted to points, will yield the desired
-    // dimension in pixels when read without conversion
-
-    // e.g. say the background SVG dimensions are set to 1920x1080 pt
-    // Resize output to 2560x1440 px so that the SVG
-    // generates with the original size in pt.
-
+    // Scale slide back to its original size
     const convertAnnotatedSlide = [
       SVGfile,
       '--output-width', to_px(slideWidth),
