@@ -614,7 +614,6 @@ class VideoProvider extends Component {
       },
       onicecandidate: this._getOnIceCandidateCallback(stream, isLocal),
       configuration: {
-        iceTransportPolicy: shouldForceRelay() ? 'relay' : undefined,
       },
       trace: TRACE_LOGS,
       networkPriorities: NETWORK_PRIORITY ? { video: NETWORK_PRIORITY } : undefined,
@@ -635,6 +634,9 @@ class VideoProvider extends Component {
       // Use fallback STUN server
       iceServers = getMappedFallbackStun();
     } finally {
+      // we need to set iceTransportPolicy after `fetchWebRTCMappedStunTurnServers`
+      // because `shouldForceRelay` uses the information from the stun API
+      peerOptions.configuration.iceTransportPolicy = shouldForceRelay() ? 'relay' : undefined;
       if (iceServers.length > 0) {
         peerOptions.configuration.iceServers = iceServers;
       }

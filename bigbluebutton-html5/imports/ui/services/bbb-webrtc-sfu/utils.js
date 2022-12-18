@@ -1,7 +1,7 @@
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { hasTurnServer } from '/imports/utils/fetchStunTurnServers';
 
-const FORCE_RELAY_ON_FF = Meteor.settings.public.kurento.forceRelayOnFirefox;
 const FORCE_RELAY = Meteor.settings.public.media.forceRelay;
 
 /*
@@ -16,7 +16,7 @@ const shouldForceRelay = () => {
   const { isFirefox } = browserInfo;
   const { isIos } = deviceInfo;
 
-  return FORCE_RELAY || ((isFirefox && !isIos) && FORCE_RELAY_ON_FF);
+  return FORCE_RELAY || ((isFirefox && !isIos) && hasTurnServer());
 };
 
 export {

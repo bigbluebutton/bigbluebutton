@@ -8,6 +8,7 @@ const FALLBACK_STUN_SERVER = MEDIA.fallbackStunServer;
 let STUN_TURN_DICT;
 let MAPPED_STUN_TURN_DICT;
 let TURN_CACHE_VALID_UNTIL = Math.floor(Date.now() / 1000);
+let HAS_SEEN_TURN_SERVER = false;
 
 const fetchStunTurnServers = function (sessionToken) {
   const now = Math.floor(Date.now() / 1000);
@@ -33,6 +34,7 @@ const fetchStunTurnServers = function (sessionToken) {
         password,
         username,
       });
+      HAS_SEEN_TURN_SERVER = true;
     });
     TURN_CACHE_VALID_UNTIL = max_ttl;
 
@@ -83,9 +85,14 @@ const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
   });
 };
 
+const hasTurnServer = () => {
+  return HAS_SEEN_TURN_SERVER;
+}
+
 export {
   fetchStunTurnServers,
   fetchWebRTCMappedStunTurnServers,
   getFallbackStun,
   getMappedFallbackStun,
+  hasTurnServer,
 };
