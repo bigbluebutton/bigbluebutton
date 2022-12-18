@@ -10,14 +10,16 @@ const sanitize = require('sanitize-filename');
 const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
 const redis = require('redis');
+const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
 
-const [jobId, statusUpdate] = [workerData.jobId, workerData.statusUpdate];
-
+const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
 logger.info('Processing PDF for job ' + jobId);
-statusUpdate.core.body.status = 'PROCESSING';
 
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
+const job = fs.readFileSync(path.join(dropbox, 'job'));
+const exportJob = JSON.parse(job);
+const statusUpdate = new PresAnnStatusMsg(exportJob, PresAnnStatusMsg.EXPORT_STATUSES.PROCESSING);
 
 // General utilities for rendering SVGs resembling Tldraw as much as possible
 function align_to_pango(alignment) {
@@ -157,10 +159,8 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
   try {
     cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
   } catch (error) {
-    const error_reason = 'ImageMagick failed to render textbox';
-    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
-    statusUpdate.core.body.status = error_reason;
-    statusUpdate.core.body.error = true;
+    logger.error(`ImageMagick failed to render textbox in job ${jobId}: ${error.message}`);
+    statusUpdate.setError();
   }
 }
 
@@ -787,17 +787,13 @@ async function process_presentation_annotations() {
 
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  // 1. Get the job
-  const job = fs.readFileSync(path.join(dropbox, 'job'));
-  const exportJob = JSON.parse(job);
-
-  // 2. Get the annotations
+  // Get the annotations
   const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
   const whiteboard = JSON.parse(annotations);
   const pages = JSON.parse(whiteboard.pages);
   const ghostScriptInput = [];
 
-  // 3. Convert annotations to SVG
+  // Convert annotations to SVG
   for (const currentSlide of pages) {
     const bgImagePath = path.join(dropbox, `slide${currentSlide.page}`);
     const svgBackgroundSlide = path.join(exportJob.presLocation,
@@ -866,15 +862,11 @@ async function process_presentation_annotations() {
       cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
     } catch (error) {
       logger.error(`Processing slide ${currentSlide.page} failed for job ${jobId}: ${error.message}`);
-      statusUpdate.core.body.error = true;
+      statusUpdate.setError();
     }
 
-    statusUpdate.core.body.pageNumber = currentSlide.page;
-    statusUpdate.envelope.timestamp = (new Date()).getTime();
-
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    await client.publish(config.redis.channels.publish, statusUpdate.build(currentSlide.page));
     ghostScriptInput.push(PDFfile);
-    statusUpdate.core.body.error = false;
   }
 
   // Create PDF output directory if it doesn't exist
@@ -896,11 +888,7 @@ async function process_presentation_annotations() {
   try {
     cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
   } catch (error) {
-    const error_reason = 'GhostScript failed to merge PDFs';
-    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
-    statusUpdate.core.body.status = error_reason;
-    statusUpdate.core.body.error = true;
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    return logger.error(`GhostScript failed to merge PDFs in job ${jobId}: ${error.message}`);
   }
 
   // Launch Notifier Worker depending on job type
