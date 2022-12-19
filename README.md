@@ -4,7 +4,7 @@ BigBlueButton is an open source web conferencing system.
 
 BigBlueButton supports real-time sharing of audio, video, slides (with whiteboard controls), chat, and the screen.  Instructors can engage remote students with polling, emojis, multi-user whiteboard, and breakout rooms.  
 
-Presenters can record and playback content for later sharing with others.
+Presenters can record and playback content to be shared later with others, how cool is that?.
 
 We designed BigBlueButton for online learning, (though it can be used for many [other applications](https://www.c4isrnet.com/it-networks/2015/02/11/disa-to-replace-dco-with-new-collaboration-services-tool/) as well).  The educational use cases for BigBlueButton are
 
