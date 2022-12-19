@@ -17,6 +17,11 @@
 
 <profile name="public">
 
+  <gateways>
+    <!-- backwards compatibility requires us to include files in the external subdirectory -->
+    <X-PRE-PROCESS cmd="include" data="external/*.xml"/>
+  </gateways>
+
   <domains>
     <domain name="all" alias="false" parse="true"/>
   </domains>
