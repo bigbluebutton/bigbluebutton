@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Diapositivas han sido generadas ...",
     "app.presentationUploder.conversion.generatingSvg": "Generando imágenes SVG ...",
     "app.presentationUploder.conversion.pageCountExceeded": "El número de páginas excede el máximo de {0}",
+    "app.presentationUploder.conversion.conversionTimeout": "La diapositiva {0} no se pudo procesar tras {1} intentos.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Error en procesar el documento de Office. Por favor, suba un archivo PDF en su lugar.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Error en procesar el documento de Office. Por favor, suba un archivo PDF en su lugar.",
     "app.presentationUploder.conversion.pdfHasBigPage": "No se pudo convertir el archivo PDF. Por favor, intente optimizarlo. Máximo número de páginas {0}",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "'Click' aquí para seleccionar",
     "app.poll.question.label" : "Escribe tu pregunta...",
     "app.poll.optionalQuestion.label" : "Escribe tu pregunta (opcional)...",
-    "app.poll.userResponse.label" : "Respuesta del usuario",
+    "app.poll.userResponse.label" : "Respuesta escrita",
     "app.poll.responseTypes.label" : "Tipos de respuesta",
     "app.poll.optionDelete.label" : "Borrar",
     "app.poll.responseChoices.label" : "Opciones de respuesta",
@@ -598,8 +599,11 @@
     "app.error.403": "Usted ha sido expulsado/a de la reunión",
     "app.error.404": "No se encontró",
     "app.error.408": "Autentificación fallida",
+    "app.error.409": "Conflicto",
     "app.error.410": "La reunión ha finalizado",
     "app.error.500": "¡Vaya!, algo salio mal",
+    "app.error.503": "Has sido desconectado/a",
+    "app.error.disconnected.rejoin": "Puedes actualizar la página para volver a unirte.",
     "app.error.userLoggedOut": "El usuario tiene un Token de sesión no válido debido al cierre de sesión",
     "app.error.ejectedUser": "El usuario tiene un Token de sesión no válido debido a su expulsión",
     "app.error.joinedAnotherWindow": "Parece que esta sesión ya está abierta en otra ventana del navegador.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Nuevo mensaje en chat público",
     "app.toast.chat.private": "Nuevo mensaje en chat privado",
     "app.toast.chat.system": "Sistema",
+    "app.toast.chat.poll": "Resultados de la encuesta",
+    "app.toast.chat.pollClick": "Los resultados de la encuesta se han publicado. Clic aquí para verlos.",
     "app.toast.clearedEmoji.label": "Estado del emoji borrado",
     "app.toast.setEmoji.label": "Estado del emoji cambiado a {0}",
     "app.toast.meetingMuteOn.label": "Todos los usuarios han sido silenciados",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Campos requeridos",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "El nombre ya está en uso",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Error al tratar de cargar la página - comprueba la URL y la conexión a la red"
-
 }
-
