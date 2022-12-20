@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Presentacións xeradas…",
     "app.presentationUploder.conversion.generatingSvg": "Xerando imaxes SVG…",
     "app.presentationUploder.conversion.pageCountExceeded": "O número de páxinas superou o máximo de {0}",
+    "app.presentationUploder.conversion.conversionTimeout": "Non se puido procesar a diapositiva {0} tras {1} intentos.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Produciuse un fallo ao procesar o documento de oficina. No seu lugar envíe un PDF.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Produciuse un fallo ao procesar o documento de oficina. No seu lugar envíe un PDF.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Non foi posíbel converter o ficheiro PDF. Tente optimizalo. Tamaño máximo de páxina {0}",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "Prema aquí para seleccionar",
     "app.poll.question.label" : "Escriba a súa pregunta...",
     "app.poll.optionalQuestion.label" : "Escriba a súa pregunta (opcional)...",
-    "app.poll.userResponse.label" : "Resposta do usuario",
+    "app.poll.userResponse.label" : "Resposta escrita",
     "app.poll.responseTypes.label" : "Tipos de resposta",
     "app.poll.optionDelete.label" : "Eliminar",
     "app.poll.responseChoices.label" : "Opcións de resposta",
@@ -598,8 +599,11 @@
     "app.error.403": "Vostede foi retirado/a da xuntanza",
     "app.error.404": "Non se atopou",
     "app.error.408": "Produciuse un fallo de autenticación",
+    "app.error.409": "Conflito",
     "app.error.410": "Rematou a xuntanza",
     "app.error.500": "Ouh! algo foi mal",
+    "app.error.503": "Fuches desconectado/a",
+    "app.error.disconnected.rejoin": "Podes actualizar a páxina para unirte de novo.",
     "app.error.userLoggedOut": "O usuario ten un testemuño de sesión non válido por mor do peche da sesión",
     "app.error.ejectedUser": "O usuario ten un testemuño de sesión non válido por mor da expulsión",
     "app.error.joinedAnotherWindow": "Semella que esta sesión está aberta noutra xanela do navegador.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Nova mensaxe na conversa pública",
     "app.toast.chat.private": "Nova mensaxe na conversa privada",
     "app.toast.chat.system": "Sistema",
+    "app.toast.chat.poll": "Resultados da enquisa",
+    "app.toast.chat.pollClick": "Publicáronse os resultados da enquisa. Preme aquí para velos.",
     "app.toast.clearedEmoji.label": "Estado do emoji limpo",
     "app.toast.setEmoji.label": "Estado do emoji cambiado a {0}",
     "app.toast.meetingMuteOn.label": "Todos os usuarios foron silenciados",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Campos obrigatorios",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Ese nome xa está a ser usado",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Produciuse un erro ao tentar cargar a páxina. Comprobe o URL e a conexión de rede"
-
 }
-
