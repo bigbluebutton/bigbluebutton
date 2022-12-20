@@ -89,8 +89,8 @@
     "app.userlist.menu.removeConfirmation.desc": "Teilnehmer sperren, sodass eine erneute Teilnahme an dieser Konferenz nicht mehr möglich ist.",
     "app.userList.menu.muteUserAudio.label": "Teilnehmer stummschalten",
     "app.userList.menu.unmuteUserAudio.label": "Stummschaltung aufheben",
-    "app.userList.menu.webcamPin.label": "Webcam der Teilnehmer anheften",
-    "app.userList.menu.webcamUnpin.label": "Webcam der Teilnehmer lösen",
+    "app.userList.menu.webcamPin.label": "Webcam des Teilnehmers anheften",
+    "app.userList.menu.webcamUnpin.label": "Webcam des Teilnehmers lösen",
     "app.userList.menu.giveWhiteboardAccess.label" : "Zugriff auf Whiteboard erlauben",
     "app.userList.menu.removeWhiteboardAccess.label": "Zugriff auf Whiteboard aufheben",
     "app.userList.menu.ejectUserCameras.label": "Kameras schließen",
@@ -653,12 +653,14 @@
     "app.toast.chat.public": "Neue öffentliche Chatnachricht",
     "app.toast.chat.private": "Neue private Chatnachricht",
     "app.toast.chat.system": "System",
+    "app.toast.chat.poll": "Umfrageergebnisse",
+    "app.toast.chat.pollClick": "Umfrageergebnisse wurden veröffentlicht. Klicken Sie hier, um diese zu sehen.",
     "app.toast.clearedEmoji.label": "Emojistatus zurückgesetzt",
     "app.toast.setEmoji.label": "Emojistatus auf {0} gesetzt",
     "app.toast.meetingMuteOn.label": "Alle Teilnehmer wurden stummgeschaltet",
     "app.toast.meetingMuteOff.label": "Konferenz-Stummschaltung ausgeschaltet",
     "app.toast.setEmoji.raiseHand": "Sie haben Ihre Hand gehoben",
-    "app.toast.setEmoji.lowerHand": "Habe meine Hand gesenkt",
+    "app.toast.setEmoji.lowerHand": "Ihre Hand wurde gesenkt",
     "app.toast.promotedLabel": "Zum Moderator ernannt worden",
     "app.toast.demotedLabel": "Nun wieder in der Rolle eine:r Teilnehmer:in",
     "app.notification.recordingStart": "Diese Konferenz wird jetzt aufgezeichnet",
@@ -781,7 +783,7 @@
     "app.video.securityError": "Medienunterstützung ist für das Dokument deaktiviert",
     "app.video.typeError": "Liste der angegebenen Bedingungen ist leer oder alle Bedingungen sind auf falsch gesetzt",
     "app.video.notFoundError": "Konnte keine Webcam finden. Bitte prüfen, dass eine Kamera angeschlossen ist und nicht von einem anderen Programm blockiert wird.",
-    "app.video.notAllowed": "Fehlende Berechtigung für die Webcamfreigabe. Bitte die Berechtigungen iim Browser prüfen",
+    "app.video.notAllowed": "Fehlende Berechtigung für die Webcamfreigabe. Bitte die Berechtigungen im Browser prüfen",
     "app.video.notSupportedError": "Webcam kann nur über eine sichere Verbindung freigegeben werden, bitte prüfen ob das SSL-Zertifikat gültig ist",
     "app.video.notReadableError": "Konnte nicht auf die Webcam zugreifen. Bitte prüfen, dass kein anderes Programm auf die Webcam zugreift",
     "app.video.timeoutError": "Der Browser hat nicht rechtzeitig reagiert.",
@@ -1066,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Benötigte Felder",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name existiert bereits",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Fehler beim Laden der Seite - URL und Netzwerkverbindung prüfen"
-
 }
-
