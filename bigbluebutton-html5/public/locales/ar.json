@@ -653,6 +653,8 @@
     "app.toast.chat.public": "رسالة جديدة للدردشة العامة",
     "app.toast.chat.private": "رسالة جديدة للدردشة الخاصة",
     "app.toast.chat.system": "النظام",
+    "app.toast.chat.poll": "نتائج التصويت",
+    "app.toast.chat.pollClick": "تم نشر نتائج التصويت. انقر هنا لترى.",
     "app.toast.clearedEmoji.label": "تم مسح تعيين الرمز التعبيري",
     "app.toast.setEmoji.label": "تم تعيين الرمز التعبيري إلى {0}",
     "app.toast.meetingMuteOn.label": "تم كتم صوت كل المستخدمين",
@@ -1066,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "حقول مطلوبة",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم مستخدم",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "حدث خطأ أثناء محاولة تحميل الصفحة - تحقق من الرابط واتصال الشبكة"
-
 }
-
