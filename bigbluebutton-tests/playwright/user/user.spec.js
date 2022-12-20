@@ -64,6 +64,13 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
+
+    test('Give and remove whiteboard access', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initModPage2();
+      await multiusers.giveAndRemoveWhiteboardAccess();
+    });
   });
 
   test.describe.parallel('Manage', () => {
