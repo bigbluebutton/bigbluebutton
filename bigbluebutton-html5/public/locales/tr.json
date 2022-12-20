@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Slaytlar oluşturuldu ...",
     "app.presentationUploder.conversion.generatingSvg": "SVG görselleri oluşturuluyor ...",
     "app.presentationUploder.conversion.pageCountExceeded": "Sayfa sayısı çok fazla. En fazla {0} olabilir",
+    "app.presentationUploder.conversion.conversionTimeout": "{0} slaytı {1} denemede işlenemedi.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Ofis belgesi işlenemedi. Lütfen PDF olarak yükleyin.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Ofis belgesi işlenemedi. Lütfen PDF olarak yükleyin.",
     "app.presentationUploder.conversion.pdfHasBigPage": "PDF dosyasını dönüştürülemedi. Lütfen iyileştirmeyi deneyin. En fazla sayfa boyutu {0}",
@@ -598,8 +599,11 @@
     "app.error.403": "Toplantıdan çıkarıldınız",
     "app.error.404": "Bulunamadı",
     "app.error.408": "Kimlik doğrulanamadı",
+    "app.error.409": "Çakışma",
     "app.error.410": "Toplantı sona erdi",
     "app.error.500": "Bir sorun çıktı",
+    "app.error.503": "Bağlantınız kesildi",
+    "app.error.disconnected.rejoin": "Yeniden katılmak için sayfayı yenileyebilirsiniz.",
     "app.error.userLoggedOut": "Kullanıcı oturumu kapattığından sessionToken geçersiz",
     "app.error.ejectedUser": "Kullanıcı oturumdan çıkarıldığından sessionToken geçersiz",
     "app.error.joinedAnotherWindow": "Bu oturum başka bir web tarayıcı penceresinde açık gibi görünüyor.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Yeni herkese açık sohbet iletisi",
     "app.toast.chat.private": "Yeni özel sohbet iletisi",
     "app.toast.chat.system": "Sistem",
+    "app.toast.chat.poll": "Anket sonuçları",
+    "app.toast.chat.pollClick": "Anket sonuçları yayınlanmış. Görmek için buraya tıklayın.",
     "app.toast.clearedEmoji.label": "Emoji durumu temizlendi",
     "app.toast.setEmoji.label": "Emoji durumu {0} olarak ayarlandı",
     "app.toast.meetingMuteOn.label": "Tüm kullanıcıların sesi kapatıldı",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Zorunlu alanlar",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Adı başkası kullanıyor",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Sayfa yüklenirken bir sorun çıktı. Adresi ve ağ bağlantınızı denetleyin"
-
 }
-
