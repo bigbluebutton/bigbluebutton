@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Создаются слайды...",
     "app.presentationUploder.conversion.generatingSvg": "Создаются изображения SVG...",
     "app.presentationUploder.conversion.pageCountExceeded": "Слишком большое количество страниц. Максимум: {0}",
+    "app.presentationUploder.conversion.conversionTimeout": "Не удалось обработать слайд {0}, количество сделанных попыток: {1}.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Не удалось обработать офисный документ. Пожалуйста, загрузите PDF-файл вместо этого.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Не удалось обработать офисный документ. Пожалуйста, загрузите PDF-файл вместо этого.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Мы не смогли конвертировать PDF-файл, пожалуйста, попробуйте его оптимизировать. Максимальный размер страницы: {0}",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "Нажмите здесь, чтобы выбрать",
     "app.poll.question.label" : "Напишите Ваш вопрос...",
     "app.poll.optionalQuestion.label" : "Напишите Ваш вопрос (опционально)...",
-    "app.poll.userResponse.label" : "Ответ пользователя",
+    "app.poll.userResponse.label" : "Введенный ответ",
     "app.poll.responseTypes.label" : "Типы ответов",
     "app.poll.optionDelete.label" : "Удалить",
     "app.poll.responseChoices.label" : "Варианты ответов",
@@ -598,8 +599,11 @@
     "app.error.403": "Вас удалили из конференции",
     "app.error.404": "Не найдено",
     "app.error.408": "Аутентификация не пройдена",
+    "app.error.409": "Конфликт",
     "app.error.410": "Мероприятие завершено",
     "app.error.500": "Упс, что-то пошло не так",
+    "app.error.503": "Вы были отключены",
+    "app.error.disconnected.rejoin": "Вы можете обновить страницу, чтобы присоединиться повторно.",
     "app.error.userLoggedOut": "Пользователь имеет недопустимый токен конференции из-за выхода из системы",
     "app.error.ejectedUser": "Пользователь имеет недопустимый токен конференции из-за отключения модератором",
     "app.error.joinedAnotherWindow": "Эта конференция уже открыта в другом окне браузера.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Новое сообщение в публичном чате",
     "app.toast.chat.private": "Новое сообщение в приватном чате",
     "app.toast.chat.system": "Система",
+    "app.toast.chat.poll": "Результаты голосования",
+    "app.toast.chat.pollClick": "Результаты голосования опубликованы. Нажмите сюда, чтобы посмотреть их.",
     "app.toast.clearedEmoji.label": "Статус эмодзи очищен",
     "app.toast.setEmoji.label": "Ваш статус эмодзи: {0}",
     "app.toast.meetingMuteOn.label": "Всем пользователям были выключены микрофоны",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Поля, обязательные для заполнения",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Имя уже используется",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Ошибка при загрузке страницы. Проверьте URL и сетевое подключение."
-
 }
-
