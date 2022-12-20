@@ -4,4 +4,4 @@ git:
       source_file: bigbluebutton-html5/public/locales/en.json
       file_format: KEYVALUEJSON
       source_language: en
-      translation_files_expression: bigbluebutton-html5/public/locales/<lang>/
+      translation_files_expression: bigbluebutton-html5/public/locales/<lang>.json
