@@ -25,8 +25,8 @@ apply plugin: "war"
 apply plugin: "org.grails.grails-web"
 apply plugin: "com.bertramlabs.asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
-apply plugin:"com.github.erdi.webdriver-binaries"
-apply plugin:"org.grails.plugins.views-json"
+apply plugin: "com.github.erdi.webdriver-binaries"
+apply plugin: "org.grails.plugins.views-json"
 
 task resolveDeps(type: Copy) {
   into('lib')
@@ -59,12 +59,12 @@ dependencies {
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
-  implementation "org.grails:grails-core"
+  implementation "org.grails:grails-core:5.2.4"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
-  implementation "org.grails:grails-web-boot"
+  implementation "org.grails:grails-web-boot:5.2.0"
   implementation "org.grails:grails-logging"
-  implementation "org.grails:grails-plugin-rest"
+  implementation "org.grails:grails-plugin-rest:5.2.0"
   implementation "org.grails:grails-plugin-databinding"
   implementation "org.grails:grails-plugin-i18n"
   implementation "org.grails:grails-plugin-services"
@@ -73,7 +73,7 @@ dependencies {
   implementation 'org.grails.plugins:external-config:1.2.2'
   //implementation "org.grails.plugins:cache"
   implementation "org.grails.plugins:views-json:2.1.1"
-  implementation "org.grails.plugins:cache:5.0.1"
+  implementation "org.grails.plugins:cache"
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.grails:grails-gradle-plugin:5.1.4"
   implementation "org.grails.plugins:async"
@@ -100,11 +100,11 @@ dependencies {
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
-  implementation 'org.postgresql:postgresql:42.4.1'
+  implementation 'org.postgresql:postgresql:42.4.3'
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
-  console "org.grails:grails-console"
+  console "org.grails:grails-console:5.2.0"
   profile "org.grails.profiles:web"
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.6"
   testImplementation "org.grails:grails-gorm-testing-support"
