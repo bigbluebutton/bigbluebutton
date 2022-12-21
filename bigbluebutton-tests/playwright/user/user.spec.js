@@ -64,11 +64,18 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
+
+    test('Give and remove whiteboard access', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initModPage2();
+      await multiusers.giveAndRemoveWhiteboardAccess();
+    });
   });
 
   test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
-      test.describe.parallel('ASK_MODERATOR', ()  => {
+      test.describe.parallel('ASK_MODERATOR', () => {
         // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
         test('Message to guest lobby', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
@@ -85,7 +92,7 @@ test.describe.parallel('User', () => {
           await guestPolicy.initModPage(page);
           await guestPolicy.denyEveryone();
         });
-  
+
         test('Remember choice', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page);
@@ -98,13 +105,13 @@ test.describe.parallel('User', () => {
             await guestPolicy.initModPage(page);
             await guestPolicy.messageToSpecificUser();
           });
-    
+
           test('Accept', async ({ browser, context, page }) => {
             const guestPolicy = new GuestPolicy(browser, context);
             await guestPolicy.initModPage(page);
             await guestPolicy.acceptSpecificUser();
           });
-    
+
           test('Deny', async ({ browser, context, page }) => {
             const guestPolicy = new GuestPolicy(browser, context);
             await guestPolicy.initModPage(page);

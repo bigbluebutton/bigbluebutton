@@ -77,7 +77,7 @@ export const CustomBackgroundsProvider = ({ children }) => {
   const loadFromDB = () => {
     const onError = () => dispatch({
       type: 'load',
-      backgrounds: {},
+      backgrounds: [],
     });
 
     const onSuccess = (backgrounds) => dispatch({

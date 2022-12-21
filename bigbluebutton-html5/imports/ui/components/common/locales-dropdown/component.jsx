@@ -46,7 +46,7 @@ class LocalesDropdown extends PureComponent {
 
   render() {
     const {
-      value, handleChange, elementId, selectMessage,
+      value, handleChange, elementId, selectMessage, ariaLabel,
     } = this.props;
     const defaultLocale = value || DEFAULT_VALUE;
 
@@ -57,6 +57,7 @@ class LocalesDropdown extends PureComponent {
         id={elementId}
         onChange={handleChange}
         value={defaultLocale}
+        aria-label={ariaLabel||''}
       >
         <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
           {selectMessage}

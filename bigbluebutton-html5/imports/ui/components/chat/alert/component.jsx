@@ -10,6 +10,7 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import Service from '../service';
 import Styled from './styles';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import { Session } from 'meteor/session';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
@@ -193,9 +194,11 @@ const ChatAlert = (props) => {
       const mappedMessage = Service.mapGroupMessage(timeWindow);
 
       let content = null;
+      let isPollResult = false;
       if (mappedMessage) {
         if (mappedMessage.id.includes(POLL_RESULT_KEY)) {
           content = createPollMessage();
+          isPollResult = true;
         } else {
           content = createMessage(mappedMessage.sender.name, mappedMessage.content.slice(-5));
         }
@@ -218,10 +221,22 @@ const ChatAlert = (props) => {
                 : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
             }
             onOpen={
-              () => setUnreadMessages(newUnreadMessages)
+              () => {
+                if (isPollResult) {
+                  Session.set('ignorePollNotifications', true);
+                }
+
+                setUnreadMessages(newUnreadMessages);
+              }
             }
             onClose={
-              () => setUnreadMessages(newUnreadMessages)
+              () => {
+                if (isPollResult) {
+                  Session.set('ignorePollNotifications', false);
+                }
+
+                setUnreadMessages(newUnreadMessages);
+              }
             }
             alertDuration={timeWindow.durationDiff}
             layoutContextDispatch={layoutContextDispatch}

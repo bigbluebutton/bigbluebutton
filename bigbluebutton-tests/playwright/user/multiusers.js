@@ -255,6 +255,16 @@ class MultiUsers {
     await checkMutedUsers(this.modPage2);
     await checkMutedUsers(this.userPage);
   }
+
+  async giveAndRemoveWhiteboardAccess() {
+    await this.whiteboardAccess();
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+
+    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
+  }
 }
 
 exports.MultiUsers = MultiUsers;
