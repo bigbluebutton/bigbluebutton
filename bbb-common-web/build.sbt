@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.11",
+    "-target:11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -40,7 +40,7 @@ lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", l
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.9"
 //-----------
 // Packaging
 //
