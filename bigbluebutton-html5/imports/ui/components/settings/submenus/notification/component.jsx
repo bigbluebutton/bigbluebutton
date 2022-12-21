@@ -77,7 +77,7 @@ class NotificationMenu extends BaseMenu {
         </div>
 
         <Styled.Form>
-          <Styled.Row>
+          <Styled.Row aria-hidden>
             <Styled.Col />
             <Styled.ColHeading>
               {intl.formatMessage(intlMessages.audioAlertLabel)}
@@ -90,7 +90,7 @@ class NotificationMenu extends BaseMenu {
           {isChatEnabled() ? (
             <Styled.Row>
               <Styled.Col>
-                <Styled.Label>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.messagesLabel)}
                 </Styled.Label>
               </Styled.Col>
@@ -101,7 +101,7 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.chatAudioAlerts}
                     onChange={() => this.handleToggle('chatAudioAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.chatAudioAlerts, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementCenter>
@@ -113,7 +113,7 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.chatPushAlerts}
                     onChange={() => this.handleToggle('chatPushAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.chatPushAlerts, true)}`}
                     showToggleLabel={showToggleLabel}
                     data-test="chatPopupAlertsBtn"
                   />
@@ -124,7 +124,7 @@ class NotificationMenu extends BaseMenu {
 
           <Styled.Row>
             <Styled.Col>
-              <Styled.Label>
+              <Styled.Label aria-hidden>
                 {intl.formatMessage(intlMessages.userJoinLabel)}
               </Styled.Label>
             </Styled.Col>
@@ -135,7 +135,7 @@ class NotificationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.userJoinAudioAlerts}
                   onChange={() => this.handleToggle('userJoinAudioAlerts')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.userJoinAudioAlerts, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementCenter>
@@ -147,7 +147,7 @@ class NotificationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.userJoinPushAlerts}
                   onChange={() => this.handleToggle('userJoinPushAlerts')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.userJoinPushAlerts, true)}`}
                   showToggleLabel={showToggleLabel}
                   data-test="userJoinPopupAlerts"
                 />
@@ -157,7 +157,7 @@ class NotificationMenu extends BaseMenu {
 
           <Styled.Row>
             <Styled.Col>
-              <Styled.Label>
+              <Styled.Label aria-hidden>
                 {intl.formatMessage(intlMessages.userLeaveLabel)}
               </Styled.Label>
             </Styled.Col>
@@ -168,7 +168,7 @@ class NotificationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.userLeaveAudioAlerts}
                   onChange={() => this.handleToggle('userLeaveAudioAlerts')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.userLeaveAudioAlerts, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementCenter>
@@ -180,7 +180,7 @@ class NotificationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.userLeavePushAlerts}
                   onChange={() => this.handleToggle('userLeavePushAlerts')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.userLeavePushAlerts, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementCenter>
@@ -190,7 +190,7 @@ class NotificationMenu extends BaseMenu {
           {isModerator && showGuestNotification ? (
             <Styled.Row>
               <Styled.Col>
-                <Styled.Label>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.guestWaitingLabel)}
                 </Styled.Label>
               </Styled.Col>
@@ -201,7 +201,7 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.guestWaitingAudioAlerts}
                     onChange={() => this.handleToggle('guestWaitingAudioAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.guestWaitingAudioAlerts, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementCenter>
@@ -213,7 +213,7 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.guestWaitingPushAlerts}
                     onChange={() => this.handleToggle('guestWaitingPushAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.guestWaitingPushAlerts, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementCenter>
@@ -224,7 +224,7 @@ class NotificationMenu extends BaseMenu {
           {isModerator ? (
             <Styled.Row>
               <Styled.Col>
-                <Styled.Label>
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.raiseHandLabel)}
                 </Styled.Label>
               </Styled.Col>
@@ -235,7 +235,7 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.raiseHandAudioAlerts}
                     onChange={() => this.handleToggle('raiseHandAudioAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.raiseHandAudioAlerts, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementCenter>
@@ -247,7 +247,7 @@ class NotificationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.raiseHandPushAlerts}
                     onChange={() => this.handleToggle('raiseHandPushAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.raiseHandPushAlerts, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementCenter>
