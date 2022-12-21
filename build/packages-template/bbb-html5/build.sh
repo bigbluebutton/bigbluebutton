@@ -93,11 +93,11 @@ cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
 
 mkdir -p staging/usr/share
 
-if [ ! -f node-v14.19.1-linux-x64.tar.gz ]; then
-  wget https://nodejs.org/dist/v14.19.1/node-v14.19.1-linux-x64.tar.gz
+if [ ! -f node-v14.21.1-linux-x64.tar.gz ]; then
+  wget https://nodejs.org/dist/v14.21.1/node-v14.21.1-linux-x64.tar.gz
 fi
 
-cp node-v14.19.1-linux-x64.tar.gz staging/usr/share
+cp node-v14.21.1-linux-x64.tar.gz staging/usr/share
 
 # replace v=VERSION with build number in head and css files
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
