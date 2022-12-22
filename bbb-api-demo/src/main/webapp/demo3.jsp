@@ -27,7 +27,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Join Password</title>
@@ -151,74 +151,53 @@ if (request.getParameterMap().isEmpty()) {
 
 
 <FORM NAME="form1" METHOD="GET">
-<table cellpadding="5" cellspacing="5" style="width: 400px; ">
-	<tbody>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Full&nbsp;Name:</td>
-			<td style="width: 5px; ">
-				&nbsp;</td>
-			<td style="text-align: left ">
-				<input type="text" autofocus required name="username" /></td>
-		</tr>
-		
-	
-		
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Session:</td>
-			<td>
-				&nbsp;
-			</td>
-			<td style="text-align: left ">
-			<select name="meetingID">
-			<%
-				String key;
-				while (meetingIterator.hasNext()) {
-					key = meetingIterator.next(); 
-					out.println("<option value=\"" + key + "\">" + key + "</option>");
-				}
-			%>
-			</select>
-				
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Password:</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="password" required name="password" /></td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Guest:</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="checkbox" name="guest" value="guest" /></td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="submit" value="Join" /></td>
-		</tr>	
-	</tbody>
-</table>
+<style>
+.rTable     { display:table; width: 400px; border-collapse: separate; border-spacing: 5px; }
+.rTableRow  { display: table-row; }
+.rTableCell { display: table-cell; padding: 5px; }
+</style>
+<div class="rTable">
+	<div class="rTableRow">
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell" style="text-align: right;">Full&nbsp;Name:</div>
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell" style="text-align: left;"><input type="text" autofocus required name="username" /></div>
+	</div>
+	<div class="rTableRow">
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell" style="text-align: right;">Session:</div>
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell" style="text-align: left;">
+		<select name="meetingID">
+		<%
+			String key;
+			while (meetingIterator.hasNext()) {
+				key = meetingIterator.next(); 
+				out.println("<option value=\"" + key + "\">" + key + "</option>");
+			}
+		%>
+		</select>
+		</div>
+	</div>
+	<div class="rTableRow">
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell" style="text-align: right;">Password:</div>
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell"><input type="password" required name="password" /></div>
+	</div>
+	<div class="rTableRow">
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell" style="text-align: right;">Guest:</div>
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell"><input type="checkbox" name="guest" value="guest" /></div>
+	</div>
+	<div class="rTableRow">
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell">&nbsp;</div>
+		<div class="rTableCell"><input type="submit" value="Join" /></div>
+	</div>
+</div>
 <INPUT TYPE=hidden NAME=action VALUE="create">
 </FORM>
 

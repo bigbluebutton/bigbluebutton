@@ -250,6 +250,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     autoSwapLayout: getFromUserSettings('bbb_auto_swap_layout', LAYOUT_CONFIG.autoSwapLayout),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
+    ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
 })(AppContainer)));
 

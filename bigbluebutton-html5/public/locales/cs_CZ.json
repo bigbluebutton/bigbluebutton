@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Generování snímků...",
     "app.presentationUploder.conversion.generatingSvg": "Generování SVG obrázků...",
     "app.presentationUploder.conversion.pageCountExceeded": "Překročen maximální počet {0} stran ",
+    "app.presentationUploder.conversion.conversionTimeout": "Snímek prezentace {0} se nepodařilo zpracovat {1} pokus/ů .",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Při zpracování souboru typu office došlo k chybě. Nahrajte prosím místo něj soubor typu PDF.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Při zpracování souboru typu office došlo k chybě. Nahraje prosím místo něj soubor typu PDF.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Nepodařilo se převést PDF soubor, zkuste jej prosím optimalizovat. Maximální velikost tránky je {0}",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "Pro výběr, klikněte zde",
     "app.poll.question.label" : "Napište svou otázku...",
     "app.poll.optionalQuestion.label" : "Napište svou otázku (volitelná)...",
-    "app.poll.userResponse.label" : "Uživatelská odpověď",
+    "app.poll.userResponse.label" : "Psaná odpověď",
     "app.poll.responseTypes.label" : "Typ odpovědi",
     "app.poll.optionDelete.label" : "Smazat",
     "app.poll.responseChoices.label" : "Volby odpovědi",
@@ -598,8 +599,11 @@
     "app.error.403": "Vaše účast na setkání byla ukončena",
     "app.error.404": "Nenalezeno",
     "app.error.408": "Ověření selhalo",
+    "app.error.409": "Konflikt",
     "app.error.410": "Setkání skončilo",
     "app.error.500": "O ou, něco se nepovedlo",
+    "app.error.503": "Byl/a jste odpojen",
+    "app.error.disconnected.rejoin": "Obnovením stránky se znovu připojíte.",
     "app.error.userLoggedOut": "Uživatel má neplatný token k místnosti, jelikož došlo k odhlášení",
     "app.error.ejectedUser": "Uživatel nemá platný token k místnosti, jelikož byl vyhozen z místnosti",
     "app.error.joinedAnotherWindow": "Zdá se, že setkání bylo otevřeno v jiném okně prohlížeče.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Nová zpráva ve veřejném chatu",
     "app.toast.chat.private": "Nová zpráva v soukromém chatu",
     "app.toast.chat.system": "System",
+    "app.toast.chat.poll": "Výsledek ankety",
+    "app.toast.chat.pollClick": "Výsledek ankety byl zveřejněn. Prohlédnou zde.",
     "app.toast.clearedEmoji.label": "Emoji status vymazán",
     "app.toast.setEmoji.label": "Emoji status nastaven na {0}",
     "app.toast.meetingMuteOn.label": "Všichni uzivatelé byli ztlumeni",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Vyžadovaná pole",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Jméno je již používáno",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Nepodařilo se nahrát stránku - prosím zkontrolujte URL adresu a síťové připojení"
-
 }
-
