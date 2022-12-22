@@ -83,7 +83,7 @@ parser.add_argument('--client-image', type=str,
 parser.add_argument('--public-subnet', type=str, default='128.8.8.0/24',
                     help='public IP subnet to be "stolen" for our use')
 parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
-                    help='public IP subnet to be "stolen" for our use')
+                    help='private IP subnet to be used for NAT-ed BBB server')
 parser.add_argument('--domain', type=str,
                     help='DNS domain name for virtual devices (default "test")')
 parser.add_argument('--no-nat', action='store_true',
