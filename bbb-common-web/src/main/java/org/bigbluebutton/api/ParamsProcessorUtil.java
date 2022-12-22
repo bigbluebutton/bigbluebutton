@@ -81,6 +81,7 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
+    private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
@@ -845,6 +846,14 @@ public class ParamsProcessorUtil {
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
 	}
+
+  public Integer getDefaultHttpSessionTimeout() {
+    return defaultHttpSessionTimeout;
+  }
+
+  public void setDefaultHttpSessionTimeout(Integer value) {
+    this.defaultHttpSessionTimeout = value;
+  }
 
 	public String getDefaultLogoutUrl() {
 		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
