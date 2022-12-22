@@ -701,13 +701,13 @@ class Poll extends Component {
             onClick={() => this.handleAddOption()}
           />
         )}
-        <Styled.Row>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+        <Styled.AnonymousRow>
+          <Styled.AnonymousHeadingCol aria-hidden="true">
+            <Styled.AnonymousHeading>
               {intl.formatMessage(intlMessages.secretPollLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.AnonymousHeading>
+          </Styled.AnonymousHeadingCol>
+          <Styled.AnonymousToggleCol>
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <Styled.Toggle>
               {this.displayToggleStatus(secretPoll)}
@@ -720,8 +720,8 @@ class Poll extends Component {
                 data-test="anonymousPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
-        </Styled.Row>
+          </Styled.AnonymousToggleCol>
+        </Styled.AnonymousRow>
         {secretPoll && (
           <Styled.PollParagraph>
             {intl.formatMessage(intlMessages.isSecretPollLabel)}
@@ -739,12 +739,12 @@ class Poll extends Component {
     return (
       <>
         <Styled.CustomInputRow>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+          <Styled.CustomInputHeadingCol aria-hidden="true">
+            <Styled.CustomInputHeading>
               {intl.formatMessage(intlMessages.customInputToggleLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.CustomInputHeading>
+          </Styled.CustomInputHeadingCol>
+          <Styled.CustomInputToggleCol>
             <Styled.Toggle>
               {this.displayAutoOptionToggleStatus(customInput)}
               <Toggle
@@ -756,7 +756,7 @@ class Poll extends Component {
                 data-test="autoOptioningPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
+          </Styled.CustomInputToggleCol>
         </Styled.CustomInputRow>
         {customInput && (
           <Styled.PollParagraph>

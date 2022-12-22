@@ -96,6 +96,7 @@ export default function Whiteboard(props) {
     isPanning,
     intl,
     svgUri,
+    maxStickyNoteLength,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -191,6 +192,10 @@ export default function Whiteboard(props) {
           });
     removeShapes(deletedShapes, whiteboardId);
   }
+
+  React.useEffect(() => {
+    props.setTldrawIsMounting(true);
+  }, []);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -319,6 +324,7 @@ export default function Whiteboard(props) {
           tldrawAPI?.setCamera([slidePosition.x, slidePosition.y], newzoom);
       } else if (isMounting) {
         setIsMounting(false);
+        props.setTldrawIsMounting(false);
         const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
         // case where the presenter had fit-to-width enabled and he reloads the page
@@ -445,6 +451,14 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
+
+  // Reset zoom to default when current presentation changes.
+  React.useEffect(() => {
+    if (isPresenter && slidePosition && tldrawAPI) {
+      const zoom = calculateZoom(slidePosition.width, slidePosition.height);
+      tldrawAPI.zoomTo(zoom);
+    }
+  }, [curPres?.id]);
 
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
@@ -611,6 +625,11 @@ export default function Whiteboard(props) {
 
     if (reason && reason === 'patched_shapes') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+
+      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
       if (patchedShape) {
         const diff = {
           id: patchedShape.id,
@@ -685,30 +704,44 @@ export default function Whiteboard(props) {
     }
   };
 
+  const onPaste = (e) => {
+    // disable file pasting
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const { types } = clipboardData;
+    const hasFiles = types && types.indexOf && types.indexOf('Files') !== -1;
+
+    if (hasFiles) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <Tldraw
-      key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
-      document={doc}
-      // disable the ability to drag and drop files onto the whiteboard
-      // until we handle saving of assets in akka.
-      disableAssets={true}
-      // Disable automatic focus. Users were losing focus on shared notes
-      // and chat on presentation mount.
-      autofocus={false}
-      onMount={onMount}
-      showPages={false}
-      showZoom={false}
-      showUI={curPres ? (isPresenter || hasWBAccess) : true}
-      showMenu={curPres ? false : true}
-      showMultiplayerMenu={false}
-      readOnly={false}
-      onPatch={onPatch}
-      onUndo={onUndo}
-      onRedo={onRedo}
-      onCommand={onCommand}
-    />
+    <div onPaste={onPaste}>
+      <Tldraw
+        key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
+        document={doc}
+        // disable the ability to drag and drop files onto the whiteboard
+        // until we handle saving of assets in akka.
+        disableAssets={true}
+        // Disable automatic focus. Users were losing focus on shared notes
+        // and chat on presentation mount.
+        autofocus={false}
+        onMount={onMount}
+        showPages={false}
+        showZoom={false}
+        showUI={curPres ? (isPresenter || hasWBAccess) : true}
+        showMenu={curPres ? false : true}
+        showMultiplayerMenu={false}
+        readOnly={false}
+        onPatch={onPatch}
+        onUndo={onUndo}
+        onRedo={onRedo}
+        onCommand={onCommand}
+      />
+    </div>
   );
 
   const readOnlyWB = (

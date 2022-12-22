@@ -149,6 +149,7 @@ const VideoFocusLayout = (props) => {
         ),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 

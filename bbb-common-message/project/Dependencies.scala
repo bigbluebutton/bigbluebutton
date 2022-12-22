@@ -7,7 +7,7 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.13.4"
+    val scala = "2.13.9"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.8"

@@ -16,7 +16,7 @@ const SETTINGS = [
 ];
 
 const CHANGED_SETTINGS = 'changed_settings';
-const DEFAULT_SETTINGS = 'dafault_settings';
+const DEFAULT_SETTINGS = 'default_settings';
 
 class Settings {
   constructor(defaultValues = {}) {

@@ -150,8 +150,8 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
-                    uploadExternalDescription:              String,
-                    uploadExternalUrl:                      String): Unit = {
+                    presentationUploadExternalDescription:  String,
+                    presentationUploadExternalUrl:          String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -164,8 +164,8 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
-      uploadExternalDescription,
-      uploadExternalUrl
+      presentationUploadExternalDescription,
+      presentationUploadExternalUrl
     )
 
     val durationProps = DurationProps(
@@ -345,6 +345,9 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[UploadFileTimedoutMessage]) {
       val event = MsgBuilder.buildPresentationUploadedFileTimedoutErrorSysMsg(msg.asInstanceOf[UploadFileTimedoutMessage])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocInvalidMimeType]) {
+      val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
