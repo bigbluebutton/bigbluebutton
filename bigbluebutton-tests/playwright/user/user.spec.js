@@ -64,6 +64,13 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
+
+    test('Give and remove whiteboard access', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initModPage2();
+      await multiusers.giveAndRemoveWhiteboardAccess();
+    });
   });
 
   test.describe.parallel('Manage', () => {
@@ -202,6 +209,22 @@ test.describe.parallel('User', () => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.selectRandomUser();
+    });
+
+    test('Mute all users', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, false);
+      await multiusers.initModPage2(false);
+      await multiusers.initUserPage(false);
+      await multiusers.muteAllUsers();
+    });
+
+    test('Mute all users except presenter', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, false);
+      await multiusers.initModPage2(false);
+      await multiusers.initUserPage(false);
+      await multiusers.muteAllUsersExceptPresenter();
     });
   });
 
