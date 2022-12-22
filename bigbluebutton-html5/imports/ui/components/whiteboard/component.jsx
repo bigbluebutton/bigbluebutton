@@ -452,6 +452,14 @@ export default function Whiteboard(props) {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
 
+  // Reset zoom to default when current presentation changes.
+  React.useEffect(() => {
+    if (isPresenter && slidePosition && tldrawAPI) {
+      const zoom = calculateZoom(slidePosition.width, slidePosition.height);
+      tldrawAPI.zoomTo(zoom);
+    }
+  }, [curPres?.id]);
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
