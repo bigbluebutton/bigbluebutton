@@ -73,18 +73,51 @@ cd ..
 
 ldconfig
 
+# libwebsockets start
+# mod_audio_fork needs it (used in built-in speech transcription)
+if [ ! -d libwebsockets ]; then
+  git clone https://github.com/warmcat/libwebsockets.git
+fi
+cd libwebsockets/
+git checkout v3.2.3
+
+mkdir -p build
+cd build
+
+cmake ..
+make -j $(nproc)
+make install
+cd ../../
+
+ldconfig
+# libwebsockets end
+
+# mod_audio_fork start
+# copy mod_audio_fork into place (used in built-in speech transcription)
+if [ ! -d drachtio-freeswitch-modules ]; then
+  git clone https://github.com/drachtio/drachtio-freeswitch-modules.git
+fi
+
+cd drachtio-freeswitch-modules
+git checkout 4198b1c114268829627069afeea7eb40c86a81af
+cp -r modules/mod_audio_fork $BUILDDIR/freeswitch/src/mod/applications/mod_audio_fork
+cd ..
+# mod_audio_fork end
+
 # we already cloned the FS repo in freeswitch.placeholder.sh and selected tag/branch
 
 cd $BUILDDIR/freeswitch
 
 patch -p0 < $BUILDDIR/floor.patch
 patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
+# Enables mod_audio_fork in the build process  (used in built-in speech transcription)
+patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
 
-./bootstrap.sh 
+./bootstrap.sh
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
-    --without-python --without-erlang --without-java \
-    --prefix=/opt/freeswitch 
+    --without-python --without-erlang --without-java --with-lws=yes \
+    --prefix=/opt/freeswitch
 
 # Overrides for generating debug version
 #   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
