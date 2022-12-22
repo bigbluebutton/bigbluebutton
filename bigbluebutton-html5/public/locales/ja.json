@@ -202,7 +202,7 @@
     "app.presentation.endSlideContent": "スライドコンテンツ終了",
     "app.presentation.changedSlideContent": "プレゼンテーションがスライド{0}に移動",
     "app.presentation.emptySlideContent": "現在のスライドにはコンテンツはありません",
-    "app.presentation.options.fullscreen": "プレゼンをフルスクリーン表示にする",
+    "app.presentation.options.fullscreen": "プレゼンを全画面表示にする",
     "app.presentation.options.exitFullscreen": "全画面表示解除",
     "app.presentation.options.minimize": "最小化",
     "app.presentation.options.snapshot": "現在のスライドのスナップショット",
