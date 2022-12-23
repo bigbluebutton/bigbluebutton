@@ -149,6 +149,7 @@ class UsersApp(
   with GetUsersMeetingReqMsgHdlr
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
+  with SetUserSpeechLocaleMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr

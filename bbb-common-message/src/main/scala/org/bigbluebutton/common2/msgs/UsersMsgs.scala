@@ -438,3 +438,11 @@ case class SelectRandomViewerReqMsgBody(requestedBy: String)
 object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
 case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
 case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: String)
+
+object SetUserSpeechLocaleReqMsg { val NAME = "SetUserSpeechLocaleReqMsg" }
+case class SetUserSpeechLocaleReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechLocaleReqMsgBody) extends StandardMsg
+case class SetUserSpeechLocaleReqMsgBody(locale: String, provider: String)
+
+object UserSpeechLocaleChangedEvtMsg { val NAME = "UserSpeechLocaleChangedEvtMsg" }
+case class UserSpeechLocaleChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechLocaleChangedEvtMsgBody) extends BbbCoreMsg
+case class UserSpeechLocaleChangedEvtMsgBody(locale: String, provider: String)

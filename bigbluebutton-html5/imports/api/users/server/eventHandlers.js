@@ -9,6 +9,7 @@ import handleChangeRole from './handlers/changeRole';
 import handleUserPinChanged from './handlers/userPinChanged';
 import handleUserInactivityInspect from './handlers/userInactivityInspect';
 import handleChangeMobileFlag from '/imports/api/users/server/handlers/changeMobileFlag';
+import handleUserSpeechLocaleChanged from './handlers/userSpeechLocaleChanged';
 
 RedisPubSub.on('PresenterAssignedEvtMsg', handlePresenterAssigned);
 RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);
@@ -20,3 +21,4 @@ RedisPubSub.on('UserMobileFlagChangedEvtMsg', handleChangeMobileFlag);
 RedisPubSub.on('UserLeftFlagUpdatedEvtMsg', handleUserLeftFlagUpdated);
 RedisPubSub.on('UserPinStateChangedEvtMsg', handleUserPinChanged);
 RedisPubSub.on('UserInactivityInspectMsg', handleUserInactivityInspect);
+RedisPubSub.on('UserSpeechLocaleChangedEvtMsg', handleUserSpeechLocaleChanged);
