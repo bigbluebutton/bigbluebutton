@@ -40,8 +40,9 @@ const getSpeechVoices = () => {
 
 const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
+
   if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value);
+    makeCall('setSpeechLocale', value, CONFIG.provider);
   } else {
     logger.error({
       logCode: 'captions_speech_locale',

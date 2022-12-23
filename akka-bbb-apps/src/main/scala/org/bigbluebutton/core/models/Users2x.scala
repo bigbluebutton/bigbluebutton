@@ -197,6 +197,16 @@ object Users2x {
     }
   }
 
+  def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.speechLocale).setTo(locale)
+      users.save(newUser)
+      newUser
+    }
+  }
+
   def hasPresenter(users: Users2x): Boolean = {
     findPresenter(users) match {
       case Some(p) => true
@@ -365,7 +375,8 @@ case class UserState(
     lastInactivityInspect: Long         = 0,
     clientType:            String,
     pickExempted:          Boolean,
-    userLeftFlag:          UserLeftFlag
+    userLeftFlag:          UserLeftFlag,
+    speechLocale:          String       = ""
 )
 
 case class UserIdAndName(id: String, name: String)
