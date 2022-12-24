@@ -1049,7 +1049,7 @@
     "app.createBreakoutRoom.durationInMinutes": "利用時間（分）",
     "app.createBreakoutRoom.randomlyAssign": "ランダムに割りふる",
     "app.createBreakoutRoom.randomlyAssignDesc": "ユーザーをランダムに各部屋に割りふる",
-    "app.createBreakoutRoom.resetAssignments": "割り当てを解除",
+    "app.createBreakoutRoom.resetAssignments": "割りふりを解除",
     "app.createBreakoutRoom.resetAssignmentsDesc": "全ての小会議室の割り当てを解除",
     "app.createBreakoutRoom.endAllBreakouts": "全ての小会議室を終了する",
     "app.createBreakoutRoom.chatTitleMsgAllRooms": "全ての小会議室",
