@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Pads from '/imports/api/pads';
+import Pads, { PadsUpdates } from '/imports/api/pads';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 
@@ -25,6 +25,17 @@ export default function padCapture(meetingId, parentMeetingId, meetingName) {
       },
     );
 
+    const update = PadsUpdates.findOne(
+      {
+        meetingId,
+        externalId: EXTERNAL_ID,
+      }, {
+        fields: {
+          rev: 1,
+        },
+      },
+    );
+
     const filename = `${meetingName}-notes`;
     const payload = {
       parentMeetingId,
@@ -33,9 +44,8 @@ export default function padCapture(meetingId, parentMeetingId, meetingName) {
       filename,
     };
 
-    Logger.info(`Sending PadCapturePubMsg for meetingId=${meetingId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
-
-    if (pad && pad.padId) {
+    if (pad && pad.padId && update?.rev > 0) {
+      Logger.info(`Sending PadCapturePubMsg for meetingId=${meetingId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
       return RedisPubSub.publishMeetingMessage(CHANNEL, EVENT_NAME, parentMeetingId, payload);
     }
 
