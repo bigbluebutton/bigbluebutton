@@ -723,8 +723,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   populateWithLastBreakouts(lastBreakouts) {
-    const { getBreakoutUserWasIn, intl } = this.props;
-    const { users } = this.state;
+    const { getBreakoutUserWasIn, users, intl } = this.props;
 
     const changedNames = [];
     lastBreakouts.forEach((breakout) => {

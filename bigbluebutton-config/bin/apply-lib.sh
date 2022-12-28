@@ -109,6 +109,15 @@ enableUFWRules() {
   ufw allow OpenSSH
   ufw allow "Nginx Full"
   ufw allow 16384:32768/udp
+
+  # Check if coturn is running on this server and, if so, open firewall port
+  if systemctl status coturn > /dev/null; then
+    echo "  - Local turnserver detected -- opening port 3478"
+    ufw allow 3478
+    # echo "  - Forcing FireFox to use turn server"
+    # yq w -i $HTML5_CONFIG public.kurento.forceRelayOnFirefox true 
+  fi
+
   ufw --force enable
 }
 

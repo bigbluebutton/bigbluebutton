@@ -342,17 +342,17 @@ const getExternalUploadData = () => {
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'meetingProp.uploadExternalDescription': 1,
-        'meetingProp.uploadExternalUrl': 1
+        'meetingProp.presentationUploadExternalDescription': 1,
+        'meetingProp.presentationUploadExternalUrl': 1
       },
     },
   );
 
-  const { uploadExternalDescription, uploadExternalUrl } = meetingProp;
+  const { presentationUploadExternalDescription, presentationUploadExternalUrl } = meetingProp;
 
   return {
-    uploadExternalDescription,
-    uploadExternalUrl,
+    presentationUploadExternalDescription,
+    presentationUploadExternalUrl,
   }
 };
 

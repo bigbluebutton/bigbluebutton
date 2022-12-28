@@ -1686,8 +1686,7 @@ if [ -n "$HOST" ]; then
 
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
-    stop_bigbluebutton
-    start_bigbluebutton
+    systemctl restart bigbluebutton.target
 
     exit 0
 fi
@@ -1699,8 +1698,7 @@ if [ $RESTART ]; then
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
-    stop_bigbluebutton
-    start_bigbluebutton
+    systemctl restart bigbluebutton.target
     check_state
 fi
 

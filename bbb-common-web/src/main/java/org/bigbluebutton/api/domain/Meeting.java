@@ -97,8 +97,8 @@ public class Meeting {
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
-	private String uploadExternalDescription;
-	private String uploadExternalUrl;
+	private String presentationUploadExternalDescription;
+	private String presentationUploadExternalUrl;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -123,8 +123,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
-		uploadExternalDescription = builder.uploadExternalDescription;
-		uploadExternalUrl = builder.uploadExternalUrl;
+		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
+		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
 		if (builder.viewerPass == null){
 			viewerPass = "";
 		} else {
@@ -424,11 +424,11 @@ public class Meeting {
 		return notifyRecordingIsOn;
 	}
 
-	public String getUploadExternalDescription() {
-		return uploadExternalDescription;
+	public String getPresentationUploadExternalDescription() {
+		return presentationUploadExternalDescription;
 	}
-	public String getUploadExternalUrl() {
-		return uploadExternalUrl;
+	public String getPresentationUploadExternalUrl() {
+		return presentationUploadExternalUrl;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -863,8 +863,8 @@ public class Meeting {
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
 		private Boolean notifyRecordingIsOn;
-		private String uploadExternalDescription;
-		private String uploadExternalUrl;
+		private String presentationUploadExternalDescription;
+		private String presentationUploadExternalUrl;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -993,13 +993,13 @@ public class Meeting {
 	    	return this;
 	    }
 
-    	public Builder withUploadExternalDescription(String d) {
-	    	this.uploadExternalDescription = d;
+    	public Builder withPresentationUploadExternalDescription(String d) {
+	    	this.presentationUploadExternalDescription = d;
 	    	return this;
 	    }
 
-			public Builder withUploadExternalUrl(String u) {
-	    	this.uploadExternalUrl = u;
+			public Builder withPresentationUploadExternalUrl(String u) {
+	    	this.presentationUploadExternalUrl = u;
 	    	return this;
 	    }
 

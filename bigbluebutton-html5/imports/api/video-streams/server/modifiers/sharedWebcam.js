@@ -7,6 +7,7 @@ import {
 } from '/imports/api/video-streams/server/helpers';
 import VoiceUsers from '/imports/api/voice-users/';
 import Users from '/imports/api/users/';
+import { lowercaseTrim } from '/imports/utils/string-utils';
 
 const BASE_FLOOR_TIME = "0";
 
@@ -40,6 +41,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
     $set: {
       stream,
       name,
+      sortName: lowercaseTrim(name),
       lastFloorTime,
       floor,
       pin,
