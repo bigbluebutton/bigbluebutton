@@ -99,7 +99,7 @@ bbb-html5-build:
   script:
     - build/setup-inside-docker.sh bbb-html5
 
-bbb-learning-dashboard:
+bbb-learning-dashboard-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-learning-dashboard
