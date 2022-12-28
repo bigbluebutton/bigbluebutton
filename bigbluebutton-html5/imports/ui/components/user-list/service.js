@@ -60,8 +60,8 @@ const sortUsersByUserId = (a, b) => {
 };
 
 const sortUsersByName = (a, b) => {
-  const aName = a.name ? a.name.toLowerCase() : '';
-  const bName = b.name ? b.name.toLowerCase() : '';
+  const aName = a.sortName || '';
+  const bName = b.sortName || '';
 
   // Extending for sorting strings with non-ASCII characters
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#sorting_non-ascii_characters

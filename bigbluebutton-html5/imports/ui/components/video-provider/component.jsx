@@ -533,6 +533,7 @@ class VideoProvider extends Component {
         }
 
         const peer = new WebRtcPeer('sendonly', peerOptions);
+        peer.bbbVideoStream = bbbVideoStream;
         this.webRtcPeers[stream] = peer;
         peer.stream = stream;
         peer.started = false;
@@ -546,7 +547,7 @@ class VideoProvider extends Component {
         peer.generateOffer().then((offer) => {
           // Store the media stream if necessary. The scenario here is one where
           // there is no preloaded stream stored.
-          if (bbbVideoStream == null) {
+          if (peer.bbbVideoStream == null) {
             bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
             VideoPreviewService.storeStream(
               MediaStreamUtils.extractDeviceIdFromStream(
@@ -928,6 +929,11 @@ class VideoProvider extends Component {
       peer.attached = true;
 
       if (isLocal) {
+        if (peer.bbbVideoStream == null) {
+          this.handleVirtualBgError(new TypeError('Undefined media stream'));
+          return;
+        }
+
         const deviceId = MediaStreamUtils.extractDeviceIdFromStream(
           peer.bbbVideoStream.mediaStream,
           'video',
@@ -994,7 +1000,7 @@ class VideoProvider extends Component {
       },
     }, `Failed to restore virtual background after reentering the room: ${error.message}`);
 
-    notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
+    notify(intl.formatMessage(intlClientErrors.virtualBgGenericError), 'error', 'video');
   }
 
   createVideoTag(stream, video) {

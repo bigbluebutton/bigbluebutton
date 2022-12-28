@@ -452,6 +452,14 @@ export default function Whiteboard(props) {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
 
+  // Reset zoom to default when current presentation changes.
+  React.useEffect(() => {
+    if (isPresenter && slidePosition && tldrawAPI) {
+      const zoom = calculateZoom(slidePosition.width, slidePosition.height);
+      tldrawAPI.zoomTo(zoom);
+    }
+  }, [curPres?.id]);
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
@@ -696,30 +704,44 @@ export default function Whiteboard(props) {
     }
   };
 
+  const onPaste = (e) => {
+    // disable file pasting
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const { types } = clipboardData;
+    const hasFiles = types && types.indexOf && types.indexOf('Files') !== -1;
+
+    if (hasFiles) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <Tldraw
-      key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
-      document={doc}
-      // disable the ability to drag and drop files onto the whiteboard
-      // until we handle saving of assets in akka.
-      disableAssets={true}
-      // Disable automatic focus. Users were losing focus on shared notes
-      // and chat on presentation mount.
-      autofocus={false}
-      onMount={onMount}
-      showPages={false}
-      showZoom={false}
-      showUI={curPres ? (isPresenter || hasWBAccess) : true}
-      showMenu={curPres ? false : true}
-      showMultiplayerMenu={false}
-      readOnly={false}
-      onPatch={onPatch}
-      onUndo={onUndo}
-      onRedo={onRedo}
-      onCommand={onCommand}
-    />
+    <div onPaste={onPaste}>
+      <Tldraw
+        key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
+        document={doc}
+        // disable the ability to drag and drop files onto the whiteboard
+        // until we handle saving of assets in akka.
+        disableAssets={true}
+        // Disable automatic focus. Users were losing focus on shared notes
+        // and chat on presentation mount.
+        autofocus={false}
+        onMount={onMount}
+        showPages={false}
+        showZoom={false}
+        showUI={curPres ? (isPresenter || hasWBAccess) : true}
+        showMenu={curPres ? false : true}
+        showMultiplayerMenu={false}
+        readOnly={false}
+        onPatch={onPatch}
+        onUndo={onUndo}
+        onRedo={onRedo}
+        onCommand={onCommand}
+      />
+    </div>
   );
 
   const readOnlyWB = (

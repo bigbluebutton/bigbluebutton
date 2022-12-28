@@ -81,6 +81,7 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
+    private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
@@ -104,8 +105,8 @@ public class ParamsProcessorUtil {
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
-    private String defaultUploadExternalDescription = "";
-    private String defaultUploadExternalUrl = "";
+    private String defaultPresentationUploadExternalDescription = "";
+    private String defaultPresentationUploadExternalUrl = "";
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
@@ -639,14 +640,14 @@ public class ParamsProcessorUtil {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
 
-        String uploadExternalDescription = defaultUploadExternalDescription;
-        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION))) {
-            uploadExternalDescription = params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION);
+        String presentationUploadExternalDescription = defaultPresentationUploadExternalDescription;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION))) {
+            presentationUploadExternalDescription = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION);
         }
 
-        String uploadExternalUrl = defaultUploadExternalUrl;
-        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_URL))) {
-            uploadExternalUrl = params.get(ApiParams.UPLOAD_EXTERNAL_URL);
+        String presentationUploadExternalUrl = defaultPresentationUploadExternalUrl;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL))) {
+            presentationUploadExternalUrl = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL);
         }
 
         String meetingLayout = defaultMeetingLayout;
@@ -737,8 +738,8 @@ public class ParamsProcessorUtil {
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
-                .withUploadExternalDescription(uploadExternalDescription)
-                .withUploadExternalUrl(uploadExternalUrl)
+                .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
+                .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -845,6 +846,14 @@ public class ParamsProcessorUtil {
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
 	}
+
+  public Integer getDefaultHttpSessionTimeout() {
+    return defaultHttpSessionTimeout;
+  }
+
+  public void setDefaultHttpSessionTimeout(Integer value) {
+    this.defaultHttpSessionTimeout = value;
+  }
 
 	public String getDefaultLogoutUrl() {
 		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
@@ -1445,12 +1454,12 @@ public class ParamsProcessorUtil {
       this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
   }
 
-  public void setUploadExternalDescription(String uploadExternalDescription) {
-    this.defaultUploadExternalDescription = uploadExternalDescription;
+  public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
+    this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
   }
 
-  public void setUploadExternalUrl(String uploadExternalUrl) {
-    this.defaultUploadExternalUrl = uploadExternalUrl;
+  public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
+    this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
   }
 
   public void setBbbVersion(String version) {
