@@ -413,8 +413,11 @@ export default class FullAudioBridge extends BaseAudioBridge {
     const mediaElement = document.getElementById(MEDIA_TAG);
 
     this.clearReconnectionTimeout();
-    this.broker.stop();
-    this.broker = null;
+
+    if (this.broker) {
+      this.broker.stop();
+      this.broker = null;
+    }
 
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();
