@@ -170,7 +170,7 @@ try:
     with open(ssl_root_key_fn) as f:
         ssl_root_key = f.read()
 except:
-    subprocess.run(f'openssl genrsa -out {ssl_root_key_fn} 2048'.split())
+    subprocess.run(f'openssl genrsa -out {ssl_root_key_fn} 2048'.split()).check_returncode()
     with open(ssl_root_key_fn) as f:
         ssl_root_key = f.read()
 
@@ -178,7 +178,7 @@ try:
     with open(ssl_root_crt_fn) as f:
         ssl_root_crt = f.read()
 except:
-    subprocess.run(f'openssl req -x509 -new -nodes -key {ssl_root_key_fn} -sha256 -days 1460 -out {ssl_root_crt_fn} -subj /C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV'.split())
+    subprocess.run(f'openssl req -x509 -new -nodes -key {ssl_root_key_fn} -sha256 -days 1460 -out {ssl_root_crt_fn} -subj /C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV'.split()).check_returncode()
     with open(ssl_root_crt_fn) as f:
         ssl_root_crt = f.read()
 
