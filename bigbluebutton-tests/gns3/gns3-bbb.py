@@ -90,6 +90,8 @@ parser.add_argument('--no-nat', action='store_true',
                     help='install BBB server without a NAT gateway')
 parser.add_argument('--no-install', action='store_true',
                     help="don't install BBB server")
+parser.add_argument('--delete', type=str,
+                    help="delete a BBB server and its associated subnet and NAT nodes")
 parser.add_argument('version', nargs='*',
                     help="""version of BigBlueButton server to be installed
 (focal-250, focal-25-dev, focal-260, focal-GITREV)
@@ -110,6 +112,7 @@ if not server_subnet.is_private:
 # The rest of them will be available for assignment with DHCP
 public_subnet_hosts = list(public_subnet.hosts())
 master_gateway_address = str(public_subnet_hosts[0])
+
 
 # Various scripts we'll use
 #
@@ -152,6 +155,22 @@ except:
 # Open the GNS3 server
 
 gns3_server, gns3_project = gns3.open_project_with_standard_options(args)
+
+# Delete server if that's what we were requested to do
+
+if args.delete:
+    # currently, the project's delete method doesn't complain if nothing matches,
+    # so we can just do this, even though some of these devices might not exist
+    # (if the server was created without NAT, or if its subnet is named by its CIDR block)
+    gns3_project.delete(args.delete)
+    gns3_project.delete(args.delete + '-NAT')
+    gns3_project.delete(args.delete + '-subnet')
+    # If the server's subnet was named by its CIDR block, we now have an orphan switch
+    switches = set(node['node_id'] for node in gns3_project.nodes() if node['node_type'] == 'ethernet_switch')
+    linked_switches = set(node['node_id'] for link in gns3_project.links() for node in link['nodes'])
+    for orphan in switches.difference(linked_switches):
+        gns3_project.delete(orphan)
+    exit(0)
 
 # Get GNS3 project variables and either extract DNS domain from them,
 # or set the DNS domain there for future reference
