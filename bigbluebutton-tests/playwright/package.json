@@ -1,6 +1,7 @@
 {
   "scripts": {
     "test": "npx playwright test",
+    "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e '/^BBB_URL/s/$/api/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test $@; }; fn",
     "test:filter": "npx playwright test -g",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug -g",
