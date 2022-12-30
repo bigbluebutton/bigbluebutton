@@ -1,5 +1,6 @@
 // Common
 exports.actions = 'button[data-test="actionsButton"]';
+exports.actionsItem = 'div[id="actions-dropdown-menu"] ul li';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
 exports.settings = 'li[data-test="settings"]';
@@ -82,6 +83,8 @@ exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
 exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
 exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
+exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
+exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
