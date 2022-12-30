@@ -926,10 +926,15 @@ for v in args.version:
         gns3_project.link(client, 2, nat6_switch)
         gns3_project.depends_on(client, nat6)
     else:
-        # find an unoccupied x coordinate on the GUI
+        # Create a server
+        # find an spot on the GUI
+        if args.no_nat:
+            y_coordinates_needed = [300]
+        else:
+            y_coordinates_needed = [100, 200, 300]
         for x in (0, 200, -200, 400, -400):
             try:
-                next(n for n in gns3_project.nodes() if n['x'] == x and n['y'] == 100)
+                next(n for n in gns3_project.nodes() if n['x'] == x and n['y'] in y_coordinates_needed)
             except StopIteration:
                 break
         BBB_server(v, x=x, depends_on=master)
