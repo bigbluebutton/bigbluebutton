@@ -12,9 +12,9 @@ function ErrorMessage(props) {
           clipRule="evenodd"
         />
       </svg>
-      <h1 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
+      <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-200">
         {message}
-      </h1>
+      </h3>
     </div>
   );
 }

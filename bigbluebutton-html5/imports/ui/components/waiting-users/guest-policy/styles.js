@@ -11,34 +11,10 @@ import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typogra
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
-const GuestPolicyModal = styled(Modal)`
-  padding: ${jumboPaddingY};
-`;
+const GuestPolicyModal = styled(Modal)``;
 
 const Container = styled.div`
   margin: 0 ${modalMargin} ${lgPaddingX};
-`;
-
-const Header = styled.div`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: ${titlePositionLeft};
-  margin-bottom: ${lgPaddingY};
-`;
-
-const Title = styled.h2`
-  left: ${titlePositionLeft};
-  right: auto;
-  color: ${colorGrayDark};
-  font-weight: bold;
-  font-size: ${fontSizeLarge};
-  text-align: center;
-
-  [dir="rtl"] & {
-    left: auto;
-    right: ${titlePositionLeft};
-  }
 `;
 
 const Description = styled.div`
@@ -68,8 +44,6 @@ const GuestPolicyButton = styled(Button)`
 export default {
   GuestPolicyModal,
   Container,
-  Header,
-  Title,
   Description,
   Content,
   GuestPolicyButton,

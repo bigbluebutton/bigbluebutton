@@ -163,6 +163,7 @@ export default class ButtonBase extends React.Component {
       'full',
       'iconRight',
       'isVisualEffects',
+      'panning',
     ];
 
     return (

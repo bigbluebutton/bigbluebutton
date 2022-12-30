@@ -6,7 +6,7 @@ import Styled from './styles';
 
 const messages = defineMessages({
   yesLabel: {
-    id: 'app.endMeeting.yesLabel',
+    id: 'app.confirmationModal.yesLabel',
     description: 'confirm button label',
   },
   noLabel: {
@@ -46,6 +46,7 @@ class ConfirmationModal extends Component {
       titleMessageExtra,
       checkboxMessageId,
       confirmButtonColor,
+      confirmButtonLabel,
       confirmButtonDataTest,
       confirmParam,
       disableConfirmButton,
@@ -61,15 +62,10 @@ class ConfirmationModal extends Component {
     return (
       <Styled.ConfirmationModal
         onRequestClose={() => mountModal(null)}
-        hideBorder
         contentLabel={title}
+        title={title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
       >
         <Styled.Container>
-          <Styled.Header>
-            <Styled.Title>
-              { title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
-            </Styled.Title>
-          </Styled.Header>
           <Styled.Description>
             <Styled.DescriptionText>
               {description}
@@ -91,7 +87,7 @@ class ConfirmationModal extends Component {
           <Styled.Footer>
             <Styled.ConfirmationButton
               color={confirmButtonColor}
-              label={intl.formatMessage(messages.yesLabel)}
+              label={confirmButtonLabel ? confirmButtonLabel : intl.formatMessage(messages.yesLabel)}
               disabled={disableConfirmButton}
               data-test={confirmButtonDataTest}
               onClick={() => {
@@ -99,7 +95,7 @@ class ConfirmationModal extends Component {
                 mountModal(null);
               }}
             />
-            <Styled.ConfirmationButton
+            <Styled.CancelButton
               label={intl.formatMessage(messages.noLabel)}
               onClick={() => mountModal(null)}
             />

@@ -117,7 +117,7 @@ const messages = defineMessages({
     description: 'Directory lookup',
   },
   yesLabel: {
-    id: 'app.endMeeting.yesLabel',
+    id: 'app.confirmationModal.yesLabel',
     description: 'confirm button label',
   },
   noLabel: {

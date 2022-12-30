@@ -1,27 +1,13 @@
 const Logger = require('./lib/utils/logger');
+const WorkerStarter = require('./lib/utils/worker-starter');
 const config = require('./config');
 const fs = require('fs');
 const redis = require('redis');
 const {commandOptions} = require('redis');
-const {Worker} = require('worker_threads');
 const path = require('path');
 
 const logger = new Logger('presAnn Master');
 logger.info('Running bbb-export-annotations');
-
-const kickOffCollectorWorker = (jobId) => {
-  return new Promise((resolve, reject) => {
-    const collectorPath = path.join(__dirname, 'workers', 'collector.js');
-    const worker = new Worker(collectorPath, {workerData: jobId});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Collector Worker stopped with exit code ${code}`));
-      }
-    });
-  });
-};
 
 (async () => {
   const client = redis.createClient({
@@ -49,9 +35,10 @@ const kickOffCollectorWorker = (jobId) => {
 
     logger.info('Received job', job.element);
     const exportJob = JSON.parse(job.element);
+    const jobId = exportJob.jobId;
 
     // Create folder in dropbox
-    const dropbox = path.join(config.shared.presAnnDropboxDir, exportJob.jobId);
+    const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
     fs.mkdirSync(dropbox, {recursive: true});
 
     // Drop job into dropbox as JSON
@@ -61,8 +48,8 @@ const kickOffCollectorWorker = (jobId) => {
       }
     });
 
-    kickOffCollectorWorker(exportJob.jobId);
-
+    const collectorWorker = new WorkerStarter({jobId});
+    collectorWorker.collect();
     waitForJobs();
   }
 

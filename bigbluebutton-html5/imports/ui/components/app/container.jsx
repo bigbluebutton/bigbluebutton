@@ -61,8 +61,6 @@ const AppContainer = (props) => {
 
   const {
     actionsbar,
-    meetingLayout,
-    meetingLayoutUpdatedAt,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
@@ -72,11 +70,13 @@ const AppContainer = (props) => {
     isPresenter,
     randomlySelectedUser,
     isModalOpen,
-    presentationIsOpen: layoutPresOpen,
-    isResizing: layoutIsResizing,
-    cameraPosition: layoutCamPosition,
-    focusedCamera: layoutFocusedCam,
-    presentationVideoRate: layoutRate,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isMeetingLayoutResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     ...otherProps
   } = props;
 
@@ -87,7 +87,6 @@ const AppContainer = (props) => {
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
-  const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
@@ -154,11 +153,11 @@ const AppContainer = (props) => {
           cameraWidth: cameraDock.width,
           cameraHeight: cameraDock.height,
           cameraIsResizing: cameraDockInput.isResizing,
-          layoutPresOpen,
-          layoutIsResizing,
-          layoutCamPosition,
-          layoutFocusedCam,
-          layoutRate,
+          meetingPresentationIsOpen,
+          isMeetingLayoutResizing,
+          meetingLayoutCameraPosition,
+          meetingLayoutFocusedCamera,
+          meetingLayoutVideoRate,
           horizontalPosition,
           deviceType,
           layoutContextDispatch,
@@ -169,6 +168,7 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           mountRandomUserModal,
           isPresenter,
+          numCameras: cameraDockInput.numCameras,
         }}
         {...otherProps}
       />
@@ -195,7 +195,16 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       setTimeout(() => {
         const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
         if (queryCurrentUser.count() === 0) {
-          endMeeting(403, userData.ejectedReason || null);
+          if (userData.ejected) {
+            endMeeting('403', userData.ejectedReason);
+          } else {
+            // Either authentication process hasn't finished yet or user did authenticate but Users
+            // collection is unsynchronized. In both cases user may be able to rejoin.
+            const description = Auth.isAuthenticating || Auth.loggedIn
+              ? 'able_to_rejoin_user_disconnected_reason'
+              : null;
+            endMeeting('503', description);
+          }
         }
       }, delayForReconnection);
     },
@@ -222,8 +231,17 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
-  const { layout, pushLayout: pushLayoutMeeting, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
+  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const {
+    layout: meetingLayout,
+    pushLayout: pushLayoutMeeting,
+    layoutUpdatedAt: meetingLayoutUpdatedAt,
+    presentationIsOpen: meetingPresentationIsOpen,
+    isResizing: isMeetingLayoutResizing,
+    cameraPosition: meetingLayoutCameraPosition,
+    focusedCamera: meetingLayoutFocusedCamera,
+    presentationVideoRate: meetingLayoutVideoRate,
+  } = meetingLayoutObj;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -237,6 +255,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || currentUser?.presenter);
@@ -267,13 +286,13 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     currentUserId: currentUser?.userId,
     isPresenter,
     isModerator: currentUser?.role === ROLE_MODERATOR,
-    meetingLayout: layout,
-    meetingLayoutUpdatedAt: layoutUpdatedAt,
-    presentationIsOpen,
-    isResizing,
-    cameraPosition,
-    focusedCamera,
-    presentationVideoRate,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isMeetingLayoutResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
@@ -281,8 +300,9 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowSharedNotes,
     shouldShowExternalVideo,
+    shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
@@ -291,5 +311,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
+    ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
 })(AppContainer)));

@@ -7,6 +7,8 @@ import { makeCall } from '/imports/ui/services/api';
 import PresentationService from '/imports/ui/components/presentation/service';
 import PollService from '/imports/ui/components/poll/service';
 import logger from '/imports/startup/client/logger';
+import { defineMessages } from 'react-intl';
+import { notify } from '/imports/ui/services/notification';
 
 const Annotations = new Mongo.Collection(null);
 
@@ -14,7 +16,18 @@ const UnsentAnnotations = new Mongo.Collection(null);
 const ANNOTATION_CONFIG = Meteor.settings.public.whiteboard.annotations;
 const DRAW_END = ANNOTATION_CONFIG.status.end;
 
+const intlMessages = defineMessages({
+  notifyNotAllowedChange: {
+    id: 'app.whiteboard.annotations.notAllowed',
+    description: 'Label shown in toast when the user make a change on a shape he doesnt have permission',
+  },
+});
+
 let annotationsStreamListener = null;
+
+export function addAnnotationToDiscardedList(annotation) {
+  if (!discardedList.includes(annotation)) discardedList.push(annotation);
+}
 
 const clearPreview = (annotation) => {
   UnsentAnnotations.remove({ id: annotation });
@@ -22,7 +35,7 @@ const clearPreview = (annotation) => {
 
 const clearFakeAnnotations = () => {
   UnsentAnnotations.remove({});
-  Annotations.remove({ id: /-fake/g, annotationType: { $ne: 'text' } });
+  Annotations.remove({ id: /-fake/g });
 }
 
 function handleAddedAnnotation({
@@ -32,7 +45,7 @@ function handleAddedAnnotation({
   annotation,
 }) {
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation);
+  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   Annotations.upsert(query.selector, query.modifier);
 
@@ -146,7 +159,12 @@ const sendAnnotation = (annotation) => {
   // reconnected. With this it will miss things
   if (!Meteor.status().connected) return;
 
-  annotationsQueue.push(annotation);
+  const index = annotationsQueue.findIndex(ann => ann.id === annotation.id);
+  if (index !== -1) {
+    annotationsQueue[index] = annotation;
+  } else {
+    annotationsQueue.push(annotation);
+  }
   if (!annotationsSenderIsRunning)
     setTimeout(proccessAnnotationsQueue, annotationsBufferTimeMin);
 };
@@ -295,7 +313,7 @@ const persistShape = (shape, whiteboardId) => {
     id: shape.id,
     annotationInfo: shape,
     wbId: whiteboardId,
-    userId: shape.userId ? shape.userId : Auth.userID,
+    userId: Auth.userID,
   };
 
   sendAnnotation(annotation);
@@ -343,8 +361,8 @@ const getShapes = (whiteboardId, curPageId, intl) => {
           dash: "draw"
         },
       }
+      annotation.annotationInfo.questionType = false;
     }
-    annotation.annotationInfo.userId = annotation.userId;
     result[annotation.annotationInfo.id] = annotation.annotationInfo;
   });
   return result;
@@ -379,6 +397,10 @@ const initDefaultPages = (count = 1) => {
   return { pages, pageStates };
 };
 
+const notifyNotAllowedChange = (intl) => {
+  if (intl) notify(intl.formatMessage(intlMessages.notifyNotAllowedChange), 'warning', 'whiteboard');
+};
+
 export {
   initDefaultPages,
   Annotations,
@@ -402,4 +424,5 @@ export {
   removeShapes,
   changeCurrentSlide,
   clearFakeAnnotations,
+  notifyNotAllowedChange,
 };

@@ -832,21 +832,6 @@ check_configuration() {
         echo "# is not owned by $BBB_USER"
     fi
 
-    if [ -n "$HTML5_CONFIG" ]; then
-        SVG_IMAGES_REQUIRED=$(cat $BBB_WEB_CONFIG | grep -v '#' | sed -n '/^svgImagesRequired/{s/.*=//;p}')
-        if [ "$SVG_IMAGES_REQUIRED" != "true" ]; then
-            echo
-            echo "# Warning: You have the HTML5 client installed but in"
-            echo "#"
-            echo "#    $BBB_WEB_CONFIG"
-            echo "#"
-            echo "# the setting for svgImagesRequired is false. To fix, run the commnad"
-            echo "#"
-            echo "# sed -i 's/^svgImagesRequired=.*/svgImagesRequired=true/' $BBB_WEB_CONFIG "
-            echo "#"
-        fi
-    fi
-
     CHECK_STUN=$(xmlstarlet sel -t -m '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]' -v @data $FREESWITCH_VARS | sed 's/external_rtp_ip=stun://g')
     if [ "$CHECK_STUN" == "stun.freeswitch.org" ]; then
        echo
@@ -1121,7 +1106,6 @@ check_state() {
                 echo "#"
             fi
         fi
-
         if bbb-conf --status | grep inactive; then
             echo "# Error: Detected some processes have not started correctly"
             echo "#"
@@ -1250,19 +1234,34 @@ check_state() {
     if [ ! -z "$STUN" ]; then
       for i in $STUN; do
         STUN_SERVER="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m "_:beans/_:bean[@id=\"$i\"]/_:constructor-arg[@index=\"0\"]" -v @value $TURN | sed 's/stun://g')"
-        if echo $STUN_SERVER | grep -q ':'; then
-          STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
-        else
-          STUN_SERVER="$STUN_SERVER 3478"
-        fi
 
-        if which stunclient > /dev/null 2>&1; then
-          if stunclient --mode full --localport 30000 $STUN_SERVER | grep -q "fail\|Unable\ to\ resolve"; then
+	# stun is from the stun-client package, which is available on both bionic and focal
+	# stunclient is from the stuntman-client package, which is available on bionic but was removed from focal
+	if which stun > /dev/null 2>&1; then
+	  # stun return codes, from its client.cxx
+	  # low nibble: open (0), various STUN combinations (2-9), firewall (a), blocked (c), unknown (e), error (f)
+	  # high nibble: hairpin (1)
+	  stun $STUN_SERVER > /dev/null
+          if (( ($? & 0xf) > 9 )); then
             echo
             echo "#"
             echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
             echo "#"
-            echo "#    stunclient --mode full --localport 30000 $STUN_SERVER"
+            echo "#    stun $STUN_SERVER"
+            echo "#"
+          fi
+        elif which stunclient > /dev/null 2>&1; then
+          if echo $STUN_SERVER | grep -q ':'; then
+            STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
+          else
+            STUN_SERVER="$STUN_SERVER 3478"
+          fi
+          if stunclient $STUN_SERVER | grep -q "fail\|Unable\ to\ resolve"; then
+            echo
+            echo "#"
+            echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+            echo "#"
+            echo "#    stunclient $STUN_SERVER"
             echo "#"
           fi
         fi
@@ -1356,7 +1355,6 @@ if [ $CHECK ]; then
     echo "$BBB_WEB_CONFIG (bbb-web)"
     echo "       bigbluebutton.web.serverURL: $(get_bbb_web_config_value bigbluebutton.web.serverURL)"
     echo "                defaultGuestPolicy: $(get_bbb_web_config_value defaultGuestPolicy)"
-    echo "                 svgImagesRequired: $(get_bbb_web_config_value svgImagesRequired)"
     echo "              defaultMeetingLayout: $(get_bbb_web_config_value defaultMeetingLayout)"
 
     echo
@@ -1651,7 +1649,7 @@ if [ -n "$HOST" ]; then
     fi
 
     echo -n "Assigning $HOST for playback of recordings: "
-    for metadata in $(find /var/bigbluebutton/published /var/bigbluebutton/unpublished -name metadata.xml); do
+    for metadata in $(find -L /var/bigbluebutton/published /var/bigbluebutton/unpublished -name metadata.xml); do
         echo -n "."
         # Ensure we update both types of URLs
         xmlstarlet edit --inplace --update '//link[starts-with(normalize-space(), "https://")]' --expr "concat(\"https://\", \"$HOST/\", substring-after(substring-after(., \"https://\"),\"/\"))" $metadata
@@ -1688,8 +1686,7 @@ if [ -n "$HOST" ]; then
 
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
-    stop_bigbluebutton
-    start_bigbluebutton
+    systemctl restart bigbluebutton.target
 
     exit 0
 fi
@@ -1701,8 +1698,7 @@ if [ $RESTART ]; then
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
-    stop_bigbluebutton
-    start_bigbluebutton
+    systemctl restart bigbluebutton.target
     check_state
 fi
 

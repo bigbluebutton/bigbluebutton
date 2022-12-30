@@ -6,6 +6,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
+import NotesService from '/imports/ui/components/notes/service';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -34,6 +35,10 @@ function shouldShowExternalVideo() {
   return isExternalVideoEnabled() && getVideoUrl();
 }
 
+function shouldShowSharedNotes() {
+  return NotesService.isSharedNotesPinned();
+}
+
 function shouldShowOverlay() {
   return getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
 }
@@ -53,4 +58,5 @@ export default {
   shouldShowOverlay,
   isVideoBroadcasting,
   setPresentationIsOpen,
+  shouldShowSharedNotes,
 };

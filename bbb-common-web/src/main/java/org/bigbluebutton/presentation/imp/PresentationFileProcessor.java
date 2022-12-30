@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -22,13 +24,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PresentationFileProcessor {
     private static Logger log = LoggerFactory.getLogger(PresentationFileProcessor.class);
 
-    private boolean swfSlidesRequired;
-    private boolean svgImagesRequired;
+    private boolean svgImagesRequired=true;
     private boolean generatePngs;
     private PageExtractor pageExtractor;
 
-    private String BLANK_SLIDE;
-    private int MAX_SWF_FILE_SIZE;
     private long bigPdfSize;
     private long maxBigPdfPageSize;
 
@@ -38,12 +37,11 @@ public class PresentationFileProcessor {
     private SvgImageCreator svgImageCreator;
     private ThumbnailCreator thumbnailCreator;
     private PngCreator pngCreator;
-    private PageConverter pdfToSwfConverter;
-    private SwfSlidesGenerationProgressNotifier notifier;
+    private SlidesGenerationProgressNotifier notifier;
     private PageCounterService counterService;
     private PresentationConversionCompletionService presentationConversionCompletionService;
-    private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
-    private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
+    private ImageSlidesGenerationService imageSlidesGenerationService;
+    private PdfSlidesGenerationService pdfSlidesGenerationService;
 
     private ExecutorService executor;
     private volatile boolean processPresentation = false;
@@ -86,11 +84,12 @@ public class PresentationFileProcessor {
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1); // There should be only one image to convert.
             sendDocPageConversionStartedProgress(pres);
-            imageToSwfSlidesGenerationService.generateSlides(pres);
+            imageSlidesGenerationService.generateSlides(pres);
         }
     }
 
     private void extractIntoPages(UploadedPresentation pres) {
+        List<PageToConvert> listOfPagesConverted = new ArrayList<>();
         for (int page = 1; page <= pres.getNumberOfPages(); page++) {
             String presDir = pres.getUploadedFile().getParent();
             File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
@@ -109,20 +108,27 @@ public class PresentationFileProcessor {
                     pres,
                     page,
                     pageFile,
-                    swfSlidesRequired,
                     svgImagesRequired,
                     generatePngs,
                     textFileCreator,
                     svgImageCreator,
                     thumbnailCreator,
                     pngCreator,
-                    pdfToSwfConverter,
-                    notifier,
-                    BLANK_SLIDE,
-                    MAX_SWF_FILE_SIZE
+                    notifier
             );
 
-            pdfToSwfSlidesGenerationService.process(pageToConvert);
+            pdfSlidesGenerationService.process(pageToConvert);
+            listOfPagesConverted.add(pageToConvert);
+            PageToConvert timeoutErrorMessage =
+            listOfPagesConverted.stream().filter(item -> {
+                return item.getMessageErrorInConversion() != null;
+            }).findAny().orElse(null);
+
+            if (timeoutErrorMessage != null) {
+                log.error(timeoutErrorMessage.getMessageErrorInConversion());
+                notifier.sendUploadFileTimedout(pres, timeoutErrorMessage.getPageNumber());
+                break;
+            }
         }
     }
 
@@ -267,7 +273,7 @@ public class PresentationFileProcessor {
         processPresentation = false;
     }
 
-    public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+    public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
         this.notifier = notifier;
     }
 
@@ -279,24 +285,8 @@ public class PresentationFileProcessor {
         this.pageExtractor = extractor;
     }
 
-    public void setPageConverter(PageConverter converter) {
-        this.pdfToSwfConverter = converter;
-    }
-
-    public void setBlankSlide(String blankSlide) {
-        this.BLANK_SLIDE = blankSlide;
-    }
-
-    public void setMaxSwfFileSize(int size) {
-        this.MAX_SWF_FILE_SIZE = size;
-    }
-
     public void setGeneratePngs(boolean generatePngs) {
         this.generatePngs = generatePngs;
-    }
-
-    public void setSwfSlidesRequired(boolean swfSlidesRequired) {
-        this.swfSlidesRequired = swfSlidesRequired;
     }
 
     public void setBigPdfSize(long bigPdfSize) {
@@ -331,15 +321,15 @@ public class PresentationFileProcessor {
         MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
     }
 
-    public void setImageToSwfSlidesGenerationService(ImageToSwfSlidesGenerationService s) {
-        imageToSwfSlidesGenerationService = s;
+    public void setImageSlidesGenerationService(ImageSlidesGenerationService s) {
+        imageSlidesGenerationService = s;
     }
 
     public void setPresentationConversionCompletionService(PresentationConversionCompletionService s) {
         this.presentationConversionCompletionService = s;
     }
 
-    public void setPdfToSwfSlidesGenerationService(PdfToSwfSlidesGenerationService s) {
-        this.pdfToSwfSlidesGenerationService = s;
+    public void setPdfSlidesGenerationService(PdfSlidesGenerationService s) {
+        this.pdfSlidesGenerationService = s;
     }
 }

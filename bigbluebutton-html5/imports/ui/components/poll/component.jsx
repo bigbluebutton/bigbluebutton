@@ -544,6 +544,9 @@ class Poll extends Component {
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
             />
             {optList.length > MIN_OPTIONS_LENGTH && (
               <Styled.DeletePollOptionButton
@@ -567,7 +570,7 @@ class Poll extends Component {
             </span>
           </Styled.OptionWrapper>
           {!hasVal && type !== pollTypes.Response && error ? (
-            <Styled.InputError>{error}</Styled.InputError>
+            <Styled.InputError data-test="errorNoValueInput">{error}</Styled.InputError>
           ) : (
             <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
           )}
@@ -674,7 +677,7 @@ class Poll extends Component {
       <Styled.ResponseArea>
         {defaultPoll && (
           <div>
-            <Styled.PollCheckbox>
+            <Styled.PollCheckbox data-test="allowMultiple">
               <Checkbox
                 onChange={this.toggleIsMultipleResponse}
                 checked={isMultipleResponse}
@@ -698,13 +701,13 @@ class Poll extends Component {
             onClick={() => this.handleAddOption()}
           />
         )}
-        <Styled.Row>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+        <Styled.AnonymousRow>
+          <Styled.AnonymousHeadingCol aria-hidden="true">
+            <Styled.AnonymousHeading>
               {intl.formatMessage(intlMessages.secretPollLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.AnonymousHeading>
+          </Styled.AnonymousHeadingCol>
+          <Styled.AnonymousToggleCol>
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <Styled.Toggle>
               {this.displayToggleStatus(secretPoll)}
@@ -717,8 +720,8 @@ class Poll extends Component {
                 data-test="anonymousPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
-        </Styled.Row>
+          </Styled.AnonymousToggleCol>
+        </Styled.AnonymousRow>
         {secretPoll && (
           <Styled.PollParagraph>
             {intl.formatMessage(intlMessages.isSecretPollLabel)}
@@ -736,12 +739,12 @@ class Poll extends Component {
     return (
       <>
         <Styled.CustomInputRow>
-          <Styled.Col aria-hidden="true">
-            <Styled.SectionHeading>
+          <Styled.CustomInputHeadingCol aria-hidden="true">
+            <Styled.CustomInputHeading>
               {intl.formatMessage(intlMessages.customInputToggleLabel)}
-            </Styled.SectionHeading>
-          </Styled.Col>
-          <Styled.Col>
+            </Styled.CustomInputHeading>
+          </Styled.CustomInputHeadingCol>
+          <Styled.CustomInputToggleCol>
             <Styled.Toggle>
               {this.displayAutoOptionToggleStatus(customInput)}
               <Toggle
@@ -753,7 +756,7 @@ class Poll extends Component {
                 data-test="autoOptioningPollBtn"
               />
             </Styled.Toggle>
-          </Styled.Col>
+          </Styled.CustomInputToggleCol>
         </Styled.CustomInputRow>
         {customInput && (
           <Styled.PollParagraph>
@@ -785,7 +788,9 @@ class Poll extends Component {
           data-test="pollQuestionArea"
           value={customInput ? questionAndOptions : question}
           onChange={(e) => this.handleTextareaChange(e)}
-          onPaste={() => this.setState({ isPasting: true })}
+          onPaste={(e) => { e.stopPropagation(); this.setState({ isPasting: true }); }}
+          onCut={(e) => { e.stopPropagation(); }}
+          onCopy={(e) => { e.stopPropagation(); }}
           onKeyPress={(event) => {
             if (event.key === 'Enter' && customInput) {
               this.handlePollLetterOptions();
@@ -941,7 +946,7 @@ class Poll extends Component {
     const { intl } = this.props;
     return (
       <Styled.NoSlidePanelContainer>
-        <Styled.SectionHeading>
+        <Styled.SectionHeading data-test="noPresentation">
           {intl.formatMessage(intlMessages.noPresentationSelected)}
         </Styled.SectionHeading>
         <Styled.PollButton

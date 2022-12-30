@@ -316,19 +316,19 @@ const ShortcutHelpComponent = (props) => {
   //views
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomFit), '↑ + 1'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomSelect), '↑ + 2'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomFit), 'Shift 1'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2'));
 //transform
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipH), '↑ + H'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipV), '↑ + V'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.lock), 'Ctrl ↑ L'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToFront), '↑ ]'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipH), 'Shift H'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipV), 'Shift V'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToFront), 'Shift ]'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveForward), ']'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveBackward), '['));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToBack), '↑ ['));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToBack), 'Shift ['));
   //edit
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.undo), 'Ctrl Z'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.redo), 'Ctrl ↑ Z'));
+  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.cut), 'Ctrl X'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.copy), 'Ctrl C'));
   whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.paste), 'Ctrl V'));
@@ -338,11 +338,12 @@ const ShortcutHelpComponent = (props) => {
 
   return (
     <Modal
-      title={intl.formatMessage(intlMessages.title)}
+      contentLabel={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.closeLabel),
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
+      title={intl.formatMessage(intlMessages.title)}
     >
       <Styled.SettingsTabs
         onSelect={(tab) => setSelectedTab(tab)}
@@ -366,10 +367,10 @@ const ShortcutHelpComponent = (props) => {
           </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        <Styled.TabPanel selectedClassName="is-selected">
         {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
           : (
-            <span>
+            <Styled.TableWrapper>
               <Styled.ShortcutTable>
                 <tbody>
                   <tr>           
@@ -379,12 +380,13 @@ const ShortcutHelpComponent = (props) => {
                   {generalShortcutItems}
                 </tbody>
               </Styled.ShortcutTable>
-            </span>
+            </Styled.TableWrapper>
           )
         }
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
-          <Styled.ShortcutTable>
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
               <tbody>
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
@@ -393,9 +395,11 @@ const ShortcutHelpComponent = (props) => {
                 {shortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
-          <Styled.ShortcutTable>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
               <tbody>
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
@@ -404,7 +408,8 @@ const ShortcutHelpComponent = (props) => {
                 {whiteboardShortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-        </StyledSettings.SettingsTabPanel>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
 
       </Styled.SettingsTabs>
     </Modal>

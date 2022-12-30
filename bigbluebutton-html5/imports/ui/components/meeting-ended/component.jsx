@@ -90,6 +90,10 @@ const intlMessage = defineMessages({
     id: 'app.meeting.logout.ejectedFromMeeting',
     description: 'message when the user is removed by someone',
   },
+  max_participants_reason: {
+    id: 'app.meeting.logout.maxParticipantsReached',
+    description: 'message when the user is rejected due to max participants limit',
+  },
   validate_token_failed_eject_reason: {
     id: 'app.meeting.logout.validateTokenFailedEjectReason',
     description: 'invalid auth token',
@@ -116,6 +120,7 @@ const propTypes = {
 const defaultProps = {
   ejectedReason: null,
   endedReason: null,
+  callback: async () => {},
 };
 
 class MeetingEnded extends PureComponent {
@@ -159,7 +164,9 @@ class MeetingEnded extends PureComponent {
     AudioManager.exitAudio();
     Storage.removeItem('getEchoTest');
     Storage.removeItem('isFirstJoin');
-    Meteor.disconnect();
+    this.props.callback().finally(() => {
+      Meteor.disconnect();
+    });
   }
 
   setSelectedStar(starNumber) {

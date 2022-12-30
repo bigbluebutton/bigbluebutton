@@ -102,7 +102,7 @@ class ModalFullscreen extends PureComponent {
 
     return (
       <Styled.FullscreenModal
-      id="fsmodal"
+        id="fsmodal"
         isOpen={modalisOpen || preventClosing}
         contentLabel={title}
         overlayClassName={"fullscreenModalOverlay"}

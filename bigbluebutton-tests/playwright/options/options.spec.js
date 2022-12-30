@@ -7,6 +7,12 @@ test.describe.parallel('Options', () => {
     await about.init(true, true);
     await about.openedAboutModal();
   });
+
+  test('Open Help Button', async ({ browser, page, context }) => {
+    const helpButton = new Options(browser, page);
+    await helpButton.init(true, true);
+    await helpButton.openHelp(context);
+  });
 });
 
 test.describe.parallel('Settings', () => {
@@ -16,5 +22,11 @@ test.describe.parallel('Settings', () => {
     const language = new Options(browser, page);
     await language.init(true, true);
     await language.localesTest();
+  });
+
+  test('Dark mode', async ({ browser, page }) => {
+    const darkModeTest = new Options(browser, page);
+    await darkModeTest.init(true, true);
+    await darkModeTest.darkMode();
   });
 });
