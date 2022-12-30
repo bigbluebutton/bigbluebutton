@@ -25,9 +25,9 @@ The script will build a gns3 project that looks like this:
 The network "highjacks" the 128.8.8.0/24 subnet, so it simulates public IP address space.
 
 The `BigBlueButton` device, in addition to providing DNS and DHCP service for the 128.8.8.0/24 subnet, also
-operates a STUN server on 128.8.8.254 that presents itself in DNS as `stun.l.google.com`, so that
+operates a STUN server that presents itself in DNS as `stun.l.google.com`, so that
 STUN operations, on both the BigBlueButton clients and servers, yield the 128.8.8.0/24 addresses
-as public addresses.  `NAT1` also operates an SSL CA signing service via HTTP CGI, and mimics
+as public addresses.  `NAT1` also operates an ACME CA signing service via HTTP CGI, and mimics
 `resolver1.opendns.com` (used by `bbb-install` to check that the server can reach itself).
 
 `BigBlueButton` also announces the 128.8.8.0/24 subnet to the bare metal machine using OSPF,
@@ -51,15 +51,11 @@ NAT5 (private address not overlapping server address space), and NAT6 (carrier g
 
 1. Read, understand, and run the `install-gns3.sh` script in `NPDC/GNS3`
 
-1. Download a current Ubuntu 20 cloud image from Canonical:
+1. Upload a current Ubuntu 20 cloud image to the gns3 server using NPDC's `GNS3/upload-image.py`:
 
-   `wget https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img`
+   `./upload-image.py https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img`
 
-1. Upload it to the gns3 server using NPDC's `GNS3/upload-image.py`:
-
-   `./upload-image.py ubuntu-20.04-server-cloudimg-amd64.img`
-
-   The most uncommon Python3 package that this script uses is `python3-requests-toolbelt`.  `python3-clint` is all recommended, to get a progress bar.
+   The most uncommon Python3 package that this script uses is `python3-requests-toolbelt`.  `python3-clint` is also recommended, to get a progress bar.
 
    If this step works, then you have REST API access to the GNS3 server.
 
@@ -80,7 +76,7 @@ NAT5 (private address not overlapping server address space), and NAT6 (carrier g
    This step adds the GUI packages to the Ubuntu 20 cloud image and creates a new cloud image used for the test clients.
    It takes about half an hour.
 
-1. Upload the GUI image to the gns3 server using NPDC's `GNS3/upload-image.py`
+1. Upload the resulting GUI image to the gns3 server using NPDC's `GNS3/upload-image.py`
 
 1. Finally, build the BigBlueButton project in gns3 with `./gns3-bbb.py focal-260`
 
@@ -90,31 +86,8 @@ NAT5 (private address not overlapping server address space), and NAT6 (carrier g
 1. Add a test client with `./gns3-bbb.py testclient`
 1. Add another server with `./gns3-bbb.py focal-250`
 
-1. `ssh` into these devices using the `-J` or `ProxyJump` option, something like this (in `.ssh/config`):
+1. `ssh` into the server devices directly.
 
-```
-Host BigBlueButton
-  User ubuntu
-  UserKnownHostsFile /dev/null
-  StrictHostKeyChecking no
+1. You can `ssh` into a server's NAT gateway with `ssh -p 2222 focal-260`.
 
-Host NAT?
-  User ubuntu
-  ProxyJump BigBlueButton
-  UserKnownHostsFile /dev/null
-  StrictHostKeyChecking no
-
-Host testclient*
-  User ubuntu
-  ProxyJump BigBlueButton,NAT4
-  UserKnownHostsFile /dev/null
-  StrictHostKeyChecking no
-
-Host focal-*
-  User ubuntu
-  ProxyJump BigBlueButton
-  UserKnownHostsFile /dev/null
-  StrictHostKeyChecking no
-```
-
-1. With this `.ssh/config`, you can `ssh` into a server's NAT gateway with `ssh -p 2222 focal-260`.
+1. You can `ssh` into a testclient by specifying its NAT gateway as a jump host (`-J`) option to ssh: `ssh -J NAT4 testclient`

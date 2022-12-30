@@ -2,8 +2,45 @@
 #
 # Script to setup a GNS3 project for testing BigBlueButton.
 #
+# The project will be centered around a dummy public subnet with both
+# the bare metal system and most virtual nodes connected to it using
+# virtual NAT gateways.  Servers can be created with the --no-nat
+# switch to connect them directly to the dummy public subnet.
+#
+# "stun.l.google.com" is mimicked with a fake DNS entry so that
+# BigBlueButton servers see the dummy public subnet as their public IP
+# address.
+#
+# smallstep.com's step-ca server is used to run an ACME Certificate
+# Authority in a manner compatible with certbot, allowing bbb-install
+# to run certbot normally.  The CA's root certificate and key are
+# expected to be in the script's directory and are created (using
+# openssl) if they don't exist.  The root certificate is then
+# installed and trusted on all Ubuntu nodes created by this script.
+#
 # All the Ubuntu nodes will be configured to accept the user's public
 # ssh key and entire authorized_keys file for ssh access.
+#
+# BigBlueButton servers with NAT gateways will be configured to forward
+# port 22 to the server, while the NAT gateway listens for ssh
+# on port 2222.
+#
+# The NAT gateway between the bare metal machine and the dummy public
+# subnet is given the same name (for ssh access) as the GNS3 project
+# (default "BigBlueButton").  This node also operates the step-ca and
+# stun.l.google.com servers.
+#
+# The first time the script is run, the required infrastructure nodes
+# are created, and the --domain switch should be specified.  The
+# specified domain name will be saved and used for further runs.  The
+# --public-subnet switch can also be specified at this time, and the
+# public subnet's CIDR prefix will also be saved.
+#
+# NOTE: The default --domain "test" is probably not right; you should
+# use the name of the bare metal machine hosting the GNS3 server.
+#
+# If the machine running the script is configured to use an APT http
+# proxy, that proxy will also be used by the created nodes.
 #
 # The gns3 library provides "declarative" functions that only create
 # nodes if they don't already exist, and we use this feature
@@ -14,6 +51,7 @@
 # RUNTIME DEPENDENCIES
 #
 # genisoimage must be installed
+# openssl must be installed
 #
 # USAGE
 #
@@ -89,7 +127,7 @@ parser.add_argument('--domain', type=str,
 parser.add_argument('--no-nat', action='store_true',
                     help='install BBB server without a NAT gateway')
 parser.add_argument('--no-install', action='store_true',
-                    help="don't install BBB server")
+                    help="don't run bbb-install script on BBB server")
 parser.add_argument('--delete', type=str,
                     help="delete a BBB server and its associated subnet and NAT nodes")
 parser.add_argument('version', nargs='*',
@@ -123,14 +161,6 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 def file(fn):
     with open(os.path.join(__location__, fn)) as f:
         return f.read()
-
-# This lets me pull scripts from the github automated tests, but
-# I don't use it anymore, because I wanted to change the scripts around too much
-
-#with open(os.path.join(__location__, '../../.github/workflows/automated-tests.yml')) as f:
-#    automated_tests=yaml.load(f)
-#def add_step_to_runcmd(user_data, stepname):
-#    user_data['runcmd'].extend([i['run'] for i in automated_tests['jobs']['build-install-and-test']['steps'] if i.get('name', '') == stepname])
 
 # Check if our SSL root Certificate Authority key and certificate are available, create them if not
 

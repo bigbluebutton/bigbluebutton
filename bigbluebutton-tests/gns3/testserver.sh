@@ -1,9 +1,6 @@
 #!/bin/bash
 #
 # Install a Big Blue Button testing server on a VM
-#
-# We expect a web-based SSL CA service to be available on ca.test
-# that will sign SSL certificates for us.
 
 # if these are running, our apt operations may error out unable to get a lock
 sudo systemctl stop unattended-upgrades.service
