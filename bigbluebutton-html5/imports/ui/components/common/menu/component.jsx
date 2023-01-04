@@ -65,7 +65,7 @@ class BBBMenu extends React.Component {
   };
 
   makeMenuItems() {
-    const { actions, selectedEmoji } = this.props;
+    const { actions, selectedEmoji, intl } = this.props;
 
     return actions?.map(a => {
       const { dataTest, label, onClick, key, disabled, description, selected } = a;
