@@ -46,7 +46,7 @@
     "eventemitter2": "~6.4.6",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
-    "flat": "^4.1.1",
+    "flat": "^5.0.1",
     "hark": "^1.2.3",
     "html-to-image": "^1.9.0",
     "immutability-helper": "~2.8.1",
