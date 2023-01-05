@@ -9,6 +9,7 @@ import PollService from '/imports/ui/components/poll/service';
 import logger from '/imports/startup/client/logger';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
+import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 
 const Annotations = new Mongo.Collection(null);
 
@@ -340,6 +341,7 @@ const getShapes = (whiteboardId, curPageId, intl) => {
   annotations.forEach((annotation) => {
     if (annotation.annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
+      annotation.annotationInfo.answers = annotation.annotationInfo.answers.reduce(caseInsensitiveReducer, []);
       const pollResult = PollService.getPollResultString(annotation.annotationInfo, intl)
         .split('<br/>').join('\n').replace( /(<([^>]+)>)/ig, '');
       annotation.annotationInfo = {
