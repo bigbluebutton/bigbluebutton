@@ -195,8 +195,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
-        <property name="presentationDir" value="${beans.presentationService.presentationDir}"/>
-        <property name="testConferenceMock" value="${beans.presentationService.testConferenceMock}"/>
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
         <property name="testRoomMock" value="${beans.presentationService.testRoomMock}"/>
         <property name="testPresentationName" value="${beans.presentationService.testPresentationName}"/>
         <property name="testUploadedPresentation" value="${beans.presentationService.testUploadedPresentation}"/>
