@@ -34,7 +34,7 @@ class TypingIndicator extends PureComponent {
     const { length } = typingUsers;
     const isSingleTyper = length === 1;
     const isCoupleTyper = length === 2;
-    const isMuiltiTypers = length > 2;
+    const isMultiTypers = length > 2;
 
     let element = null;
 
@@ -76,7 +76,7 @@ class TypingIndicator extends PureComponent {
       );
     }
 
-    if (isMuiltiTypers) {
+    if (isMultiTypers) {
       element = (
         <span>
           {`${intl.formatMessage(messages.severalPeople)}`}
