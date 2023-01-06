@@ -194,6 +194,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
     </bean>
 
+    <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
+        <property name="testRoomMock" value="${beans.presentationService.testRoomMock}"/>
+        <property name="testPresentationName" value="${beans.presentationService.testPresentationName}"/>
+        <property name="testUploadedPresentation" value="${beans.presentationService.testUploadedPresentation}"/>
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
+        <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
+        <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
+    </bean>
+
     <import resource="doc-conversion.xml"/>
     <import resource="bbb-redis-messaging.xml"/>
     <!-- moved the following import statement for turn-stun-servers.xml to resources.groovy to be able to use overlay config for turn/stun servers -->

@@ -1375,6 +1375,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   exitAudio() {
+    if (this.activeSession == null) return Promise.resolve();
+
     return this.activeSession.exitAudio();
   }
 
