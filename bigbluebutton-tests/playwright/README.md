@@ -50,6 +50,12 @@ You can also use this also through the test tree, adding the test suite / group 
 $ npm run test:filter "notifications chat"
 ```
 
+If you don't have `BBB_URL` and `BBB_SECRET` set, but have ssh access to the test server, you can use the following command to obtain `BBB_URL` and `BBB_SECRET` via ssh:
+
+```bash
+$ npm run test:ssh -- HOSTNAME
+```
+
 #### Recording Meteor messages
 
 A modified version of `websockify` can be used to record the Meteor messages exchanged between client and server, by inserted a WebSocket proxy between the client and server, configured to record the sessions.
