@@ -42,7 +42,7 @@ const setCapturedNotesUploading = () => {
   const breakoutRooms = findBreakouts();
   breakoutRooms.forEach((breakout) => {
     if (breakout.captureNotes) {
-      const filename = breakout.shortName;
+      const filename = `${breakout.name}-notes`;
       const temporaryPresentationId = `${breakout.breakoutId}-notes`;
 
       UploadingPresentations.upsert({

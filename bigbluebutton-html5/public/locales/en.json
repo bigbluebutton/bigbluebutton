@@ -264,6 +264,7 @@
     "app.presentationUploder.rejectedError": "The selected file(s) have been rejected. Please check the file type(s).",
     "app.presentationUploder.connectionClosedError": "Interrupted by poor connectivity. Please try again.",
     "app.presentationUploder.upload.progress": "Uploading ({0}%)",
+    "app.presentationUploder.conversion.204": "No content to capture",
     "app.presentationUploder.upload.413": "File is too large, exceeded the maximum of {0} MB",
     "app.presentationUploder.genericError": "Oops, Something went wrong ...",
     "app.presentationUploder.upload.408": "Request upload token timeout.",
