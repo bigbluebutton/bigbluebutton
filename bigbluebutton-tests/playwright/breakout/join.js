@@ -1,9 +1,10 @@
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
+const { sleep } = require('../core/helpers');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -109,7 +110,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
     await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/);
 
-    await breakoutUserPage.hasText(e.timeRemaining,/[11-12]:[0-5][0-9]/);
+    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
   }
 
   async endAllBreakoutRooms() {
@@ -133,8 +134,8 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     await this.userPage.waitForSelector(e.modalConfirmButton);
-
-    await expect(breakoutUserPage.page.isClosed(), "Previous breakout room page did not close!").toBeTruthy();
+    await breakoutUserPage.hasElement(e.errorScreenMessage);
+    await breakoutUserPage.hasText(e.errorScreenMessage, e.error403removedLabel);
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);

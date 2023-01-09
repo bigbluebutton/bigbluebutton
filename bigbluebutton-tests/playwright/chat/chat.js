@@ -204,6 +204,22 @@ class Chat extends Page {
     ];
     await checkTextContent(content, dataToCheck);
   }
+
+  async copyPastePublicMessage() {
+    await this.type(e.chatBox, 'test');
+    await this.waitAndClick(e.sendButton);
+    await this.hasText(e.chatUserMessageText, /test/);
+
+    const text = await this.getLocator(e.chatUserMessageText).boundingBox();
+
+    await this.mouseDoubleClick(text.x, text.y);
+    await this.press('Control+KeyC');
+    await this.getLocator(e.chatBox).focus();
+    await this.press('Control+KeyV');
+    await this.waitAndClick(e.sendButton);
+
+    await this.hasText(e.secondChatUserMessageText, /test/);
+  }
 }
 
 exports.Chat = Chat;

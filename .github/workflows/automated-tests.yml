@@ -13,7 +13,7 @@ jobs:
   build-install-and-test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-apps-akka
       - run: ./build/setup.sh bbb-config

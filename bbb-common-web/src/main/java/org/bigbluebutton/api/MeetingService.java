@@ -19,9 +19,7 @@
 package org.bigbluebutton.api;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,14 +41,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.bigbluebutton.api.HTML5LoadBalancingService;
 import org.bigbluebutton.api.domain.GuestPolicy;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.RegisteredUser;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
-import org.bigbluebutton.api.domain.MeetingLayout;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
@@ -60,10 +56,9 @@ import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessa
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
-import org.bigbluebutton.common2.msgs.MeetingCreatedEvtMsg;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
-import org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier;
+import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
@@ -77,7 +72,6 @@ import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.InputStream;
 
 import org.springframework.data.domain.*;
 
@@ -104,8 +98,7 @@ public class MeetingService implements MessageListener {
   private StunTurnService stunTurnService;
   private RedisStorageService storeService;
   private CallbackUrlService callbackUrlService;
-  private HTML5LoadBalancingService html5LoadBalancingService;
-  private SwfSlidesGenerationProgressNotifier notifier;
+  private SlidesGenerationProgressNotifier notifier;
 
   private long usersTimeout;
   private long waitingGuestUsersTimeout;
@@ -426,7 +419,7 @@ public class MeetingService implements MessageListener {
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getHtml5InstanceId(),
             m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getUploadExternalDescription(), m.getUploadExternalUrl());
+            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -1323,7 +1316,7 @@ public class MeetingService implements MessageListener {
     enteredUsersTimeout = value;
   }
 
-  public void setSwfSlidesGenerationProgressNotifier(SwfSlidesGenerationProgressNotifier notifier) {
+  public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
     this.notifier = notifier;
   }
 

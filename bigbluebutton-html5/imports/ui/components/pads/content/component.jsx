@@ -19,6 +19,7 @@ const PadContent = ({
       <Styled.Iframe
         title="shared notes viewing mode"
         srcDoc={contentWithStyle}
+        data-test="sharedNotesViewingMode"
       />
     </Styled.Wrapper>
   );

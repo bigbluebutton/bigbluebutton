@@ -1,7 +1,6 @@
 package org.bigbluebutton.api2;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.bigbluebutton.api.domain.BreakoutRoomsParams;
@@ -44,8 +43,8 @@ public interface IBbbWebApiGWApp {
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
                      Boolean notifyRecordingIsOn,
-                     String uploadExternalDescription,
-                     String uploadExternalUrl);
+                     String presentationUploadExternalDescription,
+                     String presentationUploadExternalUrl);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
-        <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -152,6 +152,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
+        <property name="defaultHttpSessionTimeout" value="${defaultHttpSessionTimeout}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>

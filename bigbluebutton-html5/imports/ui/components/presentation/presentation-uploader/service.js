@@ -66,7 +66,7 @@ const getPresentations = () => Presentations
       isRemovable: removable,
       conversion: conversion || { done: true, error: false },
       uploadTimestamp,
-      exportation: exportation || { isRunning: false, error: false },
+      exportation: exportation || { error: false },
     };
   });
 
@@ -96,7 +96,8 @@ const observePresentationConversion = (
         if (
           doc.conversion.status === 'FILE_TOO_LARGE' ||
           doc.conversion.status === 'UNSUPPORTED_DOCUMENT' ||
-          doc.conversion.status === 'CONVERSION_TIMEOUT'
+          doc.conversion.status === 'CONVERSION_TIMEOUT' ||
+          doc.conversion.status === 'IVALID_MIME_TYPE'
         ) {
           Presentations.update(
             { id: tokenId },
@@ -414,17 +415,17 @@ const getExternalUploadData = () => {
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'meetingProp.uploadExternalDescription': 1,
-        'meetingProp.uploadExternalUrl': 1
+        'meetingProp.presentationUploadExternalDescription': 1,
+        'meetingProp.presentationUploadExternalUrl': 1
       },
     },
   );
 
-  const { uploadExternalDescription, uploadExternalUrl } = meetingProp;
+  const { presentationUploadExternalDescription, presentationUploadExternalUrl } = meetingProp;
 
   return {
-    uploadExternalDescription,
-    uploadExternalUrl,
+    presentationUploadExternalDescription,
+    presentationUploadExternalUrl,
   }
 };
 
@@ -435,7 +436,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     const cursor = Presentations.find({ id: presentationId });
 
     const checkStatus = (exportation) => {
-      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status !== 'RUNNING';
+      const shouldStop = lastStatus.status === 'PROCESSING' && exportation.status === 'EXPORTED';
 
       if (shouldStop) {
         observer(exportation, true);

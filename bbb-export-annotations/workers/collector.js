@@ -7,36 +7,21 @@ const path = require('path');
 const redis = require('redis');
 const sanitize = require('sanitize-filename');
 const stream = require('stream');
-const {Worker, workerData} = require('worker_threads');
+const WorkerStarter = require('../lib/utils/worker-starter');
+const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
+const {workerData} = require('worker_threads');
 const {promisify} = require('util');
 
-const WorkerTypes = Object.freeze({
-  Notifier: 'notifier',
-  Process: 'process',
-});
-
-const jobId = workerData;
+const jobId = workerData.jobId;
 const logger = new Logger('presAnn Collector');
 logger.info(`Collecting job ${jobId}`);
-
-const kickOffWorker = (workerType, data) => {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(`./workers/${workerType}.js`, {workerData: data});
-    worker.on('message', resolve);
-    worker.on('error', reject);
-    worker.on('exit', (code) => {
-      if (code !== 0) {
-        reject(new Error(`Worker '${workerType}' stopped with exit code ${code}`));
-      }
-    });
-  });
-};
 
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
 
 // Takes the Job from the dropbox
 const job = fs.readFileSync(path.join(dropbox, 'job'));
 const exportJob = JSON.parse(job);
+const jobType = exportJob.jobType;
 
 async function collectAnnotationsFromRedis() {
   const client = redis.createClient({
@@ -54,8 +39,6 @@ async function collectAnnotationsFromRedis() {
   // Remove annotations from Redis
   await client.del(jobId);
 
-  client.disconnect();
-
   const annotations = JSON.stringify(presAnn);
 
   const whiteboard = JSON.parse(annotations);
@@ -71,6 +54,9 @@ async function collectAnnotationsFromRedis() {
   // from the presentation directory
   const presFile = path.join(exportJob.presLocation, exportJob.presId);
   const pdfFile = `${presFile}.pdf`;
+
+  // Message to display conversion progress toast
+  const statusUpdate = new PresAnnStatusMsg(exportJob);
 
   if (fs.existsSync(pdfFile)) {
     for (const p of pages) {
@@ -93,19 +79,36 @@ async function collectAnnotationsFromRedis() {
         pdfFile, outputFile,
       ];
 
-      cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
+      try {
+        cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
+      } catch (error) {
+        logger.error(`PDFtoCairo failed extracting slide ${pageNumber} in job ${jobId}: ${error.message}`);
+        statusUpdate.setError();
+      }
+
+      await client.publish(config.redis.channels.publish, statusUpdate.build(pageNumber));
     }
-  // If PNG file already available
-  } else if (fs.existsSync(`${presFile}.png`)) {
-    fs.copyFileSync(`${presFile}.png`, path.join(dropbox, 'slide1.png'));
-  // If JPEG file available
-  } else if (fs.existsSync(`${presFile}.jpeg`)) {
-    fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
   } else {
-    return logger.error(`Could not find presentation file ${jobId}`);
+    if (fs.existsSync(`${presFile}.png`)) {
+      // PNG file available
+      fs.copyFileSync(`${presFile}.png`, path.join(dropbox, 'slide1.png'));
+    } else if (fs.existsSync(`${presFile}.jpeg`)) {
+      // JPEG file available
+      fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
+      await client.publish(config.redis.channels.publish, statusUpdate.build());
+    } else {
+      await client.publish(config.redis.channels.publish, statusUpdate.build());
+      client.disconnect();
+      return logger.error(`No PDF, PNG or JPEG file available for job ${jobId}`);
+    }
+
+    await client.publish(config.redis.channels.publish, statusUpdate.build());
   }
 
-  kickOffWorker(WorkerTypes.Process, jobId);
+  client.disconnect();
+
+  const process = new WorkerStarter({jobId});
+  process.process();
 }
 
 async function sleep(ms) {
@@ -152,12 +155,13 @@ async function collectSharedNotes(retries = 3) {
     }
   }
 
-  kickOffWorker(WorkerTypes.Notifier, [exportJob.jobType, jobId, filename]);
+  const notifier = new WorkerStarter({jobType, jobId, filename});
+  notifier.notify();
 }
 
-switch (exportJob.jobType) {
+switch (jobType) {
   case 'PresentationWithAnnotationExportJob': return collectAnnotationsFromRedis();
   case 'PresentationWithAnnotationDownloadJob': return collectAnnotationsFromRedis();
   case 'PadCaptureJob': return collectSharedNotes();
-  default: return logger.error(`Unknown job type ${exportJob.jobType}`);
+  default: return logger.error(`Unknown job type ${jobType}`);
 }

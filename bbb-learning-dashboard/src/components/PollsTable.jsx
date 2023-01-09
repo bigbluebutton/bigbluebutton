@@ -321,7 +321,7 @@ const PollsTable = (props) => {
         const answersSorted = Object.entries(pollVotesCount[v?.pollId])
           .sort(([, countA], [, countB]) => countB - countA);
         const isMostCommonAnswer = (
-          answersSorted[0]?.[0]?.toLowerCase() === params?.value[0]?.toLowerCase()
+          answersSorted[0]?.[0]?.toLowerCase() === params?.value?.toLowerCase()
           && answersSorted[0]?.[1] > 1
         );
         return <GridCellExpand anonymous={v?.anonymous} isMostCommonAnswer={isMostCommonAnswer} value={params?.value || ''} width={params?.colDef?.computedWidth} />;
@@ -375,7 +375,7 @@ const PollsTable = (props) => {
         sx={{
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: 'rgb(243 244 246/var(--tw-bg-opacity))',
-            color: 'rgb(107 114 128/1)',
+            color: 'rgb(55 65 81/1)',
             textTransform: 'uppercase',
             letterSpacing: '.025em',
             minHeight: '40.5px !important',
