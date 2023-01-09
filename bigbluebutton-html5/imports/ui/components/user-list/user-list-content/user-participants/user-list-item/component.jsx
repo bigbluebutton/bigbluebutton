@@ -826,7 +826,7 @@ class UserListItem extends PureComponent {
             <Styled.UserItemContents
               isActionsOpen={isActionsOpen}
               selected={selected === true}
-              tabIndex={0}
+              tabIndex={-1}
               onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
