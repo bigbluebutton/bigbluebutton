@@ -101,15 +101,10 @@ licenses := Seq("LGPL-3.0" -> url("http://opensource.org/licenses/LGPL-3.0"))
 
 homepage := Some(url("http://www.bigbluebutton.org"))
 
-libraryDependencies += "javax.validation" % "validation-api" % "2.0.1.Final"
-libraryDependencies += "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.1"
-libraryDependencies += "org.glassfish" % "javax.el" % "3.0.1-b12"
-libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.5.13"
-
 libraryDependencies ++= Seq(
   "javax.validation" % "validation-api" % "2.0.1.Final",
-  "org.springframework.boot" % "spring-boot-starter-validation" % "2.6.1",
-  "org.springframework.data" % "spring-data-commons" % "2.6.1",
+  "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.1",
+  "org.springframework.data" % "spring-data-commons" % "2.7.6",
   "org.glassfish" % "javax.el" % "3.0.1-b12",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
   "org.postgresql" % "postgresql" % "42.2.16",
