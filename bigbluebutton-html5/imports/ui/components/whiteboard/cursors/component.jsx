@@ -187,9 +187,9 @@ export default function Cursors(props) {
     if (panel) xOffset += parseFloat(panel?.style?.width);
     if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
 
-    // disable native tldraw eraser animation
-    const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
-    if (eraserLine) eraserLine.style.display = 'none';
+    // offset native tldraw eraser animation container
+    const overlay = document.getElementsByClassName('tl-overlay')[0];
+    if (overlay) overlay.style.left = '0px';
 
     if (type === 'touchmove') {
       calcPresOffset();

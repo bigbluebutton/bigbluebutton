@@ -74,11 +74,7 @@ class LiveCaptions extends PureComponent {
         <div style={captionStyles}>
           {clear ? '' : data}
         </div>
-        <div
-          style={visuallyHidden}
-          aria-atomic
-          aria-live="polite"
-        >
+        <div style={visuallyHidden}>
           {clear ? '' : data}
         </div>
       </div>

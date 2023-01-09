@@ -218,11 +218,12 @@ export default class TextDrawListener extends Component {
       }
 
     // second case is when a user finished writing the text and publishes the final result
-    } else if (isRightClick) {
-      this.discardAnnotation();
     } else {
       // publishing the final shape and resetting the state
       this.sendLastMessage();
+      if (isRightClick) {
+        this.discardAnnotation();
+      }
     }
   }
 
@@ -485,15 +486,18 @@ export default class TextDrawListener extends Component {
   discardAnnotation() {
     const {
       actions,
+      whiteboardId,
     } = this.props;
 
     const {
       getCurrentShapeId,
-      clearPreview,
+      undoAnnotation,
+      addAnnotationToDiscardedList,
     } = actions;
 
     this.resetState();
-    clearPreview(getCurrentShapeId());
+    undoAnnotation(whiteboardId);
+    addAnnotationToDiscardedList(getCurrentShapeId());
   }
 
   render() {
@@ -598,5 +602,7 @@ TextDrawListener.propTypes = {
     resetTextShapeSession: PropTypes.func.isRequired,
     // Defines a function that sets a session value for the current active text shape
     setTextShapeActiveId: PropTypes.func.isRequired,
+    undoAnnotation: PropTypes.func.isRequired,
+    addAnnotationToDiscardedList: PropTypes.func.isRequired,
   }).isRequired,
 };

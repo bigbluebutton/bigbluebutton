@@ -76,7 +76,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.initPages(page);
       await presentation.uploadAndRemoveAllPresentations();
     });
-    
+
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);

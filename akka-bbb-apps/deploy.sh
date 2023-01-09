@@ -7,7 +7,7 @@ sudo dpkg -i target/bbb-apps-akka_*.deb
 echo ''
 echo ''
 echo '----------------'
-echo 'bbb-web updated'
+echo 'bbb-apps-akka updated'
 
 sudo service bbb-apps-akka start
-echo 'starting service bbb-web'
+echo 'starting service bbb-apps-akka'

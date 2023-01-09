@@ -228,6 +228,7 @@ class App extends Component {
       layoutContextDispatch,
       numCameras,
       presentationIsOpen,
+      ignorePollNotifications,
     } = this.props;
 
     this.renderDarkMode();
