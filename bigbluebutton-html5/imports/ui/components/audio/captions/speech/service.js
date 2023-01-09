@@ -7,7 +7,7 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { isAudioCaptionsEnabled } from '/imports/ui/services/features';
+import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 
 const THROTTLE_TIMEOUT = 1000;
 
@@ -126,7 +126,7 @@ const hasSpeechLocale = (userId = Auth.userID) => getSpeechLocale(userId) !== ''
 
 const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
-const isEnabled = () => isAudioCaptionsEnabled();
+const isEnabled = () => isLiveTranscriptionEnabled();
 
 const isActive = () => isEnabled() && hasSpeechRecognitionSupport() && hasSpeechLocale();
 
