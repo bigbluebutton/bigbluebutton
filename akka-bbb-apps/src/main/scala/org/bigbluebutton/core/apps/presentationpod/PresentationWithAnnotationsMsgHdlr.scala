@@ -171,13 +171,19 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      // Send Export Job to Redis
-      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-      bus.outGW.send(job)
+      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
 
-      // Send Annotations to Redis
-      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      if (annotationCount > 0) {
+        // Send Export Job to Redis
+        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+        bus.outGW.send(job)
+
+        // Send Annotations to Redis
+        val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+        bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      } else {
+        log.info(s"No annotations found in meeting ${meetingId}. Skipping export.")
+      }
     }
   }
 
