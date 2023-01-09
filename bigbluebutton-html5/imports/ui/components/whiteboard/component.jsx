@@ -190,7 +190,18 @@ export default function Whiteboard(props) {
               persistShape(shape, whiteboardId);
             }
           });
-    removeShapes(deletedShapes, whiteboardId);
+
+    //order the ids of shapes being deleted to prevent crash when removing a group shape before its children
+    const orderedDeletedShapes = [];
+    deletedShapes.forEach(eid => {
+      if (shapes[eid]?.type !== 'group') {
+        orderedDeletedShapes.unshift(eid);
+      } else {
+        orderedDeletedShapes.push(eid)
+      }
+    });
+
+    removeShapes(orderedDeletedShapes, whiteboardId);
   }
 
   React.useEffect(() => {
@@ -217,7 +228,7 @@ export default function Whiteboard(props) {
         }
       });
 
-      const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)))
+      const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)));
       if (removed && removed.length > 0) {
         tldrawAPI?.patchState(
           {
@@ -236,6 +247,7 @@ export default function Whiteboard(props) {
           },
         );
       }
+
       next.pages[curPageId].shapes = shapes;
       changed = true;
     }
