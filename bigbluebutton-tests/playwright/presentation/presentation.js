@@ -50,7 +50,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.waitForSelector(e.externalVideoModalHeader);
+    await this.modPage.waitForSelector(e.closeModal);
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
@@ -62,6 +62,7 @@ class Presentation extends MultiUsers {
   }
 
   async uploadSinglePresentationTest() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
 
     const modSlides0 = await getSlideOuterHtml(this.modPage);
@@ -81,14 +82,14 @@ class Presentation extends MultiUsers {
   async uploadMultiplePresentationsTest() {
     await this.modPage.waitForSelector(e.skipSlide);
 
-    const modSlides0 = await this.modPage.page.evaluate(getSvgOuterHtml);
-    const userSlides0 = await this.userPage.page.evaluate(getSvgOuterHtml);
+    const modSlides0 = await getSlideOuterHtml(this.modPage);
+    const userSlides0 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides0).toEqual(userSlides0);
 
     await uploadMultiplePresentations(this.modPage, [e.uploadPresentationFileName, e.questionSlideFileName]);
 
-    const modSlides1 = await this.userPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
-    const userSlides1 = await this.modPage.page.evaluate(async () => document.querySelector('svg g g g').outerHTML);
+    const modSlides1 = await getSlideOuterHtml(this.modPage);
+    const userSlides1 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides1).toEqual(userSlides1);
 
     await expect(modSlides0).not.toEqual(modSlides1);
@@ -100,9 +101,9 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.skipSlide);
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
-    const width1 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
+    const width1 = (await this.modPage.page.locator(e.whiteboard).boundingBox()).width;
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    const width2 = await this.modPage.page.locator(e.whiteboard).getAttribute("width");
+    const width2 = (await this.modPage.page.locator(e.whiteboard).boundingBox()).width;
     await expect(Number(width2) > Number(width1)).toBeTruthy();
   }
 
@@ -136,11 +137,11 @@ class Presentation extends MultiUsers {
   async uploadAndRemoveAllPresentations() {
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
-  
+
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides1).toEqual(userSlides1);
-  
+
     // Remove
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
@@ -148,44 +149,44 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.removePresentation);
     await this.modPage.waitAndClick(e.removePresentation);
     await this.modPage.waitAndClick(e.confirmManagePresentation);
-  
+
     await this.modPage.wasRemoved(e.whiteboard);
     await this.modPage.hasElementDisabled(e.minimizePresentation);
     await this.userPage.wasRemoved(e.whiteboard);
     await this.userPage.hasElementDisabled(e.minimizePresentation);
-  
+
     // Check removed presentations inside the Manage Presentations
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.wasRemoved(e.presentationsList);
     await this.modPage.waitAndClick(e.confirmManagePresentation);
-  
+
     // Making viewer a presenter
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
-  
+
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);
     await this.userPage.wasRemoved(e.presentationsList);
   }
-  
+
   async removePreviousPresentationFromPreviousPresenter() {
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
-  
+
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides1).toEqual(userSlides1);
-  
+
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);
-  
+
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);
     await this.userPage.waitAndClick(e.removePresentation);
     await this.userPage.waitAndClick(e.removePresentation);
     await this.userPage.waitAndClick(e.confirmManagePresentation);
-  
+
     await this.userPage.wasRemoved(e.whiteboard);
     await this.userPage.waitAndClick(e.actions);
     await this.userPage.waitAndClick(e.managePresentations);

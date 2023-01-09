@@ -19,6 +19,7 @@ import Checkbox from '/imports/ui/components/common/checkbox/component';
 const { isMobile } = deviceInfo;
 
 const propTypes = {
+  allowDownloadable: PropTypes.bool.isRequired,
   intl: PropTypes.object.isRequired,
   fileUploadConstraintsHint: PropTypes.bool.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
@@ -954,6 +955,18 @@ class PresentationUploader extends Component {
     }
   }
 
+  renderDownloadableWithAnnotationsHint() {
+    const {
+      intl,
+      allowDownloadable
+    } = this.props;
+
+    return allowDownloadable ? (
+        <Styled.ExportHint>
+          {intl.formatMessage(intlMessages.exportHint)}
+        </Styled.ExportHint>)
+      : null;
+  }
   renderPresentationItem(item) {
     const { disableActions } = this.state;
     const {
@@ -1108,9 +1121,9 @@ class PresentationUploader extends Component {
   renderExternalUpload() {
     const { externalUploadData, intl } = this.props;
 
-    const { uploadExternalDescription, uploadExternalUrl } = externalUploadData;
+    const { presentationUploadExternalDescription, presentationUploadExternalUrl } = externalUploadData;
 
-    if (!uploadExternalDescription || !uploadExternalUrl) return null;
+    if (!presentationUploadExternalDescription || !presentationUploadExternalUrl) return null;
 
     return (
       <Styled.ExternalUpload>
@@ -1119,11 +1132,11 @@ class PresentationUploader extends Component {
             {intl.formatMessage(intlMessages.externalUploadTitle)}
           </Styled.ExternalUploadTitle>
 
-          <p>{uploadExternalDescription}</p>
+          <p>{presentationUploadExternalDescription}</p>
         </div>
         <Styled.ExternalUploadButton
           color="default"
-          onClick={() => window.open(`${uploadExternalUrl}`)}
+          onClick={() => window.open(`${presentationUploadExternalUrl}`)}
           label={intl.formatMessage(intlMessages.externalUploadLabel)}
           aria-describedby={intl.formatMessage(intlMessages.externalUploadLabel)}
         />
@@ -1218,10 +1231,8 @@ class PresentationUploader extends Component {
               {`${intl.formatMessage(intlMessages.message)}`}
               {fileUploadConstraintsHint ? this.renderExtraHint() : null}
             </Styled.ModalHint>
-              {this.renderPresentationList()}
-            <Styled.ExportHint>
-              {intl.formatMessage(intlMessages.exportHint)}
-            </Styled.ExportHint>
+            {this.renderPresentationList()}
+            {this.renderDownloadableWithAnnotationsHint()}
             {isMobile ? this.renderPicDropzone() : null}
             {this.renderDropzone()}
             {this.renderExternalUpload()}

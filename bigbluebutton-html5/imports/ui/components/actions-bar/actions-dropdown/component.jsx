@@ -261,6 +261,7 @@ class ActionsDropdown extends PureComponent {
             customStyles: p.current ? customStyles : null,
             icon: "file",
             iconRight: p.current ? 'check' : null,
+            selected: p.current ? true : false,
             label: p.name,
             description: "uploaded presentation file",
             key: `uploaded-presentation-${p.id}`,

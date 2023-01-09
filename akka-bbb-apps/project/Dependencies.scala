@@ -7,7 +7,7 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.13.4"
+    val scala = "2.13.9"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.8"
@@ -26,7 +26,7 @@ object Dependencies {
     val codec = "1.15"
 
     // BigBlueButton
-    val bbbCommons = "0.0.21-SNAPSHOT"
+    val bbbCommons = "0.0.22-SNAPSHOT"
 
     // Test
     val scalaTest = "3.2.11"

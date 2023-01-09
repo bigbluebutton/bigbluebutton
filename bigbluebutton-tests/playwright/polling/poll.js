@@ -6,6 +6,7 @@ const utilPresentation = require('../presentation/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
+const { sleep } = require('../core/helpers');
 
 class Polling extends MultiUsers {
   constructor(browser, context) {
@@ -206,7 +207,7 @@ class Polling extends MultiUsers {
   async smartSlidesQuestions() {
     await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.presentationTitle);
-    
+
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.hasElement(e.responsePollQuestion);
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
@@ -221,11 +222,11 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
 
     await this.modPage.hasText(e.answer1, '1');
-    
+
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.userPage.waitAndClick(e.pollAnswerDescTest1);
 
     await this.modPage.hasText(e.answer1, '1');
     await this.modPage.hasElementDisabled(e.nextSlide);
