@@ -66,14 +66,14 @@ html {
 
 @font-face {
     font-family: 'Open Sans';
-    src: url('/static/fonts/OpenSans-Semibold.ttf');
+    src: url('/static/fonts/OpenSans-SemiBold.ttf');
     font-weight: bolder;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'Open Sans';
-    src: url('/static/fonts/OpenSans-SemiboldItalic.ttf');
+    src: url('/static/fonts/OpenSans-SemiBoldItalic.ttf');
     font-weight: bolder;
     font-style: italic;
 }
