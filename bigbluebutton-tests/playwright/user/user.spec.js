@@ -227,10 +227,10 @@ test.describe.parallel('User', () => {
       await multiusers.muteAllUsersExceptPresenter();
     });
 
-    test.only('Write closed captions', async ({ browser, context, page }) => {
+    test('Write closed captions', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, false);
-      await multiusers.initModPage2(false);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
       await multiusers.writeClosedCaptions();
     });
   });
