@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, CaptureSharedNotesReqInternalMsg }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.presentationpod.PresentationSender
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
@@ -37,6 +38,13 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val event = StoreExportJobInRedisSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildNewPresAnnFileAvailable(fileURI: String, presId: String): NewPresAnnFileAvailableMsg = {
+    val header = BbbClientMsgHeader(NewPresAnnFileAvailableMsg.NAME, "not-used", "not-used")
+    val body = NewPresAnnFileAvailableMsgBody(fileURI, presId)
+
+    NewPresAnnFileAvailableMsg(header, body)
   }
 
   def buildBroadcastNewPresAnnFileAvailable(newPresAnnFileAvailableMsg: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
@@ -116,7 +124,6 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     } else if (currentPres.isEmpty) {
       log.error(s"Presentation ${presId} not found in meeting ${meetingId}")
     } else {
-
       val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
       val allPages: Boolean = m.body.allPages
       val pageCount = currentPres.get.pages.size
@@ -128,13 +135,28 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      // Send Export Job to Redis
-      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-      bus.outGW.send(job)
+      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
 
-      // Send Annotations to Redis
-      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      if (annotationCount > 0) {
+        // Send Export Job to Redis
+        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+        bus.outGW.send(job)
+
+        // Send Annotations to Redis
+        val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+        bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      } else {
+        // Return existing uploaded file directly
+        val filename = currentPres.get.name
+        val presFilenameExt = filename.split("\\.").last
+
+        PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
+
+        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}").mkString(File.separator, File.separator, "")
+        val event = buildNewPresAnnFileAvailable(fileURI, presId)
+
+        handle(event, liveMeeting, bus)
+      }
     }
   }
 
