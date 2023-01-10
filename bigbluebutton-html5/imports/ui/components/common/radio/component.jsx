@@ -1,18 +1,19 @@
 import React from 'react';
-import Base from './base';
+import Base from '../checkbox/base';
 import Styled from './styles';
 
-export default class Checkbox extends Base {
+export default class Radio extends Base {
   render() {
     const {
       ariaLabel, ariaDesc, ariaDescribedBy, ariaLabelledBy, checked, disabled, label,
     } = this.props;
 
-    const checkbox = (
-      <Styled.Checkbox
+    const radio = (
+      <Styled.Radio
         checked={checked}
+        checkedIcon={<Styled.RadioIconChecked iconName="check" />}
+        icon={<Styled.RadioIcon iconName="circle" />}
         disabled={disabled}
-        focusRipple={true}
         inputProps={{
           'aria-label': ariaLabel,
           'aria-describedby': ariaDescribedBy,
@@ -28,9 +29,9 @@ export default class Checkbox extends Base {
         {label ? (
           <Styled.Label
             label={label}
-            control={checkbox}
+            control={radio}
           />
-        ) : checkbox}
+        ) : radio}
         <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
       </>
     );
