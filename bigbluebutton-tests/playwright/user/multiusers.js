@@ -265,6 +265,19 @@ class MultiUsers {
 
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
+
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+    
+  }
 }
 
 exports.MultiUsers = MultiUsers;
