@@ -113,11 +113,11 @@ case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String
 case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, allPages: Boolean = true) extends InMessage
 
 /**
- * Sent by parent meeting to breakout room to import shared notes.
- * @param parentMeetingId
+ * Sent by breakout room to parent meeting to obtain padId
+ * @param breakoutId
  * @param meetingName
  */
-case class CaptureSharedNotesReqInternalMsg(parentMeetingId: String, meetingName: String) extends InMessage
+case class CaptureSharedNotesReqInternalMsg(breakoutId: String, meetingName: String) extends InMessage
 
 // DeskShare
 case class DeskShareStartedRequest(conferenceName: String, callerId: String, callerIdName: String) extends InMessage
