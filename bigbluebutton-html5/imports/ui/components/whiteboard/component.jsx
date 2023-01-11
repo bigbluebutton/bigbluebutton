@@ -1,6 +1,6 @@
 import * as React from "react";
 import _ from "lodash";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
@@ -67,6 +67,12 @@ const TldrawGlobalStyle = createGlobalStyle`
   }
 `;
 
+const EditableWBWrapper = styled.div`
+  &, & > :first-child {
+    cursor: inherit !important;
+  }
+`;
+
 export default function Whiteboard(props) {
   const {
     isPresenter,
@@ -119,6 +125,7 @@ export default function Whiteboard(props) {
   const prevFitToWidth = usePrevious(fitToWidth);
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
+  const [currentTool, setCurrentTool] = React.useState(null);
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -639,6 +646,12 @@ export default function Whiteboard(props) {
         persistShape(diff, whiteboardId);
       }
     }
+
+    if (reason && reason.includes('selected_tool')) {
+      const tool = reason.split(':')[1];
+
+      setCurrentTool(tool);
+    }
   };
 
   const onUndo = (app) => {
@@ -719,7 +732,7 @@ export default function Whiteboard(props) {
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <div onPaste={onPaste}>
+    <EditableWBWrapper onPaste={onPaste}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}
@@ -741,7 +754,7 @@ export default function Whiteboard(props) {
         onRedo={onRedo}
         onCommand={onCommand}
       />
-    </div>
+    </EditableWBWrapper>
   );
 
   const readOnlyWB = (
@@ -775,11 +788,11 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        currentTool={currentTool}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
         <TldrawGlobalStyle 
           hideContextMenu={!hasWBAccess && !isPresenter} 
-          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
         />
       </Cursors>
     </>
