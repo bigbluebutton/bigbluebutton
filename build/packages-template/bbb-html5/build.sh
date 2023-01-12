@@ -73,8 +73,8 @@ cd -
 cp -r /tmp/html5-build/bundle staging/usr/share/meteor
 
 # copy over tl;draw fonts due to a preset path
-mkdir -p staging/usr/share/meteor/bundle/programs/web.browser/app/public/files
-cp node_modules/@fontsource/*/files/*.woff[2] staging/usr/share/meteor/bundle/programs/web.browser/app/public/files/
+mkdir -p staging/usr/share/meteor/bundle/programs/web.browser/app/files
+cp node_modules/@fontsource/*/files/*.woff[2] staging/usr/share/meteor/bundle/programs/web.browser/app/files/
 
 cp systemd_start.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/systemd_start.sh
