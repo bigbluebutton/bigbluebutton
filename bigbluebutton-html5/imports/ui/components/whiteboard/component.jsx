@@ -65,6 +65,10 @@ const TldrawGlobalStyle = createGlobalStyle`
   #TD-PrimaryTools-Image {
     display: none;
   }
+
+  #slide-background-shape div {
+    pointer-events: none;
+  }
 `;
 
 export default function Whiteboard(props) {
