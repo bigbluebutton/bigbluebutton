@@ -46,7 +46,7 @@ const FeatureList: FeatureItem[] = [
             </>
         ),
         actionText: "Server management",
-        docId: "/administrator/install"
+        docId: "/administration/install"
     },
     {
         title: 'Greenlight',
@@ -80,7 +80,7 @@ const FeatureList: FeatureItem[] = [
             </>
         ),
         actionText: "Testing the product",
-        docId: "/release-testing"
+        docId: "/testing/release-testing"
     },
 ];
 

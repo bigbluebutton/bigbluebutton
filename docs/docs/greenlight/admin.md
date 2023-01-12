@@ -1,7 +1,7 @@
 ---
 id: admin
 slug: /greenlight/admin
-title: Greenlight Administration
+title: Administration
 sidebar_position: 4
 description: Greenlight Administration
 keywords:
@@ -9,7 +9,7 @@ keywords:
 - administration
 ---
 
-# Creating Accounts
+## Creating Accounts
 
 The following examples assume you have Greenlight installed in the `~/greenlight` directory.  Before running the commands, change into the `~/greenlight` directory.
 
@@ -17,7 +17,7 @@ The following examples assume you have Greenlight installed in the `~/greenlight
 cd ~/greenlight
 ```
 
-## Creating a User Account
+### Creating a User Account
 
 To create a User account with specified values, in the Greenlight directory, run the following command:
 
@@ -27,7 +27,7 @@ docker exec greenlight-v2 bundle exec rake user:create["name","email","password"
 
 Once the command has finished it will print the account’s email and password.
 
-## Creating an Administrator Account
+### Creating an Administrator Account
 
 To create an Administrator account with the default values, in the Greenlight directory, run the following command:
 
@@ -43,7 +43,7 @@ docker exec greenlight-v2 bundle exec rake user:create["name","email","password"
 
 Once the command has finished it will print the account’s email and password.
 
-## Removing Rooms from Users Who Can't Create Rooms
+### Removing Rooms from Users Who Can't Create Rooms
 
 Prior to version 2.6, rooms where created for all users, regardless of whether they were able to access that room or not.
 
@@ -63,7 +63,7 @@ docker exec greenlight-v2 bundle exec rake room:remove
 docker exec greenlight-v2 bundle exec rake room:remove["true"]
 ```
 
-## Updating the Security of Rooms
+### Updating the Security of Rooms
 
 Prior to version `2.7`, rooms were created with a unique id containing 3 sections of 3 characters (ex `exa-a1b-cd2`). Starting in `2.7`, all new rooms will now contain 4 sections of 3 characters to increase room security (ex `exa-a1b-cd2-3ef`). Since this only applies to new rooms, old rooms will still have the old 3 sections format.
 
@@ -73,11 +73,11 @@ If you want to generate new, secure, 4 section room ids for all rooms, you can r
 docker exec greenlight-v2 bundle exec rake room:four
 ```
 
-# Administrator Panel
+## Administrator Panel
 
 Greenlight has an administrator account that gives you the ability to manage users on the server.
 
-## Accessing the Administrator Panel
+### Accessing the Administrator Panel
 
 Once you are logged in as an Administrator, you will notice a new item in the Account Dropdown titled **Organization**.
 
@@ -85,7 +85,7 @@ Once you are logged in as an Administrator, you will notice a new item in the Ac
 
 ![Greenlight Administrator Panel](/img/greenlight/admin_panel.png)
 
-## Managing Users
+### Managing Users
 
 Through the Manage Users tab, Administrators are able to view and search for all user accounts that have been created. 
 
@@ -93,7 +93,7 @@ Administrators are also able to edit each account by clicking on the vertical el
 
 ![Greenlight Administrator Manage Users](/img/greenlight/admin_manage_users.png)
 
-### Tabs
+#### Tabs
 
 To switch between tabs, click on the tab that you want to switch to.
 
@@ -106,7 +106,7 @@ To switch between tabs, click on the tab that you want to switch to.
 | Banned  | Users that have been denied or banned                             |
 | Deleted | Users whose account has been deleted by an administrator          |
 
-### Search and Filter
+#### Search and Filter
 
 The search box can be used to filter based on the Name, Username, Authenticator or Creation Date of any user.
 
@@ -116,7 +116,7 @@ To filter by the Role, click on any of the Role buttons under the Role Column. T
 
 ![Greenlight Administrator Manage Users Filter](/img/greenlight/admin_manage_users_filter.png)
 
-### Deleting Accounts
+#### Deleting Accounts
 
 To delete an account, select Delete from the Account Dropdown. 
 
@@ -128,7 +128,7 @@ From the **Deleted** tab, an administrator can then either recover the user's ac
 
 **NOTE:** Permanently deleted users can resignup using the same email address of the account that was deleted. 
 
-### Banning Accounts
+#### Banning Accounts
 
 To ban an account, select Ban User from the account dropdown.
 
@@ -136,7 +136,7 @@ Once an account gets banned, the user will be moved to the **Banned** tab.
 
 This will remove the account from Greenlight and will also prevent the user from signing up using the same email to Greenlight in the future.
 
-### Merging User Accounts
+#### Merging User Accounts
 
 In the case where 2 accounts need to be merged, there is a Merge action in the Account Dropdown. When merging 2 accounts together, there is a **Account to be Merged** and a **Primary Account**.
 
@@ -148,13 +148,13 @@ To merge a user, click the Merge action in the Account Dropdown for the user tha
 
 In the above example, if Example3 had 2 rooms, "Home Room" and "Room 1", they will appear in Example4's room list as "(Merged) Home Room" and "(Merged) Room 1". Example4 is free to rename, delete or make any changes to these rooms.
 
-### Editing Accounts
+#### Editing Accounts
 
 To edit an account, select Edit for the specified user. This will open the edit user view.
 
 From the edit user view, Administrators are able to edit the name, email, roles, default language, and profile picture for the given account.
 
-### Editing Roles
+#### Editing Roles
 
 To edit the role for an account, select Edit for the specified user. This will open the edit user view.
 
@@ -166,19 +166,19 @@ From the edit user view, Administrators are able to assign and remove roles for 
 
 **NOTE:** While a user may be assigned multiple roles only the role with the highest priority will be used for determining a user's permissions
 
-### Resetting User Passwords
+#### Resetting User Passwords
 
 If the user has forgotten their password, the Administrator can send them an email that they can use to reset their password. 
 
 To reset a user's password, select Edit for the specified user. This will open the edit user view. From there, the Administrator just needs to click the `Reset user password` button and an email will be sent out to the user with the required instructions.
 
-## Server Rooms
+### Server Rooms
 
 Through the Server Rooms tab, Administrators are able to view all of the Greenlight rooms that have been created.
 
 ![Greenlight Administrator Server Rooms](/img/greenlight/admin_server_rooms.png)
 
-### Options
+#### Options
 
 As an administrator, there are a variety of options available to you with regards to interacting with a user's room. You can view all options by clicking the Room Dropdown. 
 
@@ -191,17 +191,17 @@ As an administrator, there are a variety of options available to you with regard
 
 ![Greenlight Administrator Server Rooms Options](/img/greenlight/admin_server_rooms_options.png)
 
-### Search
+#### Search
 
 The search box can be used to filter based on the **Name**, **Owner**, or **Id** of any room.
 
-### Sort
+#### Sort
 
 It is possible to sort rooms by metrics such as **Name**, **Owner**, or **Id**.
 
 This can be done by clicking on the headers of the table (cycles through ascending, descending, and no particular order):
 
-## Server Recordings
+### Server Recordings
 
 Through the Server Recordings tab, Administrators are able to view all of the recordings that exist on their BigBlueButton server.
 
@@ -209,13 +209,13 @@ Through the Server Recordings tab, Administrators are able to view all of the re
 
 ![Greenlight Administrator Server Recs](/img/greenlight/admin_server_recordings.png)
 
-### Search
+#### Search
 
 The search box can be used to filter based on the **Name**, **Length**, **Users**, **Recording Owner**, **Visibility** or **Format** of any user.
 
 ![Greenlight Administrator Server Recs Search](/img/greenlight/admin_server_recording_search.png)
 
-### Sort
+#### Sort
 
 By default, rooms that are running will be displayed at the top of the list first. If no rooms are running, the rooms will be sorted by creation date. 
 
@@ -225,31 +225,31 @@ This can be done by clicking on the headers of the table (cycles through ascendi
 
 ![Greenlight Administrator Server Recs Sort](/img/greenlight/admin_server_recording_sort.png)
 
-## Site Settings
+### Site Settings
 
 Administrators are able to customize Greenlight through the Site Settings Tab.
 
 ![Greenlight Administrator Site Settings](/img/greenlight/admin_site_settings.png)
 
-### Change the Branding Image
+#### Change the Branding Image
 
 To change Greenlight’s Branding Image which is displayed in the top left corner, replace the default image with a URL of your image and click Change Image.
 
 ![Greenlight Administrator Branding Image](/img/greenlight/admin_branding_image.png)
 
-### Change the Legal Url
+#### Change the Legal Url
 
 To change Greenlight’s Legal Url which is displayed in the footer, add the desired URL to the field and click Change Url. Setting it to blank will remove the link from the footer.
 
 ![Greenlight Administrator Legal Url](/img/greenlight/admin_legal_url.png)
 
-### Change the Privacy Policy Url
+#### Change the Privacy Policy Url
 
 To change Greenlight’s Privacy Policy Url which is displayed in the footer, add the desired URL to the field and click Change Url. Setting it to blank will remove the link from the footer.
 
 ![Greenlight Administrator Policy Url](/img/greenlight/admin_priv_url.png)
 
-### Change the Primary Colour
+#### Change the Primary Colour
 
 To change Greenlight’s Primary Colour open the colour palette and select a new Primary Colour.
 
@@ -261,7 +261,7 @@ The Primary Colour is the colour that Greenlight uses as a basis for the styling
 
 ![Greenlight Administrator Primary Colour](/img/greenlight/admin_primary_colour.png)
 
-### Registration Methods
+#### Registration Methods
 
 Through the Site Settings, you can configure the Registration Method for Greenlight. 
 
@@ -307,13 +307,13 @@ If a user sign up is declined, they will be set to the Banned state. A banned us
 
 ![Greenlight Administrator Declined](/img/greenlight/admin_decline.png)
 
-### Require Authentication to Join
+#### Require Authentication to Join
 
 By default, users that are not signed in can join any Room that has been started by the Room Owner if they are given the invitation link. This can be disabled, meaning that only users that are signed in will be allowed to join a Room. 
 
 ![Greenlight Administrator Room Authentication](/img/greenlight/admin_room_auth.png)
 
-### Allow Users to Share Rooms
+#### Allow Users to Share Rooms
 
 By default, all users that are able to create rooms are able to share rooms. Shared rooms can be entirely disabled by setting this setting to **Disabled**.
 
@@ -321,13 +321,13 @@ In the Shared Access modal, users can share the room with another user by search
 
 ![Greenlight Administrator Share Access](/img/greenlight/admin_share_access.png)
 
-### Allow Users to Preupload Presentations
+#### Allow Users to Preupload Presentations
 
 By default, users will not be able to preupload presentations to their rooms. Administrators can enable or disable this feature based on their use cases. 
 
 ![Greenlight Administrator Preupload](/img/greenlight/admin_preupload.png)
 
-### Recording Default Visibility
+#### Recording Default Visibility
 
 Sets the default visibility of room recordings. 
 
@@ -336,7 +336,7 @@ Sets the default visibility of room recordings.
 
 ![Greenlight Administrator Default Recording](/img/greenlight/admin_recording_vis.png)
 
-### Require Room Owner and Joiner Consent to Recording
+#### Require Room Owner and Joiner Consent to Recording
 
 By default, some information in all rooms is stored on the BigBlueButton server. In some cases (such as places where GDPR is present), users must consent to this before the BigBlueButton server can store information. If this applies to your deployment, set this to `Enabled`. Once set to enabled, it will also unlock a new `Room Configuration` option which will allow you to set how you would like the new `Allow room to be recorded` room setting to behave (Always Enabled, Optional, Disabled)
 
@@ -346,7 +346,7 @@ If enabled, upon joining a room, users must click the checkbox before being allo
 
 ![Greenlight Room Join Consent](/img/greenlight/room_join_consent.png)
 
-### Number of Rooms per User
+#### Number of Rooms per User
 
 By default, users are allowed to create and manage as many rooms as they like. Using this setting, an Administrator can limit the number of rooms that the user can create. If the user is already above the limit and the setting is changed, the user will not be able to start any sessions for the rooms that are above the limit.
 
@@ -354,7 +354,7 @@ To allow the users to create as many rooms as they would like, select the option
 
 ![Greenlight Administrator Room Limit](/img/greenlight/admin_room_limit.png)
 
-## Room Configuration
+### Room Configuration
 
 Through the Room Configuration tab Administrators are able to edit room settings for their site. For currently enabled room settings, users are allowed to edit room settings as they like (defaulted to **Optional**). However, if a room feature was removed through the `.env` file, it is defaulted to **Disabled**.
 
@@ -368,7 +368,7 @@ For each room setting, there are 3 options.
 
 ![Greenlight Administrator Room Configuration](/img/admin_room_configuration.png)
 
-## User Roles
+### User Roles
 
 Through the Roles tab Administrators are able to edit the roles for their site.
 
@@ -376,7 +376,7 @@ Through the Roles tab Administrators are able to edit the roles for their site.
 
 A role's position in the roles list denotes its priority. The higher up on the list the higher the priority of the role.
 
-### Creating a New Role
+#### Creating a New Role
 
 To create a new role click on the Create a new role button. This will open the create role pop-up where Administrators can specify the new role's name.
 
@@ -384,7 +384,7 @@ To create a new role click on the Create a new role button. This will open the c
 
 The new role will automatically be created with the second lowest priority only higher than the user role.
 
-### Changing a Role's Priority
+#### Changing a Role's Priority
 
 To change an existing role's priority drag the role to the position you desire in the list of roles.
 
@@ -392,7 +392,7 @@ To change an existing role's priority drag the role to the position you desire i
 
 **Note:** The Admin role must always be the highest priority role and the user role must always be the lowest priority role.
 
-### Editing an Existing Role
+#### Editing an Existing Role
 
 To edit the permissions for a role select the role from the list of roles.
 
@@ -415,13 +415,13 @@ Administrators are also able to update the permissions for the role. The followi
 
 **Note:** Administrators are unable to change the name for the user role or any of the permissions associated with the Admin role. Administrators are also only able to edit the permissions for roles with a lower priority than their own role.
 
-### Deleting a Role
+#### Deleting a Role
 
 To delete a role click the "Delete the role button". For the role to be successfully deleted no users may be assigned to the role. The admin and user roles also can't be deleted.
 
 See also
 
-* [Overview](/greenlight/gl-overview.html)
-* [Install](/greenlight/gl-install.html)
-* [Customize](/greenlight/gl-customize.html)
-* [Configure](/greenlight/gl-configure.html)
+* [Overview](/greenlight/overview)
+* [Install](/greenlight/install)
+* [Customize](/greenlight/customize)
+* [Configure](/greenlight/config)

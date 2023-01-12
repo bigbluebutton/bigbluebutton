@@ -1,8 +1,8 @@
 ---
 id: localization
 slug: /development/localization
-title: BigBlueButton Localization
-sidebar_position: 5
+title: Localization
+sidebar_position: 6
 description: BigBlueButton Localization
 keywords:
 - i18n
@@ -11,7 +11,7 @@ keywords:
 - transifex
 ---
 
-# Localizing BigBlueButton
+## Localizing BigBlueButton
 
 Thanks to help from our community, BigBlueButton is localized in over fifty languages.
 
@@ -29,11 +29,11 @@ You'll see a list of languages ready for translation.
 
    If you don't find your language, please request to have it added using the Transifex menu.
 
-### Note: We pull the latest translations before every release and include them in the packages distributed with the release.
+#### Note: We pull the latest translations before every release and include them in the packages distributed with the release.
 
-## Administration
+### Administration
 
-### Administrators can pull specific languages their Transifex account is associated with
+#### Administrators can pull specific languages their Transifex account is associated with
 
 In BigBlueButton 2.2, 2.3, 2.4, 2.5 the script used for pulling the locales is located in the `bigbluebutton-html5` directory
 

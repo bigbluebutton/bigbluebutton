@@ -1,7 +1,7 @@
 ---
 id: config
 slug: /greenlight/config
-title: Greenlight Configuration
+title: Configuration
 sidebar_position: 3
 description: Greenlight Configuration
 keywords:
@@ -9,13 +9,13 @@ keywords:
 - configuration
 ---
 
-# Configuring Greenlight 2.0
+## Configuring Greenlight 2.0
 
 Greenlight is a highly configurable application. The various configuration options can be found below. When making a changes to the `.env` file, in order for them to take effect you must restart you Greenlight container. For information on how to do this, see [Applying `.env` Changes](#applying-env-changes).
 
-## Using a Different Relative Root
+### Using a Different Relative Root
 
-By default Greenlight is deployed to the `/b` sub directory. If you are running Greenlight on a BigBlueButton server you must deploy Greenlight to a sub directory to avoid conflicts.
+By default Greenlight is deployed to the `/b` subdirectory. If you are running Greenlight on a BigBlueButton server you must deploy Greenlight to a sub directory to avoid conflicts.
 
 If you with to use a relative root other than `/b`, you can do the following:
 
@@ -25,21 +25,21 @@ If you with to use a relative root other than `/b`, you can do the following:
 
 If you are **not** deploying Greenlight on a BigBlueButton server and want the application to run at root, simply set the `RELATIVE_ROOT_URL` to be blank.
 
-## Setting a Custom Branding Image
+### Setting a Custom Branding Image
 
-You can now setup branding for Greenlight through its [Administrator Interface](gl-admin.html#site-branding).
+You can now setup branding for Greenlight through its [Administrator Interface](/greenlight/admin#site-branding).
 
-## User Authentication
+### User Authentication
 
 Greenlight supports four types of user authentication. You can configure any number of these, and Greenlight will dynamically adjust to which ones are configured.
 
-### In Application (Greenlight)
+#### In Application (Greenlight)
 
 Greenlight has the ability to create accounts on its own. Users can sign up with their name, email and password and use Greenlight's full functionality.
 
 By default, the ability for anyone to create a Greenlight account is enabled. To disable this, set the `ALLOW_GREENLIGHT_ACCOUNTS` option in your `.env` file to false. This will **not** delete existing Greenlight accounts, but will prevent new ones from being created.
 
-### Google OAuth2
+#### Google OAuth2
 
 You can use your own Google account, but since Greenlight will use this account for sending out emails, you may want to create a Google account related to the hostname of your BigBlueButton server.  For example, if your BigBlueButton server is called `example.myserver.com`, you may want to create a Google account called `greenlight_notifications_myserver`.
 
@@ -86,7 +86,7 @@ The `GOOGLE_OAUTH2_HD` environment variable is optional and can be used to restr
 GOOGLE_OAUTH2_HD=example.com
 ```
 
-### Office365 OAuth2
+#### Office365 OAuth2
 
 You will need an Office365 account to create an OAuth 2 key and secret. This will allow Greenlight users to authenticate with their own Office365 accounts.
 
@@ -113,7 +113,7 @@ From here take the following steps:
 3. Copy the value of your password into the `OFFICE365_SECRET` environment variable in your `.env` file
 
 
-### LDAP Auth
+#### LDAP Auth
 
 Greenlight is able to authenticate users using an external LDAP server. To connect Greenlight to an LDAP server, you will have to provide values for the environment variables under the 'LDAP Login Provider' section in the `.env` file. You need to provide all of the values for LDAP authentication to work correctly.
 
@@ -139,14 +139,14 @@ Greenlight is able to authenticate users using an external LDAP server. To conne
 
 > `LDAP_ATTRIBUTE_MAPPING` allows you to specify which attributes in your LDAP server match which attributes in Greenlight (Optional - See below)
 
-#### LDAP_AUTH
+##### LDAP_AUTH
 
 When setting the authentication method, there are currently 3 options:
 - `"simple"`: Uses the account set in `LDAP_BIND_DN` to look up users
 - `"user"`: Uses the user's own credentials to search for his data, enabling authenticated login to LDAP without the need for a user with global read privileges.
 - `"anonymous"`: Enables an anonymous bind to the LDAP with no password being used.
 
-#### LDAP_ROLE_FIELD
+##### LDAP_ROLE_FIELD
 
 Greenlight can automatically assign a matching role to a user based on their role in the LDAP Server. To do that:
 - Create a role in Greenlight with the **exact** same name as the LDAP role
@@ -157,7 +157,7 @@ Greenlight can automatically assign a matching role to a user based on their rol
 
 Once you have signed in with that user, they will automatically be given the Greenlight role that matches their LDAP role.
 
-#### LDAP_ATTRIBUTE_MAPPING
+##### LDAP_ATTRIBUTE_MAPPING
 
 When a LDAP user signs into Greenlight, the LDAP gem looks up the LDAP user and stores some information that is passed back to Greenlight.
 
@@ -180,7 +180,7 @@ For example, if you would like to match the Greenlight users name to `displayNam
 
 `LDAP_ATTRIBUTE_MAPPING=name=displayName;nickname=cn;`
 
-#### Example Setup
+##### Example Setup
 
 Here are some example settings using an [OpenLDAP](https://www.openldap.org/) server.
 
@@ -205,20 +205,20 @@ If you are using an ActiveDirectory LDAP server, you must determine the name of 
 
 LDAP authentication takes precedence over all other providers. This means that if you have other providers configured with LDAP, clicking the login button will take you to the LDAP sign in page as opposed to presenting the general login modal.
 
-### Twitter OAuth2
+#### Twitter OAuth2
 
 Twitter Authentication is deprecated and will be phased out in a future release.
 
 
-## Setting up File Storage
+### Setting up File Storage
 
 In order to use Preupload Presentation, you must first make some choices regarding your deployments. If you are upgrading from a version earlier than `2.7`, there are some extra changes needed in order to get it up and running. If you first installed Greenlight at version `2.7` or later, you can skip directly to [Choosing Storage Location](#choosing-storage-location).
 
-### Updating From Version Prior to 2.7
+#### Updating From Version Prior to 2.7
 
 If you are updating from a version prior to `2.7` you **must** make the following changes inorder for Preupload Presentation to work.
 
-#### Update docker-compose.yml
+##### Update docker-compose.yml
 
 Using your preferred text editor (examples below will use `nano`), edit the following file:
 ```bash
@@ -252,7 +252,7 @@ services:
       - ./storage:/usr/src/app/storage
 ```
 
-#### Update NGINX
+##### Update NGINX
 
 By default, only files that are < 1 MB are allowed to uploaded due to some NGINX rules. To get around that, you must add a specific rule to large files
 
@@ -262,7 +262,7 @@ nano /etc/bigbluebutton/nginx/greenlight.nginx
 ```
 At the very bottom, add the following lines (again making sure to keep consistent spacing):
 ```
-# Allow larger body size for uploading presentations
+## Allow larger body size for uploading presentations
 location ~ /preupload_presentation$ {
   client_max_body_size 30m;
 
@@ -298,7 +298,7 @@ location /b/cable {
   send_timeout        6h;
 }
 
-# Allow larger body size for uploading presentations
+## Allow larger body size for uploading presentations
 location ~ /preupload_presentation$ {
   client_max_body_size 30m;
 
@@ -353,7 +353,7 @@ location /b/cable {
   send_timeout        6h;
 }
 
-# Allow larger body size for uploading presentations
+## Allow larger body size for uploading presentations
 location ~ /preupload_presentation$ {
   client_max_body_size 30m;
 
@@ -374,17 +374,17 @@ Finally, reload NGINX
 sudo systemctl restart nginx
 ```
 
-### Choosing Storage Location
+#### Choosing Storage Location
 
 When using Preupload Presentation, Greenlight needs a location to store the presentations uploaded by the room owners. At the moment, there are 3 places that you can choose from:
 1. Local (Default)
 2. Amazon S3
 3. Google Cloud Services Cloud Storage
 
-#### Local
+##### Local
 By default, local storage is set up to work automatically and will store all files in `~/greenlight/storage`
 
-#### Amazon S3
+##### Amazon S3
 In order to store files in S3, you must set the following values in your `.env` file. A good guide to follow can be found [here](https://supsystic.com/documentation/id-secret-access-key-amazon-s3/).
 
 > `AWS_ACCESS_KEY_ID` is your AWS Account Access Key (see the guide above)
@@ -395,7 +395,7 @@ In order to store files in S3, you must set the following values in your `.env` 
 
 > `AWS_BUCKET` is the name of the S3 bucket
 
-#### Google Cloud Services Cloud Storage
+##### Google Cloud Services Cloud Storage
 In order to store files in Cloud Storage, you must set the following values in your `.env` file.
 
 > `GCS_PROJECT_ID` is the id of the project in which your storage is currently in
@@ -414,7 +414,7 @@ In order to store files in Cloud Storage, you must set the following values in y
 
 > `GCS_BUCKET` is the name of the bucket
 
-## Use PostgreSQL instead of SQLite
+### Use PostgreSQL instead of SQLite
 
 Greenlight can be set to use either a local in-memory SQLite database or a production-ready PostgreSQL database.
 
@@ -422,7 +422,7 @@ For any new installs, Greenlight is configured to use PostgreSQL by default.
 
 If you installed Greenlight before v2.5 was released, your deployment is configured to use SQLite by default. If you are using SQLite, we highly recommend that you make the change to PostgreSQL.
 
-### Converting SQLite database to PostgreSQL without losing data
+#### Converting SQLite database to PostgreSQL without losing data
 
 It is possible to convert an existing SQLite database to PostgreSQL without losing any of your data.
 
@@ -452,7 +452,7 @@ There are 3 lines that need to be changed. When making the changes, make sure th
 
 - The first change is removing the `#` before
 ```yaml
-#      - ./db/production:/usr/src/app/db/production
+##      - ./db/production:/usr/src/app/db/production
 ```
 
 - The second change is replacing
@@ -539,7 +539,7 @@ Now, [restart Greenlight](#applying-env-changes) and you should be good to go.
 
 You can verify that everything went smoothly if you are able to sign into the accounts you had made before starting this process.
 
-### Errors after migration
+#### Errors after migration
 
 If you encounter any errors after the migration, you can very easily switch back to your previous setup by removing the `.env` variables that were added during this switch.
 
@@ -553,24 +553,24 @@ DB_USERNAME=postgres
 DB_PASSWORD=RANDOM_PASSWORD_REPLACE_ME
 ```
 
-## Upgrading PostgreSQL versions
+### Upgrading PostgreSQL versions
 Before you begin, please note that this process may take some time for large databases. We recommend you schedule maintenance windows and avoid attempting to do this upgrade quickly.
 
-### Create a dump of your database
+#### Create a dump of your database
 ```
 cd ~/greenlight
 docker exec greenlight_db_1 /usr/bin/pg_dumpall -U postgres -f /var/lib/postgresql/data/dump.sql
 docker-compose down
 ```
 
-### Create a backup of your database
+#### Create a backup of your database
 ```
 sudo cp -a db db.bak
 sudo mv db/production/dump.sql .
 sudo rm -r db/
 ```
 
-### Switch PostgreSQL versions
+#### Switch PostgreSQL versions
 Edit your `docker-compose.yml` file
 ```
 nano docker-compose.yml
@@ -585,7 +585,7 @@ With:
 image: postgres:13-alpine
 ```
 
-### Import database dump into new database
+#### Import database dump into new database
 Start Greenlight
 ```
 docker-compose up -d
@@ -605,7 +605,7 @@ sudo rm db/production/dump.sql
 
 Sign in and confirm that all users, rooms and other settings are present and correct.
 
-### Errors
+#### Errors
 
 If you run into any issues, you can always replace your new database with the previous information. To do so, take down Greenlight and edit your `docker-compose.yml` file
 ```
@@ -630,7 +630,7 @@ sudo cp -a db.bak db
 
 Start Greenlight and confirm that all users, rooms and other settings are present and correct.
 
-## Improving Greenlight's Performance Under Load
+### Improving Greenlight's Performance Under Load
 
 Under heavy load, a single Greenlight server with stock settings might have trouble keeping up with the incoming requests. To improve Greenlight's performance, you can increase the number of workers used by the underlying PUMA server. When increasing the number of workers, it's important to note that the more workers you have, the more memory + CPU usage by Greenlight.
 
@@ -638,7 +638,7 @@ To set the number of workers, add `WEB_CONCURRENCY=1` to your `.env` file.
 
 It is recommended to slowly increment the variable by 1, and then monitoring your server to ensure there is enough memory + CPU to continue. Unless on a **very** strong server, it is recommended to keep the variable <= 3.
 
-## Adding Terms and Conditions
+### Adding Terms and Conditions
 
 Greenlight allows you to add terms and conditions to the application. By adding a `terms.md` file to `app/config/` you will enable terms and conditions. This will display a terms and conditions page whenever a user signs up (or logs on without accepting yet). They are required to accept before they can continue to use Greenlight.
 
@@ -648,17 +648,17 @@ To add terms and conditions to your docker container, create a `terms.md` file i
 
 `- ./terms.md:/usr/src/app/config/terms.md`
 
-# Applying `.env` Changes
+## Applying `.env` Changes
 
 After you edit the `.env` file, you are required to restart Greenlight in order for it to pick up the changes.   Ensure you are in the Greenlight directory when restarting Greenlight. To do this, enter the following commands:
 
-## If you installed using the "Install" Instructions
+### If you installed using the "Install" Instructions
 ```bash
 docker-compose down
 docker-compose up -d
 ```
 
-## If you installed using the "Customize" Instructions
+### If you installed using the "Customize" Instructions
 ```bash
 docker-compose down
 ./scripts/image_build.sh <image name> release-v2
@@ -666,7 +666,7 @@ docker-compose up -d
 ```
 
 See also
-  * [Overview](/greenlight/gl-overview.html)
-  * [Install](/greenlight/gl-install.html)
-  * [Admin Guide](/greenlight/gl-admin.html)
-  * [Customize](/greenlight/gl-customize.html)
+  * [Overview](/greenlight/overview)
+  * [Install](/greenlight/install)
+  * [Admin Guide](/greenlight/admin)
+  * [Customize](/greenlight/customize)

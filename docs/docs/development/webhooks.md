@@ -1,8 +1,8 @@
 ---
 id: webhooks
 slug: /development/webhooks
-title: BigBlueButton Webhooks
-sidebar_position: 6
+title: Webhooks
+sidebar_position: 7
 description: BigBlueButton Webhooks
 keywords:
 - webhooks
@@ -31,7 +31,7 @@ Registering hooks: API calls
 
 This application adds three new API calls to BigBlueButton's API.
 
-### Hooks/Create
+## Hooks/Create
 
 Creates a new hook. This call is idempotent: you can call it multiple times with the same parameters
 without side effects (just like the `create` call for meetings).
@@ -88,7 +88,7 @@ Hooks are permanently stored on redis and will enabled until the hook is explici
 </response>
 ```
 
-### Hooks/Destroy
+## Hooks/Destroy
 
 Remove a previously created hook. A `hookID` must be passed in the parameters to identify
 the hook to be removed.
@@ -140,7 +140,7 @@ the hook to be removed.
 </response>
 ```
 
-### Hooks/List
+## Hooks/List
 
 Returns the hooks registered. If a `meetingID` is informed, will return the hooks created
 specifically for this meeting plus all the global hooks (since they also receive events for
@@ -229,7 +229,7 @@ request. If the registered URL is `http://my-server.com/callback`, it will recei
 checksum as in `http://my-server.com/callback?checksum=yalsdk18129e019iklasd90i`.
 
 The way the checksum is created is similar to how the checksums are calculated for
-the other BigBlueButton's API calls (take a look at [`setConfigXML`](/dev/api.html#setconfigxml)).
+the other BigBlueButton's API calls (take a look at [`setConfigXML`](/development/api#setconfigxml)).
 
 ```
 sha1(<callback URL>+<data body>+<shared secret>)

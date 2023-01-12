@@ -13,7 +13,7 @@ Starting with BigBlueButton 2.2.1 we publish our Release Notes in [GitHub's BigB
 
 ## Release 2.2
 
-Released: November 6, 2019 ([Installation Instructions](/2.2/install.html))
+Released: November 6, 2019 ([Installation Instructions](/administration/install))
 
 We made it!
 
@@ -23,7 +23,7 @@ Enjoy!
 
 ## Release 2.2-beta
 
-Released: March 19, 2019 ([Installation Instructions](/2.2/install.html))
+Released: March 19, 2019 ([Installation Instructions](/administration/install))
 
 This release completes the development of the new HTML5 client.  BigBlueButton 2.2 supports real-time sharing of audio/video/screen using the browser's (recommend FireFox and Chrome) built-in web real-time communication (WebRTC) libraries.
 
@@ -37,11 +37,11 @@ Major features in this release include:
 
 * **Increased engagement** - The presenter can now share YouTube videos live in the session.
 
-This release is under active development: see [BigBlueButton 2.2 Project Board](https://github.com/bigbluebutton/bigbluebutton/projects/2).  For more details see [video overview](https://bigbluebutton.org/html5https://bigbluebutton.org/html5) and [installation](/2.2/install.html).
+This release is under active development: see [BigBlueButton 2.2 Project Board](https://github.com/bigbluebutton/bigbluebutton/projects/administration/install).
 
 ## Release 2.0
 
-Released: March 28, 2019 ([Installation Instructions](install/install.html))
+Released: March 28, 2019 ([Installation Instructions](/administration/install))
 
 Major features in this release include:
 
@@ -53,11 +53,11 @@ Major features in this release include:
 
 * **HTML5 mobile client** - Users on Android and iOS 11+ devices can participate in online sessions.  The HTML5 client enables two-way sharing of audio, chat, viewing presentation, responding to polls, sharing emoji, and viewing WebRTC screen sharing.
 
-There were a lot of smaller updates to improve existing features and fix issues.  See [detailed list of new features](/insall/overview.html) and [issues fixed in BigBlueButton 2.0](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=milestone%3A%22Release+2.0%22+is%3Aclosed+).
+There were a lot of smaller updates to improve existing features and fix issues.  See [detailed list of new features and issues fixed in BigBlueButton 2.0](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=milestone%3A%22Release+2.0%22+is%3Aclosed+).
 
 ## Release 1.1
 
-Released: May 24, 2017 ([Installation Instructions](/install/install.html))
+Released: May 24, 2017 ([Installation Instructions](/administration/install))
 
 Major features in this release include:
 
@@ -67,15 +67,15 @@ Major features in this release include:
 
 * **Faster Screen Sharing** - Screen sharing now is faster, works across all browsers (using a Java application that launches outside the browser), and captures the cursor (see [video](https://www.youtube.com/watch?v=xTFuEvmEqB0)).
 
-* **Greenlight** - Administrators can install a new front-end, called Greenlight, that makes it easy for users to quickly creating meetings, invite others, and manage recordings on a BigBlueButton server.  Using Docker, administrators can [install](/install/greenlight-v2.html) on the BigBlueButton server itself (no need for a separate server).  Greenlight is written in Rails 5 and can be easily customized by any rails developer (see [source on GitHub](https://github.com/bigbluebutton/greenlight)).
+* **Greenlight** - Administrators can install a new front-end, called Greenlight, that makes it easy for users to quickly creating meetings, invite others, and manage recordings on a BigBlueButton server.  Using Docker, administrators can [install](/greenlight/overview) on the BigBlueButton server itself (no need for a separate server).  Greenlight is written in Rails 5 and can be easily customized by any rails developer (see [source on GitHub](https://github.com/bigbluebutton/greenlight)).
 
 * **Ubuntu 16.04 packages** - This release installs on Ubuntu 16.04 64-bit (the most recent long-term support release from Canonical) and uses `systemd` for new start/stop scripts for individual components.
 
-For more information on this release see [detailed list of new features](/overview/overview.html) and [issues fixed in BigBlueButton 1.1](https://github.com/bigbluebutton/bigbluebutton/issues?q=milestone%3A%22Release+1.1.0%22+is%3Aclosed).
+For more information on this release see [detailed list of new features and issues fixed in BigBlueButton 1.1](https://github.com/bigbluebutton/bigbluebutton/issues?q=milestone%3A%22Release+1.1.0%22+is%3Aclosed).
 
 ## Release 1.0
 
-Released: May 15, 2016 ([Installation Instructions](/install/install.html))
+Released: May 15, 2016 ([Installation Instructions](/administration/install))
 
 This release focused on increasing the interactivity between instructors and students.
 
@@ -89,11 +89,9 @@ This release focused on increasing the interactivity between instructors and stu
 
 * **Puffin Browser support** - BigBlueButton detects [Puffin Browser](https://www.puffinbrowser.com) version 4.6 (or later) and enables the user to broadcast their microphone and/or webcam in a BigBlueButton session on a mobile device.
 
-* **Automatic Reconnect** - BigBlueButton detects when the network connection has dropped an will attempt to automatically reconnect.
+* **Automatic Reconnect** - BigBlueButton detects when the network connection has dropped and will attempt to automatically reconnect.
 
-For details of these updates and others (with screen shots) see [overview](/overview/overview.html).
-
-See [issues fixed in BigBlueButton 1.0](https://github.com/bigbluebutton/bigbluebutton/issues?q=milestone%3A%22Release+1.0.0%22+is%3Aclosed).
+For details of these updates see [issues fixed in BigBlueButton 1.0](https://github.com/bigbluebutton/bigbluebutton/issues?q=milestone%3A%22Release+1.0.0%22+is%3Aclosed).
 
 ## Release 0.9.1
 
@@ -104,7 +102,7 @@ with FireFox and Desktop Sharing.
 
 ## Release 0.9.0
 
-Released: April 30, 2015 ([Installation Instructions](/install/install.html))
+Released: April 30, 2015 ([Installation Instructions](/administration/install))
 
 This release of BigBlueButton 0.9.0 represents a significant upgrade on the ability to deliver remote students a high-quality on-line learning experience.
 
@@ -120,7 +118,7 @@ This release of BigBlueButton 0.9.0 represents a significant upgrade on the abil
 
 * **Ubuntu 14.04 64-bit** - BigBlueButton now installs on Ubuntu 14.04 64-bit.
 
-For details of the new features (with screen shots) see [0.9.0 overview](/overview/090overview.html).
+For details of the new features (with screen shots) see [0.9.0 overview](https://github.com/bigbluebutton/bigbluebutton/issues?q=milestone%3A%22Release+0.9.0%22+is%3Aclosed).
 
 ### Fixed Issues
 
@@ -168,7 +166,7 @@ Released: June 18, 2012
 
 * **Reduced latency in audio** - The BigBlueButton server sets the audio codec for Flash to speex and passes through the packets to FreeSWITCH for processing.
 
-* **Recording of a session** - BigBlueButton now record events (join, leave, who's talking, chat) and media (audio, webcam, presentations, and desktop sharing) for later playback.  After the session ends, the BigBlueButton server will run one (or more) ingest and processing scripts to convert the recorded events + media into playback formats (see [Record and Playback Specification](/dev/recording.html)).
+* **Recording of a session** - BigBlueButton now record events (join, leave, who's talking, chat) and media (audio, webcam, presentations, and desktop sharing) for later playback.  After the session ends, the BigBlueButton server will run one (or more) ingest and processing scripts to convert the recorded events + media into playback formats (see [Record and Playback Specification](/development/recording)).
 
 * **Playback of recordings in HTML 5** - The default playback format will playback synchronized slides, audio, and chat.  Playback uses  [popcorn.js](http://popcornjs.org/) for playback within an HTML5 browser.  Current supported browsers are Chrome, Firefox, and IE using the Google Chrome Frame.  Playback of desktop sharing and webcam is supported through the Matterhorn integration.
 
@@ -232,9 +230,9 @@ Released: November 9, 2010
 
 * **Client Localization** -  The user can change their locale now through a drop-down menu on-the-fly.  This also triggers a change in the locale language for automatic chat translation.
 
-* **Client Branding** - Administrators can now [skin](/dev/branding.html) the BigBlueButton using cascading style sheets.
+* **Client Branding** - Administrators can now skin the BigBlueButton using cascading style sheets.
 
-* **Client Configuration** - Administrators can configure, on a server basis, specific capabilities of the BigBlueButton client.  For example, you can change the video quality, define who can share video, and allow moderators to kick users.   See [Client Configuration](/install/client-configuration.html) for the full list of configuration parameters.
+* **Client Configuration** - Administrators can configure, on a server basis, specific capabilities of the BigBlueButton client.  For example, you can change the video quality, define who can share video, and allow moderators to kick users.   See [Client Configuration](/administration/customize) for the full list of configuration parameters.
 
 * **Mate** - The BigBlueButton client is now fully migrated to the [mate](http://mate.asfusion.com/) framework.
 
@@ -272,7 +270,7 @@ Released: July 15, 2010
 
 * **API Updates** - Removed the redundant meetingToken parameter.
 
-* **Improved Documentation** - There is a new, simpler, [Developer documentation](/dev/setup.html) has been updated to reflect the move to git.
+* **Improved Documentation** - There is a new, simpler, Developer documentation has been updated to reflect the move to git.
 
 ### Fixed Issues
 
@@ -300,7 +298,7 @@ Released: April 3, 2010
 
 * **New method for slide selection** - The presenter can now jump to a particular slide by clicking the page number button (located between the left and right arrows) and clicking on the slide from the film strip of thumbnails.
 
-* **Localization** - Thanks to members of the mailing list -- and to DJP for checking in language contributions -- there are now [sixteen localizations](/dev/localization.html) for BigBlueButton.
+* **Localization** - Thanks to members of the mailing list -- and to DJP for checking in language contributions -- there are now [sixteen localizations](/development/localization) for BigBlueButton.
 
 * **RPM packages for CentOS 5.4** - We now provide RPM for installation on CentOS 5.4 (32-bit and 64-bit) for this release.
 
@@ -322,9 +320,9 @@ Released: January 25, 2010
 
 ### New Features
 
-* **API for Third-Party Integration** - Thanks to Jeremy Thomerson, we now have a [BigBlueButton API](/dev/api.html) that makes it easy to create and join meetings, and integrate BigBlueButton with third-party applications.
+* **API for Third-Party Integration** - Thanks to Jeremy Thomerson, we now have a [BigBlueButton API](/development/api) that makes it easy to create and join meetings, and integrate BigBlueButton with third-party applications.
 
-* **Localization Support** - Another big contribution to this release is work done by Xie Yan Qing and Chen Guangtao from China, who made [localization of the BBB Client](/dev/localization.html) possible.
+* **Localization Support** - Another big contribution to this release is work done by Xie Yan Qing and Chen Guangtao from China, who made [localization of the BBB Client](/development/localization) possible.
 
 * **Support for other file formats** - Jean-Philippe Guiot, a contributor from France, submitted a patch months ago that allows uploading of different file formats for the presentation module.  Now, we've finally integrated his work into BBB, so from version 0.63 you will be able to upload not only .pdf, but also .ppt, doc, txt, and other file formats!
 

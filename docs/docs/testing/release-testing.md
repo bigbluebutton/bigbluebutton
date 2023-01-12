@@ -1626,7 +1626,7 @@ Note :
 
 ## Custom Parameters [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/customparameters/customparameters.spec.js)
 
-Client should apply custom parameters according to the descriptions from [here](https://docs.bigbluebutton.org/admin/customize.html#application-parameters).
+Client should apply custom parameters according to the descriptions from [here](/administration/customize#application-parameters).
 
 ## iFrame
 

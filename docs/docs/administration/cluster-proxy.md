@@ -1,7 +1,7 @@
 ---
 id: cluster-proxy
 slug: /administration/cluster-proxy
-title: BigBlueButton Cluster Proxy  Configuration
+title: Cluster Proxy  Configuration
 sidebar_position: 8
 description: BigBlueButton Cluster Proxy Configuration
 keywords:
@@ -9,7 +9,7 @@ keywords:
 - proxy
 ---
 
-# Motivation
+## Motivation
 
 In a traditional cluster setup, a scaler such as Scalelite is responsible for
 distributing new meetings and the joining users to one of the available
@@ -38,7 +38,7 @@ is not:
 
 **Note:** The cluster proxy setup requires BigBlueButton 2.4.0 or later!
 
-# Basic principle
+## Basic principle
 
 The following image visualizes the conceptual dependencies. Note that it is not
 a flow diagram.
@@ -57,7 +57,7 @@ While assets like images, CSS and javascript files are loaded via the cluster
 proxy, all websocket, media streams and slides up/downloads are directly
 exchanged with the BigBlueButton server which runs the meeting (5).
 
-# Configuration
+## Configuration
 
 In this example, we will be using the following host names:
 
@@ -65,7 +65,7 @@ In this example, we will be using the following host names:
 * `bbb-XX.example.com`: The BigBlueButton servers (`XX` represents the number
   of the BigBlueButton server)
 
-## Proxy Cluster Server
+### Proxy Cluster Server
 
 In this example, we will use a simple nginx based setup. For each BigBlueButton
 server, add a new location directive. For the first node, this would be:
@@ -87,7 +87,7 @@ of the reverse proxy in this setup.
 As this is the user visible host name, you may want to pick a nicer hostname,
 such as `bbb-cluster.example.com`. Make sure to adjust it in all places.
 
-## BigBlueButton Servers
+### BigBlueButton Servers
 
 For each BigBlueButton server in your cluster, repeat the following steps:
 
@@ -155,7 +155,7 @@ BigBlueButton server and the proxy.
 Add a route for the locales handler for the guest lobby. The guest lobby is served directly from the BBB node.
 
 ```
-# /etc/bigbluebutton/nginx/bbb-html5.nginx
+## /etc/bigbluebutton/nginx/bbb-html5.nginx
 location =/html5client/locale {
   return 301 /bbb-01$request_uri;
 }
@@ -172,9 +172,9 @@ Now, opening a new session should show
 `bbb-proxy.example.com/bbb-XX/html5client/` in the browser address bar and the
 browser should ask for access permission only once.
 
-# Further Considerations
+## Further Considerations
 
-## Security
+### Security
 
 If your proxy has access to internal machines, make sure that the reverse proxy
 does not give access to websites on machines other than the BigBlueButton
@@ -183,7 +183,7 @@ It might become an issue if you resort to e.g. regular expression-based
 `location` directives in order to avoid adding one `location` per BigBlueButton
 server.
 
-## Performance, Data Traffic and Role Separation
+### Performance, Data Traffic and Role Separation
 
 The BigBlueButton HTML5 is several megabytes in size. Make sure that the
 traffic between BigBlueButton servers and the cluster proxy server does not

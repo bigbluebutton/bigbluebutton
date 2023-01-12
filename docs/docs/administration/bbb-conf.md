@@ -1,22 +1,22 @@
 ---
 id: bbb-conf
 slug: /administration/bbb-conf
-title: BigBlueButton bbb-conf tool
+title: bbb-conf tool
 sidebar_position: 3
 description: BigBlueButton bbb-conf tool
 keywords:
 - bbb-conf
 ---
 
-# Introduction
+## Introduction
 
 `bbb-conf` is BigBlueButton's configuration tool.  It makes it easi for you to modify parts of BigBlueButton's configuration, manage the BigBlueButton system (start/stop/reset), and troubleshoot potential problems with your setup.
 
 As a historical note, this tool was created early in the development of BigBlueButton. The core developers wrote this tool to quickly update BigBlueButton's configuration files for setup and testing.
 
-`bbb-conf` is located in `/usr/bin/bbb-conf`.  If you are a developer, we recommend taking a look through the source code for `bbb-conf` (it's a shell script) as it will help you understand the various components of BigBlueButton and how they work together (see also [Architecture Overview](/overview/architecture.html)).
+`bbb-conf` is located in `/usr/bin/bbb-conf`.  If you are a developer, we recommend taking a look through the source code for `bbb-conf` (it's a shell script) as it will help you understand the various components of BigBlueButton and how they work together (see also [Architecture Overview](/development/architecture)).
 
-# Options
+## Options
 
 If you type `bbb-conf` with no parameters it will print out the list of available options.
 

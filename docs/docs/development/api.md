@@ -1,8 +1,8 @@
 ---
 id: api
 slug: /development/api
-title: BigBlueButton API Reference
-sidebar_position: 3
+title: API Reference
+sidebar_position: 4
 description: BigBlueButton API Reference
 keywords:
 - api
@@ -13,7 +13,7 @@ To disable automatic links, change : in the URL to &#58;
 E.g. http&#58;//yourserver.com
 -->
 
-# Overview
+## Overview
 
 This document describes the BigBlueButton application programming interface (API).
 
@@ -30,7 +30,7 @@ To make an API call to your BigBlueButton server, your application makes HTTPS r
 
 The BigBlueButton server returns an XML response to all API calls.
 
-## Updates to API in BigBlueButton
+### Updates to API in BigBlueButton
 
 Updated in 0.9.0:
 
@@ -89,7 +89,7 @@ Updated in 2.6:
 
 - **create** - **Added:** `notifyRecordingIsOn`, `uploadExternalUrl`, `uploadExternalDescription`.
 
-# API Data Types
+## API Data Types
 
 There are three types in the API.
 
@@ -107,7 +107,7 @@ Boolean
 
 : A true/false value. The value must be specified as the literal string `true` or `false` (all lowercase), other values may be misinterpreted.
 
-# API Security Model
+## API Security Model
 
 The BigBlueButton API security model enables 3rd-party applications to make API calls (if they have the shared secret), but not allow other people (end users) to make API calls.
 
@@ -128,7 +128,7 @@ Here's a sample return
 
 You should _not_ embed the shared secret within a web page and make BigBlueButton API calls within JavaScript running within a browser. The built-in debugging tools for modern browser would make this secret easily accessibile to any user. Once someone has the shared secret for your BigBlueButton server, they could create their own API calls. The shared secret should only be accessibile to the server-side components of your application (and thus not visible to end users).
 
-## Configuration
+### Configuration
 
 The shared secret is located in the `/etc/bigbluebutton/bbb-web.properties` file.
 
@@ -154,7 +154,7 @@ $ sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+
 
 There are other configuration values in bbb-web's configuration `bigbluebutton.properties` (overwritten by `/etc/bigbluebutton/bbb-web.properties` ) related to the lifecycle of a meeting. You don't need to understand all of these to start using the BigBlueButton API. For most BigBlueButton servers, you can leave the [default values](https://github.com/bigbluebutton/bigbluebutton/blob/main/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).
 
-## Usage
+### Usage
 
 The implementation of BigBlueButton's security model lies in the controller `ApiController.groovy`. For each incoming API request, the controller computes a checksum out of the combination of the entire HTTPS query string and the server's shared secret. It then matches the incoming checksum against the computed checksum. If they match, the controller accepts the incoming request.
 
@@ -186,7 +186,7 @@ Implementations of the SHA-1 functionality exist in nearly all programming langu
 - [PHP](http://php.net/manual/en/function.sha1.php)
   - simply call `sha1(string . sharedSecret)`
 
-## Error handling
+### Error handling
 
 In the case of an error, all API calls make a best-effort attempt to return a properly formatted XML that contains enough information for the caller to determine the source of the error.
 
@@ -194,9 +194,9 @@ Errors are returned with a `returncode` value of `FAILED` and a `message` and `m
 
 You can use the `messageKey` to determine the type of error and look up internationalized text within your own system if needed. For example, an invalid request may return an error message of "No conference with that meeting ID exists", but the messageKey is simple "invalidMeetingIdentifier".
 
-# API Resources
+## API Resources
 
-## Administration
+### Administration
 
 The following section describes the administration calls
 
@@ -207,7 +207,7 @@ The following section describes the administration calls
 | end                 | Ends meeting.                                                                                  |
 | insertDocument      | Insert a batch of documents via API call                                                       | 
 
-## Monitoring
+### Monitoring
 
 The following section describes the monitoring calls
 
@@ -217,7 +217,7 @@ The following section describes the monitoring calls
 | getMeetings      | Get the list of Meetings.                         |
 | getMeetingInfo   | Get the details of a Meeting.                     |
 
-## Recording
+### Recording
 
 | Resource               | Description                                                   |
 | :--------------------- | :------------------------------------------------------------ |
@@ -228,7 +228,7 @@ The following section describes the monitoring calls
 | getRecordingTextTracks | Get a list of the caption/subtitle.                           |
 | putRecordingTextTrack  | Upload a caption or subtitle file to add it to the recording. |
 
-# API Calls
+## API Calls
 
 The following response parameters are standard to every call and may be returned from any call.
 
@@ -246,7 +246,7 @@ The following response parameters are standard to every call and may be returned
 | message    | Sometimes     | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.                                                                                                                                                                                                                                                |
 | messageKey | Sometimes     | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.                                                                                                               |
 
-## create
+### create
 
 Creates a BigBlueButton meeting.
 
@@ -290,7 +290,7 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 </response>
 ```
 
-### POST request
+#### POST request
 You can also include a payload in the request, it may be usefull in cases where some of the query parameters are big enough to exceed the maximum number of characters in URLs. BigBlueButton supports a POST request where the parameters that usually would be passed in the URL, can be sent through the body, see example below:
 
 ```bash
@@ -321,7 +321,7 @@ One other think to pay attention is to not include any of the parameters in both
 </response>
 ```
 
-### Pre-upload Slides
+#### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.
 
@@ -347,13 +347,13 @@ In the case more than a single document is provided, the first one will be loade
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79). For a complete example of the pre-upload slides check the following demos: [demo7](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo7.jsp) and [demo8](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo8.jsp)
 
-### Upload slides from external application to a live BigBlueButton session
+#### Upload slides from external application to a live BigBlueButton session
 
-For external applications that integrate to BigBlueButton using the [insertDocument](/dev/api.html#insertdocument) API call, `uploadExternalUrl` and `uploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog. 
+For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `uploadExternalUrl` and `uploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog. 
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
-### End meeting callback URL
+#### End meeting callback URL
 
 You can ask the BigBlueButton server to make a callback to your application when the meeting ends. Upon receiving the callback your application could, for example, change the interface for the user to hide the 'join' button.
 
@@ -377,7 +377,7 @@ https://myapp.example.com/callback?meetingID=test01&recordingmarks=true
 
 Another param is the `meetingEndedURL` create param. This create param is a callback to indicate the meeting has ended. This is a duplicate of the endCallbackUrl meta param. We have this separate as we want this param to stay on the server and not propagated to client and recordings. Can be used by scalelite to be notified right away when meeting ends. The meta callback url can be used to inform third parties.
 
-### Recording ready callback URL
+#### Recording ready callback URL
 
 You can ask the BigBlueButton server to make a callback to your application when the recording for a meeting is ready for viewing. Upon receiving the callback your application could, for example, send the presenter an e-mail to notify them that their recording is ready.
 
@@ -413,7 +413,7 @@ The receiving endpoint should respond with one of the following HTTP codes to in
 
 All other HTTP response codes will be treated as transient errors.
 
-## join
+### join
 
 Joins a user to the meeting specified in the meetingID parameter.
 
@@ -448,7 +448,7 @@ There is a XML response for this call only when the `redirect` parameter is set 
 </response>
 ```
 
-## insertDocument
+### insertDocument
 
 This endpoint insert one or more documents into a running meeting via API call
 
@@ -496,7 +496,7 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 </modules>'
 ```
 
-## isMeetingRunning
+### isMeetingRunning
 
 This call enables you to simply check on whether or not a meeting is running by looking it up with your meeting ID.
 
@@ -523,7 +523,7 @@ http&#58;//yourserver.com/bigbluebutton/api/isMeetingRunning?meetingID=test01&ch
 
 running can be “true” or “false” that signals whether a meeting with this ID is currently running.
 
-## end
+### end
 
 Use this to forcibly end a meeting and kick all participants out of the meeting.
 
@@ -551,7 +551,7 @@ Use this to forcibly end a meeting and kick all participants out of the meeting.
 </response>
 ```
 
-### POST request 
+#### POST request 
 Just like the [create request](#post-request), you can send a POST to end the meeting, the syntax is pretty much the same, see example below:
 
 ```bash
@@ -565,7 +565,7 @@ curl --request POST \
 
 **IMPORTANT NOTE:** You should note that when you call end meeting, it is simply sending a request to the backend (Red5) server that is handling all the conference traffic. That backend server will immediately attempt to send every connected client a logout event, kicking them from the meeting. It will then disconnect them, and the meeting will be ended. However, this may take several seconds, depending on network conditions. Therefore, the end meeting call will return a success as soon as the request is sent. But to be sure that it completed, you should then check back a few seconds later by using the `getMeetingInfo` or `isMeetingRunning` calls to verify that all participants have left the meeting and that it successfully ended.
 
-## getMeetingInfo
+### getMeetingInfo
 
 This call will return all of a meeting's information, including the list of attendees as well as start and end times.
 
@@ -663,7 +663,7 @@ If a meeting is a breakout room itself, then `getMeetingInfo` will also return a
  </response>
 ```
 
-## getMeetings
+### getMeetings
 
 This call will return a list of all the meetings found on this server.
 
@@ -716,7 +716,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 </response>
 ```
 
-## getRecordings
+### getRecordings
 
 Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs).
 
@@ -828,7 +828,7 @@ Here the `getRecordings` API call returned back two recordings for the meetingID
 </response>
 ```
 
-## publishRecordings
+### publishRecordings
 
 Publish and unpublish recordings for a given recordID (or set of record IDs).
 
@@ -854,7 +854,7 @@ Publish and unpublish recordings for a given recordID (or set of record IDs).
 </response>
 ```
 
-## deleteRecordings
+### deleteRecordings
 
 Delete one or more recordings for a given recordID (or set of record IDs).
 
@@ -880,7 +880,7 @@ http&#58;//yourserver.com/bigbluebutton/api/deleteRecordings?[parameters]&checks
 </response>
 ```
 
-## updateRecordings
+### updateRecordings
 
 Update metadata for a given recordID (or set of record IDs). Available since version 1.1
 
@@ -905,7 +905,7 @@ Update metadata for a given recordID (or set of record IDs). Available since ver
 </response>
 ```
 
-## getRecordingTextTracks
+### getRecordingTextTracks
 
 Get a list of the caption/subtitle files currently available for a recording. It will include information about the captions (language, etc.), as well as a download link. This may be useful to retrieve live or automatically transcribed subtitles from a recording for manual editing.
 
@@ -983,7 +983,7 @@ missingParameter
 noRecordings
 : No recording was found matching the provided recording ID.
 
-## putRecordingTextTrack
+### putRecordingTextTrack
 
 Upload a caption or subtitle file to add it to the recording. If there is any existing track with the same values for kind and lang, it will be replaced.
 
@@ -1091,11 +1091,11 @@ Missing parameter error
 }
 ```
 
-# API Sample Code
+## API Sample Code
 
 BigBlueButton provides API Sample Codes so you can integrated easily with your application. Feel free to contribute and post your implementation of the API in other language code in the bigbluebutton-dev mailing list.
 
-## PHP
+### PHP
 
 There is stable PHP library in [BigBlueButton PHP API](https://github.com/bigbluebutton/bigbluebutton-api-php).
 
@@ -1105,11 +1105,11 @@ You need to enable the "allow_url_fopen" to "On" in your php.ini file so this ex
 
 For more examples of using PHP, see the source for the [Moodle](https://github.com/blindsidenetworks/moodle-mod_bigbluebuttonbn) and [WordPress](https://github.com/blindsidenetworks/wordpress-plugin_bigbluebutton) integrations.
 
-## Ruby
+### Ruby
 
 See the following [bigbluebutton-api-ruby](https://github.com/mconf/bigbluebutton-api-ruby) gem created by the good folks at [Mconf](http://mconf.org).
 
-## Testing API Calls with API Mate
+### Testing API Calls with API Mate
 
 To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server. 
 
@@ -1118,12 +1118,12 @@ If you're developing new API calls or adding parameters on API calls, you can st
 If your using API Mate to test recordings and want to query by `meetingID`, be sure to clear the `recordID` field first.  BigBlueButton's API supports querying for recordings by either value, but not both at the same time.
 
 
-## Support for JSON/JSONP
+ ### Support for JSON/JSONP
 
 - It would be very nice to optionally allow JSON responses, and to support JSONP. This might allow for simpler integrations, even within static or almost-static webpages using JavaScript as the primary integration language. It should not be assumed that all users will be running custom software on a server and be able to process XML responses, etc.<br/>
 - This being said, even within JavaScript there are simple ways to make the API call and process the returned XML (using jQuery and $.xml2json, for example)<br/>
 
-## Meeting event callbacks
+ ### Meeting event callbacks
 
 This may actually even be called a “reverse API” - where we define an interface that the third- party application can implement to be notified of events. This would not be necessary for the first version of the API, but would be a nice feature for future enhancements. More details:
 

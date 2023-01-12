@@ -1,7 +1,7 @@
 ---
 id: turn-server
 slug: /administration/turn-server
-title: BigBlueButton Turn Server Configuration
+title: Turn Server Configuration
 sidebar_position: 7
 description: BigBlueButton Turn Server Configuration
 keywords:
@@ -13,7 +13,7 @@ This document covers how to set up a TURN server for BigBlueButton to allow user
 
 You can also use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install#install-a-turn-server) to automate the steps in this document.
 
-# Setup a TURN server
+## Setup a TURN server
 
 BigBlueButton normally requires a wide range of UDP ports to be available for WebRTC communication. In some network restricted sites or development environments, such as those behind NAT or a firewall that restricts outgoing UDP connections, users may be unable to make outgoing UDP connections to your BigBlueButton server.
 
@@ -23,7 +23,7 @@ In addition, the TURN server implements the STUN protocol as well, used to allow
 
 Using a TURN server under your control improves the success of connections to BigBlueButton and also improves user privacy, since they will no longer be sending IP address information to a public STUN server.
 
-## Required Hardware
+### Required Hardware
 
 The TURN protocol is not CPU or memory intensive. Additionally, since it's only used during connection setup (for STUN) and as a fallback for users who would otherwise be unable to connect, the bandwidth requirements aren't particularly high. For a moderate number of BigBlueButton servers, a single small VPS is usually sufficient.
 
@@ -31,7 +31,7 @@ Having multiple IP addresses may improve the results when using STUN with certai
 
 Having the server behind NAT (for example, on Amazon EC2) is OK, but all incoming UDP and TCP connections on any port must be forwarded and not firewalled.
 
-## Required Software
+### Required Software
 
 We recommend using a minimal server installation of Ubuntu 20.04. The [coturn](https://github.com/coturn/coturn) software requires port 443 for its exclusive use in our recommended configuration, which means the server cannot have any dashboard software or other web applications running.
 
@@ -44,11 +44,11 @@ $ sudo apt-get install coturn
 
 Note: coturn will not automatically start until configuration is applied (see below).
 
-## Required DNS Entry
+### Required DNS Entry
 
 You need to set up a fully qualified domain name that resolves to the external IP address of your turn server. You'll use this domain name to generate a TLS certificate using Let's Encrypt (next section).
 
-## Required Ports
+### Required Ports
 
 On the coturn server, you need to have the following ports (in addition port 22) available for BigBlueButton clients to connect (port 3478 and 443) and for coturn to connect to your BigBlueButton server (32769 - 65535).
 
@@ -58,7 +58,7 @@ On the coturn server, you need to have the following ports (in addition port 22)
 | 443         | TCP/UDP  | TLS listening port    |
 | 32769-65535 | UDP      | relay ports range     |
 
-## Generating TLS certificates
+### Generating TLS certificates
 
 You can use `certbot` from [Let's Encrypt](https://letsencrypt.org/) to easily generate free TLS certificates. To setup `certbot` enter the following commands on your TURN server (not your BigBlueButton server).
 
@@ -100,7 +100,7 @@ Make this file executable.
 $ sudo chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/coturn
 ```
 
-## Configure coturn
+### Configure coturn
 
 `coturn` configuration is stored in the file `/etc/turnserver.conf`. There are a lot of options available, all documented in comments in the default configuration file. We include a sample configuration below with the recommended settings (refer to the default configuration file for more information on the settings)..
 
@@ -120,12 +120,12 @@ tls-listening-port=443
 listening-ip=<IP>
 relay-ip=<IP>
 
-# If the server is behind NAT, you need to specify the external IP address.
-# If there is only one external address, specify it like this:
+## If the server is behind NAT, you need to specify the external IP address.
+## If there is only one external address, specify it like this:
 #external-ip=172.17.19.120
-# If you have multiple external addresses, you have to specify which
-# internal address each corresponds to, like this. The first address is the
-# external ip, and the second address is the corresponding internal IP.
+## If you have multiple external addresses, you have to specify which
+## internal address each corresponds to, like this. The first address is the
+## external ip, and the second address is the corresponding internal IP.
 #external-ip=172.17.19.131/10.0.0.11
 #external-ip=172.17.18.132/10.0.0.12
 
@@ -141,7 +141,7 @@ realm=<example.com>
 
 cert=/etc/turnserver/fullchain.pem
 pkey=/etc/turnserver/privkey.pem
-# From https://ssl-config.mozilla.org/ Intermediate, openssl 1.1.0g, 2020-01
+## From https://ssl-config.mozilla.org/ Intermediate, openssl 1.1.0g, 2020-01
 cipher-list="ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
 dh-file=/etc/turnserver/dhp.pem
 
@@ -150,22 +150,22 @@ no-cli
 no-tlsv1
 no-tlsv1_1
 
-# Block connections to IP ranges which shouldn't be reachable
+## Block connections to IP ranges which shouldn't be reachable
 no-loopback-peers
 no-multicast-peers
-# CVE-2020-26262
-# If running coturn version older than 4.5.2, uncomment these rules and ensure
-# that you have listening-ip set to ipv4 addresses only.
+## CVE-2020-26262
+## If running coturn version older than 4.5.2, uncomment these rules and ensure
+## that you have listening-ip set to ipv4 addresses only.
 #denied-peer-ip=0.0.0.0-0.255.255.255
 #denied-peer-ip=127.0.0.0-127.255.255.255
 #denied-peer-ip=::1
-# Private (LAN) addresses
-# If you are running BigBlueButton within a LAN, you might need to add an "allow" rule for your address range.
-# IPv4 Private-Use
+## Private (LAN) addresses
+## If you are running BigBlueButton within a LAN, you might need to add an "allow" rule for your address range.
+## IPv4 Private-Use
 denied-peer-ip=10.0.0.0-10.255.255.255
 denied-peer-ip=172.16.0.0-172.31.255.255
 denied-peer-ip=192.168.0.0-192.168.255.255
-# Other IPv4 Special-Purpose addresses
+## Other IPv4 Special-Purpose addresses
 denied-peer-ip=100.64.0.0-100.127.255.255
 denied-peer-ip=169.254.0.0-169.254.255.255
 denied-peer-ip=192.0.0.0-192.0.0.255
@@ -173,11 +173,11 @@ denied-peer-ip=192.0.2.0-192.0.2.255
 denied-peer-ip=198.18.0.0-198.19.255.255
 denied-peer-ip=198.51.100.0-198.51.100.255
 denied-peer-ip=203.0.113.0-203.0.113.255
-# IPv6 Unique-Local
+## IPv6 Unique-Local
 denied-peer-ip=fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-# IPv6 Link-Local Unicast
+## IPv6 Link-Local Unicast
 denied-peer-ip=fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-# Other IPv6 Special-Purpose assignments
+## Other IPv6 Special-Purpose assignments
 denied-peer-ip=::ffff:0:0-::ffff:ffff:ffff
 denied-peer-ip=64:ff9b::-64:ff9b::ffff:ffff
 denied-peer-ip=64:ff9b:1::-64:ff9b:1:ffff:ffff:ffff:ffff:ffff
@@ -210,7 +210,7 @@ ExecStart=/usr/bin/turnserver --daemon -c /etc/turnserver.conf --pidfile /run/tu
 Restart=always
 ```
 
-## Configure Log Rotation
+### Configure Log Rotation
 
 To rotate the logs for `coturn`, install the following configuration file to `/etc/logrotate.d/coturn`
 
@@ -235,7 +235,7 @@ $ sudo mkdir -p /var/log/turnserver
 $ sudo chown turnserver:turnserver /var/log/turnserver
 ```
 
-## Restart coturn
+### Restart coturn
 
 With the above steps completed, restart the TURN server
 
@@ -247,7 +247,7 @@ $ sudo systemctl restart coturn                        # Restart
 
 Ensure that the `coturn` has binded to port 443 with `netstat -antp | grep 443`. Also restart your TURN server and ensure that `coturn` is running (and binding to port 443 after restart).
 
-# Configure BigBlueButton to use your TURN server
+## Configure BigBlueButton to use your TURN server
 
 You must configure bbb-web so that it will provide the list of turn servers to the web browser. Edit the file `/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml` using the contents below and make edits:
 
@@ -299,7 +299,7 @@ Restart your BigBlueButton server to apply the changes.
 
 Going forward, when users connect behind a restrictive firewall that prevents outgoing UDP connections, the TURN server will enable BigBlueButton to connect to FreeSWITCH and Kurento via the TURN server through port 443 on their firewall.
 
-# Test your TURN server
+## Test your TURN server
 
 By default, your browser will try to connect directly to Kurento or FreeSWITCH using WebRTC. If it is unable to make a direct connection, it will fall back to using the TURN server as one of the interconnectivity connectivity exchange (ICE) candidates to relay the media.
 

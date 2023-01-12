@@ -8,7 +8,7 @@ keywords:
 - lti
 ---
 
-# Overview
+## Overview
 
 BigBlueButton is [certified](https://site.imsglobal.org/certifications/bigbluebutton-inc/36891/bigbluebutton) by IMS Global to support IMS Learning Tools Interoperability (LTI) 1.0.
 
@@ -18,7 +18,7 @@ BigBlueButton can accept incoming LTI launch requests from a tool consumer, whic
 
 What this means is that with no custom code, any LTI compliant platform can add BigBlueButton virtual classrooms to its system. For example, the following video shows how BigBlueButton uses LTI to integrate with BlackBoard, click [BigBlueButton LTI video](https://www.youtube.com/watch?v=OSTGfvICYX4&feature=youtu.be&hd=1).
 
-## Installation of LTI module
+### Installation of LTI module
 
 You can add LTI support by installing the following package.
 
@@ -32,17 +32,17 @@ You'll see the following parameters
 
 ```properties
 bigbluebuttonURL=https://bbb.example.com/bigbluebutton
-# Salt which is used by 3rd-party apps to authenticate api calls
+## Salt which is used by 3rd-party apps to authenticate api calls
 bigbluebuttonSalt=8cd8ef52e8e101574e400365b55e11a6
 
-# LTI basic information
+## LTI basic information
 #----------------------------------------------------
-# This URL is where the LTI plugin is accessible. It can be a different server than the BigBluebutton one
-# Only the hostname or IP address is required, plus the port number in case it is other than port 80
-# e.g. localhost or localhost:port
+## This URL is where the LTI plugin is accessible. It can be a different server than the BigBluebutton one
+## Only the hostname or IP address is required, plus the port number in case it is other than port 80
+## e.g. localhost or localhost:port
 ltiEndPoint=bbb.example.com
-# The list of consumers allowed to access this lti service.
-# Format: {consumerId1:sharedSecret1}
+## The list of consumers allowed to access this lti service.
+## Format: {consumerId1:sharedSecret1}
 ltiConsumers=bbb:b00be971feb0726fa697671c9cf2e883
 ```
 
@@ -59,7 +59,7 @@ You can also user `bbb-conf --setip` and `bbb-conf --salt` to set the `bigbluebu
 
 If you make modifications to your own lti.properties, be sure to restart `bbb-lti` service to reload the lti.properties file.
 
-# Configuring BigBlueButton as an External Tool
+## Configuring BigBlueButton as an External Tool
 
 All LTI consumers have the ability to launch an external application that is LTI-compliant. BigBlueButton is [LTI 1.0 compliant](https://www.imsglobal.org/cc/detail.cfm?ID=172).
 
@@ -81,13 +81,13 @@ In the external tool configuration, we recommend privacy settings are set to **p
 
 An important note is that if your LTI consumer uses https, as the LTI tool is displayed in an iframe you will see only a blank page. In that case you can configure the link to open the tool in a different window (most LTI consumers allow it) or use https with the URL provided (https://demo.bigbluebutton.org/lti/tool).
 
-# Launching BigBlueButton as an External Tool
+## Launching BigBlueButton as an External Tool
 
 The LTI launch request passes along the user's role (which `bbb-lti` will map to the two roles in BigBlueButton: moderator or viewer.
 
 If no role information is given, or if the role is privileged (i.e. . Faculty, Mentor, Administrator, Instructor, etc.), then when `bbb-lti` receives a valid launch request, it will start a BigBlueButton session and join the user as **moderator**. In all other cases, the user will join as a **viewer**.
 
-## Custom Parameters
+### Custom Parameters
 
 The `bbb-lti` module also accepts a number of custom parameters.
 
@@ -102,7 +102,7 @@ The `bbb-lti` module also accepts a number of custom parameters.
 
 For example, if you add `record=true` to as a custom launch parameter, then then `bbb-lti` module will record your session and show you a list of previously recorded sessions.
 
-## Using bbb-lti on HTTPS
+### Using bbb-lti on HTTPS
 
 The `bbb-lti` module has the ability to work with HTTP or HTTPS out of the box, but there is a consideration that needs to be kept in mind.
 

@@ -1,7 +1,7 @@
 ---
 id: customize
 slug: /greenlight/customize
-title: Greenlight Customizing
+title: Customizing
 sidebar_position: 5
 description: Greenlight Customizing
 keywords:
@@ -9,13 +9,13 @@ keywords:
 - cutomize
 ---
 
-# Customizing Greenlight
+## Customizing Greenlight
 
 Greenlight is written in Ruby on Rails.  If you know how Ruby on Rails works, you can easily customize Greenlight to your own needs.
 
 The default install instructions will run Greenlight within docker.  To customize Greenlight, you'll want to checkout the source code and build your own docker image.
 
-## 1. Install Docker
+### 1. Install Docker
 
 The official Docker documentation is the best resource for Docker install steps. To install Docker (we recommend installing Docker CE unless you have a subscription to Docker EE), see [Install Docker on Ubuntu](https://docs.docker.com/engine/installation/linux/ubuntu/).
 
@@ -25,7 +25,7 @@ Before moving onto the next step, verify that Docker is installed by running:
 docker -v
 ```
 
-## 2. Install Greenlight
+### 2. Install Greenlight
 
 Using your GitHub account, do the following
 
@@ -91,7 +91,7 @@ Your branch is up to date with 'upstream/v2'.
 nothing to commit, working tree clean
 ```
 
-## 3. Configure Greenlight
+### 3. Configure Greenlight
 
 Greenlight will read its environment configuration from the `.env` file. To generate this file, enter `~/greenlight` directory and run:
 
@@ -101,7 +101,7 @@ cp sample.env .env
 
 If you open the `.env` file you'll see that it contains information for all of the Greenlight configuration options. Some of these are mandatory.
 
-### Generating a Secret Key
+#### Generating a Secret Key
 
 Greenlight needs a secret key in order to run in production. To generate this, run:
 
@@ -111,7 +111,7 @@ docker run --rm bigbluebutton/greenlight:v2 bundle exec rake secret
 
 Inside your `.env` file, set the `SECRET_KEY_BASE` option to the **last** line in this command. You don't need to surround it in quotations.
 
-### Setting BigBlueButton Credentials
+#### Setting BigBlueButton Credentials
 
 By default, your Greenlight instance will automatically connect to `test-install.blindsidenetworks.com` if no BigBlueButton credentials are specified. To set Greenlight to connect to your BigBlueButton server (the one it's installed on), you need to give Greenlight the endpoint and the secret. To get the credentials, run:
 
@@ -121,19 +121,19 @@ bbb-conf --secret
 
 In your `.env` file, set the `BIGBLUEBUTTON_ENDPOINT` to the URL, and set `BIGBLUEBUTTON_SECRET` to the secret.
 
-### Setting Allowed Hosts
+#### Setting Allowed Hosts
 
 For reasons related to security, you'll also need to specify the domain from which the application will be accessible from.
 
 In your `.env` file, set the `SAFE_HOSTS` to your domain. If Greenlight is accessible at `https://bbb.example.com/b` then `SAFE_HOSTS=bbb.example.com`
 
-### Configure Specific Settings
+#### Configure Specific Settings
 
 Other than the 3 configurations listed above, there are many different options for configuring Greenlight. All possible configurations are listed in the `.env` file.
 
-You can find more info on specific settings that can be configured [here](gl-config.html).
+You can find more info on specific settings that can be configured [here](/greenlight/config).
 
-### Verifying Configuration
+#### Verifying Configuration
 
 Once you have finished setting the environment variables above in your `.env` file, to verify that you configuration is valid, run:
 
@@ -143,7 +143,7 @@ docker run --rm --env-file .env bigbluebutton/greenlight:v2 bundle exec rake con
 
 If you have configured an SMTP server in your `.env` file, then all four tests must pass before you proceed. If you have not configured an SMTP server, then only the first three tests must pass before you proceed.
 
-## 4. Configure Nginx to Route To Greenlight
+### 4. Configure Nginx to Route To Greenlight
 
 Greenlight will be configured to deploy at the `/b` subdirectory. This is necessary so it doesn't conflict with the other BigBlueButton components. The Nginx configuration for this subdirectory is stored in the Greenlight image. To add this configuration file to your BigBlueButton server, run:
 
@@ -157,7 +157,7 @@ Verify that the Nginx configuration file (`/etc/bigbluebutton/nginx/greenlight.n
 systemctl restart nginx
 ```
 
-This will routes all requests to `https://<hostname>/b` to the Greenlight application. If you wish to use a different relative root, you can follow the steps outlined [here](gl-config.html#using-a-different-relative-root).
+This will routes all requests to `https://<hostname>/b` to the Greenlight application. If you wish to use a different relative root, you can follow the steps outlined [here](/greenlight/config#using-a-different-relative-root).
 
 Optionally, if you wish to have the default landing page at the root of your BigBlueButton server redirect to Greenlight, add the following entry to the bottom of `/etc/nginx/sites-available/bigbluebutton` just before the last `}` character.
 
@@ -169,13 +169,13 @@ location = / {
 
 To have this change take effect, you must once again restart Nginx.
 
-## 5. Start Greenlight 2.0
+### 5. Start Greenlight 2.0
 
 To start the Greenlight Docker container, you must install `docker-compose`, which simplifies the start and stop process for Docker containers.
 
 Install `docker-compose` by following the steps for installing on Linux in the [Docker documentation](https://docs.docker.com/compose/install/). You may be required to run all `docker-compose` commands using sudo. If you wish to change this, check out [managing docker as a non-root user](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-### Using `docker-compose`
+#### Using `docker-compose`
 
 Before you continue, verify that you have `docker-compose` installed by running:
 
@@ -227,13 +227,13 @@ To stop the application, run:
 docker-compose down
 ```
 
-### Using `docker run`
+#### Using `docker run`
 
 `docker run` is no longer the recommended way to start Greenlight. Please use `docker-compose`.
 
 If you are currently using `docker run` and want to switch to `docker-compose`, follow these [instructions](#switching-from-docker-run-to-docker-compose).
 
-## Making Code Changes
+### Making Code Changes
 
 Using the text editor/IDE of choice, you can edit any of the files in the directory. The majority of Greenlight's code lives in `~/greenlight/app`.
 
@@ -241,7 +241,7 @@ You can see an example of how to customize the Landing Page [here](#customizing-
 
 To see your changes reflected in Greenlight, you will need to [restart Greenlight](#restart-greenlight).
 
-# Restart Greenlight
+## Restart Greenlight
 
 After you edit the `.env` file or make any change to the code, you are required to rebuild the Greenlight image in order for it to pick up the changes. Ensure you are in the Greenlight directory when restarting Greenlight. To do this, enter the following commands:
 
@@ -251,7 +251,7 @@ docker-compose down
 docker-compose up -d
 ```
 
-# Updating to the Latest Version of Greenlight
+## Updating to the Latest Version of Greenlight
 
 If a new version of Greenlight has been released, you'll need to fetch the most up to date version of the remote repository.
 
@@ -267,15 +267,15 @@ git merge upstream/v2
 
 Once you've merged your code, you should look through the latest version of the `sample.env` file [here](https://github.com/bigbluebutton/greenlight/blob/v2/sample.env), and see if there are any new settings you would like to change or add to Greenlight. If you come across something you want to add, simply copy paste it to the bottom of your `.env`, then [restart Greenlight](#restart-greenlight).
 
-# Customizing the Landing Page
+## Customizing the Landing Page
 
-## Before you begin
+### Before you begin
 
 **IMPORTANT**
 
-If you installed using the `bbb-install.sh` script, then you must switch to the [Customize](gl-install.html#switching-from-install-to-customize) version of Greenlight first, before you proceed.
+If you installed using the `bbb-install.sh` script, then you must switch to the [Customize](/greenlight/install#switching-from-install-to-customize) version of Greenlight first, before you proceed.
 
-## Updating the code
+### Updating the code
 
 A common customization is to modify the default landing page. For a simple change, let's rename the welcome banner to say “Welcome to MyServer”.
 
@@ -283,18 +283,18 @@ The welcome banner is generated by [index.html.erb](https://github.com/bigbluebu
 
 ```erb
 <%
-# BigBlueButton open source conferencing system - https://www.bigbluebutton.org/.
-# Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
-# This program is free software; you can redistribute it and/or modify it under the
-# terms of the GNU Lesser General Public License as published by the Free Software
-# Foundation; either version 3.0 of the License, or (at your option) any later
-# version.
+## BigBlueButton open source conferencing system - https://www.bigbluebutton.org/.
+## Copyright (c) 2018 BigBlueButton Inc. and by respective authors (see below).
+## This program is free software; you can redistribute it and/or modify it under the
+## terms of the GNU Lesser General Public License as published by the Free Software
+## Foundation; either version 3.0 of the License, or (at your option) any later
+## version.
 #
-# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-# You should have received a copy of the GNU Lesser General Public License along
-# with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
+## BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+## WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+## PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+## You should have received a copy of the GNU Lesser General Public License along
+## with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
 %>
 
 <div class="background">
@@ -342,15 +342,15 @@ Save the change to `en.yml`, and [restart Greenlight](#restart-greenlight).  The
 
 ![Updated login](/img/greenlight/gl-welcome-to-my-server.png)
 
-# Troubleshooting Greenlight
+## Troubleshooting Greenlight
 
 Sometimes there are missteps and incompatibility issues when setting up applications.
 
-## Changes not appearing
+### Changes not appearing
 
 If you made changes to the `.env` file, you will need to [restart Greenlight](#restart-greenlight) to see the changes appear.
 
-## Checking the Logs
+### Checking the Logs
 
 The best way for determining the root cause of issues in your Greenlight application is to check the logs.
 
@@ -358,7 +358,7 @@ Docker is always running on a production environment, so the logs will be locate
 
 See also
 
-* [Overview](/greenlight/gl-overview.html)
-* [Install](/greenlight/gl-install.html)
-* [Admin Guide](/greenlight/gl-admin.html)
-* [Configure](/greenlight/gl-configure.html)
+* [Overview](/greenlight/overview)
+* [Install](/greenlight/install)
+* [Admin Guide](/greenlight/admin)
+* [Configure](/greenlight/config)

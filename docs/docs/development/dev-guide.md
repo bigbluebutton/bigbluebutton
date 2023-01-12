@@ -1,8 +1,8 @@
 ---
 id: guide
 slug: /development/guide
-title: BigBlueButton Development Guide
-sidebar_position: 1
+title: Development Guide
+sidebar_position: 2
 description: BigBlueButton Development Guide
 keywords:
 - development
@@ -13,11 +13,11 @@ Welcome to the BigBlueButton Developer's Guide for BigBlueButton 2.6.
 
 This document gives you an overview of how to set up a development environment for BigBlueButton 2.6.
 
-# Before you begin
+## Before you begin
 
-You first need to set up a BigBlueButton 2.6 server. See the instructions at [Install BigBlueButton 2.6](/2.6/install.html).
+You first need to set up a BigBlueButton 2.6 server. See the instructions at [Install BigBlueButton 2.6](/administration/install).
 
-# Overview
+## Overview
 
 A BigBlueButton server is built from a number of components that correspond to Ubuntu packages. Some of these components are
 
@@ -39,11 +39,11 @@ The instructions in this guide are step-by-step so you can understand each step 
 - Try doing the same steps on a different BigBlueButton server.
 - Post a question to bigbluebutton-dev with a description of the problem and the steps to reproduce. Post logs and error messages to [Pastebin](https://pastebin.com) link them in your post.
 
-### You Have a Working BigBlueButton Server
+#### You Have a Working BigBlueButton Server
 
-Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/2.6/install.html)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
+Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/administration/install)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
 
-We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/gl-install.html) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
+We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
 
 By starting with a working BigBlueButton server, you have the ability to switch back-and-forth between the default-packaged components and any modifications you make.
 
@@ -51,7 +51,7 @@ For example, suppose you modify the BigBlueButton client and something isn't wor
 
 **Another Note:** These instructions assume you have Greenlight installed so you can create and join meetings to test your setup.
 
-### Developing on Windows
+#### Developing on Windows
 
 To develop BigBlueButton from within Windows, you have two options:
 
@@ -62,11 +62,11 @@ Choose the OS to be Ubuntu 20.04 64-bit. The associated documentation for VMWare
 
 **Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 20.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
 
-### Developing on Linux host via container
+#### Developing on Linux host via container
 
 Consider using a Docker setup for a development environment - [https://github.com/bigbluebutton/docker-dev](https://github.com/bigbluebutton/docker-dev).
 
-### Root Privileges
+#### Root Privileges
 
 **Important:** The setup is **much** easier if you develop as user 'bigbluebutton' and just add a home directory via
 
@@ -81,7 +81,7 @@ sudo su - bigbluebutton
 sudo ls
 ```
 
-### wget
+#### wget
 
 You'll need to download some files throughout these instructions using wget. If it's not installed on your server, you can install the package using the following command
 
@@ -89,7 +89,7 @@ You'll need to download some files throughout these instructions using wget. If 
 sudo apt-get install wget
 ```
 
-### Have a GitHub Account
+#### Have a GitHub Account
 
 The BigBlueButton [source is hosted on GitHub](https://github.com/bigbluebutton/bigbluebutton). You need a GitHub account. In addition, you need to be very familiar with how git works. Specifically, you need to know how to
 
@@ -99,20 +99,20 @@ The BigBlueButton [source is hosted on GitHub](https://github.com/bigbluebutton/
 
 If you have not used git before, or if the terms **_clone_**, **_branch_**, and **_commit_** are unfamiliar to you, stop now. These are fundamental concepts to git that you need to become competent with before trying to develop on BigBlueButton. To become competent, a good place to start is this [free book](https://git-scm.com/book) and [GitHub Help pages](https://help.github.com/).
 
-Using GitHub makes it easy for you to work on your own copy of the BigBlueButton source, store your updates to the source to your GitHub account, and make it easy for you to [contribute to BigBlueButton](/support/faq.html#contributing-to-bigbluebutton).
+Using GitHub makes it easy for you to work on your own copy of the BigBlueButton source, store your updates to the source to your GitHub account, and make it easy for you to [contribute to BigBlueButton](/support/faq#contributing-to-bigbluebutton).
 
-### Subscribe to bigbluebutton-dev
+#### Subscribe to bigbluebutton-dev
 
 We recommend you subscribe to the [bigbluebutton-dev](https://groups.google.com/group/bigbluebutton-dev/topics?gvc=2) mailing list to follow updates to the development of BigBlueButton and to collaborate with other developers.
 
-# Set up a Development Environment
+## Set up a Development Environment
 
-### (Recommended) On Linux host we highly recommend using 'docker-dev'
+#### (Recommended) On Linux host we highly recommend using 'docker-dev'
 
 Consider using a Docker setup for a development environment - [https://github.com/bigbluebutton/docker-dev](https://github.com/bigbluebutton/docker-dev)
 It includes all you need to be able to run a local BigBlueButton development environment
 
-### Alternative - add a development environment to a [locally running] working BigBlueButton server
+#### Alternative - add a development environment to a [locally running] working BigBlueButton server
 
 First, you need to install the core development tools.
 
@@ -157,7 +157,7 @@ sdk install sbt 1.6.2
 sdk install maven 3.5.0
 ```
 
-## Checking out the Source
+### Checking out the Source
 
 With the development tools installed, we'll next clone the source in the following directory:
 
@@ -230,14 +230,14 @@ You should now confirm that you are in the correct branch.
 ```bash
 git status
 
-# On branch my-changes-branch
+## On branch my-changes-branch
 nothing to commit (working directory clean)
 ```
 
 <!--
 
 TODO: Add high-view diagrams
-# Production Environment
+## Production Environment
 
 Okay. Let's pause for a minute.
 
@@ -246,13 +246,13 @@ You have set up the necessary tools and cloned the source, but if you are going 
 Below is an overview of the different components in a production set-up. When developing you want to change your configuration settings to load new changes instead of the ones deployed for production.
 -->
 
-## (Optional) Install Greenlight
+### (Optional) Install Greenlight
 
-Note that at this point we recommend installing and using [Greenlight](/greenlight/gl-install.html) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
+Note that at this point we recommend installing and using [Greenlight](/greenlight/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
 
 You can access https://BBB_DOMAIN , and you will be able to join meetings.
 
-# Developing the HTML5 client
+## Developing the HTML5 client
 
 Before starting development on the HTML5 client, make sure you have cloned the [BigBlueButton repository](https://github.com/bigbluebutton/bigbluebutton)
 and switched to the `bigbluebutton-html5` directory:
@@ -262,7 +262,7 @@ $ git clone git@github.com:bigbluebutton/bigbluebutton.git
 $ cd bigbluebutton/bigbluebutton-html5/
 ```
 
-## Background
+### Background
 
 A bit of context is needed to fully explain what the HTML5 client is, why it has server component, what the architecture is, and only then how to make a change and re-deploy.
 
@@ -272,7 +272,7 @@ The HTML5 client in BigBlueButton is build using the framework [Meteor](https://
 TODO: add diagram
 -->
 
-Make sure to check the HTML5 portion of the [Architecture page](/2.4/architecture.html#html5-client).
+Make sure to check the HTML5 portion of the [Architecture page](/development/architecture#html5-client).
 
 Install Meteor.js.
 
@@ -322,7 +322,7 @@ In certain cases when making changes that span multiple BigBlueButton components
 
 You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode, requiring the `poolhtml5servers` NGINX rule). Make sure to read through the script to understand what it does prior to using it.
 
-## Switch NGINX to redirect requests to Meteor
+### Switch NGINX to redirect requests to Meteor
 
 When you are running bbb-html5 from package (i.e. in production mode) NGINX needs to be able to point client sessions to a bbb-html5-frontend instance from the pool. However, in development mode (i.e. running Meteor via `npm start`), we only have one process, rather than a pool. We need to tweak the NGINX configuration so that client sessions are only pointed to port `4100` where Meteor is running.
 
@@ -352,7 +352,7 @@ A symptom of running `npm start` with the incompatible `poolhtml5servers` NGINX 
 
 When you switch back to running the `bbb-html5` packaged version you would want to revert your change so the `poolhtml5servers` are used for spreading the load of the client sessions.
 
-### Switch NGINX static resource requests to Meteor
+#### Switch NGINX static resource requests to Meteor
 
 Locales requests are served by NGINX by default, but you may want to disable that feature in development mode (if you want to be able to edit the files located in `/public/locales` and see the changes being applied).
 
@@ -376,11 +376,11 @@ Development mode (locales files will be served by Meteor):
 
 After this change, reload NGINX's configuration with `sudo systemctl reload nginx`
 
-## Audio configuration for development environment
+### Audio configuration for development environment
 
 You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try changing "sipjsHackViaWs" true in bigbluebutton-html5/private/config/settings.yml.
 
-## Production
+### Production
 
 Using NODE_ENV=production is not meant to be actually used in production, see [here](https://guide.meteor.com/deployment.html#never-use-production-flag) for more information. Instead, you should build the meteor app so that the `bbb-html5` service can work with it.
 
@@ -402,19 +402,19 @@ There we go! Remember that this will be overwritten every time you upgrade, so y
 
 <!--
 TODO
-## HTML5 Coding Practices
+### HTML5 Coding Practices
 
 For coding conventions related to the HTML5 code refer to [this document](/html5-best-practices.html).
 -->
 
-## /private/config
+### /private/config
 
 All configurations are located in **/private/config/settings.yml**. If you make any changes to the YAML configuration you will need to restart the meteor process.
 
 During Meteor.startup() the configuration file is loaded and can be accessed through the Meteor.settings.public object.
 Note that individual configuration settings are overridden with their values (if defined) from file `/etc/bigbluebutton/bbb-html5.yml` (if the file exists).
 
-# Build bbb-common-message
+## Build bbb-common-message
 
 The bbb-common-message is required by a few components of BigBlueButton. So it is required to build this
 first. Otherwise, you will run into compile errors.
@@ -424,7 +424,7 @@ cd ~/dev/bigbluebutton/bbb-common-message
 ./deploy.sh
 ```
 
-# Developing BBB-Web
+## Developing BBB-Web
 
 Give your user account access to upload slides to the presentation directory and also access to write log files.
 
@@ -557,7 +557,7 @@ sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && /usr/share/bbb-web-old /usr
 
 Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
 
-# Developing Akka-Apps
+## Developing Akka-Apps
 
 You can manually run the application.
 
@@ -575,7 +575,7 @@ sbt debian:packageBin
 dpkg -i ./target/bbb-apps-akka_<tab>.deb
 ```
 
-# Developing Akka-FSESL
+## Developing Akka-FSESL
 
 You need to build the FS ESL library
 
@@ -597,7 +597,7 @@ You can deploy locally akka-fsesl by building a simple .deb package using `sbt` 
 sbt debian:packageBin
 dpkg -i ./target/bbb-fsesl-akka_<tab>.deb
 ```
-# Developing bbb-export-annotations
+## Developing bbb-export-annotations
 
 You can manually run the service.
 When running, it'll process export jobs stored in Redis containing the state of the whiteboard at the time of the request.
@@ -623,9 +623,9 @@ npm start
 
 to begin exporting presentations with annotations.
 
-# Troubleshooting
+## Troubleshooting
 
-## Welcome to NGINX page
+### Welcome to NGINX page
 
 If you get the "Welcome to NGINX" page. Check if bigbluebutton is enabled in nginx. You should see **bigbluebutton** in `/etc/nginx/sites-enabled`.
 
@@ -637,7 +637,7 @@ sudo ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/big
 sudo /etc/init.d/nginx restart
 ```
 
-## Pausing/Restarting VM gives wrong date in commit
+### Pausing/Restarting VM gives wrong date in commit
 
 If you are developing using a VM and you've paused the VM and later restart it, the time on the VM will be incorrect. The incorrect time will affect any commits you do in GitHub.
 
@@ -656,6 +656,6 @@ sudo /etc/init.d/ntp restart
 
 The above will re-sync your clock.
 
-# Set up HTTPS
+## Set up HTTPS
 
-Follow [Configure SSL on your BigBlueButton server](https://docs.bigbluebutton.org/2.6/install.html#configure-ssl-on-your-bigbluebutton-server)
+Follow [Configure SSL on your BigBlueButton server](/administration/install#configure-ssl-on-your-bigbluebutton-server)

@@ -1,8 +1,8 @@
 ---
 id: troubleshooting
-slug: /administration/troubleshooting
-title: BigBlueButton Administration Troubleshooting Guide
-sidebar_position: 11
+slug: /support/troubleshooting
+title: Troubleshooting Guide
+sidebar_position: 3
 description: BigBlueButton Administration Troubleshooting Guide
 keywords:
 - troubleshooting
@@ -62,15 +62,15 @@ $ sudo bbb-record --rebuild 298b06603719217df51c5d030b6e9417cc036476-15593147452
 
 Certify that appropriate external addresses have been set for mediasoup. When installed via packages, mediasoup IPs are normally misconfigured. If installed via bbb-install, then IPv4 is generally correct, but IPv6 might be absent.
 
-Nonetheless, we recommend double-checking the instructions in [Updating mediasoup](https://docs.bigbluebutton.org/admin/configure-firewall.html#updating-mediasoup).
+Nonetheless, we recommend double-checking the instructions in [Updating mediasoup](/administration/firewall-configuration#updating-mediasoup).
 
 ### Configure mediasoup to use IPv6
 
 mediasoup (bbb-webrtc-sfu) **does not** come with a IPv6 enabled by default when installed either via packages or bbb-install.
 
-To configure IPv6, bbb-webrtc-sfu's [override configuration file](https://docs.bigbluebutton.org/admin/configuration-files.html) (located in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`) should be used.
+To configure IPv6, bbb-webrtc-sfu's [override configuration file](/administration/configuration-files) (located in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`) should be used.
 
-See [Updating mediasoup](https://docs.bigbluebutton.org/admin/configure-firewall.html#updating-mediasoup) for instructions and examples on how to do so.
+See [Updating mediasoup](/administration/firewall-configuration#updating-mediasoup) for instructions and examples on how to do so.
 
 ### I'm having troubles seeing webcams or screen sharing in Firefox
 
@@ -116,7 +116,7 @@ Yes.
 
 ### How can I control the number of mediasoup workers?
 
-To control the number of mediasoup workers, bbb-webrtc-sfu's [override configuration file](https://docs.bigbluebutton.org/admin/configuration-files.html) (located in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`) should be used.
+To control the number of mediasoup workers, bbb-webrtc-sfu's [override configuration file](/administration/configuration-files) (located in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`) should be used.
 
 There are a couple of configurations of interest here:
 
@@ -205,7 +205,7 @@ The default installation of BigBlueButton should work in most netowrk configurat
 
 If you get reports of these errors, setup TURN server to help their browsers send WebRTC audio and video streams via TCP over port 443 to the TURN server. The TURN server will then relay the media to your BigBlueButton server.
 
-See [Configure TURN](/2.2/setup-turn-server.html).
+See [Configure TURN](/administration/turn-server).
 
 ## FreeSWITCH
 
@@ -483,7 +483,7 @@ The install scripts now change the default CLI password for FreeSWITCH and the o
 
 If you upgrade using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install), the script will update the FreeSWITCH password using `sudo bbb-conf --setip <hostname>`.
 
-If you upgraded using [manual steps](https://docs.bigbluebutton.org/2.2/install.html#upgrading-from-bigbluebutton-22), be sure to do ao `sudo bbb-conf --setip <hostname>` to sync all the FreeSWITCH passwords.
+If you upgraded using [manual steps](/administration/install#upgrading-from-bigbluebutton-22), be sure to do ao `sudo bbb-conf --setip <hostname>` to sync all the FreeSWITCH passwords.
 
 ### FreeSWITCH using default stun server
 
@@ -493,7 +493,7 @@ For many years, in BigBlueButton's FreeSWITCH configuration file `/opt/freeswitc
   <X-PRE-PROCESS cmd="set" data="external_rtp_ip=stun:stun.freeswitch.org"/>
 ```
 
-However, this is not a reliable choice for stun server. Recommend either changing it to your servers external IP address or setup your own [stun/turn server](/admin/setup-turn-server.html). For example, if your server has an external IP at 234.32.3.3
+However, this is not a reliable choice for stun server. Recommend either changing it to your servers external IP address or setup your own [stun/turn server](/administration/turn-server). For example, if your server has an external IP at 234.32.3.3
 
 ```xml
   <X-PRE-PROCESS cmd="set" data="external_rtp_ip=234.32.3.3"/>
@@ -505,7 +505,7 @@ You can add a line in `/etc/bigbluebutton/bbb-conf/apply-conf.sh` to always appl
 xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]/@data' --value "external_rtp_ip=234.32.3.3" /opt/freeswitch/conf/vars.xml
 ```
 
-Note: If your server has an internal/exteral IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](https://docs.bigbluebutton.org/admin/configure-firewall.html#update-freeswitch)).
+Note: If your server has an internal/exteral IP address, such as on AWS EC2 server, be sure to set it to the external IP address configure a dummy network interface card (see [Update FreeSWITCH](/administration/firewall-configuration#update-freeswitch)).
 
 ## HTML5 Server
 
@@ -540,7 +540,7 @@ Then do `systemctl daemon-reload` and restart BigBlueButton.
 
 When installing the latest build of BigBlueButton, the package `bbb-conf` now uses `yq` to manage YAML files.
 
-You need to add the repository `ppa:rmescandon/yq` to your server. For steps on how to do this, see [Update your server](https://docs.bigbluebutton.org/2.2/install.html#1-update-your-server) in the BigBlueButton 2.2 install guide.
+You need to add the repository `ppa:rmescandon/yq` to your server. For steps on how to do this, see [Update your server](/administration/install#1-update-your-server) in the BigBlueButton 2.2 install guide.
 
 Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (the `bbb-install.sh` script will automatically install the repository for `yq`).
 
@@ -658,7 +658,7 @@ If the user attempts to share their microphone and your BigBlueButton sever is n
 
 _WebRTC Audio Failure: Detected the following WebRTC issue: Could not get your microphone for a WebRTC call. Do you want to try flash instead?_
 
-To enable Chrome to access the user's microphone, see [Configure HTTPS on BigBlueButton](/2.2/install.html#configure-ssl-on-your-bigbluebutton-server).
+To enable Chrome to access the user's microphone, see [Configure HTTPS on BigBlueButton](/administration/install#configure-ssl-on-your-bigbluebutton-server).
 
 ### The browser is not supported
 
@@ -725,7 +725,7 @@ The common reasons for nginx not running are inability to bind to port 80 and co
 $ sudo netstat -ant
 ```
 
-to see if any process is currently bound to port 80. If so, check to see if another web server is installed. If so, then stop the web server and try to restart nginx. One of the server requirements before you install BigBlueButton is that port 80 is not in use by another application (such as Apache). For details on why this is a requirements, see [We recommend running BigBlueButton on port 80](https://docs.bigbluebutton.org/support/faq.html#we-recommend-running-bigbluebutton-on-port-80443).
+to see if any process is currently bound to port 80. If so, check to see if another web server is installed. If so, then stop the web server and try to restart nginx. One of the server requirements before you install BigBlueButton is that port 80 is not in use by another application (such as Apache). For details on why this is a requirements, see [We recommend running BigBlueButton on port 80](/support/faq#we-recommend-running-bigbluebutton-on-port-80443).
 
 If port 80 is free, check if your nginx configuration file has errors. Try a restart of nginx
 
@@ -853,11 +853,11 @@ and try installing BigBlueButton again.
 
 ### Root partition too small
 
-If the root partition on your BigBlueButton server is too small (for disk space requirements see [Before you install](/2.2/install.html#before-you-install)), we recommend moving the following directories to an external partition with sufficient disk space.
+If the root partition on your BigBlueButton server is too small (for disk space requirements see [Before you install](/administration/install#before-you-install)), we recommend moving the following directories to an external partition with sufficient disk space.
 
 BigBlueButton processing and storage of recordings:
 
-Location of all media directories on disk [available here](/dev/recording.html#media-storage).
+Location of all media directories on disk [available here](/development/recording#media-storage).
 
 To make the move, we'll first stop BigBlueButton, then move the above directories to a new location on the external partition, create symbolic links from the original locations to the new locations, and restart BigBlueButton.
 
@@ -889,7 +889,7 @@ $ sudo bbb-conf --clean
 $ sudo bbb-conf --check
 ```
 
-For more information see [bbb-conf options](/install/bbb-conf.html).
+For more information see [bbb-conf options](/administration/bbb-conf).
 
 ### Running within an LXD Container
 
@@ -1008,7 +1008,7 @@ The script `bbb-install` now creates these overrides by default.
 
 ### 500 Internal Server Error
 
-It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/gl-install.html#troubleshooting-greenlight).
+It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/install#troubleshooting-greenlight).
 
 If this error occurrs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
 

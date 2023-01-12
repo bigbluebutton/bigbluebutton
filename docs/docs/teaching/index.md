@@ -10,4 +10,4 @@ keywords:
 - student
 ---
 
-# Teaching Guide
+## Teaching Guide

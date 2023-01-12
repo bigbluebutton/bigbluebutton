@@ -1,7 +1,7 @@
 ---
 id: monitoring
 slug: /administration/monitoring
-title: BigBlueButton Server Monitoring
+title: Server Monitoring
 sidebar_position: 6
 description: BigBlueButton Configuration Monitoring
 keywords:
@@ -36,11 +36,11 @@ It is used to trigger alerts to Email, Slack, PagerDuty, etc. from predefined su
 
 Prometheus, Grafana and Alertmanager work together to form a highly flexible, extensible and powerful monitoring solution.
 
-## BigBlueButton Metrics
+### BigBlueButton Metrics
 Currently BigBlueButton does not expose and metrics, however there is a community driven project that has implemented
 a Prometheus exporter which enables you to scrape using Prometheus key BigBlueButton metrics.
 
-## BigBlueButton Exporter
+### BigBlueButton Exporter
 [BigBlueButton Exporter](https://github.com/greenstatic/bigbluebutton-exporter) is a community driven project to expose 
 various metrics that are available via the API that BigBlueButton exposes.
 

@@ -1,15 +1,15 @@
 ---
 id: faq
-slug: /administration/faq
-title: BigBlueButton Administration FAQs
-sidebar_position: 12
-description: BigBlueButton Administration FAQs
+slug: /support/faq
+title: FAQs
+sidebar_position: 2
+description: BigBlueButton FAQs
 keywords:
 - administration
 - faq
 ---
 
-# Welcome
+## Welcome
 
 Welcome to the BigBlueButton project's Frequently Asked Questions (FAQ).
 
@@ -17,7 +17,7 @@ We (the [core developers](#bigbluebutton-committer)) created this FAQ to quickly
 
 _NOTE:_ For teachers and students, you'll find the <a href="https://support.bigbluebutton.org/">Knowledge Base</a> the best resource for how-to articles on using BigBlueButton. Also check out the <a href="https://bigbluebutton.org/teachers/tutorials">Tutorial Videos</a> as well.
 
-## What if I don't find my answer here
+### What if I don't find my answer here
 
 The BigBlueButton community focuses its support in three mailing lists, each hosted by Google Groups. Each group focuses on a different topic of questions:
 
@@ -33,41 +33,41 @@ The developer mailing list has over 4000 users, so before you post:
 
 All of the core BigBlueButton contributors subscribe to all three mailing lists. Please don't cross post to more than one list -- you are only causing more effort to answer all the threads.
 
-## Why is this project called BigBlueButton
+### Why is this project called BigBlueButton
 
 The name came from the goal of making the process to setup a virtual classroom as easy as pressing a (metaphorical) big blue button.
 
-## Why is it spelled BigBlueButton (and not Big Blue Button)
+### Why is it spelled BigBlueButton (and not Big Blue Button)
 
 The trademark is written as one word BigBlueButton. Doing so makes it easy for others to use Google to search for information about the project.
 
-## Where is the source
+### Where is the source
 
 The BigBlueButton source code is at [https://github.com/bigbluebutton/bigbluebutton](https://github.com/bigbluebutton/bigbluebutton). As an open source project, you are welcome to fork BigBlueButton and build your own applications upon it.
 
-## What is the open source license used in BigBlueButton
+### What is the open source license used in BigBlueButton
 
 We use the LGPL license Version 3.0. Some of the open source components we build on use different licenses, such as red5phone uses the GPL license.
 
-## Will BigBlueButton always stay open source
+### Will BigBlueButton always stay open source
 
 Yes.
 
 We started BigBlueButton as an open source project, and we intend to keep it that way. One of the main goals we had was to create a large open source community around the project. To further this goal, we are in the process of putting together an [independent not-for-profit BigBlueButton organization](https://bigbluebutton.org/2010/07/12/bigbluebutton-foundation/) (similar to the Eclipse Foundation) to oversee and accelerate the growth of the BigBlueButton project.
 
-## I tried to join one of the mailing lists and got rejected
+### I tried to join one of the mailing lists and got rejected
 
 To avoid SPAM in our mailing lists, when you apply to join you are prompted to ask a simple question. If we get an application without an answer, we assume the application is from a bot and delete it.
 
 Be sure to provide us an answer so we know your a real person that wants to join our community.
 
-# BigBlueButton Development Process
+## BigBlueButton Development Process
 
 There is a very active BigBlueButton community of members on the developer mailing list (over 2000 members and counting!). In the BigBlueButton community at-large all the members, users, developers, educational institutions, and commercial companies are all collaborating on using and improving BigBlueButton.
 
 As with any open source project, the continued growth of the community depends on the quality of the software. The quality of the software, in turn, depends on the developers involved and the process we use to build a release.
 
-## Development Priorities
+### Development Priorities
 
 The core group of BigBlueButton committers have adopted an open source development process with the following priorities (in order):
 
@@ -89,7 +89,7 @@ Modularity enables components of BigBlueButton to be developed, refactored, and 
 
 Scalability is important as our market grows. We designed BigBlueButton to be a highly collaborative system.
 
-## BigBlueButton Committer
+### BigBlueButton Committer
 
 Like many open source projects, at the core of the project are a team of developers that have responsibility for core development and overall quality of the project. The current committers are as follows:
 
@@ -121,17 +121,17 @@ The committers are very active in the support and mentoring of other developers 
 
 The committers group is not closed. Any developer that wishes to become a committer can achieve it through participation. The decision of expanding the committers group rests with the committers.
 
-## Process
+### Process
 
 Each release cycle goes according to the following steps.
 
-### 1. Planning
+#### 1. Planning
 
-During the planning process, the committers decide on the main features for a release by reviewing the [BigBlueButton Road Map](/support/road-map.html) along with all starred issues and, in particular, issues marked with tags [stability](https://github.com/bigbluebutton/bigbluebutton/issues?q=is%3Aissue+is%3Aopen+label%3AStability) and [usability](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Ausability).
+During the planning process, the committers decide on the main features for a release by reviewing the [BigBlueButton Road Map](/support/road-map) along with all starred issues and, in particular, issues marked with tags [stability](https://github.com/bigbluebutton/bigbluebutton/issues?q=is%3Aissue+is%3Aopen+label%3AStability) and [usability](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Ausability).
 
 We review the features according to the development priorities for our target market (see [When will feature X be implemented?](#when-will-feature-x-be-implemented)).
 
-### 2. Design
+#### 2. Design
 
 After the planning phase, each feature for the release is assigned an issue in the BigBlueButton Issue Tracker (if it does not already have one). This allows the community to track the progress of each release. See [List of open issues/enhancements](https://github.com/bigbluebutton/bigbluebutton/issues).
 
@@ -145,7 +145,7 @@ For examples of previous posts, see:
 - [HTML5 Client Architecture](https://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/c17afb3e850b185a)
 - [Feature for pre-upload of documents](https://groups.google.com/d/msg/bigbluebutton-dev/02um_1Pkqnk/Qil66KztUX8J)
 
-### 3. Development
+#### 3. Development
 
 During the development phase, the committers hold bi-weekly (and sometimes weekly) calls as development proceeds towards beta.
 
@@ -163,13 +163,13 @@ Once an update has been committed, it is tested by other developers in the lates
 
 Before the beta release, the documentation for installation, setting up of the development environment, and overview of new features are all updated for the release. It's ready for others to install and test.
 
-### 4. Beta Testing
+#### 4. Beta Testing
 
 Once a release is moved to beta, the public Ubuntu packages are updated so others in the BigBlueButton community can begin installing and using the build.
 
 The product will go through one (or more) betas until the community reports no more major bugs. Additional work that occurs during this phase includes:
 
-- [Localization](/dev/localization.html) of the product
+- [Localization](/development/localization) of the product
 - Updating and completing all documentation
 - Updating packaging so it installs without errors, both on a new install and an upgrade from a previous version
 
@@ -177,7 +177,7 @@ We strive to have _very_ stable beta releases. As the release moves through iter
 
 When _all_ the bugs are fixed and issues are closed, the product moves to Release Candidate.
 
-### 5. Release Candidate
+#### 5. Release Candidate
 
 For us the release candidate is done -- which means issue a release is changing only the label of the build.
 
@@ -187,19 +187,19 @@ During the stage at release candidate the core committers monitor the mailing li
 
 Many times during the beta and release candidate process we are asked "What is your release date?". Our motto is “we release on quality, not dates.”
 
-### 6. General Release
+#### 6. General Release
 
 After a (roughly) two week period in which no one has reported any issues for a release candidate, the committers change the label (such as 0.9.0-RC to 0.9.0) and announce the release (see [release announcement for 0.9](https://groups.google.com/d/msg/bigbluebutton-dev/TAJ369nPZU4/7DK-TH3JWocJ) and [release announcement for 1.0](https://groups.google.com/d/msg/bigbluebutton-dev/8E3AYUcO6Uw/m5r2xgPeBgAJ)).
 
-# Contributing to BigBlueButton
+## Contributing to BigBlueButton
 
-## How can I contribute
+### How can I contribute
 
 BigBlueButton exists because many developers have contributed their time and expertise to its development.
 
 At first glance at the underlying architecture, BigBlueButton may seem complex, but it's not really once you get to know the system. The BigBlueButton client is written in Javascript. The BigBlueButton server components are written in a combination of Java, Grails, and Scala. You don't need to learn all these languages to help out, but you should be very comfortable programming in Java as JavaScript, Grails, and Scala are all similar to Java.
 
-Before you can contribute as a developer, you need to invest some time into understanding BigBlueButton's [architecture](/2.4/architecture.html#architecture-overview), and you need to setup a [development environment](/dev/setup.html). The source code for BigBlueButton is hosted at [github](https://github.com/bigbluebutton/bigbluebutton), so you'll need to understand [how git works](https://git-scm.com/book) and the workflow for distributed software development.
+Before you can contribute as a developer, you need to invest some time into understanding BigBlueButton's [architecture](/development/architecture#architecture-overview), and you need to setup a [development environment](/development/guide). The source code for BigBlueButton is hosted at [github](https://github.com/bigbluebutton/bigbluebutton), so you'll need to understand [how git works](https://git-scm.com/book) and the workflow for distributed software development.
 
 Like other open source projects, a good place to start is to try fixing an [open issue](https://github.com/bigbluebutton/bigbluebutton/issues). We've tagged a few issues as [FirstProject](https://github.com/bigbluebutton/bigbluebutton/issues?q=is%3Aissue+is%3Aopen+label%3AFirstProject) to make it easy for you to find those issues that are both (relatively) simple to fix, but would be meaningful to BigBlueButton.
 
@@ -207,13 +207,13 @@ You can also browse the bugs by labels: [Stability](https://github.com/bigbluebu
 
 Some bugs are more important than others. Stability and usability issues are very important to the BigBlueButton community.
 
-## I'm not a developer, can I still contribute
+### I'm not a developer, can I still contribute
 
-Don't worry if you are not a proficient developer -- there are many ways to help out. You can become proficient in the installation and configuration of a BigBlueButton server. Each month, there are many new users in [bigbluebutton-setup](https://groups.google.com/forum/#!forum/bigbluebutton-setup) that need help with setup of BigBlueButton, especially setup behind a [firewall](#can-i-provide-external-access-to-a-bigbluebutton-server-behind-my-firewall). You can [contribute a language file](/dev/localization.html). You could point out any errors to this documentation. Such assistance reduces the support load on us and gives us more time to work on improving BigBlueButton.
+Don't worry if you are not a proficient developer -- there are many ways to help out. You can become proficient in the installation and configuration of a BigBlueButton server. Each month, there are many new users in [bigbluebutton-setup](https://groups.google.com/forum/#!forum/bigbluebutton-setup) that need help with setup of BigBlueButton, especially setup behind a [firewall](#can-i-provide-external-access-to-a-bigbluebutton-server-behind-my-firewall). You can [contribute a language file](/development/localization). You could point out any errors to this documentation. Such assistance reduces the support load on us and gives us more time to work on improving BigBlueButton.
 
 Any contribution by external members for inclusion into BigBlueButton will be reviewed by one (or more) of the committers. The process for submission and review depends on the complexity of the contribution and requires that you have signed a Contributor License Agreement.
 
-## Why do I need to sign a Contributor License Agreement to contribute source code
+### Why do I need to sign a Contributor License Agreement to contribute source code
 
 Before we can accept contributions to BigBlueButton, we need to ensure there isn't any ambiguity on the ownership of material committed to the project. Therefore, everyone wishing to send us a pull request for review must have a signed Contributor License Agreement in place. For background on our reasons for doing this, please see https://www.oss-watch.ac.uk/resources/cla.xml.
 
@@ -221,7 +221,7 @@ To obtain a committer agreement, download [BigBlueButton Inc. Contributor Agreem
 
 Once we receive the signed Contributor Agreement, we can review your submission for inclusion in BigBlueButton. The process for submission depends on whether it's fixing a bug (submitting a pull request) or whether it's an enhancement (submitting a feature).
 
-### Submission of a pull request
+#### Submission of a pull request
 
 If you want to submit a pull request, your chances of acceptance are **greatly** improved if the following are true:
 
@@ -235,7 +235,7 @@ The ideal patch submission has all the above true, which essentially means you h
 There are a number of **must haves** for your submission to be accepted.
 
 1. You have forked BigBlueButton on GitHub and submitted the patch as a pull request (this makes it **much** easier for a committer to review and incorporate your patch).
-2. You have signed a [committers agreement](/support/faq.html#why-do-i-need-to-sign-a-contributor-license-agreement-to-contribute-source-code) so there is no ambiguity that your contributions may be released under an open source license.
+2. You have signed a [committers agreement](/support/faq#why-do-i-need-to-sign-a-contributor-license-agreement-to-contribute-source-code) so there is no ambiguity that your contributions may be released under an open source license.
 3. Your submission is LGPL V3 (unless it modifies existing code that is under a different license).
 
 Specifically, for using GitHub, you need to do the following:
@@ -247,7 +247,7 @@ Specifically, for using GitHub, you need to do the following:
 
 GitHub provides some good [help](https://help.github.com/) in the above steps, and there is an excellent [Pro Git book](https://git-scm.com/book/en/v2) by Scott Chacon available on-line.
 
-### Submission of a feature
+#### Submission of a feature
 
 Some of the items in our issue tracker are enhancements to the core product. If you are interested in contributing an enhancement, your chances of acceptance are **greatly** improved if the following are true:
 
@@ -260,7 +260,7 @@ Some of the items in our issue tracker are enhancements to the core product. If 
 
 Like other open source projects, the participation of a committer is central to the above process as they will take the responsibility for reviewing and signing off on your contribution.
 
-### Testing your submission
+#### Testing your submission
 
 Depending on the complexity of your patch or feature, it should be accompanied by test cases or, at minimum, a series of steps to test whether the code is functioning properly.
 
@@ -268,7 +268,7 @@ We are continuously trying to incorporate more automated testing into the BigBlu
 
 We know that the most important part of any submission is the ability for others to test that it works correctly. Any documentation, sample code, or unit tests that you can provide will greatly reduce the effort of the committer to review your submission.
 
-### Coding conventions
+#### Coding conventions
 
 Take a look at the existing code in BigBlueButton and follow it as an example of the project's coding and documentation conventions.
 
@@ -276,43 +276,43 @@ For code written in Java, we follow the [Java Coding Convention](https://www.ora
 
 For documentation of code method -- especially those classes that provides an API to other classes -- should be documented using the [JavaDoc](https://www.oracle.com/technetwork/java/javase/documentation/index-137868.html) format.
 
-## Where should I report potential security issues?
+### Where should I report potential security issues?
 
 If you think you've found a security issue with BigBlueButton, we ask that you do a [responsible disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure) and e-mail us directly at security .at. bigbluebutton .dot. org.
 
 We will respond to you quickly, work with you to examine the scope of the issue, and give priority to fixing it as soon as possible.
 
-# Installation
+## Installation
 
-## What are the minimum hardware requirements for the BigBlueButton Server
+### What are the minimum hardware requirements for the BigBlueButton Server
 
-See [before you install](/install/install.html#before-you-install).
+See [before you install](/administration/install#before-you-install).
 
-## What are the minimum bandwidth requirements for the BigBlueButton Server
+### What are the minimum bandwidth requirements for the BigBlueButton Server
 
 You'll need good upstream and downstream bandwidth from the server. We recommend 1 Gbits/sec bandwidth in both directions. Having a server with less bandwidth, such as only 100 Mbits/sec, will only lead to audio and video issues with users.
 
-## Can I install BigBlueButton on a shared hosting server, such as GoDaddy
+### Can I install BigBlueButton on a shared hosting server, such as GoDaddy
 
 Likely not. First, you need root access to install BigBlueButton. If you have a hosting account that only gives you, for example, FTP access and a cPanel/plesk interface, you will not be able to install BigBlueButton.
 
-## Can I install BigBlueButton on EC2
+### Can I install BigBlueButton on EC2
 
-Yes. The steps are covered in the [install](/install/install.html) documentation.
+Yes. The steps are covered in the [install](/administration/install) documentation.
 
-## OS Requirements
+### OS Requirements
 
-### Ubuntu
+#### Ubuntu
 
-Older versions of BigBlueButton, up to and including version 2.4, required **Ubuntu 18.04 64-bit**.  The current version of BigBlueButto n2.5 requires **Ubuntu 20.04 64-bit**.  See [Install BigBlueButton](/install/install.html).
+Older versions of BigBlueButton, up to and including version 2.4, required **Ubuntu 18.04 64-bit**.  The current version of BigBlueButto n2.5 requires **Ubuntu 20.04 64-bit**.  See [Install BigBlueButton](/administration/install).
 
 We (the core developers) have not installed BigBlueButton on any other version of Ubuntu. It probably won't work.
 
-### CentOS
+#### CentOS
 
 There is no support for CentOS.
 
-We do have experience with CentOS. In April, 2010, we released [BigBlueButton 0.64](/support/release-notes.html#release-0.64:-lickety-split) with RPM packages for CentOS 5.4. However, based on our experience of developing, building, and testing both Ubuntu and CentOS packages, we stopped supporting RPM packages after that release.
+We do have experience with CentOS. In April, 2010, we released [BigBlueButton 0.64](/release-notes#release-0.64:-lickety-split) with RPM packages for CentOS 5.4. However, based on our experience of developing, building, and testing both Ubuntu and CentOS packages, we stopped supporting RPM packages after that release.
 
 Why?
 
@@ -322,35 +322,35 @@ If you **really** want support for CentOS, you can contact one of the following 
 
 You can see further discussion on the support for CentOS in [issue 1379](https://github.com/bigbluebutton/bigbluebutton/issues/1379). (Update: We are getting increasing interest in RPMs for BigBlueButton. We may be updating this section in the future.)
 
-### Windows
+#### Windows
 
 While technically it should be possible to manually install each of components (tomcat, nginx, LibreOffice, etc.) needed to run BigBlueButton on Windows, we haven't tried it, nor have we tested it.
 
 If you are a brave soul and want to take a BigBlueButton server and manually install the equivalent components (and configuration files) onto a Windows server, it should technically be possible. However, beware, no one who has tried this has lived to post a success message to our mailing list :-).
 
-### OS X
+#### OS X
 
 There is no native installation for Mac OS X.
 
-The easiest way to get your own BigBlueButton server under OS X is to install VMWare Fusion, create a Ubuntu 64-bit VM, and install BigBlueButton using the [installation instructions](/install/install.html).
+The easiest way to get your own BigBlueButton server under OS X is to install VMWare Fusion, create a Ubuntu 64-bit VM, and install BigBlueButton using the [installation instructions](/administration/install).
 
-## Support for Mobile Devices
+### Support for Mobile Devices
 
-### Android
+#### Android
 
 BigBlueButton runs within the default Chrome browser (no app to install) on Android 6.0+. You can test this at [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/).
 
 All the features of BigBlueButton are available on Android except screen sharing (Chrome does not support screen sharing on Android).
 
-### iOS
+#### iOS
 
 BigBlueButton runs within the default Safari Mobile browser (no app to install) on iOS 12.2+. You can test this at [https://test.bigbluebutton.org/](https://test.bigbluebutton.org/).
 
 All the features of BigBlueButton are available on iOS except screen sharing (Safari Mobile does not support screen sharing on iOS).
 
-## Bandwidth Requirements
+### Bandwidth Requirements
 
-### What are the bandwidth requirements for running a BigBlueButton server
+#### What are the bandwidth requirements for running a BigBlueButton server
 
 You'll need good upstream and downstream bandwidth from the server. We recommend 1 Gbits/second bandwidth in both directions.
 
@@ -392,7 +392,7 @@ From the perspective of the user's bandwidth needs, if a student is broadcasting
 
 The BigBlueButton server will lower the bandwidth to a user if their bandwidth is insufficient to receive all stream. For example, in the scenario above where there are 5 students in a session, each sharing a webcam, if 4 students have sufficient bandwidth to receive all incoming webcam streams, their clients will show roughly the same quality of video. If one of the students is on a lower bandwidth, then they will get less frequent updates on the video streams and may get lower quality of audio. The user who is on lower bandwidth does not affect the streaming to other users.
 
-### What are the minimum bandwidth requirements for a user
+#### What are the minimum bandwidth requirements for a user
 
 For viewers (students), we recommend users have (at least) 0.5 Mbits/sec -- which is 500 Kbits/sec -- upstream bandwidth, and (at least) 1 Mbits/sec download bandwidth. The upstream bandwidth is the amount of bandwidth their computer has available to transmit data to the BigBlueButton server.
 
@@ -402,15 +402,15 @@ A good way for users to check their bandwidth is to visit [speedtest.net](https:
 
 For presenters, we recommend as much upstream bandwidth as possible. For example, if the presenter shares their desktop, then BigBlueButton's desktop sharing will attempt to publish their desktop updates as quickly as possible to the server.
 
-### Is wired connection better than wireless
+#### Is wired connection better than wireless
 
 Yes. A user may have very good experience with wireless internet, but if others hear their audio as broken or choppy, that user can either move closer to the wireless base station, try a different wireless network, or (best) connect directly to a wired connection.
 
 Using public WiFi is not always best. It may be OK for surfing the web, but the latency and packet loss might be insufficient for real-time transmission of audio or video.
 
-# Configuration
+## Configuration
 
-## What are the minimum requirements for the BigBlueButton client
+### What are the minimum requirements for the BigBlueButton client
 
 For bandwidth, we recommend 1Mbits download and 0.5 Mbits upload speed. Users can test their actual bandwidth using [speedtest.net](https://speedtest.net/).
 
@@ -418,11 +418,11 @@ For hardware, we recommend a dual-core CPU with at least 2G of memory. We recomm
 
 For browser, we recommend running either FireFox, Chrome, or the latest Edge (which is based on Chromium). Why? These browsers provide excellent support for web real-time communications (WebRTC). On Mac OS X, the latest Safari will work as well, but FireFox and Chrome will deliver better audio in lower bandwidth conditions.
 
-In short, if the user is having any problems (such as audio is garbled or they are periodically getting disconnected), we recommend trying either FireFox or Chrome. If the problems persist, it's likely an issue with their network. BigBlueButton will give them [notifications](/09overview.html#configuration-notifications) to help troubleshoot.
+In short, if the user is having any problems (such as audio is garbled or they are periodically getting disconnected), we recommend trying either FireFox or Chrome. If the problems persist, it's likely an issue with their network. BigBlueButton will give them notifications to help troubleshoot.
 
-## How many simultaneous users can BigBlueButton support
+### How many simultaneous users can BigBlueButton support
 
-As a rule of thumb, if your BigBlueButton server meets the [minimum requirements](https://docs.bigbluebutton.org/2.5/install.html#minimum-server-requirements), the server should be able to support 200 simultaneous users, such as 3 simultaneous sessions of 50 users, 6 x 25, etc. More concurrent users can be supported by using better servers and/or by using [load balancers](https://github.com/blindsidenetworks/scalelite#scalelite) for clusters of BigBlueButton servers.
+As a rule of thumb, if your BigBlueButton server meets the [minimum requirements](/administration/install#minimum-server-requirements), the server should be able to support 200 simultaneous users, such as 3 simultaneous sessions of 50 users, 6 x 25, etc. More concurrent users can be supported by using better servers and/or by using [load balancers](https://github.com/blindsidenetworks/scalelite#scalelite) for clusters of BigBlueButton servers.
 
 As of BigBlueButton 2.5, we recommend no single sessions two-hundred (200) users.
 
@@ -442,25 +442,25 @@ If you are unsure of how many users your server will support, we **strongly** re
 
 To test your own server, have five people login and have each open multiple browser tabs, each tab logging into BigBlueButton and joining the audio conference. With 5 friends, you can simulate 10, 20, 30, etc. users. You'll find once the CPU reaches 80%, the audio starts to degrade. When the audio starts to degrade, you've found the maximum number of users for your server.
 
-For monitoring the server, please take a look at the [monitoring section](https://docs.bigbluebutton.org/admin/monitoring.html) or use other generic monitoring [tools](https://www.ubuntugeek.com/bandwidth-monitoring-tools-for-ubuntu-users.html) for Ubuntu Linux.
+For monitoring the server, please take a look at the [monitoring section](/administration/monitoring) or use other generic monitoring [tools](https://www.ubuntugeek.com/bandwidth-monitoring-tools-for-ubuntu-users.html) for Ubuntu Linux.
 
 Additionally, you can see [commercial support](https://bigbluebutton.org/commercial-support/) for help in stress testing your server.
 
-## Where is the admin interface for BigBlueButton
+### Where is the admin interface for BigBlueButton
 
-Since BigBlueButton is controlled by its [API](/dev/api.html), there isn't an administrative panel for BigBlueButton. Most of the server maintenance functions are handled by [bbb-conf](/admin/bbb-conf.html).
+Since BigBlueButton is controlled by its [API](/development/api), there isn't an administrative panel for BigBlueButton. Most of the server maintenance functions are handled by [bbb-conf](/administration/bbb-conf).
 
 The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/integrations/).
 
-BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/gl-overview.html).
+BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/overview).
 
-## Networking
+### Networking
 
-### How do I change the hostname of my BigBlueButton server
+#### How do I change the hostname of my BigBlueButton server
 
-If you change the hostname (or IP address) of your BigBlueButton server, you can easily change all the related BigBlueButton configuration files using the [bbb-conf tool](/admin/bbb-conf.html).
+If you change the hostname (or IP address) of your BigBlueButton server, you can easily change all the related BigBlueButton configuration files using the [bbb-conf tool](/administration/bbb-conf).
 
-### We recommend running BigBlueButton on port 80/443
+#### We recommend running BigBlueButton on port 80/443
 
 We recommend running BigBlueButton on port 80/443 -- specifically, having the nginx server in a BigBlueButton server bind to port 80/443. In other words, we recommend against running BigBlueButton on port 8081, 8088 or another port.
 
@@ -479,54 +479,54 @@ However, BigBlueButton is a real-time application processing voice and video. Th
 
 For the above reasons, we recommend you setup BigBlueButton on a dedicated server listening to port 80/443. We also recommend you not run any other applications (such as plesk) on the same server.
 
-### What ports must be open for external users to connect to BigBlueButton
+#### What ports must be open for external users to connect to BigBlueButton
 
 For TCP ports, clients must be able to connect to the BigBlueButton server on port 80/443 (HTTP/HTTPS).
 
 For UDP ports, clients must be able to connect on a port within the range 16384-32767 for WebRTC-based audio.
 
-### Does BigBlueButton support tunneling
+#### Does BigBlueButton support tunneling
 
-Yes. See [Configure the firewall](/install/install.html#configure-the-firewall-if-required).
+Yes. See [Configure the firewall](/administration/install#configure-the-firewall-if-required).
 
-### Does BigBlueButton provide secure collaboration?
+#### Does BigBlueButton provide secure collaboration?
 
 There are multiple security mechanisms in BigBlueButton.
 
 When the BigBlueButton server is secured with an transport level security (TLS) certificate, all content download from the server to the user's browser occurs via hypertext transport protocol secure (HTTPS). We provide an installation script for BigBlueButton that can automate the setup of the TLS certificate (see [bbb-install.sh](https://github.com/bigbluebutton/bbb-install)).
 
-When a front-end makes an API request to BigBlueButton, the BigBlueButton server validates the incoming server checksum computed from a shared secret (see [API Security Model](https://docs.bigbluebutton.org/dev/api.html#api-security-model)). If the checksum match fails, the request is ignored.
+When a front-end makes an API request to BigBlueButton, the BigBlueButton server validates the incoming server checksum computed from a shared secret (see [API Security Model](/development/api#api-security-model)). If the checksum match fails, the request is ignored.
 
 When the BigBlueButton client loads, it makes data connections back to the BigBlueButton server using a web socket connection encrypted HTTPS. When the BigBlueButton shares the user's audio, video, or screen, the browser uses the built-in web real-time communication (WebRTC) libraries that transmit real-time protocol packets (RTP) over user datagram protocol (UDP) via Datagram Transport Layer Security (see [DTLS](https://en.wikipedia.org/wiki/Datagram_Transport_Layer_Security)). Furthermore, to provide communications privacy for datagram protocols the media packets are encrypted using the Secure Real-Time Protocol (see [SRTP](https://en.wikipedia.org/wiki/Secure_Real-time_Transport_Protocol)).
 
 As described above, by saying there are _multiple_ security mechanisms BigBlueButton, does this mean BigBlueButton offers secure collaboration? No. No system is really secure, there are only levels of security. We care about security in the BigBlueButton project, and if you detect any security vunerabilities in the project, you can make a responsible disclosure by emailing us at security@bigbluebutton.org.
 
 
-## Front Ends
+### Front Ends
 
-### Does BigBlueButton come with a front end?
+#### Does BigBlueButton come with a front end?
 
 ![greenlight-start](/img/greenlight/gl-start.png)
 
-### Can I run multiple virtual classrooms in a single BigBlueButton server
+#### Can I run multiple virtual classrooms in a single BigBlueButton server
 
 Absolutely. To see an example of this, check out [GreenLight on our pool of demo servers](https://demo.bigbluebutton.org/gl). You can start numerous different rooms and they will be spread over the pool of servers but some of them will be on the same server. If the pool only had one server, all of your virtual classrooms would be on the same server.
 
-### How do I setup new classrooms in BigBlueButton
+#### How do I setup new classrooms in BigBlueButton
 
 If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/support), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
 
-Alternatively, you can set up [Greenlight](/greenlight/gl-overview.html) to be able to easily manage classrooms.
+Alternatively, you can set up [Greenlight](/greenlight/overview) to be able to easily manage classrooms.
 
-### How do I integrate BigBlueButton with my own server
+#### How do I integrate BigBlueButton with my own server
 
-BigBlueButton provides an [API](/dev/api.html) for integration with other web-based applications.
+BigBlueButton provides an [API](/development/api) for integration with other web-based applications.
 
 The best approach is to see how others have integrated and adapt their code to your integration. Don't you just love open source!
 
-## Server Configuration
+### Server Configuration
 
-### Does BigBlueButton offer permanent sessions
+#### Does BigBlueButton offer permanent sessions
 
 The BigBlueButton server does not support persistent or permanent sessions where users can leave and return the next day, for example, and have their slides and chat messages persist.
 
@@ -534,9 +534,9 @@ This is by design. Why is this the case? This design makes it easy for system ad
 
 It's similar with the BigBlueButton server. The lifespan of a session on the BigBlueButton server begins when a front-end sends a `create` API request to the BigBlueButton server. Once a room is created (the `create` request succeeded), users can join the session and interact within the session. The session ends (and is cleared from the server's memory) when the last person leaves.
 
-# Using BigBlueButton
+## Using BigBlueButton
 
-## Accessibility
+### Accessibility
 
 We designed BigBlueButton to be accessible to users with visual and/or audible disabilities.
 
@@ -546,21 +546,21 @@ BigBlueButton supports [live closed captioning](https://www.youtube.com/watch?ti
 
 For a full statement on our accessibility see [https://bigbluebutton.org/accessibility/](https://bigbluebutton.org/accessibility/).
 
-## Screen Sharing
+### Screen Sharing
 
-### What is needed to run desktop sharing
+#### What is needed to run desktop sharing
 
 BigBlueButton using WebRTC for sharing audio, video, and screen. You should be able to share your screen using Chrome, FireFox, and the newest version of Edge (based on Chromium). You don't need to install any plugin or download any additional binary to share your screen.
 
 At the time of this writing, you can view the presenter's screen on mobile devices, but not share the mobile screen.
 
-### Can I share a specific window when sharing my desktop
+#### Can I share a specific window when sharing my desktop
 
 While you can't choose a specific window, on Windows you can share a specific region of your desktop and place the window within that region.
 
-## Presentations
+### Presentations
 
-### Can I upload Microsoft Office documents to BigBlueButton
+#### Can I upload Microsoft Office documents to BigBlueButton
 
 Yes. BigBlueButton uses LibreOffice 4.3 for converting Microsoft Office documents into PDF for display in BigBlueButton.
 
@@ -568,7 +568,7 @@ If possible, for best results, save your Word or PowerPoint document as PDF. If 
 
 You'll always get the best results with PDF.
 
-### Will my animations and videos in PowerPoint convert when uploaded
+#### Will my animations and videos in PowerPoint convert when uploaded
 
 When you upload a PowerPoint document, BigBlueButton will convert it to PDF (using LibreOffice) and then finally to scalable vector graphics (SVG) for display within the client.
 
@@ -576,7 +576,7 @@ The conversion to PDF will remove any animations (visual or audio), links, and e
 
 As the presenter, if you want to share a YouTube or Vimeo video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
 
-### I uploaded a document but some fonts are missing after conversion
+#### I uploaded a document but some fonts are missing after conversion
 
 If you upload a PDF document, all your fonts will come through with the document. In other words, for best results, if possible always create a PDF and upload it for conversion.
 
@@ -590,23 +590,23 @@ $ sudo apt-get install fonts-ipaexfont
 $ sudo bbb-conf --restart
 ```
 
-### Does BigBlueButton support multi-user whiteboard
+#### Does BigBlueButton support multi-user whiteboard
 
 Yes.
 
-## Video
+### Video
 
-### I'm on Ubuntu and I can't share my webcam
+#### I'm on Ubuntu and I can't share my webcam
 
 See Ubuntu's documentation for [Webcam Troubleshooting](https://help.ubuntu.com/community/Webcam/Troubleshooting).
 
-## Voice Conference
+### Voice Conference
 
-### Why can't others hear me in the voice conference
+#### Why can't others hear me in the voice conference
 
 If others in the voice conference don't hear you when you speak, it's likely that the browser has picked the wrong microphone on your computer. You can click the phone icon twice -- once to leave and a second time to rejoin -- to try joining the audio again. When you see the echo test, if you can't hear yourself, click "no" and select a different microphone.
 
-### Why do others only hear part of my audio
+#### Why do others only hear part of my audio
 
 FreeSWITCH has automatic audio clipping, which means it will not transmit a speaker's audio if the volume is too low. If the speaker's audio is low, FreeSWITCH might take a moment to recognize that someone is speaking before transmitting, causing others to hear your audio only after you have started speaking a few words.
 
@@ -625,7 +625,7 @@ and set energy-level to a lower value (e.g. 100)
 
 Save the file, then do `sudo bbb-conf --restart` to restart BigBlueButton.
 
-### Why is there an echo in the voice conference
+#### Why is there an echo in the voice conference
 
 In BigBlueButton, we use the built-in acoustic echo cancellation, so in most cases, you should not hear any echo from remote users.
 
@@ -637,35 +637,35 @@ If a student is causing echo, the best way to solve this problem, if you are log
 
 Overall, the best solution is to ask all users to use a headset -- this will ensure no background noise or echo.
 
-### How do I get the best audio
+#### How do I get the best audio
 
 Use FireFox or Chrome.
 
 Both these browsers support web real-time communications (WebRTC) audio. BigBlueButton will use WebRTC for audio if the user is on FireFox or Chrome browser.
 
-## Record and Playback
+### Record and Playback
 
-### Where is the record button
+#### Where is the record button
 
-In BigBlueButton, the external application that uses the BigBlueButton API can now pass an additional parameter `record=true` when creating a session. This additional parameter instructs the BigBlueButton server to record the session and make a recording available through subsequent [getRecordings](/dev/api.html#getrecordings) calls.
+In BigBlueButton, the external application that uses the BigBlueButton API can now pass an additional parameter `record=true` when creating a session. This additional parameter instructs the BigBlueButton server to record the session and make a recording available through subsequent [getRecordings](/development/api#getrecordings) calls.
 
 There is no user interface for the presenter to turn on or turn off a recording.
 
-When instructed through the API call, the BigBlueButton server will record all of the meeting, from the time the first person joins to when the last person leaves. A meeting may also end when it reaches its duration or the [end](/dev/api.html#end) is called on the meeting.
+When instructed through the API call, the BigBlueButton server will record all of the meeting, from the time the first person joins to when the last person leaves. A meeting may also end when it reaches its duration or the [end](/development/api#end) is called on the meeting.
 
-### What parts of the session does BigBlueButton record
+#### What parts of the session does BigBlueButton record
 
 BigBlueButton records all activity in the presentation, chat, webcams, and desktop sharing for playback.
 
-### What browsers support playback
+#### What browsers support playback
 
 BigBlueButton supports playback in Chrome and FireFox.
 
 In BigBlueButton, the audio from a recorded session is encoded into [Vorbis](https://en.wikipedia.org/wiki/Vorbis), an open source audio format that is not patent-encumbered. Playback of Vorbis audio is supported in FireFox and Chrome, but not IE and Safari.
 
-BigBlueButton will playback the webcams from a session using the WebM container, which, thanks to Google, provides a high-quality open source video codec VP8. Playback of video in VP8 is supported by FireFox and Chrome (see the [HTML5 video](https://en.wikipedia.org/wiki/HTML5_video) Wikipedia article). If you want to support playback of recordings for Safari mobile users on iOS, see [Enable playback of recordings on iOS](/admin/customize.html#enable-playback-of-recordings-on-ios).
+BigBlueButton will playback the webcams from a session using the WebM container, which, thanks to Google, provides a high-quality open source video codec VP8. Playback of video in VP8 is supported by FireFox and Chrome (see the [HTML5 video](https://en.wikipedia.org/wiki/HTML5_video) Wikipedia article). If you want to support playback of recordings for Safari mobile users on iOS, see [Enable playback of recordings on iOS](/administration/customize#enable-playback-of-recordings-on-ios).
 
-### What is the disk space usage for storing one hour of recordings
+#### What is the disk space usage for storing one hour of recordings
 
 Storage values for different types of session in BigBlueButton 0.81.
 
@@ -677,7 +677,7 @@ The file sizes are for a one hour session. When a recorded session ends, BigBlue
 | audio + webcam (1 webcam) | 131 MB/h | 51 MB/h | 182 MB/h |
 | audio + desktop sharing   | 236 MB/h | 73 MB/h | 309 MB/h |
 
-#### Archive
+##### Archive
 
 For audio, the storage of the audio stream is 110 MB/h. The storage is a .wav file.
 
@@ -685,7 +685,7 @@ For audio + webcam, the additional storage is for saving each individual webcam 
 
 For audio + deskshare, the additional storage is for the desktop sharing stream (there will only be one stream at any one time). A one hour desktop sharing stream is 125M.
 
-#### Playback
+##### Playback
 
 For playback, the audio, webcams, and desktop share are processed into a single playback file WebM (VP8 Codec).
 
@@ -695,7 +695,7 @@ For audio + webcam only, there is a single webM file that is 51M.
 
 For audio + desktop sharing, there is a single WebM that is 72M.
 
-### Can I see the total time of the session
+#### Can I see the total time of the session
 
 The information displayed during playback is browser-specific.
 
@@ -703,7 +703,7 @@ In Chrome, the audio playback component shows only the current time index for th
 
 In FireFox, the audio playback component shows both the current time index and total time of the audio file.
 
-### How do I modify the default playback format
+#### How do I modify the default playback format
 
 The ingest and processing scripts, written in Ruby, process the recorded events and media to create a playback option. The default scripts, called `presentation.rb` (there is a script for processing and publishing), are located in
 
@@ -716,15 +716,15 @@ BigBlueButton uses popcorn.js, an HTML5 media framework, for playback.
 
 By modifying presentation.rb, you could, for example, exclude chat from the layout, add themes or colors, change the layout of the HTML5 web page, add a download link to the content, etc.
 
-### How do I download a recorded session
+#### How do I download a recorded session
 
 When looking to download a recorded session, most expect a single link to download the video file.
 
 In contrast, BigBlueButton does not create a video file for playback. Video files for a three hour lecture can get very large. Instead, BigBlueButton creates an HTML5 page that references PNG images and audio, and time indexes the PNG images against the audio to match their display in the session. The result is the source playback files are very small and can be hosted on any web server. The drawback is there will be a pause for the browser to download all this content, but, once downloaded, there is no more load on the web server.
 
-## Other
+### Other
 
-### Why does content not persist between sessions
+#### Why does content not persist between sessions
 
 BigBlueButton does not store any content -- such as chat, shared notes, uploaded slides, annotations, etc. -- between sessions. When you end a meeting and start a new one, you have a new meeting with a clean slate.
 
@@ -736,31 +736,31 @@ The API does allow for a front-end to pre-upload a presentation, which gives the
 
 In short, this stateless approach makes the overall architecture of BigBlueButton much simpler, and simple is good for focusing on speed, stability, maintainability of code, privacy, and focusing resources on building out features important to instructors.
 
-# Developing BigBlueButton
+## Developing BigBlueButton
 
-## Setup
+### Setup
 
-### Setting up the dev environment
+#### Setting up the dev environment
 
-See [Developing BigBlueButton](/dev/setup.html) for full instructions.
+See [Developing BigBlueButton](/development/guide) for full instructions.
 
-### Where can I download the latest build
+#### Where can I download the latest build
 
 You can checkout the latest code from Git. See [BigBlueButton GitHub repository](https://github.com/bigbluebutton/bigbluebutton).
 
-# Troubleshooting
+## Troubleshooting
 
-## Connectivity
+### Connectivity
 
-### Users do not appear in the listeners window
+#### Users do not appear in the listeners window
 
-For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/dev/api.html#create) call. This is done using the [built-in API demos](/install/install.html#6.-install-api-demos).
+For a user to appear in the listener's window, the 3rd party application using the BigBlueButton API to create a room must pass a `voiceBridge` parameter with the `create` call. See [create meeting](/development/api#create) call. This is done using the [built-in API demos](/administration/install#6.-install-api-demos).
 
 Next, BigBlueButton must successfully connect to FreeSWITCH's SIP port and FreeSWITCH's Event Socket Layer. To resolve connection problems, see question below.
 
-## Audio
+### Audio
 
-### When I click on the headset icon, nothing happens
+#### When I click on the headset icon, nothing happens
 
 First, as with most errors, run
 
@@ -785,13 +785,13 @@ eth0      Link encap:Ethernet  HWaddr 12:31:33:22:25:c2
           RX bytes:642594447 (642.5 MB)  TX bytes:2670592958 (2.6 GB)
 ```
 
-See [audio is not working](/install/install.html#audio-not-working) for how to resolve this.
+See [audio is not working](/administration/install#audio-not-working) for how to resolve this.
 
-### I have two microphones and want to choose one to join the voice conference
+#### I have two microphones and want to choose one to join the voice conference
 
 When you're inside the client, right-click, go to Settings > Microphone Icon > select your microphone, and talk to see if it works by checking the volume bar.
 
-### Some users are experiencing audio problems
+#### Some users are experiencing audio problems
 
 When using FireFox or Chrome, BigBlueButton uses the high-quality OPUS codec that transmits and receives audio packets over UDP.
 
@@ -843,9 +843,9 @@ If a specific user is having poor audio quality (i.e. only their audio is choppy
 
 We recommend that users use FireFox or Chrome for transmitting/receiving the best audio. Both these browser support web real-time communications framework.
 
-## Presentation
+### Presentation
 
-### Why can't I resize my portrait document
+#### Why can't I resize my portrait document
 
 BigBlueButton is designed so the viewers of the presentation window are always in sync with the presenter's view. It's not possible for the presenter to point at something and a viewer to say "I don't see what you are pointing at".
 
@@ -857,19 +857,19 @@ However, for portrait documents, the "fit to page" approach means that text is u
 
 We plan to add a "fit to width" option in BigBlueButton in a future iteration, one that both keeps the viewers and presenters in sync, but allows the presenter to better show portrait documents.
 
-## Administration
+### Administration
 
-### bbb-conf --check reports Host IP does not match BigBlueButton
+#### bbb-conf --check reports Host IP does not match BigBlueButton
 
 This is really more of a warning than an error. If you are using a DNS name, and that DNS name resolves to the IP address, or you have an external DNS name that is port forwarded to BigBlueButton, you can safely ignore the warning.
 
-### Which log files should I check for errors
+#### Which log files should I check for errors
 
-Log and configuration file information can be found [here](/admin/configuration-files.html).
+Log and configuration file information can be found [here](/administration/configuration-files).
 
-## Other Questions
+### Other Questions
 
-### When will feature X be implemented
+#### When will feature X be implemented
 
 BigBlueButton is built by a group of (very determined) open source developers that volunteer their time to the project. Some of us also work for companies that provide [commercial support](https://bigbluebutton.org/support) for BigBlueButton.
 
@@ -877,7 +877,7 @@ We want to make BigBlueButton the leading open source web conferencing system fo
 
 Time is a precious commodity. In general, when planning each release, we look at the outstanding issues and group them in three categories (in order of priority)
 
-1. What are the most important items on our [road map](/support/road-map.html) (these are the features that best support our target market of on-line learning)?
+1. What are the most important items on our [road map](/support/road-map) (these are the features that best support our target market of on-line learning)?
 2. What refactoring/features by the [core committers](#bigbluebutton-committer) are needed to improve the code base/maintainability/usability of the product?
 3. What features are our community asking to implement (specifically, those not related to distance education, but would be useful to some, such as remote desktop control)?
 
@@ -889,7 +889,7 @@ For (2), often we'll revisit a previously implemented feature to improve its per
 
 If your feature belongs in category (3), you have options. BigBlueButton is an open source project: if you (or your organization) want to improve BigBlueButton, we welcome your contribution. See [Contributing to BigBlueButton](#contributing-to-bigbluebutton). If you want to engage other companies to accelerate the feature, see the companies that provide commercial support.
 
-### How can I donate money to the project
+#### How can I donate money to the project
 
 The BigBlueButton project does not accept donations. We think it's a poor business model for running an open source project as it suggests the developers are working for charity.
 
@@ -897,7 +897,7 @@ If you want to help the project financially, you can approach some of the compan
 
 We appreciate positive feedback on our project as well. If you are on Twitter, send us a tweet to `@bigbluebutton`. That helps raise awareness of our project so others can benefit from it as well.
 
-### How do I change the brand of BigBlueButton
+#### How do I change the brand of BigBlueButton
 
-To brand BigBlueButton, setup the [development environment](/2.4/dev.html) to create your own version of the HTML5 client. You can use the browser's inspect tools to see where each item you want to brand is loaded.
+To brand BigBlueButton, setup the [development environment](/development/guide) to create your own version of the HTML5 client. You can use the browser's inspect tools to see where each item you want to brand is loaded.
 

@@ -50,8 +50,13 @@ const config = {
     plugins: [require.resolve("@cmfcmf/docusaurus-search-local")],
 
     themeConfig:
+
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
+            tableOfContents: {
+                minHeadingLevel: 2,
+                maxHeadingLevel: 4,
+            },
             navbar: {
                 title: 'BigBlueButton',
                 logo: {
@@ -108,12 +113,33 @@ const config = {
                         title: 'Support',
                         items: [
                             {
+                                label: 'Road Map',
+                                to: '/support/road-map',
+                            },
+                            {
+                                label: 'FAQ',
+                                to: '/support/faq',
+                            },
+                            {
+                                label: 'Getting help',
+                                to: '/support/getting-help',
+                            },
+                            {
+                                label: 'Troubleshooting',
+                                to: '/support/troubleshooting',
+                            },
+                        ],
+                    },
+                    {
+                        title: 'Resources',
+                        items: [
+                            {
                                 label: 'Knowledge Base',
-                                to: 'https://support.bigbluebutton.org/',
+                                href: 'https://support.bigbluebutton.org/',
                             },
                             {
                                 label: 'Tutorial Videos',
-                                to: 'https://bigbluebutton.org/teachers/tutorials/',
+                                href: 'https://bigbluebutton.org/teachers/tutorials/',
                             },
                         ],
                     },

@@ -26,7 +26,7 @@ function HomepageHeader() {
                         </p>
                         <Link
                             className="button button--install button--lg"
-                            to="/docs/intro">
+                            to="/administration/install">
                             Quick Start Guide
                         </Link>
                     </div>

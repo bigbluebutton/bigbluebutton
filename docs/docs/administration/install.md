@@ -12,13 +12,13 @@ keywords:
 
 BigBlueButton 2.6 is under active development.  We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
-# Before you install
+## Before you install
 
-We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 20.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.4, we recommend setting up a clean server for BigBlueButton 2.6 on Ubuntu 20.04 and, after setup, [migrate over your existing recordings](/admin/customize.html#transfer-published-recordings-from-another-server). We support upgrading a BigBlueButton 2.5 server to 2.6.
+We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 20.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.4, we recommend setting up a clean server for BigBlueButton 2.6 on Ubuntu 20.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server). We support upgrading a BigBlueButton 2.5 server to 2.6.
 
-A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq.html#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/gl-install.html)).
+A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/install)).
 
-## Minimum server requirements
+### Minimum server requirements
 
 For production, we recommend the following minimum requirements
 
@@ -45,7 +45,7 @@ If you are setting up BigBlueButton for local development on your workstation, y
 
 Regardless of your environment, the setup steps will include configuring a SSL certificate on the nginx server. Why?  All browsers now require a valid SSL certificate from the web server when a page requests access to the user's webcam or microphone via web real-time communications (WebRTC). If you try to access a BigBlueButton server with an IP address only, the browsers will block BigBlueButton client from accessing your webcam or microhone.
 
-## Pre-installation checks
+### Pre-installation checks
 
 Got a Ubuntu 20.04 64-bit server ready for installation?  Great! But, before jumping into the installation section below, let's do a few quick configuration checks to make sure your server meets the minimum requirements.
 
@@ -117,7 +117,7 @@ inet6 ::1/128 scope host
 ...
 ```
 
-If you do not see the line `inet6 ::1/128 scope host` then after you install BigBlueButton you will need to modify the configuration for FreeSWITCH to [disable support for IPV6](/support/troubleshooting.html#freeswitch-fails-to-bind-to-port-8021).
+If you do not see the line `inet6 ::1/128 scope host` then after you install BigBlueButton you will need to modify the configuration for FreeSWITCH to [disable support for IPV6](/support/troubleshooting#freeswitch-fails-to-bind-to-port-8021).
 
 Next, check that your server is running Linux kernel 5.x.
 
@@ -137,7 +137,7 @@ Sometimes we get asked "Why are you only supporting Ubuntu 20.04 64-bit?". The a
 
 At the moment, the requirement for docker may preclude running 2.6 within some virtualized environments; however, it ensures libreoffice runs within a restricted sandbox for document conversion.  We are exploring if we can run libreoffice within systemd (such as systemd-nspawn).
 
-# Install
+## Install
 
 To install BigBlueButton, use [bbb-install-2.6.sh](https://github.com/bigbluebutton/bbb-install/blob/master/bbb-install-2.6.sh) script.
 
@@ -147,7 +147,7 @@ The above link gives detailed information on using the script. As an example, th
 wget -qO- https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh | bash -s -- -v focal-260 -s bbb.example.com -e notice@example.com -g -w
 ```
 
-Note: You can [uninstall Greenlight](/greenlight/gl-install.html#uninstall) if you do not intend on using it on production.
+Note: You can [uninstall Greenlight](/greenlight/install#uninstall) if you do not intend on using it on production.
 
 After the `bbb-install-2.6.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
@@ -216,7 +216,7 @@ BigBlueButton Server 2.6.0-alpha.1 (54)
                               stun: stun.l.google.com:19302
 
 
-# Potential problems described below
+## Potential problems described below
 
 ```
 
@@ -248,7 +248,7 @@ bbb-pads ——————————————► [✔ - active]
 You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packages (your version numbers may be slightly different).
 
 ```bash
-# dpkg -l | grep bbb-
+## dpkg -l | grep bbb-
 ii  bbb-apps-akka             2.6-10     all          BigBlueButton Apps (Akka)
 ii  bbb-config                1:2.6-4    amd64        BigBlueButton configuration utilities
 ii  bbb-etherpad              1:2.6-2    amd64        The EtherPad Lite components for BigBlueButton
@@ -286,15 +286,15 @@ $ sudo bbb-conf --secret
 
 The link to API-Mate will open a page at [https://mconf.github.io/api-mate/](https://mconf.github.io/api-mate/) and let you send valid API calls to your server. This makes it easy for testing wihthout any frontend like Greenlight.
 
-## Configure the firewall (if required)
+### Configure the firewall (if required)
 
-Do you have a firewall between you and your users? If so, see [configuring your firewall](/admin/configure-firewall).
+Do you have a firewall between you and your users? If so, see [configuring your firewall](/administration/firewall-configuration).
 
-## Upgrading BigBlueButton 2.6
+### Upgrading BigBlueButton 2.6
 
 You can upgrade by re-running the `bbb-install-2.6.sh` script again -- it will download and install the latest release of BigBlueButton 2.6.
 
-## Upgrading from BigBlueButton 2.5
+### Upgrading from BigBlueButton 2.5
 
 You can upgrade in two steps:
 
@@ -302,11 +302,11 @@ Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
 
 Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
 
-## Upgrading from BigBlueButton 2.4
+### Upgrading from BigBlueButton 2.4
 
-If you are upgrading BigBlueButton 2.4 or 2.3 we recommend you set up a new Ubuntu 20.04 server with BigBlueButton 2.5 and then [copy over your existing recordings from the old server](/admin/customize.html#transfer-published-recordings-from-another-server).
+If you are upgrading BigBlueButton 2.4 or 2.3 we recommend you set up a new Ubuntu 20.04 server with BigBlueButton 2.5 and then [copy over your existing recordings from the old server](/administration/customize#transfer-published-recordings-from-another-server).
 
-## Restart your server
+### Restart your server
 
 You can restart and check your BigBlueButton server at any time using the commands
 
@@ -319,14 +319,14 @@ The `bbb-conf --check` scans some of the log files for error messages. Again, an
 
 If you see other warning messages check out the [troubleshooting installation](/support/troubleshooting).
 
-## Post installation steps
+### Post installation steps
 
 If this server is intended for production, you should also
 
-- [Secure your system -- restrict access to specific ports](/admin/customize.html#secure-your-system--restrict-access-to-specific-ports)
-- [Configure the server to work behind a firewall](/admin/configure-firewall) (if you have installed behind a firewall or on a server that has a public/private IP address)
-- [remove Greenlight](/greenlight/gl-install.html#uninstall) (if you had it installed and is no longer needed)
-- [Set up a TURN server](/admin/setup-turn-server.html) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
+- [Secure your system -- restrict access to specific ports](/administration/customize#secure-your-system--restrict-access-to-specific-ports)
+- [Configure the server to work behind a firewall](/administration/firewall-configuration) (if you have installed behind a firewall or on a server that has a public/private IP address)
+- [remove Greenlight](/greenlight/install#uninstall) (if you had it installed and is no longer needed)
+- [Set up a TURN server](/administration/turn-server) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
 - Test your HTTPS configuration. A well-respected site that can do a series of automated tests is [https://www.ssllabs.com/ssltest/](https://www.ssllabs.com/ssltest/) - simply enter your server's hostname, optionally check the "Do not show results" check box if you would like to keep it private, then Submit. At time of writing, the configuration shown on this page should achieve an "A" ranking in the SSL Labs test page.
 
 We provide publically accessible servers that you can use for testing:
@@ -334,13 +334,13 @@ We provide publically accessible servers that you can use for testing:
 - [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/) - a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases)
 - [https://test26.bigbluebutton.org](https://test26.bigbluebutton.org) - Runs the general build of BigBlueButton 2.6 - usually a few days behind the repository branch `v2.6.x-release`
 
-To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](https://docs.bigbluebutton.org/dev/api.html). To see videos of BigBlueButton HTML5 client, see [https://bigbluebutton.org/html5](https://bigbluebutton.org/html5).
+To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](/development/api). To see videos of BigBlueButton HTML5 client, see [https://bigbluebutton.org/html5](https://bigbluebutton.org/html5).
 
-# Other installation options
+## Other installation options
 
 There are members of the community that provide other installation options for BigBlueButton.
 
-## Ansible
+### Ansible
 
 If you're looking to deploy a large-scale installation of BBB using [Scalelite](https://github.com/blindsidenetworks/scalelite) then your servers are best managed using tools like Ansible. A few reasons you might go with this setup are:
 
@@ -366,13 +366,13 @@ Large scale deployments must include several other components in addition to the
 - [Full setup for a university](https://github.com/unistra/bigbluebutton/)
 - [Full HA setup with PeerTube, Conferences Streaming, EFK, Prometheus, backups](https://github.com/Worteks/bbb-ansible)
 
-# Customizations
+## Customizations
 
-## Increase number of processes for nodejs
+### Increase number of processes for nodejs
 
-See [the HTML5 section on the Architecture page](/2.4/architecture.html#scalability-of-html5-server-component)
+See [the HTML5 section on the Architecture page](/development/architecture#scalability-of-html5-server-component)
 
-## Increase number of recording workers
+### Increase number of recording workers
 
 Previous versions of BigBlueButton used a single thread for processing recordings. BigBlueButton 2.6 uses [resque](https://github.com/resque/resque) to spawn multiple recording workers for processing recordings.
 
@@ -388,7 +388,7 @@ ExecStart=/bin/sh -c '/usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bi
 WorkingDirectory=/usr/local/bigbluebutton/core/scripts
 Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
 Environment=COUNT=1
-# Environment=VVERBOSE=1
+## Environment=VVERBOSE=1
 User=bigbluebutton
 Restart=always
 RestartSec=3
@@ -404,14 +404,14 @@ If you want 3 recording workers, for example, the steps below show how to add a 
 **Note**: We have discovered an issue with having more than one worker present at a time if `defaultKeepEvents` or `meetingKeepEvents` in bbb-web is enabled. This is being currently addressed. For more information here is a [link to the issue description](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
 
 ```
-# mkdir -p /etc/systemd/system/bbb-rap-resque-worker.service.d
-# cat > override.conf << HERE
+## mkdir -p /etc/systemd/system/bbb-rap-resque-worker.service.d
+## cat > override.conf << HERE
 [Service]
 Environment=COUNT=3
 HERE
-# systemctl daemon-reload
-# systemctl restart bbb-rap-resque-worker.service
-# systemctl status bbb-rap-resque-worker.service
+## systemctl daemon-reload
+## systemctl restart bbb-rap-resque-worker.service
+## systemctl status bbb-rap-resque-worker.service
 ● bbb-rap-resque-worker.service - BigBlueButton resque worker for recordings
    Loaded: loaded (/usr/lib/systemd/system/bbb-rap-resque-worker.service; disabled; vendor preset: enabled)
   Drop-In: /etc/systemd/system/bbb-rap-resque-worker.service.d
@@ -432,15 +432,15 @@ HERE
 
 The processing of recordings is also much faster thanks to the work of [abatu](https://github.com/abautu) in the community (see [#2483](https://github.com/bigbluebutton/bigbluebutton/issues/2483)).
 
-## Run three Kurento servers
+### Run three Kurento servers
 
-Recommend running [three parallel Kurento servers](/admin/customize.html#run-three-parallel-kurento-media-servers).
+Recommend running [three parallel Kurento servers](/administration/customize#run-three-parallel-kurento-media-servers).
 
-## Local overrides for configuration settings
+### Local overrides for configuration settings
 
-The full description for local overrides for configuration files was moved to [Administration -> Configuration Files](/admin/configuration-files#local-overrides-for-configuration-settings)
+The full description for local overrides for configuration files was moved to [Administration -> Configuration Files](/administration/configuration-files#local-overrides-for-configuration-settings)
 
-## Installing additional recording processing formats
+### Installing additional recording processing formats
 
 In addition to the `presentation` format that is installed and enabled by default, there are several optional recording formats available for BigBlueButton:
 
@@ -483,9 +483,9 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
-# Troubleshooting
+## Troubleshooting
 
-## Package locales-all is not available
+### Package locales-all is not available
 
 The package `bbb-libreoffice` needs to build a docker image for libreoffice. If you receive the following error when installing on a network behind a firewall
 
@@ -510,6 +510,6 @@ echo "nameserver 10.11.12.13" > /etc/resolv.conf
 
 For more details see [this issue](https://github.com/bigbluebutton/bbb-install/issues/385).
 
-# Feedback and reporting bugs
+## Feedback and reporting bugs
 
 If you found a reproducible bug, please report it in the [GitHub Issues section](https://github.com/bigbluebutton/bigbluebutton/issues) with steps to reproduce (this will make it easier for the developers to fix the bug). Indicate in the body of the bug report that this applies to BigBlueButton 2.6 and give us the client build number, which you can find either with `dpkg -l | grep bbb-html5` or within the client in the `Settings -> About` menu..
