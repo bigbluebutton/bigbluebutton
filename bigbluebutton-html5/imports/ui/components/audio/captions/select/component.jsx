@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.speech.unsupported',
     description: 'Audio speech recognition unsupported',
   },
+  captionsNotEnabled: {
+    id: 'app.audio.captions.speech.captionsNotEnabled',
+    description: 'Audio speech recognition is not enabled for this meeting or this server',
+  },
   'de-DE': {
     id: 'app.audio.captions.select.de-DE',
     description: 'Audio speech recognition german language',
@@ -64,6 +68,19 @@ const Select = ({
   locale,
   voices,
 }) => {
+  if (!enabled || SpeechService.useFixedLocale()) {
+    return (
+      <div
+        style={{
+          fontSize: '.75rem',
+          padding: '1rem 0',
+        }}
+      >
+        {`*${intl.formatMessage(intlMessages.captionsNotEnabled)}`}
+      </div>
+    );  
+  }
+
   if (voices.length === 0) {
     return (
       <div
@@ -76,8 +93,6 @@ const Select = ({
       </div>
     );
   }
-
-  if (!enabled || SpeechService.useFixedLocale()) return null;
 
   const onChange = (e) => {
     const { value } = e.target;
