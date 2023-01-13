@@ -195,6 +195,10 @@ class Page {
     return this.page.locator(selector).nth(index);
   }
 
+  isVisible(selector) {
+    return this.page.isVisible(selector);
+  }
+
   async getSelectorCount(selector) {
     const locator = this.getLocator(selector);
     return locator.count();
@@ -322,6 +326,8 @@ class Page {
   async textColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
   }
+
+  
 }
 
 module.exports = exports = Page;

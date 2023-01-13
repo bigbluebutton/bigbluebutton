@@ -39,12 +39,12 @@ class MultiUsers {
       fullName,
       meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
     };
-
+    
     const page = await context.newPage();
     this.modPage2 = new Page(this.browser, page);
     await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
-
+    
   async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
     const options = {
       ...restOptions,
@@ -264,6 +264,26 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
 
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
+  }
+
+  async removeUser() {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.removeUser);
+    await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
+
+    await this.modPage2.hasElement(e.errorScreenMessage, 10000);
+  }
+
+  async removeUserAndPreventRejoining(context) {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.removeUser);
+    await this.modPage.waitAndClick(e.confirmationCheckbox);
+    await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
+
+    await this.modPage2.hasElement(e.errorScreenMessage, 10000);
+    
+    await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Teste'})
+    await this.modPage2.hasText(e.userBannedMessage, /banned/);
   }
 }
 
