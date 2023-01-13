@@ -503,9 +503,11 @@ def turn_server(hostname, x=0, y=0):
                  ],
                  'runcmd': [
                      'update-ca-certificates',
-                     f'wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -c {hostname}.{args.domain}:secret -e root@{hostname}.{args.domain}',
                  ]
     }
+
+    if not args.no_install:
+        user_data['runcmd'].append(f'wget -qO- https://ubuntu.bigbluebutton.org/bbb-install.sh | sudo bash -s -- -c {hostname}.{args.domain}:secret -e root@{hostname}.{args.domain}')
 
     # If the system we're running on is configured to use an apt proxy, use it for the clients as well.
     #
