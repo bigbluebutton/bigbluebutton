@@ -2,6 +2,7 @@ import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import Logger from '/imports/startup/server/logger';
 import addSystemMsg from '/imports/api/group-chat-msg/server/modifiers/addSystemMsg';
 import clearChatHasMessages from '/imports/api/users-persistent-data/server/modifiers/clearChatHasMessages';
+import UsersPersistentData from '/imports/api/users-persistent-data';
 
 export default function clearGroupChatMsg(meetingId, chatId) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -28,6 +29,16 @@ export default function clearGroupChatMsg(meetingId, chatId) {
         };
         addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, clearMsg);
         clearChatHasMessages(meetingId, chatId);
+
+        //clear offline users' data
+        const selector = {
+          meetingId,
+          'shouldPersist.hasConnectionStatus': { $ne: true },
+          'shouldPersist.hasMessages.private': { $ne: true },
+          loggedOut: true
+        };
+    
+        UsersPersistentData.remove(selector);
       }
     } catch (err) {
       Logger.error(`Error on clearing GroupChat (${meetingId}, ${chatId}). ${err}`);
