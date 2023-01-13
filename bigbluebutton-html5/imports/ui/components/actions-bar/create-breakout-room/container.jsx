@@ -5,12 +5,24 @@ import BreakoutRoomService from '/imports/ui/components/breakout-room/service';
 
 import CreateBreakoutRoomModal from './component';
 
+const METEOR_SETTINGS_APP = Meteor.settings.public.app;
+
 const CreateBreakoutRoomContainer = (props) => {
+  const startWithAllowUserToChooseABreakout = METEOR_SETTINGS_APP.breakouts.startWithAllowUserToChooseABreakout;
+  const startWithCaptureWhiteboardForBreakout = METEOR_SETTINGS_APP.breakouts.startWithCaptureWhiteboardForBreakout;
+  const startWithCaptureSharedNotesForBreakout = METEOR_SETTINGS_APP.breakouts.startWithCaptureSharedNotesForBreakout;
   const { amIModerator } = props;
   return (
     amIModerator
     && (
-      <CreateBreakoutRoomModal {...props} />
+      <CreateBreakoutRoomModal 
+        {...props}  
+        {...{
+          startWithAllowUserToChooseABreakout,
+          startWithCaptureWhiteboardForBreakout,
+          startWithCaptureSharedNotesForBreakout,
+        }}
+      />
     )
   );
 };
