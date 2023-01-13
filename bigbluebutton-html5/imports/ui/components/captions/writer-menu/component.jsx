@@ -140,6 +140,7 @@ class WriterMenu extends PureComponent {
             aria-describedby="descriptionStart"
             onClick={this.handleStart}
             disabled={locale == null}
+            data-test="startWritingClosedCaptions"
           />
           <div id="descriptionStart" hidden>{intl.formatMessage(intlMessages.ariaStartDesc)}</div>
         </Styled.Content>
