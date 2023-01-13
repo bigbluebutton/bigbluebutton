@@ -758,6 +758,8 @@ dhcp-option = option:domain-search,{args.domain}
                      f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 22 -j DNAT --to-destination {server_address}',
                      f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 80 -j DNAT --to-destination {server_address}',
                      f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 443 -j DNAT --to-destination {server_address}',
+                     # port 3478 is TURN; this rule is for NAT gateways fronting TURN servers
+                     f'iptables -t nat -A PREROUTING -p tcp -i ens4 --dport 3478 -j DNAT --to-destination {server_address}',
                      f'iptables -t nat -A PREROUTING -p udp -i ens4 --dport 16384:32768 -j DNAT --to-destination {server_address}',
                      # Also, bbb-install requires the server to have the ability to connect to itself using its DNS name,
                      #    - we don't know our own IP address at this point
@@ -896,6 +898,23 @@ gns3_project.link(master, 1, PublicIP_switch)
 turn_node = turn_server('turn', x=-200, y=-200)
 gns3_project.link(turn_node, 0, PublicIP_switch)
 gns3_project.depends_on(turn_node, master)
+
+# A BigBlueButton TURN server behind a NAT gateway (like AWS or Azure)
+
+natturn_nat = BBB_server_nat('natturn-NAT', x=0, y=-100)
+if server_subnet.with_prefixlen not in gns3_project.node_names():
+    natturn_switch = gns3_project.switch(server_subnet.with_prefixlen, x=0, y=-200)
+else:
+    # can't have two gns3 nodes with the same name, so do this instead
+    natturn_switch = gns3_project.switch('natturn-subnet', x=0, y=-200)
+natturn_node = turn_server('natturn', x=0, y=-300)
+
+gns3_project.link(natturn_nat, 0, PublicIP_switch)
+gns3_project.link(natturn_nat, 1, natturn_switch)
+gns3_project.link(natturn_node, 0, natturn_switch)
+
+gns3_project.depends_on(natturn_node, natturn_nat)
+gns3_project.depends_on(natturn_nat, master)
 
 # The BigBlueButton servers and/or test clients
 
