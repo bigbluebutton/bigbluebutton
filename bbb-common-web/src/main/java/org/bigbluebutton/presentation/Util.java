@@ -19,10 +19,15 @@
 
 package org.bigbluebutton.presentation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
+import java.nio.file.Path;
 
 public final class Util {
-	
+	private static Logger log = LoggerFactory.getLogger(Util.class);
+
 	public static void deleteDirectory(File directory) {
 		/**
 		 * Go through each directory and check if it's not empty.
@@ -40,4 +45,20 @@ public final class Util {
 		// Now that the directory is empty. Delete it.
 		directory.delete();	
 	}
+
+
+	public static void deleteDirectoryFromFileHandlingErrors(File presentationFile) {
+		if ( presentationFile != null ){
+			Path presDir = presentationFile.toPath().getParent();
+			try {
+				File presFileDir = new File(presDir.toString());
+				if (presFileDir.exists()) {
+					deleteDirectory(presFileDir);
+				}
+			} catch (Exception ex) {
+				log.error("Error while trying to delete directory {}", presDir.toString(), ex);
+			}
+		}
+	}
+
 }

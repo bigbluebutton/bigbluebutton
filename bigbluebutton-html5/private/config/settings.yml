@@ -30,7 +30,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2022 BigBlueButton Inc.'
+    copyright: '©2023 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     bbbTabletApp:
@@ -57,6 +57,7 @@ public:
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
+    askForConfirmationOnLeave: true
     allowDefaultLogoutUrl: true
     allowUserLookup: false
     dynamicGuestPolicy: true
@@ -266,8 +267,6 @@ public:
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
     # Enable this if you want to use Kurento as the media server.
     signalCandidates: false
-    # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
-    forceRelayOnFirefox: false
     # traceLogs: <Boolean> - enable trace logs in SFU peers
     traceLogs: false
     cameraTimeouts:
@@ -586,6 +585,9 @@ public:
     # Forces relay usage on all browsers, environments and media modules.
     # If true, supersedes public.kurento.forceRelayOnFirefox
     forceRelay: false
+    # Firefox has a buggy ICE implementation. With mediasoup this leads to
+    # connection problems unless all traffic is relayed through a turn server.
+    forceRelayOnFirefox: true
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -736,6 +738,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    maxStickyNoteLength: 1000
     annotations:
       status:
         start: DRAW_START

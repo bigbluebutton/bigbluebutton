@@ -175,11 +175,6 @@ const PollCheckbox = styled.div`
   margin-bottom: ${pollMdMargin};
 `;
 
-const InstructionsLabel = styled.label`
-  margin-bottom: ${lgPaddingX};
-  color: ${colorText};
-`;
-
 const AddItemButton = styled(Button)`
   top: 1px;
   position: relative;
@@ -215,7 +210,7 @@ const Warning = styled.div`
 
 const CustomInputRow = styled.div`
   display: flex;
-  flex-flow: wrap;
+  flex-flow: nowrap;
   flex-grow: 1;
   justify-content: space-between;
 `;
@@ -349,6 +344,31 @@ const ResponseArea = styled.div`
   flex-flow: column wrap;
 `;
 
+const CustomInputHeading = styled(SectionHeading)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+const CustomInputHeadingCol = styled(Col)`
+  overflow: hidden;
+`;
+
+const CustomInputToggleCol = styled(Col)`
+  flex-shrink: 0;
+`;
+
+const AnonymousHeading = styled(CustomInputHeading)``;
+
+const AnonymousHeadingCol = styled(CustomInputHeadingCol)``;
+
+const AnonymousToggleCol = styled(CustomInputToggleCol)``;
+
+const AnonymousRow = styled(Row)`
+  flex-flow: nowrap;
+  width: 100%;
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -362,7 +382,6 @@ export default {
   PollConfigButton,
   PollParagraph,
   PollCheckbox,
-  InstructionsLabel,
   AddItemButton,
   Row,
   Col,
@@ -376,4 +395,11 @@ export default {
   Question,
   OptionWrapper,
   ResponseArea,
+  CustomInputHeading,
+  CustomInputHeadingCol,
+  CustomInputToggleCol,
+  AnonymousHeading,
+  AnonymousHeadingCol,
+  AnonymousToggleCol,
+  AnonymousRow,
 };

@@ -115,14 +115,15 @@ class MessageForm extends PureComponent {
       maxMessageLength,
     } = this.props;
 
-    const message = e.target.value;
+    let message = e.target.value;
     let error = null;
 
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
         messages.errorMaxMessageLength,
-        { 0: message.length - maxMessageLength },
+        { 0: maxMessageLength },
       );
+      message = message.substring(0, maxMessageLength);
     }
 
     this.setState({

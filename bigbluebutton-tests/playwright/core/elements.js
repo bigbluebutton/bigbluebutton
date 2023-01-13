@@ -102,6 +102,7 @@ exports.hidePrivateChat = 'button[data-test="hidePrivateChat"]';
 exports.closePrivateChat = 'button[data-test="closePrivateChat"]';
 exports.typingIndicator = 'span[data-test="typingIndicator"]';
 exports.chatUserMessageText = 'p[data-test="chatUserMessageText"]';
+exports.secondChatUserMessageText = 'p[data-test="chatUserMessageText"]>>nth=1';
 exports.chatClearMessageText = 'p[data-test="chatClearMessageText"]';
 exports.chatWelcomeMessageText = 'p[data-test="chatWelcomeMessageText"]';
 exports.waitingUsersLobbyMessage = 'div[data-test="lobbyMessage"] >> textarea';
@@ -152,6 +153,11 @@ exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
 exports.etherpadInner = 'iframe[title="pad"]';
 exports.etherpadEditable = 'body[id="innerdocbody"]';
+exports.sendNotesToWhiteboard = 'li[data-test="moveNotesToWhiteboard"]';
+exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProgressToast"]';
+exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
+exports.currentSlideText = 'span[id="currentSlideText"]';
+exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
@@ -195,7 +201,8 @@ exports.pollingContainer = 'div[data-test="pollingContainer"]';
 exports.pollLetterAlternatives = 'button[data-test="pollLetterAlternatives"]';
 exports.pollOptionItem = 'input[data-test="pollOptionItem"]';
 exports.anonymousPoll = 'input[data-test="anonymousPollBtn"]';
-exports.publishPollingLabel = 'button[data-test="publishPollingLabel"]';
+const pollAnswerOptionBtn = 'button[data-test="publishPollingLabel"]';
+exports.publishPollingLabel = pollAnswerOptionBtn;
 exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]';
 exports.receivedAnswer = 'td[data-test="receivedAnswer"]';
 exports.quickPoll = 'button[data-test="quickPollBtn"]';
@@ -222,8 +229,8 @@ exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
-exports.pollAnswerOptionBtn = 'button[data-test="pollAnswerOption"]>>nth=0';
-exports.checkboxInput = 'div[data-test="optionsAnswers"] > div';
+exports.firstPollAnswerOptionBtn = `${pollAnswerOptionBtn}>>nth=0`;
+exports.checkboxInput = `${pollAnswerOptionBtn} > div`;
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -248,7 +255,6 @@ exports.presentationContainer = 'div[data-test="presentationContainer"]';
 exports.minimizePresentation = 'button[data-test="minimizePresentation"]';
 exports.restorePresentation = 'button[data-test="restorePresentation"]';
 exports.shareExternalVideoBtn = 'li[data-test="shareExternalVideo"]';
-exports.externalVideoModalHeader = 'header[data-test="videoModalHeader"]';
 exports.videoModalInput = 'input[id="video-modal-input"]';
 exports.startShareVideoBtn = 'button[data-test="startNewVideo"]';
 exports.videoPlayer = 'div[data-test="videoPlayer"]';
@@ -258,6 +264,9 @@ exports.presentationsList = 'div[id="upload-modal"] tbody';
 exports.exportPresentationToPublicChat = 'button[data-test="exportPresentationToPublicChat"]';
 exports.downloadPresentation = 'div[data-test="downloadPresentationContainer"] > p > a';
 exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]';
+exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
+exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
@@ -298,7 +307,7 @@ exports.copyStats = 'span[data-test="copyStats"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
-exports.connectionStatusTab2 = 'div[data-tab="2"]';
+exports.connectionStatusTab2 = 'li[id="react-tabs-2"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
 exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
@@ -320,10 +329,14 @@ exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
 exports.takePresenter = 'li[data-test="takePresenter"]';
+exports.muteAll = 'li[data-test="muteAll"]';
+exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
+exports.error403removedLabel = 'You have been removed from the meeting';
+
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
 exports.unlockUserButton = 'li[data-test="unlockUserButton"]';
-exports.applyLockSettings ='button[data-test="applyLockSettings"]';
+exports.applyLockSettings = 'button[data-test="applyLockSettings"]';
 exports.lockShareWebcam = 'input[data-test="lockShareWebcam"]';
 exports.lockSeeOtherViewersWebcam = 'input[data-test="lockSeeOtherViewersWebcam"]';
 exports.lockShareMicrophone = 'input[data-test="lockShareMicrophone"]';
@@ -361,6 +374,9 @@ exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[id="TD-PrimaryTools"]';
 exports.wbShapesButton = 'button[id="TD-PrimaryTools-Shapes"]';
 exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
+exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
+exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
+exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
 exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
@@ -375,6 +391,8 @@ exports.pencil = 'button[data-test="pencilTool"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
 exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
 exports.exportPlainButton = 'span[id="exportplain"]';
+exports.pinNotes = 'li[data-test="pinNotes"]';
+exports.unpinNotes = 'button[data-test="unpinNotes"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -383,3 +401,12 @@ exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 // Help button
 exports.helpButton = 'li[data-test="helpButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton'
+
+// Dark mode
+exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
+exports.actionsBarBackground = 'section[id="ActionsBar"]';
+exports.navbarBackground = 'header[id="Navbar"]';
+exports.fullscreenModal = 'div[id="fsmodal"]';
+exports.simpleModal = 'div[id="simpleModal"]';
+exports.sharedNotesBackground = 'div[data-test="notes"]';
+exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';

@@ -107,7 +107,8 @@ const observePresentationConversion = (
 
         if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
-        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' || doc.conversion.status === 'CONVERSION_TIMEOUT') {
+        if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT' 
+          || doc.conversion.status === 'CONVERSION_TIMEOUT' || doc.conversion.status === "IVALID_MIME_TYPE") {
           Presentations.update({id: tokenId}, {$set: {temporaryPresentationId, renderedInToast: false}})
           onConversion(doc.conversion);
           c.stop();
@@ -341,17 +342,17 @@ const getExternalUploadData = () => {
     { meetingId: Auth.meetingID },
     {
       fields: {
-        'meetingProp.uploadExternalDescription': 1,
-        'meetingProp.uploadExternalUrl': 1
+        'meetingProp.presentationUploadExternalDescription': 1,
+        'meetingProp.presentationUploadExternalUrl': 1
       },
     },
   );
 
-  const { uploadExternalDescription, uploadExternalUrl } = meetingProp;
+  const { presentationUploadExternalDescription, presentationUploadExternalUrl } = meetingProp;
 
   return {
-    uploadExternalDescription,
-    uploadExternalUrl,
+    presentationUploadExternalDescription,
+    presentationUploadExternalUrl,
   }
 };
 

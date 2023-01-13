@@ -117,7 +117,7 @@ const messages = defineMessages({
     description: 'Directory lookup',
   },
   yesLabel: {
-    id: 'app.endMeeting.yesLabel',
+    id: 'app.confirmationModal.yesLabel',
     description: 'confirm button label',
   },
   noLabel: {
@@ -828,7 +828,11 @@ class UserListItem extends PureComponent {
               selected={selected === true}
               tabIndex={-1}
               onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
-              onKeyPress={() => { }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId));
+                }
+              }}
               role="button"
             >
               {contents}
