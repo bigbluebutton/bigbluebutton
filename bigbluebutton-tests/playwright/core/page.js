@@ -195,10 +195,6 @@ class Page {
     return this.page.locator(selector).nth(index);
   }
 
-  isVisible(selector) {
-    return this.page.isVisible(selector);
-  }
-
   async getSelectorCount(selector) {
     const locator = this.getLocator(selector);
     return locator.count();

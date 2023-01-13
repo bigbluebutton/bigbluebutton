@@ -82,7 +82,7 @@ test.describe.parallel('User', () => {
     test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
-      await multiusers.initModPage2(true, context, { customParameter: 'userID=Teste'});
+      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2'});
       await multiusers.removeUserAndPreventRejoining(context);
     });
   });

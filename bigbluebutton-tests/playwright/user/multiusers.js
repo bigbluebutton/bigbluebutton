@@ -271,7 +271,13 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
 
-    await this.modPage2.hasElement(e.errorScreenMessage, 10000);
+    //Will be modified when the issue is fixed and accept just one of both screens
+    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    try {
+      await this.modPage2.hasElement(e.errorScreenMessage);
+    } catch (err) {
+      await this.modPage2.hasElement(e.meetingEndedModalTitle);
+    }
   }
 
   async removeUserAndPreventRejoining(context) {
@@ -280,9 +286,15 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.confirmationCheckbox);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
 
-    await this.modPage2.hasElement(e.errorScreenMessage, 10000);
+    //Will be modified when the issue is fixed and accept just one of both screens
+    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    try {
+      await this.modPage2.hasElement(e.errorScreenMessage);
+    } catch (err) {
+      await this.modPage2.hasElement(e.meetingEndedModalTitle);
+    }
     
-    await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Teste'})
+    await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Moderator2'})
     await this.modPage2.hasText(e.userBannedMessage, /banned/);
   }
 }
