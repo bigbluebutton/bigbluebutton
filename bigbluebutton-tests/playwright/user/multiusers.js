@@ -284,8 +284,8 @@ class MultiUsers {
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.message);
 
-    await this.modPage.hasText(e.liveCaptions, /Hello World!/);
-    await this.modPage2.hasText(e.liveCaptions, /Hello World!/);
+    await this.modPage.hasText(e.liveCaptions, "Hello World!");
+    await this.modPage2.hasText(e.liveCaptions, "Hello World!");
   }
 }
 
