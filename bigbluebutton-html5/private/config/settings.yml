@@ -30,7 +30,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2022 BigBlueButton Inc.'
+    copyright: '©2023 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     lockOnJoin: true
@@ -111,6 +111,13 @@ public:
     enableNetworkStats: true
     # Enable the button to allow users to copy network stats to clipboard
     enableCopyNetworkStatsButton: true
+    # where should client settings be stored? if you run a single BBB server or
+    # a cluster with a reverse proxy in front of it, you may set this to 'local'
+    # See https://docs.bigbluebutton.org/admin/clusterproxy.html
+    # allowed values:
+    # 'session' -> settings are stored in browser sessionStorage
+    # 'local' -> settings are stored in browser localStorage
+    userSettingsStorage: session
     defaultSettings:
       application:
         animations: true
