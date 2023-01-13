@@ -122,8 +122,12 @@ parser.add_argument('--public-subnet', type=str, default='128.8.8.0/24',
                     help='public IP subnet to be "stolen" for our use')
 parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
                     help='private IP subnet to be used for NAT-ed BBB server')
+parser.add_argument('-r', '--repository', type=str,
+                    help='package repository to be used for BigBlueButton server install')
 parser.add_argument('--release', type=int, default=20,
                     help='Ubuntu release to be used for BigBlueButton server install')
+parser.add_argument('--install-script', type=str, default='bbb-install-2.6.sh',
+                    help='https://ubuntu.bigbluebutton.org/ install script to be used for BigBlueButton server install')
 parser.add_argument('--domain', type=str,
                     help='DNS domain name for virtual devices (default "test")')
 parser.add_argument('--no-nat', action='store_true',
@@ -835,7 +839,10 @@ def BBB_server_standalone(hostname, x=100, y=300):
     }
 
     if not args.no_install:
-        user_data['runcmd'].append('su ubuntu -c /testserver.sh')
+        if not args.repository:
+            user_data['runcmd'].append(f'sudo -u ubuntu INSTALL_SCRIPT={args.install_script} /testserver.sh')
+        else:
+            user_data['runcmd'].append(f'sudo -u ubuntu INSTALL_SCRIPT={args.install_script} INSTALL_OPTIONS="-r {args.repository}" /testserver.sh')
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}

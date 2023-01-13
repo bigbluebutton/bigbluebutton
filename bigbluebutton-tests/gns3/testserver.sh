@@ -16,52 +16,10 @@ RELEASE=$(hostname)
 
 EMAIL="root@$FQDN"
 
-# Currently assumes that hostname is the same as the release name
+# INSTALL_SCRIPT and INSTALL_OPTIONS get passed in the environment from gns3-bbb.py
 #
-# Options include -w (firewall) -a (api demos; deprecated in 2.6)
-
-case $RELEASE in
-   bionic-240)
-      INSTALL_SCRIPT=bbb-install.sh
-      INSTALL_OPTIONS=-a
-      ;;
-   focal-250 | focal-25-dev)
-      INSTALL_SCRIPT=bbb-install-2.5.sh
-      INSTALL_OPTIONS=-a
-      ;;
-   focal-260)
-      INSTALL_SCRIPT=bbb-install-2.6.sh
-      INSTALL_OPTIONS=
-      ;;
-   bionic-*)
-      # Git builds, with names like bionic-e41349, for BigBlueButton 2.4
-      # osito.freesoft.org is my development server, which is the repository for git builds
-      # We expect to have a directory named like bionic-e41349 available on this host's web server
-      #    containing a valid Debian package repository
-      INSTALL_OPTIONS="-r osito.freesoft.org"
-      INSTALL_SCRIPT=bbb-install.sh
-      ;;
-   focal-*)
-      # Git builds for BigBlueButton 2.5 or 2.6
-      INSTALL_OPTIONS="-r osito.freesoft.org"
-
-      # We can't tell from the name of the release if this is 2.5 or 2.6,
-      # so look at the bigbluebutton package to figure this out
-      MAIN_PACKAGE_NAME=$(wget -qO- https://osito.freesoft.org/$RELEASE/dists/bigbluebutton-focal/main/binary-amd64/Packages | grep pool/main/b/bigbluebutton)
-      if echo $MAIN_PACKAGE_NAME | grep -q 2\\.6; then
-         INSTALL_SCRIPT=bbb-install-2.6.sh
-      elif echo $MAIN_PACKAGE_NAME | grep -q 2\\.5; then
-         INSTALL_SCRIPT=bbb-install-2.5.sh
-      else
-         echo Unknown bigbluebutton version
-         exit 1
-      fi
-      ;;
-   *)
-      echo "Unknown release: $RELEASE"
-      exit 1
-      ;;
-esac
+# INSTALL_SCRIPT should be bbb-install.sh (2.4), bbb-install-2.5.sh, or bbb-install-2.6.sh
+# INSTALL_OPTIONS can include -w (firewall) -a (api demos; deprecated in 2.6) -r (repository)
 
 wget -qO- https://ubuntu.bigbluebutton.org/$INSTALL_SCRIPT | sudo bash -s -- -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
 
