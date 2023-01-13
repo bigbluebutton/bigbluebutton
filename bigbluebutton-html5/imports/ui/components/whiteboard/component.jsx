@@ -57,11 +57,6 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
-  ${({ hideCursor }) => hideCursor && `
-    #canvas {
-      cursor: none;
-    }
-  `}
   #TD-PrimaryTools-Image {
     display: none;
   }
