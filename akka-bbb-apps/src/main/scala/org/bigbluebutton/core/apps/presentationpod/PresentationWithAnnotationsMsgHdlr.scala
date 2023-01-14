@@ -171,34 +171,35 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   }
 
   def handle(m: CapturePresentationReqInternalMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-
+    val parentMeetingId: String = m.parentMeetingId
     val meetingId = liveMeeting.props.meetingProp.intId
+
+    val jobId = s"${meetingId}-slides" // Used as the temporaryPresentationId upon upload
     val userId = m.userId
+
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
+
+    val filename: String = liveMeeting.props.meetingProp.name
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
       log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
+      bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
     } else {
-
-      val jobId: String = s"${meetingId}-slides" // Used as the temporaryPresentationId upon upload
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
 
       val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
       val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
-      val parentMeetingId: String = m.parentMeetingId
 
       val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
-
-      val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-      val filename: String = liveMeeting.props.meetingProp.name
-
-      // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
-      bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
 
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
@@ -214,7 +215,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
         val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
-        // Notify that no content is available
+        // Notify that no content is available to capture
         bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
       }
     }
