@@ -81,7 +81,7 @@ mkdir -p "$STAGING"/usr/share/bbb-web
 mv build/libs/bigbluebutton-0.10.0.war "$STAGING"/usr/share/bbb-web
 
 mkdir -p "$STAGING"/etc/default
-cp ../bbb-web.env "$STAGING"/etc/default/bbb-web
+cp bbb-web.env "$STAGING"/etc/default/bbb-web
 
 mkdir -p "$STAGING"/lib/systemd/system
 cp ../bbb-web.service "$STAGING"/lib/systemd/system
