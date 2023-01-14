@@ -1,13 +1,15 @@
+import styled from 'styled-components';
 import { colorText, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
-import BaseCheckbox from '@material-ui/core/Checkbox';
+import Icon from '/imports/ui/components/common/icon/component';
+import BaseRadio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { withStyles } from '@material-ui/core/styles';
 
-const Checkbox = withStyles({
+const Radio = withStyles({
   checked: {
     color: `${colorSuccess} !important`,
   },
-})(BaseCheckbox);
+})(BaseRadio);
 
 const Label = withStyles({
   label: {
@@ -19,7 +21,13 @@ const Label = withStyles({
   },
 })(FormControlLabel);
 
+const RadioIcon = styled(Icon)``;
+
+const RadioIconChecked = styled(RadioIcon)``;
+
 export default {
-  Checkbox,
+  RadioIcon,
+  RadioIconChecked,
+  Radio,
   Label,
 };

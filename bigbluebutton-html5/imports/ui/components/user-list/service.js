@@ -562,7 +562,6 @@ const roving = (...args) => {
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
     Session.set('dropdownOpen', false);
-    document.activeElement.blur();
     changeState(null);
   }
 

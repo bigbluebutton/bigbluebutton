@@ -616,7 +616,6 @@ const SetCurrentAction = styled.td`
   &, & i {
     border: 0;
     background: transparent;
-    color: ${colorGrayLight};
     cursor: pointer;
     font-size: 1.35rem;
 

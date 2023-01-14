@@ -38,35 +38,43 @@ const getBreakoutRoomUrl = (breakoutId) => {
   return breakoutUrlData;
 };
 
-const setCapturedNotesUploading = () => {
+const upsertCapturedContent = (filename, temporaryPresentationId) => {
+  UploadingPresentations.upsert({
+    temporaryPresentationId,
+  }, {
+    $set: {
+      id: _.uniqueId(filename),
+      temporaryPresentationId,
+      progress: 0,
+      filename,
+      lastModifiedUploader: false,
+      upload: {
+        done: false,
+        error: false,
+      },
+      uploadTimestamp: new Date(),
+    },
+  });
+};
+
+const setCapturedContentUploading = () => {
   const breakoutRooms = findBreakouts();
   breakoutRooms.forEach((breakout) => {
-    if (breakout.captureNotes) {
-      const filename = `${breakout.name}-notes`;
-      const temporaryPresentationId = `${breakout.breakoutId}-notes`;
+    const filename = breakout.shortName; // breakout.name
+    const temporaryPresentationId = breakout.breakoutId;
 
-      UploadingPresentations.upsert({
-        temporaryPresentationId,
-      }, {
-        $set: {
-          id: _.uniqueId(filename),
-          temporaryPresentationId,
-          progress: 0,
-          filename,
-          lastModifiedUploader: false,
-          upload: {
-            done: false,
-            error: false,
-          },
-          uploadTimestamp: new Date(),
-        },
-      });
+    if (breakout.captureNotes) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-notes`);
+    }
+
+    if (breakout.captureSlides) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-slides`);
     }
   });
 };
 
 const endAllBreakouts = () => {
-  setCapturedNotesUploading();
+  setCapturedContentUploading();
   makeCall('endAllBreakouts');
 };
 
@@ -244,5 +252,5 @@ export default {
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,
-  setCapturedNotesUploading,
+  setCapturedContentUploading,
 };

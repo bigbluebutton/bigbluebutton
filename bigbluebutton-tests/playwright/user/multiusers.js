@@ -5,6 +5,7 @@ const e = require('../core/elements');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
+const { getNotesLocator } = require('../sharednotes/util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
@@ -264,6 +265,27 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
 
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
+  }
+
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptionsBtn);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptionsBtn);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.message);
+
+    await this.modPage.hasText(e.liveCaptions, e.message);
+    await this.modPage2.hasText(e.liveCaptions, e.message);
   }
 }
 

@@ -173,7 +173,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       log.error(s"No presentation set in meeting ${meetingId}")
     } else {
 
-      val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
+      val jobId: String = s"${meetingId}-slides" // Used as the temporaryPresentationId upon upload
       val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
 
@@ -185,15 +185,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
 
       val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-
-      // Set filename, checking if it is already in use
-      val meetingName: String = liveMeeting.props.meetingProp.name
-      val duplicatedCount = presentationPods.flatMap(_.getPresentationsByFilename(meetingName)).size
-
-      val filename = duplicatedCount match {
-        case 0 => meetingName
-        case _ => s"${meetingName}(${duplicatedCount})"
-      }
+      val filename: String = liveMeeting.props.meetingProp.name
 
       // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
       bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
@@ -201,34 +193,27 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
+      // Send Export Job to Redis
+      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+      bus.outGW.send(job)
 
-      if (annotationCount > 0) {
-        // Send Export Job to Redis
-        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-        bus.outGW.send(job)
-
-        // Send Annotations to Redis
-        val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-        bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
-      } else {
-        log.info(s"No annotations found in meeting ${meetingId}. Skipping export.")
-      }
+      // Send Annotations to Redis
+      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
     }
   }
 
   def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
-
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
   }
 
   def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
+    val parentMeetingId = liveMeeting.props.meetingProp.intId
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
-    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, meetingId, "not-used")
-    val body = CaptureSharedNotesReqEvtMsgBody(m.parentMeetingId, m.meetingName)
+    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, parentMeetingId, "not-used")
+    val body = CaptureSharedNotesReqEvtMsgBody(m.breakoutId)
     val event = CaptureSharedNotesReqEvtMsg(header, body)
 
     bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))

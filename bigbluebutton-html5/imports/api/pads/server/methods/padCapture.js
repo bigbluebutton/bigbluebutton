@@ -1,23 +1,20 @@
-import { check } from 'meteor/check';
 import Pads, { PadsUpdates } from '/imports/api/pads';
+import Breakouts from '/imports/api/breakouts';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import Presentations from '/imports/api/presentations';
 import _ from 'lodash';
 
-export default function padCapture(meetingId, parentMeetingId, meetingName) {
+export default function padCapture(breakoutId, parentMeetingId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'PadCapturePubMsg';
   const EXTERNAL_ID = Meteor.settings.public.notes.id;
-  try {
-    check(meetingId, String);
-    check(parentMeetingId, String);
-    check(meetingName, String);
 
+  try {
     const pad = Pads.findOne(
       {
-        meetingId,
+        meetingId: breakoutId,
         externalId: EXTERNAL_ID,
       },
       {
@@ -27,9 +24,11 @@ export default function padCapture(meetingId, parentMeetingId, meetingName) {
       },
     );
 
+    const breakout = Breakouts.findOne({ breakoutId });
+
     const update = PadsUpdates.findOne(
       {
-        meetingId,
+        breakoutId,
         externalId: EXTERNAL_ID,
       }, {
         fields: {
@@ -38,24 +37,24 @@ export default function padCapture(meetingId, parentMeetingId, meetingName) {
       },
     );
 
-    const filename = `${meetingName}-notes`;
-    const payload = {
-      parentMeetingId,
-      breakoutId: meetingId,
-      padId: pad.padId,
-      filename,
-    };
+    const filename = `${breakout?.shortName}-notes`;
 
-    if (pad && pad.padId && update?.rev > 0) {
-      Logger.info(`Sending PadCapturePubMsg for meetingId=${meetingId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
+    if (pad?.padId && update?.rev > 0 && breakout?.shortName) {
+      const payload = {
+        parentMeetingId,
+        breakoutId,
+        padId: pad.padId,
+        filename,
+      };
+      Logger.info(`Sending PadCapturePubMsg for meetingId=${breakoutId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
       return RedisPubSub.publishMeetingMessage(CHANNEL, EVENT_NAME, parentMeetingId, payload);
     }
 
-    // Notify that no content
+    // Notify that no content is available
     Presentations.insert({
       id: _.uniqueId(filename),
       meetingId: parentMeetingId,
-      temporaryPresentationId: `${meetingId}-notes`,
+      temporaryPresentationId: `${breakoutId}-notes`,
       renderedInToast: false,
       lastModifiedUploader: false,
       filename,
