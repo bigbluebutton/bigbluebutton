@@ -2,13 +2,12 @@ import Pads, { PadsUpdates } from '/imports/api/pads';
 import Breakouts from '/imports/api/breakouts';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import Presentations from '/imports/api/presentations';
-import _ from 'lodash';
 
 export default function padCapture(breakoutId, parentMeetingId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'PadCapturePubMsg';
+  const EVENT_NAME_ERROR = 'PresentationConversionUpdateSysPubMsg';
   const EXTERNAL_ID = Meteor.settings.public.notes.id;
 
   try {
@@ -51,21 +50,18 @@ export default function padCapture(breakoutId, parentMeetingId) {
     }
 
     // Notify that no content is available
-    Presentations.insert({
-      id: _.uniqueId(filename),
-      meetingId: parentMeetingId,
-      temporaryPresentationId: `${breakoutId}-notes`,
-      renderedInToast: false,
-      lastModifiedUploader: false,
-      filename,
-      conversion: {
-        done: false,
-        error: true,
-        status: 204,
-      },
-    });
+    const temporaryPresentationId = `${breakoutId}-notes`;
+    const payload = {
+      podId: 'DEFAULT_PRESENTATION_POD',
+      messageKey: '204',
+      code: 'not-used',
+      presentationId: temporaryPresentationId,
+      presName: filename,
+      temporaryPresentationId,
+    };
 
-    return null;
+    Logger.info(`No notes available for capture in meetingId=${breakoutId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME_ERROR, parentMeetingId, 'system', payload);
   } catch (err) {
     Logger.error(`Exception while invoking method padCapture ${err.stack}`);
     return null;

@@ -57,6 +57,16 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId: String, status: String, presentationId: String, filename: String, temporaryPresentationId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionUpdateEvtMsg.NAME, parentMeetingId, "not-used")
+    val body = PresentationConversionUpdateEvtMsgBody("DEFAULT_PRESENTATION_POD", status, "not-used", presentationId, filename, temporaryPresentationId)
+    val event = PresentationConversionUpdateEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildBroadcastPresAnnStatusMsg(presAnnStatusMsg: PresAnnStatusMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
@@ -193,13 +203,20 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val exportJob: ExportJob = new ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      // Send Export Job to Redis
-      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-      bus.outGW.send(job)
+      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
 
-      // Send Annotations to Redis
-      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      if (annotationCount > 0) {
+        // Send Export Job to Redis
+        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+        bus.outGW.send(job)
+
+        // Send Annotations to Redis
+        val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+        bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      } else {
+        // Notify that no content is available
+        bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
+      }
     }
   }
 
