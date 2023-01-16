@@ -12,6 +12,7 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
+import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -91,6 +92,26 @@ const intlMessages = defineMessages({
   captureSlidesLabel: {
     id: 'app.createBreakoutRoom.captureSlides',
     description: 'capture slides label',
+  },
+  captureNotesType: {
+    id: 'app.notes.label',
+    description: 'indicates notes have been captured',
+  },
+  captureSlidesType: {
+    id: 'app.shortcut-help.whiteboard',
+    description: 'indicates the whiteboard has been captured',
+  },
+  captureBaseName: {
+    id: 'app.createBreakoutRoom.baseName',
+    description: 'base room name for captured content',
+  },
+  captureDefaultName: {
+    id: 'app.createBreakoutRoom.captureDefaultName',
+    description: 'padded filename for captured content',
+  },
+  captureChangedName: {
+    id: 'app.createBreakoutRoom.captureChangedName',
+    description: 'padded filename for captured content whose room name has changed',
   },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
@@ -445,6 +466,8 @@ class BreakoutRoom extends PureComponent {
     const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
       name: this.getFullName(seq),
+      captureNotesFilename: this.getCaptureFilename(seq),
+      captureSlidesFilename: this.getCaptureFilename(seq, false),
       shortName: this.getRoomName(seq),
       isDefaultName: !this.hasNameChanged(seq),
       freeJoin,
@@ -622,6 +645,44 @@ class BreakoutRoom extends PureComponent {
     const { meetingName } = this.props;
 
     return `${meetingName} (${this.getRoomName(position)})`;
+  }
+
+  getCaptureFilename(position, slides = true) {
+    const { intl } = this.props;
+    const { roomNamesChanged } = this.state;
+
+    const presentations = PresentationUploaderService.getPresentations();
+
+    const captureType = slides
+      ? intl.formatMessage(intlMessages.captureSlidesType)
+      : intl.formatMessage(intlMessages.captureNotesType);
+
+    if (this.hasNameChanged(position)) {
+      const baseName = roomNamesChanged[position];
+      const resultingName = intl.formatMessage(intlMessages.captureChangedName,
+        {
+          0: baseName,
+          1: captureType,
+        });
+
+      const duplicates = presentations.filter((pres) => pres.filename?.startsWith(baseName)
+            || pres.name?.startsWith(baseName)).length;
+
+      return duplicates <= 1 ? resultingName : `${resultingName} (${duplicates})`;
+    }
+
+    const baseName = intl.formatMessage(intlMessages.captureBaseName);
+    const resultingName = intl.formatMessage(intlMessages.captureDefaultName,
+      {
+        0: baseName,
+        1: ((position > 0 && position < 10) ? `0${position}` : position),
+        2: captureType,
+      });
+
+    const duplicates = presentations.filter((pres) => pres.filename?.startsWith(baseName)
+            || pres.name?.startsWith(baseName)).length;
+
+    return duplicates <= 1 ? resultingName : `${resultingName} (${duplicates})`;
   }
 
   resetUserWhenRoomsChange(rooms) {
