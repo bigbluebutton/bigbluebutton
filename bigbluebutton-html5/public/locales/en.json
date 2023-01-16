@@ -712,7 +712,6 @@
     "app.audio.captions.speech.title": "Automatic transcription",
     "app.audio.captions.speech.disabled": "Disabled",
     "app.audio.captions.speech.unsupported": "Your browser doesn't support speech recognition. Your audio won't be transcribed",
-    "app.audio.captions.speech.captionsNotEnabled": "Audio speech recognition is not enabled to this meeting or server.",
     "app.audio.captions.select.de-DE": "German",
     "app.audio.captions.select.en-US": "English",
     "app.audio.captions.select.es-ES": "Spanish",
