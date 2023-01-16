@@ -14,7 +14,7 @@ export default function clearErrors(meetingId, userId, podId) {
   };
 
   try {
-    const numberAffected = Presentations.remove(selector);
+    const numberAffected = Presentations.update(selector, { $set: { isCleared: true } });
 
     if (numberAffected) {
       Logger.info(`Presentation errors cleared by userId=${userId} meeting=${meetingId} podId=${podId}`);

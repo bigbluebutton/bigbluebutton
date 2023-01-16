@@ -39,7 +39,7 @@ const futch = (url, opts = {}, onProgress) => new Promise((res, rej) => {
 });
 
 const getPresentations = () => Presentations
-  .find()
+  .find({ isCleared: { $exists: false } })
   .fetch()
   .map((presentation) => {
     const {
@@ -474,10 +474,12 @@ const exportPresentationToChat = (presentationId, observer) => {
   makeCall('exportPresentationToChat', presentationId);
 };
 
-const getUploadingPresentations = () => UploadingPresentations.find().fetch();
+const getUploadingPresentations = () => UploadingPresentations.find(
+  { isCleared: { $exists: false } },
+).fetch();
 
 const clearErrors = () => {
-  UploadingPresentations.remove({ 'upload.error': true });
+  UploadingPresentations.update({ 'upload.error': true }, { $set: { isCleared: true } });
   return makeCall('clearErrors', 'DEFAULT_PRESENTATION_POD');
 };
 
