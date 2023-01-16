@@ -82,7 +82,19 @@ const observePresentationConversion = (
   // in the back-end.
   const tokenId = PresentationUploadToken.findOne({ temporaryPresentationId })?.authzToken;
 
+  const conversionTimeout = setTimeout(() => {
+    UploadingPresentations.upsert(
+      { temporaryPresentationId },
+      {
+        $set: {
+          upload: { error: true, done: true, status: 'CONVERSION_TIMEOUT' },
+        },
+      },
+    );
+  }, CONVERSION_TIMEOUT);
+
   const didValidate = (doc) => {
+    clearTimeout(conversionTimeout);
     resolve(doc);
   };
 
@@ -104,12 +116,14 @@ const observePresentationConversion = (
             { $set: { temporaryPresentationId, renderedInToast: false } },
           );
           c.stop();
+          clearTimeout(conversionTimeout);
         }
       },
       changed: (newDoc) => {
         if (newDoc.temporaryPresentationId !== temporaryPresentationId) return;
 
         if (newDoc.conversion.error) {
+          clearTimeout(conversionTimeout);
           c.stop();
         }
 
