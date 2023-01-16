@@ -61,7 +61,6 @@ export default injectIntl(withTracker((props) => {
     return name;
   };
   return {
-    ...props,
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
       if (isMeetingMuteOnStart) {
