@@ -614,34 +614,22 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && reason === 'patched_shapes' && e?.session?.type === "edit" && e?.session?.initialShape?.type === "text") {
+    if (reason && reason === 'patched_shapes' && e?.session?.type === 'edit') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
-      if (!shapes[patchedShape.id]) {
+
+      if (e?.session?.initialShape?.type === 'sticky' && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
+      if (e?.session?.initialShape?.type === 'text' && !shapes[patchedShape.id]) {
         patchedShape.userId = currentUser?.userId;
         persistShape(patchedShape, whiteboardId);
       } else {
         const diff = {
           id: patchedShape.id,
           point: patchedShape.point,
-          text: patchedShape.text
-        }
-        persistShape(diff, whiteboardId);
-      }
-    }
-
-    if (reason && reason === 'patched_shapes') {
-      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
-
-      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
-        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
-      }
-
-      if (patchedShape) {
-        const diff = {
-          id: patchedShape.id,
-          point: patchedShape.point,
-          text: patchedShape.text
-        }
+          text: patchedShape.text,
+        };
         persistShape(diff, whiteboardId);
       }
     }
