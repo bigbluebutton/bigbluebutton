@@ -940,7 +940,7 @@ class PresentationUploader extends Component {
       allowDownloadable,
     } = this.props;
 
-    const state = this.getPresentationStatus(item);
+    const status = this.getPresentationStatus(item);
 
     let isUploading, isConverting;
     switch (state) {
