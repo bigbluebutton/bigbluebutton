@@ -15,22 +15,21 @@ export const SmartMediaShare = (props) => {
   const {
     currentSlide, intl, isMobile, isRTL,
   } = props;
-  const linkPatt = /(https?:\/\/[^\s]+)/gm;
-  const externalLinks = safeMatch(linkPatt, currentSlide?.content?.replace(/[\n]/g, ''), false);
+  const linkPatt = /(https?:\/\/.*[ ]$)/g;
+  const externalLinks = safeMatch(linkPatt, currentSlide?.content?.replace(/[\r\n]/g, '  '), false);
   if (!externalLinks) return null;
 
+  const lnkParts = externalLinks[0]?.split('  ')?.filter(s => !s?.includes(' ')).join('');
   const actions = [];
-
-  externalLinks.forEach((lnk) => {
-    const splitLink = lnk.split('https://');
-    splitLink.forEach((l) => {
-      if (isUrlValid(`https://${l}`)) {
-        actions.push({
-          label: l,
-          onClick: () => startWatching(`https://${l}`),
-        });
-      }
-    });
+  
+  const splitLink = lnkParts?.split('https://');
+  splitLink.forEach((l) => {
+    if (isUrlValid(`https://${l}`)) {
+      actions.push({
+        label: l,
+        onClick: () => startWatching(`https://${l}`),
+      });
+    }
   });
 
   if (actions?.length === 0) return null;
