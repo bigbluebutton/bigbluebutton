@@ -308,10 +308,6 @@ const ITEM_STATUSES = {
   CONVERTED: 'converted',
 };
 
-const COMMANDS = {
-  DELETE: 'delete',
-};
-
 class PresentationUploader extends Component {
   constructor(props) {
     super(props);
@@ -557,10 +553,7 @@ class PresentationUploader extends Component {
           ...state,
           commands: [
             ...state.commands,
-            {
-              type: COMMANDS.DELETE,
-              id: item.id,
-            },
+            { id: item.id },
           ],
         };
       }, callback);
@@ -597,8 +590,7 @@ class PresentationUploader extends Component {
     } = this.state;
 
     const presentationsToSave = presentations;
-    const deletedIds = commands.filter((c) => c.type === COMMANDS.DELETE)
-      .map((c) => ({ id: c.id }));
+    const deletedIds = commands.map((c) => ({ id: c.id }));
 
     if (!disableActions) {
       sendBulkPresentations(presentationsToSave, deletedIds, actualCurrentId)
@@ -722,8 +714,7 @@ class PresentationUploader extends Component {
       uploadingPresentations,
     } = this.props;
 
-    const deletedIds = commands.filter((c) => c.type === COMMANDS.DELETE)
-      .map((c) => c.id);
+    const deletedIds = commands.map((c) => c.id);
 
     const presentationsCopy = JSON.parse(JSON.stringify(presentations));
     const uploadingPresentationsCopy = JSON.parse(JSON.stringify(uploadingPresentations));
