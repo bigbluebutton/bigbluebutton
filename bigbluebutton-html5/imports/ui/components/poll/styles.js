@@ -175,11 +175,6 @@ const PollCheckbox = styled.div`
   margin-bottom: ${pollMdMargin};
 `;
 
-const InstructionsLabel = styled.label`
-  margin-bottom: ${lgPaddingX};
-  color: ${colorText};
-`;
-
 const AddItemButton = styled(Button)`
   top: 1px;
   position: relative;
@@ -387,7 +382,6 @@ export default {
   PollConfigButton,
   PollParagraph,
   PollCheckbox,
-  InstructionsLabel,
   AddItemButton,
   Row,
   Col,

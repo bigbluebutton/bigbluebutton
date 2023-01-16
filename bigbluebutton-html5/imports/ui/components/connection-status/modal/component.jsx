@@ -338,7 +338,7 @@ class ConnectionStatusComponent extends PureComponent {
     if (isConnectionStatusEmpty(connectionStatus)) return this.renderEmpty();
 
     let connections = connectionStatus;
-    if (selectedTab === '2') {
+    if (selectedTab === 1) {
       connections = connections.filter(conn => conn.you);
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }

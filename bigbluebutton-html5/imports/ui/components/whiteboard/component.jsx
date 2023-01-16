@@ -1,6 +1,6 @@
 import * as React from "react";
 import _ from "lodash";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
@@ -57,13 +57,18 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
-  ${({ hideCursor }) => hideCursor && `
-    #canvas {
-      cursor: none;
-    }
-  `}
   #TD-PrimaryTools-Image {
     display: none;
+  }
+
+  #slide-background-shape div {
+    pointer-events: none;
+  }
+`;
+
+const EditableWBWrapper = styled.div`
+  &, & > :first-child {
+    cursor: inherit !important;
   }
 `;
 
@@ -119,6 +124,7 @@ export default function Whiteboard(props) {
   const prevFitToWidth = usePrevious(fitToWidth);
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
+  const [currentTool, setCurrentTool] = React.useState(null);
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -452,6 +458,14 @@ export default function Whiteboard(props) {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
 
+  // Reset zoom to default when current presentation changes.
+  React.useEffect(() => {
+    if (isPresenter && slidePosition && tldrawAPI) {
+      const zoom = calculateZoom(slidePosition.width, slidePosition.height);
+      tldrawAPI.zoomTo(zoom);
+    }
+  }, [curPres?.id]);
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
@@ -631,6 +645,12 @@ export default function Whiteboard(props) {
         persistShape(diff, whiteboardId);
       }
     }
+
+    if (reason && reason.includes('selected_tool')) {
+      const tool = reason.split(':')[1];
+
+      setCurrentTool(tool);
+    }
   };
 
   const onUndo = (app) => {
@@ -696,30 +716,44 @@ export default function Whiteboard(props) {
     }
   };
 
+  const onPaste = (e) => {
+    // disable file pasting
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const { types } = clipboardData;
+    const hasFiles = types && types.indexOf && types.indexOf('Files') !== -1;
+
+    if (hasFiles) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <Tldraw
-      key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
-      document={doc}
-      // disable the ability to drag and drop files onto the whiteboard
-      // until we handle saving of assets in akka.
-      disableAssets={true}
-      // Disable automatic focus. Users were losing focus on shared notes
-      // and chat on presentation mount.
-      autofocus={false}
-      onMount={onMount}
-      showPages={false}
-      showZoom={false}
-      showUI={curPres ? (isPresenter || hasWBAccess) : true}
-      showMenu={curPres ? false : true}
-      showMultiplayerMenu={false}
-      readOnly={false}
-      onPatch={onPatch}
-      onUndo={onUndo}
-      onRedo={onRedo}
-      onCommand={onCommand}
-    />
+    <EditableWBWrapper onPaste={onPaste}>
+      <Tldraw
+        key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
+        document={doc}
+        // disable the ability to drag and drop files onto the whiteboard
+        // until we handle saving of assets in akka.
+        disableAssets={true}
+        // Disable automatic focus. Users were losing focus on shared notes
+        // and chat on presentation mount.
+        autofocus={false}
+        onMount={onMount}
+        showPages={false}
+        showZoom={false}
+        showUI={curPres ? (isPresenter || hasWBAccess) : true}
+        showMenu={curPres ? false : true}
+        showMultiplayerMenu={false}
+        readOnly={false}
+        onPatch={onPatch}
+        onUndo={onUndo}
+        onRedo={onRedo}
+        onCommand={onCommand}
+      />
+    </EditableWBWrapper>
   );
 
   const readOnlyWB = (
@@ -753,11 +787,11 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        currentTool={currentTool}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
         <TldrawGlobalStyle 
           hideContextMenu={!hasWBAccess && !isPresenter} 
-          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
         />
       </Cursors>
     </>
