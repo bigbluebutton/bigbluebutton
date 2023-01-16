@@ -943,7 +943,7 @@ class PresentationUploader extends Component {
     const status = this.getPresentationStatus(item);
 
     let isUploading, isConverting;
-    switch (state) {
+    switch (status) {
       case ITEM_STATUSES.UPLOADING: {
         isUploading = true;
         isConverting = false;
@@ -977,7 +977,7 @@ class PresentationUploader extends Component {
     const isExporting = exportation?.status === EXPORT_STATUSES.RUNNING;
 
     const shouldDisableExportButton = isExporting
-      || state !== ITEM_STATUSES.CONVERTED
+      || status !== ITEM_STATUSES.CONVERTED
       || hasError
       || disableActions;
 
