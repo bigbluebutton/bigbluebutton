@@ -744,6 +744,11 @@ public:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+    styles:
+      text:
+        # Initial font family.
+        # family: mono|sans|script|serif
+        family: sans
     toolbar:
       multiUserPenOnly: false
       colors:

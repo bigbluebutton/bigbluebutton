@@ -102,6 +102,7 @@ export default function Whiteboard(props) {
     intl,
     svgUri,
     maxStickyNoteLength,
+    fontFamily,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -488,6 +489,7 @@ export default function Whiteboard(props) {
         appState: {
           currentStyle: {
             textAlign: isRTL ? "end" : "start",
+            font: fontFamily,
           },
         },
       }
