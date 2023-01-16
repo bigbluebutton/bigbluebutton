@@ -529,7 +529,7 @@ class PresentationUploader extends Component {
       return;
     }
 
-    const status = this.getPresentationState(item);
+    const status = this.getPresentationStatus(item);
 
     const callback = () => {
       const { presentations: propPresentations } = this.props;
@@ -924,7 +924,7 @@ class PresentationUploader extends Component {
     }
   }
 
-  getPresentationState(presentation) {
+  getPresentationStatus(presentation) {
     if (presentation?.id?.startsWith?.(presentation.filename)) {
       return ITEM_STATUSES.TO_UPLOAD;
     }
@@ -949,7 +949,7 @@ class PresentationUploader extends Component {
       allowDownloadable,
     } = this.props;
 
-    const state = this.getPresentationState(item);
+    const state = this.getPresentationStatus(item);
 
     let isUploading, isConverting;
     switch (state) {
@@ -999,7 +999,7 @@ class PresentationUploader extends Component {
     return (
       <Styled.PresentationItem
         key={item.id}
-        isNew={this.getPresentationState(item) === ITEM_STATUSES.TO_UPLOAD}
+        isNew={this.getPresentationStatus(item) === ITEM_STATUSES.TO_UPLOAD}
         uploading={isUploading}
         converting={isConverting}
         error={hasError}
