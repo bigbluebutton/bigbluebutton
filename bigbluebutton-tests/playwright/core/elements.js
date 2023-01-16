@@ -350,6 +350,13 @@ exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 
+// Closed Captions
+exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
+exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
+exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
+exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
+exports.liveCaptions = 'div[data-test="liveCaptions"]';
+
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
   'dv', 'el-GR', 'en', 'eo', 'es', 'es-419', 'es-ES', 'es-MX', 'et', 'eu',

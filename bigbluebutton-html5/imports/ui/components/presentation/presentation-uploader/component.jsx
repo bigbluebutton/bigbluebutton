@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
+import Radio from '/imports/ui/components/common/radio/component';
 
 const { isMobile } = deviceInfo;
 
@@ -290,6 +290,10 @@ const intlMessages = defineMessages({
   exportingTimeout: {
     id: 'app.presentationUploader.exportingTimeout',
     description: 'exporting timeout label',
+  },
+  linkAvailable: {
+    id: 'app.presentationUploader.export.linkAvailable',
+    description: 'download presentation link available on public chat',
   },
 });
 
@@ -686,10 +690,18 @@ class PresentationUploader extends Component {
   }
 
   handleSendToChat(item) {
-    const { exportPresentationToChat } = this.props;
+    const {
+      exportPresentationToChat,
+      intl,
+    } = this.props;
 
-    const observer = (exportation) => {
+    const observer = (exportation, stopped) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
+
+      if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
+        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+      }
+
       if ([EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING].includes(exportation.status)) {
@@ -1013,7 +1025,7 @@ class PresentationUploader extends Component {
         animations={animations}
       >
         <Styled.SetCurrentAction>
-          <Checkbox
+          <Radio
             animations={animations}
             ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
             checked={item.isCurrent}

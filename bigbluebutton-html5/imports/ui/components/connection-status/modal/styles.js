@@ -8,6 +8,7 @@ import {
   colorGrayLightest,
   colorPrimary,
   colorWhite,
+  btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -427,7 +428,7 @@ const ConnectionTabSelector = styled(Tab)`
     color: ${colorPrimary};
 
     span {
-      border-bottom: 2px solid ${colorPrimary};
+      border-bottom: 2px solid ${btnPrimaryActiveBg};
     }
   }
 `;
