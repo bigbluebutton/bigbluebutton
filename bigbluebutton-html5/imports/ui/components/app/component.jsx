@@ -564,7 +564,6 @@ class App extends Component {
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
-          {/* <UploaderContainer /> */}
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
           <AudioContainer />
