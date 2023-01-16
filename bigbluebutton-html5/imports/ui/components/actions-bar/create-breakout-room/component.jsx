@@ -466,8 +466,8 @@ class BreakoutRoom extends PureComponent {
     const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
       name: this.getFullName(seq),
-      captureNotesFilename: this.getCaptureFilename(seq),
-      captureSlidesFilename: this.getCaptureFilename(seq, false),
+      captureNotesFilename: this.getCaptureFilename(seq, false),
+      captureSlidesFilename: this.getCaptureFilename(seq),
       shortName: this.getRoomName(seq),
       isDefaultName: !this.hasNameChanged(seq),
       freeJoin,

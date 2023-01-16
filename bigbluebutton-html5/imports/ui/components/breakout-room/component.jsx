@@ -432,7 +432,7 @@ class BreakoutRoom extends PureComponent {
     const roomItems = breakoutRooms.map((breakout) => (
       <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`}>
         <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
-          <Styled.BreakoutRoomListNameLabel key={`breakoutRoomListNameLabel-${breakout.breakoutId}`} data-test={breakout.shortName} aria-hidden>
+          <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
             {breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
               : breakout.shortName}

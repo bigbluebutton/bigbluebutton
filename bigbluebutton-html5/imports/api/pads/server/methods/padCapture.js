@@ -1,9 +1,8 @@
 import Pads, { PadsUpdates } from '/imports/api/pads';
-import Breakouts from '/imports/api/breakouts';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 
-export default function padCapture(breakoutId, parentMeetingId) {
+export default function padCapture(breakoutId, parentMeetingId, filename) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'PadCapturePubMsg';
@@ -23,8 +22,6 @@ export default function padCapture(breakoutId, parentMeetingId) {
       },
     );
 
-    const breakout = Breakouts.findOne({ breakoutId });
-
     const update = PadsUpdates.findOne(
       {
         breakoutId,
@@ -36,9 +33,7 @@ export default function padCapture(breakoutId, parentMeetingId) {
       },
     );
 
-    const filename = `${breakout?.shortName}-notes`;
-
-    if (pad?.padId && update?.rev > 0 && breakout?.shortName) {
+    if (pad?.padId && update?.rev > 0) {
       const payload = {
         parentMeetingId,
         breakoutId,

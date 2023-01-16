@@ -180,7 +180,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
-    val filename: String = liveMeeting.props.meetingProp.name
+    val filename = m.filename
     val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
 
     // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
@@ -231,7 +231,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
     val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, parentMeetingId, "not-used")
-    val body = CaptureSharedNotesReqEvtMsgBody(m.breakoutId)
+    val body = CaptureSharedNotesReqEvtMsgBody(m.breakoutId, m.filename)
     val event = CaptureSharedNotesReqEvtMsg(header, body)
 
     bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))

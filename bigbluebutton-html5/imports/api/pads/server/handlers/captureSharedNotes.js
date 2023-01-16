@@ -11,10 +11,12 @@ export default function captureSharedNotes({ header, body }) {
 
   const {
     breakoutId,
+    filename,
   } = body;
 
   check(breakoutId, String);
   check(parentMeetingId, String);
+  check(filename, String);
 
-  padCapture(breakoutId, parentMeetingId);
+  padCapture(breakoutId, parentMeetingId, filename);
 }
