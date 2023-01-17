@@ -663,12 +663,12 @@ class BreakoutRoom extends PureComponent {
         {
           0: baseName,
           1: captureType,
-        });
+        }).replace(/ /g, '_');
 
-      const duplicates = presentations.filter((pres) => pres.filename?.startsWith(baseName)
-            || pres.name?.startsWith(baseName)).length;
+      const duplicates = presentations.filter((pres) => pres.filename?.startsWith(resultingName)
+            || pres.name?.startsWith(resultingName)).length;
 
-      return duplicates <= 1 ? resultingName : `${resultingName} (${duplicates})`;
+      return duplicates < 1 ? resultingName : `${resultingName} ${duplicates + 1}`;
     }
 
     const baseName = intl.formatMessage(intlMessages.captureBaseName);
@@ -679,10 +679,10 @@ class BreakoutRoom extends PureComponent {
         2: captureType,
       });
 
-    const duplicates = presentations.filter((pres) => pres.filename?.startsWith(baseName)
-            || pres.name?.startsWith(baseName)).length;
+    const duplicates = presentations.filter((pres) => pres.filename?.startsWith(resultingName)
+            || pres.name?.startsWith(resultingName)).length;
 
-    return duplicates <= 1 ? resultingName : `${resultingName} (${duplicates})`;
+    return duplicates < 1 ? resultingName : `${resultingName} ${duplicates + 1}`;
   }
 
   resetUserWhenRoomsChange(rooms) {
