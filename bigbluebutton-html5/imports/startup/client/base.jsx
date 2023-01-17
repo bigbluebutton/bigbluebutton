@@ -246,7 +246,7 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-    const { loading, userRemoved } = this.state;
+    const { loading } = this.state;
     const {
       codeError,
       ejected,
@@ -262,6 +262,16 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
+    if (!meetingHasEnded && meetingIsBreakout && Session.get("changedBreakoutRoomNotifier")) {
+      return (
+        <MeetingEnded
+          code="409"
+          ejectedReason={"changed_breakout_room"}
+          callback={() => Base.setExitReason('ejected')}
+        />
+      );
+    }
+    
     if (ejected) {
       return (
         <MeetingEnded

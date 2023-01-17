@@ -217,6 +217,9 @@ class Auth {
         this.loggedIn = true;
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
       })
+      .catch(() => {
+        Session.set("changedBreakoutRoomNotifier", true);
+      })
       .finally(() => {
         this.isAuthenticating = false;
       });

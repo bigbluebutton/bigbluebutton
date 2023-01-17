@@ -11,7 +11,7 @@ class SubscriptionRegistry {
     const opt = { ...options };
     opt.onStop = () => {
       subscriptionReactivity.changed();
-      if (options.onStop) options.onStop();
+      if (options?.onStop) options.onStop();
       this.registry[subscription] = null;
     };
     this.registry[subscription] = Meteor.subscribe(subscription, ...params, opt);
