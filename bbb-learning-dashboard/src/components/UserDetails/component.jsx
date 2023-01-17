@@ -341,7 +341,7 @@ const UserDatailsComponent = (props) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" /></p>
+            <h3 className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" /></h3>
           </div>
           <div className="p-6 m-px bg-gray-100">
             <div className="h-6 relative before:bg-gray-500 before:absolute before:w-[10px] before:h-[10px] before:rounded-full before:left-0 before:top-[calc(50%-5px)] after:bg-gray-500 after:absolute after:w-[10px] after:h-[10px] after:rounded-full after:right-0 after:top-[calc(50%-5px)]">
@@ -428,13 +428,13 @@ const UserDatailsComponent = (props) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                   </svg>
                 </div>
-                <p className="ltr:ml-2 rtl:mr-2">
+                <h3 className="ltr:ml-2 rtl:mr-2">
                   <FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" />
                   :&nbsp;
                   <span className="font-bold">
                     <FormattedNumber value={getActivityScore(user, users, totalPolls)} minimumFractionDigits="0" maximumFractionDigits="1" />
                   </span>
-                </p>
+                </h3>
               </div>
               <table className="bg-white shadow rounded mb-4 table w-full">
                 <tr className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
@@ -480,7 +480,7 @@ const UserDatailsComponent = (props) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                   </svg>
                 </div>
-                <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></p>
+                <h3 className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></h3>
               </div>
               <table className="w-full">
                 <tr className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
