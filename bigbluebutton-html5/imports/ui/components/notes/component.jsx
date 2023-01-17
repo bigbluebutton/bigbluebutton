@@ -13,7 +13,6 @@ import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const DELAY_UNMOUNT_SHARED_NOTES = Meteor.settings.public.app.delayForUnmountOfSharedNote;
-console.log(DELAY_UNMOUNT_SHARED_NOTES);
 const intlMessages = defineMessages({
   hide: {
     id: 'app.notes.hide',
@@ -71,11 +70,11 @@ const Notes = ({
     position: 'absolute',
     ...sharedNotesOutput,
   } : {};
+
   const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
                    || !isToSharedNotesBeShow;
 
   if (isHidden) style.padding = 0;
-  console.log();
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
