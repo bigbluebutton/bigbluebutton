@@ -141,9 +141,11 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
-      <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
-        <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
-      </Styled.Poll>
+      {sidebarContentPanel === PANELS.POLL && (
+        <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
+          <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
+        </Styled.Poll>
+      )}
     </Resizable>
   );
 };

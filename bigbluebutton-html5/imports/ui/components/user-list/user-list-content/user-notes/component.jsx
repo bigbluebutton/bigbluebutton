@@ -107,7 +107,11 @@ class UserNotes extends Component {
         role="button"
         tabIndex={0}
         onClick={() => NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
-        onKeyPress={() => { }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            NotesService.toggleNotesPanel(sidebarContentPanel, layoutContextDispatch);
+          }
+        }}
         as={isPinned ? 'button' : 'div'}
         disabled={isPinned}
         $disabled={isPinned}
