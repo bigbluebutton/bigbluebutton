@@ -24,7 +24,7 @@ export default function padCapture(breakoutId, parentMeetingId, filename) {
 
     const update = PadsUpdates.findOne(
       {
-        breakoutId,
+        meetingId: breakoutId,
         externalId: EXTERNAL_ID,
       }, {
         fields: {
