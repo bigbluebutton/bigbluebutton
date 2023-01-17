@@ -137,7 +137,10 @@ const SidebarContent = (props) => {
         <ChatContainer width={width} />
       </ErrorBoundary>
       )}
-      <NotesContainer isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES} />
+      <NotesContainer
+        sidebarContent={sidebarContentPanel}
+        isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+      />
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}

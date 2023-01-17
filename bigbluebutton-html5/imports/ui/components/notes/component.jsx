@@ -48,7 +48,7 @@ const defaultProps = {
 };
 
 let timoutRef = null;
-
+const sidebarContentToIgnoreDelay = ['captions'];
 const Notes = ({
   hasPermission,
   intl,
@@ -72,7 +72,8 @@ const Notes = ({
   } : {};
 
   const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
-                   || !isToSharedNotesBeShow;
+                   || (!isToSharedNotesBeShow
+                    && sidebarContentToIgnoreDelay.includes(sidebarContent));
 
   if (isHidden) style.padding = 0;
   useEffect(() => {
@@ -82,9 +83,9 @@ const Notes = ({
     } else {
       timoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
-      }, DELAY_UNMOUNT_SHARED_NOTES);
+      }, sidebarContentToIgnoreDelay.includes(sidebarContent) ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
-  }, [isToSharedNotesBeShow]);
+  }, [isToSharedNotesBeShow, sidebarContent]);
   useEffect(() => {
     if (
       isOnMediaArea
