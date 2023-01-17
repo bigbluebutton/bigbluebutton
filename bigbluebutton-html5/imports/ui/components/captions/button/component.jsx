@@ -33,6 +33,7 @@ const CaptionsButton = ({ intl, isActive, handleOnClick }) => (
     size="lg"
     onClick={handleOnClick}
     id={isActive ? 'stop-captions-button' : 'start-captions-button'}
+    data-test="startViewingClosedCaptionsBtn"
   />
 );
 

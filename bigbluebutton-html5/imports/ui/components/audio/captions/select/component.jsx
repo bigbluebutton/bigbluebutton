@@ -64,6 +64,8 @@ const Select = ({
   locale,
   voices,
 }) => {
+  if (!enabled || SpeechService.useFixedLocale()) return null
+
   if (voices.length === 0) {
     return (
       <div
@@ -76,8 +78,6 @@ const Select = ({
       </div>
     );
   }
-
-  if (!enabled || SpeechService.useFixedLocale()) return null;
 
   const onChange = (e) => {
     const { value } = e.target;

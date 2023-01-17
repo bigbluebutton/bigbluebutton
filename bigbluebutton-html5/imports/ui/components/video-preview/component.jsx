@@ -862,10 +862,8 @@ class VideoPreview extends Component {
             ariaDescribedBy={'whole-image-desc'}
             ariaDesc={intl.formatMessage(intlMessages.wholeImageBrightnessDesc)}
             disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
+            label={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
           />
-          <div aria-hidden style={{ margin: '0 .5rem' }}>
-            {intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
-          </div>
         </div>
       </>
     );
