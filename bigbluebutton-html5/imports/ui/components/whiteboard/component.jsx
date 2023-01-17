@@ -255,6 +255,7 @@ export default function Whiteboard(props) {
           },
         },
       );
+      changed = true;
     }
 
     if (changed && tldrawAPI) {
