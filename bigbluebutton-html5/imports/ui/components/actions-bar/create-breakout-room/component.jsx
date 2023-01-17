@@ -251,8 +251,8 @@ class BreakoutRoom extends PureComponent {
   componentDidMount() {
     const {
       breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
-      startWithAllowUserToChooseABreakout, startWithCaptureWhiteboardForBreakout,
-      startWithCaptureSharedNotesForBreakout
+      setAllowUserToChooseABreakout, setCaptureBreakoutNotes,
+      setCaptureBreakoutWhiteboard,
     } = this.props;
     this.setRoomUsers();
     if (isUpdate) {
@@ -279,9 +279,9 @@ class BreakoutRoom extends PureComponent {
       });
     }
     this.setState({
-      freeJoin: startWithAllowUserToChooseABreakout,
-      captureSlides: startWithCaptureWhiteboardForBreakout,
-      captureNotes: startWithCaptureSharedNotesForBreakout,
+      freeJoin: setAllowUserToChooseABreakout,
+      captureSlides: setCaptureBreakoutWhiteboard,
+      captureNotes: setCaptureBreakoutNotes,
     });
 
     const lastBreakouts = getLastBreakouts();
