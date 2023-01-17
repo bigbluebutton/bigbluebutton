@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Diapositives générées...",
     "app.presentationUploder.conversion.generatingSvg": "Création des images SVG en cours...",
     "app.presentationUploder.conversion.pageCountExceeded": "Le nombre de pages dépasse le maximum de {0}",
+    "app.presentationUploder.conversion.conversionTimeout": "La diapositive {0} n'a pas pu être traitée malgré {1} tentatives.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Échec du traitement du document Office. Veuillez télécharger un PDF à la place.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Échec du traitement du document office. Veuillez télécharger un PDF à la place.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Nous n'avons pas pu convertir le fichier PDF, veuillez essayer de l'optimiser. Taille de page maximum {0}",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "Cliquez ici pour sélectionner",
     "app.poll.question.label" : "Écrivez votre question...",
     "app.poll.optionalQuestion.label" : "Écrivez votre question (optionnel)...",
-    "app.poll.userResponse.label" : "Réponse utilisateur",
+    "app.poll.userResponse.label" : "Réponse écrite",
     "app.poll.responseTypes.label" : "Types de réponses",
     "app.poll.optionDelete.label" : "Supprimer",
     "app.poll.responseChoices.label" : "Choix de réponses",
@@ -598,8 +599,11 @@
     "app.error.403": "Vous avez été retiré de la réunion",
     "app.error.404": "Non trouvé",
     "app.error.408": "Échec de l'authentification",
+    "app.error.409": "Conflit",
     "app.error.410": "La conférence est terminée",
     "app.error.500": "Oups, quelque chose s'est mal passé",
+    "app.error.503": "Vous avez été déconnecté",
+    "app.error.disconnected.rejoin": "Vous pouvez actualiser la page afin de rejoindre la réunion",
     "app.error.userLoggedOut": "Le jeton de session est invalide car l'utilisateur est déconnecté",
     "app.error.ejectedUser": "Le jeton de session est invalide car l'utilisateur a été expulsé",
     "app.error.joinedAnotherWindow": "Il semble que cette conférence est ouverte dans une autre fenêtre de navigateur",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Nouveau message de discussion publique",
     "app.toast.chat.private": "Nouveau message de discussion privée",
     "app.toast.chat.system": "Système",
+    "app.toast.chat.poll": "Résultats du sondage",
+    "app.toast.chat.pollClick": "Les résultats du sondage ont été publiés. Cliquez ici pour les voir.",
     "app.toast.clearedEmoji.label": "Emoticône de statut effacé",
     "app.toast.setEmoji.label": "Emoticône de statut défini sur {0}",
     "app.toast.meetingMuteOn.label": "Tous les utilisateurs ont été rendus silencieux",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Champs requis",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Ce nom est déjà utilisé",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Erreur de chargement de la page - vérifiez l'URL et la connexion réseau"
-
 }
-
