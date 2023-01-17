@@ -332,7 +332,7 @@ const UserDatailsComponent = (props) => {
               aria-hidden="true"
             />
           </div>
-          <p className="break-words text-center">{user.name}</p>
+          <h3 className="break-words text-center">{user.name}</h3>
         </div>
         <div className="bg-white shadow rounded mb-4">
           <div className="p-6 text-lg flex items-center">
