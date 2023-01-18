@@ -204,6 +204,27 @@ export default function Whiteboard(props) {
     props.setTldrawIsMounting(true);
   }, []);
 
+  const checkClientBounds = (e) => {
+    if (
+      e.clientX > document.documentElement.clientWidth ||
+      e.clientX < 0 ||
+      e.clientY > document.documentElement.clientHeight ||
+      e.clientY < 0
+    ) {
+      if (tldrawAPI?.session) {
+        tldrawAPI?.completeSession?.();
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('mouseup', checkClientBounds);
+
+    return () => {
+      document.removeEventListener('mouseup', checkClientBounds);
+    };
+  }, [tldrawAPI]);
+
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
 
