@@ -417,3 +417,7 @@ exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+
+// Font size
+exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
+exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
