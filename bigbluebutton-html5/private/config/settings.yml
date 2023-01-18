@@ -519,8 +519,8 @@ public:
     music:
       enabled: false
       volume: 0.4
-      track1: "pianoChords"
-      track2: "littleBossa"
+      track1: "RelaxingMusic"
+      track2: "CalmMusic"
       track3: "aristocratDrums"
     interval:
       clock: 100
