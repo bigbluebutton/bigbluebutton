@@ -61,6 +61,7 @@ const Notes = ({
   sharedNotesOutput,
   amIPresenter,
   isToSharedNotesBeShow,
+  shouldShowSharedNotesOnPresentationArea,
 }) => {
   useEffect(() => () => Service.setLastRev(), []);
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
@@ -73,7 +74,8 @@ const Notes = ({
 
   const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
                    || (!isToSharedNotesBeShow
-                    && sidebarContentToIgnoreDelay.includes(sidebarContent));
+                    && sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
+                    || shouldShowSharedNotesOnPresentationArea;
 
   if (isHidden) style.padding = 0;
   useEffect(() => {
@@ -83,9 +85,11 @@ const Notes = ({
     } else {
       timoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
-      }, sidebarContentToIgnoreDelay.includes(sidebarContent) ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
+      }, (sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
+      || shouldShowSharedNotesOnPresentationArea)
+        ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
-  }, [isToSharedNotesBeShow, sidebarContent]);
+  }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
   useEffect(() => {
     if (
       isOnMediaArea

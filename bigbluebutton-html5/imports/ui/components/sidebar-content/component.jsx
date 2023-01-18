@@ -138,7 +138,6 @@ const SidebarContent = (props) => {
       </ErrorBoundary>
       )}
       <NotesContainer
-        sidebarContent={sidebarContentPanel}
         isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
       />
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
