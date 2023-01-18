@@ -128,6 +128,8 @@ parser.add_argument('--release', type=int, default=20,
                     help='Ubuntu release to be used for BigBlueButton server install')
 parser.add_argument('--install-script', type=str, default='bbb-install-2.6.sh',
                     help='https://ubuntu.bigbluebutton.org/ install script to be used for BigBlueButton server install')
+parser.add_argument('--proxy-server', type=str,
+                    help='proxy server to be passed to BigBlueButton server install script')
 parser.add_argument('--domain', type=str,
                     help='DNS domain name for virtual devices (default "test")')
 parser.add_argument('--no-nat', action='store_true',
@@ -839,10 +841,13 @@ def BBB_server_standalone(hostname, x=100, y=300):
     }
 
     if not args.no_install:
-        if not args.repository:
-            user_data['runcmd'].append(f'sudo -u ubuntu INSTALL_SCRIPT={args.install_script} /testserver.sh')
-        else:
-            user_data['runcmd'].append(f'sudo -u ubuntu INSTALL_SCRIPT={args.install_script} INSTALL_OPTIONS="-r {args.repository}" /testserver.sh')
+        install_options = []
+        if args.repository:
+            install_options.append(f'-r {args.repository}')
+        if args.proxy_server:
+            install_options.append(f'-p {args.proxy_server}')
+        install_options_str = ' '.join(install_options)
+        user_data['runcmd'].append(f'sudo -u ubuntu INSTALL_SCRIPT={args.install_script} INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}
