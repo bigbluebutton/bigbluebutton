@@ -1472,6 +1472,20 @@ if [ $CHECK ]; then
         echo "                     recordWebcams: $(echo "$KURENTO_CONFIG" | yq r - recordWebcams)"
         echo "                  codec_video_main: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_main)"
         echo "               codec_video_content: $(echo "$KURENTO_CONFIG" | yq r - conference-media-specs.codec_video_content)"
+
+        if [ -f $KURENTO_ETC_CONFIG ]; then
+            # Check for keys in KURENTO_ETC_CONFIG that don't appear in KURENTO_DEFAULT_CONFIG
+            # are therefore probably invalid (spelling errors or YAML nesting errors)
+            TMP_KURENTO_CONFIG_FILE=$(mktemp)
+            yq m -x --autocreate=false $KURENTO_DEFAULT_CONFIG $KURENTO_ETC_CONFIG > $TMP_KURENTO_CONFIG_FILE
+            if ! echo "$KURENTO_CONFIG" | yq compare - $TMP_KURENTO_CONFIG_FILE >/dev/null 2>&1; then
+                echo
+                echo "# Warning: The following key/values in $KURENTO_ETC_CONFIG appear to be invalid:"
+                echo "$KURENTO_CONFIG" | yq compare - $TMP_KURENTO_CONFIG_FILE 2>&1 | grep -v '^ '
+                echo
+            fi
+            rm $TMP_KURENTO_CONFIG_FILE
+        fi
     fi
 
      if [ -n "$HTML5_CONFIG" ]; then
@@ -1482,6 +1496,20 @@ if [ $CHECK ]; then
         echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq r - public.kurento.wsUrl)"
         echo "                  enableListenOnly: $(echo "$HTML5_CONFIG" | yq r - public.kurento.enableListenOnly)"
         echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq r - public.media.sipjsHackViaWs)"
+
+        if [ -f $HTML5_ETC_CONFIG ]; then
+            # Check for keys in HTML5_ETC_CONFIG that don't appear in HTML5_DEFAULT_CONFIG
+            # are therefore probably invalid (spelling errors or YAML nesting errors)
+            TMP_HTML5_CONFIG_FILE=$(mktemp)
+            yq m -x --autocreate=false $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG > $TMP_HTML5_CONFIG_FILE
+            if ! echo "$HTML5_CONFIG" | yq compare - $TMP_HTML5_CONFIG_FILE >/dev/null 2>&1; then
+                echo
+                echo "# Warning: The following key/values in $HTML5_ETC_CONFIG appear to be invalid:"
+                echo "$HTML5_CONFIG" | yq compare - $TMP_HTML5_CONFIG_FILE 2>&1 | grep -v '^ '
+                echo
+            fi
+            rm $TMP_HTML5_CONFIG_FILE
+        fi
      fi
 
      if [ ! -z "$STUN" ]; then
