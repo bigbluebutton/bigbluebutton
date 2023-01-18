@@ -60,10 +60,28 @@ const TldrawGlobalStyle = createGlobalStyle`
   #TD-PrimaryTools-Image {
     display: none;
   }
-
   #slide-background-shape div {
     pointer-events: none;
   }
+  [aria-expanded*="false"][aria-controls*="radix-"] {
+    display: none;
+  }
+  ${({ hasWBAccess, isPresenter, size }) => (hasWBAccess || isPresenter) && `
+    #TD-Tools-Dots {
+      height: ${size}px;
+      width: ${size}px;
+    }
+    #TD-Delete {
+      & button {
+        height: ${size}px;
+        width: ${size}px;
+      }
+    }
+    #TD-PrimaryTools button {
+        height: ${size}px;
+        width: ${size}px;
+    }
+  `}
 `;
 
 const EditableWBWrapper = styled.div`
@@ -415,40 +433,13 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     if (hasWBAccess || isPresenter) {
-      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-      const tdToolsDots = document.getElementById("TD-Tools-Dots");
-      const tdDelete = document.getElementById("TD-Delete");
-      const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
-      const tdTools = document.getElementById("TD-Tools");
-
-      if (tdToolsDots && tdDelete && tdPrimaryTools) {
-        const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
-          ? TOOLBAR_SMALL : TOOLBAR_LARGE;
-        tdToolsDots.style.height = `${size}px`;
-        tdToolsDots.style.width = `${size}px`;
-        const delButton = tdDelete.getElementsByTagName('button')[0];
-        delButton.style.height = `${size}px`;
-        delButton.style.width = `${size}px`;
-        const primaryBtns = tdPrimaryTools?.getElementsByTagName('button');
-        for (let item of primaryBtns) {
-          item.style.height = `${size}px`;
-          item.style.width = `${size}px`;
-        }
-      }
-      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH)) && tdTools) {
+      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
-        tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
+      } else {
+        tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
       }
-      // removes tldraw native help menu button
-      tdTools?.parentElement?.nextSibling?.remove();
-      // removes image tool from the tldraw toolbar
-      document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
     }
-
-    if (tldrawAPI) {
-      tldrawAPI.isForcePanning = isPanning;
-    }
-  });
+  }, [props.height, props.width]);
 
   React.useEffect(() => {
     if (tldrawAPI) {
@@ -768,6 +759,13 @@ export default function Whiteboard(props) {
     />
   );
 
+  const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
+  ? TOOLBAR_SMALL : TOOLBAR_LARGE;
+
+  if (isPanning && tldrawAPI) {
+    tldrawAPI.isForcePanning = isPanning;
+  }
+
   return (
     <>
       <Cursors
@@ -781,8 +779,11 @@ export default function Whiteboard(props) {
         currentTool={currentTool}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
-        <TldrawGlobalStyle 
-          hideContextMenu={!hasWBAccess && !isPresenter} 
+        <TldrawGlobalStyle
+          hasWBAccess={hasWBAccess}
+          isPresenter={isPresenter}
+          hideContextMenu={!hasWBAccess && !isPresenter}
+          size={size}
         />
       </Cursors>
     </>
