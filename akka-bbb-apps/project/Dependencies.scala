@@ -17,7 +17,7 @@ object Dependencies {
     val akkaHttpVersion = "10.2.7"
     val gson = "2.8.9"
     val jackson = "2.13.0"
-    val logback = "1.2.10"
+    val logback = "1.2.11"
     val quicklens = "1.7.5"
     val spray = "1.3.6"
 
