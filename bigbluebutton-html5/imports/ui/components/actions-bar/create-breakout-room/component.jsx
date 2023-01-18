@@ -101,18 +101,6 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.whiteboard',
     description: 'indicates the whiteboard has been captured',
   },
-  captureBaseName: {
-    id: 'app.createBreakoutRoom.baseName',
-    description: 'base room name for captured content',
-  },
-  captureDefaultName: {
-    id: 'app.createBreakoutRoom.captureDefaultName',
-    description: 'padded filename for captured content',
-  },
-  captureChangedName: {
-    id: 'app.createBreakoutRoom.captureChangedName',
-    description: 'padded filename for captured content whose room name has changed',
-  },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
     description: 'Room label',
@@ -630,7 +618,7 @@ class BreakoutRoom extends PureComponent {
     return breakoutJoinedUsers.filter((room) => room.sequence === sequence)[0].joinedUsers || [];
   }
 
-  getRoomName(position) {
+  getRoomName(position, padWithZeroes = false) {
     const { intl } = this.props;
     const { roomNamesChanged } = this.state;
 
@@ -638,7 +626,9 @@ class BreakoutRoom extends PureComponent {
       return roomNamesChanged[position];
     }
 
-    return intl.formatMessage(intlMessages.breakoutRoom, { 0: position });
+    return intl.formatMessage(intlMessages.breakoutRoom, {
+      0: padWithZeroes ? `${position}`.padStart(2, '0') : position
+    });
   }
 
   getFullName(position) {
@@ -649,40 +639,18 @@ class BreakoutRoom extends PureComponent {
 
   getCaptureFilename(position, slides = true) {
     const { intl } = this.props;
-    const { roomNamesChanged } = this.state;
-
     const presentations = PresentationUploaderService.getPresentations();
 
     const captureType = slides
       ? intl.formatMessage(intlMessages.captureSlidesType)
       : intl.formatMessage(intlMessages.captureNotesType);
 
-    if (this.hasNameChanged(position)) {
-      const baseName = roomNamesChanged[position];
-      const resultingName = intl.formatMessage(intlMessages.captureChangedName,
-        {
-          0: baseName,
-          1: captureType,
-        }).replace(/ /g, '_');
+    const fileName = `${this.getRoomName(position,true)}_${captureType}`.replace(/ /g, '_');
 
-      const duplicates = presentations.filter((pres) => pres.filename?.startsWith(resultingName)
-            || pres.name?.startsWith(resultingName)).length;
+    const fileNameDuplicatedCount = presentations.filter((pres) => pres.filename?.startsWith(fileName)
+            || pres.name?.startsWith(fileName)).length;
 
-      return duplicates < 1 ? resultingName : `${resultingName} ${duplicates + 1}`;
-    }
-
-    const baseName = intl.formatMessage(intlMessages.captureBaseName);
-    const resultingName = intl.formatMessage(intlMessages.captureDefaultName,
-      {
-        0: baseName,
-        1: ((position > 0 && position < 10) ? `0${position}` : position),
-        2: captureType,
-      });
-
-    const duplicates = presentations.filter((pres) => pres.filename?.startsWith(resultingName)
-            || pres.name?.startsWith(resultingName)).length;
-
-    return duplicates < 1 ? resultingName : `${resultingName} ${duplicates + 1}`;
+    return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
   }
 
   resetUserWhenRoomsChange(rooms) {
