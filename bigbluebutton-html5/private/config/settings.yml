@@ -748,7 +748,7 @@ public:
       text:
         # Initial font family.
         # family: mono|sans|script|serif
-        family: sans
+        family: script
     toolbar:
       multiUserPenOnly: false
       colors:
