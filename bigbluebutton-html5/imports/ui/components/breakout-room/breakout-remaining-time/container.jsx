@@ -147,7 +147,7 @@ export default injectNotify(injectIntl(withTracker(({
       if (fromBreakoutPanel) data.bold = true;
     } else {
       clearInterval(timeRemainingInterval);
-      BreakoutService.setCapturedNotesUploading();
+      BreakoutService.setCapturedContentUploading();
       data.message = intl.formatMessage(timeEndedMessage || intlMessages.breakoutWillClose);
     }
   } else if (breakoutRoom) {

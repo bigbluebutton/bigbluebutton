@@ -48,7 +48,7 @@ export default function removeUser(body, meetingId) {
       clearUserInfoForRequester(meetingId, userId);
 
       const currentUser = UsersPersistentData.findOne({ userId, meetingId });
-      const hasMessages = currentUser?.shouldPersist?.hasMessages;
+      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || currentUser?.shouldPersist?.hasMessages?.private;
       const hasConnectionStatus = currentUser?.shouldPersist?.hasConnectionStatus;
 
       if (!hasMessages && !hasConnectionStatus) {

@@ -226,6 +226,13 @@ test.describe.parallel('User', () => {
       await multiusers.initUserPage(false);
       await multiusers.muteAllUsersExceptPresenter();
     });
+
+    test('Write closed captions', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.writeClosedCaptions();
+    });
   });
 
   test.describe.parallel('Mobile devices', () => {

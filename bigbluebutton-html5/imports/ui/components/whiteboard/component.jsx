@@ -1,6 +1,6 @@
 import * as React from "react";
 import _ from "lodash";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
@@ -57,13 +57,18 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
-  ${({ hideCursor }) => hideCursor && `
-    #canvas {
-      cursor: none;
-    }
-  `}
   #TD-PrimaryTools-Image {
     display: none;
+  }
+
+  #slide-background-shape div {
+    pointer-events: none;
+  }
+`;
+
+const EditableWBWrapper = styled.div`
+  &, & > :first-child {
+    cursor: inherit !important;
   }
 `;
 
@@ -119,6 +124,7 @@ export default function Whiteboard(props) {
   const prevFitToWidth = usePrevious(fitToWidth);
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
+  const [currentTool, setCurrentTool] = React.useState(null);
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -608,36 +614,30 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && reason === 'patched_shapes' && e?.session?.type === "edit" && e?.session?.initialShape?.type === "text") {
+    if (reason && reason === 'patched_shapes' && e?.session?.type === 'edit') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
-      if (!shapes[patchedShape.id]) {
+
+      if (e?.session?.initialShape?.type === 'sticky' && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
+      if (e?.session?.initialShape?.type === 'text' && !shapes[patchedShape.id]) {
         patchedShape.userId = currentUser?.userId;
         persistShape(patchedShape, whiteboardId);
       } else {
         const diff = {
           id: patchedShape.id,
           point: patchedShape.point,
-          text: patchedShape.text
-        }
+          text: patchedShape.text,
+        };
         persistShape(diff, whiteboardId);
       }
     }
 
-    if (reason && reason === 'patched_shapes') {
-      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+    if (reason && reason.includes('selected_tool')) {
+      const tool = reason.split(':')[1];
 
-      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
-        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
-      }
-
-      if (patchedShape) {
-        const diff = {
-          id: patchedShape.id,
-          point: patchedShape.point,
-          text: patchedShape.text
-        }
-        persistShape(diff, whiteboardId);
-      }
+      setCurrentTool(tool);
     }
   };
 
@@ -719,7 +719,7 @@ export default function Whiteboard(props) {
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <div onPaste={onPaste}>
+    <EditableWBWrapper onPaste={onPaste}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}
@@ -741,7 +741,7 @@ export default function Whiteboard(props) {
         onRedo={onRedo}
         onCommand={onCommand}
       />
-    </div>
+    </EditableWBWrapper>
   );
 
   const readOnlyWB = (
@@ -775,11 +775,11 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        currentTool={currentTool}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
         <TldrawGlobalStyle 
           hideContextMenu={!hasWBAccess && !isPresenter} 
-          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
         />
       </Cursors>
     </>

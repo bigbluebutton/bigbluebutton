@@ -4,27 +4,26 @@ import UsersPersistentData from '/imports/api/users-persistent-data';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
-export default function changeHasMessages(hasMessages, userId, meetingId, chatId) {
+export default function clearChatHasMessages(meetingId, chatId) {
   const selector = {
     meetingId,
-    userId,
   };
 
   const type = chatId === PUBLIC_GROUP_CHAT_KEY ? 'public' : 'private';
-
+  
   const modifier = {
     $set: {
-      [`shouldPersist.hasMessages.${type}`]: hasMessages,
+      [`shouldPersist.hasMessages.${type}`]: false,
     },
   };
 
   try {
-    const numberAffected = UsersPersistentData.update(selector, modifier);
+    const numberAffected = UsersPersistentData.update(selector, modifier, { multi: true });
 
     if (numberAffected) {
-      Logger.info(`Changed hasMessages=${hasMessages} id=${userId} meeting=${meetingId}`);
+      Logger.info(`Cleared hasMessages meeting=${meetingId}`);
     }
   } catch (err) {
-    Logger.error(`Change hasMessages error: ${err}`);
+    Logger.error(`Clear hasMessages error: ${err}`);
   }
 }
