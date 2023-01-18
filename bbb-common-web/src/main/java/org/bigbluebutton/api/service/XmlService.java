@@ -16,4 +16,5 @@ public interface XmlService {
     String constructResponseFromRecordingsXml(String xml);
     String constructPaginatedResponse(Page<?> page, String response);
     Recording xmlToRecording(String recordId, String xml);
+    String noRecordings();
 }

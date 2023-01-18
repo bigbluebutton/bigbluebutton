@@ -72,7 +72,10 @@ public class RecordingServiceDbImpl implements RecordingService {
     }
 
     @Override
-    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, Pageable pageable) {
+    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, int offset, Pageable pageable) {
+        // If no IDs or limit were provided return no recordings instead of every recording
+        if(idList.isEmpty() && pageable == null) return xmlService.noRecordings();
+
         logger.info("Retrieving all recordings");
         Set<Recording> recordings = new HashSet<>();
         recordings.addAll(dataStore.findAll(Recording.class));
@@ -127,9 +130,16 @@ public class RecordingServiceDbImpl implements RecordingService {
         }
         logger.info("{} recordings remaining", recordings.size());
 
-        Page<Recording> recordingsPage = listToPage(new ArrayList<>(recordings), pageable);
+        // If no/invalid pagination parameters were given do not paginate the response
+        if(pageable == null) {
+            String recordingsXml = xmlService.recordingsToXml(recordings);
+            return xmlService.constructResponseFromRecordingsXml(recordingsXml);
+        }
+
+        Page<Recording> recordingsPage = listToPage(new ArrayList<>(recordings), offset, pageable);
         String recordingsXml = xmlService.recordingsToXml(recordingsPage.getContent());
         String response = xmlService.constructResponseFromRecordingsXml(recordingsXml);
+
         return xmlService.constructPaginatedResponse(recordingsPage, response);
     }
 

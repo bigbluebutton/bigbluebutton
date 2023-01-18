@@ -547,26 +547,29 @@ public class MeetingService implements MessageListener {
     return recordingService.isRecordingExist(recordId);
   }
 
-  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, String page, String size) {
-    int p;
-    int s;
+  public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, String offset, String limit) {
+    Pageable pageable = null;
+    int o = -1;
+    int l = -1;
 
     try {
-      p = Integer.parseInt(page);
+      o = Integer.parseInt(offset);
+      if(o < 0) o = 0;
     } catch(NumberFormatException e) {
-      p = 0;
+      log.info("Invalid offset parameter {}", offset);
+      o = 0;
     }
 
     try {
-      s = Integer.parseInt(size);
+      l = Integer.parseInt(limit);
+      if(l < 1) l = 1;
+      else if(l > 100) l = 100;
     } catch(NumberFormatException e) {
-      s = 25;
+      log.info("Invalid limit parameter {}", limit);
     }
 
-    log.info("{} {}", p, s);
-
-    Pageable pageable = PageRequest.of(p, s);
-    return recordingService.getRecordings2x(idList, states, metadataFilters, pageable);
+    if(l != -1) pageable = PageRequest.ofSize(l);
+    return recordingService.getRecordings2x(idList, states, metadataFilters, o, pageable);
   }
 
   public boolean existsAnyRecording(List<String> idList) {

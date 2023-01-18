@@ -264,6 +264,38 @@ public class XmlServiceImpl implements XmlService {
     }
 
     @Override
+    public String noRecordings() {
+        logger.info("Constructing no recordings response");
+
+        try {
+            setup();
+            Document document = builder.newDocument();
+
+            Element rootElement = createElement(document, "response", null);
+            document.appendChild(rootElement);
+
+            Element returnCode = createElement(document, "returncode", "SUCCESS");
+            rootElement.appendChild(returnCode);
+
+            Element messageKey = createElement(document, "messageKey", "noRecordings");
+            rootElement.appendChild(messageKey);
+
+            Element message = createElement(document, "message", "No recordings found. This may occur if you attempt to retrieve all recordings.");
+            rootElement.appendChild(message);
+
+            String result = documentToString(document);
+//            logger.info("========== Result ==========");
+//            logger.info("{}", result);
+//            logger.info("============================");
+            return result;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
     public String constructPaginatedResponse(Page<?> page, String response) {
         logger.info("Constructing paginated response");
 
@@ -291,14 +323,14 @@ public class XmlServiceImpl implements XmlService {
             Element totalElements = createElement(document, "totalElements", String.valueOf(page.getTotalElements()));
             pagination.appendChild(totalElements);
 
-            Element last = createElement(document, "last", String.valueOf(page.isLast()));
-            pagination.appendChild(last);
+//            Element last = createElement(document, "last", String.valueOf(page.isLast()));
+//            pagination.appendChild(last);
 
             Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
             pagination.appendChild(totalPages);
 
-            Element first = createElement(document, "first", String.valueOf(page.isFirst()));
-            pagination.appendChild(first);
+//            Element first = createElement(document, "first", String.valueOf(page.isFirst()));
+//            pagination.appendChild(first);
 
             Element empty = createElement(document, "empty", String.valueOf(!page.hasContent()));
             pagination.appendChild(empty);
@@ -327,28 +359,28 @@ public class XmlServiceImpl implements XmlService {
             Element rootElement = createElement(document, "pageable", null);
             document.appendChild(rootElement);
 
-            Sort sort = pageable.getSort();
-            Element sortElement = createElement(document, "sort", null);
-
-            Element unsorted = createElement(document, "unsorted", String.valueOf(sort.isUnsorted()));
-            sortElement.appendChild(unsorted);
-
-            Element sorted = createElement(document, "sorted", String.valueOf(sort.isSorted()));
-            sortElement.appendChild(sorted);
-
-            Element empty = createElement(document, "empty", String.valueOf(sort.isEmpty()));
-            sortElement.appendChild(empty);
-
-            rootElement.appendChild(sortElement);
+//            Sort sort = pageable.getSort();
+//            Element sortElement = createElement(document, "sort", null);
+//
+//            Element unsorted = createElement(document, "unsorted", String.valueOf(sort.isUnsorted()));
+//            sortElement.appendChild(unsorted);
+//
+//            Element sorted = createElement(document, "sorted", String.valueOf(sort.isSorted()));
+//            sortElement.appendChild(sorted);
+//
+//            Element empty = createElement(document, "empty", String.valueOf(sort.isEmpty()));
+//            sortElement.appendChild(empty);
+//
+//            rootElement.appendChild(sortElement);
 
             Element offset = createElement(document, "offset", String.valueOf(pageable.getOffset()));
             rootElement.appendChild(offset);
 
-            Element pageSize = createElement(document, "pageSize", String.valueOf(pageable.getPageSize()));
-            rootElement.appendChild(pageSize);
+            Element limit = createElement(document, "limit", String.valueOf(pageable.getPageSize()));
+            rootElement.appendChild(limit);
 
-            Element pageNumber = createElement(document, "pageNumber", String.valueOf(pageable.getPageNumber()));
-            rootElement.appendChild(pageNumber);
+//            Element pageNumber = createElement(document, "pageNumber", String.valueOf(pageable.getPageNumber()));
+//            rootElement.appendChild(pageNumber);
 
             Element paged = createElement(document, "paged", String.valueOf(pageable.isPaged()));
             rootElement.appendChild(paged);
