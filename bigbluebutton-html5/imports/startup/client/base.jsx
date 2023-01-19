@@ -246,10 +246,11 @@ class Base extends Component {
   renderByState() {
     const { updateLoadingState } = this;
     const stateControls = { updateLoadingState };
-    const { loading } = this.state;
+    const { loading, userRemoved } = this.state;
     const {
       codeError,
       ejected,
+      ejectedReason,
       meetingExist,
       meetingHasEnded,
       meetingEndedReason,
@@ -260,21 +261,23 @@ class Base extends Component {
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
-
-    if (!meetingHasEnded && meetingIsBreakout && Session.get("userMovedToADifferentRoom")) {
-      return window.close();
-    }
     
-    if (ejected) {
-      return window.close();
-    }
-
-    if (meetingHasEnded && meetingIsBreakout) {
+    if (( meetingHasEnded || ejected || userRemoved ) && meetingIsBreakout) {
       Base.setExitReason('breakoutEnded').finally(() => {
         Meteor.disconnect();
         window.close();
       });
       return null;
+    }
+    
+    if (ejected && !meetingIsBreakout) {
+      return (
+        <MeetingEnded
+          code="403"
+          ejectedReason={ejectedReason}
+          callback={() => Base.setExitReason('ejected')}
+        />
+      );
     }
 
     if (meetingHasEnded && !meetingIsBreakout) {

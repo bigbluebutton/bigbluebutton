@@ -8,6 +8,7 @@ import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/servi
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import { ValidationStates } from '/imports/api/auth-token-validation';
+import logger from '/imports/startup/client/logger';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -218,7 +219,7 @@ class Auth {
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
       })
       .catch(() => {
-        Session.set("userMovedToADifferentRoom", true);
+        logger.warn("Failed to validate token, user moved to another breakout room");
       })
       .finally(() => {
         this.isAuthenticating = false;
