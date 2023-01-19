@@ -217,11 +217,19 @@ export default function Whiteboard(props) {
     }
   };
 
+  const checkVisibility = () => {
+    if (document.visibilityState === 'hidden' && tldrawAPI?.session) {
+      tldrawAPI?.completeSession?.();
+    }
+  };
+
   React.useEffect(() => {
     document.addEventListener('mouseup', checkClientBounds);
+    document.addEventListener('visibilitychange', checkVisibility);
 
     return () => {
       document.removeEventListener('mouseup', checkClientBounds);
+      document.removeEventListener('visibilitychange', checkVisibility);
     };
   }, [tldrawAPI]);
 
