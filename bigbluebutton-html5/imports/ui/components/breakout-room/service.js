@@ -7,7 +7,6 @@ import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
-import _ from 'lodash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -43,7 +42,7 @@ const upsertCapturedContent = (filename, temporaryPresentationId) => {
     temporaryPresentationId,
   }, {
     $set: {
-      id: _.uniqueId(filename),
+      id: temporaryPresentationId,
       temporaryPresentationId,
       progress: 0,
       filename,
@@ -62,6 +61,7 @@ const setCapturedContentUploading = () => {
   breakoutRooms.forEach((breakout) => {
     const filename = breakout.shortName;
     const temporaryPresentationId = breakout.breakoutId;
+
     if (breakout.captureNotes) {
       upsertCapturedContent(filename, `${temporaryPresentationId}-notes`);
     }
