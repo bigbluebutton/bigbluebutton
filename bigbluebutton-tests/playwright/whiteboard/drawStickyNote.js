@@ -23,6 +23,9 @@ class DrawStickyNote extends MultiUsers {
     await this.modPage.press('B');
     await this.modPage.page.mouse.click(wbBox.x + 0.6 * wbBox.width, wbBox.y + 0.6 * wbBox.height);
 
+    await this.modPage.hasText(e.wbTypedText, 'AB');
+    await this.modPage2.hasText(e.wbTypedText, 'AB');
+
     const clipObj = {
       x: wbBox.x,
       y: wbBox.y,
