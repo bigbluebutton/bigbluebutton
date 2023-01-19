@@ -72,7 +72,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String recordingToXml(Recording recording) {
-        logger.info("Converting {} to xml", recording);
+//        logger.info("Converting {} to xml", recording);
         try {
             setup();
             Document document = builder.newDocument();
@@ -125,7 +125,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String metadataToXml(Metadata metadata) {
-        logger.info("Converting {} to xml", metadata);
+//        logger.info("Converting {} to xml", metadata);
 
         try {
             setup();
@@ -148,7 +148,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String playbackFormatToXml(PlaybackFormat playbackFormat) {
-        logger.info("Converting {} to xml", playbackFormat);
+//        logger.info("Converting {} to xml", playbackFormat);
 
         try {
             setup();
@@ -187,7 +187,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String thumbnailToXml(Thumbnail thumbnail) {
-        logger.info("Converting {} to xml", thumbnail);
+//        logger.info("Converting {} to xml", thumbnail);
 
         try {
             setup();
@@ -211,7 +211,7 @@ public class XmlServiceImpl implements XmlService {
 
     @Override
     public String callbackDataToXml(CallbackData callbackData) {
-        logger.info("Converting {} to xml", callbackData);
+//        logger.info("Converting {} to xml", callbackData);
 
         try {
             setup();
@@ -296,7 +296,7 @@ public class XmlServiceImpl implements XmlService {
     }
 
     @Override
-    public String constructPaginatedResponse(Page<?> page, String response) {
+    public String constructPaginatedResponse(Page<?> page, int offset, String response) {
         logger.info("Constructing paginated response");
 
         try {
@@ -315,7 +315,7 @@ public class XmlServiceImpl implements XmlService {
             Document secondDoc;
             Node node;
 
-            xml = pageableToXml(page.getPageable());
+            xml = pageableToXml(page.getPageable(), offset);
             secondDoc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
             node = document.importNode(secondDoc.getDocumentElement(), true);
             pagination.appendChild(node);
@@ -326,8 +326,8 @@ public class XmlServiceImpl implements XmlService {
 //            Element last = createElement(document, "last", String.valueOf(page.isLast()));
 //            pagination.appendChild(last);
 
-            Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
-            pagination.appendChild(totalPages);
+//            Element totalPages = createElement(document, "totalPages", String.valueOf(page.getTotalPages()));
+//            pagination.appendChild(totalPages);
 
 //            Element first = createElement(document, "first", String.valueOf(page.isFirst()));
 //            pagination.appendChild(first);
@@ -349,7 +349,7 @@ public class XmlServiceImpl implements XmlService {
         return null;
     }
 
-    private String pageableToXml(Pageable pageable) {
+    private String pageableToXml(Pageable pageable, int o) {
         logger.info("Converting {} to xml", pageable);
 
         try {
@@ -373,7 +373,7 @@ public class XmlServiceImpl implements XmlService {
 //
 //            rootElement.appendChild(sortElement);
 
-            Element offset = createElement(document, "offset", String.valueOf(pageable.getOffset()));
+            Element offset = createElement(document, "offset", String.valueOf(o));
             rootElement.appendChild(offset);
 
             Element limit = createElement(document, "limit", String.valueOf(pageable.getPageSize()));

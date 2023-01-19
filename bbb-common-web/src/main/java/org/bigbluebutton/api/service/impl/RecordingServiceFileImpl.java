@@ -213,7 +213,7 @@ public class RecordingServiceFileImpl implements RecordingService {
 
         Page<RecordingMetadata> recordingsPage = listToPage(recs, offset, pageable);
         String response = recordingServiceHelper.getRecordings2x(new ArrayList<RecordingMetadata>(recordingsPage.getContent()));
-        return xmlService.constructPaginatedResponse(recordingsPage, response);
+        return xmlService.constructPaginatedResponse(recordingsPage, offset, response);
     }
 
     private RecordingMetadata getRecordingMetadata(File dir) {
