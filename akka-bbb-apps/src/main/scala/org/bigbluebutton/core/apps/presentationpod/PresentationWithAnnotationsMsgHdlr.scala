@@ -153,7 +153,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(job)
 
         // Send Annotations to Redis
-        val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+        val annotations = StoredAnnotations(jobId, presId, storeAnnotationPages)
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
         // Return existing uploaded file directly
