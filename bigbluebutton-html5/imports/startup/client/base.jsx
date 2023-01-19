@@ -250,7 +250,6 @@ class Base extends Component {
     const {
       codeError,
       ejected,
-      ejectedReason,
       meetingExist,
       meetingHasEnded,
       meetingEndedReason,
@@ -262,24 +261,12 @@ class Base extends Component {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
 
-    if (!meetingHasEnded && meetingIsBreakout && Session.get("changedBreakoutRoomNotifier")) {
-      return (
-        <MeetingEnded
-          code="409"
-          ejectedReason={"changed_breakout_room"}
-          callback={() => Base.setExitReason('ejected')}
-        />
-      );
+    if (!meetingHasEnded && meetingIsBreakout && Session.get("userMovedToADifferentRoom")) {
+      return window.close();
     }
     
     if (ejected) {
-      return (
-        <MeetingEnded
-          code="403"
-          ejectedReason={ejectedReason}
-          callback={() => Base.setExitReason('ejected')}
-        />
-      );
+      return window.close();
     }
 
     if (meetingHasEnded && meetingIsBreakout) {

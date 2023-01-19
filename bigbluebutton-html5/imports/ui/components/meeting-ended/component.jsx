@@ -98,10 +98,6 @@ const intlMessage = defineMessages({
     id: 'app.meeting.logout.validateTokenFailedEjectReason',
     description: 'invalid auth token',
   },
-  changed_breakout_room: {
-    id: "app.meeting.logout.changedBreakoutRoom",
-    description: "message when person has their breakout room changed",
-  },
   user_inactivity_eject_reason: {
     id: 'app.meeting.logout.userInactivityEjectReason',
     description: 'message to whom was kicked by inactivity',
