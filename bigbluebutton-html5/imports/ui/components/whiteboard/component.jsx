@@ -294,7 +294,7 @@ export default function Whiteboard(props) {
     }
 
     // move poll result text to bottom right
-    if (next.pages[curPageId]) {
+    if (next.pages[curPageId] && slidePosition) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
                                 .filter(([id, shape]) => shape.name?.includes("poll-result"))
       for (const [id, shape] of pollResults) {
@@ -343,7 +343,7 @@ export default function Whiteboard(props) {
   }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
 
   React.useEffect(() => {
-    if (presentationWidth > 0 && presentationHeight > 0) {
+    if (presentationWidth > 0 && presentationHeight > 0 && slidePosition) {
       const cameraZoom = tldrawAPI?.getPageState()?.camera?.zoom;
       const newzoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       if (cameraZoom && cameraZoom === 1) {
@@ -368,7 +368,7 @@ export default function Whiteboard(props) {
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
-    if (tldrawAPI && curPageId) {
+    if (tldrawAPI && curPageId && slidePosition) {
       tldrawAPI.changePage(curPageId);
       let zoom = prevSlidePosition
         ? calculateZoom(prevSlidePosition.viewBoxWidth, prevSlidePosition.viewBoxHeight)
@@ -546,7 +546,7 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+    if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
       // limit bounds
