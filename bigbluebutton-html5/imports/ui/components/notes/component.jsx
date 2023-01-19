@@ -74,10 +74,12 @@ const Notes = ({
 
   const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
                    || (!isToSharedNotesBeShow
-                    && sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
+                    && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
                     || shouldShowSharedNotesOnPresentationArea;
 
-  if (isHidden) style.padding = 0;
+  if (isHidden) {
+    style.padding = 0;
+  }
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
@@ -148,7 +150,7 @@ const Notes = ({
     ) : null;
   };
 
-  return shouldRenderNotes && (
+  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
       {!isOnMediaArea ? (
         <Header

@@ -562,7 +562,6 @@ class App extends Component {
           {shouldShowSharedNotes 
             ? (
               <NotesContainer
-                isToSharedNotesBeShow={shouldShowSharedNotes}
                 area="media"
                 layoutType={selectedLayout}
               />
