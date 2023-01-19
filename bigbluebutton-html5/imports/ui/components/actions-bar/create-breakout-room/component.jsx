@@ -183,7 +183,7 @@ const propTypes = {
   getBreakouts: PropTypes.func.isRequired,
   sendInvitation: PropTypes.func.isRequired,
   mountModal: PropTypes.func.isRequired,
-  isBreakoutRecordable: PropTypes.bool.isRequired,
+  isBreakoutRecordable: PropTypes.bool,
 };
 
 class BreakoutRoom extends PureComponent {
