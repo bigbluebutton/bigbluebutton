@@ -2,15 +2,17 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import BreakoutRoomService from '/imports/ui/components/breakout-room/service';
-
 import CreateBreakoutRoomModal from './component';
+import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
 const CreateBreakoutRoomContainer = (props) => {
-  const startWithAllowUserToChooseABreakout = METEOR_SETTINGS_APP.breakouts.startWithAllowUserToChooseABreakout;
-  const startWithCaptureWhiteboardForBreakout = METEOR_SETTINGS_APP.breakouts.startWithCaptureWhiteboardForBreakout;
-  const startWithCaptureSharedNotesForBreakout = METEOR_SETTINGS_APP.breakouts.startWithCaptureSharedNotesForBreakout;
+  const { setAllowUserToChooseABreakout } = METEOR_SETTINGS_APP.breakouts;
+  const setCaptureBreakoutWhiteboard = METEOR_SETTINGS_APP.breakouts.setCaptureBreakoutWhiteboard
+                                    && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled;
+  const setCaptureBreakoutNotes = METEOR_SETTINGS_APP.breakouts.setCaptureBreakoutWhiteboard
+                                    && isImportSharedNotesFromBreakoutRoomsEnabled;
   const { amIModerator } = props;
   return (
     amIModerator
@@ -18,9 +20,9 @@ const CreateBreakoutRoomContainer = (props) => {
       <CreateBreakoutRoomModal 
         {...props}  
         {...{
-          startWithAllowUserToChooseABreakout,
-          startWithCaptureWhiteboardForBreakout,
-          startWithCaptureSharedNotesForBreakout,
+          setAllowUserToChooseABreakout,
+          setCaptureBreakoutWhiteboard,
+          setCaptureBreakoutNotes,
         }}
       />
     )

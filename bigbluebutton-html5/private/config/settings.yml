@@ -121,9 +121,9 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
-      startWithAllowUserToChooseABreakout: false
-      startWithCaptureWhiteboardForBreakout: false
-      startWithCaptureSharedNotesForBreakout: false
+      setAllowUserToChooseABreakout: false
+      setCaptureBreakoutWhiteboard: false
+      setCaptureBreakoutNotes: false
 
       breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
