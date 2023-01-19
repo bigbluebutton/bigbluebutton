@@ -10,9 +10,9 @@ const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 const CreateBreakoutRoomContainer = (props) => {
   const { setAllowUserToChooseABreakout } = METEOR_SETTINGS_APP.breakouts;
   const setCaptureBreakoutWhiteboard = METEOR_SETTINGS_APP.breakouts.setCaptureBreakoutWhiteboard
-                                    && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled;
-  const setCaptureBreakoutNotes = METEOR_SETTINGS_APP.breakouts.setCaptureBreakoutWhiteboard
-                                    && isImportSharedNotesFromBreakoutRoomsEnabled;
+                                    && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
+  const setCaptureBreakoutNotes = METEOR_SETTINGS_APP.breakouts.setCaptureBreakoutNotes
+                                    && isImportSharedNotesFromBreakoutRoomsEnabled();
   const { amIModerator } = props;
   return (
     amIModerator
