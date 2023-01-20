@@ -286,6 +286,7 @@ class MultiUsers {
     await this.modPage.hasText(e.liveCaptions, e.message);
     await this.modPage2.hasText(e.liveCaptions, e.message);
   }
+
   async removeUser() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.removeUser);
@@ -318,6 +319,27 @@ class MultiUsers {
     
     await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Moderator2'})
     await this.modPage2.hasText(e.userBannedMessage, /banned/);
+  }
+
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptionsBtn);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptionsBtn);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.message);
+
+    await this.modPage.hasText(e.liveCaptions, e.message);
+    await this.modPage2.hasText(e.liveCaptions, e.message);
   }
 }
 
