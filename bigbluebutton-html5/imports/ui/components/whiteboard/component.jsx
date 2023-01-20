@@ -158,10 +158,19 @@ export default function Whiteboard(props) {
     return hasShapeAccess;
   }
 
+  const isValidShapeType = (shape) => {
+    const invalidTypes = ['image', 'video'];
+    return !invalidTypes.includes(shape?.type);
+  }
+
   const sendShapeChanges= (app, changedShapes, redo = false) => {
     const invalidChange = Object.keys(changedShapes)
-                                .find(id => !hasShapeAccess(id));
-    if (invalidChange) {
+      .find(id => !hasShapeAccess(id));
+
+    const invalidShapeType = Object.keys(changedShapes)
+      .find(id => !isValidShapeType(changedShapes[id]));
+
+    if (invalidChange || invalidShapeType) {
       notifyNotAllowedChange(intl);
       // undo last command without persisting to not generate the onUndo/onRedo callback
       if (!redo) {
@@ -722,22 +731,10 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onPaste = (e) => {
-    // disable file pasting
-    const clipboardData = e.clipboardData || window.clipboardData;
-    const { types } = clipboardData;
-    const hasFiles = types && types.indexOf && types.indexOf('Files') !== -1;
-
-    if (hasFiles) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <EditableWBWrapper onPaste={onPaste}>
+    <EditableWBWrapper>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}
