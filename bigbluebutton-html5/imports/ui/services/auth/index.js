@@ -219,7 +219,7 @@ class Auth {
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
       })
       .catch((err) => {
-        logger.warn("Failed to validate token, error: {}", err);
+        logger.error(`Failed to validate token: ${err.description}`);
       })
       .finally(() => {
         this.isAuthenticating = false;
