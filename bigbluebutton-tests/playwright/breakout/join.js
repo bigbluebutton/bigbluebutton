@@ -1,3 +1,4 @@
+const { default: test } = require('@playwright/test');
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
@@ -5,6 +6,7 @@ const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constan
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
+const { getNotesLocator } = require('../sharednotes/util');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -139,6 +141,92 @@ class Join extends Create {
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);
+  }
+
+  async exportBreakoutNotes() {
+    const { sharedNotesEnabled } = getSettings();
+    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+    await breakoutUserPage.waitAndClick(e.sharedNotes);
+    await breakoutUserPage.waitForSelector(e.hideNotesLabel);
+
+    const notesLocator = getNotesLocator(breakoutUserPage);
+    await notesLocator.type(e.message);
+    await sleep(1000); // making sure there's enough time for the typing to finish
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.endAllBreakouts);
+
+    await this.modPage.hasElement(e.presentationUploadProgressToast);
+    await this.modPage.page.waitForSelector(e.presentationUploadProgressToast, { state: 'detached' });
+
+    await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.checkElementCount(e.actionsItem, 9);
+    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
+
+    const wb = await this.modPage.page.$(e.whiteboard);
+    const wbBox = await wb.boundingBox();
+    const clipObj = {
+      x: wbBox.x,
+      y: wbBox.y,
+      width: wbBox.width,
+      height: wbBox.height,
+    };
+    await expect(this.modPage.page).toHaveScreenshot('capture-breakout-notes.png', {
+      maxDiffPixels: 1000,
+      clip: clipObj,
+    });
+  }
+
+  async exportBreakoutWhiteboard() {
+    const { sharedNotesEnabled } = getSettings();
+    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+    await breakoutUserPage.waitAndClick(e.sharedNotes);
+    await breakoutUserPage.waitForSelector(e.hideNotesLabel);
+
+    // draw a line
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await breakoutUserPage.waitAndClick(e.wbShapesButton);
+    await breakoutUserPage.waitAndClick(e.wbLineShape);
+    const wbBreakout = await breakoutUserPage.page.$(e.whiteboard);
+    const wbBoxBreakout = await wbBreakout.boundingBox();
+    await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.3 * wbBoxBreakout.width, wbBoxBreakout.y + 0.3 * wbBoxBreakout.height);
+    await breakoutUserPage.page.mouse.down();
+    await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.7 * wbBoxBreakout.width, wbBoxBreakout.y + 0.7 * wbBoxBreakout.height);
+    await breakoutUserPage.page.mouse.up();
+    await sleep(1000); // making sure there's enough time for the typing to finish
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.endAllBreakouts);
+
+    await this.modPage.waitForSelector(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.page.waitForSelector(e.presentationUploadProgressToast, { state: 'detached' });
+
+    await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.checkElementCount(e.actionsItem, 9);
+    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
+
+    const wbMod = await this.modPage.page.$(e.whiteboard);
+    const wbBoxMod = await wbMod.boundingBox();
+    const clipObj = {
+      x: wbBoxMod.x,
+      y: wbBoxMod.y,
+      width: wbBoxMod.width,
+      height: wbBoxMod.height,
+    };
+    await expect(this.modPage.page).toHaveScreenshot('capture-breakout-whiteboard.png', {
+      maxDiffPixels: 1000,
+      clip: clipObj,
+    });
   }
 }
 

@@ -12,6 +12,7 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component.jsx';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
+import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -91,6 +92,14 @@ const intlMessages = defineMessages({
   captureSlidesLabel: {
     id: 'app.createBreakoutRoom.captureSlides',
     description: 'capture slides label',
+  },
+  captureNotesType: {
+    id: 'app.notes.label',
+    description: 'indicates notes have been captured',
+  },
+  captureSlidesType: {
+    id: 'app.shortcut-help.whiteboard',
+    description: 'indicates the whiteboard has been captured',
   },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
@@ -445,6 +454,8 @@ class BreakoutRoom extends PureComponent {
     const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
       name: this.getFullName(seq),
+      captureNotesFilename: this.getCaptureFilename(seq, false),
+      captureSlidesFilename: this.getCaptureFilename(seq),
       shortName: this.getRoomName(seq),
       isDefaultName: !this.hasNameChanged(seq),
       freeJoin,
@@ -607,7 +618,7 @@ class BreakoutRoom extends PureComponent {
     return breakoutJoinedUsers.filter((room) => room.sequence === sequence)[0].joinedUsers || [];
   }
 
-  getRoomName(position) {
+  getRoomName(position, padWithZeroes = false) {
     const { intl } = this.props;
     const { roomNamesChanged } = this.state;
 
@@ -615,13 +626,31 @@ class BreakoutRoom extends PureComponent {
       return roomNamesChanged[position];
     }
 
-    return intl.formatMessage(intlMessages.breakoutRoom, { 0: position });
+    return intl.formatMessage(intlMessages.breakoutRoom, {
+      0: padWithZeroes ? `${position}`.padStart(2, '0') : position
+    });
   }
 
   getFullName(position) {
     const { meetingName } = this.props;
 
     return `${meetingName} (${this.getRoomName(position)})`;
+  }
+
+  getCaptureFilename(position, slides = true) {
+    const { intl } = this.props;
+    const presentations = PresentationUploaderService.getPresentations();
+
+    const captureType = slides
+      ? intl.formatMessage(intlMessages.captureSlidesType)
+      : intl.formatMessage(intlMessages.captureNotesType);
+
+    const fileName = `${this.getRoomName(position,true)}_${captureType}`.replace(/ /g, '_');
+
+    const fileNameDuplicatedCount = presentations.filter((pres) => pres.filename?.startsWith(fileName)
+            || pres.name?.startsWith(fileName)).length;
+
+    return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
   }
 
   resetUserWhenRoomsChange(rooms) {
