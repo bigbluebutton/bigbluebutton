@@ -145,7 +145,7 @@ export default function Whiteboard(props) {
   }
 
   const isValidShapeType = (shape) => {
-    const invalidTypes = ['image'];
+    const invalidTypes = ['image', 'video'];
     return !invalidTypes.includes(shape?.type);
   }
 
