@@ -33,6 +33,7 @@ public:
     copyright: '©2023 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
+    delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
       enabled: false
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
@@ -121,6 +122,10 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      setAllowUserToChooseABreakout: false
+      setCaptureBreakoutWhiteboard: false
+      setCaptureBreakoutNotes: false
+
       breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
@@ -744,6 +749,11 @@ public:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+    styles:
+      text:
+        # Initial font family.
+        # family: mono|sans|script|serif
+        family: script
     toolbar:
       multiUserPenOnly: false
       colors:

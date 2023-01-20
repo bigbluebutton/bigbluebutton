@@ -13,7 +13,8 @@
     "test-visual-regression:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
     "lint": "eslint . --ext .jsx,.js",
     "lint:file": "eslint",
-    "preinstall": "npx npm-force-resolutions"
+    "preinstall": "npx npm-force-resolutions",
+    "postinstall": "mkdir -p public/files; cp node_modules/@fontsource/*/files/*.woff public/files/; cp node_modules/@fontsource/*/files/*.woff2 public/files/"
   },
   "meteor": {
     "mainModule": {
@@ -33,8 +34,8 @@
     "@jitsi/sdp-interop": "0.1.14",
     "@material-ui/core": "^4.12.4",
     "@mconf/bbb-diff": "^1.2.0",
-    "@tldraw/core": "1.20.3",
-    "@tldraw/tldraw": "1.26.4",
+    "@tldraw/core": "1.21.0",
+    "@tldraw/tldraw": "1.27.0",
     "autoprefixer": "^10.4.4",
     "axios": "^0.21.3",
     "babel-runtime": "~6.26.0",
@@ -46,7 +47,7 @@
     "eventemitter2": "~6.4.6",
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
-    "flat": "^4.1.1",
+    "flat": "^5.0.2",
     "hark": "^1.2.3",
     "html-to-image": "^1.9.0",
     "immutability-helper": "~2.8.1",

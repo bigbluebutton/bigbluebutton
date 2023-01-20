@@ -28,6 +28,10 @@ location /html5client/fonts {
   alias /usr/share/meteor/bundle/programs/web.browser/app/fonts;
 }
 
+location /html5client/files {
+  alias /usr/share/meteor/bundle/programs/web.browser/app/files;
+}
+
 location /html5client/wasm {
   types {
     application/wasm wasm;

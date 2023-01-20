@@ -7,10 +7,9 @@ import AuthTokenValidation, {
   ValidationStates,
 } from '/imports/api/auth-token-validation';
 import { DDPServer } from 'meteor/ddp-server';
+import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 
 Meteor.server.setPublicationStrategy('polls', DDPServer.publicationStrategies.NO_MERGE);
-
-const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 function currentPoll(secretPoll) {
   check(secretPoll, Boolean);
@@ -111,8 +110,22 @@ function polls() {
 
   if (User) {
     const poll = Polls.findOne(selector, noKeyOptions);
+    if (User.presenter || poll?.pollType !== 'R-') {
+      // Monitor this publication and stop it when user is not a presenter anymore or poll type has changed
+      const comparisonFunc = () => {
+        const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+        const currentPoll = Polls.findOne(selector, noKeyOptions);
 
-    if (User.role === ROLE_MODERATOR || poll?.pollType !== 'R-') {
+        const condition = user.presenter || currentPoll?.pollType !== 'R-';
+
+        if (!condition) {
+          Logger.info(`conditions aren't filled anymore in publication ${this._name}: 
+          user.presenter || currentPoll?.pollType !== 'R-' :${condition}, user.presenter: ${user.presenter} pollType: ${currentPoll?.pollType}`);
+        }
+
+        return condition;
+      };
+      publicationSafeGuard(comparisonFunc, this);
       return Polls.find(selector, options);
     }
   }

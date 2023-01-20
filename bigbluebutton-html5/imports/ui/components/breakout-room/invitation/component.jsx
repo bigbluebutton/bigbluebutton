@@ -10,7 +10,7 @@ const BREAKOUT_MODAL_DELAY = 200;
 const propTypes = {
   mountModal: PropTypes.func.isRequired,
   lastBreakoutReceived: PropTypes.shape({
-    breakoutUrlData: PropTypes.func.isRequired,
+    breakoutUrlData: PropTypes.object.isRequired,
   }),
   breakoutRoomsUserIsIn: PropTypes.shape({
     sequence: PropTypes.number.isRequired,
