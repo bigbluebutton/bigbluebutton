@@ -53,7 +53,12 @@ const BreakoutRoomItem = ({
               onClick={toggleBreakoutPanel}
               data-test="breakoutRoomsItem"
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
-              onKeyPress={() => {}}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  toggleBreakoutPanel();
+                }
+              }}
             >
               <Icon iconName="rooms" />
               <div aria-hidden>

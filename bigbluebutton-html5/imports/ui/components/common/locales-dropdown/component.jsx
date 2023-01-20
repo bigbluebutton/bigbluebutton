@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { injectIntl } from 'react-intl';
 
 const DEFAULT_VALUE = 'select';
 const DEFAULT_KEY = -1;
@@ -46,7 +47,7 @@ class LocalesDropdown extends PureComponent {
 
   render() {
     const {
-      value, handleChange, elementId, selectMessage, ariaLabel,
+      value, handleChange, elementId, selectMessage, ariaLabel, intl,
     } = this.props;
     const defaultLocale = value || DEFAULT_VALUE;
 
@@ -62,11 +63,18 @@ class LocalesDropdown extends PureComponent {
         <option disabled key={DEFAULT_KEY} value={DEFAULT_VALUE}>
           {selectMessage}
         </option>
-        {availableLocales.map((localeItem) => (
-          <option key={localeItem.locale} value={localeItem.locale}>
-            {localeItem.name}
-          </option>
-        ))}
+        {availableLocales.map((localeItem) => {
+          const localizedName = localeItem.locale !== value && intl.formatMessage({
+            id: `app.submenu.application.localeDropdown.${localeItem.locale}`,
+            defaultMessage: ``,
+          });
+
+          return (
+            <option key={localeItem.locale} value={localeItem.locale}>
+              {localeItem.name}{localizedName && ` - ${localizedName}`}
+            </option>
+          );
+        })}
       </select>
     );
   }
@@ -75,4 +83,4 @@ class LocalesDropdown extends PureComponent {
 LocalesDropdown.propTypes = propTypes;
 LocalesDropdown.defaultProps = defaultProps;
 
-export default LocalesDropdown;
+export default injectIntl(LocalesDropdown);

@@ -293,7 +293,7 @@ const PresentationMenu = (props) => {
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           container: fullscreenRef
         }}
-        actions={getAvailableOptions()}
+        actions={options}
       />
     </Styled.Right>
   );

@@ -1,10 +1,28 @@
 import * as React from 'react';
+import { Meteor } from 'meteor/meteor';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
 const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
+
+const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
+
+const TOOL_CURSORS = {
+  select: 'none',
+  erase: 'none',
+  arrow: 'none',
+  draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
+  rectangle: `url('${makeCursorUrl('square.png')}'), default`,
+  ellipse: `url('${makeCursorUrl('ellipse.png')}'), default`,
+  triangle: `url('${makeCursorUrl('triangle.png')}'), default`,
+  line: `url('${makeCursorUrl('line.png')}'), default`,
+  text: `url('${makeCursorUrl('text.png')}'), default`,
+  sticky: `url('${makeCursorUrl('square.png')}'), default`,
+  pan: `url('${makeCursorUrl('pan.png')}'), default`,
+};
 
 const Cursor = (props) => {
   const {
@@ -130,6 +148,7 @@ export default function Cursors(props) {
     hasMultiUserAccess,
     isMultiUserActive,
     isPanning,
+    currentTool,
   } = props;
 
   const start = () => setActive(true);
@@ -311,8 +330,8 @@ export default function Cursors(props) {
   });
 
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
-  let cursorType = multiUserAccess || currentUser?.presenter ? 'none' : 'default';
-  if (isPanning) cursorType = 'grab';
+  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
+  if (isPanning) cursorType = TOOL_CURSORS.pan;
 
   return (
     <span ref={(r) => { cursorWrapper = r; }}>

@@ -314,7 +314,6 @@ class Page {
     await expect(locator).toHaveValue(value);
   }
 
-
   async backgroundColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
   }
@@ -322,8 +321,6 @@ class Page {
   async textColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
   }
-
-  
 }
 
 module.exports = exports = Page;

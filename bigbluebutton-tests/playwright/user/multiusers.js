@@ -5,6 +5,7 @@ const e = require('../core/elements');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
+const { getNotesLocator } = require('../sharednotes/util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
@@ -39,7 +40,6 @@ class MultiUsers {
       fullName,
       meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
     };
-    
     const page = await context.newPage();
     this.modPage2 = new Page(this.browser, page);
     await this.modPage2.init(true, shouldCloseAudioModal, options);
@@ -266,10 +266,31 @@ class MultiUsers {
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptionsBtn);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptionsBtn);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.message);
+
+    await this.modPage.hasText(e.liveCaptions, e.message);
+    await this.modPage2.hasText(e.liveCaptions, e.message);
+  }
   async removeUser() {
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
+    await this.modPage.wasRemoved(e.userListItem);
 
     //Will be modified when the issue is fixed and accept just one of both screens
     //https://github.com/bigbluebutton/bigbluebutton/issues/16463
@@ -285,6 +306,7 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.confirmationCheckbox);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
+    await this.modPage.wasRemoved(e.userListItem);
 
     //Will be modified when the issue is fixed and accept just one of both screens
     //https://github.com/bigbluebutton/bigbluebutton/issues/16463

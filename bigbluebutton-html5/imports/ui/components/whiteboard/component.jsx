@@ -1,6 +1,6 @@
 import * as React from "react";
 import _ from "lodash";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
@@ -57,13 +57,36 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
-  ${({ hideCursor }) => hideCursor && `
-    #canvas {
-      cursor: none;
-    }
-  `}
   #TD-PrimaryTools-Image {
     display: none;
+  }
+  #slide-background-shape div {
+    pointer-events: none;
+  }
+  [aria-expanded*="false"][aria-controls*="radix-"] {
+    display: none;
+  }
+  ${({ hasWBAccess, isPresenter, size }) => (hasWBAccess || isPresenter) && `
+    #TD-Tools-Dots {
+      height: ${size}px;
+      width: ${size}px;
+    }
+    #TD-Delete {
+      & button {
+        height: ${size}px;
+        width: ${size}px;
+      }
+    }
+    #TD-PrimaryTools button {
+        height: ${size}px;
+        width: ${size}px;
+    }
+  `}
+`;
+
+const EditableWBWrapper = styled.div`
+  &, & > :first-child {
+    cursor: inherit !important;
   }
 `;
 
@@ -97,6 +120,7 @@ export default function Whiteboard(props) {
     intl,
     svgUri,
     maxStickyNoteLength,
+    fontFamily,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -119,6 +143,7 @@ export default function Whiteboard(props) {
   const prevFitToWidth = usePrevious(fitToWidth);
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
+  const [currentTool, setCurrentTool] = React.useState(null);
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -197,6 +222,35 @@ export default function Whiteboard(props) {
     props.setTldrawIsMounting(true);
   }, []);
 
+  const checkClientBounds = (e) => {
+    if (
+      e.clientX > document.documentElement.clientWidth ||
+      e.clientX < 0 ||
+      e.clientY > document.documentElement.clientHeight ||
+      e.clientY < 0
+    ) {
+      if (tldrawAPI?.session) {
+        tldrawAPI?.completeSession?.();
+      }
+    }
+  };
+
+  const checkVisibility = () => {
+    if (document.visibilityState === 'hidden' && tldrawAPI?.session) {
+      tldrawAPI?.completeSession?.();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('mouseup', checkClientBounds);
+    document.addEventListener('visibilitychange', checkVisibility);
+
+    return () => {
+      document.removeEventListener('mouseup', checkClientBounds);
+      document.removeEventListener('visibilitychange', checkVisibility);
+    };
+  }, [tldrawAPI]);
+
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
 
@@ -249,6 +303,7 @@ export default function Whiteboard(props) {
           },
         },
       );
+      changed = true;
     }
 
     if (changed && tldrawAPI) {
@@ -268,7 +323,7 @@ export default function Whiteboard(props) {
     }
 
     // move poll result text to bottom right
-    if (next.pages[curPageId]) {
+    if (next.pages[curPageId] && slidePosition) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
                                 .filter(([id, shape]) => shape.name?.includes("poll-result"))
       for (const [id, shape] of pollResults) {
@@ -317,7 +372,7 @@ export default function Whiteboard(props) {
   }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
 
   React.useEffect(() => {
-    if (presentationWidth > 0 && presentationHeight > 0) {
+    if (presentationWidth > 0 && presentationHeight > 0 && slidePosition) {
       const cameraZoom = tldrawAPI?.getPageState()?.camera?.zoom;
       const newzoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       if (cameraZoom && cameraZoom === 1) {
@@ -342,7 +397,7 @@ export default function Whiteboard(props) {
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
-    if (tldrawAPI && curPageId) {
+    if (tldrawAPI && curPageId && slidePosition) {
       tldrawAPI.changePage(curPageId);
       let zoom = prevSlidePosition
         ? calculateZoom(prevSlidePosition.viewBoxWidth, prevSlidePosition.viewBoxHeight)
@@ -407,40 +462,13 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     if (hasWBAccess || isPresenter) {
-      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-      const tdToolsDots = document.getElementById("TD-Tools-Dots");
-      const tdDelete = document.getElementById("TD-Delete");
-      const tdPrimaryTools = document.getElementById("TD-PrimaryTools");
-      const tdTools = document.getElementById("TD-Tools");
-
-      if (tdToolsDots && tdDelete && tdPrimaryTools) {
-        const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
-          ? TOOLBAR_SMALL : TOOLBAR_LARGE;
-        tdToolsDots.style.height = `${size}px`;
-        tdToolsDots.style.width = `${size}px`;
-        const delButton = tdDelete.getElementsByTagName('button')[0];
-        delButton.style.height = `${size}px`;
-        delButton.style.width = `${size}px`;
-        const primaryBtns = tdPrimaryTools?.getElementsByTagName('button');
-        for (let item of primaryBtns) {
-          item.style.height = `${size}px`;
-          item.style.width = `${size}px`;
-        }
-      }
-      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH)) && tdTools) {
+      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
         tldrawAPI?.setSetting('dockPosition', 'bottom');
-        tdTools.parentElement.style.bottom = `${TOOLBAR_OFFSET}px`;
+      } else {
+        tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
       }
-      // removes tldraw native help menu button
-      tdTools?.parentElement?.nextSibling?.remove();
-      // removes image tool from the tldraw toolbar
-      document.getElementById("TD-PrimaryTools-Image").style.display = 'none';
     }
-
-    if (tldrawAPI) {
-      tldrawAPI.isForcePanning = isPanning;
-    }
-  });
+  }, [props.height, props.width]);
 
   React.useEffect(() => {
     if (tldrawAPI) {
@@ -482,6 +510,7 @@ export default function Whiteboard(props) {
         appState: {
           currentStyle: {
             textAlign: isRTL ? "end" : "start",
+            font: fontFamily,
           },
         },
       }
@@ -546,7 +575,7 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+    if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
       // limit bounds
@@ -608,36 +637,30 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && reason === 'patched_shapes' && e?.session?.type === "edit" && e?.session?.initialShape?.type === "text") {
+    if (reason && reason === 'patched_shapes' && e?.session?.type === 'edit') {
       const patchedShape = e?.getShape(e?.getPageState()?.editingId);
-      if (!shapes[patchedShape.id]) {
+
+      if (e?.session?.initialShape?.type === 'sticky' && patchedShape?.text?.length > maxStickyNoteLength) {
+        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
+      }
+
+      if (e?.session?.initialShape?.type === 'text' && !shapes[patchedShape.id]) {
         patchedShape.userId = currentUser?.userId;
         persistShape(patchedShape, whiteboardId);
       } else {
         const diff = {
           id: patchedShape.id,
           point: patchedShape.point,
-          text: patchedShape.text
-        }
+          text: patchedShape.text,
+        };
         persistShape(diff, whiteboardId);
       }
     }
 
-    if (reason && reason === 'patched_shapes') {
-      const patchedShape = e?.getShape(e?.getPageState()?.editingId);
+    if (reason && reason.includes('selected_tool')) {
+      const tool = reason.split(':')[1];
 
-      if (e?.session?.initialShape?.type === "sticky" && patchedShape?.text?.length > maxStickyNoteLength) {
-        patchedShape.text = patchedShape.text.substring(0, maxStickyNoteLength);
-      }
-
-      if (patchedShape) {
-        const diff = {
-          id: patchedShape.id,
-          point: patchedShape.point,
-          text: patchedShape.text
-        }
-        persistShape(diff, whiteboardId);
-      }
+      setCurrentTool(tool);
     }
   };
 
@@ -719,7 +742,7 @@ export default function Whiteboard(props) {
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <div onPaste={onPaste}>
+    <EditableWBWrapper onPaste={onPaste}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}
@@ -741,7 +764,7 @@ export default function Whiteboard(props) {
         onRedo={onRedo}
         onCommand={onCommand}
       />
-    </div>
+    </EditableWBWrapper>
   );
 
   const readOnlyWB = (
@@ -765,6 +788,13 @@ export default function Whiteboard(props) {
     />
   );
 
+  const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
+  ? TOOLBAR_SMALL : TOOLBAR_LARGE;
+
+  if (isPanning && tldrawAPI) {
+    tldrawAPI.isForcePanning = isPanning;
+  }
+
   return (
     <>
       <Cursors
@@ -775,11 +805,14 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        currentTool={currentTool}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
-        <TldrawGlobalStyle 
-          hideContextMenu={!hasWBAccess && !isPresenter} 
-          hideCursor={!isPanning && (isPresenter || hasWBAccess)}
+        <TldrawGlobalStyle
+          hasWBAccess={hasWBAccess}
+          isPresenter={isPresenter}
+          hideContextMenu={!hasWBAccess && !isPresenter}
+          size={size}
         />
       </Cursors>
     </>

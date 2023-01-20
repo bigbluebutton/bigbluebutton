@@ -33,6 +33,7 @@ function breakouts() {
       shortName: 1,
       timeRemaining: 1,
       captureNotes: 1,
+      captureSlides: 1,
     },
   };
 
