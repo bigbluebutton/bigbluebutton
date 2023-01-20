@@ -65,7 +65,7 @@ dependencies {
   implementation "org.grails:grails-web-boot:5.2.0"
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest:5.2.0"
-  implementation "org.grails:grails-plugin-databinding"
+  implementation "org.grails:grails-plugin-databinding:5.2.4"
   implementation "org.grails:grails-plugin-i18n"
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
