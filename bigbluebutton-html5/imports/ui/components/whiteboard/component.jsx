@@ -23,25 +23,20 @@ const findRemoved = (A, B) => {
 
 // map different localeCodes from bbb to tldraw
 const mapLanguage = (language) => {
-  switch(language) {
-    case 'fa-ir':
-      return 'fa';
-    case 'it-it':
-      return 'it';
+  // bbb has xx-xx but in tldraw it's only xx
+  if (['es', 'fa', 'it', 'pl', 'sv', 'uk'].some((lang) => language.startsWith(lang))) {
+    return language.substring(0, 2);
+  }
+  // exceptions
+  switch (language) {
     case 'nb-no':
       return 'no';
-    case 'pl-pl':
-      return 'pl';
-    case 'sv-se':
-      return 'sv';
-    case 'uk-ua':
-      return 'uk';
     case 'zh-cn':
       return 'zh-ch';
     default:
       return language;
   }
-}
+};
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
