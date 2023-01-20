@@ -205,10 +205,10 @@ const UserDatailsComponent = (props) => {
     );
 
     return (
-      <div className="p-6 flex flex-row justify-between items-center">
-        <div className="min-w-[40%] text-ellipsis">{question}</div>
+      <tr className="p-6 flex flex-row justify-between items-center">
+        <td className="min-w-[40%] text-ellipsis">{question}</td>
         { isAnonymous ? (
-          <div
+          <td
             className="min-w-[20%] grow text-center mx-3"
           >
             <span
@@ -232,11 +232,11 @@ const UserDatailsComponent = (props) => {
                 />
               </svg>
             </span>
-          </div>
+          </td>
         ) : (
-          <div className="min-w-[20%] grow text-center mx-3">{answers.map((answer) => <p title={answer} className="overflow-hidden text-ellipsis">{answer}</p>)}</div>
+          <td className="min-w-[20%] grow text-center mx-3">{answers.map((answer) => <p title={answer} className="overflow-hidden text-ellipsis">{answer}</p>)}</td>
         ) }
-        <div
+        <td
           className="min-w-[40%] text-ellipsis text-center overflow-hidden"
           title={mostCommonAnswer
             ? capitalizeFirstLetter(mostCommonAnswer)
@@ -248,8 +248,8 @@ const UserDatailsComponent = (props) => {
               id: 'app.learningDashboard.usersTable.notAvailable',
               defaultMessage: 'N/A',
             }) }
-        </div>
-      </div>
+        </td>
+      </tr>
     );
   }
 
@@ -257,14 +257,14 @@ const UserDatailsComponent = (props) => {
     category, average, activityPoints, totalOfActivity,
   ) {
     return (
-      <div className="p-6 flex flex-row justify-between items-end">
-        <div className="min-w-[20%] text-ellipsis overflow-hidden">
+      <tr className="p-6 flex flex-row justify-between items-end">
+        <td className="min-w-[20%] text-ellipsis overflow-hidden">
           <FormattedMessage
             id={`app.learningDashboard.userDetails.${toCamelCase(category)}`}
             defaultMessage={category}
           />
-        </div>
-        <div className="min-w-[60%] grow text-center text-sm">
+        </td>
+        <td className="min-w-[60%] grow text-center text-sm">
           <div className="mb-2">
             { (function getAverage() {
               if (average >= 0 && category === 'Talk Time') return tsToHHmmss(average);
@@ -284,13 +284,13 @@ const UserDatailsComponent = (props) => {
                 : null }
             </div>
           </div>
-        </div>
-        <div className="min-w-[20%] text-sm text-ellipsis overflow-hidden text-right rtl:text-left">
+        </td>
+        <td className="min-w-[20%] text-sm text-ellipsis overflow-hidden text-right rtl:text-left">
           { activityPoints >= 0
             ? <FormattedNumber value={activityPoints} minimumFractionDigits="0" maximumFractionDigits="1" />
             : <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" /> }
-        </div>
-      </div>
+        </td>
+      </tr>
     );
   }
 
@@ -332,7 +332,7 @@ const UserDatailsComponent = (props) => {
               aria-hidden="true"
             />
           </div>
-          <p className="break-words text-center">{user.name}</p>
+          <h3 className="break-words text-center">{user.name}</h3>
         </div>
         <div className="bg-white shadow rounded mb-4">
           <div className="p-6 text-lg flex items-center">
@@ -341,7 +341,7 @@ const UserDatailsComponent = (props) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" /></p>
+            <h3 className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" /></h3>
           </div>
           <div className="p-6 m-px bg-gray-100">
             <div className="h-6 relative before:bg-gray-500 before:absolute before:w-[10px] before:h-[10px] before:rounded-full before:left-0 before:top-[calc(50%-5px)] after:bg-gray-500 after:absolute after:w-[10px] after:h-[10px] after:rounded-full after:right-0 after:top-[calc(50%-5px)]">
@@ -420,7 +420,7 @@ const UserDatailsComponent = (props) => {
         </div>
         { !user.isModerator && (
           <>
-            <div className="bg-white shadow rounded mb-4 table w-full">
+            <div className="bg-white shadow rounded mb-4 w-full">
               <div className="p-6 text-lg flex items-center">
                 <div className="p-2 rounded-full bg-green-100 text-green-700">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -428,48 +428,50 @@ const UserDatailsComponent = (props) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                   </svg>
                 </div>
-                <p className="ltr:ml-2 rtl:mr-2">
+                <h3 className="ltr:ml-2 rtl:mr-2">
                   <FormattedMessage id="app.learningDashboard.indicators.activityScore" defaultMessage="Activity Score" />
                   :&nbsp;
                   <span className="font-bold">
                     <FormattedNumber value={getActivityScore(user, users, totalPolls)} minimumFractionDigits="0" maximumFractionDigits="1" />
                   </span>
-                </p>
+                </h3>
               </div>
-              <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
-                <div className="min-w-[20%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.category" defaultMessage="Category" /></div>
-                <div className="grow text-center"><FormattedMessage id="app.learningDashboard.userDetails.average" defaultMessage="Average" /></div>
-                <div className="min-w-[20%] text-ellipsis text-right rtl:text-left"><FormattedMessage id="app.learningDashboard.userDetails.activityPoints" defaultMessage="Activity Points" /></div>
-              </div>
-              { ['Talk Time', 'Messages', 'Emojis', 'Raise Hands', 'Poll Votes'].map((category) => {
-                let totalOfActivity = 0;
+              <table className="bg-white shadow rounded mb-4 table w-full">
+                <tr className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
+                  <th aria-label="Category" className="min-w-[20%] text-ellipsis font-normal text-left"><FormattedMessage id="app.learningDashboard.userDetails.category" defaultMessage="Category" /></th>
+                  <th aria-label="Average" className="grow text-center font-normal"><FormattedMessage id="app.learningDashboard.userDetails.average" defaultMessage="Average" /></th>
+                  <th aria-label="Activity Points" className="min-w-[20%] text-ellipsis text-right rtl:text-left font-normal"><FormattedMessage id="app.learningDashboard.userDetails.activityPoints" defaultMessage="Activity Points" /></th>
+                </tr>
+                { ['Talk Time', 'Messages', 'Emojis', 'Raise Hands', 'Poll Votes'].map((category) => {
+                  let totalOfActivity = 0;
 
-                switch (category) {
-                  case 'Talk Time':
-                    totalOfActivity = user.talk.totalTime;
-                    break;
-                  case 'Messages':
-                    totalOfActivity = user.totalOfMessages;
-                    break;
-                  case 'Emojis':
-                    totalOfActivity = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
-                    break;
-                  case 'Raise Hands':
-                    totalOfActivity = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
-                    break;
-                  case 'Poll Votes':
-                    totalOfActivity = Object.values(user.answers).length;
-                    break;
-                  default:
-                }
+                  switch (category) {
+                    case 'Talk Time':
+                      totalOfActivity = user.talk.totalTime;
+                      break;
+                    case 'Messages':
+                      totalOfActivity = user.totalOfMessages;
+                      break;
+                    case 'Emojis':
+                      totalOfActivity = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
+                      break;
+                    case 'Raise Hands':
+                      totalOfActivity = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+                      break;
+                    case 'Poll Votes':
+                      totalOfActivity = Object.values(user.answers).length;
+                      break;
+                    default:
+                  }
 
-                return renderActivityScoreItem(
-                  category,
-                  averages[category],
-                  activityPointsFunctions[category](user),
-                  totalOfActivity,
-                );
-              }) }
+                  return renderActivityScoreItem(
+                    category,
+                    averages[category],
+                    activityPointsFunctions[category](user),
+                    totalOfActivity,
+                  );
+                }) }
+              </table>
             </div>
             <div className="bg-white shadow rounded">
               <div className="p-6 text-lg flex items-center">
@@ -478,18 +480,20 @@ const UserDatailsComponent = (props) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                   </svg>
                 </div>
-                <p className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></p>
+                <h3 className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.polls" defaultMessage="Polls" /></h3>
               </div>
-              <div className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
-                <div className="min-w-[40%] text-ellipsis"><FormattedMessage id="app.learningDashboard.userDetails.poll" defaultMessage="Poll" /></div>
-                <div className="grow text-center"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></div>
-                <div className="min-w-[40%] text-ellipsis text-center"><FormattedMessage id="app.learningDashboard.userDetails.mostCommonAnswer" defaultMessage="Most Common Answer" /></div>
-              </div>
-              { Object.values(polls || {})
-                .map((poll) => renderPollItem(
-                  poll,
-                  getUserAnswer(poll),
-                )) }
+              <table className="w-full">
+                <tr className="p-6 py-2 m-px bg-gray-200 flex flex-row justify-between text-xs text-gray-700">
+                  <th aria-label="Poll" className="min-w-[40%] text-ellipsis font-normal text-left"><FormattedMessage id="app.learningDashboard.userDetails.poll" defaultMessage="Poll" /></th>
+                  <th aria-label="Response" className="grow text-center font-normal"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></th>
+                  <th aria-label="Most Common Answer" className="min-w-[40%] text-ellipsis text-center font-normal"><FormattedMessage id="app.learningDashboard.userDetails.mostCommonAnswer" defaultMessage="Most Common Answer" /></th>
+                </tr>
+                { Object.values(polls || {})
+                  .map((poll) => renderPollItem(
+                    poll,
+                    getUserAnswer(poll),
+                  )) }
+              </table>
             </div>
           </>
         ) }
@@ -500,7 +504,6 @@ const UserDatailsComponent = (props) => {
 
 const UserDetailsContainer = (props) => {
   const { isOpen, dispatch, user } = useContext(UserDetailsContext);
-
   return ReactDOM.createPortal(
     <UserDatailsComponent
       {...{
