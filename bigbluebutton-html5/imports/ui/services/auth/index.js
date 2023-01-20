@@ -218,8 +218,8 @@ class Auth {
         this.loggedIn = true;
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
       })
-      .catch(() => {
-        logger.warn("Failed to validate token, user moved to another breakout room");
+      .catch((err) => {
+        logger.warn("Failed to validate token, error: {}", err);
       })
       .finally(() => {
         this.isAuthenticating = false;

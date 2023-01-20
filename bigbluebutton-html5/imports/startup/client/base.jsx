@@ -270,7 +270,7 @@ class Base extends Component {
       return null;
     }
     
-    if (ejected && !meetingIsBreakout) {
+    if (ejected) {
       return (
         <MeetingEnded
           code="403"

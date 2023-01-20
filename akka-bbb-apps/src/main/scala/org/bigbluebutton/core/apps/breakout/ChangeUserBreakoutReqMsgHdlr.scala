@@ -58,6 +58,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
 
         //Send notification to moved User
         for {
+          roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
           roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
         } yield {
           val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
