@@ -266,6 +266,7 @@
     "app.presentationUploder.rejectedError": "Ընտրված ֆայլերի բեռնումն ընդհատվել է Խնդրում ենք ընտրեք ճիշտ ֆորմատի ֆայլ",
     "app.presentationUploder.connectionClosedError": "Ընդահտվել է վատ կապի պատճառով։ Խնդրում ենք կրկին փորձել։",
     "app.presentationUploder.upload.progress": "Բեռնում ({0}%)",
+    "app.presentationUploder.conversion.204": "Վերցնելու համար չկա բովանդակություն",
     "app.presentationUploder.upload.413": "Ֆայլը չափազանց մեծ է Խնդրում ենք բաժանեք այն ավելի փոքր մասերի",
     "app.presentationUploder.genericError": "Ինչ որ բան այնպես չէ...",
     "app.presentationUploder.upload.408": "Request upload token timeout.",
