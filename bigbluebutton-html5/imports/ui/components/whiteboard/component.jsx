@@ -6,6 +6,7 @@ import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
+import logger from '/imports/startup/client/logger';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -163,6 +164,35 @@ export default function Whiteboard(props) {
     return !invalidTypes.includes(shape?.type);
   }
 
+  const filterInvalidShapes = (shapes) => {
+    const keys = Object.keys(shapes);
+    const removedChildren = [];
+
+    keys.forEach((shape) => {
+      if (shapes[shape].parentId !== curPageId) {
+        if(!keys.includes(shapes[shape].parentId)) {
+          delete shapes[shape];
+        }
+      }else{
+        if (shapes[shape].type === "group") {
+          const groupChildren = shapes[shape].children;
+
+          groupChildren.forEach((child) => {
+            if (!keys.includes(child)) {
+              removedChildren.push(child);
+            }
+          });
+          shapes[shape].children = groupChildren.filter((child) => !removedChildren.includes(child));
+
+          if (shapes[shape].children.length < 2) {
+            delete shapes[shape];
+          }
+        }
+      }
+    });
+    return shapes;
+  }
+
   const sendShapeChanges= (app, changedShapes, redo = false) => {
     const invalidChange = Object.keys(changedShapes)
       .find(id => !hasShapeAccess(id));
@@ -230,7 +260,9 @@ export default function Whiteboard(props) {
       }
     });
 
-    removeShapes(orderedDeletedShapes, whiteboardId);
+    if (orderedDeletedShapes.length > 0) {
+      removeShapes(orderedDeletedShapes, whiteboardId);
+    }
   }
 
   React.useEffect(() => {
@@ -288,25 +320,35 @@ export default function Whiteboard(props) {
 
       const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)));
       if (removed && removed.length > 0) {
-        tldrawAPI?.patchState(
-          {
-            document: {
-              pageStates: {
-                [curPageId]: {
-                  selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+        const patchedShapes = Object.fromEntries(removed.map((id) => [id, undefined]));
+
+        try {
+          tldrawAPI?.patchState(
+            {
+              document: {
+                pageStates: {
+                  [curPageId]: {
+                    selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+                  },
                 },
-              },
-              pages: {
-                [curPageId]: {
-                  shapes: Object.fromEntries(removed.map((id) => [id, undefined])),
+                pages: {
+                  [curPageId]: {
+                    shapes: patchedShapes,
+                  },
                 },
               },
             },
-          },
-        );
+          );
+        } catch (error) {
+          logger.error({
+            logCode: 'whiteboard_shapes_remove_error',
+            extraInfo: { error },
+          }, 'Whiteboard catch error on removing shapes');
+        }
+
       }
 
-      next.pages[curPageId].shapes = shapes;
+      next.pages[curPageId].shapes = filterInvalidShapes(shapes);
       changed = true;
     }
 
@@ -327,15 +369,26 @@ export default function Whiteboard(props) {
       const patch = {
         document: {
           pages: {
-            [curPageId]: { shapes: shapes }
+            [curPageId]: { shapes: filterInvalidShapes(shapes) }
           },
         },
       };
       const prevState = tldrawAPI._state;
       const nextState = Utils.deepMerge(tldrawAPI._state, patch);
+      if(nextState.document.pages[curPageId].shapes) {
+        filterInvalidShapes(nextState.document.pages[curPageId].shapes);
+      }
       const final = tldrawAPI.cleanup(nextState, prevState, patch, '');
       tldrawAPI._state = final;
-      tldrawAPI?.forceUpdate();
+
+      try {
+        tldrawAPI?.forceUpdate();
+      } catch (e) {
+        logger.error({
+          logCode: 'whiteboard_shapes_update_error',
+          extraInfo: { error },
+        }, 'Whiteboard catch error on updating shapes');
+      }
     }
 
     // move poll result text to bottom right
