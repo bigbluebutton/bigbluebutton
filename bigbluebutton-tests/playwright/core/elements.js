@@ -410,3 +410,10 @@ exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+
+// Layout management
+exports.layoutSettingsModalButton = 'li[data=test="layoutSettingsModalButton"]';
+exports.focusOnPresentation = 'button[data="presentationFocusLayout"]';
+exports.focusOnVideo = 'button[data="videoFocusLayout"]';
+exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.cameraDock = 'video[data-test="videoContainer"]';

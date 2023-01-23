@@ -233,6 +233,7 @@ class ActionsDropdown extends PureComponent {
       label: intl.formatMessage(intlMessages.layoutModal),
       key: 'layoutModal',
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+      dataTest: 'layoutSettingsModalButton',
     });
 
     return actions;
