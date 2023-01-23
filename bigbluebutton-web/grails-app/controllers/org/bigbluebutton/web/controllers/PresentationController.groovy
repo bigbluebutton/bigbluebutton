@@ -49,8 +49,26 @@ class PresentationController {
       def originalContentLengthString = request.getHeader("x-original-content-length")
 
       def originalContentLength = 0
-      if (originalContentLengthString.isNumber()) {
+      // x-original-content-length may be missing (for example in CORS OPTION requests)
+      if (null != originalContentLengthString && originalContentLengthString.isNumber()) {
         originalContentLength = originalContentLengthString as int
+      }
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+        if (meetingService.authzTokenIsValid(presentationToken)) {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-success';
+          return;
+        } else {
+          log.debug "OPTIONS FAIL\n"
+          response.setStatus(403)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-fail';
+          return;
+        }
       }
 
       if (null != presentationToken
