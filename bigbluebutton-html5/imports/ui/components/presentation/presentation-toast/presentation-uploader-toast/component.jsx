@@ -81,6 +81,10 @@ const intlMessages = defineMessages({
 		id: 'app.presentationUploder.conversion.unsupportedDocument',
 		description: 'warns the user that the file extension is not supported',
 	},
+	204: {
+		id: 'app.presentationUploder.conversion.204',
+		description: 'error indicating that the file has no content to capture',
+	},
 	fileToUpload: {
 		id: 'app.presentationUploder.fileToUpload',
 		description: 'message used in the file selected for upload',

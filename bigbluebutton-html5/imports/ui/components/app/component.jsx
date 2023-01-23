@@ -228,6 +228,7 @@ class App extends Component {
       layoutContextDispatch,
       numCameras,
       presentationIsOpen,
+      ignorePollNotifications,
     } = this.props;
 
     this.renderDarkMode();
@@ -558,7 +559,13 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes ? <NotesContainer area="media" layoutType={selectedLayout} /> : null}
+          {shouldShowSharedNotes 
+            ? (
+              <NotesContainer
+                area="media"
+                layoutType={selectedLayout}
+              />
+            ) : null}
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}

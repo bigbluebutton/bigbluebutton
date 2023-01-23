@@ -165,7 +165,7 @@ class UsersTable extends React.Component {
     return (
       <table className="w-full">
         <thead>
-          <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
+          <tr className="text-xs font-semibold tracking-wide text-left text-gray-700 uppercase border-b bg-gray-100">
             <th
               className={`px-3.5 2xl:px-4 py-3 col-text-left ${tab === 'overview' ? 'cursor-pointer' : ''}`}
               onClick={() => { if (tab === 'overview') this.toggleOrder('userOrder'); }}

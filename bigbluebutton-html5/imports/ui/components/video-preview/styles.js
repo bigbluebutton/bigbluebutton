@@ -162,7 +162,7 @@ const ExtraActions = styled.div`
 const VideoPreviewModal = styled(Modal)`
   padding: 1rem;
   min-height: 25rem;
-  max-height: 60vh;
+  max-height: 100vh;
 
   @media ${smallOnly} {
     height: unset;

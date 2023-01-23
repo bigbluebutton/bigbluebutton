@@ -14,10 +14,11 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
+import Radio from '/imports/ui/components/common/radio/component';
 
 const { isMobile } = deviceInfo;
 const propTypes = {
+  allowDownloadable: PropTypes.bool.isRequired,
   intl: PropTypes.object.isRequired,
   fileUploadConstraintsHint: PropTypes.bool.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
@@ -288,6 +289,10 @@ const intlMessages = defineMessages({
   exportingTimeout: {
     id: 'app.presentationUploader.exportingTimeout',
     description: 'exporting timeout label',
+  },
+  linkAvailable: {
+    id: 'app.presentationUploader.export.linkAvailable',
+    description: 'download presentation link available on public chat',
   },
 });
 
@@ -618,10 +623,18 @@ class PresentationUploader extends Component {
   }
 
   handleSendToChat(item) {
-    const { exportPresentationToChat } = this.props;
+    const {
+      exportPresentationToChat,
+      intl,
+    } = this.props;
 
-    const observer = (exportation) => {
+    const observer = (exportation, stopped) => {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
+
+      if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
+        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+      }
+
       if ([EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING].includes(exportation.status)) {
@@ -887,6 +900,18 @@ class PresentationUploader extends Component {
     }
   }
 
+  renderDownloadableWithAnnotationsHint() {
+    const {
+      intl,
+      allowDownloadable
+    } = this.props;
+
+    return allowDownloadable ? (
+        <Styled.ExportHint>
+          {intl.formatMessage(intlMessages.exportHint)}
+        </Styled.ExportHint>)
+      : null;
+  }
   renderPresentationItem(item) {
     const { disableActions } = this.state;
     const {
@@ -933,7 +958,7 @@ class PresentationUploader extends Component {
         animations={animations}
       >
         <Styled.SetCurrentAction>
-          <Checkbox
+          <Radio
             animations={animations}
             ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
             checked={item.isCurrent}
@@ -1041,9 +1066,9 @@ class PresentationUploader extends Component {
   renderExternalUpload() {
     const { externalUploadData, intl } = this.props;
 
-    const { uploadExternalDescription, uploadExternalUrl } = externalUploadData;
+    const { presentationUploadExternalDescription, presentationUploadExternalUrl } = externalUploadData;
 
-    if (!uploadExternalDescription || !uploadExternalUrl) return null;
+    if (!presentationUploadExternalDescription || !presentationUploadExternalUrl) return null;
 
     return (
       <Styled.ExternalUpload>
@@ -1052,11 +1077,11 @@ class PresentationUploader extends Component {
             {intl.formatMessage(intlMessages.externalUploadTitle)}
           </Styled.ExternalUploadTitle>
 
-          <p>{uploadExternalDescription}</p>
+          <p>{presentationUploadExternalDescription}</p>
         </div>
         <Styled.ExternalUploadButton
           color="default"
-          onClick={() => window.open(`${uploadExternalUrl}`)}
+          onClick={() => window.open(`${presentationUploadExternalUrl}`)}
           label={intl.formatMessage(intlMessages.externalUploadLabel)}
           aria-describedby={intl.formatMessage(intlMessages.externalUploadLabel)}
         />
@@ -1151,10 +1176,8 @@ class PresentationUploader extends Component {
               {`${intl.formatMessage(intlMessages.message)}`}
               {fileUploadConstraintsHint ? this.renderExtraHint() : null}
             </Styled.ModalHint>
-              {this.renderPresentationList()}
-            <Styled.ExportHint>
-              {intl.formatMessage(intlMessages.exportHint)}
-            </Styled.ExportHint>
+            {this.renderPresentationList()}
+            {this.renderDownloadableWithAnnotationsHint()}
             {isMobile ? this.renderPicDropzone() : null}
             {this.renderDropzone()}
             {this.renderExternalUpload()}

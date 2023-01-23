@@ -4,7 +4,8 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
-const { checkAvatarIcon, checkIsPresenter } = require('./util');
+const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
+const { getNotesLocator } = require('../sharednotes/util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
@@ -230,6 +231,61 @@ class MultiUsers {
       return document.querySelector(multiUsersWbBtn).parentElement.children[1].innerText;
     }, e.multiUsersWhiteboardOff);
     await expect(resp).toBeTruthy();
+  }
+
+  async muteAllUsers() {
+    await this.modPage.joinMicrophone();
+    await this.modPage2.joinMicrophone();
+    await this.userPage.joinMicrophone();
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.muteAll);
+    
+    await checkMutedUsers(this.modPage);
+    await checkMutedUsers(this.modPage2);
+    await checkMutedUsers(this.userPage);
+  }
+
+  async muteAllUsersExceptPresenter(){
+    await this.modPage.joinMicrophone();
+    await this.modPage2.joinMicrophone();
+    await this.userPage.joinMicrophone();
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.muteAllExceptPresenter);
+    
+    await this.modPage.hasElement(e.isTalking);
+    await checkMutedUsers(this.modPage2);
+    await checkMutedUsers(this.userPage);
+  }
+
+  async giveAndRemoveWhiteboardAccess() {
+    await this.whiteboardAccess();
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.changeWhiteboardAccess);
+
+    await this.modPage.hasElement(e.multiUsersWhiteboardOn);
+  }
+
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptionsBtn);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptionsBtn);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.message);
+
+    await this.modPage.hasText(e.liveCaptions, e.message);
+    await this.modPage2.hasText(e.liveCaptions, e.message);
   }
 }
 

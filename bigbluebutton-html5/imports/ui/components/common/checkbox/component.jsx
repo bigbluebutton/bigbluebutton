@@ -1,91 +1,38 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
-import { findDOMNode } from 'react-dom';
-import KEY_CODES from '/imports/utils/keyCodes';
+import React from 'react';
+import Base from './base';
 import Styled from './styles';
 
-const propTypes = {
-  disabled: PropTypes.bool,
-  checked: PropTypes.bool,
-  onChange: PropTypes.func.isRequired,
-  ariaLabelledBy: PropTypes.string,
-  ariaLabel: PropTypes.string,
-  ariaDescribedBy: PropTypes.string,
-  ariaDesc: PropTypes.string,
-};
-
-const defaultProps = {
-  disabled: false,
-  checked: false,
-  ariaLabelledBy: null,
-  ariaLabel: null,
-  ariaDescribedBy: null,
-  ariaDesc: null,
-};
-
-export default class Checkbox extends PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.onChange = props.onChange;
-    this.handleChange = this.handleChange.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-  }
-
-  componentDidMount() {
-    const checkbox = findDOMNode(this.checkbox);
-    if (checkbox) checkbox.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    const checkbox = findDOMNode(this.checkbox);
-    if (checkbox) checkbox.removeEventListener('keydown', this.handleKeyDown);
-  }
-
-  handleKeyDown(event) {
-    const { which } = event;
-    const input = findDOMNode(this.input);
-    if ([KEY_CODES.ENTER].includes(which)) {
-      if (input) input.click();
-    }
-  }
-
-  handleChange() {
-    const { disabled, keyValue } = this.props;
-    if (disabled) return;
-    this.onChange(keyValue);
-  }
-
+export default class Checkbox extends Base {
   render() {
-    const { ariaLabel, ariaDesc, ariaDescribedBy, checked, disabled } = this.props;
+    const {
+      ariaLabel, ariaDesc, ariaDescribedBy, ariaLabelledBy, checked, disabled, label,
+    } = this.props;
+
+    const checkbox = (
+      <Styled.Checkbox
+        checked={checked}
+        disabled={disabled}
+        focusRipple={true}
+        inputProps={{
+          'aria-label': ariaLabel,
+          'aria-describedby': ariaDescribedBy,
+          'aria-labelledby': ariaLabelledBy,
+        }}
+        onChange={this.handleChange}
+        ref={this.element}
+      />
+    );
 
     return (
-      <Styled.CheckboxWrapper
-        disabled={!!disabled}
-        tabIndex={0}
-        ref={(node) => { this.checkbox = node; }}
-      >
-        <Styled.CheckboxInput
-          tabIndex={-1}
-          type="checkbox"
-          onChange={this.handleChange}
-          checked={checked}
-          aria-label={ariaLabel}
-          aria-describedby={ariaDescribedBy}
-          disabled={disabled}
-          ref={(node) => { this.input = node; }}
-        />
-        <div role="presentation" onClick={this.handleChange}>
-          { checked
-            ? <Styled.CheckboxIconChecked iconName="check" />
-            : <Styled.CheckboxIcon iconName="circle" />
-          }
-        </div>
+      <>
+        {label ? (
+          <Styled.Label
+            label={label}
+            control={checkbox}
+          />
+        ) : checkbox}
         <div id={ariaDescribedBy} hidden>{ariaDesc}</div>
-      </Styled.CheckboxWrapper>
+      </>
     );
   }
 }
-
-Checkbox.propTypes = propTypes;
-Checkbox.defaultProps = defaultProps;

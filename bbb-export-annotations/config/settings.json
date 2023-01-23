@@ -26,6 +26,7 @@
       "msgName": "NewPresAnnFileAvailableMsg"
     },
     "bbbWebAPI": "http://127.0.0.1:8090",
+    "bbbWebPublicAPI": "/bigbluebutton/",
     "bbbPadsAPI": "http://127.0.0.1:9002",
     "redis": {
       "host": "127.0.0.1",

@@ -47,6 +47,10 @@ export const safeMatch = (regex, content, defaultValue) => {
   return content.match(regex) || defaultValue;
 };
 
+export const lowercaseTrim = (text) => {
+  return text.trim().toLowerCase();
+}
+
 export default {
   capitalizeFirstLetter,
   getDateString,
@@ -55,4 +59,5 @@ export default {
   unescapeHtml,
   formatLocaleCode,
   safeMatch,
+  lowercaseTrim,
 };

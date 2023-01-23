@@ -1,43 +1,25 @@
-import styled from 'styled-components';
-import { colorGrayLight, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
-import Icon from '/imports/ui/components/common/icon/component';
+import { colorText, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
+import BaseCheckbox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { withStyles } from '@material-ui/core/styles';
 
-const CheckboxWrapper = styled.div`
-  opacity: 1;
+const Checkbox = withStyles({
+  checked: {
+    color: `${colorSuccess} !important`,
+  },
+})(BaseCheckbox);
 
-  ${({ disabled }) => disabled && `
-    & > div i {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-  `}
-`;
-
-const CheckboxInput = styled.input`
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  display: inline-block;
-  width: 1px;
-`;
-
-const CheckboxIcon = styled(Icon)`
-  cursor: pointer;
-  font-size: 1.35rem;
-  color: ${colorGrayLight};
-`;
-
-const CheckboxIconChecked = styled(CheckboxIcon)`
-  color: ${colorSuccess};
-`;
+const Label = withStyles({
+  label: {
+    fontFamily: 'inherit !important',
+    color: `${colorText} !important`,
+  },
+  disabled: {
+    cursor: 'not-allowed !important',
+  },
+})(FormControlLabel);
 
 export default {
-  CheckboxWrapper,
-  CheckboxInput,
-  CheckboxIcon,
-  CheckboxIconChecked,
+  Checkbox,
+  Label,
 };

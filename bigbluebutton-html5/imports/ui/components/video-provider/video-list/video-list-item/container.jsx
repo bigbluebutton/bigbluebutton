@@ -7,13 +7,15 @@ import VideoListItem from './component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 
 const VideoListItemContainer = (props) => {
-  const { cameraId } = props;
+  const { cameraId, user } = props;
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element } = fullscreen;
   const isFullscreenContext = (element === cameraId);
   const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i) => i.isRTL);
+
+  if (!user) return null;
 
   return (
     <VideoListItem
