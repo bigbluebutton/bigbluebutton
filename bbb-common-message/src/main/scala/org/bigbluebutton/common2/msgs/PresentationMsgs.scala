@@ -47,6 +47,6 @@ case class PresAnnStatusEvtMsgBody(presId: String, pageNumber: Int, totalPages: 
 
 object CaptureSharedNotesReqEvtMsg { val NAME = "CaptureSharedNotesReqEvtMsg" }
 case class CaptureSharedNotesReqEvtMsg(header: BbbClientMsgHeader, body: CaptureSharedNotesReqEvtMsgBody) extends BbbCoreMsg
-case class CaptureSharedNotesReqEvtMsgBody(breakoutId: String)
+case class CaptureSharedNotesReqEvtMsgBody(breakoutId: String, filename: String)
 
 // ------------ akka-apps to client ------------

@@ -261,7 +261,15 @@ class Base extends Component {
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
-
+    
+    if (( meetingHasEnded || ejected || userRemoved ) && meetingIsBreakout) {
+      Base.setExitReason('breakoutEnded').finally(() => {
+        Meteor.disconnect();
+        window.close();
+      });
+      return null;
+    }
+    
     if (ejected) {
       return (
         <MeetingEnded
@@ -270,14 +278,6 @@ class Base extends Component {
           callback={() => Base.setExitReason('ejected')}
         />
       );
-    }
-
-    if (meetingHasEnded && meetingIsBreakout) {
-      Base.setExitReason('breakoutEnded').finally(() => {
-        Meteor.disconnect();
-        window.close();
-      });
-      return null;
     }
 
     if (meetingHasEnded && !meetingIsBreakout) {

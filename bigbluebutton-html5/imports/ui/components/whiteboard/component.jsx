@@ -23,25 +23,20 @@ const findRemoved = (A, B) => {
 
 // map different localeCodes from bbb to tldraw
 const mapLanguage = (language) => {
-  switch(language) {
-    case 'fa-ir':
-      return 'fa';
-    case 'it-it':
-      return 'it';
+  // bbb has xx-xx but in tldraw it's only xx
+  if (['es', 'fa', 'it', 'pl', 'sv', 'uk'].some((lang) => language.startsWith(lang))) {
+    return language.substring(0, 2);
+  }
+  // exceptions
+  switch (language) {
     case 'nb-no':
       return 'no';
-    case 'pl-pl':
-      return 'pl';
-    case 'sv-se':
-      return 'sv';
-    case 'uk-ua':
-      return 'uk';
     case 'zh-cn':
       return 'zh-ch';
     default:
       return language;
   }
-}
+};
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
@@ -120,6 +115,7 @@ export default function Whiteboard(props) {
     intl,
     svgUri,
     maxStickyNoteLength,
+    fontFamily,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -162,10 +158,19 @@ export default function Whiteboard(props) {
     return hasShapeAccess;
   }
 
+  const isValidShapeType = (shape) => {
+    const invalidTypes = ['image', 'video'];
+    return !invalidTypes.includes(shape?.type);
+  }
+
   const sendShapeChanges= (app, changedShapes, redo = false) => {
     const invalidChange = Object.keys(changedShapes)
-                                .find(id => !hasShapeAccess(id));
-    if (invalidChange) {
+      .find(id => !hasShapeAccess(id));
+
+    const invalidShapeType = Object.keys(changedShapes)
+      .find(id => !isValidShapeType(changedShapes[id]));
+
+    if (invalidChange || invalidShapeType) {
       notifyNotAllowedChange(intl);
       // undo last command without persisting to not generate the onUndo/onRedo callback
       if (!redo) {
@@ -220,6 +225,35 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     props.setTldrawIsMounting(true);
   }, []);
+
+  const checkClientBounds = (e) => {
+    if (
+      e.clientX > document.documentElement.clientWidth ||
+      e.clientX < 0 ||
+      e.clientY > document.documentElement.clientHeight ||
+      e.clientY < 0
+    ) {
+      if (tldrawAPI?.session) {
+        tldrawAPI?.completeSession?.();
+      }
+    }
+  };
+
+  const checkVisibility = () => {
+    if (document.visibilityState === 'hidden' && tldrawAPI?.session) {
+      tldrawAPI?.completeSession?.();
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener('mouseup', checkClientBounds);
+    document.addEventListener('visibilitychange', checkVisibility);
+
+    return () => {
+      document.removeEventListener('mouseup', checkClientBounds);
+      document.removeEventListener('visibilitychange', checkVisibility);
+    };
+  }, [tldrawAPI]);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -293,7 +327,7 @@ export default function Whiteboard(props) {
     }
 
     // move poll result text to bottom right
-    if (next.pages[curPageId]) {
+    if (next.pages[curPageId] && slidePosition) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
                                 .filter(([id, shape]) => shape.name?.includes("poll-result"))
       for (const [id, shape] of pollResults) {
@@ -342,7 +376,7 @@ export default function Whiteboard(props) {
   }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
 
   React.useEffect(() => {
-    if (presentationWidth > 0 && presentationHeight > 0) {
+    if (presentationWidth > 0 && presentationHeight > 0 && slidePosition) {
       const cameraZoom = tldrawAPI?.getPageState()?.camera?.zoom;
       const newzoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
       if (cameraZoom && cameraZoom === 1) {
@@ -367,7 +401,7 @@ export default function Whiteboard(props) {
 
   // change tldraw page when presentation page changes
   React.useEffect(() => {
-    if (tldrawAPI && curPageId) {
+    if (tldrawAPI && curPageId && slidePosition) {
       tldrawAPI.changePage(curPageId);
       let zoom = prevSlidePosition
         ? calculateZoom(prevSlidePosition.viewBoxWidth, prevSlidePosition.viewBoxHeight)
@@ -470,6 +504,7 @@ export default function Whiteboard(props) {
         appState: {
           currentStyle: {
             textAlign: isRTL ? "end" : "start",
+            font: fontFamily,
           },
         },
       }
@@ -534,7 +569,7 @@ export default function Whiteboard(props) {
       }
     }
 
-    if (reason && isPresenter && (reason.includes("zoomed") || reason.includes("panned"))) {
+    if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
       // limit bounds
@@ -686,22 +721,10 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onPaste = (e) => {
-    // disable file pasting
-    const clipboardData = e.clipboardData || window.clipboardData;
-    const { types } = clipboardData;
-    const hasFiles = types && types.indexOf && types.indexOf('Files') !== -1;
-
-    if (hasFiles) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-  };
-
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
-    <EditableWBWrapper onPaste={onPaste}>
+    <EditableWBWrapper>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}

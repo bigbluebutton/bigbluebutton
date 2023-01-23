@@ -266,6 +266,7 @@
     "app.presentationUploder.rejectedError": "選択されたファイルはアップロードできません。ファイル形式を確認してください。",
     "app.presentationUploder.connectionClosedError": "接続に問題があったため中断されました。もう一度試してみてください。",
     "app.presentationUploder.upload.progress": "アップロード中({0}%)",
+    "app.presentationUploder.conversion.204": "内容が読み取れませんでした",
     "app.presentationUploder.upload.413": "ファイルが大きすぎます。最大サイズは {0} MBです。",
     "app.presentationUploder.genericError": "申し訳ありませんが、何か問題があるようです。",
     "app.presentationUploder.upload.408": "アップロード許可の要求が時間切れになりました。",
