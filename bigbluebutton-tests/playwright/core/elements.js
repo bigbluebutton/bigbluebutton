@@ -1,5 +1,6 @@
 // Common
 exports.actions = 'button[data-test="actionsButton"]';
+exports.actionsItem = 'div[id="actions-dropdown-menu"] ul li';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
 exports.settings = 'li[data-test="settings"]';
@@ -82,6 +83,8 @@ exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
 exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
 exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
+exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
+exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
@@ -345,6 +348,13 @@ exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 
+// Closed Captions
+exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
+exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
+exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
+exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
+exports.liveCaptions = 'div[data-test="liveCaptions"]';
+
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
   'dv', 'el-GR', 'en', 'eo', 'es', 'es-419', 'es-ES', 'es-MX', 'et', 'eu',
@@ -377,7 +387,9 @@ exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
 exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
 exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
 exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
-exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
+exports.wbPencilShape = 'button[id="TD-PrimaryTools-Pencil"]';
+exports.wbStickyNoteShape = 'button[id="TD-PrimaryTools-Pencil2"]';
+exports.wbTextShape = 'button[id="TD-PrimaryTools-Text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';

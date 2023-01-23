@@ -26,7 +26,8 @@ const WhiteboardContainer = (props) => {
     const isPresenter = currentUser.presenter;
     const isModerator = currentUser.role === ROLE_MODERATOR;
     const maxStickyNoteLength = WHITEBOARD_CONFIG.maxStickyNoteLength;
-    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height, maxStickyNoteLength }} {...props} meetingId={Auth.meetingID} />
+    const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
+    return <Whiteboard {...{ isPresenter, isModerator, currentUser, isRTL, width, height, maxStickyNoteLength, fontFamily }} {...props} meetingId={Auth.meetingID} />
 };
 
 export default withTracker(({ whiteboardId, curPageId, intl, zoomChanger, slidePosition, svgUri }) => {

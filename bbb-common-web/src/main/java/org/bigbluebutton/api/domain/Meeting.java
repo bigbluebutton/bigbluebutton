@@ -44,6 +44,8 @@ public class Meeting {
 	private Boolean freeJoin = false;
 	private Boolean captureSlides = false;
 	private Boolean captureNotes = false;
+	private String captureSlidesFilename = "bbb-none";
+	private String captureNotesFilename = "bbb-none";
   	private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
@@ -326,6 +328,14 @@ public class Meeting {
 
 	public void setCaptureNotes(Boolean capture) {
 		this.captureNotes = captureNotes;
+	}
+
+	public void setCaptureNotesFilename(String filename) {
+		this.captureNotesFilename = filename;
+	}
+
+	public void setCaptureSlidesFilename(String filename) {
+		this.captureSlidesFilename = filename;
 	}
 
 	public Integer getDuration() {

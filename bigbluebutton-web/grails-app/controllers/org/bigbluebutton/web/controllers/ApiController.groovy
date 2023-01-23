@@ -926,6 +926,8 @@ class ApiController {
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
                 captureNotes meeting.breakoutRoomsParams.captureNotes
                 captureSlides meeting.breakoutRoomsParams.captureSlides
+                captureNotesFilename meeting.breakoutRoomsParams.captureNotesFilename
+                captureSlidesFilename meeting.breakoutRoomsParams.captureSlidesFilename
               }
             }
             customdata (
