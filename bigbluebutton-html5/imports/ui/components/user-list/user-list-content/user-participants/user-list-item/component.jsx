@@ -524,12 +524,14 @@ class UserListItem extends PureComponent {
               checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
               confirmParam={user.userId}
               onConfirm={removeUser}
+              confirmButtonDataTest="removeUserConfirmation"
             />,
           ));
 
           this.handleClose();
         },
         icon: 'circle_close',
+        dataTest: 'removeUser'
       },
       {
         allowed: allowedToEjectCameras
