@@ -125,7 +125,6 @@ public:
       allowUserChooseRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
-
       breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
