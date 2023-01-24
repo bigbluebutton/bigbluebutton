@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
+// takes asynchronous cleanup tasks outside the component that is to be unmounted
 const unmount = () => {
   Session.set('showUploadPresentationView', false);
     let id = Session.get("presentationUploaderToastId");

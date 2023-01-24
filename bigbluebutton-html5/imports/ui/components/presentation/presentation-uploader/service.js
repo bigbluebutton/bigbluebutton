@@ -430,8 +430,6 @@ function handleFiledrop(files, files2, that) {
           return;
         }
 
-
-        let pt = (event.loaded === event.total);
         that.deepMergeUpdateFileKey(id, 'upload', {
           progress: (event.loaded / event.total) * 100,
           done: event.loaded === event.total,

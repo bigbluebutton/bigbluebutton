@@ -297,8 +297,10 @@ function handleDismissToast(toastId) {
 }
 
 
+let alreadyRenderedPresList = [];
 
-const alreadyRenderedPresList = [];
+let enteredConversion = {};
+
 export const PresentationUploaderToast = ({ intl }) => {
 
 	useTracker(() => {
@@ -308,8 +310,27 @@ export const PresentationUploaderToast = ({ intl }) => {
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast );
 		
 		let toRemove = [];
-		UploadingPresentations.find().fetch().map(p => {
-			if ((p.upload && p.upload.done) || !p.subscriptionId) toRemove.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+
+		UploadingPresentations.find().fetch().map(p => {  // main goal of this mapping is to sort out what doesn't need to be displayed
+			if (
+				(
+					p.upload  // null check
+					&& p.upload.done // if presentation is marked as done - it's potentially to be removed
+				)
+				&& !p.subscriptionId // at upload stage or already converted
+				) {
+				if(convertingPresentations[0]) { //there are presentations being converted
+					convertingPresentations.forEach(cp => {
+						if (cp.temporaryPresentationId == p.temporaryPresentationId) { // if this presentation is being converted we don't want it to be marked as still uploading
+							toRemove.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+						} 
+					});
+				} else if (!enteredConversion[p.temporaryPresentationId]) {  // upload stage is done and pesentation is entering conversion stage 
+					enteredConversion[p.temporaryPresentationId] = true;  // we mark that it has entered conversion stage
+				} else {  // presentations don't enter conversion stage twice, thus it's a border case of presenter change during conversion and this one is to be rmoved
+					toRemove.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+				}
+			}
 		});
 
 		toRemove.forEach(p => UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]}));
