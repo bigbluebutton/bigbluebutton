@@ -314,7 +314,6 @@ class Page {
     await expect(locator).toHaveValue(value);
   }
 
-
   async backgroundColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
   }

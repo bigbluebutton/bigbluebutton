@@ -266,6 +266,7 @@
     "app.presentationUploder.rejectedError": "Загрузка выбранных файлов была отменена. Пожалуйста проверьте тип файла (файлов)",
     "app.presentationUploder.connectionClosedError": "Прервано из-за нестабильного соединения. Пожалуйста, попробуйте снова.",
     "app.presentationUploder.upload.progress": "Загрузка ({0}%)",
+    "app.presentationUploder.conversion.204": "Нет контента для захвата",
     "app.presentationUploder.upload.413": "Размер файла слишком большой. Максимум: {0} МБ",
     "app.presentationUploder.genericError": "Упс, Что-то пошло не так...",
     "app.presentationUploder.upload.408": "Токен запроса загрузки истёк.",
