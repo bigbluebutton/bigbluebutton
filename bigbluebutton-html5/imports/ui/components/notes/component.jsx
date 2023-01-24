@@ -91,6 +91,7 @@ const Notes = ({
       || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
+    return () => clearTimeout(timoutRef);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
   useEffect(() => {
     if (
