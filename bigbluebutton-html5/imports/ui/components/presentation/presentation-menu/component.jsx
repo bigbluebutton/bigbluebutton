@@ -53,6 +53,11 @@ const intlMessages = defineMessages({
     description: 'Snapshot of current slide label',
     defaultMessage: 'Snapshot of current slide',
   },
+  whiteboardLabel: {
+    id: "app.shortcut-help.whiteboard",
+    description: 'used for aria whiteboard options button label',
+    defaultMessage: 'Whiteboard',
+  }
 });
 
 const propTypes = {
@@ -267,7 +272,7 @@ const PresentationMenu = (props) => {
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
             <Styled.DropdownButton
               state={isDropdownOpen ? 'open' : 'closed'}
-              aria-label={intl.formatMessage(intlMessages.optionsLabel)}
+              aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
               data-test="whiteboardOptionsButton"
               onClick={() => {
                 setIsDropdownOpen((isOpen) => !isOpen)
@@ -278,7 +283,7 @@ const PresentationMenu = (props) => {
           </TooltipContainer>
         }
         opts={{
-          id: "default-dropdown-menu",
+          id: "presentation-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
@@ -288,7 +293,7 @@ const PresentationMenu = (props) => {
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           container: fullscreenRef
         }}
-        actions={getAvailableOptions()}
+        actions={options}
       />
     </Styled.Right>
   );

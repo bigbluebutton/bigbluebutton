@@ -2,10 +2,7 @@ import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import {
-  colorPrimary,
-  colorGrayDark,
-} from '/imports/ui/stylesheets/styled-components/palette';
+import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
   btnSpacing,
@@ -94,7 +91,7 @@ const ConnectingAnimation = styled.span`
 `;
 
 const AudioModal = styled(Modal)`
-  padding: 1.5rem;
+  padding: 1rem;
   min-height: 20rem;
 `;
 
@@ -105,27 +102,6 @@ const BrowserWarning = styled.p`
   border-width: 3px;
   border-style: solid;
   border-radius: 0.25rem;
-`;
-
-const Header = styled.header`
-  margin: 0;
-  padding: 0;
-  border: none;
-  line-height: 2rem;
-`;
-
-const Title = styled.h2`
-  text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
-  color: ${colorGrayDark};
-  white-space: normal;
-  margin: 0;
-
-  @media ${smallOnly} {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
 `;
 
 const Content = styled.div`
@@ -170,7 +146,5 @@ export default {
   ConnectingAnimation,
   AudioModal,
   BrowserWarning,
-  Header,
-  Title,
   Content,
 };

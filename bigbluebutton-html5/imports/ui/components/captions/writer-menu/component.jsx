@@ -112,12 +112,8 @@ class WriterMenu extends PureComponent {
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
+        title={intl.formatMessage(intlMessages.title)}
       >
-        <Styled.Header>
-          <Styled.Title>
-            {intl.formatMessage(intlMessages.title)}
-          </Styled.Title>
-        </Styled.Header>
         <Styled.Content>
           <span>
             {intl.formatMessage(intlMessages.subtitle)}
@@ -144,6 +140,7 @@ class WriterMenu extends PureComponent {
             aria-describedby="descriptionStart"
             onClick={this.handleStart}
             disabled={locale == null}
+            data-test="startWritingClosedCaptions"
           />
           <div id="descriptionStart" hidden>{intl.formatMessage(intlMessages.ariaStartDesc)}</div>
         </Styled.Content>

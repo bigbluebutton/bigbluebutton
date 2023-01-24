@@ -1,15 +1,20 @@
 import Logger from '/imports/startup/server/logger';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 
-export default function changeHasMessages(hasMessages, userId, meetingId) {
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
+
+export default function changeHasMessages(hasMessages, userId, meetingId, chatId) {
   const selector = {
     meetingId,
     userId,
   };
 
+  const type = chatId === PUBLIC_GROUP_CHAT_KEY ? 'public' : 'private';
+
   const modifier = {
     $set: {
-      'shouldPersist.hasMessages': hasMessages,
+      [`shouldPersist.hasMessages.${type}`]: hasMessages,
     },
   };
 

@@ -8,6 +8,7 @@ import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/servi
 import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
 import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import { ValidationStates } from '/imports/api/auth-token-validation';
+import logger from '/imports/startup/client/logger';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -210,10 +211,18 @@ class Auth {
     }
 
     this.loggedIn = false;
+    this.isAuthenticating = true;
+
     return this.validateAuthToken()
       .then(() => {
         this.loggedIn = true;
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
+      })
+      .catch((err) => {
+        logger.error(`Failed to validate token: ${err.description}`);
+      })
+      .finally(() => {
+        this.isAuthenticating = false;
       });
   }
 

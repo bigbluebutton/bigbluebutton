@@ -6,6 +6,7 @@ import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
+import { UploadingPresentations } from '/imports/api/presentations';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -36,7 +37,43 @@ const getBreakoutRoomUrl = (breakoutId) => {
   return breakoutUrlData;
 };
 
+const upsertCapturedContent = (filename, temporaryPresentationId) => {
+  UploadingPresentations.upsert({
+    temporaryPresentationId,
+  }, {
+    $set: {
+      id: temporaryPresentationId,
+      temporaryPresentationId,
+      progress: 0,
+      filename,
+      lastModifiedUploader: false,
+      upload: {
+        done: false,
+        error: false,
+      },
+      uploadTimestamp: new Date(),
+    },
+  });
+};
+
+const setCapturedContentUploading = () => {
+  const breakoutRooms = findBreakouts();
+  breakoutRooms.forEach((breakout) => {
+    const filename = breakout.shortName;
+    const temporaryPresentationId = breakout.breakoutId;
+
+    if (breakout.captureNotes) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-notes`);
+    }
+
+    if (breakout.captureSlides) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-slides`);
+    }
+  });
+};
+
 const endAllBreakouts = () => {
+  setCapturedContentUploading();
   makeCall('endAllBreakouts');
 };
 
@@ -214,4 +251,5 @@ export default {
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,
+  setCapturedContentUploading,
 };

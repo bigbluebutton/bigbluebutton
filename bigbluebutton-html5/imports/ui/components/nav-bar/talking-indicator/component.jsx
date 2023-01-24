@@ -45,6 +45,7 @@ class TalkingIndicator extends PureComponent {
       talkers,
       amIModerator,
       moreThanMaxIndicators,
+      users,
     } = this.props;
     if (!talkers) return null;
 
@@ -58,9 +59,13 @@ class TalkingIndicator extends PureComponent {
         callerName,
       } = talkers[`${id}`];
 
+      const user = users[id];
+
+      const name = user?.name ?? callerName;
+
       const ariaLabel = intl.formatMessage(talking
         ? intlMessages.isTalking : intlMessages.wasTalking, {
-        0: callerName,
+        0: name,
       });
 
       let icon = talking ? 'unmute' : 'blank';
@@ -68,7 +73,7 @@ class TalkingIndicator extends PureComponent {
 
       return (
         <Styled.TalkingIndicatorWrapper
-          key={_.uniqueId(`${callerName}-`)}
+          key={_.uniqueId(`${name}-`)}
           muted={muted}
           talking={talking}
           floor={floor}
@@ -84,11 +89,11 @@ class TalkingIndicator extends PureComponent {
             $spoke={!talking || undefined}
             $muted={muted}
             $isViewer={!amIModerator || undefined}
-            key={_.uniqueId(`${callerName}-`)}
+            key={_.uniqueId(`${name}-`)}
             onClick={() => this.handleMuteUser(id)}
-            label={callerName}
+            label={name}
             tooltipLabel={!muted && amIModerator
-              ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
+              ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
               : null}
             data-test={talking ? 'isTalking' : 'wasTalking'}
             aria-label={ariaLabel}

@@ -1,7 +1,9 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, CaptureSharedNotesReqInternalMsg }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.presentationpod.PresentationSender
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
@@ -11,6 +13,12 @@ import java.io.File
 
 trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
+
+  object JobTypes {
+    val DOWNLOAD = "PresentationWithAnnotationDownloadJob"
+    val CAPTURE_PRESENTATION = "PresentationWithAnnotationExportJob"
+    val CAPTURE_NOTES = "PadCaptureJob"
+  }
 
   def buildStoreAnnotationsInRedisSysMsg(annotations: StoredAnnotations, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
@@ -32,12 +40,39 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildNewPresAnnFileAvailable(fileURI: String, presId: String): NewPresAnnFileAvailableMsg = {
+    val header = BbbClientMsgHeader(NewPresAnnFileAvailableMsg.NAME, "not-used", "not-used")
+    val body = NewPresAnnFileAvailableMsgBody(fileURI, presId)
+
+    NewPresAnnFileAvailableMsg(header, body)
+  }
+
   def buildBroadcastNewPresAnnFileAvailable(newPresAnnFileAvailableMsg: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
     val header = BbbClientMsgHeader(NewPresAnnFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
     val body = NewPresAnnFileAvailableEvtMsgBody(fileURI = newPresAnnFileAvailableMsg.body.fileURI, presId = newPresAnnFileAvailableMsg.body.presId)
     val event = NewPresAnnFileAvailableEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId: String, status: String, presentationId: String, filename: String, temporaryPresentationId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionUpdateEvtMsg.NAME, parentMeetingId, "not-used")
+    val body = PresentationConversionUpdateEvtMsgBody("DEFAULT_PRESENTATION_POD", status, "not-used", presentationId, filename, temporaryPresentationId)
+    val event = PresentationConversionUpdateEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildBroadcastPresAnnStatusMsg(presAnnStatusMsg: PresAnnStatusMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresAnnStatusEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
+    val body = PresAnnStatusEvtMsgBody(presId = presAnnStatusMsg.body.presId, pageNumber = presAnnStatusMsg.body.pageNumber, totalPages = presAnnStatusMsg.body.totalPages, status = presAnnStatusMsg.body.status, error = presAnnStatusMsg.body.error)
+    val event = PresAnnStatusEvtMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -99,8 +134,6 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     } else if (currentPres.isEmpty) {
       log.error(s"Presentation ${presId} not found in meeting ${meetingId}")
     } else {
-
-      val jobType: String = "PresentationWithAnnotationDownloadJob"
       val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
       val allPages: Boolean = m.body.allPages
       val pageCount = currentPres.get.pages.size
@@ -109,81 +142,117 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val pages: List[Int] = m.body.pages // Desired presentation pages for export
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else pages
 
-      val exportJob: ExportJob = new ExportJob(jobId, jobType, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
+      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.DOWNLOAD, "annotated_slides", presId, presLocation, allPages, pagesRange, meetingId, "");
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      // Send Export Job to Redis
-      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-      bus.outGW.send(job)
+      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
 
-      // Send Annotations to Redis
-      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      if (annotationCount > 0) {
+        // Send Export Job to Redis
+        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+        bus.outGW.send(job)
+
+        // Send Annotations to Redis
+        val annotations = StoredAnnotations(jobId, presId, storeAnnotationPages)
+        bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      } else {
+        // Return existing uploaded file directly
+        val filename = currentPres.get.name
+        val presFilenameExt = filename.split("\\.").last
+
+        PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
+
+        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}").mkString(File.separator, File.separator, "")
+        val event = buildNewPresAnnFileAvailable(fileURI, presId)
+
+        handle(event, liveMeeting, bus)
+      }
     }
   }
 
-  def handle(m: ExportPresentationWithAnnotationReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-
+  def handle(m: CapturePresentationReqInternalMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val parentMeetingId: String = m.parentMeetingId
     val meetingId = liveMeeting.props.meetingProp.intId
-    val userId = m.header.userId
+
+    val jobId = s"${meetingId}-slides" // Used as the temporaryPresentationId upon upload
+    val userId = m.userId
 
     val presentationPods: Vector[PresentationPod] = state.presentationPodManager.getAllPresentationPodsInMeeting()
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getCurrentPresentation()).headOption
 
+    val filename = m.filename
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
+
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
-      val reason = "Importing slides from breakout rooms disabled for this meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, userId)) {
-      val reason = "No permission to export presentation."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
+      log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")
+      bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
     } else {
-
-      val jobId: String = RandomStringGenerator.randomAlphanumericString(16);
-      val jobType = "PresentationWithAnnotationExportJob"
-      val allPages: Boolean = m.body.allPages
+      val allPages: Boolean = m.allPages
       val pageCount = currentPres.get.pages.size
 
       val presId: String = PresentationPodsApp.getAllPresentationPodsInMeeting(state).flatMap(_.getCurrentPresentation.map(_.id)).mkString
       val presLocation = List("var", "bigbluebutton", meetingId, meetingId, presId).mkString(File.separator, File.separator, "");
-      val parentMeetingId: String = m.body.parentMeetingId
 
       val currentPage: PresentationPage = PresentationInPod.getCurrentPage(currentPres.get).get
       val pagesRange: List[Int] = if (allPages) (1 to pageCount).toList else List(currentPage.num)
 
-      val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
-
-      // Set filename, checking if it is already in use
-      val meetingName: String = liveMeeting.props.meetingProp.name
-      val duplicatedCount = presentationPods.flatMap(_.getPresentationsByFilename(meetingName)).size
-
-      val filename = duplicatedCount match {
-        case 0 => meetingName
-        case _ => s"${meetingName}(${duplicatedCount})"
-      }
-
-      // Informs bbb-web about the token so that when we use it to upload the presentation, it is able to look it up in the list of tokens
-      bus.outGW.send(buildPresentationUploadTokenSysPubMsg(parentMeetingId, userId, presentationUploadToken, filename))
-
-      val exportJob: ExportJob = new ExportJob(jobId, jobType, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
+      val exportJob: ExportJob = new ExportJob(jobId, JobTypes.CAPTURE_PRESENTATION, filename, presId, presLocation, allPages, pagesRange, parentMeetingId, presentationUploadToken)
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
-      // Send Export Job to Redis
-      val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-      bus.outGW.send(job)
+      val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
 
-      // Send Annotations to Redis
-      val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
-      bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      if (annotationCount > 0) {
+        // Send Export Job to Redis
+        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+        bus.outGW.send(job)
+
+        // Send Annotations to Redis
+        val annotations = new StoredAnnotations(jobId, presId, storeAnnotationPages)
+        bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
+      } else {
+        // Notify that no content is available to capture
+        bus.outGW.send(buildBroadcastPresentationConversionUpdateEvtMsg(parentMeetingId, "204", jobId, filename, presentationUploadToken))
+      }
     }
   }
 
   def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
-
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
-
   }
 
+  def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    val parentMeetingId = liveMeeting.props.meetingProp.intId
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, parentMeetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationPageConversionStartedEventMsg.NAME, routing)
+    val header = BbbClientMsgHeader(CaptureSharedNotesReqEvtMsg.NAME, parentMeetingId, "not-used")
+    val body = CaptureSharedNotesReqEvtMsgBody(m.breakoutId, m.filename)
+    val event = CaptureSharedNotesReqEvtMsg(header, body)
+
+    bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
+  }
+
+  def handle(m: PresAnnStatusMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    bus.outGW.send(buildBroadcastPresAnnStatusMsg(m, liveMeeting))
+  }
+
+  def handle(m: PadCapturePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+
+    val userId: String = "system"
+    val jobId: String = s"${m.body.breakoutId}-notes" // Used as the temporaryPresentationId upon upload
+    val filename = m.body.filename
+    val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
+
+    bus.outGW.send(buildPresentationUploadTokenSysPubMsg(m.body.parentMeetingId, userId, presentationUploadToken, filename))
+
+    val exportJob = new ExportJob(jobId, JobTypes.CAPTURE_NOTES, filename, m.body.padId, "", true, List(), m.body.parentMeetingId, presentationUploadToken)
+    val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+
+    bus.outGW.send(job)
+  }
 }

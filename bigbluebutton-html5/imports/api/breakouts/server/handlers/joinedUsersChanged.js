@@ -2,6 +2,7 @@ import Breakouts from '/imports/api/breakouts';
 import updateUserBreakoutRoom from '/imports/api/users-persistent-data/server/modifiers/updateUserBreakoutRoom';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
+import { lowercaseTrim } from '/imports/utils/string-utils';
 
 export default function joinedUsersChanged({ body }) {
   check(body, Object);
@@ -21,7 +22,7 @@ export default function joinedUsersChanged({ body }) {
     breakoutId,
   };
 
-  const usersMapped = users.map(user => ({ userId: user.id, name: user.name }));
+  const usersMapped = users.map(user => ({ userId: user.id, name: user.name, sortName: lowercaseTrim(user.name) }));
   const modifier = {
     $set: {
       joinedUsers: usersMapped,

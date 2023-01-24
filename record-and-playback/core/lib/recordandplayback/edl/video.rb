@@ -19,6 +19,7 @@
 
 require 'json'
 require 'set'
+require 'shellwords'
 
 module BigBlueButton
   module EDL
@@ -379,8 +380,14 @@ module BigBlueButton
         duration = cut[:next_timestamp] - cut[:timestamp]
         BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
-        ffmpeg_inputs = []
-        ffmpeg_filter = "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+        aux_ffmpeg_processes = []
+        ffmpeg_inputs = [
+          {
+            format: 'lavfi',
+            filename: "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+          }
+        ]
+        ffmpeg_filter = '[0]null'
         layout[:areas].each do |layout_area|
           area = cut[:areas][layout_area[:name]]
           video_count = area.length
@@ -437,25 +444,18 @@ module BigBlueButton
             scale_width, scale_height = aspect_scale(video_width, video_height, tile_width, tile_height)
             BigBlueButton.logger.debug "      scaled size: #{scale_width}x#{scale_height}"
 
+            seek = video[:timestamp]
             BigBlueButton.logger.debug("      start timestamp: #{video[:timestamp]}")
             seek_offset = this_videoinfo[:start_time]
             BigBlueButton.logger.debug("      seek offset: #{seek_offset}")
             BigBlueButton.logger.debug("      codec: #{this_videoinfo[:video][:codec_name].inspect}")
             BigBlueButton.logger.debug("      duration: #{this_videoinfo[:duration]}, original duration: #{video[:original_duration]}")
 
-            if this_videoinfo[:video][:codec_name] == "flashsv2"
-              # Desktop sharing videos in flashsv2 do not have regular
-              # keyframes, so seeking in them doesn't really work.
-              # To make processing more reliable, always decode them from the
-              # start in each cut. (Slow!)
-              seek = 0
-            else
-              # Webcam videos are variable, low fps; it might be that there's
-              # no frame until some time after the seek point. Start decoding
-              # 10s before the desired point to avoid this issue.
-              seek = video[:timestamp] - 10000
-              seek = 0 if seek < 0
-            end
+            # Desktop sharing videos in flashsv2 do not have regular
+            # keyframes, so seeking in them doesn't really work.
+            # To make processing more reliable, always decode them from the
+            # start in each cut. (Slow!)
+            seek = 0 if this_videoinfo[:video][:codec_name] == 'flashsv2'
 
             # Workaround early 1.1 deskshare timestamp bug
             # It resulted in video files that were too short. To workaround, we
@@ -478,9 +478,16 @@ module BigBlueButton
               tile_y += 1
             end
 
-            # Only create the video input if the seekpoint is before the end of the file
+            input_index = ffmpeg_inputs.length
+
+            # If the seekpoint is at or after the end of the file, the filter chain will
+            # have problems. Substitute in a blank video.
             if seek >= this_videoinfo[:duration]
-              ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}[#{pad_name}];"
+              ffmpeg_inputs << {
+                format: 'lavfi',
+                filename: "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}"
+              }
+              ffmpeg_filter << "[#{input_index}]null[#{pad_name}];"
               next
             end
 
@@ -491,29 +498,48 @@ module BigBlueButton
             if seek > 0
               seek = seek + seek_offset
             end
-            input_index = ffmpeg_inputs.length
+
+            # Launch the ffmpeg process to use for this input to pre-process the video to constant video resolution
+            # This has to be done in an external process, since if it's done in the same process, the entire filter
+            # chain gets re-initialized on every resolution change, resulting in losing state on all stateful filters.
+            ffmpeg_preprocess_output = "#{output}.#{pad_name}.nut"
+            ffmpeg_preprocess_log = "#{output}.#{pad_name}.log"
+            FileUtils.rm_f(ffmpeg_preprocess_output)
+            File.mkfifo(ffmpeg_preprocess_output)
+
+            # Pre-filtering: scaling, padding, and extending.
+            ffmpeg_preprocess_filter = \
+              "[0:v:0]scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,setsar=1,"\
+              "pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white[out]"
+
+            # Set up filters and inputs for video pre-processing ffmpeg command
+            ffmpeg_preprocess_command = [
+              'ffmpeg', '-y', '-v', 'info', '-nostats', '-nostdin', '-max_error_rate', '1.0',
+              # Ensure timebase conversion is not done, and frames prior to seek point run through filters.
+              '-vsync', 'passthrough', '-noaccurate_seek',
+              '-ss', ms_to_s(seek).to_s, '-itsoffset', ms_to_s(seek).to_s, '-i', video[:filename],
+              '-filter_complex', ffmpeg_preprocess_filter, '-map', '[out]',
+              # Trim to end point so process exits cleanly
+              '-to', ms_to_s(video[:timestamp] + duration).to_s,
+              '-c:v', 'rawvideo', "#{output}.#{pad_name}.nut"
+            ]
+            BigBlueButton.logger.debug("Executing: #{Shellwords.join(ffmpeg_preprocess_command)}")
+            ffmpeg_preprocess_pid = spawn(*ffmpeg_preprocess_command, err: [ffmpeg_preprocess_log, 'w'])
+            aux_ffmpeg_processes << {
+              pid: ffmpeg_preprocess_pid,
+              log: ffmpeg_preprocess_log
+            }
+
             ffmpeg_inputs << {
-              filename: video[:filename],
-              seek: seek,
+              filename: ffmpeg_preprocess_output
             }
             ffmpeg_filter << "[#{input_index}]"
             # Scale the video length for the deskshare timestamp workaround
-            if !scale.nil?
-              ffmpeg_filter << "setpts=PTS*#{scale},"
-            end
-            # Subtract away the offset from the timestamps, so the trimming
-            # in the fps filter is accurate
-            ffmpeg_filter << "setpts=PTS-#{ms_to_s(seek_offset)}/TB"
-            # fps filter fills in frames up to the desired start point, and
-            # cuts the video there
-            ffmpeg_filter << ",fps=#{layout[:framerate]}:start_time=#{ms_to_s(video[:timestamp])}"
-            # Reset the timestamps to start at 0 so that everything is synced
-            # for the video tiling, and scale to the desired size.
-            ffmpeg_filter << ",setpts=PTS-STARTPTS,scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,setsar=1"
-            # And finally, pad the video to the desired aspect ratio
-            ffmpeg_filter << ",pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white"
-            # Extend the video to the desired length
-            ffmpeg_filter << ",tpad=stop=-1:stop_mode=add:color=white"
+            ffmpeg_filter << "setpts=PTS*#{scale}," unless scale.nil?
+            # Extend the video if needed and clean up the framerate
+            ffmpeg_filter << "tpad=stop=-1:stop_mode=clone,fps=#{layout[:framerate]}"
+            # Apply PTS offset so '0' time is aligned, and trim frames before start point
+            ffmpeg_filter << ",setpts=PTS-#{ms_to_s(video[:timestamp])}/TB,trim=start=0"
             ffmpeg_filter << "[#{pad_name}];"
           end
 
@@ -547,9 +573,11 @@ module BigBlueButton
 
         ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"
 
-        ffmpeg_cmd = [*FFMPEG]
+        ffmpeg_cmd = [*FFMPEG, '-copyts']
         ffmpeg_inputs.each do |input|
-          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek]), '-i', input[:filename]]
+          ffmpeg_cmd << '-ss' << ms_to_s(input[:seek]) if input.include?(:seek)
+          ffmpeg_cmd << '-f' << input[:format] if input.include?(:format)
+          ffmpeg_cmd << '-i' << input[:filename]
         end
 
         BigBlueButton.logger.debug('  ffmpeg filter_complex_script:')
@@ -563,6 +591,20 @@ module BigBlueButton
         ffmpeg_cmd += ['-an', *FFMPEG_WF_ARGS, '-r', layout[:framerate].to_s, output]
 
         exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+
+        aux_ffmpeg_exitstatuses = []
+        aux_ffmpeg_processes.each do |process|
+          aux_exitstatus = Process.waitpid2(process[:pid])
+          aux_ffmpeg_exitstatuses << aux_exitstatus[1]
+          BigBlueButton.logger.info("Command output: #{File.basename(process[:log])} #{aux_exitstatus[1]}")
+          File.open(process[:log], 'r') do |io|
+            io.each_line do |line|
+              BigBlueButton.logger.info(line.chomp)
+            end
+          end
+        end
+        raise 'At least one auxiliary ffmpeg process failed' unless aux_ffmpeg_exitstatuses.all?(&:success?)
+
         raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
 
         return output

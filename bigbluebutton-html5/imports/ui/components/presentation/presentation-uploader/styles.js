@@ -21,12 +21,12 @@ import {
   itemActionsWidth,
   uploadIconSize,
   iconLineHeight,
+  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   headingsFontWeight,
   fontSizeLarge,
-  modalTitleFw,
-  fontSizeBase,
+  fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayLight,
@@ -410,10 +410,7 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   border-bottom:${borderSize} solid ${colorGrayLighter};
   margin-bottom: 2rem;
-
-  h1 {
-    font-weight: ${modalTitleFw};
-  }
+  padding: ${mdPaddingX} 0;
 
   div {
     display: flex;
@@ -619,7 +616,6 @@ const SetCurrentAction = styled.td`
   &, & i {
     border: 0;
     background: transparent;
-    color: ${colorGrayLight};
     cursor: pointer;
     font-size: 1.35rem;
 
@@ -659,6 +655,15 @@ const Head = styled.tr`
       }
     }
   }
+`;
+
+const Title = styled.h1`
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: ${fontSizeLarger};
+  font-weight: ${headingsFontWeight};
 `;
 
 export default {
@@ -705,4 +710,5 @@ export default {
   ExportHint,
   SetCurrentAction,
   Head,
+  Title,
 };

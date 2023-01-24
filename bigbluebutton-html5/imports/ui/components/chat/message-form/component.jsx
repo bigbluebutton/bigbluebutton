@@ -69,7 +69,7 @@ const messages = defineMessages({
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
-const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.enableEmojiPicker;
+const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -227,8 +227,9 @@ class MessageForm extends PureComponent {
     if (message.length > maxMessageLength) {
       error = intl.formatMessage(
         messages.errorMaxMessageLength,
-        { 0: message.length - maxMessageLength },
+        { 0: maxMessageLength },
       );
+      message = message.substring(0, maxMessageLength);
     }
 
     this.setState({
@@ -312,6 +313,7 @@ class MessageForm extends PureComponent {
         circle
         hideLabel
         label={intl.formatMessage(messages.emojiButtonLabel)}
+        data-test="emojiPickerButton"
       />
     );
   }
@@ -350,6 +352,9 @@ class MessageForm extends PureComponent {
             value={message}
             onChange={this.handleMessageChange}
             onKeyDown={this.handleMessageKeyDown}
+            onPaste={(e) => { e.stopPropagation(); }}
+            onCut={(e) => { e.stopPropagation(); }}
+            onCopy={(e) => { e.stopPropagation(); }}
             async
           />
           {ENABLE_EMOJI_PICKER && this.renderEmojiButton()}

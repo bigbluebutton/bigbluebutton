@@ -8,12 +8,18 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
+  503: {
+    id: 'app.error.503',
+  },
   500: {
     id: 'app.error.500',
     defaultMessage: 'Oops, something went wrong',
   },
   410: {
     id: 'app.error.410',
+  },
+  409: {
+    id: 'app.error.409',
   },
   408: {
     id: 'app.error.408',
@@ -30,6 +36,9 @@ const intlMessages = defineMessages({
   },
   400: {
     id: 'app.error.400',
+  },
+  meeting_ended: {
+    id: 'app.meeting.endedMessage',
   },
   user_logged_out_reason: {
     id: 'app.error.userLoggedOut',
@@ -49,11 +58,20 @@ const intlMessages = defineMessages({
   user_requested_eject_reason: {
     id: 'app.meeting.logout.ejectedFromMeeting',
   },
+  max_participants_reason: {
+    id: 'app.meeting.logout.maxParticipantsReached',
+  },
+  guest_deny: {
+    id: 'app.guest.guestDeny',
+  },
   duplicate_user_in_meeting_eject_reason: {
     id: 'app.meeting.logout.duplicateUserEjectReason',
   },
   not_enough_permission_eject_reason: {
     id: 'app.meeting.logout.permissionEjectReason',
+  },
+  able_to_rejoin_user_disconnected_reason: {
+    id: 'app.error.disconnected.rejoin',
   },
 });
 
@@ -65,15 +83,18 @@ const propTypes = {
 };
 
 const defaultProps = {
-  code: 500,
+  code: '500',
+  callback: async () => {},
 };
 
 class ErrorScreen extends PureComponent {
   componentDidMount() {
-    const { code } = this.props;
-    const log = code === 403 ? 'warn' : 'error';
+    const { code, callback } = this.props;
+    const log = code === '403' ? 'warn' : 'error';
     AudioManager.exitAudio();
-    Meteor.disconnect();
+    callback().finally(() => {
+      Meteor.disconnect();
+    });
     logger[log]({ logCode: 'startup_client_usercouldnotlogin_error' }, `User could not log in HTML5, hit ${code}`);
   }
 
@@ -92,7 +113,7 @@ class ErrorScreen extends PureComponent {
 
     let errorMessageDescription = Session.get('errorMessageDescription');
 
-    if (code === 403 && errorMessageDescription in intlMessages) {
+    if (errorMessageDescription in intlMessages) {
       errorMessageDescription = intl.formatMessage(intlMessages[errorMessageDescription]);
     }
 

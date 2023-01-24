@@ -18,7 +18,7 @@ rm -rf staging
 
 # New format
 if [ -f private/config/settings.yml ]; then
-  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/" private/config/settings.yml
+  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
@@ -71,6 +71,10 @@ cd /tmp/html5-build/bundle/programs/server/
 npm i
 cd -
 cp -r /tmp/html5-build/bundle staging/usr/share/meteor
+
+# copy over tl;draw fonts due to a preset path
+mkdir -p staging/usr/share/meteor/bundle/programs/web.browser/app/files
+cp node_modules/@fontsource/*/files/*.woff[2] staging/usr/share/meteor/bundle/programs/web.browser/app/files/
 
 cp systemd_start.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/systemd_start.sh

@@ -4,7 +4,6 @@ import { defineMessages, injectIntl } from "react-intl";
 
 import Menu from "@material-ui/core/Menu";
 import { Divider } from "@material-ui/core";
-
 import Icon from "/imports/ui/components/common/icon/component";
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
@@ -16,6 +15,10 @@ const intlMessages = defineMessages({
   close: {
     id: 'app.dropdown.close',
     description: 'Close button label',
+  },
+  active: {
+    id: 'app.dropdown.list.item.activeLabel',
+    description: 'active item label',
   },
 });
 
@@ -62,11 +65,10 @@ class BBBMenu extends React.Component {
   };
 
   makeMenuItems() {
-    const { actions, selectedEmoji } = this.props;
+    const { actions, selectedEmoji, intl } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled } = a;
-
+      const { dataTest, label, onClick, key, disabled, description, selected } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -101,7 +103,8 @@ class BBBMenu extends React.Component {
           }}>
           <Styled.MenuItemWrapper>
             {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
-            <Styled.Option>{label}</Styled.Option>
+            <Styled.Option aria-describedby={`${key}-option-desc`}>{label}</Styled.Option>
+            {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
             {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
           </Styled.MenuItemWrapper>
         </Styled.BBBMenuItem>,

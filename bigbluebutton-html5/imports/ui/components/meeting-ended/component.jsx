@@ -90,13 +90,17 @@ const intlMessage = defineMessages({
     id: 'app.meeting.logout.ejectedFromMeeting',
     description: 'message when the user is removed by someone',
   },
+  max_participants_reason: {
+    id: 'app.meeting.logout.maxParticipantsReached',
+    description: 'message when the user is rejected due to max participants limit',
+  },
   validate_token_failed_eject_reason: {
     id: 'app.meeting.logout.validateTokenFailedEjectReason',
     description: 'invalid auth token',
   },
   user_inactivity_eject_reason: {
     id: 'app.meeting.logout.userInactivityEjectReason',
-    description: 'message for whom was kicked by inactivity',
+    description: 'message to whom was kicked by inactivity',
   },
   open_activity_report_btn: {
     id: 'app.learning-dashboard.clickHereToOpen',
@@ -116,6 +120,7 @@ const propTypes = {
 const defaultProps = {
   ejectedReason: null,
   endedReason: null,
+  callback: async () => {},
 };
 
 class MeetingEnded extends PureComponent {
@@ -137,7 +142,7 @@ class MeetingEnded extends PureComponent {
       this.localUserRole = user.role;
     }
 
-    const meeting = Meetings.findOne({ id: user.meetingID });
+    const meeting = Meetings.findOne({ id: user?.meetingID });
     if (meeting) {
       this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
 
@@ -159,7 +164,9 @@ class MeetingEnded extends PureComponent {
     AudioManager.exitAudio();
     Storage.removeItem('getEchoTest');
     Storage.removeItem('isFirstJoin');
-    Meteor.disconnect();
+    this.props.callback().finally(() => {
+      Meteor.disconnect();
+    });
   }
 
   setSelectedStar(starNumber) {

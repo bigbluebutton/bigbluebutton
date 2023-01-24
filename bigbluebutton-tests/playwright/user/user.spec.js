@@ -64,14 +64,74 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2();
       await multiusers.demoteToViewer();
     });
+
+    test('Give and remove whiteboard access', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page);
+      await multiusers.initModPage2();
+      await multiusers.giveAndRemoveWhiteboardAccess();
+    });
+
+    test('Remove user', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.removeUser();
+    });
+
+    test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2'});
+      await multiusers.removeUserAndPreventRejoining(context);
+    });
   });
 
   test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
-      test('ASK_MODERATOR', async ({ browser, context, page }) => {
-        const guestPolicy = new GuestPolicy(browser, context);
-        await guestPolicy.initModPage(page);
-        await guestPolicy.askModerator();
+      test.describe.parallel('ASK_MODERATOR', () => {
+        // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
+        test('Message to guest lobby', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.messageToGuestLobby();
+        });
+        test('Allow Everyone', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.allowEveryone();
+        });
+        test('Deny Everyone', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.denyEveryone();
+        });
+
+        test('Remember choice', async ({ browser, context, page }) => {
+          const guestPolicy = new GuestPolicy(browser, context);
+          await guestPolicy.initModPage(page);
+          await guestPolicy.rememberChoice();
+        });
+
+        test.describe.parallel('Actions to specific pending user', () => {
+          test('Message', async ({ browser, context, page }) => {
+            const guestPolicy = new GuestPolicy(browser, context);
+            await guestPolicy.initModPage(page);
+            await guestPolicy.messageToSpecificUser();
+          });
+
+          test('Accept', async ({ browser, context, page }) => {
+            const guestPolicy = new GuestPolicy(browser, context);
+            await guestPolicy.initModPage(page);
+            await guestPolicy.acceptSpecificUser();
+          });
+
+          test('Deny', async ({ browser, context, page }) => {
+            const guestPolicy = new GuestPolicy(browser, context);
+            await guestPolicy.initModPage(page);
+            await guestPolicy.denySpecificUser();
+          });
+        });
       });
 
       test('ALWAYS_ACCEPT', async ({ browser, context, page }) => {
@@ -79,7 +139,7 @@ test.describe.parallel('User', () => {
         await guestPolicy.initModPage(page);
         await guestPolicy.alwaysAccept();
       });
-
+      // https://docs.bigbluebutton.org/2.6/release-tests.html#always-deny
       test('ALWAYS_DENY', async ({ browser, context, page }) => {
         const guestPolicy = new GuestPolicy(browser, context);
         await guestPolicy.initModPage(page);
@@ -163,6 +223,29 @@ test.describe.parallel('User', () => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.selectRandomUser();
+    });
+
+    test('Mute all users', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, false);
+      await multiusers.initModPage2(false);
+      await multiusers.initUserPage(false);
+      await multiusers.muteAllUsers();
+    });
+
+    test('Mute all users except presenter', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, false);
+      await multiusers.initModPage2(false);
+      await multiusers.initUserPage(false);
+      await multiusers.muteAllUsersExceptPresenter();
+    });
+
+    test('Write closed captions', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.writeClosedCaptions();
     });
   });
 
