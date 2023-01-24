@@ -646,6 +646,11 @@ public:
       enabled: true
       initialHearingState: true
       useRtcLoopbackInChromium: true
+      # delay: delay (seconds) to be added to the audio feedback return
+      delay:
+        enabled: true
+        delayTime: 0.5
+        maxDelayTime: 2
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
