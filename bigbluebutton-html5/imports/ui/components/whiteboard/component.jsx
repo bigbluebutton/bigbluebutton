@@ -117,6 +117,7 @@ export default function Whiteboard(props) {
     svgUri,
     maxStickyNoteLength,
     fontFamily,
+    hasShapeAccess,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -150,13 +151,6 @@ export default function Whiteboard(props) {
         );
 
     return zoom;
-  }
-
-  const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.userId;
-    const isBackgroundShape = id?.includes('slide-background');
-    const hasShapeAccess = !isBackgroundShape && ((owner && owner === currentUser?.userId) || !owner || isPresenter || isModerator);
-    return hasShapeAccess;
   }
 
   const isValidShapeType = (shape) => {
@@ -311,12 +305,6 @@ export default function Whiteboard(props) {
       if (editingShape) {
         shapes[editingShape?.id] = editingShape;
       }
-      // set shapes as locked for those who aren't allowed to edit it
-      Object.entries(shapes).forEach(([shapeId, shape]) => {
-        if (!shape.isLocked && !hasShapeAccess(shapeId)) {
-          shape.isLocked = true;
-        }
-      });
 
       const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)));
       if (removed && removed.length > 0) {
