@@ -8,7 +8,7 @@ import Service from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/container';
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000; 
+const NETWORK_MONITORING_INTERVAL_MS = 2000;
 const MIN_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
@@ -127,6 +127,10 @@ const intlMessages = defineMessages({
   prev: {
     id: 'app.connection-status.prev',
     description: 'Label for the previous page of the connection stats tab',
+  },
+  clientNotResponding: {
+    id: 'app.connection-status.clientNotRespondingWarning',
+    description: 'Text for Client not responding warning',
   },
 });
 
@@ -345,7 +349,6 @@ class ConnectionStatusComponent extends PureComponent {
 
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.timestamp);
-
       return (
         <Styled.Item
           key={`${conn?.name}-${dateTime}`}
@@ -373,11 +376,17 @@ class ConnectionStatusComponent extends PureComponent {
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </Styled.Text>
             </Styled.Name>
-            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`}>
+            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.status}`}>
               <Styled.Icon>
-                <Icon level={conn.level} />
+                <Icon level={conn.status} />
               </Styled.Icon>
             </Styled.Status>
+            { conn.notResponding && !conn.offline
+              ? (
+                <Styled.ClientNotRespondingText>
+                  {intl.formatMessage(intlMessages.clientNotResponding)}
+                </Styled.ClientNotRespondingText>
+              ) : null }
           </Styled.Left>
           <Styled.Right>
             <Styled.Time>
