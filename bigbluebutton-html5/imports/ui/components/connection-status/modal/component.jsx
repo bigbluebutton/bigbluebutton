@@ -381,7 +381,7 @@ class ConnectionStatusComponent extends PureComponent {
                 <Icon level={conn.status} />
               </Styled.Icon>
             </Styled.Status>
-            { conn.notResponding
+            { conn.notResponding && !conn.offline
               ? (
                 <Styled.ClientNotRespondingText>
                   {intl.formatMessage(intlMessages.clientNotResponding)}
