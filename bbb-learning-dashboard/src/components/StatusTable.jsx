@@ -302,7 +302,11 @@ class StatusTable extends React.Component {
                                   return (
                                     <div
                                       className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-emoji"
-                                      role="status"
+                                      role="generic"
+                                      aria-label={intl.formatMessage({
+                                        id: emojiConfigs[emoji.name].intlId,
+                                        defaultMessage: emojiConfigs[emoji.name].defaultMessage,
+                                      })}
                                       style={{
                                         top: `calc(50% - ${redress})`,
                                         [origin]: `calc(${offset}% - ${redress})`,
