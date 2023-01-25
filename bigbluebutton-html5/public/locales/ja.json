@@ -916,6 +916,7 @@
     "app.connection-status.no": "なし",
     "app.connection-status.notification": "接続の切断がありました",
     "app.connection-status.offline": "オフライン",
+    "app.connection-status.clientNotRespondingWarning": "クライアントからの応答なし",
     "app.connection-status.audioUploadRate": "音声の上り速度",
     "app.connection-status.audioDownloadRate": "音声の下り速度",
     "app.connection-status.videoUploadRate": "映像の上り速度",
