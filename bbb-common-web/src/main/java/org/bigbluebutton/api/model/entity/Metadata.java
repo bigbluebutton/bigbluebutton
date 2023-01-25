@@ -4,7 +4,8 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "src/metadata")
+@Table(name = "metadata")
+
 public class Metadata {
 
     @Id
