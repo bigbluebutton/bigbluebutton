@@ -5,6 +5,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "metadata")
+
 public class Metadata {
 
     @Id

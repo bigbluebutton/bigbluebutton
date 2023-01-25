@@ -17,7 +17,7 @@ public class RecordingStoreTest {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordingStoreTest.class);
 
-    private String metadataDirectory = "metadata";
+    private String metadataDirectory = "src/metadata";
     private final RecordingImportHandler importHandler = RecordingImportHandler.getInstance();
     private final RecordingExportHandler exportHandler = RecordingExportHandler.getInstance();
     private DataStore dataStore;
@@ -68,7 +68,7 @@ public class RecordingStoreTest {
     @Order(3)
     public void testExportRecording() {
         dataStore = DataStore.getInstance();
-        String metadataDirectory = "metadata-export";
+        String metadataDirectory = "src/metadata-export";
 
         exportHandler.exportRecordings(metadataDirectory);
 
