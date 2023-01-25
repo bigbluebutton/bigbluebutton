@@ -321,6 +321,10 @@ class Page {
   async textColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
   }
+
+  async fontSizeCheck(selector, size) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).fontSize)).toBe(size);
+  }
 }
 
 module.exports = exports = Page;
