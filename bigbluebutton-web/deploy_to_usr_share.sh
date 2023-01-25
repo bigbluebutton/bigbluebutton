@@ -13,10 +13,10 @@ if [ ! -d /usr/share/bbb-web-old ] ; then
 else
 	echo "A backup in /usr/share/bbb-web-old already exists. Skipping.."
 fi
-sudo rm -rf /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/run-prod.sh  /usr/share/bbb-web/WEB-INF/
+sudo rm -rf /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/WEB-INF/
 sudo cp -R . /usr/share/bbb-web/
 sudo chown bigbluebutton:bigbluebutton /usr/share/bbb-web
-sudo chown -R bigbluebutton:bigbluebutton /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/run-prod.sh /usr/share/bbb-web/WEB-INF/
+sudo chown -R bigbluebutton:bigbluebutton /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/WEB-INF/
 echo ''
 echo ''
 echo '----------------'
