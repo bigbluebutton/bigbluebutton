@@ -122,10 +122,9 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
-      setAllowUserToChooseABreakout: false
-      setCaptureBreakoutWhiteboard: false
-      setCaptureBreakoutNotes: false
-
+      allowUserChooseRoomByDefault: false
+      captureWhiteboardByDefault: false
+      captureSharedNotesByDefault: false
       breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
@@ -647,6 +646,11 @@ public:
       enabled: true
       initialHearingState: true
       useRtcLoopbackInChromium: true
+      # delay: delay (seconds) to be added to the audio feedback return
+      delay:
+        enabled: true
+        delayTime: 0.5
+        maxDelayTime: 2
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies

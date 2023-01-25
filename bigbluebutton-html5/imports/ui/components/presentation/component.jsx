@@ -16,7 +16,7 @@ import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import MediaService, { shouldEnableSwapLayout } from '../media/service';
+import MediaService from '../media/service';
 // import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
@@ -891,7 +891,6 @@ class Presentation extends PureComponent {
         tldrawAPI={this.state.tldrawAPI}
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
-        toggleSwapLayout={MediaService.toggleSwapLayout}
         layoutContextDispatch={layoutContextDispatch}
       />
     );
@@ -913,7 +912,6 @@ class Presentation extends PureComponent {
       layoutType,
       numCameras,
       currentPresentation,
-      layoutSwapped,
       podId,
       intl,
       isViewersCursorLocked,
@@ -993,7 +991,7 @@ class Presentation extends PureComponent {
             right: presentationBounds.right,
             width: presentationBounds.width,
             height: presentationBounds.height,
-            display: layoutSwapped ? 'none' : 'flex',
+            display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
             zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
             background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
@@ -1113,6 +1111,7 @@ Presentation.propTypes = {
   }),
   // current multi-user status
   multiUser: PropTypes.bool.isRequired,
+  setPresentationIsOpen: PropTypes.func.isRequired,
 };
 
 Presentation.defaultProps = {

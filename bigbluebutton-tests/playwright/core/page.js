@@ -314,13 +314,16 @@ class Page {
     await expect(locator).toHaveValue(value);
   }
 
-
   async backgroundColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).backgroundColor)).toBe(color);
   }
 
   async textColorTest(selector, color) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).color)).toBe(color);
+  }
+
+  async fontSizeCheck(selector, size) {
+    await expect(await this.page.$eval(selector, e => getComputedStyle(e).fontSize)).toBe(size);
   }
 }
 

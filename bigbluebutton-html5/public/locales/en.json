@@ -916,6 +916,7 @@
     "app.connection-status.no": "No",
     "app.connection-status.notification": "Loss in your connection was detected",
     "app.connection-status.offline": "offline",
+    "app.connection-status.clientNotRespondingWarning": "Client not responding",
     "app.connection-status.audioUploadRate": "Audio Upload Rate",
     "app.connection-status.audioDownloadRate": "Audio Download Rate",
     "app.connection-status.videoUploadRate": "Video Upload Rate",
