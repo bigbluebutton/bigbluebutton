@@ -6,7 +6,7 @@ sudo service bbb-web stop
 grails assemble
 mkdir exploded && cd exploded
 jar -xvf ../build/libs/bigbluebutton-0.10.0.war
-cp ../run-prod.sh .
+
 if [ ! -d /usr/share/bbb-web-old ] ; then
 	sudo cp -R /usr/share/bbb-web /usr/share/bbb-web-old
 	echo "A backup was saved in /usr/share/bbb-web-old"
@@ -27,3 +27,4 @@ sudo rm -r exploded
 sudo service bbb-web start
 
 echo 'starting service bbb-web'
+
