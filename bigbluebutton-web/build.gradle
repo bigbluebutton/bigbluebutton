@@ -101,7 +101,7 @@ dependencies {
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
-  implementation 'org.postgresql:postgresql:42.4.1'
+  implementation 'org.postgresql:postgresql:42.4.3'
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
