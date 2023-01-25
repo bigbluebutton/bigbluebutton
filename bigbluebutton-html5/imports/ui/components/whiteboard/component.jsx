@@ -118,6 +118,8 @@ export default function Whiteboard(props) {
     maxStickyNoteLength,
     fontFamily,
     hasShapeAccess,
+    presentationAreaHeight,
+    presentationAreaWidth,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -134,6 +136,8 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
+  const [tldrawZoom, setTldrawZoom] = React.useState(1);
+  const [enable, setEnable] = React.useState(true);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -141,6 +145,11 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+
+  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
+    setEnable(false);
+    setEnable(true);
+  }, 1000, { trailing: true }));
 
   const calculateZoom = (width, height) => {
     let zoom = fitToWidth 
@@ -545,6 +554,16 @@ export default function Whiteboard(props) {
     }
   }, [curPres?.id]);
 
+  React.useEffect(() => {
+    const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
+
+    if(currentZoom !== tldrawZoom) {
+      setTldrawZoom(currentZoom);
+    }else{
+      throttledResetCurrentPoint.current();
+    }
+  }, [presentationAreaHeight, presentationAreaWidth]);
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
@@ -786,6 +805,9 @@ export default function Whiteboard(props) {
 
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
+
+  if(currentTool) tldrawAPI?.selectTool(currentTool);
+
   const editableWB = (
     <EditableWBWrapper>
       <Tldraw
@@ -852,7 +874,7 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
         currentTool={currentTool}
       >
-        {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
+        {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
           hasWBAccess={hasWBAccess}
           isPresenter={isPresenter}
