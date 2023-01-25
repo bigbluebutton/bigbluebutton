@@ -79,6 +79,7 @@ const Notes = ({
 
   if (isHidden) {
     style.padding = 0;
+    style.display = 'none';
   }
   useEffect(() => {
     if (isToSharedNotesBeShow) {
