@@ -1209,7 +1209,7 @@ class Presentation extends PureComponent {
             right: presentationBounds.right,
             width: presentationBounds.width,
             height: presentationBounds.height,
-            display: layoutSwapped ? 'none' : 'flex',
+            display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
             zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
             background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
