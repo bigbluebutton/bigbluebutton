@@ -3,7 +3,6 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.RegisteredUsers.numUniqueJoinedUsers
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
