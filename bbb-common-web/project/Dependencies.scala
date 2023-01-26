@@ -15,7 +15,7 @@ object Dependencies {
     // Libraries
     val akkaVersion = "2.6.17"
     val gson = "2.8.9"
-    val jackson = "2.13.0"
+    val jackson = "2.13.5"
     val freemarker = "2.3.31"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
