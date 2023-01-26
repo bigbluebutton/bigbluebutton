@@ -124,7 +124,7 @@ class ApiController {
       invalid(validationResponse.getKey(), validationResponse.getValue())
       return
     } else if (ParamsUtil.sanitizeString(params.meetingID) != params.meetingID) {
-      invalid("idInvaid", "Meeting ID is invalid")
+      invalid("validationError", "Invalid meeting ID")
       return
     }
 
