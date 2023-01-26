@@ -201,8 +201,8 @@ const PresentationMenu = (props) => {
               const container = presentationWindow.document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
-              const width = svgElem?.width?.baseVal?.value ?? presentationWindow..screen.width;
-              const height = svgElem?.height?.baseVal?.value ?? presentationWindow..screen.height;
+              const width = svgElem?.width?.baseVal?.value ?? presentationWindow.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? presentationWindow.screen.height;
 
               const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
 
