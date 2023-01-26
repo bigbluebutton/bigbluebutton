@@ -231,6 +231,7 @@ class Presentation extends PureComponent {
   }
 
   componentDidMount() {
+    const { isPresentationDetached } = this.props;
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('keydown', this.handlePanShortcut);
     this.refPresentationContainer.addEventListener('keyup', this.handlePanShortcut);
