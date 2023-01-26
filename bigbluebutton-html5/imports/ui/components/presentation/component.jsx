@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
+import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container'
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
@@ -65,6 +66,87 @@ const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinim
 const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
+function copyStyles(sourceDoc, targetDoc, tlStyles) {
+  //Most of this code was copied from https://medium.com/hackernoon/using-a-react-16-portal-to-do-something-cool-2a2d627b0202
+  const hostUri = `https://${window.document.location.hostname}`;
+  const baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+  Array.from(sourceDoc.styleSheets).concat(tlStyles).forEach(styleSheet => {
+    if (styleSheet.cssRules) {
+      const newStyleEl = sourceDoc.createElement('style');
+      Array.from(styleSheet.cssRules).forEach(cssRule => {
+        let newCssText;
+        if (cssRule.cssText.match(/url\(.fonts/)) {
+          newCssText = cssRule.cssText.replace(/^(.*url\(.)(fonts.+)$/, function(){return arguments[1] + baseName + '/' + arguments[2]});
+        } else {
+          newCssText = cssRule.cssText;
+        }
+        newStyleEl.appendChild(sourceDoc.createTextNode(newCssText));
+      });
+
+      targetDoc.head.appendChild(newStyleEl);
+    } else if (styleSheet.href) {
+      const newLinkEl = sourceDoc.createElement('link');
+      newLinkEl.rel = 'stylesheet';
+      newLinkEl.href = styleSheet.href;
+      targetDoc.head.appendChild(newLinkEl);
+    }
+  });
+  
+  //to enable selection by dragging, supplementing a style in TldrawGlobalStyle in whiteboard/component.jsx. (PR 16454)
+  const suppStyle = sourceDoc.createElement('style');
+  suppStyle.appendChild(sourceDoc.createTextNode('#slide-background-shape div { pointer-events: none; }'));
+  targetDoc.head.appendChild(suppStyle);
+}
+
+let presentationWindow = window;
+class WindowPortal extends React.PureComponent {
+  // Most of the idea and code were copied from https://stackoverflow.com/questions/47909601/onclick-not-working-inside-the-pop-up-opened-via-react-portals
+  constructor(props) {
+    super(props);
+    this.state = { win: null, el: null };
+  }
+
+  componentDidMount() {
+    const {
+      svgSize,
+      setEventExternalWindow,
+      setPresentationDetached,
+      toolbarHeight,
+      tlStyles,
+    } = this.props;
+
+    let win = window.open('', '', `innerWidth=${svgSize.width},innerHeight=${svgSize.height+toolbarHeight}`);
+    win.document.title = 'BigBlueButton Portal Window';
+    // No effect anymore?
+    win.document.body.style.position = 'relative'; // to center the slide
+    copyStyles(document, win.document, tlStyles);
+    let el = document.createElement('div');
+    win.document.body.appendChild(el);
+    presentationWindow = win;
+    setEventExternalWindow(win, toolbarHeight);
+
+    win.addEventListener('beforeunload', () => {
+      presentationWindow = window;
+      setPresentationDetached(false); //for closing the window by X button
+    });
+
+    this.setState({ win, el });
+  }
+
+  componentWillUnmount() {
+    const { win } = this.state;
+    win.close();
+  }
+
+  render() {
+    const { el } = this.state;
+    if (!el) {
+      return null;
+    }
+    return createPortal(this.props.children, el);
+  }
+}
+
 class Presentation extends PureComponent {
   constructor() {
     super();
@@ -96,12 +178,14 @@ class Presentation extends PureComponent {
     this.setIsPanning = this.setIsPanning.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
+    this.setEventExternalWindow = this.setEventExternalWindow.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.set('componentPresentationWillUnmount', false);
+    this.tlStyles = [];
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -152,7 +236,12 @@ class Presentation extends PureComponent {
     this.refPresentationContainer.addEventListener('keyup', this.handlePanShortcut);
     this.refPresentationContainer
       .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
-    window.addEventListener('resize', this.onResize, false);
+    if (isPresentationDetached){
+      presentationWindow.addEventListener('resize', this.onResize, false);
+    } else {
+      window.addEventListener('resize', this.onResize, false);
+    }
+
 
     const {
       currentSlide, slidePosition, layoutContextDispatch,
@@ -303,7 +392,7 @@ class Presentation extends PureComponent {
     Session.set('componentPresentationWillUnmount', true);
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
-    window.removeEventListener('resize', this.onResize, false);
+    presentationWindow.removeEventListener('resize', this.onResize, false);
     this.refPresentationContainer
       .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     this.refPresentationContainer.removeEventListener('keydown', this.handlePanShortcut);
