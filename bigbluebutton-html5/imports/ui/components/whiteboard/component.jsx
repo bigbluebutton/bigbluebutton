@@ -583,6 +583,8 @@ export default function Whiteboard(props) {
   };
 
   const onPatch = (e, t, reason) => {
+    if (!e?.pageState) return;
+
     // don't allow select others shapes for editing if don't have permission
     if (reason && reason.includes("set_editing_id")) {
       if (!hasShapeAccess(e.pageState.editingId)) {
