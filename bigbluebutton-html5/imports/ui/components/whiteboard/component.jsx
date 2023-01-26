@@ -118,6 +118,8 @@ export default function Whiteboard(props) {
     maxStickyNoteLength,
     fontFamily,
     hasShapeAccess,
+    isPresentationDetached,
+    presentationWindow,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -265,9 +267,9 @@ export default function Whiteboard(props) {
 
   const checkClientBounds = (e) => {
     if (
-      e.clientX > document.documentElement.clientWidth ||
+      e.clientX > presentationWindow.document.documentElement.clientWidth ||
       e.clientX < 0 ||
-      e.clientY > document.documentElement.clientHeight ||
+      e.clientY > presentationWindow.document.documentElement.clientHeight ||
       e.clientY < 0
     ) {
       if (tldrawAPI?.session) {
@@ -277,18 +279,18 @@ export default function Whiteboard(props) {
   };
 
   const checkVisibility = () => {
-    if (document.visibilityState === 'hidden' && tldrawAPI?.session) {
+    if (presentationWindow.document.visibilityState === 'hidden' && tldrawAPI?.session) {
       tldrawAPI?.completeSession?.();
     }
   };
 
   React.useEffect(() => {
-    document.addEventListener('mouseup', checkClientBounds);
-    document.addEventListener('visibilitychange', checkVisibility);
+    presentationWindow.document.addEventListener('mouseup', checkClientBounds);
+    presentationWindow.document.addEventListener('visibilitychange', checkVisibility);
 
     return () => {
-      document.removeEventListener('mouseup', checkClientBounds);
-      document.removeEventListener('visibilitychange', checkVisibility);
+      presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
+      presentationWindow.document.removeEventListener('visibilitychange', checkVisibility);
     };
   }, [tldrawAPI]);
 
@@ -426,7 +428,7 @@ export default function Whiteboard(props) {
         }
       }
     }
-  }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
+  }, [presentationWidth, presentationHeight, curPageId, isPresentationDetached ? presentationWindow.document?.documentElement?.dir : document?.documentElement?.dir]);
 
   React.useEffect(() => {
     if (presentationWidth > 0 && presentationHeight > 0 && slidePosition) {
@@ -536,7 +538,7 @@ export default function Whiteboard(props) {
   }, [curPres?.id]);
 
   const onMount = (app) => {
-    const menu = document.getElementById("TD-Styles")?.parentElement;
+    const menu = presentationWindow.document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
@@ -774,7 +776,7 @@ export default function Whiteboard(props) {
     }
   };
 
-  const webcams = document.getElementById('cameraDock');
+  const webcams = window.document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
   const editableWB = (
     <EditableWBWrapper>
@@ -849,6 +851,8 @@ export default function Whiteboard(props) {
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
         currentTool={currentTool}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       >
         {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
