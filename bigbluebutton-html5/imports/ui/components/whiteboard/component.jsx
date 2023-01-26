@@ -518,16 +518,6 @@ export default function Whiteboard(props) {
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
   React.useEffect(() => {
-    if (hasWBAccess || isPresenter) {
-      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
-        tldrawAPI?.setSetting('dockPosition', 'bottom');
-      } else {
-        tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-      }
-    }
-  }, [props.height, props.width]);
-
-  React.useEffect(() => {
     if (tldrawAPI) {
       tldrawAPI.isForcePanning = isPanning;
     }
@@ -838,6 +828,14 @@ export default function Whiteboard(props) {
 
   if (isPanning && tldrawAPI) {
     tldrawAPI.isForcePanning = isPanning;
+  }
+
+  if (hasWBAccess || isPresenter) {
+    if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
+      tldrawAPI?.setSetting('dockPosition', 'bottom');
+    } else {
+      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
+    }
   }
 
   return (
