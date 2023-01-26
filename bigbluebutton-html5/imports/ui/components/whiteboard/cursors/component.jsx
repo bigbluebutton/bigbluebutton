@@ -149,6 +149,8 @@ export default function Cursors(props) {
     isMultiUserActive,
     isPanning,
     currentTool,
+    isPresentationDetached,
+    presentationWindow,
   } = props;
 
   const start = () => setActive(true);
@@ -179,7 +181,7 @@ export default function Cursors(props) {
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
     const presentationContainer = document.querySelector('[data-test="presentationContainer"]');
-    const presentation = document.getElementById('currentSlideText')?.parentElement;
+    const presentation = presentationWindow.document.getElementById('currentSlideText')?.parentElement;
     const banners = document.querySelectorAll('[data-test="notificationBannerBar"]');
     let yOffset = 0;
     let xOffset = 0;
@@ -196,7 +198,7 @@ export default function Cursors(props) {
     };
     // If the presentation container is the full screen element we don't
     // need any offsets
-    const { webkitFullscreenElement, fullscreenElement } = document;
+    const { webkitFullscreenElement, fullscreenElement } = presentationWindow.document;
     const fsEl = webkitFullscreenElement || fullscreenElement;
     if (fsEl?.getAttribute('data-test') === 'presentationContainer') {
       calcPresOffset();
@@ -207,7 +209,7 @@ export default function Cursors(props) {
     if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
 
     // offset native tldraw eraser animation container
-    const overlay = document.getElementsByClassName('tl-overlay')[0];
+    const overlay = presentationWindow.document.getElementsByClassName('tl-overlay')[0];
     if (overlay) overlay.style.left = '0px';
 
     if (type === 'touchmove') {
@@ -220,7 +222,7 @@ export default function Cursors(props) {
       return setPos({ x: newX, y: newY });
     }
 
-    if (document?.documentElement?.dir === 'rtl') {
+    if (presentationWindow.document?.documentElement?.dir === 'rtl') {
       xOffset = 0;
       if (presentationContainer && presentation) {
         calcPresOffset();
