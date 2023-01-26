@@ -99,7 +99,9 @@ const PresentationMenu = (props) => {
     layoutContextDispatch,
     meetingName,
     isIphone,
-    isRTL
+    isRTL,
+    isPresentationDetached,
+    presentationWindow,
   } = props;
 
   const [state, setState] = useState({
@@ -153,7 +155,7 @@ const PresentationMenu = (props) => {
           dataTest: 'presentationFullscreen',
           label: formattedLabel(isFullscreen),
           onClick: () => {
-            handleToggleFullscreen(fullscreenRef);
+            handleToggleFullscreen(isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef);
             const newElement = (elementId === currentElement) ? '' : elementId;
             const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
@@ -196,15 +198,15 @@ const PresentationMenu = (props) => {
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
               const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
-              const container = document.createElement('div');
+              const container = presentationWindow.document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
-              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
-              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+              const width = svgElem?.width?.baseVal?.value ?? presentationWindow..screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? presentationWindow..screen.height;
 
               const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
 
-              const anchor = document.createElement('a');
+              const anchor = presentationWindow.document.createElement('a');
               anchor.href = data;
               anchor.setAttribute(
                 'download',
@@ -250,7 +252,7 @@ const PresentationMenu = (props) => {
     }
 
     if (dropdownRef.current) {
-      document.activeElement.blur();
+      presentationWindow.document.activeElement.blur();
       dropdownRef.current.focus();
     }
   });
@@ -258,7 +260,7 @@ const PresentationMenu = (props) => {
   const options = getAvailableOptions();
 
   if (options.length === 0) {
-    const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
+    const undoCtrls = presentationWindow.document.getElementById('TD-Styles')?.nextSibling;
     if (undoCtrls?.style) {
       undoCtrls.style = "padding:0px";
     }
@@ -294,6 +296,8 @@ const PresentationMenu = (props) => {
           container: fullscreenRef
         }}
         actions={options}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       />
     </Styled.Right>
   );
