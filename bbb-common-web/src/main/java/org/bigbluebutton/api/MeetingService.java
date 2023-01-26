@@ -263,7 +263,9 @@ public class MeetingService implements MessageListener {
         RegisteredUser ru = registeredUser.getValue();
 
         long elapsedTime = now - ru.getGuestWaitedOn();
+        log.info("Determining if user [{}] should be purged. Elapsed time waiting [{}] with guest status [{}]", registeredUserID, elapsedTime, ru.getGuestStatus());
         if (elapsedTime >= waitingGuestUsersTimeout && ru.getGuestStatus() == GuestPolicy.WAIT) {
+          log.info("Purging user [{}]", registeredUserID);
           if (meeting.userUnregistered(registeredUserID) != null) {
             gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
             meeting.setLeftGuestLobby(registeredUserID, true);
