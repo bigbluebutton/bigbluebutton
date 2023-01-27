@@ -541,7 +541,7 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
       const zoom = calculateZoom(slidePosition.width, slidePosition.height);
-      tldrawAPI.zoomTo(zoom);
+      tldrawAPI.zoomTo(0);
     }
   }, [curPres?.id]);
 
