@@ -247,7 +247,7 @@
     "app.presentationUploader.exportingTimeout": "Dışa aktarma işlemi çok uzun sürüyor...",
     "app.presentationUploader.export": "Sohbete gönder",
     "app.presentationUploader.export.linkAvailable": "{0} indirmek için bağlantıyı herkese açık sohbette bulabilirsiniz.",
-    "app.presentationUploader.export.notAccessibleWarning": "erişilebilir olmayabilir",
+    "app.presentationUploader.export.notAccessibleWarning": "erişilebilirlik uyumluluğu olmayabilir",
     "app.presentationUploader.currentPresentationLabel": "Geçerli sunum",
     "app.presentationUploder.extraHint": "ÖNEMLİ: Her bir dosya {0} MB boyutundan ve {1} sayfadan küçük olmalıdır.",
     "app.presentationUploder.uploadLabel": "Yükle",
