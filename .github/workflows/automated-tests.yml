@@ -33,6 +33,7 @@ jobs:
       - run: ./build/setup.sh bbb-playback-podcast
       - run: ./build/setup.sh bbb-playback-presentation
       - run: ./build/setup.sh bbb-playback-screenshare
+      - run: ./build/setup.sh bbb-playback-video
       - run: ./build/setup.sh bbb-record-core
       - run: ./build/setup.sh bbb-web
       - run: ./build/setup.sh bbb-webrtc-sfu
