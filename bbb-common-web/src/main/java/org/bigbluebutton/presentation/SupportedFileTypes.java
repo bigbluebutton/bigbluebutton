@@ -111,9 +111,17 @@ public final class SupportedFileTypes {
 				int exitVal = process.waitFor();
 				if (exitVal == 0) {
 					mimeType = output.toString().trim();
+				} else if (exitVal == 127) {
+					log.error("Command '{}' doesn't exist in this server, please install it.", processBuilder
+							.command().toArray(new String[0])[2]);
+					return null;
 				} else {
-					log.error("Error while executing command {} for file {}, error: {}",
-							process.toString(), pres.getAbsolutePath(), process.getErrorStream());
+					log.error("Error while executing command '{}' for file {}, with bash error number {}.",
+						processBuilder.command().subList(2, processBuilder.command().size()).stream().reduce("",
+							(acc, element) -> {
+								if (acc.isEmpty()) return element;
+								return acc + " " + element;
+							}), pres.getAbsolutePath(), exitVal);
 				}
 			} catch (IOException e) {
 				log.error("Could not read file [{}]", pres.getAbsolutePath(), e.getMessage());
@@ -127,11 +135,15 @@ public final class SupportedFileTypes {
 	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
 		String mimeType = detectMimeType(pres);
 
-		if(mimeType == null || mimeType == "") return false;
+		// This makes sure that if the file command doesn't exist it will simply validate as
+		// correct mime type because this command is not used anywhere else.
+		if (mimeType == null) return true;
 
-		if(!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
+		if (mimeType == "") return false;
 
-		if(!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
+		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
+
+		if (!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
 			log.error("File with extension [{}] doesn't match with mimeType [{}].", fileExtension, mimeType);
 			return false;
 		}
