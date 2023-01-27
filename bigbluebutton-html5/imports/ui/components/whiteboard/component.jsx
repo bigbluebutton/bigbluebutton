@@ -152,14 +152,12 @@ export default function Whiteboard(props) {
   }, 1000, { trailing: true }));
 
   const calculateZoom = (width, height) => {
-    let zoom = fitToWidth 
-      ? presentationWidth / width
-      : Math.min(
-          (presentationWidth) / width,
-          (presentationHeight) / height
-        );
+    const calcedZoom = fitToWidth ? (presentationWidth / width) : Math.min(
+      (presentationWidth) / width,
+      (presentationHeight) / height
+    );
 
-    return zoom;
+    return (calcedZoom === 0 || calcedZoom === Infinity) ? HUNDRED_PERCENT : calcedZoom;
   }
 
   const isValidShapeType = (shape) => {
@@ -662,7 +660,7 @@ export default function Whiteboard(props) {
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-      
+
       tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
