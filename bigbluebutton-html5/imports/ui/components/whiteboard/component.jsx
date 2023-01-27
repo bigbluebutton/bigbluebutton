@@ -170,6 +170,7 @@ export default function Whiteboard(props) {
   const filterInvalidShapes = (shapes) => {
     const keys = Object.keys(shapes);
     const removedChildren = [];
+    const removedParents = [];
 
     keys.forEach((shape) => {
       if (shapes[shape].parentId !== curPageId) {
@@ -188,8 +189,17 @@ export default function Whiteboard(props) {
           shapes[shape].children = groupChildren.filter((child) => !removedChildren.includes(child));
 
           if (shapes[shape].children.length < 2) {
+            removedParents.push(shape);
             delete shapes[shape];
           }
+        }
+      }
+    });
+    // remove orphaned children
+    Object.keys(shapes).forEach((shape) => {
+      if (shapes[shape] && shapes[shape].parentId !== curPageId) {
+        if (removedParents.includes(shapes[shape].parentId)) {
+          delete shapes[shape];
         }
       }
     });
