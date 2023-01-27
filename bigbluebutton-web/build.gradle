@@ -62,16 +62,16 @@ dependencies {
   implementation "org.grails:grails-core:5.2.4"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
-  implementation "org.grails:grails-web-boot:5.2.0"
+  implementation "org.grails:grails-web-boot:5.2.5"
   implementation "org.grails:grails-logging"
-  implementation "org.grails:grails-plugin-rest:5.2.0"
+  implementation "org.grails:grails-plugin-rest:5.2.5"
   implementation "org.grails:grails-plugin-databinding:5.2.4"
   implementation "org.grails:grails-plugin-i18n"
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
   implementation 'org.grails.plugins:external-config:1.2.2'
-  //implementation "org.grails.plugins:cache"
+  implementation "org.yaml:snakeyaml:1.31"
   implementation "org.grails.plugins:views-json:2.1.1"
   implementation "org.grails.plugins:cache"
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
@@ -93,7 +93,7 @@ dependencies {
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
   implementation "org.json:json:20211205"
-  implementation "com.zaxxer:nuprocess:2.0.5"
+  implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
@@ -101,7 +101,7 @@ dependencies {
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
-  implementation 'org.postgresql:postgresql:42.4.1'
+  implementation 'org.postgresql:postgresql:42.4.3'
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End

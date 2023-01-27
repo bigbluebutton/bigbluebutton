@@ -79,6 +79,7 @@ const Notes = ({
 
   if (isHidden) {
     style.padding = 0;
+    style.display = 'none';
   }
   useEffect(() => {
     if (isToSharedNotesBeShow) {
@@ -91,6 +92,7 @@ const Notes = ({
       || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
+    return () => clearTimeout(timoutRef);
   }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
   useEffect(() => {
     if (

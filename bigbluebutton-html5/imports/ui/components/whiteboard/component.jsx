@@ -6,6 +6,7 @@ import { TldrawApp, Tldraw } from "@tldraw/tldraw";
 import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
+import logger from '/imports/startup/client/logger';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -116,6 +117,9 @@ export default function Whiteboard(props) {
     svgUri,
     maxStickyNoteLength,
     fontFamily,
+    hasShapeAccess,
+    presentationAreaHeight,
+    presentationAreaWidth,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -132,6 +136,8 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
+  const [tldrawZoom, setTldrawZoom] = React.useState(1);
+  const [enable, setEnable] = React.useState(true);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -140,27 +146,52 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
 
+  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
+    setEnable(false);
+    setEnable(true);
+  }, 1000, { trailing: true }));
+
   const calculateZoom = (width, height) => {
-    let zoom = fitToWidth 
-      ? presentationWidth / width
-      : Math.min(
-          (presentationWidth) / width,
-          (presentationHeight) / height
-        );
+    const calcedZoom = fitToWidth ? (presentationWidth / width) : Math.min(
+      (presentationWidth) / width,
+      (presentationHeight) / height
+    );
 
-    return zoom;
-  }
-
-  const hasShapeAccess = (id) => {
-    const owner = shapes[id]?.userId;
-    const isBackgroundShape = id?.includes('slide-background');
-    const hasShapeAccess = !isBackgroundShape && ((owner && owner === currentUser?.userId) || !owner || isPresenter || isModerator);
-    return hasShapeAccess;
+    return (calcedZoom === 0 || calcedZoom === Infinity) ? HUNDRED_PERCENT : calcedZoom;
   }
 
   const isValidShapeType = (shape) => {
     const invalidTypes = ['image', 'video'];
     return !invalidTypes.includes(shape?.type);
+  }
+
+  const filterInvalidShapes = (shapes) => {
+    const keys = Object.keys(shapes);
+    const removedChildren = [];
+
+    keys.forEach((shape) => {
+      if (shapes[shape].parentId !== curPageId) {
+        if(!keys.includes(shapes[shape].parentId)) {
+          delete shapes[shape];
+        }
+      }else{
+        if (shapes[shape].type === "group") {
+          const groupChildren = shapes[shape].children;
+
+          groupChildren.forEach((child) => {
+            if (!keys.includes(child)) {
+              removedChildren.push(child);
+            }
+          });
+          shapes[shape].children = groupChildren.filter((child) => !removedChildren.includes(child));
+
+          if (shapes[shape].children.length < 2) {
+            delete shapes[shape];
+          }
+        }
+      }
+    });
+    return shapes;
   }
 
   const sendShapeChanges= (app, changedShapes, redo = false) => {
@@ -219,7 +250,20 @@ export default function Whiteboard(props) {
               persistShape(shape, whiteboardId);
             }
           });
-    removeShapes(deletedShapes, whiteboardId);
+
+    //order the ids of shapes being deleted to prevent crash when removing a group shape before its children
+    const orderedDeletedShapes = [];
+    deletedShapes.forEach(eid => {
+      if (shapes[eid]?.type !== 'group') {
+        orderedDeletedShapes.unshift(eid);
+      } else {
+        orderedDeletedShapes.push(eid)
+      }
+    });
+
+    if (orderedDeletedShapes.length > 0) {
+      removeShapes(orderedDeletedShapes, whiteboardId);
+    }
   }
 
   React.useEffect(() => {
@@ -268,33 +312,38 @@ export default function Whiteboard(props) {
       if (editingShape) {
         shapes[editingShape?.id] = editingShape;
       }
-      // set shapes as locked for those who aren't allowed to edit it
-      Object.entries(shapes).forEach(([shapeId, shape]) => {
-        if (!shape.isLocked && !hasShapeAccess(shapeId)) {
-          shape.isLocked = true;
-        }
-      });
 
-      const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)))
+      const removed = prevShapes && findRemoved(Object.keys(prevShapes),Object.keys((shapes)));
       if (removed && removed.length > 0) {
-        tldrawAPI?.patchState(
-          {
-            document: {
-              pageStates: {
-                [curPageId]: {
-                  selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+        const patchedShapes = Object.fromEntries(removed.map((id) => [id, undefined]));
+
+        try {
+          tldrawAPI?.patchState(
+            {
+              document: {
+                pageStates: {
+                  [curPageId]: {
+                    selectedIds: tldrawAPI?.selectedIds?.filter(id => !removed.includes(id)) || [],
+                  },
                 },
-              },
-              pages: {
-                [curPageId]: {
-                  shapes: Object.fromEntries(removed.map((id) => [id, undefined])),
+                pages: {
+                  [curPageId]: {
+                    shapes: patchedShapes,
+                  },
                 },
               },
             },
-          },
-        );
+          );
+        } catch (error) {
+          logger.error({
+            logCode: 'whiteboard_shapes_remove_error',
+            extraInfo: { error },
+          }, 'Whiteboard catch error on removing shapes');
+        }
+
       }
-      next.pages[curPageId].shapes = shapes;
+
+      next.pages[curPageId].shapes = filterInvalidShapes(shapes);
       changed = true;
     }
 
@@ -315,15 +364,26 @@ export default function Whiteboard(props) {
       const patch = {
         document: {
           pages: {
-            [curPageId]: { shapes: shapes }
+            [curPageId]: { shapes: filterInvalidShapes(shapes) }
           },
         },
       };
       const prevState = tldrawAPI._state;
       const nextState = Utils.deepMerge(tldrawAPI._state, patch);
+      if(nextState.document.pages[curPageId].shapes) {
+        filterInvalidShapes(nextState.document.pages[curPageId].shapes);
+      }
       const final = tldrawAPI.cleanup(nextState, prevState, patch, '');
       tldrawAPI._state = final;
-      tldrawAPI?.forceUpdate();
+
+      try {
+        tldrawAPI?.forceUpdate();
+      } catch (e) {
+        logger.error({
+          logCode: 'whiteboard_shapes_update_error',
+          extraInfo: { error },
+        }, 'Whiteboard catch error on updating shapes');
+      }
     }
 
     // move poll result text to bottom right
@@ -465,16 +525,6 @@ export default function Whiteboard(props) {
   const hasWBAccess = props?.hasMultiUserAccess(props.whiteboardId, props.currentUser.userId);
 
   React.useEffect(() => {
-    if (hasWBAccess || isPresenter) {
-      if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
-        tldrawAPI?.setSetting('dockPosition', 'bottom');
-      } else {
-        tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-      }
-    }
-  }, [props.height, props.width]);
-
-  React.useEffect(() => {
     if (tldrawAPI) {
       tldrawAPI.isForcePanning = isPanning;
     }
@@ -487,10 +537,19 @@ export default function Whiteboard(props) {
   // Reset zoom to default when current presentation changes.
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
-      const zoom = calculateZoom(slidePosition.width, slidePosition.height);
-      tldrawAPI.zoomTo(zoom);
+      tldrawAPI.zoomTo(0);
     }
   }, [curPres?.id]);
+
+  React.useEffect(() => {
+    const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
+
+    if(currentZoom !== tldrawZoom) {
+      setTldrawZoom(currentZoom);
+    }else{
+      throttledResetCurrentPoint.current();
+    }
+  }, [presentationAreaHeight, presentationAreaWidth]);
 
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
@@ -540,6 +599,8 @@ export default function Whiteboard(props) {
   };
 
   const onPatch = (e, t, reason) => {
+    if (!e?.pageState) return;
+
     // don't allow select others shapes for editing if don't have permission
     if (reason && reason.includes("set_editing_id")) {
       if (!hasShapeAccess(e.pageState.editingId)) {
@@ -599,7 +660,7 @@ export default function Whiteboard(props) {
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-      
+
       tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
@@ -733,6 +794,9 @@ export default function Whiteboard(props) {
 
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
+
+  if(currentTool) tldrawAPI?.selectTool(currentTool);
+
   const editableWB = (
     <EditableWBWrapper>
       <Tldraw
@@ -787,6 +851,14 @@ export default function Whiteboard(props) {
     tldrawAPI.isForcePanning = isPanning;
   }
 
+  if (hasWBAccess || isPresenter) {
+    if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
+      tldrawAPI?.setSetting('dockPosition', 'bottom');
+    } else {
+      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
+    }
+  }
+
   return (
     <>
       <Cursors
@@ -799,7 +871,7 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
         currentTool={currentTool}
       >
-        {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
+        {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
           hasWBAccess={hasWBAccess}
           isPresenter={isPresenter}

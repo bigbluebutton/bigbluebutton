@@ -335,6 +335,11 @@ exports.takePresenter = 'li[data-test="takePresenter"]';
 exports.muteAll = 'li[data-test="muteAll"]';
 exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
 exports.error403removedLabel = 'You have been removed from the meeting';
+exports.removeUser = 'li[data-test="removeUser"]';
+exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
+exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
+exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -422,3 +427,7 @@ exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+
+// Font size
+exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
+exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
