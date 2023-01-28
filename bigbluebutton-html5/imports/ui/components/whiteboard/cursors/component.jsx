@@ -182,7 +182,7 @@ export default function Cursors(props) {
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
     const presentationContainer = document.querySelector('[data-test="presentationContainer"]');
-    //Only this one needs to be obtained from presentationWindow, but when the presentation is re-attached, this will become null.. so stay without presentationWindow
+    //Only this one needs to be obtained from presentationWindow, but when the presentation is re-attached, this will become null.. so stay without presentationWindow. Anyway only style.height/width values are used at calcPresOffset
     const presentation = document.getElementById('currentSlideText')?.parentElement;
     const banners = document.querySelectorAll('[data-test="notificationBannerBar"]');
     let yOffset = 0;
