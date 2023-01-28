@@ -118,6 +118,8 @@ export default function Whiteboard(props) {
     maxStickyNoteLength,
     fontFamily,
     hasShapeAccess,
+    presentationAreaHeight,
+    presentationAreaWidth,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -134,6 +136,8 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [forcePanning, setForcePanning] = React.useState(false);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
+  const [tldrawZoom, setTldrawZoom] = React.useState(1);
+  const [enable, setEnable] = React.useState(true);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -142,15 +146,18 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
 
-  const calculateZoom = (width, height) => {
-    let zoom = fitToWidth 
-      ? presentationWidth / width
-      : Math.min(
-          (presentationWidth) / width,
-          (presentationHeight) / height
-        );
+  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
+    setEnable(false);
+    setEnable(true);
+  }, 1000, { trailing: true }));
 
-    return zoom;
+  const calculateZoom = (width, height) => {
+    const calcedZoom = fitToWidth ? (presentationWidth / width) : Math.min(
+      (presentationWidth) / width,
+      (presentationHeight) / height
+    );
+
+    return (calcedZoom === 0 || calcedZoom === Infinity) ? HUNDRED_PERCENT : calcedZoom;
   }
 
   const isValidShapeType = (shape) => {
@@ -161,6 +168,7 @@ export default function Whiteboard(props) {
   const filterInvalidShapes = (shapes) => {
     const keys = Object.keys(shapes);
     const removedChildren = [];
+    const removedParents = [];
 
     keys.forEach((shape) => {
       if (shapes[shape].parentId !== curPageId) {
@@ -179,8 +187,17 @@ export default function Whiteboard(props) {
           shapes[shape].children = groupChildren.filter((child) => !removedChildren.includes(child));
 
           if (shapes[shape].children.length < 2) {
+            removedParents.push(shape);
             delete shapes[shape];
           }
+        }
+      }
+    });
+    // remove orphaned children
+    Object.keys(shapes).forEach((shape) => {
+      if (shapes[shape] && shapes[shape].parentId !== curPageId) {
+        if (removedParents.includes(shapes[shape].parentId)) {
+          delete shapes[shape];
         }
       }
     });
@@ -530,10 +547,19 @@ export default function Whiteboard(props) {
   // Reset zoom to default when current presentation changes.
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
-      const zoom = calculateZoom(slidePosition.width, slidePosition.height);
-      tldrawAPI.zoomTo(zoom);
+      tldrawAPI.zoomTo(0);
     }
   }, [curPres?.id]);
+
+  React.useEffect(() => {
+    const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
+
+    if(currentZoom !== tldrawZoom) {
+      setTldrawZoom(currentZoom);
+    }else{
+      throttledResetCurrentPoint.current();
+    }
+  }, [presentationAreaHeight, presentationAreaWidth]);
 
   const onMount = (app) => {
     const menu = presentationWindow.document.getElementById("TD-Styles")?.parentElement;
@@ -583,6 +609,8 @@ export default function Whiteboard(props) {
   };
 
   const onPatch = (e, t, reason) => {
+    if (!e?.pageState) return;
+
     // don't allow select others shapes for editing if don't have permission
     if (reason && reason.includes("set_editing_id")) {
       if (!hasShapeAccess(e.pageState.editingId)) {
@@ -642,7 +670,7 @@ export default function Whiteboard(props) {
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-      
+
       tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide * 100) / 100;
@@ -776,6 +804,9 @@ export default function Whiteboard(props) {
 
   const webcams = window.document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
+
+  if(currentTool) tldrawAPI?.selectTool(currentTool);
+
   const editableWB = (
     <EditableWBWrapper>
       <Tldraw
@@ -852,7 +883,7 @@ export default function Whiteboard(props) {
         isPresentationDetached={isPresentationDetached}
         presentationWindow={presentationWindow}
       >
-        {hasWBAccess || isPresenter ? editableWB : readOnlyWB}
+        {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
           hasWBAccess={hasWBAccess}
           isPresenter={isPresenter}

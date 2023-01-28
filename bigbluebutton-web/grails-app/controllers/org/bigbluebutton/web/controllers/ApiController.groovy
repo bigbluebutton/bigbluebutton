@@ -123,6 +123,9 @@ class ApiController {
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
       return
+    } else if (ParamsUtil.sanitizeString(params.meetingID) != params.meetingID) {
+      invalid("validationError", "Invalid meeting ID")
+      return
     }
 
     // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
