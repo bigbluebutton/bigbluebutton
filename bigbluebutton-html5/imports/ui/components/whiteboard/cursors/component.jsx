@@ -301,7 +301,7 @@ export default function Cursors(props) {
       });
     }
 
-    return setPos({ x: event.x - xOffset, y: event.y - yOffset });
+    return setPos({ x: isPresentationDetached ? event.x : event.x - xOffset, y: isPresentationDetached ? event.y : event.y - yOffset });
   };
 
   React.useEffect(() => {
