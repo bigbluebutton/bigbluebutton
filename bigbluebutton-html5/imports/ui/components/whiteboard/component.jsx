@@ -118,8 +118,6 @@ export default function Whiteboard(props) {
     maxStickyNoteLength,
     fontFamily,
     hasShapeAccess,
-    isPresentationDetached,
-    presentationWindow,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
