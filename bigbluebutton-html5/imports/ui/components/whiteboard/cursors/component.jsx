@@ -302,8 +302,12 @@ export default function Cursors(props) {
         yOffset += parseFloat(window.getComputedStyle(el).height);
       });
     }
-
-    return setPos({ x: isPresentationDetached ? event.x : event.x - xOffset, y: isPresentationDetached ? event.y : event.y - yOffset });
+    
+    if (isPresentationDetached) {
+      return setPos({ x: event.x, y: event.y });
+    } else {
+      return setPos({ x: event.x - xOffset, y: event.y - yOffset });
+    }
   };
 
   React.useEffect(() => {
