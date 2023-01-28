@@ -118,6 +118,8 @@ export default function Whiteboard(props) {
     maxStickyNoteLength,
     fontFamily,
     hasShapeAccess,
+    isPresentationDetached,
+    presentationWindow,
     presentationAreaHeight,
     presentationAreaWidth,
   } = props;
