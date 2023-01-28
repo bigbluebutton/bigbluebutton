@@ -200,7 +200,8 @@ export default function Cursors(props) {
     };
     // If the presentation container is the full screen element we don't
     // need any offsets
-    const { webkitFullscreenElement, fullscreenElement } = presentationWindow.document;
+    // Does not need to be presentationWindow.document, because when isPresentationDetached, the offsets will be anyway ignored.
+    const { webkitFullscreenElement, fullscreenElement } = document;
     const fsEl = webkitFullscreenElement || fullscreenElement;
     if (fsEl?.getAttribute('data-test') === 'presentationContainer') {
       calcPresOffset();
