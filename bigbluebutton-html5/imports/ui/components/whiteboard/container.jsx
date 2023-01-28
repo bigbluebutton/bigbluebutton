@@ -29,14 +29,19 @@ const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
 const WhiteboardContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
   const isRTL = layoutSelect((i) => i.isRTL);
-  const width = layoutSelect((i) => i?.output?.presentation?.width);
-  const height = layoutSelect((i) => i?.output?.presentation?.height);
+  let width = layoutSelect((i) => i?.output?.presentation?.width);
+  let height = layoutSelect((i) => i?.output?.presentation?.height);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
   const isModerator = currentUser.role === ROLE_MODERATOR;
   const { maxStickyNoteLength } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
+
+  if (props.isPresentationDetached) {
+    width = props.presentationWindow.document.firstChild.clientWidth;
+    height = props.presentationWindow.document.firstChild.clientHeight;
+  }
 
   const { shapes } = props;
   const hasShapeAccess = (id) => {
