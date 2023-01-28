@@ -182,6 +182,7 @@ export default function Cursors(props) {
     const camPosition = document.getElementById('layout')?.getAttribute('data-cam-position') || null;
     const sl = document.getElementById('layout')?.getAttribute('data-layout');
     const presentationContainer = document.querySelector('[data-test="presentationContainer"]');
+    //Only this one needs to be obtained from presentationWindow
     const presentation = presentationWindow.document.getElementById('currentSlideText')?.parentElement;
     const banners = document.querySelectorAll('[data-test="notificationBannerBar"]');
     let yOffset = 0;
@@ -223,7 +224,8 @@ export default function Cursors(props) {
       return setPos({ x: newX, y: newY });
     }
 
-    if (presentationWindow.document?.documentElement?.dir === 'rtl') {
+    //dir element cannot be obtained from the detached window
+    if (document?.documentElement?.dir === 'rtl') {
       xOffset = 0;
       if (presentationContainer && presentation) {
         calcPresOffset();
