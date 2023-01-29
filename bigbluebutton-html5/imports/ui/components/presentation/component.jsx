@@ -75,8 +75,8 @@ function copyStyles(sourceDoc, targetDoc, tlStyles) {
       const newStyleEl = sourceDoc.createElement('style');
       Array.from(styleSheet.cssRules).forEach(cssRule => {
         let newCssText;
-        if (cssRule.cssText.match(/url\(.fonts/)) {
-          newCssText = cssRule.cssText.replace(/^(.*url\(.)(fonts.+)$/, function(){return arguments[1] + baseName + '/' + arguments[2]});
+        if (cssRule.cssText.match(/url\(\"[fonts|files]/)) {
+          newCssText = cssRule.cssText.replace(/url\(\"([^\"]*)/g, function(){return 'url("' + baseName + '/' + arguments[1]});
         } else {
           newCssText = cssRule.cssText;
         }
@@ -1194,7 +1194,7 @@ class Presentation extends PureComponent {
 
     //const allStyles = document.getElementsByTagName("style");
     //console.log("ALLSTYLE", allStyles);
-    const tldStyles = [/*'tldraw-fonts',*/ 'tl-canvas', 'tl-theme']; // tldraw-fonts is not in the style anymore.. 
+    const tldStyles = [/*'tldraw-fonts',*/ 'tl-canvas', 'tl-theme']; // tldraw-fonts is not in the style anymore, see the chang at copyStyles
     if (this.tlStyles.filter(v => v).length < tldStyles.length) {
       this.tlStyles = tldStyles.map(id => document.getElementById(id) ? document.getElementById(id).sheet : null);
     }
