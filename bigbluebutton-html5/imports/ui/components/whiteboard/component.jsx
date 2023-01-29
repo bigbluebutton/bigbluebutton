@@ -919,7 +919,6 @@ export default function Whiteboard(props) {
     suppStyle.id = styleId;
     suppStyle.appendChild(presentationWindow.document.createTextNode(tldgs));
     presentationWindow.document.head.appendChild(suppStyle);
-    //console.log("tld", presentationWindow.document.head);
   }
 
   return (
