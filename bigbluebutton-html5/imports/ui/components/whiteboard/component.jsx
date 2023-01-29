@@ -80,6 +80,42 @@ const TldrawGlobalStyle = createGlobalStyle`
   `}
 `;
 
+const TldrawGlobalStyleText = (arg) => {
+  const styleText = `
+  ${ arg.hideContextMenu ? `
+    #TD-ContextMenu {
+      display: none;
+    }
+  ` : ''}
+  #TD-PrimaryTools-Image {
+    display: none;
+  }
+  #slide-background-shape div {
+    pointer-events: none;
+  }
+  [aria-expanded*="false"][aria-controls*="radix-"] {
+    display: none;
+  }
+  ${ (arg.hasWBAccess || arg.isPresenter) ? `
+    #TD-Tools-Dots {
+      height: ${arg.size}px;
+      width: ${arg.size}px;
+    }
+    #TD-Delete {
+      & button {
+        height: ${arg.size}px;
+        width: ${arg.size}px;
+      }
+    }
+    #TD-PrimaryTools button {
+        height: ${arg.size}px;
+        width: ${arg.size}px;
+    }
+  ` : ''}
+  `;
+  return styleText;
+};
+
 const EditableWBWrapper = styled.div`
   &, & > :first-child {
     cursor: inherit !important;
@@ -869,6 +905,21 @@ export default function Whiteboard(props) {
     } else {
       tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
     }
+  }
+
+  if (isPresentationDetached) {
+    const styleId = "supplementedTldrawStyle";
+    const tldgsarg = {hasWBAccess, isPresenter, hideContextMenu: !hasWBAccess && !isPresenter, size};
+    const tldgs = TldrawGlobalStyleText(tldgsarg);
+    const oldElement = presentationWindow.document.getElementById(styleId);
+    if (oldElement) {
+      presentationWindow.document.head.removeChild(oldElement);
+    }
+    const suppStyle = presentationWindow.document.createElement('style');
+    suppStyle.id = styleId;
+    suppStyle.appendChild(presentationWindow.document.createTextNode(tldgs));
+    presentationWindow.document.head.appendChild(suppStyle);
+    //console.log("tld", presentationWindow.document.head);
   }
 
   return (
