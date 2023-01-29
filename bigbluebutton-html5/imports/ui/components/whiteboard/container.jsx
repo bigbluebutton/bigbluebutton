@@ -39,8 +39,8 @@ const WhiteboardContainer = (props) => {
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
 
   if (props.isPresentationDetached) {
-    width = props.presentationWindow.document.firstChild.clientWidth;
-    height = props.presentationWindow.document.firstChild.clientHeight;
+    width = props.presentationWindow.document.documentElement.clientWidth;
+    height = props.presentationWindow.document.documentElement.clientHeight;
   }
 
   const { shapes } = props;
