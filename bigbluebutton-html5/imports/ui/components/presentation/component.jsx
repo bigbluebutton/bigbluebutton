@@ -1194,7 +1194,7 @@ class Presentation extends PureComponent {
 
     //const allStyles = document.getElementsByTagName("style");
     //console.log("ALLSTYLE", allStyles);
-    const tldStyles = ['tldraw-fonts', 'tl-canvas', 'tl-theme'];
+    const tldStyles = [/*'tldraw-fonts',*/ 'tl-canvas', 'tl-theme']; // tldraw-fonts is not in the style anymore.. 
     if (this.tlStyles.filter(v => v).length < tldStyles.length) {
       this.tlStyles = tldStyles.map(id => document.getElementById(id) ? document.getElementById(id).sheet : null);
     }
