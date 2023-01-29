@@ -91,11 +91,6 @@ function copyStyles(sourceDoc, targetDoc, tlStyles) {
       targetDoc.head.appendChild(newLinkEl);
     }
   });
-  
-  //to enable selection by dragging, supplementing a style in TldrawGlobalStyle in whiteboard/component.jsx. (PR 16454)
-  const suppStyle = sourceDoc.createElement('style');
-  suppStyle.appendChild(sourceDoc.createTextNode('#slide-background-shape div { pointer-events: none; }'));
-  targetDoc.head.appendChild(suppStyle);
 }
 
 let presentationWindow = window;
