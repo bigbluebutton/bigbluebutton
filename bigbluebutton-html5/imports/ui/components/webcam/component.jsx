@@ -71,6 +71,9 @@ const WebcamComponent = ({
       );
       Storage.setItem('webcamSize', { width: newCameraMaxWidth, height: lastHeight });
     }
+
+    const cams = document.getElementById('cameraDock');
+    cams?.setAttribute("data-position", cameraDock.position);
   }, [cameraDock.position, cameraDock.maxWidth, isPresenter, displayPresentation]);
 
   const handleVideoFocus = (id) => {
@@ -124,6 +127,9 @@ const WebcamComponent = ({
     document.body.style.overflow = 'auto';
 
     if (Object.values(CAMERADOCK_POSITION).includes(e.target.id) && draggedAtLeastOneTime) {
+      const layout = document.getElementById('layout');
+      layout?.setAttribute("data-cam-position", e?.target?.id);
+
       layoutContextDispatch({
         type: ACTIONS.SET_CAMERA_DOCK_POSITION,
         value: e.target.id,

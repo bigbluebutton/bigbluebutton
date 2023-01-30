@@ -283,7 +283,7 @@ class ApplicationMenu extends BaseMenu {
                 icons={false}
                 defaultChecked={this.state.audioFilterEnabled}
                 onChange={() => this.handleAudioFilterChange()}
-                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                ariaLabel={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
                 showToggleLabel={showToggleLabel}
               />
             </Styled.FormElementRight>
@@ -319,7 +319,7 @@ class ApplicationMenu extends BaseMenu {
               icons={false}
               defaultChecked={settings.paginationEnabled}
               onChange={() => this.handleToggle('paginationEnabled')}
-              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+              ariaLabel={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
               showToggleLabel={showToggleLabel}
             />
           </Styled.FormElementRight>
@@ -353,6 +353,8 @@ class ApplicationMenu extends BaseMenu {
               defaultChecked={settings.darkTheme}
               onChange={() => this.handleToggle('darkTheme')}
               showToggleLabel={showToggleLabel}
+              ariaLabel={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
+              data-test="darkModeToggleBtn"
             />
           </Styled.FormElementRight>
         </Styled.Col>
@@ -407,7 +409,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.animations}
                   onChange={() => this.handleToggle('animations')}
-                  ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                  ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
@@ -421,10 +423,7 @@ class ApplicationMenu extends BaseMenu {
           <Styled.Row>
             <Styled.Col>
               <Styled.FormElement>
-                <Styled.Label
-                  htmlFor="langSelector"
-                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
-                >
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </Styled.Label>
               </Styled.FormElement>
@@ -438,6 +437,7 @@ class ApplicationMenu extends BaseMenu {
                       handleChange={(e) => this.handleSelectChange('locale', e)}
                       value={settings.locale}
                       elementId="langSelector"
+                      ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
                       selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
                     />
                   </Styled.LocalesDropdownSelect>
@@ -483,6 +483,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
+                      data-test="decreaseFontSize"
                     />
                   </Styled.Col>
                   <Styled.Col>
@@ -495,6 +496,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
+                      data-test="increaseFontSize"
                     />
                   </Styled.Col>
                 </Styled.PullContentRight>

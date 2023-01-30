@@ -38,7 +38,8 @@ trait GetMicrophonePermissionReqMsgHdlr {
       liveMeeting,
       msg.body.meetingId,
       msg.body.userId,
-      msg.body.voiceConf
+      msg.body.voiceConf,
+      msg.body.callerIdNum
     )
 
     broadcastEvent(

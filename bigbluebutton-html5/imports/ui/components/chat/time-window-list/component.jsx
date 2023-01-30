@@ -7,6 +7,7 @@ import { AutoSizer,CellMeasurer, CellMeasurerCache } from 'react-virtualized';
 import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import TimeWindowChatItem from './time-window-chat-item/container';
+import { convertRemToPixels } from '/imports/utils/dom-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -271,6 +272,7 @@ class TimeWindowList extends PureComponent {
   render() {
     const {
       timeWindowsValues,
+      width,
     } = this.props;
     const {
       scrollArea,
@@ -284,6 +286,8 @@ class TimeWindowList extends PureComponent {
       && timeWindowsValues.length >= scrollPosition
       && !userScrolledBack
     );
+
+    const paddingValue = convertRemToPixels(2);
 
     return (
       [
@@ -305,9 +309,10 @@ class TimeWindowList extends PureComponent {
           data-test="chatMessages"
           aria-live="polite"
           ref={node => this.messageListWrapper = node}
+          onCopy={(e) => { e.stopPropagation(); }}
         >
-          <AutoSizer>
-            {({ height, width }) => {
+          <AutoSizer disableWidth>
+            {({ height }) => {
               if (width !== this.lastWidth) {
                 this.lastWidth = width;
                 this.cache.clearAll();
@@ -328,7 +333,7 @@ class TimeWindowList extends PureComponent {
                   rowRenderer={this.rowRender}
                   rowCount={timeWindowsValues.length}
                   height={height}
-                  width={width}
+                  width={width - paddingValue}
                   overscanRowCount={0}
                   deferredMeasurementCache={this.cache}
                   scrollToIndex={shouldAutoScroll ? scrollPosition : undefined}

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.models
 import org.bigbluebutton.common2.domain.PageVO
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.common2.msgs.AnnotationVO
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
@@ -24,9 +25,10 @@ case class PresentationPage(
     num:         Int,
     urls:        Map[String, String],
     current:     Boolean             = false,
-    xCamera:     Double              = 0,
-    yCamera:     Double              = 0,
-    zoom:        Double              = 0D,
+    xOffset:     Double              = 0,
+    yOffset:     Double              = 0,
+    widthRatio:  Double              = 100D,
+    heightRatio: Double              = 100D
 )
 
 object PresentationInPod {
@@ -80,6 +82,9 @@ case class PresentationPod(id: String, currentPresenter: String,
 
   def getPresentation(presentationId: String): Option[PresentationInPod] =
     presentations.values find (p => p.id == presentationId)
+
+  def getPresentationsByFilename(filename: String): Iterable[PresentationInPod] =
+    presentations.values filter (p => p.name.startsWith(filename))
 
   def setCurrentPresentation(presId: String): Option[PresentationPod] = {
     var tempPod: PresentationPod = this
@@ -151,14 +156,22 @@ case class PresentationPod(id: String, currentPresenter: String,
   }
 
   def resizePage(presentationId: String, pageId: String,
-                 xCamera: Double, yCamera: Double, 
-                 zoom: Double): Option[(PresentationPod, PresentationPage)] = {
+                 xOffset: Double, yOffset: Double, widthRatio: Double,
+                 heightRatio: Double): Option[(PresentationPod, PresentationPage)] = {
+    // Force coordinate that are out-of-bounds inside valid values
+    // 0.25D is 400% zoom
+    // 100D-checkedWidth is the maximum the page can be moved over
+    val checkedWidth = Math.min(widthRatio, 100D) //if (widthRatio <= 100D) widthRatio else 100D
+    val checkedHeight = Math.min(heightRatio, 100D)
+    val checkedXOffset = Math.min(xOffset, 0D)
+    val checkedYOffset = Math.min(yOffset, 0D)
+
     for {
       pres <- presentations.get(presentationId)
       page <- pres.pages.get(pageId)
     } yield {
-      val nPage = page.copy(xCamera = xCamera, yCamera = yCamera,
-        zoom = zoom)
+      val nPage = page.copy(xOffset = checkedXOffset, yOffset = checkedYOffset,
+        widthRatio = checkedWidth, heightRatio = checkedHeight)
       val nPages = pres.pages + (nPage.id -> nPage)
       val newPres = pres.copy(pages = nPages)
       (addPresentation(newPres), nPage)

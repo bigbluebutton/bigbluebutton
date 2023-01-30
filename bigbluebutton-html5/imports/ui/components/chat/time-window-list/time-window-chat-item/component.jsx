@@ -12,6 +12,7 @@ const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 const CHAT_PUBLIC_ID = CHAT_CONFIG.public_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
+const CHAT_EXPORTED_PRESENTATION_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_exported_presentation;
 
 const propTypes = {
   user: PropTypes.shape({
@@ -102,6 +103,10 @@ class TimeWindowChatItem extends PureComponent {
 
     if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
       return this.renderPollItem();
+    }
+
+    if (messages && messages[0].id.includes(CHAT_EXPORTED_PRESENTATION_MESSAGE)) {
+      return this.renderExportedPresentationItem();
     }
 
     return (
@@ -283,6 +288,72 @@ class TimeWindowChatItem extends PureComponent {
             />
           </Styled.Content>
         </Styled.Wrapper>
+      </Styled.Item>
+    ) : null;
+  }
+
+  renderExportedPresentationItem() {
+    const {
+      timestamp,
+      color,
+      intl,
+      messages,
+      extra,
+      scrollArea,
+      chatAreaId,
+      lastReadMessageTime,
+      handleReadMessage,
+      dispatch,
+      read,
+      chatId,
+      getExportedPresentationString,
+    } = this.props;
+
+    const dateTime = new Date(timestamp);
+
+    return messages ? (
+      <Styled.Item
+        key={_.uniqueId('message-presentation-item-')}
+        onMouseDown={(e) => { e.stopPropagation(); }}
+      >
+        <Styled.PresentationWrapper ref={(ref) => { this.item = ref; }}>
+          <Styled.AvatarWrapper>
+            <UserAvatar color="#0F70D7">
+              <Styled.PollIcon iconName="download" />
+            </UserAvatar>
+          </Styled.AvatarWrapper>
+          <Styled.Content 
+              data-test="downloadPresentationContainer">
+            <Styled.Meta>
+              <Styled.Time dateTime={dateTime} style={{ margin: 0 }}>
+                <FormattedTime value={dateTime} />
+              </Styled.Time>
+            </Styled.Meta>
+            <Styled.PresentationChatItem
+              type="presentation"
+              key={messages[0].id}
+              text={getExportedPresentationString(extra.fileURI, extra.filename, intl)}
+              time={messages[0].time}
+              chatAreaId={chatAreaId}
+              lastReadMessageTime={lastReadMessageTime}
+              handleReadMessage={(timestamp) => {
+                handleReadMessage(timestamp);
+
+                if (!read) {
+                  dispatch({
+                    type: 'last_read_message_timestamp_changed',
+                    value: {
+                      chatId,
+                      timestamp,
+                    },
+                  });
+                }
+              }}
+              scrollArea={scrollArea}
+              color={color}
+            />
+          </Styled.Content>
+        </Styled.PresentationWrapper>
       </Styled.Item>
     ) : null;
   }

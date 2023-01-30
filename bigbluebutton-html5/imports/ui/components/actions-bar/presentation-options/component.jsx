@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import Styled from './styles';
+import Button from '/imports/ui/components/common/button/component';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -48,9 +48,8 @@ const PresentationOptionsContainer = ({
 
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
   return (
-    <Styled.RestorePresentationButton
+    <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
-      data-test="restorePresentationButton"
       label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-label={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationLabel : intlMessages.minimizePresentationLabel)}
       aria-describedby={intl.formatMessage(!presentationIsOpen ? intlMessages.restorePresentationDesc : intlMessages.minimizePresentationDesc)}

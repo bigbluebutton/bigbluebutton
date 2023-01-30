@@ -4,9 +4,9 @@ import Button from '/imports/ui/components/common/button/component';
 import {
   colorPrimary,
   colorDanger,
-  colorWhite,
   colorGrayDark,
   colorOffWhite,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const pulse = keyframes`
@@ -40,15 +40,15 @@ const MuteToggleButton = styled(Button)`
     }
   `}
 
-  ${({ talking }) => talking && `
+  ${({ $talking }) => $talking && `
     border-radius: 50%;
   `}
-    
-  ${({ talking, animations }) => talking && animations && css`
+
+  ${({ $talking, animations }) => $talking && animations && css`
     animation: ${pulse} 1s infinite ease-in;
   `}
 
-  ${({ talking, animations }) => talking && !animations && css`
+  ${({ $talking, animations }) => $talking && !animations && css`
     & span {
       content: '';
       outline: none !important;

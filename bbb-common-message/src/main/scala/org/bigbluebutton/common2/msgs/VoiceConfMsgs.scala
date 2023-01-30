@@ -259,6 +259,46 @@ case class MeetingMutedEvtMsg(
 case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
 
 /**
+ * Send to FS to deaf user in the voice conference.
+ */
+object DeafUserInVoiceConfSysMsg { val NAME = "DeafUserInVoiceConfSysMsg" }
+case class DeafUserInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   DeafUserInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class DeafUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, deaf: Boolean)
+
+/**
+ * Send to FS to hold user in the voice conference.
+ */
+object HoldUserInVoiceConfSysMsg { val NAME = "HoldUserInVoiceConfSysMsg" }
+case class HoldUserInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   HoldUserInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class HoldUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, hold: Boolean)
+
+/**
+ * Send to FS to play sound in the voice conference, or specific user
+ */
+object PlaySoundInVoiceConfSysMsg { val NAME = "PlaySoundInVoiceConfSysMsg" }
+case class PlaySoundInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   PlaySoundInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class PlaySoundInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, soundPath: String)
+
+/**
+ * Send to FS to stop current sound in the voice conference, or specific user
+ */
+object StopSoundInVoiceConfSysMsg { val NAME = "StopSoundInVoiceConfSysMsg" }
+case class StopSoundInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   StopSoundInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class StopSoundInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String)
+
+/**
  * Received from FS that voice is being recorded.
  */
 object RecordingStartedVoiceConfEvtMsg { val NAME = "RecordingStartedVoiceConfEvtMsg" }
@@ -564,6 +604,9 @@ case class GetGlobalAudioPermissionRespMsgBody(
 
 /* Sent by bbb-webrtc-sfu to ask permission for a new microphone/full audio
  * connection
+ *   - callerIdNum: the session's callerId as assembled by the requester
+ *   - sfuSessionId: the UUID for this request's session in bbb-webrtc-sfu.
+ *     Used for response matching.
  */
 object GetMicrophonePermissionReqMsg { val NAME = "GetMicrophonePermissionReqMsg" }
 case class GetMicrophonePermissionReqMsg(
@@ -574,9 +617,15 @@ case class GetMicrophonePermissionReqMsgBody(
     meetingId:    String,
     voiceConf:    String,
     userId:       String,
+    callerIdNum:  String,
     sfuSessionId: String
 )
 
+/* Sent to bbb-webrtc-sfu as a response to GetMicrophonePermissionReqMsg
+ *   - sfuSessionId: the UUID for this request's session in bbb-webrtc-sfu.
+ *     Used for response matching.
+ *   - allowed: whether session creation should be allowed.
+ */
 object GetMicrophonePermissionRespMsg { val NAME = "GetMicrophonePermissionRespMsg" }
 case class GetMicrophonePermissionRespMsg(
     header: BbbClientMsgHeader,

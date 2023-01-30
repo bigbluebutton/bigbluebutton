@@ -16,6 +16,7 @@ export default function createPad(meetingId, externalId, padId) {
     const modifier = {
       $set: {
         padId,
+        pinned: false,
       },
     };
 

@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="usersTimeout" value="${usersTimeout}"/>
         <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
-        <property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -95,12 +95,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
     </bean>
 
-    <bean id="recordingService" class="org.bigbluebutton.api.RecordingService">
+    <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
+
+    <bean id="recordingService" class="org.bigbluebutton.api.service.impl.RecordingServiceFileImpl">
         <property name="recordingStatusDir" value="${recordStatusDir}"/>
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
         <property name="captionsDir" value="${captionsDir}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
+        <property name="xmlService" ref="xmlService" />
         <property name="presentationBaseDir" value="${presentationDir}"/>
         <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
         <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
@@ -121,6 +124,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
         <property name="securitySalt" value="${securitySalt}"/>
+        <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
     </bean>
 
@@ -133,6 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="apiVersion" value="${apiVersion}"/>
         <property name="serviceEnabled" value="${serviceEnabled}"/>
         <property name="securitySalt" value="${securitySalt}"/>
+        <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
         <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
         <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
         <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
@@ -147,11 +152,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
+        <property name="defaultHttpSessionTimeout" value="${defaultHttpSessionTimeout}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled:true}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
@@ -172,7 +178,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled:true}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
@@ -186,12 +192,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
+        <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
         <property name="disabledFeatures" value="${disabledFeatures}"/>
         <property name="notifyRecordingIsOn" value="${notifyRecordingIsOn}"/>
         <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
+    </bean>
+
+    <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
+        <property name="testRoomMock" value="${beans.presentationService.testRoomMock}"/>
+        <property name="testPresentationName" value="${beans.presentationService.testPresentationName}"/>
+        <property name="testUploadedPresentation" value="${beans.presentationService.testUploadedPresentation}"/>
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
+        <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
+        <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

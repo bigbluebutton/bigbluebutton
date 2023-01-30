@@ -6,7 +6,6 @@ import HoldButton from './holdButton/component';
 
 const DELAY_MILLISECONDS = 200;
 const STEP_TIME = 100;
-const ZOOM_INCREMENT = .1;
 
 const intlMessages = defineMessages({
   resetZoomLabel: {
@@ -53,11 +52,11 @@ class ZoomTool extends PureComponent {
   }
 
   componentDidUpdate() {
-    const { zoomValue, tldrawAPI } = this.props;
+    const { zoomValue } = this.props;
     const { stateZoomValue } = this.state;
     const isDifferent = zoomValue !== stateZoomValue;
     if (isDifferent) {
-      this.onChanger(tldrawAPI?.getPageState()?.camera?.zoom);
+      this.onChanger(zoomValue);
     }
   }
 
@@ -148,9 +147,6 @@ class ZoomTool extends PureComponent {
       intl,
       isMeteorConnected,
       step,
-      tldrawAPI,
-      slidePosition,
-      isZoomed,
     } = this.props;
     const { stateZoomValue } = this.state;
 
@@ -165,10 +161,6 @@ class ZoomTool extends PureComponent {
     }
 
     const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
-    const tldrawZoomState = tldrawAPI?.getPageState()?.camera?.zoom;
-    let displayZoom = zoomValue < tldrawZoomState && tldrawZoomState !== 1 
-      ? tldrawZoomState : zoomValue;
-    if (zoomValue === 1) displayZoom = tldrawZoomState;
     
     return (
       [
@@ -180,15 +172,16 @@ class ZoomTool extends PureComponent {
             minBound={minBound}
           >
             <Styled.DecreaseZoomButton
+              color="light"
+              circle
+              size="md"
               key="zoom-tool-1"
               aria-describedby="zoomOutDescription"
               aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
               icon="substract"
-              onClick={() => {
-                tldrawAPI.zoomTo(tldrawAPI?.getPageState()?.camera?.zoom - ZOOM_INCREMENT);
-              }}
-              disabled={!isZoomed || !isMeteorConnected}
+              onClick={() => { }}
+              disabled={(zoomValue <= minBound) || !isMeteorConnected}
               hideLabel
             />
             <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
@@ -201,9 +194,9 @@ class ZoomTool extends PureComponent {
               aria-describedby="resetZoomDescription"
               disabled={(stateZoomValue === minBound) || !isMeteorConnected}
               color="default"
-              customIcon={`${parseInt(displayZoom * 100)}%`}
+              customIcon={stateZoomPct}
               size="md"
-              onClick={() => tldrawAPI?.zoomTo(1)}
+              onClick={() => this.resetZoom()}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
               hideLabel
             />
@@ -220,15 +213,16 @@ class ZoomTool extends PureComponent {
             maxBound={maxBound}
           >
             <Styled.IncreaseZoomButton
+              color="light"
+              circle
+              size="md"
               key="zoom-tool-3"
               aria-describedby="zoomInDescription"
               aria-label={zoomInAriaLabel}
               label={intl.formatMessage(intlMessages.zoomInLabel)}
               data-test="zoomInBtn"
               icon="add"
-              onClick={() => {
-                tldrawAPI.zoomTo(tldrawAPI?.getPageState()?.camera?.zoom + ZOOM_INCREMENT);
-               }}
+              onClick={() => { }}
               disabled={(zoomValue >= maxBound) || !isMeteorConnected}
               hideLabel
             />

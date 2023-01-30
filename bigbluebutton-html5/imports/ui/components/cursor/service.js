@@ -5,6 +5,10 @@ import logger from '/imports/startup/client/logger';
 const Cursor = new Mongo.Collection(null);
 let cursorStreamListener = null;
 
+export const clearCursors = () => {
+  Cursor.remove({});
+};
+
 function updateCursor(userId, payload) {
   const selector = {
     userId,

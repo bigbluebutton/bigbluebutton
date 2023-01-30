@@ -13,9 +13,10 @@ import {
   screenshareHasEnded,
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
+import Button from '/imports/ui/components/common/button/component';
 
 const { isMobile } = deviceInfo;
-const { isSafari } = browserInfo;
+const { isSafari, isTabletApp } = browserInfo;
 
 const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
@@ -30,10 +31,6 @@ const intlMessages = defineMessages({
   desktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.desktopShareLabel',
     description: 'Desktop Share option label',
-  },
-  lockedDesktopShareLabel: {
-    id: 'app.actionsBar.actionsDropdown.lockedDesktopShareLabel',
-    description: 'Desktop locked Share option label',
   },
   stopDesktopShareLabel: {
     id: 'app.actionsBar.actionsDropdown.stopDesktopShareLabel',
@@ -157,26 +154,24 @@ const ScreenshareButton = ({
     </Styled.ScreenShareModal>,
   );
 
-  const screenshareLocked = screenshareDataSavingSetting
-    ? intlMessages.desktopShareLabel : intlMessages.lockedDesktopShareLabel;
+  const screenshareLabel = intlMessages.desktopShareLabel;
 
   const vLabel = isVideoBroadcasting
-    ? intlMessages.stopDesktopShareLabel : screenshareLocked;
+    ? intlMessages.stopDesktopShareLabel : screenshareLabel;
 
   const vDescr = isVideoBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
 
   const shouldAllowScreensharing = enabled
-    && !isMobile
+    && ( !isMobile || isTabletApp)
     && amIPresenter;
 
-  const dataTest = !screenshareDataSavingSetting ? 'screenshareLocked'
-    : isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+  const dataTest = isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
 
   return shouldAllowScreensharing
     ? (
-      <Styled.ScreenShareButton
-        disabled={(!isMeteorConnected && !isVideoBroadcasting) || !screenshareDataSavingSetting}
+      <Button
+        disabled={(!isMeteorConnected && !isVideoBroadcasting)}
         icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
         data-test={dataTest}
         label={intl.formatMessage(vLabel)}

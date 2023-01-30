@@ -43,6 +43,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.pollResult',
     description: 'used in place of user name who published poll to chat',
   },
+  download: {
+    id: 'app.presentation.downloadLabel',
+    description: 'used as label for presentation download link',
+  },
+  notAccessibleWarning: {
+    id: 'app.presentationUploader.export.notAccessibleWarning',
+    description: 'used for indicating that a link may be not accessible',
+  },
 });
 
 const setUserSentMessage = (bool) => {
@@ -81,8 +89,8 @@ const mapGroupMessage = (message) => {
     const mappedSender = {
       avatar: sender?.avatar,
       color: message.color,
-      isModerator: sender?.role === ROLE_MODERATOR,
-      name: sender.name,
+      isModerator: message.senderRole === ROLE_MODERATOR,
+      name: message.senderName,
       isOnline: !!sender,
     };
 
@@ -320,6 +328,15 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
+const getExportedPresentationString = (fileURI, filename, intl) => {
+  const warningIcon = `<i class="icon-bbb-warning"></i>`;
+  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
+  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
+  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${fileURI} type="application/pdf" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
+  const name = `<span>${filename}</span>`;
+  return `${name}</br>${link}`;
+};
+
 export default {
   setUserSentMessage,
   mapGroupMessage,
@@ -342,4 +359,5 @@ export default {
   getLastMessageTimestampFromChatList,
   UnsentMessagesCollection,
   removePackagedClassAttribute,
+  getExportedPresentationString,
 };

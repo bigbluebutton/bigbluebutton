@@ -5,6 +5,7 @@ import injectNotify from '/imports/ui/components/common/toast/inject-notify/comp
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
 import BreakoutRemainingTimeComponent from './component';
+import BreakoutService from '/imports/ui/components/breakout-room/service';
 import { Text, Time } from './styles';
 
 const intlMessages = defineMessages({
@@ -61,11 +62,14 @@ class breakoutRemainingTimeContainer extends React.Component {
       return null;
     }
     if (bold) {
+      const words = message.split(' ');
+      const time = words.pop();
+      const text = words.join(' ');
       return (
         <BreakoutRemainingTimeComponent>
-          <Text>{message.split(' ')[0]}</Text>
+          <Text>{text}</Text>
           <br />
-          <Time>{message.split(' ')[1]}</Time>
+          <Time data-test="breakoutRemainingTime">{time}</Time>
         </BreakoutRemainingTimeComponent>
       );
     }
@@ -143,6 +147,7 @@ export default injectNotify(injectIntl(withTracker(({
       if (fromBreakoutPanel) data.bold = true;
     } else {
       clearInterval(timeRemainingInterval);
+      BreakoutService.setCapturedContentUploading();
       data.message = intl.formatMessage(timeEndedMessage || intlMessages.breakoutWillClose);
     }
   } else if (breakoutRoom) {

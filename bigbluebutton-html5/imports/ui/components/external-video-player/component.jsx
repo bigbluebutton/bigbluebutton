@@ -404,10 +404,11 @@ class VideoPlayer extends Component {
   }
 
   getMuted() {
-    const { mutedByEchoTest, muted } = this.state;
-    const intPlayer = this.player && this.player.getInternalPlayer();
+    const { isPresenter } = this.props;
+    const { muted } = this.state;
+    const intPlayer = this?.player?.getInternalPlayer?.();
 
-    return (intPlayer && intPlayer.isMuted && intPlayer.isMuted?.() && !mutedByEchoTest) || muted;
+    return isPresenter ? intPlayer?.isMuted?.() : muted;
   }
 
   autoPlayBlockDetected() {

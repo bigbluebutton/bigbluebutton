@@ -6,6 +6,7 @@ import VoiceUsers from '/imports/api/voice-users/';
 import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
 import stringHash from 'string-hash';
 import flat from 'flat';
+import { lowercaseTrim } from '/imports/utils/string-utils';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 
@@ -51,8 +52,9 @@ export default function addUser(meetingId, userData) {
 
   const userInfos = {
     meetingId,
-    sortName: user.name.trim().toLowerCase(),
+    sortName: lowercaseTrim(user.name),
     color,
+    speechLocale: '',
     mobile: false,
     breakoutProps: {
       isBreakoutUser: Meeting.meetingProp.isBreakout,

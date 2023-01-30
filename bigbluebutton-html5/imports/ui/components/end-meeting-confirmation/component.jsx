@@ -20,6 +20,10 @@ const intlMessages = defineMessages({
     id: 'app.endMeeting.contentWarning',
     description: 'end meeting content warning',
   },
+  confirmButtonLabel: {
+    id: 'app.endMeeting.yesLabel',
+    description: 'end meeting confirm button label',
+  },
 });
 
 const { warnAboutUnsavedContentOnMeetingEnd } = Meteor.settings.public.app;
@@ -58,6 +62,7 @@ class EndMeetingComponent extends PureComponent {
         description={description}
         confirmButtonColor="danger"
         confirmButtonDataTest="confirmEndMeeting"
+        confirmButtonLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
       />
     );
   }

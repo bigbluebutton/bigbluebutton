@@ -4,6 +4,7 @@ location @html5client {
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "Upgrade";
+  limit_conn ws_zone 3;
 }
 
 location /html5client/locales {
@@ -11,6 +12,7 @@ location /html5client/locales {
 }
 
 location /html5client/compatibility {
+  gzip_static on;
   alias /usr/share/meteor/bundle/programs/web.browser/app/compatibility;
 }
 
@@ -24,6 +26,10 @@ location /html5client/svgs {
 
 location /html5client/fonts {
   alias /usr/share/meteor/bundle/programs/web.browser/app/fonts;
+}
+
+location /html5client/files {
+  alias /usr/share/meteor/bundle/programs/web.browser/app/files;
 }
 
 location /html5client/wasm {

@@ -25,6 +25,8 @@ public class CreateMeetingMessage {
 	public final String learningDashboardAccessToken;
 	public final ArrayList<String> disabledFeatures;
 	public final Boolean notifyRecordingIsOn;
+	public final String presentationUploadExternalDescription;
+	public final String presentationUploadExternalUrl;
 	public final Long createTime;
 	public final String createDate;
 	public final Map<String, String> metadata;
@@ -36,6 +38,8 @@ public class CreateMeetingMessage {
 						String viewerPass, String learningDashboardAccessToken,
 						ArrayList<String> disabledFeatures,
 						Boolean notifyRecordingIsOn,
+						String presentationUploadExternalDescription,
+						String presentationUploadExternalUrl,
 						Long createTime, String createDate, Map<String, String> metadata) {
 		this.id = id;
 		this.externalId = externalId;
@@ -54,6 +58,8 @@ public class CreateMeetingMessage {
 		this.learningDashboardAccessToken = learningDashboardAccessToken;
 		this.disabledFeatures = disabledFeatures;
 		this.notifyRecordingIsOn = notifyRecordingIsOn;
+		this.presentationUploadExternalDescription = presentationUploadExternalDescription;
+		this.presentationUploadExternalUrl = presentationUploadExternalUrl;
 		this.createTime = createTime;
 		this.createDate = createDate;
 		this.metadata = metadata;

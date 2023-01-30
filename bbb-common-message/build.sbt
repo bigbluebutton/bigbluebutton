@@ -1,7 +1,7 @@
 import org.bigbluebutton.build._
 
 
-version := "0.0.21-SNAPSHOT"
+version := "0.0.22-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -12,7 +12,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:jvm-1.11",
+    "-target:11",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -55,7 +55,7 @@ scalariformAutoformat := true
 // Do not append Scala versions to the generated artifacts
 //crossPaths := false
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.9"
 
 // This forbids including Scala related libraries into the dependency
 //autoScalaLibrary := false

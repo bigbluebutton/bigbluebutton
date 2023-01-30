@@ -45,6 +45,7 @@ class TalkingIndicator extends PureComponent {
       talkers,
       amIModerator,
       moreThanMaxIndicators,
+      users,
     } = this.props;
     if (!talkers) return null;
 
@@ -52,46 +53,66 @@ class TalkingIndicator extends PureComponent {
       const {
         talking,
         color,
+        transcribing,
+        floor,
         muted,
         callerName,
       } = talkers[`${id}`];
 
+      const user = users[id];
+
+      const name = user?.name ?? callerName;
+
       const ariaLabel = intl.formatMessage(talking
         ? intlMessages.isTalking : intlMessages.wasTalking, {
-        0: callerName,
+        0: name,
       });
 
       let icon = talking ? 'unmute' : 'blank';
       icon = muted ? 'mute' : icon;
 
       return (
-        <Styled.TalkingIndicatorButton
-          spoke={!talking}
+        <Styled.TalkingIndicatorWrapper
+          key={_.uniqueId(`${name}-`)}
           muted={muted}
-          isViewer={!amIModerator}
-          key={_.uniqueId(`${callerName}-`)}
-          onClick={() => this.handleMuteUser(id)}
-          label={callerName}
-          tooltipLabel={!muted && amIModerator
-            ? `${intl.formatMessage(intlMessages.muteLabel)} ${callerName}`
-            : null}
-          data-test={talking ? 'isTalking' : 'wasTalking'}
-          aria-label={ariaLabel}
-          aria-describedby={talking ? 'description' : null}
-          color="primary"
-          icon={icon}
-          size="sm"
-          style={{
-            backgroundColor: color,
-            border: `solid 2px ${color}`,
-          }}
+          talking={talking}
+          floor={floor}
         >
-          {talking ? (
-            <Styled.Hidden id="description">
-              {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
-            </Styled.Hidden>
-          ) : null}
-        </Styled.TalkingIndicatorButton>
+          {transcribing && (
+            <Styled.CCIcon
+              iconName={muted ? 'closed_caption_stop' : 'closed_caption'}
+              muted={muted}
+              talking={talking}
+            />
+          )}
+          <Styled.TalkingIndicatorButton
+            $spoke={!talking || undefined}
+            $muted={muted}
+            $isViewer={!amIModerator || undefined}
+            key={_.uniqueId(`${name}-`)}
+            onClick={() => this.handleMuteUser(id)}
+            label={name}
+            tooltipLabel={!muted && amIModerator
+              ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
+              : null}
+            data-test={talking ? 'isTalking' : 'wasTalking'}
+            aria-label={ariaLabel}
+            aria-describedby={talking ? 'description' : null}
+            color="primary"
+            icon={icon}
+            size="lg"
+            style={{
+              backgroundColor: color,
+              border: `solid 2px ${color}`,
+            }}
+          >
+            {talking ? (
+              <Styled.Hidden id="description">
+                {`${intl.formatMessage(intlMessages.ariaMuteDesc)}`}
+              </Styled.Hidden>
+            ) : null}
+          </Styled.TalkingIndicatorButton>
+        </Styled.TalkingIndicatorWrapper>
       );
     });
 
@@ -109,9 +130,9 @@ class TalkingIndicator extends PureComponent {
 
       return (
         <Styled.TalkingIndicatorButton
-          spoke={nobodyTalking}
-          muted={false}
-          isViewer={false}
+          $spoke={nobodyTalking}
+          $muted={false}
+          $isViewer={false}
           key={_.uniqueId('_has__More_')}
           onClick={() => {}} // maybe add a dropdown to show the rest of the users
           label="..."

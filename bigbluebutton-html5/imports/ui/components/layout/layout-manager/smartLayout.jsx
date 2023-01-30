@@ -91,6 +91,14 @@ const SmartLayout = (props) => {
           cameraDock: {
             numCameras: cameraDockInput.numCameras,
           },
+          externalVideo: {
+            hasExternalVideo: externalVideoInput.hasExternalVideo,
+          },
+          screenShare: {
+            hasScreenShare: screenShareInput.hasScreenShare,
+            width: screenShareInput.width,
+            height: screenShareInput.height,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -124,10 +132,13 @@ const SmartLayout = (props) => {
           },
           screenShare: {
             hasScreenShare: screenShareInput.hasScreenShare,
-          }
+            width: screenShareInput.width,
+            height: screenShareInput.height,
+          },
         }, INITIAL_INPUT_STATE),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 
@@ -224,7 +235,29 @@ const SmartLayout = (props) => {
     };
   };
 
-  const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize) => {
+  const calculatesScreenShareSize = (mediaAreaBounds) => {
+    const { width = 0, height = 0 } = screenShareInput;
+
+    if (width === 0 && height === 0) return { width, height };
+
+    let screeShareWidth;
+    let screeShareHeight;
+
+    screeShareWidth = (width * mediaAreaBounds.height) / height;
+    screeShareHeight = mediaAreaBounds.height;
+
+    if (screeShareWidth > mediaAreaBounds.width) {
+      screeShareWidth = mediaAreaBounds.width;
+      screeShareHeight = (height * mediaAreaBounds.width) / width;
+    }
+
+    return {
+      width: screeShareWidth,
+      height: screeShareHeight,
+    };
+  }
+
+  const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
     const { isOpen, currentSlide } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
     const { hasScreenShare } = screenShareInput;
@@ -252,11 +285,13 @@ const SmartLayout = (props) => {
       return mediaBounds;
     }
 
+    const mediaContentSize = hasScreenShare ? screenShareSize : slideSize;
+
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
-      if (slideSize.width !== 0 && slideSize.height !== 0 && !hasExternalVideo && !hasScreenShare) {
-        if (slideSize.width < mediaAreaBounds.width && !isMobile) {
-          if (slideSize.width < (mediaAreaBounds.width * 0.8)) {
-            mediaBounds.width = slideSize.width;
+      if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 && !hasExternalVideo) {
+        if (mediaContentSize.width < mediaAreaBounds.width && !isMobile) {
+          if (mediaContentSize.width < (mediaAreaBounds.width * 0.8)) {
+            mediaBounds.width = mediaContentSize.width;
           } else {
             mediaBounds.width = mediaAreaBounds.width * 0.8;
           }
@@ -267,8 +302,8 @@ const SmartLayout = (props) => {
           mediaBounds.left = !isRTL ? sizeValue : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
         } else {
-          if (slideSize.height < (mediaAreaBounds.height * 0.8)) {
-            mediaBounds.height = slideSize.height;
+          if (mediaContentSize.height < (mediaAreaBounds.height * 0.8)) {
+            mediaBounds.height = mediaContentSize.height;
           } else {
             mediaBounds.height = mediaAreaBounds.height * 0.8;
           }
@@ -325,8 +360,14 @@ const SmartLayout = (props) => {
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const slideSize = calculatesSlideSize(mediaAreaBounds);
+    const screenShareSize = calculatesScreenShareSize(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
-    const mediaBounds = calculatesMediaBounds(mediaAreaBounds, slideSize, sidebarSize);
+    const mediaBounds = calculatesMediaBounds(
+      mediaAreaBounds,
+      slideSize,
+      sidebarSize,
+      screenShareSize,
+    );
     const cameraDockBounds = calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
     const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal
       ? cameraDockBounds.width + (camerasMargin * 2)
@@ -488,6 +529,17 @@ const SmartLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

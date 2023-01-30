@@ -11,7 +11,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  overlayClassName: "modalOverlay",
+  overlayClassName: 'modalOverlay',
   contentLabel: 'Modal',
   isOpen: true,
 };
@@ -29,7 +29,7 @@ export default class ModalBase extends Component {
   render() {
     const {
       isOpen,
-      'data-test': dataTest
+      'data-test': dataTest,
     } = this.props;
 
     if (!isOpen) return null;
@@ -45,7 +45,7 @@ export default class ModalBase extends Component {
           else return document.body;
         }}
         data={{
-          test: dataTest ?? null
+          test: dataTest ?? null,
         }}
       >
         {this.props.children}

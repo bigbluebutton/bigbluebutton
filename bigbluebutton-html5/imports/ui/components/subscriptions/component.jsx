@@ -8,11 +8,7 @@ import Users from '/imports/api/users';
 import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import {
-  localBreakoutsSync,
-  localBreakoutsHistorySync,
-  localGuestUsersSync,
-  localMeetingsSync,
-  localUsersSync,
+  localCollectionRegistry,
 } from '/client/collection-mirror-initializer';
 import SubscriptionRegistry, { subscriptionReactivity } from '../../services/subscription-registry/subscriptionRegistry';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -27,9 +23,16 @@ const SUBSCRIPTIONS = [
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'meeting-time-remaining',
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
-  'pads', 'pads-sessions', 'pads-updates', 'notifications',
+  'pads', 'pads-sessions', 'pads-updates', 'notifications', 'audio-captions',
   'layout-meetings',
 ];
+const {
+  localBreakoutsSync,
+  localBreakoutsHistorySync,
+  localGuestUsersSync,
+  localMeetingsSync,
+  localUsersSync,
+} = localCollectionRegistry;
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
 const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
@@ -123,22 +126,6 @@ export default withTracker(() => {
     oldRole = currentUser?.role;
   }
 
-  const annotationsHandler = Meteor.subscribe('annotations', {
-    onReady: () => {
-      const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
-      AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
-      Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
-        try {
-          AnnotationsLocal.insert(a);
-        } catch (e) {
-          // TODO
-        }
-      });
-      annotationsHandler.stop();
-    },
-    ...subscriptionErrorHandler,
-  });
-
   subscriptionsHandlers = subscriptionsHandlers.filter(obj => obj);
   const ready = subscriptionsHandlers.every(handler => handler.ready());
   let groupChatMessageHandler = {};
@@ -166,6 +153,25 @@ export default withTracker(() => {
   let usersPersistentDataHandler = {};
   if (ready) {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
+    const annotationsHandler = Meteor.subscribe('annotations', {
+      onReady: () => {
+        const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
+        AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
+        Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
+          try {
+            AnnotationsLocal.insert(a);
+          } catch (e) {
+            // TODO
+          }
+        });
+        annotationsHandler.stop();
+      },
+      ...subscriptionErrorHandler,
+    });
+
+    Object.values(localCollectionRegistry).forEach(
+      (localCollection) => localCollection.checkForStaleData(),
+    );
   }
 
   return {

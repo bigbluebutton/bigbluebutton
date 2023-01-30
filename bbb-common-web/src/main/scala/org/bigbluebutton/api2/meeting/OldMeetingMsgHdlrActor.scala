@@ -102,9 +102,13 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
       msg.body.room.record,
-      msg.body.room.privateChatEnabled
+      msg.body.room.privateChatEnabled,
+      msg.body.room.captureNotes,
+      msg.body.room.captureSlides,
+      msg.body.room.captureNotesFilename,
+      msg.body.room.captureSlidesFilename,
     ))
-
+    
   }
 
   def handleRecordingStatusChangedEvtMsg(msg: RecordingStatusChangedEvtMsg): Unit = {

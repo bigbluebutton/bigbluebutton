@@ -39,7 +39,7 @@
       <!-- Domain (for presence) -->
       <param name="domain" value="$${domain}"/>
       <!-- Sample Rate-->
-      <param name="rate" value="8000"/>
+      <param name="rate" value="48000"/>
       <!-- Number of milliseconds per frame -->
       <param name="interval" value="20"/>
       <!-- Energy level required for audio to be sent to the other users -->
@@ -277,4 +277,3 @@
     </profile>
   </profiles>
 </configuration>
-

@@ -42,6 +42,7 @@ class ConnectionController {
         response.addHeader("User-Id", userSession.internalUserId)
         response.addHeader("Meeting-Id", userSession.meetingID)
         response.addHeader("Voice-Bridge", userSession.voicebridge )
+        response.addHeader("User-Name", userSession.fullname)
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {

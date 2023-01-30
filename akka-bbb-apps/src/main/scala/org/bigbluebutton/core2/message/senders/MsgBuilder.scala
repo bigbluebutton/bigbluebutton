@@ -336,6 +336,46 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildDeafUserInVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String, deaf: Boolean): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(DeafUserInVoiceConfSysMsg.NAME, routing)
+    val body = DeafUserInVoiceConfSysMsgBody(voiceConf, voiceUserId, deaf)
+    val header = BbbCoreHeaderWithMeetingId(DeafUserInVoiceConfSysMsg.NAME, meetingId)
+    val event = DeafUserInVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildHoldUserInVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String, hold: Boolean): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(HoldUserInVoiceConfSysMsg.NAME, routing)
+    val body = HoldUserInVoiceConfSysMsgBody(voiceConf, voiceUserId, hold)
+    val header = BbbCoreHeaderWithMeetingId(HoldUserInVoiceConfSysMsg.NAME, meetingId)
+    val event = HoldUserInVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildPlaySoundInVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String, soundPath: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(PlaySoundInVoiceConfSysMsg.NAME, routing)
+    val body = PlaySoundInVoiceConfSysMsgBody(voiceConf, voiceUserId, soundPath)
+    val header = BbbCoreHeaderWithMeetingId(PlaySoundInVoiceConfSysMsg.NAME, meetingId)
+    val event = PlaySoundInVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildStopSoundInVoiceConfSysMsg(meetingId: String, voiceConf: String, voiceUserId: String): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(StopSoundInVoiceConfSysMsg.NAME, routing)
+    val body = StopSoundInVoiceConfSysMsgBody(voiceConf, voiceUserId)
+    val header = BbbCoreHeaderWithMeetingId(StopSoundInVoiceConfSysMsg.NAME, meetingId)
+    val event = StopSoundInVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildBreakoutRoomEndedEvtMsg(meetingId: String, userId: String, breakoutRoomId: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(BreakoutRoomEndedEvtMsg.NAME, routing)
@@ -343,16 +383,6 @@ object MsgBuilder {
 
     val body = BreakoutRoomEndedEvtMsgBody(meetingId, breakoutRoomId)
     val event = BreakoutRoomEndedEvtMsg(header, body)
-
-    BbbCommonEnvCoreMsg(envelope, event)
-  }
-
-  def buildStopMeetingTranscodersSysCmdMsg(meetingId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-    val envelope = BbbCoreEnvelope(StopMeetingTranscodersSysCmdMsg.NAME, routing)
-    val body = StopMeetingTranscodersSysCmdMsgBody()
-    val header = BbbCoreHeaderWithMeetingId(StopMeetingTranscodersSysCmdMsg.NAME, meetingId)
-    val event = StopMeetingTranscodersSysCmdMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)
   }

@@ -28,6 +28,10 @@ import org.bigbluebutton.freeswitch.voice.freeswitch.actions.EjectUserCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.FreeswitchCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.GetAllUsersCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.MuteUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.DeafUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.HoldUserCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.PlaySoundCommand;
+import org.bigbluebutton.freeswitch.voice.freeswitch.actions.StopSoundCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.RecordConferenceCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.TransferUserToMeetingCommand;
 import org.bigbluebutton.freeswitch.voice.freeswitch.actions.*;
@@ -123,6 +127,26 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
     queueMessage(mpc);
   }
 
+  public void deafUser(String voiceConfId, String voiceUserId, Boolean deaf) {
+    DeafUserCommand duc = new DeafUserCommand(voiceConfId, voiceUserId, deaf, USER);
+    queueMessage(duc);
+  }
+
+  public void holdUser(String voiceConfId, String voiceUserId, Boolean hold) {
+    HoldUserCommand huc = new HoldUserCommand(voiceConfId, voiceUserId, hold, USER);
+    queueMessage(huc);
+  }
+
+  public void playSound(String voiceConfId, String voiceUserId, String soundPath) {
+    PlaySoundCommand psc = new PlaySoundCommand(voiceConfId, voiceUserId, soundPath, USER);
+    queueMessage(psc);
+  }
+
+  public void stopSound(String voiceConfId, String voiceUserId) {
+    StopSoundCommand ssc = new StopSoundCommand(voiceConfId, voiceUserId, USER);
+    queueMessage(ssc);
+  }
+
   public void eject(String voiceConfId, String voiceUserId) {
     EjectUserCommand mpc = new EjectUserCommand(voiceConfId, voiceUserId, USER);
     queueMessage(mpc);
@@ -158,6 +182,18 @@ public class FreeswitchApplication implements  IDelayedCommandListener{
           } else if (command instanceof MuteUserCommand) {
             MuteUserCommand cmd = (MuteUserCommand) command;
             manager.mute(cmd);
+          } else if (command instanceof DeafUserCommand) {
+            DeafUserCommand cmd = (DeafUserCommand) command;
+            manager.deaf(cmd);
+          } else if (command instanceof HoldUserCommand) {
+            HoldUserCommand cmd = (HoldUserCommand) command;
+            manager.hold(cmd);
+          } else if (command instanceof PlaySoundCommand) {
+            PlaySoundCommand cmd = (PlaySoundCommand) command;
+            manager.playSound(cmd);
+          } else if (command instanceof StopSoundCommand) {
+            StopSoundCommand cmd = (StopSoundCommand) command;
+            manager.stopSound(cmd);
           } else if (command instanceof EjectUserCommand) {
             EjectUserCommand cmd = (EjectUserCommand) command;
             manager.eject(cmd);

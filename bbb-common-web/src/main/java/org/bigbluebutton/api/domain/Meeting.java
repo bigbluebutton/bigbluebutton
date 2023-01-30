@@ -42,7 +42,11 @@ public class Meeting {
 	private String parentMeetingId = "bbb-none"; // Initialize so we don't send null in the json message.
 	private Integer sequence = 0;
 	private Boolean freeJoin = false;
-  private Integer duration = 0;
+	private Boolean captureSlides = false;
+	private Boolean captureNotes = false;
+	private String captureSlidesFilename = "bbb-none";
+	private String captureNotesFilename = "bbb-none";
+  	private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
 	private long endTime = 0;
@@ -95,6 +99,8 @@ public class Meeting {
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
+	private String presentationUploadExternalDescription;
+	private String presentationUploadExternalUrl;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -107,7 +113,7 @@ public class Meeting {
 	public final BreakoutRoomsParams breakoutRoomsParams;
 	public final LockSettingsParams lockSettingsParams;
 
-	public final Boolean allowDuplicateExtUserid;
+	public final Integer maxUserConcurrentAccesses;
 
 	private String meetingEndedCallbackURL = "";
 
@@ -119,6 +125,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
+		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
+		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
 		if (builder.viewerPass == null){
 			viewerPass = "";
 		} else {
@@ -159,7 +167,7 @@ public class Meeting {
         allowRequestsWithoutSession = builder.allowRequestsWithoutSession;
         breakoutRoomsParams = builder.breakoutRoomsParams;
         lockSettingsParams = builder.lockSettingsParams;
-        allowDuplicateExtUserid = builder.allowDuplicateExtUserid;
+		maxUserConcurrentAccesses = builder.maxUserConcurrentAccesses;
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
         html5InstanceId = builder.html5InstanceId;
@@ -191,6 +199,28 @@ public class Meeting {
 
 	public ConcurrentMap<String, User> getUsersMap() {
 	    return users;
+	}
+
+	public Integer countUniqueExtIds() {
+		List<String> uniqueExtIds = new ArrayList<String>();
+		for (User user : users.values()) {
+			if(!uniqueExtIds.contains(user.getExternalUserId())) {
+				uniqueExtIds.add(user.getExternalUserId());
+			}
+		}
+
+		return uniqueExtIds.size();
+	}
+
+	public List<String> getUsersWithExtId(String externalUserId) {
+		List<String> usersWithExtId = new ArrayList<String>();
+		for (User user : users.values()) {
+			if(user.getExternalUserId().equals(externalUserId)) {
+				usersWithExtId.add(user.getInternalUserId());
+			}
+		}
+
+		return usersWithExtId;
 	}
 
 	public void guestIsWaiting(String userId) {
@@ -283,6 +313,30 @@ public class Meeting {
     public void setFreeJoin(Boolean freeJoin) {
         this.freeJoin = freeJoin;
     }
+
+	public Boolean isCaptureSlides() {
+        return captureSlides;
+    }
+
+	public void setCaptureSlides(Boolean capture) {
+		this.captureSlides = captureSlides;
+	}
+	
+	public Boolean isCaptureNotes() {
+        return captureNotes;
+    }
+
+	public void setCaptureNotes(Boolean capture) {
+		this.captureNotes = captureNotes;
+	}
+
+	public void setCaptureNotesFilename(String filename) {
+		this.captureNotesFilename = filename;
+	}
+
+	public void setCaptureSlidesFilename(String filename) {
+		this.captureSlidesFilename = filename;
+	}
 
 	public Integer getDuration() {
 		return duration;
@@ -378,6 +432,13 @@ public class Meeting {
 
 	public Boolean getNotifyRecordingIsOn() {
 		return notifyRecordingIsOn;
+	}
+
+	public String getPresentationUploadExternalDescription() {
+		return presentationUploadExternalDescription;
+	}
+	public String getPresentationUploadExternalUrl() {
+		return presentationUploadExternalUrl;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -491,6 +552,10 @@ public class Meeting {
 
 	public int getMaxUsers() {
 		return maxUsers;
+	}
+
+	public Integer getMaxUserConcurrentAccesses() {
+		return maxUserConcurrentAccesses;
 	}
 
 	public int getLogoutTimer() {
@@ -622,19 +687,17 @@ public class Meeting {
 		return this.users.get(id);
 	}
 
-    public User getUserWithExternalId(String externalUserId) {
-        for (Map.Entry<String, User> entry : users.entrySet()) {
-            User u = entry.getValue();
-            if (u.getExternalUserId().equals(externalUserId)) {
-                return u;
-            }
-        }
-        return null;
-    }
-
-
 	public int getNumUsers(){
 		return this.users.size();
+	}
+
+	public int getNumUsersOnline(){
+		int countUsersOnline = 0;
+		for (User user : this.users.values()) {
+			if(!user.hasLeft()) countUsersOnline++;
+		}
+
+		return countUsersOnline;
 	}
 
     public int getNumModerators() {
@@ -810,6 +873,8 @@ public class Meeting {
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
 		private Boolean notifyRecordingIsOn;
+		private String presentationUploadExternalDescription;
+		private String presentationUploadExternalUrl;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -830,7 +895,8 @@ public class Meeting {
 		private String meetingLayout;
     	private BreakoutRoomsParams breakoutRoomsParams;
     	private LockSettingsParams lockSettingsParams;
-		private Boolean allowDuplicateExtUserid;
+
+		private Integer maxUserConcurrentAccesses;
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
 		private int html5InstanceId;
@@ -937,6 +1003,16 @@ public class Meeting {
 	    	return this;
 	    }
 
+    	public Builder withPresentationUploadExternalDescription(String d) {
+	    	this.presentationUploadExternalDescription = d;
+	    	return this;
+	    }
+
+			public Builder withPresentationUploadExternalUrl(String u) {
+	    	this.presentationUploadExternalUrl = u;
+	    	return this;
+	    }
+
     	public Builder withWelcomeMessage(String w) {
     		welcomeMsg = w;
     		return this;
@@ -1012,8 +1088,8 @@ public class Meeting {
     		return  this;
 		}
 
-		public Builder withAllowDuplicateExtUserid(Boolean allowDuplicateExtUserid) {
-    		this.allowDuplicateExtUserid = allowDuplicateExtUserid;
+		public Builder withMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
+    		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
     		return this;
 		}
 

@@ -1,13 +1,5 @@
 package org.bigbluebutton.common2.msgs
 
-object EjectDuplicateUserReqMsg { val NAME = "EjectDuplicateUserReqMsg" }
-case class EjectDuplicateUserReqMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   EjectDuplicateUserReqMsgBody
-) extends BbbCoreMsg
-case class EjectDuplicateUserReqMsgBody(meetingId: String, intUserId: String, name: String,
-                                        extUserId: String)
-
 object RegisterUserReqMsg { val NAME = "RegisterUserReqMsg" }
 case class RegisterUserReqMsg(
     header: BbbCoreHeaderWithMeetingId,
@@ -310,7 +302,7 @@ case class UserJoinMeetingAfterReconnectReqMsg(header: BbbClientMsgHeader, body:
 case class UserJoinMeetingAfterReconnectReqMsgBody(userId: String, authToken: String, clientType: String)
 
 /**
- * Sent from bbb-apps when user disconnects from Red5.
+ * Sent from client to bbb-akka to notify that a user is leaving
  */
 object UserLeaveReqMsg { val NAME = "UserLeaveReqMsg" }
 case class UserLeaveReqMsg(header: BbbClientMsgHeader, body: UserLeaveReqMsgBody) extends StandardMsg

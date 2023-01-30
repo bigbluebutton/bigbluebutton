@@ -74,7 +74,6 @@ class BigBlueButtonActor(
 
       case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
       case m: RegisterUserReqMsg          => handleRegisterUserReqMsg(m)
-      case m: EjectDuplicateUserReqMsg    => handleEjectDuplicateUserReqMsg(m)
       case m: GetAllMeetingsReqMsg        => handleGetAllMeetingsReqMsg(m)
       case m: GetRunningMeetingsReqMsg    => handleGetRunningMeetingsReqMsg(m)
       case m: CheckAlivePingSysMsg        => handleCheckAlivePingSysMsg(m)
@@ -101,16 +100,6 @@ class BigBlueButtonActor(
       m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
     } yield {
       log.debug("FORWARDING Register user message")
-      m.actorRef forward (msg)
-    }
-  }
-
-  def handleEjectDuplicateUserReqMsg(msg: EjectDuplicateUserReqMsg): Unit = {
-    log.debug("RECEIVED EjectDuplicateUserReqMsg msg {}", msg)
-    for {
-      m <- RunningMeetings.findWithId(meetings, msg.header.meetingId)
-    } yield {
-      log.debug("FORWARDING EjectDuplicateUserReqMsg")
       m.actorRef forward (msg)
     }
   }
@@ -186,9 +175,6 @@ class BigBlueButtonActor(
 
         val disconnectEvnt = MsgBuilder.buildDisconnectAllClientsSysMsg(msg.meetingId, "meeting-destroyed")
         m2.outMsgRouter.send(disconnectEvnt)
-
-        val stopTranscodersCmd = MsgBuilder.buildStopMeetingTranscodersSysCmdMsg(msg.meetingId)
-        m2.outMsgRouter.send(stopTranscodersCmd)
 
         log.info("Destroyed meetingId={}", msg.meetingId)
         val destroyedEvent = MsgBuilder.buildMeetingDestroyedEvtMsg(msg.meetingId)

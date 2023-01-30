@@ -53,6 +53,7 @@ const Chat = (props) => {
     syncing,
     syncedPercent,
     lastTimeWindowValuesBuild,
+    width,
   } = props;
 
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
@@ -136,6 +137,7 @@ const Chat = (props) => {
           syncedPercent,
           lastTimeWindowValuesBuild,
           userSentMessage,
+          width,
         }}
       />
       <MessageFormContainer

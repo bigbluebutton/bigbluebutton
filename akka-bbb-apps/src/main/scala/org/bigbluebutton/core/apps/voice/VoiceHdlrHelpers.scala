@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Users2x }
+import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting }
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.SystemConfiguration
@@ -27,7 +27,8 @@ object VoiceHdlrHelpers extends SystemConfiguration {
       liveMeeting: LiveMeeting,
       meetingId:   String,
       userId:      String,
-      voiceConf:   String
+      voiceConf:   String,
+      callerIdNum: String
   ): Boolean = {
     Users2x.findWithIntId(liveMeeting.users2x, userId) match {
       case Some(user) => {
@@ -35,8 +36,13 @@ object VoiceHdlrHelpers extends SystemConfiguration {
           user,
           liveMeeting
         )
+        val isCallerBanned = VoiceUsers.isCallerBanned(
+          callerIdNum,
+          liveMeeting.voiceUsers
+        )
 
         (applyPermissionCheck &&
+          !isCallerBanned &&
           !microphoneSharingLocked &&
           liveMeeting.props.meetingProp.intId == meetingId &&
           liveMeeting.props.voiceProp.voiceConf == voiceConf)

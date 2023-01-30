@@ -1,7 +1,26 @@
 import React from 'react';
-import { FormattedMessage, injectIntl } from 'react-intl';
+import { FormattedMessage, injectIntl, defineMessages } from 'react-intl';
 import { emojiConfigs, filterUserEmojis } from '../services/EmojiService';
 import UserAvatar from './UserAvatar';
+
+const intlMessages = defineMessages({
+  thumbnail: {
+    id: 'app.learningDashboard.statusTimelineTable.thumbnail',
+    defaultMessage: 'Presentation thumbnail',
+  },
+  presentation: {
+    id: 'app.learningDashboard.statusTimelineTable.presentation',
+    defaultMessage: 'Presentation',
+  },
+  pageNumber: {
+    id: 'app.learningDashboard.statusTimelineTable.pageNumber',
+    defaultMessage: 'Page',
+  },
+  setAt: {
+    id: 'app.learningDashboard.statusTimelineTable.setAt',
+    defaultMessage: 'Set at',
+  },
+});
 
 class StatusTable extends React.Component {
   componentDidMount() {
@@ -162,7 +181,7 @@ class StatusTable extends React.Component {
     return (
       <table className="w-full">
         <thead>
-          <tr className="text-xs font-semibold tracking-wide text-gray-500 uppercase border-b bg-gray-100">
+          <tr className="text-xs font-semibold tracking-wide text-gray-700 uppercase border-b bg-gray-100">
             <th className={`z-30 bg-inherit px-4 py-3 col-text-left sticky ${isRTL ? 'right-0' : 'left-0'}`}>
               <FormattedMessage id="app.learningDashboard.user" defaultMessage="User" />
             </th>
@@ -190,7 +209,7 @@ class StatusTable extends React.Component {
                 const { slide, start, end } = period;
                 const padding = isRTL ? 'paddingLeft' : 'paddingRight';
                 const URLPrefix = `/bigbluebutton/presentation/${meetingId}/${meetingId}`;
-                const { presentationId, pageNum } = slide || {};
+                const { presentationId, pageNum, presentationName } = slide || {};
                 return (
                   <td
                     style={{
@@ -199,29 +218,28 @@ class StatusTable extends React.Component {
                   >
                     { slide && (
                       <div className="flex">
-                        <div
-                          className="my-4"
-                          aria-label={tsToHHmmss(start - periods[0].start)}
-                        >
+                        <div className="my-4">
                           <a
                             href={`${URLPrefix}/${presentationId}/svg/${pageNum}`}
                             className="block border-2 border-gray-300"
                             target="_blank"
                             rel="noreferrer"
+                            aria-describedby={`thumb-desc-${presentationId}`}
                           >
                             <img
                               src={`${URLPrefix}/${presentationId}/thumbnail/${pageNum}`}
-                              alt={intl.formatMessage({
-                                id: 'app.learningDashboard.statusTimelineTable.thumbnail',
-                                defaultMessage: 'Presentation thumbnail',
-                              })}
+                              alt={`${intl.formatMessage(intlMessages.thumbnail)} - ${intl.formatMessage(intlMessages.presentation)} ${presentationName} - ${intl.formatMessage(intlMessages.pageNumber)} ${pageNum}`}
                               style={{
                                 maxWidth: '150px',
                                 width: '150px',
                                 height: 'auto',
+                                whiteSpace: 'pre-line',
                               }}
                             />
                           </a>
+                          <p id={`thumb-desc-${presentationId}`} className="absolute w-0 h-0 p-0 border-0 m-0 overflow-hidden">
+                            {`${intl.formatMessage(intlMessages.thumbnail)} - ${intl.formatMessage(intlMessages.presentation)} ${presentationName} - ${intl.formatMessage(intlMessages.pageNumber)} ${pageNum} - ${intl.formatMessage(intlMessages.setAt)} ${start}`}
+                          </p>
                           <div className="text-xs text-center mt-1 text-gray-500">{tsToHHmmss(slide.setOn - periods[0].start)}</div>
                         </div>
                       </div>
@@ -284,7 +302,11 @@ class StatusTable extends React.Component {
                                   return (
                                     <div
                                       className="flex absolute p-1 border-white border-2 rounded-full text-sm z-20 bg-purple-500 text-purple-200 timeline-emoji"
-                                      role="status"
+                                      role="generic"
+                                      aria-label={intl.formatMessage({
+                                        id: emojiConfigs[emoji.name].intlId,
+                                        defaultMessage: emojiConfigs[emoji.name].defaultMessage,
+                                      })}
                                       style={{
                                         top: `calc(50% - ${redress})`,
                                         [origin]: `calc(${offset}% - ${redress})`,

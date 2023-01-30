@@ -53,6 +53,24 @@ export function getSumOfTime(eventsArr) {
   }, 0);
 }
 
+export function getJoinTime(eventsArr) {
+  return eventsArr.reduce((prevVal, elem) => {
+    if (prevVal === 0 || elem.registeredOn < prevVal) {
+      return elem.registeredOn;
+    }
+    return prevVal;
+  }, 0);
+}
+
+export function getLeaveTime(eventsArr) {
+  return eventsArr.reduce((prevVal, elem) => {
+    if (elem.leftOn > prevVal) {
+      return elem.leftOn;
+    }
+    return prevVal;
+  }, 0);
+}
+
 export function tsToHHmmss(ts) {
   return (new Date(ts).toISOString().substr(11, 8));
 }
@@ -121,6 +139,8 @@ export function makeUserCSVData(users, polls, intl) {
     const user = userValues[i];
     const webcam = getSumOfTime(user.webcams);
     const duration = getSumOfTime(Object.values(user.intIds));
+    const joinTime = getJoinTime(Object.values(user.intIds));
+    const leaveTime = getLeaveTime(Object.values(user.intIds));
 
     const userData = {
       name: user.name,
@@ -138,7 +158,7 @@ export function makeUserCSVData(users, polls, intl) {
       raiseHand: filterUserEmojis(user, 'raiseHand').length,
       answers: Object.keys(user.answers).length,
       emojis: filterUserEmojis(user, skipEmojis).length,
-      registeredOn: intl.formatDate(user.registeredOn, {
+      registeredOn: intl.formatDate(joinTime, {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
@@ -146,14 +166,14 @@ export function makeUserCSVData(users, polls, intl) {
         minute: '2-digit',
         second: '2-digit',
       }),
-      leftOn: intl.formatDate(user.leftOn, {
+      leftOn: leaveTime > 0 ? intl.formatDate(leaveTime, {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-      }),
+      }) : '-',
       duration: tsToHHmmss(duration),
     };
 

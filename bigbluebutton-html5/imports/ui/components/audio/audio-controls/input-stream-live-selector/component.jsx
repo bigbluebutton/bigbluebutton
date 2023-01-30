@@ -48,6 +48,10 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.unmuteLabel',
     description: 'Unmute audio button label',
   },
+  deviceChangeFailed: {
+    id: 'app.audioNotification.deviceChangeFailed',
+    description: 'Device change failed',
+  },
 });
 
 const propTypes = {
@@ -67,6 +71,7 @@ const propTypes = {
   muted: PropTypes.bool.isRequired,
   disable: PropTypes.bool.isRequired,
   talking: PropTypes.bool,
+  notify: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -113,12 +118,20 @@ class InputStreamLiveSelector extends Component {
   onDeviceListClick(deviceId, deviceKind, callback) {
     if (!deviceId) return;
 
+    const { intl, notify } = this.props;
+
     if (deviceKind === AUDIO_INPUT) {
-      this.setState({ selectedInputDeviceId: deviceId });
-      callback(deviceId);
+      callback(deviceId).then(() => {
+        this.setState({ selectedInputDeviceId: deviceId });
+      }).catch((error) => {
+        notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+      });
     } else {
-      this.setState({ selectedOutputDeviceId: deviceId });
-      callback(deviceId, true);
+      callback(deviceId, true).then(() => {
+        this.setState({ selectedOutputDeviceId: deviceId });
+      }).catch((error) => {
+        notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+      });
     }
   }
 
@@ -166,8 +179,11 @@ class InputStreamLiveSelector extends Component {
         meetingId: Auth.meetingID,
       },
     }, 'Current input device was removed. Fallback to default device');
-    this.setState({ selectedInputDeviceId: fallbackDevice.deviceId });
-    liveChangeInputDevice(fallbackDevice.deviceId);
+    liveChangeInputDevice(fallbackDevice.deviceId).then(() => {
+      this.setState({ selectedInputDeviceId: fallbackDevice.deviceId });
+    }).catch((error) => {
+      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+    });
   }
 
   fallbackOutputDevice(fallbackDevice) {
@@ -184,8 +200,11 @@ class InputStreamLiveSelector extends Component {
         meetingId: Auth.meetingID,
       },
     }, 'Current output device was removed. Fallback to default device');
-    this.setState({ selectedOutputDeviceId: fallbackDevice.deviceId });
-    liveChangeOutputDevice(fallbackDevice.deviceId, true);
+    liveChangeOutputDevice(fallbackDevice.deviceId, true).then(() => {
+      this.setState({ selectedOutputDeviceId: fallbackDevice.deviceId });
+    }).catch((error) => {
+      notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+    });
   }
 
   updateRemovedDevices(audioInputDevices, audioOutputDevices) {
@@ -245,9 +264,10 @@ class InputStreamLiveSelector extends Component {
     ];
 
     const deviceList = (listLength > 0)
-      ? list.map((device) => (
+      ? list.map((device, index) => (
         {
           key: `${device.deviceId}-${deviceKind}`,
+          dataTest: `${deviceKind}-${index + 1}`,
           label: InputStreamLiveSelector.truncateDeviceName(device.label),
           customStyles: (device.deviceId === currentDeviceId) && Styled.SelectedLabel,
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
@@ -296,9 +316,9 @@ class InputStreamLiveSelector extends Component {
         size="lg"
         circle
         accessKey={shortcuts.togglemute}
-        talking={talking || undefined}
+        $talking={talking || undefined}
         animations={animations}
-        data-test="toggleMicrophoneButton"
+        data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
       />
     );
   }
@@ -316,7 +336,7 @@ class InputStreamLiveSelector extends Component {
         aria-label={intl.formatMessage(intlMessages.leaveAudio)}
         label={intl.formatMessage(intlMessages.leaveAudio)}
         accessKey={shortcuts.leaveaudio}
-        data-test="leaveAudio"
+        data-test="leaveListenOnly"
         hideLabel
         color="primary"
         icon={isListenOnly ? 'listen' : 'volume_level_2'}
@@ -346,7 +366,8 @@ class InputStreamLiveSelector extends Component {
       currentInputDeviceId,
       currentOutputDeviceId,
       isListenOnly,
-      isRTL,
+      shortcuts,
+      isMobile,
     } = this.props;
 
     const inputDeviceList = !isListenOnly
@@ -371,41 +392,55 @@ class InputStreamLiveSelector extends Component {
       icon: 'logout',
       label: intl.formatMessage(intlMessages.leaveAudio),
       key: 'leaveAudioOption',
+      dataTest: 'leaveAudio',
       customStyles: Styled.DangerColor,
       dividerTop: true,
       onClick: () => handleLeaveAudio(),
     };
 
     const dropdownListComplete = inputDeviceList.concat(outputDeviceList).concat(leaveAudioOption);
+    const customStyles = { top: '-1rem' };
 
     return (
-      <BBBMenu
-        trigger={(
-          <>
-            {isListenOnly
-              ? this.renderListenOnlyButton()
-              : this.renderMuteToggleButton()}
-            <Styled.AudioDropdown
-              emoji="device_list_selector"
-              label={intl.formatMessage(intlMessages.changeAudioDevice)}
-              hideLabel
-              tabIndex={0}
-              rotate
-            />
-          </>
-        )}
-        actions={dropdownListComplete}
-        opts={{
-          id: 'default-dropdown-menu',
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: 'true',
-          anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
-          transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-        }}
-      />
+      <>
+        {!isListenOnly ? (
+          <span
+            style={{ display: 'none' }}
+            accessKey={shortcuts.leaveaudio}
+            onClick={() => handleLeaveAudio()}
+            aria-hidden="true"
+          />
+        ) : null}
+        <BBBMenu
+          customStyles={!isMobile ? customStyles : null}
+          trigger={(
+            <>
+              {isListenOnly
+                ? this.renderListenOnlyButton()
+                : this.renderMuteToggleButton()}
+              <Styled.AudioDropdown
+                data-test="audioDropdownMenu"
+                emoji="device_list_selector"
+                label={intl.formatMessage(intlMessages.changeAudioDevice)}
+                hideLabel
+                tabIndex={0}
+                rotate
+              />
+            </>
+          )}
+          actions={dropdownListComplete}
+          opts={{
+            id: 'audio-selector-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'top', horizontal: 'center' },
+            transformOrigin: { vertical: 'bottom', horizontal: 'center'},
+          }}
+        />
+      </>
     );
   }
 
@@ -434,4 +469,4 @@ InputStreamLiveSelector.propTypes = propTypes;
 InputStreamLiveSelector.defaultProps = defaultProps;
 
 export default withShortcutHelper(injectIntl(InputStreamLiveSelector),
-  ['leaveAudio']);
+  ['leaveAudio', 'toggleMute']);
