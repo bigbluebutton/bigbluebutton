@@ -29,4 +29,10 @@ test.describe.parallel('Settings', () => {
     await darkModeTest.init(true, true);
     await darkModeTest.darkMode();
   });
+
+  test('Font size', async ({ browser, page }) => {
+    const fontSize = new Options(browser, page);
+    await fontSize.init(true, true);
+    await fontSize.fontSizeTest();
+  });
 });

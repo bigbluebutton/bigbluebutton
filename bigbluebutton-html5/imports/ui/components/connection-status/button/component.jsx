@@ -77,12 +77,12 @@ class ConnectionStatusButton extends PureComponent {
         color = 'success';
     }
 
-    const level = stats ? stats : 'normal';
+    const currentStatus = stats ? stats : 'normal';
 
     return (
       <Styled.ButtonWrapper>
         <Button
-          customIcon={this.renderIcon(level)}
+          customIcon={this.renderIcon(currentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.description)}

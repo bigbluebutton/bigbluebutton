@@ -3,11 +3,11 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import changeHasConnectionStatus from '/imports/api/users-persistent-data/server/modifiers/changeHasConnectionStatus';
 
-export default function updateConnectionStatus(meetingId, userId, level) {
+export default function updateConnectionStatus(meetingId, userId, status) {
   check(meetingId, String);
   check(userId, String);
 
-  const timestamp = new Date().getTime();
+  const now = new Date().getTime();
 
   const selector = {
     meetingId,
@@ -17,16 +17,20 @@ export default function updateConnectionStatus(meetingId, userId, level) {
   const modifier = {
     meetingId,
     userId,
-    level,
-    timestamp,
+    connectionAliveAt: now,
   };
 
-  try {
-    const { numberAffected } = ConnectionStatus.upsert(selector, modifier);
+  // Store last not-normal status
+  if (status !== 'normal') {
+    modifier.status = status;
+    modifier.statusUpdatedAt = now;
+  }
 
-    if (numberAffected) {
+  try {
+    const { numberAffected } = ConnectionStatus.upsert(selector, { $set: modifier });
+    if (numberAffected && status !== 'normal') {
       changeHasConnectionStatus(true, userId, meetingId);
-      Logger.verbose(`Updated connection status meetingId=${meetingId} userId=${userId} level=${level}`);
+      Logger.verbose(`Updated connection status meetingId=${meetingId} userId=${userId} status=${status}`);
     }
   } catch (err) {
     Logger.error(`Updating connection status meetingId=${meetingId} userId=${userId}: ${err}`);

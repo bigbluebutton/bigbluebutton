@@ -18,6 +18,7 @@ import {
 import lockContextContainer from "/imports/ui/components/lock-viewers/context/container";
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { DEVICE_TYPE } from '../layout/enums';
+import MediaService from '../media/service';
 
 const PresentationContainer = ({ presentationIsOpen, presentationPodIds, mountPresentation, ...props }) => {
 
@@ -139,5 +140,6 @@ export default lockContextContainer(
     multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
     isViewersCursorLocked,
     clearFakeAnnotations: WhiteboardService.clearFakeAnnotations,
+    setPresentationIsOpen: MediaService.setPresentationIsOpen,
   };
 })(PresentationContainer));
