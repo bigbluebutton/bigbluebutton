@@ -96,47 +96,43 @@ public final class SupportedFileTypes {
 	 * But none of them was as successful as the linux based command
 	 */
 	public static String detectMimeType(File pres) throws IOException, InterruptedException {
-		if (pres != null && pres.isFile()){
-			ProcessBuilder processBuilder = new ProcessBuilder();
-			processBuilder.command("bash", "-c", "file -b --mime-type " + pres.getAbsolutePath());
-			Process process = processBuilder.start();
-			StringBuilder output = new StringBuilder();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				output.append(line + "\n");
-			}
-			int exitVal = process.waitFor();
-			if (exitVal == 0) {
-				return output.toString().trim();
-			} else {
-				log.error("Error while executing command '{}' for file {};",
-						processBuilder.command().subList(2, processBuilder.command().size()).stream().reduce("",
-								(acc, element) -> {
-									if (acc.isEmpty()) return element;
-									return acc + " " + element;
-								}), pres.getAbsolutePath());
-				BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-				StringBuilder errorString = new StringBuilder();
-				while(stdError.ready()) {
-					errorString.append(stdError.readLine());
-					if(stdError.ready()) {
-						errorString.append("\n");
-					}
-				}
-				log.error(errorString.toString());
-				if (exitVal == 127) {
-					return "";
-				} else {
-					throw new RuntimeException(errorString.toString());
-				}
-			}
-		} else if (pres == null) {
-			throw new NullPointerException("Presentation is null");
-		} else if (!pres.isFile()) {
-			throw new RuntimeException("Presentation is not a file");
+
+		if (pres == null) throw new NullPointerException("Presentation is null");
+		if (!pres.isFile()) throw new RuntimeException("Presentation is not a file");
+
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		processBuilder.command("bash", "-c", "file -b --mime-type " + pres.getAbsolutePath());
+		Process process = processBuilder.start();
+		StringBuilder output = new StringBuilder();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		String line;
+		while ((line = reader.readLine()) != null) {
+			output.append(line + "\n");
+		}
+		int exitVal = process.waitFor();
+		if (exitVal == 0) {
+			return output.toString().trim();
 		} else {
-			throw new RuntimeException("Unexpected error occurred while identifying mime type.");
+			log.error("Error while executing command '{}' for file {};",
+					processBuilder.command().subList(2, processBuilder.command().size()).stream().reduce("",
+							(acc, element) -> {
+								if (acc.isEmpty()) return element;
+								return acc + " " + element;
+							}), pres.getAbsolutePath());
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			StringBuilder errorString = new StringBuilder();
+			while(stdError.ready()) {
+				errorString.append(stdError.readLine());
+				if(stdError.ready()) {
+					errorString.append("\n");
+				}
+			}
+			log.error(errorString.toString());
+			if (exitVal == 127) { // skip case error = 127 - command not found
+				return "";
+			} else {
+				throw new RuntimeException(errorString.toString());
+			}
 		}
 	}
 
@@ -145,19 +141,10 @@ public final class SupportedFileTypes {
 
 		try {
 			mimeType = detectMimeType(pres);
-		} catch (IOException e) {
-			log.error("Could not read file [{}], message: [{}]", pres.getAbsolutePath(), e.getMessage());
-		} catch (InterruptedException e) {
-			log.error("Flow interrupted for file [{}], message: [{}]", pres.getAbsolutePath(), e.getMessage());
-		} catch (NullPointerException e) {
-			log.error("File [{}] cannot be null, [{}]", pres.getAbsolutePath(), e.getMessage());
-		} catch (RuntimeException e) {
-			log.error("Error in 'detectMimeType' function, [{}]", e.getMessage());
+		} catch (Exception e) {
+			log.error("Error while detecting mimeType for file [{}]: {}", pres.getAbsolutePath(), e.getMessage());
 		}
 
-		// The only case where we skip the validation is when the bash command
-		// doesn't exist, for more information on that, see:
-		// https://github.com/bigbluebutton/bigbluebutton/issues/16363
 		if (mimeType.equals("")) return true;
 
 		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
