@@ -22,16 +22,16 @@ test -x /var/bigbluebutton || exit 0
 
 #
 # Defaults to decide how many days back to keep files
-# If you need to change them, do so in /etc/default/bigbluebutton
+# If you need to change them, do so in /etc/default/bigbluebutton-cron-config
 #
 history=5
 unrecorded_days=14
 published_days=14
 log_history=28
 
-# Load variables from /etc/default/bigbluebutton if it exists
-if [ -r /etc/default/bigbluebutton ]; then
-  . /etc/default/bigbluebutton
+# Load variables from /etc/default/bigbluebutton-cron-config if it exists
+if [ -r /etc/default/bigbluebutton-cron-config ]; then
+  . /etc/default/bigbluebutton-cron-config
 fi
 
 #
