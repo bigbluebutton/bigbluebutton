@@ -1202,11 +1202,11 @@ class Presentation extends PureComponent {
           data-test="presentationContainer"
           ref={(ref) => { this.refPresentationContainer = ref; }}
           style={{
-            top: presentationBounds.top,
-            left: presentationBounds.left,
-            right: presentationBounds.right,
-            width: presentationBounds.width,
-            height: presentationBounds.height,
+            top: isPresentationDetached ? 0 : presentationBounds.top,//these changes do not probably affect anything..
+            left: isPresentationDetached ? 0 : presentationBounds.left,
+            right: isPresentationDetached ? 0 : presentationBounds.right,
+            width: isPresentationDetached ? presentationWindow.document.documentElement.clientWidth : presentationBounds.width,
+            height: isPresentationDetached ? presentationWindow.document.documentElement.clientHeight : presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
             zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
