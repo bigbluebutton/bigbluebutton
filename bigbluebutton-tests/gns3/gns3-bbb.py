@@ -128,10 +128,9 @@ parser.add_argument('--ubuntu-release', type=int, default=20,
                     help='Ubuntu release (18 or 20; default 20) to be used for BigBlueButton server install')
 parser.add_argument('--release', type=str,
                     help='BigBlueButton release to be used for BigBlueButton server install (default is server hostname)')
-parser.add_argument('--install-script', type=str, default='bbb-install-2.6.sh',
+parser.add_argument('--install-script', type=str,
                     help='install script to be used for BigBlueButton server install\n'
-                    + 'can be a local file, a URL, or a filename on https://ubuntu.bigbluebutton.org/\n'
-                    + 'defaults to https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh')
+                    + 'can be a local file, a URL, or a filename on https://ubuntu.bigbluebutton.org/')
 parser.add_argument('--proxy-server', type=str,
                     help='proxy server to be passed to BigBlueButton server install script')
 parser.add_argument('--domain', type=str,
@@ -817,6 +816,18 @@ def BBB_server_standalone(hostname, x=100, y=300):
 
     network_config = {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}}
 
+    if not args.release:
+        args.release = hostname
+
+    if not args.install_script:
+        if '25' in args.release:
+            args.install_script = 'bbb-install-2.5.sh'
+        elif '26' in args.release:
+            args.install_script = 'bbb-install-2.6.sh'
+        else:
+            print("Can't guess which install script version to use")
+            exit(1)
+
     if args.install_script.startswith('http:') or args.install_script.startswith('https:'):
         install_script_request = requests.get(args.install_script)
         install_script_request.raise_for_status()
@@ -866,8 +877,6 @@ def BBB_server_standalone(hostname, x=100, y=300):
         if args.proxy_server:
             install_options.append(f'-p {args.proxy_server}')
         install_options_str = ' '.join(install_options)
-        if not args.release:
-            args.release = hostname
         user_data['runcmd'].append(f'sudo -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
 
     if notification_url:
