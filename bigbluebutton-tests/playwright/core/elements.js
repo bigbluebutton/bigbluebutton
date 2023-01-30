@@ -1,5 +1,6 @@
 // Common
 exports.actions = 'button[data-test="actionsButton"]';
+exports.actionsItem = 'div[id="actions-dropdown-menu"] ul li';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
 exports.settings = 'li[data-test="settings"]';
@@ -82,6 +83,8 @@ exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
 exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
 exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
+exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
+exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
@@ -332,6 +335,11 @@ exports.takePresenter = 'li[data-test="takePresenter"]';
 exports.muteAll = 'li[data-test="muteAll"]';
 exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
 exports.error403removedLabel = 'You have been removed from the meeting';
+exports.removeUser = 'li[data-test="removeUser"]';
+exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
+exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
+exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -384,7 +392,9 @@ exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
 exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
 exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
 exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
-exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
+exports.wbPencilShape = 'button[id="TD-PrimaryTools-Pencil"]';
+exports.wbStickyNoteShape = 'button[id="TD-PrimaryTools-Pencil2"]';
+exports.wbTextShape = 'button[id="TD-PrimaryTools-Text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
@@ -417,3 +427,7 @@ exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+
+// Font size
+exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
+exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';

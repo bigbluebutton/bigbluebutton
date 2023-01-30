@@ -49,10 +49,7 @@ export default function addConnectionStatus(status, type, value) {
 
     if (STATS.log) logConnectionStatus(meetingId, requesterUserId, status, type, value);
 
-    // Avoid storing recoveries
-    if (status !== 'normal') {
-      updateConnectionStatus(meetingId, requesterUserId, status);
-    }
+    updateConnectionStatus(meetingId, requesterUserId, status);
   } catch (err) {
     Logger.error(`Exception while invoking method addConnectionStatus ${err.stack}`);
   }

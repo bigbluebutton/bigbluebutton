@@ -483,6 +483,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
+                      data-test="decreaseFontSize"
                     />
                   </Styled.Col>
                   <Styled.Col>
@@ -495,6 +496,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
+                      data-test="increaseFontSize"
                     />
                   </Styled.Col>
                 </Styled.PullContentRight>
