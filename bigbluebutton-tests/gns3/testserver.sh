@@ -12,16 +12,15 @@ sudo DEBIAN_FRONTEND=noninteractive apt -y upgrade
 
 DOMAIN=$(hostname --domain)
 FQDN=$(hostname --fqdn)
-RELEASE=$(hostname)
 
 EMAIL="root@$FQDN"
 
-# INSTALL_SCRIPT and INSTALL_OPTIONS get passed in the environment from gns3-bbb.py
+# /bbb-install.sh (the proper version; either 2.4, 2.5 or 2.6) is created by gns3-bbb.py
+# INSTALL_OPTIONS and RELEASE get passed in the environment from gns3-bbb.py
 #
-# INSTALL_SCRIPT should be bbb-install.sh (2.4), bbb-install-2.5.sh, or bbb-install-2.6.sh
 # INSTALL_OPTIONS can include -w (firewall) -a (api demos; deprecated in 2.6) -r (repository)
 
-wget -qO- https://ubuntu.bigbluebutton.org/$INSTALL_SCRIPT | sudo bash -s -- -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
+sudo /bbb-install.sh -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
 
 sudo bbb-conf --salt bbbci
 echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" | sudo tee -a /usr/share/meteor/bundle/bbb-html5-with-roles.conf

@@ -79,7 +79,7 @@ import sys
 import os
 import json
 import ipaddress
-
+import requests
 import argparse
 
 import subprocess
@@ -124,10 +124,14 @@ parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
                     help='private IP subnet to be used for NAT-ed BBB server')
 parser.add_argument('-r', '--repository', type=str,
                     help='package repository to be used for BigBlueButton server install')
-parser.add_argument('--release', type=int, default=20,
-                    help='Ubuntu release to be used for BigBlueButton server install')
+parser.add_argument('--ubuntu-release', type=int, default=20,
+                    help='Ubuntu release (18 or 20; default 20) to be used for BigBlueButton server install')
+parser.add_argument('--release', type=str,
+                    help='BigBlueButton release to be used for BigBlueButton server install (default is server hostname)')
 parser.add_argument('--install-script', type=str, default='bbb-install-2.6.sh',
-                    help='https://ubuntu.bigbluebutton.org/ install script to be used for BigBlueButton server install')
+                    help='install script to be used for BigBlueButton server install\n'
+                    + 'can be a local file, a URL, or a filename on https://ubuntu.bigbluebutton.org/\n'
+                    + 'defaults to https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh')
 parser.add_argument('--proxy-server', type=str,
                     help='proxy server to be passed to BigBlueButton server install script')
 parser.add_argument('--domain', type=str,
@@ -233,8 +237,8 @@ if not cloud_image in gns3_server.images():
     print(f"{cloud_image} isn't available on GNS3 server {args.host}")
     exit(1)
 
-if not cloud_images[args.release] in gns3_server.images():
-    print(f"{cloud_images[args.release]} isn't available on GNS3 server {args.host}")
+if not cloud_images[args.ubuntu_release] in gns3_server.images():
+    print(f"{cloud_images[args.ubuntu_release]} isn't available on GNS3 server {args.host}")
     exit(1)
 
 # An Ubuntu 20 image created by GNS3/ubuntu.py in Brent Baccala's NPDC github repository
@@ -813,6 +817,17 @@ def BBB_server_standalone(hostname, x=100, y=300):
 
     network_config = {'version': 2, 'ethernets': {'ens4': {'dhcp4': 'on' }}}
 
+    if args.install_script.startswith('http:') or args.install_script.startswith('https:'):
+        install_script_request = requests.get(args.install_script)
+        install_script_request.raise_for_status()
+        install_script = install_script_request.text
+    elif '/' in args.install_script:
+        install_script = file(args.install_script)
+    else:
+        install_script_request = requests.get(f"https://ubuntu.bigbluebutton.org/{args.install_script}")
+        install_script_request.raise_for_status()
+        install_script = install_script_request.text
+
     user_data = {'hostname': hostname,
                  'package_upgrade': package_upgrade,
                  'users': [{'name': 'ubuntu',
@@ -822,12 +837,16 @@ def BBB_server_standalone(hostname, x=100, y=300):
                             'shell': '/bin/bash',
                             'sudo': 'ALL=(ALL) NOPASSWD:ALL',
                  }],
-                 # I'd like to put this in /home/ubuntu, but then /home/ubuntu will be owned by root
+                 # I'd like to put these files in /home/ubuntu, but then /home/ubuntu will be owned by root
                  # Alternately, I'd put this in /root, but then user ubuntu can't read it
                  'write_files': [
                      {'path': '/testserver.sh',
                       'permissions': '0755',
                       'content': file('testserver.sh')
+                     },
+                     {'path': '/bbb-install.sh',
+                      'permissions': '0755',
+                      'content': install_script
                      },
                      {'path': '/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt',
                       'permissions': '0444',
@@ -847,7 +866,9 @@ def BBB_server_standalone(hostname, x=100, y=300):
         if args.proxy_server:
             install_options.append(f'-p {args.proxy_server}')
         install_options_str = ' '.join(install_options)
-        user_data['runcmd'].append(f'sudo -u ubuntu INSTALL_SCRIPT={args.install_script} INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
+        if not args.release:
+            args.release = hostname
+        user_data['runcmd'].append(f'sudo -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
 
     if notification_url:
         user_data['phone_home'] = {'url': notification_url, 'tries': 1}
@@ -865,7 +886,7 @@ def BBB_server_standalone(hostname, x=100, y=300):
             }
         )
 
-    return gns3_project.ubuntu_node(user_data, image=cloud_images[args.release], network_config=network_config,
+    return gns3_project.ubuntu_node(user_data, image=cloud_images[args.ubuntu_release], network_config=network_config,
                                     cpus=4, ram=8192, disk=16384, x=x, y=y)
 
 # BBB server with optional attached NAT gateway
