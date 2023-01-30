@@ -1151,8 +1151,8 @@ class Presentation extends PureComponent {
                   intl={intl}
                   presentationWidth={svgWidth}
                   presentationHeight={svgHeight}
-                  presentationAreaHeight={presentationBounds?.height}
-                  presentationAreaWidth={presentationBounds?.width}
+                  presentationAreaHeight={isPresentationDetached ? presentationWindow.document.documentElement.clientHeight : presentationBounds?.height}
+                  presentationAreaWidth={isPresentationDetached ? presentationWindow.document.documentElement.clientWidth : presentationBounds?.width}
                   isViewersCursorLocked={isViewersCursorLocked}
                   isPanning={this.state.isPanning}
                   zoomChanger={this.zoomChanger}
