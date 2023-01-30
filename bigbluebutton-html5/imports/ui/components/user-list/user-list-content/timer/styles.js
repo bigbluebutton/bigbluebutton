@@ -3,7 +3,9 @@ import styled from 'styled-components';
 import Styled from '/imports/ui/components/user-list/styles';
 import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
 
-const ListItem = styled(StyledContent.ListItem)``;
+const ListItem = styled(StyledContent.ListItem)`
+  i{ left: 4px; }
+`;
 
 const Messages = styled(Styled.Messages)``;
 

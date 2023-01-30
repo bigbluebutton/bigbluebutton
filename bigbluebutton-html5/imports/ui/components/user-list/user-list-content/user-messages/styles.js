@@ -17,7 +17,9 @@ const MessagesTitle = styled(Styled.SmallTitle)`
 
 const ScrollableList = styled(StyledContent.ScrollableList)``;
 
-const List = styled(StyledContent.List)``;
+const List = styled(StyledContent.List)`
+  background-color: var(--color-off-white,#F3F6F9);
+`;
 
 const ListTransition = styled.div`
   display: flex;
