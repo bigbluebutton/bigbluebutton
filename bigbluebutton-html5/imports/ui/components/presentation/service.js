@@ -95,7 +95,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const optionsWithLabels = [];
 
   if (hasYN) {
-    optionsPoll = ['Yes', 'No'];
+    optionsPoll = ['yes', 'no'];
   }
 
   if (optionsPoll) {
