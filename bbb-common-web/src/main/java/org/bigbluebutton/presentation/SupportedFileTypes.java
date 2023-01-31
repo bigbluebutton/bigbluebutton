@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -95,59 +96,63 @@ public final class SupportedFileTypes {
 	 *   - MimetypesFileTypeMap fileTypeMap.getContentType(File file);
 	 * But none of them was as successful as the linux based command
 	 */
-	public static String detectMimeType(File pres) throws IOException, InterruptedException {
+	public static String detectMimeType(File pres) {
+		try {
+			if (pres == null) throw new NullPointerException("Presentation is null");
+			if (!pres.isFile()) throw new RuntimeException("Presentation is not a file");
 
-		if (pres == null) throw new NullPointerException("Presentation is null");
-		if (!pres.isFile()) throw new RuntimeException("Presentation is not a file");
+			ProcessBuilder processBuilder = new ProcessBuilder();
+			processBuilder.command("bash", "-c", "file -b --mime-type \"" + pres.getAbsolutePath() + "\"");
+			Process process = processBuilder.start();
+			StringBuilder output = new StringBuilder();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				output.append(line + "\n");
+			}
+			int exitVal = process.waitFor();
+			if (exitVal == 0) {
+				return output.toString().trim();
+			} else {
+				String executedCommand = processBuilder.command().toArray(new String[0])[2];
 
-		ProcessBuilder processBuilder = new ProcessBuilder();
-		processBuilder.command("bash", "-c", "file -b --mime-type " + pres.getAbsolutePath());
-		Process process = processBuilder.start();
-		StringBuilder output = new StringBuilder();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		String line;
-		while ((line = reader.readLine()) != null) {
-			output.append(line + "\n");
-		}
-		int exitVal = process.waitFor();
-		if (exitVal == 0) {
-			return output.toString().trim();
-		} else {
-			log.error("Error while executing command '{}' for file {};",
-					processBuilder.command().subList(2, processBuilder.command().size()).stream().reduce("",
-							(acc, element) -> {
-								if (acc.isEmpty()) return element;
-								return acc + " " + element;
-							}), pres.getAbsolutePath());
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-			StringBuilder errorString = new StringBuilder();
-			while(stdError.ready()) {
-				errorString.append(stdError.readLine());
-				if(stdError.ready()) {
-					errorString.append("\n");
+				//Read error stream
+				BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+				StringBuilder errorString = new StringBuilder();
+				while (stdError.ready()) {
+					errorString.append(stdError.readLine());
+					if (stdError.ready()) {
+						errorString.append("\n");
+					}
+				}
+
+				log.error("Error while executing command '{}': {}", executedCommand, errorString);
+
+				if (exitVal == 127) {
+					// 127 - command not found
+					// use Java method to detect in this case (based on file name)
+					return URLConnection.getFileNameMap().getContentTypeFor(pres.getAbsolutePath());
+				} else {
+					throw new RuntimeException(errorString.toString());
 				}
 			}
-			log.error(errorString.toString());
-			if (exitVal == 127) { // skip case error = 127 - command not found
-				return "";
-			} else {
-				throw new RuntimeException(errorString.toString());
-			}
+		} catch (Exception e) {
+			log.error("Error while executing detectMimeType: {}", e.getMessage());
 		}
+
+		return "";
 	}
 
 	public static Boolean isPresentationMimeTypeValid(File pres, String fileExtension) {
-		String mimeType = "";
+		String mimeType = detectMimeType(pres);
 
-		try {
-			mimeType = detectMimeType(pres);
-		} catch (Exception e) {
-			log.error("Error while detecting mimeType for file [{}]: {}", pres.getAbsolutePath(), e.getMessage());
+		if (mimeType == null || mimeType.equals("")) {
+			return false;
 		}
 
-		if (mimeType.equals("")) return true;
-
-		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) return false;
+		if (!mimeTypeUtils.getValidMimeTypes().contains(mimeType)) {
+			return false;
+		}
 
 		if (!mimeTypeUtils.extensionMatchMimeType(mimeType, fileExtension)) {
 			log.error("File with extension [{}] doesn't match with mimeType [{}].", fileExtension, mimeType);
