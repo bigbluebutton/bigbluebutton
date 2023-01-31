@@ -148,7 +148,7 @@ class Polling extends Component {
                   {answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer?.key?.toLowerCase();
                     let label = pollAnswer.key;
-                    if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
+                    if ((defaultPoll || pollType.includes('CUSTOM')) && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
                     }
 
