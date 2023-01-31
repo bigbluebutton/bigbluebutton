@@ -327,7 +327,7 @@ export default function Cursors(props) {
       cursorWrapper.removeEventListener('touchend', end);
       cursorWrapper.removeEventListener('touchmove', moved);
     }
-  });
+  }, []);
 
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
