@@ -166,6 +166,8 @@ const getLocale = () => {
   return locale;
 };
 
+const stereoUnsupported = () => isActive() && isVosk() && !!getSpeechLocale();
+
 export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
@@ -182,4 +184,5 @@ export default {
   getStatus,
   generateId,
   useFixedLocale,
+  stereoUnsupported,
 };
