@@ -228,6 +228,27 @@ class Join extends Create {
       clip: clipObj,
     });
   }
+
+  async userCanChooseRoom(shouldJoinAudio = false) {
+    await this.userPage.bringToFront();
+    if (shouldJoinAudio) {
+      await this.userPage.waitAndClick(e.joinAudio);
+      await this.userPage.joinMicrophone();
+    }
+
+    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption(/Room2/);
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.bringToFront();
+
+    if (shouldJoinAudio) {
+      await this.userPage.waitForSelector(e.joinAudio);
+    } else {
+      await breakoutUserPage.closeAudioModal();
+    }
+    await breakoutUserPage.waitForSelector(e.presentationTitle);    
+  }
 }
 
 exports.Join = Join;
