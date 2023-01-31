@@ -1,7 +1,5 @@
 package org.bigbluebutton.common2.domain
 
-case class ConfigProps(defaultConfigToken: String, config: String)
-
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
