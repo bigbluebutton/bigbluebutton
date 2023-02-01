@@ -805,7 +805,7 @@ export default function Whiteboard(props) {
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
 
-  if(currentTool) tldrawAPI?.selectTool(currentTool);
+  if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
 
   const editableWB = (
     <EditableWBWrapper>
