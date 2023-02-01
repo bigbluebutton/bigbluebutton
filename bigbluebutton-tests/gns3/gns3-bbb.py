@@ -470,8 +470,13 @@ server {{
                      # enable packet forwarding
                      'sysctl net.ipv4.ip_forward=1',
                      'sed -i /net.ipv4.ip_forward=1/s/^#// /etc/sysctl.conf',
-                     # enable NAT
+                     # enable NAT (both directions)
+                     # Connections into the testing network should appear to come from this gateway
+                     #    on our public "Internet" to allow outside clients to connect to the servers
+                     # Connections out of the testing network should appear to come from this gateway
+                     #    on its bare metal facing virtual subnet for things like package installs
                      'iptables -t nat -A POSTROUTING -o ens4 -j MASQUERADE',
+                     'iptables -t nat -A POSTROUTING -o ens5 -j MASQUERADE',
                      'netfilter-persistent save',
                  ],
     }
