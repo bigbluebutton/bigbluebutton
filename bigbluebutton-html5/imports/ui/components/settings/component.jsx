@@ -150,11 +150,14 @@ class Settings extends Component {
     });
   }
 
-  displaySettingsStatus(status) {
+  displaySettingsStatus(status, textOnly = false) {
     const { intl } = this.props;
-
+    if (textOnly) {
+      return status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)
+    }
     return (
-      <Styled.ToggleLabel>
+      <Styled.ToggleLabel aria-hidden>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
       </Styled.ToggleLabel>

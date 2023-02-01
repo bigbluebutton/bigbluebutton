@@ -30,6 +30,18 @@ test.describe.parallel('Presentation', () => {
     await presentation.fitToWidthTest();
   });
 
+  test('Presentation fullscreen', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.presentationFullscreen();
+  });
+
+  test('Presentation snapshot', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.presentationSnapshot(testInfo);
+  });
+
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
     test('Upload single presentation @ci', async ({ browser, context, page }) => {
@@ -64,7 +76,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.initPages(page);
       await presentation.uploadAndRemoveAllPresentations();
     });
-    
+
     test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);

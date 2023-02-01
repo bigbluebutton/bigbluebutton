@@ -16,6 +16,12 @@ export default function zoomSlide(slideNumber, podId, widthRatio, heightRatio, x
 
     check(meetingId, String);
     check(requesterUserId, String);
+    check(slideNumber, Number);
+    check(podId, String);
+    check(widthRatio, Number);
+    check(heightRatio, Number);
+    check(x, Number);
+    check(y, Number);
 
     const selector = {
       meetingId,

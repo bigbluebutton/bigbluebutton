@@ -229,6 +229,7 @@ class UserOptions extends PureComponent {
           description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
           onClick: toggleMuteAllUsers,
           icon: isMeetingMuted ? 'unmute' : 'mute',
+          dataTest: 'muteAll',
         });
 
         if (!isMeetingMuted) {
@@ -238,6 +239,7 @@ class UserOptions extends PureComponent {
             description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
             onClick: toggleMuteAllUsersExceptPresenter,
             icon: 'mute',
+            dataTest: 'muteAllExceptPresenter',
           });
         }
 

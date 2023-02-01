@@ -44,13 +44,14 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  tabIndex: PropTypes.number.isRequired,
+  tabIndex: PropTypes.number,
   isPublicChat: PropTypes.func.isRequired,
   shortcuts: PropTypes.string,
 };
 
 const defaultProps = {
   shortcuts: '',
+  tabIndex: 0,
 };
 
 const ChatListItem = (props) => {
@@ -151,7 +152,12 @@ const ChatListItem = (props) => {
       onClick={handleClickToggleChat}
       id="chat-toggle-button"
       aria-label={isPublicChat(chat) ? intl.formatMessage(intlMessages.titlePublic) : chat.name}
-      onKeyPress={() => {}}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
     >
       <Styled.ChatListItemLink>
         <Styled.ChatIcon>

@@ -8,7 +8,7 @@ import Service from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/container';
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000; 
+const NETWORK_MONITORING_INTERVAL_MS = 2000;
 const MIN_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
@@ -128,6 +128,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.prev',
     description: 'Label for the previous page of the connection stats tab',
   },
+  clientNotResponding: {
+    id: 'app.connection-status.clientNotRespondingWarning',
+    description: 'Text for Client not responding warning',
+  },
 });
 
 const propTypes = {
@@ -159,7 +163,6 @@ class ConnectionStatusComponent extends PureComponent {
     this.help = Service.getHelp();
     this.state = {
       selectedTab: 0,
-      dataPage: '1',
       dataSaving: props.dataSaving,
       hasNetworkData: false,
       copyButtonText: intl.formatMessage(intlMessages.copy),
@@ -339,14 +342,13 @@ class ConnectionStatusComponent extends PureComponent {
     if (isConnectionStatusEmpty(connectionStatus)) return this.renderEmpty();
 
     let connections = connectionStatus;
-    if (selectedTab === '2') {
+    if (selectedTab === 1) {
       connections = connections.filter(conn => conn.you);
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.timestamp);
-
       return (
         <Styled.Item
           key={`${conn?.name}-${dateTime}`}
@@ -374,11 +376,17 @@ class ConnectionStatusComponent extends PureComponent {
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </Styled.Text>
             </Styled.Name>
-            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`}>
+            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.status}`}>
               <Styled.Icon>
-                <Icon level={conn.level} />
+                <Icon level={conn.status} />
               </Styled.Icon>
             </Styled.Status>
+            { conn.notResponding && !conn.offline
+              ? (
+                <Styled.ClientNotRespondingText>
+                  {intl.formatMessage(intlMessages.clientNotResponding)}
+                </Styled.ClientNotRespondingText>
+              ) : null }
           </Styled.Left>
           <Styled.Right>
             <Styled.Time>
@@ -511,44 +519,17 @@ class ConnectionStatusComponent extends PureComponent {
       }
     }
 
-    function handlePaginationClick(action) {
-      if (action === 'next') {
-        this.setState({ dataPage: '2' });
-      }
-      else {
-        this.setState({ dataPage: '1' });
-      }
-    }
-
     return (
-      <Styled.NetworkDataContainer data-test="networkDataContainer">
-        <Styled.Prev>
-          <Styled.ButtonLeft
-            role="button"
-            tabIndex={0}
-            disabled={dataPage === '1'}
-            aria-label={`${intl.formatMessage(intlMessages.prev)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
-            onClick={handlePaginationClick.bind(this, 'prev')}
-          >
-            <Styled.Chevron
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </Styled.Chevron>
-          </Styled.ButtonLeft>
-        </Styled.Prev>
-        <Styled.Helper page={dataPage}>
-          <ConnectionStatusHelper closeModal={() => closeModal(dataSaving, intl)} />
-        </Styled.Helper>
-        <Styled.NetworkDataContent page={dataPage}>
+      <Styled.NetworkDataContainer
+        data-test="networkDataContainer"
+        tabIndex={0}
+      >
+        <Styled.HelperWrapper>
+          <Styled.Helper>
+            <ConnectionStatusHelper closeModal={() => closeModal(dataSaving, intl)} />
+          </Styled.Helper>
+        </Styled.HelperWrapper>
+        <Styled.NetworkDataContent>
           <Styled.DataColumn>
             <Styled.NetworkData>
               <div>{`${audioUploadLabel}`}</div>
@@ -587,29 +568,6 @@ class ConnectionStatusComponent extends PureComponent {
             </Styled.NetworkData>
           </Styled.DataColumn>
         </Styled.NetworkDataContent>
-        <Styled.Next>
-          <Styled.ButtonRight
-            role="button"
-            tabIndex={0}
-            disabled={dataPage === '2'}
-            aria-label={`${intl.formatMessage(intlMessages.next)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
-            onClick={handlePaginationClick.bind(this, 'next')}
-          >
-            <Styled.Chevron
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </Styled.Chevron>
-          </Styled.ButtonRight>
-        </Styled.Next>
       </Styled.NetworkDataContainer>
     );
   }

@@ -94,6 +94,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       color: var(--palette-placeholder-text);
       opacity: 1;
     }
+
+    main {
+      display: initial;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
@@ -127,7 +131,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body style="background-color: #06172A">
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
-  <div id="app" role="document">
+  <main>
+    <div id="app" role="document">
+  </main>
   </div>
   <span id="destination"></span>
   <audio id="remote-media" autoplay>

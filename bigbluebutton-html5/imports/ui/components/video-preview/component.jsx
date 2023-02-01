@@ -838,7 +838,7 @@ class VideoPreview extends Component {
           min={0}
           max={200}
           value={brightness}
-          aria-describedBy={'brightness-slider-desc'}
+          aria-describedby={'brightness-slider-desc'}
           onChange={(e) => {
             const brightness = e.target.valueAsNumber;
             this.currentVideoStream.changeCameraBrightness(brightness);
@@ -862,10 +862,8 @@ class VideoPreview extends Component {
             ariaDescribedBy={'whole-image-desc'}
             ariaDesc={intl.formatMessage(intlMessages.wholeImageBrightnessDesc)}
             disabled={!isVirtualBackgroundSupported() || isStartSharingDisabled}
+            label={intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
           />
-          <div aria-hidden style={{ margin: '0 .5rem' }}>
-            {intl.formatMessage(intlMessages.wholeImageBrightnessLabel)}
-          </div>
         </div>
       </>
     );

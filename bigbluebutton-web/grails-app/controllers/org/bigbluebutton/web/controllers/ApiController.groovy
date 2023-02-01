@@ -47,7 +47,6 @@ import org.json.JSONArray
 import javax.servlet.ServletRequest
 
 class ApiController {
-  private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
   private static final String CONTROLLER_NAME = 'ApiController'
   protected static final String RESP_CODE_SUCCESS = 'SUCCESS'
   protected static final String RESP_CODE_FAILED = 'FAILED'
@@ -123,6 +122,9 @@ class ApiController {
 
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    } else if (ParamsUtil.sanitizeString(params.meetingID) != params.meetingID) {
+      invalid("validationError", "Invalid meeting ID")
       return
     }
 
@@ -408,7 +410,7 @@ class ApiController {
         us.leftGuestLobby
     )
 
-    session.setMaxInactiveInterval(SESSION_TIMEOUT);
+    session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
 
     //check if exists the param redirect
     boolean redirectClient = true;
@@ -801,6 +803,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
     String respMessage = "Session not found."
+    String respMessageKey = "missingSession"
     boolean reject = false;
 
     String sessionToken
@@ -814,6 +817,7 @@ class ApiController {
     )
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
+      respMessageKey = validationResponse.getKey()
       reject = true
     } else {
       sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -826,6 +830,7 @@ class ApiController {
         if(hasReachedMaxParticipants(meeting, us)) {
           reject = true
           respMessage = "The maximum number of participants allowed for this meeting has been reached."
+          respMessageKey = "maxParticipantsReached"
         } else {
           log.info("User ${us.internalUserId} has entered")
           meeting.userEntered(us.internalUserId)
@@ -850,6 +855,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
+            messageKey respMessageKey
             sessionToken
             logoutURL logoutUrl
           }
@@ -927,6 +933,8 @@ class ApiController {
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
                 captureNotes meeting.breakoutRoomsParams.captureNotes
                 captureSlides meeting.breakoutRoomsParams.captureSlides
+                captureNotesFilename meeting.breakoutRoomsParams.captureNotesFilename
+                captureSlidesFilename meeting.breakoutRoomsParams.captureSlidesFilename
               }
             }
             customdata (
@@ -1832,9 +1840,23 @@ class ApiController {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
       }
-      for(Map.Entry<String, String> violation: violations.entrySet()) {
-        response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
-        break
+
+      if(apiCall == ValidationService.ApiCall.ENTER) {
+        //Check if error exist following an order (to avoid showing guestDeny when the meeting doesn't even exist)
+        String[] enterConstraintsKeys = new String[] {"missingSession","meetingForciblyEnded","notFound","guestDeny"}
+        for (String constraintKey : enterConstraintsKeys) {
+          if(violations.containsKey(constraintKey)) {
+            response = new AbstractMap.SimpleEntry<String, String>(constraintKey, violations.get(constraintKey))
+            break
+          }
+        }
+      }
+
+      if(response == null) {
+        for(Map.Entry<String, String> violation: violations.entrySet()) {
+          response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
+          break
+        }
       }
     }
 

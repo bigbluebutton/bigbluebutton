@@ -13,7 +13,7 @@ jobs:
   build-install-and-test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-apps-akka
       - run: ./build/setup.sh bbb-config
@@ -33,6 +33,7 @@ jobs:
       - run: ./build/setup.sh bbb-playback-podcast
       - run: ./build/setup.sh bbb-playback-presentation
       - run: ./build/setup.sh bbb-playback-screenshare
+      - run: ./build/setup.sh bbb-playback-video
       - run: ./build/setup.sh bbb-record-core
       - run: ./build/setup.sh bbb-web
       - run: ./build/setup.sh bbb-webrtc-sfu
