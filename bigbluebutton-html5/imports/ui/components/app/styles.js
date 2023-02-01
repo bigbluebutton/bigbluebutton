@@ -39,6 +39,11 @@ const DtfInvert = `
   div[data-test="presentationContainer"] {
     background-color: var(--darkreader-neutral-background) !important;
   }
+  select {
+    border-top: unset !important;
+    border-right: unset !important;
+    border-left: unset !important;
+  }
   #connectionBars > div
 `;
 
