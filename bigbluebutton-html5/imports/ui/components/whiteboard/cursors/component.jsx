@@ -334,7 +334,7 @@ export default function Cursors(props) {
   if (isPanning) cursorType = TOOL_CURSORS.pan;
 
   return (
-    <span ref={(r) => { cursorWrapper = r; }}>
+    <span key={`cursor-wrapper-${whiteboardId}`} ref={(r) => { cursorWrapper = r; }}>
       <div style={{ height: '100%', cursor: cursorType }}>
         {((active && multiUserAccess) || (active && currentUser?.presenter)) && (
           <PositionLabel
