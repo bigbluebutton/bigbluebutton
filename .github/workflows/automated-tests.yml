@@ -101,6 +101,11 @@ jobs:
             sudo sh -c '
             apt install -yq dpkg-dev
             cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
+            wget -q https://github.com/bigbluebutton/bbb-presentation-video/releases/download/4.0.0-beta.2/ubuntu-20.04.zip
+            unzip ubuntu-20.04.zip
+            cp ubuntu-20.04/* /artifacts/
+            wget https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb
+            cp python3-perfect-freehand_1.2.0_all.deb /artifacts/
             cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
             cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
             cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
