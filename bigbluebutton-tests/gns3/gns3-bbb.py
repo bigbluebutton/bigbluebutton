@@ -105,6 +105,11 @@ cloud_images = {
     18: 'ubuntu-18.04-server-cloudimg-amd64.img'
 }
 
+ubuntu_release = {
+    20: 'focal',
+    18: 'bionic'
+}
+
 # We currently use Ubuntu 20 for everything
 cloud_image = cloud_images[20]
 
@@ -879,6 +884,16 @@ def BBB_server_standalone(hostname, x=100, y=300):
         install_options = []
         if args.repository:
             install_options.append(f'-r {args.repository}')
+            repo = args.repository
+        else:
+            repo = 'ubuntu.bigbluebutton.org'
+
+        distro = ubuntu_release[args.ubuntu_release]
+        try:
+            requests.head(f'https://{repo}/{args.release}/dists/bigbluebutton-{distro}/Release.gpg').raise_for_status()
+        except requests.exceptions.HTTPError:
+            print(f'Release {args.release} does not exist on {repo} for distribution {distro}')
+            exit(1)
         if args.proxy_server:
             install_options.append(f'-p {args.proxy_server}')
         install_options_str = ' '.join(install_options)
