@@ -120,6 +120,8 @@ export default function Whiteboard(props) {
     hasShapeAccess,
     presentationAreaHeight,
     presentationAreaWidth,
+    maxNumberOfAnnotations,
+    notifyShapeNumberExceeded,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -211,8 +213,19 @@ export default function Whiteboard(props) {
     const invalidShapeType = Object.keys(changedShapes)
       .find(id => !isValidShapeType(changedShapes[id]));
 
-    if (invalidChange || invalidShapeType) {
-      notifyNotAllowedChange(intl);
+    const shapeNumberExceeded = Object.keys(shapes).length > maxNumberOfAnnotations;
+    const isInserting = Object.keys(changedShapes)
+      .filter(
+        shape => typeof changedShapes[shape] === 'object'
+          && changedShapes[shape].type
+      ).length !== 0;
+
+    if (invalidChange || invalidShapeType || (shapeNumberExceeded && isInserting)) {
+      if (shapeNumberExceeded) {
+        notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+      } else {
+        notifyNotAllowedChange(intl);
+      }
       // undo last command without persisting to not generate the onUndo/onRedo callback
       if (!redo) {
         const command = app.stack[app.pointer];

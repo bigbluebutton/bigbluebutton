@@ -16,6 +16,7 @@ import {
   hasMultiUserAccess,
   changeCurrentSlide,
   notifyNotAllowedChange,
+  notifyShapeNumberExceeded,
 } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
@@ -25,6 +26,7 @@ import { layoutSelect } from '../layout/context';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
+const { maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
 
 const WhiteboardContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
@@ -63,6 +65,7 @@ const WhiteboardContainer = (props) => {
         width,
         height,
         maxStickyNoteLength,
+        maxNumberOfAnnotations,
         fontFamily,
         hasShapeAccess,
       }}
@@ -79,7 +82,7 @@ export default withTracker(({
   slidePosition,
   svgUri,
 }) => {
-  const shapes = getShapes(whiteboardId, curPageId, intl);
+  const shapes = getShapes(whiteboardId, curPageId, intl, maxNumberOfAnnotations);
   const curPres = getCurrentPres();
 
   shapes['slide-background-shape'] = {
@@ -120,5 +123,6 @@ export default withTracker(({
     zoomSlide: PresentationToolbarService.zoomSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     notifyNotAllowedChange,
+    notifyShapeNumberExceeded,
   };
 })(WhiteboardContainer);

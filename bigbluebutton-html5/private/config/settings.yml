@@ -748,6 +748,7 @@ public:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
     maxStickyNoteLength: 1000
+    maxNumberOfAnnotations: 100
     annotations:
       status:
         start: DRAW_START
