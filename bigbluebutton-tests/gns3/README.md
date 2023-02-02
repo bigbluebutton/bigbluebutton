@@ -17,15 +17,19 @@ The script will build a gns3 project that looks like this:
 
 ![network diagram](README.png)
 
-The network "highjacks" the 128.8.8.0/24 subnet, so it simulates public IP address space.
+The network "highjacks" the 128.8.8.0/24 subnet, so it simulates public IP address space.  You can set a different public subnet using the `--public-subnet` option to the script.
 
-The `BigBlueButton` device, in addition to providing DNS and DHCP service for the 128.8.8.0/24 subnet, also operates a STUN server that presents itself in DNS as `stun.l.google.com`, so that STUN operations, on both the BigBlueButton clients and servers, yield the 128.8.8.0/24 addresses as public addresses.  `NAT1` also operates an ACME CA signing service via HTTP CGI, and mimics `resolver1.opendns.com` (used by `bbb-install` to check that the server can reach itself).
+The DNS domain name is configured to match the bare metal hostname and must be specified the first name the script is run using the `--domain` option.  If the bare metal machine is called `osito`, for example, the virtual machines will be given names like `BigBlueButton.osito` and `focal-260.osito`.  This setting must match the domain name chosen when the GNS3 server was installed and configured, but there is currently no way to check or enforce this requirement.
 
-`BigBlueButton` also announces the 128.8.8.0/24 subnet to the bare metal machine using OSPF, and implements a proxy server, so that the bare metal machine can connect to the virtual servers.
+The `BigBlueButton` virtual machine (called `master_gateway` in the script) is named to match the gns3 project name, which is `BigBlueButton` by default.  The project name (and the name of the master gateway) can be changed using the `--project` option.
 
-The `focal-260-NAT` device announces itself into DHCP/DNS as `focal-250.test` and forwards ports 80 and 443 (along with UDP ports) through to `focal-250` itself.  Clients can therefore connect to `focal-250.test`, just as they would to a typical BBB server.
+The master gateway, in addition to providing DNS and DHCP service for the 128.8.8.0/24 subnet, also operates a STUN server that presents itself in DNS as `stun.l.google.com`, so that STUN operations, on both the BigBlueButton clients and servers, yield the 128.8.8.0/24 addresses as public addresses.  `BigBlueButton` also operates an ACME CA signing service (so that `certbot` works), and mimics `resolver1.opendns.com` (used by `bbb-install` to check that the server can reach itself).
 
-Current server options are `bionic-240`, `focal-250`, `focal-25-dev`, and `focal-260`, along with `focal-GITREV` if you have a repository built from a specific git commit.
+The master gateway also announces the 128.8.8.0/24 subnet to the bare metal machine using OSPF, and implements NAT, so that the bare metal machine can connect to the virtual servers.
+
+The `focal-260-NAT` device announces itself into DHCP/DNS as `focal-260.DOMAIN` and forwards ports 80 and 443 (along with UDP ports) through to `focal-260` itself.  Clients can therefore connect to `focal-260.DOMAIN`, just as they would to a typical BBB server.
+
+Current server options are `bionic-240`, `focal-250`, `focal-25-dev`, and `focal-260`, along with `focal-GITREV` if you have a repository built from a specific git commit.  You can specify the `-r`/`--repository` option to use a repository other than `ubuntu.bigbluebutton.org` (just like the install script).
 
 The `testclient` connects to NAT4 (overlapping server address space), NAT5 (private address not overlapping server address space), and NAT6 (carrier grade NAT).
 
