@@ -16,6 +16,7 @@ import {
   hasMultiUserAccess,
   changeCurrentSlide,
   notifyNotAllowedChange,
+  notifyShapeNumberExceeded,
 } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
@@ -35,7 +36,7 @@ const WhiteboardContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
   const isModerator = currentUser.role === ROLE_MODERATOR;
-  const { maxStickyNoteLength } = WHITEBOARD_CONFIG;
+  const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
 
   const { shapes } = props;
@@ -63,6 +64,7 @@ const WhiteboardContainer = (props) => {
         width,
         height,
         maxStickyNoteLength,
+        maxNumberOfAnnotations,
         fontFamily,
         hasShapeAccess,
       }}
@@ -120,5 +122,6 @@ export default withTracker(({
     zoomSlide: PresentationToolbarService.zoomSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
     notifyNotAllowedChange,
+    notifyShapeNumberExceeded,
   };
 })(WhiteboardContainer);
