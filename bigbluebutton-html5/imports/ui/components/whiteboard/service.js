@@ -330,14 +330,13 @@ const changeCurrentSlide = (s) => {
   makeCall("changeCurrentSlide", s);
 }
 
-const getShapes = (whiteboardId, curPageId, intl, limit) => {
+const getShapes = (whiteboardId, curPageId, intl) => {
   const annotations =  Annotations.find(
     {
       whiteboardId,
     },
     {
       fields: { annotationInfo: 1, userId: 1, },
-      limit,
     },
   ).fetch();
 

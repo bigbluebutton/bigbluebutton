@@ -26,7 +26,6 @@ import { layoutSelect } from '../layout/context';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
-const { maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
 
 const WhiteboardContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
@@ -37,7 +36,7 @@ const WhiteboardContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
   const isModerator = currentUser.role === ROLE_MODERATOR;
-  const { maxStickyNoteLength } = WHITEBOARD_CONFIG;
+  const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
 
   const { shapes } = props;
@@ -82,7 +81,7 @@ export default withTracker(({
   slidePosition,
   svgUri,
 }) => {
-  const shapes = getShapes(whiteboardId, curPageId, intl, maxNumberOfAnnotations);
+  const shapes = getShapes(whiteboardId, curPageId, intl);
   const curPres = getCurrentPres();
 
   shapes['slide-background-shape'] = {
