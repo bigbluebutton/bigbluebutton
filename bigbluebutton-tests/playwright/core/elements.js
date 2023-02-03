@@ -13,6 +13,7 @@ exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
 exports.raiseHandBtn = 'button[data-test="raiseHandLabel"]';
 exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
+exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';

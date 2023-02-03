@@ -163,6 +163,23 @@ class MultiUsers {
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
+  async raiseHandRejected() {
+    const { raiseHandButton } = getSettings();
+    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.initUserPage();
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await sleep(1000);
+    await this.userPage.hasElement(e.lowerHandBtn);
+    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
+    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
+    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
+    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+    await this.modPage.waitAndClick(e.raiseHandRejection);
+    await this.userPage.hasElement(e.raiseHandBtn);
+  }
+
   async toggleUserList() {
     await this.modPage.hasElement(e.chatWelcomeMessageText);
     await this.modPage.hasElement(e.chatBox);
