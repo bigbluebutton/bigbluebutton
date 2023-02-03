@@ -549,7 +549,7 @@ class App extends Component {
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
-          <SidebarContentContainer />
+          <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
           {shouldShowPresentation ? <PresentationAreaContainer presentationIsOpen={presentationIsOpen} /> : null}
