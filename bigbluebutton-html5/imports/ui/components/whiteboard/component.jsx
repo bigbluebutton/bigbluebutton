@@ -213,11 +213,15 @@ export default function Whiteboard(props) {
     const invalidShapeType = Object.keys(changedShapes)
       .find(id => !isValidShapeType(changedShapes[id]));
 
-    const shapeNumberExceeded = Object.keys(shapes).length > maxNumberOfAnnotations;
+    const currentShapes = app?.document?.pages[app?.currentPageId]?.shapes;
+    // -1 for background shape
+    const shapeNumberExceeded = Object.keys(currentShapes).length - 1 > maxNumberOfAnnotations;
+
     const isInserting = Object.keys(changedShapes)
       .filter(
         shape => typeof changedShapes[shape] === 'object'
           && changedShapes[shape].type
+          && !prevShapes[shape]
       ).length !== 0;
 
     if (invalidChange || invalidShapeType || (shapeNumberExceeded && isInserting)) {
@@ -733,8 +737,16 @@ export default function Whiteboard(props) {
       }
 
       if (e?.session?.initialShape?.type === 'text' && !shapes[patchedShape.id]) {
-        patchedShape.userId = currentUser?.userId;
-        persistShape(patchedShape, whiteboardId);
+        // check for maxShapes
+        const currentShapes = e?.document?.pages[e?.currentPageId]?.shapes;
+        const shapeNumberExceeded = Object.keys(currentShapes).length - 1 > maxNumberOfAnnotations;
+        if (shapeNumberExceeded) {
+          notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+          e?.cancelSession?.();
+        } else {
+          patchedShape.userId = currentUser?.userId;
+          persistShape(patchedShape, whiteboardId);
+        }
       } else {
         const diff = {
           id: patchedShape.id,
