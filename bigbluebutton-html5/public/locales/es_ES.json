@@ -1043,6 +1043,7 @@
     "app.whiteboard.annotations.pollResult": "Resultados de la encuesta",
     "app.whiteboard.annotations.noResponses": "Sin respuestas",
     "app.whiteboard.annotations.notAllowed": "No tienes permiso para hacer este cambio.",
+    "app.whiteboard.annotations.numberExceeded": "El número de anotaciones superó el límite ({0})",
     "app.whiteboard.toolbar.tools": "Herramientas",
     "app.whiteboard.toolbar.tools.hand": "Expandir",
     "app.whiteboard.toolbar.tools.pencil": "Lápiz",
