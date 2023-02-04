@@ -111,6 +111,16 @@ const TldrawGlobalStyleText = (arg) => {
         height: ${arg.size}px;
         width: ${arg.size}px;
     }
+    
+    // For manually supplementing the style of the TD-Tools-Dots
+    div[style*="--radix-popper-transform-origin"] > div {
+        display: flex;
+    }
+    // For manually supplementing the style of the StylesMenu
+    #TD-Styles-Color-Container > div {
+        display: grid !important;
+    }
+
   ` : ''}
   `;
   return styleText;
@@ -340,6 +350,14 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     presentationWindow.document.addEventListener('mouseup', checkClientBounds);
     presentationWindow.document.addEventListener('visibilitychange', checkVisibility);
+    
+    if (!isPresentationDetached) {
+      //This is a very early hook. So we 'touch' the styles of style menu and dots menu before detaching window,
+      // so that these styles will be used in the detached window.
+      //These will be turned off in the last process of rendering.
+      tldrawAPI?.setSetting('keepStyleMenuOpen', true);
+      tldrawAPI?.setSetting('dockPosition', 'right');
+    }
 
     return () => {
       presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
@@ -919,6 +937,9 @@ export default function Whiteboard(props) {
     suppStyle.id = styleId;
     suppStyle.appendChild(presentationWindow.document.createTextNode(tldgs));
     presentationWindow.document.head.appendChild(suppStyle);
+  } else {
+    // This was already turned on at React hook triggerd by the availability of tldrawAPI.
+    tldrawAPI?.setSetting('keepStyleMenuOpen', false);
   }
 
   return (
