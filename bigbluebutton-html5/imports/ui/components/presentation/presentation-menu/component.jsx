@@ -293,7 +293,7 @@ const PresentationMenu = (props) => {
           fullwidth: "true",
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          container: fullscreenRef
+          container: isPresentationDetached ? presentationWindow.document.body : fullscreenRef
         }}
         actions={options}
         isPresentationDetached={isPresentationDetached}
