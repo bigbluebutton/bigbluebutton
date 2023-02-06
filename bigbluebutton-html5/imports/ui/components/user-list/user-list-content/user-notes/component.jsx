@@ -45,7 +45,7 @@ class UserNotes extends Component {
     super(props);
 
     this.state = {
-      unread: false,
+      unread: NotesService.hasUnreadNotes(),
     };
     this.setUnread = this.setUnread.bind(this);
   }
