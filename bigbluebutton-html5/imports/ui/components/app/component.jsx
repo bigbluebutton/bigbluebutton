@@ -450,7 +450,7 @@ class App extends Component {
     return darkTheme
       ? DarkReader.enable(
         { brightness: 100, contrast: 90 },
-        { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss] },
+        { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss], ignoreImageAnalysis: [Styled.DtfImages] },
       )
       : DarkReader.disable();
   }

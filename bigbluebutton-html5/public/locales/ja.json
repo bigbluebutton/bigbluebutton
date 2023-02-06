@@ -1043,6 +1043,7 @@
     "app.whiteboard.annotations.pollResult": "投票結果",
     "app.whiteboard.annotations.noResponses": "無回答",
     "app.whiteboard.annotations.notAllowed": "この変更は許可されていません",
+    "app.whiteboard.annotations.numberExceeded": "書き込みの数が上限の({0})個を超えました",
     "app.whiteboard.toolbar.tools": "ツール",
     "app.whiteboard.toolbar.tools.hand": "パン",
     "app.whiteboard.toolbar.tools.pencil": "ペン",
