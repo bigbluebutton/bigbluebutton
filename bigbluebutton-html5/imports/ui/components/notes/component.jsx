@@ -63,7 +63,7 @@ const Notes = ({
   isToSharedNotesBeShow,
   shouldShowSharedNotesOnPresentationArea,
 }) => {
-  useEffect(() => () => Service.setLastRev(), []);
+  useEffect(() => Service.setLastRev());
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
