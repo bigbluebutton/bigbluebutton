@@ -84,15 +84,23 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /.*?\?$/gm;
+  const questionRegex = /.*?\?/gm;
   const question = safeMatch(questionRegex, content, '');
 
   const doubleQuestionRegex = /\?{2}/gm;
   const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
+  const yesNoPatt = /.*(yes\/no|no\/yes).*/gm;
+  const hasYN = safeMatch(yesNoPatt, content, false);
+
   const pollRegex = /[1-9A-Ia-i][.)].*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
   const optionsWithLabels = [];
+
+  if (hasYN) {
+    optionsPoll = ['yes', 'no'];
+  }
+
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
       const MAX_CHAR_LIMIT = 30;
@@ -156,7 +164,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     }
   });
 
-  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion) {
+  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN) {
     quickPollOptions.push({
       type: 'R-',
       poll: {
