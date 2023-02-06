@@ -13,7 +13,6 @@ import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
-import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -97,8 +96,6 @@ const intlMessages = defineMessages({
     description: 'merge the detached presentation area label',
   },
 });
-
-const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
 
 class PresentationToolbar extends PureComponent {
   constructor(props) {
