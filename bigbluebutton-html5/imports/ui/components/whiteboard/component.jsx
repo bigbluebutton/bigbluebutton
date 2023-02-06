@@ -7,6 +7,7 @@ import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -578,6 +579,63 @@ export default function Whiteboard(props) {
     }
   }, [presentationAreaHeight, presentationAreaWidth]);
 
+  const fullscreenToggleHandler = () => {
+    const {
+      fullscreenElementId,
+      isFullscreen,
+      layoutContextDispatch,
+      fullscreenAction,
+      fullscreenRef,
+      handleToggleFullScreen,
+    } = props;
+
+    handleToggleFullScreen(fullscreenRef);
+    const newElement = isFullscreen ? '' : fullscreenElementId;
+
+    layoutContextDispatch({
+      type: fullscreenAction,
+      value: {
+        element: newElement,
+        group: '',
+      },
+    });
+  }
+
+  const nextSlideHandler = (event) => {
+    const {
+      nextSlide, curPageId, numberOfSlides, podId,
+    } = props;
+
+    if (event) event.currentTarget.blur();
+    nextSlide(+curPageId, numberOfSlides, podId);
+  }
+
+  const previousSlideHandler = (event) => {
+    const { previousSlide, curPageId, podId } = props;
+
+    if (event) event.currentTarget.blur();
+    previousSlide(+curPageId, podId);
+  }
+
+  const switchSlide = (event) => {
+    const { which } = event;
+
+    switch (which) {
+      case KEY_CODES.ARROW_LEFT:
+      case KEY_CODES.PAGE_UP:
+        previousSlideHandler();
+        break;
+      case KEY_CODES.ARROW_RIGHT:
+      case KEY_CODES.PAGE_DOWN:
+        nextSlideHandler();
+        break;
+      case KEY_CODES.ENTER:
+        fullscreenToggleHandler();
+        break;
+      default:
+    }
+  }
+
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
@@ -833,7 +891,7 @@ export default function Whiteboard(props) {
   if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
 
   const editableWB = (
-    <EditableWBWrapper>
+    <EditableWBWrapper onKeyDown={switchSlide}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}
