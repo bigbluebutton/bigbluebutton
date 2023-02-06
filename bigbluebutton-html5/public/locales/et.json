@@ -230,6 +230,7 @@
     "app.presentationUploder.conversion.generatedSlides": "Slaidid genereeritud...",
     "app.presentationUploder.conversion.generatingSvg": "Genereerin SVG-pilte ...",
     "app.presentationUploder.conversion.pageCountExceeded": "Lehekülgede arv on liiga suur, maksimum on {0}",
+    "app.presentationUploder.conversion.conversionTimeout": "Slaidi {0} ei õnnestunud {1} katsega töödelda.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Tekstitöötlusdokumendi teisendamine ebaõnnestus. Palun laadi fail üles PDF-kujul.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Tekstitöötlusdokumendi teisendamine ebaõnnestus. Palun laadi fail üles PDF-kujul.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Ei suutnud PDF-faili teisendada, püüa faili optimeerida. Maksimaalne leheküljesuurus on {0}.",
@@ -270,7 +271,7 @@
     "app.poll.clickHereToSelect": "Valimiseks klõpsa siin",
     "app.poll.question.label" : "Kirjuta küsimus...",
     "app.poll.optionalQuestion.label" : "Kirjuta küsimus (valikuline)...",
-    "app.poll.userResponse.label" : "Kasutaja vastus",
+    "app.poll.userResponse.label" : "Kirjutatav vastus",
     "app.poll.responseTypes.label" : "Vastusetüübid",
     "app.poll.optionDelete.label" : "Kustuta",
     "app.poll.responseChoices.label" : "Vastusevariandid",
@@ -598,8 +599,11 @@
     "app.error.403": "Oled koosolekult eemaldatud",
     "app.error.404": "Ei leitud",
     "app.error.408": "Autentimine ebaõnnestus",
+    "app.error.409": "Konflikt",
     "app.error.410": "Koosolek on lõppenud",
     "app.error.500": "Oih, midagi läks valesti",
+    "app.error.503": "Ühendus on katkenud",
+    "app.error.disconnected.rejoin": "Uuesti liitumiseks võid lehte värskendada.",
     "app.error.userLoggedOut": "Kasutaja sessioonitõend on kehtetu väljalogimise tõttu",
     "app.error.ejectedUser": "Kasutaja sessioonitõend on kehtetu väljaheitmise tõttu",
     "app.error.joinedAnotherWindow": "See sessioon paistab olevat avatud teises brauseriaknas.",
@@ -649,6 +653,8 @@
     "app.toast.chat.public": "Uus avalik sõnum",
     "app.toast.chat.private": "Uus privaatne sõnum",
     "app.toast.chat.system": "Süsteem",
+    "app.toast.chat.poll": "Küsitluse tulemused",
+    "app.toast.chat.pollClick": "Küsitluse tulemused avaldati. Vaatamiseks klõpsa siin.",
     "app.toast.clearedEmoji.label": "Emoji-staatus tühistatud",
     "app.toast.setEmoji.label": "Emoji-staatus määratud: {0}",
     "app.toast.meetingMuteOn.label": "Kõik kasutajad on vaigistatud",
@@ -1062,6 +1068,4 @@
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Nõutavad väljad",
     "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Nimi on juba kasutusel",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Viga lehekülje laadimisel - kontrolli aadressi ja võrguühendust"
-
 }
-
