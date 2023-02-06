@@ -13,6 +13,8 @@
     --ifm-color-primary-light: #2b4392;
     --ifm-color-primary-lighter: #2d4699;
     --ifm-color-primary-lightest: #334fad;
+    --ifm-color-primary-text: #ffffff;
+    --ifm-color-secondary-text: #ffffff;
     --ifm-code-font-size: 95%;
     --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
@@ -26,6 +28,8 @@
     --ifm-color-primary-light: #eef1fa;
     --ifm-color-primary-lighter: #ffffff;
     --ifm-color-primary-lightest: #ffffff;
+    --ifm-color-primary-text: #242526;
+    --ifm-color-secondary-text: #ffffff;
     --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
@@ -106,14 +110,18 @@ html {
     font-style: italic;
 }
 
+.col {
+    padding-bottom: 48px;
+} 
+
 .button.button--install {
     background-color: #273d85;
-    color: white;
+    color: var(--ifm-color-secondary-text);
 }
 
 .button.button--doc-section {
     background-color: var(--ifm-color-primary-lightest);
-    color: white;
+    color: var(--ifm-color-primary-text);
 }
 
 .footer__links {
