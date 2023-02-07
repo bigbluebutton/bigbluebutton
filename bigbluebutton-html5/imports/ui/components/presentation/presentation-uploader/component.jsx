@@ -467,10 +467,20 @@ class PresentationUploader extends Component {
 
   handleRemove(item, withErr = false) {
     if (withErr) {
-      const { presentations } = this.props;
+      const { presentations } = this.state;
+      const { presentations: propPresentations } = this.props;
+
+      const ids = new Set(propPresentations.map((d) => d.id));
+      const filteredPresentations = presentations.filter((d) => {
+        d.isCurrent = false;
+        return !ids.has(d.id) && !(d.upload.error || d.conversion.error) && !(d.upload.done && d.conversion.done)});
+      const merged = [
+        ...filteredPresentations,
+        ...propPresentations,
+      ];
       this.hasError = false;
       return this.setState({
-        presentations,
+        presentations: merged,
         disableActions: false,
       });
     }
@@ -603,9 +613,10 @@ class PresentationUploader extends Component {
   handleDismiss() {
     const { presentations } = this.state;
     const { presentations: propPresentations } = this.props;
-    const ids = new Set(propPresentations.map((d) => d.ID));
+
+    const ids = new Set(propPresentations.map((d) => d.id));
     const merged = [
-      ...presentations.filter((d) => !ids.has(d.ID)),
+      ...presentations.filter((d) => !ids.has(d.id) && d.upload.done),
       ...propPresentations,
     ];
     this.setState(
