@@ -67,6 +67,30 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.autoSwapLayout();
   });
 
+  test('Hide Actions Bar', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.hideActionsBar });
+    await customParam.hideActionsBar();
+  });
+
+  test('Override Default Locale', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.overrideDefaultLocale });
+    await customParam.overrideDefaultLocale();
+  });
+
+  test.only('Hide NavBar', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.hideNavBar });
+    await customParam.hideNavBar();
+  });
+
+  test('Prefered Camera Profile', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.preferredCameraProfile });
+    await customParam.preferredCameraProfile();
+  });
+
   test.describe.parallel('Audio', () => {
     test('Auto join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
