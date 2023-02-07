@@ -1043,6 +1043,7 @@
     "app.whiteboard.annotations.pollResult": "Resultado da enquisa",
     "app.whiteboard.annotations.noResponses": "Sen respostas",
     "app.whiteboard.annotations.notAllowed": "Non tes permiso para facer este cambio",
+    "app.whiteboard.annotations.numberExceeded": "O número de anotacións superou o límite ({0})",
     "app.whiteboard.toolbar.tools": "Ferramentas",
     "app.whiteboard.toolbar.tools.hand": "Panorama",
     "app.whiteboard.toolbar.tools.pencil": "Lapis",

@@ -16,12 +16,14 @@ import {
   hasMultiUserAccess,
   changeCurrentSlide,
   notifyNotAllowedChange,
+  notifyShapeNumberExceeded,
 } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import { layoutSelect } from '../layout/context';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
@@ -35,8 +37,9 @@ const WhiteboardContainer = (props) => {
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
   const isModerator = currentUser.role === ROLE_MODERATOR;
-  const { maxStickyNoteLength } = WHITEBOARD_CONFIG;
+  const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
+  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
   const { shapes } = props;
   const hasShapeAccess = (id) => {
@@ -63,8 +66,10 @@ const WhiteboardContainer = (props) => {
         width,
         height,
         maxStickyNoteLength,
+        maxNumberOfAnnotations,
         fontFamily,
         hasShapeAccess,
+        handleToggleFullScreen,
       }}
       {...props}
       meetingId={Auth.meetingID}
@@ -78,6 +83,8 @@ export default withTracker(({
   intl,
   slidePosition,
   svgUri,
+  podId,
+  presentationId,
 }) => {
   const shapes = getShapes(whiteboardId, curPageId, intl);
   const curPres = getCurrentPres();
@@ -119,6 +126,10 @@ export default withTracker(({
     removeShapes,
     zoomSlide: PresentationToolbarService.zoomSlide,
     skipToSlide: PresentationToolbarService.skipToSlide,
+    nextSlide: PresentationToolbarService.nextSlide,
+    previousSlide: PresentationToolbarService.previousSlide,
+    numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     notifyNotAllowedChange,
+    notifyShapeNumberExceeded,
   };
 })(WhiteboardContainer);
