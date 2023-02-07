@@ -1062,7 +1062,7 @@ public class ParamsProcessorUtil {
                 log.info("No algorithm could be found that matches the provided checksum length");
         }
 
-		if (cs == null || !cs.equals(checksum)) {
+		if (cs == null || !cs.equalsIgnoreCase(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
 			return false;
@@ -1122,7 +1122,7 @@ public class ParamsProcessorUtil {
 		String baseString = csbuf.toString();
 		String cs = DigestUtils.sha1Hex(baseString);
 
-		if (cs == null || !cs.equals(checksum)) {
+		if (cs == null || !cs.equalsIgnoreCase(checksum)) {
 			log.info("POST basestring = {}", baseString);
 			log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", cs, checksum);
 			return false;
