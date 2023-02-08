@@ -446,13 +446,22 @@ class App extends Component {
 
   renderDarkMode() {
     const { darkTheme } = this.props;
+    if (darkTheme && !DarkReader.isEnabled()) {
+        DarkReader.enable(
+          { brightness: 100, contrast: 90 },
+          { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss], ignoreImageAnalysis: [Styled.DtfImages] },
+        )
+        logger.info({
+          logCode: 'dark_mode',
+        }, 'Dark mode is on.');
+    }
 
-    return darkTheme
-      ? DarkReader.enable(
-        { brightness: 100, contrast: 90 },
-        { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss], ignoreImageAnalysis: [Styled.DtfImages] },
-      )
-      : DarkReader.disable();
+    if (!darkTheme && DarkReader.isEnabled()){
+      DarkReader.disable();
+      logger.info({
+        logCode: 'dark_mode',
+      }, 'Dark mode is off.');
+    }
   }
 
   mountPushLayoutEngine() {
