@@ -77,7 +77,7 @@ const Notes = ({
                     && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
                     || shouldShowSharedNotesOnPresentationArea;
 
-  if (isHidden) {
+  if (isHidden && !isOnMediaArea) {
     style.padding = 0;
     style.display = 'none';
   }

@@ -1043,6 +1043,7 @@
     "app.whiteboard.annotations.pollResult": "نتیجه نظرسنجی",
     "app.whiteboard.annotations.noResponses": "بدون پاسخ",
     "app.whiteboard.annotations.notAllowed": "شما مجاز به انجام این تغییر نیستید",
+    "app.whiteboard.annotations.numberExceeded": "تعداد حاشیه‌نویسی‌ها از حد مجاز ({0}) فراتر رفته است",
     "app.whiteboard.toolbar.tools": "ابزارها",
     "app.whiteboard.toolbar.tools.hand": "حرکت‌دادن",
     "app.whiteboard.toolbar.tools.pencil": "مداد",

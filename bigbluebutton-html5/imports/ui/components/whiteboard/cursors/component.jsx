@@ -134,7 +134,7 @@ const PositionLabel = (props) => {
 };
 
 export default function Cursors(props) {
-  let cursorWrapper = React.useRef(null);
+  const cursorWrapper = React.useRef();
   const [active, setActive] = React.useState(false);
   const [pos, setPos] = React.useState({ x: 0, y: 0 });
   const {
@@ -302,39 +302,29 @@ export default function Cursors(props) {
   };
 
   React.useEffect(() => {
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseenter')) {
-      cursorWrapper?.addEventListener('mouseenter', start);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseleave')) {
-      cursorWrapper?.addEventListener('mouseleave', end);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchend')) {
-      cursorWrapper?.addEventListener('touchend', end);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mousemove')) {
-      cursorWrapper?.addEventListener('mousemove', moved);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchmove')) {
-      cursorWrapper?.addEventListener('touchmove', moved);
-    }
-  }, [cursorWrapper, whiteboardId]);
+    const currentCursor = cursorWrapper?.current;
 
-  React.useEffect(() => () => {
-    if (cursorWrapper) {
-      cursorWrapper.removeEventListener('mouseenter', start);
-      cursorWrapper.removeEventListener('mouseleave', end);
-      cursorWrapper.removeEventListener('mousemove', moved);
-      cursorWrapper.removeEventListener('touchend', end);
-      cursorWrapper.removeEventListener('touchmove', moved);
-    }
-  });
+    currentCursor?.addEventListener('mouseenter', start);
+    currentCursor?.addEventListener('mouseleave', end);
+    currentCursor?.addEventListener('touchend', end);
+    currentCursor?.addEventListener('mousemove', moved);
+    currentCursor?.addEventListener('touchmove', moved);
+
+    return () => {
+      currentCursor?.removeEventListener('mouseenter', start);
+      currentCursor?.removeEventListener('mouseleave', end);
+      currentCursor?.removeEventListener('touchend', end);
+      currentCursor?.removeEventListener('mousemove', moved);
+      currentCursor?.removeEventListener('touchmove', moved);
+    };
+  }, [cursorWrapper, whiteboardId, currentUser.presenter]);
 
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
   if (isPanning) cursorType = TOOL_CURSORS.pan;
 
   return (
-    <span ref={(r) => { cursorWrapper = r; }}>
+    <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>
         {((active && multiUserAccess) || (active && currentUser?.presenter)) && (
           <PositionLabel
