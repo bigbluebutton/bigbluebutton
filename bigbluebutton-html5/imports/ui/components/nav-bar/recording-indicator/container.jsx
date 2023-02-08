@@ -14,8 +14,8 @@ const RecordIndicatorContainer = (props) => (
 
 export default withTracker(({ currentUserId }) => {
   const meetingId = Auth.meetingID;
-  const recordObeject = RecordMeetings.findOne({ meetingId });
-  const recordSetByUser = recordObeject?.setBy === currentUserId;
+  const recordObject = RecordMeetings.findOne({ meetingId });
+  const recordSetByUser = recordObject?.setBy === currentUserId;
 
   const micUser = VoiceUsers.findOne({ meetingId, joined: true, listenOnly: false }, {
     fields: {
@@ -24,11 +24,11 @@ export default withTracker(({ currentUserId }) => {
   });
 
   return {
-    allowStartStopRecording: !!(recordObeject && recordObeject.allowStartStopRecording),
-    autoStartRecording: recordObeject && recordObeject.autoStartRecording,
-    record: recordObeject && recordObeject.record,
-    recording: recordObeject && recordObeject.recording,
-    time: recordObeject && recordObeject.time,
+    allowStartStopRecording: !!(recordObject && recordObject.allowStartStopRecording),
+    autoStartRecording: recordObject && recordObject.autoStartRecording,
+    record: recordObject && recordObject.record,
+    recording: recordObject && recordObject.recording,
+    time: recordObject && recordObject.time,
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
