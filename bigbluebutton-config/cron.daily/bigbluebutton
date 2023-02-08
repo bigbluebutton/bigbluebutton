@@ -117,7 +117,7 @@ remove_raw_of_published_recordings
 #
 # Remove untagged and unamed docker images, cleanning /var/lib/docker/overlay2
 #
-docker images --filter "dangling=true" -q --no-trunc | xargs -r docker rmi -f
+docker image prune -f
 
 #
 # Remove old *.afm and *.pfb files from /tmp directory (if any exist)
