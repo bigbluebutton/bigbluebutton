@@ -12,9 +12,10 @@ const RecordIndicatorContainer = (props) => (
   <RecordIndicator {...props} />
 );
 
-export default withTracker(() => {
+export default withTracker(({ currentUserId }) => {
   const meetingId = Auth.meetingID;
   const recordObeject = RecordMeetings.findOne({ meetingId });
+  const recordSetByUser = recordObeject?.setBy === currentUserId;
 
   const micUser = VoiceUsers.findOne({ meetingId, joined: true, listenOnly: false }, {
     fields: {
@@ -31,6 +32,6 @@ export default withTracker(() => {
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
-    recordingNotificationEnabled: RecordingIndicatorService.isRecordingNotificationEnabled(),
+    recordingNotificationEnabled: !recordSetByUser && RecordingIndicatorService.isRecordingNotificationEnabled(),
   };
 })(RecordIndicatorContainer);
