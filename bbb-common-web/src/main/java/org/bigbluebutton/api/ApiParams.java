@@ -78,6 +78,8 @@ public class ApiParams {
 
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES = "breakoutRoomsCaptureSlides";
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES  = "breakoutRoomsCaptureNotes";
+    public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME = "breakoutRoomsCaptureSlidesFilename";
+    public static final String BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME = "breakoutRoomsCaptureNotesFilename";
     public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
     public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";
@@ -89,7 +91,6 @@ public class ApiParams {
     public static final String DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES = "lockSettingsDisableNote";
     public static final String LOCK_SETTINGS_DISABLE_NOTES = "lockSettingsDisableNotes";
     public static final String LOCK_SETTINGS_HIDE_USER_LIST = "lockSettingsHideUserList";
-    public static final String LOCK_SETTINGS_LOCKED_LAYOUT = "lockSettingsLockedLayout";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_CURSOR = "lockSettingsHideViewersCursor";

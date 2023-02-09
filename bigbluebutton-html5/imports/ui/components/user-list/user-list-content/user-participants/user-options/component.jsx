@@ -308,6 +308,7 @@ class UserOptions extends PureComponent {
           description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
+          dataTest: 'writeClosedCaptions',
         });
       }
       if (amIModerator) {

@@ -8,6 +8,8 @@ import {
   colorGrayLightest,
   colorPrimary,
   colorWhite,
+  btnPrimaryActiveBg,
+  colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -68,6 +70,20 @@ const Name = styled.div`
 const FullName = styled(Name)`
   width: 100%;
 `;
+
+const ClientNotRespondingText = styled.div`
+  display: flex;
+  width: 27.5%;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  color: ${colorDanger};
+
+  @media ${hasPhoneDimentions} {
+    width: 100%;
+  }
+`;
+
 
 const Text = styled.div`
   padding-left: .5rem;
@@ -427,7 +443,7 @@ const ConnectionTabSelector = styled(Tab)`
     color: ${colorPrimary};
 
     span {
-      border-bottom: 2px solid ${colorPrimary};
+      border-bottom: 2px solid ${btnPrimaryActiveBg};
     }
   }
 `;
@@ -453,6 +469,7 @@ export default {
   NetworkData,
   CopyContainer,
   ConnectionStatusModal,
+  ClientNotRespondingText,
   Container,
   Header,
   Title,

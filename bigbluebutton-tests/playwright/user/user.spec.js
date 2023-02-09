@@ -71,6 +71,20 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2();
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
+
+    test('Remove user', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.removeUser();
+    });
+
+    test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2'});
+      await multiusers.removeUserAndPreventRejoining(context);
+    });
   });
 
   test.describe.parallel('Manage', () => {
@@ -225,6 +239,13 @@ test.describe.parallel('User', () => {
       await multiusers.initModPage2(false);
       await multiusers.initUserPage(false);
       await multiusers.muteAllUsersExceptPresenter();
+    });
+
+    test('Write closed captions', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.writeClosedCaptions();
     });
   });
 

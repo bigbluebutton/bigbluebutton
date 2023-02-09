@@ -1,10 +1,28 @@
 import * as React from 'react';
+import { Meteor } from 'meteor/meteor';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
 const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
+
+const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
+
+const TOOL_CURSORS = {
+  select: 'none',
+  erase: 'none',
+  arrow: 'none',
+  draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
+  rectangle: `url('${makeCursorUrl('square.png')}'), default`,
+  ellipse: `url('${makeCursorUrl('ellipse.png')}'), default`,
+  triangle: `url('${makeCursorUrl('triangle.png')}'), default`,
+  line: `url('${makeCursorUrl('line.png')}'), default`,
+  text: `url('${makeCursorUrl('text.png')}'), default`,
+  sticky: `url('${makeCursorUrl('square.png')}'), default`,
+  pan: `url('${makeCursorUrl('pan.png')}'), default`,
+};
 
 const Cursor = (props) => {
   const {
@@ -116,7 +134,7 @@ const PositionLabel = (props) => {
 };
 
 export default function Cursors(props) {
-  let cursorWrapper = React.useRef(null);
+  const cursorWrapper = React.useRef();
   const [active, setActive] = React.useState(false);
   const [pos, setPos] = React.useState({ x: 0, y: 0 });
   const {
@@ -130,6 +148,7 @@ export default function Cursors(props) {
     hasMultiUserAccess,
     isMultiUserActive,
     isPanning,
+    currentTool,
   } = props;
 
   const start = () => setActive(true);
@@ -283,39 +302,29 @@ export default function Cursors(props) {
   };
 
   React.useEffect(() => {
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseenter')) {
-      cursorWrapper?.addEventListener('mouseenter', start);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseleave')) {
-      cursorWrapper?.addEventListener('mouseleave', end);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchend')) {
-      cursorWrapper?.addEventListener('touchend', end);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mousemove')) {
-      cursorWrapper?.addEventListener('mousemove', moved);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchmove')) {
-      cursorWrapper?.addEventListener('touchmove', moved);
-    }
-  }, [cursorWrapper, whiteboardId]);
+    const currentCursor = cursorWrapper?.current;
 
-  React.useEffect(() => () => {
-    if (cursorWrapper) {
-      cursorWrapper.removeEventListener('mouseenter', start);
-      cursorWrapper.removeEventListener('mouseleave', end);
-      cursorWrapper.removeEventListener('mousemove', moved);
-      cursorWrapper.removeEventListener('touchend', end);
-      cursorWrapper.removeEventListener('touchmove', moved);
-    }
-  });
+    currentCursor?.addEventListener('mouseenter', start);
+    currentCursor?.addEventListener('mouseleave', end);
+    currentCursor?.addEventListener('touchend', end);
+    currentCursor?.addEventListener('mousemove', moved);
+    currentCursor?.addEventListener('touchmove', moved);
+
+    return () => {
+      currentCursor?.removeEventListener('mouseenter', start);
+      currentCursor?.removeEventListener('mouseleave', end);
+      currentCursor?.removeEventListener('touchend', end);
+      currentCursor?.removeEventListener('mousemove', moved);
+      currentCursor?.removeEventListener('touchmove', moved);
+    };
+  }, [cursorWrapper, whiteboardId, currentUser.presenter]);
 
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
-  let cursorType = multiUserAccess || currentUser?.presenter ? 'none' : 'default';
-  if (isPanning) cursorType = 'grab';
+  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
+  if (isPanning) cursorType = TOOL_CURSORS.pan;
 
   return (
-    <span ref={(r) => { cursorWrapper = r; }}>
+    <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>
         {((active && multiUserAccess) || (active && currentUser?.presenter)) && (
           <PositionLabel

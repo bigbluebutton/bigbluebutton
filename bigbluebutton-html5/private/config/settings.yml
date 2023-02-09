@@ -33,6 +33,7 @@ public:
     copyright: '©2023 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
+    delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
       enabled: false
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
@@ -121,6 +122,9 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      allowUserChooseRoomByDefault: false
+      captureWhiteboardByDefault: false
+      captureSharedNotesByDefault: false
       breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
@@ -642,6 +646,11 @@ public:
       enabled: true
       initialHearingState: true
       useRtcLoopbackInChromium: true
+      # delay: delay (seconds) to be added to the audio feedback return
+      delay:
+        enabled: true
+        delayTime: 0.5
+        maxDelayTime: 2
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
@@ -739,11 +748,18 @@ public:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
     maxStickyNoteLength: 1000
+    # limit number of annotations per slide
+    maxNumberOfAnnotations: 300
     annotations:
       status:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+    styles:
+      text:
+        # Initial font family.
+        # family: mono|sans|script|serif
+        family: script
     toolbar:
       multiUserPenOnly: false
       colors:

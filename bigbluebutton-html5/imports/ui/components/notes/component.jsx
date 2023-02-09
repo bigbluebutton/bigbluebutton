@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -12,7 +12,7 @@ import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
-
+const DELAY_UNMOUNT_SHARED_NOTES = Meteor.settings.public.app.delayForUnmountOfSharedNote;
 const intlMessages = defineMessages({
   hide: {
     id: 'app.notes.hide',
@@ -47,6 +47,8 @@ const defaultProps = {
   layoutType: null,
 };
 
+let timoutRef = null;
+const sidebarContentToIgnoreDelay = ['captions'];
 const Notes = ({
   hasPermission,
   intl,
@@ -58,18 +60,40 @@ const Notes = ({
   sidebarContent,
   sharedNotesOutput,
   amIPresenter,
+  isToSharedNotesBeShow,
+  shouldShowSharedNotesOnPresentationArea,
 }) => {
   useEffect(() => () => Service.setLastRev(), []);
+  const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
   const style = isOnMediaArea ? {
     position: 'absolute',
     ...sharedNotesOutput,
   } : {};
-  const isHidden = isOnMediaArea && (style.width === 0 || style.height === 0);
 
-  if (isHidden) style.padding = 0;
+  const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
+                   || (!isToSharedNotesBeShow
+                    && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
+                    || shouldShowSharedNotesOnPresentationArea;
 
+  if (isHidden && !isOnMediaArea) {
+    style.padding = 0;
+    style.display = 'none';
+  }
+  useEffect(() => {
+    if (isToSharedNotesBeShow) {
+      setShouldRenderNotes(true);
+      clearTimeout(timoutRef);
+    } else {
+      timoutRef = setTimeout(() => {
+        setShouldRenderNotes(false);
+      }, (sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
+      || shouldShowSharedNotesOnPresentationArea)
+        ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
+    }
+    return () => clearTimeout(timoutRef);
+  }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
   useEffect(() => {
     if (
       isOnMediaArea
@@ -128,7 +152,7 @@ const Notes = ({
     ) : null;
   };
 
-  return (
+  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
       {!isOnMediaArea ? (
         <Header
