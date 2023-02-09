@@ -124,6 +124,7 @@ jobs:
         working-directory: ./bigbluebutton-tests/playwright
         run: |
           sh -c '
+          sudo apt -o Dpkg::Options::="--force-overwrite" install libusrsctp1 -yq
           npm install
           npx playwright install-deps
           npx playwright install
