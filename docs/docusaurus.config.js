@@ -70,6 +70,11 @@ const config = {
                     {to: '/greenlight/overview', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
                     {
+                        type: 'docsVersionDropdown',
+                        position: 'right',
+                        dropdownActiveClassDisabled: true,
+                    },
+                    {
                         href: 'https://github.com/bigbluebutton/bigbluebutton/docs',
                         label: 'GitHub',
                         position: 'right',
