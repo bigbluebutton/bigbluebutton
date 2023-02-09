@@ -1,0 +1,20 @@
+# Guest OS timezone
+timezone: Canada/Eastern
+
+# Guest hostname
+hostname: bigbluebutton.docs
+
+# Are we need check box updates for every 'vagrant up'?
+box_check_update: true
+
+# Virtual machine name
+machine_name: bigbluebutton-docs
+
+# Virtual machine IP
+ip: 192.168.62.10
+
+# Virtual machine CPU cores number
+cpus: 2
+
+# Virtual machine RAM
+memory: 2048

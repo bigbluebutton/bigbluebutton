@@ -11,7 +11,6 @@ export function LockStruct() {
       disablePublicChat: false,
       lockOnJoin: true,
       lockOnJoinConfigurable: false,
-      lockedLayout: false,
       hideViewersCursor: false,
     },
     userLocks: {
@@ -20,7 +19,6 @@ export function LockStruct() {
       userNotes: false,
       userPrivateChat: false,
       userPublicChat: false,
-      userLockedLayout: false,
     },
   });
 }

@@ -18,7 +18,7 @@ export default (props) => {
         timeout={{ enter: 400 }}
       >
         <Styled.Content animations={animations}>
-          <Styled.DefaultContent hideContent={autoSwapLayout && hidePresentation}>
+          <Styled.DefaultContent hideContent={hidePresentation}>
             <p>
               <FormattedMessage
                 id="app.home.greeting"
