@@ -146,7 +146,6 @@ export default function addMeeting(meeting) {
       hideUserList: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
-      lockedLayout: Boolean,
       hideViewersCursor: Boolean,
     },
     systemProps: {
