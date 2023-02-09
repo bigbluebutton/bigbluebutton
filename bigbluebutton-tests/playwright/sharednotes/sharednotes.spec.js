@@ -19,7 +19,7 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.initModPage(page);
     await sharedNotes.formatTextInSharedNotes();
   });
-  test('Export shared notes', async ({ browser, page, context }, testInfo) => {
+  test.only('Export shared notes', async ({ browser, page, context }, testInfo) => {
     // https://docs.bigbluebutton.org/2.5/release-tests.html#exporting-shared-notes
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initModPage(page);
