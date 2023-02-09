@@ -155,7 +155,7 @@ const PresentationMenu = (props) => {
           dataTest: 'presentationFullscreen',
           label: formattedLabel(isFullscreen),
           onClick: () => {
-            handleToggleFullscreen(isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef);
+            handleToggleFullscreen(isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef, isPresentationDetached, presentationWindow);
             const newElement = (elementId === currentElement) ? '' : elementId;
             const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
