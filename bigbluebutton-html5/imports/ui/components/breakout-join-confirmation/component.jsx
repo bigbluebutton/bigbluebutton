@@ -179,6 +179,7 @@ class BreakoutJoinConfirmation extends Component {
       <Styled.SelectParent>
         {`${intl.formatMessage(intlMessages.freeJoinMessage)}`}
         <Styled.Select
+          
           value={selectValue}
           onChange={this.handleSelectChange}
           disabled={waiting}
@@ -186,6 +187,7 @@ class BreakoutJoinConfirmation extends Component {
           {
             breakouts.map(({ name, breakoutId }) => (
               <option
+                data-test="roomOption"
                 key={breakoutId}
                 value={breakoutId}
               >

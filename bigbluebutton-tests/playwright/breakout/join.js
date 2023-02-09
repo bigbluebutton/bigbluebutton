@@ -229,25 +229,17 @@ class Join extends Create {
     });
   }
 
-  async userCanChooseRoom(shouldJoinAudio = false) {
+  async userCanChooseRoom() {
     await this.userPage.bringToFront();
-    if (shouldJoinAudio) {
-      await this.userPage.waitAndClick(e.joinAudio);
-      await this.userPage.joinMicrophone();
-    }
+
+    await this.userPage.checkElementCount(e.roomOption, 2);
 
     await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption(/Room2/);
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
-
-    if (shouldJoinAudio) {
-      await this.userPage.waitForSelector(e.joinAudio);
-    } else {
-      await breakoutUserPage.closeAudioModal();
-    }
-    await breakoutUserPage.waitForSelector(e.presentationTitle);    
+    await breakoutUserPage.waitForSelector(e.presentationTitle, 10000);    
   }
 }
 
