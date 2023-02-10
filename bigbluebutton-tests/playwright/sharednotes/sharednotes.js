@@ -133,7 +133,9 @@ class SharedNotes extends MultiUsers {
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath, 'utf8');
-    
+
+    const txtFileExtension = (download._suggestedFilename).split('.').pop();
+    await checkTextContent(txtFileExtension, 'txt');
     await checkTextContent(content, e.message);
 
     const [downloadHtml] = await Promise.all([
@@ -143,6 +145,9 @@ class SharedNotes extends MultiUsers {
     await expect(downloadHtml).toBeTruthy();
     const filePathHtml = await downloadHtml.path();
     const contentHtml = await readFileSync(filePathHtml, 'utf8');
+    //Checking html extension
+    const htmlFileExtension = (downloadHtml._suggestedFilename).split('.').pop();
+    await checkTextContent(htmlFileExtension, 'html');
 
     await checkTextContent(contentHtml, '<body>');
 
@@ -153,6 +158,10 @@ class SharedNotes extends MultiUsers {
     await expect(downloadEtherpad).toBeTruthy();
     const filePathEtherpad = await downloadEtherpad.path();
     const contentEtherpad = await readFileSync(filePathEtherpad, 'utf8');
+
+    const etherpadFileExtension = (downloadEtherpad._suggestedFilename).split('.').pop();
+    
+    await checkTextContent(etherpadFileExtension, 'etherpad');
 
     await checkTextContent(contentEtherpad, e.message);    
   }
