@@ -356,7 +356,7 @@ export default function Whiteboard(props) {
       // so that these styles will be used in the detached window.
       //These will be turned off in the last process of rendering.
       tldrawAPI?.setSetting('keepStyleMenuOpen', true);
-      tldrawAPI?.setSetting('dockPosition', 'right');
+      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
     }
 
     return () => {
