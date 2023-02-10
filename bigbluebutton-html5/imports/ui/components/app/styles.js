@@ -49,6 +49,7 @@ const DtfInvert = `
   }
   [id="TD-StylesMenu"],
   [id="TD-Styles-Color-Container"],
+  div[data-test="brandingArea"],
   #connectionBars > div
 `;
 
