@@ -16,6 +16,7 @@ import {
   borderSize,
   statusInfoHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const DropdownButton = styled.button`
   background-color: #FFF;
@@ -38,11 +39,17 @@ const Right = styled.div`
   left: auto;
   right: 0px;
   z-index: 999;
+  overflow: hidden;
+  padding-bottom: 10px;
 
   > div {
     background-color: ${colorWhite};
     width: 50px;
-    height: 41px;
+    height: 45px;
+    box-shadow: var(--shadows-panel);
+    @media ${smallOnly} {
+      height: 41px;
+    }
   }
 
   button {
