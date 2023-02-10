@@ -38,15 +38,21 @@ const Right = styled.div`
   left: auto;
   right: 0px;
   z-index: 999;
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid ${colorWhite};
 
   > div {
+    padding: 2px 4px 2px 4px;
     background-color: ${colorWhite};
     width: 50px;
-    height: 41px;
+    height: 100%;
+    margin-top: 1px;
+
   }
 
   button {
-    margin-top: .45rem;
+    height: 100%;
+    width: 100%;
   }
 
   [dir="rtl"] & {

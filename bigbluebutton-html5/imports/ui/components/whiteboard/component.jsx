@@ -78,6 +78,9 @@ const TldrawGlobalStyle = createGlobalStyle`
         height: ${size}px;
         width: ${size}px;
     }
+    #TD-Styles {
+      height: 100%;
+    }
   `}
 `;
 
