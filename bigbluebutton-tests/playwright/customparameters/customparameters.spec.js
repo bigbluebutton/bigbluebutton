@@ -70,25 +70,25 @@ test.describe.parallel('CustomParameters', () => {
   test('Hide Actions Bar', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: c.hideActionsBar });
-    await customParam.hideActionsBar();
+    await customParam.hideActionsBarTest();
   });
 
   test('Override Default Locale', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: c.overrideDefaultLocale });
-    await customParam.overrideDefaultLocale();
+    await customParam.overrideDefaultLocaleTest();
   });
 
-  test.only('Hide NavBar', async ({ browser, context, page }) => {
+  test('Hide NavBar', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: c.hideNavBar });
-    await customParam.hideNavBar();
+    await customParam.hideNavBarTest();
   });
 
-  test('Prefered Camera Profile', async ({ browser, context, page }) => {
+  test('Preferred Camera Profile', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: c.preferredCameraProfile });
-    await customParam.preferredCameraProfile();
+    await customParam.preferredCameraProfileTest();
   });
 
   test.describe.parallel('Audio', () => {

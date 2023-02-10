@@ -215,7 +215,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.webcamSettingsModal);
   }
 
-  async hideActionsBar() {
+  async hideActionsBarTest() {
     await this.modPage.wasRemoved(e.actions);
     await this.modPage.wasRemoved(e.joinAudio);
     await this.modPage.wasRemoved(e.joinVideo);
@@ -224,15 +224,15 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.raiseHandBtn);
   }
 
-  async overrideDefaultLocale() {
+  async overrideDefaultLocaleTest() {
     await this.modPage.hasText(e.chatButton, 'Bate-papo público');
   }
 
-  async hideNavBar() {
+  async hideNavBarTest() {
     await this.modPage.wasRemoved(e.navbarBackground);
   }
 
-  async preferredCameraProfile() {
+  async preferredCameraProfileTest() {
     await this.modPage.waitAndClick(e.joinVideo);
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue()).toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
