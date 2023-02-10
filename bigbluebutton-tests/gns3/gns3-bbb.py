@@ -129,6 +129,8 @@ parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
                     help='private IP subnet to be used for NAT-ed BBB server')
 parser.add_argument('-r', '--repository', type=str,
                     help='package repository to be used for BigBlueButton server install')
+parser.add_argument('-g', '--greenlight', action='store_true',
+                    help='install Greenlight')
 parser.add_argument('--ubuntu-release', type=int, default=20,
                     help='Ubuntu release (18 or 20; default 20) to be used for BigBlueButton server install')
 parser.add_argument('--release', type=str,
@@ -894,8 +896,13 @@ def BBB_server_standalone(hostname, x=100, y=300):
         except requests.exceptions.HTTPError:
             print(f'Release {args.release} does not exist on {repo} for distribution {distro}')
             exit(1)
+
         if args.proxy_server:
             install_options.append(f'-p {args.proxy_server}')
+
+        if args.greenlight:
+            install_options.append('-g')
+
         install_options_str = ' '.join(install_options)
         user_data['runcmd'].append(f'sudo -u ubuntu RELEASE="{args.release}" INSTALL_OPTIONS="{install_options_str}" /testserver.sh')
 
