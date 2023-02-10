@@ -8,6 +8,7 @@ import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
+import { presentationMenuHeight } from '/imports/ui/stylesheets/styled-components/general';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -77,6 +78,9 @@ const TldrawGlobalStyle = createGlobalStyle`
     #TD-PrimaryTools button {
         height: ${size}px;
         width: ${size}px;
+    }
+    #TD-Styles {
+      height: 100%;
     }
   `}
 `;
@@ -641,6 +645,7 @@ export default function Whiteboard(props) {
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
+      menu.style.height = presentationMenuHeight;
       if (isRTL) {
         menu.style.left = MENU_OFFSET;
       } else {
