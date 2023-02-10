@@ -15,6 +15,7 @@ import {
   statusIconSize,
   borderSize,
   statusInfoHeight,
+  presentationMenuHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
@@ -40,6 +41,7 @@ const Right = styled.div`
   z-index: 999;
   box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid ${colorWhite};
+  height: ${presentationMenuHeight};
 
   > div {
     padding: 2px 4px 2px 4px;

@@ -265,10 +265,8 @@ const PresentationMenu = (props) => {
     return null
   };
 
-  const toolbarHeight = document.getElementById('TD-Styles')?.parentElement?.parentElement?.clientHeight || 'auto';
-
   return (
-    <Styled.Right style={{ height: toolbarHeight }}>
+    <Styled.Right>
       <BBBMenu 
         trigger={
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>

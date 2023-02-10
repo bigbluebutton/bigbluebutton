@@ -47,6 +47,9 @@ const DtfInvert = `
   .tl-container {
     background-color: var(--tl-background) !important;
   }
+  #TD-Tools button, #TD-TopPanel-Undo, #TD-TopPanel-Redo, #TD-Styles {
+    border-color: transparent !important;
+  }
   [id="TD-StylesMenu"],
   [id="TD-Styles-Color-Container"],
   #connectionBars > div
