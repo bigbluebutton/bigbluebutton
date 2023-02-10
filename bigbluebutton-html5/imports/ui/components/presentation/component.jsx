@@ -130,6 +130,7 @@ class WindowPortal extends React.PureComponent {
 
   componentWillUnmount() {
     const { win } = this.state;
+    //in darkMode win gets null... to be fixed!
     win.close();
   }
 
