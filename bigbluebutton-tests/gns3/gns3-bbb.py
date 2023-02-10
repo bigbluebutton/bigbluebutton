@@ -31,13 +31,8 @@
 # stun.l.google.com servers.
 #
 # The first time the script is run, the required infrastructure nodes
-# are created, and the --domain switch should be specified.  The
-# specified domain name will be saved and used for further runs.  The
-# --public-subnet switch can also be specified at this time, and the
-# public subnet's CIDR prefix will also be saved.
-#
-# NOTE: The default --domain "test" is probably not right; you should
-# use the name of the bare metal machine hosting the GNS3 server.
+# are created.  The --public-subnet switch can be specified at this
+# time, and the public subnet's CIDR prefix will also be saved.
 #
 # If the machine running the script is configured to use an APT http
 # proxy, that proxy will also be used by the created nodes.
@@ -140,8 +135,6 @@ parser.add_argument('--install-script', type=str,
                     + 'can be a local file, a URL, or a filename on https://ubuntu.bigbluebutton.org/')
 parser.add_argument('--proxy-server', type=str,
                     help='proxy server to be passed to BigBlueButton server install script')
-parser.add_argument('--domain', type=str,
-                    help='DNS domain name for virtual devices (default "test")')
 parser.add_argument('--no-nat', action='store_true',
                     help='install BBB server without a NAT gateway')
 parser.add_argument('--no-install', action='store_true',
@@ -204,7 +197,7 @@ except:
 
 gns3_server, gns3_project = gns3.open_project_with_standard_options(args)
 
-# Delete server if that's what we were requested to do
+# Delete a server (and its associated nodes) if that's what we were requested to do
 
 if args.delete:
     # currently, the project's delete method doesn't complain if nothing matches,
@@ -219,23 +212,6 @@ if args.delete:
     for orphan in switches.difference(linked_switches):
         gns3_project.delete(orphan)
     exit(0)
-
-# Get GNS3 project variables and either extract DNS domain from them,
-# or set the DNS domain there for future reference
-
-gns3_variables = gns3_project.variables()
-
-if 'domain' in gns3_variables:
-    if not args.domain:
-        args.domain = gns3_variables['domain']
-    elif args.domain != gns3_variables['domain']:
-        print(f"DNS domain '{args.domain}' doesn't match project DNS domain '{gns3_variables['domain']}'")
-        exit(1)
-else:
-    if not args.domain:
-        args.domain = 'test'
-    gns3_variables['domain'] = args.domain
-    gns3_project.set_variables(gns3_variables)
 
 # Make sure the cloud and client images exist on the GNS3 server
 
@@ -500,6 +476,35 @@ server {{
 
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     ram=1024, disk=4096, ethernets=2, x=x, y=y)
+
+# Initialization server - only used once when project starts to discover project's DNS name
+#
+# This server has almost no configuration at all.  Once it boots, we can ssh in to find the DNS domain,
+# which will be used to build the master gateway node, since we need the DNS domain to build its config files.
+#
+# Issues:
+#   - if we couldn't find a notification URL, probably will hang.  Should at least warn.  Improve to fallback on polling
+#   - assumes that this script has access to at least one of the authorized keys
+
+def initialization_server(hostname, x=0, y=0):
+
+    # Use dhcp-identifier: mac because I'm still having problems with
+    # cloned GNS3 ubuntu nodes using the same client identifiers; it's
+    # a cloud-init issue.
+
+    network_config = {'version': 2,
+                      'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
+                      }}
+
+    user_data = {'hostname': hostname,
+                 'ssh_authorized_keys': ssh_authorized_keys
+    }
+
+    if notification_url:
+        user_data['phone_home'] = {'url': notification_url, 'tries': 1}
+
+    return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
+                                    ram=512, x=x, y=y)
 
 # BigBlueButton TURN server
 
@@ -961,6 +966,33 @@ def BBB_server(name, x=100, depends_on=None):
 internet = gns3_project.cloud(args.interface, args.interface, x=-500, y=0)
 
 notification_url = gns3_project.notification_url()
+
+# Get GNS3 project variables and either extract DNS domain from them,
+# or set the DNS domain there for future reference
+
+gns3_variables = gns3_project.variables()
+
+if 'domain' in gns3_variables:
+    args.domain = gns3_variables['domain']
+else:
+    init_server = initialization_server('initsrv', x=-200, y=-100)
+    gns3_project.link(init_server, 0, internet)
+    gns3_project.start_nodes(init_server, wait_for_everything=True)
+    # We could ssh to 'ubuntu@initsrv', but that would requiring waiting for the DNS entry to appear,
+    # so let's ssh directly to the IP address
+    ipaddr = gns3_project.httpd.instances_reported['initsrv']
+    stdout = subprocess.check_output(['ssh', f'ubuntu@{ipaddr}',
+                                      '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
+                                      'netplan ip leases ens4 | grep ^DOMAINNAME= | cut -d = -f 2'],
+                                     stderr = subprocess.DEVNULL)
+    args.domain = stdout.strip().decode()
+    # This isn't atomic; we're using the copy of gns3_variables that we got a minute or so ago
+    gns3_variables['domain'] = args.domain
+    gns3_project.set_variables(gns3_variables)
+    # improve delete method so that it can take init_server directly as an arg
+    gns3_project.delete(init_server['node_id'])
+
+# Create the master gateway
 
 master = master_gateway(args.project, x=-200, y=0)
 
