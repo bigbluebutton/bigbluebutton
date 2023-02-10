@@ -19,7 +19,7 @@ The script will build a gns3 project that looks like this:
 
 The network "highjacks" the 128.8.8.0/24 subnet, so it simulates public IP address space.  You can set a different public subnet using the `--public-subnet` option to the script.
 
-The DNS domain name is configured to match the bare metal hostname and must be specified the first name the script is run using the `--domain` option.  If the bare metal machine is called `osito`, for example, the virtual machines will be given names like `BigBlueButton.osito` and `focal-260.osito`.  This setting must match the domain name chosen when the GNS3 server was installed and configured, but there is currently no way to check or enforce this requirement.
+The DNS domain name is configured to match the bare metal hostname.  If the bare metal machine is called `osito`, for example, the virtual machines will be given names like `BigBlueButton.osito` and `focal-260.osito`.
 
 The `BigBlueButton` virtual machine (called `master_gateway` in the script) is named to match the gns3 project name, which is `BigBlueButton` by default.  The project name (and the name of the master gateway) can be changed using the `--project` option.
 
