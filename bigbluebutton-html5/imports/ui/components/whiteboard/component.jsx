@@ -622,7 +622,7 @@ export default function Whiteboard(props) {
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
-      if (isRTL) {
+      if (isRTL && !isPresentationDetached) { //a workaround for now..
         menu.style.left = MENU_OFFSET;
       } else {
         menu.style.right = MENU_OFFSET;
