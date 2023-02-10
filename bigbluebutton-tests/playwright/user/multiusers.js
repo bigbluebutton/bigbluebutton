@@ -155,10 +155,7 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
-    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
-    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
-    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
@@ -172,10 +169,7 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
-    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
-    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
-    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
