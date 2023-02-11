@@ -112,22 +112,22 @@ const TldrawGlobalStyleText = (arg) => {
         width: ${arg.size}px;
     }
     
-    // For manually supplementing the style of the TD-Tools-Dots
+    /* For manually supplementing the style of the TD-Tools-Dots */
     div[style*="--radix-popper-transform-origin"] > div {
         display: flex;
     }
-    // For manually supplementing the style of the StylesMenu
+    /* For manually supplementing the style of the StylesMenu */
     #TD-Styles-Color-Container > div {
         display: grid !important;
     }
     
-    // For manually supplementing the style of tldraw shape anotations
-    //.c-hinyfY ?
+    /* For manually supplementing the style of tldraw shape anotations */
+    /* .c-hinyfY */
     .tl-positioned > div {
         width: 100%;
         height: 100%;
     }
-    //.c-hcuEKK ?
+    /* .c-hcuEKK */
     .tl-positioned > div > div{
         position: absolute;
         top: 0px;
@@ -140,11 +140,19 @@ const TldrawGlobalStyleText = (arg) => {
         pointer-events: none;
         user-select: none;
     }
-    // The size of sticky note gets larger without this; the CSS above has to be overwritten.
+    /* The size of sticky note gets larger without this; the CSS above has to be overwritten. */
     .tl-inner-div {
         position: relative!important;
     }
-    // For tldraw tooltips
+    .tl-inner-div > div{
+        width: 100%;
+        height: 100%;
+        padding: 16px;
+        border-radius: 3px;
+        text-align: left;
+    }
+    
+    /* For tldraw tooltips */
     div[style*="--radix-tooltip-content-transform-origin"] {
         border-radius: 3px;
         padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
