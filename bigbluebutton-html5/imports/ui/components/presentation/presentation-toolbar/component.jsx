@@ -87,6 +87,7 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.toolbar.tools.hand',
     description: 'presentation toolbar pan label',
   },
+  /*
   splitPresentationDesc: {
     id: 'app.presentation.presentationToolbar.splitPresentationDesc',
     description: 'detach the presentation area label',
@@ -95,6 +96,7 @@ const intlMessages = defineMessages({
     id: 'app.presentation.presentationToolbar.mergePresentationDesc',
     description: 'merge the detached presentation area label',
   },
+  */
 });
 
 class PresentationToolbar extends PureComponent {
@@ -240,12 +242,14 @@ class PresentationToolbar extends PureComponent {
         <div id="fitPageDesc">
           {intl.formatMessage(intlMessages.fitToPageDesc)}
         </div>
+        {/*
         <div id="mergePresentationDesc">
           {intl.formatMessage(intlMessages.mergePresentationDesc)}
         </div>
         <div id="splitPresentationDesc">
           {intl.formatMessage(intlMessages.splitPresentationDesc)}
         </div>
+        */}
       </div>
     );
   }
@@ -273,8 +277,6 @@ class PresentationToolbar extends PureComponent {
       fitToWidth,
       intl,
       zoom,
-      isFullscreen,
-      fullscreenRef,
       isMeteorConnected,
       isPollingEnabled,
       amIPresenter,
@@ -287,8 +289,8 @@ class PresentationToolbar extends PureComponent {
       multiUser,
       setIsPanning,
       isPanning,
-      togglePresentationDetached,
-      isPresentationDetached,
+      //togglePresentationDetached,
+      //isPresentationDetached,
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -329,7 +331,7 @@ class PresentationToolbar extends PureComponent {
 
           <SmartMediaShareContainer {...{ intl, currentSlide }} />
         </div>
-
+        {/*
           <div>
             <Styled.detachWindowButton
               role="button"
@@ -349,7 +351,7 @@ class PresentationToolbar extends PureComponent {
               hideLabel
             />
           </div>
-
+        */}
         <Styled.PresentationSlideControls>
           <Styled.PrevSlideButton
             role="button"
