@@ -1020,6 +1020,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
       isPresentationDetached,
+      togglePresentationDetached,
     } = this.props;
 
     return (
@@ -1031,6 +1032,7 @@ class Presentation extends PureComponent {
         layoutContextDispatch={layoutContextDispatch}
         isPresentationDetached={isPresentationDetached}
         presentationWindow={presentationWindow}
+        togglePresentationDetached={togglePresentationDetached}
       />
     );
   }
