@@ -435,11 +435,23 @@ class Presentation extends PureComponent {
       });
     });
 
-    win.addEventListener('fullscreenchange', () => {
+    win.addEventListener(FULLSCREEN_CHANGE_EVENT, () => {
       const { isFullscreen } = this.state;
-      const newIsFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement);
+      const newIsFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement, presentationWindow.document);
       if (isFullscreen !== newIsFullscreen) {
         this.setState({ isFullscreen: newIsFullscreen });
+         //when exiting fullscreen by ESC key, which does not fire a key event, we need to set the layoutContext here,
+         // so that the 'exit fullscreen' icon is shown correctly in the detached window.
+         // This does not actually affect the functionality of the button itself.
+        if (isFullscreen) {
+          this.props.layoutContextDispatch({
+            type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+            value: {
+              element: '',
+              group: '',
+            },
+          });
+        }
       }
       this.setState({
         presentationWidth: win.innerWidth,
