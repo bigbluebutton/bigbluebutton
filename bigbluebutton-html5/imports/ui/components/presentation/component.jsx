@@ -447,13 +447,14 @@ class Presentation extends PureComponent {
       });
     });
 
+    //Just adding this for the convenience.. This can be removed if I know how to transfer all the shortcuts.
     win.addEventListener('keydown', (e) => {
       //console.log("KDE", e.keyCode, e.key);
       //console.log("KDE", e.key, this.state.tldrawAPI);
       switch (e.key) {
         case 'Delete': case 'Backspace':
           const selectedIds = this.state.tldrawAPI.getShapes().map(s => s.id).filter(id => this.state.tldrawAPI.isSelected(id));
-          console.log("KDE", selectedIds);
+          //console.log("KDE", selectedIds);
           this.state.tldrawAPI.delete(selectedIds);
           break;
       }
