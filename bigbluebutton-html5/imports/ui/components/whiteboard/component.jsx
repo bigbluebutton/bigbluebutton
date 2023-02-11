@@ -122,11 +122,11 @@ const TldrawGlobalStyleText = (arg) => {
     }
     
     // For manually supplementing the style of tldraw shape anotations
-    .tl-positioned > div {
+    .tl-positioned > div { //.c-hinyfY ?
         width: 100%;
         height: 100%;
     }
-    .tl-positioned > div > div{
+    .tl-positioned > div > div{ //.c-hcuEKK ?
         position: absolute;
         top: 0px;
         left: 0px;
