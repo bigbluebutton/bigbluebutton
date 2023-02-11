@@ -138,7 +138,10 @@ const TldrawGlobalStyleText = (arg) => {
         pointer-events: none;
         user-select: none;
     }
-
+    // The size of sticky note gets larger without this; the CSS above has to be overwritten.
+    .tl-inner-div {
+        position: relative!important;
+    }
     // For tldraw tooltips
     div[style*tlStyles="--radix-tooltip-content-transform-origin"] {
         border-radius: 3px;
