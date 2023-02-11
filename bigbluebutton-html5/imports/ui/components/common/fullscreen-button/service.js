@@ -1,8 +1,8 @@
 function getFullscreenElement(d = document) {
-  if (document.fullscreenElement) return document.fullscreenElement;
-  if (document.webkitFullscreenElement) return document.webkitFullscreenElement;
-  if (document.mozFullScreenElement) return document.mozFullScreenElement;
-  if (document.msFullscreenElement) return document.msFullscreenElement;
+  if (d.fullscreenElement) return d.fullscreenElement;
+  if (d.webkitFullscreenElement) return d.webkitFullscreenElement;
+  if (d.mozFullScreenElement) return d.mozFullScreenElement;
+  if (d.msFullscreenElement) return d.msFullscreenElement;
   return null;
 }
 
