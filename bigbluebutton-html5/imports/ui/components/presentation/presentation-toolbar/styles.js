@@ -29,7 +29,7 @@ const PresentationToolbarWrapper = styled.div`
   width: 100%;
   bottom: 0px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr/* 1fr*/;
   padding: 2px;
 
   select {
@@ -88,7 +88,7 @@ const PresentationSlideControls = styled.div`
     padding: ${whiteboardToolbarPadding};
   }
 `;
-
+/*
 const detachWindowButton = styled(Button)`
   border: none !important;
 
@@ -116,7 +116,7 @@ const detachWindowButton = styled(Button)`
     border: 0;
   }
 `;
-
+*/
 const PrevSlideButton = styled(Button)`
   i {
     font-size: 1rem;
@@ -313,5 +313,5 @@ export default {
   MultiUserTool,
   WBAccessButton,
   MUTPlaceholder,
-  detachWindowButton,
+  //detachWindowButton,
 };
