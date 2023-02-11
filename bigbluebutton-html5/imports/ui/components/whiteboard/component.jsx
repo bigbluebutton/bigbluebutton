@@ -139,6 +139,20 @@ const TldrawGlobalStyleText = (arg) => {
         user-select: none;
     }
 
+    // For tldraw tooltips
+    div[style*tlStyles="--radix-tooltip-content-transform-origin"] {
+        border-radius: 3px;
+        padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
+        font-size: var(--fontSizes-1);
+        background-color: var(--colors-tooltip);
+        color: var(--colors-tooltipContrast);
+        box-shadow: var(--shadows-3);
+        display: flex;
+        align-items: center;
+        font-family: var(--fonts-ui);
+        user-select: none;
+    }
+    
   ` : ''}
   `;
   return styleText;
