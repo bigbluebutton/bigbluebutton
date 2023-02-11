@@ -10,7 +10,8 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  rev: PropTypes.number.isRequired,
+  isPinned: PropTypes.bool.isRequired,
+  sidebarContentPanel: PropTypes.string.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -45,34 +46,35 @@ class UserNotes extends Component {
     super(props);
 
     this.state = {
-      unread: NotesService.hasUnreadNotes(),
+      unread: false,
     };
     this.setUnread = this.setUnread.bind(this);
   }
 
   componentDidMount() {
-    const {
-      rev,
-    } = this.props;
-
-    const lastRev = NotesService.getLastRev();
-
-    if (rev !== 0 && rev > lastRev) this.setUnread(true);
+    this.setUnread(NotesService.hasUnreadNotes());
   }
 
   componentDidUpdate(prevProps) {
-    const { sidebarContentPanel, rev, isPinned } = this.props;
+    const { sidebarContentPanel, isPinned } = this.props;
     const { unread } = this.state;
 
-    if (sidebarContentPanel !== PANELS.SHARED_NOTES && !unread) {
-      if (prevProps.rev !== rev) this.setUnread(true);
+    const notesOpen = sidebarContentPanel === PANELS.SHARED_NOTES && !isPinned;
+    const notesClosed = (prevProps.sidebarContentPanel === PANELS.SHARED_NOTES
+                        && sidebarContentPanel !== PANELS.SHARED_NOTES)
+                        || (prevProps.isPinned && !isPinned);
+
+    if (notesOpen && unread) {
+      NotesService.markNotesAsRead();
+      this.setUnread(false);
+    } else if (!unread && NotesService.hasUnreadNotes()) {
+      this.setUnread(true);
     }
 
-    if (sidebarContentPanel === PANELS.SHARED_NOTES && unread) {
+    if (notesClosed) {
+      NotesService.markNotesAsRead();
       this.setUnread(false);
     }
-
-    if (!isPinned && prevProps.isPinned && unread) this.setUnread(false);
   }
 
   setUnread(unread) {
