@@ -9,6 +9,7 @@ import BBBMenu from "/imports/ui/components/common/menu/component";
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
@@ -111,7 +112,6 @@ const PresentationMenu = (props) => {
     isPresentationDetached,
     presentationWindow,
     togglePresentationDetached,
-    isMobile,
   } = props;
 
   const [state, setState] = useState({
@@ -250,7 +250,8 @@ const PresentationMenu = (props) => {
       );
     }
     
-    if (!isMobile) {
+    const {isMobile, isTablet} = deviceInfo;
+    if (!isMobile && !isTablet) {
       menuItems.push(
         {
           key: 'list-item-detachscreen',
