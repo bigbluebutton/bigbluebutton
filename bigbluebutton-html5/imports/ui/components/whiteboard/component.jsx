@@ -122,11 +122,13 @@ const TldrawGlobalStyleText = (arg) => {
     }
     
     // For manually supplementing the style of tldraw shape anotations
-    .tl-positioned > div { //.c-hinyfY ?
+    //.c-hinyfY ?
+    .tl-positioned > div {
         width: 100%;
         height: 100%;
     }
-    .tl-positioned > div > div{ //.c-hcuEKK ?
+    //.c-hcuEKK ?
+    .tl-positioned > div > div{
         position: absolute;
         top: 0px;
         left: 0px;
@@ -143,7 +145,7 @@ const TldrawGlobalStyleText = (arg) => {
         position: relative!important;
     }
     // For tldraw tooltips
-    div[style*tlStyles="--radix-tooltip-content-transform-origin"] {
+    div[style*="--radix-tooltip-content-transform-origin"] {
         border-radius: 3px;
         padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
         font-size: var(--fontSizes-1);
