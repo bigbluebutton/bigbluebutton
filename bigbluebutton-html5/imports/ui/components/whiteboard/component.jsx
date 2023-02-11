@@ -120,6 +120,24 @@ const TldrawGlobalStyleText = (arg) => {
     #TD-Styles-Color-Container > div {
         display: grid !important;
     }
+    
+    // For manually supplementing the style of tldraw shape anotations
+    .tl-positioned > div {
+        width: 100%;
+        height: 100%;
+    }
+    .tl-positioned > div > div{
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        user-select: none;
+    }
 
   ` : ''}
   `;
