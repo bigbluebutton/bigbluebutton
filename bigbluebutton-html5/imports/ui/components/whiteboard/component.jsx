@@ -141,15 +141,20 @@ const TldrawGlobalStyleText = (arg) => {
         user-select: none;
     }
     /* The size of sticky note gets larger without this; the CSS above has to be overwritten. */
-    .tl-inner-div {
-        position: relative !important;
+    div[data-shape="sticky"] > div > div{
+        position: relative!important;
     }
-    .tl-inner-div > div{
+    div[data-shape="sticky"] > div > div > div{
         width: 100%;
         height: 100%;
         padding: 16px;
         border-radius: 3px;
         text-align: left;
+    }
+
+    /* For the text */
+    div[data-shape="text"] > div > div{
+        position: relative!important;
     }
     
     /* For tldraw tooltips */
