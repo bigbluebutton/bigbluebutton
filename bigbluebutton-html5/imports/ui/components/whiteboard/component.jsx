@@ -142,7 +142,7 @@ const TldrawGlobalStyleText = (arg) => {
     }
     /* The size of sticky note gets larger without this; the CSS above has to be overwritten. */
     .tl-inner-div {
-        position: relative!important;
+        position: relative !important;
     }
     .tl-inner-div > div{
         width: 100%;
