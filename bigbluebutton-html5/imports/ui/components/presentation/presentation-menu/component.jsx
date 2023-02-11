@@ -57,7 +57,15 @@ const intlMessages = defineMessages({
     id: "app.shortcut-help.whiteboard",
     description: 'used for aria whiteboard options button label',
     defaultMessage: 'Whiteboard',
-  }
+  },
+  splitPresentationDesc: {
+    id: 'app.presentation.presentationToolbar.splitPresentationDesc',
+    description: 'detach the presentation area label',
+  },
+  mergePresentationDesc: {
+    id: 'app.presentation.presentationToolbar.mergePresentationDesc',
+    description: 'merge the detached presentation area label',
+  },
 });
 
 const propTypes = {
@@ -102,6 +110,8 @@ const PresentationMenu = (props) => {
     isRTL,
     isPresentationDetached,
     presentationWindow,
+    togglePresentationDetached,
+    isMobile,
   } = props;
 
   const [state, setState] = useState({
@@ -117,6 +127,12 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
   );
+  
+  const formattedDetachedLabel = (detached) => (detached
+    ? intl.formatMessage(intlMessages.mergePresentationDesc)
+    : intl.formatMessage(intlMessages.splitPresentationDesc)
+  );
+
 
   function renderToastContent() {
     const { loading, hasError } = state;
@@ -229,6 +245,20 @@ const PresentationMenu = (props) => {
                 extraInfo: e,
               });
             }
+          },
+        },
+      );
+    }
+    
+    if (!isMobile) {
+      menuItems.push(
+        {
+          key: 'list-item-detachscreen',
+          dataTest: 'presentationDetached',
+          label: formattedDetachedLabel(isPresentationDetached),
+          icon: isPresentationDetached ? 'application' : 'rooms',
+          onClick: () => {
+            togglePresentationDetached();
           },
         },
       );
