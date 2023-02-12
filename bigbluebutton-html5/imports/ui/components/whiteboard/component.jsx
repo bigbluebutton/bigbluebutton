@@ -47,6 +47,8 @@ const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
 
+var firstReaction = 0; //counter for touching the tldraw CSS only once
+
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
     #TD-ContextMenu {
@@ -116,48 +118,8 @@ const TldrawGlobalStyleText = (arg) => {
     div[style*="--radix-popper-transform-origin"] > div {
         display: flex;
     }
-    /* For manually supplementing the style of the StylesMenu */
-    #TD-Styles-Color-Container > div {
-        display: grid !important;
-    }
-    
-    /* For manually supplementing the style of tldraw shape anotations */
-    /* .c-hinyfY */
-    .tl-positioned > div {
-        width: 100%;
-        height: 100%;
-    }
-    /* .c-hcuEKK */
-    .tl-positioned > div > div{
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: none;
-        user-select: none;
-    }
-    /* The size of sticky note gets larger without this; the CSS above has to be overwritten. */
-    div[data-shape="sticky"] > div > div{
-        position: relative!important;
-    }
-    div[data-shape="sticky"] > div > div > div{
-        width: 100%;
-        height: 100%;
-        padding: 16px;
-        border-radius: 3px;
-        text-align: left;
-    }
 
-    /* For the text */
-    div[data-shape="text"] > div > div{
-        position: relative!important;
-    }
-    
-    /* For tldraw tooltips */
+    /* For tldraw tooltips; for an edge case where the user enters the detached mode without showing any tooltip */
     div[style*="--radix-tooltip-content-transform-origin"] {
         border-radius: 3px;
         padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
@@ -171,8 +133,19 @@ const TldrawGlobalStyleText = (arg) => {
         user-select: none;
     }
     
+    ${ arg.isRTL ? `
+        div[data-shape="sticky"] > div > div > div > div {
+            text-align: right;
+        }
+    ` : `
+        div[data-shape="sticky"] > div > div > div > div{
+            text-align: left;
+        }
+    `}
+    
   ` : ''}
   `;
+    
   return styleText;
 };
 
@@ -843,6 +816,27 @@ export default function Whiteboard(props) {
 
       setCurrentTool(tool);
     }
+    
+    //For touching the tldraw CSS that was not transferred on the window detaching.
+    //Here we need to remove the elements that were invoked in the hook to the API.
+    //This is visited for many times, so we need to be careful not to call too many API (too many stacks error).
+    if (tldrawAPI){
+      if (firstReaction == 0) {
+        if (document.getElementById('TD-Styles-Color-Container') &&
+            tldrawAPI.getShape('rectdummy') &&
+            tldrawAPI.getShape('textdummy') &&
+            tldrawAPI.getShape('stickydummy')) {
+          firstReaction = 1;
+        }
+      } else if (firstReaction == 1) { // When the browser is reloaded, they remain. Need to be solved!
+        firstReaction = 2;
+        tldrawAPI.setSetting('keepStyleMenuOpen', false);
+        tldrawAPI.select('rectdummy').delete();
+        tldrawAPI.select('textdummy').delete();
+        tldrawAPI.select('stickydummy').delete();
+      }
+    }
+    
   };
 
   const onUndo = (app) => {
@@ -967,7 +961,7 @@ export default function Whiteboard(props) {
     tldrawAPI.isForcePanning = isPanning;
   }
 
-  if (hasWBAccess || isPresenter) {
+  if (firstReaction == 2 && (hasWBAccess || isPresenter)) {
     if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
     } else {
@@ -977,7 +971,7 @@ export default function Whiteboard(props) {
 
   if (isPresentationDetached) {
     const styleId = "supplementedTldrawStyle";
-    const tldgsarg = {hasWBAccess, isPresenter, hideContextMenu: !hasWBAccess && !isPresenter, size};
+    const tldgsarg = {hasWBAccess, isPresenter, hideContextMenu: !hasWBAccess && !isPresenter, size, isRTL};
     const tldgs = TldrawGlobalStyleText(tldgsarg);
     const oldElement = presentationWindow.document.getElementById(styleId);
     if (oldElement) {
@@ -987,10 +981,20 @@ export default function Whiteboard(props) {
     suppStyle.id = styleId;
     suppStyle.appendChild(presentationWindow.document.createTextNode(tldgs));
     presentationWindow.document.head.appendChild(suppStyle);
-  } else {
-    // This was already turned on at React hook triggerd by the availability of tldrawAPI.
-    tldrawAPI?.setSetting('keepStyleMenuOpen', false);
-  }
+  } 
+  
+  //Hook to "touch" the tldraw CSS, by showing some elements for an instance.
+  React.useEffect(() => {
+    if (firstReaction == 0 && tldrawAPI &&
+      (tldrawAPI?.getShapes().length == 0 ||
+        (tldrawAPI?.getShapes().length == 1 && tldrawAPI?.getShapes()[0].id == "slide-background-shape"))) {
+      tldrawAPI.setSetting('keepStyleMenuOpen', true);
+      tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right');
+      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [100, 100], })
+      tldrawAPI.createShapes({ id: 'textdummy', type: 'text', text: 'text', point: [0, 0], })
+      tldrawAPI.createShapes({ id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], })
+    }
+  }, [tldrawAPI]);
 
   return (
     <>
