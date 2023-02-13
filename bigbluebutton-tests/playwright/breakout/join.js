@@ -234,12 +234,12 @@ class Join extends Create {
 
     await this.userPage.checkElementCount(e.roomOption, 2);
 
-    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption(/Room2/);
+    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
-    await breakoutUserPage.waitForSelector(e.presentationTitle, 10000);    
+    await breakoutUserPage.waitForSelector(e.presentationTitle, ELEMENT_WAIT_LONGER_TIME);    
   }
 }
 
