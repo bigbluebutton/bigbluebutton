@@ -75,6 +75,7 @@ const NavBarContainer = ({ children, ...props }) => {
         layoutContextDispatch,
         isExpanded,
         activeChats,
+        currentUserId: Auth.userID,
         ...rest,
       }}
       style={{ ...navBar }}
