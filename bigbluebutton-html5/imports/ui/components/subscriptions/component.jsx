@@ -32,6 +32,7 @@ const {
   localGuestUsersSync,
   localMeetingsSync,
   localUsersSync,
+  localConnectionStatusSync,
 } = localCollectionRegistry;
 
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
@@ -108,6 +109,7 @@ export default withTracker(() => {
       subscriptionReactivity.depend();
       localBreakoutsSync.setIgnoreDeletes(true);
       localBreakoutsHistorySync.setIgnoreDeletes(true);
+      localConnectionStatusSync.setIgnoreDeletes(true);
       localGuestUsersSync.setIgnoreDeletes(true);
       localMeetingsSync.setIgnoreDeletes(true);
       localUsersSync.setIgnoreDeletes(true);
