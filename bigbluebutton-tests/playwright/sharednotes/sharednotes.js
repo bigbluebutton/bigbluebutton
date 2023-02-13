@@ -126,6 +126,7 @@ class SharedNotes extends MultiUsers {
     const exportHtmlLocator = getExportHTMLLocator(this.modPage);
     const exportEtherpadLocator = getExportEtherpadLocator(this.modPage);
 
+    //.txt checks
     const [download] = await Promise.all([
       page.waitForEvent('download', { timeout: 5000 }),
       exportPlainTextLocator.click(),
@@ -138,6 +139,7 @@ class SharedNotes extends MultiUsers {
     await checkTextContent(txtFileExtension, 'txt');
     await checkTextContent(content, e.message);
 
+    //.html checks
     const [downloadHtml] = await Promise.all([
       page.waitForEvent('download', { timeout: 5000 }),
       exportHtmlLocator.click(),
@@ -145,12 +147,12 @@ class SharedNotes extends MultiUsers {
     await expect(downloadHtml).toBeTruthy();
     const filePathHtml = await downloadHtml.path();
     const contentHtml = await readFileSync(filePathHtml, 'utf8');
-    //Checking html extension
+
     const htmlFileExtension = (downloadHtml._suggestedFilename).split('.').pop();
     await checkTextContent(htmlFileExtension, 'html');
+    await checkTextContent(contentHtml, e.message); 
 
-    await checkTextContent(contentHtml, '<body>');
-
+    //.etherpad checks
     const [downloadEtherpad] = await Promise.all([
       page.waitForEvent('download', { timeout: 5000 }),
       exportEtherpadLocator.click(),
@@ -162,7 +164,6 @@ class SharedNotes extends MultiUsers {
     const etherpadFileExtension = (downloadEtherpad._suggestedFilename).split('.').pop();
     
     await checkTextContent(etherpadFileExtension, 'etherpad');
-
     await checkTextContent(contentEtherpad, e.message);    
   }
 
