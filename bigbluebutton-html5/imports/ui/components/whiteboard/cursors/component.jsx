@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Meteor } from 'meteor/meteor';
+import { throttle } from 'lodash';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
@@ -7,6 +8,7 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
+const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
 const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
@@ -100,7 +102,7 @@ const PositionLabel = (props) => {
   const { name, color, userId } = currentUser;
   const { x, y } = pos;
 
-  React.useEffect(() => {
+  const cursorUpdate = (x,y) => {
     try {
       const point = [x, y];
       publishCursorUpdate({
@@ -113,6 +115,15 @@ const PositionLabel = (props) => {
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const throttledCursorUpdate = React.useRef(throttle((x,y) => {
+    cursorUpdate(x,y);
+  },
+  CURSOR_INTERVAL, { trailing: false }));
+
+  React.useEffect(() => {
+    throttledCursorUpdate.current(x,y);
   }, [x, y]);
 
   return (
