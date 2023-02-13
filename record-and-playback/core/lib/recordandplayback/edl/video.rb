@@ -452,7 +452,8 @@ module BigBlueButton
             seek = video[:timestamp]
             BigBlueButton.logger.debug("      start timestamp: #{video[:timestamp]}")
             seek_offset = this_videoinfo[:start_time]
-            BigBlueButton.logger.debug("      seek offset: #{seek_offset}")
+            video_start_offset = this_videoinfo[:video][:start_time]
+            BigBlueButton.logger.debug("      seek offset: #{seek_offset}, video start offset: #{video_start_offset}")
             BigBlueButton.logger.debug("      codec: #{this_videoinfo[:video][:codec_name].inspect}")
             BigBlueButton.logger.debug("      duration: #{this_videoinfo[:duration]}, original duration: #{video[:original_duration]}")
 
@@ -512,10 +513,17 @@ module BigBlueButton
             FileUtils.rm_f(ffmpeg_preprocess_output)
             File.mkfifo(ffmpeg_preprocess_output)
 
+            in_time = video[:timestamp] + seek_offset
+            out_time = in_time + duration
+
             # Pre-filtering: scaling, padding, and extending.
-            ffmpeg_preprocess_filter = \
-              "[0:v:0]scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,setsar=1,"\
-              "pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white[out]"
+            ffmpeg_preprocess_filter = String.new
+            ffmpeg_preprocess_filter << '[0:v:0]'
+            ffmpeg_preprocess_filter << "scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,"
+            ffmpeg_preprocess_filter << "setsar=1,pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white,"
+            # The trim command combines its arguments - end at the timestamp but only if at least one frame has been output.
+            ffmpeg_preprocess_filter << "trim=end=#{ms_to_s(out_time)}:end_frame=1"
+            ffmpeg_preprocess_filter << '[out]'
 
             # Set up filters and inputs for video pre-processing ffmpeg command
             ffmpeg_preprocess_command = [
@@ -524,9 +532,7 @@ module BigBlueButton
               '-vsync', 'passthrough', '-noaccurate_seek',
               '-ss', ms_to_s(seek).to_s, '-itsoffset', ms_to_s(seek).to_s, '-i', video[:filename],
               '-filter_complex', ffmpeg_preprocess_filter, '-map', '[out]',
-              # Trim to end point so process exits cleanly
-              '-to', ms_to_s(video[:timestamp] + duration).to_s,
-              '-c:v', 'rawvideo', "#{output}.#{pad_name}.nut"
+              '-c:v', 'rawvideo', "#{output}.#{pad_name}.nut",
             ]
             BigBlueButton.logger.debug("Executing: #{Shellwords.join(ffmpeg_preprocess_command)}")
             ffmpeg_preprocess_pid = spawn(*ffmpeg_preprocess_command, err: [ffmpeg_preprocess_log, 'w'])
@@ -541,10 +547,14 @@ module BigBlueButton
             ffmpeg_filter << "[#{input_index}]"
             # Scale the video length for the deskshare timestamp workaround
             ffmpeg_filter << "setpts=PTS*#{scale}," unless scale.nil?
+            # If the video start time is after the seek point, extend the video backwards
+            if in_time < video_start_offset
+              ffmpeg_filter << "tpad=start_duration=#{ms_to_s(video_start_offset - in_time)}:start_mode=clone,"
+            end
             # Extend the video if needed and clean up the framerate
             ffmpeg_filter << "tpad=stop=-1:stop_mode=clone,fps=#{layout[:framerate]}"
             # Apply PTS offset so '0' time is aligned, and trim frames before start point
-            ffmpeg_filter << ",setpts=PTS-#{ms_to_s(video[:timestamp])}/TB,trim=start=0"
+            ffmpeg_filter << ",setpts=PTS-#{ms_to_s(in_time)}/TB,trim=start=0"
             ffmpeg_filter << "[#{pad_name}];"
           end
 
