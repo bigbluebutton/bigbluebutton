@@ -153,6 +153,7 @@ jobs:
           npm run test-firefox-ci
           '
       - name: Services logs
+	if: always()
         run: |
           sudo sh -c '
           echo "########### BBB-WEB"
