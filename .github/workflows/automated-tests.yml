@@ -152,6 +152,24 @@ jobs:
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
           npm run test-firefox-ci
           '
+      - name: Services logs
+        run: |
+          sudo sh -c '
+          echo "########### BBB-WEB"
+          tail -n 500 /var/log/bigbluebutton/bbb-web.log
+          echo "########### AKKA-APPS"
+          tail -n 500 /var/log/bbb-apps-akka/bbb-apps-akka.log
+          echo "########### HTML5 backend"
+          sudo journalctl -u bbb-html5-backend@1.service --since today | tail -n 500
+          echo "########### HTML5 frontend"
+          sudo journalctl -u bbb-html5-frontend@1.service --since today | tail -n 500
+          echo "########### COTURN"
+          tail -n 500 /var/log/turnserver/turnserver.log
+          echo "########### HAPROXY"
+          tail -n 500 /var/log/haproxy.log
+          echo "########### FREESWITCH"
+          tail -n 500 /opt/freeswitch/log/freeswitch.log
+          '
       - if: always()
         uses: actions/upload-artifact@v3
         with:
