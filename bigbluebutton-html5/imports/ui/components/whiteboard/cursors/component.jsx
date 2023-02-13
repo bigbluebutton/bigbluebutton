@@ -22,6 +22,7 @@ const TOOL_CURSORS = {
   text: `url('${makeCursorUrl('text.png')}'), default`,
   sticky: `url('${makeCursorUrl('square.png')}'), default`,
   pan: `url('${makeCursorUrl('pan.png')}'), default`,
+  moving: 'move',
 };
 
 const Cursor = (props) => {
@@ -148,6 +149,7 @@ export default function Cursors(props) {
     hasMultiUserAccess,
     isMultiUserActive,
     isPanning,
+    isMoving,
     currentTool,
   } = props;
 
@@ -322,6 +324,7 @@ export default function Cursors(props) {
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
   if (isPanning) cursorType = TOOL_CURSORS.pan;
+  if (isMoving) cursorType = TOOL_CURSORS.moving;
 
   return (
     <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>

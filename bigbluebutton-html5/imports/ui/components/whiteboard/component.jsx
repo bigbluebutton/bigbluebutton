@@ -152,6 +152,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [isMoving, setIsMoving] = React.useState(false);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -730,6 +731,12 @@ export default function Whiteboard(props) {
       }
     }
 
+    // change cursor when moving shapes
+    if (e?.session?.type === "translate" && e?.session?.status === "translating") {
+      if (!isMoving) setIsMoving(true);
+      if (reason === "set_status:idle") setIsMoving(false);
+    }
+
     if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
@@ -967,6 +974,7 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        isMoving={isMoving}
         currentTool={currentTool}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
