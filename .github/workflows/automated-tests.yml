@@ -170,9 +170,13 @@ jobs:
           tail -n 500 /var/log/haproxy.log
           echo "########### FREESWITCH"
           tail -n 500 /opt/freeswitch/log/freeswitch.log
+          echo "########### bbb-conf --status"
           bbb-conf --status
+          echo "########### BBB Configs"
           cat /etc/bigbluebutton/*
+          echo "########### Haproxy Config"
           cat /etc/haproxy/haproxy.cfg
+          echo "########### Hosts"
           cat /etc/hosts
           hostname -f
           ip -4 addr | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v ^127
