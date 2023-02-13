@@ -133,16 +133,76 @@ const TldrawGlobalStyleText = (arg) => {
         user-select: none;
     }
     
+    /* for sticky notes */
     ${ arg.isRTL ? `
         div[data-shape="sticky"] > div > div > div > div {
             text-align: right;
         }
     ` : `
-        div[data-shape="sticky"] > div > div > div > div{
+        div[data-shape="sticky"] > div > div > div > div {
             text-align: left;
         }
     `}
-    
+    div[data-shape="sticky"] > div > div > div > div {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: calc(100% - 32px);
+      height: fit-content;
+      font: inherit;
+      pointer-events: none;
+      user-select: none;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      letter-spacing: -0.03em;
+    }
+    div[data-shape="sticky"] > div > div > div > textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      overflow: hidden;
+      background: none;
+      outline: none;
+      textAlign: left;
+      font: inherit;
+      padding: 0;
+      color: transparent;
+      verticalAlign: top;
+      resize: none;
+      caretColor: black;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      letter-spacing: -0.03em;
+    }
+
+    /* for text */
+    div[data-shape="text"] > div > div > div > div > textarea {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      padding: 4px;
+      resize: none;
+      text-align: inherit;
+      min-height: inherit;
+      min-width: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      outline: 0px;
+      font-weight: inherit;
+      overflow: hidden;
+      backface-visibility: hidden;
+      display: inline-block;
+      pointer-events: all;
+      background: var(--colors-boundsBg);
+      user-select: text;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+
   ` : ''}
   `;
     
