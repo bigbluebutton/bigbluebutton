@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Meteor } from 'meteor/meteor';
+import { throttle } from 'lodash';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
@@ -7,6 +8,7 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
+const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
 const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
@@ -32,7 +34,7 @@ const Cursor = (props) => {
     x,
     y,
     currentPoint,
-    pageState,
+    tldrawCamera,
     isMultiUserActive,
     owner = false,
   } = props;
@@ -42,8 +44,8 @@ const Cursor = (props) => {
   let _y = null;
 
   if (!currentPoint) {
-    _x = (x + pageState?.camera?.point[0]) * pageState?.camera?.zoom;
-    _y = (y + pageState?.camera?.point[1]) * pageState?.camera?.zoom;
+    _x = (x + tldrawCamera?.point[0]) * tldrawCamera?.zoom;
+    _y = (y + tldrawCamera?.point[1]) * tldrawCamera?.zoom;
   }
 
   return (
@@ -91,7 +93,7 @@ const PositionLabel = (props) => {
   const {
     currentUser,
     currentPoint,
-    pageState,
+    tldrawCamera,
     publishCursorUpdate,
     whiteboardId,
     pos,
@@ -101,19 +103,28 @@ const PositionLabel = (props) => {
   const { name, color, userId } = currentUser;
   const { x, y } = pos;
 
-  React.useEffect(() => {
+  const cursorUpdate = (x,y) => {
     try {
       const point = [x, y];
       publishCursorUpdate({
         xPercent:
-          point[0] / pageState?.camera?.zoom - pageState?.camera?.point[0],
+          point[0] / tldrawCamera?.zoom - tldrawCamera?.point[0],
         yPercent:
-          point[1] / pageState?.camera?.zoom - pageState?.camera?.point[1],
+          point[1] / tldrawCamera?.zoom - tldrawCamera?.point[1],
         whiteboardId,
       });
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const throttledCursorUpdate = React.useRef(throttle((x,y) => {
+    cursorUpdate(x,y);
+  },
+  CURSOR_INTERVAL, { trailing: false }));
+
+  React.useEffect(() => {
+    throttledCursorUpdate.current(x,y);
   }, [x, y]);
 
   return (
@@ -126,7 +137,7 @@ const PositionLabel = (props) => {
           x={x}
           y={y}
           currentPoint={currentPoint}
-          pageState={pageState}
+          tldrawCamera={tldrawCamera}
           isMultiUserActive={isMultiUserActive(whiteboardId)}
         />
       </div>
@@ -142,7 +153,8 @@ export default function Cursors(props) {
     whiteboardId,
     otherCursors,
     currentUser,
-    tldrawAPI,
+    currentPoint,
+    tldrawCamera,
     publishCursorUpdate,
     children,
     isViewersCursorLocked,
@@ -334,8 +346,8 @@ export default function Cursors(props) {
             pos={pos}
             otherCursors={otherCursors}
             currentUser={currentUser}
-            currentPoint={tldrawAPI?.currentPoint}
-            pageState={tldrawAPI?.getPageState()}
+            currentPoint={currentPoint}
+            tldrawCamera={tldrawCamera}
             publishCursorUpdate={publishCursorUpdate}
             whiteboardId={whiteboardId}
             isMultiUserActive={isMultiUserActive}
@@ -364,7 +376,7 @@ export default function Cursors(props) {
                   color="#C70039"
                   x={c?.xPercent}
                   y={c?.yPercent}
-                  pageState={tldrawAPI?.getPageState()}
+                  tldrawCamera={tldrawCamera}
                   isMultiUserActive={isMultiUserActive(whiteboardId)}
                   owner
                 />
@@ -379,7 +391,7 @@ export default function Cursors(props) {
                 color="#AFE1AF"
                 x={c?.xPercent}
                 y={c?.yPercent}
-                pageState={tldrawAPI?.getPageState()}
+                tldrawCamera={tldrawCamera}
                 isMultiUserActive={isMultiUserActive(whiteboardId)}
                 owner
               />
