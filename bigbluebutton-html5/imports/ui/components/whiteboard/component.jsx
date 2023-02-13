@@ -47,7 +47,7 @@ const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
 
-var firstReaction = 0; //counter for touching the tldraw CSS only once
+let firstReaction = 0; //counter for touching the tldraw CSS only once
 
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
