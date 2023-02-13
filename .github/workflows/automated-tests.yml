@@ -179,7 +179,7 @@ jobs:
           echo "########### Hosts"
           cat /etc/hosts
           hostname -f
-          ip -4 addr | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v ^127
+          ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
           '
       - if: always()
         uses: actions/upload-artifact@v3
