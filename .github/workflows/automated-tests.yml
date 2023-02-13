@@ -170,6 +170,12 @@ jobs:
           tail -n 500 /var/log/haproxy.log
           echo "########### FREESWITCH"
           tail -n 500 /opt/freeswitch/log/freeswitch.log
+          bbb-conf --status
+          cat /etc/bigbluebutton/*
+          cat /etc/haproxy/haproxy.cfg
+          cat /etc/hosts
+          hostname -f
+          ip -4 addr | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v ^127
           '
       - if: always()
         uses: actions/upload-artifact@v3
