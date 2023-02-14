@@ -336,20 +336,17 @@ export const PresentationUploaderToast = ({ intl }) => {
 					enteredConversion[p.temporaryPresentationId] = true;  // we mark that it has entered conversion stage
 				} else { 
 					// presentation doesn't normally enter conversion twice
-					// so we set timout to await 4s before removal in case there is an error with some presentation
-					setTimeout((conversionInterrupted, p) => {
-
-						// border case of presenter change during conversion
-						// so we clear up the toasts so that they aren't permanently (only 4s) pending when presenter status is returned 
-						if (typeof conversionInterrupted == "undefined") {
-							UploadingPresentations.remove({});
-						} else if (
-							// border case of error during conversion.
-							// It causes all of the presentations tpo re-enter in here, 
-							// so we remove them if there wasn't a conversion error
-							!conversionInterrupted
-							) UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]});
-					}, 4000);
+					// so we remove the inconsistencies between UploadingPresentation and Presentation (corner case)
+					presentationsAlreadyRenderedIds = Presentations.find({renderedInToast: true}).fetch().map(p => {
+						return {
+							id: p.id,
+							temporaryPresentationId: p.temporaryPresentationId,
+						}
+					});
+					presentationsAlreadyRenderedIds.forEach(p => {
+						UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId}, 
+							{id: p.id}]})
+					})
 				}
 			}
 		});
