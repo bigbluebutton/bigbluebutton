@@ -21,6 +21,14 @@ function connectionStatus() {
   check(meetingId, String);
   check(userId, String);
 
+  const fields = {
+    meetingId: 1,
+    userId: 1,
+    status: 1,
+    statusUpdatedAt: 1,
+    clientNotResponding: 1,
+  }
+
   const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
   Logger.info(`Publishing connection status for ${meetingId} ${userId}`);
 
@@ -38,10 +46,10 @@ function connectionStatus() {
       return condition;
     };
     publicationSafeGuard(comparisonFunc, this);
-    return ConnectionStatus.find({ meetingId });
+    return ConnectionStatus.find({ meetingId }, { fields: fields });
   }
 
-  return ConnectionStatus.find({ meetingId, userId });
+  return ConnectionStatus.find({ meetingId, userId }, { fields: fields });
 }
 
 function publish(...args) {

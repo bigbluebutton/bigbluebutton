@@ -152,13 +152,11 @@ const sortOffline = (a, b) => {
 };
 
 const getConnectionStatus = () => {
-  const connectionLossTimeThreshold = new Date().getTime() - (STATS_INTERVAL);
-
   const selector = {
     meetingId: Auth.meetingID,
     $or: [
       { status: { $exists: true } },
-      { connectionAliveAt: { $lte: connectionLossTimeThreshold } },
+      { clientNotResponding: true },
     ],
   };
 
@@ -171,14 +169,14 @@ const getConnectionStatus = () => {
       userId,
       status,
       statusUpdatedAt,
-      connectionAliveAt,
+      clientNotResponding,
     } = userStatus;
 
     return {
       userId,
       status,
       statusUpdatedAt,
-      connectionAliveAt,
+      clientNotResponding,
     };
   });
 
@@ -208,19 +206,17 @@ const getConnectionStatus = () => {
     const userStatus = connectionStatus.find((userConnStatus) => userConnStatus.userId === userId);
 
     if (userStatus) {
-      const notResponding = userStatus.connectionAliveAt < connectionLossTimeThreshold;
-
-      if (userStatus.status || (!loggedOut && notResponding)) {
+      if (userStatus.status || (!loggedOut && userStatus.clientNotResponding)) {
         result.push({
           name,
           avatar,
           offline: loggedOut,
-          notResponding,
+          notResponding: userStatus.clientNotResponding,
           you: Auth.userID === userId,
           moderator: role === ROLE_MODERATOR,
           color,
-          status: notResponding ? 'critical' : userStatus.status,
-          timestamp: notResponding ? userStatus.connectionAliveAt : userStatus.statusUpdatedAt,
+          status: userStatus.clientNotResponding ? 'critical' : userStatus.status,
+          timestamp: userStatus.statusUpdatedAt,
         });
       }
     }
