@@ -27,15 +27,15 @@ The master gateway, in addition to providing DNS and DHCP service for the 128.8.
 
 The master gateway also announces the 128.8.8.0/24 subnet to the bare metal machine using OSPF, and implements NAT, so that the bare metal machine can connect to the virtual servers.
 
-The `focal-260-NAT` device announces itself into DHCP/DNS as `focal-260.DOMAIN` and forwards ports 80 and 443 (along with UDP ports) through to `focal-260` itself.  Clients can therefore connect to `focal-260.DOMAIN`, just as they would to a typical BBB server.
+The `focal-260-NAT` device announces itself into DHCP/DNS as `focal-260.DOMAIN` and forwards ports 80 and 443 (along with UDP ports) through to `focal-260` itself.  Clients can therefore connect to `focal-260.DOMAIN`, just as they would to a typical BBB server.  The NAT device itself listens for ssh on port 2222.  The `--no-nat` option can be specified to create a server without an associated NAT gateway.
 
-Current server options are `bionic-240`, `focal-250`, `focal-25-dev`, and `focal-260`, along with `focal-GITREV` if you have a repository built from a specific git commit.  You can specify the `-r`/`--repository` option to use a repository other than `ubuntu.bigbluebutton.org` (just like the install script).
+Default operation of the script is to install a server whose name is passed into the script and is used both as the hostname of the server and as the release name to install.  Obvious server names include `focal-250`, `focal-25-dev`, and `focal-260`.  You can specify the `-r`/`--repository` option to use a repository other than `ubuntu.bigbluebutton.org` (just like the install script).  The `--install-script` option allows an alternate install script to be used.
 
-The `testclient` connects to NAT4 (overlapping server address space), NAT5 (private address not overlapping server address space), and NAT6 (carrier grade NAT).
+Some special names are defined.  Requesting a device name starting with `testclient` creates a test client that connects to NAT4 (overlapping server address space), NAT5 (private address not overlapping server address space), and NAT6 (carrier grade NAT).  Likewise, `turn` and `natturn` devices can also be created, just by requesting them by name.
 
 ## Usage
 
-1. You'll need several tools from Brent Baccala's NPDC repository on github, which is a submodule in the NPDC directory
+1. You'll need several tools from Brent Baccala's NPDC repository on github, which is a submodule in the NPDC directory, so run this command to fetch it:
 
    `git submodule update`
 
@@ -49,39 +49,29 @@ The `testclient` connects to NAT4 (overlapping server address space), NAT5 (priv
 
    If this step works, then you have REST API access to the GNS3 server.
 
-1. You should now be able to boot an Ubuntu instance like this:
+1. You should now be able to boot an Ubuntu instance with this `NPDC/GNS3` script:
 
    `./ubuntu.py -r 20 -m 1024 --debug`
 
-   Double-click on the icon that appears in the GUI to access the instance's console.
+   Double-click on the icon that appears in the GUI to access the instance's console.  You should also be able to login using `ssh ubuntu`.
 
    The `--debug` option adds a login with username `ubuntu` and password `ubuntu`.
 
    Login and verify, in particular, that networking is working properly.  You should have Internet access.
 
-1. Build a GUI image using NPDC's `GNS3/ubuntu.py`:
-
-   `./ubuntu.py -r 20 -s $((1024*1024)) -m 1024 --boot-script opendesktop.sh --gns3-appliance`
-
-   This step adds the GUI packages to the Ubuntu 20 cloud image and creates a new cloud image used for the test clients. It takes about half an hour.
-
-1. Upload the resulting GUI image to the gns3 server using NPDC's `GNS3/upload-image.py`
-
 1. Finally, build the BigBlueButton project in gns3 with `./gns3-bbb.py`
 
-1. Install a server with `./gns3-bbb.py focal-260`
+1. Install a server with `./gns3-bbb.py --wait-all focal-260`
 
-   The script will pause to wait for the NAT device to boot before starting the BigBlueButton server, then terminate once the BigBlueButton server has begun its install sequence.
+   The `--wait-all` option will cause the script to wait for BigBlueButton to install while you watch.  Without this option, the script will pause to wait for the NAT device to boot before starting the BigBlueButton server, then terminate once the BigBlueButton server has begun its install sequence.
 
-1. Add a test client with `./gns3-bbb.py testclient`, or run tests directly from the bare metal machine
+1. You can run tests directly from the bare metal machine.  The script created an SSL certificate in its own directory called `bbb-dev-ca.crt` which can be installed and trusted on your web browser.
 1. Add another server with `./gns3-bbb.py focal-250`
 1. Remove a server and its associated NAT gateway and switch with `./gns3-bbb.py --delete focal-250`
 
 1. `ssh` into the server devices directly.
 
 1. You can `ssh` into a server's NAT gateway with `ssh -p 2222 focal-260`.
-
-1. You can `ssh` into a testclient by specifying its NAT gateway as a jump host (`-J`) option to ssh: `ssh -J NAT4 testclient`
 
 1. Since test servers come and go fairly frequently, I find the following stanza useful in my `.ssh/config`:
 
@@ -93,6 +83,22 @@ The `testclient` connects to NAT4 (overlapping server address space), NAT5 (priv
    ```
 
    This stops `ssh` from complaining about server host keys changing, which happens every time you delete and rebuild a server.
+
+### Installing test clients
+
+1. Build a GUI image using NPDC's `GNS3/ubuntu.py`:
+
+   `./ubuntu.py -r 20 -s $((1024*1024)) -m 1024 --boot-script opendesktop.sh --gns3-appliance`
+
+   This step adds the GUI packages to the Ubuntu 20 cloud image and creates a new cloud image used for the test clients. It takes about half an hour.
+
+1. Upload the resulting GUI image to the gns3 server using NPDC's `GNS3/upload-image.py`
+
+1. Add a test client with `./gns3-bbb.py testclient`
+
+1. You can access a testclient's GUI by double-clicking on its icon in the GNS3 GUI.
+
+1. You can `ssh` into a testclient by specifying its NAT gateway as a jump host (`-J`) option to ssh: `ssh -J NAT4 testclient`
 
 ### Possible Test Environments
 
