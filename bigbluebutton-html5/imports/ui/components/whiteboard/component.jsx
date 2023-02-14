@@ -8,6 +8,8 @@ import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
+import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -63,6 +65,9 @@ const TldrawGlobalStyle = createGlobalStyle`
   [aria-expanded*="false"][aria-controls*="radix-"] {
     display: none;
   }
+  [class$="-side-right"] {
+    top: -1px;
+  }
   ${({ hasWBAccess, isPresenter, size }) => (hasWBAccess || isPresenter) && `
     #TD-Tools-Dots {
       height: ${size}px;
@@ -77,6 +82,37 @@ const TldrawGlobalStyle = createGlobalStyle`
     #TD-PrimaryTools button {
         height: ${size}px;
         width: ${size}px;
+    }
+    #TD-Styles {
+      border-width: ${borderSize};
+    }
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      height: 92%;
+      border-radius: 7px;
+
+      &:hover {
+        border: solid ${borderSize} #ECECEC;
+        background-color: #ECECEC;
+      }
+      &:focus {
+        border: solid ${borderSize} ${colorBlack};
+      }
+    }
+    #TD-Styles,
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo {
+      margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
+    }
+  `}
+  ${({ darkTheme }) => darkTheme && `
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      &:focus {
+        border: solid ${borderSize} ${colorWhite} !important;
+      }
     }
   `}
 `;
@@ -123,6 +159,7 @@ export default function Whiteboard(props) {
     presentationAreaWidth,
     maxNumberOfAnnotations,
     notifyShapeNumberExceeded,
+    darkTheme,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -148,6 +185,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [isMoving, setIsMoving] = React.useState(false);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -641,6 +679,7 @@ export default function Whiteboard(props) {
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
+      menu.style.height = presentationMenuHeight;
       if (isRTL) {
         menu.style.left = MENU_OFFSET;
       } else {
@@ -723,6 +762,12 @@ export default function Whiteboard(props) {
       if (!validIds.find(id => id === e.pageState.hoveredId)) {
         e.pageState.hoveredId = undefined;
       }
+    }
+
+    // change cursor when moving shapes
+    if (e?.session?.type === "translate" && e?.session?.status === "translating") {
+      if (!isMoving) setIsMoving(true);
+      if (reason === "set_status:idle") setIsMoving(false);
     }
 
     if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
@@ -962,14 +1007,18 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        isMoving={isMoving}
         currentTool={currentTool}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
-          hasWBAccess={hasWBAccess}
-          isPresenter={isPresenter}
           hideContextMenu={!hasWBAccess && !isPresenter}
-          size={size}
+          {...{
+            hasWBAccess,
+            isPresenter,
+            size,
+            darkTheme
+          }}
         />
       </Cursors>
     </>

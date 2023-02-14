@@ -51,7 +51,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL
+    isVideoSqueezed, videoContainer, isRTL,
   } = props;
 
   const intl = useIntl();
@@ -119,6 +119,7 @@ const UserActions = (props) => {
         trigger={(
           <Styled.OptionsButton
             label={intl.formatMessage(intlMessages.squeezedLabel)}
+            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
             data-test="webcamOptionsMenuSqueezed"
             icon="device_list_selector"
             ghost

@@ -3,9 +3,10 @@ import React from "react";
 import SettingsService from '/imports/ui/services/settings';
 import Cursors from "./component";
 import Service from "./service";
+import _ from 'lodash';
 
 const CursorsContainer = (props) => {
-  return <Cursors {...props}/>
+  return <Cursors {..._.omit(props, ['tldrawAPI'])} />
 };
 
 export default
@@ -15,7 +16,8 @@ export default
       currentUser: params.currentUser,
       publishCursorUpdate: Service.publishCursorUpdate,
       otherCursors: Service.getCurrentCursors(params.whiteboardId),
-      tldrawAPI: params.tldrawAPI,
+      currentPoint: params.tldrawAPI?.currentPoint,
+      tldrawCamera: params.tldrawAPI?.getPageState().camera,
       isViewersCursorLocked: params.isViewersCursorLocked,
       hasMultiUserAccess: params.hasMultiUserAccess,
       isMultiUserActive: params.isMultiUserActive,

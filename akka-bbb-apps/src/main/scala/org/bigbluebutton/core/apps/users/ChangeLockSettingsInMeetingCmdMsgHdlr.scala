@@ -29,7 +29,6 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         disablePubChat = msg.body.disablePubChat,
         disableNotes = msg.body.disableNotes,
         hideUserList = msg.body.hideUserList,
-        lockedLayout = msg.body.lockedLayout,
         lockOnJoin = msg.body.lockOnJoin,
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor
@@ -222,7 +221,6 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           disablePubChat = settings.disablePubChat,
           disableNotes = settings.disableNotes,
           hideUserList = settings.hideUserList,
-          lockedLayout = settings.lockedLayout,
           lockOnJoin = settings.lockOnJoin,
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
           hideViewersCursor = settings.hideViewersCursor,
