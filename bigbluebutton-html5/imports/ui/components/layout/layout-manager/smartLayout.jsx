@@ -166,7 +166,7 @@ const SmartLayout = (props) => {
       return baseBounds;
     }
 
-    const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
+    const { camerasMargin, presentationToolbarMinWidth, navBarHeight } = DEFAULT_VALUES;
 
     const cameraDockBounds = {};
 
@@ -176,12 +176,13 @@ const SmartLayout = (props) => {
       ? mediaBounds.width
       : presentationToolbarMinWidth;
 
-    cameraDockBounds.top = mediaAreaBounds.top;
+    cameraDockBounds.top = navBarHeight;
     cameraDockBounds.left = mediaAreaBounds.left;
     cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
     cameraDockBounds.zIndex = 1;
 
     if (mediaBounds.width < mediaAreaBounds.width) {
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
       cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
       cameraDockBounds.height = mediaAreaBounds.height;
