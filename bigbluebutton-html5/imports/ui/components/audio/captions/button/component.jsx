@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Service from '/imports/ui/components/audio/captions/service';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
-import ServiceOldCaptions from '/imports/ui/components/captions/service';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
-import OldCaptionsService from '/imports/ui/components/captions/service';
 
 const intlMessages = defineMessages({
   start: {
@@ -90,16 +88,7 @@ const CaptionsButton = ({
   availableVoices,
   isSupported,
   isVoiceUser,
-  mountModal,
 }) => {
-  const usePrevious = (value) => {
-    const ref = useRef();
-    useEffect(() => {
-      ref.current = value;
-    });
-    return ref.current;
-  }
-
   const isTranscriptionDisabled = () => (
     currentSpeechLocale === DISABLED
   );
@@ -115,12 +104,7 @@ const CaptionsButton = ({
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
 
-  const prevEnabled = usePrevious(enabled);
-
-  if (!enabled) return null;
-  if (!prevEnabled && enabled) {
-    OldCaptionsService.createCaptions('en');
-  }
+    if (!enabled) return null;
 
   const shouldRenderChevron = isSupported && isVoiceUser;
 

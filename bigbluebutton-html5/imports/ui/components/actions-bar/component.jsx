@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import CaptionsButtonContainer from '/imports/ui/components/captions/button/container';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
@@ -67,6 +68,11 @@ class ActionsBar extends PureComponent {
             showPushLayout,
           }}
           />
+          { isCaptionsAvailable
+            ? (
+              <CaptionsButtonContainer {...{ intl }} />
+            )
+            : null }
           { !deviceInfo.isMobile
             ? (
               <AudioCaptionsButtonContainer />

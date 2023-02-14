@@ -8,7 +8,7 @@ import AudioService from '/imports/ui/components/audio/service';
 
 const Container = (props) => <Button {...props} />;
 
-export default withModalMounter(withTracker(() => {
+export default withTracker(() => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const availableVoices = SpeechService.getSpeechVoices();
   const currentSpeechLocale = SpeechService.getSpeechLocale();
@@ -23,4 +23,4 @@ export default withModalMounter(withTracker(() => {
     isSupported,
     isVoiceUser,
   };
-})(Container));
+})(Container);
