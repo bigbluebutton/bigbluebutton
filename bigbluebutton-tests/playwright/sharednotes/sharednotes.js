@@ -1,11 +1,10 @@
 const { default: test } = require('@playwright/test');
-const Page = require('../core/page');
 const { MultiUsers } = require('../user/multiusers');
 const { getSettings } = require('../core/settings');
 const e = require('../core/elements');
-const { startSharedNotes, getNotesLocator, getShowMoreButtonLocator, getExportButtonLocator, getExportPlainTextLocator, getMoveToWhiteboardLocator, getSharedNotesUserWithoutPermission } = require('./util');
+const { startSharedNotes, getNotesLocator, getShowMoreButtonLocator, getExportButtonLocator, getExportPlainTextLocator, getSharedNotesUserWithoutPermission } = require('./util');
 const { expect } = require('@playwright/test');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 
 class SharedNotes extends MultiUsers {
@@ -17,19 +16,21 @@ class SharedNotes extends MultiUsers {
     const { sharedNotesEnabled } = getSettings();
     test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
     await startSharedNotes(this.modPage);
+    const sharedNotesContent = await getNotesLocator(this.modPage);
+    await expect(sharedNotesContent).toBeEditable({ timeout: ELEMENT_WAIT_TIME });
   }
 
-  async editMessage(notesLocator) {
+  async editMessage() {
     await this.modPage.down('Shift');
     let i = 7;
-    while(i > 0) {
+    while (i > 0) {
       await this.modPage.press('ArrowLeft');
       i--;
     }
     await this.modPage.up('Shift');
     await this.modPage.press('Backspace');
     i = 5;
-    while(i > 0) {
+    while (i > 0) {
       await this.modPage.press('ArrowLeft');
       i--;
     }
@@ -42,13 +43,12 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.message);
-    this.editMessage(notesLocator);
+    await this.editMessage(notesLocator);
     const editedMessage = '!Hello';
-    await expect(notesLocator).toContainText(editedMessage, { timeout : ELEMENT_WAIT_TIME });
+    await expect(notesLocator).toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
   }
 
-  async formatMessage(notesLocator) {
-
+  async formatMessage() {
     // U for '!'
     await this.modPage.down('Shift');
     await this.modPage.press('ArrowLeft');
@@ -59,7 +59,7 @@ class SharedNotes extends MultiUsers {
     // B for 'World'
     await this.modPage.down('Shift');
     let i = 5;
-    while(i > 0) {
+    while (i > 0) {
       await this.modPage.press('ArrowLeft');
       i--;
     }
@@ -72,7 +72,7 @@ class SharedNotes extends MultiUsers {
     // I for 'Hello'
     await this.modPage.down('Shift');
     i = 5;
-    while(i > 0) {
+    while (i > 0) {
       await this.modPage.press('ArrowLeft');
       i--;
     }
@@ -129,7 +129,7 @@ class SharedNotes extends MultiUsers {
 
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
-    
+
     await this.modPage.hasText(e.currentSlideText, /test/, 20000);
     await this.userPage.hasText(e.currentSlideText, /test/);
   }
@@ -147,8 +147,8 @@ class SharedNotes extends MultiUsers {
     await notesLocatorUser.type('J');
 
     const editedMessage = 'Jello World!';
-    await expect(notesLocator).toContainText(editedMessage, { timeout : ELEMENT_WAIT_TIME });
-    await expect(notesLocatorUser).toContainText(editedMessage, { timeout : ELEMENT_WAIT_TIME });
+    await expect(notesLocator).toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
+    await expect(notesLocatorUser).toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async seeNotesWithoutEditPermission() {
@@ -166,9 +166,9 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    const notesLocatorUser  = getSharedNotesUserWithoutPermission(this.userPage);
-    await expect(notesLocatorUser).toContainText(/Hello/, { timeout : 20000 });
-    await this.userPage.wasRemoved(e.etherpadFrame); 
+    const notesLocatorUser = getSharedNotesUserWithoutPermission(this.userPage);
+    await expect(notesLocatorUser).toContainText(/Hello/, { timeout: 20000 });
+    await this.userPage.wasRemoved(e.etherpadFrame);
   }
 
   async pinNotesOntoWhiteboard() {
@@ -184,7 +184,7 @@ class SharedNotes extends MultiUsers {
     await notesLocator.type('Hello');
     const notesLocatorUser = getNotesLocator(this.userPage1);
 
-    await expect(notesLocator).toContainText(/Hello/, { timeout : 20000 });
+    await expect(notesLocator).toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser).toContainText(/Hello/);
   }
 }

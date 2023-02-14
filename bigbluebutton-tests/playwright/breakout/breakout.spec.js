@@ -129,7 +129,7 @@ test.describe.parallel('Breakout', () => {
 
     // temporarily skipped until the following issue gets resolved:
     // https://github.com/bigbluebutton/bigbluebutton/issues/16368
-    test.skip('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true); // capture breakout whiteboard
