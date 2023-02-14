@@ -2,7 +2,7 @@ const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const util = require('./util');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
@@ -65,6 +65,7 @@ class CustomParameters extends MultiUsers {
 
   async autoSwapLayout() {
     await this.modPage.waitForSelector(e.actions);
+    await this.modPage.waitAndClick(e.minimizePresentation);
     const resp = await this.modPage.page.evaluate((elem) => {
       return document.querySelectorAll(elem)[0].offsetHeight !== 0;
     }, e.restorePresentation);
@@ -72,12 +73,12 @@ class CustomParameters extends MultiUsers {
   }
 
   async autoJoin() {
-    await this.modPage.waitForSelector(e.chatMessages);
+    await this.modPage.waitForSelector(e.chatMessages, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.audioModal);
   }
 
   async listenOnlyMode() {
-    await this.modPage.waitForSelector(e.audioSettingsModal);
+    await this.modPage.waitForSelector(e.audioSettingsModal, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.waitForSelector(e.isTalking);
@@ -88,7 +89,7 @@ class CustomParameters extends MultiUsers {
 
   async forceListenOnly() {
     await this.userPage.wasRemoved(e.audioModal);
-    await this.userPage.waitForSelector(e.toastContainer);
+    await this.userPage.waitForSelector(e.toastContainer, ELEMENT_WAIT_LONGER_TIME);
     await util.forceListenOnly(this.userPage);
   }
 
@@ -102,7 +103,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async skipCheckOnFirstJoin() {
-    await this.modPage.waitAndClick(e.microphoneButton);
+    await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.establishingAudioLabel);
     await this.modPage.hasElement(e.smallToastMsg);
     await this.modPage.hasElement(e.isTalking);
