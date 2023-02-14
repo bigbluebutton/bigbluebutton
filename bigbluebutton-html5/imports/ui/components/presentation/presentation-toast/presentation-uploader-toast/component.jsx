@@ -300,6 +300,17 @@ const alreadyRenderedPresList = []
 export const PresentationUploaderToast = ({ intl }) => {
 
 	useTracker(() => {
+		presentationsAlreadyRenderedIds = Presentations.find({renderedInToast: true}).fetch().map(p => {
+			return {
+				id: p.id,
+				temporaryPresentationId: p.temporaryPresentationId,
+			}
+		});
+		// Check if there are inconsistencies between UploadingPresentation and Presentation (corner case)
+		presentationsAlreadyRenderedIds.forEach(p => {
+			UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId}, 
+				{id: p.id}]})
+		})
 		
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
@@ -307,7 +318,7 @@ export const PresentationUploaderToast = ({ intl }) => {
 			.map(p => { return {temporaryPresentationId: p.temporaryPresentationId, id: p.id}; })
 		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id) !== -1)
 			.map(p => {
-				return UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]})});
+				return UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId}, {id: p.id}]})});
 		const uploadingPresentations = UploadingPresentations.find().fetch();
 		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 
