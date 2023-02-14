@@ -263,9 +263,18 @@ public:
     enabled: true
   kurento:
     wsUrl: HOST
-    # Valid for video-provider. Time (ms) before its WS connection times out
-    # and tries to reconnect.
-    wsConnectionTimeout: 4000
+    cameraWsOptions:
+      # Valid for video-provider. Time (ms) before its WS connection times out
+      # and tries to reconnect.
+      wsConnectionTimeout: 4000
+      # maxRetries: max reconnection retries
+      maxRetries: 5
+      # debug: console trace logging for video-provider's ws
+      debug: false
+      heartbeat:
+        interval: 15000
+        delay: 3000
+        reconnectOnFailure: true
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.

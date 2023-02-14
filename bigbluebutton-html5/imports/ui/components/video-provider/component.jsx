@@ -25,7 +25,16 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 
 // Default values and default empty object to be backwards compat with 2.2.
 // FIXME Remove hardcoded defaults 2.3.
-const WS_CONN_TIMEOUT = Meteor.settings.public.kurento.wsConnectionTimeout || 4000;
+const {
+  connectionTimeout: WS_CONN_TIMEOUT = 4000,
+  maxRetries: WS_MAX_RETRIES = 5,
+  debug: WS_DEBUG,
+  heartbeat: WS_HEARTBEAT_OPTS = {
+    interval: 15000,
+    delay: 3000,
+    reconnectOnFailure: true,
+  },
+} = Meteor.settings.public.kurento.cameraWsOptions;
 
 const { webcam: NETWORK_PRIORITY } = Meteor.settings.public.media.networkPriorities || {};
 const {
@@ -36,7 +45,6 @@ const {
   enabled: CAMERA_QUALITY_THRESHOLDS_ENABLED = true,
   privilegedStreams: CAMERA_QUALITY_THR_PRIVILEGED = true,
 } = Meteor.settings.public.kurento.cameraQualityThresholds;
-const PING_INTERVAL = 15000;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
 
@@ -132,11 +140,7 @@ class VideoProvider extends Component {
     this.info = VideoService.getInfo();
 
     // Set a valid bbb-webrtc-sfu application server socket in the settings
-    this.ws = new ReconnectingWebSocket(
-      VideoService.getAuthenticatedURL(),
-      [],
-      { connectionTimeout: WS_CONN_TIMEOUT },
-    );
+    this.ws = this.openWs();
     this.wsQueue = [];
     this.restartTimeout = {};
     this.restartTimer = {};
@@ -164,9 +168,6 @@ class VideoProvider extends Component {
 
     this.ws.onopen = this.onWsOpen;
     this.ws.onclose = this.onWsClose;
-    window.addEventListener('online', this.openWs);
-    window.addEventListener('offline', this.onWsClose);
-
     this.ws.onmessage = this.onWsMessage;
 
     window.addEventListener('beforeunload', VideoProvider.onBeforeUnload);
@@ -185,29 +186,83 @@ class VideoProvider extends Component {
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
     VideoService.updatePeerDictionaryReference({});
 
     this.ws.onmessage = null;
     this.ws.onopen = null;
     this.ws.onclose = null;
 
-    window.removeEventListener('online', this.openWs);
-    window.removeEventListener('offline', this.onWsClose);
-
     window.removeEventListener('beforeunload', VideoProvider.onBeforeUnload);
-
     VideoService.exitVideo();
 
     Object.keys(this.webRtcPeers).forEach((stream) => {
       this.stopWebRTCPeer(stream, false);
     });
 
-    // Close websocket connection to prevent multiple reconnects from happening
+    this.closeWs();
+  }
+
+  openWs() {
+    this.ws = new ReconnectingWebSocket(
+      VideoService.getAuthenticatedURL(),
+      [],
+      { connectionTimeout: WS_CONN_TIMEOUT, debug: WS_DEBUG, maxRetries: WS_MAX_RETRIES },
+    );
+
+    return this.ws;
+  }
+
+  closeWs() {
+    this.clearWSHeartbeat();
     this.ws.close();
-    this._isMounted = false;
+  }
+
+  _updateLastMsgTime() {
+    this.ws.isAlive = true;
+    this.ws.lastMsgTime = Date.now();
+  }
+
+  _getTimeSinceLastMsg() {
+    return Date.now() - this.ws.lastMsgTime;
+  }
+
+  setupWSHeartbeat() {
+    if (WS_HEARTBEAT_OPTS.interval === 0 || this.ws == null) return;
+
+    this.ws.isAlive = true;
+    this.wsHeartbeat = setInterval(() => {
+      if (this.ws.isAlive === false) {
+        logger.warn({
+          logCode: 'video_provider_ws_heartbeat_failed',
+        }, 'Video provider WS heartbeat failed.');
+
+        if (WS_HEARTBEAT_OPTS.reconnectOnFailure) this.ws.reconnect();
+
+        return;
+      }
+
+      if (this._getTimeSinceLastMsg(this.ws) < (
+        WS_HEARTBEAT_OPTS.interval - WS_HEARTBEAT_OPTS.delay
+      )) {
+        return;
+      }
+
+      this.ws.isAlive = false;
+      this.ping();
+    }, WS_HEARTBEAT_OPTS.interval);
+
+    this.ping();
+  }
+
+  clearWSHeartbeat() {
+    if (this.wsHeartbeat) {
+      clearInterval(this.wsHeartbeat);
+    }
   }
 
   onWsMessage(message) {
+    this._updateLastMsgTime();
     const parsedMessage = JSON.parse(message.data);
 
     if (parsedMessage.id === 'pong') return;
@@ -244,8 +299,7 @@ class VideoProvider extends Component {
       logCode: 'video_provider_onwsclose',
     }, 'Multiple video provider websocket connection closed.');
 
-    clearInterval(this.pingInterval);
-
+    this.clearWSHeartbeat();
     VideoService.exitVideo();
 
     this.setState({ socketOpen: false });
@@ -256,14 +310,13 @@ class VideoProvider extends Component {
       logCode: 'video_provider_onwsopen',
     }, 'Multiple video provider websocket connection opened.');
 
+    this._updateLastMsgTime();
+    this.setupWSHeartbeat();
+    this.setState({ socketOpen: true });
     // Resend queued messages that happened when socket was not connected
     while (this.wsQueue.length > 0) {
       this.sendMessage(this.wsQueue.pop());
     }
-
-    this.pingInterval = setInterval(this.ping.bind(this), PING_INTERVAL);
-
-    this.setState({ socketOpen: true });
   }
 
   findAllPrivilegedStreams () {
@@ -342,17 +395,17 @@ class VideoProvider extends Component {
 
     if (this.connectedToMediaServer()) {
       const jsonMessage = JSON.stringify(message);
-      ws.send(jsonMessage, (error) => {
-        if (error) {
-          logger.error({
-            logCode: 'video_provider_ws_send_error',
-            extraInfo: {
-              errorMessage: error.message || 'Unknown',
-              errorCode: error.code,
-            },
-          }, 'Camera request failed to be sent to SFU');
-        }
-      });
+      try {
+        ws.send(jsonMessage);
+      } catch (error) {
+        logger.error({
+          logCode: 'video_provider_ws_send_error',
+          extraInfo: {
+            errorMessage: error.message || 'Unknown',
+            errorCode: error.code,
+          },
+        }, 'Camera request failed to be sent to SFU');
+      }
     } else if (message.id !== 'stop') {
       // No need to queue video stop messages
       this.wsQueue.push(message);
