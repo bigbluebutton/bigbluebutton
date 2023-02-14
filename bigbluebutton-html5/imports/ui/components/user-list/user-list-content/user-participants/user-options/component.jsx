@@ -150,6 +150,7 @@ class UserOptions extends PureComponent {
     }
 
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
+    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
@@ -191,6 +192,11 @@ class UserOptions extends PureComponent {
   handleCreateBreakoutRoomClick(isInvitation) {
     this.setState({isInvitation})
     return this.setCreateBreakoutRoomModalIsOpen(true);
+  }
+
+  handleCaptionsClick() {
+    const { mountModal } = this.props;
+    mountModal(<CaptionsWriterMenu />);
   }
 
   renderMenuItems() {

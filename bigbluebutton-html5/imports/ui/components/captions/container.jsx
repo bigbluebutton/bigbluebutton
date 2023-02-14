@@ -11,6 +11,20 @@ const Container = (props) => {
   const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
 
+  const { amIModerator } = props;
+
+  if (!amIModerator) {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
+    return null;
+  }
+
   return <Captions {...{ layoutContextDispatch, isResizing, ...props }} />;
 };
 
