@@ -80,7 +80,7 @@ const initSpeechRecognition = () => {
 
 let prevId = '';
 let prevTranscript = '';
-const updateTranscript = (id, transcript, locale) => {
+const updateTranscript = (id, transcript, locale, isFinal) => {
   // If it's a new sentence
   if (id !== prevId) {
     prevId = id;
@@ -101,7 +101,7 @@ const updateTranscript = (id, transcript, locale) => {
   // Stores current transcript as previous
   prevTranscript = transcript;
 
-  makeCall('updateTranscript', id, start, end, text, transcript, locale);
+  makeCall('updateTranscript', id, start, end, text, transcript, locale, isFinal);
 };
 
 const throttledTranscriptUpdate = _.throttle(updateTranscript, THROTTLE_TIMEOUT, {
@@ -110,12 +110,12 @@ const throttledTranscriptUpdate = _.throttle(updateTranscript, THROTTLE_TIMEOUT,
 });
 
 const updateInterimTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate(id, transcript, locale);
+  throttledTranscriptUpdate(id, transcript, locale, false);
 };
 
 const updateFinalTranscript = (id, transcript, locale) => {
   throttledTranscriptUpdate.cancel();
-  updateTranscript(id, transcript, locale);
+  updateTranscript(id, transcript, locale, true);
 };
 
 const getSpeechLocale = (userId = Auth.userID) => {
@@ -132,7 +132,7 @@ const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
 const isEnabled = () => isLiveTranscriptionEnabled();
 
-const isWebSpeechApi = () => PROVIDER === 'webspeech' && hasSpeechRecognitionSupport() && hasSpeechLocale();
+const isWebSpeechApi = () => PROVIDER === 'webspeech';
 
 const isVosk = () => PROVIDER === 'vosk';
 
@@ -140,7 +140,7 @@ const isWhispering = () => PROVIDER === 'whisper';
 
 const isDeepSpeech = () => PROVIDER === 'deepSpeech'
 
-const isActive = () => isEnabled() && (isWebSpeechApi() || isVosk() || isWhispering() || isDeepSpeech());
+const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isWhispering() || isDeepSpeech());
 
 const getStatus = () => {
   const active = isActive();

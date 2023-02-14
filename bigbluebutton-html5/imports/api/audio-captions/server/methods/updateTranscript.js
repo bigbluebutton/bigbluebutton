@@ -3,7 +3,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function updateTranscript(transcriptId, start, end, text, transcript, locale) {
+export default function updateTranscript(transcriptId, start, end, text, transcript, locale, isFinal) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -19,6 +19,7 @@ export default function updateTranscript(transcriptId, start, end, text, transcr
     check(text, String);
     check(transcript, String);
     check(locale, String);
+    check(isFinal, Boolean);
 
     // Ignore irrelevant updates
     if (start !== -1 && end !== -1) {
@@ -29,6 +30,7 @@ export default function updateTranscript(transcriptId, start, end, text, transcr
         text,
         transcript,
         locale,
+        result: isFinal,
       };
 
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
