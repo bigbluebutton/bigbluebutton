@@ -135,5 +135,12 @@ test.describe.parallel('Breakout', () => {
       await join.create(false, true); // capture breakout whiteboard
       await join.exportBreakoutWhiteboard();
     });
+
+    test('User can choose a room', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.createToAllowChooseOwnRoom();
+      await join.userCanChooseRoom();
+    });
   });
 });
