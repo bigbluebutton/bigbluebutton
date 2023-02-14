@@ -11,7 +11,6 @@ exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
 exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';
 exports.displayBrandingArea = 'userdata-bbb_display_branding_area=true';
 exports.logo = 'logo=https://bigbluebutton.org/wp-content/themes/bigbluebutton/library/images/bigbluebutton-logo.png';
-exports.enableScreensharing = 'userdata-bbb_enable_screen_sharing=false';
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
