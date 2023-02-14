@@ -8,7 +8,8 @@ import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
-import { presentationMenuHeight } from '/imports/ui/stylesheets/styled-components/general';
+import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -64,6 +65,9 @@ const TldrawGlobalStyle = createGlobalStyle`
   [aria-expanded*="false"][aria-controls*="radix-"] {
     display: none;
   }
+  [class$="-side-right"] {
+    top: -1px;
+  }
   ${({ hasWBAccess, isPresenter, size }) => (hasWBAccess || isPresenter) && `
     #TD-Tools-Dots {
       height: ${size}px;
@@ -80,7 +84,35 @@ const TldrawGlobalStyle = createGlobalStyle`
         width: ${size}px;
     }
     #TD-Styles {
-      height: 100%;
+      border-width: ${borderSize};
+    }
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      height: 92%;
+      border-radius: 7px;
+
+      &:hover {
+        border: solid ${borderSize} #ECECEC;
+        background-color: #ECECEC;
+      }
+      &:focus {
+        border: solid ${borderSize} ${colorBlack};
+      }
+    }
+    #TD-Styles,
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo {
+      margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
+    }
+  `}
+  ${({ darkTheme }) => darkTheme && `
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      &:focus {
+        border: solid ${borderSize} ${colorWhite} !important;
+      }
     }
   `}
 `;
@@ -127,6 +159,7 @@ export default function Whiteboard(props) {
     presentationAreaWidth,
     maxNumberOfAnnotations,
     notifyShapeNumberExceeded,
+    darkTheme,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -979,10 +1012,13 @@ export default function Whiteboard(props) {
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
-          hasWBAccess={hasWBAccess}
-          isPresenter={isPresenter}
           hideContextMenu={!hasWBAccess && !isPresenter}
-          size={size}
+          {...{
+            hasWBAccess,
+            isPresenter,
+            size,
+            darkTheme
+          }}
         />
       </Cursors>
     </>
