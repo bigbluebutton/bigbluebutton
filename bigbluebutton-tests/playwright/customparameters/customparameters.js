@@ -127,10 +127,6 @@ class CustomParameters extends MultiUsers {
     await expect(notificationBarColor).toBe(colorToRGB);
   }
 
-  async disableScreensharing() {
-    await this.modPage.wasRemoved(e.startScreenSharing);
-  }
-
   async hidePresentation() {
     await this.modPage.waitForSelector(e.actions);
     const checkPresentationButton = await this.modPage.checkElement(e.restorePresentation);

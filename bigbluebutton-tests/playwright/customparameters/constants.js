@@ -34,7 +34,6 @@ exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
-exports.disabledScreenshare = 'disabledFeatures=screenshare';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';

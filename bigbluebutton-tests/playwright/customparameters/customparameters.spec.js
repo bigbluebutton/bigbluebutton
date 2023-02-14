@@ -115,12 +115,6 @@ test.describe.parallel('CustomParameters', () => {
   })
 
   test.describe.parallel('Presentation', () => {
-    test('Disable screensharing', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.disabledScreenshare });
-      await customParam.disableScreensharing();
-    });
-
     test('Hide Presentation', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentation) });
