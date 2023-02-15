@@ -134,8 +134,11 @@ jobs:
           sudo sh -c '
           chmod a+r /etc/haproxy/haproxy.cfg
           chmod a+r /var/log/haproxy.log
-          cp /opt/freeswitch/etc/freeswitch/vars.xml freeswitch/vars.xml
-          cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml freeswitch/sip_profiles/external.xml
+          touch /etc/bigbluebutton/turn-stun-servers.xml
+          chmod a+r /etc/bigbluebutton/turn-stun-servers.xml
+          mkdir -p freeswitch/sip_profiles
+          cp /opt/freeswitch/etc/freeswitch/vars.xml ./freeswitch/vars.xml
+          cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ./freeswitch/sip_profiles/external.xml
           bbb-conf --status > bbb-status.log
           journalctl -u bbb-html5-frontend@1.service --since today > bbb-html5-frontend.log
           journalctl -u bbb-html5-backend@1.service --since today > bbb-html5-backend.log
@@ -155,8 +158,8 @@ jobs:
             /usr/share/bigbluebutton/nginx/sip.nginx
             /etc/hosts
             /etc/haproxy/haproxy.cfg
-            freeswitch/vars.xml
-            freeswitch/sip_profiles/external.xml
+            ./freeswitch/vars.xml
+            ./freeswitch/sip_profiles/external.xml
       - if: always()
         uses: actions/upload-artifact@v3
         with:
