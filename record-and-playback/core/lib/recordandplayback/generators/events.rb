@@ -356,8 +356,14 @@ module BigBlueButton
             webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(event.at_xpath('webcamsOnlyForModerator').text)
 
           when "WebcamsOnlyForModeratorEvent"
+            webcamsOnlyElement = event.at_xpath("webcamsOnlyForModerator")
+            # Handle typo in some BigBlueButton versions
+            webcamsOnlyElement = event.at_xpath("webacmsOnlyForModerator") if webcamsOnlyElement.nil?
+
+            webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(webcamsOnlyElement.text)
+
             # Change active and inactive videos.
-            BigBlueButton::Events.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, BigBlueButton::Events.to_boolean(event.at_xpath("webcamsOnlyForModerator").text))
+            BigBlueButton::Events.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator)
             
             edl_entry = {
               :timestamp => timestamp,
@@ -371,8 +377,6 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
-            
-            webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(event.at_xpath('webcamsOnlyForModerator').text)
           end
         end
       end
