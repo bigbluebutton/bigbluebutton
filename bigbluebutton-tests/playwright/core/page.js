@@ -135,7 +135,7 @@ class Page {
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath, 'utf8');
-    await testInfo.attach('downloaded', { body: download });
+    await testInfo.attach('downloaded', { path: filePath });
 
     return {
       download,
