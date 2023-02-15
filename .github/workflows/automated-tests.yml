@@ -120,10 +120,10 @@ jobs:
           hostname -f
           echo "### ip -4 addr | grep -oP (?<=inet\s)\d+(\.\d+){3} | grep -v ^127"
           ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
-          echo "### hostname -I | awk"
-          hostname -I | awk '{print $1}'
+          echo "### hostname -I | cut"
+          hostname -I | cut -d" " -f1
           echo "### Tweak /etc/hosts"
-          sudo sed -i "s/127.0.0.1 bbb-ci.test/$(hostname -I | awk '{print $1}') bbb-ci.test/g" /etc/hosts
+          sudo sed -i "s/127.0.0.1 bbb-ci.test/$(hostname -I | cut -d" " -f1) bbb-ci.test/g" /etc/hosts
           echo "### cat /etc/hosts"
           cat /etc/hosts
           '
