@@ -29,7 +29,6 @@ class ActionsBar extends PureComponent {
       isPollingEnabled,
       isSelectRandomUserEnabled,
       isRaiseHandButtonEnabled,
-      isPresentationDisabled,
       isThereCurrentPresentation,
       allowExternalVideo,
       setEmojiStatus,
