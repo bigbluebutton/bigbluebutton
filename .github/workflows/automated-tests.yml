@@ -129,21 +129,34 @@ jobs:
           npx playwright install-deps
           npx playwright install
           '
+      - name: Prepare artifacts (configs and logs)
+        run: |
+          sudo sh -c '
+          chmod a+r /etc/haproxy/haproxy.cfg
+          chmod a+r /var/log/haproxy.log
+          cp /opt/freeswitch/etc/freeswitch/vars.xml freeswitch/vars.xml
+          cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml freeswitch/sip_profiles/external.xml
+          bbb-conf --status > bbb-status.log
+          journalctl -u bbb-html5-frontend@1.service --since today > bbb-html5-frontend.log
+          journalctl -u bbb-html5-backend@1.service --since today > bbb-html5-backend.log
+          '
       - if: always()
         uses: actions/upload-artifact@v3
         with:
           name: bbb-configs
           path: |
-            /etc/bigbluebutton/*
-            /etc/haproxy/haproxy.cfg
+            /etc/bigbluebutton/bbb-apps-akka.conf
+            /etc/bigbluebutton/bbb-fsesl-akka.conf
+            /etc/bigbluebutton/bbb-html5.yml
+            /etc/bigbluebutton/bbb-web.properties
+            /etc/bigbluebutton/bigbluebutton-release
+            /etc/bigbluebutton/turn-stun-servers.xml
             /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
-            /opt/freeswitch/etc/freeswitch/vars.xml
-            /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
             /usr/share/bigbluebutton/nginx/sip.nginx
             /etc/hosts
-      - run: bbb-conf --status > bbb-status.log
-      - run: sudo journalctl -u bbb-html5-frontend@1.service --since today > bbb-html5-frontend.log
-      - run: sudo journalctl -u bbb-html5-backend@1.service --since today > bbb-html5-backend.log
+            /etc/haproxy/haproxy.cfg
+            freeswitch/vars.xml
+            freeswitch/sip_profiles/external.xml
       - if: always()
         uses: actions/upload-artifact@v3
         with:
@@ -187,4 +200,3 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
-      
