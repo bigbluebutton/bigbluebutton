@@ -83,6 +83,8 @@
     "app.textInput.sendLabel": "Send",
     "app.title.defaultViewLabel": "Default presentation view",
     "app.notes.title": "Shared Notes",
+    "app.notes.titlePinned": "Shared Notes (Pinned)",
+    "app.notes.pinnedNotification": "The Shared Notes are now pinned in the whiteboard.",
     "app.notes.label": "Notes",
     "app.notes.hide": "Hide notes",
     "app.notes.locked": "Locked",
