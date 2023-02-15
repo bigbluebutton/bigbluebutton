@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
+  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
@@ -348,6 +349,7 @@ const CustomInputHeading = styled(SectionHeading)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  padding-bottom: ${jumboPaddingY};
 `;
 
 const CustomInputHeadingCol = styled(Col)`
