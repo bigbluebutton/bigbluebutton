@@ -639,9 +639,11 @@ def BBB_client(hostname, x=0, y=0):
     return gns3_project.ubuntu_node(user_data, image=args.client_image, network_config=network_config,
                                     cpus=12, ram=8192, disk=8192, ethernets=3, vnc=True, x=x, y=y)
 
-# NAT gateways
+# TWO KINDS OF NAT GATEWAYS
 
-def BBB_client_nat(hostname, x=0, y=0, nat_interface='192.168.1.1/24'):
+# A NAT gateway configured for test clients.
+
+def client_NAT_gateway(hostname, x=0, y=0, nat_interface='192.168.1.1/24'):
 
     interface = ipaddress.ip_interface(nat_interface)
     hosts = list(interface.network.hosts())
@@ -733,17 +735,19 @@ dhcp-option = option:domain-search,{args.domain}
                                     ram=1024, disk=4096, ethernets=2, x=x, y=y)
 
 
-# BigBlueButton server and server NAT gateway
+# A NAT gateway for some kind of server (either BigBlueButton or natturn)
+# between our public "Internet" and a server's private subnet
+#
+# 'hostname' should be of the form 'server-NAT', and the NAT gateway will
+# present itself in DHCP/DNS using the server's name
 
-def BBB_server_nat(hostname, public_subnet=None, x=100, y=100):
-    # A NAT gateway between our public "Internet" and a server's private subnet
+def server_NAT_gateway(hostname, public_subnet=None, x=100, y=100):
 
-    # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
     assert(hostname.endswith('-NAT'))
     hostname = hostname[:-4]
 
     if not isinstance(public_subnet, ipaddress.IPv4Network):
-        raise TypeError("BBB_server_nat() requires public_subnet to be an ipaddress.IPv4Network")
+        raise TypeError("server_NAT_gateway() requires public_subnet to be an ipaddress.IPv4Network")
 
     # Use the first host address on the subnet for our master gateway
     # The rest of them will be available for assignment with DHCP
@@ -851,6 +855,8 @@ dhcp-option = option:domain-search,{args.domain}
 
     return gns3_project.ubuntu_node(user_data, image=cloud_image, network_config=network_config,
                                     ram=1024, disk=4096, ethernets=2, x=x, y=y)
+
+# BIG BLUE BUTTON SERVERS
 
 def BBB_server_standalone(hostname, x=100, y=300):
 
@@ -969,7 +975,7 @@ def BBB_server(name, x=100, public_subnet=None, depends_on=None):
         else:
             # can't have two gns3 nodes with the same name, so do this instead
             switch = gns3_project.switch(name + '-subnet', x=x, y=200)
-        server_nat = BBB_server_nat(name + '-NAT', public_subnet=public_subnet, x=x, y=100)
+        server_nat = server_NAT_gateway(name + '-NAT', public_subnet=public_subnet, x=x, y=100)
 
         gns3_project.link(server_nat, 0, PublicIP_switch)
         gns3_project.link(server_nat, 1, switch)
@@ -1040,7 +1046,7 @@ for v in args.version:
         # A BigBlueButton TURN server behind a NAT gateway (like AWS or Azure)
 
         if 'natturn' not in gns3_project.node_names():
-            natturn_nat = BBB_server_nat('natturn-NAT', public_subnet=public_subnet, x=0, y=-100)
+            natturn_nat = server_NAT_gateway('natturn-NAT', public_subnet=public_subnet, x=0, y=-100)
             if server_subnet.with_prefixlen not in gns3_project.node_names():
                 natturn_switch = gns3_project.switch(server_subnet.with_prefixlen, x=0, y=-200)
             else:
@@ -1067,7 +1073,7 @@ for v in args.version:
         # interface names on 'testclient'.
 
         subnet = '100.64.1.1/24'
-        nat4 = BBB_client_nat('NAT4', x=150, y=-200, nat_interface=subnet)
+        nat4 = client_NAT_gateway('NAT4', x=150, y=-200, nat_interface=subnet)
         gns3_project.link(nat4, 0, PublicIP_switch)
         nat4_switch = gns3_project.switch(subnet, x=350, y=-200)
         gns3_project.link(nat4, 1, nat4_switch)
@@ -1078,7 +1084,7 @@ for v in args.version:
         # Put a switch on here for the same reason as NAT4.
 
         subnet = '192.168.128.1/24'
-        nat5 = BBB_client_nat('NAT5', x=150, y=-100, nat_interface=subnet)
+        nat5 = client_NAT_gateway('NAT5', x=150, y=-100, nat_interface=subnet)
         gns3_project.link(nat5, 0, PublicIP_switch)
         nat5_switch = gns3_project.switch(subnet, x=350, y=-100)
         gns3_project.link(nat5, 1, nat5_switch)
@@ -1089,7 +1095,7 @@ for v in args.version:
         # Put a switch on here for the same reason as NAT4.
 
         subnet = '192.168.1.1/24'
-        nat6 = BBB_client_nat('NAT6', x=150, y=0, nat_interface=subnet)
+        nat6 = client_NAT_gateway('NAT6', x=150, y=0, nat_interface=subnet)
         gns3_project.link(nat6, 0, PublicIP_switch)
         nat6_switch = gns3_project.switch(subnet, x=350, y=0)
         gns3_project.link(nat6, 1, nat6_switch)
