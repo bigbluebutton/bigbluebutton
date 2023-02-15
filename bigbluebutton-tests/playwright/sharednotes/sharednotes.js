@@ -109,7 +109,7 @@ class SharedNotes extends MultiUsers {
     await expect(html.includes(iText)).toBeTruthy();
   }
 
-  async exportSharedNotes(page) {
+  async exportSharedNotes(testInfo) {
     const { sharedNotesEnabled } = getSettings();
     test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
     await startSharedNotes(this.modPage);
@@ -127,44 +127,22 @@ class SharedNotes extends MultiUsers {
     const exportEtherpadLocator = getExportEtherpadLocator(this.modPage);
 
     //.txt checks
-    const [download] = await Promise.all([
-      page.waitForEvent('download', { timeout: 5000 }),
-      exportPlainTextLocator.click(),
-    ]);
-    await expect(download).toBeTruthy();
-    const filePath = await download.path();
-    const content = await readFileSync(filePath, 'utf8');
-
-    const txtFileExtension = (download._suggestedFilename).split('.').pop();
+    const txt = await this.modPage.handleDownload(exportPlainTextLocator, testInfo);
+    const txtFileExtension = (txt.download._suggestedFilename).split('.').pop();
     await checkTextContent(txtFileExtension, 'txt');
-    await checkTextContent(content, e.message);
+    await checkTextContent(txt.content, e.message);
 
     //.html checks
-    const [downloadHtml] = await Promise.all([
-      page.waitForEvent('download', { timeout: 5000 }),
-      exportHtmlLocator.click(),
-    ]);
-    await expect(downloadHtml).toBeTruthy();
-    const filePathHtml = await downloadHtml.path();
-    const contentHtml = await readFileSync(filePathHtml, 'utf8');
-
-    const htmlFileExtension = (downloadHtml._suggestedFilename).split('.').pop();
+    const html = await this.modPage.handleDownload(exportHtmlLocator, testInfo);
+    const htmlFileExtension = (html.download._suggestedFilename).split('.').pop();
     await checkTextContent(htmlFileExtension, 'html');
-    await checkTextContent(contentHtml, e.message); 
+    await checkTextContent(html.content, e.message); 
 
     //.etherpad checks
-    const [downloadEtherpad] = await Promise.all([
-      page.waitForEvent('download', { timeout: 5000 }),
-      exportEtherpadLocator.click(),
-    ]);
-    await expect(downloadEtherpad).toBeTruthy();
-    const filePathEtherpad = await downloadEtherpad.path();
-    const contentEtherpad = await readFileSync(filePathEtherpad, 'utf8');
-
-    const etherpadFileExtension = (downloadEtherpad._suggestedFilename).split('.').pop();
-    
+    const etherpad = await this.modPage.handleDownload(exportEtherpadLocator, testInfo);
+    const etherpadFileExtension = (etherpad.download._suggestedFilename).split('.').pop();    
     await checkTextContent(etherpadFileExtension, 'etherpad');
-    await checkTextContent(contentEtherpad, e.message);    
+    await checkTextContent(etherpad.content, e.message);    
   }
 
   async convertNotesToWhiteboard() {

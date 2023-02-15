@@ -179,7 +179,8 @@ class MultiUsers {
 
   async saveUserNames(testInfo) {
     await this.modPage.waitAndClick(e.manageUsers);
-    const { content } = await this.modPage.handleDownload(e.downloadUserNamesList, testInfo);
+    const downloadUserNamesListLocator = this.modPage.getLocator(e.downloadUserNamesList);
+    const { content } = await this.modPage.handleDownload(downloadUserNamesListLocator, testInfo);
 
     const dataToCheck = [
       this.modPage.username,
