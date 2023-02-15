@@ -740,8 +740,6 @@ module BigBlueButton
     #   sender: The display name of the sender
     #   message: The chat message, with link cleanup already applied
     #   date: The real time of when the message was sent (if available) as a DateTime
-    #   text_color: The RGB color value of the chat message text as an integer (old BBB versions only)
-    #   avatar_color: The color of the user's avatar (initials) box (newer BBB versions only)
     def self.get_chat_events(events, start_time, end_time, bbb_props = {})
       BigBlueButton.logger.info('Getting chat events')
 
@@ -776,6 +774,7 @@ module BigBlueButton
 
           date = event.at_xpath('./date')&.content
           date = DateTime.iso8601(date) unless date.nil?
+          sender = event.at_xpath('./sender')&.content
           sender_id = event.at_xpath('./senderId')&.content
           senderRole = event.at_xpath('./senderRole')&.content
           chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
@@ -784,7 +783,7 @@ module BigBlueButton
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
-            sender: user_map.fetch(sender_id),
+            sender: sender_id.nil? ? sender : user_map.fetch(sender_id),
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
             message: linkify(event.at_xpath('./message').content.strip),
