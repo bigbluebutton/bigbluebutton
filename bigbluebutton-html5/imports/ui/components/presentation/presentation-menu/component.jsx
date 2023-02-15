@@ -264,6 +264,10 @@ const PresentationMenu = (props) => {
     if (undoCtrls?.style) {
       undoCtrls.style = "padding:0px";
     }
+    const styleTool = document.getElementById('TD-Styles')?.parentNode;
+    if (styleTool?.style) {
+      styleTool.style = "right:0px";
+    }
     return null
   };
 
