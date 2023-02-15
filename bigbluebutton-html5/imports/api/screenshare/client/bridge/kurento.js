@@ -63,7 +63,7 @@ export default class KurentoScreenshareBridge {
 
   _shouldReconnect() {
     // Sender/presenter reconnect is *not* implemented yet
-    return this.broker.started && this.role === RECV_ROLE;
+    return this.reconnectionTimeout == null && this.role === RECV_ROLE;
   }
 
   /**
@@ -218,7 +218,6 @@ export default class KurentoScreenshareBridge {
 
     // Screensharing was already successfully negotiated and error occurred during
     // during call; schedule a reconnect
-    // If the session has not yet started, a reconnect should already be scheduled
     if (this._shouldReconnect()) {
       // this.broker.started => whether the reconnect should happen immediately.
       // If this session had alredy been established, it should.
