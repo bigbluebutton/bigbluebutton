@@ -75,7 +75,7 @@ jobs:
         run: |
           sudo sh -c '
           cd /root/bbb-ci-ssl/
-          echo "127.0.0.1 bbb-ci.test" >> /etc/hosts
+          echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
           openssl genrsa -out bbb-ci.test.key 2048
           rm bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
           cat > bbb-ci.test.ext << EOF
@@ -111,22 +111,6 @@ jobs:
             sudo sh -c '
             apt --purge -y remove apache2-bin
             '
-      - name: Set IP
-        run: |
-          sudo sh -c '
-          echo "### cat /etc/hosts"
-          cat /etc/hosts
-          echo "### hostname -f"
-          hostname -f
-          echo "### ip -4 addr | grep -oP (?<=inet\s)\d+(\.\d+){3} | grep -v ^127"
-          ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
-          echo "### hostname -I | cut"
-          hostname -I | cut -d" " -f1
-          echo "### Tweak /etc/hosts"
-          sudo sed -i "s/127.0.0.1 bbb-ci.test/$(hostname -I | cut -d" " -f1) bbb-ci.test/g" /etc/hosts
-          echo "### cat /etc/hosts"
-          cat /etc/hosts
-          '
       - name: Install BBB
         run: |
             sudo sh -c '
@@ -145,6 +129,34 @@ jobs:
           npx playwright install-deps
           npx playwright install
           '
+      - if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bbb-configs
+          path: |
+            /etc/bigbluebutton/*
+            /etc/haproxy/haproxy.cfg
+            /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+            /opt/freeswitch/etc/freeswitch/vars.xml
+            /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
+            /usr/share/bigbluebutton/nginx/sip.nginx
+            /etc/hosts
+      - run: bbb-conf --status > bbb-status.log
+      - run: sudo journalctl -u bbb-html5-frontend@1.service --since today > bbb-html5-frontend.log
+      - run: sudo journalctl -u bbb-html5-backend@1.service --since today > bbb-html5-backend.log
+      - if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bbb-logs
+          path: |
+            bbb-status.log
+            bbb-html5-frontend.log
+            bbb-html5-backend.log
+            /var/log/bigbluebutton/bbb-web.log
+            /var/log/bbb-apps-akka/bbb-apps-akka.log
+            /var/log/turnserver/turnserver.log
+            /var/log/haproxy.log
+            /opt/freeswitch/log/freeswitch.log
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
         env:
@@ -168,39 +180,6 @@ jobs:
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
           npm run test-firefox-ci
           '
-      - name: Services logs
-        if: always()
-        run: |
-          sudo sh -c '
-          echo "########### BBB-WEB"
-          tail -n 200 /var/log/bigbluebutton/bbb-web.log
-          echo "########### AKKA-APPS"
-          tail -n 200 /var/log/bbb-apps-akka/bbb-apps-akka.log
-          echo "########### HTML5 backend"
-          sudo journalctl -u bbb-html5-backend@1.service --since today | tail -n 500
-          echo "########### HTML5 frontend"
-          sudo journalctl -u bbb-html5-frontend@1.service --since today | tail -n 500
-          echo "########### COTURN"
-          tail -n 200 /var/log/turnserver/turnserver.log
-          echo "########### HAPROXY"
-          tail -n 200 /var/log/haproxy.log
-          echo "########### FREESWITCH"
-          tail -n 200 /opt/freeswitch/log/freeswitch.log
-          echo "########### bbb-conf --status"
-          bbb-conf --status
-          echo "########### BBB Configs"
-          cat /etc/bigbluebutton/*
-          echo "########### /etc/haproxy/haproxy.cfg"
-          cat /etc/haproxy/haproxy.cfg
-          echo "########### /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
-          cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
-          echo "########### /opt/freeswitch/etc/freeswitch/vars.xml"
-          cat /opt/freeswitch/etc/freeswitch/vars.xml
-          echo "########### /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml"
-          cat /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
-          echo "########### /etc/bigbluebutton/nginx/sip.nginx"
-          cat /etc/bigbluebutton/nginx/sip.nginx
-          '
       - if: always()
         uses: actions/upload-artifact@v3
         with:
@@ -208,3 +187,4 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
+      
