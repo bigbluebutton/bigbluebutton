@@ -430,7 +430,7 @@ class App extends React.Component {
                       maximumFractionDigits: 1,
                     })}
                     cardClass={tab === TABS.OVERVIEW_ACTIVITY_SCORE ? 'border-green-500' : 'hover:border-green-500 border-white'}
-                    iconClass="bg-green-200 text-green-500"
+                    iconClass="bg-green-200 text-green-700"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
