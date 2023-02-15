@@ -111,6 +111,22 @@ jobs:
             sudo sh -c '
             apt --purge -y remove apache2-bin
             '
+      - name: Set IP
+        run: |
+          sudo sh -c '
+          echo "### cat /etc/hosts"
+          cat /etc/hosts
+          echo "### hostname -f"
+          hostname -f
+          echo "### ip -4 addr | grep -oP (?<=inet\s)\d+(\.\d+){3} | grep -v ^127"
+          ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
+          echo "### hostname -I | awk"
+          hostname -I | awk '{print $1}'
+          echo "### Tweak /etc/hosts"
+          sudo sed -i "s/127.0.0.1 bbb-ci.test/$(hostname -I | awk '{print $1}') bbb-ci.test/g" /etc/hosts
+          echo "### cat /etc/hosts"
+          cat /etc/hosts
+          '
       - name: Install BBB
         run: |
             sudo sh -c '
@@ -128,22 +144,6 @@ jobs:
           npm install
           npx playwright install-deps
           npx playwright install
-          '
-      - name: Set IP
-        run: |
-          sudo sh -c '
-          echo "### cat /etc/hosts"
-          cat /etc/hosts
-          echo "### hostname -f"
-          hostname -f
-          echo "### ip -4 addr | grep -oP (?<=inet\s)\d+(\.\d+){3} | grep -v ^127"
-          ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
-          echo "### hostname -I | awk"
-          hostname -I | awk '{print $1}'
-          echo "### Tweak /etc/hosts"
-          sudo sed -i "s/127.0.0.1 bbb-ci.test/$(hostname -I | awk '{print $1}') bbb-ci.test/g" /etc/hosts
-          echo "### cat /etc/hosts"
-          cat /etc/hosts
           '
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
