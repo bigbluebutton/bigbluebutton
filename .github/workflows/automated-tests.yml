@@ -38,13 +38,13 @@ jobs:
       #- run: ./build/setup.sh bbb-web
       # - run: ./build/setup.sh bbb-webrtc-sfu
       # - run: ./build/setup.sh bigbluebutton
-      - run: tar cvf artifacts.tar artifacts/
-      - name: Archive packages
-        uses: actions/upload-artifact@v3
-        with:
-          name: artifacts.tar
-          path: |
-            artifacts.tar
+      # - run: tar cvf artifacts.tar artifacts/
+      # - name: Archive packages
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: artifacts.tar
+      #     path: |
+      #       artifacts.tar
       # - name: Fake package build
       #   run: |
       #     sudo sh -c '
@@ -96,16 +96,16 @@ jobs:
           cat /root/bbb-ci-ssl/bbb-dev-ca.crt >> /local/certs/fullchain.pem
           cat /root/bbb-ci-ssl/bbb-ci.test.key > /local/certs/privkey.pem
           '
-      - name: Setup local repository
-        run: |
-            sudo sh -c '
-            apt install -yq dpkg-dev
-            cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
-            cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
-            cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
-            cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-            echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
-            '
+      # - name: Setup local repository
+      #   run: |
+      #       sudo sh -c '
+      #       apt install -yq dpkg-dev
+      #       cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
+      #       cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
+      #       cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
+      #       cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+      #       echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
+      #       '
       - name: Prepare for install
         run: |
             sudo sh -c '
