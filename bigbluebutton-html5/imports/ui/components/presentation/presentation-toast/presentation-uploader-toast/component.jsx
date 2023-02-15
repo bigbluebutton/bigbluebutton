@@ -1,5 +1,5 @@
 import Presentations from '/imports/api/presentations';
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { useTracker } from 'meteor/react-meteor-data';
 import Icon from '/imports/ui/components/common/icon/component';
 import { makeCall } from '/imports/ui/services/api';
@@ -296,12 +296,14 @@ function handleDismissToast(toastId) {
     return toast.dismiss(toastId);
 }
 
-
-let alreadyRenderedPresList = [];
-
-let enteredConversion = {};
-
 export const PresentationUploaderToast = ({ intl }) => {
+
+	// const [alreadyRenderedPresList.current, setAlreadyRenderedPresList.current] = useState([]);
+	// const [enteredConversion.current, setEnteredConversion.current] = useState({});
+
+	const alreadyRenderedPresList = useRef([]);
+
+	const enteredConversion = useRef({});
 
 	useTracker(() => {
 		
@@ -332,8 +334,8 @@ export const PresentationUploaderToast = ({ intl }) => {
 							toRemoveFromUploadingPresentations.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
 						} 
 					});
-				} else if (!enteredConversion[p.temporaryPresentationId]) {  // upload stage is done and pesentation is entering conversion stage 
-					enteredConversion[p.temporaryPresentationId] = true;  // we mark that it has entered conversion stage
+				} else if (!enteredConversion.current[p.temporaryPresentationId]) {  // upload stage is done and pesentation is entering conversion stage 
+					enteredConversion.current[p.temporaryPresentationId] = true;  // we mark that it has entered conversion stage
 				} else { 
 					// presentation doesn't normally enter conversion twice
 					// so we remove the inconsistencies between UploadingPresentation and Presentation (corner case)
@@ -366,11 +368,11 @@ export const PresentationUploaderToast = ({ intl }) => {
 				lastModifiedUploader: p.lastModifiedUploader,
 			}
 		}).forEach(p => {
-			const docIndexAlreadyInList = alreadyRenderedPresList.findIndex(pres => {
+			const docIndexAlreadyInList = alreadyRenderedPresList.current.findIndex(pres => {
 				return (pres.temporaryPresentationId === p.temporaryPresentationId || pres.presentationId === p.presentationId 
 				|| (pres.lastModifiedUploader !== undefined && !pres.lastModifiedUploader && pres.filename === p.filename))});
 			if (docIndexAlreadyInList === -1) {
-				alreadyRenderedPresList.push({
+				alreadyRenderedPresList.current.push({
 					filename: p.filename,
 					temporaryPresentationId: p.temporaryPresentationId,
 					presentationId: p.presentationId,
@@ -379,10 +381,10 @@ export const PresentationUploaderToast = ({ intl }) => {
 					hasError: p.hasError,
 				});
 			} else {
-				alreadyRenderedPresList[docIndexAlreadyInList].temporaryPresentationId = p.temporaryPresentationId;
-				alreadyRenderedPresList[docIndexAlreadyInList].presentationId = p.presentationId;
-				alreadyRenderedPresList[docIndexAlreadyInList].lastModifiedUploader = p.lastModifiedUploader;
-				alreadyRenderedPresList[docIndexAlreadyInList].hasError = p.hasError;
+				alreadyRenderedPresList.current[docIndexAlreadyInList].temporaryPresentationId = p.temporaryPresentationId;
+				alreadyRenderedPresList.current[docIndexAlreadyInList].presentationId = p.presentationId;
+				alreadyRenderedPresList.current[docIndexAlreadyInList].lastModifiedUploader = p.lastModifiedUploader;
+				alreadyRenderedPresList.current[docIndexAlreadyInList].hasError = p.hasError;
 			}
 		})
 		let activeToast = Session.get("presentationUploaderToastId");
@@ -397,11 +399,11 @@ export const PresentationUploaderToast = ({ intl }) => {
 				className: "presentationUploaderToast toastClass",
 				onClose: () => {
 					presentationsToConvert = [];
-					if (alreadyRenderedPresList.every((pres) => pres.rendered)) {
+					if (alreadyRenderedPresList.current.every((pres) => pres.rendered)) {
 						makeCall('setPresentationRenderedInToast').then(() => {
 							Session.set("presentationUploaderToastId", null);
 						});
-						alreadyRenderedPresList.length = 0;
+						alreadyRenderedPresList.current.length = 0;
 					}
 				},
 			});
@@ -419,18 +421,18 @@ export const PresentationUploaderToast = ({ intl }) => {
 			("conversion" in p && (p.conversion.done || p.conversion.error)))
 			
 		temporaryPresentationIdListToSetAsRendered = temporaryPresentationIdListToSetAsRendered.map(p => {
-			index = alreadyRenderedPresList.findIndex(pres => (pres.temporaryPresentationId === p.temporaryPresentationId || pres.presentationId === p.id));
+			index = alreadyRenderedPresList.current.findIndex(pres => (pres.temporaryPresentationId === p.temporaryPresentationId || pres.presentationId === p.id));
 			if (index !== -1) {
-				alreadyRenderedPresList[index].rendered = true;
+				alreadyRenderedPresList.current[index].rendered = true;
 			}
 			return p.temporaryPresentationId
 		});
 
-		if (alreadyRenderedPresList.every((pres) => pres.rendered && !pres.hasError)) {
+		if (alreadyRenderedPresList.current.every((pres) => pres.rendered && !pres.hasError)) {
 
 			setTimeout(() => {
 				makeCall('setPresentationRenderedInToast');
-				alreadyRenderedPresList.length = 0;
+				alreadyRenderedPresList.current.length = 0;
 			}, TIMEOUT_CLOSE_TOAST * 1000);
 		}
 		
