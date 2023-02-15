@@ -208,6 +208,7 @@ const getConnectionStatus = () => {
     if (userStatus) {
       if (userStatus.status || (!loggedOut && userStatus.clientNotResponding)) {
         result.push({
+          userId,
           name,
           avatar,
           offline: loggedOut,

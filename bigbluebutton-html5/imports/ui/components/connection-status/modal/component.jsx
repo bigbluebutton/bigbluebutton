@@ -351,7 +351,7 @@ class ConnectionStatusComponent extends PureComponent {
       const dateTime = new Date(conn.timestamp);
       return (
         <Styled.Item
-          key={`${conn?.name}-${dateTime}`}
+          key={`${conn?.name}-${conn.userId}`}
           last={(index + 1) === connections.length}
           data-test="connectionStatusItemUser"
         >
@@ -388,13 +388,16 @@ class ConnectionStatusComponent extends PureComponent {
                 </Styled.ClientNotRespondingText>
               ) : null }
           </Styled.Left>
-          <Styled.Right>
-            <Styled.Time>
-              <time dateTime={dateTime}>
-                <FormattedTime value={dateTime} />
-              </time>
-            </Styled.Time>
-          </Styled.Right>
+            <Styled.Right>
+              <Styled.Time>
+                { conn.timestamp ?
+                  <time dateTime={dateTime}>
+                    <FormattedTime value={dateTime} />
+                  </time>
+                  : null
+                }
+              </Styled.Time>
+            </Styled.Right>
         </Styled.Item>
       );
     });
