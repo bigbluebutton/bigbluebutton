@@ -118,10 +118,10 @@ parser = argparse.ArgumentParser(parents=[gns3.parser('BigBlueButton')],
                                  formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('--client-image', type=str,
                     help='Ubuntu image to be used for test clients')
-parser.add_argument('--public-subnet', type=str, default='128.8.8.0/24',
-                    help='public IP subnet to be "stolen" for our use')
+parser.add_argument('--public-subnet', type=str,
+                    help='public IP subnet to be "stolen" for our use (default 128.8.8.0/24)')
 parser.add_argument('--server-subnet', type=str, default='192.168.1.0/24',
-                    help='private IP subnet to be used for NAT-ed BBB server')
+                    help='private IP subnet to be used for NAT-ed BBB server (default 192.168.1.0/24)')
 parser.add_argument('-r', '--repository', type=str,
                     help='package repository to be used for BigBlueButton server install')
 parser.add_argument('-g', '--greenlight', action='store_true',
@@ -147,21 +147,10 @@ parser.add_argument('version', nargs='*',
 version names starting with 'testclient' install clients""")
 args = parser.parse_args()
 
-public_subnet = ipaddress.ip_network(args.public_subnet)
-if not public_subnet.is_global:
-    print(f"{args.public_subnet} must be a public IP prefix")
-    exit(1)
-
 server_subnet = ipaddress.ip_network(args.server_subnet)
 if not server_subnet.is_private:
     print(f"{args.server_subnet} must be a private IP prefix")
     exit(1)
-
-# Use the first host address on the subnet for our master gateway
-# The rest of them will be available for assignment with DHCP
-public_subnet_hosts = list(public_subnet.hosts())
-master_gateway_address = str(public_subnet_hosts[0])
-
 
 # Various scripts we'll use
 #
@@ -197,15 +186,35 @@ except:
 
 gns3_server, gns3_project = gns3.open_project_with_standard_options(args)
 
-# Delete a server (and its associated nodes) if that's what we were requested to do
+# Extract and validate project's public subnet
+
+gns3_variables = gns3_project.variables()
+
+if 'public-subnet' in gns3_variables:
+    if not args.public_subnet:
+        args.public_subnet = gns3_variables['public-subnet']
+    elif args.public_subnet != gns3_variables['public-subnet']:
+        print(f"Public subnet '{args.public_subnet}' doesn't match project's public subnet '{gns3_variables['public-subnet']}'")
+        exit(1)
+else:
+    if not args.public_subnet:
+        args.public_subnet = '128.8.8.0/24'
+    gns3_variables['public-subnet'] = args.public_subnet
+    gns3_project.set_variables(gns3_variables)
+
+public_subnet = ipaddress.ip_network(args.public_subnet)
+if not public_subnet.is_global:
+    print(f"{args.public_subnet} must be a public IP prefix")
+    exit(1)
+
+# Delete a device (and its associated nodes) if that's what we were requested to do
 
 if args.delete:
     # currently, the project's delete method doesn't complain if nothing matches,
     # so we can just do this, even though some of these devices might not exist
-    # (if the server was created without NAT, or if its subnet is named by its CIDR block)
+    # (if the device was created without NAT)
     gns3_project.delete(args.delete)
     gns3_project.delete(args.delete + '-NAT')
-    gns3_project.delete(args.delete + '-subnet')
     # If the server's subnet was named by its CIDR block, we now have an orphan switch
     switches = set(node['node_id'] for node in gns3_project.nodes() if node['node_type'] == 'ethernet_switch')
     linked_switches = set(node['node_id'] for link in gns3_project.links() for node in link['nodes'])
@@ -259,7 +268,7 @@ for keyfilename in SSH_AUTHORIZED_KEYS_FILES:
 
 ### FUNCTIONS TO CREATE VARIOUS KINDS OF GNS3 OBJECTS
 
-def master_gateway(hostname, x=0, y=0):
+def master_gateway(hostname, public_subnet=None, x=0, y=0):
     # A NAT gateway between our public "Internet" and the actual Internet
     #
     # BBB's default STUN server is stun.l.google.com:19302, so we run
@@ -267,6 +276,14 @@ def master_gateway(hostname, x=0, y=0):
     #
     # It also operates an ACME server and mimics acme-v02.api.letsencrypt.org,
     # so our test servers can run certbot to get their SSL certificates.
+
+    if not isinstance(public_subnet, ipaddress.IPv4Network):
+        raise TypeError("master_gateway() requires public_subnet to be an ipaddress.IPv4Network")
+
+    # Use the first host address on the subnet for our master gateway
+    # The rest of them will be available for assignment with DHCP
+    public_subnet_hosts = list(public_subnet.hosts())
+    master_gateway_address = str(public_subnet_hosts[0])
 
     network_config = {'version': 2,
                       'ethernets': {'ens4': {'dhcp4': 'on', 'dhcp-identifier': 'mac' },
@@ -718,12 +735,20 @@ dhcp-option = option:domain-search,{args.domain}
 
 # BigBlueButton server and server NAT gateway
 
-def BBB_server_nat(hostname, x=100, y=100):
+def BBB_server_nat(hostname, public_subnet=None, x=100, y=100):
     # A NAT gateway between our public "Internet" and a server's private subnet
 
     # This is done because the NAT gateway presents itself in DHCP/DNS using the server's name
     assert(hostname.endswith('-NAT'))
     hostname = hostname[:-4]
+
+    if not isinstance(public_subnet, ipaddress.IPv4Network):
+        raise TypeError("BBB_server_nat() requires public_subnet to be an ipaddress.IPv4Network")
+
+    # Use the first host address on the subnet for our master gateway
+    # The rest of them will be available for assignment with DHCP
+    public_subnet_hosts = list(public_subnet.hosts())
+    master_gateway_address = str(public_subnet_hosts[0])
 
     server_subnet_hosts = list(server_subnet.hosts())
     server_nat_address = str(server_subnet_hosts[0])
@@ -932,7 +957,7 @@ def BBB_server_standalone(hostname, x=100, y=300):
 
 # BBB server with optional attached NAT gateway
 
-def BBB_server(name, x=100, depends_on=None):
+def BBB_server(name, x=100, public_subnet=None, depends_on=None):
     server = BBB_server_standalone(name, x=x, y=300)
     if args.no_nat:
         gns3_project.link(server, 0, PublicIP_switch)
@@ -944,7 +969,7 @@ def BBB_server(name, x=100, depends_on=None):
         else:
             # can't have two gns3 nodes with the same name, so do this instead
             switch = gns3_project.switch(name + '-subnet', x=x, y=200)
-        server_nat = BBB_server_nat(name + '-NAT', x=x, y=100)
+        server_nat = BBB_server_nat(name + '-NAT', public_subnet=public_subnet, x=x, y=100)
 
         gns3_project.link(server_nat, 0, PublicIP_switch)
         gns3_project.link(server_nat, 1, switch)
@@ -968,7 +993,8 @@ internet = gns3_project.cloud(args.interface, args.interface, x=-500, y=0)
 notification_url = gns3_project.notification_url()
 
 # Get GNS3 project variables and either extract DNS domain from them,
-# or set the DNS domain there for future reference
+# or use an init server to extract the DNS domain and then set it
+# in the project variables for future reference.
 
 gns3_variables = gns3_project.variables()
 
@@ -994,7 +1020,7 @@ else:
 
 # Create the master gateway
 
-master = master_gateway(args.project, x=-200, y=0)
+master = master_gateway(args.project, public_subnet=public_subnet, x=-200, y=0)
 
 # An Ethernet switch for our public "Internet"
 
@@ -1014,7 +1040,7 @@ for v in args.version:
         # A BigBlueButton TURN server behind a NAT gateway (like AWS or Azure)
 
         if 'natturn' not in gns3_project.node_names():
-            natturn_nat = BBB_server_nat('natturn-NAT', x=0, y=-100)
+            natturn_nat = BBB_server_nat('natturn-NAT', public_subnet=public_subnet, x=0, y=-100)
             if server_subnet.with_prefixlen not in gns3_project.node_names():
                 natturn_switch = gns3_project.switch(server_subnet.with_prefixlen, x=0, y=-200)
             else:
@@ -1095,7 +1121,7 @@ for v in args.version:
                 next(n for n in gns3_project.nodes() if n['x'] == x and n['y'] in y_coordinates_needed)
             except StopIteration:
                 break
-        BBB_server(v, x=x, depends_on=master)
+        BBB_server(v, x=x, public_subnet=public_subnet, depends_on=master)
 
 # The difference between these two is that start_nodes waits for notification that
 # the nodes booted, while start_node does not.
