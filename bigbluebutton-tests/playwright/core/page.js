@@ -130,7 +130,7 @@ class Page {
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
     const [download] = await Promise.all([
       this.page.waitForEvent('download', { timeout }),
-      locator.click(timeout),
+      locator.click({ timeout }),
     ]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
