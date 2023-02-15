@@ -15,29 +15,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-apps-akka
-      - run: ./build/setup.sh bbb-config
-      - run: ./build/setup.sh bbb-etherpad
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
-      - run: ./build/setup.sh bbb-fsesl-akka
-      - run: ./build/setup.sh bbb-html5-nodejs
-      - run: ./build/setup.sh bbb-html5
-      - run: ./build/setup.sh bbb-learning-dashboard
-      - run: ./build/setup.sh bbb-libreoffice-docker
-      - run: ./build/setup.sh bbb-mkclean
-      - run: ./build/setup.sh bbb-pads
-      - run: ./build/setup.sh bbb-playback
-      - run: ./build/setup.sh bbb-playback-notes
-      - run: ./build/setup.sh bbb-playback-podcast
-      - run: ./build/setup.sh bbb-playback-presentation
-      - run: ./build/setup.sh bbb-playback-screenshare
-      - run: ./build/setup.sh bbb-playback-video
-      - run: ./build/setup.sh bbb-record-core
-      - run: ./build/setup.sh bbb-web
-      - run: ./build/setup.sh bbb-webrtc-sfu
-      - run: ./build/setup.sh bigbluebutton
+      #- run: ./build/setup.sh bbb-apps-akka
+      # - run: ./build/setup.sh bbb-config
+      #- run: ./build/setup.sh bbb-etherpad
+      # - run: ./build/setup.sh bbb-export-annotations
+      # - run: ./build/setup.sh bbb-freeswitch-core
+      # - run: ./build/setup.sh bbb-freeswitch-sounds
+      # - run: ./build/setup.sh bbb-fsesl-akka
+      # - run: ./build/setup.sh bbb-html5-nodejs
+      #- run: ./build/setup.sh bbb-html5
+      #- run: ./build/setup.sh bbb-learning-dashboard
+      #- run: ./build/setup.sh bbb-libreoffice-docker
+      # - run: ./build/setup.sh bbb-mkclean
+      # - run: ./build/setup.sh bbb-pads
+      # - run: ./build/setup.sh bbb-playback
+      # - run: ./build/setup.sh bbb-playback-notes
+      # - run: ./build/setup.sh bbb-playback-podcast
+      # - run: ./build/setup.sh bbb-playback-presentation
+      # - run: ./build/setup.sh bbb-playback-screenshare
+      # - run: ./build/setup.sh bbb-playback-video
+      # - run: ./build/setup.sh bbb-record-core
+      #- run: ./build/setup.sh bbb-web
+      # - run: ./build/setup.sh bbb-webrtc-sfu
+      # - run: ./build/setup.sh bigbluebutton
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
@@ -129,6 +129,22 @@ jobs:
           npx playwright install-deps
           npx playwright install
           '
+      - name: Set IP
+        run: |
+          sudo sh -c '
+          echo "### cat /etc/hosts"
+          cat /etc/hosts
+          echo "### hostname -f"
+          hostname -f
+          echo "### ip -4 addr | grep -oP (?<=inet\s)\d+(\.\d+){3} | grep -v ^127"
+          ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
+          echo "### hostname -I | awk '{print $1}'"
+          hostname -I | awk '{print $1}'
+          echo "### Tweak /etc/hosts"
+          sudo sed -i "s/127.0.0.1 bbb-ci.test/$(hostname -I | awk '{print $1}') bbb-ci.test/g" /etc/hosts
+          echo "### cat /etc/hosts"
+          cat /etc/hosts
+          '
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
         env:
@@ -157,29 +173,33 @@ jobs:
         run: |
           sudo sh -c '
           echo "########### BBB-WEB"
-          tail -n 500 /var/log/bigbluebutton/bbb-web.log
+          tail -n 200 /var/log/bigbluebutton/bbb-web.log
           echo "########### AKKA-APPS"
-          tail -n 500 /var/log/bbb-apps-akka/bbb-apps-akka.log
+          tail -n 200 /var/log/bbb-apps-akka/bbb-apps-akka.log
           echo "########### HTML5 backend"
           sudo journalctl -u bbb-html5-backend@1.service --since today | tail -n 500
           echo "########### HTML5 frontend"
           sudo journalctl -u bbb-html5-frontend@1.service --since today | tail -n 500
           echo "########### COTURN"
-          tail -n 500 /var/log/turnserver/turnserver.log
+          tail -n 200 /var/log/turnserver/turnserver.log
           echo "########### HAPROXY"
-          tail -n 500 /var/log/haproxy.log
+          tail -n 200 /var/log/haproxy.log
           echo "########### FREESWITCH"
-          tail -n 500 /opt/freeswitch/log/freeswitch.log
+          tail -n 200 /opt/freeswitch/log/freeswitch.log
           echo "########### bbb-conf --status"
           bbb-conf --status
           echo "########### BBB Configs"
           cat /etc/bigbluebutton/*
-          echo "########### Haproxy Config"
+          echo "########### /etc/haproxy/haproxy.cfg"
           cat /etc/haproxy/haproxy.cfg
-          echo "########### Hosts"
-          cat /etc/hosts
-          hostname -f
-          ip -4 addr | grep -oP "(?<=inet\s)\d+(\.\d+){3}" | grep -v ^127
+          echo "########### /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml"
+          cat /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
+          echo "########### /opt/freeswitch/etc/freeswitch/vars.xml"
+          cat /opt/freeswitch/etc/freeswitch/vars.xml
+          echo "########### /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml"
+          cat /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
+          echo "########### /etc/bigbluebutton/nginx/sip.nginx"
+          cat /etc/bigbluebutton/nginx/sip.nginx
           '
       - if: always()
         uses: actions/upload-artifact@v3
