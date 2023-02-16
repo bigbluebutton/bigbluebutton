@@ -303,6 +303,10 @@ const UserDatailsComponent = (props) => {
     return [];
   }
 
+  const Duration = new Date(getSumOfTime(Object.values(user.intIds)))
+    .toISOString()
+    .substring(11, 19);
+
   return (
     <div className="fixed inset-0 flex flex-row z-50">
       <div
@@ -348,35 +352,28 @@ const UserDatailsComponent = (props) => {
               <div className="bg-gray-500 [--line-height:2px] h-[var(--line-height)] absolute top-[calc(50%-var(--line-height)/2)] left-[10px] right-[10px] rounded-2xl" />
               <div
                 role="progressbar"
+                aria-describedby={`online-indicator-desc-${user.userKey}`}
+                aria-label={`${`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.onlineIndicator', defaultMessage: '{0} online time' }, { 0: user.name })} ${Duration}`}`}
                 className="ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute h-full rounded-2xl text-right rtl:text-left text-ellipsis overflow-hidden"
                 style={{
                   right: `calc(${document.dir === 'ltr' ? userEndOffsetTime : userStartOffsetTime}% + 10px)`,
                   left: `calc(${document.dir === 'ltr' ? userStartOffsetTime : userEndOffsetTime}% + 10px)`,
                 }}
               >
-                <div
-                  aria-describedby={`online-indicator-desc-${user.userKey}`}
-                  aria-label={intl.formatMessage({ id: 'app.learningDashboard.usersTable.colOnline', defaultMessage: 'Online time' })}
-                  className="mx-3 inline-block text-white"
-                >
-                  { new Date(getSumOfTime(Object.values(user.intIds)))
-                    .toISOString()
-                    .substring(11, 19) }
+                <div className="mx-3 inline-block text-white">
+                  { Duration }
                 </div>
-                <p id={`online-indicator-desc-${user.userKey}`} className="absolute w-0 h-0 p-0 border-0 m-0 overflow-hidden">
-                  {`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.onlineIndicator', defaultMessage: '{0} online time' }, { 0: user.name })} ${new Date(getSumOfTime(Object.values(user.intIds))).toISOString().substring(11, 19)}`}
-                </p>
               </div>
             </div>
             <div className="flex flex-row justify-between font-light text-gray-700">
-              <div>
-                <div><FormattedMessage id="app.learningDashboard.userDetails.startTime" defaultMessage="Start Time" /></div>
-                <div>
+              <div aria-label={`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.startTime', defaultMessage: 'Joined' })} ${new Date(createdOn).toISOString().substring(11, 19)}`}>
+                <div aria-hidden="true"><FormattedMessage id="app.learningDashboard.userDetails.startTime" defaultMessage="Start Time" /></div>
+                <div aria-hidden="true">
                   <FormattedTime value={createdOn} />
                 </div>
               </div>
               <div className="ltr:text-right rtl:text-left">
-                <div><FormattedMessage id="app.learningDashboard.userDetails.endTime" defaultMessage="End Time" /></div>
+                <div aria-hidden="true"><FormattedMessage id="app.learningDashboard.userDetails.endTime" defaultMessage="End Time" /></div>
                 <div>
                   { endedOn === 0 ? (
                     <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
@@ -390,19 +387,17 @@ const UserDatailsComponent = (props) => {
             </div>
           </div>
           <div className="p-6 flex flex-row justify-between text-gray-700">
-            <div>
-              <div className="text-gray-900 font-medium">
-                { new Date(getSumOfTime(Object.values(user.intIds)))
-                  .toISOString()
-                  .substring(11, 19) }
+            <div aria-label={`Duration ${Duration}`}>
+              <div aria-hidden="true" className="text-gray-900 font-medium">
+                { Duration }
               </div>
-              <div><FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" /></div>
+              <div aria-hidden="true"><FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" /></div>
             </div>
-            <div>
-              <div className="font-medium">
+            <div aria-label={`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.joined', defaultMessage: 'Joined' })} ${new Date(joinTime).toISOString().substring(11, 19)}`}>
+              <div aria-hidden="true" className="font-medium">
                 <FormattedTime value={joinTime} />
               </div>
-              <div><FormattedMessage id="app.learningDashboard.userDetails.joined" defaultMessage="Joined" /></div>
+              <div aria-hidden="true"><FormattedMessage id="app.learningDashboard.userDetails.joined" defaultMessage="Joined" /></div>
             </div>
             <div>
               <div className="font-medium">
