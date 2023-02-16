@@ -303,11 +303,13 @@ public:
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
-        # Base screen media timeout (send|recv)
-        baseTimeout: 30000
-        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # Base screen media timeout (send|recv) - first connections
+        baseTimeout: 20000
+        # Base screen media timeout (send|recv) - re-connections
+        baseReconnectionTimeout: 8000
+        # Max timeout: used as the max camera subscribe connection timeout. Each
         # subscribe reattempt increases the reconnection timer up to this
-        maxTimeout: 60000
+        maxTimeout: 25000
         timeoutIncreaseFactor: 1.5
       constraints:
         video:
