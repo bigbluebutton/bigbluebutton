@@ -88,7 +88,7 @@ test.describe.parallel('User', () => {
     test('Remove user and prevent rejoining', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
-      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2'});
+      await multiusers.initModPage2(true, context, { customParameter: 'userID=Moderator2' });
       await multiusers.removeUserAndPreventRejoining(context);
     });
   });
@@ -268,7 +268,7 @@ test.describe.parallel('User', () => {
       await mobileDevices.mobileTagName();
     });
 
-    test('Whiteboard should not be accessible when chat panel or userlist are active on mobile devices', async ({ browser }) => {
+    test('Whiteboard should not be accessible when chat panel or user list are active on mobile devices', async ({ browser }) => {
       test.fixme();
       const iphoneContext = await browser.newContext({ ...iPhone11 });
       const motoContext = await browser.newContext({ ...motoG4 });
@@ -279,17 +279,17 @@ test.describe.parallel('User', () => {
       await mobileDevices.whiteboardNotAppearOnMobile();
     });
 
-    test('Userslist should not appear when Chat Panel or Whiteboard are active on mobile devices', async ({ browser }) => {
+    test('User List should not appear when Chat Panel or Whiteboard are active on mobile devices', async ({ browser }) => {
       const iphoneContext = await browser.newContext({ ...iPhone11 });
       const motoContext = await browser.newContext({ ...motoG4 });
       const modPage = await iphoneContext.newPage();
       const mobileDevices = new MobileDevices(browser, iphoneContext);
       await mobileDevices.initModPage(modPage);
       await mobileDevices.initUserPage(true, motoContext);
-      await mobileDevices.userlistNotAppearOnMobile();
+      await mobileDevices.userListNotAppearOnMobile();
     });
 
-    test('Chat Panel should not appear when Userlist or Whiteboard are active on mobile devices', async ({ browser }) => {
+    test('Chat Panel should not appear when UserList or Whiteboard are active on mobile devices', async ({ browser }) => {
       const iphoneContext = await browser.newContext({ ...iPhone11 });
       const motoContext = await browser.newContext({ ...motoG4 });
       const modPage = await iphoneContext.newPage();

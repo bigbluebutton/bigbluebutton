@@ -8,7 +8,6 @@ const { DrawPencil } = require('./drawPencil');
 const { DrawText } = require('./drawText');
 const { DrawStickyNote } = require('./drawStickyNote');
 const { MultiUsers } = require('../user/multiusers');
-const { CUSTOM_MEETING_ID } = require('../core/constants');
 const { encodeCustomParams } = require('../customparameters/util');
 
 test.describe.parallel('Whiteboard @ci', () => {
@@ -61,21 +60,21 @@ test.describe.parallel('Drawing - visual regression', () => {
 
   test('Draw with pencil', async ({ browser, context, page }) => {
     const drawPencil = new DrawPencil(browser, context);
-    await drawPencil.initModPage(page, true, { customMeetingId : 'draw_pencil_meeting', customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
+    await drawPencil.initModPage(page, true, { customMeetingId: 'draw_pencil_meeting', customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
     await drawPencil.initModPage2(true, context, { customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
     await drawPencil.test();
   });
 
   test('Type text', async ({ browser, context, page }) => {
     const drawText = new DrawText(browser, context);
-    await drawText.initModPage(page, true, { customMeetingId : 'draw_text_meeting', customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
+    await drawText.initModPage(page, true, { customMeetingId: 'draw_text_meeting', customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
     await drawText.initModPage2(true, context, { customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
     await drawText.test();
   });
 
   test('Create sticky note', async ({ browser, context, page }) => {
     const drawStickyNote = new DrawStickyNote(browser, context);
-    await drawStickyNote.initModPage(page, true, { customMeetingId : 'draw_sticky_meeting', customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
+    await drawStickyNote.initModPage(page, true, { customMeetingId: 'draw_sticky_meeting', customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
     await drawStickyNote.initModPage2(true, context, { customParameter: encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`) });
     await drawStickyNote.test();
   });

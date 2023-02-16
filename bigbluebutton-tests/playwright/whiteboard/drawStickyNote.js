@@ -1,5 +1,4 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
@@ -13,8 +12,7 @@ class DrawStickyNote extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.wbStickyNoteShape);
 
-    const wb = await this.modPage.page.$(e.whiteboard);
-    const wbBox = await wb.boundingBox();
+    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     await this.modPage.page.mouse.click(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
 
     await this.modPage.press('A');
@@ -23,8 +21,8 @@ class DrawStickyNote extends MultiUsers {
     await this.modPage.press('B');
     await this.modPage.page.mouse.click(wbBox.x + 0.6 * wbBox.width, wbBox.y + 0.6 * wbBox.height);
 
-    await this.modPage.hasText(e.wbTypedText, 'AB');
-    await this.modPage2.hasText(e.wbTypedText, 'AB');
+    await this.modPage.hasText(e.wbTypedStickyNote, 'AB');
+    await this.modPage2.hasText(e.wbTypedStickyNote, 'AB');
 
     const clipObj = {
       x: wbBox.x,

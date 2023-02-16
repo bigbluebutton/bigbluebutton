@@ -1,11 +1,10 @@
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const e = require('../core/elements');
-const { expect } = require('@playwright/test');
 
 async function startSharedNotes(test) {
   await test.waitAndClick(e.sharedNotes);
   await test.waitForSelector(e.hideNotesLabel, ELEMENT_WAIT_LONGER_TIME);
-  await test.hasElement(e.etherpadFrame);
+  await test.hasElement(e.etherpadFrame, ELEMENT_WAIT_LONGER_TIME);
 }
 
 function getNotesLocator(test) {

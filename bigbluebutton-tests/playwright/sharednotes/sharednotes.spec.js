@@ -1,5 +1,5 @@
 const { test } = require('@playwright/test');
-const { SharedNotes, SharedNotesMultiUsers } = require('./sharednotes');
+const { SharedNotes } = require('./sharednotes');
 
 test.describe.parallel('Shared Notes', () => {
   test('Open Shared notes @ci', async ({ browser, page, context }) => {
