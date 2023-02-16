@@ -829,6 +829,7 @@
     "app.shortcut-help.title": "Tastenkombinationen",
     "app.shortcut-help.accessKeyNotAvailable": "Zugriffsschlüssel sind nicht verfügbar",
     "app.shortcut-help.comboLabel": "Tastenkombination",
+    "app.shortcut-help.alternativeLabel": "Alternative",
     "app.shortcut-help.functionLabel": "Funktion",
     "app.shortcut-help.closeLabel": "Schließen",
     "app.shortcut-help.closeDesc": "Schließt den Tastenkombinationendialog",
