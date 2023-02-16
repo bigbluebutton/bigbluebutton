@@ -250,7 +250,16 @@ const intlMessages = defineMessages({
 });
 
 
-const renderItem = (func, key, alt) => {
+const renderItem = (func, key) => {
+  return (
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <Styled.DescCell>{func}</Styled.DescCell>
+      <Styled.KeyCell>{key}</Styled.KeyCell>
+    </tr>
+  );
+}
+
+const renderItemWhiteBoard = (func, key, alt) => {
   return (
     <tr key={_.uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
@@ -312,38 +321,38 @@ const ShortcutHelpComponent = (props) => {
 
   const whiteboardShortcutItems = [];
   //tools
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.select), '1', 'V'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.pencil), '2', 'D, P'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.eraser), '3', 'E'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.rectangle), '4', 'R'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.elipse), '5', 'O'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.triangle), '6', 'G'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.line), '7', 'L'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.arrow), '8', 'A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.text), '9', 'T'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.note), '0', 'S'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.select), '1', 'V'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.pencil), '2', 'D, P'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.eraser), '3', 'E'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.rectangle), '4', 'R'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.elipse), '5', 'O'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.triangle), '6', 'G'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.line), '7', 'L'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.arrow), '8', 'A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.text), '9', 'T'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'S'));
   //views
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomFit), 'Shift 1', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomFit), 'Shift 1', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2', 'N/A'));
 //transform
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipH), 'Shift H', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipV), 'Shift V', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToFront), 'Shift ]', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveForward), ']', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveBackward), '[', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToBack), 'Shift [', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipH), 'Shift H', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipV), 'Shift V', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToFront), 'Shift ]', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveForward), ']', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveBackward), '[', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToBack), 'Shift [', 'N/A'));
   //edit
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.undo), 'Ctrl Z', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.cut), 'Ctrl X', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.copy), 'Ctrl C', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.paste), 'Ctrl V', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.selectAll), 'Ctrl A', 'N/A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.delete), 'Del', 'Delete or Backspace'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.undo), 'Ctrl Z', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.cut), 'Ctrl X', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.copy), 'Ctrl C', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.paste), 'Ctrl V', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.selectAll), 'Ctrl A', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.delete), 'Del', 'Delete or Backspace'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
     <Modal
