@@ -16,6 +16,12 @@ test.describe.parallel('User', () => {
       await multiusers.raiseAndLowerHand();
     });
 
+    test('Raise Hand Rejected', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.raiseHandRejected();
+    });
+
     test('Toggle user list @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);

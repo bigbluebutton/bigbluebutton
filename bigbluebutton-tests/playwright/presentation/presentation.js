@@ -118,7 +118,8 @@ class Presentation extends MultiUsers {
     await this.userPage.hasElement(e.toastDownload);
     await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.userPage.handleDownload(e.downloadPresentation, testInfo);
+    const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
+    await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
   }
 
   async removeAllPresentation() {
@@ -219,7 +220,8 @@ class Presentation extends MultiUsers {
   async presentationSnapshot(testInfo) {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
-    await this.modPage.handleDownload(e.presentationSnapshot, testInfo);
+    const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
+    await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);
   }
 }
 

@@ -75,7 +75,7 @@ jobs:
         run: |
           sudo sh -c '
           cd /root/bbb-ci-ssl/
-          echo "127.0.0.1 bbb-ci.test" >> /etc/hosts
+          echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
           openssl genrsa -out bbb-ci.test.key 2048
           rm bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
           cat > bbb-ci.test.ext << EOF

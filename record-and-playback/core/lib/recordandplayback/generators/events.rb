@@ -936,6 +936,7 @@ module BigBlueButton
     # Check whether any webcams were shared during the recording
     # This can be used to e.g. skip webcam processing or change the layout
     # of the final recording
+    # TODO: check only within recording start/stop markers?
     def self.have_webcam_events(events_xml)
       BigBlueButton.logger.debug("Checking if webcams were used...")
       webcam_events = events_xml.xpath('/recording/event[@eventname="StartWebcamShareEvent" or @eventname="StartWebRTCShareEvent"]')
@@ -948,9 +949,27 @@ module BigBlueButton
       end
     end
 
+    # Check whether any desktop sharing was performed during the recording
+    # This can be used to e.g. skip deskshare processing or change the layout
+    # of the final recording
+    # TODO: check only within recording start/stop markers?
+    def self.have_deskshare_events(events_xml)
+      BigBlueButton.logger.debug('Checking if desktop sharing was used...')
+      deskshare_events = events_xml.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StartWebRTCDesktopShareEvent")]')
+      if deskshare_events.length > 0
+        BigBlueButton.logger.debug('Deskshare events seen in recording')
+        true
+      else
+        BigBlueButton.logger.debug('No deskshare events were seen in recording')
+        false
+      end
+    end
+
     # Check whether any of the presentation features were used in the recording
     # This can be used to e.g. skip presentation processing or change the
     # layout of the final recording.
+    # This should include things done before recording is started, since they
+    # might be visible during the recording.
     def self.have_presentation_events(events_xml)
       BigBlueButton.logger.debug("Checking if presentation area was used...")
       pres_events = events_xml.xpath('/recording/event[@module="PRESENTATION" or @module="WHITEBOARD"]')

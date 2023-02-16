@@ -13,6 +13,7 @@ exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
 exports.raiseHandBtn = 'button[data-test="raiseHandLabel"]';
 exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
+exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
@@ -85,6 +86,7 @@ exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
 exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
 exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
+exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
@@ -161,6 +163,13 @@ exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProg
 exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
 exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
+exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
+exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
+exports.exportPlainButton = 'span[id="exportplain"]';
+exports.pinNotes = 'li[data-test="pinNotes"]';
+exports.unpinNotes = 'button[data-test="unpinNotes"]';
+exports.exportetherpad = 'span[id="exportetherpad"]';
+exports.exporthtml = 'span[id="exporthtml"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
@@ -409,13 +418,6 @@ exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
-
-// Shared notes
-exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
-exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
-exports.exportPlainButton = 'span[id="exportplain"]';
-exports.pinNotes = 'li[data-test="pinNotes"]';
-exports.unpinNotes = 'button[data-test="unpinNotes"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';

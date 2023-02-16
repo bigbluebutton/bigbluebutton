@@ -2,10 +2,13 @@ const { default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const { getSettings } = require('../core/settings');
 const e = require('../core/elements');
-const { startSharedNotes, getNotesLocator, getShowMoreButtonLocator, getExportButtonLocator, getExportPlainTextLocator, getSharedNotesUserWithoutPermission } = require('./util');
+const { startSharedNotes, getNotesLocator, getShowMoreButtonLocator, getExportButtonLocator, getExportPlainTextLocator, getSharedNotesUserWithoutPermission, getExportHTMLLocator, getExportEtherpadLocator } = require('./util');
 const { expect } = require('@playwright/test');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
+const { readFileSync } = require('fs');
+const { checkTextContent } = require('../core/util');
+const { domainToASCII } = require('url');
 
 class SharedNotes extends MultiUsers {
   constructor(browser, context) {
@@ -87,6 +90,12 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.message);
+
+    await notesLocator.press('Control+Z');
+    await expect(notesLocator).toBeEmpty();
+    await notesLocator.press('Control+Y');
+    await expect(notesLocator).toContainText(e.message);
+
     await this.formatMessage(notesLocator);
     const html = await notesLocator.innerHTML();
 
@@ -100,7 +109,7 @@ class SharedNotes extends MultiUsers {
     await expect(html.includes(iText)).toBeTruthy();
   }
 
-  async exportSharedNotes(page) {
+  async exportSharedNotes(testInfo) {
     const { sharedNotesEnabled } = getSettings();
     test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
     await startSharedNotes(this.modPage);
@@ -114,9 +123,26 @@ class SharedNotes extends MultiUsers {
     await exportButtonLocator.click();
 
     const exportPlainTextLocator = getExportPlainTextLocator(this.modPage);
-    page.waitForEvent('download');
-    await exportPlainTextLocator.click();
-    await sleep(500);
+    const exportHtmlLocator = getExportHTMLLocator(this.modPage);
+    const exportEtherpadLocator = getExportEtherpadLocator(this.modPage);
+
+    //.txt checks
+    const txt = await this.modPage.handleDownload(exportPlainTextLocator, testInfo);
+    const txtFileExtension = (txt.download._suggestedFilename).split('.').pop();
+    await checkTextContent(txtFileExtension, 'txt');
+    await checkTextContent(txt.content, e.message);
+
+    //.html checks
+    const html = await this.modPage.handleDownload(exportHtmlLocator, testInfo);
+    const htmlFileExtension = (html.download._suggestedFilename).split('.').pop();
+    await checkTextContent(htmlFileExtension, 'html');
+    await checkTextContent(html.content, e.message); 
+
+    //.etherpad checks
+    const etherpad = await this.modPage.handleDownload(exportEtherpadLocator, testInfo);
+    const etherpadFileExtension = (etherpad.download._suggestedFilename).split('.').pop();    
+    await checkTextContent(etherpadFileExtension, 'etherpad');
+    await checkTextContent(etherpad.content, e.message);    
   }
 
   async convertNotesToWhiteboard() {

@@ -1043,6 +1043,7 @@
     "app.whiteboard.annotations.pollResult": "Oylama sonuçları",
     "app.whiteboard.annotations.noResponses": "Yanıt yok",
     "app.whiteboard.annotations.notAllowed": "Bu değişikliği yapmanıza izin verilmiyor ",
+    "app.whiteboard.annotations.numberExceeded": "Dipnot sayısı sınırı aştı ({0})",
     "app.whiteboard.toolbar.tools": "Araçlar",
     "app.whiteboard.toolbar.tools.hand": "Kaydırma",
     "app.whiteboard.toolbar.tools.pencil": "Kalem",

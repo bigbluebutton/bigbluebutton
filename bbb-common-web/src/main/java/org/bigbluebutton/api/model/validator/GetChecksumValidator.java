@@ -75,7 +75,7 @@ public class GetChecksumValidator implements ConstraintValidator<GetChecksumCons
                 log.info("No algorithm could be found that matches the provided checksum length");
         }
 
-        if (createdCheckSum == null || !createdCheckSum.equals(providedChecksum)) {
+        if (createdCheckSum == null || !createdCheckSum.equalsIgnoreCase(providedChecksum)) {
             log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", createdCheckSum, providedChecksum);
             return false;
         }

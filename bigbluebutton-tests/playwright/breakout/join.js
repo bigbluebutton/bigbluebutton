@@ -225,6 +225,19 @@ class Join extends Create {
       clip: clipObj,
     });
   }
+
+  async userCanChooseRoom() {
+    await this.userPage.bringToFront();
+
+    await this.userPage.checkElementCount(e.roomOption, 2);
+
+    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.bringToFront();
+    await breakoutUserPage.waitForSelector(e.presentationTitle, ELEMENT_WAIT_LONGER_TIME);    
+  }
 }
 
 exports.Join = Join;
