@@ -127,15 +127,15 @@ class Page {
     if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
   }
 
-  async handleDownload(selector, testInfo, timeout = ELEMENT_WAIT_TIME) {
+  async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
     const [download] = await Promise.all([
       this.page.waitForEvent('download', { timeout }),
-      this.waitAndClick(selector, timeout),
+      locator.click({ timeout }),
     ]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath, 'utf8');
-    await testInfo.attach('downloaded', { body: download });
+    await testInfo.attach('downloaded', { path: filePath });
 
     return {
       download,
