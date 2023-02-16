@@ -150,6 +150,7 @@ exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
 exports.userslist = 'div[data-test="userList"]';
+exports.selectCameraQualityId = 'select[id="setQuality"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';

@@ -211,6 +211,29 @@ class CustomParameters extends MultiUsers {
   async autoShareWebcam() {
     await this.modPage.hasElement(e.webcamSettingsModal);
   }
+
+  async hideActionsBarTest() {
+    await this.modPage.wasRemoved(e.actions);
+    await this.modPage.wasRemoved(e.joinAudio);
+    await this.modPage.wasRemoved(e.joinVideo);
+    await this.modPage.wasRemoved(e.startScreenSharing);
+    await this.modPage.wasRemoved(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.raiseHandBtn);
+  }
+
+  async overrideDefaultLocaleTest() {
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público');
+  }
+
+  async hideNavBarTest() {
+    await this.modPage.wasRemoved(e.navbarBackground);
+  }
+
+  async preferredCameraProfileTest() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue()).toBe('low');
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
 }
 
 exports.CustomParameters = CustomParameters;
