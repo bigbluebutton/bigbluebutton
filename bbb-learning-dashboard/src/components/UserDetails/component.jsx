@@ -352,7 +352,6 @@ const UserDatailsComponent = (props) => {
               <div className="bg-gray-500 [--line-height:2px] h-[var(--line-height)] absolute top-[calc(50%-var(--line-height)/2)] left-[10px] right-[10px] rounded-2xl" />
               <div
                 role="progressbar"
-                aria-describedby={`online-indicator-desc-${user.userKey}`}
                 aria-label={`${`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.onlineIndicator', defaultMessage: '{0} online time' }, { 0: user.name })} ${Duration}`}`}
                 className="ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute h-full rounded-2xl text-right rtl:text-left text-ellipsis overflow-hidden"
                 style={{
