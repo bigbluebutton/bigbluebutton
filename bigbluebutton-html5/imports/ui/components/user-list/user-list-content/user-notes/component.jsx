@@ -104,7 +104,7 @@ class UserNotes extends Component {
     } = this.props;
     const { pinWasNotified } = this.state;
     if (isPinned && !pinWasNotified) {
-      notify(intl.formatMessage(intlMessages.pinnedNotification));
+      notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
       this.setState({
         pinWasNotified: true,
       });
