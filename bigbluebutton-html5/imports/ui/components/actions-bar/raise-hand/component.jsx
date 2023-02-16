@@ -10,11 +10,11 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  shortcuts: PropTypes.string,
+  shortcuts: PropTypes.objectOf(PropTypes.string),
 };
 
 const defaultProps = {
-  shortcuts: '',
+  shortcuts: {},
 };
 
 const intlMessages = defineMessages({
