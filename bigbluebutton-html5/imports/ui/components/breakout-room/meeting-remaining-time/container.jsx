@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
-import BreakoutRemainingTimeComponent from './component';
+import MeetingRemainingTimeComponent from './component';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import { Text, Time } from './styles';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
@@ -71,17 +71,17 @@ class breakoutRemainingTimeContainer extends React.Component {
       const time = words.pop();
       const text = words.join(' ');
       return (
-        <BreakoutRemainingTimeComponent>
+        <MeetingRemainingTimeComponent>
           <Text>{text}</Text>
           <br />
           <Time data-test="breakoutRemainingTime">{time}</Time>
-        </BreakoutRemainingTimeComponent>
+        </MeetingRemainingTimeComponent>
       );
     }
     return (
-      <BreakoutRemainingTimeComponent>
+      <MeetingRemainingTimeComponent>
         {message}
-      </BreakoutRemainingTimeComponent>
+      </MeetingRemainingTimeComponent>
     );
   }
 }

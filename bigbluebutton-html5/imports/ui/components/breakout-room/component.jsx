@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
-import BreakoutRoomContainer from './breakout-remaining-time/container';
+import BreakoutRoomContainer from './meeting-remaining-time/container';
 import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
