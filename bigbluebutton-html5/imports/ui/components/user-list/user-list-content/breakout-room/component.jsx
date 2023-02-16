@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import MeetingRemainingTime from '/imports/ui/components/breakout-room/meeting-remaining-time/container';
+import MeetingRemainingTime from '../../../notifications-bar/meeting-remaining-time/container';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
