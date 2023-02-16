@@ -829,6 +829,7 @@
     "app.shortcut-help.title": "Keyboard shortcuts",
     "app.shortcut-help.accessKeyNotAvailable": "Access keys not available",
     "app.shortcut-help.comboLabel": "Combo",
+    "app.shortcut-help.alternativeLabel": "Alternative",
     "app.shortcut-help.functionLabel": "Function",
     "app.shortcut-help.closeLabel": "Close",
     "app.shortcut-help.closeDesc": "Closes keyboard shortcuts modal",
