@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
-import _ from 'lodash';
+import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
@@ -112,14 +112,14 @@ class Settings extends Component {
 
     this.state = {
       current: {
-        dataSaving: _.clone(dataSaving),
-        application: _.clone(application),
+        dataSaving: clone(dataSaving),
+        application: clone(application),
       },
       saved: {
-        dataSaving: _.clone(dataSaving),
-        application: _.clone(application),
+        dataSaving: clone(dataSaving),
+        application: clone(application),
       },
-      selectedTab: _.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
+      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
         ? selectedTab
         : 0,
     };
