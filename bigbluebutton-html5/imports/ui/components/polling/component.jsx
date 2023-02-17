@@ -54,6 +54,7 @@ class Polling extends Component {
       checkedAnswers: [],
     };
 
+    this.pollingContainer = null;
     this.play = this.play.bind(this);
     this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
     this.renderButtonAnswers = this.renderButtonAnswers.bind(this);
@@ -65,6 +66,7 @@ class Polling extends Component {
 
   componentDidMount() {
     this.play();
+    this.pollingContainer && this.pollingContainer?.focus();
   }
 
   play() {
@@ -303,6 +305,8 @@ class Polling extends Component {
           autoWidth={stackOptions}
           data-test="pollingContainer"
           role="alert"
+          ref={el => this.pollingContainer = el}
+          tabIndex={-1}
         >
           {
             question.length > 0 && (
