@@ -144,7 +144,7 @@ const QText = styled.div`
   padding-right: ${smPaddingX};
 `;
 
-const PollingContainer = styled.div`
+const PollingContainer = styled.aside`
   pointer-events:auto;
   min-width: ${pollWidth};
   position: absolute;

@@ -304,7 +304,7 @@ class Polling extends Component {
         <Styled.PollingContainer
           autoWidth={stackOptions}
           data-test="pollingContainer"
-          role="alert"
+          role="complementary"
           ref={el => this.pollingContainer = el}
           tabIndex={-1}
         >
