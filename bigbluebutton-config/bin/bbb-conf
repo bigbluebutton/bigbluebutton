@@ -1666,7 +1666,10 @@ if [ -n "$HOST" ]; then
     #
     # Update HTML5 client
     #
-    if [ -f $HTML5_DEFAULT_CONFIG ]; then
+    if [ -f $HTML5_ETC_CONFIG ]; then
+        yq w -i $HTML5_ETC_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
+        yq w -i $HTML5_ETC_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
+    else
         yq w -i $HTML5_DEFAULT_CONFIG public.kurento.wsUrl "wss://$HOST/bbb-webrtc-sfu"
         yq w -i $HTML5_DEFAULT_CONFIG public.pads.url      "$PROTOCOL://$HOST/pad"
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
