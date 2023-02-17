@@ -40,7 +40,6 @@ class ActionsBar extends PureComponent {
       showPushLayout,
       setPushLayout,
     } = this.props;
-    // console.log("Teste aqui ---- ", isSharingVideo, hasScreenshare, enableVideo)
 
     const shouldShowOptionsButton = (isPresentationAreaEnabled() && isThereCurrentPresentation) 
                                     || isSharingVideo || hasScreenshare || isSharedNotesPinned;
