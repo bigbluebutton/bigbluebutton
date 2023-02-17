@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { check } from 'meteor/check';
 import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/modifiers/modifyWhiteboardAccess';
 import clearAnnotations from '../modifiers/clearAnnotations';
@@ -19,7 +18,7 @@ export default function handleWhiteboardAnnotations({ header, body }, meetingId)
 
   clearAnnotations(meetingId, whiteboardId);
 
-  _.each(annotations, (annotation) => {
+  annotations.forEach((annotation) => {
     const { wbId, userId } = annotation;
     addAnnotation(meetingId, wbId, userId, annotation);
   });

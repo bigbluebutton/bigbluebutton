@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import RedisPubSub from '/imports/startup/server/redis';
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
@@ -14,7 +13,9 @@ export default function sendAnnotationHelper(annotations, meetingId, requesterUs
     // TODO see if really necessary, don't know if it's possible
     // to have annotations from different pages
     // group annotations by same whiteboardId
-    _.each(_.groupBy(annotations, "wbId"), (whiteboardAnnotations) => {
+    const groupedAnnotations = annotations.reduce((r, v, i, a, k = v.wbId) => ((r[k] || (r[k] = [])).push(v), r), {}) //groupBy wbId
+
+    Object.entries(groupedAnnotations).forEach(([_, whiteboardAnnotations]) => {
       const whiteboardId = whiteboardAnnotations[0].wbId;
       check(whiteboardId, String);
 
