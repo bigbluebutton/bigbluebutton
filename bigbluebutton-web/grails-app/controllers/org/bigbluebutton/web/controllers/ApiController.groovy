@@ -1104,11 +1104,19 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null){
-      uploadDocuments(meeting, true);
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                  , contentType: "text/xml")
+      if (uploadDocuments(meeting, true)) {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                    , contentType: "text/xml")
+          }
+        }
+      } else {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation area is disabled, ignoring.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
         }
       }
     }else {
@@ -1334,116 +1342,122 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf, isFromInsertAPI) { //
-    log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
+  def uploadDocuments(conf, isFromInsertAPI) {
+    if (!conf.getDisabledFeatures().contains("presentationArea")) { //
+      log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
-    //sanitizeInput
-    params.each {
-      key, value -> params[key] = sanitizeInput(value)
-    }
-
-    Boolean preUploadedPresentationOverrideDefault=true
-    if (!isFromInsertAPI) {
-      String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
-      if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
-      else preUploadedPresentationOverrideDefault = po[0].toBoolean()
-    }
-
-    Boolean isDefaultPresentationUsed = false;
-    String requestBody = request.inputStream == null ? null : request.inputStream.text;
-    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
-    Boolean isDefaultPresentationCurrent = false;
-    def listOfPresentation = []
-    def presentationListHasCurrent = false
-
-    // This part of the code is responsible for organize the presentations in a certain order
-    // It selects the one that has the current=true, and put it in the 0th place.
-    // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
-    if (requestBody == null) {
-      if (isFromInsertAPI){
-        log.warn("Insert Document API called without a payload - ignoring")
-        return;
+      //sanitizeInput
+      params.each {
+        key, value -> params[key] = sanitizeInput(value)
       }
-      listOfPresentation << [name: "default", current: true];
-    } else {
-      def xml = new XmlSlurper().parseText(requestBody);
-      Boolean hasCurrent = false;
-      xml.children().each { module ->
-        log.debug("module config found: [${module.@name}]");
 
-        if ("presentation".equals(module.@name.toString())) {
-          for (document in module.children()) {
-            if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
-                    document.@current.toString()) && !hasCurrent) {
-              listOfPresentation.add(0, document)
-              hasCurrent = true;
-            } else {
-              listOfPresentation << document
+      Boolean preUploadedPresentationOverrideDefault = true
+      if (!isFromInsertAPI) {
+        String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
+        if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
+        else preUploadedPresentationOverrideDefault = po[0].toBoolean()
+      }
+
+      Boolean isDefaultPresentationUsed = false;
+      String requestBody = request.inputStream == null ? null : request.inputStream.text;
+      requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+      Boolean isDefaultPresentationCurrent = false;
+      def listOfPresentation = []
+      def presentationListHasCurrent = false
+
+      // This part of the code is responsible for organize the presentations in a certain order
+      // It selects the one that has the current=true, and put it in the 0th place.
+      // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
+      if (requestBody == null) {
+        if (isFromInsertAPI) {
+          log.warn("Insert Document API called without a payload - ignoring")
+          return;
+        }
+        listOfPresentation << [name: "default", current: true];
+      } else {
+        def xml = new XmlSlurper().parseText(requestBody);
+        Boolean hasCurrent = false;
+        xml.children().each { module ->
+          log.debug("module config found: [${module.@name}]");
+
+          if ("presentation".equals(module.@name.toString())) {
+            for (document in module.children()) {
+              if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
+                      document.@current.toString()) && !hasCurrent) {
+                listOfPresentation.add(0, document)
+                hasCurrent = true;
+              } else {
+                listOfPresentation << document
+              }
             }
-          }
-          Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
-          if (uploadDefault) {
-            isDefaultPresentationCurrent = !hasCurrent;
-            hasCurrent = true
-            isDefaultPresentationUsed = true
-            if (isDefaultPresentationCurrent) {
-              listOfPresentation.add(0, [name: "default", current: true])
-            } else {
-              listOfPresentation << [name: "default", current: false];
+            Boolean uploadDefault = !preUploadedPresentationOverrideDefault && !isDefaultPresentationUsed && !isFromInsertAPI;
+            if (uploadDefault) {
+              isDefaultPresentationCurrent = !hasCurrent;
+              hasCurrent = true
+              isDefaultPresentationUsed = true
+              if (isDefaultPresentationCurrent) {
+                listOfPresentation.add(0, [name: "default", current: true])
+              } else {
+                listOfPresentation << [name: "default", current: false];
+              }
             }
           }
         }
+        presentationListHasCurrent = hasCurrent;
       }
-      presentationListHasCurrent = hasCurrent;
-    }
 
-    listOfPresentation.eachWithIndex { document, index ->
-      def Boolean isCurrent = false;
-      def Boolean isRemovable = true;
-      def Boolean isDownloadable = false;
+      listOfPresentation.eachWithIndex { document, index ->
+        def Boolean isCurrent = false;
+        def Boolean isRemovable = true;
+        def Boolean isDownloadable = false;
 
-      if (document.name != null && "default".equals(document.name)) {
-        if(presentationService.defaultUploadedPresentation){
-          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+        if (document.name != null && "default".equals(document.name)) {
+          if (presentationService.defaultUploadedPresentation) {
+            downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+          } else {
+            log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
+          }
         } else {
-          log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
-        }
-      } else{
-        // Extracting all properties inside the xml
-        if (!StringUtils.isEmpty(document.@removable.toString())) {
-          isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
-        }
-        if (!StringUtils.isEmpty(document.@downloadable.toString())) {
-          isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
-        }
-        // The array has already been processed to let the first be the current. (This way it is
-        // ensured that only one document is current)
-        if (index == 0 && isFromInsertAPI) {
-          if (presentationListHasCurrent) {
+          // Extracting all properties inside the xml
+          if (!StringUtils.isEmpty(document.@removable.toString())) {
+            isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+          }
+          if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+            isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+          }
+          // The array has already been processed to let the first be the current. (This way it is
+          // ensured that only one document is current)
+          if (index == 0 && isFromInsertAPI) {
+            if (presentationListHasCurrent) {
+              isCurrent = true
+            }
+          } else if (index == 0 && !isFromInsertAPI) {
             isCurrent = true
           }
-        } else if (index == 0 && !isFromInsertAPI){
-          isCurrent = true
-        }
 
-        // Verifying whether the document is a base64 encoded or a url to download.
-        if (!StringUtils.isEmpty(document.@url.toString())) {
-          def fileName;
-          if (!StringUtils.isEmpty(document.@filename.toString())) {
-            log.debug("user provided filename: [${document.@filename}]");
-            fileName = document.@filename.toString();
+          // Verifying whether the document is a base64 encoded or a url to download.
+          if (!StringUtils.isEmpty(document.@url.toString())) {
+            def fileName;
+            if (!StringUtils.isEmpty(document.@filename.toString())) {
+              log.debug("user provided filename: [${document.@filename}]");
+              fileName = document.@filename.toString();
+            }
+            downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+                    fileName, isDownloadable, isRemovable);
+          } else if (!StringUtils.isEmpty(document.@name.toString())) {
+            def b64 = new Base64()
+            def decodedBytes = b64.decode(document.text().getBytes())
+            processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                    conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */);
+          } else {
+            log.debug("presentation module config found, but it did not contain url or name attributes");
           }
-          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable);
-        } else if (!StringUtils.isEmpty(document.@name.toString())) {
-          def b64 = new Base64()
-          def decodedBytes = b64.decode(document.text().getBytes())
-          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */);
-        } else {
-          log.debug("presentation module config found, but it did not contain url or name attributes");
         }
       }
+      return true
+    } else {
+      log.warn("Presentation area is disabled.")
+      return false
     }
   }
 

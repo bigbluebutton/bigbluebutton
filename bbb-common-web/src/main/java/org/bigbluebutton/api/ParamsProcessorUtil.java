@@ -1063,6 +1063,11 @@ public class ParamsProcessorUtil {
 		return true;
 	}
 
+    public boolean isMeetingWithDisabledPresentationArea() {
+        ArrayList<String> listOfDisabledFeatures = new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
+        return listOfDisabledFeatures.contains("presentationArea");
+    }
+
 	public boolean isPostChecksumSame(String apiCall, Map<String, String[]> params) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");

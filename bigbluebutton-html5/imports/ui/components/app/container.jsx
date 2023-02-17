@@ -15,6 +15,7 @@ import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
+import { isPresentationAreaEnabled } from '/imports/ui/services/features';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -92,9 +93,10 @@ const AppContainer = (props) => {
 
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
-  const { isOpen: presentationIsOpen } = presentation;
-  const shouldShowPresentation = propsShouldShowPresentation
-    && (presentationIsOpen || presentationRestoreOnUpdate);
+  const { isOpen } = presentation;
+  const presentationIsOpen = isOpen
+  const shouldShowPresentation = (propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationAreaEnabled();
 
   const { focusedId } = cameraDock;
 
@@ -132,6 +134,8 @@ const AppContainer = (props) => {
     });
   };
 
+  MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch);
+  
   return currentUserId
     ? (
       <App
@@ -253,7 +257,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const AppSettings = Settings.application;
-  const { selectedLayout, pushLayout } = AppSettings;
+  let { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();

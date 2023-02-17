@@ -57,6 +57,7 @@ export default withTracker(() => ({
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
+  isSharedNotesPinned: Service.isSharedNotesPinned(),
   hasScreenshare: isVideoBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,

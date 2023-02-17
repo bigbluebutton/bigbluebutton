@@ -108,6 +108,14 @@ class PresentationController {
       return
     }
 
+    if (paramsProcessorUtil.isMeetingWithDisabledPresentationArea()) {
+      log.error "This meeting has presentationArea as a disabledFeature, it is not possible to upload anything"
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'presentation area in disabled features'
+      return
+    }
+
     def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
