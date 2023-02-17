@@ -161,6 +161,10 @@ const PollingContainer = styled.div`
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};
 
+  &:focus {
+    border: 1px solid ${colorPrimary};
+  }
+
   [dir="rtl"] & {
     left: ${jumboPaddingX};
     right: auto;
