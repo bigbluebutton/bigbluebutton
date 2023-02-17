@@ -21,9 +21,11 @@ import DebugWindow from '/imports/ui/components/debug-window/component';
 import { ACTIONS, PANELS } from '../../ui/components/layout/enums';
 import { isChatEnabled } from '/imports/ui/services/features';
 import { makeCall } from '/imports/ui/services/api';
+import BBBStorage from '/imports/ui/services/storage';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+const USER_WAS_EJECTED = 'userWasEjected';
 
 const HTML = document.getElementsByTagName('html')[0];
 
@@ -137,7 +139,7 @@ class Base extends Component {
       this.setMeetingExisted(false);
     }
 
-    // In case the meeting delayed to load
+    // In case theconst OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId'; meeting delayed to load
     if (!subscriptionsReady || !meetingExist) return;
 
     if (approved && loading) this.updateLoadingState(false);
@@ -270,7 +272,7 @@ class Base extends Component {
       return null;
     }
     
-    if (ejected) {
+    if (ejected || BBBStorage.getItem(USER_WAS_EJECTED)) {
       return (
         <MeetingEnded
           code="403"
@@ -385,6 +387,10 @@ export default withTracker(() => {
   const currentConnectionId = User?.currentConnectionId;
   const { connectionID, connectionAuthTime } = Auth;
   const connectionIdUpdateTime = User?.connectionIdUpdateTime;
+  
+  if (ejected) {
+    BBBStorage.setItem(USER_WAS_EJECTED, ejected);
+  }
 
   if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
     Session.set('codeError', '409');
