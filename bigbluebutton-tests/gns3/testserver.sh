@@ -26,10 +26,16 @@ sudo bbb-conf --salt bbbci
 echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" | sudo tee -a /usr/share/meteor/bundle/bbb-html5-with-roles.conf
 
 # bbb-conf --salt doesn't set the shared secret on the web demo
-sudo sed -i '/salt/s/"[^"]*"/"bbbci"/'  /var/lib/tomcat9/webapps/demo/bbb_api_conf.jsp
+if [ -r /var/lib/tomcat9/webapps/demo/bbb_api_conf.jsp ]; then
+   sudo sed -i '/salt/s/"[^"]*"/"bbbci"/'  /var/lib/tomcat9/webapps/demo/bbb_api_conf.jsp
+fi
 
-# nginx won't start without this change
-sudo sed -i '/server_names_hash_bucket_size/s/^\(\s*\)# /\1/' /etc/nginx/nginx.conf
+# if nginx didn't start because of a hash bucket size issue,
+# certbot didn't work properly and we need to re-run the entire install script
+if systemctl -q is-failed nginx; then
+    sudo sed -i '/server_names_hash_bucket_size/s/^\(\s*\)# /\1/' /etc/nginx/nginx.conf
+    sudo /bbb-install.sh -v $RELEASE -s $FQDN -e $EMAIL $INSTALL_OPTIONS
+fi
 
 # We can't restart if nginx isn't running.  It'll just complain "nginx.service is not active, cannot reload"
 # sudo bbb-conf --restart
