@@ -139,6 +139,8 @@ parser.add_argument('--no-nat', action='store_true',
                     help='install BBB server without a NAT gateway')
 parser.add_argument('--no-install', action='store_true',
                     help="don't run bbb-install script on BBB server")
+parser.add_argument('--quiet', default=False, action='store_true',
+                    help="don't print console logs to stdout")
 parser.add_argument('--delete', type=str,
                     help="delete a BBB server and its associated subnet and NAT nodes")
 parser.add_argument('version', nargs='*',
@@ -1136,7 +1138,7 @@ for v in args.version:
 # a local IP address suitable for a callback.
 
 if notification_url:
-    gns3_project.start_nodes()
+    gns3_project.start_nodes(quiet=args.quiet)
 else:
     for node in args.version:
-        gns3_project.start_node(node)
+        gns3_project.start_node(node, quiet=args.quiet)
