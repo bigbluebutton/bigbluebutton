@@ -996,19 +996,18 @@ def BBB_server(name, x=100, public_subnet=None, depends_on=None):
 # knows which interface we're using, because it might need that
 # information to construct a notification URL (a global variable).
 
-internet = gns3_project.cloud(args.interface, args.interface, x=-500, y=0)
+internet = gns3_project.cloud(gns3_variables.get('subnet', args.interface), args.interface, x=-500, y=0)
 
 notification_url = gns3_project.notification_url()
 
-# Get GNS3 project variables and either extract DNS domain from them,
-# or use an init server to extract the DNS domain and then set it
-# in the project variables for future reference.
-
-gns3_variables = gns3_project.variables()
+# Either extract DNS domain from GNS3 variables, or use an init server
+# to determine the DNS domain and then set it in the project variables
+# for future reference.
 
 if 'domain' in gns3_variables:
     args.domain = gns3_variables['domain']
-else:
+
+if 'domain' not in gns3_variables or 'initsrv' in args.version:
     init_server = initialization_server('initsrv', x=-200, y=-100)
     gns3_project.link(init_server, 0, internet)
     gns3_project.start_nodes(init_server, wait_for_everything=True)
@@ -1020,9 +1019,24 @@ else:
                                       'netplan ip leases ens4 | grep ^DOMAINNAME= | cut -d = -f 2'],
                                      stderr = subprocess.DEVNULL)
     args.domain = stdout.strip().decode()
+    stdout = subprocess.check_output(['ssh', f'ubuntu@{ipaddr}',
+                                      '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
+                                      'netplan ip leases ens4 | grep ^NETMASK= | cut -d = -f 2'],
+                                     stderr = subprocess.DEVNULL)
+    veth_netmask = stdout.strip().decode()
+    stdout = subprocess.check_output(['ssh', f'ubuntu@{ipaddr}',
+                                      '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no',
+                                      'netplan ip leases ens4 | grep ^ADDRESS= | cut -d = -f 2'],
+                                     stderr = subprocess.DEVNULL)
+    veth_address = stdout.strip().decode()
+    veth_subnet = ipaddress.ip_network(veth_address + "/" + veth_netmask, strict=False)
     # This isn't atomic; we're using the copy of gns3_variables that we got a minute or so ago
     gns3_variables['domain'] = args.domain
+    gns3_variables['subnet'] = str(veth_subnet)
     gns3_project.set_variables(gns3_variables)
+    # If user asked to create just an initsrv, do nothing else
+    if args.version == ['initsrv']:
+        exit(1)
     # improve delete method so that it can take init_server directly as an arg
     gns3_project.delete(init_server['node_id'])
 
