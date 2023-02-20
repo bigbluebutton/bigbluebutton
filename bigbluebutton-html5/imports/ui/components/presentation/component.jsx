@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
+import { createPortal } from 'react-dom';
 import PropTypes from 'prop-types';
 import WhiteboardOverlayContainer from '/imports/ui/components/whiteboard/whiteboard-overlay/container'
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
@@ -65,6 +66,84 @@ const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinim
 const { isSafari } = browserInfo;
 const FULLSCREEN_CHANGE_EVENT = isSafari ? 'webkitfullscreenchange' : 'fullscreenchange';
 
+function copyStyles(sourceDoc, targetDoc, tlStyles) {
+  //Most of this code was copied from https://medium.com/hackernoon/using-a-react-16-portal-to-do-something-cool-2a2d627b0202
+  const hostUri = `https://${window.document.location.hostname}`;
+  const baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
+  // In the darkmode, sourceDoc.styleSheets gives severe error.. (spreadArray not defined) need to be solved!
+  Array.from(sourceDoc.styleSheets).concat(tlStyles).forEach(styleSheet => {
+    if (styleSheet.cssRules) {
+      const newStyleEl = sourceDoc.createElement('style');
+      Array.from(styleSheet.cssRules).forEach(cssRule => {
+        let newCssText;
+        if (cssRule.cssText.match(/url\(\"[fonts|files]/)) {
+          newCssText = cssRule.cssText.replace(/url\(\"([^\"]*)/g, function(){return 'url("' + baseName + '/' + arguments[1]});
+        } else {
+          newCssText = cssRule.cssText;
+        }
+        newStyleEl.appendChild(sourceDoc.createTextNode(newCssText));
+      });
+
+      targetDoc.head.appendChild(newStyleEl);
+    } else if (styleSheet.href) {
+      const newLinkEl = sourceDoc.createElement('link');
+      newLinkEl.rel = 'stylesheet';
+      newLinkEl.href = styleSheet.href;
+      targetDoc.head.appendChild(newLinkEl);
+    }
+  });
+}
+
+let presentationWindow = window;
+class WindowPortal extends React.PureComponent {
+  // Most of the idea and code were copied from https://stackoverflow.com/questions/47909601/onclick-not-working-inside-the-pop-up-opened-via-react-portals
+  constructor(props) {
+    super(props);
+    this.state = { win: null, el: null };
+  }
+
+  componentDidMount() {
+    const {
+      svgSize,
+      setEventExternalWindow,
+      setPresentationDetached,
+      toolbarHeight,
+      tlStyles,
+    } = this.props;
+
+    let win = window.open('', '', `innerWidth=${svgSize.width},innerHeight=${svgSize.height+toolbarHeight}`);
+    win.document.title = 'BigBlueButton Portal Window';
+    // No effect anymore?
+    win.document.body.style.position = 'relative'; // to center the slide
+    copyStyles(document, win.document, tlStyles);
+    let el = document.createElement('div');
+    win.document.body.appendChild(el);
+    presentationWindow = win;
+    setEventExternalWindow(win, toolbarHeight);
+
+    win.addEventListener('beforeunload', () => {
+      presentationWindow = window;
+      setPresentationDetached(false); //for closing the window by X button
+    });
+
+    this.setState({ win, el });
+  }
+
+  componentWillUnmount() {
+    const { win } = this.state;
+    //in darkMode win gets null... to be fixed!
+    win.close();
+  }
+
+  render() {
+    const { el } = this.state;
+    if (!el) {
+      return null;
+    }
+    return createPortal(this.props.children, el);
+  }
+}
+
 class Presentation extends PureComponent {
   constructor() {
     super();
@@ -96,12 +175,14 @@ class Presentation extends PureComponent {
     this.setIsPanning = this.setIsPanning.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
+    this.setEventExternalWindow = this.setEventExternalWindow.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.set('componentPresentationWillUnmount', false);
+    this.tlStyles = [];
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -147,12 +228,18 @@ class Presentation extends PureComponent {
   }
 
   componentDidMount() {
+    const { isPresentationDetached } = this.props;
     this.getInitialPresentationSizes();
     this.refPresentationContainer.addEventListener('keydown', this.handlePanShortcut);
     this.refPresentationContainer.addEventListener('keyup', this.handlePanShortcut);
     this.refPresentationContainer
       .addEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
-    window.addEventListener('resize', this.onResize, false);
+    if (isPresentationDetached){
+      presentationWindow.addEventListener('resize', this.onResize, false);
+    } else {
+      window.addEventListener('resize', this.onResize, false);
+    }
+
 
     const {
       currentSlide, slidePosition, layoutContextDispatch,
@@ -303,7 +390,7 @@ class Presentation extends PureComponent {
     Session.set('componentPresentationWillUnmount', true);
     const { fullscreenContext, layoutContextDispatch } = this.props;
 
-    window.removeEventListener('resize', this.onResize, false);
+    presentationWindow.removeEventListener('resize', this.onResize, false);
     this.refPresentationContainer
       .removeEventListener(FULLSCREEN_CHANGE_EVENT, this.onFullscreenChange);
     this.refPresentationContainer.removeEventListener('keydown', this.handlePanShortcut);
@@ -327,16 +414,64 @@ class Presentation extends PureComponent {
   }
 
   handleResize() {
+    const { isPresentationDetached } = this.props;
     const presentationSizes = this.getPresentationSizesAvailable();
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
-      if (!Session.get('componentPresentationWillUnmount')) {
+      //This condition enables the resizing of detached window, by removing this condition, the original window start to resize after merging the detached window.
+      if (!Session.get('componentPresentationWillUnmount') || !isPresentationDetached) {
         this.setState({
           presentationHeight: presentationSizes.presentationHeight,
           presentationWidth: presentationSizes.presentationWidth,
         });
       }
     }
+  }
+
+  setEventExternalWindow (win, toolbarHeight) {
+    win.addEventListener('resize', () => {
+      this.setState({
+        presentationWidth: win.innerWidth,
+        presentationHeight: win.innerHeight - toolbarHeight,
+      });
+    });
+
+    win.addEventListener(FULLSCREEN_CHANGE_EVENT, () => {
+      const { isFullscreen } = this.state;
+      const newIsFullscreen = FullscreenService.isFullScreen(presentationWindow.document.documentElement, presentationWindow.document);
+      if (isFullscreen !== newIsFullscreen) {
+        this.setState({ isFullscreen: newIsFullscreen });
+         //when exiting fullscreen by ESC key, which does not fire a key event, we need to set the layoutContext here,
+         // so that the 'exit fullscreen' icon is shown correctly in the detached window.
+         // This does not actually affect the functionality of the button itself.
+        if (isFullscreen) {
+          this.props.layoutContextDispatch({
+            type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+            value: {
+              element: '',
+              group: '',
+            },
+          });
+        }
+      }
+      this.setState({
+        presentationWidth: win.innerWidth,
+        presentationHeight: win.innerHeight - toolbarHeight,
+      });
+    });
+
+    //Just adding this for the convenience.. This can be removed if I know how to transfer all the shortcuts.
+    win.addEventListener('keydown', (e) => {
+      //console.log("KDE", e.keyCode, e.key);
+      //console.log("KDE", e.key, this.state.tldrawAPI);
+      switch (e.key) {
+        case 'Delete': case 'Backspace':
+          const selectedIds = this.state.tldrawAPI.getShapes().map(s => s.id).filter(id => this.state.tldrawAPI.isSelected(id));
+          //console.log("KDE", selectedIds);
+          this.state.tldrawAPI.delete(selectedIds);
+          break;
+      }
+    });
   }
 
   onFullscreenChange() {
@@ -369,6 +504,7 @@ class Presentation extends PureComponent {
 
   getPresentationSizesAvailable() {
     const {
+      isPresentationDetached,
       presentationBounds,
       presentationAreaSize: newPresentationAreaSize,
     } = this.props;
@@ -377,11 +513,16 @@ class Presentation extends PureComponent {
       presentationHeight: 0,
     };
 
-    if (newPresentationAreaSize) {
-      presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
-      presentationSizes.presentationHeight = newPresentationAreaSize
-        .presentationAreaHeight - (this.getToolbarHeight() || 0);
-      return presentationSizes;
+    if (isPresentationDetached && presentationWindow.innerWidth != 0) {
+      presentationSizes.presentationWidth = presentationWindow.innerWidth;
+      presentationSizes.presentationHeight = presentationWindow.innerHeight - (this.getToolbarHeight() || 0)
+    } else {
+      if (newPresentationAreaSize) {
+        presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
+        presentationSizes.presentationHeight = newPresentationAreaSize
+          .presentationAreaHeight - (this.getToolbarHeight() || 0);
+        return presentationSizes;
+      }
     }
 
     presentationSizes.presentationWidth = presentationBounds.width;
@@ -737,6 +878,8 @@ class Presentation extends PureComponent {
     const {
       currentSlide,
       podId,
+      isPresentationDetached,
+      togglePresentationDetached,
       isMobile,
       layoutType,
       numCameras,
@@ -785,6 +928,9 @@ class Presentation extends PureComponent {
         multiUserSize={this.props.multiUserSize}
         multiUser={this.props.multiUser}
         whiteboardId={currentSlide?.id}
+        togglePresentationDetached={togglePresentationDetached}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       />
     );
   }
@@ -798,6 +944,7 @@ class Presentation extends PureComponent {
         whiteboardId={currentSlide.id}
         height={svgDimensions.height}
         isPresenter={userIsPresenter}
+        presentationWindow={presentationWindow}
       />
     );
   }
@@ -823,6 +970,7 @@ class Presentation extends PureComponent {
     const {
       intl,
       fullscreenElementId,
+      isPresentationDetached,
     } = this.props;
     const { isFullscreen } = this.state;
 
@@ -836,6 +984,8 @@ class Presentation extends PureComponent {
         isFullscreen={isFullscreen}
         color="muted"
         fullScreenStyle={false}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       />
     );
   }
@@ -883,6 +1033,8 @@ class Presentation extends PureComponent {
       intl,
       fullscreenElementId,
       layoutContextDispatch,
+      isPresentationDetached,
+      togglePresentationDetached,
     } = this.props;
 
     return (
@@ -892,6 +1044,9 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         layoutContextDispatch={layoutContextDispatch}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
+        togglePresentationDetached={togglePresentationDetached}
       />
     );
   }
@@ -906,6 +1061,12 @@ class Presentation extends PureComponent {
       currentSlide,
       multiUser,
       slidePosition,
+      isPresentationDetached,
+      setPresentationDetached,
+      setPreviousSvgSize,
+      getPreviousSvgSize,
+      setPreviousToolbarHeight,
+      getPreviousToolbarHeight,
       presentationBounds,
       fullscreenContext,
       isMobile,
@@ -955,6 +1116,11 @@ class Presentation extends PureComponent {
 
     const toolbarHeight = this.getToolbarHeight();
 
+    let toolbarWidth = 0;
+    if (this.refWhiteboardArea) {
+      toolbarWidth = svgWidth;
+    }
+
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
@@ -979,33 +1145,8 @@ class Presentation extends PureComponent {
         // />
       );
     }
-
-    return (
-      <>
-        <Styled.PresentationContainer
-          role="region"
-          data-test="presentationContainer"
-          ref={(ref) => { this.refPresentationContainer = ref; }}
-          style={{
-            top: presentationBounds.top,
-            left: presentationBounds.left,
-            right: presentationBounds.right,
-            width: presentationBounds.width,
-            height: presentationBounds.height,
-            display: !presentationIsOpen ? 'none' : 'flex',
-            overflow: 'hidden',
-            zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
-            background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
-              ? colorContentBackground
-              : null,
-          }}
-        >
-          <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
-            <Styled.SvgContainer
-              style={{
-                height: svgHeight + toolbarHeight,
-              }}
-            >
+    const wbContainer =
+         (
               <div
                 style={{
                   position: 'absolute',
@@ -1028,8 +1169,8 @@ class Presentation extends PureComponent {
                   intl={intl}
                   presentationWidth={svgWidth}
                   presentationHeight={svgHeight}
-                  presentationAreaHeight={presentationBounds?.height}
-                  presentationAreaWidth={presentationBounds?.width}
+                  presentationAreaHeight={isPresentationDetached ? presentationWindow.document.documentElement.clientHeight : presentationBounds?.height}
+                  presentationAreaWidth={isPresentationDetached ? presentationWindow.document.documentElement.clientWidth : presentationBounds?.width}
                   isViewersCursorLocked={isViewersCursorLocked}
                   isPanning={this.state.isPanning}
                   zoomChanger={this.zoomChanger}
@@ -1043,10 +1184,15 @@ class Presentation extends PureComponent {
                   fullscreenRef={this.refPresentationContainer}
                   presentationId={currentPresentation?.id}
                   darkTheme={darkTheme}
+                  isPresentationDetached={isPresentationDetached}
+                  presentationWindow={presentationWindow}
                 />
                 {isFullscreen && <PollingContainer />}
               </div>
-              {!tldrawIsMounting && (
+         );
+
+    const pToolbar =
+              !tldrawIsMounting && (
                 <Styled.PresentationToolbar
                   ref={(ref) => { this.refPresentationToolbar = ref; }}
                   style={
@@ -1057,7 +1203,73 @@ class Presentation extends PureComponent {
                 >
                   {this.renderPresentationToolbar(svgWidth)}
                 </Styled.PresentationToolbar>
-              )}
+              );
+
+    if (svgHeight != 0 && svgWidth != 0) {
+      setPreviousSvgSize(svgWidth, svgHeight);
+    }
+    if (toolbarHeight != 0) {
+      setPreviousToolbarHeight(toolbarHeight);
+    }
+
+    //const allStyles = document.getElementsByTagName("style");
+    //console.log("ALLSTYLE", allStyles);
+    const tldStyles = [/*'tldraw-fonts',*/ 'tl-canvas', 'tl-theme']; // tldraw-fonts is not in the style anymore, see the chang at copyStyles
+    if (this.tlStyles.filter(v => v).length < tldStyles.length) {
+      this.tlStyles = tldStyles.map(id => document.getElementById(id) ? document.getElementById(id).sheet : null);
+    }
+    //console.log("ALLSTYLE", this.tlStyles);
+
+    return (
+      <>
+        <Styled.PresentationContainer
+          role="region"
+          data-test="presentationContainer"
+          ref={(ref) => { this.refPresentationContainer = ref; }}
+          style={{
+            top: isPresentationDetached ? 0 : presentationBounds.top,//these changes do not probably affect anything..
+            left: isPresentationDetached ? 0 : presentationBounds.left,
+            right: isPresentationDetached ? 0 : presentationBounds.right,
+            width: isPresentationDetached ? presentationWindow.document.documentElement.clientWidth : presentationBounds.width,
+            height: isPresentationDetached ? presentationWindow.document.documentElement.clientHeight : presentationBounds.height,
+            display: !presentationIsOpen ? 'none' : 'flex',
+            overflow: 'hidden',
+            zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
+            background: layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
+              ? colorContentBackground
+              : null,
+          }}
+        >
+          <Styled.Presentation ref={(ref) => { this.refPresentation = ref; }}>
+            <Styled.SvgContainer
+              style={{
+                height: svgHeight + toolbarHeight,
+              }}
+            >
+
+          {userIsPresenter && isPresentationDetached
+            ?
+              <Fragment>
+                <WindowPortal
+                  setPresentationDetached={setPresentationDetached}
+                  setEventExternalWindow={this.setEventExternalWindow}
+                  svgSize={getPreviousSvgSize()}
+                  toolbarHeight={getPreviousToolbarHeight()}
+                   tlStyles={this.tlStyles.filter(v => v)}
+                >
+                  {wbContainer}
+                  {pToolbar}
+                </WindowPortal>
+                {/*
+                  wToolbar can be here if it impairs the slide visibility
+                */}
+              </Fragment>
+            :
+              <Fragment>
+                {wbContainer}
+                {pToolbar}
+              </Fragment>
+          }
               {/*this.renderPresentationToolbar()*/}
             </Styled.SvgContainer>
           </Styled.Presentation>

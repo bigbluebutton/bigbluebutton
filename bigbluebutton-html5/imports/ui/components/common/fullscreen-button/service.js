@@ -1,29 +1,29 @@
-function getFullscreenElement() {
-  if (document.fullscreenElement) return document.fullscreenElement;
-  if (document.webkitFullscreenElement) return document.webkitFullscreenElement;
-  if (document.mozFullScreenElement) return document.mozFullScreenElement;
-  if (document.msFullscreenElement) return document.msFullscreenElement;
+function getFullscreenElement(d = document) {
+  if (d.fullscreenElement) return d.fullscreenElement;
+  if (d.webkitFullscreenElement) return d.webkitFullscreenElement;
+  if (d.mozFullScreenElement) return d.mozFullScreenElement;
+  if (d.msFullscreenElement) return d.msFullscreenElement;
   return null;
 }
 
-const isFullScreen = (element) => {
-  if (getFullscreenElement() && getFullscreenElement() === element) {
+const isFullScreen = (element, doc = document) => {
+  if (getFullscreenElement(doc) && getFullscreenElement(doc) === element) {
     return true;
   }
   return false;
 };
 
-function cancelFullScreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if (document.mozCancelFullScreen) {
-    document.mozCancelFullScreen();
-  } else if (document.webkitExitFullscreen) {
-    document.webkitExitFullscreen();
+function cancelFullScreen(doc = document) {
+  if (doc.exitFullscreen) {
+    doc.exitFullscreen();
+  } else if (doc.mozCancelFullScreen) {
+    doc.mozCancelFullScreen();
+  } else if (doc.webkitExitFullscreen) {
+    doc.webkitExitFullscreen();
   }
 }
 
-function fullscreenRequest(element) {
+function fullscreenRequest(element, doc = document) {
   if (element.requestFullscreen) {
     element.requestFullscreen();
   } else if (element.mozRequestFullScreen) {
@@ -35,17 +35,18 @@ function fullscreenRequest(element) {
   } else {
     return;
   }
-  document.activeElement.blur();
+  doc.activeElement.blur();
   element.focus();
 }
 
-const toggleFullScreen = (ref = null) => {
-  const element = ref || document.documentElement;
+const toggleFullScreen = (ref = null, isDetached = false, presentationWin = window) => {
+  const element = ref || (isDetached ? presentationWin.document.documentElement : document.documentElement) ;
+  const doc = isDetached ? presentationWin.document : document;
 
-  if (isFullScreen(element)) {
-    cancelFullScreen();
+  if (isFullScreen(element, doc)) {
+    cancelFullScreen(doc);
   } else {
-    fullscreenRequest(element);
+    fullscreenRequest(element, doc);
   }
 };
 

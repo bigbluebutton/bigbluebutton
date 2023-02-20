@@ -50,6 +50,8 @@ const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
 
+let firstReaction = 0; //counter for touching the tldraw CSS only once
+
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
     #TD-ContextMenu {
@@ -117,6 +119,133 @@ const TldrawGlobalStyle = createGlobalStyle`
   `}
 `;
 
+const TldrawGlobalStyleText = (arg) => {
+  const styleText = `
+  ${ arg.hideContextMenu ? `
+    #TD-ContextMenu {
+      display: none;
+    }
+  ` : ''}
+  #TD-PrimaryTools-Image {
+    display: none;
+  }
+  #slide-background-shape div {
+    pointer-events: none;
+  }
+  [aria-expanded*="false"][aria-controls*="radix-"] {
+    display: none;
+  }
+  ${ (arg.hasWBAccess || arg.isPresenter) ? `
+    #TD-Tools-Dots {
+      height: ${arg.size}px;
+      width: ${arg.size}px;
+    }
+    #TD-Delete {
+      & button {
+        height: ${arg.size}px;
+        width: ${arg.size}px;
+      }
+    }
+    #TD-PrimaryTools button {
+        height: ${arg.size}px;
+        width: ${arg.size}px;
+    }
+    
+    /* For manually supplementing the style of the TD-Tools-Dots */
+    div[style*="--radix-popper-transform-origin"] > div {
+        display: flex;
+    }
+
+    /* For tldraw tooltips; for an edge case where the user enters the detached mode without showing any tooltip */
+    div[style*="--radix-tooltip-content-transform-origin"] {
+        border-radius: 3px;
+        padding: var(--space-3) var(--space-3) var(--space-3) var(--space-3);
+        font-size: var(--fontSizes-1);
+        background-color: var(--colors-tooltip);
+        color: var(--colors-tooltipContrast);
+        box-shadow: var(--shadows-3);
+        display: flex;
+        align-items: center;
+        font-family: var(--fonts-ui);
+        user-select: none;
+    }
+    
+    /* for sticky notes */
+    ${ arg.isRTL ? `
+        div[data-shape="sticky"] > div > div > div > div {
+            text-align: right;
+        }
+    ` : `
+        div[data-shape="sticky"] > div > div > div > div {
+            text-align: left;
+        }
+    `}
+    div[data-shape="sticky"] > div > div > div > div {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: calc(100% - 32px);
+      height: fit-content;
+      font: inherit;
+      pointer-events: none;
+      user-select: none;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      letter-spacing: -0.03em;
+    }
+    div[data-shape="sticky"] > div > div > div > textarea {
+      width: 100%;
+      height: 100%;
+      border: none;
+      overflow: hidden;
+      background: none;
+      outline: none;
+      textAlign: left;
+      font: inherit;
+      padding: 0;
+      color: transparent;
+      verticalAlign: top;
+      resize: none;
+      caretColor: black;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      letter-spacing: -0.03em;
+    }
+
+    /* for text */
+    div[data-shape="text"] > div > div > div > div > textarea {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      padding: 4px;
+      resize: none;
+      text-align: inherit;
+      min-height: inherit;
+      min-width: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      outline: 0px;
+      font-weight: inherit;
+      overflow: hidden;
+      backface-visibility: hidden;
+      display: inline-block;
+      pointer-events: all;
+      background: var(--colors-boundsBg);
+      user-select: text;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+
+  ` : ''}
+  `;
+    
+  return styleText;
+};
+
 const EditableWBWrapper = styled.div`
   &, & > :first-child {
     cursor: inherit !important;
@@ -155,6 +284,8 @@ export default function Whiteboard(props) {
     maxStickyNoteLength,
     fontFamily,
     hasShapeAccess,
+    isPresentationDetached,
+    presentationWindow,
     presentationAreaHeight,
     presentationAreaWidth,
     maxNumberOfAnnotations,
@@ -338,9 +469,9 @@ export default function Whiteboard(props) {
 
   const checkClientBounds = (e) => {
     if (
-      e.clientX > document.documentElement.clientWidth ||
+      e.clientX > presentationWindow.document.documentElement.clientWidth ||
       e.clientX < 0 ||
-      e.clientY > document.documentElement.clientHeight ||
+      e.clientY > presentationWindow.document.documentElement.clientHeight ||
       e.clientY < 0
     ) {
       if (tldrawAPI?.session) {
@@ -350,18 +481,26 @@ export default function Whiteboard(props) {
   };
 
   const checkVisibility = () => {
-    if (document.visibilityState === 'hidden' && tldrawAPI?.session) {
+    if (presentationWindow.document.visibilityState === 'hidden' && tldrawAPI?.session) {
       tldrawAPI?.completeSession?.();
     }
   };
 
   React.useEffect(() => {
-    document.addEventListener('mouseup', checkClientBounds);
-    document.addEventListener('visibilitychange', checkVisibility);
+    presentationWindow.document.addEventListener('mouseup', checkClientBounds);
+    presentationWindow.document.addEventListener('visibilitychange', checkVisibility);
+    
+    if (!isPresentationDetached) {
+      //This is a very early hook. So we 'touch' the styles of style menu and dots menu before detaching window,
+      // so that these styles will be used in the detached window.
+      //These will be turned off in the last process of rendering.
+      tldrawAPI?.setSetting('keepStyleMenuOpen', true);
+      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
+    }
 
     return () => {
-      document.removeEventListener('mouseup', checkClientBounds);
-      document.removeEventListener('visibilitychange', checkVisibility);
+      presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
+      presentationWindow.document.removeEventListener('visibilitychange', checkVisibility);
     };
   }, [tldrawAPI]);
 
@@ -499,7 +638,7 @@ export default function Whiteboard(props) {
         }
       }
     }
-  }, [presentationWidth, presentationHeight, curPageId, document?.documentElement?.dir]);
+  }, [presentationWidth, presentationHeight, curPageId, isPresentationDetached ? presentationWindow.document?.documentElement?.dir : document?.documentElement?.dir]);
 
   React.useEffect(() => {
     if (presentationWidth > 0 && presentationHeight > 0 && slidePosition) {
@@ -675,12 +814,12 @@ export default function Whiteboard(props) {
   }
 
   const onMount = (app) => {
-    const menu = document.getElementById("TD-Styles")?.parentElement;
+    const menu = presentationWindow.document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
       menu.style.height = presentationMenuHeight;
-      if (isRTL) {
+      if (isRTL && !isPresentationDetached) { //a workaround for now..
         menu.style.left = MENU_OFFSET;
       } else {
         menu.style.right = MENU_OFFSET;
@@ -865,6 +1004,27 @@ export default function Whiteboard(props) {
 
       setCurrentTool(tool);
     }
+    
+    //For touching the tldraw CSS that was not transferred on the window detaching.
+    //Here we need to remove the elements that were invoked in the hook to the API.
+    //This is visited for many times, so we need to be careful not to call too many API (too many stacks error).
+    if (tldrawAPI){
+      if (firstReaction == 0) {
+        if (document.getElementById('TD-Styles-Color-Container') &&
+            tldrawAPI.getShape('rectdummy') &&
+            tldrawAPI.getShape('textdummy') &&
+            tldrawAPI.getShape('stickydummy')) {
+          firstReaction = 1;
+        }
+      } else if (firstReaction == 1) { // When the browser is reloaded, they remain. Need to be solved!
+        firstReaction = 2;
+        tldrawAPI.setSetting('keepStyleMenuOpen', false);
+        tldrawAPI.select('rectdummy').delete();
+        tldrawAPI.select('textdummy').delete();
+        tldrawAPI.select('stickydummy').delete();
+      }
+    }
+    
   };
 
   const onUndo = (app) => {
@@ -930,7 +1090,7 @@ export default function Whiteboard(props) {
     }
   };
 
-  const webcams = document.getElementById('cameraDock');
+  const webcams = window.document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
 
   if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
@@ -989,13 +1149,40 @@ export default function Whiteboard(props) {
     tldrawAPI.isForcePanning = isPanning;
   }
 
-  if (hasWBAccess || isPresenter) {
+  if (firstReaction == 2 && (hasWBAccess || isPresenter)) {
     if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
     } else {
       tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
     }
   }
+
+  if (isPresentationDetached) {
+    const styleId = "supplementedTldrawStyle";
+    const tldgsarg = {hasWBAccess, isPresenter, hideContextMenu: !hasWBAccess && !isPresenter, size, isRTL};
+    const tldgs = TldrawGlobalStyleText(tldgsarg);
+    const oldElement = presentationWindow.document.getElementById(styleId);
+    if (oldElement) {
+      presentationWindow.document.head.removeChild(oldElement);
+    }
+    const suppStyle = presentationWindow.document.createElement('style');
+    suppStyle.id = styleId;
+    suppStyle.appendChild(presentationWindow.document.createTextNode(tldgs));
+    presentationWindow.document.head.appendChild(suppStyle);
+  } 
+  
+  //Hook to "touch" the tldraw CSS, by showing some elements for an instance.
+  React.useEffect(() => {
+    if (firstReaction == 0 && tldrawAPI &&
+      (tldrawAPI?.getShapes().length == 0 ||
+        (tldrawAPI?.getShapes().length == 1 && tldrawAPI?.getShapes()[0].id == "slide-background-shape"))) {
+      tldrawAPI.setSetting('keepStyleMenuOpen', true);
+      tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right');
+      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [100, 100], })
+      tldrawAPI.createShapes({ id: 'textdummy', type: 'text', text: 'text', point: [0, 0], })
+      tldrawAPI.createShapes({ id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], })
+    }
+  }, [tldrawAPI]);
 
   return (
     <>
@@ -1009,6 +1196,8 @@ export default function Whiteboard(props) {
         isPanning={isPanning}
         isMoving={isMoving}
         currentTool={currentTool}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle

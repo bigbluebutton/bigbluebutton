@@ -29,7 +29,7 @@ const PresentationMenuContainer = (props) => {
 };
 
 export default withTracker((props) => {
-  const handleToggleFullscreen = (ref) => FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullscreen = (ref, d, w) => FullscreenService.toggleFullScreen(ref, d, w);
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({ meetingId }, { fields: { 'meetingProp.name': 1 } });
