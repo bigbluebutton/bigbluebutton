@@ -489,7 +489,7 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     presentationWindow.document.addEventListener('mouseup', checkClientBounds);
     presentationWindow.document.addEventListener('visibilitychange', checkVisibility);
-    
+/*
     if (!isPresentationDetached) {
       //This is a very early hook. So we 'touch' the styles of style menu and dots menu before detaching window,
       // so that these styles will be used in the detached window.
@@ -497,7 +497,7 @@ export default function Whiteboard(props) {
       tldrawAPI?.setSetting('keepStyleMenuOpen', true);
       tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
     }
-
+*/
     return () => {
       presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
       presentationWindow.document.removeEventListener('visibilitychange', checkVisibility);
