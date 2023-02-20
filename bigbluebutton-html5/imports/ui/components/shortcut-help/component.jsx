@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.comboLabel',
     description: 'heading for key combo column',
   },
+  alternativeLabel: {
+    id: 'app.shortcut-help.alternativeLabel',
+    description: 'heading for key alternatives column',
+  },
   functionLabel: {
     id: 'app.shortcut-help.functionLabel',
     description: 'heading for shortcut function column',
@@ -255,6 +259,16 @@ const renderItem = (func, key) => {
   );
 }
 
+const renderItemWhiteBoard = (func, key, alt) => {
+  return (
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <Styled.DescCell>{func}</Styled.DescCell>
+      <Styled.KeyCell>{key}</Styled.KeyCell>
+      <Styled.KeyCell>{alt}</Styled.KeyCell>
+    </tr>
+  );
+}
+
 const ShortcutHelpComponent = (props) => {
   const { intl, shortcuts } = props;
   const { browserName } = browserInfo;
@@ -296,45 +310,49 @@ const ShortcutHelpComponent = (props) => {
   });
 
   const shortcutItems = [];
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan), intl.formatMessage(intlMessages.togglePanKey)));
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.toggleFullscreen), intl.formatMessage(intlMessages.toggleFullscreenKey)));
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.nextSlideDesc), intl.formatMessage(intlMessages.nextSlideKey)));
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc), intl.formatMessage(intlMessages.previousSlideKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),
+   intl.formatMessage(intlMessages.togglePanKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.toggleFullscreen),
+   intl.formatMessage(intlMessages.toggleFullscreenKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.nextSlideDesc),
+   intl.formatMessage(intlMessages.nextSlideKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc),
+   intl.formatMessage(intlMessages.previousSlideKey)));
 
   const whiteboardShortcutItems = [];
   //tools
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.select), '1'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.pencil), '2'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.eraser), '3'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.rectangle), '4'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.elipse), '5'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.triangle), '6'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.line), '7'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.arrow), '8'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.text), '9'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.note), '0'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.select), '1', 'V'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.pencil), '2', 'D, P'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.eraser), '3', 'E'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.rectangle), '4', 'R'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.elipse), '5', 'O'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.triangle), '6', 'G'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.line), '7', 'L'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.arrow), '8', 'A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.text), '9', 'T'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'S'));
   //views
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomFit), 'Shift 1'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomFit), 'Shift 1', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2', 'N/A'));
 //transform
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipH), 'Shift H'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.flipV), 'Shift V'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToFront), 'Shift ]'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveForward), ']'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveBackward), '['));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.moveToBack), 'Shift ['));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipH), 'Shift H', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipV), 'Shift V', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToFront), 'Shift ]', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveForward), ']', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveBackward), '[', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToBack), 'Shift [', 'N/A'));
   //edit
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.undo), 'Ctrl Z'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.cut), 'Ctrl X'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.copy), 'Ctrl C'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.paste), 'Ctrl V'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.selectAll), 'Ctrl A'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.delete), 'Del'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.duplicate), 'Ctrl D'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.undo), 'Ctrl Z', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.cut), 'Ctrl X', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.copy), 'Ctrl C', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.paste), 'Ctrl V', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.selectAll), 'Ctrl A', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.delete), 'Del', 'Backspace'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
     <Modal
@@ -404,6 +422,7 @@ const ShortcutHelpComponent = (props) => {
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
                   <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.alternativeLabel)}</th>
                 </tr>
                 {whiteboardShortcutItems}
               </tbody>

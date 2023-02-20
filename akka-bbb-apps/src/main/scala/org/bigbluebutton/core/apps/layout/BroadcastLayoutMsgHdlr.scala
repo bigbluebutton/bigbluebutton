@@ -52,7 +52,6 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       Layouts.getCameraPosition(liveMeeting.layouts),
       Layouts.getFocusedCamera(liveMeeting.layouts),
       Layouts.getPresentationVideoRate(liveMeeting.layouts),
-      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
       Layouts.getLayoutSetter(liveMeeting.layouts)
     )
     val event = BroadcastLayoutEvtMsg(header, body)

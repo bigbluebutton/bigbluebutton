@@ -48,6 +48,7 @@ const SidebarContent = (props) => {
     contextDispatch,
     sidebarContentPanel,
     amIPresenter,
+    isSharedNotesPinned,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -137,9 +138,11 @@ const SidebarContent = (props) => {
         <ChatContainer width={width} />
       </ErrorBoundary>
       )}
-      <NotesContainer
-        isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
-      />
+      {!isSharedNotesPinned && (
+        <NotesContainer
+          isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+        />
+      )}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}

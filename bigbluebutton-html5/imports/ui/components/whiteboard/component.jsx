@@ -7,6 +7,9 @@ import SlideCalcUtil, {HUNDRED_PERCENT} from '/imports/utils/slideCalcUtils';
 import { Utils } from "@tldraw/core";
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
+import KEY_CODES from '/imports/utils/keyCodes';
+import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -64,6 +67,9 @@ const TldrawGlobalStyle = createGlobalStyle`
   [aria-expanded*="false"][aria-controls*="radix-"] {
     display: none;
   }
+  [class$="-side-right"] {
+    top: -1px;
+  }
   ${({ hasWBAccess, isPresenter, size }) => (hasWBAccess || isPresenter) && `
     #TD-Tools-Dots {
       height: ${size}px;
@@ -78,6 +84,37 @@ const TldrawGlobalStyle = createGlobalStyle`
     #TD-PrimaryTools button {
         height: ${size}px;
         width: ${size}px;
+    }
+    #TD-Styles {
+      border-width: ${borderSize};
+    }
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      height: 92%;
+      border-radius: 7px;
+
+      &:hover {
+        border: solid ${borderSize} #ECECEC;
+        background-color: #ECECEC;
+      }
+      &:focus {
+        border: solid ${borderSize} ${colorBlack};
+      }
+    }
+    #TD-Styles,
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo {
+      margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
+    }
+  `}
+  ${({ darkTheme }) => darkTheme && `
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      &:focus {
+        border: solid ${borderSize} ${colorWhite} !important;
+      }
     }
   `}
 `;
@@ -251,6 +288,9 @@ export default function Whiteboard(props) {
     presentationWindow,
     presentationAreaHeight,
     presentationAreaWidth,
+    maxNumberOfAnnotations,
+    notifyShapeNumberExceeded,
+    darkTheme,
   } = props;
 
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
@@ -276,6 +316,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [isMoving, setIsMoving] = React.useState(false);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -342,8 +383,23 @@ export default function Whiteboard(props) {
     const invalidShapeType = Object.keys(changedShapes)
       .find(id => !isValidShapeType(changedShapes[id]));
 
-    if (invalidChange || invalidShapeType) {
-      notifyNotAllowedChange(intl);
+    const currentShapes = app?.document?.pages[app?.currentPageId]?.shapes;
+    // -1 for background shape
+    const shapeNumberExceeded = Object.keys(currentShapes).length - 1 > maxNumberOfAnnotations;
+
+    const isInserting = Object.keys(changedShapes)
+      .filter(
+        shape => typeof changedShapes[shape] === 'object'
+          && changedShapes[shape].type
+          && !prevShapes[shape]
+      ).length !== 0;
+
+    if (invalidChange || invalidShapeType || (shapeNumberExceeded && isInserting)) {
+      if (shapeNumberExceeded) {
+        notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+      } else {
+        notifyNotAllowedChange(intl);
+      }
       // undo last command without persisting to not generate the onUndo/onRedo callback
       if (!redo) {
         const command = app.stack[app.pointer];
@@ -563,7 +619,7 @@ export default function Whiteboard(props) {
       if (prevFitToWidth !== null && fitToWidth !== prevFitToWidth) {
         const zoom = calculateZoom(slidePosition.width, slidePosition.height)
         tldrawAPI?.setCamera([0, 0], zoom);
-        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+        const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.height, slidePosition.height);
         setZoom(HUNDRED_PERCENT);
         zoomChanger(HUNDRED_PERCENT);
         zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
@@ -647,13 +703,13 @@ export default function Whiteboard(props) {
         if (fitToWidth) {
           const zoom = calculateZoom(slidePosition.width, slidePosition.height)
           tldrawAPI?.setCamera([0, 0], zoom);
-          const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+          const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.height, slidePosition.height);
           zoomSlide(parseInt(curPageId), podId, HUNDRED_PERCENT, viewedRegionH, 0, 0);
           setZoom(HUNDRED_PERCENT);
           zoomChanger(HUNDRED_PERCENT);
         } else if (!isMounting) {
-          let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
-          let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+          let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.width, slidePosition.width);
+          let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.height, slidePosition.height);
           const camera = tldrawAPI?.getPageState()?.camera;
           const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
           if (!fitToWidth && camera.zoom === zoomFitSlide) {
@@ -700,11 +756,69 @@ export default function Whiteboard(props) {
     }
   }, [presentationAreaHeight, presentationAreaWidth]);
 
+  const fullscreenToggleHandler = () => {
+    const {
+      fullscreenElementId,
+      isFullscreen,
+      layoutContextDispatch,
+      fullscreenAction,
+      fullscreenRef,
+      handleToggleFullScreen,
+    } = props;
+
+    handleToggleFullScreen(fullscreenRef);
+    const newElement = isFullscreen ? '' : fullscreenElementId;
+
+    layoutContextDispatch({
+      type: fullscreenAction,
+      value: {
+        element: newElement,
+        group: '',
+      },
+    });
+  }
+
+  const nextSlideHandler = (event) => {
+    const {
+      nextSlide, curPageId, numberOfSlides, podId,
+    } = props;
+
+    if (event) event.currentTarget.blur();
+    nextSlide(+curPageId, numberOfSlides, podId);
+  }
+
+  const previousSlideHandler = (event) => {
+    const { previousSlide, curPageId, podId } = props;
+
+    if (event) event.currentTarget.blur();
+    previousSlide(+curPageId, podId);
+  }
+
+  const switchSlide = (event) => {
+    const { which } = event;
+
+    switch (which) {
+      case KEY_CODES.ARROW_LEFT:
+      case KEY_CODES.PAGE_UP:
+        previousSlideHandler();
+        break;
+      case KEY_CODES.ARROW_RIGHT:
+      case KEY_CODES.PAGE_DOWN:
+        nextSlideHandler();
+        break;
+      case KEY_CODES.ENTER:
+        fullscreenToggleHandler();
+        break;
+      default:
+    }
+  }
+
   const onMount = (app) => {
     const menu = presentationWindow.document.getElementById("TD-Styles")?.parentElement;
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
+      menu.style.height = presentationMenuHeight;
       if (isRTL && !isPresentationDetached) { //a workaround for now..
         menu.style.left = MENU_OFFSET;
       } else {
@@ -789,6 +903,12 @@ export default function Whiteboard(props) {
       }
     }
 
+    // change cursor when moving shapes
+    if (e?.session?.type === "translate" && e?.session?.status === "translating") {
+      if (!isMoving) setIsMoving(true);
+      if (reason === "set_status:idle") setIsMoving(false);
+    }
+
     if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
       const camera = tldrawAPI.getPageState()?.camera;
 
@@ -818,8 +938,8 @@ export default function Whiteboard(props) {
         isPresenter && zoomChanger(zoomToolbar);
       }
 
-      let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.height, slidePosition.width);
-      let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.width, slidePosition.height);
+      let viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(tldrawAPI?.viewport.width, slidePosition.width);
+      let viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(tldrawAPI?.viewport.height, slidePosition.height);
 
       if (!fitToWidth && camera.zoom === zoomFitSlide) {
         viewedRegionW = HUNDRED_PERCENT;
@@ -859,8 +979,16 @@ export default function Whiteboard(props) {
       }
 
       if (e?.session?.initialShape?.type === 'text' && !shapes[patchedShape.id]) {
-        patchedShape.userId = currentUser?.userId;
-        persistShape(patchedShape, whiteboardId);
+        // check for maxShapes
+        const currentShapes = e?.document?.pages[e?.currentPageId]?.shapes;
+        const shapeNumberExceeded = Object.keys(currentShapes).length - 1 > maxNumberOfAnnotations;
+        if (shapeNumberExceeded) {
+          notifyShapeNumberExceeded(intl, maxNumberOfAnnotations);
+          e?.cancelSession?.();
+        } else {
+          patchedShape.userId = currentUser?.userId;
+          persistShape(patchedShape, whiteboardId);
+        }
       } else {
         const diff = {
           id: patchedShape.id,
@@ -965,10 +1093,10 @@ export default function Whiteboard(props) {
   const webcams = window.document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute("data-position");
 
-  if(currentTool) tldrawAPI?.selectTool(currentTool);
+  if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
 
   const editableWB = (
-    <EditableWBWrapper>
+    <EditableWBWrapper onKeyDown={switchSlide}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}-${forcePanning}`}
         document={doc}
@@ -1066,16 +1194,20 @@ export default function Whiteboard(props) {
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
         isPanning={isPanning}
+        isMoving={isMoving}
         currentTool={currentTool}
         isPresentationDetached={isPresentationDetached}
         presentationWindow={presentationWindow}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
-          hasWBAccess={hasWBAccess}
-          isPresenter={isPresenter}
           hideContextMenu={!hasWBAccess && !isPresenter}
-          size={size}
+          {...{
+            hasWBAccess,
+            isPresenter,
+            size,
+            darkTheme
+          }}
         />
       </Cursors>
     </>

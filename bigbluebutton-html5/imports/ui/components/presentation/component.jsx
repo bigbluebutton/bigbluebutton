@@ -1079,6 +1079,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
       presentationIsOpen,
+      darkTheme,
     } = this.props;
 
     const {
@@ -1176,6 +1177,13 @@ class Presentation extends PureComponent {
                   fitToWidth={fitToWidth}
                   zoomValue={zoom}
                   setTldrawIsMounting={this.setTldrawIsMounting}
+                  isFullscreen={isFullscreen}
+                  fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
+                  fullscreenElementId={fullscreenElementId}
+                  layoutContextDispatch={layoutContextDispatch}
+                  fullscreenRef={this.refPresentationContainer}
+                  presentationId={currentPresentation?.id}
+                  darkTheme={darkTheme}
                   isPresentationDetached={isPresentationDetached}
                   presentationWindow={presentationWindow}
                 />

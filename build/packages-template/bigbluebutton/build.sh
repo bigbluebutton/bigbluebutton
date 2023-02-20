@@ -21,17 +21,12 @@ bbb-freeswitch-core
 bbb-freeswitch-sounds
 bbb-fsesl-akka
 bbb-html5
-bbb-html5-nodejs
 bbb-learning-dashboard
 bbb-libreoffice-docker
 bbb-mkclean
 bbb-pads
 bbb-playback
-bbb-playback-notes
 bbb-playback-presentation
-bbb-playback-podcast
-bbb-playback-screenshare
-bbb-playback-video
 bbb-record-core
 bbb-web
 bbb-webrtc-sfu"

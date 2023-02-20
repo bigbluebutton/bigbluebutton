@@ -63,7 +63,6 @@ const Notes = ({
   isToSharedNotesBeShow,
   shouldShowSharedNotesOnPresentationArea,
 }) => {
-  useEffect(() => () => Service.setLastRev(), []);
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
@@ -77,7 +76,7 @@ const Notes = ({
                     && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
                     || shouldShowSharedNotesOnPresentationArea;
 
-  if (isHidden) {
+  if (isHidden && !isOnMediaArea) {
     style.padding = 0;
     style.display = 'none';
   }

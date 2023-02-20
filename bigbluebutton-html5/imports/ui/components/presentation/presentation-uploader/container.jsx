@@ -52,5 +52,6 @@ export default withTracker(() => {
     isOpen: Session.get('showUploadPresentationView') || false,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
+    handleFiledrop: Service.handleFiledrop,
   };
 })(PresentationUploaderContainer);
