@@ -49,11 +49,12 @@ By starting with a working BigBlueButton server, you have the ability to switch 
 
 For example, suppose you modify the BigBlueButton client and something isn't working (such as the client is not fully loading), you can easily switch back to the default-packaged client and check that it's working correctly (thus ruling out any environment issues that may also be preventing your modified client from loading).
 
-You will find the following helpful:
+You may find the following helpful:
 
-Installing and learning tmux. tmux is an UNIX application that allows you to switch between shells/applications on a single terminal. 
-You will find tmux helpful since many of BigBlueButton's applications, when running manually, run in the foreground. Consequently you may 
-need multiple windows to launch and monitor the applications. This is tedious especially if you have logged in remotely.
+Installing and learning tmux: If you develop using mostly command line tools, you will find tmux helpful. tmux is an UNIX application that allows 
+you to switch between shells/applications on a single terminal.  tmux is helpful since many of BigBlueButton's applications, when running manually, 
+run in the foreground. Consequently you may need multiple windows to launch and monitor the applications. This is tedious especially if you have logged 
+in remotely.
 
 By using tmux, you can split a terminal into several sections (or create new virtual terminals), each application running in its own section.
 This makes it easier to monitor many logs in a single glance.
@@ -71,7 +72,7 @@ get the secret from a running BBB instance by doing the following: sudo bbb-conf
 another needed password is for freeswitch. This password can be found in: /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
 dependencies: This will be covered in more detail throughout this document. However, the dependencies between the modules are:
-bbb-common-messages <- bbb-common-web <- bigbluebutton-web (question were does bigbluebutton-html fit in?)
+bbb-common-messages <- bbb-common-web <- bigbluebutton-web 
 
 **Another Note:** These instructions assume you have Greenlight installed so you can create and join meetings to test your setup.
 
