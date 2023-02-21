@@ -22,7 +22,7 @@ export default function userInactivityInspect(userId, responseDelay) {
     const { numberAffected } = Users.update(selector, modifier);
 
     if (numberAffected) {
-      Logger.info(`Updated user ${userId} with inactivity inspect`);
+      Logger.info(`Updated user ${userId} with inactivity inspect in meeting ${meetingId}`);
     }
   } catch (err) {
     Logger.error(`Inactivity check for user ${userId}: ${err}`);
