@@ -155,11 +155,22 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
-    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
-    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
-    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
     await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn);
+  }
+
+  async raiseHandRejected() {
+    const { raiseHandButton } = getSettings();
+    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.initUserPage();
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await sleep(1000);
+    await this.userPage.hasElement(e.lowerHandBtn);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
+    await this.modPage.waitAndClick(e.raiseHandRejection);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
@@ -179,7 +190,8 @@ class MultiUsers {
 
   async saveUserNames(testInfo) {
     await this.modPage.waitAndClick(e.manageUsers);
-    const { content } = await this.modPage.handleDownload(e.downloadUserNamesList, testInfo);
+    const downloadUserNamesListLocator = this.modPage.getLocator(e.downloadUserNamesList);
+    const { content } = await this.modPage.handleDownload(downloadUserNamesListLocator, testInfo);
 
     const dataToCheck = [
       this.modPage.username,

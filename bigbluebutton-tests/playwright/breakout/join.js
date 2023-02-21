@@ -136,8 +136,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     await this.userPage.waitForSelector(e.modalConfirmButton);
-    await breakoutUserPage.hasElement(e.errorScreenMessage);
-    await breakoutUserPage.hasText(e.errorScreenMessage, e.error403removedLabel);
+    await breakoutUserPage.page.isClosed();
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);
@@ -161,15 +160,14 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.presentationUploadProgressToast);
-    await this.modPage.page.waitForSelector(e.presentationUploadProgressToast, { state: 'detached' });
+    await this.modPage.waitForSelectorDetached(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
 
     await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.checkElementCount(e.actionsItem, 9);
     await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
 
-    const wb = await this.modPage.page.$(e.whiteboard);
-    const wbBox = await wb.boundingBox();
+    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const clipObj = {
       x: wbBox.x,
       y: wbBox.y,
@@ -208,25 +206,37 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.waitForSelector(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.page.waitForSelector(e.presentationUploadProgressToast, { state: 'detached' });
+    await this.modPage.waitForSelectorDetached(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
 
     await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.checkElementCount(e.actionsItem, 9);
     await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
 
-    const wbMod = await this.modPage.page.$(e.whiteboard);
-    const wbBoxMod = await wbMod.boundingBox();
+    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const clipObj = {
-      x: wbBoxMod.x,
-      y: wbBoxMod.y,
-      width: wbBoxMod.width,
-      height: wbBoxMod.height,
+      x: wbBox.x,
+      y: wbBox.y,
+      width: wbBox.width,
+      height: wbBox.height,
     };
     await expect(this.modPage.page).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1000,
       clip: clipObj,
     });
+  }
+
+  async userCanChooseRoom() {
+    await this.userPage.bringToFront();
+
+    await this.userPage.checkElementCount(e.roomOption, 2);
+
+    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.bringToFront();
+    await breakoutUserPage.waitForSelector(e.presentationTitle, ELEMENT_WAIT_LONGER_TIME);    
   }
 }
 

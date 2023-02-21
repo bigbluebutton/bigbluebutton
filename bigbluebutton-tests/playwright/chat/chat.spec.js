@@ -25,7 +25,7 @@ test.describe.parallel('Chat', () => {
   });
 
   test('Copy chat', async ({ browser, context, page }, testInfo) => {
-    test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
+    test.skip(testInfo.project.use.headless, 'Only works in headed mode');
     const chat = new Chat(browser, page);
     await chat.init(true, true);
     await chat.copyChat(context);
@@ -78,7 +78,7 @@ test.describe.parallel('Chat', () => {
     });
 
     test('Copy chat with emoji', async ({ browser, context, page }, testInfo) => {
-      test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
+      test.skip(testInfo.project.use.headless, 'Only works in headed mode');
       const emoji = new Chat(browser, page);
       await emoji.init(true, true);
       await emoji.emojiCopyChat(context);
@@ -103,7 +103,7 @@ test.describe.parallel('Chat', () => {
     });
 
     test('Copy chat with auto converted emoji', async ({ browser, context, page }, testInfo) => {
-      test.fixme(testInfo.project.use.headless, 'Only works in headed mode');
+      test.skip(testInfo.project.use.headless, 'Only works in headed mode');
       const emoji = new Chat(browser, page);
       await emoji.init(true, true);
       await emoji.autoConvertEmojiCopyChat(context);

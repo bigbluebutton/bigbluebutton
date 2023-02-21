@@ -351,7 +351,7 @@ const ShortcutHelpComponent = (props) => {
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.copy), 'Ctrl C', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.paste), 'Ctrl V', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.selectAll), 'Ctrl A', 'N/A'));
-  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.delete), 'Del', 'Delete or Backspace'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.delete), 'Del', 'Backspace'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
