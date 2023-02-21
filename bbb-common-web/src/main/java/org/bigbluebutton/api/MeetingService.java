@@ -147,6 +147,10 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void endMeetingPrompt(String meetingId) {
+    handle(new EndMeetingPrompt(meetingId));
+  }
+
   public UserSession getUserSessionWithUserId(String userId) {
     for (UserSession userSession : sessions.values()) {
       if (userSession.internalUserId.equals(userId)) {
@@ -439,17 +443,21 @@ public class MeetingService implements MessageListener {
             message.authed, message.guestStatus, message.excludeFromDashboard);
   }
 
-    public Meeting getMeeting(String meetingId) {
-        if (meetingId == null)
-            return null;
-        for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(meetingId))
-                return entry.getValue();
-        }
+  private void processEndMeetingPrompt(EndMeetingPrompt message) {
+    gw.endMeetingPrompt(message.meetingId);
+  }
 
-        return null;
-    }
+  public Meeting getMeeting(String meetingId) {
+      if (meetingId == null)
+          return null;
+      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+          String key = entry.getKey();
+          if (key.startsWith(meetingId))
+              return entry.getValue();
+      }
+
+      return null;
+  }
 
   public Collection<Meeting> getMeetingsWithId(String meetingId) {
     if (meetingId == null)
@@ -1182,6 +1190,8 @@ public class MeetingService implements MessageListener {
           processUpdateRecordingStatus((UpdateRecordingStatus) message);
         } else if (message instanceof LearningDashboard) {
           processLearningDashboard((LearningDashboard) message);
+        } else if (message instanceof EndMeetingPrompt) {
+          processEndMeetingPrompt((EndMeetingPrompt) message);
         }
       }
     };

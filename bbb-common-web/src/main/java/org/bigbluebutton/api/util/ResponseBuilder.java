@@ -231,6 +231,17 @@ public class ResponseBuilder {
         return xmlText.toString();
     }
 
+    public String buildEndPromptResponse(String message, String returnCode) {
+        StringWriter xml = new StringWriter();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("returnCode", returnCode);
+        data.put("message", message);
+
+        processData(getTemplate("end-prompt.ftlx"), data, xml);
+        return xml.toString();
+    }
+
     private Template getTemplate(String templateName) {
         Template ftl = null;
         try {
