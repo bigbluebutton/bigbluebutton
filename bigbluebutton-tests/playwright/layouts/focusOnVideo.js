@@ -1,7 +1,5 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 
 class FocusOnVideo extends MultiUsers {
