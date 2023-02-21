@@ -350,6 +350,9 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[DocInvalidMimeType]) {
       val event = MsgBuilder.buildPresentationHasInvalidMimeType(msg.asInstanceOf[DocInvalidMimeType])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[PresentationAreaDisabled]) {
+      val event = MsgBuilder.buildPresentationAreaDisabled(msg.asInstanceOf[PresentationAreaDisabled])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
 

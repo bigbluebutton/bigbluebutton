@@ -298,6 +298,21 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationAreaDisabled(msg: PresentationAreaDisabled): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationAreaDisabledErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationAreaDisabledErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationAreaDisabledErrorSysPubMsgBody(
+      presentationName = msg.filename,
+      temporaryPresentationId = msg.temporaryPresentationId, meetingId = msg.meetingId,
+      messageKey = msg.messageKey, message = msg.message
+    )
+
+    val req = PresentationAreaDisabledErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildPresentationUploadedFileTimedoutErrorSysMsg(msg: UploadFileTimedoutMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationUploadedFileTimeoutErrorSysPubMsg.NAME, routing)

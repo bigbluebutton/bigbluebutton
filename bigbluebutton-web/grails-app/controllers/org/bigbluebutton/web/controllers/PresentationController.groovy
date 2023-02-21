@@ -108,14 +108,6 @@ class PresentationController {
       return
     }
 
-    if (paramsProcessorUtil.isMeetingWithDisabledPresentationArea()) {
-      log.error "This meeting has presentationArea as a disabledFeature, it is not possible to upload anything"
-      response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
-      response.outputStream << 'presentation area in disabled features'
-      return
-    }
-
     def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
@@ -166,6 +158,18 @@ class PresentationController {
       log.warn "Upload failed. File Empty."
       uploadFailReasons.add("uploaded_file_empty")
       uploadFailed = true
+    }
+
+    if (meetingService.isMeetingWithDisabledPresentationArea(meetingId)) {
+      log.error "\n\n\n\n\n\n\nThis meeting has presentationArea as a disabledFeature, it is not possible to upload anything"
+      presentationService.sendDocConversionFailedOnDisabledPresentationArea(
+              temporaryPresentationId, presFilename, meetingId, "PRESENTATION_AREA_DISABLED",
+              "Presentation area is disabled for this meeting"
+      )
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'presentation area in disabled features'
+      return
     }
 
     if (presFilename == "" || filenameExt == "") {

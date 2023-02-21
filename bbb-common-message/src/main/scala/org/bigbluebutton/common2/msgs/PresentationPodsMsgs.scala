@@ -183,6 +183,20 @@ case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
 )
 
 
+object PresentationAreaDisabledErrorSysPubMsg { val NAME = "PresentationAreaDisabledErrorSysPubMsg" }
+case class PresentationAreaDisabledErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationAreaDisabledErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationAreaDisabledErrorSysPubMsgBody(
+    meetingId:               String,
+    presentationName:        String,
+    temporaryPresentationId: String,
+    messageKey:              String,
+    message:                 String,
+)
+
+
 object PresentationUploadedFileTimeoutErrorSysPubMsg { val NAME = "PresentationUploadedFileTimeoutErrorSysPubMsg" }
 case class PresentationUploadedFileTimeoutErrorSysPubMsg(
     header: BbbClientMsgHeader,
@@ -260,6 +274,13 @@ case class PresentationHasInvalidMimeTypeErrorEvtMsgBody(podId: String, meetingI
                                                           temporaryPresentationId: String, presentationId: String,
                                                           messageKey: String, fileMime: String, fileExtension: String,
                                                         )
+
+object PresentationAreaDisabledErrorEvtMsg { val NAME = "PresentationAreaDisabledErrorEvtMsg" }
+case class PresentationAreaDisabledErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationAreaDisabledErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationAreaDisabledErrorEvtMsgBody( meetingId: String, presentationName: String,
+                                                    temporaryPresentationId: String, messageKey: String,
+                                                    message: String,
+                                                  )
 
 object PresentationUploadedFileTimeoutErrorEvtMsg { val NAME = "PresentationUploadedFileTimeoutErrorEvtMsg" }
 case class PresentationUploadedFileTimeoutErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTimeoutErrorEvtMsgBody) extends BbbCoreMsg

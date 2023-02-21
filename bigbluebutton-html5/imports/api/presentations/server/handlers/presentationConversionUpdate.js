@@ -14,6 +14,7 @@ const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 const FILE_TOO_LARGE_KEY = 'FILE_TOO_LARGE';
 const CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
 const IVALID_MIME_TYPE_KEY = "IVALID_MIME_TYPE";
+const PRESENTATION_AREA_DISABLED_KEY = "PRESENTATION_AREA_DISABLED";
 const NO_CONTENT = '204';
 // const GENERATING_THUMBNAIL_KEY = 'GENERATING_THUMBNAIL';
 // const GENERATED_THUMBNAIL_KEY = 'GENERATED_THUMBNAIL';
@@ -32,7 +33,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
 
   check(meetingId, String);
   check(presentationId, Match.Maybe(String));
-  check(podId, String);
+  check(podId, Match.Maybe(String));
   check(status, String);
   check(temporaryPresentationId, Match.Maybe(String));
 
@@ -56,6 +57,9 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier['conversion.error'] = true;
       statusModifier['conversion.fileMime'] = body.fileMime;
       statusModifier['conversion.fileExtension'] = body.fileExtension;
+    case PRESENTATION_AREA_DISABLED_KEY:
+      statusModifier['conversion.error'] = true;
+      statusModifier['conversion.message'] = body.message;
     case OFFICE_DOC_CONVERSION_INVALID_KEY:
     case PAGE_COUNT_FAILED_KEY:
     case PAGE_COUNT_EXCEEDED_KEY:
