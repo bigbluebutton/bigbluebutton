@@ -151,6 +151,9 @@ exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
 exports.userslist = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
+exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
+exports.liveTranscritpion = 'div[data-test="liveTranscription"]';
+exports.learningDashboard = 'li[data-test="learningDashboard"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';

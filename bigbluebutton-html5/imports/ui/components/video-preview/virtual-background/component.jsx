@@ -432,6 +432,7 @@ const VirtualBgSelector = ({
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
           isVisualEffects={isVisualEffects}
           brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
+          data-test="virtualBackground"
         >
           {shouldEnableBackgroundUpload() && (
             <>

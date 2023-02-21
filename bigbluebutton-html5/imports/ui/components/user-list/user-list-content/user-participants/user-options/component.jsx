@@ -321,6 +321,7 @@ class UserOptions extends PureComponent {
             key: this.learningDashboardId,
             onClick: () => { openLearningDashboardUrl(locale); },
             dividerTop: true,
+            dataTest: 'learningDashboard'
           });
         }
       }
