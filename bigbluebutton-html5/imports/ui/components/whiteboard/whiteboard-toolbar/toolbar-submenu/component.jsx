@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import Styled from './styles';
 import ToolbarSubmenuItem from '../toolbar-submenu-item/component';
+import { upperFirst } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   toolHand: {
@@ -213,12 +213,12 @@ class ToolbarSubmenu extends Component {
     const { intl } = this.props;
 
     if (type === 'annotations') {
-      const intlLabel = `tool${_.upperFirst(obj.value)}`;
+      const intlLabel = `tool${upperFirst(obj.value)}`;
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 
     if (type === 'color') {
-      const intlLabel = `color${_.upperFirst(obj.label)}`;
+      const intlLabel = `color${upperFirst(obj.label)}`;
       return intl.formatMessage(intlMessages[intlLabel]);
     }
 

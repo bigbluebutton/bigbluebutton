@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
+import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
@@ -194,7 +195,7 @@ class VideoList extends Component {
     if (hasFocusedItem) {
       numItems += 3;
     }
-    const optimalGrid = _.range(1, numItems + 1)
+    const optimalGrid = range(1, numItems + 1)
       .reduce((currentGrid, col) => {
         const testGrid = findOptimalGrid(
           canvasWidth, canvasHeight, gridGutter,

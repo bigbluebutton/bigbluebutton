@@ -51,6 +51,10 @@ export const lowercaseTrim = (text) => {
   return text.trim().toLowerCase();
 }
 
+export const upperFirst = (string) => {
+  return string ? string.charAt(0).toUpperCase() + string.slice(1) : '';
+}
+
 export default {
   capitalizeFirstLetter,
   getDateString,
@@ -60,4 +64,5 @@ export default {
   formatLocaleCode,
   safeMatch,
   lowercaseTrim,
+  upperFirst,
 };

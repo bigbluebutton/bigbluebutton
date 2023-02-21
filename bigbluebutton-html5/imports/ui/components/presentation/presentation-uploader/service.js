@@ -6,6 +6,7 @@ import { Meteor } from 'meteor/meteor';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
 import _ from 'lodash';
+import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
 import { Random } from 'meteor/random';
 import { UploadingPresentations } from '/imports/api/presentations';
@@ -402,7 +403,7 @@ function handleFiledrop(files, files2, that) {
   const { toUploadCount } = that.state;
   const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
   const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
-  const [accepted, rejected] = _.partition(files
+  const [accepted, rejected] = partition(files
     .concat(files2), (f) => (
       validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
     ));

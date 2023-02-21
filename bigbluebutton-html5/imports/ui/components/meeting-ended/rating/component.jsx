@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { range } from '/imports/utils/array-utils';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 
@@ -45,7 +46,7 @@ class Rating extends Component {
         <fieldset>
           <Styled.Legend>{intl.formatMessage(intlMessages.legendTitle)}</Styled.Legend>
           {
-            _.range(num)
+            range(num)
               .map(i => [
                 (
                   <input
