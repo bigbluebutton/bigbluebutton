@@ -14,7 +14,7 @@ try {
     if (fs.existsSync(LOCAL_SETTINGS_FILE_PATH)) {
       console.log('Local configuration found! Merging with default configuration...');
       const LOCAL_CONFIG = YAML.parse(fs.readFileSync(LOCAL_SETTINGS_FILE_PATH, 'utf-8'));
-      _.mergeWith(SETTINGS, LOCAL_CONFIG, (a, b) => (_.isArray(b) ? b : undefined));
+      _.mergeWith(SETTINGS, LOCAL_CONFIG, (a, b) => (Array. isArray(b) ? b : undefined));
     } else console.log('Local Configuration not found! Loading default configuration...');
 
     Meteor.settings = SETTINGS;

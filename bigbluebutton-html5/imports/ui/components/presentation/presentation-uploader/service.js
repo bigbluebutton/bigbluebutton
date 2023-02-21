@@ -286,7 +286,7 @@ const removePresentations = (
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) => {
   const presentationsToUpload = newState.filter((p) => !p.upload.done);
-  const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
+  const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.id === p.id }));
 
   let currentPresentation = newState.find((p) => p.isCurrent);
 
