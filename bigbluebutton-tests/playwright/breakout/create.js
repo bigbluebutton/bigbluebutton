@@ -8,13 +8,29 @@ class Create extends MultiUsers {
     super(browser, context);
   }
 
-  // Create Breakoutrooms
-  async create() {
+  // Create BreakoutRooms
+  async create(captureNotes = false, captureWhiteboard = false) {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     //Randomly assignment
     await this.modPage.waitAndClick(e.randomlyAssign);
+
+    if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
+    if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.userPage.hasElement(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.hasElement(e.breakoutRoomsItem);
+  }
+
+  async createToAllowChooseOwnRoom() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+
+    await this.modPage.waitAndClick(e.allowChoiceRoom);
+
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.userPage.hasElement(e.modalConfirmButton);

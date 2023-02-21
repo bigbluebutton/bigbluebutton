@@ -7,11 +7,11 @@ import logger from '/imports/startup/client/logger';
 import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
 
 const THROTTLE_TIMEOUT = 1000;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
-const ENABLED = CONFIG.enabled;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
@@ -126,7 +126,7 @@ const hasSpeechLocale = (userId = Auth.userID) => getSpeechLocale(userId) !== ''
 
 const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
-const isEnabled = () => ENABLED;
+const isEnabled = () => isLiveTranscriptionEnabled();
 
 const isActive = () => isEnabled() && hasSpeechRecognitionSupport() && hasSpeechLocale();
 

@@ -193,6 +193,8 @@ class BbbWebApiGWApp(
       privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
       captureNotes = breakoutParams.captureNotes.booleanValue(),
       captureSlides = breakoutParams.captureSlides.booleanValue(),
+      captureNotesFilename = breakoutParams.captureNotesFilename,
+      captureSlidesFilename = breakoutParams.captureSlidesFilename,
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
@@ -216,7 +218,6 @@ class BbbWebApiGWApp(
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
       disableNotes = lockSettingsParams.disableNotes.booleanValue(),
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
-      lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
       hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue()

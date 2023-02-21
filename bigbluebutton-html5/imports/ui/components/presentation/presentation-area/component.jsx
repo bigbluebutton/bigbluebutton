@@ -5,13 +5,14 @@ const PresentationArea = ({
   width,
   height,
   presentationIsOpen,
+  darkTheme,
 }) => {
   const presentationAreaSize = {
     presentationAreaWidth: width,
     presentationAreaHeight: height,
   };
   return (
-    <PresentationPodsContainer {...{ presentationAreaSize, presentationIsOpen }} />
+    <PresentationPodsContainer {...{ presentationAreaSize, presentationIsOpen, darkTheme }} />
   );
 };
 

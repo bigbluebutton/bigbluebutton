@@ -169,6 +169,7 @@ class NavBar extends Component {
       style,
       main,
       sidebarNavigation,
+      currentUserId,
     } = this.props;
 
     const hasNotification = hasUnreadMessages || hasUnreadNotes;
@@ -239,6 +240,7 @@ class NavBar extends Component {
               mountModal={mountModal}
               getModal={getModal}
               amIModerator={amIModerator}
+              currentUserId={currentUserId}
             />
           </Styled.Center>
           <Styled.Right>

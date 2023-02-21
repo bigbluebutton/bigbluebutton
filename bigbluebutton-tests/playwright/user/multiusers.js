@@ -5,6 +5,7 @@ const e = require('../core/elements');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
+const { getNotesLocator } = require('../sharednotes/util');
 const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
@@ -39,12 +40,11 @@ class MultiUsers {
       fullName,
       meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
     };
-
     const page = await context.newPage();
     this.modPage2 = new Page(this.browser, page);
     await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
-
+    
   async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
     const options = {
       ...restOptions,
@@ -155,11 +155,22 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.userPage.hasElement(e.lowerHandBtn);
-    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
-    const avatarInToastElementColor = this.modPage.getLocator(e.avatarsWrapperAvatar);
-    const avatarInUserListColor = this.modPage.getLocator(`${e.userListItem} > div ${e.userAvatar}`);
-    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
     await this.userPage.waitAndClick(e.lowerHandBtn);
+    await this.userPage.hasElement(e.raiseHandBtn);
+  }
+
+  async raiseHandRejected() {
+    const { raiseHandButton } = getSettings();
+    test.fail(!raiseHandButton, 'Raise/lower hand button is disabled');
+
+    await waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.initUserPage();
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await sleep(1000);
+    await this.userPage.hasElement(e.lowerHandBtn);
+    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} > div ${e.userAvatar}`);
+    await this.modPage.waitAndClick(e.raiseHandRejection);
     await this.userPage.hasElement(e.raiseHandBtn);
   }
 
@@ -179,7 +190,8 @@ class MultiUsers {
 
   async saveUserNames(testInfo) {
     await this.modPage.waitAndClick(e.manageUsers);
-    const { content } = await this.modPage.handleDownload(e.downloadUserNamesList, testInfo);
+    const downloadUserNamesListLocator = this.modPage.getLocator(e.downloadUserNamesList);
+    const { content } = await this.modPage.handleDownload(downloadUserNamesListLocator, testInfo);
 
     const dataToCheck = [
       this.modPage.username,
@@ -264,6 +276,82 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
 
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
+  }
+
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptionsBtn);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptionsBtn);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.message);
+
+    await this.modPage.hasText(e.liveCaptions, e.message);
+    await this.modPage2.hasText(e.liveCaptions, e.message);
+  }
+
+  async removeUser() {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.removeUser);
+    await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
+    await this.modPage.wasRemoved(e.userListItem);
+
+    //Will be modified when the issue is fixed and accept just one of both screens
+    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    try {
+      await this.modPage2.hasElement(e.errorScreenMessage);
+    } catch (err) {
+      await this.modPage2.hasElement(e.meetingEndedModalTitle);
+    }
+  }
+
+  async removeUserAndPreventRejoining(context) {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.removeUser);
+    await this.modPage.waitAndClick(e.confirmationCheckbox);
+    await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
+    await this.modPage.wasRemoved(e.userListItem);
+
+    //Will be modified when the issue is fixed and accept just one of both screens
+    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    try {
+      await this.modPage2.hasElement(e.errorScreenMessage);
+    } catch (err) {
+      await this.modPage2.hasElement(e.meetingEndedModalTitle);
+    }
+    
+    await this.initModPage2(false, context, {meetingId: this.modPage.meetingId, customParameter: 'userID=Moderator2'})
+    await this.modPage2.hasText(e.userBannedMessage, /banned/);
+  }
+
+  async writeClosedCaptions() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.writeClosedCaptions);
+    await this.modPage.waitAndClick(e.startWritingClosedCaptions);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptionsBtn);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptionsBtn);
+
+    await this.modPage.waitAndClick(e.startViewingClosedCaptions);
+    await this.modPage2.waitAndClick(e.startViewingClosedCaptions);
+
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.message);
+
+    await this.modPage.hasText(e.liveCaptions, e.message);
+    await this.modPage2.hasText(e.liveCaptions, e.message);
   }
 }
 

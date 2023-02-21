@@ -1,7 +1,5 @@
 package org.bigbluebutton.common2.domain
 
-case class ConfigProps(defaultConfigToken: String, config: String)
-
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
@@ -30,6 +28,8 @@ case class BreakoutProps(
     privateChatEnabled: Boolean,
     captureNotes:       Boolean,
     captureSlides:      Boolean,
+    captureNotesFilename: String,
+    captureSlidesFilename: String,
 )
 
 case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String)
@@ -61,7 +61,6 @@ case class LockSettingsProps(
     disablePublicChat:      Boolean,
     disableNotes:           Boolean,
     hideUserList:           Boolean,
-    lockedLayout:           Boolean,
     lockOnJoin:             Boolean,
     lockOnJoinConfigurable: Boolean,
     hideViewersCursor:      Boolean

@@ -7,7 +7,6 @@ import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
-import _ from 'lodash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -38,35 +37,43 @@ const getBreakoutRoomUrl = (breakoutId) => {
   return breakoutUrlData;
 };
 
-const setCapturedNotesUploading = () => {
+const upsertCapturedContent = (filename, temporaryPresentationId) => {
+  UploadingPresentations.upsert({
+    temporaryPresentationId,
+  }, {
+    $set: {
+      id: temporaryPresentationId,
+      temporaryPresentationId,
+      progress: 0,
+      filename,
+      lastModifiedUploader: false,
+      upload: {
+        done: false,
+        error: false,
+      },
+      uploadTimestamp: new Date(),
+    },
+  });
+};
+
+const setCapturedContentUploading = () => {
   const breakoutRooms = findBreakouts();
   breakoutRooms.forEach((breakout) => {
-    if (breakout.captureNotes) {
-      const filename = breakout.shortName;
-      const temporaryPresentationId = `${breakout.breakoutId}-notes`;
+    const filename = breakout.shortName;
+    const temporaryPresentationId = breakout.breakoutId;
 
-      UploadingPresentations.upsert({
-        temporaryPresentationId,
-      }, {
-        $set: {
-          id: _.uniqueId(filename),
-          temporaryPresentationId,
-          progress: 0,
-          filename,
-          lastModifiedUploader: false,
-          upload: {
-            done: false,
-            error: false,
-          },
-          uploadTimestamp: new Date(),
-        },
-      });
+    if (breakout.captureNotes) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-notes`);
+    }
+
+    if (breakout.captureSlides) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-slides`);
     }
   });
 };
 
 const endAllBreakouts = () => {
-  setCapturedNotesUploading();
+  setCapturedContentUploading();
   makeCall('endAllBreakouts');
 };
 
@@ -244,5 +251,5 @@ export default {
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,
-  setCapturedNotesUploading,
+  setCapturedContentUploading,
 };

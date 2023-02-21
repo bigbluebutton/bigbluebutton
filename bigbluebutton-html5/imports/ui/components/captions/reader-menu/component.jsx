@@ -395,6 +395,7 @@ class ReaderMenu extends PureComponent {
               label={intl.formatMessage(intlMessages.start)}
               onClick={() => this.handleStart()}
               disabled={locale == null}
+              data-test="startViewingClosedCaptions"
             />
           </Styled.Actions>
         </Styled.Footer>

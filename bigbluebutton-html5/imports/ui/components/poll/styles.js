@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
+  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
@@ -173,11 +174,6 @@ const PollCheckbox = styled.div`
   display: inline-block;
   margin-right: ${pollSmMargin};
   margin-bottom: ${pollMdMargin};
-`;
-
-const InstructionsLabel = styled.label`
-  margin-bottom: ${lgPaddingX};
-  color: ${colorText};
 `;
 
 const AddItemButton = styled(Button)`
@@ -353,6 +349,7 @@ const CustomInputHeading = styled(SectionHeading)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  padding-bottom: ${jumboPaddingY};
 `;
 
 const CustomInputHeadingCol = styled(Col)`
@@ -387,7 +384,6 @@ export default {
   PollConfigButton,
   PollParagraph,
   PollCheckbox,
-  InstructionsLabel,
   AddItemButton,
   Row,
   Col,

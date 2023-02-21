@@ -388,7 +388,7 @@ start_bigbluebutton () {
         }
     fi
 
-    systemctl start bigbluebutton.target
+    systemctl restart bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod
@@ -1686,7 +1686,8 @@ if [ -n "$HOST" ]; then
 
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
-    systemctl restart bigbluebutton.target
+    stop_bigbluebutton
+    start_bigbluebutton
 
     exit 0
 fi
@@ -1698,7 +1699,8 @@ if [ $RESTART ]; then
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
 
-    systemctl restart bigbluebutton.target
+    stop_bigbluebutton
+    start_bigbluebutton
     check_state
 fi
 

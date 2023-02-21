@@ -446,13 +446,22 @@ class App extends Component {
 
   renderDarkMode() {
     const { darkTheme } = this.props;
+    if (darkTheme && !DarkReader.isEnabled()) {
+        DarkReader.enable(
+          { brightness: 100, contrast: 90 },
+          { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss], ignoreImageAnalysis: [Styled.DtfImages] },
+        )
+        logger.info({
+          logCode: 'dark_mode',
+        }, 'Dark mode is on.');
+    }
 
-    return darkTheme
-      ? DarkReader.enable(
-        { brightness: 100, contrast: 90 },
-        { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss] },
-      )
-      : DarkReader.disable();
+    if (!darkTheme && DarkReader.isEnabled()){
+      DarkReader.disable();
+      logger.info({
+        logCode: 'dark_mode',
+      }, 'Dark mode is off.');
+    }
   }
 
   mountPushLayoutEngine() {
@@ -528,6 +537,7 @@ class App extends Component {
       isPresenter,
       selectedLayout,
       presentationIsOpen,
+      darkTheme,
     } = this.props;
 
     return (
@@ -549,17 +559,23 @@ class App extends Component {
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
-          <SidebarContentContainer />
+          <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
-          {shouldShowPresentation ? <PresentationAreaContainer presentationIsOpen={presentationIsOpen} /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes ? <NotesContainer area="media" layoutType={selectedLayout} /> : null}
+          {shouldShowSharedNotes 
+            ? (
+              <NotesContainer
+                area="media"
+                layoutType={selectedLayout}
+              />
+            ) : null}
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}

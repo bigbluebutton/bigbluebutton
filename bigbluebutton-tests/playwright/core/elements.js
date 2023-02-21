@@ -1,5 +1,6 @@
 // Common
 exports.actions = 'button[data-test="actionsButton"]';
+exports.actionsItem = 'div[id="actions-dropdown-menu"] ul li';
 exports.pollMenuButton = 'div[data-test="pollMenuButton"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
 exports.settings = 'li[data-test="settings"]';
@@ -12,6 +13,7 @@ exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
 exports.pdfFileName = '100PagesFile.pdf';
 exports.raiseHandBtn = 'button[data-test="raiseHandLabel"]';
 exports.lowerHandBtn = 'button[data-test="lowerHandLabel"]';
+exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
 exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
@@ -82,6 +84,9 @@ exports.endAllBreakouts = 'li[data-test="endAllBreakouts"]';
 exports.breakoutRoomList = 'div[data-test="breakoutRoomList"]';
 exports.warningNoUserAssigned = 'span[data-test="warningNoUserAssigned"]';
 exports.timeRemaining = 'span[data-test="timeRemaining"]';
+exports.captureBreakoutSharedNotes = 'input[id="captureNotesBreakoutCheckbox"]';
+exports.captureBreakoutWhiteboard = 'input[id="captureSlidesBreakoutCheckbox"]';
+exports.roomOption = 'option[data-test="roomOption"]';
 
 // Chat
 exports.chatBox = 'textarea[id="message-input"]';
@@ -145,6 +150,7 @@ exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
 exports.userslist = 'div[data-test="userList"]';
+exports.selectCameraQualityId = 'select[id="setQuality"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -158,10 +164,18 @@ exports.presentationUploadProgressToast = 'div[data-test="presentationUploadProg
 exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
 exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
+exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
+exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
+exports.exportPlainButton = 'span[id="exportplain"]';
+exports.pinNotes = 'li[data-test="pinNotes"]';
+exports.unpinNotes = 'button[data-test="unpinNotes"]';
+exports.exportetherpad = 'span[id="exportetherpad"]';
+exports.exporthtml = 'span[id="exporthtml"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
-exports.currentPresentationToast = 'div[data-test="toastSmallMsg"] > div';
+const currentPresentationToast = 'div[data-test="currentPresentationToast"]';
+exports.currentPresentationToast = currentPresentationToast
 exports.notificationsTab = 'span[id="notificationTab"]';
 exports.chatPopupAlertsBtn = 'input[data-test="chatPopupAlertsBtn"]';
 exports.hasUnreadMessages = 'button[data-test="hasUnreadMessages"]';
@@ -199,7 +213,10 @@ exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
 exports.pollingContainer = 'div[data-test="pollingContainer"]';
 exports.pollLetterAlternatives = 'button[data-test="pollLetterAlternatives"]';
-exports.pollOptionItem = 'input[data-test="pollOptionItem"]';
+const pollOptionItem = 'input[data-test="pollOptionItem"]';
+exports.pollOptionItem1 = `${pollOptionItem}>>nth=0`;
+exports.pollOptionItem2 = `${pollOptionItem}>>nth=1`;
+exports.pollOptionItem = pollOptionItem;
 exports.anonymousPoll = 'input[data-test="anonymousPollBtn"]';
 const pollAnswerOptionBtn = 'button[data-test="publishPollingLabel"]';
 exports.publishPollingLabel = pollAnswerOptionBtn;
@@ -217,11 +234,10 @@ exports.pollYesNoAbstentionBtn = 'button[data-test="pollYesNoAbstentionBtn"]';
 exports.noPresentation = 'h4[data-test="noPresentation"]';
 exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
 exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
-exports.allowMultiple = 'div[data-test="allowMultiple"] > div > input[type="checkbox"]';
-exports.pollOptionItem1 = 'input[data-test="pollOptionItem"]>>nth=0';
-exports.pollOptionItem2 = 'input[data-test="pollOptionItem"]>>nth=1';
-exports.pollAnswerDescTest1 = 'div[data-test="optionsAnswers"]>>nth=0';
-exports.pollAnswerDescTest2 = 'div[data-test="optionsAnswers"]>>nth=1';
+exports.allowMultiple = 'div[data-test="allowMultiple"] input[type="checkbox"]';
+const pollAnswerOptionDesc = 'button[data-test="pollAnswerOption"]';
+exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=0`;
+exports.secondPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=1`;
 exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.numberVotes = 'div[data-test="numberVotes"]';
 exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
@@ -229,8 +245,10 @@ exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
-exports.firstPollAnswerOptionBtn = `${pollAnswerOptionBtn}>>nth=0`;
-exports.checkboxInput = `${pollAnswerOptionBtn} > div`;
+const pollAnswersOption = 'div[data-test="optionsAnswers"]';
+exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
+exports.secondPollAnswerOptionBtn = `${pollAnswersOption}>>nth=1`;
+exports.firstCheckboxInput = `${pollAnswersOption}`;
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -332,6 +350,11 @@ exports.takePresenter = 'li[data-test="takePresenter"]';
 exports.muteAll = 'li[data-test="muteAll"]';
 exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
 exports.error403removedLabel = 'You have been removed from the meeting';
+exports.removeUser = 'li[data-test="removeUser"]';
+exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
+exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
+exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -344,6 +367,13 @@ exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
 exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
+
+// Closed Captions
+exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';
+exports.startWritingClosedCaptions = 'button[data-test="startWritingClosedCaptions"]';
+exports.startViewingClosedCaptionsBtn = 'button[data-test="startViewingClosedCaptionsBtn"]';
+exports.startViewingClosedCaptions = 'button[data-test="startViewingClosedCaptions"]';
+exports.liveCaptions = 'div[data-test="liveCaptions"]';
 
 // Locales
 exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
@@ -377,8 +407,11 @@ exports.wbRectangleShape = 'span[id="TD-PrimaryTools-Shapes-rectangle"]';
 exports.wbEllipseShape = 'span[id="TD-PrimaryTools-Shapes-ellipse"]';
 exports.wbTriangleShape = 'span[id="TD-PrimaryTools-Shapes-triangle"]';
 exports.wbLineShape = 'span[id="TD-PrimaryTools-Shapes-line"]';
-exports.wbPencilShape = 'span[id="TD-PrimaryTools-Pencil"]';
+exports.wbPencilShape = 'button[id="TD-PrimaryTools-Pencil"]';
+exports.wbStickyNoteShape = 'button[id="TD-PrimaryTools-Pencil2"]';
+exports.wbTextShape = 'button[id="TD-PrimaryTools-Text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
+exports.wbTypedStickyNote = 'div[data-shape="sticky"]';
 exports.wbDrawnRectangle = 'div[data-shape="rectangle"]';
 exports.wbDrawnLine = 'div[data-shape="draw"]';
 exports.multiUsersWhiteboardOn = 'button[data-test="turnMultiUsersWhiteboardOn"]';
@@ -386,13 +419,6 @@ exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
-
-// Shared notes
-exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
-exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
-exports.exportPlainButton = 'span[id="exportplain"]';
-exports.pinNotes = 'li[data-test="pinNotes"]';
-exports.unpinNotes = 'button[data-test="unpinNotes"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -410,3 +436,7 @@ exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+
+// Font size
+exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
+exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
