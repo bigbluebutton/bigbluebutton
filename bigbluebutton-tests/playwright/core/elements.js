@@ -335,6 +335,11 @@ exports.takePresenter = 'li[data-test="takePresenter"]';
 exports.muteAll = 'li[data-test="muteAll"]';
 exports.muteAllExceptPresenter = 'li[data-test="muteAllExceptPresenter"]';
 exports.error403removedLabel = 'You have been removed from the meeting';
+exports.removeUser = 'li[data-test="removeUser"]';
+exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]';
+exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
+exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
+exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -429,3 +434,7 @@ exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
 exports.confirmButton = 'button[aria-label="Confirm"]';
 exports.cameraDock = 'video[data-test="videoContainer"]';
+
+// Font size
+exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
+exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
