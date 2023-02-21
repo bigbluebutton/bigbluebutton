@@ -16,6 +16,10 @@ import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
 import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import NotesService from '/imports/ui/components/notes/service';
+import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import VideoStreams from '/imports/api/video-streams';
+import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -50,6 +54,12 @@ const endMeeting = (code, ejectedReason) => {
   Session.set('errorMessageDescription', ejectedReason);
   Session.set('isMeetingEnded', true);
 };
+
+const isThereWebcamOn = (meetingID) => {
+  return VideoStreams.find({
+    meetingId: meetingID
+  }).count() > 0;
+}
 
 const AppContainer = (props) => {
   function usePrevious(value) {
@@ -94,7 +104,12 @@ const AppContainer = (props) => {
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen } = presentation;
-  const presentationIsOpen = isOpen
+  const isSharingVideo = getVideoUrl();
+  const isSharedNotesPinned = NotesService.isSharedNotesPinned();
+  const hasScreenshare = isVideoBroadcasting();
+  const isThereWebcam = isThereWebcamOn(Auth.meetingID);
+  const presentationIsOpen = isOpen;
+
   const shouldShowPresentation = (propsShouldShowPresentation
     && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationAreaEnabled();
 
@@ -134,7 +149,10 @@ const AppContainer = (props) => {
     });
   };
 
-  MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch);
+  useEffect(() => {
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch, isSharingVideo, 
+    isSharedNotesPinned, hasScreenshare, isThereWebcam)}, [isSharingVideo, isSharedNotesPinned, 
+    hasScreenshare, isThereWebcam]);
   
   return currentUserId
     ? (

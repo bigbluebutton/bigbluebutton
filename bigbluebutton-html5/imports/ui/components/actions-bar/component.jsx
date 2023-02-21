@@ -102,6 +102,7 @@ class ActionsBar extends PureComponent {
               hasPresentation={isThereCurrentPresentation}
               hasExternalVideo={isSharingVideo}
               hasScreenshare={hasScreenshare}
+              hasPinnedSharedNotes={isSharedNotesPinned}
             />
             : null
           }
