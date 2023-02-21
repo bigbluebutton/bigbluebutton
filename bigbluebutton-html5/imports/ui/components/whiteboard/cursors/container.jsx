@@ -3,10 +3,10 @@ import React from "react";
 import SettingsService from '/imports/ui/services/settings';
 import Cursors from "./component";
 import Service from "./service";
-import _ from 'lodash';
+import { omit } from 'radash';
 
 const CursorsContainer = (props) => {
-  return <Cursors {..._.omit(props, ['tldrawAPI'])} />
+  return <Cursors {...omit(props, ['tldrawAPI'])} />
 };
 
 export default
