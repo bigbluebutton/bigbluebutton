@@ -537,6 +537,7 @@ class App extends Component {
       isPresenter,
       selectedLayout,
       presentationIsOpen,
+      darkTheme,
     } = this.props;
 
     return (
@@ -561,7 +562,7 @@ class App extends Component {
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
-          {shouldShowPresentation ? <PresentationAreaContainer presentationIsOpen={presentationIsOpen} /> : null}
+          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo

@@ -182,6 +182,7 @@ class StatusNotifier extends Component {
           onClick={() => {
             emojiUsers.map(u => clearUserStatus(u.userId));
           }}
+          data-test="raiseHandRejection"
         />
       </div>
     );

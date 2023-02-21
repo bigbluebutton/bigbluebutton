@@ -918,6 +918,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
       presentationIsOpen,
+      darkTheme,
     } = this.props;
 
     const {
@@ -1041,6 +1042,7 @@ class Presentation extends PureComponent {
                   layoutContextDispatch={layoutContextDispatch}
                   fullscreenRef={this.refPresentationContainer}
                   presentationId={currentPresentation?.id}
+                  darkTheme={darkTheme}
                 />
                 {isFullscreen && <PollingContainer />}
               </div>
