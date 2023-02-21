@@ -430,6 +430,8 @@ module BigBlueButton
         ffmpeg_filter = '[0]null'
         layout[:areas].each do |layout_area|
           area = cut[:areas][layout_area[:name]]
+          next if area.nil?
+
           video_count = area.length
           BigBlueButton.logger.debug "  Laying out #{video_count} videos in #{layout_area[:name]}"
           next if video_count == 0
