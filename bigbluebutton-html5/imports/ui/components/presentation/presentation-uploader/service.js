@@ -10,6 +10,7 @@ import update from 'immutability-helper';
 import { Random } from 'meteor/random';
 import { UploadingPresentations } from '/imports/api/presentations';
 import Meetings from '/imports/api/meetings';
+import { isPresentationAreaEnabled } from '/imports/ui/services/features';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -325,6 +326,10 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
 };
 
 const handleSavePresentation = (presentations = [], isFromPresentationUploaderInterface = true, newPres = {}) => {
+  if (!isPresentationAreaEnabled()) {
+    return
+  }
+  
   const currentPresentations = getPresentations();
   if (!isFromPresentationUploaderInterface) {
 
