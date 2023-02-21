@@ -300,7 +300,6 @@ class MeetingActor(
       disablePubChat = lockSettingsProp.disablePublicChat,
       disableNotes = lockSettingsProp.disableNotes,
       hideUserList = lockSettingsProp.hideUserList,
-      lockedLayout = lockSettingsProp.lockedLayout,
       lockOnJoin = lockSettingsProp.lockOnJoin,
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
       hideViewersCursor = lockSettingsProp.hideViewersCursor

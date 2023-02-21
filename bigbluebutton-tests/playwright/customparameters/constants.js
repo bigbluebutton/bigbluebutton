@@ -11,7 +11,6 @@ exports.clientTitle = `userdata-bbb_client_title=${docTitle}`;
 exports.askForFeedbackOnLogout = 'userdata-bbb_ask_for_feedback_on_logout=true';
 exports.displayBrandingArea = 'userdata-bbb_display_branding_area=true';
 exports.logo = 'logo=https://bigbluebutton.org/wp-content/themes/bigbluebutton/library/images/bigbluebutton-logo.png';
-exports.enableScreensharing = 'userdata-bbb_enable_screen_sharing=false';
 exports.enableVideo = 'userdata-bbb_enable_video=false';
 exports.autoShareWebcam = 'userdata-bbb_auto_share_webcam=true';
 exports.multiUserPenOnly = 'userdata-bbb_multi_user_pen_only=true';
@@ -35,6 +34,10 @@ exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
+exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';
+exports.overrideDefaultLocale = 'userdata-bbb_override_default_locale=pt-br';
+exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
+exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';

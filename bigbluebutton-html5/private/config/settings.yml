@@ -748,6 +748,8 @@ public:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
     maxStickyNoteLength: 1000
+    # limit number of annotations per slide
+    maxNumberOfAnnotations: 300
     annotations:
       status:
         start: DRAW_START

@@ -137,7 +137,6 @@ class ActionsDropdown extends PureComponent {
       stopExternalVideoShare,
       mountModal,
       layoutContextDispatch,
-      hidePresentation,
       setMeetingLayout,
       setPushLayout,
       showPushLayout,
@@ -155,7 +154,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && !hidePresentation) {
+    if (amIPresenter) {
       actions.push({
         icon: "presentation",
         dataTest: "managePresentations",

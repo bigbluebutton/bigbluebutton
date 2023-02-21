@@ -1,5 +1,4 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
@@ -13,8 +12,7 @@ class DrawPencil extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.wbPencilShape);
 
-    const wb = await this.modPage.page.$(e.whiteboard);
-    const wbBox = await wb.boundingBox();
+    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const moveOptions = { steps: 50 }; // to slow down
     await this.modPage.page.mouse.move(wbBox.x + 0.2 * wbBox.width, wbBox.y + 0.2 * wbBox.height);
     await this.modPage.page.mouse.down();

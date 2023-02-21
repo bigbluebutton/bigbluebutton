@@ -152,6 +152,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-fullscreen',
           dataTest: 'presentationFullscreen',
           label: formattedLabel(isFullscreen),
+          icon: isFullscreen ? 'exit_fullscreen' : 'fullscreen',
           onClick: () => {
             handleToggleFullscreen(fullscreenRef);
             const newElement = (elementId === currentElement) ? '' : elementId;
@@ -177,6 +178,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
           dataTest: "presentationSnapshot",
+          icon: 'video',
           onClick: async () => {
             setState({
               loading: true,
@@ -261,6 +263,10 @@ const PresentationMenu = (props) => {
     const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
     if (undoCtrls?.style) {
       undoCtrls.style = "padding:0px";
+    }
+    const styleTool = document.getElementById('TD-Styles')?.parentNode;
+    if (styleTool?.style) {
+      styleTool.style = "right:0px";
     }
     return null
   };
