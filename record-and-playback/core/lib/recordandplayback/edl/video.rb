@@ -587,12 +587,8 @@ module BigBlueButton
             ffmpeg_filter << "[#{input_index}]"
             # Scale the video length for the deskshare timestamp workaround
             ffmpeg_filter << "setpts=PTS*#{scale}," unless scale.nil?
-            # If the video start time is after the seek point, extend the video backwards
-            if in_time < video_start_offset
-              ffmpeg_filter << "tpad=start_duration=#{ms_to_s(video_start_offset - in_time)}:start_mode=clone,"
-            end
             # Extend the video if needed and clean up the framerate
-            ffmpeg_filter << "tpad=stop=-1:stop_mode=clone,fps=#{layout[:framerate]}"
+            ffmpeg_filter << "tpad=stop=-1:stop_mode=clone,fps=#{layout[:framerate]}:start_time=#{ms_to_s(in_time)}"
             # Apply PTS offset so '0' time is aligned, and trim frames before start point
             ffmpeg_filter << ",setpts=PTS-#{ms_to_s(in_time)}/TB,trim=start=0"
             ffmpeg_filter << "[#{pad_name}];"
