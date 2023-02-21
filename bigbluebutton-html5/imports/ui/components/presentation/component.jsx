@@ -9,15 +9,12 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { toast } from 'react-toastify';
 import { Session } from 'meteor/session';
 import PresentationToolbarContainer from './presentation-toolbar/container';
-import PresentationPlaceholder from './presentation-placeholder/component';
 import PresentationMenu from './presentation-menu/container';
 import CursorWrapperContainer from './cursor/cursor-wrapper-container/container';
 import AnnotationGroupContainer from '../whiteboard/annotation-group/container';
 import PresentationOverlayContainer from './presentation-overlay/container';
 import Slide from './slide/component';
 import Styled from './styles';
-import MediaService from '../media/service';
-// import PresentationCloseButton from './presentation-close-button/component';
 import DownloadPresentationButton from './download-presentation-button/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -250,6 +247,19 @@ class Presentation extends PureComponent {
         });
       }
     }
+
+    // if (
+    //   prevProps.currentPresentation
+    //   && !currentPresentation
+    //   && presentationIsOpen
+    //   && !presentationChanged) {
+    //   console.log('hiding presentation');
+    //   setPresentationIsOpen(layoutContextDispatch, false);
+    // } else if (!prevProps.currentPresentation
+    //   && currentPresentation && !presentationIsOpen && restoreOnUpdate) {
+    //     console.log('showing presentation');
+    //   setPresentationIsOpen(layoutContextDispatch, true);
+    // }
 
     if (prevProps?.slidePosition && slidePosition) {
       const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
@@ -514,20 +524,11 @@ class Presentation extends PureComponent {
     const {
       layoutType,
       fullscreenContext,
-      layoutContextDispatch,
-      isIphone,
-// <<<<<<< HEAD
-//       presentationIsOpen,
-//     } = this.props;
-
-//     if (isFullscreen
-// =======
     } = this.props;
 
     if (!OLD_MINIMIZE_BUTTON_ENABLED
       || !shouldEnableSwapLayout()
       || isFullscreen
-// >>>>>>> embed Tldraw into BBB client
       || fullscreenContext
       || layoutType === LAYOUT_TYPE.PRESENTATION_FOCUS) {
       return null;
