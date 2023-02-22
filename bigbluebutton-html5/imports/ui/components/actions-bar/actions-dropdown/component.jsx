@@ -11,6 +11,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import {isLayoutsEnabled} from '/imports/ui/services/features';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -218,22 +219,25 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (amIPresenter && showPushLayout) {
+    if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
       actions.push({
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
         onClick: amIPresenter ? setMeetingLayout : setPushLayout,
       });
+      
     }
 
+    if (isLayoutsEnabled()){
     actions.push({
       icon: 'send',
       label: intl.formatMessage(intlMessages.layoutModal),
       key: 'layoutModal',
       onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
     });
-
+  }
+    
     return actions;
   }
 

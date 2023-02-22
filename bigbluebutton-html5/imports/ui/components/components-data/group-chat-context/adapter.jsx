@@ -7,31 +7,19 @@ const Adapter = () => {
   const { dispatch } = usingGroupChatContext;
 
   useEffect(() => {
-    const alreadyDispatched = new Set();
-    const notDispatchedCount = { count: 100 };
-    // TODO: listen to websocket message to avoid full list comparsion
-    const diffAndDispatch = () => {
-      setTimeout(() => {
-        const groupChatCursor = GroupChat.find({}, { reactive: false }).fetch();
-        const notDispatched = groupChatCursor.filter(objMsg => !alreadyDispatched.has(objMsg._id));
-        notDispatchedCount.count = notDispatched.length;
+    const groupChatCursor = GroupChat.find({});
 
-        notDispatched.forEach((groupChat) => {
-          dispatch({
-            type: ACTIONS.ADDED,
-            value: {
-              groupChat,
-            },
-          });
-
-          alreadyDispatched.add(groupChat._id);
+    groupChatCursor.observe({
+      added: (obj) => {
+        dispatch({
+          type: ACTIONS.ADDED,
+          value: {
+            groupChat: obj,
+          },
         });
-        diffAndDispatch();
-      }, notDispatchedCount.count >= 10 ? 1000 : 500);
-    };
-    diffAndDispatch();
+      },
+    });
   }, []);
-
   return null;
 };
 

@@ -3,8 +3,6 @@ import ConnectionStatus from '/imports/api/connection-status';
 import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
@@ -208,6 +206,7 @@ const getConnectionStatus = () => {
     if (userStatus) {
       if (userStatus.status || (!loggedOut && userStatus.clientNotResponding)) {
         result.push({
+          userId,
           name,
           avatar,
           offline: loggedOut,
@@ -263,14 +262,6 @@ if (STATS.enabled) {
   window.addEventListener('audiostats', handleAudioStatsEvent);
   window.addEventListener('socketstats', handleSocketStatsEvent);
 }
-
-const updateDataSavingSettings = (dataSaving, intl) => {
-  if (!_.isEqual(Settings.dataSaving, dataSaving)) {
-    Settings.dataSaving = dataSaving;
-    Settings.save();
-    if (intl) notify(intl.formatMessage(intlMessages.saved), 'info', 'settings');
-  }
-};
 
 const getNotified = () => {
   const notified = Session.get('connectionStatusNotified');
@@ -563,7 +554,6 @@ export default {
   notification,
   startRoundTripTime,
   stopRoundTripTime,
-  updateDataSavingSettings,
   getNetworkData,
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,
