@@ -430,7 +430,7 @@ class App extends React.Component {
                       maximumFractionDigits: 1,
                     })}
                     cardClass={tab === TABS.OVERVIEW_ACTIVITY_SCORE ? 'border-green-500' : 'hover:border-green-500 border-white'}
-                    iconClass="bg-green-200 text-green-500"
+                    iconClass="bg-green-200 text-green-700"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -557,7 +557,7 @@ class App extends React.Component {
         <hr className="my-8" />
         <div className="flex justify-between pb-8 text-xs text-gray-800 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
           <div className="flex flex-col justify-center mb-4 sm:mb-0">
-            <p>
+            <p className="text-gray-700">
               {
                 lastUpdated && (
                   <>
@@ -583,7 +583,7 @@ class App extends React.Component {
           </div>
           <button
             type="button"
-            className="border-2 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
+            className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
             onClick={this.handleSaveSessionData.bind(this)}
           >
             <FormattedMessage
