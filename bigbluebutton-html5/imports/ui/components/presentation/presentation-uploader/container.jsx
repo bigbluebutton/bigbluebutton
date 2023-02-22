@@ -9,7 +9,7 @@ import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
-import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -34,7 +34,7 @@ export default withTracker(() => {
     dispatchTogglePresentationDownloadable,
     exportPresentationToChat,
   } = Service;
-  const isOpen = isPresentationAreaEnabled() && (Session.get('showUploadPresentationView') || false);
+  const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
     presentations: currentPresentations,

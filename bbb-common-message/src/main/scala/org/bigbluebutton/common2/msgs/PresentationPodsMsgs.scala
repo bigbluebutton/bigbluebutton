@@ -183,12 +183,12 @@ case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
 )
 
 
-object PresentationAreaDisabledErrorSysPubMsg { val NAME = "PresentationAreaDisabledErrorSysPubMsg" }
-case class PresentationAreaDisabledErrorSysPubMsg(
+object PresentationDisabledErrorSysPubMsg { val NAME = "PresentationDisabledErrorSysPubMsg" }
+case class PresentationDisabledErrorSysPubMsg(
     header: BbbClientMsgHeader,
-    body:   PresentationAreaDisabledErrorSysPubMsgBody
+    body:   PresentationDisabledErrorSysPubMsgBody
 ) extends StandardMsg
-case class PresentationAreaDisabledErrorSysPubMsgBody(
+case class PresentationDisabledErrorSysPubMsgBody(
     meetingId:               String,
     presentationName:        String,
     temporaryPresentationId: String,
@@ -275,9 +275,9 @@ case class PresentationHasInvalidMimeTypeErrorEvtMsgBody(podId: String, meetingI
                                                           messageKey: String, fileMime: String, fileExtension: String,
                                                         )
 
-object PresentationAreaDisabledErrorEvtMsg { val NAME = "PresentationAreaDisabledErrorEvtMsg" }
-case class PresentationAreaDisabledErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationAreaDisabledErrorEvtMsgBody) extends BbbCoreMsg
-case class PresentationAreaDisabledErrorEvtMsgBody( meetingId: String, presentationName: String,
+object PresentationDisabledErrorEvtMsg { val NAME = "PresentationDisabledErrorEvtMsg" }
+case class PresentationDisabledErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationDisabledErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationDisabledErrorEvtMsgBody( meetingId: String, presentationName: String,
                                                     temporaryPresentationId: String, messageKey: String,
                                                     message: String,
                                                   )

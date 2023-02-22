@@ -12,7 +12,7 @@ RedisPubSub.on('PresentationPageGeneratedEvtMsg', handlePresentationConversionUp
 RedisPubSub.on('PresentationPageCountErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationUploadedFileTimeoutErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationHasInvalidMimeTypeErrorEvtMsg', handlePresentationConversionUpdate);
-RedisPubSub.on('PresentationAreaDisabledErrorEvtMsg', handlePresentationConversionUpdate);
+RedisPubSub.on('PresentationDisabledErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionUpdateEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationUploadedFileTooLargeErrorEvtMsg', handlePresentationConversionUpdate);
 RedisPubSub.on('PresentationConversionCompletedEvtMsg', handlePresentationAdded);

@@ -1,6 +1,6 @@
 package org.bigbluebutton.presentation.messages;
 
-public class PresentationAreaDisabled implements IDocConversionMsg{
+public class PresentationDisabled implements IDocConversionMsg{
 
     public final String meetingId;
     public final String temporaryPresentationId;
@@ -8,7 +8,7 @@ public class PresentationAreaDisabled implements IDocConversionMsg{
     public final String messageKey;
     public final String message;
 
-    public PresentationAreaDisabled( String temporaryPresentationId,
+    public PresentationDisabled( String temporaryPresentationId,
                                     String filename, String meetingId,
                                     String messageKey, String message) {
         this.meetingId = meetingId;

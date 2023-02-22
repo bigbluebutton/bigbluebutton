@@ -15,7 +15,7 @@ import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
-import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
 const propTypes = {
@@ -557,7 +557,7 @@ class PresentationUploader extends Component {
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
 
-    if (!isPresentationAreaEnabled()) {
+    if (!isPresentationEnabled()) {
       this.setState(
         { presentations: [] },
         Session.set('showUploadPresentationView', false),

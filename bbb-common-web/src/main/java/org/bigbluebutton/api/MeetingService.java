@@ -540,9 +540,9 @@ public class MeetingService implements MessageListener {
     return recordingService.isRecordingExist(recordId);
   }
 
-  public boolean isMeetingWithDisabledPresentationArea(String meetingId) {
+  public boolean isMeetingWithDisabledPresentation(String meetingId) {
     Meeting m = getMeeting(meetingId);
-    return m.getDisabledFeatures().contains("presentationArea");
+    return m.getDisabledFeatures().contains("presentation");
   }
 
   public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, String offset, String limit) {

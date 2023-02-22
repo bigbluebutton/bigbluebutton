@@ -1114,7 +1114,7 @@ class ApiController {
       } else {
         withFormat {
           xml {
-            render(text: responseBuilder.buildInsertDocumentResponse("Presentation area is disabled, ignoring.",
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
         }
@@ -1343,7 +1343,7 @@ class ApiController {
   }
 
   def uploadDocuments(conf, isFromInsertAPI) {
-    if (!conf.getDisabledFeatures().contains("presentationArea")) { //
+    if (!conf.getDisabledFeatures().contains("presentation")) { //
       log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
       //sanitizeInput
@@ -1456,7 +1456,7 @@ class ApiController {
       }
       return true
     } else {
-      log.warn("Presentation area is disabled.")
+      log.warn("Presentation feature is disabled.")
       return false
     }
   }

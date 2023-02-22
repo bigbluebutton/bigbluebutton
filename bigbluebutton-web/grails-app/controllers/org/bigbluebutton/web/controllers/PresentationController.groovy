@@ -160,15 +160,15 @@ class PresentationController {
       uploadFailed = true
     }
 
-    if (meetingService.isMeetingWithDisabledPresentationArea(meetingId)) {
-      log.error "\n\n\n\n\n\n\nThis meeting has presentationArea as a disabledFeature, it is not possible to upload anything"
-      presentationService.sendDocConversionFailedOnDisabledPresentationArea(
-              temporaryPresentationId, presFilename, meetingId, "PRESENTATION_AREA_DISABLED",
-              "Presentation area is disabled for this meeting"
+    if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
+      presentationService.sendDocConversionFailedOnDisabledPresentation(
+              temporaryPresentationId, presFilename, meetingId, "PRESENTATION_DISABLED",
+              "Presentation feature is disabled for this meeting"
       )
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
-      response.outputStream << 'presentation area in disabled features'
+      response.outputStream << 'presentation in disabled features'
       return
     }
 

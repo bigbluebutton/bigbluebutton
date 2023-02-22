@@ -7,7 +7,7 @@ import UserService from '/imports/ui/components/user-list/service';
 import NotesService from '/imports/ui/components/notes/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import VideoStreams from '/imports/api/video-streams';
-import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import Auth from '/imports/ui/services/auth/index';
 
@@ -69,7 +69,7 @@ const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch) => {
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;
-  const isPresentationAreaDisabled = !isPresentationAreaEnabled();
+  const isPresentationAreaDisabled = !isPresentationEnabled();
 
   if (isPresentationAreaDisabled && (webcamIsOnlyContent || isThereNoMedia)) {
     setPresentationIsOpen(layoutContextDispatch, false);

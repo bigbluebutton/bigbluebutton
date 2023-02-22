@@ -11,7 +11,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
-import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -155,7 +155,7 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && isPresentationAreaEnabled()) {
+    if (amIPresenter && isPresentationEnabled()) {
       actions.push({
         icon: "presentation",
         dataTest: "managePresentations",

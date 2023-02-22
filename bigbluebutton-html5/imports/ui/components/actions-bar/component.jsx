@@ -9,7 +9,7 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
-import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -41,7 +41,7 @@ class ActionsBar extends PureComponent {
       setPushLayout,
     } = this.props;
 
-    const shouldShowOptionsButton = (isPresentationAreaEnabled() && isThereCurrentPresentation) 
+    const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation) 
                                     || isSharingVideo || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar

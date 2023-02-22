@@ -96,10 +96,10 @@ class PresentationService {
 		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
-	def sendDocConversionFailedOnDisabledPresentationArea(String temporaryPresentationId,
+	def sendDocConversionFailedOnDisabledPresentation(String temporaryPresentationId,
 														  String filename, String meetingId,
 													      String messageKey, String message) {
-		documentConversionService.sendDocConversionFailedOnDisabledPresentationArea(
+		documentConversionService.sendDocConversionFailedOnDisabledPresentation(
 				temporaryPresentationId, filename, meetingId, messageKey, message)
 	}
 

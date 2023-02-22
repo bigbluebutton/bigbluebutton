@@ -15,7 +15,7 @@ import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
-import { isPresentationAreaEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -97,7 +97,7 @@ const AppContainer = (props) => {
   const presentationIsOpen = isOpen;
 
   const shouldShowPresentation = (propsShouldShowPresentation
-    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationAreaEnabled();
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   const { focusedId } = cameraDock;
 

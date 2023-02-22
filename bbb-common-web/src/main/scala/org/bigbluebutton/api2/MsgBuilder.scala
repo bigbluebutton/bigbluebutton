@@ -298,18 +298,18 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildPresentationAreaDisabled(msg: PresentationAreaDisabled): BbbCommonEnvCoreMsg = {
+  def buildPresentationDisabled(msg: PresentationDisabled): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
-    val envelope = BbbCoreEnvelope(PresentationAreaDisabledErrorSysPubMsg.NAME, routing)
-    val header = BbbClientMsgHeader(PresentationAreaDisabledErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+    val envelope = BbbCoreEnvelope(PresentationDisabledErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationDisabledErrorSysPubMsg.NAME, msg.meetingId, "not-used")
 
-    val body = PresentationAreaDisabledErrorSysPubMsgBody(
+    val body = PresentationDisabledErrorSysPubMsgBody(
       presentationName = msg.filename,
       temporaryPresentationId = msg.temporaryPresentationId, meetingId = msg.meetingId,
       messageKey = msg.messageKey, message = msg.message
     )
 
-    val req = PresentationAreaDisabledErrorSysPubMsg(header, body)
+    val req = PresentationDisabledErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
