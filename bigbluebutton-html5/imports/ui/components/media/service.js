@@ -60,8 +60,11 @@ const isThereWebcamOn = (meetingID) => {
   }).count() > 0;
 }
 
-const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch, isSharingVideo, 
-  isSharedNotesPinned, hasScreenshare, isThereWebcam) => {
+const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch) => {
+  const isSharingVideo = getVideoUrl();
+  const isSharedNotesPinned = NotesService.isSharedNotesPinned();
+  const hasScreenshare = isVideoBroadcasting();
+  const isThereWebcam = isThereWebcamOn(Auth.meetingID);
     
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;

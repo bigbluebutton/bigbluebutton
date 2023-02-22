@@ -125,6 +125,10 @@ const Notes = ({
         type: ACTIONS.SET_NOTES_IS_PINNED,
         value: true,
       });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
 
       return () => {
         layoutContextDispatch({
