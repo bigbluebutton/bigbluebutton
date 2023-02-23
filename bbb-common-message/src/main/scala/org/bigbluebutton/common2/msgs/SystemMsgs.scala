@@ -37,7 +37,7 @@ case class EndMeetingPromptReqMsg(
 ) extends StandardMsg
 case class EndMeetingPromptReqMsgBody(meetingId: String)
 
-object EndMeetingPromptEvtMsg { val NAME = "EndMeetingPromptEvtMsg " }
+object EndMeetingPromptEvtMsg { val NAME = "EndMeetingPromptEvtMsg" }
 case class EndMeetingPromptEvtMsg(
     header: BbbClientMsgHeader,
     body:   EndMeetingPromptEvtMsgBody

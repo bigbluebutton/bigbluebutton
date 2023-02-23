@@ -15,18 +15,12 @@ trait EndMeetingPromptReqMsgHdlr {
   val eventBus: InternalEventBus
 
   def handleEndMeetingPromptReqMsg(msg: EndMeetingPromptReqMsg, state: MeetingState2x) = {
-    for {
-      u <- Users2x.findAll(liveMeeting.users2x)
-    } yield {
-      if (u.role == Roles.MODERATOR_ROLE) {
-        val meetingId = msg.body.meetingId
-        val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, u.intId)
-        val envelope = BbbCoreEnvelope(EndMeetingPromptEvtMsg.NAME, routing)
-        val body = EndMeetingPromptEvtMsgBody(meetingId)
-        val header = BbbClientMsgHeader(EndMeetingPromptEvtMsg.NAME, meetingId, u.intId)
-        val event = EndMeetingPromptEvtMsg(header, body)
-        BbbCommonEnvCoreMsg(envelope, event)
-      }
-    }
+    val meetingId = msg.body.meetingId
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(EndMeetingPromptEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(EndMeetingPromptEvtMsg.NAME, meetingId, "not-used")
+    val body = EndMeetingPromptEvtMsgBody(meetingId)
+    val event = BbbCommonEnvCoreMsg(envelope, EndMeetingPromptEvtMsg(header, body))
+    outGW.send(event)
   }
 }

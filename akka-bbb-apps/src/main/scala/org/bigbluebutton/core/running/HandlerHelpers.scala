@@ -168,15 +168,6 @@ trait HandlerHelpers extends SystemConfiguration {
     newState
   }
 
-  //  def sendEndMeetingPromptToModerator(eventBus: InternalEventBus, outGW: OutMsgRouter, liveMeeting: LiveMeeting, meetingId: String, userId: String): Unit = {
-  //    val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
-  //    val envelope = BbbCoreEnvelope(EndMeetingPromptEvtMsg.NAME, routing)
-  //    val body = EndMeetingPromptEvtMsgBody(meetingId)
-  //    val header = BbbClientMsgHeader(EndMeetingPromptEvtMsg.NAME, meetingId, userId)
-  //    val event = EndMeetingPromptEvtMsg(header, body)
-  //    BbbCommonEnvCoreMsg(envelope, event)
-  //  }
-
   def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String, userId: String): Unit = {
     def buildMeetingEndingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
