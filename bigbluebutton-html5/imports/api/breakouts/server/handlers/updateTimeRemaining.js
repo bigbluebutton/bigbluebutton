@@ -23,14 +23,11 @@ export default function handleUpdateTimeRemaining({ body }, meetingId) {
   const options = {
     multi: true,
   };
-
-  try {
-    const numberAffected = Breakouts.update(selector, modifier, options);
-
-    if (numberAffected) {
+  Breakouts.updateAsync(selector, modifier, options).then((res) => {
+    if (res.numberAffected) {
       Logger.info(`Updated breakout time remaining for breakouts where parentMeetingId=${meetingId}`);
     }
-  } catch (err) {
+  }).catch((err) => {
     Logger.error(`Updating breakouts: ${err}`);
-  }
+  });
 }

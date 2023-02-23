@@ -28,15 +28,13 @@ export default function handleBreakoutJoinURL({ body }) {
     const ATTEMPT_EVERY_MS = 1000;
 
     let numberAffected = 0;
-
-    const updateBreakout = Meteor.bindEnvironment(() => {
-      numberAffected = Breakouts.update(selector, modifier);
-    });
+    const updateBreakout = async () => {
+      numberAffected = await Breakouts.updateAsync(selector, modifier);
+    };
 
     const updateBreakoutPromise = new Promise((resolve) => {
-      const updateBreakoutInterval = setInterval(() => {
-        updateBreakout();
-
+      const updateBreakoutInterval = setInterval(async () => {
+        await updateBreakout();
         if (numberAffected) {
           resolve(clearInterval(updateBreakoutInterval));
         }

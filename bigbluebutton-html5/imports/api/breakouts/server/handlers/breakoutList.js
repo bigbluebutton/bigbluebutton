@@ -43,18 +43,15 @@ export default function handleBreakoutRoomsList({ body }, meetingId) {
         ...urls,
       },
     };
-
-    try {
-      const { numberAffected } = Breakouts.upsert(selector, modifier);
-
-      if (numberAffected) {
+    Breakouts.upsertAsync(selector, modifier).then((res) => {
+      if (res.numberAffected) {
         Logger.info('Updated timeRemaining and externalMeetingId '
             + `for breakout id=${breakoutId}`);
       }
-    } catch (err) {
+    }).catch((err) => {
       Logger.error(`updating breakout: ${err}`);
-    }
+    }).finally(() => {
+      handleBreakoutRoomsListHist({ body });
+    });
   });
-
-  handleBreakoutRoomsListHist({ body });
 }

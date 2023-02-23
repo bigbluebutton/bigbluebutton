@@ -29,15 +29,13 @@ export default function joinedUsersChanged({ body }) {
     },
   };
 
-  try {
-    const numberAffected = Breakouts.update(selector, modifier);
-
-    if (numberAffected) {
+  Breakouts.updateAsync(selector, modifier).then((res) => {
+    if (res.numberAffected) {
       updateUserBreakoutRoom(parentId, breakoutId, users);
 
       Logger.info(`Updated joined users in breakout id=${breakoutId}`);
     }
-  } catch (err) {
+  }).catch((err) => {
     Logger.error(`updating joined users in breakout: ${err}`);
-  }
+  });
 }
