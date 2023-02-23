@@ -8,6 +8,7 @@ import Users from '/imports/api/users';
 import AudioService from '/imports/ui/components/audio/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { isLiveTranscriptionEnabled } from '/imports/ui/services/features';
+import { unique } from 'radash';
 
 const THROTTLE_TIMEOUT = 1000;
 
@@ -24,7 +25,7 @@ const hasSpeechRecognitionSupport = () => typeof SpeechRecognitionAPI !== 'undef
 const setSpeechVoices = () => {
   if (!hasSpeechRecognitionSupport()) return;
 
-  Session.set('speechVoices', _.uniq(window.speechSynthesis.getVoices().map((v) => v.lang)));
+  Session.set('speechVoices', unique(window.speechSynthesis.getVoices().map((v) => v.lang)));
 };
 
 // Trigger getVoices
