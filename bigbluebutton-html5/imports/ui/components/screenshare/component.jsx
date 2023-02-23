@@ -30,6 +30,7 @@ import {
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -335,7 +336,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <FullscreenButtonContainer
-        key={_.uniqueId('fullscreenButton-')}
+        key={uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
         fullscreenRef={this.screenshareContainer}
         elementId={fullscreenElementId}
@@ -350,7 +351,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <AutoplayOverlay
-        key={_.uniqueId('screenshareAutoplayOverlay')}
+        key={uniqueId('screenshareAutoplayOverlay')}
         autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
         autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
         handleAllowAutoplay={this.handleAllowAutoplay}
@@ -548,7 +549,7 @@ class ScreenshareComponent extends React.Component {
         {(shouldRenderConnectingState)
           && (
             <Styled.SpinnerWrapper
-              key={_.uniqueId('screenshareArea-')}
+              key={uniqueId('screenshareArea-')}
               data-test="screenshareConnecting"
             >
               <Styled.Spinner animations={animations}>

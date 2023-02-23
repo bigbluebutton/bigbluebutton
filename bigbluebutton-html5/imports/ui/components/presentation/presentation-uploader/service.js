@@ -5,12 +5,12 @@ import Poll from '/imports/api/polls/';
 import { Meteor } from 'meteor/meteor';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
-import _ from 'lodash';
 import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
 import { Random } from 'meteor/random';
 import { UploadingPresentations } from '/imports/api/presentations';
 import Meetings from '/imports/api/meetings';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -185,7 +185,7 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
 ) => {
-  const temporaryPresentationId = _.uniqueId(Random.id(20))
+  const temporaryPresentationId = uniqueId(Random.id(20))
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -409,7 +409,7 @@ function handleFiledrop(files, files2, that) {
     ));
 
   const presentationsToUpload = accepted.map((file) => {
-    const id = _.uniqueId(file.name);
+    const id = uniqueId(file.name);
 
     return {
       file,

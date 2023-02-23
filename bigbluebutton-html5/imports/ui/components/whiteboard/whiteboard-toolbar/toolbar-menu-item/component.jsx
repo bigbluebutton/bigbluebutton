@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 export default class ToolbarMenuItem extends Component {
   constructor() {
@@ -15,7 +15,7 @@ export default class ToolbarMenuItem extends Component {
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
     this.setRef = this.setRef.bind(this);
 
-    this.uniqueRef = _.uniqueId('toolbar-menu-item');
+    this.uniqueRef = uniqueId('toolbar-menu-item');
   }
 
   componentDidMount() {

@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import AudioService from '/imports/ui/components/audio/service';
 import ChatPushAlert from './push-alert/component';
-import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
+import { stripTags, unescapeHtml, uniqueId } from '/imports/utils/string-utils';
 import Service from '../service';
 import Styled from './styles';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
@@ -173,7 +172,7 @@ const ChatAlert = (props) => {
       <Styled.ContentMessage>
         {
           mapContentText(message)
-            .reduce((acc, text) => [...acc, (<br key={_.uniqueId('br_')} />), text], [])
+            .reduce((acc, text) => [...acc, (<br key={uniqueId('br_')} />), text], [])
         }
       </Styled.ContentMessage>
     </Styled.PushMessageContent>

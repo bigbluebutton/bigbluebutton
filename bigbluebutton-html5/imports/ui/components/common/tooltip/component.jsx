@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import cx from 'classnames';
 import { ESCAPE } from '/imports/utils/keyCodes';
 import Settings from '/imports/ui/services/settings';
@@ -10,6 +9,7 @@ import 'tippy.js/animations/shift-away.css';
 import './bbbtip.css';
 import BaseButton from '/imports/ui/components/common/button/base/component';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const ANIMATION_DURATION = 350;
 const ANIMATION_DELAY = [150, 50];
@@ -47,7 +47,7 @@ class Tooltip extends Component {
   constructor(props) {
     super(props);
 
-    this.tippySelectorId = _.uniqueId('tippy-');
+    this.tippySelectorId = uniqueId('tippy-');
     this.onShow = this.onShow.bind(this);
     this.onHide = this.onHide.bind(this);
     this.handleEscapeHide = this.handleEscapeHide.bind(this);

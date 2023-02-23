@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import {
   sendMessage,
   onMessage,
@@ -21,6 +20,7 @@ import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { uniqueId } from '/imports/utils/string-utils';
 
 import Styled from './styles';
 
@@ -548,7 +548,7 @@ class VideoPlayer extends Component {
 
     return (
       <FullscreenButtonContainer
-        key={_.uniqueId('fullscreenButton-')}
+        key={uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.fullscreenLabel)}
         fullscreenRef={this.playerParent}
         elementId={fullscreenElementId}

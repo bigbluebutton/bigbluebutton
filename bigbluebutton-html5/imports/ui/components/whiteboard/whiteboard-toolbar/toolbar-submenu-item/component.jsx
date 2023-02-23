@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 export default class ToolbarSubmenuItem extends Component {
   constructor() {
@@ -11,7 +11,7 @@ export default class ToolbarSubmenuItem extends Component {
     this.handleOnMouseUp = this.handleOnMouseUp.bind(this);
     this.setRef = this.setRef.bind(this);
 
-    this.uniqueRef = _.uniqueId('toolbar-submenu-item');
+    this.uniqueRef = uniqueId('toolbar-submenu-item');
   }
 
   componentDidMount() {

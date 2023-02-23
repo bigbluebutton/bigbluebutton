@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import { range } from '/imports/utils/array-utils';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -14,6 +13,7 @@ import Icon from '/imports/ui/components/common/icon/component.jsx';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -252,7 +252,7 @@ class BreakoutRoom extends PureComponent {
       breakoutJoinedUsers: null,
     };
 
-    this.btnLevelId = _.uniqueId('btn-set-level-');
+    this.btnLevelId = uniqueId('btn-set-level-');
 
     this.handleMoveEvent = this.handleMoveEvent.bind(this);
     this.handleShiftUser = this.handleShiftUser.bind(this);
@@ -942,7 +942,7 @@ class BreakoutRoom extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.numberOfRooms)}
             >
               {
-                range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={_.uniqueId('value-')}>{item}</option>))
+                range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
               }
             </Styled.InputRooms>
           </div>

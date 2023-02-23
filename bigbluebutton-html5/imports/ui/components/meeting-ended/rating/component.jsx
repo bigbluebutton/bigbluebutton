@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { range } from '/imports/utils/array-utils';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   legendTitle: {
@@ -54,14 +54,14 @@ class Rating extends Component {
                     id={`${i + 1}star`}
                     name="rating"
                     value={i + 1}
-                    key={_.uniqueId('star-')}
+                    key={uniqueId('star-')}
                     onChange={() => this.clickStar(i + 1)}
                   />
                 ),
                 (
                   <label
                     htmlFor={`${i + 1}star`}
-                    key={_.uniqueId('star-')}
+                    key={uniqueId('star-')}
                     aria-label={`${i + 1} ${intl.formatMessage(intlMessages.starLabel)}`}
                   />
                 ),
