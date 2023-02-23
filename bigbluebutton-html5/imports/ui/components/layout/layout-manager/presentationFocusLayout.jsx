@@ -8,6 +8,7 @@ import {
   PANELS,
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -73,7 +74,7 @@ const PresentationFocusLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
             sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
@@ -110,7 +111,7 @@ const PresentationFocusLayout = (props) => {
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },

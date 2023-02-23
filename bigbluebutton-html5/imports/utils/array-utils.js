@@ -1,3 +1,5 @@
+import { isObject } from 'radash';
+
 export const range = (start, end) => {
   const length = end - start;
   return Array.from({ length }, (_, i) => start + i);
@@ -19,9 +21,28 @@ export const indexOf = (arr, value) => {
 }
 
 export const without = (arr, value) => {
-  return arr.filter(function(item) {
+  return arr.filter(function (item) {
     return item !== value;
   });
+}
+
+export const defaultsDeep = (override, initial) => {
+  if (!initial || !override) return initial ?? override ?? {}
+
+  return Object.entries({ ...initial, ...override }).reduce(
+    (acc, [key, value]) => {
+      return {
+        ...acc,
+        [key]: (() => {
+          if (isObject(initial[key])) {
+            return { ...initial[key], ...value };
+          } else {
+            return value
+          }
+        })()
+      }
+    }, {}
+  )
 }
 
 export default {
@@ -29,4 +50,5 @@ export default {
   partition,
   indexOf,
   without,
+  defaultsDeep,
 };

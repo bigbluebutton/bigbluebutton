@@ -3,6 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 import ejectUserFromVoice from './methods/ejectUserFromVoice';
+import _ from 'lodash';
 
 function voiceUser() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });

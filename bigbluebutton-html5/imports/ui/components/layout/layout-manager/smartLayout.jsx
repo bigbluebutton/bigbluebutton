@@ -4,6 +4,7 @@ import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/com
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -69,7 +70,7 @@ const SmartLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
             sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
@@ -106,7 +107,7 @@ const SmartLayout = (props) => {
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
