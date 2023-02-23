@@ -268,7 +268,7 @@ public:
       # and tries to reconnect.
       wsConnectionTimeout: 4000
       # maxRetries: max reconnection retries
-      maxRetries: 5
+      maxRetries: 7
       # debug: console trace logging for video-provider's ws
       debug: false
       heartbeat:
