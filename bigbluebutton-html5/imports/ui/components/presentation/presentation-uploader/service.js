@@ -10,6 +10,7 @@ import update from 'immutability-helper';
 import { Random } from 'meteor/random';
 import { UploadingPresentations } from '/imports/api/presentations';
 import Meetings from '/imports/api/meetings';
+import { notify } from '/imports/ui/services/notification';
 
 const CONVERSION_TIMEOUT = 300000;
 const TOKEN_TIMEOUT = 5000;
@@ -396,7 +397,7 @@ const exportPresentationToChat = (presentationId, observer) => {
   makeCall('exportPresentationToChat', presentationId);
 };
 
-function handleFiledrop(files, files2, that) {
+function handleFiledrop(files, files2, that, intl, intlMessages) {
   if(that){
   const { fileValidMimeTypes, intl } = that.props;
   const { toUploadCount } = that.state;
