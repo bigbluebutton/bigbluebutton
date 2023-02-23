@@ -211,7 +211,7 @@ exports.polling = 'li[data-test="polling"]';
 exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
-exports.pollingContainer = 'div[data-test="pollingContainer"]';
+exports.pollingContainer = 'aside[data-test="pollingContainer"]';
 exports.pollLetterAlternatives = 'button[data-test="pollLetterAlternatives"]';
 const pollOptionItem = 'input[data-test="pollOptionItem"]';
 exports.pollOptionItem1 = `${pollOptionItem}>>nth=0`;
