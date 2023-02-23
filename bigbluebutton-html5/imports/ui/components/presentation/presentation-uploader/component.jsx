@@ -1063,7 +1063,7 @@ class PresentationUploader extends Component {
         activeClassName={"dropzoneActive"}
         accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
         disablepreview="true"
-        onDrop={(files, files2) => this.handleFiledrop(files, files2, this)}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -1130,7 +1130,7 @@ class PresentationUploader extends Component {
         accept="image/*"
         disablepreview="true"
         data-test="fileUploadDropZone"
-        onDrop={(files, files2) => this.handleFiledrop(files, files2, this)}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
