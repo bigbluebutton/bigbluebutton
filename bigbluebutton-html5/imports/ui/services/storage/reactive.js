@@ -1,6 +1,6 @@
 import { Tracker } from 'meteor/tracker';
 import { EJSON } from 'meteor/ejson';
-import { isObject, isString } from 'radash';
+import { isObject, isArray, isString } from 'radash';
 
 // Reactive wrapper for browser Storage's
 
@@ -50,7 +50,7 @@ export default class StorageTracker {
     const prefixedKey = this._prefixedKey(key);
     this._ensureDeps(prefixedKey);
 
-    if (isObject(value)) {
+    if (isObject(value) || isArray(value)) {
       value = EJSON.stringify(value);
     }
 
