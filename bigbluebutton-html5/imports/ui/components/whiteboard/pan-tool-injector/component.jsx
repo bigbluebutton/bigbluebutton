@@ -12,7 +12,6 @@ export const PanToolInjector = (props) => {
     isPanning,
     setIsPanning,
     formatMessage,
-    currentTool,
     tldrawAPI,
     panSelected,
     setPanSelected
