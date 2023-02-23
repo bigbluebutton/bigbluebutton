@@ -1,3 +1,3 @@
-export default function handleEndMeetingPrompt({ body }) {
+export default function handleEndMeetingPrompt() {
 
 }
