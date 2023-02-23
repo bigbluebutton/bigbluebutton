@@ -254,7 +254,6 @@ class MeetingActor(
     case m: GetAllMeetingsReqMsg              => handleGetAllMeetingsReqMsg(m)
     case m: GetRunningMeetingStateReqMsg      => handleGetRunningMeetingStateReqMsg(m)
     case m: ValidateConnAuthTokenSysMsg       => handleValidateConnAuthTokenSysMsg(m)
-    case m: EndMeetingPromptReqMsg            => //handleEndMeetingPromptReqMsg(m)
 
     // Meeting
     case m: DestroyMeetingSysCmdMsg           => handleDestroyMeetingSysCmdMsg(m)
