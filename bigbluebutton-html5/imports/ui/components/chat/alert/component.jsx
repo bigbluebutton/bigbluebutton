@@ -11,6 +11,7 @@ import Service from '../service';
 import Styled from './styles';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import { Session } from 'meteor/session';
+import { isEqual } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_CLEAR = CHAT_CONFIG.chat_clear;
@@ -185,7 +186,7 @@ const ChatAlert = (props) => {
     </Styled.PushMessageContent>
   );
 
-  if (_.isEqual(prevUnreadMessages, unreadMessages)) {
+  if (isEqual(prevUnreadMessages, unreadMessages)) {
     return null;
   }
 

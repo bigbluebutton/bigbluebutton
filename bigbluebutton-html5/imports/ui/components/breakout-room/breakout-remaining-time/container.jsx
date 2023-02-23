@@ -3,10 +3,10 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import _ from 'lodash';
 import BreakoutRemainingTimeComponent from './component';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import { Text, Time } from './styles';
+import { isEmpty } from 'radash';
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -58,7 +58,7 @@ class breakoutRemainingTimeContainer extends React.Component {
 
   render() {
     const { message, bold } = this.props;
-    if (_.isEmpty(message)) {
+    if (isEmpty(message)) {
       return null;
     }
     if (bold) {

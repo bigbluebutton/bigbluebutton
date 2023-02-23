@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
 import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
+import { isEqual } from 'radash';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -292,7 +293,7 @@ export default function Whiteboard(props) {
                 Object.entries(pageBindings).map(([k,b]) => {
                   if (b.toId.includes(id)) {
                     const boundShape = app.getShape(b.fromId);
-                    if (shapes[b.fromId] && !_.isEqual(boundShape, shapes[b.fromId])) {
+                    if (shapes[b.fromId] && !isEqual(boundShape, shapes[b.fromId])) {
                       const shapeBounds = app.getShapeBounds(b.fromId);
                       boundShape.size = [shapeBounds.width, shapeBounds.height];
                       persistShape(boundShape, whiteboardId)
@@ -309,7 +310,7 @@ export default function Whiteboard(props) {
               }
               const shapeBounds = app.getShapeBounds(id);
               const size = [shapeBounds.width, shapeBounds.height];
-              if (!shapes[id] || (shapes[id] && !_.isEqual(shapes[id].size, size))) {
+              if (!shapes[id] || (shapes[id] && !isEqual(shapes[id].size, size))) {
                 shape.size = size;
               }
               if (!shapes[id] || (shapes[id] && !shapes[id].userId)) shape.userId = currentUser?.userId;
@@ -372,7 +373,7 @@ export default function Whiteboard(props) {
 
     let changed = false;
 
-    if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+    if (next.pageStates[curPageId] && !isEqual(prevShapes, shapes)) {
       const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
 
       if (editingShape) {
@@ -413,7 +414,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`]) || (svgUri && !_.isEqual(prevSvgUri, svgUri))) {
+    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`]) || (svgUri && !isEqual(prevSvgUri, svgUri))) {
       next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`]
       tldrawAPI?.patchState(
         {
@@ -457,7 +458,7 @@ export default function Whiteboard(props) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
                                 .filter(([id, shape]) => shape.name?.includes("poll-result"))
       for (const [id, shape] of pollResults) {
-        if (_.isEqual(shape.point, [0, 0])) {
+        if (isEqual(shape.point, [0, 0])) {
           const shapeBounds = tldrawAPI?.getShapeBounds(id);
           if (shapeBounds) {
             shape.point = [
