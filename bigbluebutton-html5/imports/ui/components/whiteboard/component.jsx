@@ -1,4 +1,5 @@
 import * as React from "react";
+import ReactDOM from 'react-dom';
 import _ from "lodash";
 import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
@@ -10,6 +11,8 @@ import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
 import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
+import Styled from './styles';
+import { PanToolInjector } from './pan-tool-injector/component';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -49,6 +52,7 @@ const SMALLEST_WIDTH = 645;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
+const DEFAULT_TOOL_COUNT = 9;
 
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
@@ -149,7 +153,6 @@ export default function Whiteboard(props) {
     isRTL,
     fitToWidth,
     zoomValue,
-    isPanning,
     intl,
     svgUri,
     maxStickyNoteLength,
@@ -160,8 +163,8 @@ export default function Whiteboard(props) {
     maxNumberOfAnnotations,
     notifyShapeNumberExceeded,
     darkTheme,
+    isPanning: shortcutPanning,
   } = props;
-
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
     name: "test",
@@ -186,6 +189,40 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [isMoving, setIsMoving] = React.useState(false);
+  const [isPanning, setIsPanning] = React.useState(shortcutPanning);
+  const [panSelected, setPanSelected] = React.useState(isPanning);
+
+  const toggleOffCheck = (evt) => {
+    const clickedElement = evt.target;
+    const toolbar = document.getElementById("TD-PrimaryTools");
+    
+    if (toolbar?.contains(clickedElement)) {
+      setPanSelected(false);
+      setIsPanning(false);
+    }
+    
+    const panBtnClicked = clickedElement?.getAttribute('data-test') === 'panButton'
+      || clickedElement?.parentElement?.getAttribute('data-test') === 'panButton';
+    
+    if (panBtnClicked && zoomValue <= HUNDRED_PERCENT && !fitToWidth) {
+      setPanSelected(true);
+      setIsPanning(true);
+    }
+  };
+
+  React.useEffect(() => {
+    const toolbar = document.getElementById("TD-PrimaryTools");
+    
+    const handleClick = (evt) => {
+      toggleOffCheck(evt);
+    };
+    
+    toolbar?.addEventListener('click', handleClick);
+    
+    return () => {
+      toolbar?.removeEventListener('click', handleClick);
+    };
+  }, []);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -676,6 +713,12 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
+    setCurrentTool('select');
+    const toolbar = document.getElementById("TD-PrimaryTools");
+    if (toolbar) {
+      toolbar?.addEventListener('click', toggleOffCheck);
+    }
+
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
@@ -771,7 +814,7 @@ export default function Whiteboard(props) {
     }
 
     if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
-      const camera = tldrawAPI.getPageState()?.camera;
+      const camera = tldrawAPI?.getPageState()?.camera;
 
       // limit bounds
       if (tldrawAPI?.viewport.maxX > slidePosition.width) {
@@ -862,8 +905,9 @@ export default function Whiteboard(props) {
 
     if (reason && reason.includes('selected_tool')) {
       const tool = reason.split(':')[1];
-
       setCurrentTool(tool);
+      setPanSelected(false);
+      setIsPanning(false);
     }
   };
 
@@ -1021,6 +1065,21 @@ export default function Whiteboard(props) {
           }}
         />
       </Cursors>
+      {isPresenter && 
+        <PanToolInjector
+          {...{
+            tldrawAPI,
+            fitToWidth,
+            isPanning,
+            setIsPanning,
+            zoomValue,
+            panSelected,
+            setPanSelected,
+            currentTool
+          }}
+          formatMessage={intl?.formatMessage}
+        />
+      }
     </>
   );
 }
