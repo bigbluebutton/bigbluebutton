@@ -620,9 +620,18 @@ class PresentationUploader extends Component {
     const { presentations: propPresentations } = this.props;
 
     const ids = new Set(propPresentations.map((d) => d.id));
+
+    const filteredPresentations = presentations.filter((d) => {
+      return !ids.has(d.id) && (d.upload.done || d.upload.progress !== 0)});
+    const isThereStateCurrentPres = filteredPresentations.some(p => p.isCurrent);
     const merged = [
-      ...presentations.filter((d) => !ids.has(d.id) && d.upload.done),
-      ...propPresentations,
+      ...filteredPresentations,
+      ...propPresentations.filter(p => {
+        if (isThereStateCurrentPres) {
+          p.isCurrent = false;
+        }
+        return true;
+      }),
     ];
     this.setState(
       { presentations: merged },
