@@ -458,7 +458,12 @@ class PresentationUploader extends Component {
   }
 
   componentWillUnmount() {
-    this.props.unmount();
+    let id = Session.get("presentationUploaderToastId");
+    if (id) {
+      toast.dismiss(id);
+      Session.set("presentationUploaderToastId", null);
+    }
+    Session.set('showUploadPresentationView', false);
   }
 
   handleDismissToast(id) {

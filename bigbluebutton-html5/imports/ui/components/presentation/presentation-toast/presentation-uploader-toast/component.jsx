@@ -308,21 +308,22 @@ export const PresentationUploaderToast = ({ intl }) => {
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
 		
 		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast );
+
+		let conversionInterrupted = false;
 		
-		let toRemoveFromUploadingPresentations = [];
-		
+		// removing ones with errors. If presentation has an error status - we don't want to have it pending as uploading
 		convertingPresentations.map(p => {
 			if ("conversion" in p && p.conversion.error){
-				// if presentation has an error status - we don't want to have it pending as ploading
-				toRemoveFromUploadingPresentations.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+				UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]});
+				conversionInterrupted = true;
 			}
 		});
+
+		let toRemoveFromUploadingPresentations = [];
+
 		UploadingPresentations.find().fetch().map(p => {  // main goal of this mapping is to sort out what doesn't need to be displayed
 			if (
-				(
-					"upload" in p  // null check
-					&& p.upload.done // if presentation is marked as done - it's potentially to be removed
-				)
+				( "upload" in p && p.upload.done ) // if presentation is marked as done - it's potentially to be removed
 				&& !p.subscriptionId // at upload stage or already converted
 				) {
 				if(convertingPresentations[0]) { //there are presentations being converted
@@ -333,8 +334,19 @@ export const PresentationUploaderToast = ({ intl }) => {
 					});
 				} else if (!enteredConversion[p.temporaryPresentationId]) {  // upload stage is done and pesentation is entering conversion stage 
 					enteredConversion[p.temporaryPresentationId] = true;  // we mark that it has entered conversion stage
-				} else {  // presentations don't enter conversion stage twice, thus it's a border case of presenter change during conversion and this one is to be rmoved
-					toRemoveFromUploadingPresentations.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+				} else { 
+					// presentation doesn't normally enter conversion twice
+					// so we remove the inconsistencies between UploadingPresentation and Presentation (corner case)
+					presentationsAlreadyRenderedIds = Presentations.find({renderedInToast: true}).fetch().map(p => {
+						return {
+							id: p.id,
+							temporaryPresentationId: p.temporaryPresentationId,
+						}
+					});
+					presentationsAlreadyRenderedIds.forEach(p => {
+						UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId}, 
+							{id: p.id}]})
+					})
 				}
 			}
 		});

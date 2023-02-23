@@ -34,7 +34,7 @@ class Presentation extends MultiUsers {
   async hideAndRestorePresentation() {
     const { presentationHidden } = getSettings();
     if (!presentationHidden) {
-      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
       await this.modPage.waitAndClick(e.minimizePresentation);
     }
     await this.modPage.wasRemoved(e.presentationContainer);
@@ -69,6 +69,7 @@ class Presentation extends MultiUsers {
     const userSlides0 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides0).toEqual(userSlides0);
 
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -80,7 +81,7 @@ class Presentation extends MultiUsers {
   }
 
   async uploadMultiplePresentationsTest() {
-    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
     const modSlides0 = await getSlideOuterHtml(this.modPage);
     const userSlides0 = await getSlideOuterHtml(this.userPage);
@@ -91,19 +92,17 @@ class Presentation extends MultiUsers {
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides1).toEqual(userSlides1);
-
     await expect(modSlides0).not.toEqual(modSlides1);
     await expect(userSlides0).not.toEqual(userSlides1);
   }
 
   async fitToWidthTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitForSelector(e.skipSlide);
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
-    const width1 = (await this.modPage.page.locator(e.whiteboard).boundingBox()).width;
+    const width1 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    const width2 = (await this.modPage.page.locator(e.whiteboard).boundingBox()).width;
+    const width2 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
     await expect(Number(width2) > Number(width1)).toBeTruthy();
   }
 
@@ -115,10 +114,12 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.exportPresentationToPublicChat);
-    await this.modPage.hasElement(e.downloadPresentationToast);
+    await this.userPage.hasElement(e.smallToastMsg);
+    await this.userPage.hasElement(e.toastDownload);
     await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.userPage.handleDownload(e.downloadPresentation, testInfo);
+    const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
+    await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
   }
 
   async removeAllPresentation() {
@@ -203,6 +204,7 @@ class Presentation extends MultiUsers {
   }
 
   async presentationFullscreen() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     const presentationLocator = await this.modPage.getLocator(e.presentationContainer);
     const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
 
@@ -216,8 +218,10 @@ class Presentation extends MultiUsers {
   }
 
   async presentationSnapshot(testInfo) {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
-    await this.modPage.handleDownload(e.presentationSnapshot, testInfo);
+    const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
+    await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);
   }
 }
 

@@ -1,11 +1,10 @@
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const e = require('../core/elements');
-const { expect } = require('@playwright/test');
 
 async function startSharedNotes(test) {
   await test.waitAndClick(e.sharedNotes);
   await test.waitForSelector(e.hideNotesLabel, ELEMENT_WAIT_LONGER_TIME);
-  await test.hasElement(e.etherpadFrame);
+  await test.hasElement(e.etherpadFrame, ELEMENT_WAIT_LONGER_TIME);
 }
 
 function getNotesLocator(test) {
@@ -27,6 +26,14 @@ function getExportPlainTextLocator(test) {
   return test.page.frameLocator(e.etherpadFrame).locator(e.exportPlainButton);
 }
 
+function getExportHTMLLocator(test) {
+  return test.page.frameLocator(e.etherpadFrame).locator(e.exporthtml);
+}
+
+function getExportEtherpadLocator(test) {
+  return test.page.frameLocator(e.etherpadFrame).locator(e.exportetherpad);
+}
+
 function getMoveToWhiteboardLocator(test) {
   return test.page.locator(e.sendNotesToWhiteboard);
 }
@@ -43,3 +50,5 @@ exports.getExportButtonLocator = getExportButtonLocator;
 exports.getExportPlainTextLocator = getExportPlainTextLocator;
 exports.getMoveToWhiteboardLocator = getMoveToWhiteboardLocator;
 exports.getSharedNotesUserWithoutPermission = getSharedNotesUserWithoutPermission;
+exports.getExportHTMLLocator = getExportHTMLLocator;
+exports.getExportEtherpadLocator = getExportEtherpadLocator;

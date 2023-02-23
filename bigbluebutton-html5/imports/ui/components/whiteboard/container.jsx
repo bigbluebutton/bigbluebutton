@@ -85,6 +85,7 @@ export default withTracker(({
   svgUri,
   podId,
   presentationId,
+  darkTheme,
 }) => {
   const shapes = getShapes(whiteboardId, curPageId, intl);
   const curPres = getCurrentPres();
@@ -131,5 +132,6 @@ export default withTracker(({
     numberOfSlides: PresentationToolbarService.getNumberOfSlides(podId, presentationId),
     notifyNotAllowedChange,
     notifyShapeNumberExceeded,
+    darkTheme,
   };
 })(WhiteboardContainer);

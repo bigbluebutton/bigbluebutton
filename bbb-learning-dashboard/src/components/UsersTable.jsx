@@ -253,7 +253,7 @@ class UsersTable extends React.Component {
                         </button>
                         { Object.values(user.intIds || {}).map((intId, index) => (
                           <>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                            <p className="text-xs text-gray-700 dark:text-gray-400">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-4 w-4 inline"
@@ -279,7 +279,7 @@ class UsersTable extends React.Component {
                             </p>
                             { intId.leftOn > 0
                               ? (
-                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                <p className="text-xs text-gray-700 dark:text-gray-400">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="h-4 w-4 inline"
