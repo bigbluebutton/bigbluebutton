@@ -1,5 +1,4 @@
 import * as React from "react";
-import ReactDOM from 'react-dom';
 import _ from "lodash";
 import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
