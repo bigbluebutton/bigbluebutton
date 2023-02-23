@@ -17,6 +17,7 @@ import handleNotifyAllInMeetingEvtMsg from './handlers/handleNotifyAllInMeetingE
 import handleNotifyUserInMeeting from './handlers/handleNotifyUserInMeeting';
 import handleNotifyRoleInMeeting from './handlers/handleNotifyRoleInMeeting';
 import handleBroadcastPushLayout from './handlers/broadcastPushLayout';
+import handleEndMeetingPrompt from './handlers/endMeetingPrompt';
 
 RedisPubSub.on('MeetingCreatedEvtMsg', handleMeetingCreation);
 RedisPubSub.on('SyncGetMeetingInfoRespMsg', handleGetAllMeetings);
@@ -37,3 +38,4 @@ RedisPubSub.on('NotifyAllInMeetingEvtMsg', handleNotifyAllInMeetingEvtMsg);
 RedisPubSub.on('NotifyUserInMeetingEvtMsg', handleNotifyUserInMeeting);
 RedisPubSub.on('NotifyRoleInMeetingEvtMsg', handleNotifyRoleInMeeting);
 RedisPubSub.on('BroadcastPushLayoutEvtMsg', handleBroadcastPushLayout);
+RedisPubSub.on('EndMeetingPromptEvtMsg', handleEndMeetingPrompt);
