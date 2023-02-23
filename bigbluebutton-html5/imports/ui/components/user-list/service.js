@@ -19,6 +19,7 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
+import { indexOf, without } from '/imports/utils/array-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -597,14 +598,14 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
     makeCall('createGroupChat', receiver);
   } else {
     const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (_.indexOf(startedChats, chat.chatId) < 0) {
+    if (indexOf(startedChats, chat.chatId) < 0) {
       startedChats.push(chat.chatId);
       Session.set(STARTED_CHAT_LIST_KEY, startedChats);
     }
 
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-    if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
-      Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
+    if (indexOf(currentClosedChats, chat.chatId) > -1) {
+      Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chat.chatId));
     }
   }
 };

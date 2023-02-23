@@ -14,7 +14,19 @@ export const partition = (arr, criteria) => {
   ];
 };
 
+export const indexOf = (arr, value) => {
+  return arr ? arr.findIndex((item) => item === value) : -1;
+}
+
+export const without = (arr, value) => {
+  return arr.filter(function(item) {
+    return item !== value;
+  });
+}
+
 export default {
   range,
   partition,
+  indexOf,
+  without,
 };
