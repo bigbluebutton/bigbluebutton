@@ -154,6 +154,8 @@ exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.liveTranscritpion = 'div[data-test="liveTranscription"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
+exports.propagateLayout = 'li[data-test="propagateLayout"]';
+exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';

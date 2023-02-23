@@ -261,6 +261,12 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.shareExternalVideoBtn);
   }
 
+  async layouts() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.propagateLayout);
+    await this.modPage.wasRemoved(e.layoutModal);
+  }
+
   async learningDashboard() {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.wasRemoved(e.learningDashboard);

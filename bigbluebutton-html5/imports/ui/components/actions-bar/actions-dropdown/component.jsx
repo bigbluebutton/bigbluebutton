@@ -225,18 +225,19 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
         onClick: amIPresenter ? setMeetingLayout : setPushLayout,
+        dataTest: 'propagateLayout',
       });
-      
     }
 
     if (isLayoutsEnabled()){
-    actions.push({
-      icon: 'send',
-      label: intl.formatMessage(intlMessages.layoutModal),
-      key: 'layoutModal',
-      onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
-    });
-  }
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.layoutModal),
+        key: 'layoutModal',
+        onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+        dataTest: 'layoutModal',
+      });
+    }
     
     return actions;
   }

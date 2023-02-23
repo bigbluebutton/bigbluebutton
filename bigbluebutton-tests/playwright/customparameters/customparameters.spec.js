@@ -240,6 +240,12 @@ test.describe.parallel('CustomParameters', () => {
       await customParam.externalVideos();
     });
 
+    test('Layouts', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.layouts });
+      await customParam.layouts();
+    });
+
     test('Learning Dashboard', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.learningDashboard });
