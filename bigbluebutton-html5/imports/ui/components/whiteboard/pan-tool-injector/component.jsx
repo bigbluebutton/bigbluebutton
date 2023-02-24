@@ -29,7 +29,7 @@ class PanToolInjector extends React.Component {
     ) {
       this.addPanTool();
       if (panSelected) {
-        tldrawAPI?.selectTool('draw');
+        // tldrawAPI?.selectTool('draw');
         setIsPanning(true);
         setPanSelected(true);
       } else {
