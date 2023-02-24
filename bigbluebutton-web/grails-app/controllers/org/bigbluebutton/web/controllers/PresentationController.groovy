@@ -126,6 +126,14 @@ class PresentationController {
       return
     }
 
+    if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'presentation in disabled features'
+      return
+    }
+
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
     def podId = params.pod_id
 
@@ -158,18 +166,6 @@ class PresentationController {
       log.warn "Upload failed. File Empty."
       uploadFailReasons.add("uploaded_file_empty")
       uploadFailed = true
-    }
-
-    if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
-      log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
-      presentationService.sendDocConversionFailedOnDisabledPresentation(
-              temporaryPresentationId, presFilename, meetingId, "PRESENTATION_DISABLED",
-              "Presentation feature is disabled for this meeting"
-      )
-      response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
-      response.outputStream << 'presentation in disabled features'
-      return
     }
 
     if (presFilename == "" || filenameExt == "") {

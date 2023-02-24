@@ -27,8 +27,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationPageConversionStartedSysMsgHdlr
   with PresentationConversionEndedSysMsgHdlr
   with PresentationUploadedFileTimeoutErrorPubMsgHdlr
-  with PresentationHasInvalidMimeTypeErrorPubMsgHdlr
-  with PresentationDisabledErrorPubMsgHdlr {
+  with PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

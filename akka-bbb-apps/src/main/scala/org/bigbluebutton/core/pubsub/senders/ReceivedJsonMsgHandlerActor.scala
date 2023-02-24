@@ -290,8 +290,6 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationUploadedFileTooLargeErrorSysPubMsg](envelope, jsonNode)
       case PresentationHasInvalidMimeTypeErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationHasInvalidMimeTypeErrorSysPubMsg](envelope, jsonNode)
-      case PresentationDisabledErrorSysPubMsg.NAME =>
-        routeGenericMsg[PresentationDisabledErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>

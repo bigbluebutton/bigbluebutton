@@ -64,16 +64,7 @@ public class SlidesGenerationProgressNotifier {
     );
     messagingService.sendDocConversionMsg(invalidMimeType);
   }
-  public void sendPresentationDisabledMessage(String temporaryPresentationId,
-                                                  String filename, String meetingId,
-                                                  String messageKey, String message) {
-    PresentationDisabled presentationDisabled = new PresentationDisabled(
-            temporaryPresentationId,
-            filename, meetingId,
-            messageKey, message
-            );
-    messagingService.sendDocConversionMsg(presentationDisabled);
-  }
+
   public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
     UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
             pres.getPodId(),

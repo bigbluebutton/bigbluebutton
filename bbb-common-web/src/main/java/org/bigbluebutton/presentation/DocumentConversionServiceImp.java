@@ -136,12 +136,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     notifier.sendInvalidMimeTypeMessage(pres, fileMime, fileExtension);
   }
 
-  public void sendDocConversionFailedOnDisabledPresentation(
-          String temporaryPresentationId, String filename, String meetingId,
-          String messageKey, String message) {
-    notifier.sendPresentationDisabledMessage(temporaryPresentationId, filename, meetingId, messageKey, message);
-  }
-
   private void sendDocConversionRequestReceived(UploadedPresentation pres) {
       if (! pres.isConversionStarted()) {
           Map<String, Object> logData = new HashMap<String, Object>();

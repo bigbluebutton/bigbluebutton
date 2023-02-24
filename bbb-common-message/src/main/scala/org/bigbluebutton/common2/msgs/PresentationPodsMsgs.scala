@@ -182,21 +182,6 @@ case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
     fileExtension:         String,
 )
 
-
-object PresentationDisabledErrorSysPubMsg { val NAME = "PresentationDisabledErrorSysPubMsg" }
-case class PresentationDisabledErrorSysPubMsg(
-    header: BbbClientMsgHeader,
-    body:   PresentationDisabledErrorSysPubMsgBody
-) extends StandardMsg
-case class PresentationDisabledErrorSysPubMsgBody(
-    meetingId:               String,
-    presentationName:        String,
-    temporaryPresentationId: String,
-    messageKey:              String,
-    message:                 String,
-)
-
-
 object PresentationUploadedFileTimeoutErrorSysPubMsg { val NAME = "PresentationUploadedFileTimeoutErrorSysPubMsg" }
 case class PresentationUploadedFileTimeoutErrorSysPubMsg(
     header: BbbClientMsgHeader,
@@ -274,13 +259,6 @@ case class PresentationHasInvalidMimeTypeErrorEvtMsgBody(podId: String, meetingI
                                                           temporaryPresentationId: String, presentationId: String,
                                                           messageKey: String, fileMime: String, fileExtension: String,
                                                         )
-
-object PresentationDisabledErrorEvtMsg { val NAME = "PresentationDisabledErrorEvtMsg" }
-case class PresentationDisabledErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationDisabledErrorEvtMsgBody) extends BbbCoreMsg
-case class PresentationDisabledErrorEvtMsgBody( meetingId: String, presentationName: String,
-                                                    temporaryPresentationId: String, messageKey: String,
-                                                    message: String,
-                                                  )
 
 object PresentationUploadedFileTimeoutErrorEvtMsg { val NAME = "PresentationUploadedFileTimeoutErrorEvtMsg" }
 case class PresentationUploadedFileTimeoutErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileTimeoutErrorEvtMsgBody) extends BbbCoreMsg

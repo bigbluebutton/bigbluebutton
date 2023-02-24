@@ -281,7 +281,6 @@
     "app.presentationUploder.conversion.generatingSvg": "Generating SVG images ...",
     "app.presentationUploder.conversion.pageCountExceeded": "Number of pages exceeded maximum of {0}",
     "app.presentationUploder.conversion.invalidMimeType": "Invalid format detected (extension={0}, content type={1})",
-    "app.presentationUploder.conversion.presentationAreaDisabled": "Presentation area is disabled",
     "app.presentationUploder.conversion.conversionTimeout": "Slide {0} could not be processed within {1} attempts.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Failed to process office document. Please upload a PDF instead.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "Failed to process office document. Please upload a PDF instead.",

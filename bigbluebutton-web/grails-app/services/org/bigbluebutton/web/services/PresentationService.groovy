@@ -96,13 +96,6 @@ class PresentationService {
 		documentConversionService.sendDocConversionFailedOnMimeType(pres, fileMime, fileExtension)
 	}
 
-	def sendDocConversionFailedOnDisabledPresentation(String temporaryPresentationId,
-														  String filename, String meetingId,
-													      String messageKey, String message) {
-		documentConversionService.sendDocConversionFailedOnDisabledPresentation(
-				temporaryPresentationId, filename, meetingId, messageKey, message)
-	}
-
 	def showSvgImage(String conf, String room, String presentationName, String id) {
 		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
 	}

@@ -61,10 +61,6 @@ const intlMessages = defineMessages({
 		id: 'app.presentationUploder.conversion.invalidMimeType',
 		description: 'warns user that the file\'s mime type is not supported or it doesn\'t match the extension',
 	},
-	PRESENTATION_AREA_DISABLED: {
-		id: 'app.presentationUploder.conversion.presentationAreaDisabled',
-		description: 'warns user that the presentation area is disabled and therefore nothing can be uploaded',
-	},
 	PAGE_COUNT_EXCEEDED: {
 		id: 'app.presentationUploder.conversion.pageCountExceeded',
 		description: 'warns the user that the conversion failed because of the page count',
@@ -162,8 +158,6 @@ function renderPresentationItemStatus(item, intl) {
 			case 'IVALID_MIME_TYPE':
 				constraint['0'] = item.conversion.fileExtension;
 				constraint['1'] = item.conversion.fileMime;
-				break;
-			case 'PRESENTATION_AREA_DISABLED':
 				break;
 			default:
 				break;
