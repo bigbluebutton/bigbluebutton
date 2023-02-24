@@ -255,9 +255,9 @@ notCalled() {
 # apply-config.sh.
 #
 # By creating apply-config.sh manually, it will not be overwritten by any package updates.  You can call functions in this
-# library for commong BigBlueButton configuration tasks.
+# library for common BigBlueButton configuration tasks.
 
-## Start Copying HEre
+## Start Copying Here
   cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
 #!/bin/bash
 
