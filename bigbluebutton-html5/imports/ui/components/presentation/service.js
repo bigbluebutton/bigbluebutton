@@ -92,7 +92,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const yesNoPatt = /.*(yes\/no|no\/yes).*/gm;
   const hasYN = safeMatch(yesNoPatt, content, false);
 
-  const pollRegex = /[1-9A-Ia-i][.)].*/g;
+  const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
   const optionsWithLabels = [];
 

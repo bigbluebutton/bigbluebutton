@@ -1,22 +1,18 @@
-// const util = require('node:util');
-
 const { expect } = require("@playwright/test");
 
 const Page = require('../core/page');
 const parameters = require('../core/parameters');
 const { apiCall, createMeeting } = require('../core/helpers');
-const e = require('../core/elements');
 
 function getMeetings() {
   return apiCall('getMeetings', {});
 }
 
 function getMeetingInfo(meetingID) {
-  return apiCall('getMeetingInfo', {meetingID: meetingID});
+  return apiCall('getMeetingInfo', { meetingID: meetingID });
 }
 
 class API {
-
   constructor(browser, context, page) {
     this.modPage = new Page(browser, page);
     this.browser = browser;
@@ -46,22 +42,25 @@ class API {
      * should ensure that the API will report hasJoinedVoice?
      */
 
-    const expectedUsers = [expect.objectContaining({fullName: ['Moderator'],
-						    role: ['MODERATOR'],
-						    isPresenter: ['true'],
-						   }),
-			   expect.objectContaining({fullName: ['Attendee'],
-						    role: ['VIEWER'],
-						    isPresenter: ['false'],
-						   })
-			  ];
-    const expectedMeeting = {meetingName : [meetingId],
-			     running : ['true'],
-			     participantCount : ['2'],
-			     moderatorCount : ['1'],
-			     isBreakout: ['false'],
-			     attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
-			    };
+    const expectedUsers = [expect.objectContaining({
+      fullName: ['Moderator'],
+      role: ['MODERATOR'],
+      isPresenter: ['true'],
+    }),
+    expect.objectContaining({
+      fullName: ['Attendee'],
+      role: ['VIEWER'],
+      isPresenter: ['false'],
+    })
+    ];
+    const expectedMeeting = {
+      meetingName: [meetingId],
+      running: ['true'],
+      participantCount: ['2'],
+      moderatorCount: ['1'],
+      isBreakout: ['false'],
+      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
+    };
 
     /* check that this meeting is in the server's list of all meetings */
     const response = await getMeetings();
@@ -90,22 +89,25 @@ class API {
      * should ensure that the API will report hasJoinedVoice?
      */
 
-    const expectedUsers = [expect.objectContaining({fullName: ['Moderator'],
-						    role: ['MODERATOR'],
-						    isPresenter: ['true'],
-						   }),
-			   expect.objectContaining({fullName: ['Attendee'],
-						    role: ['VIEWER'],
-						    isPresenter: ['false'],
-						   })
-			  ];
-    const expectedMeeting = {meetingName : [meetingId],
-			     running : ['true'],
-			     participantCount : ['2'],
-			     moderatorCount : ['1'],
-			     isBreakout: ['false'],
-			     attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
-			    };
+    const expectedUsers = [expect.objectContaining({
+      fullName: ['Moderator'],
+      role: ['MODERATOR'],
+      isPresenter: ['true'],
+    }),
+    expect.objectContaining({
+      fullName: ['Attendee'],
+      role: ['VIEWER'],
+      isPresenter: ['false'],
+    })
+    ];
+    const expectedMeeting = {
+      meetingName: [meetingId],
+      running: ['true'],
+      participantCount: ['2'],
+      moderatorCount: ['1'],
+      isBreakout: ['false'],
+      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
+    };
 
     /* check that we can retrieve this meeting by its meetingId */
     const response2 = await getMeetingInfo(meetingId);

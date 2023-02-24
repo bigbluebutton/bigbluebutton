@@ -727,8 +727,7 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
       for (GuestsStatus guest : message.guests) {
-        User user = m.getUserById(guest.userId);
-        if (user != null) user.setGuestStatus(guest.status);
+        m.setGuestStatusWithId(guest.userId, guest.status);
       }
     }
 

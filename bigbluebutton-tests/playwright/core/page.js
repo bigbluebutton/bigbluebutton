@@ -24,26 +24,26 @@ function formatWithCss(CONSOLE_options, ...args) {
   // See https://console.spec.whatwg.org/ sections 2.2.1 and 2.3.4
 
   let split_arg0 = args[0].split("%");
-  for (let i=1, j=1; i<split_arg0.length; i++, j++) {
+  for (let i = 1, j = 1; i < split_arg0.length; i++, j++) {
     if (split_arg0[i].startsWith('c')) {
       split_arg0[i] = 's' + split_arg0[i].substr(1);
       const styles = args[j].split(';');
       args[j] = '';
       for (const style of styles) {
-	const stdStyle = style.trim().toLowerCase();
-	if (stdStyle.startsWith('color:') && CONSOLE_options.colorize) {
-	  const color = stdStyle.substr(6).trim();
-	  args[j] = chalk.keyword(color)._styler.open;
-	} else if (stdStyle.startsWith('font-size:') && CONSOLE_options.drop_references) {
+        const stdStyle = style.trim().toLowerCase();
+        if (stdStyle.startsWith('color:') && CONSOLE_options.colorize) {
+          const color = stdStyle.substr(6).trim();
+          args[j] = chalk.keyword(color)._styler.open;
+        } else if (stdStyle.startsWith('font-size:') && CONSOLE_options.drop_references) {
           // For Chrome, we "drop references" by discarding everything after a font size change
-	  split_arg0.length = i;
-	  args.length = j;
-	}
+          split_arg0.length = i;
+          args.length = j;
+        }
       }
     } else if (split_arg0[i] == "") {
       // format is "%%", so don't do special processing for
       // split_arg0[i+1], and only increment i, not j
-      i ++;  // NOSONAR
+      i++;  // NOSONAR
     }
   }
   args[0] = split_arg0.join('%');
@@ -107,16 +107,16 @@ class Page {
     if (env.CONSOLE !== undefined) {
       const CONSOLE_strings = env.CONSOLE.split(',').map(opt => opt.trim().toLowerCase());
       const CONSOLE_options = {
-	colorize: CONSOLE_strings.includes('color') || CONSOLE_strings.includes('colour'),
-	drop_references: CONSOLE_strings.includes('norefs'),
-	drop_timestamps: CONSOLE_strings.includes('nots'),
-	line_label: CONSOLE_strings.includes('label') ? this.username + " " : undefined,
-	noClientLogger: CONSOLE_strings.includes('nocl') || CONSOLE_strings.includes('noclientlogger'),
+        colorize: CONSOLE_strings.includes('color') || CONSOLE_strings.includes('colour'),
+        drop_references: CONSOLE_strings.includes('norefs'),
+        drop_timestamps: CONSOLE_strings.includes('nots'),
+        line_label: CONSOLE_strings.includes('label') ? this.username + " " : undefined,
+        noClientLogger: CONSOLE_strings.includes('nocl') || CONSOLE_strings.includes('noclientlogger'),
       };
       this.page.on('console', async (msg) => console.log(await console_format(msg, CONSOLE_options)));
     }
 
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter);
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter, customMeetingId);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
@@ -127,15 +127,15 @@ class Page {
     if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
   }
 
-  async handleDownload(selector, testInfo, timeout = ELEMENT_WAIT_TIME) {
+  async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
     const [download] = await Promise.all([
       this.page.waitForEvent('download', { timeout }),
-      this.waitAndClick(selector, timeout),
+      locator.click({ timeout }),
     ]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath, 'utf8');
-    await testInfo.attach('downloaded', { body: download });
+    await testInfo.attach('downloaded', { path: filePath });
 
     return {
       download,
@@ -143,7 +143,7 @@ class Page {
     }
   }
 
-  async handleNewTab(selector, context){
+  async handleNewTab(selector, context) {
     const [newPage] = await Promise.all([
       context.waitForEvent('page'),
       this.waitAndClick(selector),
@@ -201,7 +201,7 @@ class Page {
   }
 
   async getCopiedText(context) {
-    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL});
+    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
     return this.page.evaluate(async () => navigator.clipboard.readText());
   }
 
@@ -212,6 +212,15 @@ class Page {
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
     await this.page.waitForSelector(selector, { timeout });
+  }
+
+  async waitForSelectorDetached(selector, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.waitForSelector(selector, { state: 'detached', timeout });
+  }
+
+  async getElementBoundingBox(selector) {
+    const element = await this.page.$(selector);
+    return element.boundingBox();
   }
 
   async waitUntilHaveCountSelector(selector, count, timeout = ELEMENT_WAIT_TIME) {
@@ -295,7 +304,7 @@ class Page {
   async up(key) {
     await this.page.keyboard.up(key);
   }
-  
+
   async mouseDoubleClick(x, y) {
     await this.page.mouse.dblclick(x, y);
   }
@@ -310,7 +319,7 @@ class Page {
   }
 
   async hasValue(selector, value) {
-    const locator  = await this.page.locator(selector);
+    const locator = await this.page.locator(selector);
     await expect(locator).toHaveValue(value);
   }
 
@@ -324,6 +333,13 @@ class Page {
 
   async fontSizeCheck(selector, size) {
     await expect(await this.page.$eval(selector, e => getComputedStyle(e).fontSize)).toBe(size);
+  }
+
+  async comparingSelectorsBackgroundColor(selector1, selector2) {
+    const getBackgroundColorComputed = (locator) => locator.evaluate((elem) => getComputedStyle(elem).backgroundColor);
+    const avatarInToastElementColor = this.page.locator(selector1);
+    const avatarInUserListColor = this.page.locator(selector2);
+    await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
   }
 }
 

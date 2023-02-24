@@ -1,5 +1,5 @@
 const { test } = require('@playwright/test');
-const { SharedNotes, SharedNotesMultiUsers } = require('./sharednotes');
+const { SharedNotes } = require('./sharednotes');
 
 test.describe.parallel('Shared Notes', () => {
   test('Open Shared notes @ci', async ({ browser, page, context }) => {
@@ -23,7 +23,7 @@ test.describe.parallel('Shared Notes', () => {
     // https://docs.bigbluebutton.org/2.5/release-tests.html#exporting-shared-notes
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initModPage(page);
-    await sharedNotes.exportSharedNotes(page);
+    await sharedNotes.exportSharedNotes(testInfo);
   });
   test('Convert notes to whiteboard', async ({ browser, page, context }) => {
     const sharedNotes = new SharedNotes(browser, context);
