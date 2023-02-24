@@ -196,29 +196,33 @@ export default function Whiteboard(props) {
     const toolbar = document.getElementById("TD-PrimaryTools");
     const panBtnClicked = clickedElement?.getAttribute('data-test') === 'panButton'
     || clickedElement?.parentElement?.getAttribute('data-test') === 'panButton';
+    const panButton = document.querySelector('[data-test="panButton"]');
     if (panBtnClicked) {
-      return
-    }
-    
-    if (toolbar?.contains(clickedElement)) {
-      setPanSelected(false);
+      const dataZoom = panButton.getAttribute('data-zoom');
+      if ((dataZoom <= HUNDRED_PERCENT && !fitToWidth)) {
+        return; 
+      }
+      panButton.classList.add('select');
+      panButton.classList.remove('selectOverride');
+      return;
+    } else {
       setIsPanning(false);
+      setPanSelected(false);
+      panButton.classList.add('selectOverride');
+      panButton.classList.remove('select');
     }
   };
 
   React.useEffect(() => {
     const toolbar = document.getElementById("TD-PrimaryTools");
-    
     const handleClick = (evt) => {
       toggleOffCheck(evt);
     };
-    
     toolbar?.addEventListener('click', handleClick);
-    
     return () => {
       toolbar?.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [tldrawAPI]);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -710,10 +714,6 @@ export default function Whiteboard(props) {
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
     setCurrentTool('select');
-    const toolbar = document.getElementById("TD-PrimaryTools");
-    if (toolbar) {
-      toolbar?.addEventListener('click', toggleOffCheck);
-    }
 
     if (menu) {
       const MENU_OFFSET = `48px`;

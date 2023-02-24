@@ -28,6 +28,14 @@ class PanToolInjector extends React.Component {
       || prevProps.panSelected !== panSelected
     ) {
       this.addPanTool();
+      if (panSelected) {
+        tldrawAPI?.selectTool('draw');
+        setIsPanning(true);
+        setPanSelected(true);
+      } else {
+        setIsPanning(false);
+        setPanSelected(false);
+      }
     }
   }
 
@@ -49,8 +57,6 @@ class PanToolInjector extends React.Component {
       if (panSelected) {
         classList.add('overrideSelect');
         tldrawAPI?.selectTool('draw');
-        setIsPanning(true);
-        setPanSelected(true);
       } else {
         classList.remove('overrideSelect');
       }
@@ -81,20 +87,26 @@ class PanToolInjector extends React.Component {
           key={'bbb-panBtn'}
           role="button"
           data-test="panButton"
+          data-zoom={zoomValue}
+          className={"overrideSelect"}
           color="light"
           icon="hand"
           size="md"
           aria-label={label}
           disabled={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
           onClick={() => {
-            if (!panSelected) {
-              setPanSelected(true);
-              setIsPanning(true);
+            setPanSelected(true);
+            setIsPanning(true);
+            if (!(zoomValue <= HUNDRED_PERCENT && !fitToWidth)) {
+              const panButton = document.querySelector('[data-test="panButton"]');
+              if (panButton) {
+                panButton.classList.remove('selectOverride');
+                panButton.classList.add('select');
+              }
             }
           }}
           label={label}
           hideLabel
-          selected={panSelected || isPanning}
         />,
         container
       );
