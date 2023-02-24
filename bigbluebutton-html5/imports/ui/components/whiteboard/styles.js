@@ -4,7 +4,7 @@ import {
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  fontSizeLarger
+  fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -31,12 +31,6 @@ const PanTool = styled(Button)`
   &:focus {
     background-color: var(--colors-hover);
   }
-
-  ${({ selected }) => selected && ` {
-      background-color: var(--colors-selected) !important;
-      color: ${colorWhite};
-    }
-  `}
 `;
 
 export default {
