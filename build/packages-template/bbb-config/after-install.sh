@@ -167,8 +167,10 @@ removeOldOverride bbb-transcode-akka
 
 
 # re-create the symlink for apply-lib.sh to ensure the latest version is present
-if [ -f /usr/lib/bbb-conf/apply-lib.sh ] && [ -f /etc/bigbluebutton/bbb-conf/apply-lib.sh ]; then
+if [ -f /etc/bigbluebutton/bbb-conf/apply-lib.sh ]; then
   rm /etc/bigbluebutton/bbb-conf/apply-lib.sh
+fi
+if [ -f /usr/lib/bbb-conf/apply-lib.sh ]; then
   ln -s /usr/lib/bbb-conf/apply-lib.sh /etc/bigbluebutton/bbb-conf/apply-lib.sh
 fi
 
