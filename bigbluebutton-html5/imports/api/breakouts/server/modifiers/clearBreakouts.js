@@ -8,7 +8,7 @@ export default async function clearBreakouts(breakoutId) {
     };
 
     try {
-      const numberAffected = await Breakouts.remove(selector);
+      const numberAffected = await Breakouts.removeAsync(selector);
 
       if (numberAffected) {
         Logger.info(`Cleared Breakouts (${breakoutId})`);
@@ -18,7 +18,7 @@ export default async function clearBreakouts(breakoutId) {
     }
   } else {
     try {
-      const numberAffected = await Breakouts.remove({});
+      const numberAffected = await Breakouts.removeAsync({});
       if (numberAffected) {
         Logger.info('Cleared Breakouts (all)');
       }
