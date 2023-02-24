@@ -64,8 +64,8 @@ export const PanToolInjector = (props) => {
         size="md"
         aria-label={label}
         disabled={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
-        onClick={() => {
-          if (!panSelected) {
+        onClick={(event) => {
+          if (!panSelected && !event.currentTarget.disabled) {
             setPanSelected(true);
             setIsPanning(true);
           }
