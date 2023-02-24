@@ -102,7 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
         <property name="captionsDir" value="${captionsDir}"/>
-        <property name="allowAllRecordingsRetrieval" value="${allowAllRecordingsRetrieval}"/>
+        <property name="allowFetchAllRecordings" value="${allowFetchAllRecordings}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="xmlService" ref="xmlService" />
         <property name="presentationBaseDir" value="${presentationDir}"/>
