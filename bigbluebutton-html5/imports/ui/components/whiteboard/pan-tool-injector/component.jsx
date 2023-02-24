@@ -5,19 +5,44 @@ import Styled from '../styles';
 
 const DEFAULT_TOOL_COUNT = 9;
 
-export const PanToolInjector = (props) => {
-  const {
-    zoomValue,
-    fitToWidth,
-    isPanning,
-    setIsPanning,
-    formatMessage,
-    tldrawAPI,
-    panSelected,
-    setPanSelected
-  } = props;
+class PanToolInjector extends React.Component {
+  componentDidMount() {
+    this.addPanTool();
+  }
 
-  React.useEffect(() => {
+  componentDidUpdate(prevProps) {
+    const {
+      zoomValue,
+      fitToWidth,
+      isPanning,
+      setIsPanning,
+      formatMessage,
+      tldrawAPI,
+      panSelected,
+      setPanSelected
+    } = this.props;
+    if (prevProps.zoomValue !== zoomValue
+      || prevProps.fitToWidth !== fitToWidth
+      || prevProps.isPanning !== isPanning
+      || prevProps.tldrawAPI !== tldrawAPI
+      || prevProps.panSelected !== panSelected
+    ) {
+      this.addPanTool();
+    }
+  }
+
+  addPanTool() {
+    const {
+      zoomValue,
+      fitToWidth,
+      isPanning,
+      setIsPanning,
+      formatMessage,
+      tldrawAPI,
+      panSelected,
+      setPanSelected
+    } = this.props;
+
     const tools = document.querySelectorAll('[id*="TD-PrimaryTools-"]');
     tools.forEach(tool => {
       const classList = tool.firstElementChild.classList;
@@ -30,60 +55,58 @@ export const PanToolInjector = (props) => {
         classList.remove('overrideSelect');
       }
     });
-  }, [panSelected]);
 
-  React.useEffect(() => {
     if (zoomValue === HUNDRED_PERCENT) {
       setPanSelected(false);
       setIsPanning(false);
       tldrawAPI?.selectTool('select');
     }
-  }, [zoomValue]);
 
-  const parentElement = document.getElementById('TD-PrimaryTools');
-  if (!parentElement) return null;
+    const parentElement = document.getElementById('TD-PrimaryTools');
+    if (!parentElement) return;
 
-  if (parentElement?.childElementCount === DEFAULT_TOOL_COUNT) {
-    parentElement?.removeChild(parentElement.children[1]);
+    if (parentElement.childElementCount === DEFAULT_TOOL_COUNT) {
+      parentElement.removeChild(parentElement.children[1]);
+    }
+
+    if (parentElement.childElementCount < DEFAULT_TOOL_COUNT) {
+      const label = formatMessage({
+        id: 'app.whiteboard.toolbar.tools.hand',
+        description: 'presentation toolbar pan label',
+      });
+      const container = document.createElement('span');
+      parentElement.appendChild(container);
+      ReactDOM.render(
+        <Styled.PanTool
+          key={'bbb-panBtn'}
+          role="button"
+          data-test="panButton"
+          color="light"
+          icon="hand"
+          size="md"
+          aria-label={label}
+          disabled={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
+          onClick={() => {
+            if (!panSelected) {
+              setPanSelected(true);
+              setIsPanning(true);
+            }
+          }}
+          label={label}
+          hideLabel
+          selected={panSelected || isPanning}
+        />,
+        container
+      );
+      const lastChild = parentElement.lastChild;
+      const secondChild = parentElement.children[1];
+      parentElement.insertBefore(lastChild, secondChild);
+    }
   }
 
-  if (parentElement?.childElementCount < DEFAULT_TOOL_COUNT) {
-    const label = formatMessage({
-      id: 'app.whiteboard.toolbar.tools.hand',
-      description: 'presentation toolbar pan label',
-    });
-    const container = document.createElement('span');
-    parentElement?.appendChild(container);
-    ReactDOM.render(
-      <Styled.PanTool
-        key={'bbb-panBtn'}
-        role="button"
-        data-test="panButton"
-        color="light"
-        icon="hand"
-        size="md"
-        aria-label={label}
-        disabled={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
-        onClick={(event) => {
-          if (!panSelected && !event.currentTarget.disabled) {
-            setPanSelected(true);
-            setIsPanning(true);
-          }
-        }}
-        label={label}
-        hideLabel
-        selected={panSelected || isPanning}
-      />,
-      container
-    );
-    const lastChild = parentElement?.lastChild;
-    const secondChild = parentElement?.children[1];
-    parentElement.insertBefore(lastChild, secondChild);
+  render() {
+    return null;
   }
+}
 
-  return null;
-};
-
-export default {
-  PanToolInjector
-};
+export default PanToolInjector;

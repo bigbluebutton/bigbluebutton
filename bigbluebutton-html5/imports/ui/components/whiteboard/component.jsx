@@ -11,7 +11,7 @@ import KEY_CODES from '/imports/utils/keyCodes';
 import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
-import { PanToolInjector } from './pan-tool-injector/component';
+import PanToolInjector from './pan-tool-injector/component';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -194,18 +194,15 @@ export default function Whiteboard(props) {
   const toggleOffCheck = (evt) => {
     const clickedElement = evt.target;
     const toolbar = document.getElementById("TD-PrimaryTools");
+    const panBtnClicked = clickedElement?.getAttribute('data-test') === 'panButton'
+    || clickedElement?.parentElement?.getAttribute('data-test') === 'panButton';
+    if (panBtnClicked) {
+      return
+    }
     
     if (toolbar?.contains(clickedElement)) {
       setPanSelected(false);
       setIsPanning(false);
-    }
-    
-    const panBtnClicked = clickedElement?.getAttribute('data-test') === 'panButton'
-      || clickedElement?.parentElement?.getAttribute('data-test') === 'panButton';
-    
-    if (panBtnClicked && zoomValue <= HUNDRED_PERCENT && !fitToWidth) {
-      setPanSelected(true);
-      setIsPanning(true);
     }
   };
 
@@ -1074,6 +1071,7 @@ export default function Whiteboard(props) {
             zoomValue,
             panSelected,
             setPanSelected,
+            currentTool,
           }}
           formatMessage={intl?.formatMessage}
         />
