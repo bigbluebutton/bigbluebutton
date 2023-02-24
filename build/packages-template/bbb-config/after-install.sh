@@ -140,9 +140,10 @@ else
   sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf
 fi
 
+mkdir -p /etc/bigbluebutton/nginx
+
 # symlink default bbb nginx config from package if it does not exist
 if [ ! -e /etc/bigbluebutton/nginx/include_default.nginx ] ; then
-  mkdir -p /etc/bigbluebutton/nginx
   ln -s /usr/share/bigbluebutton/include_default.nginx /etc/bigbluebutton/nginx/include_default.nginx
 fi
 
@@ -164,6 +165,12 @@ removeOldOverride bbb-apps-akka
 removeOldOverride bbb-fsesl-akka
 removeOldOverride bbb-transcode-akka
 
+
+# re-create the symlink for apply-lib.sh to ensure the latest version is present
+if [ -f /usr/lib/bbb-conf/apply-lib.sh ] && [ -f /etc/bigbluebutton/bbb-conf/apply-lib.sh ]; then
+  rm /etc/bigbluebutton/bbb-conf/apply-lib.sh
+  ln -s /etc/bigbluebutton/bbb-conf/apply-lib.sh /usr/lib/bbb-conf/apply-lib.sh
+fi
 
 # Load the overrides
 systemctl daemon-reload
