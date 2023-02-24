@@ -190,6 +190,25 @@ export default function Whiteboard(props) {
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const setSafeTLDrawAPI = (api) => {
+    if (isMountedRef.current) {
+      setTLDrawAPI(api);
+    }
+  };
+
+  const setSafeCurrentTool = (tool) => {
+    if (isMountedRef.current) {
+      setCurrentTool(tool);
+    }
+  };
 
   const toggleOffCheck = (evt) => {
     const clickedElement = evt.target;
@@ -713,7 +732,7 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
-    setCurrentTool('select');
+    setSafeCurrentTool('select');
 
     if (menu) {
       const MENU_OFFSET = `48px`;
@@ -742,7 +761,7 @@ export default function Whiteboard(props) {
       }
     );
 
-    setTLDrawAPI(app);
+    setSafeTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
     if (!hasWBAccess && !isPresenter) {
