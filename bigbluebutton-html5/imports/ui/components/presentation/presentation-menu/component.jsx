@@ -13,6 +13,8 @@ import deviceInfo from '/imports/utils/deviceInfo';
 
 const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
 
+let firstReact = 0; //To touch TLD popup menus and shapes only once
+
 const intlMessages = defineMessages({
   downloading: {
     id: 'app.presentation.options.downloading',
@@ -261,13 +263,36 @@ const PresentationMenu = (props) => {
           label: formattedDetachedLabel(isPresentationDetached),
           icon: isPresentationDetached ? 'application' : 'rooms',
           onClick: () => {
-            togglePresentationDetached();
+            toggleDetachPresentation();
           },
         },
       );
     }
 
     return menuItems;
+  }
+
+  function toggleDetachPresentation(){
+    if (firstReact == 0){
+      firstReact = 1;
+      tldrawAPI.setSetting('keepStyleMenuOpen', true);
+      tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right');
+      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [1, 1], },
+                             { id: 'textdummy', type: 'text', text: 'text', point: [0, 0], },
+                             { id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], size: [1, 1], });
+      const ms = 50; // a dirty workaround...
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, ms)
+      }).then(() => {
+        tldrawAPI.setSetting('keepStyleMenuOpen', false);
+        tldrawAPI.delete(['rectdummy', 'textdummy', 'stickydummy']);
+        togglePresentationDetached();
+      });
+    } else {
+      togglePresentationDetached();
+    }
   }
 
   useEffect(() => {
