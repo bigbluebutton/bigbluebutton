@@ -50,8 +50,6 @@ const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
 
-let firstReaction = 0; //counter for touching the tldraw CSS only once
-
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
     #TD-ContextMenu {
@@ -489,15 +487,6 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     presentationWindow.document.addEventListener('mouseup', checkClientBounds);
     presentationWindow.document.addEventListener('visibilitychange', checkVisibility);
-/*
-    if (!isPresentationDetached) {
-      //This is a very early hook. So we 'touch' the styles of style menu and dots menu before detaching window,
-      // so that these styles will be used in the detached window.
-      //These will be turned off in the last process of rendering.
-      tldrawAPI?.setSetting('keepStyleMenuOpen', true);
-      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-    }
-*/
     return () => {
       presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
       presentationWindow.document.removeEventListener('visibilitychange', checkVisibility);
@@ -1004,27 +993,6 @@ export default function Whiteboard(props) {
 
       setCurrentTool(tool);
     }
-    
-    //For touching the tldraw CSS that was not transferred on the window detaching.
-    //Here we need to remove the elements that were invoked in the hook to the API.
-    //This is visited for many times, so we need to be careful not to call too many API (too many stacks error).
-    if (tldrawAPI){
-      if (firstReaction == 0) {
-        if (document.getElementById('TD-Styles-Color-Container') &&
-            tldrawAPI.getShape('rectdummy') &&
-            tldrawAPI.getShape('textdummy') &&
-            tldrawAPI.getShape('stickydummy')) {
-          firstReaction = 1;
-        }
-      } else if (firstReaction == 1) { // When the browser is reloaded, they remain. Need to be solved!
-        firstReaction = 2;
-        tldrawAPI.setSetting('keepStyleMenuOpen', false);
-        tldrawAPI.select('rectdummy').delete();
-        tldrawAPI.select('textdummy').delete();
-        tldrawAPI.select('stickydummy').delete();
-      }
-    }
-    
   };
 
   const onUndo = (app) => {
@@ -1149,7 +1117,7 @@ export default function Whiteboard(props) {
     tldrawAPI.isForcePanning = isPanning;
   }
 
-  if (firstReaction == 2 && (hasWBAccess || isPresenter)) {
+  if (hasWBAccess || isPresenter) {
     if (((props.height < SMALLEST_HEIGHT) || (props.width < SMALLEST_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
     } else {
@@ -1170,19 +1138,6 @@ export default function Whiteboard(props) {
     suppStyle.appendChild(presentationWindow.document.createTextNode(tldgs));
     presentationWindow.document.head.appendChild(suppStyle);
   } 
-  
-  //Hook to "touch" the tldraw CSS, by showing some elements for an instance.
-  React.useEffect(() => {
-    if (firstReaction == 0 && tldrawAPI &&
-      (tldrawAPI?.getShapes().length == 0 ||
-        (tldrawAPI?.getShapes().length == 1 && tldrawAPI?.getShapes()[0].id == "slide-background-shape"))) {
-      tldrawAPI.setSetting('keepStyleMenuOpen', true);
-      tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right');
-      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [100, 100], })
-      tldrawAPI.createShapes({ id: 'textdummy', type: 'text', text: 'text', point: [0, 0], })
-      tldrawAPI.createShapes({ id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], })
-    }
-  }, [tldrawAPI]);
 
   return (
     <>
