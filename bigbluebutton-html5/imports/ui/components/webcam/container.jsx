@@ -59,7 +59,7 @@ const WebcamContainer = ({
 let userWasInBreakout = false;
 
 export default withModalMounter(withTracker((props) => {
-  const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
+  const { hasCurrentPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
@@ -92,7 +92,7 @@ export default withModalMounter(withTracker((props) => {
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
-  data.swapLayout = !hasPresentation || props.isLayoutSwapped;
+  data.swapLayout = !hasCurrentPresentation || props.isLayoutSwapped;
 
   if (data.swapLayout) {
     data.floatingOverlay = true;

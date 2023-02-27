@@ -8,17 +8,18 @@ import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
 import NotesService from '/imports/ui/components/notes/service';
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
-const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const getPresentationInfo = () => {
-  const currentPresentation = Presentations.findOne({
+  const hasCurrent = Presentations.findOne({
     current: true,
   });
 
+  const hasPresentation = Presentations.find({}).count() > 0;
+
   return {
-    current_presentation: (currentPresentation != null),
+    hasCurrent: (hasCurrent != null),
+    hasPresentation,
   };
 };
 

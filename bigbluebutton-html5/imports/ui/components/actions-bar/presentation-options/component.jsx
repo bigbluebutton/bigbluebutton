@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
+import MediaService from '/imports/ui/components/media/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -34,7 +35,7 @@ const PresentationOptionsContainer = ({
   presentationIsOpen,
   setPresentationIsOpen,
   layoutContextDispatch,
-  hasPresentation,
+  hasCurrentPresentation,
   hasExternalVideo,
   hasScreenshare,
 }) => {
@@ -46,7 +47,13 @@ const PresentationOptionsContainer = ({
     buttonType = 'desktop';
   }
 
-  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation;
+  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasCurrentPresentation;
+  const { hasPresentation } = MediaService.getPresentationInfo();
+
+  if (!hasPresentation) {
+    setPresentationIsOpen(layoutContextDispatch, false);
+  }
+
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}

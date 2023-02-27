@@ -5,7 +5,6 @@ import { injectIntl } from 'react-intl';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
 import PresentationService from '/imports/ui/components/presentation/service';
-import Presentations from '/imports/api/presentations';
 import { UsersContext } from '../components-data/users-context/context';
 import ActionsBar from './component';
 import Service from './service';
@@ -63,8 +62,7 @@ export default withTracker(() => ({
   isPollingEnabled: isPollingEnabled(),
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
-  isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
-    { fields: {} }),
+  isThereCurrentPresentation: MediaService.getPresentationInfo().hasCurrent,
   allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

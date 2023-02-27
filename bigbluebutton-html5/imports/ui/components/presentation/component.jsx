@@ -248,18 +248,10 @@ class Presentation extends PureComponent {
       }
     }
 
-    // if (
-    //   prevProps.currentPresentation
-    //   && !currentPresentation
-    //   && presentationIsOpen
-    //   && !presentationChanged) {
-    //   console.log('hiding presentation');
-    //   setPresentationIsOpen(layoutContextDispatch, false);
-    // } else if (!prevProps.currentPresentation
-    //   && currentPresentation && !presentationIsOpen && restoreOnUpdate) {
-    //     console.log('showing presentation');
-    //   setPresentationIsOpen(layoutContextDispatch, true);
-    // }
+    if (!prevProps.currentPresentation
+        && currentPresentation && !presentationIsOpen && restoreOnUpdate) {
+      setPresentationIsOpen(layoutContextDispatch, true);
+    }
 
     if (prevProps?.slidePosition && slidePosition) {
       const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;

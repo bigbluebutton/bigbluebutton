@@ -94,7 +94,7 @@ class ActionsBar extends PureComponent {
             presentationIsOpen={presentationIsOpen}
             setPresentationIsOpen={setPresentationIsOpen}
             layoutContextDispatch={layoutContextDispatch}
-            hasPresentation={isThereCurrentPresentation}
+            hasCurrentPresentation={isThereCurrentPresentation}
             hasExternalVideo={isSharingVideo}
             hasScreenshare={hasScreenshare}
           />
