@@ -10,6 +10,8 @@ import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
 import { presentationMenuHeight, borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
+import Styled from './styles';
+import PanToolInjector from './pan-tool-injector/component';
 
 function usePrevious(value) {
   const ref = React.useRef();
@@ -49,6 +51,7 @@ const SMALLEST_WIDTH = 645;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
 const TOOLBAR_OFFSET = 0;
+const DEFAULT_TOOL_COUNT = 9;
 
 const TldrawGlobalStyle = createGlobalStyle`
   ${({ hideContextMenu }) => hideContextMenu && `
@@ -149,7 +152,6 @@ export default function Whiteboard(props) {
     isRTL,
     fitToWidth,
     zoomValue,
-    isPanning,
     intl,
     svgUri,
     maxStickyNoteLength,
@@ -160,8 +162,8 @@ export default function Whiteboard(props) {
     maxNumberOfAnnotations,
     notifyShapeNumberExceeded,
     darkTheme,
+    isPanning: shortcutPanning,
   } = props;
-
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
     name: "test",
@@ -186,6 +188,60 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [isMoving, setIsMoving] = React.useState(false);
+  const [isPanning, setIsPanning] = React.useState(shortcutPanning);
+  const [panSelected, setPanSelected] = React.useState(isPanning);
+  const isMountedRef = React.useRef(true);
+
+  React.useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const setSafeTLDrawAPI = (api) => {
+    if (isMountedRef.current) {
+      setTLDrawAPI(api);
+    }
+  };
+
+  const setSafeCurrentTool = (tool) => {
+    if (isMountedRef.current) {
+      setCurrentTool(tool);
+    }
+  };
+
+  const toggleOffCheck = (evt) => {
+    const clickedElement = evt.target;
+    const toolbar = document.getElementById("TD-PrimaryTools");
+    const panBtnClicked = clickedElement?.getAttribute('data-test') === 'panButton'
+    || clickedElement?.parentElement?.getAttribute('data-test') === 'panButton';
+    const panButton = document.querySelector('[data-test="panButton"]');
+    if (panBtnClicked) {
+      const dataZoom = panButton.getAttribute('data-zoom');
+      if ((dataZoom <= HUNDRED_PERCENT && !fitToWidth)) {
+        return; 
+      }
+      panButton.classList.add('select');
+      panButton.classList.remove('selectOverride');
+      return;
+    } else {
+      setIsPanning(false);
+      setPanSelected(false);
+      panButton.classList.add('selectOverride');
+      panButton.classList.remove('select');
+    }
+  };
+
+  React.useEffect(() => {
+    const toolbar = document.getElementById("TD-PrimaryTools");
+    const handleClick = (evt) => {
+      toggleOffCheck(evt);
+    };
+    toolbar?.addEventListener('click', handleClick);
+    return () => {
+      toolbar?.removeEventListener('click', handleClick);
+    };
+  }, [tldrawAPI]);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -676,6 +732,8 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = document.getElementById("TD-Styles")?.parentElement;
+    setSafeCurrentTool('select');
+
     if (menu) {
       const MENU_OFFSET = `48px`;
       menu.style.position = `relative`;
@@ -703,7 +761,7 @@ export default function Whiteboard(props) {
       }
     );
 
-    setTLDrawAPI(app);
+    setSafeTLDrawAPI(app);
     props.setTldrawAPI(app);
     // disable for non presenter that doesn't have multi user access
     if (!hasWBAccess && !isPresenter) {
@@ -771,7 +829,7 @@ export default function Whiteboard(props) {
     }
 
     if (reason && isPresenter && slidePosition && (reason.includes("zoomed") || reason.includes("panned"))) {
-      const camera = tldrawAPI.getPageState()?.camera;
+      const camera = tldrawAPI?.getPageState()?.camera;
 
       // limit bounds
       if (tldrawAPI?.viewport.maxX > slidePosition.width) {
@@ -862,8 +920,9 @@ export default function Whiteboard(props) {
 
     if (reason && reason.includes('selected_tool')) {
       const tool = reason.split(':')[1];
-
       setCurrentTool(tool);
+      setPanSelected(false);
+      setIsPanning(false);
     }
   };
 
@@ -1021,6 +1080,21 @@ export default function Whiteboard(props) {
           }}
         />
       </Cursors>
+      {isPresenter && 
+        <PanToolInjector
+          {...{
+            tldrawAPI,
+            fitToWidth,
+            isPanning,
+            setIsPanning,
+            zoomValue,
+            panSelected,
+            setPanSelected,
+            currentTool,
+          }}
+          formatMessage={intl?.formatMessage}
+        />
+      }
     </>
   );
 }
