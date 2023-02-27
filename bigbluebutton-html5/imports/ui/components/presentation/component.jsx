@@ -248,8 +248,7 @@ class Presentation extends PureComponent {
       }
     }
 
-    if (!prevProps.currentPresentation
-        && currentPresentation && !presentationIsOpen && restoreOnUpdate) {
+    if (!prevProps.currentPresentation && currentPresentation && !presentationIsOpen) {
       setPresentationIsOpen(layoutContextDispatch, true);
     }
 
