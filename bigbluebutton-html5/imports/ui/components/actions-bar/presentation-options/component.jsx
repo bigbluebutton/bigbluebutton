@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
@@ -50,9 +50,11 @@ const PresentationOptionsContainer = ({
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasCurrentPresentation;
   const { hasPresentation } = MediaService.getPresentationInfo();
 
-  if (!hasPresentation) {
-    setPresentationIsOpen(layoutContextDispatch, false);
-  }
+  useEffect(() => {
+    if (!hasPresentation) {
+      setPresentationIsOpen(layoutContextDispatch, false);
+    }
+  }, [hasPresentation]);
 
   return (
     <Button
