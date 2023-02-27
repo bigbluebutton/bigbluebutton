@@ -89,8 +89,6 @@ class NavBar extends Component {
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
-     const { isMobile } = deviceInfo;
-
 
     // accessKey U does not work on firefox for macOS for some unknown reason
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
