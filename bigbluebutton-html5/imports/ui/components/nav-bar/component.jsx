@@ -89,6 +89,8 @@ class NavBar extends Component {
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
+     const { isMobile } = deviceInfo;
+
 
     // accessKey U does not work on firefox for macOS for some unknown reason
     if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
@@ -178,6 +180,8 @@ class NavBar extends Component {
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+    const { isPhone } = deviceInfo;
+
 
     const { acs } = this.state;
 
@@ -214,7 +218,7 @@ class NavBar extends Component {
               && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
-              color='dark'
+              color={isPhone && isExpanded ? 'primary' : 'dark'}
               size='md'
               circle
               hideLabel
