@@ -70,7 +70,9 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("presentation")) {
       broadcastPresentationUploadTokenFailResp(msg)
-      return state
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "Presentation is disabled for this meeting"
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     }
     if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
       permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
