@@ -258,6 +258,7 @@ class Base extends Component {
       meetingEndedReason,
       meetingIsBreakout,
       subscriptionsReady,
+      userWasEjected,
     } = this.props;
 
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
@@ -272,7 +273,7 @@ class Base extends Component {
       return null;
     }
     
-    if (ejected || BBBStorage.getItem(USER_WAS_EJECTED)) {
+    if (ejected || userWasEjected) {
       return (
         <MeetingEnded
           code="403"
@@ -282,7 +283,7 @@ class Base extends Component {
       );
     }
 
-    if (meetingHasEnded && !meetingIsBreakout) {
+    if ((meetingHasEnded && !meetingIsBreakout) || userWasEjected) {
       return (
         <MeetingEnded
           code={codeError}
@@ -292,7 +293,7 @@ class Base extends Component {
       );
     }
 
-    if (codeError && !meetingHasEnded) {
+    if ((codeError && !meetingHasEnded) || userWasEjected) {
       // 680 is set for the codeError when the user requests a logout.
       if (codeError !== '680') {
         return (<ErrorScreen code={codeError} callback={() => Base.setExitReason('error')} />);
@@ -403,6 +404,7 @@ export default withTracker(() => {
   const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
+    userWasEjected: BBBStorage.getItem(USER_WAS_EJECTED),
     approved,
     ejected,
     ejectedReason,
