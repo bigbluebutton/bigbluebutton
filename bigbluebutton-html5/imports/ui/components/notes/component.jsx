@@ -9,6 +9,7 @@ import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from '/imports/ui/components/notes/notes-dropdown/container';
+import { isPresentationEnabled } from '../../services/features';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -96,8 +97,8 @@ const Notes = ({
   useEffect(() => {
     if (
       isOnMediaArea
-      && sidebarContent.isOpen
-      && sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
+      && (sidebarContent.isOpen || !isPresentationEnabled())
+      && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES || !isPresentationEnabled())
     ) {
       if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
         layoutContextDispatch({

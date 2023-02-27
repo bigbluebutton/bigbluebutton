@@ -259,7 +259,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   }).fetch();
 
   const AppSettings = Settings.application;
-  let { selectedLayout, pushLayout } = AppSettings;
+  const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
   const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();

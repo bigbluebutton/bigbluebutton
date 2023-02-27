@@ -69,9 +69,9 @@ const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch) => {
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;
-  const isPresentationAreaDisabled = !isPresentationEnabled();
+  const isPresentationDisabled = !isPresentationEnabled();
 
-  if (isPresentationAreaDisabled && (webcamIsOnlyContent || isThereNoMedia)) {
+  if (isPresentationDisabled && (webcamIsOnlyContent || isThereNoMedia)) {
     setPresentationIsOpen(layoutContextDispatch, false);
   }
 
