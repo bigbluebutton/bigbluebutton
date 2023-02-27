@@ -64,6 +64,7 @@ public class SlidesGenerationProgressNotifier {
     );
     messagingService.sendDocConversionMsg(invalidMimeType);
   }
+
   public void sendUploadFileTimedout(UploadedPresentation pres, int page) {
     UploadFileTimedoutMessage errorMessage = new UploadFileTimedoutMessage(
             pres.getPodId(),
