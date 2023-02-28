@@ -297,6 +297,33 @@ export default function Whiteboard(props) {
           delete shapes[shape];
         }
       }
+
+      //remove orphaned bindings
+      if (shapes[shape] && shapes[shape].type === "arrow" &&
+        (shapes[shape].handles.start.bindingId || shapes[shape].handles.end.bindingId)) {
+        const startBinding = shapes[shape].handles.start.bindingId;
+        const endBinding = shapes[shape].handles.end.bindingId;
+
+        const startBindingData = tldrawAPI?.getBinding(startBinding);
+        const endBindingData = tldrawAPI?.getBinding(endBinding);
+
+        if (startBinding && (!startBindingData && (
+          removedParents.includes(startBindingData?.fromId) ||
+          removedParents.includes(startBindingData?.toId) ||
+          !keys.includes(startBindingData?.fromId) ||
+          !keys.includes(startBindingData?.toId)
+        ))) {
+          delete shapes[shape].handles.start.bindingId;
+        }
+        if (endBinding && (!endBindingData && (
+          removedParents.includes(endBindingData?.fromId) ||
+          removedParents.includes(endBindingData?.toId) ||
+          !keys.includes(endBindingData?.fromId) ||
+          !keys.includes(endBindingData?.toId)
+        ))) {
+          delete shapes[shape].handles.end.bindingId;
+        }
+      }
     });
     return shapes;
   }
