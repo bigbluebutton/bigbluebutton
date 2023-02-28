@@ -440,3 +440,8 @@ exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
 exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
+
+// Learning dashboard
+exports.learningDashboard = 'li[data-test="learningDashboard"]';
+exports.listButtons = 'div[role="tablist"]';
+exports.messageLearningDashboard = 'tr[class="text-gray-700"] td:nth-child(5) span';

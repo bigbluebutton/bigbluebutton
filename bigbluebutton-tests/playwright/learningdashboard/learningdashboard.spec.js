@@ -1,11 +1,23 @@
 const { test } = require('@playwright/test');
-const { LearningDashboard } = require('./learningdashboard')
+const { LearningDashboard } = require('./learningdashboard');
 
-test.describe.parallel('Learning Dashboard', () => {
-  test('Creating meeting', async ({ browser, context, page }) => {
-    const learningDashboard = new LearningDashboard(browser, context);
+test.describe('Learning Dashboard', async () => {
+
+  const learningDashboard = new LearningDashboard();
+  test.beforeAll(async ({ browser }) => {
+
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    
     await learningDashboard.initModPage(page, true);
-    await learningDashboard.initUserPage(true, context);
-    await learningDashboard.createMeeting();
+    await learningDashboard.getDashboardPage(context);
   });
-});
+
+  test('Check message', async() => {
+    await learningDashboard.writeOnPublicChat();
+  });
+
+  test('Meeting Duration Time', async() => {
+    await learningDashboard.meetingDurationTime();
+  });
+})

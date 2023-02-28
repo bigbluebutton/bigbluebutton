@@ -1,30 +1,45 @@
 const { MultiUsers } = require("../user/multiusers");
 const e = require('../core/elements');
 const util = require('../polling/util.js');
+const { openChat } = require('../chat/util');
+const { expect } = require("@playwright/test");
+const Page = require("../core/page");
 
 class LearningDashboard extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
-  async createMeeting() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await util.openPoll(this.modPage);
 
-    await this.modPage.type(e.pollQuestionArea, e.pollQuestion);
-    await this.modPage.waitAndClick(e.userResponseBtn);
-    await this.modPage.waitAndClick(e.startPoll);
+  async getDashboardPage(context) {
+    await this.modPage.waitAndClick(e.manageUsers);
 
-    await this.userPage.waitForSelector(e.pollingContainer);
-    await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
-    await this.userPage.waitAndClick(e.pollSubmitAnswer);
+    const [dashboardPage] = await Promise.all([
+      context.waitForEvent('page'),
+      this.modPage.waitAndClick(e.learningDashboard),
+    ]);
 
-    await this.modPage.hasText(e.receivedAnswer, e.answerMessage);
+    await expect(dashboardPage).toHaveTitle(/Dashboard/);
 
-    await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitForSelector(e.restartPoll);
-
-    await this.modPage.hasElement(e.wbTypedText);
+    this.dashboardPage = new Page(context, dashboardPage);
   }
+
+  async writeOnPublicChat() {
+    await openChat(this.modPage);
+    await this.modPage.checkElementCount(e.chatUserMessageText, 0);
+
+    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.checkElementCount(e.chatUserMessageText, 1);
+
+    await this.dashboardPage.hasText(e.messageLearningDashboard, '1' , 15000);
+  }
+
+  async meetingDurationTime() {
+    const meetingTime = await this.modPage.getLocator(e.recordingIndicator);
+    //console.log(document.querySelector(e.recordingIndicator).textContent)
+  }
+
+  
 }
 
 exports.LearningDashboard = LearningDashboard;
