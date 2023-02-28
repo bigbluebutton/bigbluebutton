@@ -158,7 +158,7 @@ class ActionsDropdown extends PureComponent {
 
     if (amIPresenter && isPresentationEnabled()) {
       actions.push({
-        icon: "presentation",
+        icon: "upload",
         dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
