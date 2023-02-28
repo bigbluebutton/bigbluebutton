@@ -485,6 +485,11 @@ export default function Whiteboard(props) {
   };
 
   React.useEffect(() => {
+    if (tldrawAPI && !isPresentationDetached) {
+      // to 'touch' the CSS of side position of the dock
+      tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right');
+    }
+    
     presentationWindow.document.addEventListener('mouseup', checkClientBounds);
     presentationWindow.document.addEventListener('visibilitychange', checkVisibility);
     return () => {
