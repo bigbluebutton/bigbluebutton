@@ -39,8 +39,6 @@ async function generateSettingsData(page) {
       webcamSharingEnabled: settingsData.kurento.enableVideo,
       skipVideoPreview: settingsData.kurento.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento.skipVideoPreviewOnFirstJoin,
-      //Live Transcription
-      liveTranscription: settingsData.app.audioCaptions.enabled,
     }
 
     return settings;

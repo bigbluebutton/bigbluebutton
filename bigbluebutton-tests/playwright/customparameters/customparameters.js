@@ -241,8 +241,6 @@ class CustomParameters extends MultiUsers {
   }
 
   async liveTranscription() {
-    const { liveTranscription } = getSettings();
-    test.fail(!liveTranscription, 'Live Transcription is disabled');
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.liveTranscritpion);
   }
