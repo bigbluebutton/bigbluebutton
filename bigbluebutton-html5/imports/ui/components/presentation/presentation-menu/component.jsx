@@ -276,7 +276,7 @@ const PresentationMenu = (props) => {
     if (firstReact == 0){
       firstReact = 1;
       tldrawAPI.setSetting('keepStyleMenuOpen', true);
-      tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right');
+      //tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right'); // -> whiteboard/component
       tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [1, 1], },
                              { id: 'textdummy', type: 'text', text: 'text', point: [0, 0], },
                              { id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], size: [1, 1], });
