@@ -1023,7 +1023,7 @@ class Presentation extends PureComponent {
                   slidePosition={slidePosition}
                   getSvgRef={this.getSvgRef}
                   setTldrawAPI={this.setTldrawAPI}
-                  curPageId={currentSlide?.num.toString()}
+                  curPageId={currentSlide?.num.toString() || '0'}
                   svgUri={currentSlide?.svgUri}
                   intl={intl}
                   presentationWidth={svgWidth}
