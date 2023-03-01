@@ -11,6 +11,7 @@ import { Random } from 'meteor/random';
 import { UploadingPresentations } from '/imports/api/presentations';
 import Meetings from '/imports/api/meetings';
 import { uniqueId } from '/imports/utils/string-utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 import { notify } from '/imports/ui/services/notification';
 
 const CONVERSION_TIMEOUT = 300000;
@@ -327,6 +328,10 @@ const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) =
 };
 
 const handleSavePresentation = (presentations = [], isFromPresentationUploaderInterface = true, newPres = {}) => {
+  if (!isPresentationEnabled()) {
+    return
+  }
+  
   const currentPresentations = getPresentations();
   if (!isFromPresentationUploaderInterface) {
 

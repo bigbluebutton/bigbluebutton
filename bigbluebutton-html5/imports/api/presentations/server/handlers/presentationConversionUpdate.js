@@ -32,7 +32,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
 
   check(meetingId, String);
   check(presentationId, Match.Maybe(String));
-  check(podId, String);
+  check(podId, Match.Maybe(String));
   check(status, String);
   check(temporaryPresentationId, Match.Maybe(String));
 

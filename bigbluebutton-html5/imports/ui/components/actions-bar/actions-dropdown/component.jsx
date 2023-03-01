@@ -11,6 +11,7 @@ import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 import {isLayoutsEnabled} from '/imports/ui/services/features';
 
 const propTypes = {
@@ -155,9 +156,9 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter) {
+    if (amIPresenter && isPresentationEnabled()) {
       actions.push({
-        icon: "presentation",
+        icon: "upload",
         dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
@@ -225,18 +226,19 @@ class ActionsDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
         onClick: amIPresenter ? setMeetingLayout : setPushLayout,
+        dataTest: 'propagateLayout',
       });
-      
     }
 
     if (isLayoutsEnabled()){
-    actions.push({
-      icon: 'send',
-      label: intl.formatMessage(intlMessages.layoutModal),
-      key: 'layoutModal',
-      onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
-    });
-  }
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.layoutModal),
+        key: 'layoutModal',
+        onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+        dataTest: 'layoutModal',
+      });
+    }
     
     return actions;
   }

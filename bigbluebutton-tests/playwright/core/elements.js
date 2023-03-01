@@ -151,6 +151,11 @@ exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
 exports.userslist = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
+exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
+exports.liveTranscritpion = 'div[data-test="liveTranscription"]';
+exports.learningDashboard = 'li[data-test="learningDashboard"]';
+exports.propagateLayout = 'li[data-test="propagateLayout"]';
+exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -436,6 +441,13 @@ exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
+
+// Layout management
+exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
+exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
+exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
+exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.cameraDock = 'video[data-test="videoContainer"]';
 
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
