@@ -59,6 +59,12 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
+  ${({ isRTL }) => `
+    #TD-StylesMenu {
+      position: relative;
+      right: ${isRTL ? '7rem' : '-7rem'};
+    }
+  `}
   #TD-PrimaryTools-Image {
     display: none;
   }
@@ -609,6 +615,12 @@ export default function Whiteboard(props) {
         tldrawAPI?.zoomTo(zoomCamera);
       }, 50);
     }
+
+    if (zoomValue <= HUNDRED_PERCENT) {
+      setPanSelected(false);
+      setIsPanning(false);
+      tldrawAPI?.selectTool('select');
+  }
   }, [zoomValue]);
 
   // update zoom when presenter changes if the aspectRatio has changed
@@ -1044,7 +1056,7 @@ export default function Whiteboard(props) {
   const size = ((props.height < SMALL_HEIGHT) || (props.width < SMALL_WIDTH))
   ? TOOLBAR_SMALL : TOOLBAR_LARGE;
 
-  if (isPanning && tldrawAPI) {
+  if ((panSelected||isPanning) && tldrawAPI) {
     tldrawAPI.isForcePanning = isPanning;
   }
 
@@ -1065,9 +1077,10 @@ export default function Whiteboard(props) {
         whiteboardId={whiteboardId}
         isViewersCursorLocked={isViewersCursorLocked}
         isMultiUserActive={isMultiUserActive}
-        isPanning={isPanning}
+        isPanning={isPanning||panSelected}
         isMoving={isMoving}
         currentTool={currentTool}
+        disabledPan={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <TldrawGlobalStyle
@@ -1076,7 +1089,8 @@ export default function Whiteboard(props) {
             hasWBAccess,
             isPresenter,
             size,
-            darkTheme
+            darkTheme,
+            isRTL
           }}
         />
       </Cursors>

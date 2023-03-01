@@ -29,7 +29,6 @@ class PanToolInjector extends React.Component {
     ) {
       this.addPanTool();
       if (panSelected) {
-        // tldrawAPI?.selectTool('draw');
         setIsPanning(true);
         setPanSelected(true);
       } else {
@@ -51,22 +50,19 @@ class PanToolInjector extends React.Component {
       setPanSelected
     } = this.props;
 
+    if (panSelected) {
+      tldrawAPI?.selectTool('draw');
+    }
+
     const tools = document.querySelectorAll('[id*="TD-PrimaryTools-"]');
     tools.forEach(tool => {
       const classList = tool.firstElementChild.classList;
       if (panSelected) {
         classList.add('overrideSelect');
-        tldrawAPI?.selectTool('draw');
       } else {
         classList.remove('overrideSelect');
       }
     });
-
-    if (zoomValue === HUNDRED_PERCENT) {
-      setPanSelected(false);
-      setIsPanning(false);
-      tldrawAPI?.selectTool('select');
-    }
 
     const parentElement = document.getElementById('TD-PrimaryTools');
     if (!parentElement) return;
@@ -80,6 +76,11 @@ class PanToolInjector extends React.Component {
         id: 'app.whiteboard.toolbar.tools.hand',
         description: 'presentation toolbar pan label',
       });
+      const disabledLabel = formatMessage({
+        id: `app.whiteboard.toolbar.tools.disabled.pan`,
+        description: 'pan label when disabled',
+      });
+      const disabled = (zoomValue <= HUNDRED_PERCENT && !fitToWidth);
       const container = document.createElement('span');
       parentElement.appendChild(container);
       ReactDOM.render(
@@ -88,12 +89,13 @@ class PanToolInjector extends React.Component {
           role="button"
           data-test="panButton"
           data-zoom={zoomValue}
-          className={"overrideSelect"}
+          className={panSelected ? "select" : "overrideSelect"}
           color="light"
           icon="hand"
           size="md"
-          aria-label={label}
-          disabled={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
+          label={disabled ? disabledLabel : label}
+          aria-label={disabled ? disabledLabel : label}
+          disabled={disabled}
           onClick={() => {
             setPanSelected(true);
             setIsPanning(true);
@@ -105,7 +107,6 @@ class PanToolInjector extends React.Component {
               }
             }
           }}
-          label={label}
           hideLabel
         />,
         container

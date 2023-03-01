@@ -1,4 +1,5 @@
-import * as React from 'react';
+
+import React, { useCallback, useEffect, useRef } from "react";
 import { Meteor } from 'meteor/meteor';
 import { throttle } from 'lodash';
 
@@ -23,7 +24,8 @@ const TOOL_CURSORS = {
   line: `url('${makeCursorUrl('line.png')}'), default`,
   text: `url('${makeCursorUrl('text.png')}'), default`,
   sticky: `url('${makeCursorUrl('square.png')}'), default`,
-  pan: `url('${makeCursorUrl('pan.png')}'), default`,
+  pan: `grab`,
+  grabbing: 'grabbing',
   moving: 'move',
 };
 
@@ -163,9 +165,14 @@ export default function Cursors(props) {
     isPanning,
     isMoving,
     currentTool,
+    disabledPan,
   } = props;
 
+  const [panGrabbing, setPanGrabbing] = React.useState(false);
+
   const start = () => setActive(true);
+  const handleGrabbing = () => setPanGrabbing(true);
+  const handleReleaseGrab = () => setPanGrabbing(false);
 
   const end = () => {
     if (whiteboardId) {
@@ -317,9 +324,10 @@ export default function Cursors(props) {
 
   React.useEffect(() => {
     const currentCursor = cursorWrapper?.current;
-
     currentCursor?.addEventListener('mouseenter', start);
     currentCursor?.addEventListener('mouseleave', end);
+    currentCursor?.addEventListener("mousedown", handleGrabbing);
+    currentCursor?.addEventListener("mouseup", handleReleaseGrab);
     currentCursor?.addEventListener('touchend', end);
     currentCursor?.addEventListener('mousemove', moved);
     currentCursor?.addEventListener('touchmove', moved);
@@ -327,6 +335,8 @@ export default function Cursors(props) {
     return () => {
       currentCursor?.removeEventListener('mouseenter', start);
       currentCursor?.removeEventListener('mouseleave', end);
+      currentCursor?.removeEventListener("mousedown", handleGrabbing);
+      currentCursor?.removeEventListener("mouseup", handleReleaseGrab);
       currentCursor?.removeEventListener('touchend', end);
       currentCursor?.removeEventListener('mousemove', moved);
       currentCursor?.removeEventListener('touchmove', moved);
@@ -335,7 +345,13 @@ export default function Cursors(props) {
 
   const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
-  if (isPanning) cursorType = TOOL_CURSORS.pan;
+  if (isPanning && !disabledPan) {
+    if (panGrabbing) {
+      cursorType = TOOL_CURSORS.grabbing;
+    } else {
+      cursorType = TOOL_CURSORS.pan;
+    }
+  }
   if (isMoving) cursorType = TOOL_CURSORS.moving;
 
   return (
