@@ -280,6 +280,7 @@ const PresentationMenu = (props) => {
       tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [1, 1], },
                              { id: 'textdummy', type: 'text', text: 'text', point: [0, 0], },
                              { id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], size: [1, 1], });
+      tldrawAPI.selectNone();
       const ms = 50; // a dirty workaround...
       new Promise((resolve) => {
         setTimeout(() => {
