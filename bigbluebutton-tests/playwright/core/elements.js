@@ -442,6 +442,13 @@ exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
+// Layout management
+exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
+exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
+exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
+exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.cameraDock = 'video[data-test="videoContainer"]';
+
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
 exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';

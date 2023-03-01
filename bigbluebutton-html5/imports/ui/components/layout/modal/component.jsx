@@ -142,6 +142,7 @@ const LayoutModalComponent = (props) => {
               onClick={() => handleSwitchLayout(layout)}
               active={(layout === selectedLayout).toString()}
               aria-describedby="layout-btn-desc"
+              data-test={`${layout}Layout`}
             />
           </Styled.ButtonLayoutContainer>
         ))}
