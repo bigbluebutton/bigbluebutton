@@ -15,6 +15,7 @@ import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -92,9 +93,11 @@ const AppContainer = (props) => {
 
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
-  const { isOpen: presentationIsOpen } = presentation;
-  const shouldShowPresentation = propsShouldShowPresentation
-    && (presentationIsOpen || presentationRestoreOnUpdate);
+  const { isOpen } = presentation;
+  const presentationIsOpen = isOpen;
+
+  const shouldShowPresentation = (propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   const { focusedId } = cameraDock;
 
@@ -132,6 +135,9 @@ const AppContainer = (props) => {
     });
   };
 
+  useEffect(() => {
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)});
+  
   return currentUserId
     ? (
       <App
@@ -308,7 +314,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
     ignorePollNotifications: Session.get('ignorePollNotifications'),

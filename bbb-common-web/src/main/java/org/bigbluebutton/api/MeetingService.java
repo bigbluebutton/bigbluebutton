@@ -20,17 +20,8 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.net.URI;
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -264,6 +255,7 @@ public class MeetingService implements MessageListener {
 
         long elapsedTime = now - ru.getGuestWaitedOn();
         if (elapsedTime >= waitingGuestUsersTimeout && ru.getGuestStatus() == GuestPolicy.WAIT) {
+          log.info("Purging user [{}]", registeredUserID);
           if (meeting.userUnregistered(registeredUserID) != null) {
             gw.guestWaitingLeft(meeting.getInternalId(), registeredUserID);
             meeting.setLeftGuestLobby(registeredUserID, true);
@@ -547,6 +539,11 @@ public class MeetingService implements MessageListener {
     return recordingService.isRecordingExist(recordId);
   }
 
+  public boolean isMeetingWithDisabledPresentation(String meetingId) {
+    Meeting m = getMeeting(meetingId);
+    return m.getDisabledFeatures().contains("presentation");
+  }
+
   public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, String offset, String limit) {
     Pageable pageable = null;
     int o = -1;
@@ -725,8 +722,7 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
       for (GuestsStatus guest : message.guests) {
-        User user = m.getUserById(guest.userId);
-        if (user != null) user.setGuestStatus(guest.status);
+        m.setGuestStatusWithId(guest.userId, guest.status);
       }
     }
 

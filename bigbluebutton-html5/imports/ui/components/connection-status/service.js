@@ -3,8 +3,6 @@ import ConnectionStatus from '/imports/api/connection-status';
 import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
@@ -152,13 +150,11 @@ const sortOffline = (a, b) => {
 };
 
 const getConnectionStatus = () => {
-  const connectionLossTimeThreshold = new Date().getTime() - (STATS_INTERVAL);
-
   const selector = {
     meetingId: Auth.meetingID,
     $or: [
       { status: { $exists: true } },
-      { connectionAliveAt: { $lte: connectionLossTimeThreshold } },
+      { clientNotResponding: true },
     ],
   };
 
@@ -171,14 +167,14 @@ const getConnectionStatus = () => {
       userId,
       status,
       statusUpdatedAt,
-      connectionAliveAt,
+      clientNotResponding,
     } = userStatus;
 
     return {
       userId,
       status,
       statusUpdatedAt,
-      connectionAliveAt,
+      clientNotResponding,
     };
   });
 
@@ -208,19 +204,18 @@ const getConnectionStatus = () => {
     const userStatus = connectionStatus.find((userConnStatus) => userConnStatus.userId === userId);
 
     if (userStatus) {
-      const notResponding = userStatus.connectionAliveAt < connectionLossTimeThreshold;
-
-      if (userStatus.status || (!loggedOut && notResponding)) {
+      if (userStatus.status || (!loggedOut && userStatus.clientNotResponding)) {
         result.push({
+          userId,
           name,
           avatar,
           offline: loggedOut,
-          notResponding,
+          notResponding: userStatus.clientNotResponding,
           you: Auth.userID === userId,
           moderator: role === ROLE_MODERATOR,
           color,
-          status: notResponding ? 'critical' : userStatus.status,
-          timestamp: notResponding ? userStatus.connectionAliveAt : userStatus.statusUpdatedAt,
+          status: userStatus.clientNotResponding ? 'critical' : userStatus.status,
+          timestamp: userStatus.statusUpdatedAt,
         });
       }
     }
@@ -267,14 +262,6 @@ if (STATS.enabled) {
   window.addEventListener('audiostats', handleAudioStatsEvent);
   window.addEventListener('socketstats', handleSocketStatsEvent);
 }
-
-const updateDataSavingSettings = (dataSaving, intl) => {
-  if (!_.isEqual(Settings.dataSaving, dataSaving)) {
-    Settings.dataSaving = dataSaving;
-    Settings.save();
-    if (intl) notify(intl.formatMessage(intlMessages.saved), 'info', 'settings');
-  }
-};
 
 const getNotified = () => {
   const notified = Session.get('connectionStatusNotified');
@@ -567,7 +554,6 @@ export default {
   notification,
   startRoundTripTime,
   stopRoundTripTime,
-  updateDataSavingSettings,
   getNetworkData,
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,

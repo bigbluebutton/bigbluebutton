@@ -186,6 +186,7 @@ class BreakoutJoinConfirmation extends Component {
           {
             breakouts.map(({ name, breakoutId }) => (
               <option
+                data-test="roomOption"
                 key={breakoutId}
                 value={breakoutId}
               >

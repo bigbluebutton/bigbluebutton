@@ -264,9 +264,7 @@ class PresentationToolbar extends PureComponent {
       currentSlide,
       slidePosition,
       multiUserSize,
-      multiUser,
-      setIsPanning,
-      isPanning,
+      multiUser
     } = this.props;
 
     const { isMobile } = deviceInfo;
@@ -400,20 +398,6 @@ class PresentationToolbar extends PureComponent {
               />
             </TooltipContainer>
           ) : null}
-          <Styled.FitToWidthButton
-            role="button"
-            data-test="panButton"
-            aria-label={intl.formatMessage(intlMessages.pan)}
-            color="light"
-            disabled={(zoom <= HUNDRED_PERCENT && !fitToWidth)}
-            icon="hand"
-            size="md"
-            circle
-            onClick={setIsPanning}
-            label={intl.formatMessage(intlMessages.pan)}
-            hideLabel
-            panning={isPanning}
-          />
           <Styled.FitToWidthButton
             role="button"
             data-test="fitToWidthButton"

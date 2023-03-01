@@ -15,9 +15,9 @@ import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
-
 const propTypes = {
   allowDownloadable: PropTypes.bool.isRequired,
   intl: PropTypes.object.isRequired,
@@ -321,7 +321,7 @@ class PresentationUploader extends Component {
     this.exportToastId = null;
 
     // handlers
-    this.handleFiledrop = this.handleFiledrop.bind(this);
+    this.handleFiledrop = this.props.handleFiledrop;
     this.handleConfirm = this.handleConfirm.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
@@ -459,77 +459,16 @@ class PresentationUploader extends Component {
   }
 
   componentWillUnmount() {
+    let id = Session.get("presentationUploaderToastId");
+    if (id) {
+      toast.dismiss(id);
+      Session.set("presentationUploaderToastId", null);
+    }
     Session.set('showUploadPresentationView', false);
   }
 
-  handleDismissToast() {
-    return toast.dismiss(this.toastId);
-  }
-
-  handleFiledrop(files, files2) {
-    const { fileValidMimeTypes, intl } = this.props;
-    const { toUploadCount } = this.state;
-    const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
-    const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
-    const [accepted, rejected] = _.partition(files
-      .concat(files2), (f) => (
-        validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
-      ));
-
-    const presentationsToUpload = accepted.map((file) => {
-      const id = _.uniqueId(file.name);
-
-      return {
-        file,
-        isDownloadable: false, // by default new presentations are set not to be downloadable
-        isRemovable: true,
-        id,
-        filename: file.name,
-        isCurrent: false,
-        conversion: { done: false, error: false },
-        upload: { done: false, error: false, progress: 0 },
-        exportation: { error: false },
-        onProgress: (event) => {
-          if (!event.lengthComputable) {
-            this.deepMergeUpdateFileKey(id, 'upload', {
-              progress: 100,
-              done: true,
-            });
-
-            return;
-          }
-
-          this.deepMergeUpdateFileKey(id, 'upload', {
-            progress: (event.loaded / event.total) * 100,
-            done: event.loaded === event.total,
-          });
-        },
-        onConversion: (conversion) => {
-          this.deepMergeUpdateFileKey(id, 'conversion', conversion);
-        },
-        onUpload: (upload) => {
-          this.deepMergeUpdateFileKey(id, 'upload', upload);
-        },
-        onDone: (newId) => {
-          this.updateFileKey(id, 'id', newId);
-        },
-      };
-    });
-
-    this.setState(({ presentations }) => ({
-      presentations: presentations.concat(presentationsToUpload),
-      toUploadCount: (toUploadCount + presentationsToUpload.length),
-    }), () => {
-      // after the state is set (files have been dropped),
-      // make the first of the new presentations current
-      if (presentationsToUpload && presentationsToUpload.length) {
-        this.handleCurrentChange(presentationsToUpload[0].id);
-      }
-    });
-
-    if (rejected.length > 0) {
-      notify(intl.formatMessage(intlMessages.rejectedError), 'error');
-    }
+  handleDismissToast(id) {
+    return toast.dismiss(id);
   }
 
   handleRemove(item, withErr = false) {
@@ -617,6 +556,14 @@ class PresentationUploader extends Component {
     } = this.props;
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
+
+    if (!isPresentationEnabled()) {
+      this.setState(
+        { presentations: [] },
+        Session.set('showUploadPresentationView', false),
+      );
+      return
+    }
 
     this.setState({ disableActions: true });
 
@@ -1116,7 +1063,7 @@ class PresentationUploader extends Component {
         activeClassName={"dropzoneActive"}
         accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
         disablepreview="true"
-        onDrop={this.handleFiledrop}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -1183,7 +1130,7 @@ class PresentationUploader extends Component {
         accept="image/*"
         disablepreview="true"
         data-test="fileUploadDropZone"
-        onDrop={this.handleFiledrop}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>

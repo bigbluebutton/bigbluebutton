@@ -9,6 +9,7 @@ import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -33,6 +34,7 @@ export default withTracker(() => {
     dispatchTogglePresentationDownloadable,
     exportPresentationToChat,
   } = Service;
+  const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
     presentations: currentPresentations,
@@ -49,8 +51,9 @@ export default withTracker(() => {
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
     exportPresentationToChat,
-    isOpen: Session.get('showUploadPresentationView') || false,
+    isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
+    handleFiledrop: Service.handleFiledrop,
   };
 })(PresentationUploaderContainer);

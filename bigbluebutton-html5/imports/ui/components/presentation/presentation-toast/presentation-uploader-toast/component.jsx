@@ -296,21 +296,66 @@ function handleDismissToast(toastId) {
     return toast.dismiss(toastId);
 }
 
-const alreadyRenderedPresList = []
+
+let alreadyRenderedPresList = [];
+
+let enteredConversion = {};
+
 export const PresentationUploaderToast = ({ intl }) => {
 
 	useTracker(() => {
 		
 		const presentationsRenderedFalseAndConversionFalse = Presentations.find({ $or: [{renderedInToast: false}, {"conversion.done": false}] }).fetch();
-		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast )
-		let tmpIdconvertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.conversion.done)
-			.map(p => { return {temporaryPresentationId: p.temporaryPresentationId, id: p.id}; })
-		UploadingPresentations.find({}).fetch().filter(p => tmpIdconvertingPresentations.findIndex(pres => pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id) !== -1)
-			.map(p => {
-				return UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]})});
-		const uploadingPresentations = UploadingPresentations.find().fetch();
-		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
+		
+		const convertingPresentations = presentationsRenderedFalseAndConversionFalse.filter(p => !p.renderedInToast );
 
+		let conversionInterrupted = false;
+		
+		// removing ones with errors. If presentation has an error status - we don't want to have it pending as uploading
+		convertingPresentations.map(p => {
+			if ("conversion" in p && p.conversion.error){
+				UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]});
+				conversionInterrupted = true;
+			}
+		});
+
+		let toRemoveFromUploadingPresentations = [];
+
+		UploadingPresentations.find().fetch().map(p => {  // main goal of this mapping is to sort out what doesn't need to be displayed
+			if (
+				( "upload" in p && p.upload.done ) // if presentation is marked as done - it's potentially to be removed
+				&& !p.subscriptionId // at upload stage or already converted
+				) {
+				if(convertingPresentations[0]) { //there are presentations being converted
+					convertingPresentations.forEach(cp => {
+						if (cp.temporaryPresentationId == p.temporaryPresentationId) { // if this presentation is being converted we don't want it to be marked as still uploading
+							toRemoveFromUploadingPresentations.push({temporaryPresentationId: p.temporaryPresentationId, id: p.id});
+						} 
+					});
+				} else if (!enteredConversion[p.temporaryPresentationId]) {  // upload stage is done and pesentation is entering conversion stage 
+					enteredConversion[p.temporaryPresentationId] = true;  // we mark that it has entered conversion stage
+				} else { 
+					// presentation doesn't normally enter conversion twice
+					// so we remove the inconsistencies between UploadingPresentation and Presentation (corner case)
+					presentationsAlreadyRenderedIds = Presentations.find({renderedInToast: true}).fetch().map(p => {
+						return {
+							id: p.id,
+							temporaryPresentationId: p.temporaryPresentationId,
+						}
+					});
+					presentationsAlreadyRenderedIds.forEach(p => {
+						UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId}, 
+							{id: p.id}]})
+					})
+				}
+			}
+		});
+
+		toRemoveFromUploadingPresentations.forEach(p => UploadingPresentations.remove({$or: [{temporaryPresentationId: p.temporaryPresentationId }, {id: p.id}]}));
+
+		const uploadingPresentations = UploadingPresentations.find().fetch();
+
+		let presentationsToConvert = convertingPresentations.concat(uploadingPresentations);
 		// Updating or populating the "state" presentation list
 		presentationsToConvert.map(p => {
 			return {
@@ -342,6 +387,7 @@ export const PresentationUploaderToast = ({ intl }) => {
 		})
 		let activeToast = Session.get("presentationUploaderToastId");
 		const showToast = presentationsToConvert.length > 0;
+
 		if (showToast && !activeToast) {
 			activeToast = toast.info(() => renderToastList(presentationsToConvert, intl), {
 				hideProgressBar: true,
@@ -388,7 +434,7 @@ export const PresentationUploaderToast = ({ intl }) => {
 			}, TIMEOUT_CLOSE_TOAST * 1000);
 		}
 		
-	}, [])
+	}, []);
 	return null;
 }
 

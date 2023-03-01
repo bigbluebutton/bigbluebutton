@@ -39,11 +39,31 @@ const DtfInvert = `
   div[data-test="presentationContainer"] {
     background-color: var(--darkreader-neutral-background) !important;
   }
+  select {
+    border-top: unset !important;
+    border-right: unset !important;
+    border-left: unset !important;
+  }
+  .tl-container {
+    background-color: var(--tl-background) !important;
+  }
+  #TD-Tools button, #TD-TopPanel-Undo, #TD-TopPanel-Redo, #TD-Styles {
+    border-color: transparent !important;
+  }
+  [id="TD-StylesMenu"],
+  [id="TD-Styles-Color-Container"],
+  div[data-test="brandingArea"],
   #connectionBars > div
 `;
 
 const DtfCss = `
-  [id="colorPicker"]
+  [id="colorPicker"],
+  path,
+  svg
+`;
+
+const DtfImages = `
+  svg
 `;
 
 export default {
@@ -52,4 +72,5 @@ export default {
   Layout,
   DtfInvert,
   DtfCss,
+  DtfImages,
 };

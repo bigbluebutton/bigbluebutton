@@ -65,7 +65,8 @@ class Chat extends Page {
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
     await this.waitAndClick(e.chatOptions);
-    const { content } = await this.handleDownload(e.chatSave, testInfo);
+    const chatSaveLocator = this.getLocator(e.chatSave);
+    const { content } = await this.handleDownload(chatSaveLocator, testInfo);
 
     const dataToCheck = [
       this.meetingId,
@@ -144,7 +145,8 @@ class Chat extends Page {
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
     await this.waitAndClick(e.chatOptions);
-    const { content } = await this.handleDownload(e.chatSave, testInfo);
+    const chatSaveLocator = this.getLocator(e.chatSave);
+    const { content } = await this.handleDownload(chatSaveLocator, testInfo);
 
     const dataToCheck = [
       this.meetingId,
@@ -195,7 +197,8 @@ class Chat extends Page {
     await this.waitAndClick(e.sendButton);
     await this.waitForSelector(e.chatUserMessageText);
     await this.waitAndClick(e.chatOptions);
-    const { content } = await this.handleDownload(e.chatSave, testInfo);
+    const chatSaveLocator = this.getLocator(e.chatSave);
+    const { content } = await this.handleDownload(chatSaveLocator, testInfo);
 
     const dataToCheck = [
       this.meetingId,

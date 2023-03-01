@@ -22,6 +22,10 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.annotations.notAllowed',
     description: 'Label shown in toast when the user make a change on a shape he doesnt have permission',
   },
+  shapeNumberExceeded: {
+    id: 'app.whiteboard.annotations.numberExceeded',
+    description: 'Label shown in toast when the user tries to add more shapes than the limit',
+  },
 });
 
 let annotationsStreamListener = null;
@@ -378,7 +382,7 @@ const getCurrentPres = () => {
 const initDefaultPages = (count = 1) => {
   const pages = {};
   const pageStates = {};
-  let i = 1;
+  let i = 0;
   while (i < count + 1) {
     pages[`${i}`] = {
       id: `${i}`,
@@ -401,6 +405,10 @@ const initDefaultPages = (count = 1) => {
 
 const notifyNotAllowedChange = (intl) => {
   if (intl) notify(intl.formatMessage(intlMessages.notifyNotAllowedChange), 'warning', 'whiteboard');
+};
+
+const notifyShapeNumberExceeded = (intl, limit) => {
+  if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
 };
 
 export {
@@ -427,4 +435,5 @@ export {
   changeCurrentSlide,
   clearFakeAnnotations,
   notifyNotAllowedChange,
+  notifyShapeNumberExceeded,
 };

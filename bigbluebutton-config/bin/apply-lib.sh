@@ -110,12 +110,25 @@ enableUFWRules() {
   ufw allow "Nginx Full"
   ufw allow 16384:32768/udp
 
-  # Check if coturn is running on this server and, if so, open firewall port
-  if systemctl status coturn > /dev/null; then
-    echo "  - Local turnserver detected -- opening port 3478"
-    ufw allow 3478
-    # echo "  - Forcing FireFox to use turn server"
-    # yq w -i $HTML5_CONFIG public.kurento.forceRelayOnFirefox true 
+   # Check if haproxy is running on this server and, if so, open port 3478 on ufw
+
+  if systemctl is-enabled haproxy> /dev/null 2>&1; then
+    if systemctl -q is-active haproxy; then
+      echo "  - Local haproxy detected and running -- opening port 3478"
+      ufw allow 3478
+      # echo "  - Forcing FireFox to use turn server"
+      # yq w -i $HTML5_CONFIG public.kurento.forceRelayOnFirefox true
+    else
+      if grep -q 3478 /etc/ufw/user.rules; then
+        echo "  - Local haproxy not running -- closing port 3478"
+        ufw delete allow 3478
+      fi
+    fi
+  else
+    if grep -q 3478 /etc/ufw/user.rules; then
+      echo "  - Local haproxy not running -- closing port 3478"
+      ufw delete allow 3478
+    fi
   fi
 
   ufw --force enable
@@ -255,9 +268,9 @@ notCalled() {
 # apply-config.sh.
 #
 # By creating apply-config.sh manually, it will not be overwritten by any package updates.  You can call functions in this
-# library for commong BigBlueButton configuration tasks.
+# library for common BigBlueButton configuration tasks.
 
-## Start Copying HEre
+## Start Copying Here
   cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
 #!/bin/bash
 

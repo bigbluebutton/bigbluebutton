@@ -5,7 +5,7 @@ import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
 
 export default (props) => {
-  const { hidePresentation } = props;
+  const { hidePresentationOnJoin } = props;
   const { animations } = Settings.application;
 
   return (
@@ -18,7 +18,7 @@ export default (props) => {
         timeout={{ enter: 400 }}
       >
         <Styled.Content animations={animations}>
-          <Styled.DefaultContent hideContent={autoSwapLayout && hidePresentation}>
+          <Styled.DefaultContent hideContent={hidePresentationOnJoin}>
             <p>
               <FormattedMessage
                 id="app.home.greeting"
