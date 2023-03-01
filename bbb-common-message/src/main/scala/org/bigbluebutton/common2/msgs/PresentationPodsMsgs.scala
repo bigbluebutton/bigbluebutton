@@ -182,7 +182,6 @@ case class PresentationHasInvalidMimeTypeErrorSysPubMsgBody(
     fileExtension:         String,
 )
 
-
 object PresentationUploadedFileTimeoutErrorSysPubMsg { val NAME = "PresentationUploadedFileTimeoutErrorSysPubMsg" }
 case class PresentationUploadedFileTimeoutErrorSysPubMsg(
     header: BbbClientMsgHeader,

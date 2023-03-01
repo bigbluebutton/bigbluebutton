@@ -39,6 +39,22 @@ exports.overrideDefaultLocale = 'userdata-bbb_override_default_locale=pt-br';
 exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
 exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
 
+// Disabled Features
+exports.breakoutRooms = 'disabledFeatures=breakoutRooms';
+exports.liveTranscription = 'disabledFeatures=liveTranscription';
+exports.captions = 'disabledFeatures=captions';
+exports.chat = 'disabledFeatures=chat';
+exports.externalVideos = 'disabledFeatures=externalVideos';
+exports.learningDashboard = 'disabledFeatures=learningDashboard';
+exports.polls = 'disabledFeatures=polls';
+exports.screenshare = 'disabledFeatures=screenshare';
+exports.sharedNotes = 'disabledFeatures=sharedNotes';
+exports.virtualBackgrounds = 'disabledFeatures=virtualBackgrounds';
+exports.downloadPresentationWithAnnotations = 'disabledFeatures=downloadPresentationWithAnnotations';
+exports.importPresentationWithAnnotationsFromBreakoutRooms = 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms';
+exports.importSharedNotesFromBreakoutRooms = 'disabledFeatures=importSharedNotesFromBreakoutRooms';
+exports.layouts = 'disabledFeatures=layouts';
+
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';
 exports.initialShortcuts = [{

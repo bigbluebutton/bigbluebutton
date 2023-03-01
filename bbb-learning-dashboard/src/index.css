@@ -3,6 +3,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  .text-gray-700 {
+    color: #374151 !important;
+  }
+}
+
 @layer utilities {
   .bg-inherit {
     background-color: inherit;

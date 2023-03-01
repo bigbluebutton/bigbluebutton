@@ -8,7 +8,7 @@ import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 
-const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentation;
+const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentationOnJoin;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -73,7 +73,7 @@ class PushLayoutEngine extends React.Component {
     }
     Settings.save();
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
+    const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
     MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
 
     if (selectedLayout === 'custom') {

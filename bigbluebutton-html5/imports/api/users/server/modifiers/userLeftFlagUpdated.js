@@ -16,7 +16,7 @@ export default function userLeftFlagUpdated(meetingId, userId, left) {
   try {
     const numberAffected = Users.update(selector, modifier);
     if (numberAffected) {
-      Logger.info(`Updated user ${userId} with left flag as ${left}`);
+      Logger.info(`Updated user ${userId} with left flag as ${left} in meeting ${meetingId}`);
     }
   } catch (err) {
     Logger.error(`Changed user role: ${err}`);

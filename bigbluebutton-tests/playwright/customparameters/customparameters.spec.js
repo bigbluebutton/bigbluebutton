@@ -208,4 +208,90 @@ test.describe.parallel('CustomParameters', () => {
       await customParam.multiUserTools();
     });
   });
+
+  test.describe.parallel('Disabled Features', () => {
+    test('Breakout Rooms', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.breakoutRooms });
+      await customParam.breakoutRooms();
+    });
+
+    test('Live Transcription', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { customParameter: c.liveTranscription });
+      await customParam.liveTranscription();
+    });
+
+    test('Captions', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.captions });
+      await customParam.captions();
+    });
+
+    test('Chat', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.chat });
+      await customParam.chat();
+    });
+
+    test('External Videos', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.externalVideos });
+      await customParam.externalVideos();
+    });
+
+    test('Layouts', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.layouts });
+      await customParam.layouts();
+    });
+
+    test('Learning Dashboard', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.learningDashboard });
+      await customParam.learningDashboard();
+    });
+
+    test('Polls', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.polls });
+      await customParam.polls();
+    });
+
+    test('Screenshare', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.screenshare });
+      await customParam.screenshare();
+    });
+
+    test('Shared Notes', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.sharedNotes });
+      await customParam.sharedNotes();
+    });
+
+    test('Virtual Backgrounds', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.virtualBackgrounds });
+      await customParam.virtualBackgrounds();
+    });
+
+    test('Download Presentation With Annotations', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.downloadPresentationWithAnnotations });
+      await customParam.downloadPresentationWithAnnotations();
+    });
+
+    test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.importPresentationWithAnnotationsFromBreakoutRooms });
+      await customParam.importPresentationWithAnnotationsFromBreakoutRooms();
+    });
+
+    test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRooms });
+      await customParam.importSharedNotesFromBreakoutRooms();
+    });
+  });
 });
