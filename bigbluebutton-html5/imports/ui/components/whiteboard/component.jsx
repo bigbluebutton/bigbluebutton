@@ -65,7 +65,7 @@ const TldrawGlobalStyle = createGlobalStyle`
   #slide-background-shape div {
     pointer-events: none;
   }
-  div:has([aria-expanded*="false"][aria-controls*="radix-"]) {
+  div[dir*="ltr"]:has([aria-expanded*="false"][aria-controls*="radix-"]) {
     pointer-events: none;
   }
   [aria-expanded*="false"][aria-controls*="radix-"] {
