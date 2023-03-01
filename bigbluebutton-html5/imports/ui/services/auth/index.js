@@ -220,6 +220,8 @@ class Auth {
       })
       .catch((err) => {
         logger.error(`Failed to validate token: ${err.description}`);
+        Session.set('codeError', err.error);
+        Session.set('errorMessageDescription', err.description);
       })
       .finally(() => {
         this.isAuthenticating = false;
