@@ -8,7 +8,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
-import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -20,7 +19,7 @@ import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
 import { indexOf, without } from '/imports/utils/array-utils';
-import { isEmpty } from 'radash';
+import { isEmpty, throttle } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -465,12 +464,12 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = _.debounce((userId, emoji) => {
+const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
   return statusAvailable
     ? makeCall('setEmojiStatus', Auth.userID, emoji)
     : makeCall('setEmojiStatus', userId, 'none');
-}, 1000, { leading: true, trailing: false });
+});
 
 const clearAllEmojiStatus = (users) => {
   users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));

@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { debounce } from 'radash';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
@@ -101,12 +101,10 @@ class ScreenshareComponent extends React.Component {
     this.onSwitched = this.onSwitched.bind(this);
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
-    this.debouncedDispatchScreenShareSize = _.debounce(
-      this.dispatchScreenShareSize,
-      SCREEN_SIZE_DISPATCH_INTERVAL,
-      { leading: false, trailing: true },
+    this.debouncedDispatchScreenShareSize = debounce(
+      { delay: SCREEN_SIZE_DISPATCH_INTERVAL },
+      this.dispatchScreenShareSize
     );
-
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
     this.mediaFlowMonitor = null;

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { debounce } from 'radash';
 import { AutoSizer,CellMeasurer, CellMeasurerCache } from 'react-virtualized';
 import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -53,7 +53,7 @@ class TimeWindowList extends PureComponent {
       },
     });
     this.userScrolledBack = false;
-    this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
+    this.handleScrollUpdate = debounce({ delay: 150 }, this.handleScrollUpdate.bind(this));
     this.rowRender = this.rowRender.bind(this);
     this.forceCacheUpdate = this.forceCacheUpdate.bind(this);
     this.systemMessagesResized = {};

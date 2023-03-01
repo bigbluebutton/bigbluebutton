@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 import ejectUserFromVoice from './methods/ejectUserFromVoice';
-import _ from 'lodash';
+import { debounce } from 'radash';
 
 function voiceUser() {
   const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
@@ -29,7 +29,7 @@ function voiceUser() {
 
   Logger.debug('Publishing Voice User', { meetingId, requesterUserId });
 
-  this._session.socket.on('close', _.debounce(onCloseConnection, 100));
+  this._session.socket.on('close', debounce({ delay: 100 }, onCloseConnection));
   return VoiceUsers.find({ meetingId });
 }
 

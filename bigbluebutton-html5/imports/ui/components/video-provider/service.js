@@ -16,7 +16,7 @@ import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import BBBStorage from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import _ from 'lodash';
+import { debounce } from 'radash';
 import { partition } from '/imports/utils/array-utils';
 import {
   getSortingMethod,
@@ -840,6 +840,7 @@ class VideoService {
   }
 
   applyCameraProfile (peer, profileId) {
+    console.log('apply camera profile')
     const profile = CAMERA_PROFILES.find((targetProfile) => targetProfile.id === profileId);
 
     // When this should be skipped:
@@ -1005,10 +1006,9 @@ export default {
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
-  applyCameraProfile: _.debounce(
-    videoService.applyCameraProfile.bind(videoService),
-    CAMERA_QUALITY_THR_DEBOUNCE,
-    { leading: false, trailing: true },
+  applyCameraProfile: debounce(
+    { delay: CAMERA_QUALITY_THR_DEBOUNCE }, 
+    videoService.applyCameraProfile.bind(videoService)
   ),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
   isPaginationEnabled: () => videoService.isPaginationEnabled(),
