@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Breakouts from '/imports/api/breakouts';
 
-export default function handleBreakoutJoinURL({ body }) {
+export default async function handleBreakoutJoinURL({ body }) {
   const {
     redirectToHtml5JoinURL,
     userId,
@@ -32,7 +32,7 @@ export default function handleBreakoutJoinURL({ body }) {
       numberAffected = await Breakouts.updateAsync(selector, modifier);
     };
 
-    const updateBreakoutPromise = new Promise((resolve) => {
+    await new Promise((resolve) => {
       const updateBreakoutInterval = setInterval(async () => {
         await updateBreakout();
         if (numberAffected) {
@@ -40,10 +40,7 @@ export default function handleBreakoutJoinURL({ body }) {
         }
       }, ATTEMPT_EVERY_MS);
     });
-
-    updateBreakoutPromise.then(() => {
-      Logger.info(`Upserted breakout id=${breakoutId}`);
-    });
+    Logger.info(`Upserted breakout id=${breakoutId}`);
   } catch (err) {
     Logger.error(`Adding breakout to collection: ${err}`);
   }
