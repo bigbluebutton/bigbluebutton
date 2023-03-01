@@ -68,28 +68,6 @@ export default withModalMounter(withTracker((props) => {
   const userIsInBreakout = breakoutService.getBreakoutUserIsIn(Auth.userID);
   let deviceIds = Session.get('deviceIds');
 
-  if (!userIsInBreakout && userWasInBreakout && deviceIds && deviceIds !== '') {
-    /* used when re-sharing cameras after leaving a breakout room.
-    it is needed in cases where the user has more than one active camera
-    so we only share the second camera after the first
-    has finished loading (can't share more than one at the same time) */
-    const canConnect = Session.get('canConnect');
-
-    deviceIds = deviceIds.split(',');
-
-    if (canConnect) {
-      const deviceId = deviceIds.shift();
-
-      Session.set('canConnect', false);
-      Session.set('WebcamDeviceId', deviceId);
-      Session.set('deviceIds', deviceIds.join(','));
-
-      VideoService.joinVideo(deviceId);
-    }
-  } else {
-    userWasInBreakout = userIsInBreakout;
-  }
-
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
   data.swapLayout = !hasPresentation || props.isLayoutSwapped;
