@@ -51,7 +51,7 @@ class PanToolInjector extends React.Component {
     } = this.props;
 
     if (panSelected) {
-      tldrawAPI?.selectTool('draw');
+      tldrawAPI?.selectTool('select');
     }
 
     const tools = document.querySelectorAll('[id*="TD-PrimaryTools-"]');

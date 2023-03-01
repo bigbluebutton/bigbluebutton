@@ -620,7 +620,7 @@ export default function Whiteboard(props) {
       setPanSelected(false);
       setIsPanning(false);
       tldrawAPI?.selectTool('select');
-  }
+    }
   }, [zoomValue]);
 
   // update zoom when presenter changes if the aspectRatio has changed
@@ -793,7 +793,21 @@ export default function Whiteboard(props) {
   };
 
   const onPatch = (e, t, reason) => {
-    if (!e?.pageState) return;
+    if (!e?.pageState || !reason) return;
+    if ((isPanning || panSelected) && reason === 'selected' || reason === 'set_hovered_id') {
+      return e.patchState(
+        {
+          document: {
+            pageStates: {
+              [e.getPage()?.id]: {
+                selectedIds: [],
+                hoveredId: null,
+              },
+            },
+          },
+        }
+      );
+    }
 
     // don't allow select others shapes for editing if don't have permission
     if (reason && reason.includes("set_editing_id")) {
