@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
@@ -43,7 +43,7 @@ const CustomLayout = (props) => {
   const prevDeviceType = usePrevious(deviceType);
   const prevIsResizing = usePrevious(isResizing);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
   useEffect(() => {

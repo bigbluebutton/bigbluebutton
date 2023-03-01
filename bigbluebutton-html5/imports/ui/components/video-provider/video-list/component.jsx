@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
@@ -77,7 +77,7 @@ class VideoList extends Component {
     this.grid = null;
     this.canvas = null;
     this.failedMediaElements = [];
-    this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66,
+    this.handleCanvasResize = throttle(this.handleCanvasResize.bind(this), 66,
       {
         leading: true,
         trailing: true,

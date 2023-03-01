@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { ChatContext, ACTIONS, MESSAGE_TYPES } from './context';
 import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';
@@ -110,7 +110,7 @@ const Adapter = () => {
     dispatch({
       type: ACTIONS.CLEAR_ALL,
     });
-    const throttledDispatch = _.throttle(() => {
+    const throttledDispatch = throttle(() => {
       const dispatchedMessageQueue = [...messageQueue];
       messageQueue = [];
       dispatch({

@@ -1,5 +1,5 @@
 import * as React from "react";
-import _ from "lodash";
+import throttle from 'lodash.throttle';
 import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";
@@ -188,7 +188,7 @@ export default function Whiteboard(props) {
   const [currentTool, setCurrentTool] = React.useState(null);
   const [isMoving, setIsMoving] = React.useState(false);
 
-  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
+  const throttledResetCurrentPoint = React.useRef(throttle(() => {
     setEnable(false);
     setEnable(true);
   }, 1000, { trailing: true }));

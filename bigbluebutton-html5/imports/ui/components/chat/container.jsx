@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withTracker } from 'meteor/react-meteor-data';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
@@ -58,7 +58,7 @@ let prevPartnerIsLoggedOut = false;
 
 let globalAppplyStateToProps = () => { };
 
-const throttledFunc = _.throttle(() => {
+const throttledFunc = throttle(() => {
   globalAppplyStateToProps();
 }, DEBOUNCE_TIME, { trailing: true, leading: true });
 

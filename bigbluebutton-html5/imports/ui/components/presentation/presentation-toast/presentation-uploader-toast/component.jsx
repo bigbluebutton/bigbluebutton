@@ -6,7 +6,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
-import _ from 'lodash';
 import { UploadingPresentations } from '/imports/api/presentations';
  
 const TIMEOUT_CLOSE_TOAST = 1; //second

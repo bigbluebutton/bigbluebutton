@@ -840,7 +840,6 @@ class VideoService {
   }
 
   applyCameraProfile (peer, profileId) {
-    console.log('apply camera profile')
     const profile = CAMERA_PROFILES.find((targetProfile) => targetProfile.id === profileId);
 
     // When this should be skipped:

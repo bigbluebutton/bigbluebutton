@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { 
   layoutDispatch,
   layoutSelect,
@@ -44,7 +44,7 @@ const VideoFocusLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
   useEffect(() => {

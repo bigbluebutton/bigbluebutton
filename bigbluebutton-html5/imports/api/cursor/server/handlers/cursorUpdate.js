@@ -1,13 +1,13 @@
 import { check } from 'meteor/check';
 import CursorStreamer from '/imports/api/cursor/server/streamer';
 import Logger from '/imports/startup/server/logger';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 
 const CURSOR_PROCCESS_INTERVAL = 30;
 
 const cursorQueue = {};
 
-const proccess = _.throttle(() => {
+const proccess = throttle(() => {
   try {
     Object.keys(cursorQueue).forEach((meetingId) => {
       try {

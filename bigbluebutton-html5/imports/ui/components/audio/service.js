@@ -1,6 +1,6 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { throttle } from 'lodash';
+import throttle from 'lodash.throttle';
 import { debounce } from 'radash';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';

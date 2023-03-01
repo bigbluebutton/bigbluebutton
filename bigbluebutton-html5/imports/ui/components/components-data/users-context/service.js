@@ -2,7 +2,7 @@ import {
   useState, useContext, useRef, useEffect,
 } from 'react';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
-import { throttle } from 'lodash';
+import throttle from 'lodash.throttle';
 
 const USER_JOIN_UPDATE_THROTTLE_TIME = 1000;
 

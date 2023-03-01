@@ -1,5 +1,5 @@
 import React from 'react';
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { makeCall } from '/imports/ui/services/api';
 import MessageForm from './component';
 import ChatService from '/imports/ui/components/chat/service';
@@ -15,7 +15,7 @@ const MessageFormContainer = (props) => {
     ChatService.setUserSentMessage(true);
     return ChatService.sendGroupMessage(message, idChatOpen);
   };
-  const startUserTyping = _.throttle(
+  const startUserTyping = throttle(
     (chatId) => makeCall('startUserTyping', chatId),
     START_TYPING_THROTTLE_INTERVAL,
   );

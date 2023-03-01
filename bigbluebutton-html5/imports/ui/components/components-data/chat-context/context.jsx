@@ -8,7 +8,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import UserService from '/imports/ui/components/user-list/service';
-import { _ } from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;

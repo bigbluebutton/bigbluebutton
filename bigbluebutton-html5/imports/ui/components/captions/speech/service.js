@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { makeCall } from '/imports/ui/services/api';
 
 const DEFAULT_LANGUAGE = 'en-US';
@@ -23,7 +23,7 @@ const initSpeechRecognition = (locale = DEFAULT_LANGUAGE) => {
 
 const pushSpeechTranscript = (locale, transcript, type) => makeCall('pushSpeechTranscript', locale, transcript, type);
 
-const throttledTranscriptPush = _.throttle(pushSpeechTranscript, THROTTLE_TIMEOUT, {
+const throttledTranscriptPush = throttle(pushSpeechTranscript, THROTTLE_TIMEOUT, {
   leading: false,
   trailing: true,
 });

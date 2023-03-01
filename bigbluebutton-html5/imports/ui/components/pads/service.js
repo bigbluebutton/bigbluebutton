@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
@@ -48,7 +48,7 @@ const hasPad = (externalId) => {
 
 const createSession = (externalId) => makeCall('createSession', externalId);
 
-const throttledCreateSession = _.throttle(createSession, THROTTLE_TIMEOUT, {
+const throttledCreateSession = throttle(createSession, THROTTLE_TIMEOUT, {
   leading: true,
   trailing: false,
 });
@@ -129,7 +129,7 @@ const pinPad = (externalId, pinned) => {
   makeCall('pinPad', externalId, pinned);
 };
 
-const throttledPinPad = _.throttle(pinPad, 1000, {
+const throttledPinPad = throttle(pinPad, 1000, {
   leading: true,
   trailing: false,
 });

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import throttle from 'lodash.throttle';
 import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';
@@ -101,7 +101,7 @@ const updateTranscript = (id, transcript, locale) => {
   makeCall('updateTranscript', id, start, end, text, transcript, locale);
 };
 
-const throttledTranscriptUpdate = _.throttle(updateTranscript, THROTTLE_TIMEOUT, {
+const throttledTranscriptUpdate = throttle(updateTranscript, THROTTLE_TIMEOUT, {
   leading: false,
   trailing: true,
 });
