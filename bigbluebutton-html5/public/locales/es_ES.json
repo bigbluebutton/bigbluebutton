@@ -566,7 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ estaban hablando",
     "app.talkingIndicator.wasTalking" : "{0} dejaron de hablar",
     "app.actionsBar.actionsDropdown.actionsLabel": "Acciones",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Gestionar presentaciones",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Cargar / Gestionar presentaciones",
     "app.actionsBar.actionsDropdown.initPollLabel": "Iniciar una encuesta",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Compartir su pantalla",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Detener compartir su pantalla",
