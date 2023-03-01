@@ -566,7 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ разговаривают",
     "app.talkingIndicator.wasTalking" : "{0} прекратил говорить",
     "app.actionsBar.actionsDropdown.actionsLabel": "Действия",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Управление презентациями",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Загрузить/Управлять презентациями",
     "app.actionsBar.actionsDropdown.initPollLabel": "Начать голосование",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Демонстировать ваш экран",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Остановить демонстрацию экрана",
