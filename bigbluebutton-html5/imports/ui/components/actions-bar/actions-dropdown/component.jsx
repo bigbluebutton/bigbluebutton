@@ -12,7 +12,8 @@ import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette'
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
 import { isPresentationEnabled } from '/imports/ui/services/features';
-import {isLayoutsEnabled} from '/imports/ui/services/features';
+import { isLayoutsEnabled } from '/imports/ui/services/features';
+import { disabledFeaturesTimer } from '/imports/ui/services/features';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -239,7 +240,7 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (amIModerator && isTimerEnabled) {
+    if (amIModerator && isTimerEnabled && disabledFeaturesTimer()) {
       actions.push({
         icon: "time",
         label: isTimerActive ? intl.formatMessage(intlMessages.deactivateTimerLabel)
