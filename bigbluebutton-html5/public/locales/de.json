@@ -566,7 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ sprachen",
     "app.talkingIndicator.wasTalking" : "{0} spricht nicht mehr",
     "app.actionsBar.actionsDropdown.actionsLabel": "Aktionen",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Präsentationen verwalten",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Präsentationen hochladen/verwalten",
     "app.actionsBar.actionsDropdown.initPollLabel": "Eine Umfrage starten",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Bildschirm freigeben",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Bildschirmfreigabe beenden",
