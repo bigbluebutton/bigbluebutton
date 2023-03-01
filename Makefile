@@ -1,6 +1,8 @@
 
 # Makefile to build a Debian repository in directory REPOSITORY.
 #
+# We can also trigger a build of a single package with 'make PACKAGE_bbb-html5' (for example)
+#
 # If REPOSITORY isn't specified as a make option, the default is
 # $(DISTRO)-$(COMMIT), where $(DISTRO) is either focal or bionic and
 # $(COMMIT) is the first six characters of the current git commit.
@@ -64,6 +66,7 @@ define makerule =
   PACKAGE_$1 = artifacts/$1_*$(PACKAGE_LABEL)*.deb
   $$(PACKAGE_$1):
 	./build/setup.sh $1
+  PACKAGE_$1: $$(PACKAGE_$1)
 endef
 
 $(foreach pkg,${TARGETS},$(eval $(call makerule,$(pkg))))
