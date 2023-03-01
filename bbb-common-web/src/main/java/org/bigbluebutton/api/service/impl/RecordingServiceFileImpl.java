@@ -62,6 +62,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     private XmlService xmlService;
     private String recordStatusDir;
     private String captionsDir;
+    private Boolean allowFetchAllRecordings;
     private String presentationBaseDir;
     private String defaultServerUrl;
     private String defaultTextTrackUrl;
@@ -203,7 +204,7 @@ public class RecordingServiceFileImpl implements RecordingService {
 
     public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, int offset, Pageable pageable) {
         // If no IDs or limit were provided return no recordings instead of every recording
-        if(idList.isEmpty() && pageable == null) return xmlService.noRecordings();
+        if(idList.isEmpty() && pageable == null && !allowFetchAllRecordings) return xmlService.noRecordings();
 
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
@@ -433,6 +434,8 @@ public class RecordingServiceFileImpl implements RecordingService {
     public void setCaptionsDir(String dir) {
         captionsDir = dir;
     }
+
+    public void setAllowFetchAllRecordings(Boolean allowFetchAllRecordings) { this.allowFetchAllRecordings = allowFetchAllRecordings; }
 
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {
         recordingServiceHelper = r;
