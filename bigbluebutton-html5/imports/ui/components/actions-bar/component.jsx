@@ -11,6 +11,20 @@ import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
 
 class ActionsBar extends PureComponent {
+  componentDidUpdate(prevProps) {
+    const {
+      hasScreenshare,
+      hasExternalVideo,
+      isTherePresentation,
+      setPresentationIsOpen,
+      layoutContextDispatch
+    } = this.props;
+
+    if (prevProps.isTherePresentation && !isTherePresentation && !hasScreenshare && !hasExternalVideo) {
+        setPresentationIsOpen(layoutContextDispatch, false);
+    } 
+  }
+
   render() {
     const {
       amIPresenter,
@@ -29,6 +43,7 @@ class ActionsBar extends PureComponent {
       isSelectRandomUserEnabled,
       isRaiseHandButtonEnabled,
       isThereCurrentPresentation,
+      isTherePresentation,
       allowExternalVideo,
       setEmojiStatus,
       currentUser,
@@ -95,6 +110,7 @@ class ActionsBar extends PureComponent {
             setPresentationIsOpen={setPresentationIsOpen}
             layoutContextDispatch={layoutContextDispatch}
             hasCurrentPresentation={isThereCurrentPresentation}
+            hasPresentation={isTherePresentation}
             hasExternalVideo={isSharingVideo}
             hasScreenshare={hasScreenshare}
           />

@@ -63,6 +63,7 @@ export default withTracker(() => ({
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isThereCurrentPresentation: MediaService.getPresentationInfo().hasCurrent,
+  isTherePresentation: MediaService.getPresentationInfo().hasPresentation,
   allowExternalVideo: isExternalVideoEnabled(),
   setEmojiStatus: UserListService.setEmojiStatus,
 }))(injectIntl(ActionsBarContainer));

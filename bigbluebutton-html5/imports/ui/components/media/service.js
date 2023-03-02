@@ -7,15 +7,17 @@ import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/serv
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
 import NotesService from '/imports/ui/components/notes/service';
+import Auth from '/imports/ui/services/auth';
 
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
 
 const getPresentationInfo = () => {
   const hasCurrent = Presentations.findOne({
     current: true,
+    meetingId: Auth.meetingID,
   });
 
-  const hasPresentation = Presentations.find({}).count() > 0;
+  const hasPresentation = Presentations.find({ meetingId: Auth.meetingID }).count() > 0;
 
   return {
     hasCurrent: (hasCurrent != null),
