@@ -9,7 +9,7 @@ buildscript {
   dependencies {
     classpath "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
     classpath "org.grails.plugins:hibernate5:${gormVersion}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.0.0"
     classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
     classpath "org.grails.plugins:views-gradle:2.1.1"
     classpath "org.grails.plugins:views-json:2.1.1"
@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   implementation "org.springframework:spring-core:5.3.21"
   implementation "org.springframework:spring-context:5.3.21"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
@@ -107,7 +107,7 @@ dependencies {
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console:5.2.0"
   profile "org.grails.profiles:web"
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.6"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
