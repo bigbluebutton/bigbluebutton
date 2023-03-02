@@ -26,6 +26,7 @@ cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
+cp bbb-html5-conn-limit.conf staging/etc/nginx/conf.d
 
 
 mkdir -p staging/etc/systemd/system

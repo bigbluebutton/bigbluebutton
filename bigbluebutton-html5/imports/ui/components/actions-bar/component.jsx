@@ -9,18 +9,20 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
   componentDidUpdate(prevProps) {
     const {
       hasScreenshare,
-      hasExternalVideo,
+      isSharingVideo,
       isTherePresentation,
+      isSharedNotesPinned,
       setPresentationIsOpen,
       layoutContextDispatch
     } = this.props;
 
-    if (prevProps.isTherePresentation && !isTherePresentation && !hasScreenshare && !hasExternalVideo) {
+    if (prevProps.isTherePresentation && !isTherePresentation && !hasScreenshare && !isSharingVideo && !isSharedNotesPinned) {
         setPresentationIsOpen(layoutContextDispatch, false);
     } 
   }
@@ -35,6 +37,7 @@ class ActionsBar extends PureComponent {
       handleTakePresenter,
       intl,
       isSharingVideo,
+      isSharedNotesPinned,
       hasScreenshare,
       stopExternalVideoShare,
       isCaptionsAvailable,
@@ -54,6 +57,8 @@ class ActionsBar extends PureComponent {
       setPushLayout,
     } = this.props;
 
+    const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation) 
+                                    || isSharingVideo || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar
         style={
@@ -105,15 +110,19 @@ class ActionsBar extends PureComponent {
           />
         </Styled.Center>
         <Styled.Right>
-          <PresentationOptionsContainer
-            presentationIsOpen={presentationIsOpen}
-            setPresentationIsOpen={setPresentationIsOpen}
-            layoutContextDispatch={layoutContextDispatch}
-            hasCurrentPresentation={isThereCurrentPresentation}
-            hasPresentation={isTherePresentation}
-            hasExternalVideo={isSharingVideo}
-            hasScreenshare={hasScreenshare}
-          />
+          { shouldShowOptionsButton ?
+            <PresentationOptionsContainer
+              presentationIsOpen={presentationIsOpen}
+              setPresentationIsOpen={setPresentationIsOpen}
+              layoutContextDispatch={layoutContextDispatch}
+              hasCurrentPresentation={isThereCurrentPresentation}
+              hasPresentation={isTherePresentation}
+              hasExternalVideo={isSharingVideo}
+              hasScreenshare={hasScreenshare}
+              hasPinnedSharedNotes={isSharedNotesPinned}
+            />
+            : null
+          }
           {isRaiseHandButtonEnabled
             ? (
               <RaiseHandDropdownContainer {...{
