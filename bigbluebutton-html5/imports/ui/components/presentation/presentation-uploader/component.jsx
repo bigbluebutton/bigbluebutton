@@ -15,6 +15,7 @@ import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
 const propTypes = {
@@ -566,6 +567,14 @@ class PresentationUploader extends Component {
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
 
+    if (!isPresentationEnabled()) {
+      this.setState(
+        { presentations: [] },
+        Session.set('showUploadPresentationView', false),
+      );
+      return
+    }
+
     this.setState({ disableActions: true });
 
     presentations.forEach(item => {
@@ -1074,7 +1083,7 @@ class PresentationUploader extends Component {
         activeClassName={"dropzoneActive"}
         accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
         disablepreview="true"
-        onDrop={(files, files2) => this.handleFiledrop(files, files2, this)}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -1141,7 +1150,7 @@ class PresentationUploader extends Component {
         accept="image/*"
         disablepreview="true"
         data-test="fileUploadDropZone"
-        onDrop={(files, files2) => this.handleFiledrop(files, files2, this)}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>

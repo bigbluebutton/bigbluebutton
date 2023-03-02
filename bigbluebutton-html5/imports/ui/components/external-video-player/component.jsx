@@ -215,7 +215,7 @@ class VideoPlayer extends Component {
   componentWillUnmount() {
     const {
       layoutContextDispatch,
-      hidePresentation,
+      hidePresentationOnJoin,
     } = this.props;
 
     window.removeEventListener('beforeunload', this.onBeforeUnload);
@@ -232,7 +232,7 @@ class VideoPlayer extends Component {
       value: false,
     });
 
-    if (hidePresentation) {
+    if (hidePresentationOnJoin) {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_IS_OPEN,
         value: false,

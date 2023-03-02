@@ -4,9 +4,10 @@ import { defineMessages, injectIntl } from 'react-intl';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import _ from 'lodash';
-import BreakoutRemainingTimeComponent from './component';
+import MeetingRemainingTimeComponent from './component';
 import BreakoutService from '/imports/ui/components/breakout-room/service';
 import { Text, Time } from './styles';
+import { meetingIsBreakout } from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   failedMessage: {
@@ -37,6 +38,10 @@ const intlMessages = defineMessages({
     id: 'app.meeting.alertBreakoutEndsUnderMinutes',
     description: 'Alert that tells that the breakout ends under x minutes',
   },
+  alertMeetingEndsUnderMinutes: {
+    id: 'app.meeting.alertMeetingEndsUnderMinutes',
+    description: 'Alert that tells that the meeting ends under x minutes',
+  },
 });
 
 let timeRemaining = 0;
@@ -66,17 +71,17 @@ class breakoutRemainingTimeContainer extends React.Component {
       const time = words.pop();
       const text = words.join(' ');
       return (
-        <BreakoutRemainingTimeComponent>
+        <MeetingRemainingTimeComponent>
           <Text>{text}</Text>
           <br />
           <Time data-test="breakoutRemainingTime">{time}</Time>
-        </BreakoutRemainingTimeComponent>
+        </MeetingRemainingTimeComponent>
       );
     }
     return (
-      <BreakoutRemainingTimeComponent>
+      <MeetingRemainingTimeComponent>
         {message}
-      </BreakoutRemainingTimeComponent>
+      </MeetingRemainingTimeComponent>
     );
   }
 }
@@ -137,8 +142,11 @@ export default injectNotify(injectIntl(withTracker(({
 
       if (alertsInSeconds.includes(time) && time !== lastAlertTime && displayAlerts) {
         const timeInMinutes = time / 60;
-        const msg = { id: `${intlMessages.alertBreakoutEndsUnderMinutes.id}${timeInMinutes === 1 ? 'Singular' : 'Plural'}` };
-        const alertMessage = intl.formatMessage(msg, { 0: timeInMinutes })
+        const message = meetingIsBreakout()
+          ? intlMessages.alertBreakoutEndsUnderMinutes
+          : intlMessages.alertMeetingEndsUnderMinutes;
+        const msg = { id: `${message.id}${timeInMinutes === 1 ? 'Singular' : 'Plural'}` };
+        const alertMessage = intl.formatMessage(msg, { 0: timeInMinutes });
 
         lastAlertTime = time;
         notify(alertMessage, 'info', 'rooms');
