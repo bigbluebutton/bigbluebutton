@@ -1,5 +1,5 @@
 import React, { useReducer } from 'react';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import Service from './service';
 
 export const CustomVirtualBackgroundsContext = React.createContext();

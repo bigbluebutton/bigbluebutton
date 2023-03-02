@@ -1,5 +1,5 @@
 import React from 'react';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import { makeCall } from '/imports/ui/services/api';
 import MessageForm from './component';
 import ChatService from '/imports/ui/components/chat/service';

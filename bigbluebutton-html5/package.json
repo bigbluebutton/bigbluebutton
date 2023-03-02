@@ -51,7 +51,6 @@
     "html-to-image": "^1.9.0",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
-    "lodash.throttle": "^4.1.1",
     "makeup-screenreader-trap": "0.0.5",
     "meteor-node-stubs": "^1.2.1",
     "mobx": "6.4.2",

@@ -1,4 +1,4 @@
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';

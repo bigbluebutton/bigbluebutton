@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import PropTypes from 'prop-types';
 
 const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;

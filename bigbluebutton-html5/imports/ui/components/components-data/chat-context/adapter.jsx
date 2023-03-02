@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import { ChatContext, ACTIONS, MESSAGE_TYPES } from './context';
 import { UsersContext } from '../users-context/context';
 import { makeCall } from '/imports/ui/services/api';

@@ -1,4 +1,4 @@
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import { diff } from '@mconf/bbb-diff';
 import { Session } from 'meteor/session';
 import Auth from '/imports/ui/services/auth';

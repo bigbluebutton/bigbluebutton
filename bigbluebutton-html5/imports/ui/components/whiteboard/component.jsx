@@ -1,5 +1,5 @@
 import * as React from "react";
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import styled, { createGlobalStyle } from "styled-components";
 import Cursors from "./cursors/container";
 import { TldrawApp, Tldraw } from "@tldraw/tldraw";

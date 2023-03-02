@@ -3,7 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import TypingIndicatorContainer from './typing-indicator/container';
 import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';

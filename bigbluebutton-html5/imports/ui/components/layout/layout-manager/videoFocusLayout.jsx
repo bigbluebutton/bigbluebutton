@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import { 
   layoutDispatch,
   layoutSelect,

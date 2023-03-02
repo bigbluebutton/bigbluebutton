@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Meteor } from 'meteor/meteor';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;

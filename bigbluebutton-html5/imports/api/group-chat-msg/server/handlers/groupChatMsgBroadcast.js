@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import addGroupChatMsg from '../modifiers/addGroupChatMsg';
 import addBulkGroupChatMsgs from '../modifiers/addBulkGroupChatMsgs';
 

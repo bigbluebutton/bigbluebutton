@@ -1,5 +1,5 @@
 import React from 'react';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import { notify } from '/imports/ui/services/notification';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';

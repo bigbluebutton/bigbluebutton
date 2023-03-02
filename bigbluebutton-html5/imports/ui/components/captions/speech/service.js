@@ -1,4 +1,4 @@
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import { makeCall } from '/imports/ui/services/api';
 
 const DEFAULT_LANGUAGE = 'en-US';

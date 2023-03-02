@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import CursorStreamer from '/imports/api/cursor/server/streamer';
 import Logger from '/imports/startup/server/logger';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 
 const CURSOR_PROCCESS_INTERVAL = 30;
 

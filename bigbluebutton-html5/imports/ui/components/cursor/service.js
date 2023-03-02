@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth';
-import throttle from 'lodash.throttle';
+import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 
 const Cursor = new Mongo.Collection(null);
