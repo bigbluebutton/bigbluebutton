@@ -130,6 +130,9 @@ const TldrawGlobalStyleText = (arg) => {
   #slide-background-shape div {
     pointer-events: none;
   }
+  div[dir*="ltr"]:has(button[aria-expanded*="false"][aria-controls*="radix-"]) {
+    pointer-events: none;
+  }
   [aria-expanded*="false"][aria-controls*="radix-"] {
     display: none;
   }
