@@ -97,7 +97,7 @@ dependencies {
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
-  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.5'
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
