@@ -4,7 +4,6 @@ import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
-import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import { UploadingPresentations } from '/imports/api/presentations';
 
@@ -175,11 +174,11 @@ const getLastBreakoutInserted = (breakoutURLArray) => breakoutURLArray.sort((a, 
   return a.breakoutUrlData.insertedTime - b.breakoutUrlData.insertedTime;
 }).pop();
 
-const getLastBreakoutByUserId = (userId) => fp.pipe(
-  getBreakoutByUserId,
-  getWithBreakoutUrlData(userId),
-  getLastBreakoutInserted,
-)(userId);
+const getLastBreakoutByUserId = (userId) => {
+  const breakout = getBreakoutByUserId(userId);
+  const url = getWithBreakoutUrlData(userId)(breakout);
+  return getLastBreakoutInserted(url);
+}
 
 const getBreakouts = () =>
   Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
