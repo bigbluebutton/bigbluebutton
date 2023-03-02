@@ -566,7 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ rääkisid",
     "app.talkingIndicator.wasTalking" : "{0} lõpetas rääkimise",
     "app.actionsBar.actionsDropdown.actionsLabel": "Tegevused",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Halda esitlusi",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Laadi üles/halda esitlusi",
     "app.actionsBar.actionsDropdown.initPollLabel": "Alusta küsitlust",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Jaga ekraani",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Lõpeta ekraanijagamine",
