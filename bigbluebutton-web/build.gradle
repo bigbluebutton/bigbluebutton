@@ -123,6 +123,7 @@ tasks.named('bootWarMainClassName') {
 
 configurations.implementation {
     exclude group: 'io.micronaut', module: 'micronaut-aop'
+    exclude group: 'com.h2database', module: 'h2'
     exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
 }
 
