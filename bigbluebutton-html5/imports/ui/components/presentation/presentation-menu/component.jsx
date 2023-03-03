@@ -10,8 +10,6 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
 
-const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
-
 const intlMessages = defineMessages({
   downloading: {
     id: 'app.presentation.options.downloading',
