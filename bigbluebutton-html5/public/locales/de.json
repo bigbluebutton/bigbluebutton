@@ -1049,6 +1049,7 @@
     "app.whiteboard.annotations.numberExceeded": "Die Anzahl der Anmerkungen hat den Grenzwert von ({0}) überschritten",
     "app.whiteboard.toolbar.tools": "Werkzeuge",
     "app.whiteboard.toolbar.tools.hand": "Verschieben",
+    "app.whiteboard.toolbar.tools.disabled.pan": "Zoomen, um Verschieben zu aktivieren",
     "app.whiteboard.toolbar.tools.pencil": "Stift",
     "app.whiteboard.toolbar.tools.rectangle": "Rechteck",
     "app.whiteboard.toolbar.tools.triangle": "Dreieck",
