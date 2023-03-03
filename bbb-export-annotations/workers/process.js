@@ -123,7 +123,6 @@ function to_px(pt) {
 function escapeText(string) {
   return string
       .replace(/[~`!.*+?%^${}()|[\]\\/]/g, '\\$&')
-      .replace(/-/g, '\\&#x2D;')
       .replace(/&/g, '\\&amp;')
       .replace(/'/g, '\\&#39;')
       .replace(/"/g, '\\&quot;')
