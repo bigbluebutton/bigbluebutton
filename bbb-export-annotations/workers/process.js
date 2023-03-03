@@ -800,11 +800,6 @@ async function process_presentation_annotations() {
     const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
     const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
 
-    // Output dimensions in pixels even if stated otherwise (pt)
-    // CairoSVG didn't like attempts to read the dimensions from a stream
-    // that would prevent loading file in memory
-    // Ideally, use dimensions provided by tldraw's background image asset
-    // (this is not yet always provided)
     const dimensions = svgBackgroundExists ?
     probe.sync(fs.readFileSync(svgBackgroundSlide)) :
     probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
@@ -812,13 +807,20 @@ async function process_presentation_annotations() {
     const slideWidth = parseInt(dimensions.width, 10);
     const slideHeight = parseInt(dimensions.height, 10);
 
+    const maxImageWidth = config.process.maxImageWidth;
+    const maxImageHeight = config.process.maxImageHeight;
+  
+    const ratio = Math.min(maxImageWidth / slideWidth, maxImageHeight / slideHeight);
+    const scaledWidth = slideWidth * ratio;
+    const scaledHeight = slideHeight * ratio;
+
     // Create the SVG slide with the background image
     let svg = create({version: '1.0', encoding: 'UTF-8'})
         .ele('svg', {
           'xmlns': 'http://www.w3.org/2000/svg',
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-          'width': `${slideWidth}px`,
-          'height': `${slideHeight}px`,
+          'width': `${scaledWidth}px`,
+          'height': `${scaledHeight}px`,
         })
         .dtd({
           pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -826,8 +828,8 @@ async function process_presentation_annotations() {
         })
         .ele('image', {
           'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-          'width': `${slideWidth}px`,
-          'height': `${slideHeight}px`,
+          'width': `${scaledWidth}px`,
+          'height': `${scaledHeight}px`,
         })
         .up()
         .ele('g', {
