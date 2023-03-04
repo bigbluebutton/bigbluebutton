@@ -136,6 +136,9 @@ const TldrawGlobalStyleText = (arg) => {
   [aria-expanded*="false"][aria-controls*="radix-"] {
     display: none;
   }
+  [class$="-side-right"] {
+    top: -1px;
+  }
   ${ (arg.hasWBAccess || arg.isPresenter) ? `
     #TD-Tools-Dots {
       height: ${arg.size}px;
@@ -150,6 +153,27 @@ const TldrawGlobalStyleText = (arg) => {
     #TD-PrimaryTools button {
         height: ${arg.size}px;
         width: ${arg.size}px;
+    }
+    #TD-Styles {
+      border-width: ${borderSize};
+    }
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      height: 92%;
+      border-radius: 7px;
+      &:hover {
+        border: solid ${borderSize} #ECECEC;
+        background-color: #ECECEC;
+      }
+      &:focus {
+        border: solid ${borderSize} ${colorBlack};
+      }
+    }
+    #TD-Styles,
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo {
+      margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
     }
     
     /* For manually supplementing the style of the TD-Tools-Dots */
@@ -240,8 +264,18 @@ const TldrawGlobalStyleText = (arg) => {
       white-space: pre-wrap;
       overflow-wrap: break-word;
     }
-
   ` : ''}
+  
+  ${ (arg.darkTheme) ? `
+    #TD-TopPanel-Undo,
+    #TD-TopPanel-Redo,
+    #TD-Styles {
+      &:focus {
+        border: solid ${borderSize} ${colorWhite} !important;
+      }
+    }
+  ` : ''}
+  
   `;
     
   return styleText;
