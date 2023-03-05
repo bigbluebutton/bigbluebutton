@@ -13,7 +13,7 @@ const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.bas
 const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
 const TOOL_CURSORS = {
-  select: 'none',
+  select: 'default',
   erase: 'none',
   arrow: 'none',
   draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
