@@ -152,6 +152,9 @@ const TldrawGlobalStyleText = (arg) => {
         height: ${arg.size}px;
         width: ${arg.size}px;
     }
+    #TD-PrimaryTools button > div:hover:not(:disabled) {
+      background-color: var(--colors-hover);
+    }
     #TD-Styles {
       border-width: ${borderSize};
     }
