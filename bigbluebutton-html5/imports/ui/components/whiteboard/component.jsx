@@ -144,11 +144,9 @@ const TldrawGlobalStyleText = (arg) => {
       height: ${arg.size}px;
       width: ${arg.size}px;
     }
-    #TD-Delete {
-      & button {
+    #TD-Delete button {
         height: ${arg.size}px;
         width: ${arg.size}px;
-      }
     }
     #TD-PrimaryTools button {
         height: ${arg.size}px;
@@ -162,13 +160,13 @@ const TldrawGlobalStyleText = (arg) => {
     #TD-Styles {
       height: 92%;
       border-radius: 7px;
-      &:hover {
-        border: solid ${borderSize} #ECECEC;
-        background-color: #ECECEC;
-      }
-      &:focus {
-        border: solid ${borderSize} ${colorBlack};
-      }
+    }
+    #TD-Styles:hover {
+      border: solid ${borderSize} #ECECEC;
+      background-color: #ECECEC;
+    }
+    #TD-Styles:focus {
+      border: solid ${borderSize} ${colorBlack};
     }
     #TD-Styles,
     #TD-TopPanel-Undo,
@@ -269,10 +267,8 @@ const TldrawGlobalStyleText = (arg) => {
   ${ (arg.darkTheme) ? `
     #TD-TopPanel-Undo,
     #TD-TopPanel-Redo,
-    #TD-Styles {
-      &:focus {
-        border: solid ${borderSize} ${colorWhite} !important;
-      }
+    #TD-Styles:focus {
+      border: solid ${borderSize} ${colorWhite} !important;
     }
   ` : ''}
   
