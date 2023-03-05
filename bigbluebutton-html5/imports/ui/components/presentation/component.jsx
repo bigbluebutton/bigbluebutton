@@ -472,6 +472,25 @@ class Presentation extends PureComponent {
           break;
       }
     });
+    
+    win.addEventListener('mousedown', (e) => {
+      if (e.srcElement.id == "canvas"){
+        if (e.button == 0){
+          this.state.tldrawAPI.setMenuOpen(false);
+          const popups = win.document.querySelectorAll('[data-radix-popper-content-wrapper=""]')
+          popups.forEach(p => {
+            p.style.display = "none";
+          });
+        } else if (e.button == 2){
+          const contextMenu = win.document.getElementById('TD-ContextMenu')
+          if (contextMenu) {
+            const pContextMenu = contextMenu.parentNode;
+            pContextMenu.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0px)`;
+            pContextMenu.style.display = "unset";
+          }
+        }
+      }
+    });
   }
 
   onFullscreenChange() {
