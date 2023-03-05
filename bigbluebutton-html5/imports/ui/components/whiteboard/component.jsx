@@ -161,9 +161,16 @@ const TldrawGlobalStyleText = (arg) => {
       height: 92%;
       border-radius: 7px;
     }
+    #TD-TopPanel-Undo:hover,
+    #TD-TopPanel-Redo:hover,
     #TD-Styles:hover {
       border: solid ${borderSize} #ECECEC;
       background-color: #ECECEC;
+    }
+    #TD-TopPanel-Undo > div:hover,
+    #TD-TopPanel-Redo > div:hover,
+    #TD-Styles > div:hover {
+      background-color: var(--colors-hover);
     }
     #TD-Styles:focus {
       border: solid ${borderSize} ${colorBlack};
