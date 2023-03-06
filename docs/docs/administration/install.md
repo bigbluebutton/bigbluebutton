@@ -14,7 +14,7 @@ BigBlueButton 2.6 is under active development. We have tools to make it easy for
 
 We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 20.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.4, we recommend setting up a clean server for BigBlueButton 2.6 on Ubuntu 20.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server). We support upgrading a BigBlueButton 2.5 server to 2.6.
 
-A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/install)).
+A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v2/install)).
 
 ### Minimum server requirements
 
@@ -145,7 +145,7 @@ The above link gives detailed information on using the script. As an example, th
 wget -qO- https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh | bash -s -- -v focal-260 -s bbb.example.com -e notice@example.com -g -w
 ```
 
-Note: You can [uninstall Greenlight](/greenlight/install#uninstall) if you do not intend on using it on production.
+Note: You can [uninstall Greenlight](/greenlight/v2/install#uninstall) if you do not intend on using it on production.
 
 After the `bbb-install-2.6.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
@@ -323,7 +323,7 @@ If this server is intended for production, you should also
 
 - [Secure your system -- restrict access to specific ports](/administration/customize#secure-your-system--restrict-access-to-specific-ports)
 - [Configure the server to work behind a firewall](/administration/firewall-configuration) (if you have installed behind a firewall or on a server that has a public/private IP address)
-- [remove Greenlight](/greenlight/install#uninstall) (if you had it installed and is no longer needed)
+- [remove Greenlight](/greenlight/v2/install#uninstall) (if you had it installed and is no longer needed)
 - [Set up a TURN server](/administration/turn-server) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
 - Test your HTTPS configuration. A well-respected site that can do a series of automated tests is [https://www.ssllabs.com/ssltest/](https://www.ssllabs.com/ssltest/) - simply enter your server's hostname, optionally check the "Do not show results" check box if you would like to keep it private, then Submit. At time of writing, the configuration shown on this page should achieve an "A" ranking in the SSL Labs test page.
 

@@ -58,7 +58,7 @@ const FeatureList: FeatureItem[] = [
             </>
         ),
         actionText: "Greenlight guide",
-        docId: "/greenlight/overview"
+        docId: "/greenlight/v2/overview"
     },
     {
         title: 'What\'s new?',

@@ -448,7 +448,7 @@ Since BigBlueButton is controlled by its [API](/development/api), there isn't an
 
 The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/integrations/).
 
-BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/overview).
+BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/v2/overview).
 
 
 ### Where do I schedule a meeting in BigBlueButton?
@@ -518,7 +518,7 @@ As described above, by saying there are _multiple_ security mechanisms BigBlueBu
 
 #### Does BigBlueButton come with a front end?
 
-![greenlight-start](/img/greenlight/gl-start.png)
+![greenlight-start](/img/greenlight/v2/gl-start.png)
 
 #### Can I run multiple virtual classrooms in a single BigBlueButton server
 
@@ -528,7 +528,7 @@ Absolutely. To see an example of this, check out [GreenLight on our pool of demo
 
 If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/support), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
 
-Alternatively, you can set up [Greenlight](/greenlight/overview) to be able to easily manage classrooms.
+Alternatively, you can set up [Greenlight](/greenlight/v2/overview) to be able to easily manage classrooms.
 
 #### How do I integrate BigBlueButton with my own server
 
