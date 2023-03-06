@@ -4,7 +4,6 @@ import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
-import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { UsersContext } from '../components-data/users-context/context';
 import {
@@ -56,17 +55,12 @@ const WebcamContainer = ({
     : null;
 };
 
-let userWasInBreakout = false;
-
 export default withModalMounter(withTracker((props) => {
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
   };
-
-  const userIsInBreakout = breakoutService.getBreakoutUserIsIn(Auth.userID);
-  let deviceIds = Session.get('deviceIds');
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
