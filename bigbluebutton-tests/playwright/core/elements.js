@@ -445,7 +445,7 @@ exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 exports.listButtons = 'div[role="tablist"]';
 exports.messageLearningDashboard = 'tr[class="text-gray-700"] td:nth-child(5) span';
-exports.durationMeetingTimeLearningDashboard = 'tr[class="text-gray-700"] td:nth-child(2)';
+exports.userOnlineTime = 'tr[class="text-gray-700"] td:nth-child(2)';
 exports.confirmRecording = 'div[id="simpleModal"] button:nth-child(1)';
 exports.pollTrueFalse = 'button[data-test="pollTrueFalse"]';
 exports.pollPanel = 'div[role="rowgroup"]';
@@ -458,3 +458,7 @@ exports.pollYesNoAnswer = 'div[role="cell"]:nth-child(5) div div:nth-child(2)';
 exports.pollUserResponseQuestion = 'div[role="rowgroup"] div:nth-child(6) div:nth-child(1) div div';
 exports.pollUserResponseAnswer = 'div[role="cell"]:nth-child(6) div div:nth-child(2)';
 exports.pollTotal = 'div[role="cell"]:nth-child(2)';
+exports.date = 'div[class="mx-10"] div div p div';
+exports.meetingStatus = 'div[class="mx-10"] div div p span';
+
+exports.meetingDurationTime = 'div[class="mx-10"] div div:nth-child(2) p:nth-child(1)';

@@ -40,17 +40,17 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecording);
     await this.modPage.hasText(e.recordingIndicator, '00:0000:00');
 
-    const timeTest = await (this.dashboardPage.getLocator(e.durationMeetingTimeLearningDashboard)).textContent();
+    const timeTest = await (this.dashboardPage.getLocator(e.userOnlineTime)).textContent();
 
     // /var date = new Date();
-    const timeLocator = await this.dashboardPage.getLocator(e.durationMeetingTimeLearningDashboard);
+    const timeLocator = await this.dashboardPage.getLocator(e.userOnlineTime);
     const html = await timeLocator.innerHTML();
 
     const [hours, minutes, seconds] = timeTest.split(':').map(Number);
     const timeInSeconds =  hours * 3600 + minutes * 60 + seconds;
     await sleep(10000);
 
-    const timeTestGreater = await (this.dashboardPage.getLocator(e.durationMeetingTimeLearningDashboard)).textContent();
+    const timeTestGreater = await (this.dashboardPage.getLocator(e.userOnlineTime)).textContent();
     
     const [hoursGreater, minutesGreater, secondsGreater] = timeTestGreater.split(':').map(Number);
     const timeInSecondsGreater =  hoursGreater * 3600 + minutesGreater * 60 + secondsGreater;
@@ -104,12 +104,21 @@ class LearningDashboard extends MultiUsers {
     await this.dashboardPage.hasText(e.pollUserResponseQuestion, e.pollQuestion, 15000);
     await this.dashboardPage.hasText(e.pollUserResponseAnswer, e.answerMessage);
     await this.dashboardPage.hasText(e.pollTotal, '4');
-
-
   }
 
   async basicInfos() {
-    
+    await this.modPage.checkElementCount(e.chatUserMessageText, 0);
+
+    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.checkElementCount(e.chatUserMessageText, 1);
+    await this.dashboardPage.hasElement(e.meetingStatus);
+    await this.dashboardPage.hasElement(e.date);
+    await this.dashboardPage.hasText(e.date)
+    await this.dashboardPage.hasElement(e.meetingDurationTime);
+    await this.dashboardPage.hasText(e.meetingDurationTime, '00:00:00');
+    const meetingTimeLocator = await this.dashboardPage.getLocator(e.meetingDurationTime);
+    console.log(meetingTimeLocator)
   }
 }
 
