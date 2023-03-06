@@ -243,12 +243,12 @@ class PushLayoutEngine extends React.Component {
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
     if (pushLayout !== prevProps.pushLayout) { // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
-      if (isPresenter || isModerator) {
+      if (isModerator) {
         setPushLayout(pushLayout);
       }
     }
 
-    if (pushLayout && layoutChanged) { // change layout sizes / states
+    if (pushLayout && layoutChanged || pushLayout !== prevProps.pushLayout) { // change layout sizes / states
       if (isPresenter) {
         setMeetingLayout();
       }
