@@ -8,9 +8,7 @@ keywords:
 - install
 ---
 
-<!-- TODO The latest version of [BigBlueButton](/) is 2.6 (referred hereafter as simply BigBlueButton). -->
-
-BigBlueButton 2.6 is under active development.  We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
+BigBlueButton 2.6 is under active development. We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
 ## Before you install
 
@@ -216,7 +214,7 @@ BigBlueButton Server 2.6.0-alpha.1 (54)
                               stun: stun.l.google.com:19302
 
 
-## Potential problems described below
+# Potential problems described below
 
 ```
 
@@ -248,7 +246,7 @@ bbb-pads ——————————————► [✔ - active]
 You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packages (your version numbers may be slightly different).
 
 ```bash
-## dpkg -l | grep bbb-
+# dpkg -l | grep bbb-
 ii  bbb-apps-akka             2.6-10     all          BigBlueButton Apps (Akka)
 ii  bbb-config                1:2.6-4    amd64        BigBlueButton configuration utilities
 ii  bbb-etherpad              1:2.6-2    amd64        The EtherPad Lite components for BigBlueButton
@@ -268,7 +266,7 @@ ii  bbb-webrtc-sfu            1:2.6-6    amd64        BigBlueButton WebRTC SFU
 
 ```
 
-With Greenlight installed (that was the `-g` option), you can open `https://<HOSTNAME>/b` in a browser (where `<HOSTNAME>` is the hostname you specified in the `bbb-install-2.6.sh` command), create a local account, create a room and join it.
+With Greenlight installed (that was the `-g` option), you can open `https://<hostname>/b` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install-2.6.sh` command), create a local account, create a room and join it.
 
 <img src="/img/greenlight_welcome.png" alt="BigBlueButton's Greenlight Interface"/>
 
@@ -298,9 +296,9 @@ You can upgrade by re-running the `bbb-install-2.6.sh` script again -- it will d
 
 You can upgrade in two steps:
 
-Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
+  Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
 
-Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
+  Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
 
 ### Upgrading from BigBlueButton 2.4
 

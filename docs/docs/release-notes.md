@@ -1,8 +1,9 @@
 ---
 id: release-notes
-description: 'Testing a release'
-date: 2022-02-10 21:59:03
-tags:
+slug: /release-notes
+description: BigBlueButton release notes
+sidebar_position: 4
+keywords:
  - Release notes
  - Versions
 ---

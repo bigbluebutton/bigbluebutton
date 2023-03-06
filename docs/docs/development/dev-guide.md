@@ -230,14 +230,14 @@ You should now confirm that you are in the correct branch.
 ```bash
 git status
 
-## On branch my-changes-branch
+# On branch my-changes-branch
 nothing to commit (working directory clean)
 ```
 
 <!--
 
 TODO: Add high-view diagrams
-## Production Environment
+# Production Environment
 
 Okay. Let's pause for a minute.
 
@@ -402,12 +402,12 @@ There we go! Remember that this will be overwritten every time you upgrade, so y
 
 <!--
 TODO
-### HTML5 Coding Practices
+## HTML5 Coding Practices
 
 For coding conventions related to the HTML5 code refer to [this document](/html5-best-practices.html).
 -->
 
-### /private/config
+### `/private/config`
 
 All configurations are located in **/private/config/settings.yml**. If you make any changes to the YAML configuration you will need to restart the meteor process.
 

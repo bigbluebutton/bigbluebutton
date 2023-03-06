@@ -12,7 +12,7 @@ Greenlight 2.0 (referred hereafter as simply "Greenlight") is a Ruby on Rails ap
 
 ![Greenlight Landing](/img/greenlight/landing.png)
 
-<center>(the Greenlight home/landing page.)</center><br/>
+<center>(the Greenlight home/landing page.)</center>
 
 For the end users, Greenlight provides:
 
@@ -166,7 +166,8 @@ On your room page, all recordings for that room will be listed at the bottom und
 
 Each recording has a visibility associated with it, which can be changed by clicking on it in the recordings table. By default, it is set to unlisted.
 
-**Public**: everyone can view it if they have the room link.<br/>
+**Public**: everyone can view it if they have the room link.
+
 **Unlisted**: only users who have the recording link can view it.
 
 #### Managing Recordings

@@ -23,7 +23,7 @@ For example, if you create `/etc/bigbluebutton/bbb-conf/apply-config.sh` with th
 ```sh
 #!/bin/bash
 
-## Pull in the helper functions for configuring BigBlueButton
+# Pull in the helper functions for configuring BigBlueButton
 source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 
 enableUFWRules
@@ -173,24 +173,24 @@ By default, the BigBlueButton server will produce a recording when (1) the meeti
 However, you can configure a BigBlueButton server to record every meeting, edit `/etc/bigbluebutton/bbb-web.properties` and set
 
 ```properties
-## Start recording when first user joins the meeting.
-## For backward compatibility with 0.81 where whole meeting
-## is recorded.
+# Start recording when first user joins the meeting.
+# For backward compatibility with 0.81 where whole meeting
+# is recorded.
 autoStartRecording=false
 
-## Allow the user to start/stop recording.
+# Allow the user to start/stop recording.
 allowStartStopRecording=true
 ```
 
 to
 
 ```properties
-## Start recording when first user joins the meeting.
-## For backward compatibility with 0.81 where whole meeting
-## is recorded.
+# Start recording when first user joins the meeting.
+# For backward compatibility with 0.81 where whole meeting
+# is recorded.
 autoStartRecording=true
 
-## Allow the user to start/stop recording.
+# Allow the user to start/stop recording.
 allowStartStopRecording=false
 ```
 
@@ -300,6 +300,10 @@ Persistent=false
 
 and do `systemctl daemon-reload`. This file overrides the timing of when systemd runs `bbb-record-core.target`. In the above example, recordings will start processing between 21:00 and 03:59.
 
+#### Allow all recordings to be returned
+
+In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `bigbluebutton.properties`. This property determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a sinlge response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned. 
+
 ### Video
 
 #### Reduce bandwidth from webcams
@@ -407,7 +411,7 @@ Created symlink from /etc/systemd/system/kurento-media-server.service.wants/kure
 After BigBlueButton finishes restarting, you should see three KMS processes running using the `netstat -antp | grep kur` command.
 
 ```
-## netstat -antp | grep kur
+# netstat -antp | grep kur
 tcp6       0      0 :::8888                 :::*                    LISTEN      5929/kurento-media-
 tcp6       0      0 :::8889                 :::*                    LISTEN      5943/kurento-media-
 tcp6       0      0 :::8890                 :::*                    LISTEN      5956/kurento-media-
@@ -419,7 +423,7 @@ tcp6       0      0 127.0.0.1:8889          127.0.0.1:41000         ESTABLISHED 
 Each process has its own log file (distinguished by its process ID).
 
 ```
-## ls -alt /var/log/kurento-media-server/
+# ls -alt /var/log/kurento-media-server/
 total 92
 -rw-rw-r--  1 kurento kurento 11965 Sep 13 17:10 2020-09-13T170908.00000.pid5929.log
 -rw-rw-r--  1 kurento kurento 10823 Sep 13 17:10 2020-09-13T170908.00000.pid5943.log
@@ -531,7 +535,7 @@ To generate thumbnails you can use the following shell snippet:
 
 ```bash
 #!/bin/bash
-FULL="/usr/share/meteor/bundle/programs/web.browser/app/resources/img/virtual-backgrounds"
+FULL="/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds"
 THUMB="${FULL}/thumbnails"
 
 cd "$FULL"
@@ -562,7 +566,7 @@ package.
 If you want to have all users join muted, you can add an overwrite in `/etc/bigbluebutton/bbb-web.properties` and set this as a server-wide configuration.
 
 ```properties
-## Mute the meeting on start
+# Mute the meeting on start
 muteOnStart=false
 ```
 
@@ -732,14 +736,14 @@ To always show users the phone number along with the 5-digit PIN number within B
 
 ```properties
 #----------------------------------------------------
-## Default dial access number
+# Default dial access number
 defaultDialAccessNumber=613-555-1234
 ```
 
 and set `defaultWelcomeMessageFooter` to
 
 ```properties
-defaultWelcomeMessageFooter=<br/><br/>To join this meeting by phone, dial:<br/>  %%DIALNUM%%<br/>Then enter %%CONFNUM%%# as the conference PIN number.
+defaultWelcomeMessageFooter=<br><br>To join this meeting by phone, dial:<br>  %%DIALNUM%%<br>Then enter %%CONFNUM%%# as the conference PIN number.
 ```
 
 Save `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton again. Each user that joins a session will see a message in the chat similar to.
@@ -787,7 +791,7 @@ When a new meeting starts, BigBlueButton displays a default presentation. The fi
 Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
 
 ```properties
-## Default Uploaded presentation file
+# Default Uploaded presentation file
 beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/default.pdf
 ```
 
@@ -801,7 +805,7 @@ BigBlueButton, by default, restricts uploads to 200 pages. To increase this valu
 
 ```properties
 #----------------------------------------------------
-## Maximum number of pages allowed for an uploaded presentation (default 200).
+# Maximum number of pages allowed for an uploaded presentation (default 200).
 maxNumPages=200
 ```
 
@@ -836,7 +840,7 @@ The first step is to change the size restriction in nginx. Edit `/etc/bigbluebut
 Next change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the value `maxFileSizeUpload`.
 
 ```properties
-## Maximum file size for an uploaded presentation (default 30MB).
+# Maximum file size for an uploaded presentation (default 30MB).
 maxFileSizeUpload=30000000
 ```
 
@@ -1087,21 +1091,21 @@ $ chown meteor:meteor $TARGET
 To enable lock settings for `Share webcam` by default (viewers are unable to share their webcam), add the following to `/etc/bigbluebutton/bbb-web.properties`.
 
 ```properties
-## Prevent viewers from sharing webcams
+# Prevent viewers from sharing webcams
 lockSettingsDisableCam=true
 ```
 
 After restart, if you open the lock settings you'll see `Share webcam` lock enabled.
 
 <p align="center">
-  <img src="/img/html5-lock-webcam.png"/>
-</p><br/>
+  <img src="/images/html5-lock-webcam.png"/>
+</p>
 
 #### Change the default path for HTML5 client
 
 The default URL path for the client is `/html5client`, and it can be changed to match your preferences.
 
-Edit nginx configuration file (`/etc/bigbluebutton/nginx/bbb-html5.nginx`), replacing all instances of `/html5client` with the new path;
+Edit nginx configuration file (`/usr/share/bigbluebutton/nginx/bbb-html5.nginx`), replacing all instances of `/html5client` with the new path;
 
 Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
 
@@ -1140,14 +1144,53 @@ The policy for guest management on the server is is set in the properties file f
 You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.properties`. Just add the value you prefer, save the file and restart BigBlueButton.
 
 ```properties
-## Default Guest Policy
-## Valid values are ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR
+# Default Guest Policy
+# Valid values are ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
 ### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
+
+## Other meeting configs available
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
+
+| Parameter                                | Description                                                                                   | Options                                                      | Default value                  |
+|------------------------------------------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------|--------------------------------|
+| `defaultMeetingLayout`                   | Default Meeting Layout                                                                        | CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS | CUSTOM_LAYOUT _`overwritable`_ |
+| `defaultMaxUsers`                        | Maximum number of users a meeting can have                                                    | Integer `(0=disable)`                                        | 0 _`overwritable`_             |
+| `maxUserConcurrentAccesses`              | Maximum number of sessions that each user (extId) can open simultaneously in the same meeting | Integer (0=disable)                                          | 3                              |
+| `defaultMeetingDuration`                 | Duration of the meeting in minutes                                                            | Integer (0=disable)                                          | 0 _`overwritable`_             |
+| `clientLogoutTimerInMinutes`             | Number of minutes to logout client if user isn't responsive                                   | Integer (0=disable)                                          | 0                              |
+| `meetingExpireIfNoUserJoinedInMinutes`   | End meeting if no user joined within a period of time after meeting created                   | Integer                                                      | 5                              |
+| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left                                      | Integer (0=disable)                                          | 1                              |
+| `endWhenNoModerator`                     | End meeting when there are no moderators after a certain period of time                       | true/false                                                   | false _`overwritable`_         |
+| `endWhenNoModeratorDelayInMinutes`       | Number of minutes to wait for moderator rejoin before end meeting                             | Integer                                                      | 1 _`overwritable`_             |
+| `userInactivityInspectTimerInMinutes`    | User inactivity audit timer interval                                                          | Integer (0=disable)                                          | 0                              |
+| `userInactivityThresholdInMinutes`       | Number of minutes to consider a user inactive.                                                | Integer                                                      | 30                             |
+| `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out           | Integer                                                      | 5                              |
+| `webcamsOnlyForModerator`                | Allow webcams streaming reception only to and from moderators                                 | true/false                                                   | false  _`overwritable`_        |
+| `meetingCameraCap`                       | Per meeting camera share limit                                                                | Integer (0=disable)                                          | 0  _`overwritable`_            |
+| `userCameraCap`                          | Per user camera share limit                                                                   | Integer (0=disable)                                          | 3 _`overwritable`_             |
+| `maxPinnedCameras`                       | Maximum number of cameras pinned simultaneously                                               | Integer (0=disable)                                          | 3                              |
+| `muteOnStart`                            | Mute the meeting on start                                                                     | true/false                                                   | false _`overwritable`_         |
+| `allowModsToUnmuteUsers`                 | Gives moderators permission to unmute other users                                             | true/false                                                   | false _`overwritable`_         |
+| `allowModsToEjectCameras`                | Gives moderators permission to close other users' webcams                                     | true/false                                                   | false _`overwritable`_         |
+| `usersTimeout`                           | Timeout (millis) to remove a joined user after her/him left meeting without a rejoin          | Integer                                                      | 60000 (60s)                    |
+| `waitingGuestUsersTimeout`               | Timeout (millis) to remove guest users that stopped fetching for her/his status               | Integer                                                      | 30000 (30s)                    |
+| `enteredUsersTimeout`                    | Timeout (millis) to remove users that called the enter API but did not join                   | Integer                                                      | 45000 (45s)                    |
+| `breakoutRoomsRecord`                    | Enable Recordings in Breakout Rooms                                                           | true/false                                                   | false _`overwritable`_         |
+| `breakoutRoomsPrivateChatEnabled`        | Enable private chat in Breakout Rooms                                                         | true/false                                                   | true _`overwritable`_          |
+| `notifyRecordingIsOn`                    | Notify users that recording is on                                                             | true/false                                                   | false _`overwritable`_         |
+| `learningDashboardCleanupDelayInMinutes` | Number of minutes that Learning Dashboard will be available after the end of the meeting      | Integer (0=disable)                                          | 2 _`overwritable`_             |
+| `serviceEnabled`                         | API enabled                                                                                   | true/false                                                   | true                           |
+| `allowRequestsWithoutSession`            | Allow requests without JSESSIONID to be handled                                               | true/false                                                   | false                          |
+| `supportedChecksumAlgorithms`            | List of supported hash algorithms for validating checksums                                    | sha1, sha256, sha384, sha512                                 | sha1, sha256, sha384, sha512   |
+| `allowRevealOfBBBVersion`                | Allow endpoint with current BigBlueButton version                                             | true/false                                                   | false                          |
+
+- _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
+
 
 ### Passing custom parameters to the client on join
 
@@ -1220,8 +1263,9 @@ Useful tools for development:
 
 | Parameter                                  | Description                                                                                                             | Default value |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_auto_swap_layout=`           | If set to `true`, the presentation area will be minimized when a user joins a meeting.                                  | `false`       |
-| `userdata-bbb_hide_presentation=`          | If set to `true`, the presentation area will not be displayed.                                                          | `false`       |
+| `userdata-bbb_auto_swap_layout=`           | If set to `true`, the presentation area will be minimized when a user joins a meeting. (Removed in 2.6)                                  | `false`       |
+| `userdata-bbb_hide_presentation=`          | If set to `true`, the presentation area will not be displayed. (Removed in 2.6)                                                          | `false`       |
+| `userdata-bbb_hide_presentation_on_join=`          | If set to `true`, the presentation area will start minimized, but can be restored                                                          | `false`       |
 | `userdata-bbb_show_participants_on_login=` | If set to `false`, the participants panel (and the chat panel) will not be displayed until opened.                      | `true`        |
 | `userdata-bbb_show_public_chat_on_login=`  | If set to `false`, the chat panel will not be visible on page load until opened. Not the same as disabling chat.        | `true`        |
 | `userdata-bbb_hide_nav_bar=`               | If set to `true`, the navigation bar (the top portion of the client) will not be displayed. Introduced in BBB 2.4-rc-3. | `false`       |
@@ -1300,7 +1344,7 @@ cat > /etc/nginx/conf.d/html5-client-log.conf << HERE
 log_format postdata '\$remote_addr [\$time_iso8601] \$request_body';
 HERE
 
-## We need nginx-full to enable postdata log_format
+# We need nginx-full to enable postdata log_format
 if ! dpkg -l | grep -q nginx-full; then
   apt-get install -y nginx-full
 fi
@@ -1342,7 +1386,7 @@ To validate incoming API calls, all external applications making API calls must 
 You’ll find the shared secret in `/etc/bigbluebutton/bbb-web.properties`
 
 ```properties
-beans.dynamicConferenceService.securitySalt=<value_of_salt>
+securitySalt=<value_of_salt>
 ```
 
 To change the shared secret, do the following:

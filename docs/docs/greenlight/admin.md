@@ -35,7 +35,7 @@ To create an Administrator account with the default values, in the Greenlight di
 docker exec greenlight-v2 bundle exec rake admin:create
 ```
 
-If you would like to configure the name, email, or password of the Administrator account, replace the previous command with this: 
+If you would like to configure the name, email, or password of the Administrator account, replace the previous command with this:
 
 ```bash
 docker exec greenlight-v2 bundle exec rake user:create["name","email","password","admin"]
@@ -47,7 +47,7 @@ Once the command has finished it will print the account’s email and password.
 
 Prior to version 2.6, rooms where created for all users, regardless of whether they were able to access that room or not.
 
-After version 2.6, rooms are only created for users that have the "Can create rooms" permission enabled on the role that they are given. 
+After version 2.6, rooms are only created for users that have the "Can create rooms" permission enabled on the role that they are given.
 
 To clean up the inaccessible rooms for users that were created before 2.6, a rake task can be used. For this rake task there are 2 options:
 
@@ -87,7 +87,7 @@ Once you are logged in as an Administrator, you will notice a new item in the Ac
 
 ### Managing Users
 
-Through the Manage Users tab, Administrators are able to view and search for all user accounts that have been created. 
+Through the Manage Users tab, Administrators are able to view and search for all user accounts that have been created.
 
 Administrators are also able to edit each account by clicking on the vertical ellipsis.
 
@@ -118,7 +118,7 @@ To filter by the Role, click on any of the Role buttons under the Role Column. T
 
 #### Deleting Accounts
 
-To delete an account, select Delete from the Account Dropdown. 
+To delete an account, select Delete from the Account Dropdown.
 
 Once an account gets deleted, the user will be moved to the **Deleted** tab.
 
@@ -126,7 +126,7 @@ Once an account gets deleted, the user will be moved to the **Deleted** tab.
 
 From the **Deleted** tab, an administrator can then either recover the user's account and their associated rooms, or permanently delete the user. If a user is permanently deleted, it will **NOT** be possible to recover the account.
 
-**NOTE:** Permanently deleted users can resignup using the same email address of the account that was deleted. 
+**NOTE:** Permanently deleted users can resignup using the same email address of the account that was deleted.
 
 #### Banning Accounts
 
@@ -142,7 +142,7 @@ In the case where 2 accounts need to be merged, there is a Merge action in the A
 
 During the merge process, the **Account to be Merged**'s rooms will be transferred to the **Primary Account**. Once the transfer is complete, the **Account to be Merged** will be permanently deleted. No other data is transferred to the **Primary Account**.
 
-To merge a user, click the Merge action in the Account Dropdown for the user that will be the **Primary Account**. Once the modal appears, you can use the dropdown to search for the **Account to be Merged**. Note that you can search by name or email in the dropdown. 
+To merge a user, click the Merge action in the Account Dropdown for the user that will be the **Primary Account**. Once the modal appears, you can use the dropdown to search for the **Account to be Merged**. Note that you can search by name or email in the dropdown.
 
 ![Greenlight Administrator Merge](/img/greenlight/admin_merge.png)
 
@@ -168,7 +168,7 @@ From the edit user view, Administrators are able to assign and remove roles for 
 
 #### Resetting User Passwords
 
-If the user has forgotten their password, the Administrator can send them an email that they can use to reset their password. 
+If the user has forgotten their password, the Administrator can send them an email that they can use to reset their password.
 
 To reset a user's password, select Edit for the specified user. This will open the edit user view. From there, the Administrator just needs to click the `Reset user password` button and an email will be sent out to the user with the required instructions.
 
@@ -180,7 +180,7 @@ Through the Server Rooms tab, Administrators are able to view all of the Greenli
 
 #### Options
 
-As an administrator, there are a variety of options available to you with regards to interacting with a user's room. You can view all options by clicking the Room Dropdown. 
+As an administrator, there are a variety of options available to you with regards to interacting with a user's room. You can view all options by clicking the Room Dropdown.
 
 | Tab           | Description                                                                                      |
 |:------------- |:------------------------------------------------------------------------------------------------ |
@@ -217,7 +217,7 @@ The search box can be used to filter based on the **Name**, **Length**, **Users*
 
 #### Sort
 
-By default, rooms that are running will be displayed at the top of the list first. If no rooms are running, the rooms will be sorted by creation date. 
+By default, rooms that are running will be displayed at the top of the list first. If no rooms are running, the rooms will be sorted by creation date.
 
 It is possible to sort recordings by metrics such as **Name**, **User Number**, and **Length of Recording**.
 
@@ -263,7 +263,7 @@ The Primary Colour is the colour that Greenlight uses as a basis for the styling
 
 #### Registration Methods
 
-Through the Site Settings, you can configure the Registration Method for Greenlight. 
+Through the Site Settings, you can configure the Registration Method for Greenlight.
 
 ![Greenlight Administrator Registration Method](/img/greenlight/admin_registration_method.png)
 
@@ -277,19 +277,19 @@ Join by Invitation disables the open sign up. Users will only be able to sign up
 
 To use Join by Invitation, `ALLOW_MAIL_NOTIFICATIONS` must be set to `true` in the `.env` file.
 
-To invite a user, click in the Invite User button that is beside the Search Bar. 
+To invite a user, click in the Invite User button that is beside the Search Bar.
 
 ![Greenlight Administrator Invite Button](/img/greenlight/admin_invite_button.png)
 
 To send an email to multiple users, enter their emails separated by a comma. If you would like to invite only 1 user, enter their email with no commas.
 
-The user(s) will receive an email with a button that will link them to the sign up page. 
+The user(s) will receive an email with a button that will link them to the sign up page.
 
 ![Greenlight Administrator Invite Modal](/img/greenlight/admin_invite_modal.png)
 
 **Approve/Decline**
 
-Approve/Decline allows anyone to sign up for Greenlight, but that user must be Approved inorder for them to access the features available through Greenlight. 
+Approve/Decline allows anyone to sign up for Greenlight, but that user must be Approved inorder for them to access the features available through Greenlight.
 
 When a user signs up, they will be set to a Pending state. The Administrator will be able be able to view all Pending users in the **Pending** tab in the Manage Users table.
 
@@ -297,7 +297,7 @@ If `ALLOW_MAIL_NOTIFICATIONS` is set to `true` in the `.env` file, then all Admi
 
 ![Greenlight Administrator Pending Users](/img/greenlight/admin_pending_users.png)
 
-Users can either be Approved or Declined by clicking on the Account Dropdown. 
+Users can either be Approved or Declined by clicking on the Account Dropdown.
 
 If `ALLOW_MAIL_NOTIFICATIONS` is set to `true` in the `.env` file, the user will receive an email informing them that their account has been approved.
 
@@ -309,7 +309,7 @@ If a user sign up is declined, they will be set to the Banned state. A banned us
 
 #### Require Authentication to Join
 
-By default, users that are not signed in can join any Room that has been started by the Room Owner if they are given the invitation link. This can be disabled, meaning that only users that are signed in will be allowed to join a Room. 
+By default, users that are not signed in can join any Room that has been started by the Room Owner if they are given the invitation link. This can be disabled, meaning that only users that are signed in will be allowed to join a Room.
 
 ![Greenlight Administrator Room Authentication](/img/greenlight/admin_room_auth.png)
 
@@ -323,15 +323,16 @@ In the Shared Access modal, users can share the room with another user by search
 
 #### Allow Users to Preupload Presentations
 
-By default, users will not be able to preupload presentations to their rooms. Administrators can enable or disable this feature based on their use cases. 
+By default, users will not be able to preupload presentations to their rooms. Administrators can enable or disable this feature based on their use cases.
 
 ![Greenlight Administrator Preupload](/img/greenlight/admin_preupload.png)
 
 #### Recording Default Visibility
 
-Sets the default visibility of room recordings. 
+Sets the default visibility of room recordings.
 
-**Public**: everyone can view it if they have the room link.<br/>
+**Public**: everyone can view it if they have the room link.
+
 **Unlisted**: only users who have the recording link can view it.
 
 ![Greenlight Administrator Default Recording](/img/greenlight/admin_recording_vis.png)
@@ -342,7 +343,7 @@ By default, some information in all rooms is stored on the BigBlueButton server.
 
 ![Greenlight Administrator Consent](/img/greenlight/admin_require_consent.png)
 
-If enabled, upon joining a room, users must click the checkbox before being allowed to enter the room. 
+If enabled, upon joining a room, users must click the checkbox before being allowed to enter the room.
 
 ![Greenlight Room Join Consent](/img/greenlight/room_join_consent.png)
 
@@ -362,8 +363,10 @@ Through the Room Configuration tab Administrators are able to edit room settings
 
 For each room setting, there are 3 options.
 
-**Always Enabled:** Setting is forced on for all rooms. Room owners can not disable this setting.<br/>
-**Optional:** Room owner has the option to either enable or disable the setting.<br/>
+**Always Enabled:** Setting is forced on for all rooms. Room owners can not disable this setting.
+
+**Optional:** Room owner has the option to either enable or disable the setting.
+
 **Disabled:** Room setting does not appear when creating a room. Room owners can not enable this setting.
 
 ![Greenlight Administrator Room Configuration](/img/admin_room_configuration.png)

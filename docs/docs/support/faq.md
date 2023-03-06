@@ -201,13 +201,9 @@ At first glance at the underlying architecture, BigBlueButton may seem complex, 
 
 Before you can contribute as a developer, you need to invest some time into understanding BigBlueButton's [architecture](/development/architecture#architecture-overview), and you need to setup a [development environment](/development/guide). The source code for BigBlueButton is hosted at [github](https://github.com/bigbluebutton/bigbluebutton), so you'll need to understand [how git works](https://git-scm.com/book) and the workflow for distributed software development.
 
-Like other open source projects, a good place to start is to try fixing an [open issue](https://github.com/bigbluebutton/bigbluebutton/issues). We've tagged a few issues as [FirstProject](https://github.com/bigbluebutton/bigbluebutton/issues?q=is%3Aissue+is%3Aopen+label%3AFirstProject) to make it easy for you to find those issues that are both (relatively) simple to fix, but would be meaningful to BigBlueButton.
+Like other open source projects, a good place to start is to try fixing an [open issue](https://github.com/bigbluebutton/bigbluebutton/issues).  Some bugs are more important than others. Stability and usability issues are very important to the BigBlueButton community.
 
-You can also browse the bugs by labels: [Stability](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Astability) - [Usability](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Ausability) - [Performance](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Aperformance) - [Localization](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Alocalization) - [Research](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Aresearch). You could also try tackling one of the [enhancements](https://github.com/bigbluebutton/bigbluebutton/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aopen%20label%3Aenhancement) to BigBlueButton.
-
-Some bugs are more important than others. Stability and usability issues are very important to the BigBlueButton community.
-
-### I'm not a developer, can I still contribute
+### I'm not a developer, can I still contribute?
 
 Don't worry if you are not a proficient developer -- there are many ways to help out. You can become proficient in the installation and configuration of a BigBlueButton server. Each month, there are many new users in [bigbluebutton-setup](https://groups.google.com/forum/#!forum/bigbluebutton-setup) that need help with setup of BigBlueButton, especially setup behind a [firewall](#can-i-provide-external-access-to-a-bigbluebutton-server-behind-my-firewall). You can [contribute a language file](/development/localization). You could point out any errors to this documentation. Such assistance reduces the support load on us and gives us more time to work on improving BigBlueButton.
 
@@ -453,6 +449,22 @@ Since BigBlueButton is controlled by its [API](/development/api), there isn't an
 The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/integrations/).
 
 BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/overview).
+
+
+### Where do I schedule a meeting in BigBlueButton?
+
+There is no meeting database or user database in BigBlueButton.  All this business logic is handled by the front-end.
+
+BigBlueButton does not know anything about a meeting until a front-end (such as Moodle) calls the 'create' API to create a meeting.  At that point BigBlueButton has a meeting in memory, but no users yet.  If no users join within a few minutes, BigBlueButton will automatically clear the meeting from memory.
+
+Usually, the front-end joins users into the meeting by redirecting users (who presumably clicked on a join button in the front-end) to a valid 'join' API call on the BigBlueButton server.  The BigBlueButton server validates the join URL (it has a proper checksum and the meeting is active).
+
+After the meeting is finished (all users leave, the meeting duration is reached, or a moderator has ended the meeting), BigBlueButton creates the recording (if requested) and clears the meeting from memory.
+
+For handling meetings and users, BigBlueButton is stateless.  It is helpful to think of BigBlueButton like a web server.  You don't ask the web server "can I schedule the download of a file tomorrow at 2:00 PM".  Instead, you just request the file when needed.  The web server processes the request, forgets about it (after logging it), and proceeds to the next request.
+
+This stateless nature of BigBlueButton keeps the architecture simple and makes it easier for you to upgrade your server.  You can upgrade or even replace your existing BigBlueButton server without breaking any front-end.  For example, you could back-up your recordings, replace your BigBlueButton server with a new server, restore the recordings, assign the server the same hostname and shared secret, and the front-end would not be able to tell the difference.
+
 
 ### Networking
 
