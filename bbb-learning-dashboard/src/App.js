@@ -346,7 +346,7 @@ class App extends React.Component {
           </h1>
           <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
-              <div className="inline">
+              <div className="inline" data-test="meetingDateDashboard">
                 <FormattedDate
                   value={activitiesJson.createdOn}
                   year="numeric"
@@ -359,7 +359,7 @@ class App extends React.Component {
                 activitiesJson.endedOn > 0
                   ? (
                     <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" data-test="meetingStatusEndedDashboard" />
                     </span>
                   )
                   : null
@@ -367,14 +367,14 @@ class App extends React.Component {
               {
                 activitiesJson.endedOn === 0
                   ? (
-                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full" data-test="meetingStatusActiveDashboard">
                       <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
                     </span>
                   )
                   : null
               }
             </p>
-            <p>
+            <p data-test="meetingDurationTimeDashboard">
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
               :&nbsp;
               {tsToHHmmss(totalOfActivity())}
