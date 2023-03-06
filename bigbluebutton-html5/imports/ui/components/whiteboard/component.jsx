@@ -824,7 +824,7 @@ export default function Whiteboard(props) {
 
   const onPatch = (e, t, reason) => {
     if (!e?.pageState || !reason) return;
-    if ((isPanning || panSelected) && reason === 'selected' || reason === 'set_hovered_id') {
+    if (((isPanning || panSelected) && (reason === 'selected' || reason === 'set_hovered_id'))) {
       return e.patchState(
         {
           document: {
