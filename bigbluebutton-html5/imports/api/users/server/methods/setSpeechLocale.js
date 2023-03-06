@@ -20,7 +20,7 @@ export default function setSpeechLocale(locale, provider) {
 
     const payload = {
       locale,
-      provider,
+      provider: provider !== 'webspeech' ? provider : '',
     };
 
     if (LANGUAGES.includes(locale) || locale === '') {
