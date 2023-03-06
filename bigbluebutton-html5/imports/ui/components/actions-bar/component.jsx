@@ -9,6 +9,7 @@ import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
 import RaiseHandDropdownContainer from './raise-hand/container';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
   render() {
@@ -21,6 +22,7 @@ class ActionsBar extends PureComponent {
       handleTakePresenter,
       intl,
       isSharingVideo,
+      isSharedNotesPinned,
       hasScreenshare,
       stopExternalVideoShare,
       isCaptionsAvailable,
@@ -39,6 +41,8 @@ class ActionsBar extends PureComponent {
       setPushLayout,
     } = this.props;
 
+    const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation) 
+                                    || isSharingVideo || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar
         style={
@@ -90,14 +94,18 @@ class ActionsBar extends PureComponent {
           />
         </Styled.Center>
         <Styled.Right>
-          <PresentationOptionsContainer
-            presentationIsOpen={presentationIsOpen}
-            setPresentationIsOpen={setPresentationIsOpen}
-            layoutContextDispatch={layoutContextDispatch}
-            hasPresentation={isThereCurrentPresentation}
-            hasExternalVideo={isSharingVideo}
-            hasScreenshare={hasScreenshare}
-          />
+          { shouldShowOptionsButton ?
+            <PresentationOptionsContainer
+              presentationIsOpen={presentationIsOpen}
+              setPresentationIsOpen={setPresentationIsOpen}
+              layoutContextDispatch={layoutContextDispatch}
+              hasPresentation={isThereCurrentPresentation}
+              hasExternalVideo={isSharingVideo}
+              hasScreenshare={hasScreenshare}
+              hasPinnedSharedNotes={isSharedNotesPinned}
+            />
+            : null
+          }
           {isRaiseHandButtonEnabled
             ? (
               <RaiseHandDropdownContainer {...{

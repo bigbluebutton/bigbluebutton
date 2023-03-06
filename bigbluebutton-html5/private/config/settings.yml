@@ -537,7 +537,7 @@ public:
     id: notes
     pinnable: true
   layout:
-    hidePresentation: false
+    hidePresentationOnJoin: false
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
