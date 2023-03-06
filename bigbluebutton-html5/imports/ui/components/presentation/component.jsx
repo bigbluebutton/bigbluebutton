@@ -265,7 +265,7 @@ class Presentation extends PureComponent {
         });
       }
 
-      if (!presentationIsOpen && restoreOnUpdate && !userIsPresenter && currentSlide) {
+      if (!presentationIsOpen && restoreOnUpdate && currentSlide) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
