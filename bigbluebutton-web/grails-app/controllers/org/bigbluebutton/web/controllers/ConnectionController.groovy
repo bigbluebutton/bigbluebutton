@@ -22,6 +22,7 @@ import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
+import java.nio.charset.StandardCharsets
 
 class ConnectionController {
   MeetingService meetingService
@@ -42,7 +43,7 @@ class ConnectionController {
         response.addHeader("User-Id", userSession.internalUserId)
         response.addHeader("Meeting-Id", userSession.meetingID)
         response.addHeader("Voice-Bridge", userSession.voicebridge )
-        response.addHeader("User-Name", userSession.fullname)
+        response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {
