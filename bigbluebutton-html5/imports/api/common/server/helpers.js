@@ -51,9 +51,10 @@ export const extractCredentials = (credentials) => {
 // The provided function is publication-specific and must check the "survival condition" of the publication.
 export const publicationSafeGuard = function (fn, self) {
   let stopped = false;
-  const periodicCheck = function () {
+  const periodicCheck = async function () {
     if (stopped) return;
-    if (!fn()) {
+    const result = await fn();
+    if (!result) {
       self.added(self._name, 'publication-stop-marker', { id: 'publication-stop-marker', stopped: true });
       self.stop();
     } else Meteor.setTimeout(periodicCheck, 1000);
