@@ -1023,7 +1023,9 @@ export default function Whiteboard(props) {
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
-      const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(app.currentPageId)).id;
+      const currentPage = curPres.pages.find(page => page.num === Number.parseInt(app.currentPageId));
+      if (!currentPage) return;
+      const newWhiteboardId = currentPage.id;
       //remove from previous page and persist on new
       changedShapes && removeShapes(Object.keys(changedShapes), whiteboardId);
       changedShapes && Object.entries(changedShapes)
