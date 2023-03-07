@@ -66,7 +66,8 @@ define makerule =
   PACKAGE_$1 = artifacts/$1_*$(PACKAGE_LABEL)*.deb
   $$(PACKAGE_$1):
 	./build/setup.sh $1
-  PACKAGE_$1: $$(PACKAGE_$1)
+  .PHONY: $1
+  $1: $$(PACKAGE_$1)
 endef
 
 $(foreach pkg,${TARGETS},$(eval $(call makerule,$(pkg))))
@@ -93,11 +94,18 @@ $(REPOSITORY):: $(PACKAGES)
 
 # It's not clear which placeholders need to be created to be any given package, so depend
 # all of the packages on all of the placeholders.
+#
+# Some of the placeholder directory names are also package names, so something like
+# 'make bbb-etherpad' is ambiguous.  We resolve the ambiguity by declaring the target
+# to build the package .PHONY (see 'makerule' above), which means it always gets
+# run, and using another .PHONY target to make sure all of the placeholders
+# have been created by mimicing the logic make is supposed to use (sigh).
 
-$(PACKAGES): $(PLACEHOLDERS)
+.PHONY: placeholders
+$(PACKAGES): placeholders
 
-%: %.placeholder.sh
-	./$<
+placeholders:
+	for ph in $(PLACEHOLDERS); do if [ ! $$ph -nt $$ph.placeholder.sh ]; then echo rm -rf $$ph; echo ./$$ph.placeholder.sh; fi; done | bash -x
 
 # Download the third party packages tar file, but only if it's been updated on the Internet.
 # Untar any files in it that are missing from the repository.
