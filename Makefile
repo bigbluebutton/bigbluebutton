@@ -34,6 +34,12 @@ TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations bbb-free
 # These are the list of packages that we'd like to build: everything we've got a build script for
 # TARGETS := $(shell basename -a $(shell dirname build/packages-template/*/build.sh))
 
+# This target is used by the CI runner to find out which packages we need to build
+
+.PHONY: list-packages
+list-packages:
+	@echo ${TARGETS}
+
 # Placeholders are shell scripts that are run to create subdirectories, typically by running a git checkout.
 
 PLACEHOLDERS := $(shell echo *.placeholder.sh | sed 's/.placeholder.sh//g')
