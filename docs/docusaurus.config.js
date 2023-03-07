@@ -67,7 +67,7 @@ const config = {
                     {to: '/teaching', label: 'Teaching', position: 'left'},
                     {to: '/development/guide', label: 'Development', position: 'left'},
                     {to: '/administration/install', label: 'Administration', position: 'left'},
-                    {to: '/greenlight/overview', label: 'Greenlight', position: 'left'},
+                    {to: '/greenlight/v2/overview', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
