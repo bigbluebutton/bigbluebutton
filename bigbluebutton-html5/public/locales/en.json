@@ -566,6 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ were talking",
     "app.talkingIndicator.wasTalking" : "{0} stopped talking",
     "app.actionsBar.actionsDropdown.actionsLabel": "Actions",
+    "app.actionsBar.actionsDropdown.layouts": "Layouts",
     "app.actionsBar.actionsDropdown.presentationLabel": "Upload/Manage presentations",
     "app.actionsBar.actionsDropdown.initPollLabel": "Initiate a poll",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Share your screen",

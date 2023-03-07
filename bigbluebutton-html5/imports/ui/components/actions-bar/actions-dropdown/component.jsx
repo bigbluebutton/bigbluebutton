@@ -13,6 +13,7 @@ import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette'
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 import {isLayoutsEnabled} from '/imports/ui/services/features';
+import Button from '/imports/ui/components/common/button/component';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -96,6 +97,10 @@ const intlMessages = defineMessages({
   layoutModal: {
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
+  },
+  layoutBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.layouts',
+    description: 'Label for layouts button',
   },
 });
 
@@ -289,6 +294,7 @@ class ActionsDropdown extends PureComponent {
       isMeteorConnected,
       isDropdownOpen,
       isMobile,
+      mountModal,
       isRTL,
     } = this.props;
 
@@ -297,12 +303,29 @@ class ActionsDropdown extends PureComponent {
     const children = availablePresentations.length > 1 && amIPresenter
       ? availablePresentations.concat(availableActions) : availableActions;
 
-    if ((!amIPresenter && !amIModerator)
-      || availableActions.length === 0
+    const customStyles = { top: '-1rem' };
+
+    if (availableActions.length === 0
       || !isMeteorConnected) {
       return null;
     }
-    const customStyles = { top: '-1rem' };
+
+    if (!amIPresenter && !amIModerator) {
+      return (
+        <Button
+          customStyles={!isMobile ? customStyles : null}
+          accessKey={OPEN_ACTIONS_AK}
+          hideLabel
+          aria-label={intl.formatMessage(intlMessages.layoutBtnLabel)}
+          label={intl.formatMessage(intlMessages.layoutBtnLabel)}
+          icon="layouts"
+          color="primary"
+          size="lg"
+          circle
+          onClick={() => mountModal(<LayoutModalContainer />)}
+        />
+      );
+    }
 
     return (
       <BBBMenu
