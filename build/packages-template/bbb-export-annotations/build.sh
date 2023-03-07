@@ -26,6 +26,11 @@ popd
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-export-annotations.service staging/usr/lib/systemd/system
 
+#
+# Install fonts
+mv fonts/* /usr/local/share/fonts/
+fc-cache -f
+
 ##
 
 . ./opts-$DISTRO.sh
