@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import updateVotes from '../modifiers/updateVotes';
 
-export default function userVoted({ body }, meetingId) {
+export default async function userVoted({ body }, meetingId) {
   const { poll } = body;
 
   check(meetingId, String);
@@ -20,5 +20,7 @@ export default function userVoted({ body }, meetingId) {
     numResponders: Number,
   });
 
-  return updateVotes(poll, meetingId);
+  const result = await updateVotes(poll, meetingId);
+
+  return result;
 }
