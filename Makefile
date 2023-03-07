@@ -34,16 +34,6 @@ TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations bbb-free
 # These are the list of packages that we'd like to build: everything we've got a build script for
 # TARGETS := $(shell basename -a $(shell dirname build/packages-template/*/build.sh))
 
-.PHONY: list-packages
-list-packages:
-	@echo ${TARGETS}
-
-# This target is used by the CI runner to find out which packages we need to build
-
-.PHONY: list-packages-json
-list-packages-json:
-	@echo ${TARGETS} | sed -e 's/^/["/' -e 's/ /","/g' -e 's/$$/"]/'
-
 # Placeholders are shell scripts that are run to create subdirectories, typically by running a git checkout.
 
 PLACEHOLDERS := $(shell echo *.placeholder.sh | sed 's/.placeholder.sh//g')
@@ -66,6 +56,12 @@ REPOSITORY ?= $(DISTRO)-$(COMMIT)
 
 $(REPOSITORY)::
 	@if ! which reprepro >/dev/null; then echo apt install reprepro is required; exit 1; fi
+
+# This target is used by the CI runner to find out which packages we need to build
+
+.PHONY: list-packages-json
+list-packages-json:
+	@echo ${TARGETS} | sed -e 's/^/["/' -e 's/ /","/g' -e 's/$$/"]/'
 
 # PACKAGE_$(pkg) contains the package filename with wildcards NOT expanded
 #
