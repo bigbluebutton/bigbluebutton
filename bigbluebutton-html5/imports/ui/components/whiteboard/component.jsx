@@ -189,6 +189,11 @@ const TldrawGlobalStyleText = (arg) => {
         display: flex;
     }
 
+    /* stop propagate mouse click so that the browser's context menu won't appear everytime you open the tldraw context menu */
+    div:has(#TD-ContextMenu) {
+      pointer-events: none;
+    }
+    
     /* For tldraw tooltips; for an edge case where the user enters the detached mode without showing any tooltip */
     div[style*="--radix-tooltip-content-transform-origin"] {
         border-radius: 3px;
