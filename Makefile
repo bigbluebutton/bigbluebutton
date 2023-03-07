@@ -24,9 +24,15 @@
 
 export BUILD_TYPE
 
-# These are the list of packages that we'll build
+# These are the list of packages that we'll build: a manual list
 
-TARGETS := $(shell basename -a $(shell dirname build/packages-template/*/build.sh))
+TARGETS := bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations bbb-freeswitch-core bbb-freeswitch-sounds \
+           bbb-fsesl-akka bbb-html5-nodejs bbb-html5 bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean \
+           bbb-pads bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare \
+           bbb-playback-video bbb-record-core bbb-web bbb-webrtc-sfu bigbluebutton
+
+# These are the list of packages that we'd like to build: everything we've got a build script for
+# TARGETS := $(shell basename -a $(shell dirname build/packages-template/*/build.sh))
 
 # Placeholders are shell scripts that are run to create subdirectories, typically by running a git checkout.
 
