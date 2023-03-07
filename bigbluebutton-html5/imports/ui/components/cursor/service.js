@@ -2,6 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import { throttle } from 'lodash';
 import logger from '/imports/startup/client/logger';
 
+const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
 const Cursor = new Mongo.Collection(null);
 let cursorStreamListener = null;
 
@@ -25,15 +26,13 @@ function updateCursor(userId, payload) {
   return Cursor.upsert(selector, modifier);
 }
 
-export function publishCursorUpdate(payload) {
+export const publishCursorUpdate = throttle((payload) => {
   if (cursorStreamListener) {
-    const throttledEmit = throttle(cursorStreamListener.emit.bind(cursorStreamListener), 30, { trailing: true });
-
-    throttledEmit('publish', payload);
+    cursorStreamListener.emit.bind(cursorStreamListener)('publish', payload);
   }
 
   return updateCursor(Auth.userID, payload);
-}
+}, CURSOR_INTERVAL);
 
 export function initCursorStreamListener() {
   logger.info({
