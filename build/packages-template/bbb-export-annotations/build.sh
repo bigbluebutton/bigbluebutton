@@ -28,7 +28,7 @@ cp bbb-export-annotations.service staging/usr/lib/systemd/system
 
 #
 # Install fonts
-mv fonts/* /usr/local/share/fonts/
+cp fonts/* staging/usr/local/share/fonts/
 fc-cache -f
 
 ##
