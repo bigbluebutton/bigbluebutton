@@ -580,7 +580,7 @@ export default function Whiteboard(props) {
         const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
         if (fitToWidth && currentAspectRatio !== previousAspectRatio) {
-          // wee need this to ensure tldraw updates the viewport size after re-mounting
+          // we need this to ensure tldraw updates the viewport size after re-mounting
           setTimeout(() => {
             const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
             tldrawAPI.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
