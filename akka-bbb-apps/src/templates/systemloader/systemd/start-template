@@ -1,8 +1,8 @@
 [Unit]
 Description=BigBlueButton Apps (Akka)
 Requires=network.target
-Wants=redis-server.service bbb-fsesl-akka.service
-After=redis-server.service bbb-fsesl-akka.service
+Wants=redis-server.service bbb-fsesl-akka.service postgresql.service
+After=redis-server.service bbb-fsesl-akka.service postgresql.service
 PartOf=bigbluebutton.target
 
 [Service]

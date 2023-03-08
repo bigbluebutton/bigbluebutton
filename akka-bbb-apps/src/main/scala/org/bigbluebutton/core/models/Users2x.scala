@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -34,6 +35,7 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -107,6 +109,13 @@ object Users2x {
     newUserState
   }
 
+  def setMobile(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.mobile).setTo(true)
+    users.save(newUserState)
+    UserDAO.update((newUserState))
+    newUserState
+  }
+
   def ejectFromMeeting(users: Users2x, intId: String): Option[UserState] = {
     for {
       _ <- users.remove(intId)
@@ -122,6 +131,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -132,6 +142,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -163,6 +174,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.pin).setTo(pin)
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -173,6 +185,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -183,6 +196,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -354,12 +368,14 @@ case class UserState(
     role:                  String,
     guest:                 Boolean,
     pin:                   Boolean,
+    mobile:                Boolean,
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    color:                 String,
     roleChangedOn:         Long         = System.currentTimeMillis(),
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,

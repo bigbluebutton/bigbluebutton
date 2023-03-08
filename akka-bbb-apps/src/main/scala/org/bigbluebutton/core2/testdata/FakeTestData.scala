@@ -51,7 +51,7 @@ trait FakeTestData {
   def createUserVoiceAndCam(liveMeeting: LiveMeeting, role: String, guest: Boolean, authed: Boolean, callingWith: String,
                             muted: Boolean, talking: Boolean, listenOnly: Boolean): UserState = {
 
-    val ruser1 = FakeUserGenerator.createFakeRegisteredUser(liveMeeting.registeredUsers, Roles.MODERATOR_ROLE, true, false)
+    val ruser1 = FakeUserGenerator.createFakeRegisteredUser(liveMeeting.registeredUsers, Roles.MODERATOR_ROLE, true, false, liveMeeting.props.meetingProp.intId)
 
     val vuser1 = FakeUserGenerator.createFakeVoiceUser(ruser1, "webrtc", muted = false, talking = true, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vuser1)
@@ -67,8 +67,8 @@ trait FakeTestData {
 
   def createFakeUser(liveMeeting: LiveMeeting, regUser: RegisteredUser): UserState = {
     UserState(intId = regUser.id, extId = regUser.externId, name = regUser.name, role = regUser.role, pin = false,
-      guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
-      emoji = "none", locked = false, presenter = false, avatar = regUser.avatarURL, clientType = "unknown",
+      mobile = false, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
+      emoji = "none", locked = false, presenter = false, avatar = regUser.avatarURL, color = "#ff6242", clientType = "unknown",
       pickExempted = false, userLeftFlag = UserLeftFlag(false, 0))
   }
 

@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
+import org.bigbluebutton.core.db.{ UserDAO, UserMicrophoneDAO }
 
 object VoiceUsers {
   def findWithVoiceUserId(users: VoiceUsers, voiceUserId: String): Option[VoiceUserState] = {
@@ -30,9 +31,11 @@ object VoiceUsers {
 
   def add(users: VoiceUsers, user: VoiceUserState): Unit = {
     users.save(user)
+    UserMicrophoneDAO.insert(user)
   }
 
   def removeWithIntId(users: VoiceUsers, intId: String): Option[VoiceUserState] = {
+    UserMicrophoneDAO.deleteUser(intId)
     users.remove(intId)
   }
 
@@ -52,6 +55,7 @@ object VoiceUsers {
         .modify(_.talking).setTo(false)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserMicrophoneDAO.update(vu)
       vu
     }
   }
@@ -64,6 +68,8 @@ object VoiceUsers {
         .modify(_.talking).setTo(talking)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserMicrophoneDAO.updateTalking(vu)
+
       vu
     }
   }
@@ -76,6 +82,7 @@ object VoiceUsers {
         .modify(_.lastFloorTime).setTo(timestamp)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserMicrophoneDAO.update(vu)
       vu
     }
   }
@@ -87,6 +94,7 @@ object VoiceUsers {
       val vu = u.modify(_.floor).setTo(floor)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
+      UserMicrophoneDAO.update(vu)
       vu
     }
   }
