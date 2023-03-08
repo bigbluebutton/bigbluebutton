@@ -158,6 +158,16 @@ class TimeWindowList extends PureComponent {
     ) {
       this.listRef.forceUpdateGrid();
     }
+
+    const msgListItem = document.querySelector('span[data-test="msgListItem"]');
+    if (msgListItem) {
+      const virtualizedGridInnerScrollContainer = msgListItem.parentElement;
+      const virtualizedGrid = virtualizedGridInnerScrollContainer.parentElement;
+      virtualizedGridInnerScrollContainer.setAttribute('role', 'list');
+      virtualizedGridInnerScrollContainer.setAttribute('tabIndex', '0');
+      virtualizedGrid.removeAttribute('tabIndex');
+      virtualizedGrid.removeAttribute('aria-label');
+    }
   }
 
   handleScrollUpdate(position, target) {
@@ -219,6 +229,8 @@ class TimeWindowList extends PureComponent {
         <span
           style={style}
           key={`span-${key}-${index}`}
+          role="listitem"
+          data-test="msgListItem"
         >
           <TimeWindowChatItem
             key={key}
