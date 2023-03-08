@@ -119,6 +119,18 @@ const PositionLabel = (props) => {
     }
   }, [x, y, zoom, tldrawPoint]);
 
+  // eslint-disable-next-line arrow-body-style
+  React.useEffect(() => {
+    return () => {
+      // Disable cursor on unmount
+      publishCursorUpdate({
+        xPercent: -1.0,
+        yPercent: -1.0,
+        whiteboardId,
+      });
+    };
+  }, []);
+
   return (
     <>
       <div style={{ position: 'absolute', height: '100%', width: '100%' }}>
@@ -164,8 +176,9 @@ export default function Cursors(props) {
   const handleGrabbing = () => setPanGrabbing(true);
   const handleReleaseGrab = () => setPanGrabbing(false);
 
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   const end = () => {
-    if (whiteboardId) {
+    if (whiteboardId && (multiUserAccess || currentUser?.presenter)) {
       publishCursorUpdate({
         xPercent: -1.0,
         yPercent: -1.0,
