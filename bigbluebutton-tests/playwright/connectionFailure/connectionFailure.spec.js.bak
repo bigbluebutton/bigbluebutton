@@ -1,0 +1,81 @@
+const { test, devices } = require('@playwright/test');
+const { ScreenShare, MultiUserScreenShare } = require('../screenshare/screenshare');
+const { sleep } = require('../core/helpers');
+const e = require('../core/elements');
+const util = require('node:util');
+const exec = util.promisify(require('node:child_process').exec);
+const process = require('node:process');
+
+async getCurrentTCPSessions() {
+  const { stdout, stderr } = await exec("pstree -pn " + process.pid);
+
+  const regex = new RegExp('\(([0-9]+)\)', 'g');
+
+  const found = [...stdout.matchAll(regex)].sort().map(x => 'pid=' + x[1]).join('|');
+  console.log('found', found);
+  const foundRE = new RegExp(found);
+
+  const { stdout: stdout2, stderr: stderr2 } = await exec("ss -tpnH dst focal-260.samsung");
+  //console.log('stdout2', stdout2, 'stderr2', stderr2);
+  //const lines = stdout2.split('\n').filter(x => foundRE.test(x));
+  const lines2 = stdout2.split('\n').filter(x => (new RegExp(found)).test(x));
+  //const lines = stdout2.split('\n').filter(x => foundRE.test(x)).map(x => x.split(/\s+/));
+  console.log('lines2', lines2);
+}
+
+test.describe.parallel('Connection failure', () => {
+  // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
+  test('Share screener', async ({ browser, browserName, page }) => {
+    test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
+              "Screenshare tests not able in Firefox browser without desktop");
+    const screenshare = new ScreenShare(browser, page);
+    await screenshare.init(true, true);
+    await screenshare.startSharing();
+
+    await exec("sudo ss -K dst focal-260.samsung");
+
+    // we now get an "Code 1101. Try sharing the screen again."
+
+    //await sleep(5 * 60 * 1000);
+  });
+
+  test('Share screen viewer', async ({ browser, browserName, page, context }) => {
+    test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
+              "Screenshare tests not able in Firefox browser without desktop");
+    const screenshare = new MultiUserScreenShare(browser, context);
+
+    await screenshare.initModPage(page);
+    await screenshare.initUserPage1();
+
+    await screenshare.startSharing(screenshare.modPage);
+
+    await screenshare.userPage1.hasElement(e.screenShareVideo);
+
+    //const { stdout, stderr } = await exec("pstree -pn " + screenshare.userPage1.pid);
+    const { stdout, stderr } = await exec("pstree -pn " + process.pid);
+    //console.log('stdout:', stdout);
+    //console.log('stderr:', stderr);
+    //const regex = /([[:digit:]]*)/g;
+
+    // compile-time parsing: faster
+    //const regex = /\(([0-9]+)\)/g;
+    // run-time parsing
+    const regex = new RegExp('\(([0-9]+)\)', 'g');
+    //const found = [...stdout.matchAll(regex)].map(x => x[1]);
+    const found = [...stdout.matchAll(regex)].sort().map(x => 'pid=' + x[1]).join('|');
+    console.log('found', found);
+    //await exec("sudo ss -K dst focal-260.samsung");
+    const foundRE = new RegExp(found);
+
+    const { stdout: stdout2, stderr: stderr2 } = await exec("ss -tpnH dst focal-260.samsung");
+    //console.log('stdout2', stdout2, 'stderr2', stderr2);
+    //const lines = stdout2.split('\n').filter(x => foundRE.test(x));
+    const lines = stdout2.split('\n');
+    const lines2 = stdout2.split('\n').filter(x => (new RegExp(found)).test(x));
+    //const lines = stdout2.split('\n').filter(x => foundRE.test(x)).map(x => x.split(/\s+/));
+    console.log('lines', lines.filter(x => x.includes('128.8.8.63:443')));
+    console.log('lines2', lines2);
+
+    await sleep(15 * 60 * 1000);
+  });
+});
