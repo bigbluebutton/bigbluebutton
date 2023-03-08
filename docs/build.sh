@@ -2,25 +2,29 @@
 
 set -eu
 
+# Build the docs only for these release branches
+BRANCHES=(
+  v2.6.x-release
+  # v2.7.x-release
+)
+REMOTE="origin"
+
 git fetch --all
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-git branch --remotes | grep '/v' | while read -r version; do
-  branch=${version##*/}
-  remote=${version%/*}
+for branch in "${BRANCHES[@]}"; do
+
   if [ "$branch" != "$current_branch" ]; then
-    git fetch "$remote" "$branch":"$branch"
+    git fetch "$REMOTE" "$branch":"$branch"
   fi
-done
 
-
-git branch | sed --quiet 's/^.*v\(.*\).x-release/\1/p' \
-  | while read -r version; do
-
-  git checkout "v${version}.x-release"
+  git checkout "$branch"
   if [ -f docusaurus.config.js ]; then
+    version=${branch:1:3}
     echo "Adding documentation for $version"
     yarn docusaurus docs:version "${version}"
+  else
+    echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
   fi
 
 done
