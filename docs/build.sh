@@ -8,8 +8,11 @@ current_branch=$(git rev-parse --abbrev-ref HEAD)
 git branch --remotes | grep '/v' | while read -r version; do
   branch=${version##*/}
   remote=${version%/*}
-  git fetch "$remote" "$branch":"$branch"
+  if [ "$branch" != "$current_branch" ]; then
+    git fetch "$remote" "$branch":"$branch"
+  fi
 done
+
 
 git branch | sed --quiet 's/^.*v\(.*\).x-release/\1/p' \
   | while read -r version; do

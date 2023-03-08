@@ -32,17 +32,17 @@ You'll see the following parameters
 
 ```properties
 bigbluebuttonURL=https://bbb.example.com/bigbluebutton
-## Salt which is used by 3rd-party apps to authenticate api calls
+# Salt which is used by 3rd-party apps to authenticate api calls
 bigbluebuttonSalt=8cd8ef52e8e101574e400365b55e11a6
 
-## LTI basic information
+# LTI basic information
 #----------------------------------------------------
-## This URL is where the LTI plugin is accessible. It can be a different server than the BigBluebutton one
-## Only the hostname or IP address is required, plus the port number in case it is other than port 80
-## e.g. localhost or localhost:port
+# This URL is where the LTI plugin is accessible. It can be a different server than the BigBluebutton one
+# Only the hostname or IP address is required, plus the port number in case it is other than port 80
+# e.g. localhost or localhost:port
 ltiEndPoint=bbb.example.com
-## The list of consumers allowed to access this lti service.
-## Format: {consumerId1:sharedSecret1}
+# The list of consumers allowed to access this lti service.
+# Format: {consumerId1:sharedSecret1}
 ltiConsumers=bbb:b00be971feb0726fa697671c9cf2e883
 ```
 

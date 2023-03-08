@@ -14,6 +14,7 @@ const LayoutModalComponent = (props) => {
   const {
     intl,
     closeModal,
+    isModerator,
     isPresenter,
     showToggleLabel,
     application,
@@ -101,7 +102,7 @@ const LayoutModalComponent = (props) => {
   };
 
   const renderPushLayoutsOptions = () => {
-    if (!isPresenter) {
+    if (!isModerator && !isPresenter) {
       return null;
     }
 
@@ -187,6 +188,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   closeModal: PropTypes.func.isRequired,
+  isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
   application: PropTypes.shape({

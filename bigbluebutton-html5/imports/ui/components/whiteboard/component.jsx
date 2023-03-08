@@ -460,6 +460,15 @@ export default function Whiteboard(props) {
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
 
+    // update document if the number of pages has changed
+    if (currentDoc.id !== whiteboardId && currentDoc?.pages.length !== curPres?.pages.length) {
+      const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
+
+      currentDoc.id = whiteboardId;
+      currentDoc.pages = pages;
+      currentDoc.pageStates = pageStates;
+    }
+
     let next = { ...currentDoc };
 
     let changed = false;
@@ -580,7 +589,7 @@ export default function Whiteboard(props) {
         const currentAspectRatio =  Math.round((presentationWidth / presentationHeight) * 100) / 100;
         const previousAspectRatio = Math.round((slidePosition.viewBoxWidth / slidePosition.viewBoxHeight) * 100) / 100;
         if (fitToWidth && currentAspectRatio !== previousAspectRatio) {
-          // wee need this to ensure tldraw updates the viewport size after re-mounting
+          // we need this to ensure tldraw updates the viewport size after re-mounting
           setTimeout(() => {
             const zoom = calculateZoom(slidePosition.viewBoxWidth, slidePosition.viewBoxHeight);
             tldrawAPI.setCamera([slidePosition.x, slidePosition.y], zoom, 'zoomed');
@@ -1023,7 +1032,9 @@ export default function Whiteboard(props) {
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
-      const newWhiteboardId = curPres.pages.find(page => page.num === Number.parseInt(app.currentPageId)).id;
+      const currentPage = curPres.pages.find(page => page.num === Number.parseInt(app.currentPageId));
+      if (!currentPage) return;
+      const newWhiteboardId = currentPage.id;
       //remove from previous page and persist on new
       changedShapes && removeShapes(Object.keys(changedShapes), whiteboardId);
       changedShapes && Object.entries(changedShapes)
