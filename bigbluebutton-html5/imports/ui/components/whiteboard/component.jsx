@@ -200,6 +200,7 @@ export default function Whiteboard(props) {
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
   const isMountedRef = React.useRef(true);
+  const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState.tool);
 
   React.useEffect(() => {
     return () => {
@@ -224,6 +225,9 @@ export default function Whiteboard(props) {
     const toolbar = document.getElementById("TD-PrimaryTools");
     const panBtnClicked = clickedElement?.getAttribute('data-test') === 'panButton'
     || clickedElement?.parentElement?.getAttribute('data-test') === 'panButton';
+
+    setIsToolLocked(false);
+
     const panButton = document.querySelector('[data-test="panButton"]');
     if (panBtnClicked) {
       const dataZoom = panButton.getAttribute('data-zoom');
@@ -246,11 +250,26 @@ export default function Whiteboard(props) {
     const handleClick = (evt) => {
       toggleOffCheck(evt);
     };
-    toolbar?.addEventListener('click', handleClick);
+    const handleDBClick = () => {
+      event.preventDefault();
+      event.stopPropagation();
+      setIsToolLocked(true);
+      tldrawAPI?.patchState(
+        {
+          appState: {
+            isToolLocked: true,
+          },
+        }
+      );
+    }
+    toolbar?.addEventListener("click", handleClick);
+    toolbar?.addEventListener("dblclick", handleDBClick);
+
     return () => {
-      toolbar?.removeEventListener('click', handleClick);
+      toolbar?.removeEventListener("click", handleClick);
+      toolbar?.removeEventListener("dblclick", handleDBClick);
     };
-  }, [tldrawAPI]);
+  }, [tldrawAPI, isToolLocked]);
 
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
@@ -980,6 +999,14 @@ export default function Whiteboard(props) {
       setPanSelected(false);
       setIsPanning(false);
     }
+
+    e?.patchState(
+      {
+        appState: {
+          isToolLocked: isToolLocked,
+        },
+      }
+    );
   };
 
   const onUndo = (app) => {
