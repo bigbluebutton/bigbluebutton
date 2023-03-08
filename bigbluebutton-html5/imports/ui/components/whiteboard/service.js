@@ -43,14 +43,14 @@ const clearFakeAnnotations = () => {
   Annotations.remove({ id: /-fake/g });
 }
 
-function handleAddedAnnotation({
+async function handleAddedAnnotation({
   meetingId,
   whiteboardId,
   userId,
   annotation,
 }) {
   const isOwn = Auth.meetingID === meetingId && Auth.userID === userId;
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
+  const query = await addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   Annotations.upsert(query.selector, query.modifier);
 
