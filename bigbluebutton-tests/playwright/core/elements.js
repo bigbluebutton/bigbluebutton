@@ -424,6 +424,12 @@ exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
+exports.resetZoomButton = 'button[data-test="resetZoomButton"]';
+exports.zoomInButton = 'button[data-test="zoomInBtn"]';
+exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
+exports.wbPan = 'button[data-test="panButton"]';
+exports.wbEraser = 'button[id="TD-PrimaryTools-Eraser"]';
+exports.wbArrowShape = 'button[id="TD-PrimaryTools-ArrowTopRight"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
