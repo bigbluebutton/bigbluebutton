@@ -50,7 +50,7 @@ async function getCurrentTCPSessions() {
 // takes an array of such structures and kills those TCP sessions
 
 async function killTCPSessions(sessions) {
-  await exec('sudo ss -K dst focal-260.samsung ' + sessions.map(x => 'sport = ' + x.local.port).join(' or '));
+  await exec('sudo ss -K dst ' + hostname + ' ' + sessions.map(x => 'sport = ' + x.local.port).join(' or '));
 }
 
 exports.getCurrentTCPSessions = getCurrentTCPSessions;
