@@ -26,13 +26,13 @@ const intlMessages = defineMessages({
 
 let annotationsStreamListener = null;
 
-function handleAddedAnnotation({
+async function handleAddedAnnotation({
   meetingId,
   whiteboardId,
   userId,
   annotation,
 }) {
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
+  const query = await addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   Annotations.upsert(query.selector, query.modifier);
 }
