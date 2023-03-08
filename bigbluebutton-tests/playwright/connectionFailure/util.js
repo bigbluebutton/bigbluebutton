@@ -1,9 +1,17 @@
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 const process = require('node:process');
+const parameters = require('../core/parameters.js');
+
+// Hostname of BBB server that we're going to break connections to
+
+const hostname = new URL(parameters.server).hostname;
+
+// Parse a line of output from the 'ss' program into an object
+// with fields local (local IP address and TCP port), remote
+// (remote address and port) and pid (localhost process ID)
 
 function parseline(line) {
-  // Parse a line of output from the 'ss' program
   const fields = line.split(/\s+/);
   // These two are like '192.168.8.1:59164'
   const local = fields[3].split(/:/);
@@ -15,6 +23,9 @@ function parseline(line) {
 	   remote: { ip: remote[0], port: parseInt(remote[1]) },
            pid: pid };
 }
+
+// return an array of such structures for the current process
+// and all of its subprocesses that connect to a given host
 
 async function getCurrentTCPSessions() {
   // First, get the process IDs of all of our subprocesses, which include the test browser(s).
@@ -30,11 +41,13 @@ async function getCurrentTCPSessions() {
   const foundRE = new RegExp([...processIDs].map(x => 'pid=' + x[1]).join('|'));
 
   // Now get all TCP sessions going to the target host
-  const { stdout: stdout2 } = await exec("ss -tpnH dst focal-260.samsung");
+  const { stdout: stdout2 } = await exec("ss -tpnH dst " + hostname);
 
   // Extract those TCP sessions attached to our subprocesses, parse and and return them in an array.
   return stdout2.split('\n').filter(x => foundRE.test(x)).map(x => parseline(x));
 }
+
+// takes an array of such structures and kills those TCP sessions
 
 async function killTCPSessions(sessions) {
   await exec('sudo ss -K dst focal-260.samsung ' + sessions.map(x => 'sport = ' + x.local.port).join(' or '));
