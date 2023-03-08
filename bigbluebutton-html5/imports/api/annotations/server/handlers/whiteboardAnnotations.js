@@ -4,7 +4,7 @@ import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/mo
 import clearAnnotations from '../modifiers/clearAnnotations';
 import addAnnotation from '../modifiers/addAnnotation';
 
-export default function handleWhiteboardAnnotations({ header, body }, meetingId) {
+export default async function handleWhiteboardAnnotations({ header, body }, meetingId) {
   check(header, Object);
   if (header.userId !== 'nodeJSapp') { return false; }
 
@@ -24,5 +24,6 @@ export default function handleWhiteboardAnnotations({ header, body }, meetingId)
     addAnnotation(meetingId, wbId, userId, annotation);
   });
 
-  modifyWhiteboardAccess(meetingId, whiteboardId, multiUser);
+  await modifyWhiteboardAccess(meetingId, whiteboardId, multiUser);
+  return true;
 }
