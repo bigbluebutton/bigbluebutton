@@ -3,11 +3,12 @@ const { ScreenShare, MultiUserScreenShare } = require('../screenshare/screenshar
 const { sleep } = require('../core/helpers');
 const e = require('../core/elements');
 const { getCurrentTCPSessions, killTCPSessions } = require('./util');
+const notificationsUtil = require('../notifications/util');
 const deepEqual = require('deep-equal');
 
 test.describe.parallel('Connection failure', () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
-  test('Share screener', async ({ browser, browserName, page }) => {
+  test('Screen sharer', async ({ browser, browserName, page }) => {
     test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
               "Screenshare tests not able in Firefox browser without desktop");
     const screenshare = new ScreenShare(browser, page);
@@ -16,12 +17,15 @@ test.describe.parallel('Connection failure', () => {
 
     await killTCPSessions(await getCurrentTCPSessions());
 
-    // we now get an "Code 1101. Try sharing the screen again."
+    // I'd like to do this:
+    // await notificationsUtil.checkNotificationText(screenshare, "Code 1101. Try sharing the screen again.");
 
-    await sleep(5 * 1000);
+    // but that code only checks the first toast, and there's a bunch of toasts that show up
+    // on this test.  So instead I use xpath, like this: (should we do it this way in checkNotificationText?)
+    await screenshare.hasElement('//div[@data-test="toastSmallMsg"]/span[contains(text(), "Code 1101. Try sharing the screen again.")]');
   });
 
-  test('Share screen viewer', async ({ browser, browserName, page, context }) => {
+  test('Screen share viewer', async ({ browser, browserName, page, context }) => {
     test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
               "Screenshare tests not able in Firefox browser without desktop");
     const screenshare = new MultiUserScreenShare(browser, context);
@@ -43,13 +47,7 @@ test.describe.parallel('Connection failure', () => {
     //console.log('tcpUserSessions', tcpUserSessions);
     killTCPSessions(tcpUserSessions);
 
-    await sleep(5 * 1000);
-
-    const tcpSessions2 = await getCurrentTCPSessions();
-    const tcpUserSessions2 = tcpSessions2.filter(x => !tcpModeratorSessions.some(e => deepEqual(e,x)));
-    //console.log('tcpUserSessions2', tcpUserSessions2);
-    killTCPSessions(tcpUserSessions2);
-
-    await sleep(5 * 1000);
+    await screenshare.userPage.hasElement('//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]');
+    await screenshare.userPage.wasRemoved('//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]');
   });
 });
