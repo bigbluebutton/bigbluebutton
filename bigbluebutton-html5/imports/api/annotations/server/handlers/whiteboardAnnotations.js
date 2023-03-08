@@ -23,7 +23,8 @@ async function handleWhiteboardAnnotations({ header, body }, meetingId) {
     await addAnnotation(meetingId, wbId, userId, annotation);
   }
 
-  modifyWhiteboardAccess(meetingId, whiteboardId, multiUser);
+  await modifyWhiteboardAccess(meetingId, whiteboardId, multiUser);
+  return true;
 }
 
 export default handleWhiteboardAnnotations;
