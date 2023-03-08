@@ -254,6 +254,7 @@ const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
 exports.secondPollAnswerOptionBtn = `${pollAnswersOption}>>nth=1`;
 exports.firstCheckboxInput = `${pollAnswersOption}`;
+exports.closePollingBtn = 'button[data-test="closePolling"]';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -455,22 +456,18 @@ exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
 
 // Learning dashboard
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
-exports.listButtons = 'div[role="tablist"]';
-exports.messageLearningDashboard = 'tr[class="text-gray-700"] td:nth-child(5) span';
-exports.userOnlineTime = 'tr[class="text-gray-700"] td:nth-child(2)';
+exports.panels = 'div[role="tablist"]';
+exports.messageLearningDashboard = 'td[data-test="userTotalMessagesDashboard"]';
+exports.userOnlineTime = 'td[data-test="userOnlineTimeDashboard"]';
 exports.confirmRecording = 'div[id="simpleModal"] button:nth-child(1)';
 exports.pollTrueFalse = 'button[data-test="pollTrueFalse"]';
-exports.pollPanel = 'div[role="rowgroup"]';
-exports.pollTrueFalseQuestion = 'div[role="rowgroup"] div:nth-child(3) div:nth-child(1) div div';
-exports.pollTrueFalseAnswer = 'div[role="cell"]:nth-child(3) div div:nth-child(2)';
-exports.pollABCDQuestion = 'div[role="rowgroup"] div:nth-child(4) div:nth-child(1) div div';
-exports.pollABCDAnswer = 'div[role="cell"]:nth-child(4) div div:nth-child(2)';
-exports.pollYesNoQuestion = 'div[role="rowgroup"] div:nth-child(5) div:nth-child(1) div div';
-exports.pollYesNoAnswer = 'div[role="cell"]:nth-child(5) div div:nth-child(2)';
-exports.pollUserResponseQuestion = 'div[role="rowgroup"] div:nth-child(6) div:nth-child(1) div div';
-exports.pollUserResponseAnswer = 'div[role="cell"]:nth-child(6) div div:nth-child(2)';
+exports.pollPanel = 'button[data-test="pollsPanelDashboard"]';
+exports.pollTrueFalseQuestion = 'div[role="rowgroup"] div:nth-child(3) div';
+exports.pollTrueFalseAnswer = 'div[role="cell"]:nth-child(3)';
+exports.pollABCDQuestion = 'div[role="rowgroup"] div:nth-child(4) div';
+exports.pollABCDAnswer = 'div[role="cell"]:nth-child(4)';
+exports.pollYesNoQuestion = 'div[role="rowgroup"] div:nth-child(5) div';
+exports.pollYesNoAnswer = 'div[role="cell"]:nth-child(5)';
+exports.pollUserResponseQuestion = 'div[role="rowgroup"] div:nth-child(6) div';
+exports.pollUserResponseAnswer = 'div[role="cell"]:nth-child(6)';
 exports.pollTotal = 'div[role="cell"]:nth-child(2)';
-exports.date = 'div[class="mx-10"] div div p div';
-exports.meetingStatus = 'div[class="mx-10"] div div p span';
-
-exports.meetingDurationTime = 'div[class="mx-10"] div div:nth-child(2) p:nth-child(1)';

@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { LearningDashboard } = require('./learningdashboard');
 const c = require('../customparameters/constants');
 
-test.describe('Learning Dashboard', async () => {
+test.describe.serial('Learning Dashboard', async () => {
 
   const learningDashboard = new LearningDashboard();
   test.beforeAll(async ({ browser }) => {
@@ -11,7 +11,6 @@ test.describe('Learning Dashboard', async () => {
     const page = await context.newPage();
     
     await learningDashboard.initModPage(page, true,  { customParameter: c.recordMeeting });
-    
     await learningDashboard.getDashboardPage(context);
   });
 
@@ -20,15 +19,11 @@ test.describe('Learning Dashboard', async () => {
   });
 
   test('Meeting Duration Time', async() => {
-    await learningDashboard.meetingDurationTime();
+    await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls test', async() => {
-    await learningDashboard.initUserPage1(true);
-    await learningDashboard.pollsTest();
-  });
-
-  test.only('Basic Info', async() => {
-    await learningDashboard.basicInfos();
+  test('Polls', async ({ context })=> {
+    await learningDashboard.initUserPage(true, context);
+    await learningDashboard.polls();
   });
 })
