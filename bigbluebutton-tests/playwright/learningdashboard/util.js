@@ -10,4 +10,10 @@ async function openPoll(testPage) {
   await testPage.waitAndClick(e.polling);
 }
 
+async function timeInSeconds(locator){
+  const [hours, minutes, seconds] = locator.split(':').map(Number);
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 exports.openPoll = openPoll;
+exports.timeInSeconds = timeInSeconds;
