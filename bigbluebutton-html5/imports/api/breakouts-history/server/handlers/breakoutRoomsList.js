@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 import Logger from '/imports/startup/server/logger';
 
-export default function handleBreakoutRoomsList({ body }) {
+export default async function handleBreakoutRoomsList({ body }) {
   const {
     meetingId,
     rooms,
@@ -22,7 +22,7 @@ export default function handleBreakoutRoomsList({ body }) {
   };
 
   try {
-    const { insertedId } = BreakoutsHistory.upsert(selector, modifier);
+    const { insertedId } = await BreakoutsHistory.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added rooms to breakout-history Data: meeting=${meetingId}`);
