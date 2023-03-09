@@ -63,6 +63,9 @@ class TextInput extends PureComponent {
           maxLength={maxLength}
           onChange={(e) => this.handleOnChange(e)}
           onKeyDown={(e) => this.handleOnKeyDown(e)}
+          onPaste={(e) => { e.stopPropagation(); }}
+          onCut={(e) => { e.stopPropagation(); }}
+          onCopy={(e) => { e.stopPropagation(); }}
           placeholder={placeholder}
           value={message}
         />
