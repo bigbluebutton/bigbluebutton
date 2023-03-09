@@ -200,7 +200,7 @@ export default function Whiteboard(props) {
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
   const isMountedRef = React.useRef(true);
-  const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState.tool);
+  const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState?.isToolLocked);
 
   React.useEffect(() => {
     return () => {
