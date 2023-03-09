@@ -346,7 +346,6 @@ export default function Cursors(props) {
     };
   }, [cursorWrapper, whiteboardId, currentUser.presenter]);
 
-  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
   if (isPanning && !disabledPan) {
     if (panGrabbing) {
