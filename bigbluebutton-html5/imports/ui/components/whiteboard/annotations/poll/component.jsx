@@ -8,6 +8,7 @@ import {
   getSwapLayout,
   shouldEnableSwapLayout,
 } from '/imports/ui/components/media/service';
+import browserInfo from '/imports/utils/browserInfo';
 
 const intlMessages = defineMessages({
   pollResultAria: {
@@ -71,6 +72,8 @@ class PollDrawComponent extends Component {
       fontSizeDirection: 1,
 
       reducedResult: [],
+
+      isChromeAutoDarkModeEnabled: browserInfo.isChromeAutoDarkModeEnabled(),
     };
 
     this.pollInitialCalculation = this.pollInitialCalculation.bind(this);
@@ -354,6 +357,7 @@ class PollDrawComponent extends Component {
       thickness,
       calculated,
       reducedResult,
+      isChromeAutoDarkModeEnabled,
     } = this.state;
     if (!calculated) return null;
 
@@ -425,7 +429,7 @@ class PollDrawComponent extends Component {
       let color;
       if (barWidth < maxDigitWidth + 8) {
         xNumVotes = xNumVotesMovedRight;
-        color = '#333333';
+        color = isChromeAutoDarkModeEnabled ? '#888888' : '#333333';
       } else {
         xNumVotes = xNumVotesDefault;
         color = 'white';
@@ -478,7 +482,7 @@ class PollDrawComponent extends Component {
           y={innerRect.y}
           width={innerRect.width}
           height={innerRect.height}
-          stroke="#333333"
+          stroke={isChromeAutoDarkModeEnabled ? '#888888' : '#333333'}
           fill={backgroundColor}
           strokeWidth={thickness}
         />
@@ -488,10 +492,11 @@ class PollDrawComponent extends Component {
             y={line.keyColumn.yLeft}
             dy={maxLineHeight / 2}
             key={`${line.key}_key`}
-            fill="#333333"
+            fill={isChromeAutoDarkModeEnabled ? '#888888' : '#333333'}
             fontFamily="Arial"
             fontSize={calcFontSize}
             textAnchor={isRTL ? 'end' : 'start'}
+            autoDarkMode={isChromeAutoDarkModeEnabled}
           >
             {line.keyColumn.keyString}
           </Styled.OutlineText>
@@ -503,15 +508,15 @@ class PollDrawComponent extends Component {
             y={line.barColumn.yBar}
             width={line.barColumn.barWidth}
             height={line.barColumn.barHeight}
-            stroke="#333333"
-            fill="#333333"
+            stroke={isChromeAutoDarkModeEnabled ? '#888888' : '#333333'}
+            fill={isChromeAutoDarkModeEnabled ? '#888888' : '#333333'}
             strokeWidth={thickness - 1}
           />
         ))}
         <text
           x={innerRect.x}
           y={innerRect.y}
-          fill="#333333"
+          fill={isChromeAutoDarkModeEnabled ? '#888888' : '#333333'}
           fontFamily="Arial"
           fontSize={calcFontSize}
           textAnchor={isRTL ? 'start' : 'end'}
@@ -522,6 +527,7 @@ class PollDrawComponent extends Component {
               y={line.percentColumn.yRight}
               dy={maxLineHeight / 2}
               key={`${line.key}_percent`}
+              autoDarkMode={isChromeAutoDarkModeEnabled}
             >
               {line.percentColumn.percentString}
             </Styled.OutlineTSpan>
@@ -530,7 +536,7 @@ class PollDrawComponent extends Component {
         <text
           x={innerRect.x}
           y={innerRect.y}
-          fill="#333333"
+          fill={isChromeAutoDarkModeEnabled ? '#888888' : '#333333'}
           fontFamily="Arial"
           fontSize={calcFontSize}
           textAnchor={isRTL ? 'end' : 'start'}

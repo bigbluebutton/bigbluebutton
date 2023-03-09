@@ -105,10 +105,5 @@ libraryDependencies ++= Seq(
   "javax.validation" % "validation-api" % "2.0.1.Final",
   "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.1",
   "org.springframework.data" % "spring-data-commons" % "2.7.6",
-  "org.glassfish" % "javax.el" % "3.0.1-b12",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
-  "org.postgresql" % "postgresql" % "42.2.16",
-  "org.hibernate" % "hibernate-core" % "5.6.1.Final",
-  "org.flywaydb" % "flyway-core" % "7.8.2",
-  "com.zaxxer" % "HikariCP" % "4.0.3"
 )
