@@ -8,11 +8,6 @@ keywords:
 - api
 ---
 
-<!---
-To disable automatic links, change : in the URL to &#58;
-E.g. http&#58;//yourserver.com
--->
-
 ## Overview
 
 This document describes the BigBlueButton application programming interface (API).
@@ -73,7 +68,7 @@ Updated in 2.4:
 
 - **getDefaultConfigXML** Removed, not used in HTML5 client.
 - **setConfigXML** Removed, not used in HTML5 client.
-- **create** 
+- **create**
    - Added `meetingLayout`, `learningDashboardEnabled`, `learningDashboardCleanupDelayInMinutes`, `allowModsToEjectCameras`, `virtualBackgroundsDisabled`, `allowRequestsWithoutSession`, `userCameraCap`.
    - `name`, `attendeePW`, and `moderatorPW` must be between 2 and 64 characters long
    - `meetingID` must be between 2 and 256 characters long and cannot contain commas
@@ -87,7 +82,9 @@ Updated in 2.5:
 
 Updated in 2.6:
 
-- **create** - **Added:** `notifyRecordingIsOn`, `uploadExternalUrl`, `uploadExternalDescription`.
+- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`; Added `liveTranscription` and `presentation` as options for `disabledFeatures=`.
+
+- **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
 
 ## API Data Types
 
@@ -154,11 +151,13 @@ $ sudo bbb-conf --setsecret \$(openssl rand -base64 32 | sed 's/=//g' | sed 's/+
 
 There are other configuration values in bbb-web's configuration `bigbluebutton.properties` (overwritten by `/etc/bigbluebutton/bbb-web.properties` ) related to the lifecycle of a meeting. You don't need to understand all of these to start using the BigBlueButton API. For most BigBlueButton servers, you can leave the [default values](https://github.com/bigbluebutton/bigbluebutton/blob/main/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).
 
+In 2.5 support for additional hashing algorithms, besides sha1 and sha256, were added. These include sha384 and sha512. The `supportedChecksumAlgorithms` property in `bigbluebutton.properties` defines which algorithms are supported. By default checksums can be validated with any of the supported algorithms. To remove support for one or more of these algorithms simply delete it from the configuration file.
+
 ### Usage
 
 The implementation of BigBlueButton's security model lies in the controller `ApiController.groovy`. For each incoming API request, the controller computes a checksum out of the combination of the entire HTTPS query string and the server's shared secret. It then matches the incoming checksum against the computed checksum. If they match, the controller accepts the incoming request.
 
-To use the security model, you must be able to create an SHA-1 checksum out of the call name _plus_ the query string _plus_ the shared secret that you configured on your server. To do so, follow these steps:
+To use the security model, you must be able to create a SHA-1 checksum out of the call name _plus_ the query string _plus_ the shared secret that you configured on your server. To do so, follow these steps:
 
 1. Create the entire query string for your API call without the checksum parameter.
    - Example for create meeting API call: `name=Test+Meeting&meetingID=abc123&attendeePW=111222&moderatorPW=333444`
@@ -205,7 +204,7 @@ The following section describes the administration calls
 | create              | Creates a new meeting.                                                                         |
 | join                | Join a new user to an existing meeting.                                                        |
 | end                 | Ends meeting.                                                                                  |
-| insertDocument      | Insert a batch of documents via API call                                                       | 
+| insertDocument      | Insert a batch of documents via API call                                                       |
 
 ### Monitoring
 
@@ -236,13 +235,13 @@ The following response parameters are standard to every call and may be returned
 
 | Param Name | Required / Optional | Type   | Description                                                                                                                                                                                                                                                                                                                          |
 | :--------- | :------------------ | :----- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| checksum   | Varies              | String | See the [API Security ModelAnchor](#api-security-model) section for more details on the usage for this parameter.<br/>This is basically a SHA-1 hash of `callName + queryString + sharedSecret`. The security salt will be configured into the application at deploy time. All calls to the API must include the checksum parameter. |
+| checksum   | Varies              | String | See the [API Security ModelAnchor](#api-security-model) section for more details on the usage for this parameter. This is basically a SHA-1 hash of `callName + queryString + sharedSecret`. The security salt will be configured into the application at deploy time. All calls to the API must include the checksum parameter. |
 
 **Response:**
 
 | Param Name | When Returned | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | :--------- | :------------ | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| returncode | Always        | String | Indicates whether the intended function was successful or not. Always one of two values:<br/><br/>`FAILED` – There was an error of some sort – look for the message and messageKey for more information. Note that if the `returncode` is FAILED, the call-specific response parameters marked as “always returned” will not be returned. They are only returned as part of successful responses.<br/><br/>`SUCCESS` – The call succeeded – the other parameters that are normally associated with this call will be returned. |
+| returncode | Always        | String | Indicates whether the intended function was successful or not. Always one of two values:`FAILED` – There was an error of some sort – look for the message and messageKey for more information. Note that if the `returncode` is FAILED, the call-specific response parameters marked as “always returned” will not be returned. They are only returned as part of successful responses.`SUCCESS` – The call succeeded – the other parameters that are normally associated with this call will be returned. |
 | message    | Sometimes     | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.                                                                                                                                                                                                                                                |
 | messageKey | Sometimes     | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.                                                                                                               |
 
@@ -309,7 +308,7 @@ curl --request POST \
   --data checksum=1234;
 ```
 
-It will be further explored in the next section the possibility of sending other data types in the payload as well. 
+It will be further explored in the next section the possibility of sending other data types in the payload as well.
 
 One other think to pay attention is to not include any of the parameters in both the URL and the body, or else it will pop a `checksum does not match` error:
 
@@ -349,7 +348,7 @@ For more information about the pre-upload slides check the following [link](http
 
 #### Upload slides from external application to a live BigBlueButton session
 
-For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `uploadExternalUrl` and `uploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog. 
+For external applications that integrate to BigBlueButton using the [insertDocument](/development/api#insertdocument) API call, `presentationUploadExternalUrl` and `presentationUploadExternalDescription` parameters can be used in the `create` API call in order to display a button and a message in the bottom of the presentation upload dialog. 
 
 Clicking this button will open the URL in a new tab that shows the file picker for the external application. The user can then select files in the external application and they will be sent to the live session.
 
@@ -551,7 +550,7 @@ Use this to forcibly end a meeting and kick all participants out of the meeting.
 </response>
 ```
 
-#### POST request 
+#### POST request
 Just like the [create request](#post-request), you can send a POST to end the meeting, the syntax is pretty much the same, see example below:
 
 ```bash
@@ -718,7 +717,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 
 ### getRecordings
 
-Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs).
+Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6.
 
 **Resource URL:**
 
@@ -737,6 +736,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getRecordings?[parameters]&checksum=
 - http&#58;//yourserver.com/bigbluebutton/api/getRecordings?recordID=652c9eb4c07ad49283554c76301d68770326bd93-1462283509434,9e359d17635e163c4388281567601d7fecf29df8-1461882579628&checksum=wxyz
 - http&#58;//yourserver.com/bigbluebutton/api/getRecordings?recordID=652c9eb4c07ad49283554c76301d68770326bd93&checksum=wxyz
 - http&#58;//yourserver.com/bigbluebutton/api/getRecordings?recordID=652c9eb4c07ad49283554c76301d68770326bd93,9e359d17635e163c4388281567601d7fecf29df8&checksum=wxyz
+- http&#58;//yourserver.com/bigbluebutton/api/getRecordings?state=published&offset=20&limit=10&checksum=abc123
 
 **Example Response:**
 
@@ -975,7 +975,7 @@ href
 The timing of the track will match the current recording playback video and audio files. Note that if the recording is edited (adjusting in/out markers), tracks from live or automatic sources will be re-created with the new timing. Uploaded tracks will be edited, but this may result in data loss if sections of the recording are removed during edits.
 
 Errors
-: In addition to the standard BigBlueButton checksum error, this API call can return the following errors in <messageKey/> when returncode is FAILED:
+: In addition to the standard BigBlueButton checksum error, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
 
 missingParameter
 : A required parameter is missing.
@@ -1025,7 +1025,7 @@ The WebVTT mime type is `text/vtt`.
 
 **Errors**
 
-In addition to the standard BigBlueButton checksum error, this API call can return the following errors in <messageKey/> when returncode is FAILED:
+In addition to the standard BigBlueButton checksum error, this API call can return the following errors in `<messageKey>` when returncode is FAILED:
 
 missingParameter
 : A required parameter is missing.
@@ -1111,7 +1111,7 @@ See the following [bigbluebutton-api-ruby](https://github.com/mconf/bigbluebutto
 
 ### Testing API Calls with API Mate
 
-To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server. 
+To help you create/test valid API calls against your BigBlueButton server, use the excellent [API Mate](http://mconf.github.io/api-mate/) to interactively create API calls. API Mate generates the checksums within the browser (no server component needed) so you can use it to test API calls against a local BigBlueButton server.
 
 If you're developing new API calls or adding parameters on API calls, you can still use the API Mate to test them. Just scroll the page down or type "custom" in the parameter filter and you'll see the inputs where you can add custom API calls or custom parameters. New API calls will appear in the list of API links and new parameters will be added to all the API links.
 
@@ -1120,8 +1120,8 @@ If your using API Mate to test recordings and want to query by `meetingID`, be s
 
  ### Support for JSON/JSONP
 
-- It would be very nice to optionally allow JSON responses, and to support JSONP. This might allow for simpler integrations, even within static or almost-static webpages using JavaScript as the primary integration language. It should not be assumed that all users will be running custom software on a server and be able to process XML responses, etc.<br/>
-- This being said, even within JavaScript there are simple ways to make the API call and process the returned XML (using jQuery and $.xml2json, for example)<br/>
+- It would be very nice to optionally allow JSON responses, and to support JSONP. This might allow for simpler integrations, even within static or almost-static webpages using JavaScript as the primary integration language. It should not be assumed that all users will be running custom software on a server and be able to process XML responses, etc.
+- This being said, even within JavaScript there are simple ways to make the API call and process the returned XML (using jQuery and $.xml2json, for example)
 
  ### Meeting event callbacks
 

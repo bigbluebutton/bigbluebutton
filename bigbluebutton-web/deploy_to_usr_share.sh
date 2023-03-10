@@ -4,7 +4,7 @@ sudo service bbb-web stop
 ./build.sh
 
 grails assemble
-mkdir exploded && cd exploded
+mkdir -p exploded && cd exploded
 jar -xvf ../build/libs/bigbluebutton-0.10.0.war
 
 if [ ! -d /usr/share/bbb-web-old ] ; then

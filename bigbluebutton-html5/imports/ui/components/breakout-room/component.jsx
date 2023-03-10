@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
-import BreakoutRoomContainer from './breakout-remaining-time/container';
+import MeetingRemainingTime from '../notifications-bar/meeting-remaining-time/container';
 import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -495,7 +495,7 @@ class BreakoutRoom extends PureComponent {
         ref={(ref) => this.durationContainerRef = ref}
       >
         <Styled.Duration>
-          <BreakoutRoomContainer
+          <MeetingRemainingTime
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
             fromBreakoutPanel
