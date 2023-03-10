@@ -2,7 +2,7 @@
 id: troubleshooting
 slug: /support/road-map
 title: Road Map
-sidebar_position: 4
+sidebar_position: 3
 description: BigBlueButton Road Map
 keywords:
 - roadmap

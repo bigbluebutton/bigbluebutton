@@ -73,7 +73,7 @@ const sidebars = {
             ],
             link: {
                 type: 'doc',
-                id: 'greenlight/overview',
+                id: 'greenlight/v2/overview',
             },
         }
     ],

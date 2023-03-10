@@ -1,9 +1,12 @@
 ---
-layout: page
-title: 'Testing a release'
-category: 2.6
-date: 2022-02-10 21:59:03
-order: 6
+id: release-testing
+slug: /testing/release-testing
+title: Release Testing
+sidebar_position: 1
+description: BigBlueButton Release Testing
+keywords:
+- testing
+- test
 ---
 
 This document is meant to be a combination of manual and (labeled so) automated tests, listed per feature of BigBlueButton.
@@ -32,17 +35,21 @@ all of these tests.
 
 5. Presentation should appear on All Clients in sync with updates, and All Clients should see the notification with the new presentation name
 
-### Enabling and Disabling Presentation Download [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
+### Sending presentation download link to the chat [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
-1. Select Moderator/Presenter Action menu
+1. Join a meeting and draw some annotations on the slide.
 
-2. Choose "Manage presentations"
+2. Select Moderator/Presenter Action menu
 
-3. Set current file as enabled/disabled for download:
+3. Choose "Manage presentations"
 
-   3.1 Setting current file as enabled for download will allow users to download current file.
+4. Click on "Send to chat" button.
 
-   3.2 Removing presentation for download will no loner allow users to download current file.
+5. Verify that the link was sent to the chat and the link works.
+
+6. Draw some annotations on the whiteboard.
+
+7. Send the download link to the chat again. This time, the presentation downloaded through the link should include the annotation.
 
 ### Deleting Presentation [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/presentation/presentation.spec.js)
 
@@ -199,7 +206,7 @@ You should now have presenter capabilities and presenter icon should appear over
 
 4. Choose the video quality from the available option
 
-5. Select the virtual background setting
+5. Select one of the default virtual backgrounds. You can also upload your own background image by clicking on the plus sign to the right of the default backgrounds and selecting a file. Change the brightness of the background by using the brightness control below the list of background images.
 
 6. Click "Start sharing"
 
@@ -318,6 +325,24 @@ The webcams should be resized as per the size we want.
 6. Click "Stop sharing".
 
 7. The webcam sharing should stop.
+
+### Pin webcams
+
+1. Join meeting with at least 3 webcams.
+
+2. Hover over the webcam's user name.
+
+3. Select dropdown and choose "Pin".
+
+4. That particular webcam should move to the first place among the webcams and stay there.
+
+5. Pin another webcam and verify that it sticks to the second place among the webcams.
+
+6. Hover over the webcam's user name.
+
+7. Select dropdown and choose "Unpin". Alternatively, you can choose to click the pin icon that is in the top-left corner of the webcam.
+
+8. That particular webcam should unpin.
 
 ## Screenshare
 
@@ -458,6 +483,30 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 4. The duration of the breakout room should reset. Public chats in all of the breakout rooms should get the message saying "Breakout time is now N minutes" (N - new duration).
 
+### Moving of users between breakout rooms
+
+1. Create a breakout room. Click on the three dots icon and choose "Manage Users".
+
+2. Draw and drop a user to a different breakout room. Click "Apply".
+
+3. The user should be notified about the removal and the prompt to confirm the joining of the new breakout room should appear.
+
+### Exporting the breakout room's shared notes to the main room
+
+1. Create a breakout room with enabling "Capture shared notes when breakout rooms end".
+
+2. Join a breakout room. Type something in the shared notes. End the breakout room.
+
+3. Breakout room's shared notes should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
+
+### Exporting the breakout room's whiteboard annotations to the main room
+
+1. Create a breakout room with enabling "Capture whiteboard when breakout rooms end".
+
+2. Join a breakout room. Draw something on the whiteboard. End the breakout room.
+
+3. Breakout room's annotations should be converted to a pdf and that pdf should be available for uploading to the whiteboard.
+
 ## Audio
 
 ### Join audio [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/audio/audio.spec.js)
@@ -466,11 +515,15 @@ The screen sharing stops, a sound effect of disconnection is heard and the prese
 
 2. Click microphone and allow for browser permissions (if applicable).
 
-3. Verify if you can hear yourself in the echo test.
+3. Verify if you can hear yourself in the echo test. Audio stream volume bar should indicate the volume of your voice.
 
-4. Click "Yes".
+4. Change the microphone and speaker using the dropdowns (if applicable).
 
-5. You should be redirected to the meeting and your microphone button and avatar in the in the user list should indicate the you are unmuted.
+5. Press "Stop audio feedback button" and verify that you dont hear your audio anymore, while the audio stream volume bar is still functional. Clicking that button again should turn on the audio feedback again.
+
+6. Click "Yes".
+
+7. You should be redirected to the meeting and your microphone button and avatar in the in the user list should indicate the you are unmuted.
 
 ### Mute/unmute
 
@@ -608,6 +661,14 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 9. User: click the closed captions button.
 
 10. User: closed captions button should not be highlighted anymore, the closed captions should disappear.
+
+### Live Automatic Closed Captions
+
+1. Join a meeting with at least two viewers using Chrome, Edge or Safari. Automatic transcription language selector needs to be enabled in the settings file.
+
+2. In the audio modal, choose the language for the automatic transcription. Join the audio. Talking indicator should include the "CC" icon for the user who selected the language.
+
+3. All other users should see the "CC" button in the whiteboard area. When you click the button, you should see the transcription.
 
 ## Whiteboard
 
@@ -830,6 +891,20 @@ Enable Microphone : This will cause a user name to appear on left top corner of 
 3. Save as to local device
 
 Share notes should export and download in the chosen format.
+
+### Pin notes onto whiteboard
+
+1. Open shared notes, write something. Click the three dots icon. Choose "Pin notes onto whiteboard".
+
+2. Shared notes should appear on top of the whiteboard. Shared Notes button should become disabled.
+
+3. Click "Unpin notes". Shared notes should disappear from the whiteboard. You should be able to open Shared Notes again.
+
+### Convert notes to presentation
+
+1. Open shared notes, write something. Click the three dots icon. Choose "Convert notes to presentation".
+
+2. Shared notes should be converted to a presentation file and that file should be uploaded to the whiteboard
 
 ### Using shared notes formatting tools
 
@@ -1456,6 +1531,22 @@ Note :
 
 4. The screen quickly reloads to apply the language change action
 
+#### D. Dark Mode [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-tests/playwright/options/options.spec.js)
+
+(Inside "Application" section of the Settings modal)
+
+1. Click on the [On/Off] the switch button to Enable Dark Mode
+
+2. Click Save to Validate your new Settings.
+
+3. Verify that the color scheme of the client changed to the dark one.
+
+4. Click on the [On/Off] the switch button to Disable Dark Mode
+
+5. Click Save to Validate your new Settings.
+
+6. Verify that the color scheme of the client changed back to the default one.
+
 #### E. Font Size
 
 (Inside the Settings modal)
@@ -1631,3 +1722,21 @@ Client should apply custom parameters according to the descriptions from [here](
 ## iFrame
 
 ## Learning Dashboard
+
+## Layout Manager
+
+### Choose a layout
+
+1. Join a meeting with a webcam and at least 2 users.
+
+2. Choose "Layout Settings Modal" in the actions dropdown.
+
+3. Enable "Keep pushing to everyone". Select a new layout. Press "Confirm".
+
+4. Verify that the layout changes for both you and another user.
+
+5. Choose "Layout Settings Modal" in the actions dropdown.
+
+6. Disable "Keep pushing to everyone". Select a new layout. Press "Confirm".
+
+7. Verify that the layout only changes for you, but stays the same for another user.
