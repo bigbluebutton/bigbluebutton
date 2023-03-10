@@ -21,6 +21,7 @@ import {
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
+import { MODAL_TYPES } from '/imports/ui/components/common/modal/enums'
 
 const APP_CONFIG = Meteor.settings.public.app;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -173,12 +174,12 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   const meetingIsBreakout = AppService.meetingIsBreakout();
   const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
   const openAudioModal = () => new Promise((resolve) => {
-    mountModal(<AudioModalContainer resolve={resolve} />);
+    mountModal(<AudioModalContainer resolve={resolve} />, MODAL_TYPES.AUDIO_MODAL);
   });
 
   const openVideoPreviewModal = () => new Promise((resolve) => {
     if (userWebcam) return resolve();
-    mountModal(<VideoPreviewContainer resolve={resolve} />);
+    mountModal(<VideoPreviewContainer resolve={resolve} />, MODAL_TYPES.VIDEO_PREVIEW_MODAL);
   });
 
   if (Service.isConnected() && !Service.isListenOnly()) {
