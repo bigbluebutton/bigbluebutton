@@ -3,7 +3,11 @@ import './App.css';
 
 import { ConfigProvider, Col, Row, Button, Steps, Typography, Checkbox, Space, Form, Statistic, Card, Badge, List } from 'antd';
 
-import DetectRTC from "detectrtc";
+import DetectRTC from 'detectrtc';
+import * as turnItOff from 'turn-it-off/main';
+import { UniversalSpeedtest, SpeedUnits } from "universal-speedtest";
+import NetworkSpeed from 'network-speed';
+
 import enUS from 'antd/locale/en_US';
 import dayjs from 'dayjs';
 
@@ -16,7 +20,7 @@ import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 
 dayjs.locale('en');
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const CheckboxGroup = Checkbox.Group;
 
 const App: React.FC = () => {
@@ -26,9 +30,9 @@ const App: React.FC = () => {
     const [networkInfos, setNetworkInfos] = useState<NetworkType>();
     const [devicesInfos, setDevicesInfos] = useState<DevicesType>();
 
-    const [systemProcessing, setSystemProcessing] = useState<boolean>(false);
-    const [networkProcessing, setNetworkProcessing] = useState<boolean>(false);
-    const [devicesProcessing, setDevicesProcessing] = useState<boolean>(false);
+    const [systemStatus, setSystemStatus] = useState<string>('Wait');
+    const [networkStatus, setNetworkStatus] = useState<string>('Wait');
+    const [devicesStatus, setDevicesStatus] = useState<string>('Wait');
 
     const [testFinished, setTestFinished] = useState<boolean>(false);
 
@@ -54,6 +58,8 @@ const App: React.FC = () => {
               return 'default';
           case 'Passed':
               return 'success';
+          case 'Blocked':
+              return 'error';
       }
     }
     const testSteps = [
@@ -78,37 +84,149 @@ const App: React.FC = () => {
                     dataSource={[
                         {
                             title: 'System Tests',
-                            statusText: systemInfos === undefined ? systemProcessing ? "Processing" : "Wait" : "Passed",
+                            statusText: systemStatus,
                             description:
                                 <ul>
-                                    <li>Operating System</li>
-                                    <li>Browser Name and Version</li>
-                                    <li>Browser Capabilities</li>
+                                    <li>
+                                        <>
+                                            Operating System
+                                            {systemInfos?.os !== undefined && (
+                                                <>
+                                                    : <Text strong>{systemInfos.os.name}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
+                                    <li>
+                                        <>
+                                            Browser Name and Version
+                                            {systemInfos?.browser !== undefined && (
+                                                <>
+                                                    : <Text strong>{systemInfos.browser.name} {systemInfos.browser.version}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
+                                    <li>
+                                        <>
+                                            Browser Capabilities
+                                            {systemInfos?.browser?.capabilities !== undefined && (
+                                                <>
+                                                    :
+                                                    <Text strong>
+                                                        <ol>
+                                                            <Row>
+                                                                <Col span={8}>
+                                                                    {systemInfos.browser.capabilities.WebRTC && <li>WebRTC</li>}
+                                                                    {systemInfos.browser.capabilities.ORTC && <li>ORTC</li>}
+                                                                    {systemInfos.browser.capabilities.WebSockets && <li>WebSockets</li>}
+                                                                    {systemInfos.browser.capabilities.AudioContext && <li>WebAudio API</li>}
+                                                                </Col>
+                                                                <Col span={8}>
+                                                                    {systemInfos.browser.capabilities.SCTPDataChannels && <li>SCTP DataChannels</li>}
+                                                                    {systemInfos.browser.capabilities.RTPDataChannels && <li>RTP DataChannels</li>}
+                                                                    {systemInfos.browser.capabilities.Promises && <li>Promises</li>}
+                                                                </Col>
+                                                                <Col span={8}>
+                                                                    {systemInfos.browser.capabilities.isMultiMonitorScreenCapturing && <li>MultiMonitor ScreenCapturing</li>}
+                                                                    {systemInfos.browser.capabilities.VideoStreamCapturing && <li>Video StreamCapturing</li>}
+                                                                    {systemInfos.browser.capabilities.CanvasStreamCapturing && <li>Canvas StreamCapturing</li>}
+                                                                </Col>
+                                                            </Row>
+                                                        </ol>
+                                                    </Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
                                 </ul>,
                             enabled: checkedList.includes('System'),
                         },
                         {
                             title: 'Network Tests',
-                            statusText: networkInfos === undefined ? networkProcessing ? "Processing" : "Wait" : "Passed",
+                            statusText: networkStatus,
                             description:
                                 <ul>
-                                    <li>IP Address Type</li>
-                                    <li>IP Address v4</li>
+                                    <li>
+                                        <>
+                                            IP Address Type
+                                            {networkInfos?.ipAddressType !== undefined && (
+                                                <>
+                                                    : <Text strong className={'text-capitalize'}>{networkInfos.ipAddressType}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
+                                    <li>
+                                        <>
+                                            IP Address v4
+                                            {networkInfos?.IPv4 !== undefined && (
+                                                <>
+                                                    : <Text strong className={'text-capitalize'}>{networkInfos.IPv4}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
                                     <li>IP Address v6</li>
                                     <li>Network Bandwidth</li>
-                                    <li>VPN Dectection</li>
+                                    <li>
+                                        <>
+                                            VPN Detection
+                                            {networkInfos?.vpn !== undefined && (
+                                                <>
+                                                    : <Text strong className={'text-capitalize'}>{networkInfos.vpn ? 'Yes' : 'No'}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
                                 </ul>,
                             enabled: checkedList.includes('Network'),
                         },
                         {
                             title: 'Devices Tests',
-                            statusText: devicesInfos === undefined ? devicesProcessing ? "Processing" : "Wait" : "Passed",
+                            statusText: devicesStatus,
                             description:
                                 <ul>
-                                    <li>Microphone</li>
-                                    <li>Speakers</li>
-                                    <li>Webcams</li>
-                                    <li>Screensharing</li>
+                                    <li>
+                                        <>
+                                            Microphone
+                                            {devicesInfos?.microphone?.allowed && (
+                                                <>
+                                                    : <Text strong>{devicesInfos.microphone.devices?.length + ' Device(s)'}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
+                                    <li>
+                                        <>
+                                            Speakers
+                                            {devicesInfos?.speakers !== undefined && (
+                                                <>
+                                                    : <Text strong>{devicesInfos.speakers?.length + ' Device(s)'}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
+                                    <li>
+                                        <>
+                                            Webcams
+                                            {devicesInfos?.webcams?.allowed && (
+                                                <>
+                                                    : <Text strong>{devicesInfos.webcams.devices?.length + ' Device(s)'}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
+                                    <li>
+                                        <>
+                                            Screensharing
+                                            {devicesInfos?.screenshare !== undefined && (
+                                                <>
+                                                    : <Text strong>{devicesInfos.screenshare ? 'Supported' : 'Not Supported'}</Text>
+                                                </>
+                                            )}
+                                        </>
+                                    </li>
                                 </ul>,
                             enabled: checkedList.includes('Devices'),
                         },
@@ -117,7 +235,6 @@ const App: React.FC = () => {
                         if(item.enabled) {
                             return <List.Item className='text-left' actions={[<Badge status={getItemStatus(item.statusText)} text={item.statusText} />]}>
                                 <List.Item.Meta
-                                    //avatar={<ControlOutlined />}
                                     title={item.title}
                                     description={item.description}
                                 />
@@ -129,8 +246,9 @@ const App: React.FC = () => {
         {
             title: 'Test Results',
             content:
+            <>
                 <Row gutter={[16, 40]}>
-                    {systemInfos !== undefined && systemInfos.os !== undefined && systemInfos.browser !== undefined && (
+                    {systemInfos?.os !== undefined && systemInfos?.browser !== undefined && (
                         <Col span={12}>
                             <Card bordered={false} title={'System Tests'}>
                                 <Row gutter={[16, 40]}>
@@ -160,7 +278,8 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.WebRTC !== undefined && (
+
+                                    {systemInfos.browser.capabilities?.WebRTC !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="WebRTC"
@@ -169,7 +288,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.ORTC !== undefined && (
+                                    {systemInfos.browser.capabilities?.ORTC !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="ORTC"
@@ -178,7 +297,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.WebSockets !== undefined && (
+                                    {systemInfos.browser.capabilities?.WebSockets !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="WebSockets"
@@ -187,7 +306,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.AudioContext !== undefined && (
+                                    {systemInfos.browser.capabilities?.AudioContext !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="WebAudio API"
@@ -196,7 +315,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.SCTPDataChannels !== undefined && (
+                                    {systemInfos.browser.capabilities?.SCTPDataChannels !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="SCTP Data Channels"
@@ -205,7 +324,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.RTPDataChannels !== undefined && (
+                                    {systemInfos.browser.capabilities?.RTPDataChannels !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="RTP Data Channels"
@@ -214,7 +333,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.isMultiMonitorScreenCapturing !== undefined && (
+                                    {systemInfos.browser.capabilities?.isMultiMonitorScreenCapturing !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="MultiMonitor ScreenCapturing"
@@ -223,7 +342,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.VideoStreamCapturing !== undefined && (
+                                    {systemInfos.browser.capabilities?.VideoStreamCapturing !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="Video StreamCapturing"
@@ -232,7 +351,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.CanvasStreamCapturing !== undefined && (
+                                    {systemInfos.browser.capabilities?.CanvasStreamCapturing !== undefined && (
                                         <Col span={8}>
                                             <Statistic
                                                 title="Canvas StreamCapturing"
@@ -241,7 +360,7 @@ const App: React.FC = () => {
                                             />
                                         </Col>
                                     )}
-                                    {systemInfos.browser.capabilities.Promises !== undefined && (
+                                    {systemInfos.browser.capabilities?.Promises !== undefined && (
                                         <Col span={12}>
                                             <Statistic
                                                 title="Promises"
@@ -263,88 +382,97 @@ const App: React.FC = () => {
                             </Card>
                         </Col>
                     )}
-                        <Col span={12}>
-                            {devicesInfos !== undefined && (devicesInfos.microphone !== undefined || devicesInfos.webcams !== undefined || devicesInfos.speakers !== undefined || devicesInfos.screenshare !== undefined) && (
-                                <>
-                                    <Card bordered={false} title={'Devices Tests'}>
-                                        <Row gutter={[16, 40]}>
-                                            {devicesInfos.microphone !== undefined && (
-                                                <Col span={8}>
-                                                    <Statistic
-                                                        title="Microphone"
-                                                        value={devicesInfos.microphone.allowed ? devicesInfos.microphone.exists ? 'Yes' : 'No' : 'Not Allowed'}
-                                                        valueStyle={{ color: devicesInfos.microphone.allowed && devicesInfos.microphone.exists ? '#3f8600' : '#cf1322' }}
-                                                        suffix={<span className="stat-small">{(devicesInfos.microphone.allowed && devicesInfos.microphone.exists) && devicesInfos.microphone.nb + ' microphones'}</span>}
-                                                    />
-                                                </Col>
-                                            )}
-                                            {devicesInfos.speakers !== undefined && (
-                                                <Col span={8}>
-                                                    <Statistic
-                                                        title="Speakers"
-                                                        value={devicesInfos.speakers.exists ? 'Yes' : 'No'}
-                                                        valueStyle={{ color: devicesInfos.speakers.exists ? '#3f8600' : '#cf1322' }}
-                                                        suffix={<span className="stat-small">{devicesInfos.speakers.exists && devicesInfos.speakers.nb + ' speakers'}</span>}
-                                                    />
-                                                </Col>
-                                            )}
-                                            {devicesInfos.webcams !== undefined && (
-                                                <Col span={8}>
-                                                    <Statistic
-                                                        title="Webcams"
-                                                        value={devicesInfos.webcams.allowed ? devicesInfos.webcams.exists ? 'Yes' : 'No' : 'Not Allowed'}
-                                                        valueStyle={{ color: devicesInfos.webcams.allowed && devicesInfos.webcams.exists ? '#3f8600' : '#cf1322' }}
-                                                        suffix={<span className="stat-small">{(devicesInfos.webcams.allowed && devicesInfos.webcams.exists) && devicesInfos.webcams.nb + ' webcams'}</span>}
-                                                    />
-                                                </Col>
-                                            )}
-                                            {devicesInfos.screenshare !== undefined && (
-                                                <Col span={8}>
-                                                    <Statistic
-                                                        title="ScreenSharing"
-                                                        value={devicesInfos.screenshare ? 'Supported' : 'Not Supported'}
-                                                        valueStyle={{ color: devicesInfos.screenshare ? '#3f8600' : '#cf1322' }}
-                                                    />
-                                                </Col>
-                                            )}
-                                        </Row>
-                                    </Card>
-                                    <br/>
-                                </>
-                            )}
-                            {networkInfos !== undefined && (networkInfos.ipAddressType !== undefined || networkInfos.IPv4 !== undefined) && (
-                                <Card bordered={false} title={'Network Tests'}>
+                    <Col span={12}>
+                        {(devicesInfos?.microphone !== undefined || devicesInfos?.webcams !== undefined || devicesInfos?.speakers !== undefined || devicesInfos?.screenshare !== undefined) && (
+                            <>
+                                <Card bordered={false} title={'Devices Tests'}>
                                     <Row gutter={[16, 40]}>
-                                        {networkInfos.ipAddressType !== undefined && (
+                                        {devicesInfos.microphone !== undefined && (
                                             <Col span={8}>
                                                 <Statistic
-                                                    title="IpAddress Type"
-                                                    value={networkInfos.ipAddressType}
-                                                    valueStyle={{textTransform: "capitalize"}}
+                                                    title="Microphone"
+                                                    value={devicesInfos.microphone.allowed ? devicesInfos.microphone.devices!.length > 0 ? devicesInfos.microphone.devices?.length + ' microphone(s)' : 'No' : 'Not Allowed'}
+                                                    valueStyle={{ color: devicesInfos.microphone.allowed && devicesInfos.microphone.devices!.length > 0 ? '#3f8600' : '#cf1322' }}
+                                                    suffix={<div className="stat-small">{(devicesInfos.microphone.allowed && devicesInfos.microphone.devices!.length > 0) && devicesInfos.microphone.devices?.map((item, index) => <p key={index}>{item}</p>)}</div>}
                                                 />
                                             </Col>
                                         )}
-                                        {networkInfos.IPv4 !== undefined && (
+                                        {devicesInfos.speakers !== undefined && (
                                             <Col span={8}>
                                                 <Statistic
-                                                    title="IPv4"
-                                                    value={networkInfos.IPv4}
+                                                    title="Speakers"
+                                                    value={devicesInfos.speakers.length > 0 ? 'Yes' : 'No'}
+                                                    valueStyle={{ color: devicesInfos.speakers.length > 0 ? '#3f8600' : '#cf1322' }}
+                                                    suffix={<span className="stat-small">{devicesInfos.speakers.length > 0 && devicesInfos.speakers.length + ' speakers'}</span>}
                                                 />
                                             </Col>
                                         )}
-                                        {networkInfos.IPv6 !== undefined && (
+                                        {devicesInfos.webcams !== undefined && (
                                             <Col span={8}>
                                                 <Statistic
-                                                    title="IPv6"
-                                                    value={networkInfos.IPv6}
+                                                    title="Webcams"
+                                                    value={devicesInfos.webcams.allowed ? devicesInfos.webcams.devices!.length > 0 ? devicesInfos.webcams.devices?.length + ' webcams' : 'No' : 'Not Allowed'}
+                                                    valueStyle={{ color: devicesInfos.webcams.allowed && devicesInfos.webcams.devices!.length > 0 ? '#3f8600' : '#cf1322' }}
+                                                    suffix={<div className="stat-small">{(devicesInfos.webcams.allowed && devicesInfos.webcams.devices!.length > 0) && devicesInfos.webcams.devices?.map((item, index) => <p key={index}>{item}</p>)}</div>}
+                                                />
+                                            </Col>
+                                        )}
+                                        {devicesInfos.screenshare !== undefined && (
+                                            <Col span={8}>
+                                                <Statistic
+                                                    title="ScreenSharing"
+                                                    value={devicesInfos.screenshare ? 'Supported' : 'Not Supported'}
+                                                    valueStyle={{ color: devicesInfos.screenshare ? '#3f8600' : '#cf1322' }}
                                                 />
                                             </Col>
                                         )}
                                     </Row>
                                 </Card>
-                            )}
-                        </Col>
+                                <br/>
+                            </>
+                        )}
+                        {(networkInfos?.ipAddressType !== undefined || networkInfos?.IPv4 !== undefined) && (
+                            <Card bordered={false} title={'Network Tests'}>
+                                <Row gutter={[16, 40]}>
+                                    {networkInfos.ipAddressType !== undefined && (
+                                        <Col span={8}>
+                                            <Statistic
+                                                title="IpAddress Type"
+                                                value={networkInfos.ipAddressType}
+                                                valueStyle={{textTransform: "capitalize"}}
+                                            />
+                                        </Col>
+                                    )}
+                                    {networkInfos.IPv4 !== undefined && (
+                                        <Col span={8}>
+                                            <Statistic
+                                                title="IPv4"
+                                                value={networkInfos.IPv4}
+                                            />
+                                        </Col>
+                                    )}
+                                    {networkInfos.IPv6 !== undefined && (
+                                        <Col span={8}>
+                                            <Statistic
+                                                title="IPv6"
+                                                value={networkInfos.IPv6}
+                                            />
+                                        </Col>
+                                    )}
+                                    {networkInfos.vpn !== undefined && (
+                                        <Col span={8}>
+                                            <Statistic
+                                                title="VPN Detection"
+                                                value={networkInfos.vpn ? 'VPN detected' : 'Any VPN detected'}
+                                            />
+                                        </Col>
+                                    )}
+                                </Row>
+                            </Card>
+                        )}
+                    </Col>
                 </Row>
+            </>
         },
     ];
     const items = testSteps.map((item) => ({ key: item.title, title: item.title }));
@@ -353,32 +481,55 @@ const App: React.FC = () => {
     const getLocalStreamAndSaveDevicesInfo = async () => {
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: true })
-            .then(() => {
+            .then((stream) => {
+                const videoDevices: string[] = [];
+                const audioDevices: string[] = [];
+                if (stream.getVideoTracks().length > 0 || stream.getAudioTracks().length > 0) {
+                    stream.getVideoTracks().forEach(function(device) {
+                        videoDevices.push(device.label);
+                    });
+                    stream.getAudioTracks().forEach(function(device) {
+                        audioDevices.push(device.label);
+                    });
+                }
                 setDevicesInfos({
                     microphone: {
-                        allowed: DetectRTC.isWebsiteHasMicrophonePermissions,
-                        exists: DetectRTC.hasMicrophone,
-                        nb: DetectRTC.audioInputDevices.length,
+                        allowed: true,
+                        devices: audioDevices,
                     },
                     webcams: {
-                        allowed: DetectRTC.isWebsiteHasWebcamPermissions,
-                        exists: DetectRTC.hasWebcam,
-                        nb: DetectRTC.videoInputDevices.length,
+                        allowed: true,
+                        devices: videoDevices,
                     },
-                    speakers: {
-                        exists: DetectRTC.hasSpeakers,
-                        nb: DetectRTC.audioOutputDevices.length,
-                    },
+                    //speakers: [],
                     screenshare: DetectRTC.isScreenCapturingSupported,
                 });
+                setDevicesStatus('Passed');
+            })
+            .catch((error) => {
+                if (error.name === "NotAllowedError") {
+                    setDevicesInfos({
+                        microphone: {
+                            allowed: false,
+                            devices: [],
+                        },
+                        webcams: {
+                            allowed: false,
+                            devices: [],
+                        },
+                        speakers: [],
+                        screenshare: DetectRTC.isScreenCapturingSupported,
+                    });
+                    setDevicesStatus('Blocked');
+                }
             });
     }
     const initData = () => {
         setTestFinished(false);
 
-        setSystemProcessing(false);
-        setNetworkProcessing(false);
-        setDevicesProcessing(false);
+        setSystemStatus('Wait');
+        setNetworkStatus('Wait');
+        setDevicesStatus('Wait');
 
         setSystemInfos(undefined);
         setNetworkInfos(undefined);
@@ -389,7 +540,7 @@ const App: React.FC = () => {
 
         if (currentStep === 0) {
             if (checkedList.includes('System')) {
-                setSystemProcessing(true);
+                setSystemStatus('Processing');
                 await delay(1000);
                 setSystemInfos({
                     os: {
@@ -419,27 +570,31 @@ const App: React.FC = () => {
                     },
                     isMobileDevice: DetectRTC.isMobileDevice,
                 });
-                setSystemProcessing(false);
+                setSystemStatus('Passed');
             }
 
             if (checkedList.includes('Network')) {
-                setNetworkProcessing(true);
+                setNetworkStatus('Processing');
                 await delay(1000);
+                let vpnValue = undefined;
+                await turnItOff.checkVPN().then((result) => {
+                    vpnValue = result.hasVPN;
+                });
                 DetectRTC.DetectLocalIPAddress((ipAddress) => {
                     if (!ipAddress) return;
                     setNetworkInfos({
                         ipAddressType: ipAddress.indexOf('Local') !== -1 ? 'private' : 'public',
                         IPv4: ipAddress.substring(ipAddress.indexOf(':') + 2),
+                        vpn: vpnValue,
                     })
                 });
-                setNetworkProcessing(false);
+                setNetworkStatus('Passed');
             }
 
             if(checkedList.includes('Devices')) {
-                setDevicesProcessing(true);
+                setDevicesStatus('Processing');
                 await delay(2000);
                 await getLocalStreamAndSaveDevicesInfo();
-                setDevicesProcessing(false);
             }
 
             setTestFinished(true);
@@ -465,7 +620,46 @@ const App: React.FC = () => {
     }
 
     useEffect(() => {
-        //getLocalStreamAndSaveDevicesInfo();
+        /*
+        const universalSpeedtest = new UniversalSpeedtest({
+            measureUpload: true,
+            downloadUnit: SpeedUnits.MBps,
+        });
+
+        universalSpeedtest.runSpeedtestNet()
+            .then(result => {
+                console.log(`Ping: ${result.ping} ms`);
+                console.log(`Download speed: ${result.downloadSpeed} MBps`);
+                console.log(`Upload speed: ${result.uploadSpeed} Mbps`);
+            }).catch(e => {
+                console.error(e.message);
+            });
+        */
+
+        async function getNetworkDownloadSpeed() {
+            const baseUrl = 'https://eu.httpbin.org/stream-bytes/500000';
+            const fileSizeInBytes = 500000;
+            const speed = await testNetworkSpeed.checkDownloadSpeed(baseUrl, fileSizeInBytes);
+            console.log(speed);
+        }
+        async function getNetworkUploadSpeed() {
+            const options = {
+                hostname: 'www.google.com',
+                port: 80,
+                path: '/catchers/544b09b4599c1d0200000289',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            const fileSizeInBytes = 2000000
+            const speed = await testNetworkSpeed.checkUploadSpeed(options, fileSizeInBytes);
+            console.log(speed);
+        }
+
+        const testNetworkSpeed = new NetworkSpeed();
+        getNetworkDownloadSpeed();
+        getNetworkUploadSpeed();
     }, []);
 
     return (
@@ -476,7 +670,7 @@ const App: React.FC = () => {
             theme={{ token: { colorPrimary: '#364259', fontSize: 14.5, fontFamily: 'Segoe UI', sizeStep: 6 } }}
         >
             <div className="App">
-                <Title className='app-title'>BigBlueButton Pre-flight Check</Title>
+                <Title className='app-title center-elements'><img className="logo-title" src={'./favicon.ico'} />BigBlueButton Pre-flight Check</Title>
                 <Row justify="center" align="top" className="m-20">
                     <Col span={4} className="mt-30 test-steps">
                         <Steps /*percent={currentStep === 1 ? 60 : undefined}*/ direction="vertical" current={currentStep} items={items} />

@@ -1,17 +1,12 @@
 export type DevicesType = {
     microphone?: {
-        allowed: boolean;
-        exists: boolean;
-        nb: number;
+        allowed?: boolean;
+        devices?: string[];
     }
     webcams?: {
-        allowed: boolean;
-        exists: boolean;
-        nb: number;
+        allowed?: boolean;
+        devices?: string[];
     },
-    speakers?: {
-        exists: boolean;
-        nb: number;
-    }
+    speakers?: string[];
     screenshare?: boolean;
 };

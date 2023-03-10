@@ -51,6 +51,17 @@ code {
   margin: 40px 0 !important;
 }
 
+.center-elements {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-title {
+  width: 45px;
+  margin-right: 10px;
+}
+
 .step-content {
   /*line-height: 260px;
   text-align: center;
@@ -106,6 +117,10 @@ code {
 
 .text-left {
   text-align: left;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
 }
 
 .list-width {

@@ -7,5 +7,5 @@ export type NetworkType = {
       downloadSpeed?: string;
       uploadSpeed?: string;
     };
-    vpnDetection?: boolean;
+    vpn?: boolean;
 };
