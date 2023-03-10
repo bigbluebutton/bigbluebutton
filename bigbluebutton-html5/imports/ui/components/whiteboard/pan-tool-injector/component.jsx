@@ -129,9 +129,13 @@ PanToolInjector.propTypes = {
   setIsPanning: PropTypes.func.isRequired,
   tldrawAPI: PropTypes.shape({
     selectTool: PropTypes.func.isRequired,
-  }).isRequired,
+  }),
   panSelected: PropTypes.bool.isRequired,
   setPanSelected: PropTypes.func.isRequired,
+};
+
+PanToolInjector.defaultProps = {
+  tldrawAPI: null,
 };
 
 export default PanToolInjector;
