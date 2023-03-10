@@ -42,13 +42,13 @@ Then, edit the docker compose file so that your new file is loaded into the cont
 ```yaml
  volumes:
   - ./data/greenlight-v3/storage:/usr/src/app/storage
-  - ./en.json:/usr/app/app/assets/locales/en.json
+  - ./en.json:/usr/srv/app/app/assets/locales/en.json
 ```
 OR
 ```yaml
  volumes:
   - ./data/greenlight-v3/storage:/usr/src/app/storage
-  - ./en.json:/usr/app/config/locales/en.json
+  - ./en.json:/usr/src/app/config/locales/en.json
 ```
 
 Finally, restart Greenlight v3 and your new changes should be displayed in Greenlight.
@@ -70,7 +70,7 @@ Then, edit the docker compose file so that your new file is loaded into the cont
 ```yaml
  volumes:
   - ./data/greenlight-v3/storage:/usr/src/app/storage
-  - ./rooms_controller.rb:/usr/app/pp/controllers/api/v1/rooms_controller.rb
+  - ./rooms_controller.rb:/usr/src/app/app/controllers/api/v1/rooms_controller.rb
 ```
 
 Finally, restart Greenlight v3 and your new changes should be displayed in Greenlight.
