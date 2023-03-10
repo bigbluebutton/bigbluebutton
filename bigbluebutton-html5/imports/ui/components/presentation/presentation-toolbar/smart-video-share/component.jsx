@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import { safeMatch } from '/imports/utils/string-utils';
 import { isUrlValid, startWatching } from '/imports/ui/components/external-video-player/service';
@@ -65,3 +66,18 @@ export const SmartMediaShare = (props) => {
 };
 
 export default SmartMediaShare;
+
+SmartMediaShare.propTypes = {
+  currentSlide: PropTypes.shape({
+    content: PropTypes.string.isRequired,
+  }),
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isMobile: PropTypes.bool.isRequired,
+  isRTL: PropTypes.bool.isRequired,
+};
+
+SmartMediaShare.defaultProps = {
+  currentSlide: undefined,
+};
