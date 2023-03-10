@@ -399,7 +399,6 @@ public:
         constraints:
           width: 1920
           height: 1080
-          frameRate: 30
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true

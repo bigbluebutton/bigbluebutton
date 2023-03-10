@@ -4,6 +4,8 @@ import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/service';
 import ScreenShareService from '/imports/ui/components/screenshare/service';
+import logger from '/imports/startup/client/logger';
+import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 
 const VideoPreviewContainer = (props) => <VideoPreview {...props} />;
 
@@ -16,9 +18,22 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
   startSharingCameraAsContent: (deviceId) => {
     callbackToClose();
     setIsOpen(false);
-    ScreenShareService.shareScreen(true,
-      (error) => console.log(error),
-      { stream: Service.getStream(deviceId)._mediaStream });
+    const handleFailure = (error) => {
+      const {
+        errorCode = SCREENSHARING_ERRORS.UNKNOWN_ERROR.errorCode,
+        errorMessage = error.message,
+      } = error;
+
+      logger.error({
+        logCode: 'camera_as_content_failed',
+        extraInfo: { errorCode, errorMessage },
+      }, `Sharing camera as content failed: ${errorMessage} (code=${errorCode})`);
+
+      ScreenShareService.screenshareHasEnded();
+    };
+    ScreenShareService.shareScreen(
+      true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream }
+    );
   },
   stopSharing: (deviceId) => {
     callbackToClose();

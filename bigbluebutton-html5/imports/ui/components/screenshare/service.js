@@ -151,7 +151,7 @@ const screenshareHasStarted = (isPresenter) => {
   }
 };
 
-const shareScreen = async (isPresenter, onFail, options) => {
+const shareScreen = async (isPresenter, onFail, options = {}) => {
   // stop external video share if running
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 
@@ -161,7 +161,7 @@ const shareScreen = async (isPresenter, onFail, options) => {
 
   try {
     let stream;
-    if (!options) {
+    if (options.stream == null) {
       stream = await BridgeService.getScreenStream();
     } else {
       stream = options.stream;

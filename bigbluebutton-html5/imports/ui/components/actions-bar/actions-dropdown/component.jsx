@@ -103,7 +103,7 @@ const intlMessages = defineMessages({
   },
   unshareCameraAsContent: {
     id: 'app.actionsBar.actionsDropdown.unshareCameraAsContent',
-    description: 'Label for unshar camera as content',
+    description: 'Label for unshare camera as content',
   },
 });
 
