@@ -19,7 +19,7 @@ class LearningDashboard extends MultiUsers {
       context.waitForEvent('page'),
       this.modPage.waitAndClick(e.learningDashboard),
     ]);
-    
+
     await expect(dashboardPage).toHaveTitle(/Dashboard/);
     this.dashboardPage = new Page(context, dashboardPage);
   }
@@ -33,7 +33,6 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.checkElementCount(e.chatUserMessageText, 1);
     await this.dashboardPage.reloadPage();
     await this.dashboardPage.hasText(e.messageLearningDashboard, '1', ELEMENT_WAIT_EXTRA_LONG_TIME);
-    
   }
 
   async userTimeOnMeeting() {
@@ -43,11 +42,11 @@ class LearningDashboard extends MultiUsers {
 
     const timeLocator = this.dashboardPage.getLocator(e.userOnlineTime);
     const timeContent = await (timeLocator).textContent();
-    const time = await timeInSeconds(timeContent);
+    const time = timeInSeconds(timeContent);
     await sleep(1000);
     await this.dashboardPage.reloadPage();
     const timeContentGreater = await (timeLocator).textContent();
-    const timeGreater = await timeInSeconds(timeContentGreater);
+    const timeGreater = timeInSeconds(timeContentGreater);
 
     await expect(timeGreater).toBeGreaterThan(time);
   }
@@ -92,33 +91,26 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.numberVotes, '1');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
-    //True / False
+    //Checks
     await this.dashboardPage.reloadPage();
     await this.dashboardPage.waitAndClick(e.pollPanel);
-    await this.dashboardPage.hasText(e.pollTrueFalseQuestion, 'True/False?', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.hasText(e.pollTotal, '4', ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    //True / False
+    await this.dashboardPage.hasText(e.pollTrueFalseQuestion, 'True/False?');
     await this.dashboardPage.hasText(e.pollTrueFalseAnswer, 'True');
 
     //ABCD
-    await this.dashboardPage.reloadPage();
-    await this.dashboardPage.waitAndClick(e.pollPanel);
-    await this.dashboardPage.hasText(e.pollABCDQuestion, 'ABCD?', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.hasText(e.pollABCDQuestion, 'ABCD?');
     await this.dashboardPage.hasText(e.pollABCDAnswer, 'A');
 
     //Yes No
-    await this.dashboardPage.reloadPage();
-    await this.dashboardPage.waitAndClick(e.pollPanel);
-    await this.dashboardPage.hasText(e.pollYesNoQuestion, 'Yes/No/Abstention?', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.hasText(e.pollYesNoQuestion, 'Yes/No/Abstention?');
     await this.dashboardPage.hasText(e.pollYesNoAnswer, 'Yes');
 
     // User Response
-    await this.dashboardPage.reloadPage();
-    await this.dashboardPage.waitAndClick(e.pollPanel);
-    await this.dashboardPage.hasText(e.pollUserResponseQuestion, 'User response?', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.hasText(e.pollUserResponseQuestion, 'User response?');
     await this.dashboardPage.hasText(e.pollUserResponseAnswer, e.answerMessage);
-
-    await this.dashboardPage.reloadPage();
-    await this.dashboardPage.waitAndClick(e.pollPanel);
-    await this.dashboardPage.hasText(e.pollTotal, '4');
   }
 }
 

@@ -23,4 +23,4 @@ test.describe.serial('Learning Dashboard', async () => {
     await learningDashboard.initUserPage(true, context);
     await learningDashboard.polls();
   });
-})
+});
