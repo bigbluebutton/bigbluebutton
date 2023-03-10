@@ -1,11 +1,11 @@
 ---
-layout: page
+id: getting-help
 slug: /support/getting-help
-title: 'Getting help'
+title: Getting Help
 sidebar_position: 1
-category: support
-date: 2020-06-16 14:30:00
-order: 2
+description: Getting Help
+keywords:
+- help
 ---
 
 ## Introduction

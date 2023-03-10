@@ -35,10 +35,6 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    // Please change this to your repo.
-                    // Remove this to remove the "edit this page" links.
-                    editUrl:
-                        'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -67,7 +63,7 @@ const config = {
                     {to: '/teaching', label: 'Teaching', position: 'left'},
                     {to: '/development/guide', label: 'Development', position: 'left'},
                     {to: '/administration/install', label: 'Administration', position: 'left'},
-                    {to: '/greenlight/overview', label: 'Greenlight', position: 'left'},
+                    {to: '/greenlight/v2/overview', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
