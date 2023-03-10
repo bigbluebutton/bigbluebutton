@@ -5,7 +5,7 @@ import Storage from '/imports/ui/services/storage/session';
 
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
-import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import { initCursorStreamListener } from '/imports/ui/components/whiteboard/cursors/service';
 import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import { ValidationStates } from '/imports/api/auth-token-validation';
 import logger from '/imports/startup/client/logger';

@@ -77,4 +77,9 @@ PresentationToolbarContainer.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
+  layoutSwapped: PropTypes.bool,
+};
+
+PresentationToolbarContainer.defaultProps = {
+  layoutSwapped: false,
 };
