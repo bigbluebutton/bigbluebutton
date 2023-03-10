@@ -1104,11 +1104,19 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null){
-      uploadDocuments(meeting, true);
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                  , contentType: "text/xml")
+      if (uploadDocuments(meeting, true)) {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                    , contentType: "text/xml")
+          }
+        }
+      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
         }
       }
     }else {
@@ -1334,7 +1342,11 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf, isFromInsertAPI) { //
+  def uploadDocuments(conf, isFromInsertAPI) {
+    if (conf.getDisabledFeatures().contains("presentation")) {
+      log.warn("Presentation feature is disabled.")
+      return false
+    }
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
     //sanitizeInput
@@ -1342,7 +1354,7 @@ class ApiController {
       key, value -> params[key] = sanitizeInput(value)
     }
 
-    Boolean preUploadedPresentationOverrideDefault=true
+    Boolean preUploadedPresentationOverrideDefault = true
     if (!isFromInsertAPI) {
       String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
       if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
@@ -1360,7 +1372,7 @@ class ApiController {
     // It selects the one that has the current=true, and put it in the 0th place.
     // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
     if (requestBody == null) {
-      if (isFromInsertAPI){
+      if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
@@ -1403,12 +1415,12 @@ class ApiController {
       def Boolean isDownloadable = false;
 
       if (document.name != null && "default".equals(document.name)) {
-        if(presentationService.defaultUploadedPresentation){
+        if (presentationService.defaultUploadedPresentation) {
           downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
-      } else{
+      } else {
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
           isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
@@ -1422,7 +1434,7 @@ class ApiController {
           if (presentationListHasCurrent) {
             isCurrent = true
           }
-        } else if (index == 0 && !isFromInsertAPI){
+        } else if (index == 0 && !isFromInsertAPI) {
           isCurrent = true
         }
 
@@ -1445,6 +1457,7 @@ class ApiController {
         }
       }
     }
+    return true
   }
 
   def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable) {

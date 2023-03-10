@@ -209,7 +209,7 @@ $ bbb-record --list-workflows
 ## process:presentation
 ## publish:presentation
 #
-## Available processing scripts: 
+## Available processing scripts:
 #
 ## presentation
 ```
@@ -223,7 +223,7 @@ $ bbb-record --watch
 Lists your 10 latest recordings, refreshing the output every 2 seconds. As BigBlueButton processes a recording, you'll see progress updates from the background services.
 
 ```bash
-Every 2.0s: bbb-record --list-recent                                                                                                                                                                                                               
+Every 2.0s: bbb-record --list-recent
 Internal MeetingID                   Time   APVD APVDE RAS Slides Processed Published Ext. Meeting ID
 ------------------------------------------- ---- ----- --- ------ --------- --------- ---------------
 29173583...1508b2efd7-1647630316965  Mar 18  X    XX X XX      7  pres.     pres.     English 102
@@ -580,7 +580,7 @@ publish_dir: /home/ubuntu/temp/published/presentation
 ```
 
 Now we run the archive step. Go to `record-and-playback/core/scripts` and type
-   
+
 ```ruby
 ruby archive/archive.rb -m <meeting-id>
 ```
@@ -870,7 +870,7 @@ The sections that follow cover the types of events you will encounter in `events
 | SharePresentationEvent     | - timestampUTC<br/>- presentationName<br/>- podId<br/>- share<br/>- date                                                                  |
 | GotoSlideEvent             | - timestampUTC<br/>- presentationName<br/>- podId<br/>- id<br/>- slide<br/>- date                                                         |
 | CreatePresentationPodEvent | - currentPresenter<br/>- timestampUTC<br/>- podID<br/>- date                                                                              |
-| SetPresentationDownloadable| - timestampUTC<br/>- presentationName<br/>- podId<br/>- date<br/>- downloadable                                                           |                                            
+| SetPresentationDownloadable| - timestampUTC<br/>- presentationName<br/>- podId<br/>- date<br/>- downloadable                                                           |
 | SetPresentarInPodEvent     | - timestampUTC<br/>- podId<br/> - date<br/>- nextPresenterId
 
 ### Whiteboard

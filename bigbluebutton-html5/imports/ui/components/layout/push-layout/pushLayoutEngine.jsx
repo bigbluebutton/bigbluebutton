@@ -8,7 +8,7 @@ import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 
-const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentation;
+const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentationOnJoin;
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -39,6 +39,7 @@ const propTypes = {
   pushLayoutMeeting: PropTypes.bool,
   selectedLayout: PropTypes.string,
   setMeetingLayout: PropTypes.func,
+  setPushLayout: PropTypes.func,
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
 };
@@ -73,7 +74,7 @@ class PushLayoutEngine extends React.Component {
     }
     Settings.save();
 
-    const initialPresentation = !getFromUserSettings('bbb_hide_presentation', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
+    const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
     MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
 
     if (selectedLayout === 'custom') {
@@ -136,6 +137,7 @@ class PushLayoutEngine extends React.Component {
       pushLayoutMeeting,
       selectedLayout,
       setMeetingLayout,
+      setPushLayout,
     } = this.props;
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
@@ -240,9 +242,13 @@ class PushLayoutEngine extends React.Component {
       || focusedCamera !== prevProps.focusedCamera
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    if ((pushLayout && layoutChanged) // change layout sizes / states
-      || (pushLayout !== prevProps.pushLayout) // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
-    ) {
+    if (pushLayout !== prevProps.pushLayout) { // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
+      if (isModerator) {
+        setPushLayout(pushLayout);
+      }
+    }
+
+    if (pushLayout && layoutChanged || pushLayout !== prevProps.pushLayout) { // change layout sizes / states
       if (isPresenter) {
         setMeetingLayout();
       }
