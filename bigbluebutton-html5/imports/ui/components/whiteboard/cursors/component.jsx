@@ -8,7 +8,6 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
-const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
 const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
@@ -103,30 +102,34 @@ const PositionLabel = (props) => {
 
   const { name, color, userId } = currentUser;
   const { x, y } = pos;
+  const { zoom, point: tldrawPoint } = tldrawCamera;
 
-  const cursorUpdate = (x,y) => {
+  React.useEffect(() => {
     try {
       const point = [x, y];
       publishCursorUpdate({
         xPercent:
-          point[0] / tldrawCamera?.zoom - tldrawCamera?.point[0],
+          point[0] / zoom - tldrawPoint[0],
         yPercent:
-          point[1] / tldrawCamera?.zoom - tldrawCamera?.point[1],
+          point[1] / zoom - tldrawPoint[1],
         whiteboardId,
       });
     } catch (e) {
       console.log(e);
     }
-  };
+  }, [x, y, zoom, tldrawPoint]);
 
-  const throttledCursorUpdate = React.useRef(throttle((x,y) => {
-    cursorUpdate(x,y);
-  },
-  CURSOR_INTERVAL, { trailing: false }));
-
+  // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
-    throttledCursorUpdate.current(x,y);
-  }, [x, y]);
+    return () => {
+      // Disable cursor on unmount
+      publishCursorUpdate({
+        xPercent: -1.0,
+        yPercent: -1.0,
+        whiteboardId,
+      });
+    };
+  }, []);
 
   return (
     <>
@@ -173,8 +176,9 @@ export default function Cursors(props) {
   const handleGrabbing = () => setPanGrabbing(true);
   const handleReleaseGrab = () => setPanGrabbing(false);
 
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   const end = () => {
-    if (whiteboardId) {
+    if (whiteboardId && (multiUserAccess || currentUser?.presenter)) {
       publishCursorUpdate({
         xPercent: -1.0,
         yPercent: -1.0,
@@ -342,7 +346,6 @@ export default function Cursors(props) {
     };
   }, [cursorWrapper, whiteboardId, currentUser.presenter]);
 
-  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
   if (isPanning && !disabledPan) {
     if (panGrabbing) {
