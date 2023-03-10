@@ -416,15 +416,6 @@ class Presentation extends PureComponent {
     });
   }
 
-  isPresentationAccessible() {
-    const {
-      currentSlide,
-      slidePosition,
-    } = this.props;
-    // sometimes tomcat publishes the slide url, but the actual file is not accessible
-    return currentSlide && slidePosition;
-  }
-
   updateLocalPosition(x, y, width, height, zoom) {
     this.setState({
       localPosition: {
