@@ -42,7 +42,7 @@ Then, edit the docker compose file so that your new file is loaded into the cont
 ```yaml
  volumes:
   - ./data/greenlight-v3/storage:/usr/src/app/storage
-  - ./en.json:/usr/srv/app/app/assets/locales/en.json
+  - ./en.json:/usr/src/app/app/assets/locales/en.json
 ```
 OR
 ```yaml
