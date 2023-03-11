@@ -46,7 +46,6 @@ const Cursors = (props) => {
     isPanning,
     isMoving,
     currentTool,
-    disabledPan,
   } = props;
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
@@ -226,7 +225,7 @@ const Cursors = (props) => {
   }, [cursorWrapper, whiteboardId, currentUser.presenter]);
 
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
-  if (isPanning && !disabledPan) {
+  if (isPanning) {
     if (panGrabbing) {
       cursorType = TOOL_CURSORS.grabbing;
     } else {
@@ -320,7 +319,6 @@ Cursors.propTypes = {
   isPanning: PropTypes.bool.isRequired,
   isMoving: PropTypes.bool.isRequired,
   currentTool: PropTypes.string,
-  disabledPan: PropTypes.bool.isRequired,
 };
 
 Cursors.defaultProps = {
