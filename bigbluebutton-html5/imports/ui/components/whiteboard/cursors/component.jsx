@@ -15,8 +15,8 @@ const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cur
 
 const TOOL_CURSORS = {
   select: 'default',
-  erase: 'none',
-  arrow: 'none',
+  erase: 'crosshair',
+  arrow: 'crosshair',
   draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
   rectangle: `url('${makeCursorUrl('square.png')}'), default`,
   ellipse: `url('${makeCursorUrl('ellipse.png')}'), default`,
