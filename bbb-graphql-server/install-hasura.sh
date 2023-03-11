@@ -14,8 +14,8 @@ cd "$(dirname "$0")"
 
 
 # Install Postgresql
-sudo apt update
-sudo apt install postgresql postgresql-contrib -y
+apt update
+apt install postgresql postgresql-contrib -y
 sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'bigbluebutton'"
 sudo -u postgres psql -c "create database bigbluebutton"
 sudo -u postgres psql -U postgres -d bigbluebutton -a -f bbb_schema.sql
@@ -36,6 +36,18 @@ echo "Postgresql installed!"
 # sudo docker run --name hasura --rm --net=host -itd -e HASURA_GRAPHQL_DATABASE_URL=postgres://postgres:bigbluebutton@bbb26.bbbvm.imdt.com.br:5432/hasura_app -e HASURA_GRAPHQL_ENABLE_CONSOLE=true -e HASURA_GRAPHQL_LIVE_QUERIES_MULTIPLEXED_REFETCH_INTERVAL=100 hasura/graphql-engine:v2.20.0
 
 
+#Build Hasura
+# sudo apt install haskell-platform -y
+# sudo apt-get install cabal-install -y
+
+#wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+#sudo sh -c "rm -rf /usr/local/go && tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz"
+#export PATH=$PATH:/usr/local/go/bin
+#go version
+
+# Condigs nginx
+cp ./graphql.nginx /usr/share/bigbluebutton/nginx
+systemctl restart nginx
 
 # Install Hasura graphql
 wget https://graphql-engine-cdn.hasura.io/server/latest/linux-amd64 -O /usr/local/bin/hasura-graphql-engine
@@ -47,8 +59,8 @@ cp ./hasura-config.env /etc/default/bbb-graphql-server
 
 cp ./bbb-graphql-server.service /lib/systemd/system/bbb-graphql-server.service
 
-sudo systemctl enable bbb-graphql-server
-sudo systemctl start bbb-graphql-server
+systemctl enable bbb-graphql-server
+systemctl start bbb-graphql-server
 
 # Install Hasura CLI
 curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash

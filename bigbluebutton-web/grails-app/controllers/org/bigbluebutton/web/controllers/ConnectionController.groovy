@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.web.controllers
 
+import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.util.ParamsUtil
@@ -29,16 +30,39 @@ class ConnectionController {
 
   def checkAuthorization = {
     try {
-      def uri = request.getHeader("x-original-uri")
-      def sessionToken = ParamsUtil.getSessionToken(uri)
+      def sessionToken = ""
+
+      if(request.getHeader("User-Agent").startsWith('hasura-graphql-engine')) {
+        sessionToken = request.getHeader("x-session-token")
+      } else {
+        def uri = request.getHeader("x-original-uri")
+        sessionToken = ParamsUtil.getSessionToken(uri)
+      }
+
       UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
 
       if (userSession != null && !isSessionTokenInvalid) {
+        if(request.getHeader("User-Agent").startsWith('hasura-graphql-engine')) {
+          response.setStatus(200)
+          withFormat {
+            json {
+              def builder = new JsonBuilder()
+              builder {
+                "x-hasura-role" "bbb_client"
+                "X-Hasura-UserId" userSession.internalUserId
+                "X-Hasura-MeetingId" userSession.meetingID
+              }
+              render(contentType: "application/json", text: builder.toPrettyString())
+            }
+          }
+          return
+        }
+
+        response.contentType = 'plain/text'
         response.addHeader("User-Id", userSession.internalUserId)
         response.addHeader("Meeting-Id", userSession.meetingID)
         response.addHeader("Voice-Bridge", userSession.voicebridge )
@@ -46,6 +70,7 @@ class ConnectionController {
         response.setStatus(200)
         response.outputStream << 'authorized'
       } else {
+        response.contentType = 'plain/text'
         response.setStatus(401)
         response.outputStream << 'unauthorized'
       }

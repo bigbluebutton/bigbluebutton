@@ -1,8 +1,8 @@
 table:
   name: user
   schema: public
-object_relationships:
-  - name: camera
+array_relationships:
+  - name: cameras
     using:
       manual_configuration:
         column_mapping:
@@ -11,7 +11,6 @@ object_relationships:
         remote_table:
           name: v_user_camera
           schema: public
-array_relationships:
   - name: microphones
     using:
       manual_configuration:
