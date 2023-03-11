@@ -410,12 +410,6 @@ export default function Whiteboard(props) {
         tldrawAPI?.zoomTo(zoomCamera);
       }, 50);
     }
-
-    if (zoomValue <= HUNDRED_PERCENT) {
-      setPanSelected(false);
-      setIsPanning(false);
-      tldrawAPI?.selectTool('select');
-    }
   }, [zoomValue]);
 
   // update zoom when presenter changes if the aspectRatio has changed
@@ -937,7 +931,6 @@ export default function Whiteboard(props) {
         isPanning={isPanning || panSelected}
         isMoving={isMoving}
         currentTool={currentTool}
-        disabledPan={(zoomValue <= HUNDRED_PERCENT && !fitToWidth)}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle
