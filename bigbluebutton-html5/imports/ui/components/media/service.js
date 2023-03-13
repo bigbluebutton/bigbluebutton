@@ -11,19 +11,17 @@ import { isPresentationEnabled } from '/imports/ui/services/features';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import Auth from '/imports/ui/services/auth/index';
 
+const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
+const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
 const getPresentationInfo = () => {
-  const hasCurrent = Presentations.findOne({
+  const currentPresentation = Presentations.findOne({
     current: true,
-    meetingId: Auth.meetingID,
   });
 
-  const hasPresentation = Presentations.find({ meetingId: Auth.meetingID }).count() > 0;
-
   return {
-    hasCurrent: (hasCurrent != null),
-    hasPresentation,
+    current_presentation: (currentPresentation != null),
   };
 };
 
