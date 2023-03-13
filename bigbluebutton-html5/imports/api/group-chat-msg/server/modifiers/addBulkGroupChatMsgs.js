@@ -21,10 +21,10 @@ export default async function addBulkGroupChatMsgs(msgs) {
         message: parseMessage(msg.message),
         sender: sender.id,
         senderName: sender.name,
-        senderRole: sender.role
+        senderRole: sender.role,
       };
     })
-    .map(el => flat(el, { safe: true }));
+    .map((el) => flat(el, { safe: true }));
 
   try {
     const { insertedCount } = await GroupChatMsg.rawCollection().insertMany(mappedMsgs);

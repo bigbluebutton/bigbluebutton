@@ -17,7 +17,7 @@ export function parseMessage(message) {
   return parsedMessage;
 }
 
-export default function addGroupChatMsg(meetingId, chatId, msg) {
+export default async function addGroupChatMsg(meetingId, chatId, msg) {
   check(meetingId, String);
   check(chatId, String);
   check(msg, {
@@ -45,7 +45,7 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
   };
 
   try {
-    const insertedId = GroupChatMsg.insert(msgDocument);
+    const insertedId = await GroupChatMsg.insertAsync(msgDocument);
 
     if (insertedId) {
       changeHasMessages(true, sender.id, meetingId, chatId);
