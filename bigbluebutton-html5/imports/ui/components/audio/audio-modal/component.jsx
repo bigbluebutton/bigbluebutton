@@ -175,7 +175,9 @@ class AudioModal extends Component {
       listenOnlyMode,
       audioLocked,
       isUsingAudio,
+      onMount
     } = this.props;
+    this.listener = onMount();
 
     if (!isUsingAudio) {
       if (forceListenOnlyAttendee || audioLocked) return this.handleJoinListenOnly();
@@ -210,6 +212,9 @@ class AudioModal extends Component {
       exitAudio();
     }
     if (resolve) resolve();
+    if (this.listener) {
+      window.removeEventListener(this.listener[0], this.listener[1]);
+    }
     Session.set('audioModalIsOpen', false);
   }
 

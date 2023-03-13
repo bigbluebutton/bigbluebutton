@@ -21,7 +21,6 @@ import {
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
 import Settings from '/imports/ui/services/settings';
-import { MODAL_TYPES } from '/imports/ui/components/common/modal/enums'
 
 const APP_CONFIG = Meteor.settings.public.app;
 const KURENTO_CONFIG = Meteor.settings.public.kurento;
@@ -99,7 +98,7 @@ class AudioContainer extends PureComponent {
   /**
    * Helper function to determine wheter user is returning from breakout room
    * to main room.
-   * @param  {[Object} prevProps prevProps param from componentDidUpdate
+   * @param  {Object} prevProps prevProps param from componentDidUpdate
    * @return {boolean}           True if user is returning from breakout room
    *                             to main room. False, otherwise.
    */
@@ -174,12 +173,12 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   const meetingIsBreakout = AppService.meetingIsBreakout();
   const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
   const openAudioModal = () => new Promise((resolve) => {
-    mountModal(<AudioModalContainer resolve={resolve} />, MODAL_TYPES.AUDIO_MODAL);
+    mountModal(<AudioModalContainer resolve={resolve} />);
   });
 
   const openVideoPreviewModal = () => new Promise((resolve) => {
     if (userWebcam) return resolve();
-    mountModal(<VideoPreviewContainer resolve={resolve} />, MODAL_TYPES.VIDEO_PREVIEW_MODAL);
+    mountModal(<VideoPreviewContainer resolve={resolve} />);
   });
 
   if (Service.isConnected() && !Service.isListenOnly()) {

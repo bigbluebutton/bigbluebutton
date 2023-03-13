@@ -18,7 +18,6 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 
 import Service from '../service';
 import AppService from '/imports/ui/components/app/service';
-import { MODAL_TYPES } from '/imports/ui/components/common/modal/enums'
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const APP_CONFIG = Meteor.settings.public.app;
@@ -90,7 +89,7 @@ export default withUsersConsumer(
         handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
         handleJoinAudio: () => (isConnected()
           ? joinListenOnly()
-          : mountModal(<AudioModalContainer />, MODAL_TYPES.AUDIO_MODAL)
+          : mountModal(<AudioModalContainer />)
         ),
         handleLeaveAudio,
         inputStream: AudioManager.inputStream,
