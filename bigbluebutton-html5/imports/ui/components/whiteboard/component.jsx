@@ -140,6 +140,9 @@ const TldrawGlobalStyleText = (arg) => {
     top: -1px;
   }
   ${ (arg.hasWBAccess || arg.isPresenter) ? `
+    button {
+      background: none;
+    }
     #TD-Tools-Dots {
       height: ${arg.size}px;
       width: ${arg.size}px;
