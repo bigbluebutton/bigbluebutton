@@ -77,16 +77,15 @@ class Presentation extends MultiUsers {
       height: wbBox.height,
     };
 
-    await expect(this.modPage.page).toHaveScreenshot('test.png', {
+    await expect(this.modPage.page).toHaveScreenshot('moderator-screnshot.png', {
       maxDiffPixels: 1000,
       clip: clipObj,
     });
 
-    await expect(this.userPage.page).toHaveScreenshot('test2.png', {
+    await expect(this.userPage.page).toHaveScreenshot('viewer-screenshot.png', {
       maxDiffPixels: 1000,
       clip: clipObj,
     });
-
   }
 
   async uploadMultiplePresentationsTest() {
