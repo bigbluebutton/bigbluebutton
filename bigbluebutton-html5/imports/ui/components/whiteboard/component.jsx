@@ -62,6 +62,8 @@ export default function Whiteboard(props) {
     width,
     height,
     hasMultiUserAccess,
+    tldrawAPI,
+    setTldrawAPI,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -73,7 +75,6 @@ export default function Whiteboard(props) {
     bindings: {},
     assets: {},
   });
-  const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const [history, setHistory] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
@@ -100,7 +101,7 @@ export default function Whiteboard(props) {
 
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
-      setTLDrawAPI(api);
+      setTldrawAPI(api);
     }
   };
 
