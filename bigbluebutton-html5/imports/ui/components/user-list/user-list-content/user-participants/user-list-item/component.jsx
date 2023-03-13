@@ -608,13 +608,13 @@ class UserListItem extends PureComponent {
       voiceUser,
     } = this.props;
 
-    // TODO Review this, compare with 2.5 bbb
-    let isReaction = false;
+    let userAvatarFiltered = user.avatar;
+
     const getIconUser = () => {
       if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;
       } if (user.reaction !== 'none') {
-        isReaction = true;
+        userAvatarFiltered = '';
         return user.reaction;
       } if (user.name) {
         return user.name.toLowerCase().slice(0, 2);
@@ -625,7 +625,6 @@ class UserListItem extends PureComponent {
     const isVoiceOnly = clientType === 'dial-in-user';
 
     const iconUser = getIconUser();
-
     const iconVoiceOnlyUser = (<Icon iconName="volume_level_2" />);
     const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
 
@@ -642,7 +641,7 @@ class UserListItem extends PureComponent {
         whiteboardAccess={user.whiteboardAccess}
         emoji={user.emoji !== 'none'}
         hasReaction={user.reaction !== 'none'}
-        avatar={user.avatar}
+        avatar={userAvatarFiltered}
       >
         {
           userInBreakout
