@@ -462,13 +462,54 @@ class Presentation extends PureComponent {
 
     //Just adding this for the convenience.. This can be removed if I know how to transfer all the shortcuts.
     win.addEventListener('keydown', (e) => {
-      //console.log("KDE", e.keyCode, e.key);
-      //console.log("KDE", e.key, this.state.tldrawAPI);
       switch (e.key) {
         case 'Delete': case 'Backspace':
-          const selectedIds = this.state.tldrawAPI.getShapes().map(s => s.id).filter(id => this.state.tldrawAPI.isSelected(id));
-          //console.log("KDE", selectedIds);
-          this.state.tldrawAPI.delete(selectedIds);
+          this.state.tldrawAPI.delete();
+          break;
+        case 'd':
+          if (e.ctrlKey == true || e.metaKey == true) {
+            this.state.tldrawAPI.duplicate();
+          }
+          break;
+        case 'x':
+          if (e.ctrlKey == true || e.metaKey == true) {
+            this.state.tldrawAPI.cut();
+          }
+          break;
+        case 'c':
+          if (e.ctrlKey == true || e.metaKey == true) {
+            this.state.tldrawAPI.copy();
+          }
+          break;
+        case 'v':
+          if (e.ctrlKey == true || e.metaKey == true) {
+            this.state.tldrawAPI.paste();
+          }
+          break;
+        case 'l':
+          if ((e.ctrlKey == true || e.metaKey == true) && e.shiftKey == true) {
+            this.state.tldrawAPI.toggleLocked();
+          }
+          break;
+        case 'g':
+          if (e.ctrlKey == true || e.metaKey == true) {
+            const selectedIds = this.state.tldrawAPI.getShapes().map(s => s.id).filter(id => this.state.tldrawAPI.isSelected(id));
+            if (selectedIds.length === 1 && this.state.tldrawAPI.getShape(selectedIds[0]).type === 'group') {
+              this.state.tldrawAPI.ungroup();
+            } else {
+              this.state.tldrawAPI.group();
+            }
+          }
+          break;
+        case 'h':
+          if (e.shiftKey == true) {
+            this.state.tldrawAPI.flipHorizontal();
+          }
+          break;
+        case 'v':
+          if (e.shiftKey == true) {
+            this.state.tldrawAPI.flipVertical();
+          }
           break;
       }
     });
