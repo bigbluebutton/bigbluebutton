@@ -77,7 +77,7 @@ class Presentation extends MultiUsers {
       height: wbBox.height,
     };
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator-screnshot.png', {
+    await expect(this.modPage.page).toHaveScreenshot('moderator-screenshot.png', {
       maxDiffPixels: 1000,
       clip: clipObj,
     });
