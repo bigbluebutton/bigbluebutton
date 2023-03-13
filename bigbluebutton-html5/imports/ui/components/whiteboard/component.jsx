@@ -209,8 +209,8 @@ export default function Whiteboard(props) {
         clientX: event.clientX,
         clientY: event.clientY,
       });
-
-      canvas.dispatchEvent(newEvent);
+      const canvas = document.getElementById('canvas');
+      canvas && canvas.dispatchEvent(newEvent);
     }
   }
 
