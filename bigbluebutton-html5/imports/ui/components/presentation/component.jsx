@@ -514,7 +514,7 @@ class Presentation extends PureComponent {
       multiUser,
     } = this.props;
     const {
-      zoom, fitToWidth, isPanning, tldrawAPI,
+      zoom, fitToWidth, isPanning,
     } = this.state;
 
     if (!currentSlide) return null;
@@ -541,7 +541,6 @@ class Presentation extends PureComponent {
         }}
         setIsPanning={this.setIsPanning}
         isPanning={isPanning}
-        curPageId={tldrawAPI?.getPage()?.id}
         currentSlideNum={currentSlide.num}
         presentationId={currentSlide.presentationId}
         zoomChanger={this.zoomChanger}
@@ -642,6 +641,7 @@ class Presentation extends PureComponent {
       zoom,
       tldrawIsMounting,
       isPanning,
+      tldrawAPI,
     } = this.state;
 
     let viewBoxDimensions;
@@ -725,6 +725,7 @@ class Presentation extends PureComponent {
                   podId={podId}
                   slidePosition={slidePosition}
                   getSvgRef={this.getSvgRef}
+                  tldrawAPI={tldrawAPI}
                   setTldrawAPI={this.setTldrawAPI}
                   curPageId={currentSlide?.num.toString() || '0'}
                   svgUri={currentSlide?.svgUri}
