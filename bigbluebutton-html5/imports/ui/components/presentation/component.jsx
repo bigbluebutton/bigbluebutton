@@ -229,10 +229,6 @@ class Presentation extends PureComponent {
       }
     }
 
-    if (!prevProps.currentPresentation && currentPresentation && !presentationIsOpen) {
-      setPresentationIsOpen(layoutContextDispatch, true);
-    }
-
     if (prevProps?.slidePosition && slidePosition) {
       const { width: prevWidth, height: prevHeight } = prevProps.slidePosition;
       const { width: currWidth, height: currHeight } = slidePosition;
