@@ -51,7 +51,7 @@ export default withTracker(() => {
   return {
     isGloballyBroadcasting: isGloballyBroadcasting(),
     toggleSwapLayout: MediaService.toggleSwapLayout,
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
   };
 })(ScreenshareContainer);

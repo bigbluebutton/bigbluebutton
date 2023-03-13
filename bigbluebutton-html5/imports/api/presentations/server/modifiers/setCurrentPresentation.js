@@ -50,6 +50,14 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
 
   const oldPresentation = Presentations.findOne(oldCurrent.selector);
   const newPresentation = Presentations.findOne(newCurrent.selector);
+// We update it before unset current to avoid the case where theres no current presentation.
+  if (newPresentation) {
+    try{
+      Presentations.update(newPresentation._id, newCurrent.modifier);
+    } catch(e){
+      newCurrent.callback(e);
+    }
+  }
 
   if (oldPresentation) {
     try{
@@ -59,12 +67,5 @@ export default function setCurrentPresentation(meetingId, podId, presentationId)
     }
   }
 
-  if (newPresentation) {
-    try{
-      Presentations.update(newPresentation._id, newCurrent.modifier);
-    } catch(e){
-      newCurrent.callback(e);
-    }
-  }
 }
  

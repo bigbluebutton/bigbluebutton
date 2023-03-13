@@ -105,6 +105,7 @@ class ExternalVideoModal extends Component {
             <label htmlFor="video-modal-input">
               {intl.formatMessage(intlMessages.input)}
               <input
+                autoFocus
                 id="video-modal-input"
                 onChange={this.updateVideoUrlHandler}
                 name="video-modal-input"
