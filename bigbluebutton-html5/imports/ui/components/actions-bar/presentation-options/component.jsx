@@ -34,7 +34,7 @@ const PresentationOptionsContainer = ({
   presentationIsOpen,
   setPresentationIsOpen,
   layoutContextDispatch,
-  hasPresentation,
+  hasCurrentPresentation,
   hasExternalVideo,
   hasScreenshare,
   hasPinnedSharedNotes,
@@ -47,7 +47,7 @@ const PresentationOptionsContainer = ({
     buttonType = 'desktop';
   }
 
-  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation || hasPinnedSharedNotes;
+  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasCurrentPresentation || hasPinnedSharedNotes;
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}

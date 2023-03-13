@@ -12,6 +12,21 @@ import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
+  componentDidUpdate() {
+    const {
+      hasScreenshare,
+      isSharingVideo,
+      isTherePresentation,
+      isSharedNotesPinned,
+      setPresentationIsOpen,
+      layoutContextDispatch
+    } = this.props;
+
+    if (!isTherePresentation && !hasScreenshare && !isSharingVideo && !isSharedNotesPinned) {
+        setPresentationIsOpen(layoutContextDispatch, false);
+    } 
+  }
+
   render() {
     const {
       amIPresenter,
@@ -31,6 +46,7 @@ class ActionsBar extends PureComponent {
       isSelectRandomUserEnabled,
       isRaiseHandButtonEnabled,
       isThereCurrentPresentation,
+      isTherePresentation,
       allowExternalVideo,
       setEmojiStatus,
       currentUser,
@@ -99,7 +115,8 @@ class ActionsBar extends PureComponent {
               presentationIsOpen={presentationIsOpen}
               setPresentationIsOpen={setPresentationIsOpen}
               layoutContextDispatch={layoutContextDispatch}
-              hasPresentation={isThereCurrentPresentation}
+              hasCurrentPresentation={isThereCurrentPresentation}
+              hasPresentation={isTherePresentation}
               hasExternalVideo={isSharingVideo}
               hasScreenshare={hasScreenshare}
               hasPinnedSharedNotes={isSharedNotesPinned}
