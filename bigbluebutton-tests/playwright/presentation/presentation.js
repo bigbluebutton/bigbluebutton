@@ -65,19 +65,27 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
 
-    const modSlides0 = await getSlideOuterHtml(this.modPage);
-    const userSlides0 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides0).toEqual(userSlides0);
-
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
-    const modSlides1 = await getSlideOuterHtml(this.modPage);
-    const userSlides1 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides1).toEqual(userSlides1);
+    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
 
-    await expect(modSlides0).not.toEqual(modSlides1);
-    await expect(userSlides0).not.toEqual(userSlides1);
+    const clipObj = {
+      x: wbBox.x,
+      y: wbBox.y,
+      width: wbBox.width,
+      height: wbBox.height,
+    };
+
+    await expect(this.modPage.page).toHaveScreenshot('moderator-screenshot.png', {
+      maxDiffPixels: 1000,
+      clip: clipObj,
+    });
+
+    await expect(this.userPage.page).toHaveScreenshot('viewer-screenshot.png', {
+      maxDiffPixels: 1000,
+      clip: clipObj,
+    });
   }
 
   async uploadMultiplePresentationsTest() {
