@@ -21,10 +21,6 @@ export const didUserSelectedListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY)
 );
 
-export const handleCloseAudioModal = () => {
-  showModal(null);
-}
-
 export const joinMicrophone = (skipEchoTest = false) => {
   Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, true);
   Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, false);

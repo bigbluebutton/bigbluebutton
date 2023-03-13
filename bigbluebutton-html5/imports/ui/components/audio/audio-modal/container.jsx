@@ -14,7 +14,6 @@ import {
   closeModal,
   joinListenOnly,
   leaveEchoTest,
-  handleCloseAudioModal,
 } from './service';
 import Storage from '/imports/ui/services/storage/session';
 import Service from '../service';
@@ -100,6 +99,5 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     notify: Service.notify,
     isRTL,
     AudioError,
-    handleCloseAudioModal: handleCloseAudioModal,
   });
 })(AudioModalContainer)));
