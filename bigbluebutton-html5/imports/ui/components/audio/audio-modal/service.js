@@ -21,16 +21,8 @@ export const didUserSelectedListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY)
 );
 
-const emitCloseAudioModalEvent = () => {
-  const event = new Event("CLOSE_AUDIO_MODAL");
-  window.dispatchEvent(event);
-}
-
-export const onMount = () => {
-  const event = "CLOSE_AUDIO_MODAL"
-  const callback = () => showModal(null);
-  window.addEventListener(event, callback);
-  return [event, callback]
+export const handleCloseAudioModal = () => {
+  showModal(null);
 }
 
 export const joinMicrophone = (skipEchoTest = false) => {
@@ -50,7 +42,7 @@ export const joinMicrophone = (skipEchoTest = false) => {
   });
 
   return call.then(() => {
-    emitCloseAudioModalEvent()
+    window.dispatchEvent(new Event("CLOSE_AUDIO_MODAL"));
   }).catch((error) => {
     throw error;
   });
@@ -67,7 +59,7 @@ export const joinListenOnly = () => {
       // prop transitions to a state where it was handled OR the user opts
       // to close the modal.
       if (!Service.autoplayBlocked()) {
-        emitCloseAudioModalEvent()
+        window.dispatchEvent(new Event("CLOSE_AUDIO_MODAL"));
       }
       resolve();
     });
