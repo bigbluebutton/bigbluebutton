@@ -259,7 +259,66 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 
 **Parameters:**
 
-{% include api_table.html endpoint="create" %}
+| Param Name | Type | Description |
+|---|---|---|
+| `name` *(required)* | String | A name for the meeting.  This is now required as of BigBlueButton 2.4. |
+| `meetingID` *(required)* | String | A meeting ID that can be used to identify this meeting by the 3rd-party application.  This must be unique to the server that you are calling: different active meetings can not have the same meeting ID.  If you supply a non-unique meeting ID (a meeting is already in progress with the same meeting ID), then if the other parameters in the create call are identical, the create call will succeed (but will receive a warning message in the response). The create call is idempotent: calling multiple times does not have any side effect.  This enables a 3rd-party applications to avoid checking if the meeting is running and always call create before joining each user. Meeting IDs should only contain upper/lower ASCII letters, numbers, dashes, or underscores.  A good choice for the meeting ID is to generate a [GUID](https://en.wikipedia.org/wiki/Globally_unique_identifier) value as this all but guarantees that different meetings will not have the same meetingID. |
+| `attendeePW `| String | **[DEPRECATED]** The password that the join URL can later provide as its `password` parameter to indicate the user will join as a viewer.  If no `attendeePW` is provided, the `create` call will return a randomly generated `attendeePW` password for the meeting. |
+| `moderatorPW` | String | **[DEPRECATED]** The password that will join URL can later provide as its `password` parameter to indicate the user will as a moderator.  if no `moderatorPW` is provided, `create` will return a randomly generated `moderatorPW` password for the meeting. |
+| `welcome` | String | A welcome message that gets displayed on the chat window when the participant joins. You can include keywords (%%CONFNAME%%, %%DIALNUM%%, %%CONFNUM%%) which will be substituted automatically. This parameter overrides the default `defaultWelcomeMessage` in [bigbluebutton.properties](https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties). The welcome message has limited support for HTML formatting. Be careful about copy/pasted HTML from e.g. MS Word, as it can easily exceed the maximum supported URL length when used on a GET request. |
+| `dialNumber` | String | The dial access number that participants can call in using regular phone. You can set a default dial number via `defaultDialAccessNumber` in [bigbluebutton.properties](https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties) |
+| `voiceBridge` | String | Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit number in the range 10000 to 99999.  If you [add a phone number](https://docs.bigbluebutton.org/bigbluebutton/administration/customize#add-a-phone-number-to-the-conference-bridge) to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and `defaultNumDigitsForTelVoice` of [bigbluebutton.properties](https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties).The `voiceBridge` number must be different for every meeting.This parameter is optional. If you do not specify a `voiceBridge` number, then BigBlueButton will assign a random unused number for the meeting.If do you pass a `voiceBridge` number, then you must ensure that each meeting has a unique `voiceBridge` number; otherwise, reusing same `voiceBridge` number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings. |
+| `maxParticipants` | Number | Set the maximum number of users allowed to joined the conference at the same time. |
+| `logoutURL` | String | The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for `bigbluebutton.web.logoutURL` in [bigbluebutton.properties](https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties). |
+| `record` | Boolean | Setting `record=true` instructs the BigBlueButton server to record the media and events in the session for later playback. The default is false. In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least once during the sesssion; otherwise, in the absence of any recording marks, the record and playback scripts will not generate a playback file. See also the `autoStartRecording` and `allowStartStopRecording` parameters in [bigbluebutton.properties](https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties). |
+| `duration` | Number | The maximum length (in minutes) for the meeting. Normally, the BigBlueButton server will end the meeting when either (a) the last person leaves (it takes a minute or two for the server to clear the meeting from memory) or when the server receives an [end](https://docs.bigbluebutton.org/bigbluebutton/development/api#end) API request with the associated meetingID (everyone is kicked and the meeting is immediately cleared from memory). BigBlueButton begins tracking the length of a meeting when it is created.  If duration contains a non-zero value, then when the length of the meeting exceeds the duration value the server will immediately end the meeting (equivalent to receiving an end API request at that moment). |
+| `isBreakout` | Boolean | Must be set to `true` to create a breakout room. |
+| `parentMeetingID` *(required for breakout room)* | String | Must be provided when creating a breakout room, the parent room must be running. |
+| `sequence` *(required for breakout room)* | Number | The sequence number of the breakout room. |
+| `freeJoin` *(only breakout room)* | Boolean | If set to true, the client will give the user the choice to choose the breakout rooms he wants to join. |
+| `breakoutRoomsEnabled` *Optional(Breakout Room)* | Boolean | **[DEPRECATED]** Removed in 2.5, temporarily still handled, please transition to disabledFeatures.If set to false, breakout rooms will be disabled. *Default: `true`* |
+| `breakoutRoomsPrivateChatEnabled` *Optional(Breakout Room)* | Boolean | If set to false, the private chat will be disabled in breakout rooms. *Default: `true`* |
+| `breakoutRoomsRecord` *Optional(Breakout Room*) | Boolean | If set to false, breakout rooms will not be recorded. *Default: `true`* |
+| `meta` | String | This is a special parameter type (there is no parameter named just `meta`). You can pass one or more metadata values when creating a meeting. These will be stored by BigBlueButton can be retrieved later via the getMeetingInfo and getRecordings calls. Examples of the use of the meta parameters are `meta_Presenter=Jane%20Doe, meta_category=FINANCE`, and `meta_TERM=Fall2016`. |
+| `moderatorOnlyMessage` | String | Display a message to all moderators in the public chat. The value is interpreted in the same way as the welcome parameter. |
+| `autoStartRecording` | Boolean | Whether to automatically start recording when first user joins. When this parameter is `true`, the recording UI in BigBlueButton will be initially active. Moderators in the session can still pause and restart recording using the UI control. NOTE: Don’t pass `autoStartRecording=false` and `allowStartStopRecording=false` - the moderator won’t be able to start recording! *Default: `false`*|
+| `allowStartStopRecording` | Boolean | Allow the user to start/stop recording. If you set both allowStartStopRecording=false and autoStartRecording=true, then the entire length of the session will be recorded, and the moderators in the session will not be able to pause/resume the recording. *Default: `true`*|
+| `webcamsOnlyForModerator` | Boolean | Setting `webcamsOnlyForModerator=true` will cause all webcams shared by viewers during this meeting to only appear for moderators (added 1.1) |
+| `bannerText` | String | Will set the banner text in the client. (added 2.0) |
+| bannerColor | String | Will set the banner background color in the client. The required format is color hex #FFFFFF. (added 2.0) |
+| `muteOnStart` | Boolean | Setting `true` will mute all users when the meeting starts. (added 2.0) |
+| `allowModsToUnmuteUsers` | Boolean | Setting to `true` will allow moderators to unmute other users in the meeting. (added 2.2) *Default: `false`* |
+| `lockSettingsDisableCam` | Boolean | Setting `true` will prevent users from sharing their camera in the meeting. (added 2.2) *Default: `false`* |
+| `lockSettingsDisableMic` | Boolean | Setting to `true` will only allow user to join listen only. (added 2.2) *Default: `false`* |
+| `lockSettingsDisablePrivateChat` | Boolean | Setting to `true` will disable private chats in the meeting. (added 2.2) *Default: `false`* |
+| `lockSettingsDisablePublicChat` | Boolean | Setting to `true` will disable public chat in the meeting. (added 2.2) *Default: `false`* |
+| `lockSettingsDisableNote` | Boolean | Setting to `true` will disable notes in the meeting. (added 2.2) *Default: `false`* |
+| `lockSettingsLockOnJoin` | Boolean | Setting to `false` will not apply lock setting to users when they join. (added 2.2) *Default: `true`* |
+| `lockSettingsLockOnJoinConfigurable` | Boolean | Setting to `true` will allow applying of `lockSettingsLockOnJoin`. *Default: `false`* |
+| `lockSettingsHideViewersCursor` | Boolean | Setting to `true` will prevent viewers to see other viewers cursor when multi-user whiteboard is on. (added 2.5) *Default: `false`* |
+| `guestPolicy` | Enum | Will set the guest policy for the meeting. The guest policy determines whether or not users who send a join request with `guest=true` will be allowed to join the meeting. Possible values are ALWAYS_ACCEPT, ALWAYS_DENY, and ASK_MODERATOR. `Default: ALWAYS_ACCEPT` |
+| ~~`keepEvents`~~ | Boolean | Removed in 2.3 in favor of `meetingKeepEvents` and bigbluebutton.properties `defaultKeepEvents`. |
+| `meetingKeepEvents` | Boolean | Defaults to the value of `defaultKeepEvents`. If `meetingKeepEvents` is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3) *Default: `false`* |
+| `endWhenNoModerator` | Boolean | Default `endWhenNoModerator=false`. If `endWhenNoModerator` is true the meeting will end automatically after a delay - see `endWhenNoModeratorDelayInMinutes` (added in 2.3) *Default: `false`* |
+| `endWhenNoModeratorDelayInMinutes` | Number | Defaults to the value of `endWhenNoModeratorDelayInMinutes=1`. If `endWhenNoModerator` is true, the meeting will be automatically ended after this many minutes (added in 2.2) `Default: 1` |
+| `meetingLayout` | Enum | Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) `Default: SMART_LAYOUT` |
+| `learningDashboardEnabled` | Boolean | **[DEPRECATED]** Removed in 2.5, temporarily still handled, please transition to `disabledFeatures.Default` `learningDashboardEnabled=true`. When this option is enabled BigBlueButton generates a Dashboard where moderators can view a summary of the activities of the meeting. (added 2.4) *Default: `true`* |
+| `learningDashboardCleanupDelayInMinutes` | Number |  This option set the delay (in minutes) before the Learning Dashboard become unavailable after the end of the meeting. If this value is zero, the Learning Dashboard will keep available permanently. (added 2.4) *Default: `2`* |
+| `allowModsToEjectCameras` | Boolean | Setting to true will allow moderators to close other users cameras in the meeting. (added 2.4) *Default: `false`* |
+| `allowRequestsWithoutSession` | Boolean | Setting to true will allow users to join meetings without session cookie's validation. (added 2.4.3) *Default: `false`* |
+| `virtualBackgroundsDisabled` | Boolean | [DEPRECATED] Removed in 2.5, temporarily still handled, please transition to `disabledFeatures.Setting` to true will disable Virtual Backgrounds for all users in the meeting. (added 2.4.3) *Default: `false`* |
+| `userCameraCap` | Number | Setting to `0` will disable this threshold. Defines the max number of webcams a single user can share simultaneously. (added 2.4.5) *Default: `3`* |
+| `meetingCameraCap` | Number | Setting to `0` will disable this threshold. Defines the max number of webcams a meeting can have simultaneously. (added 2.5.0) *Default: `0`* |
+| `meetingExpireIfNoUserJoinedInMinutes` | Number | Automatically end meeting if no user joined within a period of time after meeting created. (added 2.5) *Default: `5`* |
+| `meetingExpireWhenLastUserLeftInMinutes` | Number | Number of minutes to automatically end meeting after last user left. (added 2.5)Setting to `0` will disable this function. *Default: `1`* |
+| `groups` | String | Pre-defined groups to automatically assign the students to a given breakout room. (added 2.5) <dl><dt>**Expected value:** Json with Array of groups.</dt><dt>**Group properties:**</dt></dl><ul><li>id - String with group unique</li><li>id.name - String with name of the group (optional)</li><li>roster - Array with IDs of the users.</li></ul>E.g: <br />`[`<br />`{id:'1',name:'GroupA',roster:['1235']},{id:'2',name:'GroupB',roster:['2333','2335']},{id:'3',roster:[]}`<br />`]`|
+| `logo` | String | Pass a URL to an image which will then be visible in the area above the participants list if `displayBrandingArea` is set to `true` in bbb-html5's configuration |
+| `disabledFeatures` | String | List (comma-separated) of features to disable in a particular meeting. (added 2.5)Available options to disable:<ul><li>breakoutRooms - Breakout Rooms</li><li>captions- Closed Caption</li><li>chat- Chat</li><li>downloadPresentationWithAnnotations- Annotated presentation downloadexternal</li><li>Videos- Share an external video</li><li>importPresentationWithAnnotationsFromBreakoutRooms- Bring back breakout slides</li><li>layouts- Layouts (allow only default layout)</li><li>learningDashboard- Learning Analytics Dashboard</li><li>polls- Polls</li><li>screenshare- Screen Sharing</li><li>sharedNotes- Shared Notes</li><li>virtualBackgrounds- Virtual Backgrounds</li><li>customVirtualBackgrounds- Virtual Backgrounds Upload</li><li>liveTranscription- Live Transcription</li><li>presentation- Presentation</li></ul> |
+| preUploadedPresentationOverrideDefault | Boolean | If it is true, the `default.pdf` document is not sent along with the other presentations in the /create endpoint, on the other hand, if that's false, the `default.pdf` is sent with the other documents. By default it is true. `Default: true` |
+| notifyRecordingIsOn | Boolean | If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if remindRecordingIsOn=true). By default it is false. (added 2.6) *Default: `false`* |
+| presentationUploadExternalUrl | String | Pass a URL to a specific page in external application to select files for inserting documents into a live presentation. Only works if presentationUploadExternalDescription is also set. (added 2.6) |
+| presentationUploadExternalDescription | String | Message to be displayed in presentation uploader modal describing how to use an external application to upload presentation files. Only works if presentationUploadExternalUrl is also set. (added 2.6) |
+
 
 **Example Requests:**
 
@@ -278,7 +337,7 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
   <attendeePW>ap</attendeePW>
   <moderatorPW>mp</moderatorPW>
   <createTime>1531155809613</createTime>
-  <voiceBridge>70757</voiceBridge>
+  <`voiceBridge`>70757</`voiceBridge`>
   <dialNumber>613-555-1234</dialNumber>
   <createDate>Mon Jul 09 17:03:29 UTC 2018</createDate>
   <hasUserJoined>false</hasUserJoined>
@@ -304,7 +363,7 @@ curl --request POST \
   --data moderatorPW=mp \
   --data name=random-1730297 \
   --data record=false \
-  --data voiceBridge=71296 \
+  --data `voiceBridge`=71296 \
   --data checksum=1234;
 ```
 
@@ -422,7 +481,22 @@ http&#58;//yourserver.com/bigbluebutton/api/join?[parameters]&checksum=[checksum
 
 **Parameters:**
 
-{% include api_table.html endpoint="join" %}
+| Param Name | Type | Description |
+--- | --- | --- |
+| `fullName` (required)| String | The full name that is to be used to identify this user to other conference attendees. |
+| `meetingID` (required) | String | The meeting ID that identifies the meeting you are attempting to join. |
+| `password` (required) | String | [DEPRECATED] This password value is used to determine the role of the user based on whether it matches the moderator or attendee password.  Note: This parameter is not required when the role parameter is passed. |
+| `role` (required) | String | Define user role for the meeting.  Valid values are MODERATOR or VIEWER (case insensitive). If the role parameter is present and valid, it overrides the password parameter.  You must specify either password parameter or role parameter in the join request. |
+| `createTime` | String | Third-party apps using the API can now pass createTime parameter (which was created in the create call), BigBlueButton will ensure it matches the ‘createTime’ for the session.  If they differ, BigBlueButton will not proceed with the join request. This prevents a user from reusing their join URL for a subsequent session with the same meetingID. |
+| `userID` | String | An identifier for this user that will help your application to identify which person this is.  This user ID will be returned for this user in the getMeetingInfo API call so that you can check |
+| `webVoiceConf` | String | If you want to pass in a custom voice-extension when a user joins the voice conference using voip. This is useful if you want to collect more info in you Call Detail Records about the user joining the conference. You need to modify your /etc/asterisk/bbb-extensions.conf to handle this new extensions. |
+| `defaultLayout` | String | The layout name to be loaded first when the application is loaded. |
+| `avatarURL` | String | The link for the user’s avatar to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bbb-web.properties). |
+| `redirect` | String | The default behaviour of the JOIN API is to redirect the browser to the HTML5 client when the JOIN call succeeds. There have been requests if it’s possible to embed the HTML5 client in a “container” page and that the client starts as a hidden DIV tag which becomes visible on the successful JOIN. Setting this variable to FALSE will not redirect the browser but returns an XML instead whether the JOIN call has succeeded or not. The third party app is responsible for displaying the client to the user. |
+| ~~`joinViaHtml5`~~ | String | Set to “true” to force the HTML5 client to load for the user. (removed in 2.3 since HTML5 is the only client) |
+| `guest` | String | Set to “true” to indicate that the user is a guest, otherwise do NOT send this parameter. |
+| `excludeFromDashboard` | String | If the parameter is passed on JOIN with value `true`, the user will be omitted from being displayed in the Learning Dashboard. The use case is for support agents who drop by to support the meeting / resolve tech difficulties. Added in BBB 2.4 |
+
 
 **Example Requests:**
 
@@ -590,7 +664,7 @@ Resource URL:
   <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531240585189</internalMeetingID>
   <createTime>1531240585189</createTime>
   <createDate>Tue Jul 10 16:36:25 UTC 2018</createDate>
-  <voiceBridge>70066</voiceBridge>
+  <`voiceBridge`>70066</`voiceBridge`>
   <dialNumber>613-555-1234</dialNumber>
   <attendeePW>ap</attendeePW>
   <moderatorPW>mp</moderatorPW>
@@ -690,7 +764,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
       <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1531241258036</internalMeetingID>
       <createTime>1531241258036</createTime>
       <createDate>Tue Jul 10 16:47:38 UTC 2018</createDate>
-      <voiceBridge>70066</voiceBridge>
+      <`voiceBridge`>70066</`voiceBridge`>
       <dialNumber>613-555-1234</dialNumber>
       <attendeePW>ap</attendeePW>
       <moderatorPW>mp</moderatorPW>
