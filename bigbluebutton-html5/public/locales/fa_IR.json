@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "تعداد حاشیه‌نویسی‌ها از حد مجاز ({0}) فراتر رفته است",
     "app.whiteboard.toolbar.tools": "ابزارها",
     "app.whiteboard.toolbar.tools.hand": "حرکت‌دادن",
-    "app.whiteboard.toolbar.tools.disabled.pan": "بزرگ‌نمایی برای فعال کردن حرکت‌دادن",
     "app.whiteboard.toolbar.tools.pencil": "مداد",
     "app.whiteboard.toolbar.tools.rectangle": "چهارگوش",
     "app.whiteboard.toolbar.tools.triangle": "سه‌گوش (مثلث)",
