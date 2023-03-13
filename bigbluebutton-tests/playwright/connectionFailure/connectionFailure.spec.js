@@ -34,7 +34,6 @@ test.describe.parallel('Connection failure', () => {
     await screenshare.startSharing(screenshare.modPage);
 
     const tcpModeratorSessions = await getCurrentTCPSessions();
-    //console.log('tcpModeratorSessions', tcpModeratorSessions);
 
     await screenshare.initUserPage(false);
     await screenshare.userPage.joinMicrophone();
@@ -44,7 +43,6 @@ test.describe.parallel('Connection failure', () => {
     // Other comparisons, like == or the array includes method, don't do a deep comparison
     // and will always return false since the two arrays contain different objects.
     const tcpUserSessions = tcpSessions.filter(x => !tcpModeratorSessions.some(e => deepEqual(e,x)));
-    //console.log('tcpUserSessions', tcpUserSessions);
     killTCPSessions(tcpUserSessions);
 
     await screenshare.userPage.hasElement('//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]');
