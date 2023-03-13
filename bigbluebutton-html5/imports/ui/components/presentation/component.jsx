@@ -460,7 +460,6 @@ class Presentation extends PureComponent {
       });
     });
 
-    //Just adding this for the convenience.. This can be removed if I know how to transfer all the shortcuts.
     win.addEventListener('keydown', (e) => {
       switch (e.key) {
         case 'Delete': case 'Backspace':
