@@ -1,0 +1,18 @@
+{
+  "name": "bbb-self-test-server",
+  "description": "BigBlueButton Self Test Application Backend",
+  "version": "0.1.0",
+  "license": "ISC",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
+}
