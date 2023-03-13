@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import updateExternalVideo from '../modifiers/updateExternalVideo';
 
-export default function handleUpdateExternalVideo({ header, body }, meetingId) {
+export default async function handleUpdateExternalVideo({ header, body }, meetingId) {
   check(header, Object);
   check(body, Object);
   check(meetingId, String);
@@ -15,5 +15,5 @@ export default function handleUpdateExternalVideo({ header, body }, meetingId) {
     state,
   } = body;
 
-  updateExternalVideo(meetingId, userId, status, rate, time, state);
+  await updateExternalVideo(meetingId, userId, status, rate, time, state);
 }
