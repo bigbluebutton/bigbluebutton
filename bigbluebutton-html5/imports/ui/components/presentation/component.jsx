@@ -486,6 +486,11 @@ class Presentation extends PureComponent {
             api.paste();
           }
           break;
+        case 'a':
+          if (e.ctrlKey == true || e.metaKey == true) {
+            api.selectAll();
+          }
+          break;
         case 'l':
           if ((e.ctrlKey == true || e.metaKey == true) && e.shiftKey == true) {
             api.toggleLocked();
