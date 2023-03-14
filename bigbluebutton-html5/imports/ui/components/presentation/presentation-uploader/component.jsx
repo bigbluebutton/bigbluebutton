@@ -475,19 +475,19 @@ class PresentationUploader extends Component {
     if (withErr) {
       const { presentations } = this.state;
       const { presentations: propPresentations } = this.props;
-
-      const ids = new Set(propPresentations.map((d) => d.id));
+    
+      const filteredPropPresentations = propPresentations.filter(d => d.upload.done && d.conversion?.done);
+      const ids = new Set(filteredPropPresentations.map((d) => d.id));
       const filteredPresentations = presentations.filter((d) => {
         d.isCurrent = false;
         return !ids.has(d.id) && !(d.upload.error || d.conversion.error) && !(d.upload.done && d.conversion.done)});
       const merged = [
         ...filteredPresentations,
-        ...propPresentations,
+        ...filteredPropPresentations,
       ];
       this.hasError = false;
       return this.setState({
         presentations: merged,
-        disableActions: false,
       });
     }
 
