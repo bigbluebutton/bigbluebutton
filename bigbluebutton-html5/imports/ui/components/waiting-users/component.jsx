@@ -325,18 +325,14 @@ const WaitingUsers = (props) => {
   ];
 
   const [buttonsData, setButtonsData] = useState(
-    ( authenticatedGuest || guestPolicyExtraAllowOptions )
+    ( authenticatedGuest && guestPolicyExtraAllowOptions )
     ? _.concat(authGuestButtonsData, guestButtonsData)
     : guestButtonsData
   );
 
-  // const buttonsData = ( authenticatedGuest || guestPolicyExtraAllowOptions() )
-  //   ? _.concat(authGuestButtonsData, guestButtonsData)
-  //   : guestButtonsData;
-
   useEffect( () => {
     setButtonsData(
-      ( authenticatedGuest || guestPolicyExtraAllowOptions )
+      ( authenticatedGuest && guestPolicyExtraAllowOptions )
     ? _.concat(authGuestButtonsData, guestButtonsData)
     : guestButtonsData
     );

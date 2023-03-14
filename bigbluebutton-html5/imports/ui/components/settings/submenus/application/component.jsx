@@ -5,6 +5,8 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
+import Meetings from '/imports/api/meetings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
@@ -369,6 +371,11 @@ class ApplicationMenu extends BaseMenu {
   renderGuestPolicyExtraAllowOptionsToggle() {
     const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
+
+    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
+    const { usersProp } = meeting;
+    const { authenticatedGuest } = usersProp;
+    if (!authenticatedGuest) return null;
 
     return (
       <Styled.Row>
