@@ -16,7 +16,6 @@ const WaitingContainer = (props) => {
 export default withTracker(() => {
   const guestUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
-
     guest: true,
     approved: false,
     denied: false,
