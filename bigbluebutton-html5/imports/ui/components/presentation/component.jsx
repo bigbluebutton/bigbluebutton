@@ -461,53 +461,54 @@ class Presentation extends PureComponent {
     });
 
     win.addEventListener('keydown', (e) => {
+      const api = this.state.tldrawAPI;
       switch (e.key) {
         case 'Delete': case 'Backspace':
-          this.state.tldrawAPI.delete();
+          api.delete();
           break;
         case 'd':
           if (e.ctrlKey == true || e.metaKey == true) {
-            this.state.tldrawAPI.duplicate();
+            api.duplicate();
           }
           break;
         case 'x':
           if (e.ctrlKey == true || e.metaKey == true) {
-            this.state.tldrawAPI.cut();
+            api.cut();
           }
           break;
         case 'c':
           if (e.ctrlKey == true || e.metaKey == true) {
-            this.state.tldrawAPI.copy();
+            api.copy();
           }
           break;
         case 'v':
           if (e.ctrlKey == true || e.metaKey == true) {
-            this.state.tldrawAPI.paste();
+            api.paste();
           }
           break;
         case 'l':
           if ((e.ctrlKey == true || e.metaKey == true) && e.shiftKey == true) {
-            this.state.tldrawAPI.toggleLocked();
+            api.toggleLocked();
           }
           break;
         case 'g':
           if (e.ctrlKey == true || e.metaKey == true) {
-            const selectedIds = this.state.tldrawAPI.getShapes().map(s => s.id).filter(id => this.state.tldrawAPI.isSelected(id));
-            if (selectedIds.length === 1 && this.state.tldrawAPI.getShape(selectedIds[0]).type === 'group') {
-              this.state.tldrawAPI.ungroup();
+            const selectedIds = api.getShapes().map(s => s.id).filter(id => api.isSelected(id));
+            if (selectedIds.length === 1 && api.getShape(selectedIds[0]).type === 'group') {
+              api.ungroup();
             } else {
-              this.state.tldrawAPI.group();
+              api.group();
             }
           }
           break;
         case 'h':
           if (e.shiftKey == true) {
-            this.state.tldrawAPI.flipHorizontal();
+            api.flipHorizontal();
           }
           break;
         case 'v':
           if (e.shiftKey == true) {
-            this.state.tldrawAPI.flipVertical();
+            api.flipVertical();
           }
           break;
       }
