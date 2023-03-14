@@ -284,25 +284,46 @@ const getShapes = (whiteboardId, curPageId, intl) => {
       modAnnotation.annotationInfo.answers = annotation.annotationInfo.answers.reduce(
         caseInsensitiveReducer, [],
       );
-      const pollResult = PollService.getPollResultString(annotation.annotationInfo, intl)
+      let pollResult = PollService.getPollResultString(annotation.annotationInfo, intl)
         .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
+
+      const lines = pollResult.split('\n');
+      const longestLine = lines.reduce((a, b) => a.length > b.length ? a : b, '').length;
+
+      // add empty spaces before first | in each of the lines to make them all the same length
+      pollResult = lines.map((line) => {
+        if (!line.includes('|') || line.length === longestLine) return line;
+
+        const splitLine = line.split(' |');
+        const spaces = ' '.repeat(longestLine - line.length);
+        return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
+      }).join('\n');
+
+      // aproximate the size of the text frame
+      const characterWidth = 16;
+      const lineHeight = 40;
+      const framePadding = 20;
+
+      const frameWidth = (characterWidth * longestLine) + framePadding;
+      const frameHeight = lineHeight * (lines.length - 1);
+
       modAnnotation.annotationInfo = {
-        childIndex: 2,
+        childIndex: 0,
         id: annotation.annotationInfo.id,
         name: `poll-result-${annotation.annotationInfo.id}`,
-        type: 'text',
-        text: pollResult,
+        type: 'rectangle',
+        label: pollResult,
+        labelPoint: [0.5, 0.5],
         parentId: `${curPageId}`,
         point: [0, 0],
-        rotation: 0,
+        size: [frameWidth, frameHeight],
         style: {
-          isFilled: false,
-          size: 'medium',
+          color: 'white',
+          dash: 'solid',
+          font: 'mono',
+          isFilled: true,
+          size: 'small',
           scale: 1,
-          color: 'black',
-          textAlign: 'start',
-          font: 'script',
-          dash: 'draw',
         },
       };
       modAnnotation.annotationInfo.questionType = false;

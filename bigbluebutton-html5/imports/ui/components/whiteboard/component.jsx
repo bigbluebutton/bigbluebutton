@@ -306,15 +306,22 @@ export default function Whiteboard(props) {
         .filter(([, shape]) => shape.name?.includes('poll-result'));
       pollResults.forEach(([id, shape]) => {
         if (_.isEqual(shape.point, [0, 0])) {
-          const shapeBounds = tldrawAPI?.getShapeBounds(id);
-          if (shapeBounds) {
-            const editedShape = shape;
-            editedShape.point = [
-              slidePosition.width - shapeBounds.width,
-              slidePosition.height - shapeBounds.height,
-            ];
-            editedShape.size = [shapeBounds.width, shapeBounds.height];
-            if (isPresenter) persistShape(editedShape, whiteboardId);
+          try {
+            const shapeBounds = tldrawAPI?.getShapeBounds(id);
+            if (shapeBounds) {
+              const editedShape = shape;
+              editedShape.point = [
+                slidePosition.width - shapeBounds.width,
+                slidePosition.height - shapeBounds.height,
+              ];
+              editedShape.size = [shapeBounds.width, shapeBounds.height];
+              if (isPresenter) persistShape(editedShape, whiteboardId);
+            }
+          } catch (error) {
+            logger.error({
+              logCode: 'whiteboard_poll_results_error',
+              extraInfo: { error },
+            }, 'Whiteboard catch error on moving unpublished poll results');
           }
         }
       });

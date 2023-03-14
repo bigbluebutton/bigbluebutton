@@ -7,6 +7,9 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 const TldrawGlobalStyle = createGlobalStyle`
+  div[data-shape="rectangle"] div div div {
+    width: auto !important;
+  }
   ${({ hideContextMenu }) => hideContextMenu && `
     #TD-ContextMenu {
       display: none;
