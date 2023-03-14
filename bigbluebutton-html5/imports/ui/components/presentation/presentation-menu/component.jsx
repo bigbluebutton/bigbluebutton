@@ -255,7 +255,7 @@ const PresentationMenu = (props) => {
     }
     
     const {isMobile, isTablet} = deviceInfo;
-    if (!isMobile && !isTablet) {
+    if (!isMobile && !isTablet && props.amIPresenter) {
       menuItems.push(
         {
           key: 'list-item-detachscreen',
