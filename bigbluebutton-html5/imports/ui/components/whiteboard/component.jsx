@@ -197,6 +197,24 @@ export default function Whiteboard(props) {
     }
   };
 
+  const handleWheelEvent = (event) => {
+    if (!event.ctrlKey) {
+      // Prevent the event from reaching the tldraw library
+      event.stopPropagation();
+      event.preventDefault();
+      const newEvent = new WheelEvent('wheel', {
+        deltaX: event.deltaX,
+        deltaY: event.deltaY,
+        deltaZ: event.deltaZ,
+        ctrlKey: true,
+        clientX: event.clientX,
+        clientY: event.clientY,
+      });
+      const canvas = document.getElementById('canvas');
+      canvas && canvas.dispatchEvent(newEvent);
+    }
+  }
+
   React.useEffect(() => {
     document.addEventListener('mouseup', checkClientBounds);
     document.addEventListener('visibilitychange', checkVisibility);
@@ -204,6 +222,10 @@ export default function Whiteboard(props) {
     return () => {
       document.removeEventListener('mouseup', checkClientBounds);
       document.removeEventListener('visibilitychange', checkVisibility);
+      const canvas = document.getElementById('canvas');
+      if (canvas) {
+        canvas.removeEventListener('wheel', handleWheelEvent);
+      }
     };
   }, [tldrawAPI]);
 
@@ -550,6 +572,11 @@ export default function Whiteboard(props) {
   const onMount = (app) => {
     const menu = document.getElementById('TD-Styles')?.parentElement;
     setSafeCurrentTool('select');
+
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
+    }
 
     if (menu) {
       const MENU_OFFSET = '48px';
