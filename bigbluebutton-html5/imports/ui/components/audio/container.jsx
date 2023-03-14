@@ -98,7 +98,7 @@ class AudioContainer extends PureComponent {
   /**
    * Helper function to determine wheter user is returning from breakout room
    * to main room.
-   * @param  {[Object} prevProps prevProps param from componentDidUpdate
+   * @param  {Object} prevProps prevProps param from componentDidUpdate
    * @return {boolean}           True if user is returning from breakout room
    *                             to main room. False, otherwise.
    */
