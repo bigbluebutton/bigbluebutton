@@ -457,6 +457,7 @@
     "app.submenu.application.languageOptionLabel": "Choose language",
     "app.submenu.application.noLocaleOptionLabel": "No active locales",
     "app.submenu.application.paginationEnabledLabel": "Video pagination",
+    "app.submenu.application.guestPolicyExtraAllowOptionsLabel": "More guest lobby allow options",
     "app.submenu.application.layoutOptionLabel": "Layout type",
     "app.submenu.application.pushLayoutLabel": "Push layout",
     "app.submenu.application.localeDropdown.af": "Afrikaans",

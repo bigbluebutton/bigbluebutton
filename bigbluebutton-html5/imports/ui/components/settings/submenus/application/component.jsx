@@ -73,6 +73,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.paginationEnabledLabel',
     description: 'enable/disable video pagination',
   },
+  guestPolicyExtraAllowOptionsLabel: {
+    id: 'app.submenu.application.guestPolicyExtraAllowOptionsLabel',
+    description: 'enable/disable buttons for more precise acceptance of guests from guest lobby',
+  },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
@@ -362,6 +366,36 @@ class ApplicationMenu extends BaseMenu {
     );
   }
 
+  renderGuestPolicyExtraAllowOptionsToggle() {
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
+    const { settings } = this.state;
+
+    return (
+      <Styled.Row>
+        <Styled.Col aria-hidden="true">
+          <Styled.FormElement>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <Styled.Label>
+              {intl.formatMessage(intlMessages.guestPolicyExtraAllowOptionsLabel)}
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
+            {displaySettingsStatus(settings.guestPolicyExtraAllowOptions)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.guestPolicyExtraAllowOptions}
+              onChange={() => this.handleToggle('guestPolicyExtraAllowOptions')}
+              ariaLabel={`${intl.formatMessage(intlMessages.guestPolicyExtraAllowOptionsLabel)} - ${displaySettingsStatus(settings.guestPolicyExtraAllowOptions, true)}`}
+              showToggleLabel={showToggleLabel}
+            />
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
+    );
+  }
+
   render() {
     const {
       allLocales, intl, showToggleLabel, displaySettingsStatus,
@@ -419,6 +453,7 @@ class ApplicationMenu extends BaseMenu {
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
+          {this.renderGuestPolicyExtraAllowOptionsToggle()}
 
           <Styled.Row>
             <Styled.Col>

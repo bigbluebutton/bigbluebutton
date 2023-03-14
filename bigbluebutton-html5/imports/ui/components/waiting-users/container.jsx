@@ -6,6 +6,7 @@ import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
 import { layoutDispatch } from '../layout/context';
+import Settings from '/imports/ui/services/settings';
 
 const WaitingContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
@@ -16,6 +17,7 @@ const WaitingContainer = (props) => {
 export default withTracker(() => {
   const guestUsers = GuestUsers.find({
     meetingId: Auth.meetingID,
+
     guest: true,
     approved: false,
     denied: false,
@@ -46,6 +48,7 @@ export default withTracker(() => {
     privateGuestLobbyMessage: Service.getPrivateGuestLobbyMessage,
     setPrivateGuestLobbyMessage: Service.setPrivateGuestLobbyMessage,
     authenticatedGuest,
+    guestPolicyExtraAllowOptions: Settings.application.guestPolicyExtraAllowOptions,
     allowRememberChoice: Service.allowRememberChoice,
   };
 })(WaitingContainer);

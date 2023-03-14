@@ -230,6 +230,7 @@ const WaitingUsers = (props) => {
     setPrivateGuestLobbyMessage,
     privateGuestLobbyMessage,
     authenticatedGuest,
+    guestPolicyExtraAllowOptions,
     layoutContextDispatch,
     allowRememberChoice,
   } = props;
@@ -323,9 +324,23 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest
+  const [buttonsData, setButtonsData] = useState(
+    ( authenticatedGuest || guestPolicyExtraAllowOptions )
     ? _.concat(authGuestButtonsData, guestButtonsData)
-    : guestButtonsData;
+    : guestButtonsData
+  );
+
+  // const buttonsData = ( authenticatedGuest || guestPolicyExtraAllowOptions() )
+  //   ? _.concat(authGuestButtonsData, guestButtonsData)
+  //   : guestButtonsData;
+
+  useEffect( () => {
+    setButtonsData(
+      ( authenticatedGuest || guestPolicyExtraAllowOptions )
+    ? _.concat(authGuestButtonsData, guestButtonsData)
+    : guestButtonsData
+    );
+  }, [guestPolicyExtraAllowOptions]);
 
   const { isChrome } = browserInfo;
 

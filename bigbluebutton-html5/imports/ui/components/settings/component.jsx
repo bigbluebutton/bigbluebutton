@@ -86,6 +86,7 @@ const propTypes = {
     guestWaitingAudioAlerts: PropTypes.bool,
     guestWaitingPushAlerts: PropTypes.bool,
     paginationEnabled: PropTypes.bool,
+    guestPolicyExtraAllowOptions: PropTypes.bool,
     darkTheme: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
