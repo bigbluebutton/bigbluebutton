@@ -324,19 +324,9 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const [buttonsData, setButtonsData] = useState(
-    ( authenticatedGuest && guestPolicyExtraAllowOptions )
+  const buttonsData = ( authenticatedGuest && guestPolicyExtraAllowOptions )
     ? _.concat(authGuestButtonsData, guestButtonsData)
-    : guestButtonsData
-  );
-
-  useEffect( () => {
-    setButtonsData(
-      ( authenticatedGuest && guestPolicyExtraAllowOptions )
-    ? _.concat(authGuestButtonsData, guestButtonsData)
-    : guestButtonsData
-    );
-  }, [guestPolicyExtraAllowOptions]);
+    : guestButtonsData;
 
   const { isChrome } = browserInfo;
 

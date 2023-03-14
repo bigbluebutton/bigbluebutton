@@ -48,7 +48,7 @@ export default withTracker(() => {
     privateGuestLobbyMessage: Service.getPrivateGuestLobbyMessage,
     setPrivateGuestLobbyMessage: Service.setPrivateGuestLobbyMessage,
     authenticatedGuest,
-    guestPolicyExtraAllowOptions: Settings.application.guestPolicyExtraAllowOptions,
+    guestPolicyExtraAllowOptions: Meteor.settings.public.app.guestPolicyExtraAllowOptions,
     allowRememberChoice: Service.allowRememberChoice,
   };
 })(WaitingContainer);

@@ -63,6 +63,7 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
@@ -174,7 +175,6 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
-        guestPolicyExtraAllowOptions: false
         paginationEnabled: true
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a

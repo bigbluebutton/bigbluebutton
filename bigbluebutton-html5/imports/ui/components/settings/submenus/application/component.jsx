@@ -5,8 +5,6 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import Auth from '/imports/ui/services/auth';
-import Meetings from '/imports/api/meetings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
@@ -74,10 +72,6 @@ const intlMessages = defineMessages({
   paginationEnabledLabel: {
     id: 'app.submenu.application.paginationEnabledLabel',
     description: 'enable/disable video pagination',
-  },
-  guestPolicyExtraAllowOptionsLabel: {
-    id: 'app.submenu.application.guestPolicyExtraAllowOptionsLabel',
-    description: 'enable/disable buttons for more precise acceptance of guests from guest lobby',
   },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
@@ -368,41 +362,6 @@ class ApplicationMenu extends BaseMenu {
     );
   }
 
-  renderGuestPolicyExtraAllowOptionsToggle() {
-    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
-    const { settings } = this.state;
-
-    const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
-    const { usersProp } = meeting;
-    const { authenticatedGuest } = usersProp;
-    if (!authenticatedGuest) return null;
-
-    return (
-      <Styled.Row>
-        <Styled.Col aria-hidden="true">
-          <Styled.FormElement>
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <Styled.Label>
-              {intl.formatMessage(intlMessages.guestPolicyExtraAllowOptionsLabel)}
-            </Styled.Label>
-          </Styled.FormElement>
-        </Styled.Col>
-        <Styled.Col>
-          <Styled.FormElementRight>
-            {displaySettingsStatus(settings.guestPolicyExtraAllowOptions)}
-            <Toggle
-              icons={false}
-              defaultChecked={settings.guestPolicyExtraAllowOptions}
-              onChange={() => this.handleToggle('guestPolicyExtraAllowOptions')}
-              ariaLabel={`${intl.formatMessage(intlMessages.guestPolicyExtraAllowOptionsLabel)} - ${displaySettingsStatus(settings.guestPolicyExtraAllowOptions, true)}`}
-              showToggleLabel={showToggleLabel}
-            />
-          </Styled.FormElementRight>
-        </Styled.Col>
-      </Styled.Row>
-    );
-  }
-
   render() {
     const {
       allLocales, intl, showToggleLabel, displaySettingsStatus,
@@ -460,7 +419,6 @@ class ApplicationMenu extends BaseMenu {
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
-          {this.renderGuestPolicyExtraAllowOptionsToggle()}
 
           <Styled.Row>
             <Styled.Col>
