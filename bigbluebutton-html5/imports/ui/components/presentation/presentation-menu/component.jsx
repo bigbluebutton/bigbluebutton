@@ -63,11 +63,11 @@ const intlMessages = defineMessages({
   },
   splitPresentationDesc: {
     id: 'app.presentation.presentationToolbar.splitPresentationDesc',
-    description: 'detach the presentation area label',
+    description: 'Detach the presentation area label',
   },
   mergePresentationDesc: {
     id: 'app.presentation.presentationToolbar.mergePresentationDesc',
-    description: 'merge the detached presentation area label',
+    description: 'Merge the detached presentation area label',
   },
 });
 
