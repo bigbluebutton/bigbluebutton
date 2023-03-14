@@ -506,12 +506,12 @@ class Presentation extends PureComponent {
             }
           }
           break;
-        case 'h':
+        case 'H':
           if (e.shiftKey == true) {
             api.flipHorizontal();
           }
           break;
-        case 'v':
+        case 'V':
           if (e.shiftKey == true) {
             api.flipVertical();
           }
