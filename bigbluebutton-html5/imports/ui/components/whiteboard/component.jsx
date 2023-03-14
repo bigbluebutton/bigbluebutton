@@ -809,9 +809,11 @@ export default function Whiteboard(props) {
       fullscreenAction,
       fullscreenRef,
       handleToggleFullScreen,
+      isPresentationDetached,
+      presentationWindow,
     } = props;
 
-    handleToggleFullScreen(fullscreenRef);
+    handleToggleFullScreen(isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef)
     const newElement = isFullscreen ? '' : fullscreenElementId;
 
     layoutContextDispatch({
