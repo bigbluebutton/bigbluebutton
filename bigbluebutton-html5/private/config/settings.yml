@@ -63,7 +63,7 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
-    guestPolicyExtraAllowOptions: false
+    guestPolicyExtraAllowOptions: true
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
