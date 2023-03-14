@@ -6,7 +6,6 @@ import Meetings from '/imports/api/meetings';
 import Service from './service';
 import WaitingComponent from './component';
 import { layoutDispatch } from '../layout/context';
-import Settings from '/imports/ui/services/settings';
 
 const WaitingContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
