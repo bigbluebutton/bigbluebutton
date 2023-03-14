@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function setPresentationRenderedInToast() {
+export default async function setPresentationRenderedInToast() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -11,10 +11,10 @@ export default function setPresentationRenderedInToast() {
     check(requesterUserId, String);
 
     const payload = {
-        $set: {renderedInToast: true}
+      $set: { renderedInToast: true },
     };
 
-    const numberAffected = Presentations.update({
+    const numberAffected = await Presentations.updateAsync({
       renderedInToast: false,
       meetingId,
     }, payload, {multi: true});
