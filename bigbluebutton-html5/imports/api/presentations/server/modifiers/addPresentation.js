@@ -23,7 +23,7 @@ const addSlides = (meetingId, podId, presentationId, slides) => {
 
     Object.assign(slide, { content });
 
-    addSlide(meetingId, podId, presentationId, slide);
+    await addSlide(meetingId, podId, presentationId, slide);
   });
 };
 
