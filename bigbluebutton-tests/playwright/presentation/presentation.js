@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
@@ -66,25 +66,22 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.skipSlide);
 
     await waitAndClearDefaultPresentationNotification(this.modPage);
-    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
-    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
-
-    const clipObj = {
-      x: wbBox.x,
-      y: wbBox.y,
-      width: wbBox.width,
-      height: wbBox.height,
-    };
-
-    await expect(this.modPage.page).toHaveScreenshot('moderator-screenshot.png', {
+    // wait until the notifications disappear
+    await this.modPage.wasRemoved(e.presentationStatusInfo, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo);
+    await this.userPage.wasRemoved(e.smallToastMsg);
+    
+    const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
-      clip: clipObj,
     });
-
-    await expect(this.userPage.page).toHaveScreenshot('viewer-screenshot.png', {
+    
+    const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
       maxDiffPixels: 1000,
-      clip: clipObj,
     });
   }
 
