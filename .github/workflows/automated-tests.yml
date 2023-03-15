@@ -187,6 +187,7 @@ jobs:
           journalctl -u bbb-html5-frontend@1.service --since today > logs/bbb-html5-frontend.log
           journalctl -u bbb-html5-backend@1.service --since today > logs/bbb-html5-backend.log
           journalctl -u bbb-pads.service --since today > logs/bbb-pads.log
+          journalctl -u etherpad.service --since today > logs/etherpad.log
           cp /var/log/bigbluebutton/bbb-web.log logs/bbb-web.log
           cp /var/log/bbb-apps-akka/bbb-apps-akka.log logs/bbb-apps-akka.log
           cp /var/log/turnserver/turnserver.log logs/turnserver.log
