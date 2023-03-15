@@ -24,7 +24,7 @@ const PresentationToolbarContainer = (props) => {
 
   const endCurrentPoll = () => {
     if (CurrentPoll.findOne({ meetingId: Auth.meetingID })) makeCall('stopPoll');
-  }
+  };
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -84,6 +84,7 @@ PresentationToolbarContainer.propTypes = {
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
   layoutSwapped: PropTypes.bool,
+  endCurrentPoll: PropTypes.func.isRequired,
 };
 
 PresentationToolbarContainer.defaultProps = {
