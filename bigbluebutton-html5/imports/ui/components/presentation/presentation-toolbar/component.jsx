@@ -161,19 +161,21 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, currentSlideNum, numberOfSlides, podId,
+      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll,
     } = this.props;
 
     if (event) event.currentTarget.blur();
-    this.props.endCurrentPoll();
+    endCurrentPoll();
     nextSlide(currentSlideNum, numberOfSlides, podId);
   }
 
   previousSlideHandler(event) {
-    const { previousSlide, currentSlideNum, podId } = this.props;
+    const {
+      previousSlide, currentSlideNum, podId, endCurrentPoll,
+    } = this.props;
 
     if (event) event.currentTarget.blur();
-    this.props.endCurrentPoll();
+    endCurrentPoll();
     previousSlide(currentSlideNum, podId);
   }
 
