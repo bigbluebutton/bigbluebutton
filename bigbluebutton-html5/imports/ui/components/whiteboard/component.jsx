@@ -550,8 +550,8 @@ export default function Whiteboard(props) {
     previousSlide(+curPageId, podId);
   };
 
-  const switchSlide = (event) => {
-    const { which } = event;
+  const handleOnKeyDown = (event) => {
+    const { which, ctrlKey } = event;
 
     switch (which) {
       case KEY_CODES.ARROW_LEFT:
@@ -564,6 +564,13 @@ export default function Whiteboard(props) {
         break;
       case KEY_CODES.ENTER:
         fullscreenToggleHandler();
+        break;
+      case KEY_CODES.A:
+        if (ctrlKey) {
+          event.preventDefault();
+          event.stopPropagation();
+          tldrawAPI?.selectAll();
+        }
         break;
       default:
     }
@@ -886,7 +893,7 @@ export default function Whiteboard(props) {
   if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
 
   const editableWB = (
-    <Styled.EditableWBWrapper onKeyDown={switchSlide}>
+    <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}`}
         document={doc}
