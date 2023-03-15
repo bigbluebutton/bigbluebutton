@@ -2,8 +2,11 @@ import Auth from '/imports/ui/services/auth';
 import Presentations from '/imports/api/presentations';
 import { makeCall } from '/imports/ui/services/api';
 import { throttle } from 'lodash';
+import { CurrentPoll } from '/imports/api/polls';
 
 const PAN_ZOOM_INTERVAL = Meteor.settings.public.presentation.panZoomInterval || 200;
+
+export const currentPoll = () => CurrentPoll.findOne({ meetingId: Auth.meetingID });
 
 const getNumberOfSlides = (podId, presentationId) => {
   const meetingId = Auth.meetingID;

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { makeCall } from '/imports/ui/services/api';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -13,6 +14,7 @@ import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import { currentPoll } from './service';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -165,6 +167,7 @@ class PresentationToolbar extends PureComponent {
     } = this.props;
 
     if (event) event.currentTarget.blur();
+    if (currentPoll()) makeCall('stopPoll');
     nextSlide(currentSlideNum, numberOfSlides, podId);
   }
 
@@ -172,6 +175,7 @@ class PresentationToolbar extends PureComponent {
     const { previousSlide, currentSlideNum, podId } = this.props;
 
     if (event) event.currentTarget.blur();
+    if (currentPoll()) makeCall('stopPoll');
     previousSlide(currentSlideNum, podId);
   }
 
