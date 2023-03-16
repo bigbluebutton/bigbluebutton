@@ -90,19 +90,13 @@ Updated in 2.6:
 
 There are three types in the API.
 
-String
-
-: This data type indicates a (UTF-8) encoded string. When passing String values to BigBlueButton API calls, make sure that you use correctly URL-encoded UTF-8 values so international text will show up correctly. The string must not contain control characters (values 0x00 through 0x1F).
+**String:**<br /> This data type indicates a (UTF-8) encoded string. When passing String values to BigBlueButton API calls, make sure that you use correctly URL-encoded UTF-8 values so international text will show up correctly. The string must not contain control characters (values 0x00 through 0x1F).
 
 Some BigBlueButton API parameters put additional restrictions on which characters are allowed, or on the lengths of the string. These restrictions are described in the parameter documentation.
 
-Number
+**Number:**<br /> This data type indicates a non-negative integer value. The parameter value must only contain the digits `0` through `9`. There should be no leading sign (`+` or `-`), and no comma or period characters.
 
-: This data type indicates a non-negative integer value. The parameter value must only contain the digits `0` through `9`. There should be no leading sign (`+` or `-`), and no comma or period characters.
-
-Boolean
-
-: A true/false value. The value must be specified as the literal string `true` or `false` (all lowercase), other values may be misinterpreted.
+**Boolean:**<br />A true/false value. The value must be specified as the literal string `true` or `false` (all lowercase), other values may be misinterpreted.
 
 ## API Security Model
 
@@ -219,7 +213,7 @@ The following section describes the monitoring calls
 ### Recording
 
 | Resource               | Description                                                   |
-| :--------------------- | :------------------------------------------------------------ |
+| :--- | :--- |
 | getRecordings          | Get a list of recordings.                                     |
 | publishRecordings      | Enables publishing or unpublishing of a recording.            |
 | deleteRecordings       | Deletes an existing recording                                 |
@@ -234,16 +228,16 @@ The following response parameters are standard to every call and may be returned
 **Parameters:**
 
 | Param Name | Required / Optional | Type   | Description                                                                                                                                                                                                                                                                                                                          |
-| :--------- | :------------------ | :----- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| checksum   | Varies              | String | See the [API Security ModelAnchor](#api-security-model) section for more details on the usage for this parameter. This is basically a SHA-1 hash of `callName + queryString + sharedSecret`. The security salt will be configured into the application at deploy time. All calls to the API must include the checksum parameter. |
+| :--- | :--- | :---- | :--- |
+| checksum   | Varies              | String | See the [API Security ModelAnchor](#api-security-model) section for more details on the usage for this parameter.<br /> This is basically a SHA-1 hash of `callName + queryString + sharedSecret`. The security salt will be configured into the application at deploy time. All calls to the API must include the checksum parameter. |
 
 **Response:**
 
-| Param Name | When Returned | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| :--------- | :------------ | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| returncode | Always        | String | Indicates whether the intended function was successful or not. Always one of two values:`FAILED` – There was an error of some sort – look for the message and messageKey for more information. Note that if the `returncode` is FAILED, the call-specific response parameters marked as “always returned” will not be returned. They are only returned as part of successful responses.`SUCCESS` – The call succeeded – the other parameters that are normally associated with this call will be returned. |
-| message    | Sometimes     | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.                                                                                                                                                                                                                                                |
-| messageKey | Sometimes     | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.                                                                                                               |
+| Param Name | When Returned | Type   | Description |
+| :--- | :--- | :----- | :--- |
+| returncode | Always | String | Indicates whether the intended function was successful or not. Always one of two values:<br /><br />`FAILED` – There was an error of some sort – look for the message and messageKey for more information. Note that if the `returncode` is FAILED, the call-specific response parameters marked as “always returned” will not be returned. They are only returned as part of successful responses.<br /><br />`SUCCESS` – The call succeeded – the other parameters that are normally associated with this call will be returned. |
+| message    | Sometimes | String | A message that gives additional information about the status of the call. A message parameter will always be returned if the returncode was `FAILED`. A message may also be returned in some cases where returncode was `SUCCESS` if additional information would be helpful.|
+| messageKey | Sometimes | String | Provides similar functionality to the message and follows the same rules. However, a message key will be much shorter and will generally remain the same for the life of the API whereas a message may change over time. If your third party application would like to internationalize or otherwise change the standard messages returned, you can look up your own custom messages based on this messageKey.|
 
 ### create
 
