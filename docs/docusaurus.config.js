@@ -8,8 +8,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
     title: 'BigBlueButton',
     tagline: 'Official Documentation',
-    url: 'https://docs.bigbluebutton.org/',
-    baseUrl: '/',
+    url: 'https://bigbluebutton.github.io/',
+    baseUrl: '/bigbluebutton/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
@@ -17,7 +17,7 @@ const config = {
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
     organizationName: 'bigbluebutton', // Usually your GitHub org/user name.
-    projectName: 'bigbluebutton-docs', // Usually your repo name.
+    projectName: 'bigbluebutton', // Usually your repo name.
 
     // Even if you don't use internalization, you can use this field to set useful
     // metadata like html lang. For example, if your site is Chinese, you may want
@@ -35,10 +35,6 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    // Please change this to your repo.
-                    // Remove this to remove the "edit this page" links.
-                    editUrl:
-                        'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -67,8 +63,13 @@ const config = {
                     {to: '/teaching', label: 'Teaching', position: 'left'},
                     {to: '/development/guide', label: 'Development', position: 'left'},
                     {to: '/administration/install', label: 'Administration', position: 'left'},
-                    {to: '/greenlight/overview', label: 'Greenlight', position: 'left'},
+                    {to: '/greenlight/v2/overview', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
+                    {
+                        type: 'docsVersionDropdown',
+                        position: 'right',
+                        dropdownActiveClassDisabled: true,
+                    },
                     {
                         href: 'https://github.com/bigbluebutton/bigbluebutton/docs',
                         label: 'GitHub',

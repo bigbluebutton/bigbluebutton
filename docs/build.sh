@@ -1,27 +1,32 @@
 #!/bin/bash
 
-curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-sudo apt install -y yarn
-yarn set version berry
-yarn install
+set -eu
 
-git branch -r | grep '/v' | while read -r version; do
-  branch=${version##*/}
-  remote=${version%/*}
-  git fetch $remote $branch:$branch
-done
+# Build the docs only for these release branches
+BRANCHES=(
+  v2.6.x-release
+  # v2.7.x-release
+)
+REMOTE="origin"
 
-git branch | sed -n 's/^.*v\(.*\).x-release/\1/p' \
-  | while read -r version; do
+git fetch --all
+current_branch=$(git rev-parse --abbrev-ref HEAD)
 
+for branch in "${BRANCHES[@]}"; do
+
+  if [ "$branch" != "$current_branch" ]; then
+    git fetch "$REMOTE" "$branch":"$branch"
+  fi
+
+  git checkout "$branch"
   if [ -f docusaurus.config.js ]; then
+    version=${branch:1:3}
     echo "Adding documentation for $version"
-    git checkout "v${version}.x-release"
     yarn docusaurus docs:version "${version}"
+  else
+    echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
   fi
 
 done
 
-git checkout develop
-npm start
+git checkout "$current_branch"

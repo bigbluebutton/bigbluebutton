@@ -13,7 +13,7 @@ const oldParameters = {
   displayBrandingArea: 'bbb_display_branding_area',
   enableVideo: 'bbb_enable_video',
   forceListenOnly: 'bbb_force_listen_only',
-  hidePresentation: 'bbb_hide_presentation',
+  hidePresentationOnJoin: 'bbb_hide_presentation',
   listenOnlyMode: 'bbb_listen_only_mode',
   multiUserPenOnly: 'bbb_multi_user_pen_only',
   multiUserTools: 'bbb_multi_user_tools',
@@ -56,7 +56,7 @@ const currentParameters = [
   'bbb_custom_style',
   'bbb_custom_style_url',
   // LAYOUT
-  'bbb_hide_presentation',
+  'bbb_hide_presentation_on_join',
   'bbb_show_participants_on_login',
   'bbb_show_public_chat_on_login',
   'bbb_hide_actions_bar',
