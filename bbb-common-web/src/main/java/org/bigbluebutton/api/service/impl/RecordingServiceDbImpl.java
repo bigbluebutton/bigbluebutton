@@ -30,6 +30,7 @@ public class RecordingServiceDbImpl implements RecordingService {
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
     private String captionsDir;
+    private Boolean allowFetchAllRecordings;
     private String presentationBaseDir;
     private String defaultServerUrl;
     private String defaultTextTrackUrl;
@@ -74,7 +75,7 @@ public class RecordingServiceDbImpl implements RecordingService {
     @Override
     public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, int offset, Pageable pageable) {
         // If no IDs or limit were provided return no recordings instead of every recording
-        if((idList == null || idList.isEmpty()) && pageable == null) return xmlService.noRecordings();
+        if((idList == null || idList.isEmpty()) && pageable == null && !allowFetchAllRecordings) return xmlService.noRecordings();
 
         logger.info("Retrieving all recordings");
         Set<Recording> recordings = new HashSet<>(dataStore.findAll(Recording.class));
@@ -260,6 +261,10 @@ public class RecordingServiceDbImpl implements RecordingService {
 
     public void setCaptionsDir(String dir) {
         captionsDir = dir;
+    }
+
+    public void setAllowFetchAllRecordings(Boolean allowFetchAllRecordings) {
+        this.allowFetchAllRecordings = allowFetchAllRecordings;
     }
 
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {

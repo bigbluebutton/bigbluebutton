@@ -1,4 +1,5 @@
 import { withTracker } from 'meteor/react-meteor-data';
+import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
 import {
   ColorStyle,
@@ -54,10 +55,11 @@ const WhiteboardContainer = (props) => {
       && ((owner && owner === currentUser?.userId) || !owner || isPresenter || isModerator);
     return hasAccess;
   };
-    // set shapes as locked for those who aren't allowed to edit it
+  // set shapes as locked for those who aren't allowed to edit it
   Object.entries(shapes).forEach(([shapeId, shape]) => {
     if (!shape.isLocked && !hasShapeAccess(shapeId)) {
-      shape.isLocked = true;
+      const modShape = shape;
+      modShape.isLocked = true;
     }
   });
 
@@ -140,3 +142,7 @@ export default withTracker(({
     darkTheme,
   };
 })(WhiteboardContainer);
+
+WhiteboardContainer.propTypes = {
+  shapes: PropTypes.objectOf(PropTypes.shape).isRequired,
+};

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
@@ -45,3 +46,7 @@ export default withTracker((props) => {
     amIPresenter,
   };
 })(PresentationMenuContainer);
+
+PresentationMenuContainer.propTypes = {
+  elementId: PropTypes.string.isRequired,
+};

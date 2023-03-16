@@ -5,6 +5,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
 import Styled from './styles';
+import { EMOJI_STATUSES } from '/imports/utils/statuses';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -22,15 +23,27 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.emojiMenu.statusTriggerLabel',
     description: 'label for option to show emoji menu',
   },
+  clearStatusLabel: {
+    id: 'app.actionsBar.emojiMenu.noneLabel',
+    description: 'label for status clearing',
+  },
 });
 
 class RaiseHandDropdown extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isHandRaised: false,
+    };
+  }
+
   getAvailableActions() {
     const {
       userId,
       getEmojiList,
       setEmojiStatus,
       intl,
+      currentUser,
     } = this.props;
 
     const actions = [];
@@ -41,6 +54,11 @@ class RaiseHandDropdown extends PureComponent {
         key: s,
         label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
         onClick: () => {
+          if (currentUser.emoji === 'raiseHand') {
+            this.setState({
+              isHandRaised: true,
+            });
+          }
           setEmojiStatus(userId, s);
         },
         icon: getEmojiList[s],
@@ -57,30 +75,51 @@ class RaiseHandDropdown extends PureComponent {
       shortcuts,
     } = this.props;
 
+    const {
+      isHandRaised,
+    } = this.state;
+
+    const label = currentUser.emoji !== 'raiseHand' && currentUser.emoji !== 'none'
+      ? intlMessages.clearStatusLabel
+      : {id: `app.actionsBar.emojiMenu.${
+        currentUser.emoji === 'raiseHand'
+          ? 'lowerHandLabel'
+          : 'raiseHandLabel'
+      }`,
+      };
+
     return (
       <Button
-        icon="hand"
-        label={intl.formatMessage({
-          id: `app.actionsBar.emojiMenu.${
-            currentUser.emoji === 'raiseHand'
-              ? 'lowerHandLabel'
-              : 'raiseHandLabel'
-          }`,
-        })}
+        icon={EMOJI_STATUSES[currentUser.emoji === 'none'
+          ? 'raiseHand' : currentUser.emoji]}
+        label={intl.formatMessage(
+          label,
+        )}
         accessKey={shortcuts.raisehand}
-        color={currentUser.emoji === 'raiseHand' ? 'primary' : 'default'}
+        color={currentUser.emoji !== 'none' ? 'primary' : 'default'}
         data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
-        ghost={currentUser.emoji !== 'raiseHand'}
+        ghost={currentUser.emoji === 'none'}
         emoji={currentUser.emoji}
         hideLabel
         circle
         size="lg"
         onClick={(e) => {
           e.stopPropagation();
-          setEmojiStatus(
-            currentUser.userId,
-            currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
-          );
+          if (currentUser.emoji !== 'none'
+          && currentUser.emoji !== 'raiseHand') {
+            setEmojiStatus(
+              currentUser.userId,
+              isHandRaised ? 'raiseHand' : 'none',
+            );
+          } else {
+            this.setState({
+              isHandRaised: false,
+            });
+            setEmojiStatus(
+              currentUser.userId,
+              currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
+            );
+          }
         }}
       />
     );

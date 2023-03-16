@@ -27,8 +27,10 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 | /usr/share/meteor/bundle/bbb-html5-with-roles.conf                      | /etc/bigbluebutton/bbb-html5-with-roles.conf     |                                                                                  |
 | /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml         | /etc/bigbluebutton/turn-stun-servers.xml         | Replaces the original file                                                       |
 | /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml              | /etc/bigbluebutton/bbb-webrtc-sfu/production.yml | Arrays are merged by replacement                                                 |
-| /etc/bigbluebutton/recording/recording.yml                              | /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml |
-| /etc/bigbluebutton/recording/presentation.yml                           | /usr/local/bigbluebutton/core/scripts/presentation.yml/presentation.yml |
+| /usr/local/bigbluebutton/bbb-pads/config/settings.json                  | /etc/bigbluebutton/bbb-pads.json                 | Arrays are merged by replacement                                                 |
+| /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml                 | /etc/bigbluebutton/recording/recording.yml       |
+| /usr/local/bigbluebutton/core/scripts/presentation.yml                  | /etc/bigbluebutton/recording/presentation.yml    |
+| /etc/cron.daily/bigbluebutton                                           | /etc/default/bigbluebutton-cron-config    | Only variables allowed in the override
 
 <br /><br />
 
@@ -36,7 +38,7 @@ For `bbb-web.properties`, the settings are name/value pair. For example, the fol
 
 ```
 #
-## Use this file to override default entries in /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
+# Use this file to override default entries in /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties
 #
 
 bigbluebutton.web.serverURL=https://droplet-7162.meetbbb.com
@@ -81,7 +83,7 @@ public:
 Since BigBlueButton 2.3 we run multiple nodejs processes in production mode, so tailing logs is slightly different from `journalctl -f bbb-html5.service` which was used in 2.2. Rather than listing all the services ( `bbb-html5-backend@1.service bbb-html5-backend@2.service bbb-html5-frontend@1.service bbb-html5-frontend@2.service bbb-html5-frontend@3.service bbb-html5-frontend@4.service ...` ) you can use the wildcard operator `*`. Notice the different process id for each bbb-html5-\* service. Also notice `systemd_start_frontend.sh` signifying a log from a frontend process vs `systemd_start.sh` - backend process.
 
 ```
-## journalctl -f -u bbb-html5-*
+# journalctl -f -u bbb-html5-*
 -- Logs begin at Mon 2021-03-15 12:13:05 UTC. --
 Mar 15 15:14:18 demo2 systemd_start_frontend.sh[3881]: debug: Redis: SendCursorPositionEvtMsg completed sync
 Mar 15 15:14:18 demo2 systemd_start_frontend.sh[3891]: debug: Redis: SendCursorPositionEvtMsg completed sync
