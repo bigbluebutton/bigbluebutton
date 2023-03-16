@@ -159,15 +159,17 @@ class TimeWindowList extends PureComponent {
       this.listRef.forceUpdateGrid();
     }
 
-    const msgListItem = document.querySelector('span[data-test="msgListItem"]');
-    if (msgListItem) {
-      const virtualizedGridInnerScrollContainer = msgListItem.parentElement;
-      const virtualizedGrid = virtualizedGridInnerScrollContainer.parentElement;
-      virtualizedGridInnerScrollContainer.setAttribute('role', 'list');
-      virtualizedGridInnerScrollContainer.setAttribute('tabIndex', '0');
-      virtualizedGrid.removeAttribute('tabIndex');
-      virtualizedGrid.removeAttribute('aria-label');
-    }
+    setTimeout(() => {
+      const msgListItem = document.querySelector('span[data-test="msgListItem"]');
+      if (msgListItem) {
+        const virtualizedGridInnerScrollContainer = msgListItem.parentElement;
+        const virtualizedGrid = virtualizedGridInnerScrollContainer.parentElement;
+        virtualizedGridInnerScrollContainer.setAttribute('role', 'list');
+        virtualizedGridInnerScrollContainer.setAttribute('tabIndex', 0);
+        virtualizedGrid.removeAttribute('tabIndex');
+        virtualizedGrid.removeAttribute('aria-label');
+      }
+    }, 250);
   }
 
   handleScrollUpdate(position, target) {
