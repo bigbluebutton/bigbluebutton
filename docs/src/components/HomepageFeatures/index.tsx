@@ -65,7 +65,7 @@ const FeatureList: FeatureItem[] = [
         Svg: require('@site/static/img/icon_new.svg').default,
         description: (
             <>
-                Discover the new features of BigBlueButton in the latest version 2.5.
+                Discover the new features of BigBlueButton in version 2.6 (still under development).
             </>
         ),
         actionText: "Discover",
