@@ -4,6 +4,7 @@ set -eu
 
 # Build the docs only for these release branches
 BRANCHES=(
+  v2.5.x-release
   v2.6.x-release
   # v2.7.x-release
 )
