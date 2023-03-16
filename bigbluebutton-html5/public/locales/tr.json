@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "Dipnot sayısı sınırı aştı ({0})",
     "app.whiteboard.toolbar.tools": "Araçlar",
     "app.whiteboard.toolbar.tools.hand": "Kaydırma",
-    "app.whiteboard.toolbar.tools.disabled.pan": "Kaydırmayı etkinleştirmek için yakınlaştırın",
     "app.whiteboard.toolbar.tools.pencil": "Kalem",
     "app.whiteboard.toolbar.tools.rectangle": "Dikdörtgen",
     "app.whiteboard.toolbar.tools.triangle": "Üçgen",

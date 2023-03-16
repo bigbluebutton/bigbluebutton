@@ -62,6 +62,8 @@ export default function Whiteboard(props) {
     width,
     height,
     hasMultiUserAccess,
+    tldrawAPI,
+    setTldrawAPI,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -73,7 +75,6 @@ export default function Whiteboard(props) {
     bindings: {},
     assets: {},
   });
-  const [tldrawAPI, setTLDrawAPI] = React.useState(null);
   const [history, setHistory] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
@@ -100,7 +101,7 @@ export default function Whiteboard(props) {
 
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
-      setTLDrawAPI(api);
+      setTldrawAPI(api);
     }
   };
 
@@ -196,6 +197,24 @@ export default function Whiteboard(props) {
     }
   };
 
+  const handleWheelEvent = (event) => {
+    if (!event.ctrlKey) {
+      // Prevent the event from reaching the tldraw library
+      event.stopPropagation();
+      event.preventDefault();
+      const newEvent = new WheelEvent('wheel', {
+        deltaX: event.deltaX,
+        deltaY: event.deltaY,
+        deltaZ: event.deltaZ,
+        ctrlKey: true,
+        clientX: event.clientX,
+        clientY: event.clientY,
+      });
+      const canvas = document.getElementById('canvas');
+      canvas && canvas.dispatchEvent(newEvent);
+    }
+  }
+
   React.useEffect(() => {
     document.addEventListener('mouseup', checkClientBounds);
     document.addEventListener('visibilitychange', checkVisibility);
@@ -203,6 +222,10 @@ export default function Whiteboard(props) {
     return () => {
       document.removeEventListener('mouseup', checkClientBounds);
       document.removeEventListener('visibilitychange', checkVisibility);
+      const canvas = document.getElementById('canvas');
+      if (canvas) {
+        canvas.removeEventListener('wheel', handleWheelEvent);
+      }
     };
   }, [tldrawAPI]);
 
@@ -527,8 +550,8 @@ export default function Whiteboard(props) {
     previousSlide(+curPageId, podId);
   };
 
-  const switchSlide = (event) => {
-    const { which } = event;
+  const handleOnKeyDown = (event) => {
+    const { which, ctrlKey } = event;
 
     switch (which) {
       case KEY_CODES.ARROW_LEFT:
@@ -542,6 +565,13 @@ export default function Whiteboard(props) {
       case KEY_CODES.ENTER:
         fullscreenToggleHandler();
         break;
+      case KEY_CODES.A:
+        if (ctrlKey) {
+          event.preventDefault();
+          event.stopPropagation();
+          tldrawAPI?.selectAll();
+        }
+        break;
       default:
     }
   };
@@ -549,6 +579,11 @@ export default function Whiteboard(props) {
   const onMount = (app) => {
     const menu = document.getElementById('TD-Styles')?.parentElement;
     setSafeCurrentTool('select');
+
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
+    }
 
     if (menu) {
       const MENU_OFFSET = '48px';
@@ -858,7 +893,7 @@ export default function Whiteboard(props) {
   if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
 
   const editableWB = (
-    <Styled.EditableWBWrapper onKeyDown={switchSlide}>
+    <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}`}
         document={doc}
