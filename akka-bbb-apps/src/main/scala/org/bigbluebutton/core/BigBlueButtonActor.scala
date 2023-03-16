@@ -13,6 +13,7 @@ import org.bigbluebutton.SystemConfiguration
 
 import java.util.concurrent.TimeUnit
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.running.RunningMeeting
 import org.bigbluebutton.core2.RunningMeetings
 import org.bigbluebutton.core2.message.senders.MsgBuilder
@@ -183,6 +184,8 @@ class BigBlueButtonActor(
         // Stop the meeting actor.
         context.stop(m.actorRef)
       }
+
+      UserDAO.deleteAllFromMeeting(msg.meetingId)
     }
   }
 

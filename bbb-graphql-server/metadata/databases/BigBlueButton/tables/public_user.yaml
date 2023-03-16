@@ -1,6 +1,16 @@
 table:
   name: user
   schema: public
+object_relationships:
+  - name: breakoutRoom
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_breakoutRoom
+          schema: public
 array_relationships:
   - name: cameras
     using:
@@ -34,6 +44,15 @@ array_relationships:
         table:
           name: user_microphone
           schema: public
+  - name: whiteboards
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_whiteboard
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:
@@ -42,8 +61,6 @@ select_permissions:
         - avatar
         - banned
         - color
-        - ejectReason
-        - ejected
         - emoji
         - extId
         - guest
@@ -54,6 +71,7 @@ select_permissions:
         - loggedOut
         - meetingId
         - mobile
+        - clientType
         - name
         - pinned
         - presenter

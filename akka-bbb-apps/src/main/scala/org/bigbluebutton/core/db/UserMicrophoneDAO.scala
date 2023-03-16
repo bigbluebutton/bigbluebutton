@@ -9,7 +9,6 @@ import scala.util.{Failure, Success, Try}
 case class UserMicrophoneDbModel(
     voiceUserId:        String,
     userId:             String,
-    //                             meetingId:        String,
     callerName:         String,
     callerNum:          String,
     callingWith:        String,
@@ -77,7 +76,7 @@ object UserMicrophoneDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted!")
+          println(s"$rowsAffected row(s) inserted on user_microphone table!")
         }
         case Failure(e)            => println(s"Error inserting voice: $e")
       }
@@ -90,12 +89,10 @@ object UserMicrophoneDAO {
         .map(u => (u.listenOnly, u.muted, u.floor, u.lastFloorTime))
         .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.floor, voiceUserState.lastFloorTime))
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
+      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user_microphone table!")
       case Failure(e) => println(s"Error updating user: $e")
     }
   }
-
-  // updateFloor
 
   def updateTalking(voiceUserState: VoiceUserState) = {
 //    DatabaseConnection.db.run(sql"SELECT * FROM $users".as[(Int, Double, String)]).onComplete {
@@ -121,25 +118,6 @@ object UserMicrophoneDAO {
       case Failure(e) => println(s"Error updating voice talking: $e")
     }
   }
-
-  def updateFloor(voiceUserState: VoiceUserState) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
-        .filter(_.voiceUserId === voiceUserState.voiceUserId)
-        .map(u => (u.listenOnly, u.muted))
-        .update((voiceUserState.listenOnly, voiceUserState.muted))
-    ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
-      case Failure(e) => println(s"Error updating user: $e")
-    }
-  }
-
-//  updateTalking
-
-  //talking
-          //spoke
-          //startTime
-          //endTime
 
   def delete(voiceUserId: String) = {
     DatabaseConnection.db.run(

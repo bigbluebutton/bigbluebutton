@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{UserDAO, UserDbModel}
+import org.bigbluebutton.core.db.{UserBreakoutRoomDAO, UserDAO, UserDbModel}
 import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
@@ -118,7 +118,7 @@ object RegisteredUsers {
       u
     } else {
       users.delete(ejectedUser.id)
-      UserDAO.delete(ejectedUser)
+//      UserDAO.delete(ejectedUser) it's being removed in User2x already
       ejectedUser
     }
   }
@@ -150,6 +150,7 @@ object RegisteredUsers {
                                  lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
     val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
     users.save(u)
+//    UserBreakoutRoomDAO.updateLastBreakoutRoom(u.id, lastBreakoutRoom)
     u
   }
 

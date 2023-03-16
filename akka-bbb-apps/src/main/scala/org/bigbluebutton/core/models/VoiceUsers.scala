@@ -56,6 +56,7 @@ object VoiceUsers {
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       UserMicrophoneDAO.update(vu)
+      UserMicrophoneDAO.updateTalking(vu)
       vu
     }
   }

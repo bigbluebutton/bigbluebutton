@@ -22,10 +22,12 @@ object Users2x {
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)
+    UserDAO.update(user)
     Some(user)
   }
 
   def remove(users: Users2x, intId: String): Option[UserState] = {
+    UserDAO.delete(intId) //TODO maybe just flag online=false, instead of delete
     users.remove(intId)
   }
 
@@ -46,6 +48,7 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
       users.save(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
@@ -121,6 +124,7 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
+      UserDAO.delete(intId) //TODO maybe just flag online=false, instead of delete
       ejectedUser
     }
   }

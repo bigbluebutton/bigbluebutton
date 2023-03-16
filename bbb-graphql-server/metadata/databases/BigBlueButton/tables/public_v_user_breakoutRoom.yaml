@@ -1,0 +1,17 @@
+table:
+  name: v_user_breakoutRoom
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - isDefaultName
+        - online
+        - breakoutRoomId
+        - meetingId
+        - shortName
+        - userId
+        - sequence
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

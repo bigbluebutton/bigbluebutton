@@ -19,7 +19,6 @@ class UserCameraDbTableDef(tag: Tag) extends Table[UserCameraDbModel](tag, None,
 }
 
 object UserCameraDAO {
-  //  val usersTable = TableQuery[UserTableDef]
 
   def insert(webcam: WebcamStream) = {
     DatabaseConnection.db.run(
@@ -31,7 +30,7 @@ object UserCameraDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted!")
+          println(s"$rowsAffected row(s) inserted on user_webcam table!")
         }
         case Failure(e)            => println(s"Error inserting webcam: $e")
       }

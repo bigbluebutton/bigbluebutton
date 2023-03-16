@@ -22,7 +22,7 @@ function App() {
 
   function callApiEnter(sessionToken) {
     // get url from input text box
-    fetch('bigbluebutton/api/enter/?sessionToken=' + sessionToken, { credentials: 'include' })
+    fetch('/bigbluebutton/api/enter/?sessionToken=' + sessionToken, { credentials: 'include' })
         .then((response) => response.json())
         .then((json) => {
           console.log(json.response);
@@ -62,13 +62,13 @@ function App() {
       console.log(`Creating graphql socket with token ${sessionToken}`);
       await connectGraphqlServer(sessionToken);
     }, 1000);
-  } else {
-    console.log('Error on enter API call - check logs');
+  } else if(enterApiResponse === 'FAILED') {
+    console.log('Error on enter API call: ' + enterApiResponse.message);
+    console.log(enterApiResponse);
   }
 
   return (
     <div className="App">
-      <header className="App-header">
         {graphqlClient ? (
           <div
             style={{
@@ -76,19 +76,10 @@ function App() {
             }}
           >
           <ApolloProvider client={graphqlClient}>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}
-            >
               <UserList />
-            </div>
         </ApolloProvider>
         </div>
          ) : sessionToken == null ? 'Param sessionToken missing' : 'Loading...'}
-      </header>
     </div>
   );
 }
