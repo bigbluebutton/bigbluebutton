@@ -6,6 +6,7 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import UserService from '/imports/ui/components/user-list/service';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -30,10 +31,11 @@ const PresentationMenuContainer = (props) => {
 };
 
 export default withTracker((props) => {
-  const handleToggleFullscreen = (ref) => FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullscreen = (ref, d, w) => FullscreenService.toggleFullScreen(ref, d, w);
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
   const meetingId = Auth.meetingID;
   const meetingObject = Meetings.findOne({ meetingId }, { fields: { 'meetingProp.name': 1 } });
+  const amIPresenter = UserService.isUserPresenter(Auth.userID);
 
   return {
     ...props,
@@ -41,6 +43,7 @@ export default withTracker((props) => {
     isIphone,
     isDropdownOpen: Session.get('dropdownOpen'),
     meetingName: meetingObject.meetingProp.name,
+    amIPresenter,
   };
 })(PresentationMenuContainer);
 

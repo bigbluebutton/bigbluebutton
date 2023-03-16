@@ -9,6 +9,9 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
+
+let firstReact = 0; //To touch TLD popup menus and shapes only once
 
 const intlMessages = defineMessages({
   downloading: {
@@ -55,6 +58,14 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.whiteboard',
     description: 'used for aria whiteboard options button label',
     defaultMessage: 'Whiteboard',
+  },
+  splitPresentationDesc: {
+    id: 'app.presentation.presentationToolbar.splitPresentationDesc',
+    description: 'Detach the presentation area label',
+  },
+  mergePresentationDesc: {
+    id: 'app.presentation.presentationToolbar.mergePresentationDesc',
+    description: 'Merge the detached presentation area label',
   },
 });
 
@@ -111,6 +122,9 @@ const PresentationMenu = (props) => {
     meetingName,
     isIphone,
     isRTL,
+    isPresentationDetached,
+    presentationWindow,
+    togglePresentationDetached,
   } = props;
 
   const [state, setState] = useState({
@@ -126,6 +140,12 @@ const PresentationMenu = (props) => {
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
   );
+  
+  const formattedDetachedLabel = (detached) => (detached
+    ? intl.formatMessage(intlMessages.mergePresentationDesc)
+    : intl.formatMessage(intlMessages.splitPresentationDesc)
+  );
+
 
   function renderToastContent() {
     const { loading, hasError } = state;
@@ -165,7 +185,7 @@ const PresentationMenu = (props) => {
           label: formattedLabel(isFullscreen),
           icon: isFullscreen ? 'exit_fullscreen' : 'fullscreen',
           onClick: () => {
-            handleToggleFullscreen(fullscreenRef);
+            handleToggleFullscreen(isPresentationDetached ? presentationWindow.document.documentElement : fullscreenRef, isPresentationDetached, presentationWindow);
             const newElement = (elementId === currentElement) ? '' : elementId;
             const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
@@ -209,15 +229,15 @@ const PresentationMenu = (props) => {
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
               const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
-              const container = document.createElement('div');
+              const container = presentationWindow.document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
-              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
-              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+              const width = svgElem?.width?.baseVal?.value ?? presentationWindow.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? presentationWindow.screen.height;
 
               const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
 
-              const anchor = document.createElement('a');
+              const anchor = presentationWindow.document.createElement('a');
               anchor.href = data;
               anchor.setAttribute(
                 'download',
@@ -244,8 +264,47 @@ const PresentationMenu = (props) => {
         },
       );
     }
+    
+    const {isMobile, isTablet} = deviceInfo;
+    if (!isMobile && !isTablet && props.amIPresenter) {
+      menuItems.push(
+        {
+          key: 'list-item-detachscreen',
+          dataTest: 'presentationDetached',
+          label: formattedDetachedLabel(isPresentationDetached),
+          icon: isPresentationDetached ? 'application' : 'rooms',
+          onClick: () => {
+            toggleDetachPresentation();
+          },
+        },
+      );
+    }
 
     return menuItems;
+  }
+
+  function toggleDetachPresentation(){
+    if (firstReact == 0){
+      firstReact = 1;
+      tldrawAPI.setSetting('keepStyleMenuOpen', true);
+      //tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right'); // -> whiteboard/component
+      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [1, 1], },
+                             { id: 'textdummy', type: 'text', text: 'text', point: [0, 0], },
+                             { id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], size: [1, 1], });
+      tldrawAPI.selectNone();
+      const ms = 50; // a dirty workaround...
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, ms)
+      }).then(() => {
+        tldrawAPI.setSetting('keepStyleMenuOpen', false);
+        tldrawAPI.delete(['rectdummy', 'textdummy', 'stickydummy']);
+        togglePresentationDetached();
+      });
+    } else {
+      togglePresentationDetached();
+    }
   }
 
   useEffect(() => {
@@ -263,7 +322,7 @@ const PresentationMenu = (props) => {
     }
 
     if (dropdownRef.current) {
-      document.activeElement.blur();
+      presentationWindow.document.activeElement.blur();
       dropdownRef.current.focus();
     }
   });
@@ -271,7 +330,7 @@ const PresentationMenu = (props) => {
   const options = getAvailableOptions();
 
   if (options.length === 0) {
-    const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
+    const undoCtrls = presentationWindow.document.getElementById('TD-Styles')?.nextSibling;
     if (undoCtrls?.style) {
       undoCtrls.style = 'padding:0px';
     }
@@ -308,9 +367,11 @@ const PresentationMenu = (props) => {
           fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          container: fullscreenRef,
+          container: isPresentationDetached ? presentationWindow.document.body : fullscreenRef
         }}
         actions={options}
+        isPresentationDetached={isPresentationDetached}
+        presentationWindow={presentationWindow}
       />
     </Styled.Right>
   );
