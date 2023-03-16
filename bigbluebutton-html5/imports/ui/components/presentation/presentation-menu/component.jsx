@@ -56,6 +56,14 @@ const intlMessages = defineMessages({
     description: 'used for aria whiteboard options button label',
     defaultMessage: 'Whiteboard',
   },
+  hideToolsDesc: {
+    id: 'app.presentation.presentationToolbar.hideToolsDesc',
+    description: 'Hide toolbar label',
+  },
+  showToolsDesc: {
+    id: 'app.presentation.presentationToolbar.showToolsDesc',
+    description: 'Show toolbar label',
+  },
 });
 
 const propTypes = {
@@ -125,6 +133,11 @@ const PresentationMenu = (props) => {
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
+  );
+  
+  const formattedVisibilityLabel = (visible) => (visible
+    ? intl.formatMessage(intlMessages.hideToolsDesc)
+    : intl.formatMessage(intlMessages.showToolsDesc)
   );
 
   function renderToastContent() {
@@ -244,6 +257,35 @@ const PresentationMenu = (props) => {
         },
       );
     }
+    
+    const tools = document.querySelector('#TD-Tools');
+    //if (props.hasWBAccess || props.amIPresenter){
+    //  const isFocusMode = tldrawAPI?.settings.isFocusMode;
+    if (tools && (props.hasWBAccess || props.amIPresenter)){
+      const isVisible = tools.style.visibility == 'hidden' ? false : true;
+      const styles = document.querySelector('#TD-Styles').parentElement;
+      const option = document.querySelector('#WhiteboardOptionButton');
+      menuItems.push(
+        {
+          key: 'list-item-toolvisibility',
+          dataTest: 'toolVisibility',
+          label: formattedVisibilityLabel(isVisible),
+          icon: isVisible ? 'close' : 'minus',
+          onClick: () => {
+            //with this API, the CSS setting (e.g. toolbar height) is reverted to the original tldraw setting.
+            //tldrawAPI?.setSetting('isFocusMode', !isFocusMode);
+            tools.style.visibility = isVisible ? 'hidden' : 'visible';
+            if (styles) {
+              styles.style.visibility = isVisible ? 'hidden' : 'visible';
+            }
+            if (option) {
+              //option.style.opacity = isFocusMode ? 'unset' : '0.2';
+              option.style.opacity = isVisible ? '0.2' : 'unset';
+            }
+          },
+        },
+      );
+    }
 
     return menuItems;
   }
@@ -283,7 +325,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Right>
+    <Styled.Right id='WhiteboardOptionButton'>
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
