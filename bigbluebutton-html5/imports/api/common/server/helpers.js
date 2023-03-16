@@ -22,7 +22,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
+export const processForHTML5ServerOnly = (fn) => async (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
   const { msgType, meetingId, userId } = routing;
@@ -32,7 +32,7 @@ export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
     meetingId,
   };
 
-  const user = Users.findOne(selector);
+  const user = await Users.findOneAsync(selector);
 
   const shouldSkip = user && msgType === MSG_DIRECT_TYPE && userId !== NODE_USER && user.clientType !== 'HTML5';
   if (shouldSkip) return () => { };
