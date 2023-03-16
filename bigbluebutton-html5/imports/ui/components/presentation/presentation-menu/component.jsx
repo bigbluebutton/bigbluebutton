@@ -274,7 +274,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-toolvisibility',
           dataTest: 'toolVisibility',
           label: formattedVisibilityLabel(isVisible),
-          icon: isVisible ? 'close' : 'minus',
+          icon: isVisible ? 'close' : 'pen_tool',
           onClick: () => {
             tools.style.visibility = isVisible ? 'hidden' : 'visible';
             if (styles) {
