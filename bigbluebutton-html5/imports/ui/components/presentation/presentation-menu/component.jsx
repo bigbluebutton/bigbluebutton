@@ -259,12 +259,16 @@ const PresentationMenu = (props) => {
     }
     
     const tools = document.querySelector('#TD-Tools');
-    //if (props.hasWBAccess || props.amIPresenter){
-    //  const isFocusMode = tldrawAPI?.settings.isFocusMode;
     if (tools && (props.hasWBAccess || props.amIPresenter)){
       const isVisible = tools.style.visibility == 'hidden' ? false : true;
       const styles = document.querySelector('#TD-Styles').parentElement;
       const option = document.querySelector('#WhiteboardOptionButton');
+      if (option) {
+        //When the RTL-LTR changed, the toolbar appears again,
+        // while the opacity of this button remains the same.
+        //So we need to reset the opacity here.
+        option.style.opacity = isVisible ? 'unset' : '0.2';
+      }
       menuItems.push(
         {
           key: 'list-item-toolvisibility',
@@ -272,14 +276,11 @@ const PresentationMenu = (props) => {
           label: formattedVisibilityLabel(isVisible),
           icon: isVisible ? 'close' : 'minus',
           onClick: () => {
-            //with this API, the CSS setting (e.g. toolbar height) is reverted to the original tldraw setting.
-            //tldrawAPI?.setSetting('isFocusMode', !isFocusMode);
             tools.style.visibility = isVisible ? 'hidden' : 'visible';
             if (styles) {
               styles.style.visibility = isVisible ? 'hidden' : 'visible';
             }
             if (option) {
-              //option.style.opacity = isFocusMode ? 'unset' : '0.2';
               option.style.opacity = isVisible ? '0.2' : 'unset';
             }
           },
