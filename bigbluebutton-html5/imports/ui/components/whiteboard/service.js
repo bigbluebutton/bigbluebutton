@@ -10,6 +10,7 @@ import logger from '/imports/startup/client/logger';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { getTextSize } from './utils';
 
 const Annotations = new Mongo.Collection(null);
 
@@ -299,13 +300,16 @@ const getShapes = (whiteboardId, curPageId, intl) => {
         return `${splitLine[0]} ${spaces}|${splitLine[1]}`;
       }).join('\n');
 
-      // aproximate the size of the text frame
-      const characterWidth = 16;
-      const lineHeight = 40;
-      const framePadding = 20;
+      const style = {
+        color: 'white',
+        dash: 'solid',
+        font: 'mono',
+        isFilled: true,
+        size: 'small',
+        scale: 1,
+      };
 
-      const frameWidth = (characterWidth * longestLine) + framePadding;
-      const frameHeight = lineHeight * (lines.length - 1);
+      const textSize = getTextSize(pollResult, style, padding = 20);
 
       modAnnotation.annotationInfo = {
         childIndex: 0,
@@ -316,15 +320,8 @@ const getShapes = (whiteboardId, curPageId, intl) => {
         labelPoint: [0.5, 0.5],
         parentId: `${curPageId}`,
         point: [0, 0],
-        size: [frameWidth, frameHeight],
-        style: {
-          color: 'white',
-          dash: 'solid',
-          font: 'mono',
-          isFilled: true,
-          size: 'small',
-          scale: 1,
-        },
+        size: textSize,
+        style,
       };
       modAnnotation.annotationInfo.questionType = false;
     }
