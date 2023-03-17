@@ -277,7 +277,7 @@ logger.info 'Generating metadata xml'
 metadata_xml = Nokogiri::XML::Builder.new do |xml|
   xml.recording do
     xml.id(meeting_id)
-    xml.state('available')
+    xml.state('published')
     xml.published('true')
     xml.start_time(start_real_time)
     xml.end_time(start_real_time + final_timestamp - initial_timestamp)
