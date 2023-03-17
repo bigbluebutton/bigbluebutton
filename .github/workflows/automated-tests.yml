@@ -161,7 +161,7 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
-      - if: always()
+      - if: failure()
         name: Prepare artifacts (configs and logs)
         run: |
           sudo sh -c '
@@ -184,12 +184,13 @@ jobs:
           bbb-conf --zip
           cp $(ls -t /root/*.tar.gz | head -1) ./bbb-logs.tar.gz
           '
-      - if: always()
+      - if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: bbb-configs
           path: configs
-      - if: always()
+      - if: failure()
         uses: actions/upload-artifact@v3
         with:
+          name: bbb-logs
           path: ./bbb-logs.tar.gz
