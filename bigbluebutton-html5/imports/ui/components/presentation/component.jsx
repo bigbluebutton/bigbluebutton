@@ -722,7 +722,7 @@ class Presentation extends PureComponent {
     } = this.state;
 
     if (!currentSlide) return null;
-
+    
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
     const toolbarWidth = ((this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth)
