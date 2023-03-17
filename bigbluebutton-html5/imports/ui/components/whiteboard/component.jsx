@@ -12,6 +12,8 @@ import KEY_CODES from '/imports/utils/keyCodes';
 import { presentationMenuHeight } from '/imports/ui/stylesheets/styled-components/general';
 import Styled from './styles';
 import PanToolInjector from './pan-tool-injector/component';
+import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite, colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
 } from './utils';
