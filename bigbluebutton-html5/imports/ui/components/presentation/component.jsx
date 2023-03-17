@@ -574,12 +574,12 @@ class Presentation extends PureComponent {
 
     if (isPresentationDetached && presentationWindow.innerWidth != 0) {
       presentationSizes.presentationWidth = presentationWindow.innerWidth;
-      presentationSizes.presentationHeight = presentationWindow.innerHeight - (this.getToolbarHeight() || 0)
+      presentationSizes.presentationHeight = presentationWindow.innerHeight - (getToolbarHeight() || 0)
     } else {
       if (newPresentationAreaSize) {
         presentationSizes.presentationWidth = newPresentationAreaSize.presentationAreaWidth;
         presentationSizes.presentationHeight = newPresentationAreaSize
-          .presentationAreaHeight - (this.getToolbarHeight() || 0);
+          .presentationAreaHeight - (getToolbarHeight() || 0);
         return presentationSizes;
       }
     }
