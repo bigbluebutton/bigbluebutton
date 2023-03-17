@@ -896,17 +896,6 @@ class Presentation extends PureComponent {
     ${currentSlide.content}
     ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
-    if (!currentPresentation && this.refPresentationContainer) {
-      return (
-        <></>
-        // <PresentationPlaceholder
-        //   {
-        //   ...presentationBounds
-        //   }
-        //   setPresentationRef={this.setPresentationRef}
-        // />
-      );
-    }
     const wbContainer =
          (
               <div
