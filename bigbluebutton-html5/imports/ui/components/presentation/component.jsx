@@ -1022,7 +1022,6 @@ class Presentation extends PureComponent {
                 {pToolbar}
               </Fragment>
           }
-              {/*this.renderPresentationToolbar()*/}
             </Styled.SvgContainer>
           </Styled.Presentation>
         </Styled.PresentationContainer>
