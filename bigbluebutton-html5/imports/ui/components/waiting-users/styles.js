@@ -24,7 +24,6 @@ const ListItem = styled.div`
   flex-direction: row;
   align-items: center;
   border-radius: 5px;
-  cursor: pointer;
 
   ${({ animations }) => animations && `
     transition: all .3s;
@@ -40,9 +39,6 @@ const ListItem = styled.div`
     outline: none;
   }
 
-  &:hover {
-    background-color: ${listItemBgHover};
-  }
   flex-shrink: 0;
 `;
 
@@ -65,6 +61,7 @@ const UserName = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: initial;
 `;
 
 const ButtonContainer = styled.div`
@@ -79,6 +76,8 @@ const ButtonContainer = styled.div`
 
 const WaitingUsersButton = styled(Button)`
   font-weight: 400;
+  border-radius: 5px;
+  color: ${colorPrimary};
 
   &:focus {
     background-color: ${listItemBgHover} !important;
@@ -87,6 +86,45 @@ const WaitingUsersButton = styled(Button)`
   }
 
   &:hover {
+    color: ${colorPrimary};
+    background-color: ${listItemBgHover} !important;
+  }
+`;
+const WaitingUsersButtonMsg = styled(Button)`
+font-weight: 400;
+  font-weight: 400;
+  border-radius: 5px;
+  color: ${colorPrimary};
+
+  &:after {
+    font-family: 'bbb-icons';
+    content: "\\E910";
+  }
+
+  &:focus {
+    background-color: ${listItemBgHover} !important;
+    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder} ;
+    outline: none;
+  }
+
+  &:hover {
+    color: ${colorPrimary};
+    background-color: ${listItemBgHover} !important;
+  }
+`;
+const WaitingUsersButtonDeny = styled(Button)`
+  font-weight: 400;
+  border-radius: 5px;
+  color: #ff0e0e;
+
+  &:focus {
+    background-color: ${listItemBgHover} !important;
+    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder} ;
+    outline: none;
+  }
+
+  &:hover {
+    color: #ff0e0e;
     background-color: ${listItemBgHover} !important;
   }
 `;
@@ -205,6 +243,8 @@ export default {
   UserName,
   ButtonContainer,
   WaitingUsersButton,
+  WaitingUsersButtonDeny,
+  WaitingUsersButtonMsg,
   PendingUsers,
   NoPendingUsers,
   MainTitle,
