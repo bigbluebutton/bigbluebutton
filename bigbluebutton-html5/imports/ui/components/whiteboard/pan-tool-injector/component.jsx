@@ -47,13 +47,14 @@ class PanToolInjector extends React.Component {
       tldrawAPI,
       panSelected,
       setPanSelected,
+      presentationWindow,
     } = this.props;
 
     if (panSelected) {
       tldrawAPI?.selectTool('select');
     }
 
-    const tools = document.querySelectorAll('[id*="TD-PrimaryTools-"]');
+    const tools = presentationWindow.document.querySelectorAll('[id*="TD-PrimaryTools-"]');
     tools.forEach((tool) => {
       const { classList } = tool.firstElementChild;
       if (panSelected) {
@@ -63,7 +64,7 @@ class PanToolInjector extends React.Component {
       }
     });
 
-    const parentElement = document.getElementById('TD-PrimaryTools');
+    const parentElement = presentationWindow.document.getElementById('TD-PrimaryTools');
     if (!parentElement) return;
 
     if (parentElement.childElementCount === DEFAULT_TOOL_COUNT) {
@@ -75,7 +76,7 @@ class PanToolInjector extends React.Component {
         id: 'app.whiteboard.toolbar.tools.hand',
         description: 'presentation toolbar pan label',
       });
-      const container = document.createElement('span');
+      const container = presentationWindow.document.createElement('span');
       parentElement.appendChild(container);
       ReactDOM.render(
         <Styled.PanTool
@@ -93,7 +94,7 @@ class PanToolInjector extends React.Component {
             setPanSelected(true);
             setIsPanning(true);
             if (!(zoomValue <= HUNDRED_PERCENT && !fitToWidth)) {
-              const panButton = document.querySelector('[data-test="panButton"]');
+              const panButton = presentationWindow.document.querySelector('[data-test="panButton"]');
               if (panButton) {
                 panButton.classList.remove('selectOverride');
                 panButton.classList.add('select');
