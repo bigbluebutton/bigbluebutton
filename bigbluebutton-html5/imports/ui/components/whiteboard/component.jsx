@@ -201,12 +201,6 @@ const TldrawGlobalStyleText = (arg) => {
   return styleText;
 };
 
-const EditableWBWrapper = styled.div`
-  &, & > :first-child {
-    cursor: inherit !important;
-  }
-`;
-
 export default function Whiteboard(props) {
   const {
     isPresenter,
