@@ -455,37 +455,37 @@ class Presentation extends PureComponent {
           api.delete();
           break;
         case 'd':
-          if (e.ctrlKey == true || e.metaKey == true) {
+          if (e.ctrlKey || e.metaKey) {
             api.duplicate();
           }
           break;
         case 'x':
-          if (e.ctrlKey == true || e.metaKey == true) {
+          if (e.ctrlKey || e.metaKey) {
             api.cut();
           }
           break;
         case 'c':
-          if (e.ctrlKey == true || e.metaKey == true) {
+          if (e.ctrlKey || e.metaKey) {
             api.copy();
           }
           break;
         case 'v':
-          if (e.ctrlKey == true || e.metaKey == true) {
+          if (e.ctrlKey || e.metaKey) {
             api.paste();
           }
           break;
         case 'a':
-          if (e.ctrlKey == true || e.metaKey == true) {
+          if (e.ctrlKey || e.metaKey) {
             api.selectAll();
           }
           break;
         case 'l':
-          if ((e.ctrlKey == true || e.metaKey == true) && e.shiftKey == true) {
+          if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
             api.toggleLocked();
           }
           break;
         case 'g':
-          if (e.ctrlKey == true || e.metaKey == true) {
+          if (e.ctrlKey || e.metaKey) {
             const selectedIds = api.getShapes().map(s => s.id).filter(id => api.isSelected(id));
             if (selectedIds.length === 1 && api.getShape(selectedIds[0]).type === 'group') {
               api.ungroup();
@@ -495,12 +495,12 @@ class Presentation extends PureComponent {
           }
           break;
         case 'H':
-          if (e.shiftKey == true) {
+          if (e.shiftKey) {
             api.flipHorizontal();
           }
           break;
         case 'V':
-          if (e.shiftKey == true) {
+          if (e.shiftKey) {
             api.flipVertical();
           }
           break;
