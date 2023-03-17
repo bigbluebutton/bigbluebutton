@@ -1015,6 +1015,7 @@ export default function Whiteboard(props) {
             panSelected,
             setPanSelected,
             currentTool,
+            presentationWindow,
           }}
           formatMessage={intl?.formatMessage}
         />
