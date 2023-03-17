@@ -288,9 +288,9 @@ const PresentationMenu = (props) => {
       firstReact = 1;
       tldrawAPI.setSetting('keepStyleMenuOpen', true);
       //tldrawAPI.setSetting('dockPosition', isRTL ? 'left' : 'right'); // -> whiteboard/component
-      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [1, 1], },
-                             { id: 'textdummy', type: 'text', text: 'text', point: [0, 0], },
-                             { id: 'stickydummy', type: 'sticky', text: 'sticky', point: [0, 0], size: [1, 1], });
+      tldrawAPI.createShapes({ id: 'rectdummy', type: 'rectangle', point: [0, 0], size: [0, 0], },
+                             { id: 'textdummy', type: 'text', text: ' ', point: [0, 0], },
+                             { id: 'stickydummy', type: 'sticky', text: ' ', point: [0, 0], size: [0, 0], });
       tldrawAPI.selectNone();
       const ms = 50; // a dirty workaround...
       new Promise((resolve) => {
