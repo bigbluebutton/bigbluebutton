@@ -194,10 +194,6 @@
   content: "\e963";
 }
 
-/*temporary icon for viwers layout button*/
-.icon-bbb-layouts:before {
-  content: "\e921";
-}
 
 /* Aliases for emoji status */
 .icon-bbb-time:before {
