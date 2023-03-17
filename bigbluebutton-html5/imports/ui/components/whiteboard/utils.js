@@ -212,6 +212,8 @@ const mapLanguage = (language) => {
   }
 };
 
+/* getFontStyle adapted from tldraw source code
+  https://github.com/tldraw/tldraw/blob/55a8831a6b036faae0dfd77d6733a8f585f5ae23/packages/tldraw/src/state/shapes/shared/shape-styles.ts#L123 */
 const getFontStyle = (style) => {
   const fontSizes = {
     small: 28,
@@ -234,6 +236,8 @@ const getFontStyle = (style) => {
   return `${fontSize * scale}px/1 ${fontFace}`;
 }
 
+/* getMeasurementDiv and getTextSize adapted from tldraw source code
+  https://github.com/tldraw/tldraw/blob/55a8831a6b036faae0dfd77d6733a8f585f5ae23/packages/tldraw/src/state/shapes/shared/getTextSize.ts */
 const getMeasurementDiv = (font) => {
   // A div used for measurement
   document.getElementById('__textMeasure')?.remove();
