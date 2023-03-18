@@ -532,6 +532,26 @@ class Presentation extends PureComponent {
         }
       }
     });
+    
+    const handleWheelEvent = (e) => {
+      if (e.srcElement.id == "canvas"){
+        if (!e.ctrlKey) {
+          e.stopPropagation();
+          //e.preventDefault(); //to be consistent with 'passive: true' setting
+          const newEvent = new WheelEvent('wheel', {
+            deltaX: e.deltaX,
+            deltaY: e.deltaY,
+            deltaZ: e.deltaZ,
+            ctrlKey: true,
+            clientX: e.clientX,
+            clientY: e.clientY,
+          });
+          const canvas = win.document.getElementById('canvas');
+          canvas && canvas.dispatchEvent(newEvent);
+        }
+      }
+    }
+    win.addEventListener('wheel', handleWheelEvent, { capture: true, passive: true });
   }
 
   onFullscreenChange() {
