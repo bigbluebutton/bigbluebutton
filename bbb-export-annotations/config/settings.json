@@ -18,7 +18,7 @@
       "whiteboardTextEncoding": "utf-8",
       "maxImageWidth": 2048,
       "maxImageHeight": 1536,
-      "textScaleFactor": 4,
+      "textScaleFactor": 2,
       "pointsPerInch": 72,
       "pixelsPerInch": 96
     },
