@@ -228,9 +228,11 @@ export default function Whiteboard(props) {
     return () => {
       presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
       presentationWindow.document.removeEventListener('visibilitychange', checkVisibility);
-      const canvas = presentationWindow.document.getElementById('canvas');
-      if (canvas && !isPresentationDetached) {
-        canvas.removeEventListener('wheel', handleWheelEvent);
+      if (!isPresentationDetached) {
+        const canvas = document.getElementById('canvas');
+        if (canvas) {
+          canvas.removeEventListener('wheel', handleWheelEvent);
+        }
       }
     };
   }, [tldrawAPI]);
@@ -588,11 +590,13 @@ export default function Whiteboard(props) {
     const menu = presentationWindow.document.getElementById('TD-Styles')?.parentElement;
     setSafeCurrentTool('select');
 
-    const canvas = presentationWindow.document.getElementById('canvas');
-    if (canvas && !isPresentationDetached) {
+    if (!isPresentationDetached) {
       //when the presentation is detached, the canvas will be found hidden on the top-left corner of the main panel,
       // instead of the detached window. So we don't use below.
-      canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
+      const canvas = document.getElementById('canvas');
+      if (canvas) {
+        canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
+      }
     }
     if (menu) {
       const MENU_OFFSET = '48px';
