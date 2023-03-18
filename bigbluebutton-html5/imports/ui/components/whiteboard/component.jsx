@@ -229,7 +229,7 @@ export default function Whiteboard(props) {
       presentationWindow.document.removeEventListener('mouseup', checkClientBounds);
       presentationWindow.document.removeEventListener('visibilitychange', checkVisibility);
       const canvas = presentationWindow.document.getElementById('canvas');
-      if (canvas) {
+      if (canvas && !isPresentationDetached) {
         canvas.removeEventListener('wheel', handleWheelEvent);
       }
     };
@@ -589,7 +589,9 @@ export default function Whiteboard(props) {
     setSafeCurrentTool('select');
 
     const canvas = presentationWindow.document.getElementById('canvas');
-    if (canvas) {
+    if (canvas && !isPresentationDetached) {
+      //when the presentation is detached, the canvas will be found hidden on the top-left corner of the main panel,
+      // instead of the detached window. So we don't use below.
       canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
     }
     if (menu) {
