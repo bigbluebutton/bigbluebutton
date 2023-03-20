@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { SharedNotes } = require('./sharednotes');
 
 test.describe.parallel('Shared Notes', () => {
-  test.fixme('Open Shared notes @ci', async ({ browser, page, context }) => {
+  test('Open Shared notes @ci', async ({ browser, page, context }) => {
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initModPage(page);
     await sharedNotes.openSharedNotes();

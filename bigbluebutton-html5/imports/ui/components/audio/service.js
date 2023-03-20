@@ -140,7 +140,7 @@ export default {
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } }).role === ROLE_MODERATOR,
+    { fields: { role: 1 } })?.role === ROLE_MODERATOR,
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),

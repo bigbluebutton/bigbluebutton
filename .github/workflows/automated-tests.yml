@@ -181,17 +181,8 @@ jobs:
           cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
           cp /etc/hosts /configs/hosts
           chmod a+r -R configs
-          mkdir logs
-          cp /var/log/haproxy.log logs/haproxy.log
-          bbb-conf --status > logs/bbb-status.log
-          journalctl -u bbb-html5-frontend@1.service --since today > logs/bbb-html5-frontend.log
-          journalctl -u bbb-html5-backend@1.service --since today > logs/bbb-html5-backend.log
-          cp /var/log/bigbluebutton/bbb-web.log logs/bbb-web.log
-          cp /var/log/bbb-apps-akka/bbb-apps-akka.log logs/bbb-apps-akka.log
-          cp /var/log/turnserver/turnserver.log logs/turnserver.log
-          cp /var/log/haproxy.log logs/haproxy.log
-          cp /opt/freeswitch/log/freeswitch.log logs/freeswitch.log
-          chmod a+r -R logs
+          bbb-conf --zip
+          cp $(ls -t /root/*.tar.gz | head -1) ./bbb-logs.tar.gz
           '
       - if: failure()
         uses: actions/upload-artifact@v3
@@ -202,4 +193,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bbb-logs
-          path: logs
+          path: ./bbb-logs.tar.gz
