@@ -151,7 +151,11 @@ object RecMeta {
 
     val meetingId = meeting match {
       case Some(m) => m.externalId
-      case None    => id
+      case None =>
+        meta match {
+          case Some(m) => m.getOrElse("meetingId", id)
+          case None    => id
+        }
     }
 
     val meetingName = meeting match {
@@ -165,7 +169,7 @@ object RecMeta {
 
     val internalMeetingId = meeting match {
       case Some(m) => Some(m.id)
-      case None    => None
+      case None    => Some(id)
     }
 
     val isBreakout = meeting match {
