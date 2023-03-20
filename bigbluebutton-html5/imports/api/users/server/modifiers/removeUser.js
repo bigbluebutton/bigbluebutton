@@ -24,7 +24,7 @@ const disconnectUser = (meetingId, userId) => {
   }
 };
 
-export default function removeUser(body, meetingId) {
+export default async function removeUser(body, meetingId) {
   const { intId: userId, reasonCode } = body;
   check(meetingId, String);
   check(userId, String);
@@ -42,21 +42,22 @@ export default function removeUser(body, meetingId) {
         userEjected(meetingId, userId, reasonCode);
       }
 
-      setloggedOutStatus(userId, meetingId, true);
-      VideoStreams.remove({ meetingId, userId });
+      await setloggedOutStatus(userId, meetingId, true);
+      await VideoStreams.removeAsync({ meetingId, userId });
 
-      clearUserInfoForRequester(meetingId, userId);
+      await clearUserInfoForRequester(meetingId, userId);
 
-      const currentUser = UsersPersistentData.findOne({ userId, meetingId });
-      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || currentUser?.shouldPersist?.hasMessages?.private;
+      const currentUser = await UsersPersistentData.findOneAsync({ userId, meetingId });
+      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || 
+      currentUser?.shouldPersist?.hasMessages?.private;
       const hasConnectionStatus = currentUser?.shouldPersist?.hasConnectionStatus;
 
       if (!hasMessages && !hasConnectionStatus) {
-        UsersPersistentData.remove(selector);
+        await UsersPersistentData.removeAsync(selector);
       }
 
-      Users.remove(selector);
-      clearVoiceUser(meetingId, userId);
+      await Users.removeAsync(selector);
+      await clearVoiceUser(meetingId, userId);
     }
 
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
