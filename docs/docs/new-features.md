@@ -10,9 +10,7 @@ order: 1
 
 ## Overview
 
-This document gives you an overview of BigBlueButton 2.6, the latest version of BigBlueButton now in development.
-
-*Note:* This document is DRAFT and will be expanded upon as 2.6 development goes through alpha, beta, and release.
+This document gives you an overview of BigBlueButton 2.6.
 
 BigBlueButton 2.6 offers users improved usability, increased engagement, and more performance.
 
@@ -207,6 +205,9 @@ Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the follo
 
 For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
 
+- [2.6.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0)
+- [rc.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.9)
+- [rc.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.8)
 - [rc.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.7)
 - [rc.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.6)
 - [rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.5)
