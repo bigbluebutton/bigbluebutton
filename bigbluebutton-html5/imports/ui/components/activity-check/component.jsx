@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { makeCall } from '/imports/ui/services/api';
 
 import { Meteor } from 'meteor/meteor';
@@ -92,7 +92,7 @@ class ActivityCheck extends Component {
     const { responseDelay } = this.state;
 
     return (
-      <Modal
+      <ModalSimple
         hideBorder
         onRequestClose={handleInactivityDismiss}
         shouldCloseOnOverlayClick={false}
@@ -110,7 +110,7 @@ class ActivityCheck extends Component {
             size="lg"
           />
         </Styled.ActivityModalContent>
-      </Modal>
+      </ModalSimple>
     );
   }
 }

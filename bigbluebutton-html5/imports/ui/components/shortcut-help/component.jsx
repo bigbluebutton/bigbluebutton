@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import _ from 'lodash';
 import Styled from './styles';
 import StyledSettings from '../settings/styles';
@@ -355,7 +355,7 @@ const ShortcutHelpComponent = (props) => {
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
-    <Modal
+    <ModalSimple
       contentLabel={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.closeLabel),
@@ -431,7 +431,7 @@ const ShortcutHelpComponent = (props) => {
         </Styled.TabPanel>
 
       </Styled.SettingsTabs>
-    </Modal>
+    </ModalSimple>
   );
 };
 

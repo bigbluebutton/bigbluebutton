@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Auth from '/imports/ui/services/auth';
 import Button from '/imports/ui/components/common/button/component';
 import PropTypes from 'prop-types';
@@ -101,7 +101,7 @@ class MobileAppModal extends Component {
     const { url, urlMessage, meetingName } = this.state;
 
     return (
-      <Modal
+      <ModalSimple
         title={intl.formatMessage(intlMessages.title)}
         dismiss={{
           label: intl.formatMessage(intlMessages.dismissLabel),
@@ -138,7 +138,7 @@ class MobileAppModal extends Component {
               )
           }
         </Styled.Center>
-      </Modal>
+      </ModalSimple>
     );
   }
 }

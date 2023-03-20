@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
@@ -205,7 +205,7 @@ class BreakoutJoinConfirmation extends Component {
     const { waiting } = this.state;
 
     return (
-      <Modal
+      <ModalFullscreen
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
           callback: this.handleJoinBreakoutConfirmation,
@@ -220,7 +220,7 @@ class BreakoutJoinConfirmation extends Component {
         }}
       >
         { isFreeJoin ? this.renderSelectMeeting() : `${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }

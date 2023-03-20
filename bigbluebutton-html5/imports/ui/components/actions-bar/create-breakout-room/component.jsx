@@ -5,7 +5,7 @@ import _ from 'lodash';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
@@ -1319,7 +1319,7 @@ class BreakoutRoom extends PureComponent {
     const { isMobile } = deviceInfo;
 
     return (
-      <Modal
+      <ModalFullscreen
         title={
           isUpdate
             ? intl.formatMessage(intlMessages.updateTitle)
@@ -1351,7 +1351,7 @@ class BreakoutRoom extends PureComponent {
           {this.renderTitle()}
           {isMobile ? this.renderMobile() : this.renderDesktop()}
         </Styled.Content>
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }

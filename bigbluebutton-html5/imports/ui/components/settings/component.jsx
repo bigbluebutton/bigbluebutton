@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
@@ -267,7 +267,7 @@ class Settings extends Component {
       saved,
     } = this.state;
     return (
-      <Modal
+      <ModalFullscreen
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
@@ -297,7 +297,7 @@ class Settings extends Component {
         }}
       >
         {this.renderModalContent()}
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }

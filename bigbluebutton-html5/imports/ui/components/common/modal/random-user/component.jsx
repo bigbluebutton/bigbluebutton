@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import AudioService from '/imports/ui/components/audio/service';
 import Styled from './styles';
 
@@ -189,7 +189,7 @@ class RandomUserSelect extends Component {
     }
     if (keepModalOpen) {
       return (
-        <Modal
+        <ModalSimple
           onRequestClose={() => {
             if (currentUser.presenter) clearRandomlySelectedUser();
             toggleKeepModalOpen();
@@ -199,7 +199,7 @@ class RandomUserSelect extends Component {
           title={title}
         >
           {viewElement}
-        </Modal>
+        </ModalSimple>
       );
     } else {
       return null;
