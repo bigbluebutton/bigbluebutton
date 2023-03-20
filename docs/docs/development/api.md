@@ -253,8 +253,6 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 
 **Parameters:**
 
-<details><summary>Open to view API parameters</summary>
-
 | Param Name | Type | Description |
 |---|---|---|
 | `name` *(required)* | String | A name for the meeting.  This is now required as of BigBlueButton 2.4. |
@@ -315,7 +313,6 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 | `presentationUploadExternalUrl` | String | Pass a URL to a specific page in external application to select files for inserting documents into a live presentation. Only works if `presentationUploadExternalDescription` is also set. (added 2.6) |
 | `presentationUploadExternalDescription` | String | Message to be displayed in presentation uploader modal describing how to use an external application to upload presentation files. Only works if `presentationUploadExternalUrl` is also set. (added 2.6) |
 
-</details>
 
 **Example Requests:**
 
@@ -478,8 +475,6 @@ http&#58;//yourserver.com/bigbluebutton/api/join?[parameters]&checksum=[checksum
 
 **Parameters:**
 
-<details><summary>Open to view API parameters</summary>
-
 | Param Name | Type | Description |
 --- | --- | --- |
 | `fullName` *(required)*| String | The full name that is to be used to identify this user to other conference attendees. |
@@ -496,7 +491,6 @@ http&#58;//yourserver.com/bigbluebutton/api/join?[parameters]&checksum=[checksum
 | `guest` | String | Set to “true” to indicate that the user is a guest, otherwise do NOT send this parameter. |
 | `excludeFromDashboard` | String | If the parameter is passed on JOIN with value `true`, the user will be omitted from being displayed in the Learning Dashboard. The use case is for support agents who drop by to support the meeting / resolve tech difficulties. Added in BBB 2.4 |
 
-</details>
 
 **Example Requests:**
 
