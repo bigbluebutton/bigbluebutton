@@ -71,7 +71,7 @@ const config = {
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.6.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },
@@ -162,7 +162,7 @@ const config = {
                         ],
                     },
                 ],
-                copyright: `Copyright © ${new Date().getFullYear()} BigBlueButton Inc., Inc. Built with Docusaurus.`,
+                copyright: `Copyright © ${new Date().getFullYear()} BigBlueButton Inc., Built with Docusaurus.`,
             },
             prism: {
                 theme: lightCodeTheme,

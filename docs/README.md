@@ -30,6 +30,7 @@ updates when using `yarn start`).
 If you only want to build the docs you can run:
 
 ```
+$ yarn clear # ensure cached content is not interfering with your changes
 $ yarn build
 ```
 

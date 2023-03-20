@@ -642,7 +642,7 @@ class VideoService {
     const currentUser = Users.findOne({ userId: Auth.userID },
       { fields: { role: 1 } });
 
-    const isModerator = currentUser.role === 'MODERATOR';
+    const isModerator = currentUser?.role === 'MODERATOR';
     const isBreakout = meetingIsBreakout();
     const isPinEnabled = this.isPinEnabled();
 
