@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "Märkmete arv ületas piirväärtuse ({0})",
     "app.whiteboard.toolbar.tools": "Tööriistad",
     "app.whiteboard.toolbar.tools.hand": "Liiguta",
-    "app.whiteboard.toolbar.tools.disabled.pan": "Suurenda liigutamise lubamiseks",
     "app.whiteboard.toolbar.tools.pencil": "Pliiats",
     "app.whiteboard.toolbar.tools.rectangle": "Ristkülik",
     "app.whiteboard.toolbar.tools.triangle": "Kolmnurk",

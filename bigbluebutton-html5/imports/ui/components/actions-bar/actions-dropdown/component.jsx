@@ -142,6 +142,7 @@ class ActionsDropdown extends PureComponent {
       setMeetingLayout,
       setPushLayout,
       showPushLayout,
+      amIModerator,
     } = this.props;
 
     const {
@@ -190,7 +191,7 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (!amIPresenter) {
+    if (!amIPresenter && amIModerator) {
       actions.push({
         icon: "presentation",
         label: formatMessage(takePresenter),
@@ -284,7 +285,6 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
-      amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
@@ -297,12 +297,12 @@ class ActionsDropdown extends PureComponent {
     const children = availablePresentations.length > 1 && amIPresenter
       ? availablePresentations.concat(availableActions) : availableActions;
 
-    if ((!amIPresenter && !amIModerator)
-      || availableActions.length === 0
+    const customStyles = { top: '-1rem' };
+
+    if (availableActions.length === 0
       || !isMeteorConnected) {
       return null;
     }
-    const customStyles = { top: '-1rem' };
 
     return (
       <BBBMenu

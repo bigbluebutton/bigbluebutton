@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "Oharpen kopuruak muga gainditu du ({0})",
     "app.whiteboard.toolbar.tools": "Tresnak",
     "app.whiteboard.toolbar.tools.hand": "Eskua",
-    "app.whiteboard.toolbar.tools.disabled.pan": "Egin zoom panoramika gaitzeko",
     "app.whiteboard.toolbar.tools.pencil": "Arkatza",
     "app.whiteboard.toolbar.tools.rectangle": "Laukizuzena",
     "app.whiteboard.toolbar.tools.triangle": "Triangelua",

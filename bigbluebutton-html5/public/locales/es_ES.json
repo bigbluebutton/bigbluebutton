@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "El número de anotaciones superó el límite ({0})",
     "app.whiteboard.toolbar.tools": "Herramientas",
     "app.whiteboard.toolbar.tools.hand": "Expandir",
-    "app.whiteboard.toolbar.tools.disabled.pan": "Zoom para activar el desplazamiento",
     "app.whiteboard.toolbar.tools.pencil": "Lápiz",
     "app.whiteboard.toolbar.tools.rectangle": "Rectángulo",
     "app.whiteboard.toolbar.tools.triangle": "Triángulo",
