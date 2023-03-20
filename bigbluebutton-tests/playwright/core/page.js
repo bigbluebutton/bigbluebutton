@@ -341,6 +341,10 @@ class Page {
     const avatarInUserListColor = this.page.locator(selector2);
     await expect(getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(getBackgroundColorComputed(avatarInUserListColor));
   }
+
+  async reloadPage() {
+    await this.page.reload();
+  }
 }
 
 module.exports = exports = Page;

@@ -8,15 +8,13 @@ keywords:
 - install
 ---
 
-<!-- TODO The latest version of [BigBlueButton](/) is 2.6 (referred hereafter as simply BigBlueButton). -->
-
-BigBlueButton 2.6 is under active development.  We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
+BigBlueButton 2.6 is under active development. We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
 ## Before you install
 
 We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 20.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.4, we recommend setting up a clean server for BigBlueButton 2.6 on Ubuntu 20.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server). We support upgrading a BigBlueButton 2.5 server to 2.6.
 
-A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/install)).
+A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v2/install)).
 
 ### Minimum server requirements
 
@@ -147,7 +145,7 @@ The above link gives detailed information on using the script. As an example, th
 wget -qO- https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh | bash -s -- -v focal-260 -s bbb.example.com -e notice@example.com -g -w
 ```
 
-Note: You can [uninstall Greenlight](/greenlight/install#uninstall) if you do not intend on using it on production.
+Note: You can [uninstall Greenlight](/greenlight/v2/install#uninstall) if you do not intend on using it on production.
 
 After the `bbb-install-2.6.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
@@ -216,7 +214,7 @@ BigBlueButton Server 2.6.0-alpha.1 (54)
                               stun: stun.l.google.com:19302
 
 
-## Potential problems described below
+# Potential problems described below
 
 ```
 
@@ -248,7 +246,7 @@ bbb-pads ——————————————► [✔ - active]
 You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packages (your version numbers may be slightly different).
 
 ```bash
-## dpkg -l | grep bbb-
+# dpkg -l | grep bbb-
 ii  bbb-apps-akka             2.6-10     all          BigBlueButton Apps (Akka)
 ii  bbb-config                1:2.6-4    amd64        BigBlueButton configuration utilities
 ii  bbb-etherpad              1:2.6-2    amd64        The EtherPad Lite components for BigBlueButton
@@ -268,7 +266,7 @@ ii  bbb-webrtc-sfu            1:2.6-6    amd64        BigBlueButton WebRTC SFU
 
 ```
 
-With Greenlight installed (that was the `-g` option), you can open `https://<HOSTNAME>/b` in a browser (where `<HOSTNAME>` is the hostname you specified in the `bbb-install-2.6.sh` command), create a local account, create a room and join it.
+With Greenlight installed (that was the `-g` option), you can open `https://<hostname>/b` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install-2.6.sh` command), create a local account, create a room and join it.
 
 <img src="/img/greenlight_welcome.png" alt="BigBlueButton's Greenlight Interface"/>
 
@@ -298,9 +296,9 @@ You can upgrade by re-running the `bbb-install-2.6.sh` script again -- it will d
 
 You can upgrade in two steps:
 
-Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
+  Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
 
-Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
+  Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
 
 ### Upgrading from BigBlueButton 2.4
 
@@ -325,7 +323,7 @@ If this server is intended for production, you should also
 
 - [Secure your system -- restrict access to specific ports](/administration/customize#secure-your-system--restrict-access-to-specific-ports)
 - [Configure the server to work behind a firewall](/administration/firewall-configuration) (if you have installed behind a firewall or on a server that has a public/private IP address)
-- [remove Greenlight](/greenlight/install#uninstall) (if you had it installed and is no longer needed)
+- [remove Greenlight](/greenlight/v2/install#uninstall) (if you had it installed and is no longer needed)
 - [Set up a TURN server](/administration/turn-server) (if your server is on the Internet and you have users accessing it from behind restrictive firewalls)
 - Test your HTTPS configuration. A well-respected site that can do a series of automated tests is [https://www.ssllabs.com/ssltest/](https://www.ssllabs.com/ssltest/) - simply enter your server's hostname, optionally check the "Do not show results" check box if you would like to keep it private, then Submit. At time of writing, the configuration shown on this page should achieve an "A" ranking in the SSL Labs test page.
 
@@ -368,120 +366,10 @@ Large scale deployments must include several other components in addition to the
 
 ## Customizations
 
-### Increase number of processes for nodejs
+See the [Server customization page](/administration/customize) for things you can do to adapt BigBlueButton to your environment or enable optional features after installation. For example 
 
-See [the HTML5 section on the Architecture page](/development/architecture#scalability-of-html5-server-component)
-
-### Increase number of recording workers
-
-Previous versions of BigBlueButton used a single thread for processing recordings. BigBlueButton 2.6 uses [resque](https://github.com/resque/resque) to spawn multiple recording workers for processing recordings.
-
-By default, `/usr/lib/systemd/system/bbb-rap-resque-worker.service` defines one recording worker `Environment=COUNT=1`.
-
-```
-[Unit]
-Description=BigBlueButton resque worker for recordings
-
-[Service]
-Type=simple
-ExecStart=/bin/sh -c '/usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log'
-WorkingDirectory=/usr/local/bigbluebutton/core/scripts
-Environment=QUEUE=rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-Environment=COUNT=1
-## Environment=VVERBOSE=1
-User=bigbluebutton
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-```
-
-If you want 3 recording workers, for example, the steps below show how to add a systemd override file in `/etc/systemd/system/bbb-rap-resque-worker.service.d/override.conf` that sets `Environment=COUNT=3` and restarts the `bbb-rap-resque-worker.service` service.
-
-<!-- TODO remove when 12503 is resolved -->
-
-**Note**: We have discovered an issue with having more than one worker present at a time if `defaultKeepEvents` or `meetingKeepEvents` in bbb-web is enabled. This is being currently addressed. For more information here is a [link to the issue description](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
-
-```
-## mkdir -p /etc/systemd/system/bbb-rap-resque-worker.service.d
-## cat > override.conf << HERE
-[Service]
-Environment=COUNT=3
-HERE
-## systemctl daemon-reload
-## systemctl restart bbb-rap-resque-worker.service
-## systemctl status bbb-rap-resque-worker.service
-● bbb-rap-resque-worker.service - BigBlueButton resque worker for recordings
-   Loaded: loaded (/usr/lib/systemd/system/bbb-rap-resque-worker.service; disabled; vendor preset: enabled)
-  Drop-In: /etc/systemd/system/bbb-rap-resque-worker.service.d
-           └─override.conf
-   Active: active (running) since Sat 2021-01-09 12:19:22 UTC; 6s ago
- Main PID: 23630 (sh)
-    Tasks: 15 (limit: 4915)
-   CGroup: /system.slice/bbb-rap-resque-worker.service
-      ├─23630 /bin/sh -c /usr/bin/rake -f ../Rakefile resque:workers >> /var/log/bigbluebutton/bbb-rap-worker.log
-      ├─23631 /usr/bin/ruby /usr/bin/rake -f ../Rakefile resque:workers
-      ├─23650 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-      ├─23651 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-      └─23652 resque-2.0.0: Waiting for rap:archive,rap:publish,rap:process,rap:sanity,rap:captions
-
-```
-
-`systemctl status bbb-rap-resque-worker.service` shows three resque workers ready to process up to three recordings in parallel.
-
-The processing of recordings is also much faster thanks to the work of [abatu](https://github.com/abautu) in the community (see [#2483](https://github.com/bigbluebutton/bigbluebutton/issues/2483)).
-
-### Run three Kurento servers
-
-Recommend running [three parallel Kurento servers](/administration/customize#run-three-parallel-kurento-media-servers).
-
-### Local overrides for configuration settings
-
-The full description for local overrides for configuration files was moved to [Administration -> Configuration Files](/administration/configuration-files#local-overrides-for-configuration-settings)
-
-### Installing additional recording processing formats
-
-In addition to the `presentation` format that is installed and enabled by default, there are several optional recording formats available for BigBlueButton:
-
-- `notes`: Makes the shared notes from the meeting available as a document.
-- `screenshare`: Generate a single video file from the screensharing and meeting audio.
-- `podcast`: Generate an audio-only recording.
-
-The processing scripts and playback support files for these recording formats can be installed from the packages named `bbb-playback-formatname` (e.g. `bbb-playback-notes`)
-
-There is currently an issue where the recording formats are not automatically enabled when they are installed - see [#12241](https://github.com/bigbluebutton/bigbluebutton/issues/12241) for details.
-
-In order to enable the recording formats manually, you need to edit the file `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`. Look for the section named `steps:`. In this section, the recording processing workflow is defined, including what recording processing steps are performed, and what order they need to be performed in.
-
-To enable a new recording format, you need to add a new step named `process:formatname` that runs after the step named captions, and a new step named `publish:formatname` that runs after `process:formatname`. You may have to convert some of the steps to list format.
-
-For example, here are the stock steps in BigBlueButton 2.6 with the `presentation` format enabled:
-
-```yml
-steps:
-  archive: 'sanity'
-  sanity: 'captions'
-  captions: 'process:presentation'
-  'process:presentation': 'publish:presentation'
-```
-
-If you additionally enable the `notes` recording format, the steps will have to be changed to look like this:
-
-```yml
-steps:
-  archive: 'sanity'
-  sanity: 'captions'
-  captions:
-    - 'process:presentation'
-    - 'process:notes'
-  'process:presentation': 'publish:presentation'
-  'process:notes': 'publish:notes'
-```
-
-This pattern can be repeated for additional recording formats. Note that it's very important to put the step names containing a colon (`:`) in quotes.
-
-After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
+* [Install additional recording processing formats](/administration/customize#install-additional-recording-processing-formats)
+* [Enable generating mp4 (H.264) video output](/administration/customize#enable-generating-mp4-h264-video-output)
 
 ## Troubleshooting
 

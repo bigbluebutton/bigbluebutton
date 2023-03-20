@@ -7,8 +7,7 @@ on:
       - 'v*'
       - 'develop'
     paths:
-      - 'docs/'
-      - '.github/'
+      - 'docs/**'
 
 # Do not build the docs concurrently
 concurrency:

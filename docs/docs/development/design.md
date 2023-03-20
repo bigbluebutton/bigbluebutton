@@ -10,10 +10,6 @@ keywords:
 - architecture
 ---
 
----
-
-<br/>
-
 ## Overview
 
 BigBlueButton is an open source web conferencing system for online learning. Our goal is to provide remote students a high-quality online learning experience.

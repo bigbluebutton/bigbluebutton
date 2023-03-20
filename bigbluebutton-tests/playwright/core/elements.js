@@ -151,6 +151,11 @@ exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
 exports.userslist = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
+exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
+exports.liveTranscritpion = 'div[data-test="liveTranscription"]';
+exports.learningDashboard = 'li[data-test="learningDashboard"]';
+exports.propagateLayout = 'li[data-test="propagateLayout"]';
+exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -211,7 +216,7 @@ exports.polling = 'li[data-test="polling"]';
 exports.startPoll = 'button[data-test="startPoll"]';
 exports.restartPoll = 'button[data-test="restartPoll"]';
 exports.hidePollDesc = 'button[data-test="hidePollDesc"]';
-exports.pollingContainer = 'div[data-test="pollingContainer"]';
+exports.pollingContainer = 'aside[data-test="pollingContainer"]';
 exports.pollLetterAlternatives = 'button[data-test="pollLetterAlternatives"]';
 const pollOptionItem = 'input[data-test="pollOptionItem"]';
 exports.pollOptionItem1 = `${pollOptionItem}>>nth=0`;
@@ -239,7 +244,7 @@ const pollAnswerOptionDesc = 'button[data-test="pollAnswerOption"]';
 exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=0`;
 exports.secondPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=1`;
 exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
-exports.numberVotes = 'div[data-test="numberVotes"]';
+exports.numberVotes = 'div[data-test="numberOfVotes"]';
 exports.answer1 = 'div[data-test="numberOfVotes"]>>nth=0';
 exports.answer2 = 'div[data-test="numberOfVotes"]>>nth=1';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
@@ -249,6 +254,7 @@ const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
 exports.secondPollAnswerOptionBtn = `${pollAnswersOption}>>nth=1`;
 exports.firstCheckboxInput = `${pollAnswersOption}`;
+exports.closePollingBtn = 'button[data-test="closePolling"]';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -437,6 +443,31 @@ exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
+// Layout management
+exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
+exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
+exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
+exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.cameraDock = 'video[data-test="videoContainer"]';
+
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
 exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
+
+// Learning dashboard
+exports.learningDashboard = 'li[data-test="learningDashboard"]';
+exports.panels = 'div[role="tablist"]';
+exports.messageLearningDashboard = 'td[data-test="userTotalMessagesDashboard"]';
+exports.userOnlineTime = 'td[data-test="userOnlineTimeDashboard"]';
+exports.confirmRecording = 'div[id="simpleModal"] button:nth-child(1)';
+exports.pollTrueFalse = 'button[data-test="pollTrueFalse"]';
+exports.pollPanel = 'button[data-test="pollsPanelDashboard"]';
+exports.pollTrueFalseQuestion = 'div[role="rowgroup"] div:nth-child(3) div';
+exports.pollTrueFalseAnswer = 'div[role="cell"]:nth-child(3)';
+exports.pollABCDQuestion = 'div[role="rowgroup"] div:nth-child(4) div';
+exports.pollABCDAnswer = 'div[role="cell"]:nth-child(4)';
+exports.pollYesNoQuestion = 'div[role="rowgroup"] div:nth-child(5) div';
+exports.pollYesNoAnswer = 'div[role="cell"]:nth-child(5)';
+exports.pollUserResponseQuestion = 'div[role="rowgroup"] div:nth-child(6) div';
+exports.pollUserResponseAnswer = 'div[role="cell"]:nth-child(6)';
+exports.pollTotal = 'div[role="cell"]:nth-child(2)';

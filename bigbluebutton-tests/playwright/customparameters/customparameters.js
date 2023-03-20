@@ -1,4 +1,4 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const c = require('./constants');
@@ -233,6 +233,77 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.joinVideo);
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue()).toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
+
+  async breakoutRooms() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(e.createBreakoutRooms);
+  }
+
+  async liveTranscription() {
+    await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.liveTranscritpion);
+  }
+
+  async captions() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(e.writeClosedCaptions);
+  }
+
+  async chat() {
+    await this.modPage.wasRemoved(e.publicChat);
+  }
+
+  async externalVideos() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.shareExternalVideoBtn);
+  }
+
+  async layouts() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.propagateLayout);
+    await this.modPage.wasRemoved(e.layoutModal);
+  }
+
+  async learningDashboard() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(e.learningDashboard);
+  }
+
+  async polls() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.polling);
+  }
+
+  async screenshare() {
+    await this.modPage.wasRemoved(e.startScreenSharing);
+  }
+
+  async sharedNotes() {
+    await this.modPage.wasRemoved(e.sharedNotes);
+  }
+
+  async virtualBackgrounds() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.wasRemoved(e.virtualBackgrounds);
+  }
+
+  async downloadPresentationWithAnnotations() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.wasRemoved(e.exportPresentationToPublicChat);
+  }
+
+  async importPresentationWithAnnotationsFromBreakoutRooms() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.wasRemoved(e.captureBreakoutWhiteboard);
+  }
+
+  async importSharedNotesFromBreakoutRooms() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.wasRemoved(e.captureBreakoutSharedNotes);
   }
 }
 

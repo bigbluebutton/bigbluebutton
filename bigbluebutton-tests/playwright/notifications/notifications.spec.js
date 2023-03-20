@@ -69,7 +69,6 @@ test.describe.parallel('Notifications', () => {
 
   test.describe.parallel('Presenter @ci', () => {
     test('Poll results notification', async ({ browser, context, page }) => {
-      test.fixme(true, 'Different behaviors in the development and production environment');
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page);
       await presenterNotifications.publishPollResults();

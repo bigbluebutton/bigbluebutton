@@ -488,6 +488,7 @@ class App extends Component {
       pushLayoutMeeting,
       selectedLayout,
       setMeetingLayout,
+      setPushLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
     } = this.props;
@@ -517,6 +518,7 @@ class App extends Component {
           pushLayoutMeeting,
           selectedLayout,
           setMeetingLayout,
+          setPushLayout,
           shouldShowScreenshare,
           shouldShowExternalVideo,
         }}
