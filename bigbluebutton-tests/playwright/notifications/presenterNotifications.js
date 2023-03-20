@@ -4,7 +4,7 @@ const e = require('../core/elements');
 const utilPolling = require('../polling/util');
 const utilScreenShare = require('../screenshare/util');
 const utilPresentation = require('../presentation/util');
-const { UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class PresenterNotifications extends MultiUsers {
   constructor(browser, context) {
@@ -19,7 +19,7 @@ class PresenterNotifications extends MultiUsers {
   }
 
   async fileUploaderNotification() {
-    await utilPresentation.uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, ELEMENT_WAIT_LONGER_TIME);
     await util.checkNotificationText(this.userPage, e.presentationUploadedToast);
   }
 

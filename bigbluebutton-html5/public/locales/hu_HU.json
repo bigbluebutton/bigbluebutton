@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "A kommentárok száma elérte a korlátot ({0})",
     "app.whiteboard.toolbar.tools": "Eszközök",
     "app.whiteboard.toolbar.tools.hand": "Mozgatás",
-    "app.whiteboard.toolbar.tools.disabled.pan": "Nagyítás a pásztázás engedélyezéséhez",
     "app.whiteboard.toolbar.tools.pencil": "Ceruza",
     "app.whiteboard.toolbar.tools.rectangle": "Téglalap",
     "app.whiteboard.toolbar.tools.triangle": "Háromszög",

@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
@@ -65,19 +65,24 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
 
-    const modSlides0 = await getSlideOuterHtml(this.modPage);
-    const userSlides0 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides0).toEqual(userSlides0);
-
     await waitAndClearDefaultPresentationNotification(this.modPage);
-    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
+    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
-    const modSlides1 = await getSlideOuterHtml(this.modPage);
-    const userSlides1 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides1).toEqual(userSlides1);
-
-    await expect(modSlides0).not.toEqual(modSlides1);
-    await expect(userSlides0).not.toEqual(userSlides1);
+    // wait until the notifications disappear
+    await this.modPage.wasRemoved(e.presentationStatusInfo, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo);
+    await this.userPage.wasRemoved(e.smallToastMsg);
+    
+    const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+    
+    const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
   }
 
   async uploadMultiplePresentationsTest() {
