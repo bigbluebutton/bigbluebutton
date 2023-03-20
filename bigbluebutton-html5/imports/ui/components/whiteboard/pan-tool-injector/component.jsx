@@ -75,11 +75,6 @@ class PanToolInjector extends React.Component {
         id: 'app.whiteboard.toolbar.tools.hand',
         description: 'presentation toolbar pan label',
       });
-      const disabledLabel = formatMessage({
-        id: 'app.whiteboard.toolbar.tools.disabled.pan',
-        description: 'pan label when disabled',
-      });
-      const disabled = (zoomValue <= HUNDRED_PERCENT && !fitToWidth);
       const container = document.createElement('span');
       parentElement.appendChild(container);
       ReactDOM.render(
@@ -92,9 +87,8 @@ class PanToolInjector extends React.Component {
           color="light"
           icon="hand"
           size="md"
-          label={disabled ? disabledLabel : label}
-          aria-label={disabled ? disabledLabel : label}
-          disabled={disabled}
+          label={label}
+          aria-label={label}
           onClick={() => {
             setPanSelected(true);
             setIsPanning(true);

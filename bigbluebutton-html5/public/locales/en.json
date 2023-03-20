@@ -1049,7 +1049,6 @@
     "app.whiteboard.annotations.numberExceeded": "The number of annotations exceeded the limit ({0})",
     "app.whiteboard.toolbar.tools": "Tools",
     "app.whiteboard.toolbar.tools.hand": "Pan",
-    "app.whiteboard.toolbar.tools.disabled.pan": "Zoom to enable pan",
     "app.whiteboard.toolbar.tools.pencil": "Pencil",
     "app.whiteboard.toolbar.tools.rectangle": "Rectangle",
     "app.whiteboard.toolbar.tools.triangle": "Triangle",

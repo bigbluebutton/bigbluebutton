@@ -29,6 +29,7 @@ case "$1" in
       rm /var/bigbluebutton/published/video/index.html
     fi
     
+    reloadService nginx
   ;;
   
   failed-upgrade)
