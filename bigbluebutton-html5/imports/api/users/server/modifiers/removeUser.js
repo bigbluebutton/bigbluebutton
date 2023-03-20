@@ -48,7 +48,8 @@ export default async function removeUser(body, meetingId) {
       await clearUserInfoForRequester(meetingId, userId);
 
       const currentUser = await UsersPersistentData.findOneAsync({ userId, meetingId });
-      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || currentUser?.shouldPersist?.hasMessages?.private;
+      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || 
+      currentUser?.shouldPersist?.hasMessages?.private;
       const hasConnectionStatus = currentUser?.shouldPersist?.hasConnectionStatus;
 
       if (!hasMessages && !hasConnectionStatus) {

@@ -48,7 +48,7 @@ export default async function addGroupChatMsg(meetingId, chatId, msg) {
     const insertedId = await GroupChatMsg.insertAsync(msgDocument);
 
     if (insertedId) {
-      changeHasMessages(true, sender.id, meetingId, chatId);
+      await changeHasMessages(true, sender.id, meetingId, chatId);
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
     }
   } catch (err) {

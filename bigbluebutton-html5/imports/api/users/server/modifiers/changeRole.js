@@ -18,7 +18,7 @@ export default async function changeRole(role, userId, meetingId, changedBy) {
     const numberAffected = await Users.updateAsync(selector, modifier);
 
     if (numberAffected) {
-      updateRole(userId, meetingId, role);
+      await updateRole(userId, meetingId, role);
       Logger.info(`Changed user role=${role} id=${userId} meeting=${meetingId}`
         + `${changedBy ? ` changedBy=${changedBy}` : ''}`);
     }

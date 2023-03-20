@@ -37,7 +37,6 @@ export default async function clearGroupChatMsg(meetingId, chatId) {
           'shouldPersist.hasMessages.private': { $ne: true },
           loggedOut: true,
         };
-
         await UsersPersistentData.removeAsync(selector);
       }
     } catch (err) {
@@ -62,7 +61,7 @@ export default async function clearGroupChatMsg(meetingId, chatId) {
         .removeAsync({ chatId: { $eq: PUBLIC_GROUP_CHAT_ID } });
 
       if (numberAffected) {
-        clearChatHasMessages(meetingId, chatId = PUBLIC_GROUP_CHAT_ID);
+        await clearChatHasMessages(meetingId, chatId=PUBLIC_GROUP_CHAT_ID);
 
         Logger.info('Cleared GroupChatMsg (all)');
       }
