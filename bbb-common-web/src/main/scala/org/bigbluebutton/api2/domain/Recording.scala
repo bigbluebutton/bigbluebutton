@@ -136,7 +136,8 @@ object RecMeta {
 
   def getRecMeta(metaXml: Elem): Option[RecMeta] = {
     val id = getText(metaXml, "id", "unknown")
-    val state = getText(metaXml, "state", "unknown")
+    val stateVal = getText(metaXml, "state", "unknown")
+    val state = if (stateVal.equals("available")) "published" else stateVal
     val published = getText(metaXml, "published", "true").toString.toBoolean
     val startTime = getValLong(metaXml, "start_time", 0)
     val endTime = getValLong(metaXml, "end_time", 0)
