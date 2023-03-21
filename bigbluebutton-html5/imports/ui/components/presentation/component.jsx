@@ -68,7 +68,7 @@ function copyStyles(sourceDoc, targetDoc, tlStyles) {
   //Most of this code was copied from https://medium.com/hackernoon/using-a-react-16-portal-to-do-something-cool-2a2d627b0202
   const hostUri = `https://${window.document.location.hostname}`;
   const baseName = hostUri + Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename + Meteor.settings.public.app.instanceId;
-  // In the darkmode, sourceDoc.styleSheets gives severe error.. (spreadArray not defined) need to be solved!
+  // In the darkmode, sourceDoc.styleSheets gives the "__spreadArray not defined" error.. need to be solved!
   Array.from(sourceDoc.styleSheets).concat(tlStyles).forEach(styleSheet => {
     if (styleSheet.cssRules) {
       const newStyleEl = sourceDoc.createElement('style');
