@@ -968,6 +968,7 @@ export default function Whiteboard(props) {
   }
 
   if (isPresentationDetached) {
+    // inject styles to the detached window as styled component is not inherited..?
     const styleId = "supplementedTldrawStyle";
     const tldgsarg = {hasWBAccess, isPresenter, hideContextMenu: !hasWBAccess && !isPresenter, size, isRTL};
     const tldgs = Styled.TldrawGlobalStyleText(tldgsarg);
