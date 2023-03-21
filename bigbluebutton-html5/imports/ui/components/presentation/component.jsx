@@ -517,7 +517,7 @@ class Presentation extends PureComponent {
     win.addEventListener('mousedown', (e) => {
       if (e.srcElement.id == "canvas"){
         if (e.button == 0){
-          this.state.tldrawAPI.setMenuOpen(false);
+          //this.state.tldrawAPI.setMenuOpen(false); // doesn't work...
           const popups = win.document.querySelectorAll('[data-radix-popper-content-wrapper=""]')
           popups.forEach(p => {
             p.style.display = "none";
