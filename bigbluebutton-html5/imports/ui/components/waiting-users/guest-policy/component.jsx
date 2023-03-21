@@ -39,7 +39,6 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  closeModal: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -49,14 +48,14 @@ const propTypes = {
 
 class GuestPolicyComponent extends PureComponent {
   componentWillUnmount() {
-    const { closeModal } = this.props;
+    const { setIsOpen } = this.props;
 
-    closeModal();
+    setIsOpen(false);
   }
 
   render() {
     const {
-      closeModal,
+      setIsOpen,
       intl,
       guestPolicy,
       changeGuestPolicy,
@@ -64,9 +63,10 @@ class GuestPolicyComponent extends PureComponent {
 
     return (
       <Styled.GuestPolicyModal
-        onRequestClose={closeModal}
+        onRequestClose={() => setIsOpen(false)}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.guestPolicyTitle)}
+        {...this.props}
       >
         <Styled.Container
           data-test="guestPolicySettingsModal"
@@ -85,7 +85,7 @@ class GuestPolicyComponent extends PureComponent {
               data-test="askModerator"
               onClick={() => {
                 changeGuestPolicy(ASK_MODERATOR);
-                closeModal();
+                setIsOpen(false);
               }}
             />
             <Styled.GuestPolicyButton
@@ -97,7 +97,7 @@ class GuestPolicyComponent extends PureComponent {
               data-test="alwaysAccept"
               onClick={() => {
                 changeGuestPolicy(ALWAYS_ACCEPT);
-                closeModal();
+                setIsOpen(false);
               }}
             />
             <Styled.GuestPolicyButton
@@ -109,7 +109,7 @@ class GuestPolicyComponent extends PureComponent {
               data-test="alwaysDeny"
               onClick={() => {
                 changeGuestPolicy(ALWAYS_DENY);
-                closeModal();
+                setIsOpen(false);
               }}
             />
           </Styled.Content>

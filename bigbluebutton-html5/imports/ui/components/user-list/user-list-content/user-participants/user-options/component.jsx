@@ -2,10 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import _ from 'lodash';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
-import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
 import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -143,6 +142,11 @@ class UserOptions extends PureComponent {
     this.learningDashboardId = _.uniqueId('list-item-');
     this.saveUsersNameId = _.uniqueId('list-item-');
     this.captionsId = _.uniqueId('list-item-');
+    this.state = {
+      isCreateBreakoutRoomModalOpen: false,
+      isGuestPolicyModalOpen: false,
+      isInvitation: false,
+    }
 
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
     this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
@@ -150,6 +154,8 @@ class UserOptions extends PureComponent {
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
     this.onSaveUserNames = this.onSaveUserNames.bind(this);
+    this.setCreateBreakoutRoomModalIsOpen = this.setCreateBreakoutRoomModalIsOpen.bind(this);
+    this.setGuestPolicyModalIsOpen = this.setGuestPolicyModalIsOpen.bind(this);
   }
 
   onSaveUserNames() {
@@ -181,19 +187,8 @@ class UserOptions extends PureComponent {
   }
 
   handleCreateBreakoutRoomClick(isInvitation) {
-    const {
-      mountModal,
-      isBreakoutRecordable,
-    } = this.props;
-
-    return mountModal(
-      <BreakoutRoom
-        {...{
-          isBreakoutRecordable,
-          isInvitation,
-        }}
-      />,
-    );
+    this.setState({isInvitation})
+    return this.setCreateBreakoutRoomModalIsOpen(true);
   }
 
   handleCaptionsClick() {
@@ -264,7 +259,7 @@ class UserOptions extends PureComponent {
             icon: 'user',
             label: intl.formatMessage(intlMessages.guestPolicyLabel),
             description: intl.formatMessage(intlMessages.guestPolicyDesc),
-            onClick: () => mountModal(<GuestPolicyContainer />),
+            onClick: () => this.setGuestPolicyModalIsOpen(true),
             dataTest: 'guestPolicyLabel',
           });
         }
@@ -330,38 +325,72 @@ class UserOptions extends PureComponent {
     return this.menuItems;
   }
 
+  setCreateBreakoutRoomModalIsOpen(value) {
+    this.setState({
+      isCreateBreakoutRoomModalOpen: value,
+    })
+  }
+  
+  setGuestPolicyModalIsOpen(value) {
+    this.setState({
+      isGuestPolicyModalOpen: value,
+    })
+  }
+
   render() {
-    const { intl, isRTL } = this.props;
+    const { intl, isRTL, isBreakoutRecordable } = this.props;
+    const { isCreateBreakoutRoomModalOpen, isInvitation,
+            isGuestPolicyModalOpen } = this.state;
 
     return (
-      <BBBMenu
-        trigger={(
-          <Styled.OptionsButton
-            label={intl.formatMessage(intlMessages.optionsLabel)}
-            data-test="manageUsers"
-            icon="settings"
-            color="light"
-            hideLabel
-            size="md"
-            circle
-            onClick={() => null}
-          />
-        )}
-        actions={this.renderMenuItems()}
-        opts={{
-          id: "user-options-dropdown-menu",
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: "true",
-          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-        }}
-      />
+      <>
+        <BBBMenu
+          trigger={(
+            <Styled.OptionsButton
+              label={intl.formatMessage(intlMessages.optionsLabel)}
+              data-test="manageUsers"
+              icon="settings"
+              color="light"
+              hideLabel
+              size="md"
+              circle
+              onClick={() => null}
+            />
+          )}
+          actions={this.renderMenuItems()}
+          opts={{
+            id: "user-options-dropdown-menu",
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: "true",
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+          }}
+        />
+        {isCreateBreakoutRoomModalOpen ? <CreateBreakoutRoomContainer 
+          {...{
+            isBreakoutRecordable,
+            isInvitation,
+            onRequestClose: () => this.setCreateBreakoutRoomModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setCreateBreakoutRoomModalIsOpen,
+            isOpen: isCreateBreakoutRoomModalOpen,
+          }}
+        /> : null}
+        {isGuestPolicyModalOpen ? <GuestPolicyContainer 
+          {...{
+            onRequestClose: () => this.setGuestPolicyModalIsOpen(false),
+            priority: "low",
+            setIsOpen: this.setGuestPolicyModalIsOpen,
+            isOpen: isGuestPolicyModalOpen,
+          }}
+        /> : null}
+      </>
     );
   }
 }
 
 UserOptions.propTypes = propTypes;
-export default withModalMounter(injectIntl(UserOptions));
+export default injectIntl(UserOptions);
