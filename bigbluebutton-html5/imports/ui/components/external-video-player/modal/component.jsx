@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import { isUrlValid } from '../service';
 import Settings from '/imports/ui/services/settings';
@@ -56,13 +55,13 @@ class ExternalVideoModal extends Component {
   startWatchingHandler() {
     const {
       startWatching,
-      closeModal,
+      setIsOpen,
     } = this.props;
 
     const { url } = this.state;
 
     startWatching(url.trim());
-    closeModal();
+    setIsOpen(false);
   }
 
   updateVideoUrlHandler(ev) {
@@ -88,7 +87,7 @@ class ExternalVideoModal extends Component {
   }
 
   render() {
-    const { intl, closeModal } = this.props;
+    const { intl, setIsOpen, isOpen } = this.props;
     const { url, sharing } = this.state;
     const { animations } = Settings.application;
 
@@ -96,9 +95,10 @@ class ExternalVideoModal extends Component {
 
     return (
       <Styled.ExternalVideoModal
-        onRequestClose={closeModal}
+        onRequestClose={() => setIsOpen(false)}
         contentLabel={intl.formatMessage(intlMessages.title)}
         title={intl.formatMessage(intlMessages.title)}
+        {...this.props}
       >
         <Styled.Content>
           <Styled.VideoUrl animations={animations}>
@@ -139,4 +139,4 @@ class ExternalVideoModal extends Component {
   }
 }
 
-export default injectIntl(withModalMounter(ExternalVideoModal));
+export default injectIntl(ExternalVideoModal);

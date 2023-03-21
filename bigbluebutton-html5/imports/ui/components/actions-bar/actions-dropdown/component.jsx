@@ -2,7 +2,6 @@ import _ from 'lodash';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/modal/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
@@ -109,9 +108,17 @@ class ActionsDropdown extends PureComponent {
     this.pollId = _.uniqueId('action-item-');
     this.takePresenterId = _.uniqueId('action-item-');
     this.selectUserRandId = _.uniqueId('action-item-');
+    this.state = {
+      isExternalVideoModalOpen: false,
+      isRandomUserSelectModalOpen: false,
+      isLayoutModalOpen: false, 
+    }
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
+    this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
+    this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
+    this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -123,8 +130,7 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleExternalVideoClick() {
-    const { mountModal } = this.props;
-    mountModal(<ExternalVideoModal />);
+    this.setExternalVideoModalIsOpen(true);
   }
 
   getAvailableActions() {
@@ -216,7 +222,7 @@ class ActionsDropdown extends PureComponent {
         icon: "user",
         label: intl.formatMessage(intlMessages.selectRandUserLabel),
         key: this.selectUserRandId,
-        onClick: () => mountModal(<RandomUserSelectContainer isSelectedUser={false} />),
+        onClick: () => this.setRandomUserSelectModalIsOpen(true),
         dataTest: "selectRandomUser",
       })
     }
@@ -236,7 +242,7 @@ class ActionsDropdown extends PureComponent {
         icon: 'send',
         label: intl.formatMessage(intlMessages.layoutModal),
         key: 'layoutModal',
-        onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+        onClick: () => this.setLayoutModalIsOpen(true),
         dataTest: 'layoutModal',
       });
     }
@@ -281,6 +287,16 @@ class ActionsDropdown extends PureComponent {
     return presentationItemElements;
   }
 
+  setExternalVideoModalIsOpen(value) {
+    this.setState({isExternalVideoModalOpen: value});
+  }
+  setRandomUserSelectModalIsOpen(value) {
+    this.setState({isRandomUserSelectModalOpen: value});
+  }
+  setLayoutModalIsOpen(value) {
+    this.setState({isLayoutModalOpen: value});
+  }
+
   render() {
     const {
       intl,
@@ -291,6 +307,9 @@ class ActionsDropdown extends PureComponent {
       isMobile,
       isRTL,
     } = this.props;
+
+    const { isExternalVideoModalOpen, 
+            isRandomUserSelectModalOpen, isLayoutModalOpen } = this.state;
 
     const availableActions = this.getAvailableActions();
     const availablePresentations = this.makePresentationItems();
@@ -305,35 +324,64 @@ class ActionsDropdown extends PureComponent {
     }
 
     return (
-      <BBBMenu
-        customStyles={!isMobile ? customStyles : null}
-        accessKey={OPEN_ACTIONS_AK}
-        trigger={
-          <Styled.HideDropdownButton
-            open={isDropdownOpen}
-            hideLabel
-            aria-label={intl.formatMessage(intlMessages.actionsLabel)}
-            data-test="actionsButton"
-            label={intl.formatMessage(intlMessages.actionsLabel)}
-            icon="plus"
-            color="primary"
-            size="lg"
-            circle
-            onClick={() => null}
-          />
-        }
-        actions={children}
-        opts={{
-          id: "actions-dropdown-menu",
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: "true",
-          anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-        }}
-      />
+      <>
+        <BBBMenu
+          customStyles={!isMobile ? customStyles : null}
+          accessKey={OPEN_ACTIONS_AK}
+          trigger={
+            <Styled.HideDropdownButton
+              open={isDropdownOpen}
+              hideLabel
+              aria-label={intl.formatMessage(intlMessages.actionsLabel)}
+              data-test="actionsButton"
+              label={intl.formatMessage(intlMessages.actionsLabel)}
+              icon="plus"
+              color="primary"
+              size="lg"
+              circle
+              onClick={() => null}
+            />
+          }
+          actions={children}
+          opts={{
+            id: "actions-dropdown-menu",
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: "true",
+            anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          }}
+        />
+        {isExternalVideoModalOpen ? <ExternalVideoModal 
+          {...{
+            onRequestClose: () => this.setExternalVideoModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setExternalVideoModalIsOpen,
+            isOpen: isExternalVideoModalOpen
+          }}
+        /> : null}
+        {isRandomUserSelectModalOpen ? <RandomUserSelectContainer 
+          isSelectedUser={false} 
+          {...{
+            onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setRandomUserSelectModalIsOpen,
+            isOpen: isRandomUserSelectModalOpen
+          }}
+        /> : null}
+        {isLayoutModalOpen ? <LayoutModalContainer 
+          {...this.props} 
+          isSelectedUser={false} 
+          {...{
+            onRequestClose: () => this.setLayoutModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setLayoutModalIsOpen,
+            isOpen: isLayoutModalOpen
+          }}
+        /> : null}
+      </>
     );
   }
 }
@@ -341,4 +389,4 @@ class ActionsDropdown extends PureComponent {
 ActionsDropdown.propTypes = propTypes;
 ActionsDropdown.defaultProps = defaultProps;
 
-export default withShortcutHelper(withModalMounter(ActionsDropdown), 'openActions');
+export default withShortcutHelper(ActionsDropdown, 'openActions');

@@ -74,7 +74,7 @@ const RandomUserSelectContainer = (props) => {
     />
   );
 };
-export default withModalMounter(withTracker(({ mountModal }) => {
+export default withTracker(() => {
   const viewerPool = Users.find({
     meetingId: Auth.meetingID,
     presenter: { $ne: true },
@@ -96,11 +96,10 @@ export default withModalMounter(withTracker(({ mountModal }) => {
   const clearRandomlySelectedUser = () => (SELECT_RANDOM_USER_ENABLED ? makeCall('clearRandomlySelectedUser') : null);
 
   return ({
-    closeModal: () => mountModal(null),
     toggleKeepModalOpen,
     numAvailableViewers: viewerPool.length,
     randomUserReq,
     clearRandomlySelectedUser,
     randomlySelectedUser: meeting.randomlySelectedUser,
   });
-})(RandomUserSelectContainer));
+})(RandomUserSelectContainer);

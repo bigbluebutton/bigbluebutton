@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import { makeCall } from '/imports/ui/services/api';
 import AboutContainer from '/imports/ui/components/about/container';
@@ -442,4 +441,4 @@ class SettingsDropdown extends PureComponent {
 }
 SettingsDropdown.propTypes = propTypes;
 SettingsDropdown.defaultProps = defaultProps;
-export default withShortcutHelper(withModalMounter(injectIntl(SettingsDropdown)), 'openOptions');
+export default withShortcutHelper(injectIntl(SettingsDropdown), 'openOptions');

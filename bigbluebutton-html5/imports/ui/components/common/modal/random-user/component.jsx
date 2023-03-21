@@ -42,7 +42,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  mountModal: PropTypes.func.isRequired,
   numAvailableViewers: PropTypes.number.isRequired,
   randomUserReq: PropTypes.func.isRequired,
 };
@@ -123,7 +122,7 @@ class RandomUserSelect extends Component {
       keepModalOpen,
       toggleKeepModalOpen,
       intl,
-      mountModal,
+      setIsOpen,
       numAvailableViewers,
       currentUser,
       clearRandomlySelectedUser,
@@ -193,10 +192,11 @@ class RandomUserSelect extends Component {
           onRequestClose={() => {
             if (currentUser.presenter) clearRandomlySelectedUser();
             toggleKeepModalOpen();
-            mountModal(null);
+            setIsOpen(false);
           }}
           contentLabel={intl.formatMessage(messages.ariaModalTitle)}
           title={title}
+          {...this.props}
         >
           {viewElement}
         </ModalSimple>
