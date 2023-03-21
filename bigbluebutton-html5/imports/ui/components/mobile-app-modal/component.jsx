@@ -107,6 +107,7 @@ class MobileAppModal extends Component {
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
+        {...this.props}
       >
         <Styled.Center>
           {`${intl.formatMessage(intlMessages.description)}`}

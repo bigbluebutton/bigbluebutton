@@ -43,9 +43,9 @@ export default {
           document.removeEventListener(closeEventName, closeEventHandler);
       };
     }, []);
-    console.log(props.priority)
+    const priority = props.priority ? props.priority : "low"
     return (<BaseModal
-      className={`modal-${props.priority}`}
+      portalClassName={`modal-${priority}`}
       parentSelector={()=>document.querySelector('#modals-container')}
       {...props}
     >

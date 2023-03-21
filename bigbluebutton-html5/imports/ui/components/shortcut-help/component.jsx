@@ -362,6 +362,7 @@ const ShortcutHelpComponent = (props) => {
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
       title={intl.formatMessage(intlMessages.title)}
+      {...props}
     >
       <Styled.SettingsTabs
         onSelect={(tab) => setSelectedTab(tab)}

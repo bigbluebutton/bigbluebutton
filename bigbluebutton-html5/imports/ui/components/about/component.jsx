@@ -38,7 +38,8 @@ const intlMessages = defineMessages({
   },
 });
 
-const AboutComponent = ({ intl, settings }) => {
+const AboutComponent = (props) => {
+  const { intl, settings } = props;
   const {
     html5ClientBuild,
     copyright,
@@ -61,6 +62,7 @@ const AboutComponent = ({ intl, settings }) => {
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),
       }}
+      {...props}
     >
       {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
       <br />

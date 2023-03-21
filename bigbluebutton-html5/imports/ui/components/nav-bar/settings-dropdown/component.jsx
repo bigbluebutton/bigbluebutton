@@ -104,7 +104,6 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
   noIOSFullscreen: PropTypes.bool,
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
@@ -135,6 +134,11 @@ class SettingsDropdown extends PureComponent {
     super(props);
 
     this.state = {
+      isAboutModalOpen: false,
+      isShortcutHelpModalOpen: false,
+      isSettingsMenuModalOpen: false,
+      isEndMeetingConfirmationModalOpen: false,
+      isMobileAppModalOpen:false,
       isFullscreen: false,
     };
 
@@ -143,6 +147,9 @@ class SettingsDropdown extends PureComponent {
 
     this.leaveSession = this.leaveSession.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
+    this.setSettingsMenuModalIsOpen = this.setSettingsMenuModalIsOpen.bind(this);
+    this.setEndMeetingConfirmationModalIsOpen = this.setEndMeetingConfirmationModalIsOpen.bind(this);
+    this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
   }
 
   componentDidMount() {
@@ -201,9 +208,29 @@ class SettingsDropdown extends PureComponent {
     Session.set('codeError', this.LOGOUT_CODE);
   }
 
+  setAboutModalIsOpen(value) {
+    this.setState({isAboutModalOpen: value})
+  }
+  
+  setShortcutHelpModalIsOpen(value) {
+    this.setState({isShortcutHelpModalOpen: value})
+  }
+  
+  setSettingsMenuModalIsOpen(value) {
+    this.setState({isSettingsMenuModalOpen: value})
+  }
+  
+  setEndMeetingConfirmationModalIsOpen(value) {
+    this.setState({isEndMeetingConfirmationModalOpen: value})
+  }
+  
+  setMobileAppModalIsOpen(value) {
+    this.setState({isMobileAppModalOpen: value})
+  }
+
   renderMenuItems() {
     const {
-      intl, mountModal, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
+      intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile,
     } = this.props;
 
@@ -228,7 +255,7 @@ class SettingsDropdown extends PureComponent {
         dataTest: 'settings',
         label: intl.formatMessage(intlMessages.settingsLabel),
         description: intl.formatMessage(intlMessages.settingsDesc),
-        onClick: () => mountModal(<SettingsMenuContainer />),
+        onClick: () => this.setSettingsMenuModalIsOpen(true),
       },
       {
         key: 'list-item-about',
@@ -236,7 +263,7 @@ class SettingsDropdown extends PureComponent {
         dataTest: 'aboutModal',
         label: intl.formatMessage(intlMessages.aboutLabel),
         description: intl.formatMessage(intlMessages.aboutDesc),
-        onClick: () => mountModal(<AboutContainer />),
+        onClick: () => this.setAboutModalIsOpen(true),
       },
     );
 
@@ -263,7 +290,7 @@ class SettingsDropdown extends PureComponent {
           key: 'list-item-help',
           icon: 'popout_window',
           label: intl.formatMessage(intlMessages.openAppLabel),
-          onClick: () => mountModal(<MobileAppModal />),
+          onClick: () => this.setMobileAppModalIsOpen(true),
          }
       );
     }
@@ -288,7 +315,7 @@ class SettingsDropdown extends PureComponent {
         icon: 'shortcuts',
         label: intl.formatMessage(intlMessages.hotkeysLabel),
         description: intl.formatMessage(intlMessages.hotkeysDesc),
-        onClick: () => mountModal(<ShortcutHelpComponent />),
+        onClick: () => this.setShortcutHelpModalIsOpen(true),
         divider: true,
       },
     );
@@ -316,7 +343,7 @@ class SettingsDropdown extends PureComponent {
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
-          onClick: () => mountModal(<EndMeetingConfirmationContainer />),
+          onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
         },
       );
     }
@@ -333,39 +360,83 @@ class SettingsDropdown extends PureComponent {
       isRTL,
     } = this.props;
 
+    const { isAboutModalOpen, isShortcutHelpModalOpen, isSettingsMenuModalOpen,
+      isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, } = this.state;
+
     const customStyles = { top: '1rem' };
 
     return (
-      <BBBMenu
-        accessKey={OPEN_OPTIONS_AK}
-        customStyles={!isMobile ? customStyles : null}
-        trigger={(
-          <Styled.DropdownButton
-            state={isDropdownOpen ? 'open' : 'closed'}
-            label={intl.formatMessage(intlMessages.optionsLabel)}
-            icon="more"
-            data-test="optionsButton"
-            color="dark"
-            size="md"
-            circle
-            hideLabel
-            // FIXME: Without onClick react proptypes keep warning
-            // even after the DropdownTrigger inject an onClick handler
-            onClick={() => null}
-          />
-        )}
-        actions={this.renderMenuItems()}
-        opts={{
-          id: 'app-settings-dropdown-menu',
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: 'true',
-          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
-          transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
-        }}
-      />
+      <>
+        <BBBMenu
+          accessKey={OPEN_OPTIONS_AK}
+          customStyles={!isMobile ? customStyles : null}
+          trigger={(
+            <Styled.DropdownButton
+              state={isDropdownOpen ? 'open' : 'closed'}
+              label={intl.formatMessage(intlMessages.optionsLabel)}
+              icon="more"
+              data-test="optionsButton"
+              color="dark"
+              size="md"
+              circle
+              hideLabel
+              // FIXME: Without onClick react proptypes keep warning
+              // even after the DropdownTrigger inject an onClick handler
+              onClick={() => null}
+            />
+          )}
+          actions={this.renderMenuItems()}
+          opts={{
+            id: 'app-settings-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
+            transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+          }}
+        />
+        {isAboutModalOpen ? <AboutContainer 
+          {...{
+            onRequestClose: () => this.setAboutModalIsOpen(false),
+            priority: "low",
+            setIsOpen: this.setAboutModalIsOpen,
+            isOpen: isAboutModalOpen
+          }}
+        /> : null}
+        {isShortcutHelpModalOpen ? <ShortcutHelpComponent 
+          {...{
+            onRequestClose: () => this.setShortcutHelpModalIsOpen(false),
+            priority: "low",
+            setIsOpen: this.setShortcutHelpModalIsOpen,
+            isOpen: isShortcutHelpModalOpen
+          }}
+        /> : null}
+        {isSettingsMenuModalOpen ? <SettingsMenuContainer 
+          {...{
+            onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setSettingsMenuModalIsOpen,
+            isOpen: isSettingsMenuModalOpen
+          }}
+        /> : null}
+        {isEndMeetingConfirmationModalOpen ? <EndMeetingConfirmationContainer 
+          {...{
+            priority: "medium",
+            setIsOpen: this.setEndMeetingConfirmationModalIsOpen,
+            isOpen: isEndMeetingConfirmationModalOpen
+          }}
+        /> : null}
+        {isMobileAppModalOpen ? <MobileAppModal 
+          {...{
+            onRequestClose: () => this.setMobileAppModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setMobileAppModalIsOpen,
+            isOpen: isMobileAppModalOpen
+          }}
+        /> : null}
+      </>
     );
   }
 }

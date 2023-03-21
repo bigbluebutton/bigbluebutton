@@ -94,7 +94,6 @@ const propTypes = {
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
-  mountModal: PropTypes.func.isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
 };
 
@@ -260,7 +259,7 @@ class Settings extends Component {
   render() {
     const {
       intl,
-      mountModal,
+      setIsOpen,
     } = this.props;
     const {
       current,
@@ -278,10 +277,10 @@ class Settings extends Component {
               document.body.classList.remove(`lang-${language}`);
             }
 
-            /* We need to use mountModal(null) here to prevent submenu state updates,
+            /* We need to use setIsOpen(false) here to prevent submenu state updates,
             *  from re-opening the modal.
             */
-            mountModal(null);
+            setIsOpen(false);
           },
           label: intl.formatMessage(intlMessages.SaveLabel),
           description: intl.formatMessage(intlMessages.SaveLabelDesc),
@@ -290,11 +289,12 @@ class Settings extends Component {
           callback: () => {
             Settings.setHtmlFontSize(saved.application.fontSize);
             document.getElementsByTagName('html')[0].lang = saved.application.locale;
-            mountModal(null);
+            setIsOpen(false);
           },
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}
+        {...this.props}
       >
         {this.renderModalContent()}
       </ModalFullscreen>
@@ -303,4 +303,4 @@ class Settings extends Component {
 }
 
 Settings.propTypes = propTypes;
-export default withModalMounter(injectIntl(Settings));
+export default injectIntl(Settings);
