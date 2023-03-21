@@ -35,10 +35,8 @@ function App() {
     setSessionToken(sessionToken);
     setJoining(false);
 
-    // const cookieResponse = await fetch("https://bbb26.bbbvm.imdt.com.br/graphql-expose-cookie", fetchOptions);
-    // const cookie = await cookieResponse.text();
     const wsLink = new WebSocketLink(
-      new SubscriptionClient(`wss://bbb26.bbbvm.imdt.com.br/v1/graphql`, {
+      new SubscriptionClient(`wss://${window.location.hostname}/v1/graphql`, {
         reconnect: true,
         timeout: 30000,
         connectionParams: {

@@ -49,4 +49,4 @@ curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
 echo ""
 echo ""
 echo "Bbb-graphql-server Installed!"
-echo "http://bbb26.bbbvm.imdt.com.br:8080/console"
+echo "http://$(hostname -f):8080/console"
