@@ -266,7 +266,9 @@ const PresentationMenu = (props) => {
     }
     
     const {isMobile, isTablet} = deviceInfo;
-    if (!isMobile && !isTablet && props.amIPresenter) {
+    if (!isMobile && !isTablet && props.amIPresenter && !props.darkTheme) {
+      //Currently the detach presentation function does not work on darkTheme
+      // (spreadArray not defined for document.styleSheets).
       menuItems.push(
         {
           key: 'list-item-detachscreen',
