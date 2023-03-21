@@ -836,6 +836,7 @@ class Presentation extends PureComponent {
       layoutContextDispatch,
       isPresentationDetached,
       togglePresentationDetached,
+      darkTheme,
     } = this.props;
     const { tldrawAPI } = this.state;
 
@@ -849,6 +850,7 @@ class Presentation extends PureComponent {
         isPresentationDetached={isPresentationDetached}
         presentationWindow={presentationWindow}
         togglePresentationDetached={togglePresentationDetached}
+        darkTheme={darkTheme}
       />
     );
   }
