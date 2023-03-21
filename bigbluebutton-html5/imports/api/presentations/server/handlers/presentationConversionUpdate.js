@@ -105,17 +105,19 @@ export default async function handlePresentationConversionUpdate({ body }, meeti
     };
   }
 
-
   try {
-    const isPresentationPersisted = await Presentations.find(selector).fetchAsync().some((item) => {
+    const presentations = await Presentations.find(selector).fetchAsync();
+    const isPresentationPersisted = await Promise.all(presentations.map(async (item) => {
       if (item.temporaryPresentationId && temporaryPresentationId) {
         return item.temporaryPresentationId === temporaryPresentationId;
-      } else{
+      } else {
         return item.id === presentationId;
       }
-    });
+    }));
+    const isPersisted = isPresentationPersisted.some((item) => item === true);
+    
     let insertedID;
-    if (!isPresentationPersisted) {
+    if (!isPersisted) {
       const { insertedId } = await Presentations.upsertAsync(selector, modifier);
       insertedID = insertedId;
     } else {
@@ -123,7 +125,7 @@ export default async function handlePresentationConversionUpdate({ body }, meeti
       const { insertedId } = await Presentations.updateAsync(selector, modifier);
       insertedID = insertedId;
     }
-
+  
     if (insertedID) {
       Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
     } else {
