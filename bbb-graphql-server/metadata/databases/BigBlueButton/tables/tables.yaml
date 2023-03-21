@@ -1,0 +1,7 @@
+- "!include public_user.yaml"
+- "!include public_user_camera.yaml"
+- "!include public_user_microphone.yaml"
+- "!include public_v_user_breakoutRoom.yaml"
+- "!include public_v_user_camera.yaml"
+- "!include public_v_user_microphone.yaml"
+- "!include public_v_user_whiteboard.yaml"

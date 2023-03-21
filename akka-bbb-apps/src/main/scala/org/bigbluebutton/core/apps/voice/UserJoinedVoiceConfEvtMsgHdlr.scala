@@ -8,6 +8,8 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core2.MeetingStatus2x
 
+import scala.util.Random
+
 trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   this: MeetingActor =>
 
@@ -18,6 +20,10 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
+
+    val colorOptions = List("#7b1fa2", "#6a1b9a", "#4a148c", "#5e35b1", "#512da8", "#4527a0", "#311b92",
+      "#3949ab", "#303f9f", "#283593", "#1a237e", "#1976d2", "#1565c0", "#0d47a1", "#0277bd", "#01579b")
+    val userColor = colorOptions(Random.nextInt(colorOptions.length))
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
       val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
@@ -32,9 +38,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, "",
-        "", true, true, GuestStatus.WAIT, true, false)
-      RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
+        msg.body.callerIdName, Roles.VIEWER_ROLE, "", "", userColor,
+        true, true, GuestStatus.WAIT, true, false)
+      RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
     def registerUserInUsers2x() = {
@@ -48,9 +54,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         guestStatus = GuestStatus.WAIT,
         emoji = "none",
         pin = false,
+        mobile = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
+        color = userColor,
         clientType = "",
         pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)

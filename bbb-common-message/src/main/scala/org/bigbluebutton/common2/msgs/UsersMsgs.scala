@@ -88,11 +88,22 @@ case class UserJoinedMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
-                                       guest: Boolean, authed: Boolean, guestStatus: String,
-                                       emoji:     String,
-                                       pin:       Boolean,
-                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
+case class UserJoinedMeetingEvtMsgBody(
+    intId:       String,
+    extId:       String,
+    name:        String,
+    role:        String,
+    guest:       Boolean,
+    authed:      Boolean,
+    guestStatus: String,
+    emoji:       String,
+    pin:         Boolean,
+    presenter:   Boolean,
+    locked:      Boolean,
+    avatar:      String,
+    color:       String,
+    clientType:  String
+)
 
 /**
  * Sent by client to get all users in a meeting.
@@ -188,6 +199,20 @@ case class ChangeUserEmojiCmdMsgBody(userId: String, emoji: String)
 object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
+
+/**
+ * Sent from client about a user mobile flag.
+ */
+object ChangeUserMobileFlagReqMsg { val NAME = "ChangeUserMobileFlagReqMsg" }
+case class ChangeUserMobileFlagReqMsg(header: BbbClientMsgHeader, body: ChangeUserMobileFlagReqMsgBody) extends StandardMsg
+case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
+
+/**
+ * Sent to all clients about a user mobile flag.
+ */
+object UserMobileFlagChangedEvtMsg { val NAME = "UserMobileFlagChangedEvtMsg" }
+case class UserMobileFlagChangedEvtMsg(header: BbbClientMsgHeader, body: UserMobileFlagChangedEvtMsgBody) extends BbbCoreMsg
+case class UserMobileFlagChangedEvtMsgBody(userId: String, mobile: Boolean)
 
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg

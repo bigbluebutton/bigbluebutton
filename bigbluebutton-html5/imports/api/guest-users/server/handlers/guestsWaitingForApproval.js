@@ -4,6 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import GuestUsers from '/imports/api/guest-users/';
 import updatePositionInWaitingQueue from '../methods/updatePositionInWaitingQueue';
 
+//TODO receive color from akka-apps
 const COLOR_LIST = [
   '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
   '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',

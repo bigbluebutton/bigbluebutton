@@ -4,6 +4,7 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.db.{ UserWhiteboardDAO, UserWhiteboardDbModel }
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -106,6 +107,7 @@ class WhiteboardModel extends SystemConfiguration {
   def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
+    UserWhiteboardDAO.updateMultiuser(newWb)
     saveWhiteboard(newWb)
   }
 

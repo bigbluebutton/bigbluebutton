@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.web.controllers
 
+import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.util.ParamsUtil
@@ -52,6 +53,52 @@ class ConnectionController {
       }
     } catch (IOException e) {
       log.error("Error while authenticating connection.\n" + e.getMessage())
+    }
+  }
+
+  def checkGraphqlAuthorization = {
+    try {
+      if(!request.getHeader("User-Agent").startsWith('hasura-graphql-engine')) {
+        throw new Exception("Invalid User Agent")
+      }
+
+      def sessionToken = request.getHeader("x-session-token")
+
+      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+
+      response.addHeader("Cache-Control", "no-cache")
+
+      if (userSession != null && !isSessionTokenInvalid) {
+        response.setStatus(200)
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder {
+              "response" "authorized"
+              "x-hasura-role" "bbb_client"
+              "X-Hasura-UserId" userSession.internalUserId
+              "X-Hasura-MeetingId" userSession.meetingID
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
+        }
+      } else {
+        throw new Exception("Invalid User Session")
+      }
+    } catch (Exception e) {
+      log.error("Error while authenticating graphql connection.\n" + e.getMessage())
+      response.setStatus(401)
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder {
+            "response" "unauthorized"
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
     }
   }
 

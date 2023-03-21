@@ -1,0 +1,27 @@
+table:
+  name: v_user_microphone
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - meetingId
+        - voiceUserId
+        - userId
+        - callerName
+        - callerNum
+        - callingWith
+        - joined
+        - listenOnly
+        - muted
+        - spoke
+        - talking
+        - floor
+        - lastFloorTime
+        - voiceConf
+        - color
+        - endTime
+        - startTime
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
