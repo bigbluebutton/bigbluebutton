@@ -8,8 +8,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
     title: 'BigBlueButton',
     tagline: 'Official Documentation',
-    url: 'https://bigbluebutton.github.io/',
-    baseUrl: '/bigbluebutton/',
+    url: 'https://docs.bigbluebutton.org/',
+    baseUrl: '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
