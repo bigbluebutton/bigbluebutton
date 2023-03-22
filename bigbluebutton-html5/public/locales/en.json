@@ -227,6 +227,7 @@
     "app.screenshare.screenshareRetryOtherEnvError": "Code {0}. Could not share the screen. Try again using a different browser or device.",
     "app.screenshare.screenshareUnsupportedEnv": "Code {0}. Browser is not supported. Try again using a different browser or device.",
     "app.screenshare.screensharePermissionError": "Code {0}. Permission to capture the screen needs to be granted.",
+    "app.screenshare.screenshareToastHelpLabel": "Learn more", 
     "app.cameraAsContent.presenterLoadingLabel": "Your camera is loading",
     "app.cameraAsContent.viewerLoadingLabel": "The presenter's camera is loading",
     "app.cameraAsContent.presenterSharingLabel": "You are now presenting your camera",
