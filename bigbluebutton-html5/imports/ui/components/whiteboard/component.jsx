@@ -690,6 +690,7 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
       tldrawAPI.zoomTo(0);
+      tldrawAPI.resetHistory();
     }
   }, [curPres?.id]);
 
@@ -800,14 +801,21 @@ export default function Whiteboard(props) {
       app.setHoveredId = () => {};
     }
 
-    if (curPageId) {
-      app.changePage(curPageId);
-      setIsMounting(true);
-    }
-
     if (history) {
       app.replaceHistory(history);
     }
+
+    if (curPageId) {
+      app.patchState(
+        {
+         appState: {
+            currentPageId: curPageId,
+          },
+        },
+      );
+      setIsMounting(true);
+    }
+      
   };
 
   const onPatch = (e, t, reason) => {
