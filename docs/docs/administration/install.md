@@ -8,7 +8,7 @@ keywords:
 - install
 ---
 
-BigBlueButton 2.6 is under active development. We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
+We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
 ## Before you install
 

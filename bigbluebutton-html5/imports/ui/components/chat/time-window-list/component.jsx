@@ -37,6 +37,22 @@ const intlMessages = defineMessages({
     description: 'aria-label used when chat log is empty',
   },
 });
+
+const updateChatSemantics = () => {
+  setTimeout(() => {
+    const msgListItem = document.querySelector('span[data-test="msgListItem"]');
+    if (msgListItem) {
+      const virtualizedGridInnerScrollContainer = msgListItem.parentElement;
+      const virtualizedGrid = virtualizedGridInnerScrollContainer.parentElement;
+      virtualizedGridInnerScrollContainer.setAttribute('role', 'list');
+      virtualizedGridInnerScrollContainer.setAttribute('tabIndex', 0);
+      virtualizedGrid.removeAttribute('tabIndex');
+      virtualizedGrid.removeAttribute('aria-label');
+      virtualizedGrid.removeAttribute('aria-readonly');
+    }
+  }, 300);
+}
+
 class TimeWindowList extends PureComponent {
   constructor(props) {
     super(props);
@@ -82,6 +98,8 @@ class TimeWindowList extends PureComponent {
     this.setState({
       scrollPosition: scrollProps,
     });
+
+    updateChatSemantics();
   }
 
   componentDidUpdate(prevProps) {
@@ -159,15 +177,7 @@ class TimeWindowList extends PureComponent {
       this.listRef.forceUpdateGrid();
     }
 
-    const msgListItem = document.querySelector('span[data-test="msgListItem"]');
-    if (msgListItem) {
-      const virtualizedGridInnerScrollContainer = msgListItem.parentElement;
-      const virtualizedGrid = virtualizedGridInnerScrollContainer.parentElement;
-      virtualizedGridInnerScrollContainer.setAttribute('role', 'list');
-      virtualizedGridInnerScrollContainer.setAttribute('tabIndex', '0');
-      virtualizedGrid.removeAttribute('tabIndex');
-      virtualizedGrid.removeAttribute('aria-label');
-    }
+    updateChatSemantics();
   }
 
   handleScrollUpdate(position, target) {
