@@ -175,7 +175,7 @@ class PushLayoutEngine extends React.Component {
       });
     }
 
-    if (meetingLayout === "custom" && !isPresenter) {
+    if (meetingLayout === "custom" && selectedLayout === "custom" && !isPresenter) {
 
       if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
