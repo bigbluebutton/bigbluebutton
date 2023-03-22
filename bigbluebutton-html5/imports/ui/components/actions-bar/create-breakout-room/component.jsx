@@ -1304,7 +1304,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   render() {
-    const { intl, isUpdate, priority } = this.props;
+    const { intl, isUpdate } = this.props;
     const {
       preventClosing,
       leastOneUserIsValid,

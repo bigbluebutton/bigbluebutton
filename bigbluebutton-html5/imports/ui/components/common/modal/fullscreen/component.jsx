@@ -60,7 +60,7 @@ class ModalFullscreen extends PureComponent {
   }
 
   handleAction(name) {
-    const { confirm, dismiss, modalHide } = this.props;
+    const { confirm, dismiss } = this.props;
     const { callback: callBackConfirm } = confirm;
     const { callback: callBackDismiss } = dismiss;
 

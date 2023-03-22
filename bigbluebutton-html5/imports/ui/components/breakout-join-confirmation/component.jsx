@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
@@ -49,7 +48,6 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   breakout: PropTypes.objectOf(Object).isRequired,
   getURL: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
   breakoutURL: PropTypes.string.isRequired,
   isFreeJoin: PropTypes.bool.isRequired,
   voiceUserJoined: PropTypes.bool.isRequired,
@@ -97,7 +95,7 @@ class BreakoutJoinConfirmation extends Component {
   handleJoinBreakoutConfirmation() {
     const {
       getURL,
-      mountModal,
+      setIsOpen,
       breakoutURL,
       isFreeJoin,
       voiceUserJoined,
@@ -133,7 +131,7 @@ class BreakoutJoinConfirmation extends Component {
 
     Session.set('lastBreakoutIdOpened', selectValue);
     window.open(url);
-    mountModal(null);
+    setIsOpen(false);
   }
 
   async fetchJoinURL(selectValue) {
@@ -201,7 +199,7 @@ class BreakoutJoinConfirmation extends Component {
   }
 
   render() {
-    const { intl, breakoutName, isFreeJoin } = this.props;
+    const { intl, breakoutName, isFreeJoin, setIsOpen } = this.props;
     const { waiting } = this.state;
 
     return (
@@ -215,9 +213,11 @@ class BreakoutJoinConfirmation extends Component {
           disabled: waiting,
         }}
         dismiss={{
+          callback: () => setIsOpen(false),
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
+        {...this.props}
       >
         { isFreeJoin ? this.renderSelectMeeting() : `${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
       </ModalFullscreen>
@@ -225,6 +225,6 @@ class BreakoutJoinConfirmation extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(BreakoutJoinConfirmation));
+export default injectIntl(BreakoutJoinConfirmation);
 
 BreakoutJoinConfirmation.propTypes = propTypes;
