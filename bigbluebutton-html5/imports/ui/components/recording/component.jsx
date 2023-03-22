@@ -74,6 +74,7 @@ class RecordingComponent extends PureComponent {
         title={title}
         description={description}
         disableConfirmButton={!isMeteorConnected}
+        {...this.props}
       />
     );
   }

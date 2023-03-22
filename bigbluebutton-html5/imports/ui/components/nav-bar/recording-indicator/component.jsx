@@ -51,7 +51,6 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   record: PropTypes.bool,
   recording: PropTypes.bool,
-  mountModal: PropTypes.func.isRequired,
   time: PropTypes.number,
   allowStartStopRecording: PropTypes.bool.isRequired,
 };
@@ -69,10 +68,14 @@ class RecordingIndicator extends PureComponent {
     this.state = {
       time: (props.time ? props.time : 0),
       shouldNotify: false,
+      isRecordingNotifyModalOpen: false,
+      isRecordingModalOpen: false,
     };
 
     this.incrementTime = this.incrementTime.bind(this);
     this.toggleShouldNotify = this.toggleShouldNotify.bind(this);
+    this.setRecordingNotifyModalIsOpen = this.setRecordingNotifyModalIsOpen.bind(this);
+    this.setRecordingModalIsOpen = this.setRecordingModalIsOpen.bind(this);
   }
 
   toggleShouldNotify() {
@@ -89,7 +92,7 @@ class RecordingIndicator extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { recording, mountModal, getModal, recordingNotificationEnabled } = this.props;
+    const { recording, getModal, recordingNotificationEnabled } = this.props;
     const { shouldNotify } = this.state;
 
     if (!recording) {
@@ -108,7 +111,7 @@ class RecordingIndicator extends PureComponent {
   
       // should only display notification modal when other modals are closed
       if (shouldNotify && !isModalOpen) {
-        mountModal(<RecordingNotifyContainer toggleShouldNotify={this.toggleShouldNotify} />);
+        this.setRecordingNotifyModalIsOpen(true);
       }  
     }
   }
@@ -124,11 +127,18 @@ class RecordingIndicator extends PureComponent {
     }
   }
 
+  setRecordingNotifyModalIsOpen(value) {
+    this.setState({ isRecordingNotifyModalOpen: value });
+  }
+  
+  setRecordingModalIsOpen(value) {
+    this.setState({ isRecordingModalOpen: value });
+  }
+
   render() {
     const {
       record,
       recording,
-      mountModal,
       amIModerator,
       intl,
       allowStartStopRecording,
@@ -137,7 +147,7 @@ class RecordingIndicator extends PureComponent {
       isPhone,
     } = this.props;
 
-    const { time } = this.state;
+    const { time, isRecordingNotifyModalOpen, isRecordingModalOpen } = this.state;
     if (!record) return null;
 
     if (!this.interval && recording) {
@@ -163,7 +173,7 @@ class RecordingIndicator extends PureComponent {
       if (!micUser && !recording) {
         notify(intl.formatMessage(intlMessages.emptyAudioBrdige), 'error', 'warning');
       }
-      mountModal(<RecordingContainer amIModerator={amIModerator} />);
+      this.setRecordingModalIsOpen(true);
       document.activeElement.blur();
     };
 
@@ -223,36 +233,55 @@ class RecordingIndicator extends PureComponent {
     const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
 
     return (
-      <Fragment>
-        {record
-          ? <Styled.PresentationTitleSeparator aria-hidden>|</Styled.PresentationTitleSeparator>
-          : null}
-        <Styled.RecordingIndicator data-test="recordingIndicator">
-          {showButton
-            ? recordingButton
+      <>
+        <Fragment>
+          {record
+            ? <Styled.PresentationTitleSeparator aria-hidden>|</Styled.PresentationTitleSeparator>
             : null}
+          <Styled.RecordingIndicator data-test="recordingIndicator">
+            {showButton
+              ? recordingButton
+              : null}
 
-          {showButton ? null : (
-            <Tooltip
-              title={`${intl.formatMessage(recording
-                ? intlMessages.notificationRecordingStart
-                : intlMessages.notificationRecordingStop)}`}
-            >
-              <Styled.RecordingStatusViewOnly
-                aria-label={`${intl.formatMessage(recording
+            {showButton ? null : (
+              <Tooltip
+                title={`${intl.formatMessage(recording
                   ? intlMessages.notificationRecordingStart
                   : intlMessages.notificationRecordingStop)}`}
-                  recording={recording}
               >
-                {recordingIndicatorIcon}
+                <Styled.RecordingStatusViewOnly
+                  aria-label={`${intl.formatMessage(recording
+                    ? intlMessages.notificationRecordingStart
+                    : intlMessages.notificationRecordingStop)}`}
+                    recording={recording}
+                >
+                  {recordingIndicatorIcon}
 
-                {recording
-                  ? <Styled.PresentationTitle>{humanizeSeconds(time)}</Styled.PresentationTitle> : null}
-              </Styled.RecordingStatusViewOnly>
-            </Tooltip>
-          )}
-        </Styled.RecordingIndicator>
-      </Fragment>
+                  {recording
+                    ? <Styled.PresentationTitle>{humanizeSeconds(time)}</Styled.PresentationTitle> : null}
+                </Styled.RecordingStatusViewOnly>
+              </Tooltip>
+            )}
+          </Styled.RecordingIndicator>
+        </Fragment>
+        {isRecordingNotifyModalOpen ? <RecordingNotifyContainer 
+          toggleShouldNotify={this.toggleShouldNotify}
+          {...{
+            priority: "high",
+            setIsOpen: this.setRecordingNotifyModalIsOpen,
+            isOpen: isRecordingNotifyModalOpen
+          }}
+        /> : null}
+        {isRecordingModalOpen ? <RecordingContainer 
+          amIModerator={amIModerator}
+          {...{
+            onRequestClose: () => this.setRecordingModalIsOpen(false),
+            priority: "high",
+            setIsOpen: this.setRecordingModalIsOpen,
+            isOpen: isRecordingModalOpen
+          }}
+        /> : null}
+      </>
     );
   }
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { makeCall } from '/imports/ui/services/api';
 import { RecordMeetings } from '/imports/api/meetings';
 import Auth from '/imports/ui/services/auth';
@@ -8,13 +7,13 @@ import RecordingComponent from './component';
 
 const RecordingContainer = props => <RecordingComponent {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal }) => {
+export default withTracker(({ setIsOpen }) => {
   const { recording, time } = RecordMeetings.findOne({ meetingId: Auth.meetingID });
 
   return ({
     toggleRecording: () => {
       makeCall('toggleRecording');
-      mountModal(null);
+      setIsOpen(false);
     },
 
     recordingStatus: recording,
@@ -22,4 +21,4 @@ export default withModalMounter(withTracker(({ mountModal }) => {
     isMeteorConnected: Meteor.status().connected,
 
   });
-})(RecordingContainer));
+})(RecordingContainer);

@@ -18,7 +18,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  mountModal: PropTypes.func.isRequired,
   amIModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
@@ -123,9 +122,10 @@ class ActionsDropdown extends PureComponent {
 
   componentDidUpdate(prevProps) {
     const { amIPresenter: wasPresenter } = prevProps;
-    const { amIPresenter: isPresenter, mountModal } = this.props;
+    const { amIPresenter: isPresenter } = this.props;
+    const { setExternalVideoModalIsOpen,  } = this.state;
     if (wasPresenter && !isPresenter) {
-      mountModal(null);
+      setExternalVideoModalIsOpen(false);
     }
   }
 
@@ -143,7 +143,6 @@ class ActionsDropdown extends PureComponent {
       isPollingEnabled,
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
-      mountModal,
       layoutContextDispatch,
       setMeetingLayout,
       setPushLayout,
