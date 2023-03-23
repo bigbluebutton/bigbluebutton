@@ -37,7 +37,7 @@ You'll see a list of languages and components of BigBlueButton ready for transla
 
 Up to BigBlueButton 2.5 the script used for pulling the locales is located in the `bigbluebutton-html5` directory
 
-https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-html5/transifex.sh
+https://github.com/bigbluebutton/bigbluebutton/blob/v2.5.x-release/bigbluebutton-html5/transifex.sh
 
 You can trigger the download of the latest strings by running a command of the format `./transifex.sh pt_BR de` (passing the code for the languages you'd like to download)
 
