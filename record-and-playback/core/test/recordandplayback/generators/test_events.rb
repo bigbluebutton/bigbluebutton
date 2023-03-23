@@ -100,7 +100,6 @@ class TestEvents < Minitest::Test
     assert_equal('FRED', chat[:sender])
     assert_equal('hello', chat[:message])
     assert_nil(chat.fetch(:date))
-    assert_equal(0, chat[:text_color])
     chat = chats_enum.next
     assert_equal(42_388, chat[:in])
     assert_nil(chat.fetch(:out))
@@ -125,7 +124,6 @@ class TestEvents < Minitest::Test
     assert_equal('Xhesika De Lange', chat[:sender])
     assert_equal('Public chat 1', chat[:message])
     assert_nil(chat.fetch(:date))
-    assert_equal(0, chat[:text_color])
     chat = chats_enum.next
     assert_equal(972_022, chat[:in])
     assert_equal(988_028, chat[:out])
@@ -233,8 +231,6 @@ class TestEvents < Minitest::Test
     assert_equal(148_701, chat[:out])
     assert_equal('w_kmm96j1as24f', chat[:sender_id])
     assert_equal('Mario', chat[:sender])
-    assert_equal('#7b1fa2', chat[:avatar_color])
-    assert_nil(chat.fetch(:text_color))
     assert_equal(DateTime.rfc3339('2021-08-31T18:06:14.330+00:00'), chat[:date])
     # rubocop:disable Layout/LineLength
     assert_equal(
@@ -248,8 +244,6 @@ class TestEvents < Minitest::Test
     assert_nil(chat.fetch(:out))
     assert_equal('w_vk0ebqjxox9d', chat[:sender_id])
     assert_equal('Anton G', chat[:sender])
-    assert_equal('#0277bd', chat[:avatar_color])
-    assert_nil(chat.fetch(:text_color))
     assert_equal(DateTime.rfc3339('2021-08-31T18:26:38.332+00:00'), chat[:date])
     assert_equal('Nice!', chat[:message])
   end

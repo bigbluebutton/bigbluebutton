@@ -54,10 +54,11 @@ async function waitAndClearNotification(testPage) {
 }
 
 async function waitAndClearDefaultPresentationNotification(testPage) {
-  await testPage.waitForSelector(e.whiteboard,ELEMENT_WAIT_LONGER_TIME);
+  await testPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
   const hasCurrentPresentationToast = await testPage.checkElement(e.currentPresentationToast);
   if (hasCurrentPresentationToast) {
-    await waitAndClearNotification(testPage);
+    await testPage.waitAndClick(e.currentPresentationToast, ELEMENT_WAIT_LONGER_TIME);
+    await testPage.wasRemoved(e.currentPresentationToast);
   }
 }
 

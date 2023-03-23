@@ -54,7 +54,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitForSelector(e.restartPoll);
 
-    await this.modPage.hasElement(e.wbTypedText);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
+    await this.userPage.hasElement(e.wbDrawnRectangle);
   }
 
   async stopPoll() {
@@ -80,7 +81,7 @@ class Polling extends MultiUsers {
   async pollResultsOnWhiteboard() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
-    await this.modPage.hasElement(e.wbTypedText);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
   }
 
   async pollResultsInDifferentPresentation() {
@@ -91,7 +92,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
     // Check poll results
-    await this.modPage.hasElement(e.wbTypedText);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
   }
 
   async manageResponseChoices() {
@@ -195,8 +196,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.startPoll);
     await this.modPage.hasText(e.currentPollQuestion, /Test/);
 
-    await this.userPage.waitAndClick(e.pollAnswerDescTest1);
-    await this.userPage.waitAndClick(e.pollAnswerDescTest2);
+    await this.userPage.waitAndClick(e.firstPollAnswerOptionBtn);
+    await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
     await this.modPage.hasText(e.answer1, '1');
@@ -204,9 +205,11 @@ class Polling extends MultiUsers {
   }
 
   async smartSlidesQuestions() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.presentationTitle);
-    
+    await this.userPage.hasElement(e.currentUser);
+
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.hasElement(e.responsePollQuestion);
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
@@ -217,15 +220,15 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.waitAndClick(e.checkboxInput);
+    await this.userPage.waitAndClick(e.firstCheckboxInput);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
 
     await this.modPage.hasText(e.answer1, '1');
-    
+
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
 
     await this.modPage.hasText(e.answer1, '1');
     await this.modPage.hasElementDisabled(e.nextSlide);

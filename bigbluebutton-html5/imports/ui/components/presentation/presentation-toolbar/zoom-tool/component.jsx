@@ -161,7 +161,7 @@ class ZoomTool extends PureComponent {
     }
 
     const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
-    
+
     return (
       [
         (
@@ -235,7 +235,10 @@ class ZoomTool extends PureComponent {
 }
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+    formatNumber: PropTypes.func.isRequired,
+  }).isRequired,
   zoomValue: PropTypes.number.isRequired,
   change: PropTypes.func.isRequired,
   minBound: PropTypes.number.isRequired,

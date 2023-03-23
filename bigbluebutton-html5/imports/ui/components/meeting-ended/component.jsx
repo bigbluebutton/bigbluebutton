@@ -100,7 +100,7 @@ const intlMessage = defineMessages({
   },
   user_inactivity_eject_reason: {
     id: 'app.meeting.logout.userInactivityEjectReason',
-    description: 'message for whom was kicked by inactivity',
+    description: 'message to whom was kicked by inactivity',
   },
   open_activity_report_btn: {
     id: 'app.learning-dashboard.clickHereToOpen',
@@ -142,7 +142,7 @@ class MeetingEnded extends PureComponent {
       this.localUserRole = user.role;
     }
 
-    const meeting = Meetings.findOne({ id: user.meetingID });
+    const meeting = Meetings.findOne({ id: user?.meetingID });
     if (meeting) {
       this.endWhenNoModeratorMinutes = meeting.durationProps.endWhenNoModeratorDelayInMinutes;
 

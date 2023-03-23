@@ -9,7 +9,7 @@ buildscript {
   dependencies {
     classpath "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
     classpath "org.grails.plugins:hibernate5:${gormVersion}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.0.0"
     classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
     classpath "org.grails.plugins:views-gradle:2.1.1"
     classpath "org.grails.plugins:views-json:2.1.1"
@@ -25,8 +25,8 @@ apply plugin: "war"
 apply plugin: "org.grails.grails-web"
 apply plugin: "com.bertramlabs.asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
-apply plugin:"com.github.erdi.webdriver-binaries"
-apply plugin:"org.grails.plugins.views-json"
+apply plugin: "com.github.erdi.webdriver-binaries"
+apply plugin: "org.grails.plugins.views-json"
 
 task resolveDeps(type: Copy) {
   into('lib')
@@ -53,27 +53,27 @@ repositories {
 }
 
 dependencies {
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   implementation "org.springframework:spring-core:5.3.21"
   implementation "org.springframework:spring-context:5.3.21"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
-  implementation "org.grails:grails-core"
+  implementation "org.grails:grails-core:5.2.4"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
-  implementation "org.grails:grails-web-boot"
+  implementation "org.grails:grails-web-boot:5.2.5"
   implementation "org.grails:grails-logging"
-  implementation "org.grails:grails-plugin-rest"
-  implementation "org.grails:grails-plugin-databinding"
+  implementation "org.grails:grails-plugin-rest:5.2.5"
+  implementation "org.grails:grails-plugin-databinding:5.2.4"
   implementation "org.grails:grails-plugin-i18n"
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
   implementation 'org.grails.plugins:external-config:1.2.2'
-  //implementation "org.grails.plugins:cache"
+  implementation "org.yaml:snakeyaml:1.31"
   implementation "org.grails.plugins:views-json:2.1.1"
-  implementation "org.grails.plugins:cache:5.0.1"
+  implementation "org.grails.plugins:cache"
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.grails:grails-gradle-plugin:5.1.4"
   implementation "org.grails.plugins:async"
@@ -85,7 +85,7 @@ dependencies {
   implementation "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbedVersion}"
   implementation "org.apache.tomcat:tomcat-annotations-api:${tomcatEmbedVersion}"
   //--- BigBlueButton Dependencies Start - Transitive dependencies have to be re-defined below
-  implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.21-SNAPSHOT"
+  implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.22-SNAPSHOT"
   implementation "org.bigbluebutton:bbb-common-web:0.0.3-SNAPSHOT"
   implementation "io.lettuce:lettuce-core:6.1.9.RELEASE"
   implementation "org.reactivestreams:reactive-streams:1.0.3"
@@ -93,20 +93,21 @@ dependencies {
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
   implementation "org.json:json:20211205"
-  implementation "com.zaxxer:nuprocess:2.0.5"
+  implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.10.0"
+  implementation "org.springframework.data:spring-data-commons:2.7.6"
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
-  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.5'
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
-  implementation 'org.postgresql:postgresql:42.4.1'
+  implementation 'org.postgresql:postgresql:42.4.3'
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
-  console "org.grails:grails-console"
+  console "org.grails:grails-console:5.2.0"
   profile "org.grails.profiles:web"
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.6"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"

@@ -5,16 +5,30 @@ Imports and parses recording metadata.xml files and stores the data in a Postgre
 
 ## How to use
 
+0. Ensure the required software is installed
+  - Install `docker` (if you're using `docker-dev` development environment for BBB this is already installed)
+    - You would either need to add your user to the docker group or you might have to prepend your docker-compose command with `sudo `
+   ```
+   sudo usermod -aG docker `whoami`
+   sudo reboot
+   ```
+  - Install `docker compose` - a sample set of steps are listed below but could likely be installed in a different way too:
+    - `sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
+    - `sudo chmod +x /usr/local/bin/docker-compose`
+    - `docker-compose --version`
+   - Note that you do _not_ need to install Postgres DB on your own
+
 1. In bbb-common-web
-   - Edit the .env file and set the environment variables
-   - Run the hibernate.cfg script to generate the hibernate config file
-   - Run "docker-compose up" to start up the docker container containing the Postgresql database
+   - `cd bbb-common-web`
+   - Edit the `./.env` file and set the environment variables (the default values should work fine)
+   - Run the `./hibernate.cfg.sh` script to generate the hibernate config file
+   - Run `docker-compose up` to start up the docker container containing the Postgresql database
    - Interact with the database using the psql script
 2. In bbb-recording-imex
    - Unit tests for parsing and persisting recording metadata can be found in src/test/java/org/bigbluebutton/recording/
-   - Edit the "metadataDirectory" variables in the test files to point to where the recording metadata can be found
-   - Run the unit tests using the command "mvn test"
-   - Use the deploy.sh script to compile the program
+   - Edit the `metadataDirectory` variables in the test files to point to where the recording metadata can be found. The default value "metadata" refers to `./src/metadata` and should work too.
+   - Run the unit tests using the command `mvn test`
+   - Use the `deploy.sh` script to compile the program
    - Run the program with the recording-imex.sh script found in ~/usr/local/bin
    - Use the --help option to see the usage
    

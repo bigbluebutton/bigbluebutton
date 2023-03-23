@@ -69,7 +69,6 @@ test.describe.parallel('Notifications', () => {
 
   test.describe.parallel('Presenter @ci', () => {
     test('Poll results notification', async ({ browser, context, page }) => {
-      test.fixme(true, 'Different behaviors in the development and production environment');
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page);
       await presenterNotifications.publishPollResults();
@@ -83,7 +82,7 @@ test.describe.parallel('Notifications', () => {
 
     test('Screenshare notification', async ({ browser, browserName, context, page }) => {
       test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
-                "Screenshare tests not able in Firefox browser without desktop");
+        "Screenshare tests not able in Firefox browser without desktop");
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page);
       await presenterNotifications.screenshareToast();

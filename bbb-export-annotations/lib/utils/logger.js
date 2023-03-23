@@ -1,13 +1,13 @@
 const config = require('../../config');
 
-const { level } = config.log;
+const {level} = config.log;
 const trace = level.toLowerCase() === 'trace';
 const debug = trace || level.toLowerCase() === 'debug';
 
 const date = () => new Date().toISOString();
 
 const parse = (messages) => {
-  return messages.map(message => {
+  return messages.map((message) => {
     if (typeof message === 'object') return JSON.stringify(message);
 
     return message;

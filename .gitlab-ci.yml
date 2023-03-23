@@ -1,4 +1,5 @@
 # set up stages
+#
 
 variables:
   GIT_STRATEGY: fetch
@@ -11,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2022-07-12
+  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2022-12-29-grails-524
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of
@@ -99,7 +100,7 @@ bbb-html5-build:
   script:
     - build/setup-inside-docker.sh bbb-html5
 
-bbb-learning-dashboard:
+bbb-learning-dashboard-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-learning-dashboard

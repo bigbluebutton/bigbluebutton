@@ -72,6 +72,10 @@ object RegisteredUsers {
     regUsers.toVector.filter(_.joined).map(_.externId).distinct.length
   }
 
+  def numRegisteredUsers(regUsers: RegisteredUsers): Int = {
+    regUsers.toVector.size
+  }
+
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
 
     findWithExternUserId(user.externId, users) match {

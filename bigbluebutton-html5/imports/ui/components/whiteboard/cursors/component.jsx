@@ -1,4 +1,8 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
+import { Meteor } from 'meteor/meteor';
+import Cursor from './cursor/component';
+import PositionLabel from './position-label/component';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
@@ -6,136 +10,53 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
-const Cursor = (props) => {
-  const {
-    name,
-    color,
-    x,
-    y,
-    currentPoint,
-    pageState,
-    isMultiUserActive,
-    owner = false,
-  } = props;
+const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
+const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
-  const z = !owner ? 2 : 1;
-  let _x = null;
-  let _y = null;
-
-  if (!currentPoint) {
-    _x = (x + pageState?.camera?.point[0]) * pageState?.camera?.zoom;
-    _y = (y + pageState?.camera?.point[1]) * pageState?.camera?.zoom;
-  }
-
-  return (
-    <>
-      <div
-        style={{
-          zIndex: z,
-          position: 'absolute',
-          left: (_x || x) - 2.5,
-          top: (_y || y) - 2.5,
-          width: 5,
-          height: 5,
-          borderRadius: '50%',
-          background: `${color}`,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {isMultiUserActive && (
-      <div
-        style={{
-          zIndex: z,
-          position: 'absolute',
-          pointerEvents: 'none',
-          left: (_x || x) + 3.75,
-          top: (_y || y) + 3,
-          paddingLeft: '.25rem',
-          paddingRight: '.25rem',
-          paddingBottom: '.1rem',
-          lineHeight: '1rem',
-          borderRadius: '2px',
-          color: '#FFF',
-          backgroundColor: color,
-          border: `1px solid ${color}`,
-        }}
-      >
-        {name}
-      </div>
-      )}
-    </>
-  );
+const TOOL_CURSORS = {
+  select: 'default',
+  erase: 'crosshair',
+  arrow: 'crosshair',
+  draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
+  rectangle: `url('${makeCursorUrl('square.png')}'), default`,
+  ellipse: `url('${makeCursorUrl('ellipse.png')}'), default`,
+  triangle: `url('${makeCursorUrl('triangle.png')}'), default`,
+  line: `url('${makeCursorUrl('line.png')}'), default`,
+  text: `url('${makeCursorUrl('text.png')}'), default`,
+  sticky: `url('${makeCursorUrl('square.png')}'), default`,
+  pan: 'grab',
+  grabbing: 'grabbing',
+  moving: 'move',
 };
-
-const PositionLabel = (props) => {
-  const {
-    currentUser,
-    currentPoint,
-    pageState,
-    publishCursorUpdate,
-    whiteboardId,
-    pos,
-    isMultiUserActive,
-  } = props;
-
-  const { name, color, userId } = currentUser;
-  const { x, y } = pos;
-
-  React.useEffect(() => {
-    try {
-      const point = [x, y];
-      publishCursorUpdate({
-        xPercent:
-          point[0] / pageState?.camera?.zoom - pageState?.camera?.point[0],
-        yPercent:
-          point[1] / pageState?.camera?.zoom - pageState?.camera?.point[1],
-        whiteboardId,
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }, [x, y]);
-
-  return (
-    <>
-      <div style={{ position: 'absolute', height: '100%', width: '100%' }}>
-        <Cursor
-          key={`${userId}-label`}
-          name={name}
-          color={color}
-          x={x}
-          y={y}
-          currentPoint={currentPoint}
-          pageState={pageState}
-          isMultiUserActive={isMultiUserActive(whiteboardId)}
-        />
-      </div>
-    </>
-  );
-};
-
-export default function Cursors(props) {
-  let cursorWrapper = React.useRef(null);
+const Cursors = (props) => {
+  const cursorWrapper = React.useRef();
   const [active, setActive] = React.useState(false);
   const [pos, setPos] = React.useState({ x: 0, y: 0 });
   const {
     whiteboardId,
     otherCursors,
     currentUser,
-    tldrawAPI,
+    currentPoint,
+    tldrawCamera,
     publishCursorUpdate,
     children,
     isViewersCursorLocked,
     hasMultiUserAccess,
     isMultiUserActive,
     isPanning,
+    isMoving,
+    currentTool,
   } = props;
 
-  const start = () => setActive(true);
+  const [panGrabbing, setPanGrabbing] = React.useState(false);
 
+  const start = () => setActive(true);
+  const handleGrabbing = () => setPanGrabbing(true);
+  const handleReleaseGrab = () => setPanGrabbing(false);
+
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   const end = () => {
-    if (whiteboardId) {
+    if (whiteboardId && (multiUserAccess || currentUser?.presenter)) {
       publishCursorUpdate({
         xPercent: -1.0,
         yPercent: -1.0,
@@ -168,7 +89,7 @@ export default function Cursors(props) {
       yOffset
         += (parseFloat(presentationContainer?.style?.height)
           - (parseFloat(presentation?.style?.height)
-          + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))
+            + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))
         ) / 2;
       xOffset
         += (parseFloat(presentationContainer?.style?.width)
@@ -187,9 +108,9 @@ export default function Cursors(props) {
     if (panel) xOffset += parseFloat(panel?.style?.width);
     if (subPanel) xOffset += parseFloat(subPanel?.style?.width);
 
-    // disable native tldraw eraser animation
-    const eraserLine = document.getElementsByClassName('tl-erase-line')[0];
-    if (eraserLine) eraserLine.style.display = 'none';
+    // offset native tldraw eraser animation container
+    const overlay = document.getElementsByClassName('tl-overlay')[0];
+    if (overlay) overlay.style.left = '0px';
 
     if (type === 'touchmove') {
       calcPresOffset();
@@ -283,47 +204,46 @@ export default function Cursors(props) {
   };
 
   React.useEffect(() => {
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseenter')) {
-      cursorWrapper?.addEventListener('mouseenter', start);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mouseleave')) {
-      cursorWrapper?.addEventListener('mouseleave', end);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchend')) {
-      cursorWrapper?.addEventListener('touchend', end);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'mousemove')) {
-      cursorWrapper?.addEventListener('mousemove', moved);
-    }
-    if (!Object.prototype.hasOwnProperty.call(cursorWrapper, 'touchmove')) {
-      cursorWrapper?.addEventListener('touchmove', moved);
-    }
-  }, [cursorWrapper, whiteboardId]);
+    const currentCursor = cursorWrapper?.current;
+    currentCursor?.addEventListener('mouseenter', start);
+    currentCursor?.addEventListener('mouseleave', end);
+    currentCursor?.addEventListener('mousedown', handleGrabbing);
+    currentCursor?.addEventListener('mouseup', handleReleaseGrab);
+    currentCursor?.addEventListener('touchend', end);
+    currentCursor?.addEventListener('mousemove', moved);
+    currentCursor?.addEventListener('touchmove', moved);
 
-  React.useEffect(() => () => {
-    if (cursorWrapper) {
-      cursorWrapper.removeEventListener('mouseenter', start);
-      cursorWrapper.removeEventListener('mouseleave', end);
-      cursorWrapper.removeEventListener('mousemove', moved);
-      cursorWrapper.removeEventListener('touchend', end);
-      cursorWrapper.removeEventListener('touchmove', moved);
-    }
-  });
+    return () => {
+      currentCursor?.removeEventListener('mouseenter', start);
+      currentCursor?.removeEventListener('mouseleave', end);
+      currentCursor?.removeEventListener('mousedown', handleGrabbing);
+      currentCursor?.removeEventListener('mouseup', handleReleaseGrab);
+      currentCursor?.removeEventListener('touchend', end);
+      currentCursor?.removeEventListener('mousemove', moved);
+      currentCursor?.removeEventListener('touchmove', moved);
+    };
+  }, [cursorWrapper, whiteboardId, currentUser.presenter]);
 
-  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
-  let cursorType = multiUserAccess || currentUser?.presenter ? 'none' : 'default';
-  if (isPanning) cursorType = 'grab';
+  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
+  if (isPanning) {
+    if (panGrabbing) {
+      cursorType = TOOL_CURSORS.grabbing;
+    } else {
+      cursorType = TOOL_CURSORS.pan;
+    }
+  }
+  if (isMoving) cursorType = TOOL_CURSORS.moving;
 
   return (
-    <span ref={(r) => { cursorWrapper = r; }}>
+    <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>
         {((active && multiUserAccess) || (active && currentUser?.presenter)) && (
           <PositionLabel
             pos={pos}
             otherCursors={otherCursors}
             currentUser={currentUser}
-            currentPoint={tldrawAPI?.currentPoint}
-            pageState={tldrawAPI?.getPageState()}
+            currentPoint={currentPoint}
+            tldrawCamera={tldrawCamera}
             publishCursorUpdate={publishCursorUpdate}
             whiteboardId={whiteboardId}
             isMultiUserActive={isMultiUserActive}
@@ -352,7 +272,7 @@ export default function Cursors(props) {
                   color="#C70039"
                   x={c?.xPercent}
                   y={c?.yPercent}
-                  pageState={tldrawAPI?.getPageState()}
+                  tldrawCamera={tldrawCamera}
                   isMultiUserActive={isMultiUserActive(whiteboardId)}
                   owner
                 />
@@ -361,20 +281,51 @@ export default function Cursors(props) {
 
             return hasMultiUserAccess(whiteboardId, c?.userId)
               && (
-              <Cursor
-                key={`${c?.userId}`}
-                name={c?.userName}
-                color="#AFE1AF"
-                x={c?.xPercent}
-                y={c?.yPercent}
-                pageState={tldrawAPI?.getPageState()}
-                isMultiUserActive={isMultiUserActive(whiteboardId)}
-                owner
-              />
+                <Cursor
+                  key={`${c?.userId}`}
+                  name={c?.userName}
+                  color="#AFE1AF"
+                  x={c?.xPercent}
+                  y={c?.yPercent}
+                  tldrawCamera={tldrawCamera}
+                  isMultiUserActive={isMultiUserActive(whiteboardId)}
+                  owner
+                />
               );
           }
           return null;
         })}
     </span>
   );
-}
+};
+
+Cursors.propTypes = {
+  whiteboardId: PropTypes.string,
+  otherCursors: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  currentUser: PropTypes.shape({
+    userId: PropTypes.string.isRequired,
+    presenter: PropTypes.bool.isRequired,
+  }).isRequired,
+  currentPoint: PropTypes.arrayOf(PropTypes.number),
+  tldrawCamera: PropTypes.shape({
+    point: PropTypes.arrayOf(PropTypes.number).isRequired,
+    zoom: PropTypes.number.isRequired,
+  }),
+  publishCursorUpdate: PropTypes.func.isRequired,
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  isViewersCursorLocked: PropTypes.bool.isRequired,
+  hasMultiUserAccess: PropTypes.func.isRequired,
+  isMultiUserActive: PropTypes.func.isRequired,
+  isPanning: PropTypes.bool.isRequired,
+  isMoving: PropTypes.bool.isRequired,
+  currentTool: PropTypes.string,
+};
+
+Cursors.defaultProps = {
+  whiteboardId: undefined,
+  currentPoint: undefined,
+  tldrawCamera: undefined,
+  currentTool: null,
+};
+
+export default Cursors;

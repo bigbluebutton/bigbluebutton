@@ -47,6 +47,7 @@ import org.bigbluebutton.api.domain.BreakoutRoomsParams;
 import org.bigbluebutton.api.domain.LockSettingsParams;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Group;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,7 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
+    private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
@@ -103,13 +105,15 @@ public class ParamsProcessorUtil {
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
-    private String defaultUploadExternalDescription = "";
-    private String defaultUploadExternalUrl = "";
+    private String defaultPresentationUploadExternalDescription = "";
+    private String defaultPresentationUploadExternalUrl = "";
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
         private boolean defaultBreakoutRoomsCaptureNotes = false;
+        private String  defaultBreakoutRoomsCaptureSlidesFilename = CONF_NAME;
+        private String  defaultBreakoutRoomsCaptureNotesFilename = CONF_NAME;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
 		private boolean defaultLockSettingsDisableCam;
@@ -118,7 +122,6 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisablePublicChat;
 		private boolean defaultLockSettingsDisableNotes;
 		private boolean defaultLockSettingsHideUserList;
-		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
@@ -293,7 +296,19 @@ public class ParamsProcessorUtil {
 				breakoutRoomsCaptureNotes = Boolean.parseBoolean(breakoutRoomsCaptureNotesParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides);
+            String breakoutRoomsCaptureNotesFilename = defaultBreakoutRoomsCaptureNotesFilename;
+            String breakoutRoomsCaptureNotesFilenameParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesFilenameParam)) {
+                breakoutRoomsCaptureNotesFilename = breakoutRoomsCaptureNotesFilenameParam;
+            }
+
+            String breakoutRoomsCaptureSlidesFilename = defaultBreakoutRoomsCaptureSlidesFilename;
+            String breakoutRoomsCaptureSlidesFilenameParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureSlidesFilenameParam)) {
+                breakoutRoomsCaptureSlidesFilename = breakoutRoomsCaptureSlidesFilenameParam;
+            }
+
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides, breakoutRoomsCaptureNotesFilename, breakoutRoomsCaptureSlidesFilename);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -340,12 +355,6 @@ public class ParamsProcessorUtil {
 				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
 			}
 
-			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
-			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
-			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
-				lockSettingsLockedLayout = Boolean.parseBoolean(lockSettingsLockedLayoutParam);
-			}
-
 			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
 			String lockSettingsLockOnJoinParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN);
 			if (!StringUtils.isEmpty(lockSettingsLockOnJoinParam)) {
@@ -370,7 +379,6 @@ public class ParamsProcessorUtil {
 							lockSettingsDisablePublicChat,
 							lockSettingsDisableNotes,
 							lockSettingsHideUserList,
-							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor);
@@ -638,14 +646,14 @@ public class ParamsProcessorUtil {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
 
-        String uploadExternalDescription = defaultUploadExternalDescription;
-        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION))) {
-            uploadExternalDescription = params.get(ApiParams.UPLOAD_EXTERNAL_DESCRIPTION);
+        String presentationUploadExternalDescription = defaultPresentationUploadExternalDescription;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION))) {
+            presentationUploadExternalDescription = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION);
         }
 
-        String uploadExternalUrl = defaultUploadExternalUrl;
-        if (!StringUtils.isEmpty(params.get(ApiParams.UPLOAD_EXTERNAL_URL))) {
-            uploadExternalUrl = params.get(ApiParams.UPLOAD_EXTERNAL_URL);
+        String presentationUploadExternalUrl = defaultPresentationUploadExternalUrl;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL))) {
+            presentationUploadExternalUrl = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL);
         }
 
         String meetingLayout = defaultMeetingLayout;
@@ -685,7 +693,7 @@ public class ParamsProcessorUtil {
         String parentMeetingId = "";
         if (isBreakout) {
             internalMeetingId = params.get(ApiParams.MEETING_ID);
-            parentMeetingId = params.get(ApiParams.PARENT_MEETING_ID);
+            parentMeetingId = ServiceUtils.findMeetingFromMeetingID(params.get(ApiParams.PARENT_MEETING_ID)).getInternalId();
             // We rebuild the the external meeting using the has of the parent
             // meeting, the shared timestamp and the sequence number
             String timeStamp = StringUtils.substringAfter(internalMeetingId, "-");
@@ -736,8 +744,8 @@ public class ParamsProcessorUtil {
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
-                .withUploadExternalDescription(uploadExternalDescription)
-                .withUploadExternalUrl(uploadExternalUrl)
+                .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
+                .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -767,6 +775,8 @@ public class ParamsProcessorUtil {
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
             meeting.setCaptureSlides(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES)));
             meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
+            meeting.setCaptureNotesFilename(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME));
+            meeting.setCaptureSlidesFilename(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
@@ -844,6 +854,14 @@ public class ParamsProcessorUtil {
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
 	}
+
+  public Integer getDefaultHttpSessionTimeout() {
+    return defaultHttpSessionTimeout;
+  }
+
+  public void setDefaultHttpSessionTimeout(Integer value) {
+    this.defaultHttpSessionTimeout = value;
+  }
 
 	public String getDefaultLogoutUrl() {
 		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
@@ -1036,7 +1054,7 @@ public class ParamsProcessorUtil {
                 log.info("No algorithm could be found that matches the provided checksum length");
         }
 
-		if (cs == null || !cs.equals(checksum)) {
+		if (cs == null || !cs.equalsIgnoreCase(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
 			return false;
@@ -1096,7 +1114,7 @@ public class ParamsProcessorUtil {
 		String baseString = csbuf.toString();
 		String cs = DigestUtils.sha1Hex(baseString);
 
-		if (cs == null || !cs.equals(checksum)) {
+		if (cs == null || !cs.equalsIgnoreCase(checksum)) {
 			log.info("POST basestring = {}", baseString);
 			log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", cs, checksum);
 			return false;
@@ -1404,10 +1422,6 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsHideUserList = lockSettingsHideUserList;
 	}
 
-	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
-		this.defaultLockSettingsLockedLayout = lockSettingsLockedLayout;
-	}
-
 	public void setLockSettingsLockOnJoin(Boolean lockSettingsLockOnJoin) {
 		this.defaultLockSettingsLockOnJoin = lockSettingsLockOnJoin;
 	}
@@ -1444,12 +1458,12 @@ public class ParamsProcessorUtil {
       this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
   }
 
-  public void setUploadExternalDescription(String uploadExternalDescription) {
-    this.defaultUploadExternalDescription = uploadExternalDescription;
+  public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
+    this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
   }
 
-  public void setUploadExternalUrl(String uploadExternalUrl) {
-    this.defaultUploadExternalUrl = uploadExternalUrl;
+  public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
+    this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
   }
 
   public void setBbbVersion(String version) {

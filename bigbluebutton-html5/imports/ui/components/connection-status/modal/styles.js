@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import Modal from '/imports/ui/components/common/modal/simple/component';
 import {
   colorOffWhite,
-  colorGray,
   colorGrayDark,
-  colorGrayLabel,
   colorGrayLightest,
   colorPrimary,
   colorWhite,
+  btnPrimaryActiveBg,
+  colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -69,6 +69,20 @@ const FullName = styled(Name)`
   width: 100%;
 `;
 
+const ClientNotRespondingText = styled.div`
+  display: flex;
+  width: 27.5%;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  color: ${colorDanger};
+
+  @media ${hasPhoneDimentions} {
+    width: 100%;
+  }
+`;
+
+
 const Text = styled.div`
   padding-left: .5rem;
   white-space: nowrap;
@@ -82,14 +96,6 @@ const Text = styled.div`
   [dir="rtl"] & {
     padding: 0;
     padding-right: .5rem;
-  }
-`;
-
-const ToggleLabel = styled.span`
-  margin-right: ${smPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 0 0 ${smPaddingX};
   }
 `;
 
@@ -117,64 +123,6 @@ const Time = styled.div`
   width: 100%;
   height: 100%;
   justify-content: flex-end;
-`;
-
-const DataSaving = styled.div`
-  background-color: ${colorOffWhite};
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  width: 100%;
-`;
-
-const Description = styled.div`
-  text-align: center;
-  color: ${colorGray};
-  margin-bottom: ${smPaddingY};
-`;
-
-const Row = styled.div`
-  display: flex;
-  flex-flow: row;
-  flex-grow: 1;
-  justify-content: space-between;
-  margin-bottom: 0.7rem;
-`;
-
-const Col = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex-basis: 0;
-
-  &:last-child {
-    padding-right: 0;
-    padding-left: 1rem;
-
-    [dir="rtl"] & {
-      padding-right: 0.1rem;
-      padding-left: 0;
-    }
-  }
-`;
-
-const FormElement = styled.div`
-  position: relative;
-  display: flex;
-  flex-flow: column;
-  flex-grow: 1;
-`;
-
-const FormElementRight = styled(FormElement)`
-  display: flex;
-  justify-content: flex-end;
-  flex-flow: row;
-`;
-
-const Label = styled.span`
-  color: ${colorGrayLabel};
-  font-size: ${fontSizeSmall};
-  margin-bottom: ${lgPaddingY};
 `;
 
 const NetworkDataContainer = styled(ScrollboxVertical)`
@@ -427,7 +375,7 @@ const ConnectionTabSelector = styled(Tab)`
     color: ${colorPrimary};
 
     span {
-      border-bottom: 2px solid ${colorPrimary};
+      border-bottom: 2px solid ${btnPrimaryActiveBg};
     }
   }
 `;
@@ -437,22 +385,15 @@ export default {
   Left,
   Name,
   Text,
-  ToggleLabel,
   Avatar,
   Icon,
   Right,
   Time,
-  DataSaving,
-  Description,
-  Row,
-  Col,
-  FormElement,
-  Label,
-  FormElementRight,
   NetworkDataContainer,
   NetworkData,
   CopyContainer,
   ConnectionStatusModal,
+  ClientNotRespondingText,
   Container,
   Header,
   Title,

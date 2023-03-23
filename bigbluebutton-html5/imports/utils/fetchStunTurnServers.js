@@ -7,9 +7,12 @@ const FALLBACK_STUN_SERVER = MEDIA.fallbackStunServer;
 
 let STUN_TURN_DICT;
 let MAPPED_STUN_TURN_DICT;
+let TURN_CACHE_VALID_UNTIL = Math.floor(Date.now() / 1000);
+let HAS_SEEN_TURN_SERVER = false;
 
 const fetchStunTurnServers = function (sessionToken) {
-  if (STUN_TURN_DICT && CACHE_STUN_TURN) return Promise.resolve(STUN_TURN_DICT);
+  const now = Math.floor(Date.now() / 1000);
+  if (STUN_TURN_DICT && CACHE_STUN_TURN && now < TURN_CACHE_VALID_UNTIL) return Promise.resolve(STUN_TURN_DICT);
 
   const handleStunTurnResponse = ({ stunServers, turnServers }) => {
     if (!stunServers && !turnServers) {
@@ -17,14 +20,23 @@ const fetchStunTurnServers = function (sessionToken) {
     }
 
     const turnReply = [];
+    let max_ttl = null;
     _.each(turnServers, (turnEntry) => {
       const { password, url, username } = turnEntry;
+      const valid_until = parseInt(username.split(':')[0]);
+      if (!max_ttl) {
+        max_ttl = valid_until;
+      } else if (valid_until < max_ttl) {
+        max_ttl = valid_until;
+      }
       turnReply.push({
         urls: url,
         password,
         username,
       });
+      HAS_SEEN_TURN_SERVER = true;
     });
+    TURN_CACHE_VALID_UNTIL = max_ttl;
 
     const stDictionary = {
       stun: stunServers.map(server => server.url),
@@ -58,7 +70,8 @@ const getMappedFallbackStun = () => (FALLBACK_STUN_SERVER ? [{ urls: FALLBACK_ST
 const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
   return new Promise(async (resolve, reject) => {
     try {
-      if (MAPPED_STUN_TURN_DICT && CACHE_STUN_TURN) {
+      const now = Math.floor(Date.now() / 1000);
+      if (MAPPED_STUN_TURN_DICT && CACHE_STUN_TURN && now < TURN_CACHE_VALID_UNTIL) {
         return resolve(MAPPED_STUN_TURN_DICT);
       }
 
@@ -72,9 +85,14 @@ const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
   });
 };
 
+const hasTurnServer = () => {
+  return HAS_SEEN_TURN_SERVER;
+}
+
 export {
   fetchStunTurnServers,
   fetchWebRTCMappedStunTurnServers,
   getFallbackStun,
   getMappedFallbackStun,
+  hasTurnServer,
 };

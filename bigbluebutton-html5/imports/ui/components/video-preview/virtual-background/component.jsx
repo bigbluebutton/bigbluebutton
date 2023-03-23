@@ -228,6 +228,13 @@ const VirtualBgSelector = ({
           lastActivityDate: Date.now(),
         },
       });
+      const { filename, data, uniqueId } = background;
+      _virtualBgSelected(
+        EFFECT_TYPES.IMAGE_TYPE,
+        filename,
+        0,
+        { file: data, uniqueId },
+      );
     };
 
     const onError = (error) => {
@@ -354,6 +361,7 @@ const VirtualBgSelector = ({
                   type: 'delete',
                   uniqueId,
                 });
+                _virtualBgSelected(EFFECT_TYPES.NONE_TYPE);
               }}
             />
           </Styled.ButtonWrapper>
@@ -432,6 +440,7 @@ const VirtualBgSelector = ({
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
           isVisualEffects={isVisualEffects}
           brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
+          data-test="virtualBackground"
         >
           {shouldEnableBackgroundUpload() && (
             <>
@@ -443,7 +452,6 @@ const VirtualBgSelector = ({
 
                   {Object.values(backgrounds)
                     .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
-                    .slice(0, isVisualEffects ? undefined : 3)
                     .map((background, index) => {
                       if (background.custom !== false) {
                         return renderCustomButton(background, index);

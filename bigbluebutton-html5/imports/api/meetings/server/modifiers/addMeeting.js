@@ -76,6 +76,8 @@ export default function addMeeting(meeting) {
       privateChatEnabled: Boolean,
       captureNotes: Boolean,
       captureSlides: Boolean,
+      captureNotesFilename: String,
+      captureSlidesFilename: String,
     },
     meetingProp: {
       intId: String,
@@ -86,8 +88,8 @@ export default function addMeeting(meeting) {
       name: String,
       disabledFeatures: Array,
       notifyRecordingIsOn: Boolean,
-      uploadExternalDescription: String,
-      uploadExternalUrl: String,
+      presentationUploadExternalDescription: String,
+      presentationUploadExternalUrl: String,
     },
     usersProp: {
       maxUsers: Number,
@@ -144,7 +146,6 @@ export default function addMeeting(meeting) {
       hideUserList: Boolean,
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
-      lockedLayout: Boolean,
       hideViewersCursor: Boolean,
     },
     systemProps: {

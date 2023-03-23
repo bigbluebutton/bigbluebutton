@@ -1,21 +1,18 @@
-import { check } from 'meteor/check';
-import Pads from '/imports/api/pads';
+import Pads, { PadsUpdates } from '/imports/api/pads';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 
-export default function padCapture(meetingId, parentMeetingId, meetingName) {
+export default function padCapture(breakoutId, parentMeetingId, filename) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'PadCapturePubMsg';
+  const EVENT_NAME_ERROR = 'PresentationConversionUpdateSysPubMsg';
   const EXTERNAL_ID = Meteor.settings.public.notes.id;
-  try {
-    check(meetingId, String);
-    check(parentMeetingId, String);
-    check(meetingName, String);
 
+  try {
     const pad = Pads.findOne(
       {
-        meetingId,
+        meetingId: breakoutId,
         externalId: EXTERNAL_ID,
       },
       {
@@ -25,21 +22,41 @@ export default function padCapture(meetingId, parentMeetingId, meetingName) {
       },
     );
 
-    const filename = `${meetingName}-notes`;
-    const payload = {
-      parentMeetingId,
-      breakoutId: meetingId,
-      padId: pad.padId,
-      filename,
-    };
+    const update = PadsUpdates.findOne(
+      {
+        meetingId: breakoutId,
+        externalId: EXTERNAL_ID,
+      }, {
+        fields: {
+          rev: 1,
+        },
+      },
+    );
 
-    Logger.info(`Sending PadCapturePubMsg for meetingId=${meetingId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
-
-    if (pad && pad.padId) {
+    if (pad?.padId && update?.rev > 0) {
+      const payload = {
+        parentMeetingId,
+        breakoutId,
+        padId: pad.padId,
+        filename,
+      };
+      Logger.info(`Sending PadCapturePubMsg for meetingId=${breakoutId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
       return RedisPubSub.publishMeetingMessage(CHANNEL, EVENT_NAME, parentMeetingId, payload);
     }
 
-    return null;
+    // Notify that no content is available
+    const temporaryPresentationId = `${breakoutId}-notes`;
+    const payload = {
+      podId: 'DEFAULT_PRESENTATION_POD',
+      messageKey: '204',
+      code: 'not-used',
+      presentationId: temporaryPresentationId,
+      presName: filename,
+      temporaryPresentationId,
+    };
+
+    Logger.info(`No notes available for capture in meetingId=${breakoutId} parentMeetingId=${parentMeetingId} padId=${pad.padId}`);
+    return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME_ERROR, parentMeetingId, 'system', payload);
   } catch (err) {
     Logger.error(`Exception while invoking method padCapture ${err.stack}`);
     return null;

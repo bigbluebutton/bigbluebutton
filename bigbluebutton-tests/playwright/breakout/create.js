@@ -8,13 +8,29 @@ class Create extends MultiUsers {
     super(browser, context);
   }
 
-  // Create Breakoutrooms
-  async create() {
+  // Create BreakoutRooms
+  async create(captureNotes = false, captureWhiteboard = false) {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     //Randomly assignment
     await this.modPage.waitAndClick(e.randomlyAssign);
+
+    if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
+    if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.userPage.hasElement(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.hasElement(e.breakoutRoomsItem);
+  }
+
+  async createToAllowChooseOwnRoom() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+
+    await this.modPage.waitAndClick(e.allowChoiceRoom);
+
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.userPage.hasElement(e.modalConfirmButton);
@@ -50,7 +66,7 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.increaseBreakoutTime);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.breakoutRemainingTime, /15:[0-5][0-9]/);
+    await this.modPage.hasText(e.breakoutRemainingTime, /15:[0-5][0-9]/, ELEMENT_WAIT_LONGER_TIME);
   }
 
   async changeRoomsName() {
@@ -87,7 +103,7 @@ class Create extends MultiUsers {
     //testing no user assigned
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.hasElement(e.warningNoUserAssigned);
-    
+
     //await this.modPage.hasElementDisabled(e.modalConfirmButton);
     const modalConfirmButton = await this.modPage.getLocator(e.modalConfirmButton);
     await expect(modalConfirmButton, 'Getting error when trying to create a breakout room without designating any user.').toBeDisabled();

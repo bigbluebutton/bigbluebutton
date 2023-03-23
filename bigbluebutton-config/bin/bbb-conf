@@ -181,12 +181,14 @@ NCPU=$(nproc --all)
 
 BBB_USER=bigbluebutton
 
-TURN=$SERVLET_DIR/WEB-INF/classes/spring/turn-stun-servers.xml
-TURN_ETC_CONFIG=/etc/bigbluebutton/turn-stun-servers.xml
-if [ -f "$TURN_ETC_CONFIG" ]; then
+if [ $EUID == 0 ]; then
+  TURN=$SERVLET_DIR/WEB-INF/classes/spring/turn-stun-servers.xml
+  TURN_ETC_CONFIG=/etc/bigbluebutton/turn-stun-servers.xml
+  if [ -f "$TURN_ETC_CONFIG" ]; then
     TURN=$TURN_ETC_CONFIG
+  fi
+  STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean -nl $TURN)"
 fi
-STUN="$(xmlstarlet sel -N x="http://www.springframework.org/schema/beans" -t -m '_:beans/_:bean[@class="org.bigbluebutton.web.services.turn.StunTurnService"]/_:property[@name="stunServers"]/_:set/_:ref' -v @bean -nl $TURN)"
 
 PROTOCOL=http
 if [ -f $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties ]; then
@@ -388,7 +390,7 @@ start_bigbluebutton () {
         }
     fi
 
-    systemctl start bigbluebutton.target
+    systemctl restart bigbluebutton.target
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
         systemctl start mongod

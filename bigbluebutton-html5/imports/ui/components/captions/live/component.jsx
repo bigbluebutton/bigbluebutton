@@ -71,14 +71,10 @@ class LiveCaptions extends PureComponent {
 
     return (
       <div>
-        <div style={captionStyles}>
+        <div data-test="liveCaptions" style={captionStyles}>
           {clear ? '' : data}
         </div>
-        <div
-          style={visuallyHidden}
-          aria-atomic
-          aria-live="polite"
-        >
+        <div style={visuallyHidden}>
           {clear ? '' : data}
         </div>
       </div>

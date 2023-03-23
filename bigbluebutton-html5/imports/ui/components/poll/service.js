@@ -178,7 +178,7 @@ const checkPollType = (
   switch (_type) {
     case pollTypes.Letter:
       pollString = optList.map((x) => x.val.toUpperCase()).sort().join('');
-      defaultMatch = pollString.match(/^(ABCDEFG)|(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
+      defaultMatch = pollString.match(/^(ABCDEF)|(ABCDE)|(ABCD)|(ABC)|(AB)$/gi);
       isDefault = defaultMatch && pollString.length === defaultMatch[0].length;
       _type = isDefault ? `${_type}${defaultMatch[0].length}` : pollTypes.Custom;
       break;

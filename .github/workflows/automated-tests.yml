@@ -7,13 +7,16 @@ on:
       - 'v[3-9].*.x-release'
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
 permissions:
   contents: read
 jobs:
   build-install-and-test:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-apps-akka
       - run: ./build/setup.sh bbb-config
@@ -33,6 +36,7 @@ jobs:
       - run: ./build/setup.sh bbb-playback-podcast
       - run: ./build/setup.sh bbb-playback-presentation
       - run: ./build/setup.sh bbb-playback-screenshare
+      - run: ./build/setup.sh bbb-playback-video
       - run: ./build/setup.sh bbb-record-core
       - run: ./build/setup.sh bbb-web
       - run: ./build/setup.sh bbb-webrtc-sfu
@@ -74,7 +78,7 @@ jobs:
         run: |
           sudo sh -c '
           cd /root/bbb-ci-ssl/
-          echo "127.0.0.1 bbb-ci.test" >> /etc/hosts
+          echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
           openssl genrsa -out bbb-ci.test.key 2048
           rm bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
           cat > bbb-ci.test.ext << EOF
@@ -117,6 +121,7 @@ jobs:
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-26-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
             bbb-conf --restart
             '
       - name: Install test dependencies
@@ -157,3 +162,36 @@ jobs:
           path: |
             bigbluebutton-tests/playwright/playwright-report
             bigbluebutton-tests/playwright/test-results
+      - if: failure()
+        name: Prepare artifacts (configs and logs)
+        run: |
+          sudo sh -c '
+          mkdir configs
+          cp /etc/haproxy/haproxy.cfg configs/haproxy.cfg
+          touch /etc/bigbluebutton/turn-stun-servers.xml
+          cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
+          cp /opt/freeswitch/etc/freeswitch/vars.xml configs/freeswitch_vars.xml
+          cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml configs/freeswitch_sip_profiles_external.xml
+          cp /etc/bigbluebutton/bbb-apps-akka.conf configs/bbb-apps-akka.conf
+          cp /etc/bigbluebutton/bbb-fsesl-akka.conf configs/bbb-fsesl-akka.conf
+          cp /etc/bigbluebutton/bbb-html5.yml configs/bbb-html5.yml
+          cp /etc/bigbluebutton/bbb-web.properties configs/bbb-web.properties
+          cp /etc/bigbluebutton/bigbluebutton-release configs/bigbluebutton-release
+          cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
+          cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml configs/bbb-webrtc-sfu-default.yml
+          cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
+          cp /etc/hosts /configs/hosts
+          chmod a+r -R configs
+          bbb-conf --zip
+          cp $(ls -t /root/*.tar.gz | head -1) ./bbb-logs.tar.gz
+          '
+      - if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bbb-configs
+          path: configs
+      - if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bbb-logs
+          path: ./bbb-logs.tar.gz

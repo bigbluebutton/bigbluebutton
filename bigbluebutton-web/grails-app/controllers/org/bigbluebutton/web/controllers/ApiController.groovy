@@ -47,7 +47,6 @@ import org.json.JSONArray
 import javax.servlet.ServletRequest
 
 class ApiController {
-  private static final Integer SESSION_TIMEOUT = 14400  // 4 hours
   private static final String CONTROLLER_NAME = 'ApiController'
   protected static final String RESP_CODE_SUCCESS = 'SUCCESS'
   protected static final String RESP_CODE_FAILED = 'FAILED'
@@ -123,6 +122,9 @@ class ApiController {
 
     if(!(validationResponse == null)) {
       invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    } else if (ParamsUtil.sanitizeString(params.meetingID) != params.meetingID) {
+      invalid("validationError", "Invalid meeting ID")
       return
     }
 
@@ -408,7 +410,7 @@ class ApiController {
         us.leftGuestLobby
     )
 
-    session.setMaxInactiveInterval(SESSION_TIMEOUT);
+    session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
 
     //check if exists the param redirect
     boolean redirectClient = true;
@@ -453,9 +455,8 @@ class ApiController {
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
-      destUrl = meeting.getLogoutUrl()
-      msgKey = "guestDeny"
-      msgValue = "Guest denied to join meeting."
+      invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", REDIRECT_RESPONSE)
+      return
     }
 
     Map<String, Object> logData = new HashMap<String, Object>();
@@ -801,6 +802,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
     String respMessage = "Session not found."
+    String respMessageKey = "missingSession"
     boolean reject = false;
 
     String sessionToken
@@ -814,6 +816,7 @@ class ApiController {
     )
     if(!(validationResponse == null)) {
       respMessage = validationResponse.getValue()
+      respMessageKey = validationResponse.getKey()
       reject = true
     } else {
       sessionToken = sanitizeSessionToken(params.sessionToken)
@@ -826,6 +829,7 @@ class ApiController {
         if(hasReachedMaxParticipants(meeting, us)) {
           reject = true
           respMessage = "The maximum number of participants allowed for this meeting has been reached."
+          respMessageKey = "maxParticipantsReached"
         } else {
           log.info("User ${us.internalUserId} has entered")
           meeting.userEntered(us.internalUserId)
@@ -850,6 +854,7 @@ class ApiController {
           builder.response {
             returncode RESP_CODE_FAILED
             message respMessage
+            messageKey respMessageKey
             sessionToken
             logoutURL logoutUrl
           }
@@ -927,6 +932,8 @@ class ApiController {
                 privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
                 captureNotes meeting.breakoutRoomsParams.captureNotes
                 captureSlides meeting.breakoutRoomsParams.captureSlides
+                captureNotesFilename meeting.breakoutRoomsParams.captureNotesFilename
+                captureSlidesFilename meeting.breakoutRoomsParams.captureSlidesFilename
               }
             }
             customdata (
@@ -1096,11 +1103,19 @@ class ApiController {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
     if (meeting != null){
-      uploadDocuments(meeting, true);
-      withFormat {
-        xml {
-          render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
-                  , contentType: "text/xml")
+      if (uploadDocuments(meeting, true)) {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                    , contentType: "text/xml")
+          }
+        }
+      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
         }
       }
     }else {
@@ -1326,7 +1341,11 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf, isFromInsertAPI) { //
+  def uploadDocuments(conf, isFromInsertAPI) {
+    if (conf.getDisabledFeatures().contains("presentation")) {
+      log.warn("Presentation feature is disabled.")
+      return false
+    }
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
 
     //sanitizeInput
@@ -1334,7 +1353,7 @@ class ApiController {
       key, value -> params[key] = sanitizeInput(value)
     }
 
-    Boolean preUploadedPresentationOverrideDefault=true
+    Boolean preUploadedPresentationOverrideDefault = true
     if (!isFromInsertAPI) {
       String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
       if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
@@ -1352,7 +1371,7 @@ class ApiController {
     // It selects the one that has the current=true, and put it in the 0th place.
     // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
     if (requestBody == null) {
-      if (isFromInsertAPI){
+      if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
         return;
       }
@@ -1395,12 +1414,12 @@ class ApiController {
       def Boolean isDownloadable = false;
 
       if (document.name != null && "default".equals(document.name)) {
-        if(presentationService.defaultUploadedPresentation){
+        if (presentationService.defaultUploadedPresentation) {
           downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
-      } else{
+      } else {
         // Extracting all properties inside the xml
         if (!StringUtils.isEmpty(document.@removable.toString())) {
           isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
@@ -1414,7 +1433,7 @@ class ApiController {
           if (presentationListHasCurrent) {
             isCurrent = true
           }
-        } else if (index == 0 && !isFromInsertAPI){
+        } else if (index == 0 && !isFromInsertAPI) {
           isCurrent = true
         }
 
@@ -1437,6 +1456,7 @@ class ApiController {
         }
       }
     }
+    return true
   }
 
   def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable) {
@@ -1832,9 +1852,23 @@ class ApiController {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
       }
-      for(Map.Entry<String, String> violation: violations.entrySet()) {
-        response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
-        break
+
+      if(apiCall == ValidationService.ApiCall.ENTER) {
+        //Check if error exist following an order (to avoid showing guestDeny when the meeting doesn't even exist)
+        String[] enterConstraintsKeys = new String[] {"missingSession","meetingForciblyEnded","notFound","guestDeny"}
+        for (String constraintKey : enterConstraintsKeys) {
+          if(violations.containsKey(constraintKey)) {
+            response = new AbstractMap.SimpleEntry<String, String>(constraintKey, violations.get(constraintKey))
+            break
+          }
+        }
+      }
+
+      if(response == null) {
+        for(Map.Entry<String, String> violation: violations.entrySet()) {
+          response = new AbstractMap.SimpleEntry<String, String>(violation.getKey(), violation.getValue())
+          break
+        }
       }
     }
 
