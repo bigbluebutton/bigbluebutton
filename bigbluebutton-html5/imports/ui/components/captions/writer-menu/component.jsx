@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import PropTypes from 'prop-types';
 import Service from '/imports/ui/components/captions/service';
 import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
@@ -44,7 +43,6 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   availableLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
-  closeModal: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -68,9 +66,9 @@ class WriterMenu extends PureComponent {
   }
 
   componentWillUnmount() {
-    const { closeModal } = this.props;
+    const { setIsOpen } = this.props;
 
-    closeModal();
+    setIsOpen(false);
   }
 
   handleChange(event) {
@@ -79,7 +77,7 @@ class WriterMenu extends PureComponent {
 
   handleStart() {
     const {
-      closeModal,
+      setIsOpen,
       layoutContextDispatch,
     } = this.props;
 
@@ -95,24 +93,24 @@ class WriterMenu extends PureComponent {
       value: PANELS.CAPTIONS,
     });
 
-    closeModal();
+    setIsOpen(false);
   }
 
   render() {
     const {
       intl,
       availableLocales,
-      closeModal,
+      setIsOpen,
     } = this.props;
 
     const { locale } = this.state;
 
     return (
       <Styled.WriterMenuModal
-        onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
         title={intl.formatMessage(intlMessages.title)}
+        {...this.props}
       >
         <Styled.Content>
           <span>
@@ -151,4 +149,4 @@ class WriterMenu extends PureComponent {
 
 WriterMenu.propTypes = propTypes;
 
-export default injectIntl(withModalMounter(WriterMenu));
+export default injectIntl(WriterMenu);

@@ -157,6 +157,7 @@ class LockViewersComponent extends Component {
         onRequestClose={closeModal}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
+        {...this.props}
       >
         <Styled.Container>
           <Styled.Description>

@@ -123,9 +123,8 @@ class ActionsDropdown extends PureComponent {
   componentDidUpdate(prevProps) {
     const { amIPresenter: wasPresenter } = prevProps;
     const { amIPresenter: isPresenter } = this.props;
-    const { setExternalVideoModalIsOpen,  } = this.state;
     if (wasPresenter && !isPresenter) {
-      setExternalVideoModalIsOpen(false);
+      this.setExternalVideoModalIsOpen(false);
     }
   }
 

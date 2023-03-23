@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import PropTypes from 'prop-types';
 import Styled from './styles';
 

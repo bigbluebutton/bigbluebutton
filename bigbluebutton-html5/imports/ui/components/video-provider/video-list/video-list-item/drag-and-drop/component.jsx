@@ -110,7 +110,7 @@ const DragAndDrop = (props) => {
         return startAndSaveVirtualBackground(file);
       }
 
-      const onConfirm = (confirmParam, checked) => {
+      const onConfirm = (checked) => {
         startAndSaveVirtualBackground(file);
         Session.set('skipBackgroundDropConfirmation', checked);
       };

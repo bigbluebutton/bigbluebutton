@@ -6,7 +6,7 @@ import LockViewersContainer from '/imports/ui/components/lock-viewers/container'
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
-import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
@@ -21,7 +21,6 @@ const propTypes = {
   toggleMuteAllUsers: PropTypes.func.isRequired,
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
@@ -146,6 +145,8 @@ class UserOptions extends PureComponent {
       isCreateBreakoutRoomModalOpen: false,
       isGuestPolicyModalOpen: false,
       isInvitation: false,
+      isWriterMenuModalOpen: false,
+      isLockViewersModalOpen: false,
     }
 
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
@@ -156,6 +157,8 @@ class UserOptions extends PureComponent {
     this.onSaveUserNames = this.onSaveUserNames.bind(this);
     this.setCreateBreakoutRoomModalIsOpen = this.setCreateBreakoutRoomModalIsOpen.bind(this);
     this.setGuestPolicyModalIsOpen = this.setGuestPolicyModalIsOpen.bind(this);
+    this.setWriterMenuModalIsOpen = this.setWriterMenuModalIsOpen.bind(this);
+    this.setLockViewersModalIsOpen = this.setLockViewersModalIsOpen.bind(this);
   }
 
   onSaveUserNames() {
@@ -192,15 +195,13 @@ class UserOptions extends PureComponent {
   }
 
   handleCaptionsClick() {
-    const { mountModal } = this.props;
-    mountModal(<CaptionsWriterMenu />);
+    this.setWriterMenuModalIsOpen(true);
   }
 
   renderMenuItems() {
     const {
       intl,
       isMeetingMuted,
-      mountModal,
       toggleStatus,
       toggleMuteAllUsers,
       toggleMuteAllUsersExceptPresenter,
@@ -208,7 +209,6 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       openLearningDashboardUrl,
       amIModerator,
-      users,
       isMeteorConnected,
       dynamicGuestPolicy,
     } = this.props;
@@ -248,7 +248,7 @@ class UserOptions extends PureComponent {
           key: this.lockId,
           label: intl.formatMessage(intlMessages.lockViewersLabel),
           description: intl.formatMessage(intlMessages.lockViewersDesc),
-          onClick: () => mountModal(<LockViewersContainer />),
+          onClick: () => this.setLockViewersModalIsOpen(true),
           icon: 'lock',
           dataTest: 'lockViewersButton',
         });
@@ -337,10 +337,19 @@ class UserOptions extends PureComponent {
     })
   }
 
+  setWriterMenuModalIsOpen(value) {
+    this.setState({isWriterMenuModalOpen: value});
+  }
+  
+  setLockViewersModalIsOpen(value) {
+    this.setState({isLockViewersModalOpen: value});
+  }
+
   render() {
     const { intl, isRTL, isBreakoutRecordable } = this.props;
     const { isCreateBreakoutRoomModalOpen, isInvitation,
-            isGuestPolicyModalOpen } = this.state;
+            isGuestPolicyModalOpen, isWriterMenuModalOpen,
+            isLockViewersModalOpen } = this.state;
 
     return (
       <>
@@ -385,6 +394,22 @@ class UserOptions extends PureComponent {
             priority: "low",
             setIsOpen: this.setGuestPolicyModalIsOpen,
             isOpen: isGuestPolicyModalOpen,
+          }}
+        /> : null}
+        {isWriterMenuModalOpen ? <WriterMenuContainer 
+          {...{
+            onRequestClose: () => this.setWriterMenuModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setWriterMenuModalIsOpen,
+            isOpen: isWriterMenuModalOpen
+          }}
+        /> : null}
+        {isLockViewersModalOpen ? <LockViewersContainer 
+          {...{
+            onRequestClose: () => this.setLockViewersModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setLockViewersModalIsOpen,
+            isOpen: isLockViewersModalOpen
           }}
         /> : null}
       </>
