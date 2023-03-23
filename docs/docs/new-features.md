@@ -145,7 +145,6 @@ You will also be able to download the data from the Learning Analytics Dashboard
 
 You will also be able to download the data when you (as moderator) end the session.
 
-<br />
 ![Download CSV at end of session](/img/25-download-end.png)
 
 ## General Improvements
