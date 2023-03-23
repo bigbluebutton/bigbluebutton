@@ -112,6 +112,41 @@ class LearningDashboard extends MultiUsers {
     await this.dashboardPage.hasText(e.pollUserResponseQuestion, 'User response?');
     await this.dashboardPage.hasText(e.pollUserResponseAnswer, e.answerMessage);
   }
+
+  async basicInfos() {
+    // Meeting Status check
+    await this.dashboardPage.hasText(e.meetingStatusActiveDashboard, 'Active');
+    await this.dashboardPage.reloadPage();
+
+    // Meeting Time Duration check
+    const timeLocator = this.dashboardPage.getLocator(e.meetingDurationTimeDashboard);
+    const timeContent = await (timeLocator).textContent();
+    const array = timeContent.split(':').map(Number);
+    const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
+    await sleep(5000);
+    await this.dashboardPage.reloadPage();
+    const timeContentGreater = await (timeLocator).textContent();
+    const arrayGreater = timeContentGreater.split(':').map(Number);
+    const secondTime = arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
+    
+    await expect(secondTime).toBeGreaterThan(firstTime);
+  }
+
+  async overview() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.waitAndClick(e.raiseHandBtn);
+    // User Name check
+    await this.dashboardPage.hasText(e.userNameDashboard, /Moderator/);
+    // Webcam Time check
+    await this.dashboardPage.hasText(e.userWebcamTimeDashboard, /00/, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    // Raise Hand check
+    await this.dashboardPage.hasText(e.userRaiseHandDashboard, '1');
+    // Activity Score check
+    await this.dashboardPage.hasText(e.activityScorePanelDashboard, /2/);
+    // Current Status check
+    await this.dashboardPage.hasText(e.userStatusDashboard, 'Online');
+  }
 }
 
 exports.LearningDashboard = LearningDashboard;
