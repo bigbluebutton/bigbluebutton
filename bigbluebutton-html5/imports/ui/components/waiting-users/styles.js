@@ -70,13 +70,14 @@ const ButtonContainer = styled.div`
   align-items: center;
   color: ${colorPrimary};
   & > button {
-    padding: 0 .25rem 0 .25rem;
+    padding: ${mdPaddingY};
+    font-size: ${fontSizeBase};
+    border-radius: 50%;
   }
 `;
 
 const WaitingUsersButton = styled(Button)`
   font-weight: 400;
-  border-radius: 5px;
   color: ${colorPrimary};
 
   &:focus {
@@ -91,9 +92,7 @@ const WaitingUsersButton = styled(Button)`
   }
 `;
 const WaitingUsersButtonMsg = styled(Button)`
-font-weight: 400;
   font-weight: 400;
-  border-radius: 5px;
   color: ${colorPrimary};
 
   &:after {
@@ -114,7 +113,6 @@ font-weight: 400;
 `;
 const WaitingUsersButtonDeny = styled(Button)`
   font-weight: 400;
-  border-radius: 5px;
   color: #ff0e0e;
 
   &:focus {
