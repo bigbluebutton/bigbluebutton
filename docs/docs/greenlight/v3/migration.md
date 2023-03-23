@@ -125,8 +125,7 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:roles
 The Users will be migrated with their corresponding role.
 
 Important notes:
-- **Once the Users migration is completed, the migrated users will be prompted to reset their password via an automated email. The accounts passwords can't be migrated from Greenlight v2.**
-- Pending, denied and deleted users will not be migrated to Greenlight v3.
+- **The accounts passwords can't be migrated from Greenlight v2. A rake task that sends an email to all the users and prompts them to reset their password is provided for Greenlight v3. When the migration is completed, please jump to [After the Migration](#after-the-migration). Please note that if you are using external accounts, like Google or Microsoft, this is not applicable.**- Pending, denied and deleted users will not be migrated to Greenlight v3.
 - Both local and external users will be migrated.
 
 **To migrate all of your v2 users to v3, run the following command:**
@@ -137,7 +136,7 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:users
 **To migrate only a portion of the users starting from *FIRST_USER_ID* to *LAST_USER_ID*, run this command instead:**
 
 ```bash
-sudo docker exec -it greenlight-v2 bundle exec rake migrations:users[**FIRST_USER_ID, LAST_USER_ID**]
+sudo docker exec -it greenlight-v2 bundle exec rake migrations:users\[<FIRST_USER_ID>,<LAST_USER_ID>]
 ```
 
 *Administrators can use the last command to migrate resources in parallel, the same migration task can be run in separate processes each migrating a portion of the resources class simultaneously.*
@@ -163,7 +162,7 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:rooms
 **To migrate only a portion of users starting from **FIRST_ROOM_ID** to **LAST_ROOM_ID**, run this command instead**:**
 
 ```bash
-sudo docker exec -it greenlight-v2 bundle exec rake migrations:rooms[**FIRST_ROOM_ID, LAST_ROOM_ID**]
+sudo docker exec -it greenlight-v2 bundle exec rake migrations:rooms\[<FIRST_ROOM_ID>,<LAST_ROOM_ID>]
 ```
 
 *Note: The partitioning is based on resources id value and not there position in the database, so calling **rake migrations:rooms[1, 100]** will not migrate the first 100 active users rooms but rather active users rooms having an id of 1 to 100 if existed.*
@@ -191,3 +190,16 @@ sudo docker exec -it greenlight-v2 bundle exec rake migrations:settings
 ```
 
 **If you have an error, try re-running the migration task to resolve any failed resources migration.**
+
+## After the Migration
+Having completed the migration successfully, it is now imperative to inform users of the need to reset their Greenlight account passwords.
+This can be achieved through the utilization of the rake task available in Greenlight v3.
+**It is important to note, however, that this is not applicable for users who utilize external accounts such as Google or Microsoft.**
+
+To send a reset password email to all your users, run the following command:
+
+```bash
+sudo docker exec -it greenlight-v3 bundle exec rake migration:reset_password_email\[<BASE URL>]
+```
+
+The &lt;BASE URL&gt; in the command above should be replaced with your Greenlight domain name.
