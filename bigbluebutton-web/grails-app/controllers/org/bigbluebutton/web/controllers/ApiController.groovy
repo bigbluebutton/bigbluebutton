@@ -207,11 +207,23 @@ class ApiController {
 
     HashMap<String, String> roles = new HashMap<String, String>();
 
-    roles.put("moderator", ROLE_MODERATOR);
-    roles.put("viewer", ROLE_ATTENDEE);
+    roles.put("moderator", ROLE_MODERATOR)
+    roles.put("viewer", ROLE_ATTENDEE)
+
+    //check if exists the param redirect
+    boolean redirectClient = true
+    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
+
+    if (!StringUtils.isEmpty(params.redirect)) {
+      try {
+        redirectClient = Boolean.parseBoolean(params.redirect);
+      } catch (Exception ignored) {
+        redirectClient = true
+      }
+    }
 
     if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), REDIRECT_RESPONSE)
+      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient)
       return
     }
 
@@ -237,6 +249,15 @@ class ApiController {
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
+    String redirectUrl = ""
+    if(!StringUtils.isEmpty(params.redirectUrl)) {
+      if(StringUtils.equals(params.redirectUrl, "logout")) {
+        redirectUrl = meeting.getLogoutUrl()
+      } else {
+        redirectUrl = params.redirectUrl
+      }
+    }
+
     // the createTime mismatch with meeting's createTime, complain
     // In the future, the createTime param will be required
     if (params.createTime != null) {
@@ -249,7 +270,7 @@ class ApiController {
       }
       if (createTime != meeting.getCreateTime()) {
         // BEGIN - backward compatibility
-        invalid("mismatchCreateTimeParam", "The createTime parameter submitted mismatches with the current meeting.", REDIRECT_RESPONSE);
+        invalid("mismatchCreateTimeParam", "The createTime parameter submitted mismatches with the current meeting.", redirectClient, redirectUrl);
         return
         // END - backward compatibility
 
@@ -385,7 +406,7 @@ class ApiController {
 
     if (hasReachedMaxParticipants(meeting, us)) {
       // BEGIN - backward compatibility
-      invalid("maxParticipantsReached", "The number of participants allowed for this meeting has been reached.", REDIRECT_RESPONSE);
+      invalid("maxParticipantsReached", "The number of participants allowed for this meeting has been reached.", redirectClient, redirectUrl)
       return
       // END - backward compatibility
 
@@ -411,18 +432,6 @@ class ApiController {
     )
 
     session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
-
-    //check if exists the param redirect
-    boolean redirectClient = true;
-    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
-
-    if (!StringUtils.isEmpty(params.redirect)) {
-      try {
-        redirectClient = Boolean.parseBoolean(params.redirect);
-      } catch (Exception e) {
-        redirectClient = true;
-      }
-    }
 
     String msgKey = "successfullyJoined"
     String msgValue = "You have joined successfully."
@@ -455,7 +464,7 @@ class ApiController {
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
-      invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", REDIRECT_RESPONSE)
+      invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, redirectUrl)
       return
     }
 
@@ -1783,7 +1792,7 @@ class ApiController {
   }
 
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
-  private void invalid(key, msg, redirectResponse = false) {
+  private void invalid(key, msg, redirectResponse = false, redirectUrl = "") {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
@@ -1796,7 +1805,7 @@ class ApiController {
       JSONArray errorsJSONArray = new JSONArray(errors)
       log.debug "JSON Errors {}", errorsJSONArray.toString()
 
-      respondWithRedirect(errorsJSONArray)
+      respondWithRedirect(errorsJSONArray, redirectUrl)
     } else {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -1817,7 +1826,7 @@ class ApiController {
     }
   }
 
-  private void respondWithRedirect(errorsJSONArray) {
+  private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
     String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
     URI oldUri = URI.create(logoutUrl)
 
@@ -1827,6 +1836,12 @@ class ApiController {
       } catch (Exception e) {
         // Do nothing, the variable oldUri was already initialized
       }
+    }
+
+    if(!StringUtils.isEmpty(redirectUrl)) {
+      try {
+        oldUri = URI.create(redirectUrl)
+      } catch(Exception ignored) {}
     }
 
     String newQuery = oldUri.getQuery();
