@@ -149,6 +149,8 @@ class SettingsDropdown extends PureComponent {
     this.setSettingsMenuModalIsOpen = this.setSettingsMenuModalIsOpen.bind(this);
     this.setEndMeetingConfirmationModalIsOpen = this.setEndMeetingConfirmationModalIsOpen.bind(this);
     this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
+    this.setAboutModalIsOpen = this.setAboutModalIsOpen.bind(this);
+    this.setShortcutHelpModalIsOpen = this.setShortcutHelpModalIsOpen.bind(this);
   }
 
   componentDidMount() {
@@ -350,6 +352,19 @@ class SettingsDropdown extends PureComponent {
     return this.menuItems;
   }
 
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    console.log("Teste aqui", isOpen, setIsOpen)
+    return isOpen ? <Component 
+      {...{
+        ...otherOptions,
+        onRequestClose: () => setIsOpen(false),
+        priority,
+        setIsOpen,
+        isOpen
+      }}
+    /> : null
+  }
+
   render() {
     const {
       intl,
@@ -396,45 +411,16 @@ class SettingsDropdown extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
-        {isAboutModalOpen ? <AboutContainer 
-          {...{
-            onRequestClose: () => this.setAboutModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setAboutModalIsOpen,
-            isOpen: isAboutModalOpen
-          }}
-        /> : null}
-        {isShortcutHelpModalOpen ? <ShortcutHelpComponent 
-          {...{
-            onRequestClose: () => this.setShortcutHelpModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setShortcutHelpModalIsOpen,
-            isOpen: isShortcutHelpModalOpen
-          }}
-        /> : null}
-        {isSettingsMenuModalOpen ? <SettingsMenuContainer 
-          {...{
-            onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
-            priority: "medium",
-            setIsOpen: this.setSettingsMenuModalIsOpen,
-            isOpen: isSettingsMenuModalOpen
-          }}
-        /> : null}
-        {isEndMeetingConfirmationModalOpen ? <EndMeetingConfirmationContainer 
-          {...{
-            priority: "medium",
-            setIsOpen: this.setEndMeetingConfirmationModalIsOpen,
-            isOpen: isEndMeetingConfirmationModalOpen
-          }}
-        /> : null}
-        {isMobileAppModalOpen ? <MobileAppModal 
-          {...{
-            onRequestClose: () => this.setMobileAppModalIsOpen(false),
-            priority: "medium",
-            setIsOpen: this.setMobileAppModalIsOpen,
-            isOpen: isMobileAppModalOpen
-          }}
-        /> : null}
+        {this.renderModal(isAboutModalOpen, this.setAboutModalIsOpen, "low",
+          AboutContainer)}
+        {this.renderModal(isShortcutHelpModalOpen, this.setShortcutHelpModalIsOpen, 
+          "low", ShortcutHelpComponent)}
+        {this.renderModal(isSettingsMenuModalOpen, this.setSettingsMenuModalIsOpen, 
+          "medium", SettingsMenuContainer)}
+        {this.renderModal(isEndMeetingConfirmationModalOpen, this.setEndMeetingConfirmationModalIsOpen, 
+          "medium", EndMeetingConfirmationContainer)}
+        {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "medium", 
+          MobileAppModal)}
       </>
     );
   }

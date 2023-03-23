@@ -325,6 +325,18 @@ class UserOptions extends PureComponent {
     return this.menuItems;
   }
 
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    return isOpen ? <Component 
+      {...{
+        ...otherOptions,
+        onRequestClose: () => setIsOpen(false),
+        priority,
+        setIsOpen,
+        isOpen
+      }}
+    /> : null
+  }
+
   setCreateBreakoutRoomModalIsOpen(value) {
     this.setState({
       isCreateBreakoutRoomModalOpen: value,
@@ -378,40 +390,14 @@ class UserOptions extends PureComponent {
             transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           }}
         />
-        {isCreateBreakoutRoomModalOpen ? <CreateBreakoutRoomContainer 
-          {...{
-            isBreakoutRecordable,
-            isInvitation,
-            onRequestClose: () => this.setCreateBreakoutRoomModalIsOpen(false),
-            priority: "medium",
-            setIsOpen: this.setCreateBreakoutRoomModalIsOpen,
-            isOpen: isCreateBreakoutRoomModalOpen,
-          }}
-        /> : null}
-        {isGuestPolicyModalOpen ? <GuestPolicyContainer 
-          {...{
-            onRequestClose: () => this.setGuestPolicyModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setGuestPolicyModalIsOpen,
-            isOpen: isGuestPolicyModalOpen,
-          }}
-        /> : null}
-        {isWriterMenuModalOpen ? <WriterMenuContainer 
-          {...{
-            onRequestClose: () => this.setWriterMenuModalIsOpen(false),
-            priority: "medium",
-            setIsOpen: this.setWriterMenuModalIsOpen,
-            isOpen: isWriterMenuModalOpen
-          }}
-        /> : null}
-        {isLockViewersModalOpen ? <LockViewersContainer 
-          {...{
-            onRequestClose: () => this.setLockViewersModalIsOpen(false),
-            priority: "medium",
-            setIsOpen: this.setLockViewersModalIsOpen,
-            isOpen: isLockViewersModalOpen
-          }}
-        /> : null}
+        {this.renderModal(isCreateBreakoutRoomModalOpen, this.setCreateBreakoutRoomModalIsOpen, "medium", 
+          CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation})}
+        {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low", 
+          GuestPolicyContainer)}
+        {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "medium", 
+          WriterMenuContainer)}
+        {this.renderModal(isLockViewersModalOpen, this.setLockViewersModalIsOpen, "medium", 
+          LockViewersContainer)}
       </>
     );
   }
