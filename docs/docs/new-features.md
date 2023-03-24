@@ -145,7 +145,7 @@ When you click Apply, BigBlueButton will send prompts to each user to move them 
 
 This release introduces a new recording format that creates a single video file from audio, video, screen share, presentation, and whiteboard marks recorded during the session.  The file format is webm (vp9 video), although configuration options is available to create an mp4 (h264 video) file instead.
 
-Learn more about [how to enable generating MP4 (h264 video) output](https://docs.bigbluebutton.org/admin/customize.html#enable-generating-mp4-h264-video-output)
+Learn more about [how to enable generating MP4 (h264 video) output](https://docs.bigbluebutton.org/administration/customize#enable-generating-mp4-h264-video-output)
 
 #### Change of parameters naming
 
