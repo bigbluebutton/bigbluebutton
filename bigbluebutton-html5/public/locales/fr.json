@@ -120,7 +120,7 @@
     "app.userList.menu.clearStatus.label": "Effacer le statut",
     "app.userList.menu.removeUser.label": "Retirer l'utilisateur",
     "app.userList.menu.removeConfirmation.label": "Retirer l'utilisateur ({0})",
-    "app.userlist.menu.removeConfirmation.desc": "Empêcher cet utilisateur de rejoindre de nouveau la réunion.",
+    "app.userlist.menu.removeConfirmation.desc": "Empêcher cet utilisateur de rejoindre la réunion à nouveau.",
     "app.userList.menu.muteUserAudio.label": "Rendre l'utilisateur silencieux",
     "app.userList.menu.unmuteUserAudio.label": "Autoriser l'utilisateur à parler",
     "app.userList.menu.webcamPin.label": "Épingler la caméra de ce participant",
