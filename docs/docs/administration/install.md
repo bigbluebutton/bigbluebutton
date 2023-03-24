@@ -8,7 +8,7 @@ keywords:
 - install
 ---
 
-BigBlueButton 2.6 is under active development. We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
+We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated linux server. This document shows you how to install.
 
 ## Before you install
 
@@ -268,7 +268,7 @@ ii  bbb-webrtc-sfu            1:2.6-6    amd64        BigBlueButton WebRTC SFU
 
 With Greenlight installed (that was the `-g` option), you can open `https://<hostname>/b` in a browser (where `<hostname>` is the hostname you specified in the `bbb-install-2.6.sh` command), create a local account, create a room and join it.
 
-<img src="/img/greenlight_welcome.png" alt="BigBlueButton's Greenlight Interface"/>
+![BigBlueButton's Greenlight Interface](/img/greenlight_welcome.png)
 
 You can integrate BigBlueButton with one of the 3rd party integrations by providing the integration of the server's address and shared secret. You can use `bbb-conf` to display this information using `bbb-conf --secret`.
 

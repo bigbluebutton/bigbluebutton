@@ -241,6 +241,11 @@ const RoomUserItem = styled.p`
     font-size: ${fontSizeSmaller};
   }
 
+  &:focus {
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
+  }
+
   ${({ selected }) => selected && `
     background-color: ${colorPrimary};
     color: ${colorWhite};
