@@ -163,7 +163,6 @@ class NavBar extends Component {
       activeChats,
       intl,
       shortcuts: TOGGLE_USERLIST_AK,
-      mountModal,
       presentationTitle,
       amIModerator,
       style,
@@ -239,7 +238,6 @@ class NavBar extends Component {
               {presentationTitle}
             </Styled.PresentationTitle>
             <RecordingIndicator
-              mountModal={mountModal}
               getModal={getModal}
               amIModerator={amIModerator}
               currentUserId={currentUserId}

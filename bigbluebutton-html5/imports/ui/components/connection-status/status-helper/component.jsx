@@ -1,7 +1,6 @@
 import React, { Fragment, PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';
 
@@ -17,6 +16,14 @@ const intlMessages = defineMessages({
 });
 
 class ConnectionStatusIcon extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = { isSettingsMenuModalOpen: false };
+
+    this.setSettingsMenuModalIsOpen = this.setSettingsMenuModalIsOpen.bind(this);
+  }
+
   renderIcon(level = 'normal') {
     return(
       <Styled.IconWrapper>
@@ -29,13 +36,16 @@ class ConnectionStatusIcon extends PureComponent {
   }
 
   openAdjustSettings() {
-    const {
-      closeModal,
-      mountModal,
-    } = this.props;
+    this.setSettingsMenuModalIsOpen(true);
+  }
 
-    closeModal();
-    mountModal(<SettingsMenuContainer selectedTab={2} />);
+  setSettingsMenuModalIsOpen(value) {
+    const {closeModal} = this.props;
+    
+    this.setState({isSettingsMenuModalOpen: value})
+    if (!value) {
+      closeModal();
+    }
   }
 
   render() {
@@ -61,6 +71,8 @@ class ConnectionStatusIcon extends PureComponent {
 
     const level = stats ? stats : 'normal';
 
+    const { isSettingsMenuModalOpen } = this.state;
+
     return (
       <Fragment>
         <Styled.StatusIconWrapper color={color}>
@@ -69,7 +81,7 @@ class ConnectionStatusIcon extends PureComponent {
         <Styled.Label>
           {intl.formatMessage(intlMessages.label)}
         </Styled.Label>
-        {(level === 'critical' || level === 'danger')
+        {(level === 'critical' || level === 'danger') || true
           ? (
             <div>
               <Styled.Settings
@@ -78,6 +90,15 @@ class ConnectionStatusIcon extends PureComponent {
               >
                 {intl.formatMessage(intlMessages.settings)}
               </Styled.Settings>
+              {isSettingsMenuModalOpen ? <SettingsMenuContainer
+                selectedTab={2} 
+                {...{
+                  onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
+                  priority: "medium",
+                  setIsOpen: this.setSettingsMenuModalIsOpen,
+                  isOpen: isSettingsMenuModalOpen,
+                }}
+              /> : null}
             </div>
           )
           : (
@@ -89,4 +110,4 @@ class ConnectionStatusIcon extends PureComponent {
   }
 }
 
-export default withModalMounter(injectIntl(ConnectionStatusIcon));
+export default injectIntl(ConnectionStatusIcon);

@@ -33,14 +33,13 @@ const requestJoinURL = (breakoutId) => {
   });
 };
 
-export default withTracker(({ breakout, mountModal, breakoutName }) => {
+export default withTracker(({ breakout, breakoutName }) => {
   const isFreeJoin = breakout.freeJoin;
   const { breakoutId } = breakout;
   const url = getURL(breakoutId);
 
   return {
     isFreeJoin,
-    mountModal,
     breakoutName,
     breakoutURL: url,
     breakouts: breakoutService.getBreakouts(),

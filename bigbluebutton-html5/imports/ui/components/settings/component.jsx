@@ -6,7 +6,6 @@ import Application from '/imports/ui/components/settings/submenus/application/co
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 

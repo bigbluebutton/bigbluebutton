@@ -135,12 +135,14 @@ class App extends Component {
     super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
-      isAudioModalOpen: true,
+      isAudioModalOpen: false,
+      isRandomUserSelectModalOpen: false,
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
+    this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -222,7 +224,6 @@ class App extends Component {
       notify,
       currentUserEmoji,
       intl,
-      mountModal,
       deviceType,
       mountRandomUserModal,
       selectedLayout,
@@ -230,12 +231,11 @@ class App extends Component {
       layoutContextDispatch,
       numCameras,
       presentationIsOpen,
-      ignorePollNotifications,
     } = this.props;
 
     this.renderDarkMode();
 
-    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) this.setRandomUserSelectModalIsOpen(true);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -532,6 +532,10 @@ class App extends Component {
     this.setState({isAudioModalOpen: value});
   }
 
+  setRandomUserSelectModalIsOpen(value) {
+    this.setState({isRandomUserSelectModalOpen: value});
+  }
+
   render() {
     const {
       customStyle,
@@ -548,7 +552,7 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen } = this.state;
+    const { isAudioModalOpen, isRandomUserSelectModalOpen } = this.state;
     return (
       <>
         <Notifications />
@@ -612,6 +616,14 @@ class App extends Component {
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer 
+            {...{
+              onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
+              priority: "low",
+              setIsOpen: this.setRandomUserSelectModalIsOpen,
+              isOpen: isRandomUserSelectModalOpen
+            }}
+          /> : null}
         </Styled.Layout>
       </>
     );
