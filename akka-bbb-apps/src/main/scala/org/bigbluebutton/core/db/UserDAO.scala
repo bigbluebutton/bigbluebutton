@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser, UserState, VoiceUserState}
+import org.bigbluebutton.core.models.{RegisteredUser, UserState}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 case class UserDbModel(
     userId:       String,
@@ -62,8 +62,8 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val presenter = column[Boolean]("presenter")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
-//  val registeredOn: Rep[Option[Long]] = column[Option[Long]]("registeredOn")
-  //  val registeredOn: Rep[Option[LocalDate]] = column[Option[LocalDate]]("registeredOn")
+//  val registeredOn = column[Option[Long]]("registeredOn")
+  //  val registeredOn = column[Option[LocalDate]]("registeredOn")
 }
 
 object UserDAO {

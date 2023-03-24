@@ -1,5 +1,5 @@
 table:
-  name: v_user_microphone
+  name: v_user_voice
   schema: public
 select_permissions:
   - role: bbb_client

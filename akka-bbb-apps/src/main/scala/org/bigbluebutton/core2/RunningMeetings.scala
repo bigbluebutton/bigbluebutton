@@ -1,5 +1,6 @@
 package org.bigbluebutton.core2
 
+import org.bigbluebutton.core.db.MeetingDAO
 import org.bigbluebutton.core.running.RunningMeeting
 
 object RunningMeetings {
@@ -9,6 +10,7 @@ object RunningMeetings {
 
   def add(meetings: RunningMeetings, meeting: RunningMeeting): RunningMeeting = {
     meetings.save(meeting)
+    MeetingDAO.insert(meeting.props)
     meeting
   }
 

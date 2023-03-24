@@ -31,6 +31,7 @@ object Dependencies {
     // Database
     val slick = "3.4.1"
     val postgresql = "42.5.0"
+    val slickPg = "0.21.1"
 
     // Test
     val scalaTest = "3.2.11"
@@ -62,6 +63,7 @@ object Dependencies {
 
     val slick = "com.typesafe.slick" %% "slick" % Versions.slick
     val slickHikaricp = "com.typesafe.slick" %% "slick-hikaricp" % Versions.slick
+    val slickPg = "com.github.tminglei" %% "slick-pg" % Versions.slickPg
     val postgresql = "org.postgresql" % "postgresql" % Versions.postgresql
   }
 
@@ -98,5 +100,6 @@ object Dependencies {
     Compile.bbbCommons,
     Compile.slick,
     Compile.slickHikaricp,
+    Compile.slickPg,
     Compile.postgresql) ++ testing
 }

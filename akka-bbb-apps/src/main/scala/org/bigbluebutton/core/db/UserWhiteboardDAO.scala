@@ -4,7 +4,7 @@ import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 case class UserWhiteboardDbModel(
         whiteboardId:  String,
@@ -56,10 +56,5 @@ object UserWhiteboardDAO {
       }
     }
   }
-
-//  def delete(whiteboardId: String) = {
-//
-//  }
-
 
 }

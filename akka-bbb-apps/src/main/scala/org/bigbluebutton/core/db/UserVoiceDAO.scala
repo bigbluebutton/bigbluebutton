@@ -1,12 +1,12 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{RegisteredUser, UserState, VoiceUserState, WebcamStream}
+import org.bigbluebutton.core.models.{ VoiceUserState }
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success }
 
-case class UserMicrophoneDbModel(
+case class UserVoiceDbModel(
     voiceUserId:        String,
     userId:             String,
     callerName:         String,
@@ -25,11 +25,11 @@ case class UserMicrophoneDbModel(
     endTime:            Option[Long],
 )
 
-class UserMicrophoneDbTableDef(tag: Tag) extends Table[UserMicrophoneDbModel](tag, None, "user_microphone") {
+class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "user_voice") {
   override def * = (
     voiceUserId, userId, callerName, callerNum, callingWith, joined, listenOnly,
     muted, spoke, talking, floor, lastFloorTime, voiceConf, color, startTime, endTime
-  ) <> (UserMicrophoneDbModel.tupled, UserMicrophoneDbModel.unapply)
+  ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
   val voiceUserId = column[String]("voiceUserId", O.PrimaryKey)
   val userId = column[String]("userId")
   val callerName = column[String]("callerName")
@@ -49,13 +49,13 @@ class UserMicrophoneDbTableDef(tag: Tag) extends Table[UserMicrophoneDbModel](ta
 }
 
 
-object UserMicrophoneDAO {
+object UserVoiceDAO {
   //  val usersTable = TableQuery[UserTableDef]
 
   def insert(voiceUserState: VoiceUserState) = {
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef].forceInsert(
-        UserMicrophoneDbModel(
+      TableQuery[UserVoiceDbTableDef].forceInsert(
+        UserVoiceDbModel(
           voiceUserId = voiceUserState.voiceUserId,
           userId = voiceUserState.intId,
           callerName = voiceUserState.callerName,
@@ -76,7 +76,7 @@ object UserMicrophoneDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on user_microphone table!")
+          println(s"$rowsAffected row(s) inserted on user_voice table!")
         }
         case Failure(e)            => println(s"Error inserting voice: $e")
       }
@@ -84,12 +84,12 @@ object UserMicrophoneDAO {
 
   def update(voiceUserState: VoiceUserState) = {
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
+      TableQuery[UserVoiceDbTableDef]
         .filter(_.voiceUserId === voiceUserState.voiceUserId)
         .map(u => (u.listenOnly, u.muted, u.floor, u.lastFloorTime))
         .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.floor, voiceUserState.lastFloorTime))
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user_microphone table!")
+      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user_voice table!")
       case Failure(e) => println(s"Error updating user: $e")
     }
   }
@@ -99,14 +99,14 @@ object UserMicrophoneDAO {
     val now = System.currentTimeMillis()
 
     val updateSql = if(voiceUserState.talking) {
-      sqlu"""UPDATE user_microphone SET
+      sqlu"""UPDATE user_voice SET
              "talking" = true,
              "spoke" = true,
              "endTime" = null,
             "startTime" = (case when "talking" is false then $now else "startTime" end)
             WHERE "voiceUserId" = ${voiceUserState.voiceUserId}"""
     } else {
-      sqlu"""UPDATE user_microphone SET
+      sqlu"""UPDATE user_voice SET
             "talking" = false,
             "startTime" = null,
             "endTime" = (case when "talking" is true then $now else "endTime" end)
@@ -121,7 +121,7 @@ object UserMicrophoneDAO {
 
   def delete(voiceUserId: String) = {
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
+      TableQuery[UserVoiceDbTableDef]
         .filter(_.voiceUserId === voiceUserId)
         .delete
     ).onComplete {
@@ -132,7 +132,7 @@ object UserMicrophoneDAO {
 
   def deleteUser(userId: String) = {
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
+      TableQuery[UserVoiceDbTableDef]
         .filter(_.userId === userId)
         .delete
     ).onComplete {

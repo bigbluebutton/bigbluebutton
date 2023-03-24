@@ -11,6 +11,9 @@ object_relationships:
         remote_table:
           name: v_user_breakoutRoom
           schema: public
+  - name: meeting
+    using:
+      foreign_key_constraint_on: meetingId
 array_relationships:
   - name: cameras
     using:
@@ -21,15 +24,6 @@ array_relationships:
         remote_table:
           name: v_user_camera
           schema: public
-  - name: microphones
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_microphone
-          schema: public
   - name: user_cameras
     using:
       foreign_key_constraint_on:
@@ -37,12 +31,21 @@ array_relationships:
         table:
           name: user_camera
           schema: public
-  - name: user_microphones
+  - name: user_voices
     using:
       foreign_key_constraint_on:
         column: userId
         table:
-          name: user_microphone
+          name: user_voice
+          schema: public
+  - name: voices
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
           schema: public
   - name: whiteboards
     using:

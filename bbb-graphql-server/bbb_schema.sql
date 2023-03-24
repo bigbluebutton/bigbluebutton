@@ -1,9 +1,122 @@
+
+
+-- ========== Meeting tables
+
+drop table "meeting_breakout";
+drop table "meeting_recording";
+drop table "meeting_welcome";
+drop table "meeting_voice";
+drop table "meeting_users";
+drop table "meeting_metadata";
+drop table "meeting_lockSettings";
+drop table "meeting_group";
+drop table "meeting";
+
+create table "meeting" (
+	"meetingId"	varchar(100) primary key,
+	"extId" 	varchar(100),
+	"name" varchar(100),
+	"isBreakout" boolean,
+	"disabledFeatures" varchar[],
+	"meetingCameraCap" integer,
+	"maxPinnedCameras" integer,
+	"notifyRecordingIsOn" boolean,
+	"presentationUploadExternalDescription" text,
+	"presentationUploadExternalUrl" varchar(500),
+	"learningDashboardAccessToken" varchar(100),
+	"html5InstanceId" varchar(100),
+	"createdTime" bigint,
+	"duration" integer
+);
+
+create table "meeting_breakout" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    "parentId"           varchar(100),
+    "sequence"           integer,
+    "freeJoin"           boolean,
+    "breakoutRooms"      varchar[],
+    "record"             boolean,
+    "privateChatEnabled" boolean,
+    "captureNotes"       boolean,
+    "captureSlides"      boolean,
+    "captureNotesFilename" varchar(100),
+    "captureSlidesFilename" varchar(100)
+);
+
+
+create table "meeting_recording" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"record" boolean, 
+	"autoStartRecording" boolean, 
+	"allowStartStopRecording" boolean, 
+	"keepEvents" boolean
+);
+
+create table "meeting_welcome" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"welcomeMsgTemplate" text, 
+	"welcomeMsg" text, 
+	"modOnlyMessage" text
+);
+
+create table "meeting_voice" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"telVoice" varchar(100), 
+	"voiceConf" varchar(100), 
+	"dialNumber" varchar(100), 
+	"muteOnStart" boolean
+);
+
+create table "meeting_users" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    "maxUsers"                 integer,
+    "maxUserConcurrentAccesses" integer,
+    "webcamsOnlyForModerator"  boolean,
+    "userCameraCap"            integer,
+    "guestPolicy"              varchar(100),
+    "meetingLayout"            varchar(100),
+    "allowModsToUnmuteUsers"   boolean,
+    "allowModsToEjectCameras"  boolean,
+    "authenticatedGuest"       boolean
+);
+
+create table "meeting_metadata"(
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"name" varchar(255),
+	"value" varchar(255),
+	CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
+);
+
+create table "meeting_lockSettings" (
+	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    "disableCam"             boolean,
+    "disableMic"             boolean,
+    "disablePrivateChat"     boolean,
+    "disablePublicChat"      boolean,
+    "disableNotes"           boolean,
+    "hideUserList"           boolean,
+    "lockOnJoin"             boolean,
+    "lockOnJoinConfigurable" boolean,
+    "hideViewersCursor"      boolean
+);
+
+create table "meeting_group" (
+	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "groupId"    varchar(100),
+    "name"       varchar(100),
+    "usersExtId" varchar[],
+    CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
+);
+
+
+-- ========== User tables
+
 DROP VIEW IF EXISTS "v_user_camera";
-DROP VIEW IF EXISTS "v_user_microphone";
+DROP VIEW IF EXISTS "v_user_voice";
 DROP VIEW IF EXISTS "v_user_whiteboard";
 DROP VIEW IF EXISTS "v_user_breakoutRoom";
 DROP TABLE IF EXISTS "user_camera";
-DROP TABLE IF EXISTS "user_microphone";
+DROP TABLE IF EXISTS "user_voice";
 DROP TABLE IF EXISTS "user_whiteboard";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user";
@@ -11,7 +124,7 @@ DROP TABLE IF EXISTS "user";
 CREATE TABLE public."user" (
 	"userId" varchar(50) NOT NULL PRIMARY KEY,
 	"extId" varchar(50) NULL,
-	"meetingId" varchar(100) NULL,
+	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
 	"name" varchar(255) NULL,
 	"avatar" varchar(500) NULL,
 	"color" varchar(7) NULL,
@@ -37,7 +150,7 @@ CREATE TABLE public."user" (
 
 CREATE INDEX "user_meetingId" ON "user"("meetingId");
 
-CREATE TABLE "user_microphone" (
+CREATE TABLE "user_voice" (
 	"voiceUserId" varchar(100) PRIMARY KEY,
 	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
 	"callerName" varchar(100),
@@ -56,14 +169,14 @@ CREATE TABLE "user_microphone" (
 	"startTime" bigint NULL
 );
 
-CREATE INDEX "user_microphone_userId" ON "user_microphone"("userId");
+CREATE INDEX "user_voice_userId" ON "user_voice"("userId");
 
-CREATE OR REPLACE VIEW "v_user_microphone" AS
+CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
 	u."meetingId",
-	"user_microphone" .*
-FROM "user_microphone"
-JOIN "user" u ON u."userId" = "user_microphone"."userId";
+	"user_voice" .*
+FROM "user_voice"
+JOIN "user" u ON u."userId" = "user_voice"."userId";
 
 CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,

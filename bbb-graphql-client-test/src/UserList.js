@@ -1,7 +1,7 @@
 import { useSubscription, gql } from '@apollo/client';
  import React, { useState } from "react";
 
-const ParentOfWhoIsTalking = () => {
+const ParentOfUserList = () => {
   const [shouldRender, setShouldRender] = useState(true);
   return (
     <div>
@@ -35,7 +35,7 @@ function UserList() {
         clientType
         leftFlag
         loggedOut
-        microphones {
+        voices {
           joined
           listenOnly
           talking
@@ -98,10 +98,10 @@ function UserList() {
                   <td style={{backgroundColor: user.cameras.length > 0 ? '#A0DAA9' : ''}}>{user.cameras.length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.whiteboards.length > 0 ? '#A0DAA9' : ''}}>{user.whiteboards.length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.pinned === true ? '#A0DAA9' : ''}}>{user.pinned === true ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.microphones.length > 0 ? '#A0DAA9' : ''}}>{user.microphones.length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.microphones.filter(m => m.listenOnly === true).length > 0 ? '#A0DAA9' : ''}}>{user.microphones.filter(m => m.listenOnly === true).length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.microphones.filter(m => m.talking === true).length > 0 ? '#A0DAA9' : ''}}>{user.microphones.filter(m => m.talking === true).length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.microphones.filter(m => m.muted === true).length > 0 ? '#A0DAA9' : ''}}>{user.microphones.filter(m => m.muted === true).length > 0 ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voices.length > 0 ? '#A0DAA9' : ''}}>{user.voices.length > 0 ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voices.filter(m => m.listenOnly === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.listenOnly === true).length > 0 ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voices.filter(m => m.talking === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.talking === true).length > 0 ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voices.filter(m => m.muted === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.muted === true).length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.locked === true ? '#A0DAA9' : ''}}>{user.locked === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.breakoutRoom?.online === true ? '#A0DAA9' : ''}}>
                       {user.breakoutRoom?.shortName}{user.breakoutRoom?.online == true ? ' (Online)' : ''}
@@ -115,4 +115,4 @@ function UserList() {
     </table>);
 }
 
-export default ParentOfWhoIsTalking;
+export default ParentOfUserList;

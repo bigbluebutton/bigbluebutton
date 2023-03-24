@@ -4,6 +4,12 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import './App.css';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import UserList from './UserList';
+import MeetingInfo from './MeetingInfo';
+import TotalOfUsers from './TotalOfUsers';
+import TotalOfModerators from './TotalOfModerators';
+import TotalOfViewers from './TotalOfViewers';
+import TotalOfUsersTalking from './TotalOfUsersTalking';
+import TotalOfUniqueNames from './TotalOfUniqueNames';
 
 
 function App() {
@@ -74,7 +80,13 @@ function App() {
             }}
           >
           <ApolloProvider client={graphqlClient}>
-              <UserList />
+            <MeetingInfo />
+            <UserList />
+            <TotalOfUsers />
+            <TotalOfModerators />
+            <TotalOfViewers />
+            <TotalOfUsersTalking />
+            <TotalOfUniqueNames />
         </ApolloProvider>
         </div>
          ) : sessionToken == null ? 'Param sessionToken missing' : 'Loading...'}

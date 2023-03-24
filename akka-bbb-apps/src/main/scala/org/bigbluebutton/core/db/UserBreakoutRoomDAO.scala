@@ -4,7 +4,7 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success }
 
 case class UserBreakoutRoomDbModel(
         breakoutRoomId:  String,
