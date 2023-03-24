@@ -21,6 +21,9 @@ const DEFAULT_SCREENSHARE_STATS_TYPES = [
   'inbound-rtp',
 ];
 
+const CONTENT_TYPE_CAMERA = "camera";
+const CONTENT_TYPE_SCREENSHARE = "screenshare";
+
 let _isSharingScreen = false;
 const _sharingScreenDep = {
   value: false,
@@ -161,9 +164,11 @@ const shareScreen = async (isPresenter, onFail, options = {}) => {
 
   try {
     let stream;
+    let contentType = CONTENT_TYPE_SCREENSHARE;
     if (options.stream == null) {
       stream = await BridgeService.getScreenStream();
     } else {
+      contentType = CONTENT_TYPE_CAMERA;
       stream = options.stream;
     }
     _trackStreamTermination(stream, _handleStreamTermination);
@@ -173,7 +178,7 @@ const shareScreen = async (isPresenter, onFail, options = {}) => {
       return;
     }
 
-    await KurentoBridge.share(stream, onFail);
+    await KurentoBridge.share(stream, onFail, contentType);
 
     // Stream might have been disabled in the meantime. I love badly designed
     // async components like this screen sharing bridge :) - prlanzarin 09 May 22

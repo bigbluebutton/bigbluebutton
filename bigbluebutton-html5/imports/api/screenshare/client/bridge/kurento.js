@@ -291,7 +291,7 @@ export default class KurentoScreenshareBridge {
     screenShareEndAlert();
   }
 
-  share(stream, onFailure) {
+  share(stream, onFailure, contentType) {
     return new Promise(async (resolve, reject) => {
       this.onerror = onFailure;
       this.connectionAttempts += 1;
@@ -321,6 +321,7 @@ export default class KurentoScreenshareBridge {
         userName: Auth.fullname,
         stream,
         hasAudio: this.hasAudio,
+        contentType: contentType,
         bitrate: BridgeService.BASE_BITRATE,
         offering: true,
         mediaServer: BridgeService.getMediaServerAdapter(),
