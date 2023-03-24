@@ -893,7 +893,7 @@ def process_presentation(package_dir)
   cursors = []
   shapes = {}
   tldraw = @version_atleast_2_6_0
-  tldraw_shapes = {}
+  tldraw_shapes = {'bbb_version': BigBlueButton::Events.bbb_version(@doc)}
 
   # Iterate through the events.xml and store the events, building the
   # xml files as we go
