@@ -353,7 +353,6 @@ class SettingsDropdown extends PureComponent {
   }
 
   renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    console.log("Teste aqui", isOpen, setIsOpen)
     return isOpen ? <Component 
       {...{
         ...otherOptions,

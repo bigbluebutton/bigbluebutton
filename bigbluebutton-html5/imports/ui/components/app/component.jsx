@@ -135,10 +135,12 @@ class App extends Component {
     super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
+      isAudioModalOpen: true,
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
+    this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -526,6 +528,10 @@ class App extends Component {
     );
   }
 
+  setAudioModalIsOpen(value) {
+    this.setState({isAudioModalOpen: value});
+  }
+
   render() {
     const {
       customStyle,
@@ -542,6 +548,7 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
+    const { isAudioModalOpen } = this.state;
     return (
       <>
         <Notifications />
@@ -585,7 +592,10 @@ class App extends Component {
           <UploaderContainer />
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
-          <AudioContainer />
+          <AudioContainer {...{
+            isAudioModalOpen,
+            setAudioModalIsOpen: this.setAudioModalIsOpen,
+          }} />
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (

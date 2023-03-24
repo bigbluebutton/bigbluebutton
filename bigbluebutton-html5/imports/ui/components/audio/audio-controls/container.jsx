@@ -9,7 +9,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioControls from './component';
-import AudioModalContainer from '../audio-modal/container';
 import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
@@ -65,7 +64,7 @@ const {
 
 export default withUsersConsumer(
   lockContextContainer(
-    withModalMounter(withTracker(({ mountModal, userLocks, users }) => {
+    withModalMounter(withTracker(({ userLocks, users }) => {
       const currentUser = users[Auth.meetingID][Auth.userID];
       const isViewer = currentUser.role === ROLE_VIEWER;
       const isPresenter = currentUser.presenter;
@@ -87,14 +86,12 @@ export default withUsersConsumer(
         talking: isTalking() && !isMuted(),
         isVoiceUser: isVoiceUser(),
         handleToggleMuteMicrophone: () => toggleMuteMicrophone(),
-        handleJoinAudio: () => (isConnected()
-          ? joinListenOnly()
-          : mountModal(<AudioModalContainer />)
-        ),
+        joinListenOnly,
         handleLeaveAudio,
         inputStream: AudioManager.inputStream,
         isViewer,
         isPresenter,
+        isConnected,
       });
     })(AudioControlsContainer)),
   ),

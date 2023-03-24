@@ -13,7 +13,6 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import Settings from '/imports/ui/services/settings';
 import CaptionsSelectContainer from '/imports/ui/components/audio/captions/select/container';
-import { showModal } from '/imports/ui/components/common/modal/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -177,7 +176,6 @@ class AudioModal extends Component {
       audioLocked,
       isUsingAudio,
     } = this.props;
-    window.addEventListener("CLOSE_AUDIO_MODAL", this.handleCloseAudioModal);
 
     if (!isUsingAudio) {
       if (forceListenOnlyAttendee || audioLocked) return this.handleJoinListenOnly();
@@ -212,7 +210,6 @@ class AudioModal extends Component {
       exitAudio();
     }
     if (resolve) resolve();
-    window.removeEventListener("CLOSE_AUDIO_MODAL", this.handleCloseAudioModal);
     Session.set('audioModalIsOpen', false);
   }
 
@@ -250,10 +247,6 @@ class AudioModal extends Component {
     this.setState({
       content: 'settings',
     });
-  }
-
-  handleCloseAudioModal = () => {
-    showModal(null);
   }
 
   handleGoToEchoTest() {
@@ -607,6 +600,7 @@ class AudioModal extends Component {
       <span>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
         <Styled.AudioModal
+          modalName="AUDIO"
           onRequestClose={closeModal}
           data-test="audioModal"
           contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
@@ -619,6 +613,7 @@ class AudioModal extends Component {
               )
               : null
           }
+          {...this.props}
         >
           {isIE ? (
             <Styled.BrowserWarning>
