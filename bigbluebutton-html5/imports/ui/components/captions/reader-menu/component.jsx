@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/common/button/component';
 import { GithubPicker } from 'react-color';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 
 const DEFAULT_VALUE = 'select';
@@ -227,6 +226,7 @@ class ReaderMenu extends PureComponent {
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
+        {...this.props}
       >
         <Styled.Title>
           {intl.formatMessage(intlMessages.title)}
@@ -406,4 +406,4 @@ class ReaderMenu extends PureComponent {
 
 ReaderMenu.propTypes = propTypes;
 
-export default injectIntl(withModalMounter(ReaderMenu));
+export default injectIntl(ReaderMenu);

@@ -19,7 +19,7 @@ const PresentationUploaderContainer = (props) => {
   const userIsPresenter = currentUser.presenter;
 
   return userIsPresenter && (
-    <ErrorBoundary Fallback={() => <FallbackModal />}>
+    <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader isPresenter={userIsPresenter} {...props} />
     </ErrorBoundary>
   );
