@@ -1,3 +1,0 @@
-[submodule "bigbluebutton-tests/gns3/NPDC"]
-	path = bigbluebutton-tests/gns3/NPDC
-	url = https://github.com/BrentBaccala/NPDC
