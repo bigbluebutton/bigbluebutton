@@ -53,7 +53,21 @@ const config = {
         ],
     ],
 
-    plugins: [require.resolve("@cmfcmf/docusaurus-search-local")],
+    plugins: [
+        require.resolve("@cmfcmf/docusaurus-search-local"),
+        [
+            "@docusaurus/plugin-client-redirects",
+            {
+                fromExtensions: ["html"],
+                redirects: [
+                    {
+                        to: "/2.6/new-features",
+                        from: "/2.6/new"
+                    }
+                ]
+            }
+        ],
+    ],
 
     themeConfig:
 
