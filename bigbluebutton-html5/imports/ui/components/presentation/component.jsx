@@ -448,9 +448,25 @@ class Presentation extends PureComponent {
       });
     });
 
-    win.addEventListener('keydown', (e) => {
-      const api = this.state.tldrawAPI;
+    win.addEventListener('keyup', (e) => {
+      const { tldrawAPI:api } = this.state;
       switch (e.key) {
+        case ' ':
+          //not automatically changed...
+          api.isForcePanning = false;
+          this.handlePanShortcut(e);
+          break;
+      }
+    });
+    
+    win.addEventListener('keydown', (e) => {
+      const { tldrawAPI:api } = this.state;
+      switch (e.key) {
+        case ' ':
+          //not automatically changed...
+          api.isForcePanning = true;
+          this.handlePanShortcut(e);
+          break;
         case 'Delete': case 'Backspace':
           api.delete();
           break;
