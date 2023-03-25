@@ -178,16 +178,11 @@ const TldrawGlobalStyleText = (arg) => {
     }
     
     /* for sticky notes */
-    ${ arg.isRTL ? `
-        div[data-shape="sticky"] > div > div > div > div {
-            text-align: right;
-        }
-    ` : `
-        div[data-shape="sticky"] > div > div > div > div {
-            text-align: left;
-        }
-    `}
     div[data-shape="sticky"] > div > div > div > div {
+        text-align: ${ arg.isRTL ? `right` : `left` } ;
+    }
+    /*this has been supplemented by temporarily showing sticky before detaching*/
+    /*div[data-shape="sticky"] > div > div > div > div {
       position: absolute;
       top: 16px;
       left: 16px;
@@ -199,8 +194,8 @@ const TldrawGlobalStyleText = (arg) => {
       white-space: pre-wrap;
       overflow-wrap: break-word;
       letter-spacing: -0.03em;
-    }
-    div[data-shape="sticky"] > div > div > div > textarea {
+    }*/
+    div[data-shape="sticky"] /*> div > div > div >*/ textarea {
       width: 100%;
       height: 100%;
       border: none;
@@ -219,7 +214,7 @@ const TldrawGlobalStyleText = (arg) => {
       letter-spacing: -0.03em;
     }
     /* for text */
-    div[data-shape="text"] > div > div > div > div > textarea {
+    div[data-shape="text"] /*> div > div > div > div >*/ textarea {
       position: absolute;
       top: 0px;
       left: 0px;
