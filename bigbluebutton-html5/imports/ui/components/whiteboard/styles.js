@@ -178,15 +178,9 @@ const TldrawGlobalStyleText = (arg) => {
     }
     
     /* for sticky notes */
-    ${ arg.isRTL ? `
-        div[data-shape="sticky"] > div > div > div > div {
-            text-align: right;
-        }
-    ` : `
-        div[data-shape="sticky"] > div > div > div > div {
-            text-align: left;
-        }
-    `}
+    div[data-shape="sticky"] > div > div > div > div {
+        text-align: ${ arg.isRTL ? `right` : `left` } ;
+    }
     /*div[data-shape="sticky"] > div > div > div > div {
       position: absolute;
       top: 16px;
