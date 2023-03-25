@@ -181,6 +181,7 @@ const TldrawGlobalStyleText = (arg) => {
     div[data-shape="sticky"] > div > div > div > div {
         text-align: ${ arg.isRTL ? `right` : `left` } ;
     }
+    /*this has been supplemented by temporarily showing sticky before detaching*/
     /*div[data-shape="sticky"] > div > div > div > div {
       position: absolute;
       top: 16px;
