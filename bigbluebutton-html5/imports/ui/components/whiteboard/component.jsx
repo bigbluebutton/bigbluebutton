@@ -64,6 +64,8 @@ export default function Whiteboard(props) {
     hasMultiUserAccess,
     tldrawAPI,
     setTldrawAPI,
+    whiteboardToolbarAutoHide,
+    toggleToolsAnimations,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -160,6 +162,14 @@ export default function Whiteboard(props) {
     };
   }, [tldrawAPI, isToolLocked]);
 
+  React.useEffect(() => {
+    if (whiteboardToolbarAutoHide) {
+      toggleToolsAnimations('fade-in', 'fade-out', '3s');
+    } else {
+      toggleToolsAnimations('fade-out', 'fade-in');
+    }
+  }, [whiteboardToolbarAutoHide]);
+  
   const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
     setEnable(false);
     setEnable(true);
@@ -211,7 +221,9 @@ export default function Whiteboard(props) {
         clientY: event.clientY,
       });
       const canvas = document.getElementById('canvas');
-      canvas && canvas.dispatchEvent(newEvent);
+      if (canvas) {
+        canvas.dispatchEvent(newEvent);
+      }
     }
   }
 
@@ -606,6 +618,7 @@ export default function Whiteboard(props) {
         .sort((a, b) => (a?.id > b?.id ? -1 : 1))
         .forEach((n) => menu.appendChild(n));
     }
+
     app.setSetting('language', language);
     app?.setSetting('isDarkMode', false);
     app?.patchState(
@@ -973,6 +986,8 @@ export default function Whiteboard(props) {
         isPanning={isPanning || panSelected}
         isMoving={isMoving}
         currentTool={currentTool}
+        whiteboardToolbarAutoHide={whiteboardToolbarAutoHide}
+        toggleToolsAnimations={toggleToolsAnimations}
       >
         {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle

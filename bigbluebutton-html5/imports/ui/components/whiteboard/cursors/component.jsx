@@ -46,11 +46,16 @@ const Cursors = (props) => {
     isPanning,
     isMoving,
     currentTool,
+    toggleToolsAnimations,
+    whiteboardToolbarAutoHide,
   } = props;
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
 
-  const start = () => setActive(true);
+  const start = () => {
+    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-out', 'fade-in');
+    setActive(true);
+  };
   const handleGrabbing = () => setPanGrabbing(true);
   const handleReleaseGrab = () => setPanGrabbing(false);
 
@@ -63,6 +68,7 @@ const Cursors = (props) => {
         whiteboardId,
       });
     }
+    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-in', 'fade-out', '3s');
     setActive(false);
   };
 
@@ -206,6 +212,7 @@ const Cursors = (props) => {
   React.useEffect(() => {
     const currentCursor = cursorWrapper?.current;
     currentCursor?.addEventListener('mouseenter', start);
+    currentCursor?.addEventListener('touchstart', start); 
     currentCursor?.addEventListener('mouseleave', end);
     currentCursor?.addEventListener('mousedown', handleGrabbing);
     currentCursor?.addEventListener('mouseup', handleReleaseGrab);
@@ -215,6 +222,7 @@ const Cursors = (props) => {
 
     return () => {
       currentCursor?.removeEventListener('mouseenter', start);
+      currentCursor?.addEventListener('touchstart', start); 
       currentCursor?.removeEventListener('mouseleave', end);
       currentCursor?.removeEventListener('mousedown', handleGrabbing);
       currentCursor?.removeEventListener('mouseup', handleReleaseGrab);
@@ -222,7 +230,7 @@ const Cursors = (props) => {
       currentCursor?.removeEventListener('mousemove', moved);
       currentCursor?.removeEventListener('touchmove', moved);
     };
-  }, [cursorWrapper, whiteboardId, currentUser.presenter]);
+  }, [cursorWrapper, whiteboardId, currentUser.presenter, whiteboardToolbarAutoHide]);
 
   let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
   if (isPanning) {
@@ -319,6 +327,7 @@ Cursors.propTypes = {
   isPanning: PropTypes.bool.isRequired,
   isMoving: PropTypes.bool.isRequired,
   currentTool: PropTypes.string,
+  toggleToolsAnimations: PropTypes.func.isRequired,
 };
 
 Cursors.defaultProps = {
