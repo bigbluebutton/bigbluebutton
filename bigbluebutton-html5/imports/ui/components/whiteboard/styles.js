@@ -80,6 +80,11 @@ const TldrawGlobalStyle = createGlobalStyle`
       }
     }
   `}
+  ${({ isPresenter }) => (!isPresenter) && `
+    #presentationInnerWrapper div{
+      cursor: default !important;
+    }
+  `}
 `;
 
 const EditableWBWrapper = styled.div`
