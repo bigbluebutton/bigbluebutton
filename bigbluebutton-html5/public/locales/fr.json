@@ -215,7 +215,7 @@
     "app.presentation.presentationToolbar.noPrevSlideDesc": "Début de présentation",
     "app.presentation.presentationToolbar.selectLabel": "Sélectionnez la diapositive",
     "app.presentation.presentationToolbar.prevSlideLabel": "Diapositive précédente",
-    "app.presentation.presentationToolbar.prevSlideDesc": "Changer la présentation à la diapositive précédente",
+    "app.presentation.presentationToolbar.prevSlideDesc": "Revenir à la diapositive précédente",
     "app.presentation.presentationToolbar.nextSlideLabel": "Diapositive suivante",
     "app.presentation.presentationToolbar.nextSlideDesc": "Changer la présentation à la diapositive suivante",
     "app.presentation.presentationToolbar.skipSlideLabel": "Passer la diapositive",
