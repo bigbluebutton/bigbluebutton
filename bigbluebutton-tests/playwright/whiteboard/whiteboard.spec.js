@@ -93,7 +93,7 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await zoom.test();
   });
 
-  test'Pan', async ({ browser, context, page }) => {
+  test('Pan', async ({ browser, context, page }) => {
     const pan = new Pan(browser, context);
     await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
     await pan.initModPage2(true, context, { customParameter: hidePresentationToast });
