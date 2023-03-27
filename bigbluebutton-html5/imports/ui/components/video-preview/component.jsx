@@ -1063,6 +1063,7 @@ class VideoPreview extends Component {
         isPhone={deviceInfo.isPhone}
         data-test="webcamSettingsModal"
         title={title}
+        {...this.props}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

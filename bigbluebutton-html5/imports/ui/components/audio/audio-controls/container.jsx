@@ -1,6 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { withUsersConsumer } from '/imports/ui/components/components-data/users-context/context';
@@ -64,7 +63,7 @@ const {
 
 export default withUsersConsumer(
   lockContextContainer(
-    withModalMounter(withTracker(({ userLocks, users }) => {
+    withTracker(({ userLocks, users }) => {
       const currentUser = users[Auth.meetingID][Auth.userID];
       const isViewer = currentUser.role === ROLE_VIEWER;
       const isPresenter = currentUser.presenter;
@@ -93,6 +92,6 @@ export default withUsersConsumer(
         isPresenter,
         isConnected,
       });
-    })(AudioControlsContainer)),
+    })(AudioControlsContainer),
   ),
 );

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
@@ -55,7 +54,7 @@ const WebcamContainer = ({
     : null;
 };
 
-export default withModalMounter(withTracker((props) => {
+export default withTracker((props) => {
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -72,4 +71,4 @@ export default withModalMounter(withTracker((props) => {
   }
 
   return data;
-})(WebcamContainer));
+})(WebcamContainer);

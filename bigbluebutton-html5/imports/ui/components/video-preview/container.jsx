@@ -1,5 +1,4 @@
 import React from 'react';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
@@ -7,13 +6,15 @@ import VideoService from '../video-provider/service';
 
 const VideoPreviewContainer = (props) => <VideoPreview {...props} />;
 
-export default withModalMounter(withTracker(({ mountModal }) => ({
+export default withTracker(({ setIsOpen, callbackToClose }) => ({
   startSharing: (deviceId) => {
-    mountModal(null);
+    callbackToClose();
+    setIsOpen(false);
     VideoService.joinVideo(deviceId);
   },
   stopSharing: (deviceId) => {
-    mountModal(null);
+    callbackToClose();
+    setIsOpen(false);
     if (deviceId) {
       const streamId = VideoService.getMyStreamId(deviceId);
       if (streamId) VideoService.stopVideo(streamId);
@@ -24,7 +25,10 @@ export default withModalMounter(withTracker(({ mountModal }) => ({
   sharedDevices: VideoService.getSharedDevices(),
   isCamLocked: VideoService.isUserLocked(),
   camCapReached: VideoService.hasCapReached(),
-  closeModal: () => mountModal(null),
+  closeModal: () => {
+    callbackToClose();
+    setIsOpen(false);
+  },
   webcamDeviceId: Service.webcamDeviceId(),
   hasVideoStream: VideoService.hasVideoStream(),
-}))(VideoPreviewContainer));
+}))(VideoPreviewContainer);

@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';

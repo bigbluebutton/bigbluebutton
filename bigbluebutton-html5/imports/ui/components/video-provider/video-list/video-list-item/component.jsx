@@ -205,7 +205,7 @@ const VideoListItem = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       {...{
-        ...makeDragOperations(onVirtualBgDrop, user?.userId),
+        ...makeDragOperations(user?.userId),
         dragging,
         draggingOver,
       }}

@@ -8,7 +8,6 @@ import DraggableTextArea from '/imports/ui/components/poll/dragAndDrop/component
 import LiveResult from '/imports/ui/components/poll/live-result/component';
 import Styled from './styles';
 import Toggle from '/imports/ui/components/common/switch/component';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { addNewAlert } from '../screenreader-alert/service';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -1032,7 +1031,7 @@ class Poll extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(Poll));
+export default injectIntl(Poll);
 
 Poll.propTypes = {
   intl: PropTypes.shape({

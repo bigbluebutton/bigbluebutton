@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
@@ -133,14 +132,24 @@ class AudioContainer extends PureComponent {
   }
 
   render() {
-    const { isAudioModalOpen, setAudioModalIsOpen } = this.props;
-    return (isAudioModalOpen ? <AudioModalContainer 
-      {...{
-        priority: "medium",
-        setIsOpen: setAudioModalIsOpen,
-        isOpen: isAudioModalOpen
-      }}
-    /> : null);
+    const { isAudioModalOpen, setAudioModalIsOpen,
+            setVideoPreviewModalIsOpen, isVideoPreviewModalOpen } = this.props;
+    return <>
+      {isAudioModalOpen ? <AudioModalContainer 
+        {...{
+          priority: "medium",
+          setIsOpen: setAudioModalIsOpen,
+          isOpen: isAudioModalOpen
+        }}
+      /> : null}
+      {isVideoPreviewModalOpen ? <VideoPreviewContainer 
+        {...{
+          priority: "medium",
+          setIsOpen: setVideoPreviewModalIsOpen,
+          isOpen: isVideoPreviewModalOpen
+        }}
+      /> : null}
+    </>;
   }
 }
 
@@ -170,7 +179,8 @@ const messages = {
   },
 };
 
-export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, isAudioModalOpen, setAudioModalIsOpen }) => {
+export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, isAudioModalOpen, setAudioModalIsOpen,
+                          setVideoPreviewModalIsOpen, isVideoPreviewModalOpen }) => {
   const { microphoneConstraints } = Settings.application;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
@@ -183,10 +193,10 @@ export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, i
   const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
   const openAudioModal = () => setAudioModalIsOpen(true);
 
-  const openVideoPreviewModal = () => new Promise((resolve) => {
-    if (userWebcam) return resolve();
-    mountModal(<VideoPreviewContainer resolve={resolve} />);
-  });
+  const openVideoPreviewModal = () => {
+    if (userWebcam) return;
+    setVideoPreviewModalIsOpen(true);
+  };
 
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);

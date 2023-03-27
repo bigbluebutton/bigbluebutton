@@ -32,8 +32,6 @@ import {
   validIOSVersion,
 } from './service';
 
-import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
-
 import App from './component';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
@@ -204,7 +202,7 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
+export default injectIntl(withTracker(({ intl, baseControls }) => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
@@ -327,7 +325,6 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     ),
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-    isModalOpen: !!getModal(),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
-})(AppContainer)));
+})(AppContainer));

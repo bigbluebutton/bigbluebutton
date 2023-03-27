@@ -137,12 +137,14 @@ class App extends Component {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
       isAudioModalOpen: false,
       isRandomUserSelectModalOpen: false,
+      isVideoPreviewModalOpen: false,
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
+    this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -531,6 +533,10 @@ class App extends Component {
   setAudioModalIsOpen(value) {
     this.setState({isAudioModalOpen: value});
   }
+  
+  setVideoPreviewModalIsOpen(value) {
+    this.setState({isVideoPreviewModalOpen: value});
+  }
 
   setRandomUserSelectModalIsOpen(value) {
     this.setState({isRandomUserSelectModalOpen: value});
@@ -552,7 +558,7 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen, isRandomUserSelectModalOpen } = this.state;
+    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
     return (
       <>
         <Notifications />
@@ -599,6 +605,8 @@ class App extends Component {
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,
+            isVideoPreviewModalOpen,
+            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
           }} />
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
