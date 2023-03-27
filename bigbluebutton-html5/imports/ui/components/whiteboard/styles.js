@@ -23,6 +23,7 @@ const TldrawGlobalStyle = createGlobalStyle`
   }
   #slide-background-shape div {
     pointer-events: none;
+    user-select: none;
   }
   div[dir*="ltr"]:has(button[aria-expanded*="false"][aria-controls*="radix-"]) {
     pointer-events: none;
