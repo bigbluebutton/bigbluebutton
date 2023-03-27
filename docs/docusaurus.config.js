@@ -63,6 +63,10 @@ const config = {
                     {
                         to: "/2.6/new-features",
                         from: "/2.6/new"
+                    },
+                    {
+                        to: "/development/api",
+                        from: "/dev/api.html"
                     }
                 ]
             }
