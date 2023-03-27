@@ -68,6 +68,7 @@ export default function Whiteboard(props) {
     hasMultiUserAccess,
     tldrawAPI,
     setTldrawAPI,
+    isIphone,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -1024,6 +1025,7 @@ export default function Whiteboard(props) {
 
 Whiteboard.propTypes = {
   isPresenter: PropTypes.bool.isRequired,
+  isIphone: PropTypes.bool.isRequired,
   removeShapes: PropTypes.func.isRequired,
   initDefaultPages: PropTypes.func.isRequired,
   persistShape: PropTypes.func.isRequired,
