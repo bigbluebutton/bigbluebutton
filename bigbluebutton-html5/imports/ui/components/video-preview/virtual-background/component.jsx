@@ -228,6 +228,13 @@ const VirtualBgSelector = ({
           lastActivityDate: Date.now(),
         },
       });
+      const { filename, data, uniqueId } = background;
+      _virtualBgSelected(
+        EFFECT_TYPES.IMAGE_TYPE,
+        filename,
+        0,
+        { file: data, uniqueId },
+      );
     };
 
     const onError = (error) => {
@@ -354,6 +361,7 @@ const VirtualBgSelector = ({
                   type: 'delete',
                   uniqueId,
                 });
+                _virtualBgSelected(EFFECT_TYPES.NONE_TYPE);
               }}
             />
           </Styled.ButtonWrapper>
