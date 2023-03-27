@@ -2,7 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
-import { setSharingScreen, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
+import { setIsSharing, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
@@ -365,7 +365,7 @@ export default class KurentoScreenshareBridge {
       // component tracker to be extra sure we won't have any client-side state
       // inconsistency - prlanzarin
       if (this.broker && this.broker.role === SEND_ROLE && !this.reconnecting) {
-        setSharingScreen(false);
+        setIsSharing(false);
       }
       this.broker = null;
     }

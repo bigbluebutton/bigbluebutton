@@ -164,7 +164,7 @@ class ActionsDropdown extends PureComponent {
       showPushLayout,
       amIModerator,
       isMobile,
-      hasScreenshare,
+      hasCameraAsContent,
       isCameraAsContentEnabled,
     } = this.props;
 
@@ -266,12 +266,12 @@ class ActionsDropdown extends PureComponent {
 
     if (isCameraAsContentEnabled && amIPresenter && !isMobile) {
       actions.push({
-        icon: hasScreenshare ? 'video_off' : 'video',
-        label: hasScreenshare
+        icon: hasCameraAsContent ? 'video_off' : 'video',
+        label: hasCameraAsContent
           ? intl.formatMessage(intlMessages.unshareCameraAsContent)
           : intl.formatMessage(intlMessages.shareCameraAsContent),
         key: 'camera as content',
-        onClick: hasScreenshare
+        onClick: hasCameraAsContent
           ? screenshareHasEnded
           : () => this.setCameraAsContentModalIsOpen(true),
       });

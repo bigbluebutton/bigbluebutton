@@ -1,4 +1,5 @@
 import Presentations from '/imports/api/presentations';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
@@ -31,7 +32,8 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter()) && isVideoBroadcasting();
+  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter())
+    && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 
 function shouldShowExternalVideo() {
@@ -84,7 +86,8 @@ export default {
   shouldShowScreenshare,
   shouldShowExternalVideo,
   shouldShowOverlay,
-  isVideoBroadcasting,
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
   setPresentationIsOpen,
   shouldShowSharedNotes,
 };
