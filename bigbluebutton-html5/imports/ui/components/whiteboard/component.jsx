@@ -9,7 +9,11 @@ import Cursors from './cursors/container';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
-import { presentationMenuHeight } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  presentationMenuHeight,
+  styleMenuOffset,
+  styleMenuOffsetSmall
+} from '/imports/ui/stylesheets/styled-components/general';
 import Styled from './styles';
 import PanToolInjector from './pan-tool-injector/component';
 import {
@@ -961,6 +965,19 @@ export default function Whiteboard(props) {
     }
   }
 
+  const menuOffsetValues = {
+    true: {
+      true: `${styleMenuOffsetSmall}`,
+      false: `${styleMenuOffset}`,
+    },
+    false: {
+      true: `-${styleMenuOffsetSmall}`,
+      false: `-${styleMenuOffset}`,
+    },
+  };
+
+  const menuOffset = menuOffsetValues[isRTL][isIphone];
+
   return (
     <>
       <Cursors
@@ -982,7 +999,7 @@ export default function Whiteboard(props) {
             isPresenter,
             size,
             darkTheme,
-            isRTL,
+            menuOffset,
           }}
         />
       </Cursors>
