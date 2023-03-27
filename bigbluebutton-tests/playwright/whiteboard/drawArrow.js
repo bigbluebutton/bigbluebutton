@@ -4,7 +4,7 @@ const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 const { constructClipObj } = require('../core/util');
 
-class DrawLine extends MultiUsers {
+class DrawArrow extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -19,18 +19,17 @@ class DrawLine extends MultiUsers {
       clip: clipObj,
     };
 
-    await this.modPage.waitAndClick(e.wbShapesButton);
-    await this.modPage.waitAndClick(e.wbLineShape);
+    await this.modPage.waitAndClick(e.wbArrowShape);
 
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-line.png', screenshotOptions);
+    await expect(this.modPage.page).toHaveScreenshot('moderator1-arrow.png', screenshotOptions);
 
-    await expect(this.modPage2.page).toHaveScreenshot('moderator2-line.png', screenshotOptions);
+    await expect(this.modPage2.page).toHaveScreenshot('moderator2-arrow.png', screenshotOptions);
   }
 }
 
-exports.DrawLine = DrawLine;
+exports.DrawArrow = DrawArrow;
