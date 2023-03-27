@@ -18,7 +18,7 @@ const clearOtherSessions = (sessionUserId, current = false) => {
     .forEach(i => serverSessions[i].close());
 };
 
-export default function handleValidateAuthToken({ body }, meetingId) {
+export default async function handleValidateAuthToken({ body }, meetingId) {
   const {
     userId,
     valid,
@@ -42,56 +42,71 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   if (pendingAuths.length === 0) return;
 
   if (!valid) {
-    pendingAuths.forEach(
-      (pendingAuth) => {
+    await Promise.all(pendingAuths.map(
+      async (pendingAuth) => {
         try {
           const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
 
-          upsertValidationState(meetingId, userId, ValidationStates.INVALID, connectionId, reasonCode);
+          await upsertValidationState(
+            meetingId,
+            userId,
+            ValidationStates.INVALID,
+            connectionId,
+            reasonCode,
+          );
 
-          // Schedule socket disconnection for this user, giving some time for client receiving the reason of disconnection
-          Meteor.setTimeout(() => {
-            methodInvocationObject.connection.close();
-          }, 2000);
-
-          Logger.info(`Closed connection ${connectionId} due to invalid auth token.`);
+          // Schedule socket disconnection for this user
+          // giving some time for client receiving the reason of disconnection
+          new Promise((resolve) => {
+            setTimeout(() => {
+              methodInvocationObject.connection.close();
+              Logger.info(`Closed connection ${connectionId} due to invalid auth token.`);
+              resolve();
+            }, 2000);
+          });
         } catch (e) {
           Logger.error(`Error closing socket for meetingId '${meetingId}', userId '${userId}', authToken ${authToken}`);
         }
       },
-    );
+    ));
 
     return;
   }
 
   // Define user ID on connections
-  pendingAuths.forEach(
-    (pendingAuth) => {
+  await Promise.all(pendingAuths.map(
+    async (pendingAuth) => {
       const { methodInvocationObject } = pendingAuth;
 
-      /* Logic migrated from validateAuthToken method ( postponed to only run in case of success response ) - Begin */
+      /* Logic migrated from validateAuthToken method
+      ( postponed to only run in case of success response ) - Begin */
       const sessionId = `${meetingId}--${userId}`;
 
       methodInvocationObject.setUserId(sessionId);
 
-      const User = Users.findOne({
+      const User = await Users.findOneAsync({
         meetingId,
         userId,
       });
 
       if (!User) {
-        createDummyUser(meetingId, userId, authToken);
-      }else{
-        updateUserConnectionId(meetingId, userId, methodInvocationObject.connection.id);
+        await createDummyUser(meetingId, userId, authToken);
+      } else {
+        await updateUserConnectionId(meetingId, userId, methodInvocationObject.connection.id);
       }
 
       ClientConnections.add(sessionId, methodInvocationObject.connection);
-      upsertValidationState(meetingId, userId, ValidationStates.VALIDATED, methodInvocationObject.connection.id);
+      await upsertValidationState(
+        meetingId,
+        userId,
+        ValidationStates.VALIDATED,
+        methodInvocationObject.connection.id,
+      );
 
       /* End of logic migrated from validateAuthToken */
     },
-  );
+  ));
 
   const selector = {
     meetingId,
@@ -99,7 +114,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
     clientType: 'HTML5',
   };
 
-  const User = Users.findOne(selector);
+  const User = await Users.findOneAsync(selector);
 
   // If we dont find the user on our collection is a flash user and we can skip
   if (!User) return;
@@ -121,7 +136,7 @@ export default function handleValidateAuthToken({ body }, meetingId) {
   };
 
   try {
-    const numberAffected = Users.update(selector, modifier);
+    const numberAffected = await Users.updateAsync(selector, modifier);
 
     if (numberAffected) {
       const sessionUserId = `${meetingId}-${userId}`;

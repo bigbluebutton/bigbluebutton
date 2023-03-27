@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import { check } from 'meteor/check';
 
-export default function changeUserLock(meetingId, payload) {
+export default async function changeUserLock(meetingId, payload) {
   check(meetingId, String);
   check(payload, {
     userId: String,
@@ -24,7 +24,7 @@ export default function changeUserLock(meetingId, payload) {
   };
 
   try {
-    const { numberAffected } = Users.update(selector, modifier);
+    const { numberAffected } = Users.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`User's userId=${userId} lock status was changed to: ${locked} by user userId=${lockedBy}`);

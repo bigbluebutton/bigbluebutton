@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 
-export default function setPresentationDownloadable(meetingId, podId,
+export default async function setPresentationDownloadable(meetingId, podId,
   presentationId, downloadable) {
   check(meetingId, String);
   check(presentationId, String);
@@ -22,7 +22,7 @@ export default function setPresentationDownloadable(meetingId, podId,
   };
 
   try {
-    const { numberAffected } = Presentations.upsert(selector, modifier);
+    const { numberAffected } = await Presentations.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Set downloadable status on presentation {${presentationId} in meeting {${meetingId}}`);

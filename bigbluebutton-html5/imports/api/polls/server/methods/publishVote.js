@@ -4,7 +4,7 @@ import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function publishVote(pollId, pollAnswerIds) {
+export default async function publishVote(pollId, pollAnswerIds) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -16,7 +16,7 @@ export default function publishVote(pollId, pollAnswerIds) {
     check(pollAnswerIds, Array);
     check(pollId, String);
 
-    const allowedToVote = Polls.findOne({
+    const allowedToVote = await Polls.findOneAsync({
       id: pollId,
       users: { $in: [requesterUserId] },
       meetingId,
@@ -55,7 +55,7 @@ export default function publishVote(pollId, pollAnswerIds) {
       },
     };
 
-    const numberAffected = Polls.update(selector, modifier);
+    const numberAffected = await Polls.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Removed responded user=${requesterUserId} from poll (meetingId: ${meetingId}, pollId: ${pollId}!)`);
@@ -65,4 +65,7 @@ export default function publishVote(pollId, pollAnswerIds) {
   } catch (err) {
     Logger.error(`Exception while invoking method publishVote ${err.stack}`);
   }
+  //In this case we return true because
+  //lint asks for async functions to return some value.
+  return true;
 }

@@ -9,7 +9,7 @@ const AUTH_TIMEOUT = 120000;
 
 async function validateAuthToken(meetingId, requesterUserId, requesterToken, externalId) {
   let setTimeoutRef = null;
-  const userValidation = await new Promise((res, rej) => {
+  const userValidation = await new Promise(async (res, rej) => {
     const observeFunc = (obj) => {
       if (obj.validationStatus === ValidationStates.VALIDATED) {
         clearTimeout(setTimeoutRef);
@@ -43,7 +43,7 @@ async function validateAuthToken(meetingId, requesterUserId, requesterToken, ext
 
       // Store reference of methodInvocationObject ( to postpone the connection userId definition )
       pendingAuthenticationsStore.add(meetingId, requesterUserId, requesterToken, this);
-      upsertValidationState(
+      await upsertValidationState(
         meetingId,
         requesterUserId,
         ValidationStates.VALIDATING,

@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import addScreenshare from '../modifiers/addScreenshare';
 import clearScreenshare from '../modifiers/clearScreenshare';
 
-export default function handleScreenshareSync({ body }, meetingId) {
+export default async function handleScreenshareSync({ body }, meetingId) {
   check(meetingId, String);
   check(body, Object);
 
@@ -12,8 +12,9 @@ export default function handleScreenshareSync({ body }, meetingId) {
   check(isBroadcasting, Boolean);
 
   if (!isBroadcasting) {
-    return clearScreenshare(meetingId, screenshareConf);
+    const result = await clearScreenshare(meetingId, screenshareConf);
+    return result;
   }
-
-  return addScreenshare(meetingId, body);
+  const result = await addScreenshare(meetingId, body);
+  return result;
 }

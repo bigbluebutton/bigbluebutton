@@ -5,7 +5,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 
 const LANGUAGES = Meteor.settings.public.app.audioCaptions.language.available;
 
-export default function setSpeechLocale(locale) {
+export default async function setSpeechLocale(locale) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -14,7 +14,7 @@ export default function setSpeechLocale(locale) {
     check(locale, String);
 
     if (LANGUAGES.includes(locale) || locale === '') {
-      updateSpeechLocale(meetingId, requesterUserId, locale);
+      await updateSpeechLocale(meetingId, requesterUserId, locale);
     }
   } catch (err) {
     Logger.error(`Exception while invoking method setSpeechLocale ${err.stack}`);

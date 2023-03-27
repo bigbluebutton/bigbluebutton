@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function removeUserInformation() {
+export default async function removeUserInformation() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -15,7 +15,7 @@ export default function removeUserInformation() {
       requesterUserId,
     };
 
-    const numberAffected = UserInfos.remove(selector);
+    const numberAffected = await UserInfos.removeAsync(selector);
 
     if (numberAffected) {
       Logger.info(`Removed user information: requester id=${requesterUserId} meeting=${meetingId}`);

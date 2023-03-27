@@ -1,16 +1,16 @@
 import Logger from '/imports/startup/server/logger';
 import Screenshare from '/imports/api/screenshare';
 
-export default function clearScreenshare(meetingId, screenshareConf) {
+export default async function clearScreenshare(meetingId, screenshareConf) {
   try {
     let numberAffected;
 
     if (meetingId && screenshareConf) {
-      numberAffected = Screenshare.remove({ meetingId, 'screenshare.screenshareConf': screenshareConf });
+      numberAffected = await Screenshare.removeAsync({ meetingId, 'screenshare.screenshareConf': screenshareConf });
     } else if (meetingId) {
-      numberAffected = Screenshare.remove({ meetingId });
+      numberAffected = await Screenshare.removeAsync({ meetingId });
     } else {
-      numberAffected = Screenshare.remove({});
+      numberAffected = await Screenshare.removeAsync({});
     }
 
     if (numberAffected) {
