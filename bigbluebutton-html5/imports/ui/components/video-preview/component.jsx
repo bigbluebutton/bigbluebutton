@@ -431,7 +431,7 @@ class VideoPreview extends Component {
   handleVirtualBgSelected(type, name, customParams) {
     const { sharedDevices } = this.props;
     const { webcamDeviceId } = this.state;
-    const shared = sharedDevices.includes(webcamDeviceId);
+    const shared = this.isAlreadyShared(webcamDeviceId);
 
     if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
       return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
@@ -522,11 +522,16 @@ class VideoPreview extends Component {
   }
 
   handleStopSharing() {
-    const { resolve, stopSharing } = this.props;
+    const { resolve, stopSharing, stopSharingCameraAsContent } = this.props;
     const { webcamDeviceId } = this.state;
-    PreviewService.deleteStream(webcamDeviceId);
-    stopSharing(webcamDeviceId);
-    this.cleanupStreamAndVideo();
+
+    if (this.isCameraAsContentDevice(webcamDeviceId)) {
+      stopSharingCameraAsContent();
+    } else {
+      PreviewService.deleteStream(webcamDeviceId);
+      stopSharing(webcamDeviceId);
+      this.cleanupStreamAndVideo();
+    }
     if (resolve) resolve();
   }
 
@@ -719,6 +724,18 @@ class VideoPreview extends Component {
     return `${intl.formatMessage(intlMessages.cameraLabel)} ${index}`
   }
 
+  isAlreadyShared (webcamId) { 
+    const { sharedDevices, cameraAsContentDeviceId } = this.props;
+
+    return sharedDevices.includes(webcamId) || webcamId === cameraAsContentDeviceId;
+  }
+
+  isCameraAsContentDevice (deviceId) {
+    const { cameraAsContentDeviceId } = this.props;
+
+    return deviceId === cameraAsContentDeviceId;
+  }
+
   renderDeviceSelectors() {
     const {
       intl,
@@ -824,6 +841,7 @@ class VideoPreview extends Component {
 
     const { intl } = this.props;
     const { brightness, wholeImageBrightness, isStartSharingDisabled } = this.state;
+    const shared = this.isAlreadyShared(webcamDeviceId);
 
     const origin = brightness <= 100 ? 'left' : 'right';
     const offset = origin === 'left'
@@ -974,7 +992,6 @@ class VideoPreview extends Component {
   renderModalContent() {
     const {
       intl,
-      sharedDevices,
       hasVideoStream,
       forceOpen,
       camCapReached,
@@ -991,7 +1008,7 @@ class VideoPreview extends Component {
     && !forceOpen
     && !(deviceError || previewError);
 
-    const shared = sharedDevices.includes(webcamDeviceId);
+    const shared = this.isAlreadyShared(webcamDeviceId);
 
     const { isIe } = browserInfo;
 

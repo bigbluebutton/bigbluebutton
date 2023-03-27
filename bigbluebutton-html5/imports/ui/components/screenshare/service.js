@@ -35,6 +35,11 @@ const _sharingContentTypeDep = {
   tracker: new Tracker.Dependency(),
 };
 
+const _cameraAsContentDeviceIdTypeDep = {
+  value: '',
+  tracker: new Tracker.Dependency(),
+};
+
 const isSharing = () => {
   _isSharingDep.tracker.depend();
   return _isSharingDep.value;
@@ -57,6 +62,18 @@ const setSharingContentType = (contentType) => {
 const getSharingContentType = () => {
   _sharingContentTypeDep.tracker.depend();
   return _sharingContentTypeDep.value;
+};
+
+const getCameraAsContentDeviceId = () => {
+  _cameraAsContentDeviceIdTypeDep.tracker.depend();
+  return _cameraAsContentDeviceIdTypeDep.value;
+};
+
+const setCameraAsContentDeviceId = (deviceId) => {
+  if (_cameraAsContentDeviceIdTypeDep.value !== deviceId) {
+    _cameraAsContentDeviceIdTypeDep.value = deviceId;
+    _cameraAsContentDeviceIdTypeDep.tracker.changed();
+  }
 };
 
 const _trackStreamTermination = (stream, handler) => {
@@ -164,6 +181,9 @@ const getBroadcastContentType = () => {
 const screenshareHasEnded = () => {
   if (isSharing()) {
     setIsSharing(false);
+  }
+  if (getSharingContentType() === CONTENT_TYPE_CAMERA) {
+    setCameraAsContentDeviceId('');
   }
 
   KurentoBridge.stop();
@@ -345,4 +365,6 @@ export {
   setVolume,
   getVolume,
   shouldEnableVolumeControl,
+  setCameraAsContentDeviceId,
+  getCameraAsContentDeviceId,
 };

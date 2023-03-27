@@ -34,6 +34,7 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     ScreenShareService.shareScreen(
       true, handleFailure, { stream: Service.getStream(deviceId)._mediaStream }
     );
+    ScreenShareService.setCameraAsContentDeviceId(deviceId);
   },
   stopSharing: (deviceId) => {
     callbackToClose();
@@ -45,7 +46,12 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
       VideoService.exitVideo();
     }
   },
+  stopSharingCameraAsContent: () => {
+    mountModal(null);
+    ScreenShareService.screenshareHasEnded();
+  },
   sharedDevices: VideoService.getSharedDevices(),
+  cameraAsContentDeviceId: ScreenShareService.getCameraAsContentDeviceId(),
   isCamLocked: VideoService.isUserLocked(),
   camCapReached: VideoService.hasCapReached(),
   closeModal: () => {
