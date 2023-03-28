@@ -25,7 +25,10 @@ module BigBlueButton
   module EDL
     module Video
       FFMPEG_WF_CODEC = 'libx264'
-      FFMPEG_WF_ARGS = ['-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'veryfast', '-crf', '30', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p']
+      FFMPEG_WF_ARGS = [
+        '-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'fast', '-crf', '23',
+        '-x264opts', 'stitchable=1', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p',
+      ]
       WF_EXT = 'mp4'
 
       def self.dump(edl)
