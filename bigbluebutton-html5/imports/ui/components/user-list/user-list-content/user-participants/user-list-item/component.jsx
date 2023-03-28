@@ -411,6 +411,7 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToMuteAudio
+          && !userLocked
           && isMeteorConnected
           && !meetingIsBreakout
           && !showNestedOptions,
