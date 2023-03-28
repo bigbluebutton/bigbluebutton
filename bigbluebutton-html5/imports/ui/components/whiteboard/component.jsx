@@ -821,6 +821,10 @@ export default function Whiteboard(props) {
         },
       },
     );
+
+    if ((panSelected || isPanning)) {
+      e.isForcePanning = isPanning;
+    }
   };
 
   const onUndo = (app) => {
@@ -953,10 +957,6 @@ export default function Whiteboard(props) {
 
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
-
-  if ((panSelected || isPanning) && tldrawAPI) {
-    tldrawAPI.isForcePanning = isPanning;
-  }
 
   if (hasWBAccess || isPresenter) {
     if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
