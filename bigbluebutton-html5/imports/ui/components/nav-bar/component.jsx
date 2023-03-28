@@ -168,11 +168,12 @@ class NavBar extends Component {
       amIModerator,
       style,
       main,
+      isPinned,
       sidebarNavigation,
       currentUserId,
     } = this.props;
 
-    const hasNotification = hasUnreadMessages || hasUnreadNotes;
+    const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
