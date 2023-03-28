@@ -133,7 +133,21 @@ const NetworkTesting = ({ networkInfos }) => {
         </>
       </li>
       <li>IP Address v6</li>
-      <li>Network Bandwidth</li>
+      <li>
+        Network Bandwidth:{" "}
+        <>
+          : <br />
+          Upload :
+          <Text strong className={"text-capitalize"}>
+            {networkInfos?.bandwidth.uploadSpeed}
+          </Text>
+          <br />
+          Download :
+          <Text strong className={"text-capitalize"}>
+            {networkInfos?.bandwidth.downloadSpeed}
+          </Text>
+        </>
+      </li>
       <li>
         <>
           VPN Detection
@@ -151,8 +165,6 @@ const NetworkTesting = ({ networkInfos }) => {
   );
 };
 const DevicesTesting = ({ devicesInfos }) => {
-  console.log(devicesInfos);
-
   return (
     <ul>
       <li>

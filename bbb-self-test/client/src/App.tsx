@@ -32,6 +32,8 @@ import { DevicesType } from "./types/DevicesType";
 
 import type { CheckboxValueType } from "antd/es/checkbox/Group";
 import { PayCircleFilled } from "@ant-design/icons";
+import networkSpeedService from "./services/network-speed.service";
+import {upload} from "@testing-library/user-event/dist/upload";
 
 dayjs.locale("en");
 
@@ -165,7 +167,22 @@ const App: React.FC = () => {
         }
       });
   };
-  const initData = () => {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const initData =  () => {
     setTestFinished(false);
 
     setSystemStatus("Wait");
@@ -175,7 +192,10 @@ const App: React.FC = () => {
     setSystemInfos(undefined);
     setNetworkInfos(undefined);
     setDevicesInfos(undefined);
+
+
   };
+
   const next = async () => {
     setCurrentStep(currentStep + 1);
 
@@ -222,19 +242,31 @@ const App: React.FC = () => {
         await turnItOff.checkVPN().then((result) => {
           vpnValue = result?.hasVPN;
         });
+         let downloadspeed=await networkSpeedService.getDownloadSpeed();
+        let uploadspeed=await networkSpeedService.getUploadSpeed();
 
-        DetectRTC.DetectLocalIPAddress((ipAddress) => {
+          DetectRTC.DetectLocalIPAddress((ipAddress) => {
           if (!ipAddress) return;
 
-          setNetworkInfos({
-            ipAddressType:
-              ipAddress.indexOf("Local") !== -1 ? "private" : "public",
-            IPv4: ipAddress.substring(ipAddress.indexOf(":") + 2),
 
-            vpn: vpnValue,
-          });
+
+
+                      setNetworkInfos({
+                        ipAddressType:
+                            ipAddress.indexOf("Local") !== -1 ? "private" : "public",
+                        IPv4: ipAddress.substring(ipAddress.indexOf(":") + 2),
+
+                        vpn: vpnValue,
+                        bandwidth:{downloadSpeed:(downloadspeed.data.speed.gbps>1)?downloadspeed.data.speed.gbps+" Gbps" :((downloadspeed.data.speed.mbps>1)? downloadspeed.data.speed.mbps +" Mbps":((downloadspeed.data.speed.kbps>1)?downloadspeed.data.speed.kbps+" Kbps":downloadspeed.data.speed.bps + " bps"))   ,
+                         uploadSpeed:(uploadspeed.data.speed.gbps>1)?uploadspeed.data.speed.gbps +" Gbps" :((uploadspeed.data.speed.mbps>1)? uploadspeed.data.speed.mbps +" Mbps":((uploadspeed.data.speed.kbps>1)?uploadspeed.data.speed.kbps+" Kbps":uploadspeed.data.speed.bps+" bps"))  ,
+                        }
+                      });
+
+
+
         });
         setNetworkStatus("Passed");
+
       }
 
       if (checkedList.includes("Devices")) {
