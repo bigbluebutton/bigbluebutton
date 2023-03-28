@@ -253,7 +253,7 @@
     "app.presentationUploder.clearErrorsDesc": "Efface les échecs de téléversement des présentations",
     "app.presentationUploder.uploadViewTitle": "Charger la présentation",
     "app.poll.pollPaneTitle": "Sondage",
-    "app.poll.enableMultipleResponseLabel": "Question à choix multiple.",
+    "app.poll.enableMultipleResponseLabel": "Question à choix multiple ?",
     "app.poll.quickPollTitle": "Sondage rapide",
     "app.poll.hidePollDesc": "Masque le volet du menu du sondage",
     "app.poll.quickPollInstruction": "Sélectionnez une option ci-dessous pour démarrer votre sondage.",
