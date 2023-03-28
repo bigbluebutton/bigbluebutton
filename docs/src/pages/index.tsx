@@ -26,7 +26,7 @@ function HomepageHeader() {
                         </p>
                         <Link
                             className="button button--install button--lg"
-                            to="/administration/install">
+                            to="https://support.bigbluebutton.org/">
                             Quick Start Guide
                         </Link>
                     </div>

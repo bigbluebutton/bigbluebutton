@@ -9,6 +9,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
+import AppService from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -206,6 +207,13 @@ const PresentationMenu = (props) => {
               },
             });
 
+            // This is a workaround to a conflict of the
+            // dark mode's styles and the html-to-image lib.
+            // Issue:
+            //  https://github.com/bubkoo/html-to-image/issues/370
+            const darkThemeState = AppService.isDarkThemeEnabled();
+            AppService.setDarkTheme(false);
+
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
               const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
@@ -239,6 +247,9 @@ const PresentationMenu = (props) => {
                 logCode: 'presentation_snapshot_error',
                 extraInfo: e,
               });
+            } finally {
+              // Workaround
+              AppService.setDarkTheme(darkThemeState);
             }
           },
         },
