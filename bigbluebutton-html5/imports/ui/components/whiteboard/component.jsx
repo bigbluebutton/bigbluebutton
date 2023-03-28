@@ -9,7 +9,11 @@ import Cursors from './cursors/container';
 import Settings from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import KEY_CODES from '/imports/utils/keyCodes';
-import { presentationMenuHeight } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  presentationMenuHeight,
+  styleMenuOffset,
+  styleMenuOffsetSmall
+} from '/imports/ui/stylesheets/styled-components/general';
 import Styled from './styles';
 import PanToolInjector from './pan-tool-injector/component';
 import {
@@ -64,6 +68,7 @@ export default function Whiteboard(props) {
     hasMultiUserAccess,
     tldrawAPI,
     setTldrawAPI,
+    isIphone,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -197,6 +202,24 @@ export default function Whiteboard(props) {
     }
   };
 
+  const handleWheelEvent = (event) => {
+    if (!event.ctrlKey) {
+      // Prevent the event from reaching the tldraw library
+      event.stopPropagation();
+      event.preventDefault();
+      const newEvent = new WheelEvent('wheel', {
+        deltaX: event.deltaX,
+        deltaY: event.deltaY,
+        deltaZ: event.deltaZ,
+        ctrlKey: true,
+        clientX: event.clientX,
+        clientY: event.clientY,
+      });
+      const canvas = document.getElementById('canvas');
+      canvas && canvas.dispatchEvent(newEvent);
+    }
+  }
+
   React.useEffect(() => {
     document.addEventListener('mouseup', checkClientBounds);
     document.addEventListener('visibilitychange', checkVisibility);
@@ -204,6 +227,10 @@ export default function Whiteboard(props) {
     return () => {
       document.removeEventListener('mouseup', checkClientBounds);
       document.removeEventListener('visibilitychange', checkVisibility);
+      const canvas = document.getElementById('canvas');
+      if (canvas) {
+        canvas.removeEventListener('wheel', handleWheelEvent);
+      }
     };
   }, [tldrawAPI]);
 
@@ -307,15 +334,22 @@ export default function Whiteboard(props) {
         .filter(([, shape]) => shape.name?.includes('poll-result'));
       pollResults.forEach(([id, shape]) => {
         if (_.isEqual(shape.point, [0, 0])) {
-          const shapeBounds = tldrawAPI?.getShapeBounds(id);
-          if (shapeBounds) {
-            const editedShape = shape;
-            editedShape.point = [
-              slidePosition.width - shapeBounds.width,
-              slidePosition.height - shapeBounds.height,
-            ];
-            editedShape.size = [shapeBounds.width, shapeBounds.height];
-            if (isPresenter) persistShape(editedShape, whiteboardId);
+          try {
+            const shapeBounds = tldrawAPI?.getShapeBounds(id);
+            if (shapeBounds) {
+              const editedShape = shape;
+              editedShape.point = [
+                slidePosition.width - shapeBounds.width,
+                slidePosition.height - shapeBounds.height,
+              ];
+              editedShape.size = [shapeBounds.width, shapeBounds.height];
+              if (isPresenter) persistShape(editedShape, whiteboardId);
+            }
+          } catch (error) {
+            logger.error({
+              logCode: 'whiteboard_poll_results_error',
+              extraInfo: { error },
+            }, 'Whiteboard catch error on moving unpublished poll results');
           }
         }
       });
@@ -528,8 +562,8 @@ export default function Whiteboard(props) {
     previousSlide(+curPageId, podId);
   };
 
-  const switchSlide = (event) => {
-    const { which } = event;
+  const handleOnKeyDown = (event) => {
+    const { which, ctrlKey } = event;
 
     switch (which) {
       case KEY_CODES.ARROW_LEFT:
@@ -543,6 +577,13 @@ export default function Whiteboard(props) {
       case KEY_CODES.ENTER:
         fullscreenToggleHandler();
         break;
+      case KEY_CODES.A:
+        if (ctrlKey) {
+          event.preventDefault();
+          event.stopPropagation();
+          tldrawAPI?.selectAll();
+        }
+        break;
       default:
     }
   };
@@ -550,6 +591,11 @@ export default function Whiteboard(props) {
   const onMount = (app) => {
     const menu = document.getElementById('TD-Styles')?.parentElement;
     setSafeCurrentTool('select');
+
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
+    }
 
     if (menu) {
       const MENU_OFFSET = '48px';
@@ -856,10 +902,10 @@ export default function Whiteboard(props) {
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute('data-position');
 
-  if (currentTool && !isPanning) tldrawAPI?.selectTool(currentTool);
+  if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
   const editableWB = (
-    <Styled.EditableWBWrapper onKeyDown={switchSlide}>
+    <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
         key={`wb-${isRTL}-${dockPos}`}
         document={doc}
@@ -920,6 +966,19 @@ export default function Whiteboard(props) {
     }
   }
 
+  const menuOffsetValues = {
+    true: {
+      true: `${styleMenuOffsetSmall}`,
+      false: `${styleMenuOffset}`,
+    },
+    false: {
+      true: `-${styleMenuOffsetSmall}`,
+      false: `-${styleMenuOffset}`,
+    },
+  };
+
+  const menuOffset = menuOffsetValues[isRTL][isIphone];
+
   return (
     <>
       <Cursors
@@ -941,7 +1000,7 @@ export default function Whiteboard(props) {
             isPresenter,
             size,
             darkTheme,
-            isRTL,
+            menuOffset,
           }}
         />
       </Cursors>
@@ -966,6 +1025,7 @@ export default function Whiteboard(props) {
 
 Whiteboard.propTypes = {
   isPresenter: PropTypes.bool.isRequired,
+  isIphone: PropTypes.bool.isRequired,
   removeShapes: PropTypes.func.isRequired,
   initDefaultPages: PropTypes.func.isRequired,
   persistShape: PropTypes.func.isRequired,

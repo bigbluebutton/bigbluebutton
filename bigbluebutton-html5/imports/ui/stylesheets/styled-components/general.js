@@ -86,6 +86,9 @@ const toastIconSm = '1.2rem';
 
 const presentationMenuHeight = '45px';
 
+const styleMenuOffset = '6.25rem';
+const styleMenuOffsetSmall = '5rem';
+
 export {
   borderSizeSmall,
   borderSize,
@@ -165,4 +168,6 @@ export {
   toastIconMd,
   toastIconSm,
   presentationMenuHeight,
+  styleMenuOffset,
+  styleMenuOffsetSmall,
 };

@@ -485,12 +485,34 @@ class PresentationUploader extends Component {
 
   handleRemove(item, withErr = false) {
     if (withErr) {
-      const { presentations } = this.props;
+      const { presentations } = this.state;
+      const { presentations: propPresentations } = this.props;
+    
+      const filteredPropPresentations = propPresentations.filter(d => d.upload.done && d.conversion?.done);
+      const ids = new Set(filteredPropPresentations.map((d) => d.id));
+      const filteredPresentations = presentations.filter((d) => {
+        d.isCurrent = false;
+        return !ids.has(d.id) && !(d.upload.error || d.conversion.error) && !(d.upload.done && d.conversion.done)});
+      const merged = [
+        ...filteredPresentations,
+        ...filteredPropPresentations,
+      ];
+      let hasUploading
+      merged.forEach(d => {
+        if (!d.upload?.done || !d.conversion?.done) {
+          hasUploading = true;
+        }})
       this.hasError = false;
-      return this.setState({
-        presentations,
-        disableActions: false,
-      });
+      if (hasUploading) {
+        return this.setState({
+          presentations: merged,
+        });
+      } else {
+        return this.setState({
+          presentations: merged,
+          disableActions: false,
+        });
+      }
     }
 
     const { presentations } = this.state;
@@ -623,10 +645,20 @@ class PresentationUploader extends Component {
   handleDismiss() {
     const { presentations } = this.state;
     const { presentations: propPresentations } = this.props;
-    const ids = new Set(propPresentations.map((d) => d.ID));
+
+    const ids = new Set(propPresentations.map((d) => d.id));
+
+    const filteredPresentations = presentations.filter((d) => {
+      return !ids.has(d.id) && (d.upload.done || d.upload.progress !== 0)});
+    const isThereStateCurrentPres = filteredPresentations.some(p => p.isCurrent);
     const merged = [
-      ...presentations.filter((d) => !ids.has(d.ID)),
-      ...propPresentations,
+      ...filteredPresentations,
+      ...propPresentations.filter(p => {
+        if (isThereStateCurrentPres) {
+          p.isCurrent = false;
+        }
+        return true;
+      }),
     ];
     this.setState(
       { presentations: merged },

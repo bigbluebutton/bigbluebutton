@@ -86,11 +86,20 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
   const questionRegex = /.*?\?/gm;
   const question = safeMatch(questionRegex, content, '');
 
+  if (question?.length > 0) {
+    const urlRegex = /\bhttps?:\/\/\S+\b/g;
+    const hasUrl = safeMatch(urlRegex, question[0], '');
+    if (hasUrl.length > 0) question.pop();
+  }
+
   const doubleQuestionRegex = /\?{2}/gm;
   const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
   const yesNoPatt = /.*(yes\/no|no\/yes).*/gm;
   const hasYN = safeMatch(yesNoPatt, content, false);
+
+  const trueFalsePatt = /.*(true\/false|false\/true).*/gm;
+  const hasTF = safeMatch(trueFalsePatt, content, false);
 
   const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
@@ -163,7 +172,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     }
   });
 
-  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN) {
+  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN && !hasTF) {
     quickPollOptions.push({
       type: 'R-',
       poll: {

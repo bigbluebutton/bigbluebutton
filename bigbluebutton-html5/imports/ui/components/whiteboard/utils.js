@@ -212,11 +212,67 @@ const mapLanguage = (language) => {
   }
 };
 
+/* getFontStyle adapted from tldraw source code
+  https://github.com/tldraw/tldraw/blob/55a8831a6b036faae0dfd77d6733a8f585f5ae23/packages/tldraw/src/state/shapes/shared/shape-styles.ts#L123 */
+const getFontStyle = (style) => {
+  const fontSizes = {
+    small: 28,
+    medium: 48,
+    large: 96,
+    auto: 'auto',
+  };
+
+  const fontFaces = {
+    script: '"Caveat Brush"',
+    sans: '"Source Sans Pro"',
+    serif: '"Crimson Pro"',
+    mono: '"Source Code Pro"',
+  }
+
+  const fontSize = fontSizes[style.size];
+  const fontFace = fontFaces[style.font];
+  const { scale = 1 } = style;
+
+  return `${fontSize * scale}px/1 ${fontFace}`;
+}
+
+/* getMeasurementDiv and getTextSize adapted from tldraw source code
+  https://github.com/tldraw/tldraw/blob/55a8831a6b036faae0dfd77d6733a8f585f5ae23/packages/tldraw/src/state/shapes/shared/getTextSize.ts */
+const getMeasurementDiv = (font) => {
+  // A div used for measurement
+  const pre = document.getElementById('text-measure');
+  pre.style.font = font;
+
+  return pre;
+}
+
+const getTextSize = (text, style, padding) => {
+  const font = getFontStyle(style);
+
+  if (!text) {
+    return [16, 32];
+  }
+
+  const melm = getMeasurementDiv(font);
+  melm.textContent = text;
+
+  if (!melm) {
+    // We're in SSR
+    return [10, 10];
+  }
+
+  // In tests, offsetWidth and offsetHeight will be 0
+  const width = melm.offsetWidth || 1;
+  const height = melm.offsetHeight || 1;
+
+  return [width + padding, height + padding];
+};
+
 const Utils = {
-  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges,
+  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, getTextSize,
 };
 
 export default Utils;
 export {
-  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges,
+  usePrevious, findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, getTextSize,
 };
