@@ -60,7 +60,7 @@ To do so, follow the steps below:
 2) Download the migration rake tasks with the following command:
 
 ```bash
-wget -P lib/tasks/migrations https://raw.githubusercontent.com/bigbluebutton/greenlight/master/lib/tasks/migrations/migrations.rake
+wget -P lib/tasks/migrations https://raw.githubusercontent.com/bigbluebutton/greenlight/v2/lib/tasks/migrations/migrations.rake
 ```
 
 The file **migrations.rake** should now be present in your **/lib/tasks/migrations** directory.
