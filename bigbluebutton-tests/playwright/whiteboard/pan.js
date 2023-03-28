@@ -4,13 +4,17 @@ const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 const { constructClipObj } = require('../core/util');
 
-class DrawLine extends MultiUsers {
+const defaultZoomLevel = '100%';
+const zoomedInZoomLevel = '125%';
+const maxZoomLevel = '400%';
+
+class Pan extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
 
   async test() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.resetZoomButton, ELEMENT_WAIT_LONGER_TIME);
 
     const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const clipObj = constructClipObj(wbBox);
@@ -19,18 +23,18 @@ class DrawLine extends MultiUsers {
       clip: clipObj,
     };
 
-    await this.modPage.waitAndClick(e.wbShapesButton);
-    await this.modPage.waitAndClick(e.wbLineShape);
+    for(let i = 100; i < 200; i += 25) {
+      await this.modPage.waitAndClick(e.zoomInButton);
+    }
 
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
+    await expect(this.modPage.page).toHaveScreenshot('moderator1-pan.png', screenshotOptions);
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-line.png', screenshotOptions);
-
-    await expect(this.modPage2.page).toHaveScreenshot('moderator2-line.png', screenshotOptions);
+    await expect(this.modPage2.page).toHaveScreenshot('moderator2-pan.png', screenshotOptions);
   }
 }
 
-exports.DrawLine = DrawLine;
+exports.Pan = Pan;

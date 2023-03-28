@@ -12,10 +12,10 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
-  ${({ isRTL }) => `
+  ${({ menuOffset }) => `
     #TD-StylesMenu {
       position: relative;
-      right: ${isRTL ? '7rem' : '-7rem'};
+      right: ${menuOffset};
     }
   `}
   #TD-PrimaryTools-Image {
@@ -79,6 +79,11 @@ const TldrawGlobalStyle = createGlobalStyle`
       &:focus {
         border: solid ${borderSize} ${colorWhite} !important;
       }
+    }
+  `}
+  ${({ isPresenter }) => (!isPresenter) && `
+    #presentationInnerWrapper div{
+      cursor: default !important;
     }
   `}
 `;
