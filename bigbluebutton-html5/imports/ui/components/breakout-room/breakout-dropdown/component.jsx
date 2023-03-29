@@ -124,7 +124,7 @@ class BreakoutDropdown extends PureComponent {
           {...{
             isUpdate: true,
             onRequestClose: () => this.setCreateBreakoutRoomModalIsOpen(false),
-            priority: "medium",
+            priority: "low",
             setIsOpen: this.setCreateBreakoutRoomModalIsOpen,
             isOpen: isCreateBreakoutRoomModalOpen
           }}

@@ -166,7 +166,7 @@ class AudioControls extends PureComponent {
         {
           isAudioModalOpen ? <AudioModalContainer 
             {...{
-              priority: "medium",
+              priority: "low",
               setIsOpen: this.setAudioModalIsOpen,
               isOpen: isAudioModalOpen
             }}

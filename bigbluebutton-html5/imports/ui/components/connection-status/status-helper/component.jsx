@@ -94,7 +94,7 @@ class ConnectionStatusIcon extends PureComponent {
                 selectedTab={2} 
                 {...{
                   onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
-                  priority: "medium",
+                  priority: "low",
                   setIsOpen: this.setSettingsMenuModalIsOpen,
                   isOpen: isSettingsMenuModalOpen,
                 }}

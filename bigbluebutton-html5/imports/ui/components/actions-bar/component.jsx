@@ -95,7 +95,7 @@ class ActionsBar extends PureComponent {
                   isCaptionsReaderMenuModalOpen ? <CaptionsReaderMenuContainer
                     {...{
                       onRequestClose: () => this.setCaptionsReaderMenuModalIsOpen(false),
-                      priority: "medium",
+                      priority: "low",
                       setIsOpen: this.setCaptionsReaderMenuModalIsOpen,
                       isOpen: isCaptionsReaderMenuModalOpen,
                     }}

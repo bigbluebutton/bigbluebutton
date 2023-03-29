@@ -205,7 +205,7 @@ const JoinVideoButton = ({
             setForceOpen(false);
           }, 
           forceOpen,
-          priority: "medium",
+          priority: "low",
           setIsOpen: setVideoPreviewModalIsOpen,
           isOpen: isVideoPreviewModalOpen
         }}

@@ -137,14 +137,14 @@ class AudioContainer extends PureComponent {
     return <>
       {isAudioModalOpen ? <AudioModalContainer 
         {...{
-          priority: "medium",
+          priority: "low",
           setIsOpen: setAudioModalIsOpen,
           isOpen: isAudioModalOpen
         }}
       /> : null}
       {isVideoPreviewModalOpen ? <VideoPreviewContainer 
         {...{
-          priority: "medium",
+          priority: "low",
           setIsOpen: setVideoPreviewModalIsOpen,
           isOpen: isVideoPreviewModalOpen
         }}

@@ -857,7 +857,7 @@ class UserListItem extends PureComponent {
           confirmButtonDataTest="removeUserConfirmation" 
           {...{
             onRequestClose: () => this.setConfirmationModalIsOpen(false),
-            priority: "medium",
+            priority: "low",
             setIsOpen: this.setConfirmationModalIsOpen,
             isOpen: isConfirmationModalOpen
           }}

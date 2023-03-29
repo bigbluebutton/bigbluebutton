@@ -355,7 +355,7 @@ class ActionsDropdown extends PureComponent {
         {isExternalVideoModalOpen ? <ExternalVideoModal 
           {...{
             onRequestClose: () => this.setExternalVideoModalIsOpen(false),
-            priority: "medium",
+            priority: "low",
             setIsOpen: this.setExternalVideoModalIsOpen,
             isOpen: isExternalVideoModalOpen
           }}
@@ -364,7 +364,7 @@ class ActionsDropdown extends PureComponent {
           isSelectedUser={false} 
           {...{
             onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
-            priority: "medium",
+            priority: "low",
             setIsOpen: this.setRandomUserSelectModalIsOpen,
             isOpen: isRandomUserSelectModalOpen
           }}
@@ -374,7 +374,7 @@ class ActionsDropdown extends PureComponent {
           isSelectedUser={false} 
           {...{
             onRequestClose: () => this.setLayoutModalIsOpen(false),
-            priority: "medium",
+            priority: "low",
             setIsOpen: this.setLayoutModalIsOpen,
             isOpen: isLayoutModalOpen
           }}

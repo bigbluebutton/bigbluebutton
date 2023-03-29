@@ -155,7 +155,7 @@ const DragAndDrop = (props) => {
         checkboxMessageId="app.confirmation.skipConfirm" 
         {...{
           onRequestClose: () => setConfirmModalIsOpen(false),
-          priority: "medium",
+          priority: "low",
           setIsOpen: setConfirmModalIsOpen,
           isOpen: isConfirmModalOpen
         }}
