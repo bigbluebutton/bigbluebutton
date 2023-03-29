@@ -9,6 +9,9 @@ class NetworkSpeedService {
     getUploadSpeed() {
         return axios.get(apiRoutes.UPLOAD_URL);
     }
+    getPing(){
+        return axios.get(apiRoutes.PING_URL);
+    }
 }
 
 export default new NetworkSpeedService();

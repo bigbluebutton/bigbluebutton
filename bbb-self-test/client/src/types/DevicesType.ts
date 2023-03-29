@@ -7,6 +7,9 @@ export type DevicesType = {
         allowed?: boolean;
         devices?: string[];
     },
-    speakers?: string[];
+    speakers?: {
+        allowed?: boolean;
+        devices?: string[];
+    }
     screenshare?: boolean;
 };

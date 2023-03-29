@@ -146,6 +146,11 @@ const NetworkTesting = ({ networkInfos }) => {
           <Text strong className={"text-capitalize"}>
             {networkInfos?.bandwidth.downloadSpeed}
           </Text>
+          <br />
+          Ping :
+          <Text strong className={"text-capitalize"}>
+            {networkInfos?.bandwidth.ping}
+          </Text>
         </>
       </li>
       <li>
