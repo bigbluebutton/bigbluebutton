@@ -318,7 +318,7 @@
     "app.poll.backLabel": "Débuter un sondage",
     "app.poll.closeLabel": "Fermer",
     "app.poll.waitingLabel": "En attente des réponses ({0}/{1})",
-    "app.poll.ariaInputCount": "Option {0} sur {1} du sondage personnalisé",
+    "app.poll.ariaInputCount": "Option de sondage personnalisée  {0} sur {1}  ",
     "app.poll.customPlaceholder": "Ajouter une option de sondage",
     "app.poll.noPresentationSelected": "Aucune présentation sélectionnée ! Veuillez en  sélectionner une.",
     "app.poll.clickHereToSelect": "Cliquez ici pour sélectionner",
