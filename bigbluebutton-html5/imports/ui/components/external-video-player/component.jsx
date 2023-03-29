@@ -634,7 +634,6 @@ class VideoPlayer extends Component {
             onPlay={this.handleOnPlay}
             onPause={this.handleOnPause}
             controls={isPresenter}
-            autoPlay
             key={`react-player${key}`}
             ref={(ref) => { this.player = ref; }}
             height="100%"
