@@ -247,8 +247,6 @@ CREATE TABLE "chat_user" (
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
 	"userId" varchar(100),
-	"userName" varchar(255),
-	"userRole" varchar(20),
 	"lastSeenAt" bigint,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
@@ -277,16 +275,16 @@ CREATE OR REPLACE VIEW "v_chat" AS
 SELECT 	cu."userId",
 		chat."meetingId",
 		chat."chatId",
-		array_remove(array_agg(DISTINCT chat_with."userId"),NULL) "participantsId",
-		string_agg(DISTINCT chat_with."userName" ,', ') AS "participantsName",
+		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
-		sum(CASE WHEN cm."createdTime" > cu."lastSeenAt" THEN 1 ELSE 0 end) "totalUnread"
+		sum(CASE WHEN cm."createdTime" > cu."lastSeenAt" THEN 1 ELSE 0 end) "totalUnread",
+		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN TRUE ELSE FALSE end public
 FROM "user"
 LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 JOIN "chat" ON cu."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
-LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat_with."userId" != cu."userId"
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat."chatId" != 'MAIN-PUBLIC-GROUP-CHAT' AND chat_with."userId" != cu."userId"
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
-GROUP BY cu."userId", chat."meetingId", chat."chatId";
+GROUP BY cu."userId", chat."meetingId", chat."chatId", chat_with."userId";
 
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS

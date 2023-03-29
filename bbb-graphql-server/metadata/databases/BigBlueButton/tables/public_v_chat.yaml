@@ -6,16 +6,26 @@ configuration:
   custom_column_names: {}
   custom_name: chat
   custom_root_fields: {}
+object_relationships:
+  - name: participant
+    using:
+      manual_configuration:
+        column_mapping:
+          participantId: userId
+        insertion_order: null
+        remote_table:
+          name: user
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:
       columns:
         - chatId
         - meetingId
-        - participantsId
-        - participantsName
+        - participantId
         - totalMessages
         - totalUnread
+        - public
       filter:
         _and:
           - meetingId:

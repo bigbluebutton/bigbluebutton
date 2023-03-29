@@ -7,10 +7,15 @@ export default function ChatsInfo() {
       chat {
         chatId
         meetingId
-        participantsId
-        participantsName
+        participant {
+            name
+            role
+            color
+            loggedOut
+        }
         totalMessages
         totalUnread
+        public
       }
     }`
   );
@@ -24,7 +29,7 @@ export default function ChatsInfo() {
         <tr>
             <th>Id</th>
             <th>Meeting</th>
-            <th>Participants</th>
+            <th>Participant</th>
             <th>Total Mgs</th>
             <th>Unread</th>
         </tr>
@@ -36,7 +41,7 @@ export default function ChatsInfo() {
               <tr key={curr.chatId}>
                   <td>{curr.chatId}</td>
                   <td>{curr.meetingId}</td>
-                  <td>{curr.participantsName}</td>
+                  <td>{curr.participant?.name} {curr.participant?.role} {curr.participant?.color}  {curr.participant?.loggedOut == true ? ' (Offline)' : ''}</td>
                   <td>{curr.totalMessages}</td>
                   <td>{curr.totalUnread}</td>
               </tr>

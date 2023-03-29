@@ -10,9 +10,7 @@ case class ChatUserDbModel(
     chatId:     String,
     meetingId:  String,
     userId:     String,
-    lastSeenAt: Long,
-    userName:   String,
-    userRole:   String
+    lastSeenAt: Long
 )
 
 class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "chat_user") {
@@ -20,12 +18,10 @@ class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "ch
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
   val lastSeenAt = column[Long]("lastSeenAt")
-  val userName = column[String]("userName")
-  val userRole = column[String]("userRole")
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (chatId, meetingId, userId, lastSeenAt, userName, userRole) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
+  override def * = (chatId, meetingId, userId, lastSeenAt) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
 }
 
 object ChatUserDAO {
@@ -36,9 +32,7 @@ object ChatUserDAO {
           userId = groupChatUser.id,
           chatId = chatId,
           meetingId = meetingId,
-          lastSeenAt = 0,
-          userName = groupChatUser.name,
-          userRole = groupChatUser.role
+          lastSeenAt = 0
         )
       )
     ).onComplete {

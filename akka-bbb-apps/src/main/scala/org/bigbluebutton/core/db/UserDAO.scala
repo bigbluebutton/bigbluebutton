@@ -124,25 +124,35 @@ object UserDAO {
     }
   }
 
-  def delete(regUser: RegisteredUser) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserDbTableDef]
-        .filter(_.userId === regUser.id)
-        .delete
-    ).onComplete {
-        case Success(rowsAffected) => println(s"User ${regUser.id} deleted")
-        case Failure(e)            => println(s"Error deleting user ${regUser.id}: $e")
-      }
-  }
+//  def delete(regUser: RegisteredUser) = {
+//    DatabaseConnection.db.run(
+//      TableQuery[UserDbTableDef]
+//        .filter(_.userId === regUser.id)
+//        .delete
+//    ).onComplete {
+//        case Success(rowsAffected) => println(s"User ${regUser.id} deleted")
+//        case Failure(e)            => println(s"Error deleting user ${regUser.id}: $e")
+//      }
+//  }
 
   def delete(intId: String) = {
+//    DatabaseConnection.db.run(
+//      TableQuery[UserDbTableDef]
+//        .filter(_.userId === intId)
+//        .delete
+//    ).onComplete {
+//      case Success(rowsAffected) => println(s"User ${intId} deleted")
+//      case Failure(e) => println(s"Error deleting user ${intId}: $e")
+//    }
+
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.userId === intId)
-        .delete
+        .map(u => (u.loggedOut))
+        .update((true))
     ).onComplete {
-      case Success(rowsAffected) => println(s"User ${intId} deleted")
-      case Failure(e) => println(s"Error deleting user ${intId}: $e")
+      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated loggedOut=true on user table!")
+      case Failure(e) => println(s"Error updating loggedOut=true user: $e")
     }
   }
 
