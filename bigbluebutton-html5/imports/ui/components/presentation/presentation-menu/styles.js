@@ -7,7 +7,6 @@ import {
   colorGrayDark,
   colorSuccess,
   colorGrayLightest,
-  colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -16,9 +15,7 @@ import {
   statusIconSize,
   borderSize,
   statusInfoHeight,
-  borderRadius,
-  mdPaddingY,
-  mdPaddingX,
+  presentationMenuHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled.button`
@@ -40,9 +37,23 @@ const Right = styled.div`
   cursor: pointer;
   position: absolute;
   left: auto;
-  top: .5rem;
-  right: .5rem;
+  right: 0px;
   z-index: 999;
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid ${colorWhite};
+  height: 44px;
+
+  > div {
+    padding: 2px 4px 2px 4px;
+    background-color: ${colorWhite};
+    width: 50px;
+    height: 100%;
+  }
+
+  button {
+    height: 100%;
+    width: 100%;
+  }
 
   [dir="rtl"] & {
     right: auto;

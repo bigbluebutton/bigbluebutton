@@ -8,6 +8,11 @@ if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
   ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
 fi
 
+# This config file was renamed, remove from old path if exists
+if [ -f /etc/nginx/conf.d/html5-conn-limit.conf ]; then
+  rm -r /etc/nginx/conf.d/html5-conn-limit.conf
+fi
+
 cd /usr/share/meteor
 
 # meteor code should be owned by root, config file by meteor user
@@ -60,9 +65,9 @@ if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then
   sed -i 's/<!--<param name="enable-3pcc" value="true"\/>-->/<param name="enable-3pcc" value="proxy"\/>/g' /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml
 fi
 
-chown root:root /lib/systemd/system
-chown root:root /lib/systemd/system/bbb-html5.service
-chown root:root /lib/systemd/system/disable-transparent-huge-pages.service
+chown root:root /usr/lib/systemd/system
+chown root:root /usr/lib/systemd/system/bbb-html5.service
+chown root:root /usr/lib/systemd/system/disable-transparent-huge-pages.service
 
 # Ensure settings is readable
 chmod go+r /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml

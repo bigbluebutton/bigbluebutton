@@ -1,9 +1,6 @@
 package org.bigbluebutton.core.apps
 
-import org.bigbluebutton.core.util.jhotdraw.BezierWrapper
-import scala.collection.immutable.List
 import scala.collection.immutable.HashMap
-import scala.collection.JavaConverters._
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
@@ -24,86 +21,83 @@ class WhiteboardModel extends SystemConfiguration {
   }
 
   private def createWhiteboard(wbId: String): Whiteboard = {
-    new Whiteboard(
+    Whiteboard(
       wbId,
       Array.empty[String],
       Array.empty[String],
       System.currentTimeMillis(),
-      new HashMap[String, Map[String, AnnotationVO]]()
+      new HashMap[String, AnnotationVO]
     )
   }
 
-  private def getAnnotationsByUserId(wb: Whiteboard, id: String): Map[String, AnnotationVO] = {
-    wb.annotationsMap.get(id).getOrElse(Map[String, AnnotationVO]())
-  }
+  private def deepMerge(test: Map[String, _], that: Map[String, _]): Map[String, _] =
+    (for (k <- test.keys ++ that.keys) yield {
+      val newValue =
+        (test.get(k), that.get(k)) match {
+          case (Some(v), None) => v
+          case (None, Some(v)) => v
+          case (Some(v1), Some(v2)) =>
+            if (v1.isInstanceOf[Map[String, _]] && v2.isInstanceOf[Map[String, _]])
+              deepMerge(v1.asInstanceOf[Map[String, _]], v2.asInstanceOf[Map[String, _]])
+            else v2
+          case (_, _) => ???
+        }
+      k -> newValue
+    }).toMap
 
-  def addAnnotations(wbId: String, userId: String, annotations: Array[AnnotationVO]): Array[AnnotationVO] = {
+  def addAnnotations(wbId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
+    var annotationsAdded = Array[AnnotationVO]()
     val wb = getWhiteboard(wbId)
-    val usersAnnotations = getAnnotationsByUserId(wb, userId)
-    var newUserAnnotations = usersAnnotations
+    var newAnnotationsMap = wb.annotationsMap
     for (annotation <- annotations) {
-      newUserAnnotations = newUserAnnotations + (annotation.id -> annotation)
-      println("Adding annotation to page [" + wb.id + "]. After numAnnotations=[" + newUserAnnotations.size + "].")
+      val oldAnnotation = wb.annotationsMap.get(annotation.id)
+      if (!oldAnnotation.isEmpty) {
+        val hasPermission = isPresenter || isModerator || oldAnnotation.get.userId == userId
+        if (hasPermission) {
+          val newAnnotation = oldAnnotation.get.copy(annotationInfo = deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo))
+          newAnnotationsMap += (annotation.id -> newAnnotation)
+          annotationsAdded :+= annotation
+          println(s"Updated annotation onpage [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+        } else {
+          println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
+        }
+      } else if (annotation.annotationInfo.contains("type")) {
+        newAnnotationsMap += (annotation.id -> annotation)
+        annotationsAdded :+= annotation
+        println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+      } else {
+        println(s"New annotation [${annotation.id}] with no type, ignoring (probably received a remove message before and now the shape is incomplete, ignoring...")
+      }
     }
-    val newAnnotationsMap = wb.annotationsMap + (userId -> newUserAnnotations)
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
-    annotations
+    annotationsAdded
   }
 
   def getHistory(wbId: String): Array[AnnotationVO] = {
-    //wb.annotationsMap.values.flatten.toArray.sortBy(_.position);
     val wb = getWhiteboard(wbId)
-    var annotations = Array[AnnotationVO]()
-    // TODO: revisit this, probably there is a one-liner simple solution
-    wb.annotationsMap.values.foreach(
-      user => user.values.foreach(
-        annotation => annotations = annotations :+ annotation
-      )
-    )
-    annotations
+    wb.annotationsMap.values.toArray
   }
 
-  def clearWhiteboard(wbId: String, userId: String): Option[Boolean] = {
-    var cleared: Option[Boolean] = None
-
-    if (hasWhiteboard(wbId)) {
-      val wb = getWhiteboard(wbId)
-
-      if (wb.multiUser.contains(userId)) {
-        if (wb.annotationsMap.contains(userId)) {
-          val newWb = wb.copy(annotationsMap = wb.annotationsMap - userId)
-          saveWhiteboard(newWb)
-          cleared = Some(false)
-        }
-      } else {
-        if (wb.annotationsMap.nonEmpty) {
-          val newWb = wb.copy(annotationsMap = new HashMap[String, Map[String, AnnotationVO]]())
-          saveWhiteboard(newWb)
-          cleared = Some(true)
-        }
-      }
-    }
-    cleared
-  }
-
-  def deleteAnnotations(wbId: String, userId: String, annotationsIds: Array[String]): Array[String] = {
+  def deleteAnnotations(wbId: String, userId: String, annotationsIds: Array[String], isPresenter: Boolean, isModerator: Boolean): Array[String] = {
     var annotationsIdsRemoved = Array[String]()
     val wb = getWhiteboard(wbId)
+    var newAnnotationsMap = wb.annotationsMap
 
-    val usersAnnotations = getAnnotationsByUserId(wb, userId)
-    var newUserAnnotations = usersAnnotations
     for (annotationId <- annotationsIds) {
-      val annotation = usersAnnotations.get(annotationId)
+      val annotation = wb.annotationsMap.get(annotationId)
 
-      //not empty and annotation exists
-      if (!usersAnnotations.isEmpty && !annotation.isEmpty) {
-        newUserAnnotations = newUserAnnotations - annotationId
-        println("Removing annotation on page [" + wb.id + "]. After numAnnotations=[" + newUserAnnotations.size + "].")
-        annotationsIdsRemoved = annotationsIdsRemoved :+ annotationId
+      if (!annotation.isEmpty) {
+        val hasPermission = isPresenter || isModerator || annotation.get.userId == userId
+        if (hasPermission) {
+          newAnnotationsMap -= annotationId
+          println("Removing annotation on page [" + wb.id + "]. After numAnnotations=[" + newAnnotationsMap.size + "].")
+          annotationsIdsRemoved :+= annotationId
+        } else {
+          println("User doesn't have permission to remove this annotation, ignoring...")
+        }
       }
     }
-    val newAnnotationsMap = wb.annotationsMap + (userId -> newUserAnnotations)
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
     annotationsIdsRemoved

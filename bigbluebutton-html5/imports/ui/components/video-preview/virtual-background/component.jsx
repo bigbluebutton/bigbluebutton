@@ -20,6 +20,7 @@ import Settings from '/imports/ui/services/settings';
 import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
+const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -62,6 +63,10 @@ const intlMessages = defineMessages({
   camBgAriaDesc: {
     id: 'app.video.virtualBackground.camBgAriaDesc',
     description: 'Label for virtual background button aria',
+  },
+  customDesc: {
+    id: 'app.video.virtualBackground.button.customDesc',
+    description: 'Aria description for upload virtual background button',
   },
   background: {
     id: 'app.video.virtualBackground.background',
@@ -223,6 +228,13 @@ const VirtualBgSelector = ({
           lastActivityDate: Date.now(),
         },
       });
+      const { filename, data, uniqueId } = background;
+      _virtualBgSelected(
+        EFFECT_TYPES.IMAGE_TYPE,
+        filename,
+        0,
+        { file: data, uniqueId },
+      );
     };
 
     const onError = (error) => {
@@ -339,6 +351,7 @@ const VirtualBgSelector = ({
               disabled={disabled}
               label={intl.formatMessage(intlMessages.removeLabel)}
               aria-label={intl.formatMessage(intlMessages.removeLabel)}
+              aria-describedby={`vr-cam-btn-${index + 1}`}
               data-test="removeCustomBackground"
               icon="close"
               size="sm"
@@ -350,6 +363,7 @@ const VirtualBgSelector = ({
                   type: 'delete',
                   uniqueId,
                 });
+                _virtualBgSelected(EFFECT_TYPES.NONE_TYPE);
               }}
             />
           </Styled.ButtonWrapper>
@@ -386,7 +400,7 @@ const VirtualBgSelector = ({
           accept={MIME_TYPES_ALLOWED.join(', ')}
         />
         <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
-          {intl.formatMessage(intlMessages.customLabel)}
+          {intl.formatMessage(intlMessages.customDesc)}
         </div>
       </>
     );
@@ -429,6 +443,8 @@ const VirtualBgSelector = ({
           role="group"
           aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
           isVisualEffects={isVisualEffects}
+          brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
+          data-test="virtualBackground"
         >
           {shouldEnableBackgroundUpload() && (
             <>
@@ -440,7 +456,6 @@ const VirtualBgSelector = ({
 
                   {Object.values(backgrounds)
                     .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
-                    .slice(0, isVisualEffects ? undefined : 3)
                     .map((background, index) => {
                       if (background.custom !== false) {
                         return renderCustomButton(background, index);

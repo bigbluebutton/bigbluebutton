@@ -7,6 +7,7 @@ PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)
 DISTRO=$(echo $TARGET | cut -d'_' -f3)
 TAG=$(echo $TARGET | cut -d'_' -f4)
+BUILD=$1
 
 #
 # Clean up directories
@@ -17,7 +18,7 @@ rm -rf staging
 
 # New format
 if [ -f private/config/settings.yml ]; then
-  sed -i "s/HTML5_CLIENT_VERSION/$(($1))/" private/config/settings.yml
+  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
@@ -25,6 +26,7 @@ cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
+cp bbb-html5-conn-limit.conf staging/etc/nginx/conf.d
 
 
 mkdir -p staging/etc/systemd/system
@@ -71,6 +73,10 @@ npm i
 cd -
 cp -r /tmp/html5-build/bundle staging/usr/share/meteor
 
+# copy over tl;draw fonts due to a preset path
+mkdir -p staging/usr/share/meteor/bundle/programs/web.browser/app/files
+cp node_modules/@fontsource/*/files/*.woff[2] staging/usr/share/meteor/bundle/programs/web.browser/app/files/
+
 cp systemd_start.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/systemd_start.sh
 
@@ -97,9 +103,12 @@ cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
 
 mkdir -p staging/usr/share
 
+# replace v=VERSION with build number in head and css files
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
-  sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
+  sed -i "s/VERSION/$(($BUILD))/g" staging/usr/share/meteor/bundle/programs/web.browser/head.html
 fi
+
+find staging/usr/share/meteor/bundle/programs/web.browser -name '*.css' -exec sed -i "s/VERSION/$(($BUILD))/g" '{}' \;
 
 # Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
 # uncompressed versions as well so it works with mismatched nginx location blocks

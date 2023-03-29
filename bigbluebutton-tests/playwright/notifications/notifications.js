@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util');
-const { openSettings } = require('../settings/util');
+const { openSettings } = require('../options/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 

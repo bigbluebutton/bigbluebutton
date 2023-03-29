@@ -9,9 +9,6 @@ const SidebarContentContainer = () => {
   const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
   const { sidebarContentPanel } = sidebarContentInput;
-
-  if (sidebarContentOutput.display === false) return null;
-
   const usingUsersContext = useContext(UsersContext);
   const { users } = usingUsersContext;
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;

@@ -4,10 +4,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
 import Service from './service';
+import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
+import { isDownloadPresentationWithAnnotationsEnabled, isPresentationEnabled } from '/imports/ui/services/features';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -32,6 +33,7 @@ export default withTracker(() => {
     dispatchTogglePresentationDownloadable,
     exportPresentationToChat,
   } = Service;
+  const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
     presentations: currentPresentations,
@@ -40,17 +42,17 @@ export default withTracker(() => {
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
     fileValidMimeTypes: PRESENTATION_CONFIG.uploadValidMimeTypes,
     allowDownloadable: isDownloadPresentationWithAnnotationsEnabled(),
-    handleSave: (presentations) => Service.persistPresentationChanges(
-      currentPresentations,
-      presentations,
-      PRESENTATION_CONFIG.uploadEndpoint,
-      'DEFAULT_PRESENTATION_POD',
-    ),
+    handleSave: Service.handleSavePresentation,
+    handleDismissToast: PresUploaderToast.handleDismissToast,
+    renderToastList: Service.renderToastList,
+    renderPresentationItemStatus: PresUploaderToast.renderPresentationItemStatus,
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
     exportPresentationToChat,
-    isOpen: Session.get('showUploadPresentationView') || false,
+    isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
+    externalUploadData: Service.getExternalUploadData(),
+    handleFiledrop: Service.handleFiledrop,
   };
 })(PresentationUploaderContainer);

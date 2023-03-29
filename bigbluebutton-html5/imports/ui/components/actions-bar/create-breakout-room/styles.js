@@ -40,13 +40,6 @@ const Alert = styled.div`
       color: ${colorDanger};
     }
   `}
-
-  grid-row: span 3;
-
-  & > div {
-    height: 25.2rem;
-    max-height: 25.2rem;
-  }
 `;
 
 const FreeJoinLabel = styled.label`
@@ -77,12 +70,15 @@ const BreakoutNameInput = styled.input`
     color: ${colorGray};
     opacity: 1;
   }
+
+  ${({ readOnly }) => readOnly && `
+    cursor: default;
+  `}
 `;
 
 const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
-  min-height: 6rem;
-  max-height: 8rem;
+  height: 21rem;
   border: 1px solid ${colorGrayLightest};
   border-radius: ${borderRadius};
   padding: ${lgPaddingY} 0;
@@ -208,12 +204,9 @@ const AssignBtns = styled(Button)`
   color: ${colorPrimary};
   font-size: ${fontSizeSmall};
   white-space: nowrap;
-  margin: 0 auto 0 0;
+  margin: 3px auto;
   align-self: flex-end;
-
-  [dir="rtl"] & {
-    margin: 0 0 0 auto;
-  }
+  width: 100%;
 `;
 
 const CheckBoxesContainer = styled(FlexRow)`
@@ -246,6 +239,11 @@ const RoomUserItem = styled.p`
     justify-content: center;
     margin-right: 5px;
     font-size: ${fontSizeSmaller};
+  }
+
+  &:focus {
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
   }
 
   ${({ selected }) => selected && `

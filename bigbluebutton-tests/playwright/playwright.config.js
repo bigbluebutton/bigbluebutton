@@ -5,7 +5,7 @@ const CI = process.env.CI === 'true';
 const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
 
 const config = {
-  workers: 2,
+  workers: CI ? 1 : 2,
   timeout: 3 * 60 * 1000,
   reporter: [
     [CI ? 'github' : 'list'],

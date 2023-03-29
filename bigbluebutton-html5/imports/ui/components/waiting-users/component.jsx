@@ -119,39 +119,43 @@ const renderGuestUserItem = (
     </Styled.UserContentContainer>
 
     <Styled.ButtonContainer key={`userlist-btns-${userId}`}>
-    { isGuestLobbyMessageEnabled ? ( 
-      <Styled.WaitingUsersButton
-        key={`userbtn-message-${userId}`}
-        color="primary"
-        size="lg"
-        ghost
-        label={intl.formatMessage(intlMessages.privateMessageLabel)}
-        onClick={privateMessageVisible} 
-      />
-    ) : null}
-        |
       <Styled.WaitingUsersButton
         key={`userbtn-accept-${userId}`}
-        color="primary"
-        size="lg"
+        size="md"
+        aria-label={intl.formatMessage(intlMessages.accept)}
         ghost
-        label={intl.formatMessage(intlMessages.accept)}
+        hideLabel
+        icon="add"
         onClick={handleAccept}
+        data-test="acceptGuest"
       />
-      |
-      <Styled.WaitingUsersButton
-        key={`userbtn-deny-${userId}`}
-        color="danger"
+      { isGuestLobbyMessageEnabled ? ( 
+      <Styled.WaitingUsersButtonMsg
+        key={`userbtn-message-${userId}`}
         size="lg"
+        aria-label={intl.formatMessage(intlMessages.privateMessageLabel)}
         ghost
-        label={intl.formatMessage(intlMessages.deny)}
+        hideLabel
+        onClick={privateMessageVisible}
+        data-test="privateMessageGuest" 
+      />
+    ) : null}
+      <Styled.WaitingUsersButtonDeny
+        key={`userbtn-deny-${userId}`}
+        aria-label={intl.formatMessage(intlMessages.deny)}
+        ghost
+        hideLabel
         onClick={handleDeny}
+        data-test="denyGuest"
+        size="sm"
+        icon="close"
       />
     </Styled.ButtonContainer>
   </Styled.ListItem>
   { isGuestLobbyMessageEnabled ? (
     <Styled.PrivateLobbyMessage
-      id={`privateMessage-${userId}`}>
+      id={`privateMessage-${userId}`}
+      data-test="privateLobbyMessage">
         <TextInput
           maxLength={128}
           placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
@@ -226,6 +230,7 @@ const WaitingUsers = (props) => {
     setPrivateGuestLobbyMessage,
     privateGuestLobbyMessage,
     authenticatedGuest,
+    guestPolicyExtraAllowOptions,
     layoutContextDispatch,
     allowRememberChoice,
   } = props;
@@ -269,13 +274,14 @@ const WaitingUsers = (props) => {
     return cb();
   };
 
-  const renderButton = (message, { key, color, policy, action }) => (
+  const renderButton = (message, { key, color, policy, action, dataTest }) => (
     <Styled.CustomButton
       key={key}
       color={color}
       label={message}
       size="lg"
       onClick={changePolicy(rememberChoice, policy, action, message)}
+      data-test={dataTest}
     />
   );
 
@@ -306,6 +312,7 @@ const WaitingUsers = (props) => {
       key: 'allow-everyone',
       color: 'primary',
       policy: 'ALWAYS_ACCEPT',
+      dataTest: 'allowEveryone',
     },
     {
       messageId: intlMessages.denyEveryone,
@@ -313,10 +320,11 @@ const WaitingUsers = (props) => {
       key: 'deny-everyone',
       color: 'danger',
       policy: 'ALWAYS_DENY',
+      dataTest: 'denyEveryone',
     },
   ];
 
-  const buttonsData = authenticatedGuest
+  const buttonsData = ( authenticatedGuest && guestPolicyExtraAllowOptions )
     ? _.concat(authGuestButtonsData, guestButtonsData)
     : guestButtonsData;
 
@@ -332,7 +340,7 @@ const WaitingUsers = (props) => {
       />
       <Styled.ScrollableArea>
         {isGuestLobbyMessageEnabled ? (
-          <Styled.LobbyMessage>
+          <Styled.LobbyMessage data-test="lobbyMessage">
             <TextInput
               maxLength={128}
               placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
@@ -361,8 +369,8 @@ const WaitingUsers = (props) => {
           }
           {allowRememberChoice ? (
             <Styled.RememberContainer>
-              <input id="rememderCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
-              <label htmlFor="rememderCheckboxId">
+              <input id="rememberCheckboxId" type="checkbox" onChange={onCheckBoxChange} />
+              <label htmlFor="rememberCheckboxId">
                 {intl.formatMessage(intlMessages.rememberChoice)}
               </label>
             </Styled.RememberContainer>

@@ -40,7 +40,7 @@ function Card(props) {
         + ` ${cardClass}`
       }
     >
-      <div className="w-70">
+      <div className="w-70 text-left rtl:text-right">
         <p className="text-lg font-semibold text-gray-700">
           { number }
         </p>

@@ -1,11 +1,17 @@
 import React from 'react';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TabUnstyled from '@mui/base/TabUnstyled';
+import TabsListUnstyled from '@mui/base/TabsListUnstyled';
+import TabPanelUnstyled from '@mui/base/TabPanelUnstyled';
+import TabsUnstyled from '@mui/base/TabsUnstyled';
 import './App.css';
 import './bbb-icons.css';
 import {
   FormattedMessage, FormattedDate, injectIntl, FormattedTime,
 } from 'react-intl';
 import { emojiConfigs } from './services/EmojiService';
-import Card from './components/Card';
+import CardBody from './components/Card';
 import UsersTable from './components/UsersTable';
 import UserDetails from './components/UserDetails/component';
 import { UserDetailsContext } from './components/UserDetails/context';
@@ -14,6 +20,13 @@ import PollsTable from './components/PollsTable';
 import ErrorMessage from './components/ErrorMessage';
 import { makeUserCSVData, tsToHHmmss } from './services/UserService';
 
+const TABS = {
+  OVERVIEW: 0,
+  OVERVIEW_ACTIVITY_SCORE: 1,
+  TIMELINE: 2,
+  POLLING: 3,
+};
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -21,7 +34,7 @@ class App extends React.Component {
       loading: true,
       invalidSessionCount: 0,
       activitiesJson: {},
-      tab: 'overview',
+      tab: 0,
       meetingId: '',
       learningDashboardAccessToken: '',
       ldAccessTokenCopied: false,
@@ -170,14 +183,13 @@ class App extends React.Component {
             invalidSessionCount: 0,
             lastUpdated: Date.now(),
           });
-          document.title = `Learning Dashboard - ${json.name}`;
           this.updateModalUser();
         }).catch(() => {
           this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
         });
     } else if (sessionToken !== '') {
       const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
-      fetch(`${url}?sessionToken=${sessionToken}`)
+      fetch(`${url}?sessionToken=${sessionToken}`, { credentials: 'include' })
         .then((response) => response.json())
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
@@ -188,7 +200,6 @@ class App extends React.Component {
               invalidSessionCount: 0,
               lastUpdated: Date.now(),
             });
-            document.title = `Learning Dashboard - ${jsonData.name}`;
             this.updateModalUser();
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
@@ -215,7 +226,7 @@ class App extends React.Component {
     } = this.state;
     const { intl } = this.props;
 
-    document.title = `${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Dashboard' })} - ${activitiesJson.name}`;
+    document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
     function totalOfEmojis() {
       if (activitiesJson && activitiesJson.users) {
@@ -311,6 +322,11 @@ class App extends React.Component {
 
     if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
 
+    const usersCount = Object.values(activitiesJson.users || {})
+      .filter((u) => activitiesJson.endedOn > 0
+        || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
+      .length;
+
     return (
       <div className="mx-10">
         <div className="flex flex-col sm:flex-row items-start justify-between pb-3">
@@ -330,7 +346,7 @@ class App extends React.Component {
           </h1>
           <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
-              <div className="inline">
+              <div className="inline" data-test="meetingDateDashboard">
                 <FormattedDate
                   value={activitiesJson.createdOn}
                   year="numeric"
@@ -343,7 +359,7 @@ class App extends React.Component {
                 activitiesJson.endedOn > 0
                   ? (
                     <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" data-test="meetingStatusEndedDashboard" />
                     </span>
                   )
                   : null
@@ -351,14 +367,14 @@ class App extends React.Component {
               {
                 activitiesJson.endedOn === 0
                   ? (
-                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full" data-test="meetingStatusActiveDashboard">
                       <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
                     </span>
                   )
                   : null
               }
             </p>
-            <p>
+            <p data-test="meetingDurationTimeDashboard">
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
               :&nbsp;
               {tsToHHmmss(totalOfActivity())}
@@ -366,149 +382,182 @@ class App extends React.Component {
           </div>
         </div>
 
-        <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview' }); }}>
-            <Card
-              name={
-                activitiesJson.endedOn === 0
-                  ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
-                  : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
-              }
-              number={Object
-                .values(activitiesJson.users || {})
-                .filter((u) => activitiesJson.endedOn > 0
-                  || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
-                .length}
-              cardClass={tab === 'overview' ? 'border-pink-500' : 'hover:border-pink-500 border-white'}
-              iconClass="bg-pink-50 text-pink-500"
-              onClick={() => {
-                this.setState({ tab: 'overview' });
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-            </Card>
-          </div>
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'overview_activityscore' }); }}>
-            <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
-              number={intl.formatNumber((getAverageActivityScore() || 0), {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 1,
-              })}
-              cardClass={tab === 'overview_activityscore' ? 'border-green-500' : 'hover:border-green-500 border-white'}
-              iconClass="bg-green-200 text-green-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
-                />
-              </svg>
-            </Card>
-          </div>
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'status_timeline' }); }}>
-            <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
-              number={totalOfEmojis()}
-              cardClass={tab === 'status_timeline' ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
-              iconClass="bg-purple-200 text-purple-500"
-            >
-              {this.fetchMostUsedEmojis()}
-            </Card>
-          </div>
-          <div aria-hidden="true" className="cursor-pointer" onClick={() => { this.setState({ tab: 'polling' }); }}>
-            <Card
-              name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
-              number={Object.values(activitiesJson.polls || {}).length}
-              cardClass={tab === 'polling' ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
-              iconClass="bg-blue-100 text-blue-500"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                />
-              </svg>
-            </Card>
-          </div>
-        </div>
-        <h1 className="block my-2 pr-2 text-xl font-semibold">
-          { tab === 'overview' || tab === 'overview_activityscore'
-            ? <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
-            : null }
-          { tab === 'status_timeline'
-            ? <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Timeline" />
-            : null }
-          { tab === 'polling'
-            ? <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polls" />
-            : null }
-        </h1>
-        <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
-          <div className="w-full overflow-x-auto">
-            { (tab === 'overview' || tab === 'overview_activityscore')
-              ? (
+        <TabsUnstyled
+          defaultValue={0}
+          onChange={(e, v) => {
+            this.setState({ tab: v });
+          }}
+        >
+          <TabsListUnstyled className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-pink-500 ring-offset-2" data-test="activeUsersPanelDashboard">
+              <Card>
+                <CardContent classes={{ root: '!p-0' }}>
+                  <CardBody
+                    name={
+                      activitiesJson.endedOn === 0
+                        ? intl.formatMessage({ id: 'app.learningDashboard.indicators.usersOnline', defaultMessage: 'Active Users' })
+                        : intl.formatMessage({ id: 'app.learningDashboard.indicators.usersTotal', defaultMessage: 'Total Number Of Users' })
+                    }
+                    number={usersCount}
+                    cardClass={tab === TABS.OVERVIEW ? 'border-pink-500' : 'hover:border-pink-500 border-white'}
+                    iconClass="bg-pink-50 text-pink-500"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                  </CardBody>
+                </CardContent>
+              </Card>
+            </TabUnstyled>
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-green-500 ring-offset-2" data-test="activityScorePanelDashboard">
+              <Card>
+                <CardContent classes={{ root: '!p-0' }}>
+                  <CardBody
+                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
+                    number={intl.formatNumber((getAverageActivityScore() || 0), {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 1,
+                    })}
+                    cardClass={tab === TABS.OVERVIEW_ACTIVITY_SCORE ? 'border-green-500' : 'hover:border-green-500 border-white'}
+                    iconClass="bg-green-200 text-green-700"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"
+                      />
+                    </svg>
+                  </CardBody>
+                </CardContent>
+              </Card>
+            </TabUnstyled>
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-purple-500 ring-offset-2" data-test="timelinePanelDashboard">
+              <Card>
+                <CardContent classes={{ root: '!p-0' }}>
+                  <CardBody
+                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
+                    number={totalOfEmojis()}
+                    cardClass={tab === TABS.TIMELINE ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
+                    iconClass="bg-purple-200 text-purple-500"
+                  >
+                    {this.fetchMostUsedEmojis()}
+                  </CardBody>
+                </CardContent>
+              </Card>
+            </TabUnstyled>
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-blue-500 ring-offset-2" data-test="pollsPanelDashboard">
+              <Card>
+                <CardContent classes={{ root: '!p-0' }}>
+                  <CardBody
+                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
+                    number={Object.values(activitiesJson.polls || {}).length}
+                    cardClass={tab === TABS.POLLING ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
+                    iconClass="bg-blue-100 text-blue-500"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                      />
+                    </svg>
+                  </CardBody>
+                </CardContent>
+              </Card>
+            </TabUnstyled>
+          </TabsListUnstyled>
+          <TabPanelUnstyled value={0}>
+            <h2 className="block my-2 pr-2 text-xl font-semibold">
+              <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
+            </h2>
+            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
+              <div className="w-full overflow-x-auto">
                 <UsersTable
                   allUsers={activitiesJson.users}
                   totalOfActivityTime={totalOfActivity()}
                   totalOfPolls={Object.values(activitiesJson.polls || {}).length}
-                  tab={tab}
+                  tab="overview"
                 />
-              )
-              : null }
-            { (tab === 'status_timeline')
-              ? (
+              </div>
+            </div>
+          </TabPanelUnstyled>
+          <TabPanelUnstyled value={1}>
+            <h2 className="block my-2 pr-2 text-xl font-semibold">
+              <FormattedMessage id="app.learningDashboard.usersTable.title" defaultMessage="Overview" />
+            </h2>
+            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
+              <div className="w-full overflow-x-auto">
+                <UsersTable
+                  allUsers={activitiesJson.users}
+                  totalOfActivityTime={totalOfActivity()}
+                  totalOfPolls={Object.values(activitiesJson.polls || {}).length}
+                  tab="overview_activityscore"
+                />
+              </div>
+            </div>
+          </TabPanelUnstyled>
+          <TabPanelUnstyled value={2}>
+            <h2 className="block my-2 pr-2 text-xl font-semibold">
+              <FormattedMessage id="app.learningDashboard.statusTimelineTable.title" defaultMessage="Timeline" />
+            </h2>
+            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
+              <div className="w-full overflow-x-auto">
                 <StatusTable
                   allUsers={activitiesJson.users}
                   slides={activitiesJson.presentationSlides}
                   meetingId={activitiesJson.intId}
                 />
-              )
-              : null }
-            { tab === 'polling'
-              ? <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
-              : null }
-            <UserDetails dataJson={activitiesJson} />
-          </div>
-        </div>
+              </div>
+            </div>
+          </TabPanelUnstyled>
+          <TabPanelUnstyled value={3}>
+            <h2 className="block my-2 pr-2 text-xl font-semibold">
+              <FormattedMessage id="app.learningDashboard.pollsTable.title" defaultMessage="Polls" />
+            </h2>
+            <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
+              <div className="w-full overflow-x-auto">
+                <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
+              </div>
+            </div>
+          </TabPanelUnstyled>
+        </TabsUnstyled>
+        <UserDetails dataJson={activitiesJson} />
         <hr className="my-8" />
-        <div className="flex justify-between pb-8 text-xs text-gray-700 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
+        <div className="flex justify-between pb-8 text-xs text-gray-800 dark:text-gray-400 whitespace-nowrap flex-col sm:flex-row">
           <div className="flex flex-col justify-center mb-4 sm:mb-0">
-            <p>
+            <p className="text-gray-700">
               {
                 lastUpdated && (
                   <>
@@ -533,8 +582,9 @@ class App extends React.Component {
             </p>
           </div>
           <button
+            data-test="downloadSessionDataDashboard"
             type="button"
-            className="border-2 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
+            className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
             onClick={this.handleSaveSessionData.bind(this)}
           >
             <FormattedMessage

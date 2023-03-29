@@ -1,5 +1,5 @@
+import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
@@ -11,12 +11,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import UserOptions from './component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
-
-const propTypes = {
-  users: PropTypes.arrayOf(Object).isRequired,
-  clearAllEmojiStatus: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired,
-};
 
 const intlMessages = defineMessages({
   clearStatusMessage: {
@@ -32,11 +26,24 @@ const meetingMuteDisabledLog = () => logger.info({
   extraInfo: { logType: 'moderator_action' },
 }, 'moderator disabled meeting mute');
 
-const UserOptionsContainer = withTracker((props) => {
+const UserOptionsContainer = (props) => {
+  const isRTL = layoutSelect((i) => i.isRTL);
+  return ( 
+    <UserOptions
+      {...props}
+      {...{
+        isRTL
+      }}
+    />
+  )
+};
+
+export default injectIntl(withTracker((props) => {
   const {
     users,
     clearAllEmojiStatus,
     intl,
+    isMeetingMuteOnStart,
   } = props;
 
   const toggleStatus = () => {
@@ -47,26 +54,16 @@ const UserOptionsContainer = withTracker((props) => {
     );
   };
 
-  const isMeetingMuteOnStart = () => {
-    const { voiceProp } = Meetings.findOne({ meetingId: Auth.meetingID },
-      { fields: { 'voiceProp.muteOnStart': 1 } });
-    const { muteOnStart } = voiceProp;
-    return muteOnStart;
-  };
-
   const getMeetingName = () => {
     const { meetingProp } = Meetings.findOne({ meetingId: Auth.meetingID },
       { fields: { 'meetingProp.name': 1 } });
     const { name } = meetingProp;
     return name;
   };
-
-  const isRTL = layoutSelect((i) => i.isRTL);
-
   return {
     toggleMuteAllUsers: () => {
       UserListService.muteAllUsers(Auth.userID);
-      if (isMeetingMuteOnStart()) {
+      if (isMeetingMuteOnStart) {
         return meetingMuteDisabledLog();
       }
       return logger.info({
@@ -76,7 +73,7 @@ const UserOptionsContainer = withTracker((props) => {
     },
     toggleMuteAllUsersExceptPresenter: () => {
       UserListService.muteAllExceptPresenter(Auth.userID);
-      if (isMeetingMuteOnStart()) {
+      if (isMeetingMuteOnStart) {
         return meetingMuteDisabledLog();
       }
       return logger.info({
@@ -85,7 +82,7 @@ const UserOptionsContainer = withTracker((props) => {
       }, 'moderator enabled meeting mute, all users muted except presenter');
     },
     toggleStatus,
-    isMeetingMuted: isMeetingMuteOnStart(),
+    isMeetingMuted: isMeetingMuteOnStart,
     amIModerator: ActionsBarService.amIModerator(),
     hasBreakoutRoom: UserListService.hasBreakoutRoom(),
     isBreakoutRecordable: ActionsBarService.isBreakoutRecordable(),
@@ -94,10 +91,5 @@ const UserOptionsContainer = withTracker((props) => {
     meetingName: getMeetingName(),
     openLearningDashboardUrl: LearningDashboardService.openLearningDashboardUrl,
     dynamicGuestPolicy,
-    isRTL,
   };
-})(UserOptions);
-
-UserOptionsContainer.propTypes = propTypes;
-
-export default injectIntl(UserOptionsContainer);
+})(UserOptionsContainer));

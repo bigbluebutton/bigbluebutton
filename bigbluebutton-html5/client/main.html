@@ -94,6 +94,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       color: var(--palette-placeholder-text);
       opacity: 1;
     }
+
+    main {
+      display: initial;
+    }
+
+    .overrideSelect {
+      background-color: #FFF !important;
+      color: #000 !important;
+    }
+
+    .select {
+      background-color: rgba(66, 133, 244, 1) !important;
+      color: #FFF !important;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
@@ -113,6 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="files/source-code-pro-latin-400-normal.woff2" as="font" crossorigin="anonymous"/>
 
   <style>
     @font-face {
@@ -127,7 +142,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body style="background-color: #06172A">
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
-  <div id="app" role="document">
+  <main>
+    <div id="app" role="document">
+  </main>
   </div>
   <span id="destination"></span>
   <audio id="remote-media" autoplay>

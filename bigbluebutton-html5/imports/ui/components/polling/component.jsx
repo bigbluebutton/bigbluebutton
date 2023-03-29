@@ -54,6 +54,7 @@ class Polling extends Component {
       checkedAnswers: [],
     };
 
+    this.pollingContainer = null;
     this.play = this.play.bind(this);
     this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
     this.renderButtonAnswers = this.renderButtonAnswers.bind(this);
@@ -65,6 +66,7 @@ class Polling extends Component {
 
   componentDidMount() {
     this.play();
+    this.pollingContainer && this.pollingContainer?.focus();
   }
 
   play() {
@@ -146,9 +148,9 @@ class Polling extends Component {
                 }
                 <Styled.PollingAnswers removeColumns={answers.length === 1} stacked={stackOptions}>
                   {answers.map((pollAnswer) => {
-                    const formattedMessageIndex = pollAnswer?.key.toLowerCase();
+                    const formattedMessageIndex = pollAnswer?.key?.toLowerCase();
                     let label = pollAnswer.key;
-                    if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
+                    if ((defaultPoll || pollType.includes('CUSTOM')) && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
                     }
 
@@ -194,6 +196,9 @@ class Polling extends Component {
                 placeholder={intl.formatMessage(intlMessages.responsePlaceholder)}
                 maxLength={MAX_INPUT_CHARS}
                 ref={(r) => { this.responseInput = r; }}
+                onPaste={(e) => { e.stopPropagation(); }}
+                onCut={(e) => { e.stopPropagation(); }}
+                onCopy={(e) => { e.stopPropagation(); }}
               />
               <Styled.SubmitVoteButton
                 data-test="submitAnswer"
@@ -235,8 +240,8 @@ class Polling extends Component {
           )}
         <Styled.MultipleResponseAnswersTable>
           {poll.answers.map((pollAnswer) => {
-            const formattedMessageIndex = pollAnswer.key.toLowerCase();
-            let label = pollAnswer.key;
+            const formattedMessageIndex = pollAnswer?.key?.toLowerCase();
+            let label = pollAnswer?.key;
             if (pollAnswerIds[formattedMessageIndex]) {
               label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
             }
@@ -246,7 +251,7 @@ class Polling extends Component {
                 key={pollAnswer.id}
               >
                 <td>
-                  <Styled.PollingCheckbox>
+                  <Styled.PollingCheckbox data-test="optionsAnswers">
                     <Checkbox
                       disabled={!isMeteorConnected}
                       id={`answerInput${pollAnswer.key}`}
@@ -277,6 +282,7 @@ class Polling extends Component {
             label={intl.formatMessage(intlMessages.submitLabel)}
             aria-label={intl.formatMessage(intlMessages.submitAriaLabel)}
             onClick={() => this.handleSubmit(poll.pollId)}
+            data-test="submitAnswersMultiple"
           />
         </div>
       </div>
@@ -298,7 +304,9 @@ class Polling extends Component {
         <Styled.PollingContainer
           autoWidth={stackOptions}
           data-test="pollingContainer"
-          role="alert"
+          role="complementary"
+          ref={el => this.pollingContainer = el}
+          tabIndex={-1}
         >
           {
             question.length > 0 && (

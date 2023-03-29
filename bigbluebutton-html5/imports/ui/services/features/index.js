@@ -40,6 +40,10 @@ export function isCaptionsEnabled() {
   return getDisabledFeatures().indexOf('captions') === -1 && Meteor.settings.public.captions.enabled;
 }
 
+export function isLiveTranscriptionEnabled() {
+  return getDisabledFeatures().indexOf('liveTranscription') === -1 && Meteor.settings.public.app.audioCaptions.enabled;
+}
+
 export function isBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
@@ -62,4 +66,12 @@ export function isDownloadPresentationWithAnnotationsEnabled() {
 
 export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
+}
+
+export function isImportSharedNotesFromBreakoutRoomsEnabled() {
+  return getDisabledFeatures().indexOf('importSharedNotesFromBreakoutRooms') === -1;
+}
+
+export function isPresentationEnabled() {
+  return getDisabledFeatures().indexOf('presentation') === -1;
 }

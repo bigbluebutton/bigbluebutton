@@ -13,7 +13,7 @@ class VirtualizeList {
   // Join BigBlueButton meeting
   async init() {
     await this.page1.init(true, true, { fullName: 'BroadCaster1' });
-    await this.page1.waitForSelector(e.firstUser);
+    await this.page1.waitForSelector(e.currentUser);
     for (let i = 1; i <= parseInt(USER_LIST_VLIST_BOTS_LISTENING); i++) {
       const newPage = await this.browser.newPage();
       const viewerPage = new Page(this.browser, newPage);

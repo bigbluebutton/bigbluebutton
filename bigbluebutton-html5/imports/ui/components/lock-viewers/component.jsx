@@ -155,14 +155,10 @@ class LockViewersComponent extends Component {
     return (
       <Styled.LockViewersModal
         onRequestClose={closeModal}
-        hideBorder
-        shouldShowCloseButton={false}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
+        title={intl.formatMessage(intlMessages.lockViewersTitle)}
       >
         <Styled.Container>
-          <Styled.Header>
-            <Styled.Title>{intl.formatMessage(intlMessages.lockViewersTitle)}</Styled.Title>
-          </Styled.Header>
           <Styled.Description>
             {`${intl.formatMessage(intlMessages.lockViewersDescription)}`}
           </Styled.Description>
@@ -172,7 +168,7 @@ class LockViewersComponent extends Component {
               <Styled.Bold>{intl.formatMessage(intlMessages.featuresLable)}</Styled.Bold>
               <Styled.Bold>{intl.formatMessage(intlMessages.lockStatusLabel)}</Styled.Bold>
             </Styled.SubHeader>
-            <Styled.Row>
+            <Styled.Row data-test="lockShareWebcamItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
                   <Styled.Label>
@@ -197,7 +193,7 @@ class LockViewersComponent extends Component {
                 </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
-            <Styled.Row>
+            <Styled.Row data-test="lockSeeOtherViewersWebcamItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
                   <Styled.Label>
@@ -222,7 +218,7 @@ class LockViewersComponent extends Component {
                 </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
-            <Styled.Row>
+            <Styled.Row data-test="lockShareMicrophoneItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
                   <Styled.Label>
@@ -250,7 +246,7 @@ class LockViewersComponent extends Component {
 
             {isChatEnabled() ? (
               <Fragment>
-                <Styled.Row>
+                <Styled.Row data-test="lockPublicChatItem">
                   <Styled.Col aria-hidden="true">
                     <Styled.FormElement>
                       <Styled.Label>
@@ -275,7 +271,7 @@ class LockViewersComponent extends Component {
                     </Styled.FormElementRight>
                   </Styled.Col>
                 </Styled.Row>
-                <Styled.Row>
+                <Styled.Row data-test="lockPrivateChatItem">
                   <Styled.Col aria-hidden="true">
                     <Styled.FormElement>
                       <Styled.Label>
@@ -305,7 +301,7 @@ class LockViewersComponent extends Component {
             }
             {NotesService.isEnabled()
               ? (
-                <Styled.Row>
+                <Styled.Row data-test="lockEditSharedNotesItem">
                   <Styled.Col aria-hidden="true">
                     <Styled.FormElement>
                       <Styled.Label>
@@ -333,7 +329,7 @@ class LockViewersComponent extends Component {
               )
               : null
             }
-            <Styled.Row>
+            <Styled.Row data-test="lockUserListItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
                   <Styled.Label>
@@ -359,7 +355,7 @@ class LockViewersComponent extends Component {
               </Styled.Col>
             </Styled.Row>
 
-            <Styled.Row>
+            <Styled.Row data-test="hideViewersCursorItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
                   <Styled.Label>

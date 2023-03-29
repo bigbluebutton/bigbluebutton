@@ -1,13 +1,5 @@
 package org.bigbluebutton.common2.msgs
 
-object EjectDuplicateUserReqMsg { val NAME = "EjectDuplicateUserReqMsg" }
-case class EjectDuplicateUserReqMsg(
-    header: BbbCoreHeaderWithMeetingId,
-    body:   EjectDuplicateUserReqMsgBody
-) extends BbbCoreMsg
-case class EjectDuplicateUserReqMsgBody(meetingId: String, intUserId: String, name: String,
-                                        extUserId: String)
-
 object RegisterUserReqMsg { val NAME = "RegisterUserReqMsg" }
 case class RegisterUserReqMsg(
     header: BbbCoreHeaderWithMeetingId,
@@ -259,7 +251,7 @@ case class ChangeLockSettingsInMeetingCmdMsg(
     body:   ChangeLockSettingsInMeetingCmdMsgBody
 ) extends StandardMsg
 case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                 disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                                 disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
                                                  lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, setBy: String)
 
 object LockSettingsInMeetingChangedEvtMsg { val NAME = "LockSettingsInMeetingChangedEvtMsg" }
@@ -268,7 +260,7 @@ case class LockSettingsInMeetingChangedEvtMsg(
     body:   LockSettingsInMeetingChangedEvtMsgBody
 ) extends BbbCoreMsg
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                  disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                                  disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
                                                   lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, setBy: String)
 
 /**
@@ -284,7 +276,7 @@ case class GetLockSettingsReqMsgBody(requesterId: String)
 object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
 case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSettingsRespMsgBody) extends BbbCoreMsg
 case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                      disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockedLayout: Boolean, lockOnJoin: Boolean,
+                                      disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
                                       lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean)
 
 object LockSettingsNotInitializedRespMsg { val NAME = "LockSettingsNotInitializedRespMsg" }

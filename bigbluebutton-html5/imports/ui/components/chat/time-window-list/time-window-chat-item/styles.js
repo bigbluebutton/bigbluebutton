@@ -146,6 +146,7 @@ const Offline = styled.span`
   font-size: 90%;
   line-height: 1;
   align-self: center;
+  user-select: none;
 `;
 
 const Time = styled.time`

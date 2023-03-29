@@ -202,6 +202,7 @@ const CustomLayout = (props) => {
         }, INITIAL_INPUT_STATE),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 
@@ -675,6 +676,17 @@ const CustomLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? (mediaBounds.right + horizontalCameraDiff) : null,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

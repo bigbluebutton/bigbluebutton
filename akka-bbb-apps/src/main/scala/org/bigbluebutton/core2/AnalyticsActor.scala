@@ -117,7 +117,6 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       // case m: StoreAnnotationsInRedisSysMsg => logMessage(msg)
       // case m: StoreExportJobInRedisSysMsg => logMessage(msg)
       case m: MakePresentationWithAnnotationDownloadReqMsg => logMessage(msg)
-      case m: ExportPresentationWithAnnotationReqMsg => logMessage(msg)
       case m: NewPresAnnFileAvailableMsg => logMessage(msg)
       case m: PresentationPageConversionStartedSysMsg => logMessage(msg)
       case m: PresentationConversionEndedSysMsg => logMessage(msg)
@@ -201,6 +200,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PadUpdatedEvtMsg => logMessage(msg)
       case m: PadUpdatePubMsg => logMessage(msg)
       case m: PadUpdateCmdMsg => logMessage(msg)
+      case m: PadCapturePubMsg => logMessage(msg)
 
       case _ => // ignore message
     }

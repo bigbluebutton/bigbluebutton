@@ -124,6 +124,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.sortedLastName.heading',
     description: '',
   },
+  newTab: {
+    id: 'app.modal.newTab',
+    description: 'label used in aria description',
+  }
 });
 
 class UserOptions extends PureComponent {
@@ -228,25 +232,27 @@ class UserOptions extends PureComponent {
         this.menuItems.push({
           key: this.muteAllId,
           label: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel']),
-          // description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
+          description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
           onClick: toggleMuteAllUsers,
           icon: isMeetingMuted ? 'unmute' : 'mute',
+          dataTest: 'muteAll',
         });
 
         if (!isMeetingMuted) {
           this.menuItems.push({
             key: this.muteId,
             label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
-            // description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
+            description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
             onClick: toggleMuteAllUsersExceptPresenter,
             icon: 'mute',
+            dataTest: 'muteAllExceptPresenter',
           });
         }
 
         this.menuItems.push({
           key: this.lockId,
           label: intl.formatMessage(intlMessages.lockViewersLabel),
-          // description: intl.formatMessage(intlMessages.lockViewersDesc),
+          description: intl.formatMessage(intlMessages.lockViewersDesc),
           onClick: () => mountModal(<LockViewersContainer />),
           icon: 'lock',
           dataTest: 'lockViewersButton',
@@ -257,7 +263,7 @@ class UserOptions extends PureComponent {
             key: this.guestPolicyId,
             icon: 'user',
             label: intl.formatMessage(intlMessages.guestPolicyLabel),
-            // description: intl.formatMessage(intlMessages.guestPolicyDesc),
+            description: intl.formatMessage(intlMessages.guestPolicyDesc),
             onClick: () => mountModal(<GuestPolicyContainer />),
             dataTest: 'guestPolicyLabel',
           });
@@ -278,7 +284,7 @@ class UserOptions extends PureComponent {
       this.menuItems.push({
         key: this.clearStatusId,
         label: intl.formatMessage(intlMessages.clearAllLabel),
-        // description: intl.formatMessage(intlMessages.clearAllDesc),
+        description: intl.formatMessage(intlMessages.clearAllDesc),
         onClick: toggleStatus,
         icon: 'clear_status',
         divider: true,
@@ -289,7 +295,7 @@ class UserOptions extends PureComponent {
           key: this.createBreakoutId,
           icon: 'rooms',
           label: intl.formatMessage(intlMessages.createBreakoutRoom),
-          // description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
+          description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
           onClick: this.onCreateBreakouts,
           dataTest: 'createBreakoutRooms',
         });
@@ -299,9 +305,10 @@ class UserOptions extends PureComponent {
         this.menuItems.push({
           icon: 'closed_caption',
           label: intl.formatMessage(intlMessages.captionsLabel),
-          // description: intl.formatMessage(intlMessages.captionsDesc),
+          description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
+          dataTest: 'writeClosedCaptions',
         });
       }
       if (amIModerator) {
@@ -310,10 +317,11 @@ class UserOptions extends PureComponent {
             icon: 'multi_whiteboard',
             iconRight: 'popout_window',
             label: intl.formatMessage(intlMessages.learningDashboardLabel),
-            description: intl.formatMessage(intlMessages.learningDashboardDesc),
+            description: `${intl.formatMessage(intlMessages.learningDashboardDesc)} ${intl.formatMessage(intlMessages.newTab)}`,
             key: this.learningDashboardId,
             onClick: () => { openLearningDashboardUrl(locale); },
             dividerTop: true,
+            dataTest: 'learningDashboard'
           });
         }
       }
@@ -341,7 +349,7 @@ class UserOptions extends PureComponent {
         )}
         actions={this.renderMenuItems()}
         opts={{
-          id: "default-dropdown-menu",
+          id: "user-options-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,

@@ -7,7 +7,7 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.13.4"
+    val scala = "2.13.9"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.8"
@@ -15,14 +15,14 @@ object Dependencies {
     // Libraries
     val akkaVersion = "2.6.17"
     val gson = "2.8.9"
-    val jackson = "2.13.0"
+    val jackson = "2.13.5"
     val freemarker = "2.3.31"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
 
     // Office and document conversion
     val apachePoi = "5.1.0"
-    val nuProcess = "2.0.2"
+    val nuProcess = "2.0.6"
 
     // Server
     val servlet = "4.0.1"
@@ -31,10 +31,10 @@ object Dependencies {
     val lang = "3.12.0"
     val io = "2.11.0"
     val pool = "2.11.1"
-    val text = "1.9"
+    val text = "1.10.0"
 
     // BigBlueButton
-    val bbbCommons = "0.0.21-SNAPSHOT"
+    val bbbCommons = "0.0.22-SNAPSHOT"
 
     // Test
     val scalaTest = "3.2.11"

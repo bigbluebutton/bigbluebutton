@@ -168,15 +168,19 @@ class NavBar extends Component {
       amIModerator,
       style,
       main,
+      isPinned,
       sidebarNavigation,
+      currentUserId,
     } = this.props;
 
-    const hasNotification = hasUnreadMessages || hasUnreadNotes;
+    const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+    const { isPhone } = deviceInfo;
+
 
     const { acs } = this.state;
 
@@ -213,7 +217,7 @@ class NavBar extends Component {
               && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
-              color='dark'
+              color={isPhone && isExpanded ? 'primary' : 'dark'}
               size='md'
               circle
               hideLabel
@@ -239,6 +243,7 @@ class NavBar extends Component {
               mountModal={mountModal}
               getModal={getModal}
               amIModerator={amIModerator}
+              currentUserId={currentUserId}
             />
           </Styled.Center>
           <Styled.Right>
@@ -257,3 +262,4 @@ class NavBar extends Component {
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
 export default withShortcutHelper(withModalMounter(injectIntl(NavBar)), 'toggleUserList');
+

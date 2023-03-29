@@ -11,4 +11,5 @@ services:
     ports:
       - "${HOST_PORT}:${CONTAINER_PORT}"
     volumes:
+      - "./postgres-data:/var/lib/postgresql/data"      
       - "./src/main/java/db/migration:/docker-entrypoint-initdb.d"

@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import NotesService from '/imports/ui/components/notes/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 
 const USER_CONFIG = Meteor.settings.public.user;
@@ -63,7 +64,7 @@ export default {
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (rooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record),
+  createBreakoutRoom: (rooms, durationInMinutes, record = false, captureNotes = false, captureSlides = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record, captureNotes, captureSlides),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   breakoutJoinedUsers: () => Breakouts.find({
     joinedUsers: { $exists: true },
@@ -73,5 +74,6 @@ export default {
   getLastBreakouts,
   getUsersNotJoined,
   takePresenterRole,
+  isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
   isSharingVideo: () => getVideoUrl(),
 };

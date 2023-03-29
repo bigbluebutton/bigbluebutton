@@ -1,8 +1,8 @@
 [Unit]
 Description=BigBlueButton Apps (Akka)
 Requires=network.target
-Wants=redis-server.service
-After=redis-server.service
+Wants=redis-server.service bbb-fsesl-akka.service
+After=redis-server.service bbb-fsesl-akka.service
 PartOf=bigbluebutton.target
 
 [Service]
@@ -13,7 +13,7 @@ ExecStart=/usr/share/bbb-apps-akka/bin/bbb-apps-akka
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=60
-SuccessExitStatus=
+SuccessExitStatus=143
 TimeoutStopSec=5
 User=bigbluebutton
 ExecStartPre=/bin/mkdir -p /run/bbb-apps-akka

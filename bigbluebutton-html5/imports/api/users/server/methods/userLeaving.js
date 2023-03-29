@@ -45,7 +45,20 @@ export default function userLeaving(meetingId, userId, connectionId) {
 
     ClientConnections.removeClientConnection(`${meetingId}--${userId}`, connectionId);
 
-    Logger.info(`User '${userId}' is leaving meeting '${meetingId}'`);
+    let reason;
+
+    if (user.loggedOut) {
+      // User explicitly requested logout.
+      reason = 'logout';
+    } else if (user.exitReason) {
+      // User didn't requested logout but exited graciously.
+      reason = user.exitReason;
+    } else {
+      // User didn't exit graciously (disconnection).
+      reason = 'disconnection';
+    }
+
+    Logger.info(`User '${userId}' is leaving meeting '${meetingId}' reason=${reason}`);
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, userId, payload);
   } catch (err) {
     Logger.error(`Exception while invoking method userLeaving ${err.stack}`);

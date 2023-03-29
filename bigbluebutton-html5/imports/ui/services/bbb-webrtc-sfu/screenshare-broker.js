@@ -37,6 +37,7 @@ class ScreenshareBroker extends BaseBroker {
     // mediaServer,
     // signalCandidates,
     // traceLogs
+    // networkPriority
     Object.assign(this, options);
   }
 
@@ -187,6 +188,7 @@ class ScreenshareBroker extends BaseBroker {
           videoStream: this.stream,
           configuration: this.populatePeerConfiguration(),
           trace: this.traceLogs,
+          networkPriorities: this.networkPriority ? { video: this.networkPriority } : undefined,
         };
         this.webRtcPeer = new WebRtcPeer('sendonly', options);
         this.webRtcPeer.iceQueue = [];

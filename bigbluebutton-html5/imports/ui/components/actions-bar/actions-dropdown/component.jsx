@@ -11,6 +11,8 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import { isPresentationEnabled } from '/imports/ui/services/features';
+import {isLayoutsEnabled} from '/imports/ui/services/features';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -129,7 +131,6 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
-      amIModerator,
       allowExternalVideo,
       handleTakePresenter,
       isSharingVideo,
@@ -138,10 +139,10 @@ class ActionsDropdown extends PureComponent {
       stopExternalVideoShare,
       mountModal,
       layoutContextDispatch,
-      hidePresentation,
       setMeetingLayout,
       setPushLayout,
       showPushLayout,
+      amIModerator,
     } = this.props;
 
     const {
@@ -156,9 +157,9 @@ class ActionsDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && !hidePresentation) {
+    if (amIPresenter && isPresentationEnabled()) {
       actions.push({
-        icon: "presentation",
+        icon: "upload",
         dataTest: "managePresentations",
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
@@ -190,7 +191,7 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (!amIPresenter) {
+    if (!amIPresenter && amIModerator) {
       actions.push({
         icon: "presentation",
         label: formatMessage(takePresenter),
@@ -220,22 +221,26 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if ((amIPresenter || amIModerator) && showPushLayout) {
+    if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
       actions.push({
         icon: 'send',
         label: intl.formatMessage(intlMessages.propagateLayoutLabel),
         key: 'propagate layout',
         onClick: amIPresenter ? setMeetingLayout : setPushLayout,
+        dataTest: 'propagateLayout',
       });
     }
 
-    actions.push({
-      icon: 'send',
-      label: intl.formatMessage(intlMessages.layoutModal),
-      key: 'layoutModal',
-      onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
-    });
-
+    if (isLayoutsEnabled()){
+      actions.push({
+        icon: 'send',
+        label: intl.formatMessage(intlMessages.layoutModal),
+        key: 'layoutModal',
+        onClick: () => mountModal(<LayoutModalContainer {...this.props} />),
+        dataTest: 'layoutModal',
+      });
+    }
+    
     return actions;
   }
 
@@ -262,6 +267,7 @@ class ActionsDropdown extends PureComponent {
             customStyles: p.current ? customStyles : null,
             icon: "file",
             iconRight: p.current ? 'check' : null,
+            selected: p.current ? true : false,
             label: p.name,
             description: "uploaded presentation file",
             key: `uploaded-presentation-${p.id}`,
@@ -279,7 +285,6 @@ class ActionsDropdown extends PureComponent {
     const {
       intl,
       amIPresenter,
-      amIModerator,
       shortcuts: OPEN_ACTIONS_AK,
       isMeteorConnected,
       isDropdownOpen,
@@ -292,12 +297,12 @@ class ActionsDropdown extends PureComponent {
     const children = availablePresentations.length > 1 && amIPresenter
       ? availablePresentations.concat(availableActions) : availableActions;
 
-    if ((!amIPresenter && !amIModerator)
-      || availableActions.length === 0
+    const customStyles = { top: '-1rem' };
+
+    if (availableActions.length === 0
       || !isMeteorConnected) {
       return null;
     }
-    const customStyles = { top: '-1rem' };
 
     return (
       <BBBMenu
@@ -319,7 +324,7 @@ class ActionsDropdown extends PureComponent {
         }
         actions={children}
         opts={{
-          id: "default-dropdown-menu",
+          id: "actions-dropdown-menu",
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,

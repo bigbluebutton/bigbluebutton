@@ -15,11 +15,18 @@ import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import {
   DEFAULT_INPUT_DEVICE_ID,
-  DEFAULT_OUTPUT_DEVICE_ID,
+  reloadAudioElement,
+  getCurrentAudioSinkId,
+  getStoredAudioInputDeviceId,
+  storeAudioInputDeviceId,
+  getStoredAudioOutputDeviceId,
+  storeAudioOutputDeviceId,
 } from '/imports/api/audio/client/bridge/service';
+import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const STATS = Meteor.settings.public.stats;
 const MEDIA = Meteor.settings.public.media;
+const MEDIA_TAG = MEDIA.mediaTag;
 const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
 const MAX_LISTEN_ONLY_RETRIES = 1;
 const LISTEN_ONLY_CALL_TIMEOUT_MS = MEDIA.listenOnlyCallTimeout || 25000;
@@ -85,8 +92,71 @@ class AudioManager {
 
     this._inputStream = null;
     this._inputStreamTracker = new Tracker.Dependency();
+    this._inputDeviceId = {
+      value: getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID,
+      tracker: new Tracker.Dependency(),
+    };
+    this._outputDeviceId = {
+      value: getCurrentAudioSinkId(),
+      tracker: new Tracker.Dependency(),
+    };
 
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
+    this._applyCachedOutputDeviceId();
+  }
+
+  _applyCachedOutputDeviceId() {
+    const cachedId = getStoredAudioOutputDeviceId();
+
+    if (typeof cachedId === 'string') {
+      this.changeOutputDevice(cachedId, false).then(() => {
+        this.outputDeviceId = cachedId;
+      }).catch((error) => {
+        logger.warn({
+          logCode: 'audiomanager_output_device_storage_failed',
+          extraInfo: {
+            deviceId: cachedId,
+            errorMessage: error.message,
+          },
+        }, `Failed to apply output audio device from storage: ${error.message}`);
+      });
+    }
+  }
+
+  set inputDeviceId(value) {
+    if (this._inputDeviceId.value !== value) {
+      this._inputDeviceId.value = value;
+      this._inputDeviceId.tracker.changed();
+    }
+
+    if (this.fullAudioBridge) {
+      this.fullAudioBridge.inputDeviceId = this._inputDeviceId.value;
+    }
+  }
+
+  get inputDeviceId() {
+    this._inputDeviceId.tracker.depend();
+    return this._inputDeviceId.value;
+  }
+
+  set outputDeviceId(value) {
+    if (this._outputDeviceId.value !== value) {
+      this._outputDeviceId.value = value;
+      this._outputDeviceId.tracker.changed();
+    }
+
+    if (this.fullAudioBridge) {
+      this.fullAudioBridge.outputDeviceId = this._outputDeviceId.value;
+    }
+
+    if (this.listenOnlyBridge) {
+      this.listenOnlyBridge.outputDeviceId = this._outputDeviceId.value;
+    }
+  }
+
+  get outputDeviceId() {
+    this._outputDeviceId.tracker.depend();
+    return this._outputDeviceId.value;
   }
 
   async init(userData, audioEventHandler) {
@@ -138,6 +208,10 @@ class AudioManager {
 
     this.fullAudioBridge = new FullAudioBridge(userData);
     this.listenOnlyBridge = new ListenOnlyBridge(userData);
+    // Initialize device IDs in configured bridges
+    this.fullAudioBridge.inputDeviceId = this.inputDeviceId;
+    this.fullAudioBridge.outputDeviceId = this.outputDeviceId;
+    this.listenOnlyBridge.outputDeviceId = this.outputDeviceId;
   }
 
   setAudioMessages(messages, intl) {
@@ -407,7 +481,6 @@ class AudioManager {
     if (this.inputStream) {
       this.inputStream.getTracks().forEach((track) => track.stop());
       this.inputStream = null;
-      this.inputDevice = { id: 'default' };
     }
 
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
@@ -485,6 +558,25 @@ class AudioManager {
       });
     }
     Session.set('audioModalIsOpen', false);
+
+    // Enforce correct output device on audio join
+    this.changeOutputDevice(this.outputDeviceId, true);
+    storeAudioOutputDeviceId(this.outputDeviceId);
+
+    // Extract the deviceId again from the stream to guarantee consistency
+    // between stream DID vs chosen DID. That's necessary in scenarios where,
+    // eg, there's no default/pre-set deviceId ('') and the browser's
+    // default device has been altered by the user (browser default != system's
+    // default).
+    if (this.inputStream) {
+      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.inputStream, 'audio');
+      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+        this.changeInputDevice(extractedDeviceId);
+      }
+    }
+    // Audio joined successfully - add device IDs to session storage so they
+    // can be re-used on refreshes/other sessions
+    storeAudioInputDeviceId(this.inputDeviceId);
   }
 
   onTransferStart() {
@@ -502,7 +594,6 @@ class AudioManager {
     if (this.inputStream) {
       this.inputStream.getTracks().forEach((track) => track.stop());
       this.inputStream = null;
-      this.inputDevice = { id: 'default' };
     }
 
     if (!this.error && !this.isEchoTest) {
@@ -602,78 +693,103 @@ class AudioManager {
     );
   }
 
-  setDefaultInputDevice() {
-    return this.changeInputDevice();
-  }
-
-  setDefaultOutputDevice() {
-    return this.changeOutputDevice('default');
-  }
-
   changeInputDevice(deviceId) {
-    if (!deviceId) {
-      return Promise.resolve();
-    }
+    if (typeof deviceId !== 'string') throw new TypeError('Invalid inputDeviceId');
 
-    const handleChangeInputDeviceSuccess = (inputDeviceId) => {
-      this.inputDevice.id = inputDeviceId;
-      return Promise.resolve(inputDeviceId);
-    };
+    if (deviceId === this.inputDeviceId) return this.inputDeviceId;
 
-    const handleChangeInputDeviceError = (error) => {
-      logger.error(
-        {
-          logCode: 'audiomanager_error_getting_device',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        },
-        `Error getting microphone - {${error.name}: ${error.message}}`
-      );
+    const currentDeviceId = this.inputDeviceId ?? 'none';
+    this.inputDeviceId = deviceId;
+    logger.debug({
+      logCode: 'audiomanager_input_device_change',
+      extraInfo: {
+        deviceId: currentDeviceId,
+        newDeviceId: deviceId,
+      },
+    }, `Microphone input device changed: from ${currentDeviceId} to ${deviceId}`);
 
-      const { MIC_ERROR } = AudioErrors;
-      const disabledSysSetting = error.message.includes(
-        'Permission denied by system'
-      );
-      const isMac = navigator.platform.indexOf('Mac') !== -1;
-
-      let code = MIC_ERROR.NO_PERMISSION;
-      if (isMac && disabledSysSetting) code = MIC_ERROR.MAC_OS_BLOCK;
-
-      return Promise.reject({
-        type: 'MEDIA_ERROR',
-        message: this.messages.error.MEDIA_ERROR,
-        code,
-      });
-    };
-
-    return this.bridge
-      .changeInputDeviceId(deviceId)
-      .then(handleChangeInputDeviceSuccess)
-      .catch(handleChangeInputDeviceError);
+    return this.inputDeviceId;
   }
 
   liveChangeInputDevice(deviceId) {
+    const currentDeviceId = this.inputDeviceId ?? 'none';
     // we force stream to be null, so MutedAlert will deallocate it and
     // a new one will be created for the new stream
     this.inputStream = null;
-    this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
-      this.setSenderTrackEnabled(!this.isMuted);
+    return this.bridge.liveChangeInputDevice(deviceId).then((stream) => {
       this.inputStream = stream;
+      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.inputStream, 'audio');
+      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+        this.changeInputDevice(extractedDeviceId);
+      }
+      // Live input device change - add device ID to session storage so it
+      // can be re-used on refreshes/other sessions
+      storeAudioInputDeviceId(extractedDeviceId);
+      this.setSenderTrackEnabled(!this.isMuted);
+    }).catch((error) => {
+      logger.error({
+        logCode: 'audiomanager_input_live_device_change_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          deviceId: currentDeviceId,
+          newDeviceId: deviceId,
+        },
+      }, `Input device live change failed - {${error.name}: ${error.message}}`);
+
+      throw error;
     });
   }
 
   async changeOutputDevice(deviceId, isLive) {
-    await this.bridge.changeOutputDevice(
-      deviceId || DEFAULT_OUTPUT_DEVICE_ID,
-      isLive
-    );
-  }
+    const targetDeviceId = deviceId;
+    const currentDeviceId = this.outputDeviceId ?? getCurrentAudioSinkId();
+    const audioElement = document.querySelector(MEDIA_TAG);
+    const sinkIdSupported = audioElement && typeof audioElement.setSinkId === 'function';
 
-  set inputDevice(value) {
-    this._inputDevice.value = value;
-    this._inputDevice.tracker.changed();
+    if (typeof deviceId === 'string' && sinkIdSupported && currentDeviceId !== targetDeviceId) {
+      try {
+        if (!isLive) audioElement.srcObject = null;
+
+        await audioElement.setSinkId(deviceId);
+        reloadAudioElement(audioElement);
+        logger.debug({
+          logCode: 'audiomanager_output_device_change',
+          extraInfo: {
+            deviceId: currentDeviceId,
+            newDeviceId: deviceId,
+          },
+        }, `Audio output device changed: from ${currentDeviceId || 'default'} to ${deviceId || 'default'}`);
+        this.outputDeviceId = deviceId;
+
+        // Live output device change - add device ID to session storage so it
+        // can be re-used on refreshes/other sessions
+        if (isLive) storeAudioOutputDeviceId(deviceId);
+
+        return this.outputDeviceId;
+      } catch (error) {
+        logger.error({
+          logCode: 'audiomanager_output_device_change_failure',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+            deviceId: currentDeviceId,
+            newDeviceId: targetDeviceId,
+          },
+        }, `Error changing output device - {${error.name}: ${error.message}}`);
+
+        // Rollback/enforce current sinkId (if possible)
+        if (sinkIdSupported) {
+          this.outputDeviceId = getCurrentAudioSinkId();
+        } else {
+          this.outputDeviceId = currentDeviceId;
+        }
+
+        throw error;
+      }
+    }
+
+    return this.outputDeviceId;
   }
 
   get inputStream() {
@@ -694,22 +810,6 @@ class AudioManager {
     }
 
     this._inputStream = stream;
-  }
-
-  get inputDevice() {
-    return this._inputDevice;
-  }
-
-  get inputDeviceId() {
-    return this.bridge && this.bridge.inputDeviceId
-      ? this.bridge.inputDeviceId
-      : DEFAULT_INPUT_DEVICE_ID;
-  }
-
-  get outputDeviceId() {
-    return this.bridge && this.bridge.outputDeviceId
-      ? this.bridge.outputDeviceId
-      : DEFAULT_OUTPUT_DEVICE_ID;
   }
 
   /**

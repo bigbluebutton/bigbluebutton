@@ -1,6 +1,3 @@
-CREATE DATABASE bbb;
-\c bbb;
-
 CREATE TABLE IF NOT EXISTS recordings (
 	id BIGSERIAL PRIMARY KEY,
 	record_id VARCHAR(64),

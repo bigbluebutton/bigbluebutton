@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { defineMessages, injectIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings, { LayoutMeetings } from '/imports/api/meetings';
@@ -16,6 +15,7 @@ import UserInfos from '/imports/api/users-infos';
 import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 import _ from 'lodash';
 import {
   layoutSelect,
@@ -45,8 +45,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const endMeeting = (code) => {
+const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
+  Session.set('errorMessageDescription', ejectedReason);
   Session.set('isMeetingEnded', true);
 };
 
@@ -59,10 +60,10 @@ const AppContainer = (props) => {
     return ref.current;
   }
 
+  const layoutType = useRef(null);
+
   const {
     actionsbar,
-    meetingLayout,
-    meetingLayoutUpdatedAt,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
@@ -72,11 +73,13 @@ const AppContainer = (props) => {
     isPresenter,
     randomlySelectedUser,
     isModalOpen,
-    presentationIsOpen: layoutPresOpen,
-    isResizing: layoutIsResizing,
-    cameraPosition: layoutCamPosition,
-    focusedCamera: layoutFocusedCam,
-    presentationVideoRate: layoutRate,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isMeetingLayoutResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     ...otherProps
   } = props;
 
@@ -87,17 +90,27 @@ const AppContainer = (props) => {
   const cameraDock = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectInput((i) => i.presentation);
-  const layoutType = layoutSelect((i) => i.layoutType);
   const deviceType = layoutSelect((i) => i.deviceType);
   const layoutContextDispatch = layoutDispatch();
 
   const { sidebarContentPanel, isOpen: sidebarContentIsOpen } = sidebarContent;
   const { sidebarNavPanel, isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
-  const { isOpen: presentationIsOpen } = presentation;
-  const shouldShowPresentation = propsShouldShowPresentation
-    && (presentationIsOpen || presentationRestoreOnUpdate);
+  const { isOpen } = presentation;
+  const presentationIsOpen = isOpen;
+
+  const shouldShowPresentation = (propsShouldShowPresentation
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled();
 
   const { focusedId } = cameraDock;
+
+  if(
+    layoutContextDispatch 
+    &&  (typeof meetingLayout != "undefined")
+    && (layoutType.current != meetingLayout)
+    ) {
+      layoutType.current = meetingLayout;
+      MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+  }
 
   const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
@@ -133,6 +146,9 @@ const AppContainer = (props) => {
     });
   };
 
+  useEffect(() => {
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)});
+  
   return currentUserId
     ? (
       <App
@@ -154,11 +170,11 @@ const AppContainer = (props) => {
           cameraWidth: cameraDock.width,
           cameraHeight: cameraDock.height,
           cameraIsResizing: cameraDockInput.isResizing,
-          layoutPresOpen,
-          layoutIsResizing,
-          layoutCamPosition,
-          layoutFocusedCam,
-          layoutRate,
+          meetingPresentationIsOpen,
+          isMeetingLayoutResizing,
+          meetingLayoutCameraPosition,
+          meetingLayoutFocusedCamera,
+          meetingLayoutVideoRate,
           horizontalPosition,
           deviceType,
           layoutContextDispatch,
@@ -169,6 +185,7 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           mountRandomUserModal,
           isPresenter,
+          numCameras: cameraDockInput.numCameras,
         }}
         {...otherProps}
       />
@@ -189,8 +206,24 @@ const currentUserEmoji = (currentUser) => (currentUser
 
 export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
-    removed() {
-      endMeeting('403');
+    removed(userData) {
+      // wait 3secs (before endMeeting), client will try to authenticate again
+      const delayForReconnection = userData.ejected ? 0 : 3000;
+      setTimeout(() => {
+        const queryCurrentUser = Users.find({ userId: Auth.userID, meetingId: Auth.meetingID });
+        if (queryCurrentUser.count() === 0) {
+          if (userData.ejected) {
+            endMeeting('403', userData.ejectedReason);
+          } else {
+            // Either authentication process hasn't finished yet or user did authenticate but Users
+            // collection is unsynchronized. In both cases user may be able to rejoin.
+            const description = Auth.isAuthenticating || Auth.loggedIn
+              ? 'able_to_rejoin_user_disconnected_reason'
+              : null;
+            endMeeting('503', description);
+          }
+        }
+      }, delayForReconnection);
     },
   });
 
@@ -215,8 +248,17 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
   } = currentMeeting;
 
-  const meetingLayout = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
-  const { layout, pushLayout: pushLayoutMeeting, layoutUpdatedAt, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate } = meetingLayout;
+  const meetingLayoutObj = LayoutMeetings.findOne({ meetingId: Auth.meetingID }) || {};
+  const {
+    layout: meetingLayout,
+    pushLayout: pushLayoutMeeting,
+    layoutUpdatedAt: meetingLayoutUpdatedAt,
+    presentationIsOpen: meetingPresentationIsOpen,
+    isResizing: isMeetingLayoutResizing,
+    cameraPosition: meetingLayoutCameraPosition,
+    focusedCamera: meetingLayoutFocusedCamera,
+    presentationVideoRate: meetingLayoutVideoRate,
+  } = meetingLayoutObj;
 
   if (currentUser && !currentUser.approved) {
     baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
@@ -230,6 +272,7 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
   const AppSettings = Settings.application;
   const { selectedLayout, pushLayout } = AppSettings;
   const { viewScreenshare } = Settings.dataSaving;
+  const shouldShowSharedNotes = MediaService.shouldShowSharedNotes();
   const shouldShowExternalVideo = MediaService.shouldShowExternalVideo();
   const shouldShowScreenshare = MediaService.shouldShowScreenshare()
     && (viewScreenshare || currentUser?.presenter);
@@ -259,14 +302,14 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
-    isModerator: currentUser.role === ROLE_MODERATOR,
-    meetingLayout: layout,
-    meetingLayoutUpdatedAt: layoutUpdatedAt,
-    presentationIsOpen,
-    isResizing,
-    cameraPosition,
-    focusedCamera,
-    presentationVideoRate,
+    isModerator: currentUser?.role === ROLE_MODERATOR,
+    meetingLayout,
+    meetingLayoutUpdatedAt,
+    meetingPresentationIsOpen,
+    isMeetingLayoutResizing,
+    meetingLayoutCameraPosition,
+    meetingLayoutFocusedCamera,
+    meetingLayoutVideoRate,
     selectedLayout,
     pushLayout,
     pushLayoutMeeting,
@@ -274,15 +317,17 @@ export default injectIntl(withModalMounter(withTracker(({ intl, baseControls }) 
     pushAlertEnabled: AppSettings.chatPushAlerts,
     darkTheme: AppSettings.darkTheme,
     shouldShowScreenshare,
-    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo,
+    shouldShowPresentation: !shouldShowScreenshare && !shouldShowExternalVideo && !shouldShowSharedNotes,
     shouldShowExternalVideo,
+    shouldShowSharedNotes,
     isLargeFont: Session.get('isLargeFont'),
     presentationRestoreOnUpdate: getFromUserSettings(
       'bbb_force_restore_presentation_on_new_events',
       Meteor.settings.public.presentation.restoreOnUpdate,
     ),
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     isModalOpen: !!getModal(),
+    ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
 })(AppContainer)));

@@ -5,8 +5,10 @@ import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import _ from 'lodash';
+import Auth from '/imports/ui/services/auth';
 import Breakouts from '/imports/api/breakouts';
 import AppService from '/imports/ui/components/app/service';
+import BreakoutsService from '/imports/ui/components/breakout-room/service';
 import { notify } from '/imports/ui/services/notification';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
@@ -98,7 +100,7 @@ class AudioContainer extends PureComponent {
   /**
    * Helper function to determine wheter user is returning from breakout room
    * to main room.
-   * @param  {[Object} prevProps prevProps param from componentDidUpdate
+   * @param  {Object} prevProps prevProps param from componentDidUpdate
    * @return {boolean}           True if user is returning from breakout room
    *                             to main room. False, otherwise.
    */
@@ -189,28 +191,31 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
     }
   }
-
-  Breakouts.find().observeChanges({
-    removed() {
-      // if the user joined a breakout room, the main room's audio was
-      // programmatically dropped to avoid interference. On breakout end,
-      // offer to rejoin main room audio only if the user is not in audio already
-      if (Service.isUsingAudio()
-        || userSelectedMicrophone
-        || userSelectedListenOnly) {
-        if (enableVideo && autoShareWebcam) {
-          openVideoPreviewModal();
-        }
-
-        return;
-      }
-      setTimeout(() => openAudioModal().then(() => {
-         if (enableVideo && autoShareWebcam) {
-           openVideoPreviewModal();
+  const breakoutUserIsIn = BreakoutsService.getBreakoutUserIsIn(Auth.userID);
+  if(!!breakoutUserIsIn && !meetingIsBreakout) {
+    const userBreakout = Breakouts.find({id: breakoutUserIsIn.id})
+    userBreakout.observeChanges({
+      removed() {
+        // if the user joined a breakout room, the main room's audio was
+        // programmatically dropped to avoid interference. On breakout end,
+        // offer to rejoin main room audio only if the user is not in audio already
+        if (Service.isUsingAudio()
+          || userSelectedMicrophone
+          || userSelectedListenOnly) {
+          if (enableVideo && autoShareWebcam) {
+            openVideoPreviewModal();
           }
-        }), 0);
-    },
-  });
+
+          return; 
+        }
+        setTimeout(() => openAudioModal().then(() => {
+          if (enableVideo && autoShareWebcam) {
+            openVideoPreviewModal();
+            }
+          }), 0);
+      },
+    });
+  }
 
   return {
     hasBreakoutRooms,

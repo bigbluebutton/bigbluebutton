@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import PresentationService from '/imports/ui/components/presentation/service';
-import Service from '/imports/ui/components/actions-bar/service';
 import PollService from '/imports/ui/components/poll/service';
 import { makeCall } from '/imports/ui/services/api';
 import PresentationToolbar from './component';
@@ -11,6 +10,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import Auth from '/imports/ui/services/auth';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { isPollingEnabled } from '/imports/ui/services/features';
+import { CurrentPoll } from '/imports/api/polls';
 
 const PresentationToolbarContainer = (props) => {
   const usingUsersContext = useContext(UsersContext);
@@ -22,6 +22,10 @@ const PresentationToolbarContainer = (props) => {
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
+  const endCurrentPoll = () => {
+    if (CurrentPoll.findOne({ meetingId: Auth.meetingID })) makeCall('stopPoll');
+  };
+
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
 
@@ -29,6 +33,7 @@ const PresentationToolbarContainer = (props) => {
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
+        endCurrentPoll={endCurrentPoll}
         {...{
           handleToggleFullScreen,
         }}
@@ -44,12 +49,12 @@ export default withTracker((params) => {
     presentationId,
   } = params;
 
-  const startPoll = (type, id, answers) => {
+  const startPoll = (type, id, answers = [], question = '', multiResp = false) => {
     Session.set('openPanel', 'poll');
     Session.set('forcePollOpen', true);
     window.dispatchEvent(new Event('panelChanged'));
 
-    makeCall('startPoll', PollService.pollTypes, type, id, false, '', false, answers);
+    makeCall('startPoll', PollService.pollTypes, type, id, false, question, multiResp, answers);
   };
 
   return {
@@ -78,4 +83,10 @@ PresentationToolbarContainer.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   previousSlide: PropTypes.func.isRequired,
   skipToSlide: PropTypes.func.isRequired,
+  layoutSwapped: PropTypes.bool,
+  endCurrentPoll: PropTypes.func.isRequired,
+};
+
+PresentationToolbarContainer.defaultProps = {
+  layoutSwapped: false,
 };

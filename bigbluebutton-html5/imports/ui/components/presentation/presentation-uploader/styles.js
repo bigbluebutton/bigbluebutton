@@ -21,12 +21,12 @@ import {
   itemActionsWidth,
   uploadIconSize,
   iconLineHeight,
+  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   headingsFontWeight,
   fontSizeLarge,
-  modalTitleFw,
-  fontSizeBase,
+  fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorGrayLight,
@@ -410,10 +410,7 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   border-bottom:${borderSize} solid ${colorGrayLighter};
   margin-bottom: 2rem;
-
-  h1 {
-    font-weight: ${modalTitleFw};
-  }
+  padding: ${mdPaddingX} 0;
 
   div {
     display: flex;
@@ -541,6 +538,7 @@ const DownloadButton = styled(Button)`
   color: ${colorBlueLight};
   cursor: pointer;
   display: inline-block;
+  font-size: 80%;
 
   &:hover {
     background-color: ${colorOffWhite} !important;
@@ -581,6 +579,33 @@ const ExtraHint = styled.div`
   font-weight: bold;
 `;
 
+const ExternalUpload = styled.div`
+  background-color: ${colorOffWhite};
+  border-radius: ${borderRadius};
+  margin-top: 2rem;
+  padding: ${lgPaddingX};
+  color: ${colorText};
+  font-weight: normal;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+
+  & p {
+    margin: 0;
+  }
+`;
+
+const ExternalUploadTitle = styled.h4`
+  font-size: 0.9rem;
+  margin: 0;
+`;
+
+const ExternalUploadButton = styled(Button)`
+  height: 2rem;
+  align-self: center;
+  margin-left: 2rem;
+`;
+
 const ExportHint = styled(ModalHint)`
   margin: 2rem 0;
 `;
@@ -591,7 +616,6 @@ const SetCurrentAction = styled.td`
   &, & i {
     border: 0;
     background: transparent;
-    color: ${colorGrayLight};
     cursor: pointer;
     font-size: 1.35rem;
 
@@ -633,6 +657,15 @@ const Head = styled.tr`
   }
 `;
 
+const Title = styled.h1`
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: ${fontSizeLarger};
+  font-weight: ${headingsFontWeight};
+`;
+
 export default {
   UploadRow,
   FileLine,
@@ -671,7 +704,11 @@ export default {
   TableItemActions,
   DownloadButton,
   ExtraHint,
+  ExternalUpload,
+  ExternalUploadTitle,
+  ExternalUploadButton,
   ExportHint,
   SetCurrentAction,
   Head,
+  Title,
 };

@@ -27,7 +27,8 @@ trait PresentationConversionUpdatePubMsgHdlr {
         msg.body.messageKey,
         msg.body.code,
         msg.body.presentationId,
-        msg.body.presName
+        msg.body.presName,
+        msg.body.temporaryPresentationId
       )
       val event = PresentationConversionUpdateEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

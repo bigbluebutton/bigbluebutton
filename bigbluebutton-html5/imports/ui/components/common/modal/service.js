@@ -20,6 +20,12 @@ export const getModal = () => {
 
 export const withModalMounter = ComponentToWrap =>
   class ModalMounterWrapper extends PureComponent {
+
+    componentDidMount(){
+      // needs to ne executed as initialization
+      currentModal.tracker.changed();
+    }
+
     static mount(modalComponent) {
       showModal(null);
       // defer the execution to a subsequent event loop

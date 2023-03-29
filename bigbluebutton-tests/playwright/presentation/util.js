@@ -16,6 +16,12 @@ async function getSlideOuterHtml(testPage) {
   }, [e.currentSlideImg]);
 }
 
+async function getCurrentPresentationHeight(locator) {
+  return locator.evaluate((e) => {
+    return window.getComputedStyle(e).getPropertyValue("height");
+  });
+}
+
 async function uploadSinglePresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
@@ -25,8 +31,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = ELEMENT_
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, uploadTimeout);
-  await test.hasText(e.smallToastMsg, e.presentationUploadedToast, uploadTimeout);
+  await test.hasElement(e.currentPresentationToast, uploadTimeout);
 }
 
 async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
@@ -34,7 +39,7 @@ async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEM
   await test.waitAndClick(e.managePresentations);
   await test.waitForSelector(e.fileUpload);
 
-  await test.page.setInputFiles(e.fileUpload, fileNames.map(function(fileName) { return path.join(__dirname, `../core/media/${fileName}`); }));
+  await test.page.setInputFiles(e.fileUpload, fileNames.map(function (fileName) { return path.join(__dirname, `../core/media/${fileName}`); }));
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
@@ -46,3 +51,4 @@ exports.checkSvgIndex = checkSvgIndex;
 exports.getSlideOuterHtml = getSlideOuterHtml;
 exports.uploadSinglePresentation = uploadSinglePresentation;
 exports.uploadMultiplePresentations = uploadMultiplePresentations;
+exports.getCurrentPresentationHeight = getCurrentPresentationHeight;

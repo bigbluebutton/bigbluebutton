@@ -12,6 +12,7 @@ import userActivitySign from './methods/userActivitySign';
 import userLeftMeeting from './methods/userLeftMeeting';
 import changePin from './methods/changePin';
 import setRandomUser from './methods/setRandomUser';
+import setExitReason from './methods/setExitReason';
 
 Meteor.methods({
   setEmojiStatus,
@@ -27,4 +28,5 @@ Meteor.methods({
   userLeftMeeting,
   changePin,
   setRandomUser,
+  setExitReason,
 });

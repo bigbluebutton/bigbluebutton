@@ -27,6 +27,10 @@ location /html5client/fonts {
   alias /usr/share/meteor/bundle/programs/web.browser/app/fonts;
 }
 
+location /html5client/files {
+  alias /usr/share/meteor/bundle/programs/web.browser/app/files;
+}
+
 location /html5client/wasm {
   types {
     application/wasm wasm;
@@ -39,4 +43,9 @@ location /html5client {
   gzip_static on;
   alias /usr/share/meteor/bundle/programs/web.browser;
   try_files $uri @html5client;
+}
+
+location /html5client/sockjs {
+  try_files $uri @html5client;
+  limit_conn ws_zone 3;
 }

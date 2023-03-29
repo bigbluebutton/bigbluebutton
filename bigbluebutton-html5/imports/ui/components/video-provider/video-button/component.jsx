@@ -8,13 +8,11 @@ import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { isCustomVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
-const VIRTUAL_BACKGROUNDS_CONFIG = Meteor.settings.public.virtualBackgrounds;
-const ENABLE_UPLOAD = VIRTUAL_BACKGROUNDS_CONFIG.enableVirtualBackgroundUpload;
-const shouldEnableBackgroundUpload = () => ENABLE_UPLOAD && isCustomVirtualBackgroundsEnabled();
+const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
 
 const intlMessages = defineMessages({
   videoSettings: {
@@ -80,7 +78,8 @@ const JoinVideoButton = ({
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
     && isDesktopSharingCamera;
-  const shouldEnableWebcamBackgroundUploadButton = shouldEnableBackgroundUpload()
+  const shouldEnableWebcamVisualEffectsButton =
+    (isVirtualBackgroundsEnabled() || ENABLE_CAMERA_BRIGHTNESS)
     && hasVideoStream
     && !isMobile;
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
@@ -106,7 +105,7 @@ const JoinVideoButton = ({
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
   const handleOpenAdvancedOptions = (props) => {
-    mountVideoPreview(isMobileSharingCamera, props);
+    mountVideoPreview(isDesktopSharingCamera, props);
   };
 
   const getMessageFromStatus = () => {
@@ -136,7 +135,7 @@ const JoinVideoButton = ({
       );
     }
 
-    if (shouldEnableWebcamBackgroundUploadButton) {
+    if (shouldEnableWebcamVisualEffectsButton) {
       actions.push(
         {
           key: 'virtualBgSelection',
@@ -147,9 +146,11 @@ const JoinVideoButton = ({
     }
 
     if (actions.length === 0) return null;
+    const customStyles = { top: '-3.6rem' };
 
     return (
       <BBBMenu
+        customStyles={!isMobile ? customStyles : null}
         trigger={(
           <ButtonEmoji
             emoji="device_list_selector"
@@ -157,9 +158,20 @@ const JoinVideoButton = ({
             hideLabel
             label={intl.formatMessage(intlMessages.videoSettings)}
             rotate
+            tabIndex={0}
           />
         )}
         actions={actions}
+        opts={{
+          id: "video-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'top', horizontal: 'center' },
+          transformOrigin: { vertical: 'top', horizontal: 'center'},
+      }}
       />
     );
   }

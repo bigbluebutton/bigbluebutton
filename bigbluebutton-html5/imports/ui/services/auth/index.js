@@ -5,9 +5,10 @@ import Storage from '/imports/ui/services/storage/session';
 
 import { initAnnotationsStreamListener } from '/imports/ui/components/whiteboard/service';
 import allowRedirectToLogoutURL from '/imports/ui/components/meeting-ended/service';
-import { initCursorStreamListener } from '/imports/ui/components/cursor/service';
+import { initCursorStreamListener } from '/imports/ui/components/whiteboard/cursors/service';
 import SubscriptionRegistry from '/imports/ui/services/subscription-registry/subscriptionRegistry';
 import { ValidationStates } from '/imports/api/auth-token-validation';
+import logger from '/imports/startup/client/logger';
 
 const CONNECTION_TIMEOUT = Meteor.settings.public.app.connectionTimeout;
 
@@ -183,9 +184,11 @@ class Auth {
 
   logout() {
     if (!this.loggedIn) {
+      if (allowRedirectToLogoutURL()) {
+        return Promise.resolve(this._logoutURL);
+      }
       return Promise.resolve();
     }
-
 
     return new Promise((resolve) => {
       if (allowRedirectToLogoutURL()) {
@@ -210,10 +213,20 @@ class Auth {
     }
 
     this.loggedIn = false;
+    this.isAuthenticating = true;
+
     return this.validateAuthToken()
       .then(() => {
         this.loggedIn = true;
         this.uniqueClientSession = `${this.sessionToken}-${Math.random().toString(36).substring(6)}`;
+      })
+      .catch((err) => {
+        logger.error(`Failed to validate token: ${err.description}`);
+        Session.set('codeError', err.error);
+        Session.set('errorMessageDescription', err.description);
+      })
+      .finally(() => {
+        this.isAuthenticating = false;
       });
   }
 

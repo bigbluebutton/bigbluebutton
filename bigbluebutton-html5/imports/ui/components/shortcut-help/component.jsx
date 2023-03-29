@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.comboLabel',
     description: 'heading for key combo column',
   },
+  alternativeLabel: {
+    id: 'app.shortcut-help.alternativeLabel',
+    description: 'heading for key alternatives column',
+  },
   functionLabel: {
     id: 'app.shortcut-help.functionLabel',
     description: 'heading for shortcut function column',
@@ -162,19 +166,105 @@ const intlMessages = defineMessages({
   presentation: {
     id: 'app.shortcut-help.presentation',
     description: 'presentation tab heading',
-    "app.shortcut-help.whiteboard": "Whiteboard",
   },
   whiteboard: {
     id: 'app.shortcut-help.whiteboard',
     description: 'whiteboard tab heading',
+  },
+  zoomIn: {
+    id: 'app.shortcut-help.zoomIn',
+    description: 'describes the zoom in shortcut key',
+  },
+  zoomOut: {
+    id: 'app.shortcut-help.zoomOut',
+    description: 'describes the zoom out shortcut key',
+  },
+  zoomFit: {
+    id: 'app.shortcut-help.zoomFit',
+    description: 'describes the zoom to fit shortcut key',
+  },
+  zoomSelect: {
+    id: 'app.shortcut-help.zoomSelect',
+    description: 'describes the zoom to selection shortcut key',
+  },
+  flipH: {
+    id: 'app.shortcut-help.flipH',
+    description: 'describes the flip horozontally shortcut key',
+  },
+  flipV: {
+    id: 'app.shortcut-help.flipV',
+    description: 'describes the flip vertically shortcut key',
+  },
+  lock: {
+    id: 'app.shortcut-help.lock',
+    description: 'describes the lock / unlock shape shortcut key',
+  },
+  moveToFront: {
+    id: 'app.shortcut-help.moveToFront',
+    description: 'describes the move to front shortcut key',
+  },
+  moveToBack: {
+    id: 'app.shortcut-help.moveToBack',
+    description: 'describes the move to back shortcut key',
+  },
+  moveForward: {
+    id: 'app.shortcut-help.moveForward',
+    description: 'describes the move forward shortcut key',
+  },
+  moveBackward: {
+    id: 'app.shortcut-help.moveBackward',
+    description: 'describes the move backward shortcut key',
+  },
+  undo: {
+    id: 'app.shortcut-help.undo',
+    description: 'describes the undo shortcut key',
+  },
+  redo: {
+    id: 'app.shortcut-help.redo',
+    description: 'describes the redo shortcut key',
+  },
+  cut: {
+    id: 'app.shortcut-help.cut',
+    description: 'describes the cut shortcut key',
+  },
+  copy: {
+    id: 'app.shortcut-help.copy',
+    description: 'describes the cut shortcut key',
+  },
+  paste: {
+    id: 'app.shortcut-help.paste',
+    description: 'describes the paste shortcut key',
+  },
+  selectAll: {
+    id: 'app.shortcut-help.selectAll',
+    description: 'describes the select all shortcut key',
+  },
+  delete: {
+    id: 'app.shortcut-help.delete',
+    description: 'describes the delete shortcut key',
+  },
+  duplicate: {
+    id: 'app.shortcut-help.duplicate',
+    description: 'describes the duplicate shortcut key',
   }
 });
+
 
 const renderItem = (func, key) => {
   return (
     <tr key={_.uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
       <Styled.KeyCell>{key}</Styled.KeyCell>
+    </tr>
+  );
+}
+
+const renderItemWhiteBoard = (func, key, alt) => {
+  return (
+    <tr key={_.uniqueId('hotkey-item-')}>
+      <Styled.DescCell>{func}</Styled.DescCell>
+      <Styled.KeyCell>{key}</Styled.KeyCell>
+      <Styled.KeyCell>{alt}</Styled.KeyCell>
     </tr>
   );
 }
@@ -220,30 +310,58 @@ const ShortcutHelpComponent = (props) => {
   });
 
   const shortcutItems = [];
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan), intl.formatMessage(intlMessages.togglePanKey)));
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.toggleFullscreen), intl.formatMessage(intlMessages.toggleFullscreenKey)));
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.nextSlideDesc), intl.formatMessage(intlMessages.nextSlideKey)));
-  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc), intl.formatMessage(intlMessages.previousSlideKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),
+   intl.formatMessage(intlMessages.togglePanKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.toggleFullscreen),
+   intl.formatMessage(intlMessages.toggleFullscreenKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.nextSlideDesc),
+   intl.formatMessage(intlMessages.nextSlideKey)));
+  shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc),
+   intl.formatMessage(intlMessages.previousSlideKey)));
 
   const whiteboardShortcutItems = [];
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.select), '1'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.pencil), '2'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.eraser), '3'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.rectangle), '4'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.elipse), '5'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.triangle), '6'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.line), '7'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.arrow), '8'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.text), '9'));
-  whiteboardShortcutItems.push(renderItem(intl.formatMessage(intlMessages.note), '0'));
+  //tools
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.select), '1', 'V'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.pencil), '2', 'D, P'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.eraser), '3', 'E'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.rectangle), '4', 'R'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.elipse), '5', 'O'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.triangle), '6', 'G'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.line), '7', 'L'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.arrow), '8', 'A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.text), '9', 'T'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'S'));
+  //views
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomFit), 'Shift 1', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2', 'N/A'));
+//transform
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipH), 'Shift H', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipV), 'Shift V', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToFront), 'Shift ]', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveForward), ']', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveBackward), '[', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToBack), 'Shift [', 'N/A'));
+  //edit
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.undo), 'Ctrl Z', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.cut), 'Ctrl X', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.copy), 'Ctrl C', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.paste), 'Ctrl V', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.selectAll), 'Ctrl A', 'N/A'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.delete), 'Del', 'Backspace'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
     <Modal
-      title={intl.formatMessage(intlMessages.title)}
+      contentLabel={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.closeLabel),
         description: intl.formatMessage(intlMessages.closeDesc),
       }}
+      title={intl.formatMessage(intlMessages.title)}
     >
       <Styled.SettingsTabs
         onSelect={(tab) => setSelectedTab(tab)}
@@ -267,10 +385,10 @@ const ShortcutHelpComponent = (props) => {
           </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
+        <Styled.TabPanel selectedClassName="is-selected">
         {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
           : (
-            <span>
+            <Styled.TableWrapper>
               <Styled.ShortcutTable>
                 <tbody>
                   <tr>           
@@ -280,12 +398,13 @@ const ShortcutHelpComponent = (props) => {
                   {generalShortcutItems}
                 </tbody>
               </Styled.ShortcutTable>
-            </span>
+            </Styled.TableWrapper>
           )
         }
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
-          <Styled.ShortcutTable>
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
               <tbody>
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
@@ -294,18 +413,22 @@ const ShortcutHelpComponent = (props) => {
                 {shortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-        </StyledSettings.SettingsTabPanel>
-        <StyledSettings.SettingsTabPanel selectedClassName="is-selected">
-          <Styled.ShortcutTable>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
               <tbody>
                 <tr>
                   <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
                   <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.alternativeLabel)}</th>
                 </tr>
                 {whiteboardShortcutItems}
               </tbody>
             </Styled.ShortcutTable>
-        </StyledSettings.SettingsTabPanel>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
 
       </Styled.SettingsTabs>
     </Modal>
