@@ -496,7 +496,6 @@ class App extends Component {
       shouldShowExternalVideo,
     } = this.props;
 
-    console.log("Teste no app -- ", shouldShowExternalVideo)
     return (
       <PushLayoutEngine
         {...{
