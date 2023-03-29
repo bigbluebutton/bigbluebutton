@@ -55,10 +55,10 @@ test.describe.parallel('Webcam @ci', () => {
       await webcam.managingNewBackground();
     });
 
-    test('Keep screenshot when rejoin', async ({ browser, context, page }) => {
+    test('Keep background when rejoin', async ({ browser, context, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
-      await webcam.keepScreenshotWhenRejoin(context);
+      await webcam.keepBackgroundWhenRejoin(context);
     });
   });
 });

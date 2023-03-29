@@ -112,7 +112,7 @@ class Webcam extends Page {
     await this.wasRemoved(e.selectCustomBackground);
   }
 
-  async keepScreenshotWhenRejoin(context) {
+  async keepBackgroundWhenRejoin(context) {
     await this.waitAndClick(e.joinVideo);
     await this.waitForSelector(e.noneBackgroundButton);
     await uploadBackgroundVideoImage(this);
