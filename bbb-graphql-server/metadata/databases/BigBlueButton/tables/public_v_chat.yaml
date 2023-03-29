@@ -1,0 +1,24 @@
+table:
+  name: v_chat
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: chat
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - chatId
+        - meetingId
+        - participantsId
+        - participantsName
+        - totalMessages
+        - totalUnread
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

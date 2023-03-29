@@ -10,10 +10,14 @@ import TotalOfModerators from './TotalOfModerators';
 import TotalOfViewers from './TotalOfViewers';
 import TotalOfUsersTalking from './TotalOfUsersTalking';
 import TotalOfUniqueNames from './TotalOfUniqueNames';
+import ChatMessages from "./ChatMessages";
+import ChatsInfo from "./ChatsInfo";
+import ChatPublicMessages from "./ChatPublicMessages";
 
 
 function App() {
   const [sessionToken, setSessionToken] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [joining, setJoining] = useState(false);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
@@ -33,6 +37,9 @@ function App() {
         .then((json) => {
           console.log(json.response);
           setEnterApiResponse(json.response.returncode);
+          if(json?.response?.internalUserID) {
+            setUserId(json.response.internalUserID);
+          }
         });
   }
 
@@ -80,8 +87,17 @@ function App() {
             }}
           >
           <ApolloProvider client={graphqlClient}>
+            User Id: {userId}
             <MeetingInfo />
+            <br />
             <UserList />
+            <br />
+            <ChatsInfo />
+            <br />
+            <ChatMessages />
+            <br />
+            <ChatPublicMessages />
+            <br />
             <TotalOfUsers />
             <TotalOfModerators />
             <TotalOfViewers />

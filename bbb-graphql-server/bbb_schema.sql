@@ -223,3 +223,83 @@ SELECT
 	"user_breakoutRoom" .*
 FROM "user_breakoutRoom"
 JOIN "user" u ON u."userId" = "user_breakoutRoom"."userId";
+
+-- ===================== CHAT TABLES
+
+DROP VIEW IF EXISTS "v_chat";
+DROP VIEW IF EXISTS "v_chat_message_public";
+DROP VIEW IF EXISTS "v_chat_message_private";
+DROP TABLE IF EXISTS "chat_user";
+DROP TABLE IF EXISTS "chat_message";
+DROP TABLE IF EXISTS "chat";
+
+CREATE TABLE "chat" (
+	"chatId"  varchar(100),
+	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"access" varchar(20),
+	"createdBy" varchar(25),
+	CONSTRAINT "chat_pkey" PRIMARY KEY ("chatId","meetingId")
+);
+
+CREATE INDEX "chat_meetingId" ON "chat"("meetingId");
+
+CREATE TABLE "chat_user" (
+	"chatId" varchar(100),
+	"meetingId" varchar(100),
+	"userId" varchar(100),
+	"userName" varchar(255),
+	"userRole" varchar(20),
+	"lastSeenAt" bigint,
+	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
+    CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
+);
+
+CREATE INDEX "chat_user_chatId" ON "chat_user"("chatId","meetingId");
+
+CREATE TABLE "chat_message" (
+	"messageId" varchar(100) PRIMARY KEY,
+	"chatId" varchar(100),
+	"meetingId" varchar(100),
+	"correlationId" varchar(100),
+	"createdTime" bigint,
+	"chatEmphasizedText" boolean,
+	"message" TEXT,
+    "senderId" varchar(100),
+    "senderName" varchar(255),
+	"senderRole" varchar(20),
+    CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
+);
+
+CREATE INDEX "chat_message_chatId" ON "chat_message"("chatId","meetingId");
+
+
+CREATE OR REPLACE VIEW "v_chat" AS
+SELECT 	cu."userId",
+		chat."meetingId",
+		chat."chatId",
+		array_remove(array_agg(DISTINCT chat_with."userId"),NULL) "participantsId",
+		string_agg(DISTINCT chat_with."userName" ,', ') AS "participantsName",
+		count(DISTINCT cm."messageId") "totalMessages",
+		sum(CASE WHEN cm."createdTime" > cu."lastSeenAt" THEN 1 ELSE 0 end) "totalUnread"
+FROM "user"
+LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
+JOIN "chat" ON cu."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat_with."userId" != cu."userId"
+LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
+GROUP BY cu."userId", chat."meetingId", chat."chatId";
+
+
+CREATE OR REPLACE VIEW "v_chat_message_public" AS
+SELECT cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+FROM chat_message cm
+WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
+
+CREATE OR REPLACE VIEW "v_chat_message_private" AS
+SELECT cu."userId", cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+FROM chat_message cm
+JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId";
+
+
+
+
+
