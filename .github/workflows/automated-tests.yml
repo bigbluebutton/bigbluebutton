@@ -5,11 +5,11 @@ on:
       - 'develop'
       - 'v2.[5-9].x-release'
       - 'v[3-9].*.x-release'
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths-ignore:
       - 'docs/**'
       - '**/*.md'
-  pull_request:
-    types: [opened, synchronize, reopened]
 permissions:
   contents: read
 jobs:
@@ -121,6 +121,7 @@ jobs:
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-26-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
+            sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
             bbb-conf --restart
             '
       - name: Install test dependencies

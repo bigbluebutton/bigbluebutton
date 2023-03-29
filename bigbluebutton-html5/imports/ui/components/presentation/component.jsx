@@ -955,6 +955,7 @@ class Presentation extends PureComponent {
                   textAlign: 'center',
                   display: !presentationIsOpen ? 'none' : 'block',
                 }}
+                id={"presentationInnerWrapper"}
               >
                 <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
                 {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}

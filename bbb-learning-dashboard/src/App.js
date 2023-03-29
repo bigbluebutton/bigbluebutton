@@ -582,6 +582,7 @@ class App extends React.Component {
             </p>
           </div>
           <button
+            data-test="downloadSessionDataDashboard"
             type="button"
             className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
             onClick={this.handleSaveSessionData.bind(this)}

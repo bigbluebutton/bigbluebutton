@@ -21,9 +21,9 @@ If you would like to help translate BigBlueButton into your language, or you see
 
 2. Choose the project
 
-For helping to translate the HTML5 client, visit [BigBlueButton v2.4 HTML5 client](https://www.transifex.com/bigbluebutton/bigbluebutton-v24-html5-client/).
+For helping to translate, visit the [BigBlueButton on Transifex](https://www.transifex.com/bigbluebutton/) (needs a login).
 
-You'll see a list of languages ready for translation.
+You'll see a list of languages and components of BigBlueButton ready for translation.
 
 3. Click the name of the language you wish to translate
 
@@ -35,9 +35,9 @@ You'll see a list of languages ready for translation.
 
 #### Administrators can pull specific languages their Transifex account is associated with
 
-In BigBlueButton 2.2, 2.3, 2.4, 2.5 the script used for pulling the locales is located in the `bigbluebutton-html5` directory
+Up to BigBlueButton 2.5 the script used for pulling the locales is located in the `bigbluebutton-html5` directory
 
-https://github.com/bigbluebutton/bigbluebutton/blob/v2.4.x-release/bigbluebutton-html5/transifex.sh
+https://github.com/bigbluebutton/bigbluebutton/blob/v2.5.x-release/bigbluebutton-html5/transifex.sh
 
 You can trigger the download of the latest strings by running a command of the format `./transifex.sh pt_BR de` (passing the code for the languages you'd like to download)
 
