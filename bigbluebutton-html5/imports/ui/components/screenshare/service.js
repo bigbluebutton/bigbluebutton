@@ -230,6 +230,9 @@ const screenshareHasStarted = (isPresenter) => {
 };
 
 const shareScreen = async (isPresenter, onFail, options = {}) => {
+  if (isCameraAsContentBroadcasting()) {
+    screenshareHasEnded();
+  }
   // stop external video share if running
   const meeting = Meetings.findOne({ meetingId: Auth.meetingID });
 

@@ -273,7 +273,10 @@ class ActionsDropdown extends PureComponent {
         key: 'camera as content',
         onClick: hasCameraAsContent
           ? screenshareHasEnded
-          : () => this.setCameraAsContentModalIsOpen(true),
+          : () => {
+            screenshareHasEnded();
+            this.setCameraAsContentModalIsOpen(true),
+          },
       });
     }
 
