@@ -394,9 +394,9 @@ class UserOptions extends PureComponent {
           CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation})}
         {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low", 
           GuestPolicyContainer)}
-        {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "medium", 
+        {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "low", 
           WriterMenuContainer)}
-        {this.renderModal(isLockViewersModalOpen, this.setLockViewersModalIsOpen, "medium", 
+        {this.renderModal(isLockViewersModalOpen, this.setLockViewersModalIsOpen, "low", 
           LockViewersContainer)}
       </>
     );

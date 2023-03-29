@@ -415,10 +415,10 @@ class SettingsDropdown extends PureComponent {
         {this.renderModal(isShortcutHelpModalOpen, this.setShortcutHelpModalIsOpen, 
           "low", ShortcutHelpComponent)}
         {this.renderModal(isSettingsMenuModalOpen, this.setSettingsMenuModalIsOpen, 
-          "medium", SettingsMenuContainer)}
+          "low", SettingsMenuContainer)}
         {this.renderModal(isEndMeetingConfirmationModalOpen, this.setEndMeetingConfirmationModalIsOpen, 
-          "medium", EndMeetingConfirmationContainer)}
-        {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "medium", 
+          "low", EndMeetingConfirmationContainer)}
+        {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low", 
           MobileAppModal)}
       </>
     );

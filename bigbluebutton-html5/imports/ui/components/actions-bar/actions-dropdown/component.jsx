@@ -295,6 +295,18 @@ class ActionsDropdown extends PureComponent {
     this.setState({isLayoutModalOpen: value});
   }
 
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    return isOpen ? <Component 
+      {...{
+        ...otherOptions,
+        onRequestClose: () => setIsOpen(false),
+        priority,
+        setIsOpen,
+        isOpen
+      }}
+    /> : null
+  }
+
   render() {
     const {
       intl,
@@ -352,33 +364,12 @@ class ActionsDropdown extends PureComponent {
             transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           }}
         />
-        {isExternalVideoModalOpen ? <ExternalVideoModal 
-          {...{
-            onRequestClose: () => this.setExternalVideoModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setExternalVideoModalIsOpen,
-            isOpen: isExternalVideoModalOpen
-          }}
-        /> : null}
-        {isRandomUserSelectModalOpen ? <RandomUserSelectContainer 
-          isSelectedUser={false} 
-          {...{
-            onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setRandomUserSelectModalIsOpen,
-            isOpen: isRandomUserSelectModalOpen
-          }}
-        /> : null}
-        {isLayoutModalOpen ? <LayoutModalContainer 
-          {...this.props} 
-          isSelectedUser={false} 
-          {...{
-            onRequestClose: () => this.setLayoutModalIsOpen(false),
-            priority: "low",
-            setIsOpen: this.setLayoutModalIsOpen,
-            isOpen: isLayoutModalOpen
-          }}
-        /> : null}
+        {this.renderModal(isExternalVideoModalOpen, this.setExternalVideoModalIsOpen, "low",
+          ExternalVideoModal)}
+        {this.renderModal(isRandomUserSelectModalOpen, this.setRandomUserSelectModalIsOpen, 
+          "low", RandomUserSelectContainer)}
+        {this.renderModal(isLayoutModalOpen, this.setLayoutModalIsOpen, 
+          "low", LayoutModalContainer, {...this.props, isSelectedUser:false})}
       </>
     );
   }
