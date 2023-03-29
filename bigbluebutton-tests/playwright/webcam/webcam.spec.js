@@ -1,4 +1,5 @@
 const { test } = require('@playwright/test');
+const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
 
 test.describe.parallel('Webcam @ci', () => {
@@ -10,13 +11,12 @@ test.describe.parallel('Webcam @ci', () => {
   });
 
   test('Checks content of webcam', async ({ browser, page }) => {
-    test.fixme(true, 'The test is not as reliable as it should be: getting unexpected failures');
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.checksContent();
   });
 
-  test('Checks webcam talking indicator', async ({ browser, page }) => {
+  test('Webcam talking indicator', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, false);
     await webcam.talkingIndicator();
@@ -28,5 +28,31 @@ test.describe.parallel('Webcam @ci', () => {
     await webcam.initUserPage();
     await webcam.initModPage2();
     await webcam.pinningWebcams();
+  });
+
+  test('Change video quality', async ({ browser, page }) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, true);
+    await webcam.changeVideoQuality();
+  });
+
+  test.describe('Webcam background', () => {
+    test('Select one of the default backgrounds', async ({ browser, page }) => {
+      const webcam = new Webcam(browser, page);
+      await webcam.init(true, true);
+      await webcam.applyBackground();
+    });
+
+    test('Managing new background', async ({ browser, page }) => {
+      const webcam = new Webcam(browser, page);
+      await webcam.init(true, true);
+      await webcam.managingNewBackground();
+    });
+
+    test('Keep screenshot when rejoin', async ({ browser, context, page }) => {
+      const webcam = new Webcam(browser, page);
+      await webcam.init(true, true);
+      await webcam.keepScreenshotWhenRejoin(context);
+    });
   });
 });

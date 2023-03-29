@@ -131,6 +131,7 @@ const JoinVideoButton = ({
           key: 'advancedVideo',
           label: intl.formatMessage(intlMessages.advancedVideo),
           onClick: () => handleOpenAdvancedOptions(),
+          dataTest: 'advancedVideoSettingsButton',
         },
       );
     }
