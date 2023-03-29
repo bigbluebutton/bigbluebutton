@@ -67,6 +67,10 @@ const config = {
                     {
                         to: "/development/api",
                         from: "/dev/api.html"
+                    },
+                    {
+                        to: "/greenlight/v3/migration",
+                        from: "/greenlight_v3/gl3-migration.html"
                     }
                 ]
             }
