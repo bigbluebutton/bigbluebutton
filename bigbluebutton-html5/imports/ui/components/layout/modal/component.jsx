@@ -25,7 +25,7 @@ const LayoutModalComponent = (props) => {
   // eslint-disable-next-line react/prop-types
   const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
-  const BASE_NAME = Meteor.settings.public.app.basename;
+  const BASE_NAME = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
   const CUSTOM_STYLE_URL = Boolean(Meteor.settings.public.app.customStyleUrl);
   const customStyleUrl = Boolean(getFromUserSettings('bbb_custom_style_url', CUSTOM_STYLE_URL));
 
