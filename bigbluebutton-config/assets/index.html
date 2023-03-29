@@ -42,7 +42,7 @@
         for (let i in jsonString) {
             const newError = document.createElement('p')
             newError.classList.add("error-message");
-            newError.innerText = "<b>Error</b>: " + jsonString[i].message;
+            newError.innerText = "Error: " + jsonString[i].message;
             errorContainer.appendChild(newError);
         }
 
