@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { getModal } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -238,7 +237,6 @@ class NavBar extends Component {
               {presentationTitle}
             </Styled.PresentationTitle>
             <RecordingIndicator
-              getModal={getModal}
               amIModerator={amIModerator}
               currentUserId={currentUserId}
             />

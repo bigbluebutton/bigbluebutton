@@ -216,6 +216,7 @@ const VideoListItem = (props) => {
           unhealthyStream={shouldRenderReconnect}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
           ref={videoTag}
+          muted="muted"
           autoPlay
           playsInline
         />

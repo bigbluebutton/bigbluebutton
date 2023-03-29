@@ -92,7 +92,7 @@ class RecordingIndicator extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    const { recording, getModal, recordingNotificationEnabled } = this.props;
+    const { recording, recordingNotificationEnabled } = this.props;
     const { shouldNotify } = this.state;
 
     if (!recording) {
@@ -107,10 +107,8 @@ class RecordingIndicator extends PureComponent {
         return this.setState({shouldNotify: true});
       }
   
-      const isModalOpen = !!getModal();
-  
       // should only display notification modal when other modals are closed
-      if (shouldNotify && !isModalOpen) {
+      if (shouldNotify) {
         this.setRecordingNotifyModalIsOpen(true);
       }  
     }

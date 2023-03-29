@@ -13,7 +13,6 @@ import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitat
 import { Meteor } from 'meteor/meteor';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
-import ModalContainer from '/imports/ui/components/common/modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
@@ -497,6 +496,7 @@ class App extends Component {
       shouldShowExternalVideo,
     } = this.props;
 
+    console.log("Teste no app -- ", shouldShowExternalVideo)
     return (
       <PushLayoutEngine
         {...{
@@ -524,7 +524,7 @@ class App extends Component {
           setMeetingLayout,
           setPushLayout,
           shouldShowScreenshare,
-          shouldShowExternalVideo,
+          shouldShowExternalVideo: !!shouldShowExternalVideo,
         }}
       />
     );
@@ -619,7 +619,6 @@ class App extends Component {
           <StatusNotifier status="raiseHand" />
           <ManyWebcamsNotifier />
           <PollingContainer />
-          <ModalContainer />
           <PadsSessionsContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
