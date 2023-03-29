@@ -239,8 +239,10 @@ export default function Whiteboard(props) {
 
     // update document if the number of pages has changed
     if (currentDoc.id !== whiteboardId && currentDoc?.pages.length !== curPres?.pages.length) {
+      const currentPageShapes = currentDoc?.pages[curPageId]?.shapes;
       currentDoc.id = whiteboardId;
       currentDoc.pages = pages;
+      currentDoc.pages[curPageId].shapes = currentPageShapes;
       currentDoc.pageStates = pageStates;
     }
 
