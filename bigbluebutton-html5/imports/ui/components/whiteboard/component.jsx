@@ -690,6 +690,7 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
       tldrawAPI.zoomTo(0);
+      setHistory(null);
       tldrawAPI.resetHistory();
     }
   }, [curPres?.id]);
@@ -1000,8 +1001,11 @@ export default function Whiteboard(props) {
     }
   };
 
-  const onCommand = (app, command, reason) => {
-    setHistory(app.history);
+  const onCommand = (app, command) => {
+    const isFirstCommand = command.id === "change_page" && command.before?.appState.currentPageId === "0";
+    if (!isFirstCommand){
+      setHistory(app.history);
+    }
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
