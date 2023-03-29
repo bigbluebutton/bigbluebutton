@@ -74,6 +74,20 @@ class Webcam extends Page {
     });
   }
 
+  async webcamFullscreen() {
+    await this.shareWebcam();
+    // get default viewport sizes
+    const { windowWidth, windowHeight } = await this.page.evaluate(() => { return {
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+    }});
+    await this.waitAndClick(e.webcamFullscreenButton);
+    // get fullscreen webcam size
+    const { width, height } = await this.getLocator('video').boundingBox();
+    await expect(width + 1).toBe(windowWidth);  // not sure why there is a difference of 1 pixel
+    await expect(height).toBe(windowHeight);
+  }
+
   async managingNewBackground() {
     await this.waitAndClick(e.joinVideo);
     await this.waitForSelector(e.noneBackgroundButton);

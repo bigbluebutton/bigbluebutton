@@ -36,6 +36,12 @@ test.describe.parallel('Webcam @ci', () => {
     await webcam.changeVideoQuality();
   });
 
+  test('Webcam fullscreen', async ({ browser, page }) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, true);
+    await webcam.webcamFullscreen();
+  });
+
   test.describe('Webcam background', () => {
     test('Select one of the default backgrounds', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
