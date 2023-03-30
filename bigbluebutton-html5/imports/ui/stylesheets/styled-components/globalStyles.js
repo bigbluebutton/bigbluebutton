@@ -17,6 +17,10 @@ import {
 const GlobalStyle = createGlobalStyle`
   // BBBMenu
   @media ${smallOnly} {
+    .MuiPopover-root {
+      top: 0 !important;
+    }
+
     .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
       top: 0 !important;
       left: 0 !important;

@@ -25,6 +25,7 @@ import Auth from '/imports/ui/services/auth';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import { layoutSelect } from '../layout/context';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
@@ -91,6 +92,7 @@ export default withTracker(({
 }) => {
   const shapes = getShapes(whiteboardId, curPageId, intl);
   const curPres = getCurrentPres();
+  const { isIphone } = deviceInfo;
 
   shapes['slide-background-shape'] = {
     assetId: `slide-background-asset-${curPageId}`,
@@ -135,6 +137,7 @@ export default withTracker(({
     notifyNotAllowedChange,
     notifyShapeNumberExceeded,
     darkTheme,
+    isIphone,
   };
 })(WhiteboardContainer);
 
