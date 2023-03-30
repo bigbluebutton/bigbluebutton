@@ -27,6 +27,16 @@ async function checkTextContent(baseContent, checkData) {
   await expect(check).toBeTruthy();
 }
 
+function constructClipObj(wbBox) {
+  return {
+      x: wbBox.x,
+      y: wbBox.y,
+      width: wbBox.width,
+      height: wbBox.height,
+    };
+}
+
 exports.checkElement = checkElement;
 exports.checkElementLengthEqualTo = checkElementLengthEqualTo;
 exports.checkTextContent = checkTextContent;
+exports.constructClipObj = constructClipObj;

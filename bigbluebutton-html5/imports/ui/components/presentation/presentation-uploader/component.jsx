@@ -497,10 +497,22 @@ class PresentationUploader extends Component {
         ...filteredPresentations,
         ...filteredPropPresentations,
       ];
+      let hasUploading
+      merged.forEach(d => {
+        if (!d.upload?.done || !d.conversion?.done) {
+          hasUploading = true;
+        }})
       this.hasError = false;
-      return this.setState({
-        presentations: merged,
-      });
+      if (hasUploading) {
+        return this.setState({
+          presentations: merged,
+        });
+      } else {
+        return this.setState({
+          presentations: merged,
+          disableActions: false,
+        });
+      }
     }
 
     const { presentations } = this.state;

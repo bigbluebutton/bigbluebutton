@@ -179,6 +179,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="zoomOutDescription"
               aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
+              data-test="zoomOutBtn"
               icon="substract"
               onClick={() => { }}
               disabled={(zoomValue <= minBound) || !isMeteorConnected}
@@ -198,6 +199,7 @@ class ZoomTool extends PureComponent {
               size="md"
               onClick={() => this.resetZoom()}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
+              data-test="resetZoomButton"
               hideLabel
             />
             <div id="resetZoomDescription" hidden>
