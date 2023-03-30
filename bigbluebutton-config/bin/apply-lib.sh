@@ -45,7 +45,7 @@ fi
 HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
 
 HTML5_CONFIG=/etc/bigbluebutton/bbb-html5.yml
-if [ ! -f HTML5_CONFIG ]; then
+if [ ! -f "${HTML5_CONFIG}" ]; then
   touch $HTML5_CONFIG
 fi
 
