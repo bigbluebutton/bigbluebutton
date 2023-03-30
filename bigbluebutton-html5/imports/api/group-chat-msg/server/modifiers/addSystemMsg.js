@@ -16,7 +16,7 @@ export function parseMessage(message) {
   return parsedMessage;
 }
 
-export default function addSystemMsg(meetingId, chatId, msg) {
+export default async function addSystemMsg(meetingId, chatId, msg) {
   check(meetingId, String);
   check(chatId, String);
   check(msg, {
@@ -37,7 +37,7 @@ export default function addSystemMsg(meetingId, chatId, msg) {
   };
 
   try {
-    const insertedId = GroupChatMsg.insert(msgDocument);
+    const insertedId = await GroupChatMsg.insertAsync(msgDocument);
 
     if (insertedId) {
       Logger.info(`Added system-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);

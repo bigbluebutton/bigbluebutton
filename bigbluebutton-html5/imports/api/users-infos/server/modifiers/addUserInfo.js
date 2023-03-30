@@ -1,7 +1,7 @@
 import UserInfos from '/imports/api/users-infos';
 import Logger from '/imports/startup/server/logger';
 
-export default function addUserInfo(userInfo, requesterUserId, meetingId) {
+export default async function addUserInfo(userInfo, requesterUserId, meetingId) {
   const info = {
     meetingId,
     requesterUserId,
@@ -9,7 +9,7 @@ export default function addUserInfo(userInfo, requesterUserId, meetingId) {
   };
 
   try {
-    const numberAffected = UserInfos.insert(info);
+    const numberAffected = await UserInfos.insertAsync(info);
 
     if (numberAffected) {
       Logger.info(`Added user information: requester id=${requesterUserId} meeting=${meetingId}`);

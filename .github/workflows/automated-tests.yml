@@ -5,6 +5,9 @@ on:
       - 'develop'
       - 'v2.[5-9].x-release'
       - 'v[3-9].*.x-release'
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   pull_request:
     types: [opened, synchronize, reopened]
     paths-ignore:

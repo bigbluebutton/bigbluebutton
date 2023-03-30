@@ -105,7 +105,7 @@ function determine_font_from_family(family) {
 }
 
 function rad_to_degree(angle) {
-  return angle * (180 / Math.PI);
+  return angle * (180 / Math.PI) || 0;
 }
 
 // Convert pixels to points
@@ -608,24 +608,33 @@ function overlay_shape_label(svg, annotation) {
   const label_center_y = shape_y + shape_height * y_offset;
 
   render_textbox(fontColor, font, fontSize, textAlign, text, id);
-
   const shape_label = path.join(dropbox, `text${id}.png`);
 
   if (fs.existsSync(shape_label)) {
-    const dimensions = probe.sync(fs.readFileSync(shape_label));
-    const labelWidth = dimensions.width / config.process.textScaleFactor;
-    const labelHeight = dimensions.height / config.process.textScaleFactor;
+    // Poll results must fit inside shape, unlike other rectangle labels.
+    // Linewrapping handled by client.
+    const ref = `file://${dropbox}/text${id}.png`;
+    const transform = `rotate(${rotation} ${label_center_x} ${label_center_y})`
+    const fitLabelToShape = annotation?.name?.startsWith('poll-result');
 
+    let labelWidth = shape_width;
+    let labelHeight = shape_height;
+
+    if (!fitLabelToShape) {
+      const dimensions = probe.sync(fs.readFileSync(shape_label));
+      labelWidth = dimensions.width / config.process.textScaleFactor;
+      labelHeight = dimensions.height / config.process.textScaleFactor;
+    }    
     svg.ele('g', {
-      transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
+      transform: transform,
     }).ele('image', {
       'x': label_center_x - (labelWidth * x_offset),
       'y': label_center_y - (labelHeight * y_offset),
       'width': labelWidth,
       'height': labelHeight,
-      'xlink:href': `file://${dropbox}/text${id}.png`,
-    }).up();
-  }
+      'xlink:href': ref,
+      }).up();
+    }
 }
 
 function overlay_sticky(svg, annotation) {

@@ -658,4 +658,4 @@ The above will re-sync your clock.
 
 ## Set up HTTPS
 
-Follow [Configure SSL on your BigBlueButton server](/administration/install#configure-ssl-on-your-bigbluebutton-server)
+See the [installation instructions](/administration/install) on how to configure ssl on your BigBlueButton server.

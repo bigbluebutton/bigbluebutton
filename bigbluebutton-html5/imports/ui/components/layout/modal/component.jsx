@@ -97,7 +97,7 @@ const LayoutModalComponent = (props) => {
       { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
     };
 
-    updateSettings(obj, intl.formatMessage(intlMessages.layoutToastLabel));
+    updateSettings(obj, intlMessages.layoutToastLabel);
     closeModal();
   };
 

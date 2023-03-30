@@ -39,10 +39,10 @@
         errorContainer.classList.add("error-div");
         welcomeMessage.before(errorContainer);
 
-        for (i in jsonString) {
+        for (let i in jsonString) {
             const newError = document.createElement('p')
             newError.classList.add("error-message");
-            newError.innerHTML = "<b>Error</b>: " + jsonString[i].message;
+            newError.innerText = "Error: " + jsonString[i].message;
             errorContainer.appendChild(newError);
         }
 

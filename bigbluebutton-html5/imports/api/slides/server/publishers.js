@@ -3,8 +3,9 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function slides() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function slides() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing Slides was requested by unauth connection ${this.connection.id}`);
@@ -25,8 +26,9 @@ function publish(...args) {
 
 Meteor.publish('slides', publish);
 
-function slidePositions() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function slidePositions() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing SlidePositions was requested by unauth connection ${this.connection.id}`);

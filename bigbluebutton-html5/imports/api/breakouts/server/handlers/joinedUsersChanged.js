@@ -30,13 +30,16 @@ export default async function joinedUsersChanged({ body }) {
     },
   };
 
-  const numberAffected = await Breakouts.updateAsync(selector, modifier);
-  if (numberAffected) {
-    updateUserBreakoutRoom(parentId, breakoutId, users);
+  try {
+    const numberAffected = await Breakouts.updateAsync(selector, modifier);
 
-    Logger.info(`Updated joined users in breakout id=${breakoutId}`);
-  } else {
-    Logger.error(`updating joined users in breakout: ${numberAffected}`);
+    if (numberAffected) {
+      await updateUserBreakoutRoom(parentId, breakoutId, users);
+
+      Logger.info(`Updated joined users in breakout id=${breakoutId}`);
+    }
+  } catch (err) {
+    Logger.error(`updating joined users in breakout: ${err}`);
   }
   // .then((res) => {
   //   if (res.numberAffected) {
