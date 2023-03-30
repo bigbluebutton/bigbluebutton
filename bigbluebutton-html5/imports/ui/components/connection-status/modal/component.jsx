@@ -452,7 +452,7 @@ class ConnectionStatusComponent extends PureComponent {
             </Styled.NetworkData>
             <Styled.NetworkData>
               <div>{`${videoUploadLabel}`}</div>
-              <div>{`${videoCurrentUploadRate}k ↑`}</div>
+              <div data-test="videoUploadRateData">{`${videoCurrentUploadRate}k ↑`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
               <div>{`${intl.formatMessage(intlMessages.jitter)}`}</div>
