@@ -1,6 +1,6 @@
 import setTranscript from '/imports/api/audio-captions/server/modifiers/setTranscript';
 
-export default function transcriptUpdated({ header, body }) {
+export default async function transcriptUpdated({ header, body }) {
   const { meetingId } = header;
 
   const {
@@ -8,5 +8,5 @@ export default function transcriptUpdated({ header, body }) {
     transcript,
   } = body;
 
-  setTranscript(meetingId, transcriptId, transcript);
+  await setTranscript(meetingId, transcriptId, transcript);
 }

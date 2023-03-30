@@ -2,7 +2,7 @@ import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function setPublishedPoll(meetingId, isPublished) {
+export default async function setPublishedPoll(meetingId, isPublished) {
   check(meetingId, String);
   check(isPublished, Boolean);
 
@@ -17,7 +17,7 @@ export default function setPublishedPoll(meetingId, isPublished) {
   };
 
   try {
-    const { numberAffected } = Meetings.upsert(selector, modifier);
+    const { numberAffected } = await Meetings.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Set publishedPoll=${isPublished} in meeitingId=${meetingId}`);
