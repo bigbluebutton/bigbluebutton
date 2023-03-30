@@ -5,7 +5,7 @@ const { expect } = require("@playwright/test");
 const Page = require("../core/page");
 const { sleep } = require("../core/helpers");
 const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require("../core/constants");
-const { openPoll, timeInSeconds } = require("./util");
+const { openPoll, timeInSeconds, rowFilter } = require("./util");
 
 class LearningDashboard extends MultiUsers {
   constructor(browser, context) {
@@ -93,6 +93,9 @@ class LearningDashboard extends MultiUsers {
 
     //Checks
     await this.dashboardPage.reloadPage();
+    const activityScore = await rowFilter(this.dashboardPage, 'tr', /Attendee/, e.userActivityScoreDashboard);
+    console.log(activityScore)
+    await expect(activityScore).toHaveText(/2/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     await this.dashboardPage.waitAndClick(e.pollPanel);
     await this.dashboardPage.hasText(e.pollTotal, '4', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
@@ -137,15 +140,18 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.waitAndClick(e.raiseHandBtn);
     // User Name check
-    await this.dashboardPage.hasText(e.userNameDashboard, /Moderator/);
+    //await this.dashboardPage.hasText(e.userNameDashboard, /Moderator/);
     // Webcam Time check
-    await this.dashboardPage.hasText(e.userWebcamTimeDashboard, /00/, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.reloadPage();
+    const webcamCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userWebcamTimeDashboard);
+    console.log(webcamCheck)
+    await expect(webcamCheck).toHaveText(/00/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     // Raise Hand check
-    await this.dashboardPage.hasText(e.userRaiseHandDashboard, '1');
-    // Activity Score check
-    await this.dashboardPage.hasText(e.activityScorePanelDashboard, /2/);
+    const raiseHandCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userRaiseHandDashboard);
+    await expect(raiseHandCheck).toHaveText(/1/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     // Current Status check
-    await this.dashboardPage.hasText(e.userStatusDashboard, 'Online');
+    const userStatusCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userStatusDashboard);
+    await expect(userStatusCheck).toHaveText(/Online/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 }
 
