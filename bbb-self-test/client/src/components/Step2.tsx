@@ -104,6 +104,7 @@ const SystemTesting = ({ systemInfos }) => {
   );
 };
 const NetworkTesting = ({ networkInfos }) => {
+
   return (
     <ul>
       <li>
@@ -132,7 +133,15 @@ const NetworkTesting = ({ networkInfos }) => {
           )}
         </>
       </li>
-      <li>IP Address v6</li>
+      <li>IP Address v6:</li>
+        {networkInfos?.IPv6 !== undefined && (
+            <>
+                {" "}
+                <Text strong className={"text-capitalize"}>
+                    {networkInfos.IPv6}
+                </Text>
+            </>
+        )}
       <li>
         Network Bandwidth:{" "}
         <>

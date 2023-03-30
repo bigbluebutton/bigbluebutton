@@ -179,6 +179,28 @@ const App: React.FC = () => {
     setNetworkInfos(undefined);
     setDevicesInfos(undefined);
   };
+  function getIPv6Address(): Promise<string> {
+    return new Promise((resolve) => {
+      const pc = new RTCPeerConnection({ iceServers: [] });
+      pc.createDataChannel("");
+      pc.createOffer((sdp) => {
+        const regex = /([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}/;
+
+       const match =sdp?.sdp?.match(regex);
+      if(match){
+        const ipv6Address=match[0];
+        resolve(ipv6Address);
+      }
+
+        pc.close();
+      }, (error) => {
+        console.error(error);
+        resolve("");
+      });
+    });
+  }
+
+// Usage:
 
   const next = async () => {
     setCurrentStep(currentStep + 1);
@@ -226,10 +248,13 @@ const App: React.FC = () => {
         await turnItOff.checkVPN().then((result) => {
           vpnValue = result?.hasVPN;
         });
-        let downloadspeed = await networkSpeedService.getDownloadSpeed();
+       let downloadspeed = await networkSpeedService.getDownloadSpeed();
         let uploadspeed = await networkSpeedService.getUploadSpeed();
         let pingOutput = await networkSpeedService.getPing();
-
+        let ipv6="";
+      await  getIPv6Address().then((ipv6Address) => {
+         ipv6=ipv6Address;
+        });
         DetectRTC.DetectLocalIPAddress((ipAddress) => {
           if (!ipAddress) return;
 
@@ -237,10 +262,10 @@ const App: React.FC = () => {
             ipAddressType:
               ipAddress.indexOf("Local") !== -1 ? "private" : "public",
             IPv4: ipAddress.substring(ipAddress.indexOf(":") + 2),
-
+            IPv6:ipv6,
             vpn: vpnValue,
             bandwidth: {
-              downloadSpeed:
+             downloadSpeed:
                 downloadspeed.data.speed.gbps > 1
                   ? downloadspeed.data.speed.gbps.toFixed(2) + " Gbps"
                   : downloadspeed.data.speed.mbps > 1
@@ -274,6 +299,7 @@ const App: React.FC = () => {
       setTestFinished(true);
     }
   };
+
   const prev = () => {
     if (currentStep === 1) {
       initData();
