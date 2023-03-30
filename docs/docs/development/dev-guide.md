@@ -484,7 +484,7 @@ or
 grails -reloading -Dserver.port=8090 run-app
 ```
 
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-war` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
+If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
 
 Now test again if you can create and join a meeting.
 
