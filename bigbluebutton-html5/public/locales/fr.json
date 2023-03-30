@@ -334,7 +334,7 @@
     "app.poll.secretPoll.label" : "Sondage Anonyme",
     "app.poll.secretPoll.isSecretLabel": "Le sondage est anonyme - vous ne pourrez pas voir les réponses individuelles.",
     "app.poll.questionErr": "Vous devez soumettre une question.",
-    "app.poll.optionErr": "Entrez une option de sondage",
+    "app.poll.optionErr": "Renseignez une option de sondage",
     "app.poll.startPollDesc": "Commencer le sondage",
     "app.poll.showRespDesc": "Affiche la configuration de la réponse",
     "app.poll.addRespDesc": "Ajoute une option de réponse au sondage",
