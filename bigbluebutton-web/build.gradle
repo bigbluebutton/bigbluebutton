@@ -9,7 +9,7 @@ buildscript {
   dependencies {
     classpath "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
     classpath "org.grails.plugins:hibernate5:${gormVersion}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.4"
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.0.0"
     classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
     classpath "org.grails.plugins:views-gradle:2.1.1"
     classpath "org.grails.plugins:views-json:2.1.1"
@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.4"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   implementation "org.springframework:spring-core:5.3.21"
   implementation "org.springframework:spring-context:5.3.21"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
@@ -62,7 +62,10 @@ dependencies {
   implementation "org.grails:grails-core:5.2.4"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
+
   implementation "org.grails:grails-web-boot:5.2.5"
+  implementation "org.springframework:spring-webmvc:5.3.26"
+
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest:5.2.5"
   implementation "org.grails:grails-plugin-databinding:5.2.4"
@@ -97,7 +100,7 @@ dependencies {
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
-  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+  implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.5'
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
@@ -107,7 +110,7 @@ dependencies {
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console:5.2.0"
   profile "org.grails.profiles:web"
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.3.6"
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
@@ -123,6 +126,8 @@ tasks.named('bootWarMainClassName') {
 
 configurations.implementation {
     exclude group: 'io.micronaut', module: 'micronaut-aop'
+    exclude group: 'com.h2database', module: 'h2'
+    exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
 }
 
 configurations {

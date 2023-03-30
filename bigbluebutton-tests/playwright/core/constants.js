@@ -21,3 +21,4 @@ exports.VIDEO_LOADING_WAIT_TIME = 15000;
 exports.UPLOAD_PDF_WAIT_TIME = CI ? 40000 : 20000;
 
 exports.CUSTOM_MEETING_ID = 'custom-meeting';
+exports.PARAMETER_HIDE_PRESENTATION_TOAST = 'userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}';

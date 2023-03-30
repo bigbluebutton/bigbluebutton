@@ -54,7 +54,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitForSelector(e.restartPoll);
 
-    await this.modPage.hasElement(e.wbTypedText);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
+    await this.userPage.hasElement(e.wbDrawnRectangle);
   }
 
   async stopPoll() {
@@ -80,7 +81,7 @@ class Polling extends MultiUsers {
   async pollResultsOnWhiteboard() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
-    await this.modPage.hasElement(e.wbTypedText);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
   }
 
   async pollResultsInDifferentPresentation() {
@@ -91,7 +92,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
     // Check poll results
-    await this.modPage.hasElement(e.wbTypedText);
+    await this.modPage.hasElement(e.wbDrawnRectangle);
   }
 
   async manageResponseChoices() {

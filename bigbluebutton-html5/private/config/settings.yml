@@ -63,6 +63,7 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    guestPolicyExtraAllowOptions: true
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
@@ -689,7 +690,6 @@ public:
     allowDownloadable: true
     panZoomThrottle: 32
     restoreOnUpdate: false
-    oldMinimizeButton: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
     # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes

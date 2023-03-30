@@ -346,7 +346,7 @@ class App extends React.Component {
           </h1>
           <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
-              <div className="inline">
+              <div className="inline" data-test="meetingDateDashboard">
                 <FormattedDate
                   value={activitiesJson.createdOn}
                   year="numeric"
@@ -359,7 +359,7 @@ class App extends React.Component {
                 activitiesJson.endedOn > 0
                   ? (
                     <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" />
+                      <FormattedMessage id="app.learningDashboard.indicators.meetingStatusEnded" defaultMessage="Ended" data-test="meetingStatusEndedDashboard" />
                     </span>
                   )
                   : null
@@ -367,14 +367,14 @@ class App extends React.Component {
               {
                 activitiesJson.endedOn === 0
                   ? (
-                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
+                    <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full" data-test="meetingStatusActiveDashboard">
                       <FormattedMessage id="app.learningDashboard.indicators.meetingStatusActive" defaultMessage="Active" />
                     </span>
                   )
                   : null
               }
             </p>
-            <p>
+            <p data-test="meetingDurationTimeDashboard">
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
               :&nbsp;
               {tsToHHmmss(totalOfActivity())}
@@ -389,7 +389,7 @@ class App extends React.Component {
           }}
         >
           <TabsListUnstyled className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-pink-500 ring-offset-2">
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-pink-500 ring-offset-2" data-test="activeUsersPanelDashboard">
               <Card>
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
@@ -420,7 +420,7 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-green-500 ring-offset-2">
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-green-500 ring-offset-2" data-test="activityScorePanelDashboard">
               <Card>
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
@@ -456,7 +456,7 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-purple-500 ring-offset-2">
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-purple-500 ring-offset-2" data-test="timelinePanelDashboard">
               <Card>
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
@@ -470,7 +470,7 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-blue-500 ring-offset-2">
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-blue-500 ring-offset-2" data-test="pollsPanelDashboard">
               <Card>
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
@@ -582,6 +582,7 @@ class App extends React.Component {
             </p>
           </div>
           <button
+            data-test="downloadSessionDataDashboard"
             type="button"
             className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
             onClick={this.handleSaveSessionData.bind(this)}

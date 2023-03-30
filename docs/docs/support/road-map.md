@@ -2,7 +2,7 @@
 id: troubleshooting
 slug: /support/road-map
 title: Road Map
-sidebar_position: 4
+sidebar_position: 3
 description: BigBlueButton Road Map
 keywords:
 - roadmap
@@ -46,7 +46,7 @@ We can measure our success by how easily we enable each person to accomplish the
 
 * **Scalability** - We build BigBlueButton to be a highly collaborative environment.  Our uses cases are one-to-one (such as student tutoring or coaching), small group collaboration, and one-to-many (recommend 100 users or less in a single session).  Even in the one-to-many, you can have 20 users all sharing the webcams and all able to talk.  In other words, we didn't build a webinar-type application that restricts usage.  Still, we think about scalability in each release and add (and refactor) the product to increase it.
 
-* **API** - BigBlueButton's provides a simple API for integration, and simple is good.  The API has enabled a [growing list](https://www.bigbluebutton.org/integrations/) of 3rd party integrations with other open source products.  As we work towards 1.0, we want to keep the APIs simple to further encourage integration.
+* **API** - BigBlueButton's provides a simple API for integration, and simple is good.  The API has enabled a [growing list](https://www.bigbluebutton.org/integrations/) of 3rd party integrations with other open source products.
 
 Obviously, we can't do everything in a single release.  If you read through the [release notes](/release-notes, you'll see that we sometimes implement features in phases -- such as record and playback being release first as capturing slides (v 0.80), then as capturing all content (v 0.81), and then with Start/Stop Record button (v 0.9.1) for moderator.
 
@@ -54,7 +54,6 @@ The following sections outline (in no particular order) the road map for BigBlue
 
 If you have feedback on this document, please post to [BigBlueButton-dev](https://groups.google.com/group/bigbluebutton-dev/topics?gvc=2) mailing list.
 
-The latest release is [BigBlueButton 2.2](/administration/install), which provides a full HTML5 client for desktop, laptop, chromebook, and mobile (Android 6.0+ and iOS 12.2+).
 
 ## Core Features
 

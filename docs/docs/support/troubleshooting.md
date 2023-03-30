@@ -56,7 +56,7 @@ and then to rebuild a recording, use `sudo bbb-record --rebuild <internal_meetin
 $ sudo bbb-record --rebuild 298b06603719217df51c5d030b6e9417cc036476-1559314745219
 ```
 
-## mediasoup
+## bbb-webrtc-sfu and mediasoup
 
 ### Webcams/screen sharing aren't working
 
@@ -161,6 +161,27 @@ For example:
 No. Scalability improves a lot with mediasoup, but there are still a couple of bottlenecks that can be hit as far  **as far as the media stack is concerned**. Namely:
   - The signaling server (bbb-webrtc-sfu): it does not scale vertically indefinitely. There's always work ongoing on this area that can be tracked in [this issue](https://github.com/mconf/mconf-tracker/issues/238);
   - The mediasoup worker balancing algorithm implemented by bbb-webrtc-sfu is still focused on multiparty meetings with a restrained number of users. If your goal is thousand-user 1-N (streaming-like) meetings, you may max out CPU usage on certain mediasoup workers even though there are other idle oworkers free.
+
+### bbb-webrtc-sfu fails to start with a SETSCHEDULER error
+
+bbb-webrtc-sfu runs with CPUSchedulingPolicy=fifo. In systems without appropriate capabilities (SYS_NICE), the application will fail to start.
+The error can be verified in journalctl logs as 214/SETSCHEDULER.
+
+Similar to [bbb-html5](#bbb-html5-fails-to-start-with-a-setscheduler-error), you can override this by running
+
+```
+mkdir /etc/systemd/system/bbb-webrtc-sfu.service.d
+```
+
+and creating `/etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf` with the following contents
+
+```
+[Service]
+CPUSchedulingPolicy=other
+Nice=-10
+```
+
+Then do `systemctl daemon-reload` and restart BigBlueButton.
 
 ## Kurento
 
@@ -384,7 +405,7 @@ $ sudo bbb-conf --check
 
 ### FreeSWITCH fails to start with a SETSCHEDULER error
 
-When running in a container (like a chroot, OpenVZ or LXC), it might not be possible for FreeSWITCH to set its CPU priority to [real-time round robin](https://man7.org/linux/man-pages/man2/sched_setscheduler.2.html). If not, it will result in lower performance compared to a non-virtualized installation.
+When running in a container (like a chroot, OpenVZ, LXC or LXD), it might not be possible for FreeSWITCH to set its CPU priority to [real-time round robin](https://man7.org/linux/man-pages/man2/sched_setscheduler.2.html). If not, it will result in lower performance compared to a non-virtualized installation.
 
 If you running BigBlueButton in a container and an error starting FreeSWITCH, try running `systemctl status freeswitch.service` and see if you see the error related to SETSCHEDULER
 
@@ -405,12 +426,15 @@ Oct 02 16:17:29 scw-9e2305 systemd[1]: freeswitch.service: Start request repeate
 Oct 02 16:17:29 scw-9e2305 systemd[1]: Failed to start freeswitch.
 ```
 
-If you see `SETSCHEDULER` in the error message, edit `/lib/systemd/system/freeswitch.service` and comment out the line containing `CPUSchedulingPolicy=rr` (round robin)
+If you see `SETSCHEDULER` in the error message, edit `/lib/systemd/system/freeswitch.service` and comment the following:
 
-```ini
-IOSchedulingPriority=2
+```properties
+#LimitRTPRIO=infinity
+#LimitRTTIME=7000000
+#IOSchedulingClass=realtime
+#IOSchedulingPriority=2
 #CPUSchedulingPolicy=rr
-CPUSchedulingPriority=89
+#CPUSchedulingPriority=89
 ```
 
 Save the file, run `systemctl daemon-reload`, and then restart BigBlueButton. FreeSWITCH should now startup without error.
@@ -904,55 +928,16 @@ However, if you install BigBlueButton within an LXD container, you will get the 
 # Error: Unable to connect to the FreeSWITCH Event Socket Layer on port 8021
 ```
 
-You'll also get an error from starting FreeSWITCH with `bbb-conf --restart`. When you try `systemctl status freeswitch.service`, you'll see an error with SETSCHEDULER.
+If you check the output of `sudo bbb-conf --status`, you'll be able to identify that three different applications failed to start: FreeSWITCH, bbb-webrtc-sfu and bbb-html5.
+Optionally, check their errors via `systemctl status <service-name>.service` and verify that their boot sequence failed due to a SETSCHEDULER error.
 
-```bash
-$ sudo systemctl status freeswitch.service
-● freeswitch.service - freeswitch
-   Loaded: loaded (/lib/systemd/system/freeswitch.service; enabled; vendor preset: enabled)
-   Active: inactive (dead) (Result: exit-code) since Wed 2017-04-26 16:34:24 UTC; 23h ago
-  Process: 7038 ExecStart=/opt/freeswitch/bin/freeswitch -u freeswitch -g daemon -ncwait $DAEMON_OPTS (code=exited, status=214/SETSCHEDULER)
+This error occurs because the default systemd unit scripts for FreeSWITCH, bbb-html5 and bbb-webrtc-sfu try to run with permissions not available to the LXD container.
+To get them working within an LXD container, follow the steps outlined in the following sections:
+  - [FreeSWITCH fails to start with a SETSCHEDULER error](#freeswitch-fails-to-start-with-a-setscheduler-error)
+  - [bbb-webrtc-sfu fails to start with a SETSCHEDULER error](#bbb-webrtc-sfu-fails-to-start-with-a-setscheduler-error)
+  - [bbb-html5 fails to start with a SETSCHEDULER error](#bbb-html5-fails-to-start-with-a-setscheduler-error)
 
-Apr 26 16:34:24 big systemd[1]: Failed to start freeswitch.
-Apr 26 16:34:24 big systemd[1]: freeswitch.service: Unit entered failed state.
-Apr 26 16:34:24 big systemd[1]: freeswitch.service: Failed with result 'exit-code'.
-Apr 26 16:34:24 big systemd[1]: freeswitch.service: Service hold-off time over, scheduling restart.
-Apr 26 16:34:24 big systemd[1]: Stopped freeswitch.
-Apr 26 16:34:24 big systemd[1]: freeswitch.service: Start request repeated too quickly.
-Apr 26 16:34:24 big systemd[1]: Failed to start freeswitch.
-```
-
-This error occurs because the default systemd unit script for FreeSWITCH tries to run with permissions not available to the LXD container. To run FreeSWITCH within an LXD container, edit `/lib/systemd/system/freeswitch.service` and replace with the following
-
-```properties
-[Unit]
-Description=freeswitch
-After=syslog.target network.target local-fs.target
-
-[Service]
-Type=forking
-PIDFile=/opt/freeswitch/var/run/freeswitch/freeswitch.pid
-Environment="DAEMON_OPTS=-nonat"
-EnvironmentFile=-/etc/default/freeswitch
-ExecStart=/opt/freeswitch/bin/freeswitch -u freeswitch -g daemon -ncwait $DAEMON_OPTS
-TimeoutSec=45s
-Restart=always
-WorkingDirectory=/opt/freeswitch
-User=freeswitch
-Group=daemon
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Then enter the following commands to load the new unit file and restart BigBlueButton.
-
-```bash
-$ sudo systemctl daemon-reload
-$ sudo bbb-conf --restart
-```
-
-You can run BigBlueButton within a LXD container.
+You can now run BigBlueButton within a LXD container.
 
 ### Unable to connect to redis
 
@@ -1008,7 +993,7 @@ The script `bbb-install` now creates these overrides by default.
 
 ### 500 Internal Server Error
 
-It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/install#troubleshooting-greenlight).
+It is most likely an error on GreenLight. Check the log file according to [Troubleshooting Greenlight](/greenlight/v2/install#troubleshooting-greenlight).
 
 If this error occurrs on just a small number of PCs accessing a BigBlueButton server within a LAN through a proxy server and you find the description "Error::Unsafe Host Error (x.x.x.x is not a safe host)" (where x.x.x.x is an IP address) in the log file, check if the "Don't use the proxy server for local (intranet) addresses" (in the Windows proxy setting) is ticked.
 

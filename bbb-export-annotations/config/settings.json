@@ -16,7 +16,9 @@
     },
     "process": {
       "whiteboardTextEncoding": "utf-8",
-      "textScaleFactor": 4,
+      "maxImageWidth": 1440,
+      "maxImageHeight": 1080,
+      "textScaleFactor": 2,
       "pointsPerInch": 72,
       "pixelsPerInch": 96
     },

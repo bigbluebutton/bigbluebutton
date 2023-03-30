@@ -8,8 +8,7 @@ import PresUploaderToast from '/imports/ui/components/presentation/presentation-
 import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
-import { isDownloadPresentationWithAnnotationsEnabled } from '/imports/ui/services/features';
-import { isPresentationEnabled } from '/imports/ui/services/features';
+import { isDownloadPresentationWithAnnotationsEnabled, isPresentationEnabled } from '/imports/ui/services/features';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 

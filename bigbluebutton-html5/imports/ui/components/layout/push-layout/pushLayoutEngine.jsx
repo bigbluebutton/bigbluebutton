@@ -39,6 +39,7 @@ const propTypes = {
   pushLayoutMeeting: PropTypes.bool,
   selectedLayout: PropTypes.string,
   setMeetingLayout: PropTypes.func,
+  setPushLayout: PropTypes.func,
   shouldShowScreenshare: PropTypes.bool,
   shouldShowExternalVideo: PropTypes.bool,
 };
@@ -136,6 +137,7 @@ class PushLayoutEngine extends React.Component {
       pushLayoutMeeting,
       selectedLayout,
       setMeetingLayout,
+      setPushLayout,
     } = this.props;
 
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
@@ -173,7 +175,7 @@ class PushLayoutEngine extends React.Component {
       });
     }
 
-    if (meetingLayout === "custom" && !isPresenter) {
+    if (meetingLayout === "custom" && selectedLayout === "custom" && !isPresenter) {
 
       if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
@@ -240,9 +242,13 @@ class PushLayoutEngine extends React.Component {
       || focusedCamera !== prevProps.focusedCamera
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    if ((pushLayout && layoutChanged) // change layout sizes / states
-      || (pushLayout !== prevProps.pushLayout) // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
-    ) {
+    if (pushLayout !== prevProps.pushLayout) { // push layout once after presenter toggles / special case where we set pushLayout to false in all viewers
+      if (isModerator) {
+        setPushLayout(pushLayout);
+      }
+    }
+
+    if (pushLayout && layoutChanged || pushLayout !== prevProps.pushLayout) { // change layout sizes / states
       if (isPresenter) {
         setMeetingLayout();
       }

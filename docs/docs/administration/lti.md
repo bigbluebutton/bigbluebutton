@@ -14,9 +14,15 @@ BigBlueButton is [certified](https://site.imsglobal.org/certifications/bigbluebu
 
 ![imscertifiedsm](/img/imscertifiedsm.png)
 
-BigBlueButton can accept incoming LTI launch requests from a tool consumer, which is the IMS term for any platform that can make an LTI request to an external tool (such as BigBlueButton). Such platforms include Desire2Learn, BlackBoard, Pearson Learning Studio, etc. See [IMS Interoperability Conformance Certification Status](https://www.imsglobal.org/cc/statuschart.cfm) for a full list of LTI compliant platforms.
+BigBlueButton can accept incoming LTI launch requests from a tool consumer,
+which is the IMS term for any platform that can make an LTI request to an external tool (such as BigBlueButton).
+Such platforms include Desire2Learn, BlackBoard, Pearson Learning Studio, etc.
+See [IMS Interoperability Conformance Certification Status](https://www.imsglobal.org/cc/statuschart.cfm)
+for a full list of LTI compliant platforms.
 
-What this means is that with no custom code, any LTI compliant platform can add BigBlueButton virtual classrooms to its system. For example, the following video shows how BigBlueButton uses LTI to integrate with BlackBoard, click [BigBlueButton LTI video](https://www.youtube.com/watch?v=OSTGfvICYX4&feature=youtu.be&hd=1).
+What this means is that with no custom code, any LTI compliant platform can add BigBlueButton virtual classrooms to its system.
+For example, the following video shows how BigBlueButton uses LTI to integrate with BlackBoard,
+click [BigBlueButton LTI video](https://www.youtube.com/watch?v=OSTGfvICYX4&feature=youtu.be&hd=1).
 
 ### Installation of LTI module
 
@@ -32,17 +38,17 @@ You'll see the following parameters
 
 ```properties
 bigbluebuttonURL=https://bbb.example.com/bigbluebutton
-## Salt which is used by 3rd-party apps to authenticate api calls
+# Salt which is used by 3rd-party apps to authenticate api calls
 bigbluebuttonSalt=8cd8ef52e8e101574e400365b55e11a6
 
-## LTI basic information
+# LTI basic information
 #----------------------------------------------------
-## This URL is where the LTI plugin is accessible. It can be a different server than the BigBluebutton one
-## Only the hostname or IP address is required, plus the port number in case it is other than port 80
-## e.g. localhost or localhost:port
+# This URL is where the LTI plugin is accessible. It can be a different server than the BigBluebutton one
+# Only the hostname or IP address is required, plus the port number in case it is other than port 80
+# e.g. localhost or localhost:port
 ltiEndPoint=bbb.example.com
-## The list of consumers allowed to access this lti service.
-## Format: {consumerId1:sharedSecret1}
+# The list of consumers allowed to access this lti service.
+# Format: {consumerId1:sharedSecret1}
 ltiConsumers=bbb:b00be971feb0726fa697671c9cf2e883
 ```
 
@@ -61,9 +67,13 @@ If you make modifications to your own lti.properties, be sure to restart `bbb-lt
 
 ## Configuring BigBlueButton as an External Tool
 
-All LTI consumers have the ability to launch an external application that is LTI-compliant. BigBlueButton is [LTI 1.0 compliant](https://www.imsglobal.org/cc/detail.cfm?ID=172).
+All LTI consumers have the ability to launch an external application that is LTI-compliant.
+BigBlueButton is [LTI 1.0 compliant](https://www.imsglobal.org/cc/detail.cfm?ID=172).
 
-This means that your BigBlueButton server can receive a single sign-on request that includes roles and additional custom parameters. To configure an external tool in the LTI consumer, you need to provide three pieces of information: URL, customer identifier, and shared secret. After installing the `bbb-lti` package, you can use the command `bbb-conf --lti` to retrieve these values.
+This means that your BigBlueButton server can receive a single sign-on request that includes roles and additional custom parameters.
+To configure an external tool in the LTI consumer, you need to provide three pieces of information:
+URL, customer identifier, and shared secret.
+After installing the `bbb-lti` package, you can use the command `bbb-conf --lti` to retrieve these values.
 
 Here are the LTI configuration variables from a test BigBlueButton server.
 
@@ -77,15 +87,23 @@ $ bbb-conf --lti
     Icon URL: https://demo.bigbluebutton.org/lti/img/icon.ico
 ```
 
-In the external tool configuration, we recommend privacy settings are set to **public** to allow the LMS to send lis_person_sourcedid and lis_person_contact_email_primary. The `bbb-lti` module will use these parameters for user identification once logged into the BigBlueButton session. If none of them is sent by default a generic name is going to be used (Viewer for viewer and Moderator for moderator).
+In the external tool configuration, we recommend privacy settings are set to **public**
+to allow the LMS to send lis_person_sourcedid and lis_person_contact_email_primary.
+The `bbb-lti` module will use these parameters for user identification once logged into the BigBlueButton session.
+If none of them is sent by default a generic name is going to be used (Viewer for viewer and Moderator for moderator).
 
-An important note is that if your LTI consumer uses https, as the LTI tool is displayed in an iframe you will see only a blank page. In that case you can configure the link to open the tool in a different window (most LTI consumers allow it) or use https with the URL provided (https://demo.bigbluebutton.org/lti/tool).
+An important note is that if your LTI consumer uses https, as the LTI tool is displayed in an iframe, you will see only a blank page.
+In that case you can configure the link to open the tool in a different window (most LTI consumers allow it)
+or use https with the URL provided (e.g. `https://demo.bigbluebutton.org/lti/tool`).
 
 ## Launching BigBlueButton as an External Tool
 
-The LTI launch request passes along the user's role (which `bbb-lti` will map to the two roles in BigBlueButton: moderator or viewer.
+The LTI launch request passes along the user's role (which `bbb-lti` will map to the two roles in BigBlueButton): moderator or viewer.
 
-If no role information is given, or if the role is privileged (i.e. . Faculty, Mentor, Administrator, Instructor, etc.), then when `bbb-lti` receives a valid launch request, it will start a BigBlueButton session and join the user as **moderator**. In all other cases, the user will join as a **viewer**.
+If no role information is given, or if the role is privileged (i.e. . Faculty, Mentor, Administrator, Instructor, etc.),
+then when `bbb-lti` receives a valid launch request,
+it will start a BigBlueButton session and join the user as **moderator**.
+In all other cases, the user will join as a **viewer**.
 
 ### Custom Parameters
 
