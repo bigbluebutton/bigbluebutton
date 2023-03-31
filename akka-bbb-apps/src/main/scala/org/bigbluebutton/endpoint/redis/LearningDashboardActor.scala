@@ -85,6 +85,7 @@ case class PresentationSlide(
   presentationId: String,
   pageNum: Long,
   setOn: Long = System.currentTimeMillis(),
+  presentationName: String,
 )
 
 
@@ -189,7 +190,7 @@ class LearningDashboardActor(
         for {
           page <- msg.body.presentation.pages.find(p => p.current == true)
         } yield {
-          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num)
+          this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num, msg.body.presentation.name)
         }
       }
     }
@@ -202,7 +203,7 @@ class LearningDashboardActor(
       presentation <- presentations.get(msg.body.presentationId)
       page <- presentation.pages.find(p => p.id == msg.body.pageId)
     } yield {
-      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+      this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name)
     }
   }
 
@@ -211,7 +212,7 @@ class LearningDashboardActor(
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
       if(meeting.presentationSlides.last.presentationId == msg.body.presentationId) {
-        this.setPresentationSlide(meeting.intId, "",0)
+        this.setPresentationSlide(meeting.intId, "",0, "")
       }
     }
   }
@@ -223,7 +224,7 @@ class LearningDashboardActor(
       val presPreviousSlides: Vector[PresentationSlide] = meeting.presentationSlides.filter(p => p.presentationId == msg.body.presentationId);
       if(presPreviousSlides.length > 0) {
         //Set last page showed for this presentation
-        this.setPresentationSlide(meeting.intId, msg.body.presentationId,presPreviousSlides.last.pageNum)
+        this.setPresentationSlide(meeting.intId, msg.body.presentationId,presPreviousSlides.last.pageNum, presPreviousSlides.last.presentationName)
       } else {
         //If none page was showed yet, set the current page (page 1 by default)
         for {
@@ -231,20 +232,20 @@ class LearningDashboardActor(
           presentation <- presentations.get(msg.body.presentationId)
           page <- presentation.pages.find(s => s.current == true)
         } yield  {
-          this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num)
+          this.setPresentationSlide(meeting.intId, msg.body.presentationId,page.num, presentation.name)
         }
       }
     }
   }
 
-  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long) {
+  private def setPresentationSlide(meetingId: String, presentationId: String, pageNum: Long, presentationName: String) {
     for {
       meeting <- meetings.values.find(m => m.intId == meetingId)
     } yield {
       if (meeting.presentationSlides.length == 0 ||
         meeting.presentationSlides.last.presentationId != presentationId ||
         meeting.presentationSlides.last.pageNum != pageNum) {
-        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum))
+        val updatedMeeting = meeting.copy(presentationSlides = meeting.presentationSlides :+ PresentationSlide(presentationId, pageNum, presentationName = presentationName))
 
         meetings += (updatedMeeting.intId -> updatedMeeting)
       }

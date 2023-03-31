@@ -94,19 +94,31 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       color: var(--palette-placeholder-text);
       opacity: 1;
     }
+
+    main {
+      display: initial;
+    }
+
+    .overrideSelect {
+      background-color: #FFF !important;
+      color: #000 !important;
+    }
+
+    .select {
+      background-color: rgba(66, 133, 244, 1) !important;
+      color: #FFF !important;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
   </script>
-  <script src="compatibility/adapter.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
-  <script src="compatibility/kurento-utils.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
   <!-- fonts -->
-  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="fonts/BbbIcons/bbb-icons.woff2?v=VERSION" as="font" type="font/woff2" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Light.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Regular.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Semibold.woff?v=VERSION" as="font" crossorigin="anonymous"/>
@@ -115,11 +127,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
+  <link rel="preload" href="files/source-code-pro-latin-400-normal.woff2" as="font" crossorigin="anonymous"/>
 
   <style>
     @font-face {
       font-family: 'bbb-icons';
-      src: url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
+      src: url('fonts/BbbIcons/bbb-icons.woff2?v=VERSION') format('woff2'),
+        url('fonts/BbbIcons/bbb-icons.woff?v=VERSION') format('woff');
       font-weight: normal;
       font-style: normal;
     }
@@ -128,7 +142,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body style="background-color: #06172A">
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
-  <div id="app" role="document">
+  <main>
+    <div id="app" role="document">
+  </main>
   </div>
   <span id="destination"></span>
   <audio id="remote-media" autoplay>

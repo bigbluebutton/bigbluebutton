@@ -2,6 +2,7 @@
 Description=BigBlueButton Webhooks
 Wants=redis-server.service
 After=syslog.target network.target redis-server.service
+PartOf=bigbluebutton.target
 
 [Service]
 WorkingDirectory=/usr/local/bigbluebutton/bbb-webhooks
@@ -13,4 +14,4 @@ Group=bigbluebutton
 Environment=NODE_ENV=production
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target

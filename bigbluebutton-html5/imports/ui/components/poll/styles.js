@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
+  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
@@ -18,6 +19,7 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorDanger,
+  colorWarning,
   colorHeading,
   colorPrimary,
   colorGrayDark,
@@ -165,17 +167,13 @@ const PollConfigButton = styled(Button)`
 
 const PollParagraph = styled.div`
   color: ${colorText};
+  margin-bottom: 0.9rem;
 `;
 
 const PollCheckbox = styled.div`
   display: inline-block;
   margin-right: ${pollSmMargin};
   margin-bottom: ${pollMdMargin};
-`;
-
-const InstructionsLabel = styled.label`
-  margin-bottom: ${lgPaddingX};
-  color: ${colorText};
 `;
 
 const AddItemButton = styled(Button)`
@@ -204,6 +202,18 @@ const Row = styled.div`
   justify-content: space-between;
   margin-top: 0.7rem;
   margin-bottom: 0.7rem;
+`;
+
+const Warning = styled.div`
+  color: ${colorWarning};
+  font-size: ${fontSizeSmall};
+`;
+
+const CustomInputRow = styled.div`
+  display: flex;
+  flex-flow: nowrap;
+  flex-grow: 1;
+  justify-content: space-between;
 `;
 
 const Col = styled.div`
@@ -321,6 +331,46 @@ const DragAndDropPollContainer = styled.div`
   height: 200px !important;
 `;
 
+const Question = styled.div`
+  margin-bottom: ${lgPaddingX};
+`;
+
+const OptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ResponseArea = styled.div`
+  display: flex;
+  flex-flow: column wrap;
+`;
+
+const CustomInputHeading = styled(SectionHeading)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding-bottom: ${jumboPaddingY};
+`;
+
+const CustomInputHeadingCol = styled(Col)`
+  overflow: hidden;
+`;
+
+const CustomInputToggleCol = styled(Col)`
+  flex-shrink: 0;
+`;
+
+const AnonymousHeading = styled(CustomInputHeading)``;
+
+const AnonymousHeadingCol = styled(CustomInputHeadingCol)``;
+
+const AnonymousToggleCol = styled(CustomInputToggleCol)``;
+
+const AnonymousRow = styled(Row)`
+  flex-flow: nowrap;
+  width: 100%;
+`;
+
 export default {
   ToggleLabel,
   PollOptionInput,
@@ -334,7 +384,6 @@ export default {
   PollConfigButton,
   PollParagraph,
   PollCheckbox,
-  InstructionsLabel,
   AddItemButton,
   Row,
   Col,
@@ -343,4 +392,16 @@ export default {
   NoSlidePanelContainer,
   PollButton,
   DragAndDropPollContainer,
+  Warning,
+  CustomInputRow,
+  Question,
+  OptionWrapper,
+  ResponseArea,
+  CustomInputHeading,
+  CustomInputHeadingCol,
+  CustomInputToggleCol,
+  AnonymousHeading,
+  AnonymousHeadingCol,
+  AnonymousToggleCol,
+  AnonymousRow,
 };

@@ -30,6 +30,8 @@ export const ACTIONS = {
   SET_DEVICE_TYPE: 'setDeviceType',
   SET_FONT_SIZE: 'setFontSize',
 
+  SET_FOCUSED_CAMERA_ID: 'focusedId',
+
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
   SET_SIDEBAR_NAVIGATION_PANEL: 'setSidebarNavigationPanel',
@@ -92,6 +94,9 @@ export const ACTIONS = {
   SET_HAS_EXTERNAL_VIDEO: 'setHasExternalVideo',
   SET_EXTERNAL_VIDEO_SIZE: 'setExternalVideoSize',
   SET_EXTERNAL_VIDEO_OUTPUT: 'setExternalVideoOutput',
+
+  SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
+  SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 };
 
 export const PANELS = {

@@ -81,13 +81,13 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       // flood other applications (e.g. bbb-web) with unnecessary messages
 
       // Whiteboard
-      case SendWhiteboardAnnotationEvtMsg.NAME =>
+      case SendWhiteboardAnnotationsEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case SendCursorPositionEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case ClearWhiteboardEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
-      case UndoWhiteboardEvtMsg.NAME =>
+      case DeleteWhiteboardAnnotationsEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       // Chat
@@ -154,6 +154,15 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case UpdateExternalVideoEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case NotifyAllInMeetingEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case NotifyUserInMeetingEvtMsg.NAME =>
+        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+
+      case NotifyRoleInMeetingEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case _ =>

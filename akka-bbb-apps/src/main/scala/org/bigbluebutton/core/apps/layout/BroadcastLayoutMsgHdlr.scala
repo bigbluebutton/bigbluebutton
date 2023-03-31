@@ -17,7 +17,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Layouts is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
-    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to broadcast layout to meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -25,7 +25,14 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       if (LayoutsType.layoutsType.contains(msg.body.layout)) {
         val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
 
-        Layouts.setCurrentLayout(liveMeeting.layouts, newlayout, msg.header.userId)
+        Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
+        Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
+        Layouts.setPresentationIsOpen(liveMeeting.layouts, msg.body.presentationIsOpen)
+        Layouts.setCameraDockIsResizing(liveMeeting.layouts, msg.body.isResizing)
+        Layouts.setCameraPosition(liveMeeting.layouts, msg.body.cameraPosition)
+        Layouts.setFocusedCamera(liveMeeting.layouts, msg.body.focusedCamera)
+        Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
+        Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
         sendBroadcastLayoutEvtMsg(msg.header.userId)
       }
@@ -39,8 +46,13 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     val body = BroadcastLayoutEvtMsgBody(
       Layouts.getCurrentLayout(liveMeeting.layouts),
-      MeetingStatus2x.getPermissions(liveMeeting.status).lockedLayout,
-      Layouts.getLayoutSetter(liveMeeting.layouts), affectedUsers
+      Layouts.getPushLayout(liveMeeting.layouts),
+      Layouts.getPresentationIsOpen(liveMeeting.layouts),
+      Layouts.getCameraDockIsResizing(liveMeeting.layouts),
+      Layouts.getCameraPosition(liveMeeting.layouts),
+      Layouts.getFocusedCamera(liveMeeting.layouts),
+      Layouts.getPresentationVideoRate(liveMeeting.layouts),
+      Layouts.getLayoutSetter(liveMeeting.layouts)
     )
     val event = BroadcastLayoutEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

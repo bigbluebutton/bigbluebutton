@@ -31,27 +31,27 @@ const process = () => {
 
 export default function handleWhiteboardSend({ envelope, header, body }, meetingId) {
   const userId = header.userId;
-  const annotation = body.annotation;
+  const whiteboardId = body.whiteboardId;
+  const annotations = body.annotations;
   const instanceIdFromMessage = parseInt(envelope.routing.html5InstanceId, 10) || 1;
   const myInstanceId = parseInt(body.myInstanceId, 10) || 1;
 
   check(userId, String);
-  check(annotation, Object);
-
-  const whiteboardId = annotation.wbId;
   check(whiteboardId, String);
+  check(annotations, Array);
 
   if (!annotationsQueue.hasOwnProperty(meetingId)) {
     annotationsQueue[meetingId] = [];
   }
 
-  annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId, annotation });
+  annotations.forEach(annotation => {
+    annotationsQueue[meetingId].push({ meetingId, whiteboardId, userId: annotation.userId, annotation });
+    if (instanceIdFromMessage === myInstanceId) {
+      addAnnotation(meetingId, whiteboardId, annotation.userId, annotation);
+    }
+  })
   if (queueMetrics) {
     Metrics.setAnnotationQueueLength(meetingId, annotationsQueue[meetingId].length);
   }
   if (!annotationsRecieverIsRunning) process();
-
-  if (instanceIdFromMessage === myInstanceId) {
-    return addAnnotation(meetingId, whiteboardId, userId, annotation);
-  }
 }

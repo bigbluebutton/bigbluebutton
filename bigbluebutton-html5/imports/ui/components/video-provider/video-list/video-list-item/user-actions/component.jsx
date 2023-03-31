@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import VideoService from '/imports/ui/components/video-provider/service';
+import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
 import Styled from './styles';
@@ -37,12 +38,20 @@ const intlMessages = defineMessages({
   mirrorDesc: {
     id: 'app.videoDock.webcamMirrorDesc',
   },
+  fullscreenLabel: {
+    id: 'app.videoDock.webcamFullscreenLabel',
+    description: 'Make fullscreen option label',
+  },
+  squeezedLabel: {
+    id: 'app.videoDock.webcamSqueezedButtonLabel',
+    description: 'User selected webcam squeezed options',
+  },
 });
 
 const UserActions = (props) => {
   const {
-    name, cameraId, numOfStreams, onHandleVideoFocus,
-    user, focused, onHandleMirror, isRTL,
+    name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
+    isVideoSqueezed, videoContainer, isRTL,
   } = props;
 
   const intl = useIntl();
@@ -55,12 +64,34 @@ const UserActions = (props) => {
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
 
-    const menuItems = [{
+    const menuItems = [];
+
+    if (isVideoSqueezed) {
+      menuItems.push({
+        key: `${cameraId}-name`,
+        label: name,
+        description: name,
+        onClick: () => {},
+        disabled: true,
+      });
+
+      menuItems.push(
+        {
+          key: `${cameraId}-fullscreen`,
+          label: intl.formatMessage(intlMessages.fullscreenLabel),
+          description: intl.formatMessage(intlMessages.fullscreenLabel),
+          onClick: () => FullscreenService.toggleFullScreen(videoContainer.current),
+        },
+      );
+    }
+
+    menuItems.push({
       key: `${cameraId}-mirror`,
       label: intl.formatMessage(intlMessages.mirrorLabel),
       description: intl.formatMessage(intlMessages.mirrorDesc),
       onClick: () => onHandleMirror(),
-    }];
+      dataTest: 'mirrorWebcamBtn',
+    });
 
     if (numOfStreams > 2) {
       menuItems.push({
@@ -68,6 +99,7 @@ const UserActions = (props) => {
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus(cameraId),
+        dataTest: 'FocusWebcamBtn',
       });
     }
 
@@ -77,13 +109,35 @@ const UserActions = (props) => {
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Desc`]),
         onClick: () => VideoService.toggleVideoPin(userId, pinned),
+        dataTest: 'pinWebcamBtn',
       });
     }
 
     return menuItems;
   };
 
-  return (
+  const renderSqueezedButton = () => (
+    <Styled.MenuWrapperSqueezed>
+      <BBBMenu
+        trigger={(
+          <Styled.OptionsButton
+            label={intl.formatMessage(intlMessages.squeezedLabel)}
+            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
+            data-test="webcamOptionsMenuSqueezed"
+            icon="device_list_selector"
+            ghost
+            color="primary"
+            hideLabel
+            size="sm"
+            onClick={() => null}
+          />
+          )}
+        actions={getAvailableActions()}
+      />
+    </Styled.MenuWrapperSqueezed>
+  );
+
+  const renderDefaultButton = () => (
     <Styled.MenuWrapper>
       {enableVideoMenu && getAvailableActions().length >= 1
         ? (
@@ -98,7 +152,7 @@ const UserActions = (props) => {
             )}
             actions={getAvailableActions()}
             opts={{
-              id: 'default-dropdown-menu',
+              id: `webcam-${user?.userId}-dropdown-menu`,
               keepMounted: true,
               transitionDuration: 0,
               elevation: 3,
@@ -118,12 +172,20 @@ const UserActions = (props) => {
         )}
     </Styled.MenuWrapper>
   );
+
+  return (
+    isVideoSqueezed
+      ? renderSqueezedButton()
+      : renderDefaultButton()
+  );
 };
 
 export default UserActions;
 
 UserActions.defaultProps = {
   focused: false,
+  isVideoSqueezed: false,
+  videoContainer: () => {},
 };
 
 UserActions.propTypes = {
@@ -136,5 +198,10 @@ UserActions.propTypes = {
     userId: PropTypes.string.isRequired,
   }).isRequired,
   focused: PropTypes.bool,
+  isVideoSqueezed: PropTypes.bool,
+  videoContainer: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
   onHandleMirror: PropTypes.func.isRequired,
 };

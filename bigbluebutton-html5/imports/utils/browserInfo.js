@@ -1,6 +1,7 @@
 import Bowser from 'bowser';
 
-const BOWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+const userAgent = window.navigator.userAgent;
+const BOWSER_RESULTS = Bowser.parse(userAgent);
 
 const isChrome = BOWSER_RESULTS.browser.name === 'Chrome';
 const isSafari = BOWSER_RESULTS.browser.name === 'Safari';
@@ -11,22 +12,11 @@ const isFirefox = BOWSER_RESULTS.browser.name === 'Firefox';
 const browserName = BOWSER_RESULTS.browser.name;
 const versionNumber = BOWSER_RESULTS.browser.version;
 
-const isValidSafariVersion = Bowser.getParser(window.navigator.userAgent).satisfies({
+const isValidSafariVersion = Bowser.getParser(userAgent).satisfies({
   safari: '>12',
 });
 
-// Check whether Chrome's 'Auto Dark Mode' is enabled
-// See: https://developer.chrome.com/blog/auto-dark-theme/#detecting-auto-dark-theme
-const isChromeAutoDarkModeEnabled = () => {
-  const detection = document.createElement('div');
-  detection.style.display = 'none';
-  detection.style.backgroundColor = 'canvas';
-  detection.style.colorScheme = 'light';
-  document.body.appendChild(detection);
-  const isChromeAutoDarkModeEnabled = getComputedStyle(detection).backgroundColor !== 'rgb(255, 255, 255)';
-  document.body.removeChild(detection);
-  return isChromeAutoDarkModeEnabled;
-};
+const isTabletApp =  !!(userAgent.match(/BigBlueButton-Tablet/i));
 
 const browserInfo = {
   isChrome,
@@ -37,7 +27,7 @@ const browserInfo = {
   browserName,
   versionNumber,
   isValidSafariVersion,
-  isChromeAutoDarkModeEnabled,
+  isTabletApp
 };
 
 export default browserInfo;

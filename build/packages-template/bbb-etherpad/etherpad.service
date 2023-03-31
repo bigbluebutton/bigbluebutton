@@ -2,6 +2,7 @@
 Description=Etherpad Server
 Wants=redis-server.service
 After=syslog.target network.target redis-server.service
+PartOf=bigbluebutton.target
 
 [Service]
 Type=simple
@@ -14,5 +15,5 @@ Restart=always
 # use mysql plus a complete settings.json to avoid Service hold-off time over, scheduling restart.
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target
 

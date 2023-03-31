@@ -1,8 +1,8 @@
-const { expect } = require('@playwright/test');
+const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const util = require('./util');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
@@ -65,6 +65,7 @@ class CustomParameters extends MultiUsers {
 
   async autoSwapLayout() {
     await this.modPage.waitForSelector(e.actions);
+    await this.modPage.waitAndClick(e.minimizePresentation);
     const resp = await this.modPage.page.evaluate((elem) => {
       return document.querySelectorAll(elem)[0].offsetHeight !== 0;
     }, e.restorePresentation);
@@ -72,44 +73,44 @@ class CustomParameters extends MultiUsers {
   }
 
   async autoJoin() {
-    await this.modPage.waitForSelector(e.chatMessages);
+    await this.modPage.waitForSelector(e.chatMessages, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.audioModal);
   }
 
   async listenOnlyMode() {
-    await this.modPage.waitForSelector(e.audioModal);
-    await this.modPage.waitForSelector(e.connectingToEchoTest);
-    await this.modPage.wasRemoved(e.connecting);
-    await this.modPage.waitForSelector(e.echoYesButton);
-    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.waitForSelector(e.audioSettingsModal, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.waitAndClick(e.joinEchoTestButton);
+    await this.modPage.waitForSelector(e.establishingAudioLabel);
+    await this.modPage.waitForSelector(e.isTalking);
+    await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
-    const audioOptionsCount = await this.modPage.getSelectorCount(e.audioOptionsButtons);
-    await expect(audioOptionsCount).toBe(1);
+    await this.modPage.waitForSelector(e.audioSettingsModal);
   }
 
   async forceListenOnly() {
     await this.userPage.wasRemoved(e.audioModal);
-    await this.userPage.waitForSelector(e.toastContainer);
+    await this.userPage.waitForSelector(e.toastContainer, ELEMENT_WAIT_LONGER_TIME);
     await util.forceListenOnly(this.userPage);
   }
 
   async skipCheck() {
     await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.waitForSelector(e.connecting);
-    await this.modPage.wasRemoved(e.connecting, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.echoYesButton);
+    await this.modPage.waitForSelector(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.smallToastMsg);
     await this.modPage.hasElement(e.isTalking);
   }
 
   async skipCheckOnFirstJoin() {
-    await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.hasElement(e.connecting);
+    await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.establishingAudioLabel);
+    await this.modPage.hasElement(e.smallToastMsg);
+    await this.modPage.hasElement(e.isTalking);
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.microphoneButton);
-    await this.modPage.hasElement(e.connectingToEchoTest);
+    await this.modPage.hasElement(e.audioSettingsModal);
   }
 
   async bannerText() {
@@ -124,10 +125,6 @@ class CustomParameters extends MultiUsers {
       return getComputedStyle(elem).backgroundColor;
     }, e.notificationBannerBar);
     await expect(notificationBarColor).toBe(colorToRGB);
-  }
-
-  async disableScreensharing() {
-    await this.modPage.wasRemoved(e.startScreenSharing);
   }
 
   async hidePresentation() {
@@ -186,33 +183,127 @@ class CustomParameters extends MultiUsers {
 
   async multiUserPenOnly() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.waitAndClick(e.toolsButton);
+    await this.userPage.waitAndClick(e.wbToolbar);
     const resp = await this.userPage.page.evaluate((toolsElement) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.childElementCount === 1;
-    }, e.toolsButton);
+    }, e.wbToolbar);
     await expect(resp).toBeTruthy();
   }
 
   async presenterTools() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.toolsButton);
+    await this.modPage.waitAndClick(e.wbToolbar);
     const resp = await this.modPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.toolsButton, e.toolbarToolsList]);
+    }, [e.wbToolbar, e.toolbarToolsList]);
     await expect(resp).toBeTruthy();
   }
 
   async multiUserTools() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-    await this.userPage.waitAndClick(e.toolsButton);
+    await this.userPage.waitAndClick(e.wbToolbar);
     const resp = await this.userPage.page.evaluate(([toolsElement, toolbarListSelector]) => {
       return document.querySelectorAll(toolsElement)[0].parentElement.querySelector(toolbarListSelector).childElementCount === 2;
-    }, [e.toolsButton, e.toolbarToolsList]);
+    }, [e.wbToolbar, e.toolbarToolsList]);
     await expect(resp).toBeTruthy();
   }
 
   async autoShareWebcam() {
     await this.modPage.hasElement(e.webcamSettingsModal);
+  }
+
+  async hideActionsBarTest() {
+    await this.modPage.wasRemoved(e.actions);
+    await this.modPage.wasRemoved(e.joinAudio);
+    await this.modPage.wasRemoved(e.joinVideo);
+    await this.modPage.wasRemoved(e.startScreenSharing);
+    await this.modPage.wasRemoved(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.raiseHandBtn);
+  }
+
+  async overrideDefaultLocaleTest() {
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público');
+  }
+
+  async hideNavBarTest() {
+    await this.modPage.wasRemoved(e.navbarBackground);
+  }
+
+  async preferredCameraProfileTest() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue()).toBe('low');
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
+
+  async breakoutRooms() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(e.createBreakoutRooms);
+  }
+
+  async liveTranscription() {
+    await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.liveTranscritpion);
+  }
+
+  async captions() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(e.writeClosedCaptions);
+  }
+
+  async chat() {
+    await this.modPage.wasRemoved(e.publicChat);
+  }
+
+  async externalVideos() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.shareExternalVideoBtn);
+  }
+
+  async layouts() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.propagateLayout);
+    await this.modPage.wasRemoved(e.layoutModal);
+  }
+
+  async learningDashboard() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(e.learningDashboard);
+  }
+
+  async polls() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.wasRemoved(e.polling);
+  }
+
+  async screenshare() {
+    await this.modPage.wasRemoved(e.startScreenSharing);
+  }
+
+  async sharedNotes() {
+    await this.modPage.wasRemoved(e.sharedNotes);
+  }
+
+  async virtualBackgrounds() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.wasRemoved(e.virtualBackgrounds);
+  }
+
+  async downloadPresentationWithAnnotations() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.wasRemoved(e.exportPresentationToPublicChat);
+  }
+
+  async importPresentationWithAnnotationsFromBreakoutRooms() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.wasRemoved(e.captureBreakoutWhiteboard);
+  }
+
+  async importSharedNotesFromBreakoutRooms() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.wasRemoved(e.captureBreakoutSharedNotes);
   }
 }
 

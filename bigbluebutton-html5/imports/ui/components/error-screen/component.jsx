@@ -37,6 +37,9 @@ const intlMessages = defineMessages({
   400: {
     id: 'app.error.400',
   },
+  meeting_ended: {
+    id: 'app.meeting.endedMessage',
+  },
   user_logged_out_reason: {
     id: 'app.error.userLoggedOut',
   },
@@ -54,6 +57,12 @@ const intlMessages = defineMessages({
   },
   user_requested_eject_reason: {
     id: 'app.meeting.logout.ejectedFromMeeting',
+  },
+  max_participants_reason: {
+    id: 'app.meeting.logout.maxParticipantsReached',
+  },
+  guest_deny: {
+    id: 'app.guest.guestDeny',
   },
   duplicate_user_in_meeting_eject_reason: {
     id: 'app.meeting.logout.duplicateUserEjectReason',

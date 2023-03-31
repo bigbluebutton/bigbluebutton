@@ -1,19 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
-
-import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 
-
 // src: https://medium.com/@650egor/simple-drag-and-drop-file-upload-in-react-2cb409d88929
-
-const intlMessages = defineMessages({
-  customPollTextArea: {
-    id: 'app.poll.customPollTextArea',
-    description: 'label for button to submit custom poll values',
-  },
-});
 
 class DragAndDrop extends Component {
   static handleDrag(e) {
@@ -74,11 +64,9 @@ class DragAndDrop extends Component {
     this.setState({ pollValueText: text });
   }
 
-
   handleTextInput(e) {
     this.setPollValueText(e.target.value);
   }
-
 
   handleDragIn(e) {
     DragAndDrop.handleDrag(e);
@@ -104,34 +92,32 @@ class DragAndDrop extends Component {
     }
   }
 
+  getCleanProps() {
+    const props = Object.assign({}, this.props);
+    const propsToDelete = ['MAX_INPUT_CHARS', 'handlePollValuesText'];
+
+    propsToDelete.forEach((prop) => {
+      delete props[prop];
+    });
+
+    return props;
+  }
 
   render() {
-    const { intl, children } = this.props;
-    const { pollValueText, drag } = this.state;
+    const { drag } = this.state;
     return (
-      <Styled.DndContainer ref={this.dropRef}>
-        <Styled.DndTextArea
-          active={drag}
-          value={pollValueText}
-          onChange={e => this.handleTextInput(e)}
-        />
-        <Styled.DndButton
-          onClick={() => this.setPollValues()}
-          label={intl.formatMessage(intlMessages.customPollTextArea)}
-          color="primary"
-          disabled={pollValueText < 1}
-        />
-        {children}
-      </Styled.DndContainer>
+      <Styled.DndTextArea
+        ref={this.dropRef}
+        active={drag}
+        {...this.getCleanProps()}
+      />
     );
   }
-} export default withModalMounter(injectIntl(DragAndDrop));
+}
 
 DragAndDrop.propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   MAX_INPUT_CHARS: PropTypes.number.isRequired,
   handlePollValuesText: PropTypes.func.isRequired,
-  children: PropTypes.element.isRequired,
 };
+
+export default withModalMounter(DragAndDrop);

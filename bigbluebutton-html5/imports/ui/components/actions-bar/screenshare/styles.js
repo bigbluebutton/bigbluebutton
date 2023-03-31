@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import Modal from '/imports/ui/components/common/modal/simple/component';
-import Button from '/imports/ui/components/common/button/component';
-import { colorGrayDark, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   jumboPaddingY,
   minModalHeight,
@@ -24,18 +23,7 @@ const Title = styled.h3`
   padding-bottom: ${mdPaddingX};
 `;
 
-const ScreenShareButton = styled(Button)`
-  ${({ ghost }) => ghost && `
-      span {
-        box-shadow: none;
-        background-color: transparent !important;
-        border-color: ${colorWhite} !important;
-      }
-   `}
-`;
-
 export default {
   ScreenShareModal,
   Title,
-  ScreenShareButton,
 };

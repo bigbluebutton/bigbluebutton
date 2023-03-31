@@ -71,8 +71,9 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     leaveEchoTest,
     changeInputDevice: (inputDeviceId) => Service
       .changeInputDevice(inputDeviceId),
-    changeOutputDevice: (outputDeviceId) => Service
-      .changeOutputDevice(outputDeviceId),
+    changeInputStream: (inputStream) => Service.changeInputStream(inputStream),
+    changeOutputDevice: (outputDeviceId, isLive) => Service
+      .changeOutputDevice(outputDeviceId, isLive),
     joinEchoTest: () => Service.joinEchoTest(),
     exitAudio: () => Service.exitAudio(),
     isConnecting: Service.isConnecting(),
@@ -82,6 +83,8 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     inputDeviceId: Service.inputDeviceId(),
     outputDeviceId: Service.outputDeviceId(),
     showPermissionsOvelay: Service.isWaitingPermissions(),
+    showVolumeMeter: Service.showVolumeMeter,
+    localEchoEnabled: Service.localEchoEnabled,
     listenOnlyMode,
     formattedDialNum,
     formattedTelVoice,
@@ -93,6 +96,7 @@ export default lockContextContainer(withModalMounter(withTracker(({ userLocks })
     isIE: isIe,
     autoplayBlocked: Service.autoplayBlocked(),
     handleAllowAutoplay: () => Service.handleAllowAutoplay(),
+    notify: Service.notify,
     isRTL,
     AudioError,
   });

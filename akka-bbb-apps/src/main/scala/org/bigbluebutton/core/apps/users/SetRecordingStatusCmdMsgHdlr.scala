@@ -8,6 +8,7 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
 
 trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -37,8 +38,28 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
       if (liveMeeting.props.recordProp.allowStartStopRecording &&
         MeetingStatus2x.isRecording(liveMeeting.status) != msg.body.recording) {
         if (msg.body.recording) {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "success",
+            "record",
+            "app.notification.recordingStart",
+            "Notification for when the recording starts",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+
           MeetingStatus2x.recordingStarted(liveMeeting.status)
         } else {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "error",
+            "record",
+            "app.notification.recordingPaused",
+            "Notification for when the recording stops",
+            Vector()
+          )
+          outGW.send(notifyEvent)
+
           MeetingStatus2x.recordingStopped(liveMeeting.status)
         }
 

@@ -9,8 +9,6 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import MediaService, { getSwapLayout } from '/imports/ui/components/media/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const ExternalVideoContainer = (props) => {
   const fullscreenElementId = 'ExternalVideo';
@@ -46,8 +44,5 @@ export default withTracker(({ isPresenter }) => {
     inEchoTest,
     isPresenter,
     videoUrl: getVideoUrl(),
-    getSwapLayout,
-    toggleSwapLayout: MediaService.toggleSwapLayout,
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
   };
 })(ExternalVideoContainer);

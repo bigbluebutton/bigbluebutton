@@ -19,13 +19,15 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with PresentationPageCountErrorPubMsgHdlr
   with PresentationUploadedFileTooLargeErrorPubMsgHdlr
   with PresentationUploadTokenReqMsgHdlr
+  with PresentationWithAnnotationsMsgHdlr
   with ResizeAndMovePagePubMsgHdlr
   with SyncGetPresentationPodsMsgHdlr
   with RemovePresentationPodPubMsgHdlr
   with PresentationPageConvertedSysMsgHdlr
   with PresentationPageConversionStartedSysMsgHdlr
   with PresentationConversionEndedSysMsgHdlr
-  with PresentationUploadedFileTimeoutErrorPubMsgHdlr {
+  with PresentationUploadedFileTimeoutErrorPubMsgHdlr
+  with PresentationHasInvalidMimeTypeErrorPubMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

@@ -8,6 +8,7 @@ import { PANELS, ACTIONS } from '../../layout/enums';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+const CANCELED_POLL_DELAY = 250;
 
 const intlMessages = defineMessages({
   quickPollLabel: {
@@ -54,6 +55,7 @@ const QuickPollDropdown = (props) => {
     intl,
     parseCurrentSlideContent,
     startPoll,
+    stopPoll,
     currentSlide,
     activePoll,
     className,
@@ -101,8 +103,13 @@ const QuickPollDropdown = (props) => {
             label={intl.formatMessage(intlMessages.typedRespLabel)}
             key={_.uniqueId('quick-poll-item')}
             onClick={() => {
-              handleClickQuickPoll(_layoutContextDispatch);
-              funcStartPoll(type, slideId, letterAnswers, pollData?.question);
+              if (activePoll) {
+                stopPoll();
+              }
+              setTimeout(() => {
+                handleClickQuickPoll(_layoutContextDispatch);
+                funcStartPoll(type, slideId, letterAnswers, pollData?.question);
+              }, CANCELED_POLL_DELAY);
             }}
             question={pollData?.question}
           />
@@ -142,8 +149,13 @@ const QuickPollDropdown = (props) => {
           label={itemLabel}
           key={_.uniqueId('quick-poll-item')}
           onClick={() => {
-            handleClickQuickPoll(_layoutContextDispatch);
-            funcStartPoll(type, slideId, letterAnswers, pollQuestion, pollData?.multiResp);
+            if (activePoll) {
+              stopPoll();
+            }
+            setTimeout(() => {
+              handleClickQuickPoll(_layoutContextDispatch);
+              funcStartPoll(type, slideId, letterAnswers, pollQuestion, pollData?.multiResp);
+            }, CANCELED_POLL_DELAY);
           }}
           answers={letterAnswers}
           multiResp={pollData?.multiResp}
@@ -191,21 +203,26 @@ const QuickPollDropdown = (props) => {
       label={quickPollLabel}
       tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
       onClick={() => {
-        handleClickQuickPoll(layoutContextDispatch);
-        if (singlePollType === 'R-' || singlePollType === 'TF') {
-          startPoll(singlePollType, currentSlide.id, answers, pollQuestion, multiResponse);
-        } else {
-          startPoll(
-            pollTypes.Custom,
-            currentSlide.id,
-            optionsWithLabels,
-            pollQuestion,
-            multiResponse,
-          );
+        if (activePoll) {
+            stopPoll();
         }
+
+        setTimeout(() => {
+          handleClickQuickPoll(layoutContextDispatch);
+          if (singlePollType === 'R-' || singlePollType === 'TF') {
+            startPoll(singlePollType, currentSlide.id, answers, pollQuestion, multiResponse);
+          } else {
+            startPoll(
+              pollTypes.Custom,
+              currentSlide.id,
+              optionsWithLabels,
+              pollQuestion,
+              multiResponse,
+            );
+          }
+        }, CANCELED_POLL_DELAY);
       }}
       size="lg"
-      disabled={!!activePoll}
       data-test="quickPollBtn"
     />
   );
@@ -221,7 +238,6 @@ const QuickPollDropdown = (props) => {
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => null}
         size="lg"
-        disabled={!!activePoll}
       />
     );
 

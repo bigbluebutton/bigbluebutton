@@ -4,7 +4,7 @@ babel-compiler@7.10.2
 babel-runtime@1.5.1
 base64@1.0.12
 binary-heap@1.0.11
-blaze-tools@1.1.2
+blaze-tools@1.1.3
 boilerplate-generator@1.7.1
 caching-compiler@1.2.2
 caching-html-compiler@1.2.1
@@ -25,7 +25,7 @@ es5-shim@4.8.0
 fetch@0.1.3
 geojson-utils@1.0.11
 hot-code-push@1.0.4
-html-tools@1.1.2
+html-tools@1.1.3
 htmljs@1.1.1
 http@2.0.0
 id-map@1.1.1
@@ -55,7 +55,7 @@ ordered-dict@1.1.0
 promise@0.12.2
 random@1.2.1
 react-fast-refresh@0.2.5
-react-meteor-data@2.4.0
+react-meteor-data@2.5.1
 reactive-dict@1.3.1
 reactive-var@1.0.12
 reload@1.3.1
@@ -65,11 +65,11 @@ routepolicy@1.1.1
 session@1.2.1
 shell-server@0.5.0
 socket-stream-client@0.5.0
-spacebars-compiler@1.3.0
+spacebars-compiler@1.3.1
 standard-minifier-css@1.8.3
 standard-minifier-js@2.8.1
 static-html@1.3.2
-templating-tools@1.2.1
+templating-tools@1.2.2
 tracker@1.3.0
 typescript@4.7.4
 underscore@1.0.11

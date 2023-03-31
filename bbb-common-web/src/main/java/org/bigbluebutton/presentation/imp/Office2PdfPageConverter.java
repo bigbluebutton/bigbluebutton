@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
+import static org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors;
+
 public abstract class Office2PdfPageConverter {
   private static Logger log = LoggerFactory.getLogger(Office2PdfPageConverter.class);
 
@@ -95,6 +97,7 @@ public abstract class Office2PdfPageConverter {
         return false;
       }
     } catch (Exception e) {
+      deleteDirectoryFromFileHandlingErrors(presentationFile);
       Map<String, Object> logData = new HashMap<>();
       logData.put("meetingId", pres.getMeetingId());
       logData.put("presId", pres.getId());

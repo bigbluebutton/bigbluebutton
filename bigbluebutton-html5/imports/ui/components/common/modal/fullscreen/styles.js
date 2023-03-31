@@ -2,16 +2,18 @@ import styled from 'styled-components';
 import Styled from '../base/styles';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
-import { borderSize, smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  borderSize,
+  smPaddingX,
+} from '/imports/ui/stylesheets/styled-components/general';
 import {
   lineHeightComputed,
-  modalTitleFw,
+  headingsFontWeight,
+  fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  colorGrayLighter,
+  colorGrayLightest,
   colorText,
-  colorWhite,
-  colorLink,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const FullscreenModal = styled(Styled.BaseModal)`
@@ -32,7 +34,7 @@ const FullscreenModal = styled(Styled.BaseModal)`
 const Header = styled.header`
   display: flex;
   padding: ${lineHeightComputed} 0;
-  border-bottom: ${borderSize} solid ${colorGrayLighter};
+  border-bottom: ${borderSize} solid ${colorGrayLightest};
 `;
 
 const Title = styled.h1`
@@ -43,7 +45,8 @@ const Title = styled.h1`
   text-overflow: ellipsis;
   flex: 1;
   margin: 0;
-  font-weight: ${modalTitleFw};
+  font-size: ${fontSizeLarger};
+  font-weight: ${headingsFontWeight};
 `;
 
 const Actions = styled.div`
@@ -65,8 +68,6 @@ const DismissButton = styled(Button)`
 
 const ConfirmButton = styled(Button)`
   flex: 0 1 48%;
-  color: ${colorWhite} !important;
-  background-color: ${colorLink} !important;
 
   ${({ popout }) => popout === 'popout' && `
     & > i {

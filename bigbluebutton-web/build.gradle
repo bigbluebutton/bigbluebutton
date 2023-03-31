@@ -62,7 +62,10 @@ dependencies {
   implementation "org.grails:grails-core:5.2.4"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
+
   implementation "org.grails:grails-web-boot:5.2.5"
+  implementation "org.springframework:spring-webmvc:5.3.26"
+
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest:5.2.5"
   implementation "org.grails:grails-plugin-databinding:5.2.4"
@@ -99,9 +102,10 @@ dependencies {
   // https://mvnrepository.com/artifact/commons-fileupload/commons-fileupload
   implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.5'
 
-  implementation "javax.validation:validation-api:2.0.1.Final"
-//  compile "org.hibernate:hibernate-validator:7.0.1.Final"
+  implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
+  implementation 'org.postgresql:postgresql:42.4.3'
+  implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
   console "org.grails:grails-console:5.2.0"
@@ -122,6 +126,8 @@ tasks.named('bootWarMainClassName') {
 
 configurations.implementation {
     exclude group: 'io.micronaut', module: 'micronaut-aop'
+    exclude group: 'com.h2database', module: 'h2'
+    exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
 }
 
 configurations {

@@ -5,12 +5,11 @@ import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
-import BBBMenu from "/imports/ui/components/common/menu/component";
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
-
-const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
+import AppService from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -53,6 +52,11 @@ const intlMessages = defineMessages({
     description: 'Snapshot of current slide label',
     defaultMessage: 'Snapshot of current slide',
   },
+  whiteboardLabel: {
+    id: 'app.shortcut-help.whiteboard',
+    description: 'used for aria whiteboard options button label',
+    defaultMessage: 'Whiteboard',
+  },
 });
 
 const propTypes = {
@@ -60,30 +64,41 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
-  isDropdownOpen: PropTypes.bool,
-  toggleSwapLayout: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
-  screenshotRef: PropTypes.instanceOf(Element),
   meetingName: PropTypes.string,
   isIphone: PropTypes.bool,
+  elementId: PropTypes.string,
+  elementGroup: PropTypes.string,
+  currentElement: PropTypes.string,
+  currentGroup: PropTypes.string,
+  layoutContextDispatch: PropTypes.func.isRequired,
+  isRTL: PropTypes.bool,
+  tldrawAPI: PropTypes.shape({
+    copySvg: PropTypes.func.isRequired,
+    getShapes: PropTypes.func.isRequired,
+    currentPageId: PropTypes.string.isRequired,
+  }),
 };
 
 const defaultProps = {
-  isDropdownOpen: false,
   isIphone: false,
   isFullscreen: false,
+  isRTL: false,
   elementName: '',
   meetingName: '',
   fullscreenRef: null,
-  screenshotRef: null,
+  elementId: '',
+  elementGroup: '',
+  currentElement: '',
+  currentGroup: '',
+  tldrawAPI: null,
 };
 
 const PresentationMenu = (props) => {
   const {
     intl,
-    toggleSwapLayout,
     isFullscreen,
     elementId,
     elementName,
@@ -91,12 +106,12 @@ const PresentationMenu = (props) => {
     currentElement,
     currentGroup,
     fullscreenRef,
-    getScreenshotRef,
+    tldrawAPI,
     handleToggleFullscreen,
     layoutContextDispatch,
     meetingName,
     isIphone,
-    isRTL
+    isRTL,
   } = props;
 
   const [state, setState] = useState({
@@ -149,6 +164,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-fullscreen',
           dataTest: 'presentationFullscreen',
           label: formattedLabel(isFullscreen),
+          icon: isFullscreen ? 'exit_fullscreen' : 'fullscreen',
           onClick: () => {
             handleToggleFullscreen(fullscreenRef);
             const newElement = (elementId === currentElement) ? '' : elementId;
@@ -166,18 +182,6 @@ const PresentationMenu = (props) => {
       );
     }
 
-    if (OLD_MINIMIZE_BUTTON_ENABLED) {
-      menuItems.push(
-        {
-          key: 'list-item-minimize',
-          label: intl.formatMessage(intlMessages.minimizePresentationLabel),
-          onClick: () => {
-            toggleSwapLayout(layoutContextDispatch);
-          },
-        },
-      );
-    }
-
     const { isSafari } = browserInfo;
 
     if (!isSafari) {
@@ -185,8 +189,9 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
-          dataTest: "presentationSnapshot",
-          onClick: () => {
+          dataTest: 'presentationSnapshot',
+          icon: 'video',
+          onClick: async () => {
             setState({
               loading: true,
               hasError: false,
@@ -202,10 +207,24 @@ const PresentationMenu = (props) => {
               },
             });
 
-            toPng(getScreenshotRef(), {
-              width: window.screen.width,
-              height: window.screen.height,
-            }).then((data) => {
+            // This is a workaround to a conflict of the
+            // dark mode's styles and the html-to-image lib.
+            // Issue:
+            //  https://github.com/bubkoo/html-to-image/issues/370
+            const darkThemeState = AppService.isDarkThemeEnabled();
+            AppService.setDarkTheme(false);
+
+            try {
+              const { copySvg, getShapes, currentPageId } = tldrawAPI;
+              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const container = document.createElement('div');
+              container.innerHTML = svgString;
+              const svgElem = container.firstChild;
+              const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+              const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+              const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+
               const anchor = document.createElement('a');
               anchor.href = data;
               anchor.setAttribute(
@@ -218,17 +237,20 @@ const PresentationMenu = (props) => {
                 loading: false,
                 hasError: false,
               });
-            }).catch((error) => {
-              logger.warn({
-                logCode: 'presentation_snapshot_error',
-                extraInfo: error,
-              });
-
+            } catch (e) {
               setState({
                 loading: false,
                 hasError: true,
               });
-            });
+
+              logger.warn({
+                logCode: 'presentation_snapshot_error',
+                extraInfo: e,
+              });
+            } finally {
+              // Workaround
+              AppService.setDarkTheme(darkThemeState);
+            }
           },
         },
       );
@@ -259,37 +281,47 @@ const PresentationMenu = (props) => {
 
   const options = getAvailableOptions();
 
-  if (options.length === 0) return null;
+  if (options.length === 0) {
+    const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
+    if (undoCtrls?.style) {
+      undoCtrls.style = 'padding:0px';
+    }
+    const styleTool = document.getElementById('TD-Styles')?.parentNode;
+    if (styleTool?.style) {
+      styleTool.style = 'right:0px';
+    }
+    return null;
+  }
 
   return (
     <Styled.Right>
-      <BBBMenu 
-        trigger={
+      <BBBMenu
+        trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
             <Styled.DropdownButton
               state={isDropdownOpen ? 'open' : 'closed'}
-              aria-label={intl.formatMessage(intlMessages.optionsLabel)}
+              aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
               data-test="whiteboardOptionsButton"
               onClick={() => {
-                setIsDropdownOpen((isOpen) => !isOpen)
+                setIsDropdownOpen((isOpen) => !isOpen);
               }}
-              >
-                <Styled.ButtonIcon iconName="more" />
+            >
+              <Styled.ButtonIcon iconName="more" />
             </Styled.DropdownButton>
           </TooltipContainer>
-        }
+        )}
         opts={{
-          id: "default-dropdown-menu",
+          id: 'presentation-dropdown-menu',
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
           getContentAnchorEl: null,
-          fullwidth: "true",
+          fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          container: fullscreenRef
+          container: fullscreenRef,
         }}
-        actions={getAvailableOptions()}
+        actions={options}
       />
     </Styled.Right>
   );

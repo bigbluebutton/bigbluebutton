@@ -8,6 +8,7 @@ import AudioService from '../audio/service';
 import VideoService from '../video-provider/service';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import Styled from './styles';
+import { Session } from 'meteor/session';
 
 const intlMessages = defineMessages({
   title: {
@@ -129,6 +130,8 @@ class BreakoutJoinConfirmation extends Component {
         extraInfo: { breakoutURL, isFreeJoin },
       }, 'joining breakout room but redirected to about://blank');
     }
+
+    Session.set('lastBreakoutIdOpened', selectValue);
     window.open(url);
     mountModal(null);
   }
@@ -183,6 +186,7 @@ class BreakoutJoinConfirmation extends Component {
           {
             breakouts.map(({ name, breakoutId }) => (
               <option
+                data-test="roomOption"
                 key={breakoutId}
                 value={breakoutId}
               >

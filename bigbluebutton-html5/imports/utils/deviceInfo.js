@@ -1,6 +1,7 @@
 import Bowser from 'bowser';
 
-const BOWSER_RESULTS = Bowser.parse(window.navigator.userAgent);
+const userAgent = window.navigator.userAgent;
+const BOWSER_RESULTS = Bowser.parse(userAgent);
 
 const isPhone = BOWSER_RESULTS.platform.type === 'mobile';
 // we need a 'hack' to correctly detect ipads with ios > 13
@@ -11,7 +12,7 @@ const osName = BOWSER_RESULTS.os.name;
 const osVersion = BOWSER_RESULTS.os.version;
 const isIos = osName === 'iOS';
 const isMacos = osName === 'macOS';
-const isIphone = !!(window.navigator.userAgent.match(/iPhone/i));
+const isIphone = !!(userAgent.match(/iPhone/i));
 
 const SUPPORTED_IOS_VERSION = 12.2;
 const isIosVersionSupported = () => parseFloat(osVersion) >= SUPPORTED_IOS_VERSION;

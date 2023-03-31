@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
@@ -168,15 +168,19 @@ class NavBar extends Component {
       amIModerator,
       style,
       main,
+      isPinned,
       sidebarNavigation,
+      currentUserId,
     } = this.props;
 
-    const hasNotification = hasUnreadMessages || hasUnreadNotes;
+    const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
 
     const isExpanded = sidebarNavigation.isOpen;
+    const { isPhone } = deviceInfo;
+
 
     const { acs } = this.state;
 
@@ -188,6 +192,7 @@ class NavBar extends Component {
 
     return (
       <Styled.Navbar
+        id="Navbar"
         style={
           main === 'new'
             ? {
@@ -212,7 +217,8 @@ class NavBar extends Component {
               && <Styled.ArrowLeft iconName="left_arrow" />}
             <Styled.NavbarToggleButton
               onClick={this.handleToggleUserList}
-              ghost
+              color={isPhone && isExpanded ? 'primary' : 'dark'}
+              size='md'
               circle
               hideLabel
               data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
@@ -235,7 +241,9 @@ class NavBar extends Component {
             </Styled.PresentationTitle>
             <RecordingIndicator
               mountModal={mountModal}
+              getModal={getModal}
               amIModerator={amIModerator}
+              currentUserId={currentUserId}
             />
           </Styled.Center>
           <Styled.Right>
@@ -254,3 +262,4 @@ class NavBar extends Component {
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
 export default withShortcutHelper(withModalMounter(injectIntl(NavBar)), 'toggleUserList');
+

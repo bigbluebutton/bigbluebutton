@@ -270,7 +270,7 @@ class RedisPubSub {
         }
       }
 
-      if (eventName === 'SendWhiteboardAnnotationEvtMsg') {
+      if (eventName === 'SendWhiteboardAnnotationsEvtMsg') {
         // we need the instanceId in the handler to avoid calling the same upsert on the
         // Annotations collection multiple times
         parsedMessage.core.body.myInstanceId = this.instanceId;

@@ -210,13 +210,26 @@ class JoinHandler extends Component {
         },
       }, 'User successfully went through main.joinRouteHandler');
     } else {
-      const e = new Error(response.message);
-      if (!Session.get('codeError')) Session.set('errorMessageDescription', response.message);
+
+      if(['missingSession','meetingForciblyEnded','notFound'].includes(response.messageKey)) {
+        JoinHandler.setError('410');
+        Session.set('errorMessageDescription', 'meeting_ended');
+      } else if(response.messageKey == "guestDeny") {
+        JoinHandler.setError('401');
+        Session.set('errorMessageDescription', 'guest_deny');
+      } else if(response.messageKey == "maxParticipantsReached") {
+        JoinHandler.setError('401');
+        Session.set('errorMessageDescription', 'max_participants_reason');
+      } else {
+        JoinHandler.setError('401');
+        Session.set('errorMessageDescription', response.message);
+      }
+
       logger.error({
         logCode: 'joinhandler_component_joinroutehandler_error',
         extraInfo: {
           response,
-          error: e,
+          error: new Error(response.message),
         },
       }, 'User faced an error on main.joinRouteHandler.');
     }

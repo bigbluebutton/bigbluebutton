@@ -28,7 +28,7 @@ import com.zaxxer.nuprocess.NuProcessBuilder;
 public class SvgImageCreatorImp implements SvgImageCreator {
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
-    private SwfSlidesGenerationProgressNotifier notifier;
+    private SlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
     private long pathsThreshold;
     private int convPdfToSvgTimeout = 60;
@@ -76,7 +76,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     }
 
     private boolean generateSvgImage(File imagePresentationDir, UploadedPresentation pres, int page)
-            throws InterruptedException, TimeoutException{
+            throws InterruptedException, TimeoutException {
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
         int countOfTimeOut = 0;
@@ -381,8 +381,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         pathsThreshold = threshold;
     }
     
-    public void setSwfSlidesGenerationProgressNotifier(
-        SwfSlidesGenerationProgressNotifier notifier) {
+    public void setSlidesGenerationProgressNotifier(
+        SlidesGenerationProgressNotifier notifier) {
       this.notifier = notifier;
     }
 

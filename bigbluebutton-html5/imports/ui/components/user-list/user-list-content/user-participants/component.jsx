@@ -53,7 +53,7 @@ class UserParticipants extends Component {
     this.state = {
       selectedUser: null,
       isOpen: false,
-      scrollArea: false,
+      scrollArea: null,
     };
 
     this.userRefs = [];
@@ -171,7 +171,7 @@ class UserParticipants extends Component {
   handleClickSelectedUser(event) {
     let selectedUser = null;
     if (event.path) {
-      selectedUser = event.path.find(p => p.className && p.className.includes('participantsList'));
+      selectedUser = event.path.find(p => p.id && p.id.includes('user-'));
     }
     this.setState({ selectedUser });
   }
@@ -180,6 +180,7 @@ class UserParticipants extends Component {
     const { roving } = this.props;
     const { selectedUser, scrollArea } = this.state;
     const usersItemsRef = findDOMNode(scrollArea.firstChild);
+    event.stopPropagation();
     roving(event, this.changeState, usersItemsRef, selectedUser);
   }
 
@@ -195,6 +196,7 @@ class UserParticipants extends Component {
       clearAllEmojiStatus,
       currentUser,
       meetingIsBreakout,
+      isMeetingMuteOnStart,
     } = this.props;
     const { isOpen, scrollArea } = this.state;
 
@@ -214,6 +216,7 @@ class UserParticipants extends Component {
                       users,
                       clearAllEmojiStatus,
                       meetingIsBreakout,
+                      isMeetingMuteOnStart,
                     }}
                     />
                   ) : null

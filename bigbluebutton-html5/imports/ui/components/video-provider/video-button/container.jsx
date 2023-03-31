@@ -16,7 +16,7 @@ const JoinVideoOptionsContainer = (props) => {
     ...restProps
   } = props;
 
-  const mountVideoPreview = (force) => { mountModal(<VideoPreviewContainer forceOpen={force} />); };
+  const mountVideoPreview = (force, props) => { mountModal(<VideoPreviewContainer forceOpen={force} {...(props || {})} />); };
 
   return (
     <JoinVideoButton {...{

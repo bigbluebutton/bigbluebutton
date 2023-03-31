@@ -47,6 +47,9 @@ trait SystemConfiguration {
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
 
+  lazy val transcriptWords = Try(config.getInt("transcript.words")).getOrElse(8)
+  lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)
+
   lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
 
   // Redis server configuration
@@ -70,11 +73,6 @@ trait SystemConfiguration {
   lazy val fromAkkaAppsPresRedisChannel = Try(config.getString("redis.fromAkkaAppsPresRedisChannel")).getOrElse("from-akka-apps-pres-redis-channel")
 
   lazy val fromBbbWebRedisChannel = Try(config.getString("redis.fromBbbWebRedisChannel")).getOrElse("from-bbb-web-redis-channel")
-
-  lazy val toAkkaTranscodeRedisChannel = Try(config.getString("redis.toAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:to-bbb-transcode:system")
-  lazy val fromAkkaTranscodeRedisChannel = Try(config.getString("redis.fromAkkaTranscodeRedisChannel")).getOrElse("bigbluebutton:from-bbb-transcode:system")
-  lazy val toAkkaTranscodeJsonChannel = Try(config.getString("eventBus.toAkkaTranscodeJsonChannel")).getOrElse("to-akka-transcode-json-channel")
-  lazy val fromAkkaTranscodeJsonChannel = Try(config.getString("eventBus.fromAkkaTranscodeJsonChannel")).getOrElse("from-akka-transcode-json-channel")
 
   lazy val analyticsIncludeChat = Try(config.getBoolean("analytics.includeChat")).getOrElse(true)
 

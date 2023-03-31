@@ -40,7 +40,7 @@ const Messages = styled.div`
 
 const SystemMessageChatItem = styled(MessageChatItem)`
   ${({ border }) => border && `
-    background: ${systemMessageBackgroundColor};
+    background-color: ${systemMessageBackgroundColor};
     border: 1px solid ${systemMessageBorderColor};
     border-radius: ${borderRadius};
     font-weight: ${btnFontWeight};
@@ -146,6 +146,7 @@ const Offline = styled.span`
   font-size: 90%;
   line-height: 1;
   align-self: center;
+  user-select: none;
 `;
 
 const Time = styled.time`
@@ -173,12 +174,6 @@ const ChatItem = styled(MessageChatItem)`
   color: ${colorText};
   word-wrap: break-word;
 
-  ${({ hasLink }) => hasLink && `
-    & > a {
-      color: ${colorPrimary};
-    }
-  `}
-
   ${({ emphasizedMessage }) => emphasizedMessage && `
     font-weight: bold;
   `}
@@ -195,12 +190,38 @@ const PollMessageChatItem = styled(MessageChatItem)`
   color: ${colorText};
   word-wrap: break-word;
 
-  background: ${systemMessageBackgroundColor};
+  background-color: ${systemMessageBackgroundColor};
   border: solid 1px ${colorGrayLighter};
   border-radius: ${borderRadius};
   padding: ${chatPollMarginSm};
   padding-left: 1rem;
   margin-top: ${chatPollMarginSm} !important;
+`;
+
+const PresentationWrapper = styled(Wrapper)`
+  display: flex;
+  flex-flow: row;
+  flex: 1;
+  position: relative;
+  margin: ${borderSize} 0 0 ${borderSize};
+  border-left: 2px solid ${colorPrimary};
+  border-radius: 2px;
+  padding: 6px 0 6px 6px;
+  background-color: ${systemMessageBackgroundColor};
+
+  [dir="rtl"] & {
+    margin: ${borderSize} ${borderSize} 0 0;
+    border-right: 2px solid ${colorPrimary};
+    border-left: none;
+  }
+`;
+
+const PresentationChatItem = styled(MessageChatItem)`
+  flex: 1;
+  margin-top: ${chatPollMarginSm};
+  margin-bottom: 0;
+  color: ${colorText};
+  word-wrap: break-word;
 `;
 
 export default {
@@ -217,4 +238,6 @@ export default {
   ChatItem,
   PollIcon,
   PollMessageChatItem,
+  PresentationChatItem,
+  PresentationWrapper,
 };
