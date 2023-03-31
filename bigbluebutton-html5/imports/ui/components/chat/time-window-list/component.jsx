@@ -329,7 +329,6 @@ class TimeWindowList extends PureComponent {
           }}
           key="chat-list"
           data-test="chatMessages"
-          aria-live="polite"
           ref={node => this.messageListWrapper = node}
           onCopy={(e) => { e.stopPropagation(); }}
         >
