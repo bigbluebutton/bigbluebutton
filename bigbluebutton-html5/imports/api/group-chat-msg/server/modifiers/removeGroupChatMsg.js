@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import GroupChatMsg from '/imports/api/group-chat-msg';
 
-export default function removeGroupChatMsg(meetingId, chatId) {
+export default async function removeGroupChatMsg(meetingId, chatId) {
   check(meetingId, String);
   check(chatId, String);
 
@@ -12,7 +12,7 @@ export default function removeGroupChatMsg(meetingId, chatId) {
   };
 
   try {
-    const numberAffected = GroupChatMsg.remove(selector);
+    const numberAffected = await GroupChatMsg.removeAsync(selector);
 
     if (numberAffected) {
       Logger.info(`Removed group-chat-msg id=${chatId} meeting=${meetingId}`);

@@ -7,7 +7,7 @@ import Presentations from '/imports/api/presentations';
 
 const EXPORTING_THRESHOLD_PER_SLIDE = 2500;
 
-export default function exportPresentationToChat(presentationId) {
+export default async function exportPresentationToChat(presentationId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'MakePresentationWithAnnotationDownloadReqMsg';
@@ -25,12 +25,12 @@ export default function exportPresentationToChat(presentationId) {
       pages: [],
     };
 
-    const setObserver = () => {
+    const setObserver = async () => {
       let timeoutRef = null;
 
       const selector = { meetingId, id: presentationId };
       const cursor = Presentations.find(selector);
-      const numPages = cursor.fetch()[0]?.pages?.length ?? 1;
+      const numPages = await cursor.fetchAsync()[0]?.pages?.length ?? 1;
       const threshold = EXPORTING_THRESHOLD_PER_SLIDE * numPages;
 
       const observer = cursor.observe({
@@ -43,14 +43,14 @@ export default function exportPresentationToChat(presentationId) {
         },
       });
 
-      timeoutRef = Meteor.setTimeout(() => {
+      timeoutRef = Meteor.setTimeout(async () => {
         observer.stop();
-        setPresentationExporting(meetingId, presentationId, { status: 'TIMEOUT' });
+        await setPresentationExporting(meetingId, presentationId, { status: 'TIMEOUT' });
       }, threshold);
     };
 
-    setPresentationExporting(meetingId, presentationId, { status: 'RUNNING' });
-    setObserver();
+    await setPresentationExporting(meetingId, presentationId, { status: 'RUNNING' });
+    await setObserver();
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {

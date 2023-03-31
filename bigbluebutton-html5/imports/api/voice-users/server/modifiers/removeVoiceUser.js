@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
 import { clearSpokeTimeout } from '/imports/api/common/server/helpers';
 
-export default function removeVoiceUser(meetingId, voiceUser) {
+export default async function removeVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, {
     voiceConf: String,
@@ -29,8 +29,8 @@ export default function removeVoiceUser(meetingId, voiceUser) {
   };
 
   try {
-    clearSpokeTimeout(meetingId, intId);
-    const numberAffected = VoiceUsers.update(selector, modifier);
+    await clearSpokeTimeout(meetingId, intId);
+    const numberAffected = await VoiceUsers.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Remove voiceUser=${intId} meeting=${meetingId}`);

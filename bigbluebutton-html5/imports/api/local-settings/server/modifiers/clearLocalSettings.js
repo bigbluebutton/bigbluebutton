@@ -1,9 +1,9 @@
 import LocalSettings from '/imports/api/local-settings';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearLocalSettings(meetingId) {
+export default async function clearLocalSettings(meetingId) {
   try {
-    const numberAffected = LocalSettings.remove({ meetingId });
+    const numberAffected = await LocalSettings.removeAsync({ meetingId });
 
     if (numberAffected) {
       Logger.info(`Cleared Local Settings (${meetingId})`);
