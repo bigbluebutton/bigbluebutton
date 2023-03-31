@@ -97,10 +97,30 @@ const config = {
                 },
                 items: [
                     {to: 'https://bigbluebutton.org/teachers/tutorials/', label: 'Teaching', position: 'left'},
-                    {to: '/development/guide', label: 'Development', position: 'left'},
-                    {to: '/administration/install', label: 'Administration', position: 'left'},
-                    {to: '/greenlight/v2/overview', label: 'Greenlight', position: 'left'},
-                    {to: '/new-features', label: 'New Features', position: 'left'},
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'development/guide',
+                        label: 'Development',
+                    },
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'administration/install',
+                        label: 'Administration',
+                    },
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'greenlight/v2/overview',
+                        label: 'Greenlight',
+                    },
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'new-features',
+                        label: 'New Features',
+                    },
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',
