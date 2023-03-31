@@ -69,5 +69,8 @@ export default withTracker(({ amIPresenter }) => {
     resetPollPanel: Session.get('resetPollPanel') || false,
     pollAnswerIds: Service.pollAnswerIds,
     isMeteorConnected: Meteor.status().connected,
+    validateInput: Service.validateInput,
+    removeEmptyLineSpaces: Service.removeEmptyLineSpaces,
+    getSplittedQuestionAndOptions: Service.getSplittedQuestionAndOptions,
   };
 })(PollContainer);

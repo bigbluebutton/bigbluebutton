@@ -1,6 +1,7 @@
 [Unit]
 Description=LibreOffice
 After=network.target
+PartOf=bigbluebutton.target
 
 [Service]
 Type=simple
@@ -12,5 +13,4 @@ MemoryLimit=1G
 CPUQuota=20%
 
 [Install]
-WantedBy=multi-user.target
-
+WantedBy=multi-user.target bigbluebutton.target

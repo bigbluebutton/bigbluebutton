@@ -141,12 +141,15 @@ const VideoFocusLayout = (props) => {
             },
             screenShare: {
               hasScreenShare: input.screenShare.hasScreenShare,
+              width: input.screenShare.width,
+              height: input.screenShare.height,
             },
           },
           INITIAL_INPUT_STATE,
         ),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 
@@ -438,6 +441,7 @@ const VideoFocusLayout = (props) => {
           left: false,
         },
         zIndex: cameraDockBounds.zIndex,
+        focusedId: input.cameraDock.focusedId,
       },
     });
 
@@ -480,6 +484,17 @@ const VideoFocusLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: isRTL ? mediaBounds.right : null,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: mediaBounds.width,
         height: mediaBounds.height,

@@ -4,6 +4,9 @@ import {
   colorOffWhite,
   colorBlueLightest,
   toolbarButtonColor,
+  colorDanger,
+  colorWhite,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   whiteboardToolbarMargin,
@@ -11,19 +14,23 @@ import {
   whiteboardToolbarPadding,
   borderSize,
   smPaddingY,
+  borderSizeLarge,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
 
 const PresentationToolbarWrapper = styled.div`
-  position: relative;
+  position: absolute;
   align-self: center;
   z-index: 1;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   min-width: fit-content;
   width: 100%;
+  bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  padding: 2px;
 
   select {
     &:-moz-focusring {
@@ -66,7 +73,6 @@ const QuickPollButton = styled(QuickPollDropdownContainer)`
 
   &:focus {
     background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -77,7 +83,6 @@ const PresentationSlideControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   & > button {
     padding: ${whiteboardToolbarPadding};
@@ -85,10 +90,9 @@ const PresentationSlideControls = styled.div`
 `;
 
 const PrevSlideButton = styled(Button)`
-  border: none !important;
-
   i {
     font-size: 1rem;
+    padding-left: 20%;
 
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
@@ -97,27 +101,14 @@ const PrevSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
 const NextSlideButton = styled(Button)`
-  border: none !important;
-
-  & > i {
+  i {
     font-size: 1rem;
-
+    padding-left: 60%;
+    
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
       -moz-transform: scale(-1, 1);
@@ -125,18 +116,6 @@ const NextSlideButton = styled(Button)`
       -o-transform: scale(-1, 1);
       transform: scale(-1, 1);
     }
-  }
-
-  position: relative;
-  color: ${toolbarButtonColor};
-  background-color: ${colorOffWhite};
-  border-radius: 0;
-  box-shadow: none !important;
-  border: 0;
-
-  &:focus {
-    background-color: ${colorOffWhite};
-    border: 0;
   }
 `;
 
@@ -153,17 +132,19 @@ const SkipSlideSelect = styled.select`
   &:-moz-focusring {
     outline: none;
   }
-  
+
+  &:focus,
   &:hover {
     outline: transparent;
     outline-style: dotted;
     outline-width: ${borderSize};
+    background-color: #DCE4EC;
+    border-radius: 4px;
   }
 
   &:focus {
-    outline: transparent;
-    outline-width: ${borderSize};
     outline-style: solid;
+    box-shadow: 0 0 0 1px #cdd6e0 !important;
   }
 `;
 
@@ -178,7 +159,6 @@ const PresentationZoomControls = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-radius: 0;
 
   button {
     padding: ${whiteboardToolbarPadding};
@@ -218,6 +198,79 @@ const FitToWidthButton = styled(Button)`
     background-color: ${colorOffWhite};
     border: 0;
   }
+
+  ${({ panning }) => panning && `
+    > span {
+      background-color: #DCE4EC;
+    }
+  `}
+`;
+
+const MultiUserTool = styled.span`
+  background-color: ${colorDanger};
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+  z-index: 2;
+  bottom: 0.5rem;
+  color: ${colorWhite};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 1px 1px ${borderSizeLarge} ${colorGrayDark};
+  font-size: ${smPaddingX};
+
+  [dir="ltr"] & {
+    right: 1rem;
+  }
+
+  [dir="rtl"] & {
+    left: 1rem;
+  }
+`;
+
+const MUTPlaceholder = styled.div`
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+  bottom: 0.5rem;
+
+  [dir="ltr"] & {
+    right: 1rem;
+  }
+
+  [dir="rtl"] & {
+    left: 1rem;
+  }
+`;
+
+const WBAccessButton = styled(Button)`
+  border: none !important;
+
+  i {
+    font-size: 1.2rem;
+
+    [dir="rtl"] & {
+      -webkit-transform: scale(-1, 1);
+      -moz-transform: scale(-1, 1);
+      -ms-transform: scale(-1, 1);
+      -o-transform: scale(-1, 1);
+      transform: scale(-1, 1);
+    }
+  }
+
+  position: relative;
+  color: ${toolbarButtonColor};
+  background-color: ${colorOffWhite};
+  border-radius: 0;
+  box-shadow: none !important;
+  border: 0;
+
+  &:focus {
+    background-color: ${colorOffWhite};
+    border: 0;
+  }
 `;
 
 export default {
@@ -229,4 +282,7 @@ export default {
   SkipSlideSelect,
   PresentationZoomControls,
   FitToWidthButton,
+  MultiUserTool,
+  WBAccessButton,
+  MUTPlaceholder,
 };

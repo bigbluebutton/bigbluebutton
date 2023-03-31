@@ -1,10 +1,6 @@
 import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
-import MediaService, {
-  getSwapLayout,
-  shouldEnableSwapLayout,
-} from '/imports/ui/components/media/service';
 import {
   isVideoBroadcasting,
   isGloballyBroadcasting,
@@ -14,6 +10,7 @@ import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/cont
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { shouldEnableVolumeControl } from './service';
+import MediaService from '/imports/ui/components/media/service';
 
 const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
@@ -50,11 +47,11 @@ const ScreenshareContainer = (props) => {
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 
-export default withTracker(() => ({
-  isGloballyBroadcasting: isGloballyBroadcasting(),
-  getSwapLayout,
-  shouldEnableSwapLayout,
-  toggleSwapLayout: MediaService.toggleSwapLayout,
-  hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
-  enableVolumeControl: shouldEnableVolumeControl(),
-}))(ScreenshareContainer);
+export default withTracker(() => {
+  return {
+    isGloballyBroadcasting: isGloballyBroadcasting(),
+    toggleSwapLayout: MediaService.toggleSwapLayout,
+    hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
+    enableVolumeControl: shouldEnableVolumeControl(),
+  };
+})(ScreenshareContainer);

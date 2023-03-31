@@ -6,14 +6,16 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceUsers from '/imports/api/voice-users';
 import RecordIndicator from './component';
 import deviceInfo from '/imports/utils/deviceInfo';
+import RecordingIndicatorService from './service';
 
-const RecordIndicatorContainer = props => (
+const RecordIndicatorContainer = (props) => (
   <RecordIndicator {...props} />
 );
 
-export default withTracker(() => {
+export default withTracker(({ currentUserId }) => {
   const meetingId = Auth.meetingID;
-  const recordObeject = RecordMeetings.findOne({ meetingId });
+  const recordObject = RecordMeetings.findOne({ meetingId });
+  const recordSetByUser = recordObject?.setBy === currentUserId;
 
   const micUser = VoiceUsers.findOne({ meetingId, joined: true, listenOnly: false }, {
     fields: {
@@ -22,13 +24,14 @@ export default withTracker(() => {
   });
 
   return {
-    allowStartStopRecording: !!(recordObeject && recordObeject.allowStartStopRecording),
-    autoStartRecording: recordObeject && recordObeject.autoStartRecording,
-    record: recordObeject && recordObeject.record,
-    recording: recordObeject && recordObeject.recording,
-    time: recordObeject && recordObeject.time,
+    allowStartStopRecording: !!(recordObject && recordObject.allowStartStopRecording),
+    autoStartRecording: recordObject && recordObject.autoStartRecording,
+    record: recordObject && recordObject.record,
+    recording: recordObject && recordObject.recording,
+    time: recordObject && recordObject.time,
     notify,
     micUser,
     isPhone: deviceInfo.isPhone,
+    recordingNotificationEnabled: !recordSetByUser && RecordingIndicatorService.isRecordingNotificationEnabled(),
   };
 })(RecordIndicatorContainer);

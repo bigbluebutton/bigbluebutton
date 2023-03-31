@@ -8,6 +8,11 @@ if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
   ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
 fi
 
+# This config file was renamed, remove from old path if exists
+if [ -f /etc/nginx/conf.d/html5-conn-limit.conf ]; then
+  rm -r /etc/nginx/conf.d/html5-conn-limit.conf
+fi
+
 cd /usr/share/meteor
 
 # meteor code should be owned by root, config file by meteor user
@@ -54,22 +59,6 @@ if [ -f /etc/systemd/system/mongod.service.d/override-mongo.conf ] \
   rm -f /usr/lib/systemd/system/mongod.service.d/mongod-service-override.conf 
   systemctl daemon-reload
 fi
-
-source /etc/lsb-release
-
-# Set up specific version of node
-if [ "$DISTRIB_CODENAME" == "focal" ]; then
-  node_version="14.21.2"
-  if [[ ! -d /usr/share/node-v${node_version}-linux-x64 ]]; then
-    cd /usr/share
-    tar xfz "node-v${node_version}-linux-x64.tar.gz"
-  fi
-  node_owner=$(stat -c %U:%G "/usr/share/node-v${node_version}-linux-x64")
-  if [[ $node_owner != root:root ]] ; then
-    chown -R root:root "/usr/share/node-v${node_version}-linux-x64"
-  fi
-fi
-
 
 # Enable Listen Only support in FreeSWITCH
 if [ -f /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml ]; then

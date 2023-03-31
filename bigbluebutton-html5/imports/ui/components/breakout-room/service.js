@@ -6,7 +6,7 @@ import Users from '/imports/api/users';
 import UserListService from '/imports/ui/components/user-list/service';
 import fp from 'lodash/fp';
 import UsersPersistentData from '/imports/api/users-persistent-data';
-import BreakoutsHistory from '/imports/api/breakouts-history';
+import { UploadingPresentations } from '/imports/api/presentations';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -37,7 +37,44 @@ const getBreakoutRoomUrl = (breakoutId) => {
   return breakoutUrlData;
 };
 
+const upsertCapturedContent = (filename, temporaryPresentationId) => {
+  UploadingPresentations.upsert({
+    temporaryPresentationId,
+  }, {
+    $set: {
+      id: temporaryPresentationId,
+      temporaryPresentationId,
+      progress: 0,
+      filename,
+      lastModifiedUploader: false,
+      upload: {
+        done: false,
+        error: false,
+      },
+      uploadTimestamp: new Date(),
+      renderedInToast: false,
+    },
+  });
+};
+
+const setCapturedContentUploading = () => {
+  const breakoutRooms = findBreakouts();
+  breakoutRooms.forEach((breakout) => {
+    const filename = breakout.shortName;
+    const temporaryPresentationId = breakout.breakoutId;
+
+    if (breakout.captureNotes) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-notes`);
+    }
+
+    if (breakout.captureSlides) {
+      upsertCapturedContent(filename, `${temporaryPresentationId}-slides`);
+    }
+  });
+};
+
 const endAllBreakouts = () => {
+  setCapturedContentUploading();
   makeCall('endAllBreakouts');
 };
 
@@ -86,15 +123,6 @@ const sendMessageToAllBreakouts = (msg) => {
   return true;
 };
 
-const getUserMessagesToAllBreakouts = () => {
-  const breakoutHistory = BreakoutsHistory.findOne(
-    { meetingId: Auth.meetingID },
-    { fields: { broadcastMsgs: 1 } },
-  ) || {};
-
-  return (breakoutHistory.broadcastMsgs || []).filter((msg) => msg.senderId === Auth.userID);
-};
-
 const transferUserToMeeting = (fromMeetingId, toMeetingId) =>
   makeCall('transferUser', fromMeetingId, toMeetingId);
 
@@ -132,26 +160,27 @@ const checkInviteModerators = () => {
 const getBreakoutByUserId = (userId) =>
   Breakouts.find(
     { [`url_${userId}`]: { $exists: true } },
-    { fields: { timeRemaining: 0 } }
+    { fields: { timeRemaining: 0 } },
   ).fetch();
 
-const getBreakoutByUrlData = (breakoutUrlData) =>
-  Breakouts.findOne({ [`url_${Auth.userID}`]: breakoutUrlData });
+const getWithBreakoutUrlData = (userId) => (breakoutsArray) => breakoutsArray
+  .map((breakout) => {
+    if (typeof breakout[`url_${userId}`] === 'object') {
+      return Object.assign(breakout, { breakoutUrlData: breakout[`url_${userId}`] });
+    }
+    return Object.assign(breakout, { breakoutUrlData: { insertedTime: 0 } });
+  })
+  .reduce((acc, urlDataArray) => acc.concat(urlDataArray), []);
 
-const getUrlFromBreakouts = (userId) => (breakoutsArray) =>
-  breakoutsArray
-    .map((breakout) => breakout[`url_${userId}`])
-    .reduce((acc, urlDataArray) => acc.concat(urlDataArray), []);
+const getLastBreakoutInserted = (breakoutURLArray) => breakoutURLArray.sort((a, b) => {
+  return a.breakoutUrlData.insertedTime - b.breakoutUrlData.insertedTime;
+}).pop();
 
-const getLastURLInserted = (breakoutURLArray) =>
-  breakoutURLArray.sort((a, b) => a.insertedTime - b.insertedTime).pop();
-
-const getBreakoutUrlByUserId = (userId) =>
-  fp.pipe(
-    getBreakoutByUserId,
-    getUrlFromBreakouts(userId),
-    getLastURLInserted
-  )(userId);
+const getLastBreakoutByUserId = (userId) => fp.pipe(
+  getBreakoutByUserId,
+  getWithBreakoutUrlData(userId),
+  getLastBreakoutInserted,
+)(userId);
 
 const getBreakouts = () =>
   Breakouts.find({}, { sort: { sequence: 1 } }).fetch();
@@ -208,7 +237,6 @@ export default {
   endAllBreakouts,
   setBreakoutsTime,
   sendMessageToAllBreakouts,
-  getUserMessagesToAllBreakouts,
   isNewTimeHigherThanMeetingRemaining,
   requestJoinURL,
   getBreakoutRoomUrl,
@@ -216,8 +244,7 @@ export default {
   transferToBreakout,
   meetingId: () => Auth.meetingID,
   amIModerator,
-  getBreakoutUrlByUserId,
-  getBreakoutByUrlData,
+  getLastBreakoutByUserId,
   getBreakouts,
   getBreakoutsNoTime,
   getBreakoutUserIsIn,
@@ -225,4 +252,5 @@ export default {
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
   checkInviteModerators,
+  setCapturedContentUploading,
 };

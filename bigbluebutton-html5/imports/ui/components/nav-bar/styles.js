@@ -5,9 +5,10 @@ import {
   colorWhite,
   colorDanger,
   colorGrayDark,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import { phoneLandscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 
 const Navbar = styled.header`
@@ -16,6 +17,7 @@ const Navbar = styled.header`
   flex-direction: column;
   text-align: center;
   font-size: 1.5rem;
+  background-color: ${colorBackground};
   padding: ${barsPadding} ${barsPadding} 0 ${barsPadding};
 `;
 
@@ -37,6 +39,9 @@ const ArrowLeft = styled(Icon)`
   font-size: 40%;
   color: ${colorWhite};
   left: .25rem;
+  @media ${smallOnly} {
+    display: none;
+  }
 `;
 
 const ArrowRight = styled(Icon)`
@@ -44,6 +49,9 @@ const ArrowRight = styled(Icon)`
   font-size: 40%;
   color: ${colorWhite};
   right: .0125rem;
+  @media ${smallOnly} {
+    display: none;
+  }
 `;
 
 const Center = styled.div`
@@ -90,17 +98,7 @@ const Bottom = styled.div`
 
 const NavbarToggleButton = styled(Button)`
   margin: 0;
-
   z-index: 3;
-
-  &:hover,
-  &:focus {
-    span {
-      background-color: transparent !important;
-      color: ${colorWhite} !important;
-      opacity: .75;
-    }
-  }
 
   ${({ hasNotification }) => hasNotification && `
     position: relative;

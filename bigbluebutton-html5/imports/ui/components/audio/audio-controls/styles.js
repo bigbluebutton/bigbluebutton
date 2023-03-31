@@ -16,18 +16,9 @@ const pulse = keyframes`
   }
 `;
 
-const AudioControlsButton = styled(Button)`
-  span {
-    box-shadow: none;
-    background-color: transparent !important;
-    border-color: ${colorWhite} !important;
-  }
-`;
-
 const LeaveButtonWithoutLiveStreamSelector = styled(Button)`
   ${({ ghost }) => ghost && `
     span {
-      box-shadow: none;
       background-color: transparent !important;
       border-color: ${colorWhite} !important;
     }
@@ -53,7 +44,6 @@ const MuteToggleButton = styled(Button)`
 
   ${({ ghost }) => ghost && `
     span {
-      box-shadow: none;
       background-color: transparent !important;
       border-color: ${colorWhite} !important;
     }
@@ -106,7 +96,6 @@ const Container = styled.span`
 `;
 
 export default {
-  AudioControlsButton,
   LeaveButtonWithoutLiveStreamSelector,
   MuteToggleButton,
   Container,

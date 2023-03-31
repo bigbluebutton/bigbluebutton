@@ -16,6 +16,7 @@ const propTypes = {
   color: PropTypes.string,
   emoji: PropTypes.bool,
   avatar: PropTypes.string,
+  className: PropTypes.string,
   isSkeleton: PropTypes.bool,
 };
 
@@ -31,6 +32,7 @@ const defaultProps = {
   color: '#000',
   emoji: false,
   avatar: '',
+  className: '',
   isSkeleton: false,
 };
 
@@ -41,6 +43,7 @@ const UserAvatar = ({
   children,
   moderator,
   presenter,
+  className,
   talking,
   muted,
   listenOnly,
@@ -61,6 +64,7 @@ const UserAvatar = ({
         data-test={moderator ? 'moderatorAvatar' : 'viewerAvatar'}
         moderator={moderator}
         presenter={presenter}
+        className={className}
         whiteboardAccess={whiteboardAccess && !presenter}
         muted={muted}
         listenOnly={listenOnly}

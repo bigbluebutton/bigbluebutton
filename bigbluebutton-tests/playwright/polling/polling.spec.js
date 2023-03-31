@@ -9,14 +9,14 @@ test.describe.parallel('Polling', () => {
       await polling.createPoll();
     });
 
-    // https://docs.bigbluebutton.org/2.5/release-tests.html#start-an-anonymous-poll-automated
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#start-an-anonymous-poll-automated
     test('Create anonymous poll @ci', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
       await polling.pollAnonymous();
     });
 
-    // https://docs.bigbluebutton.org/2.5/release-tests.html#quick-poll-option-automated
+    // https://docs.bigbluebutton.org/2.6/release-tests.html#quick-poll-option-automated
     test('Create quick poll - from the slide', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
@@ -39,6 +39,30 @@ test.describe.parallel('Polling', () => {
       const polling = new Polling(browser, context);
       await polling.initPages(page);
       await polling.manageResponseChoices();
+    });
+
+    test('Not able to start new poll without presentation', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.notAbleStartNewPollWithoutPresentation();
+    });
+
+    test('Custom input', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.customInput();
+    });
+
+    test('Allow multiple choices', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.allowMultipleChoices();
+    });
+
+    test('Smart slides questions', async ({ browser, context, page }) => {
+      const polling = new Polling(browser, context);
+      await polling.initPages(page);
+      await polling.smartSlidesQuestions();
     });
   });
 

@@ -3,6 +3,7 @@ import {
   borderSize,
   borderSizeLarge,
   borderSizeSmall,
+  smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   userThumbnailBorder,
@@ -13,18 +14,30 @@ import {
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 
 const VirtualBackgroundRowThumbnail = styled.div`
   margin-top: 0.4rem;
 `;
 
-const BgWrapper = styled.div`
+const BgWrapper = styled(ScrollboxVertical)`
   display: flex;
   justify-content: flex-start;
   overflow-x: auto;
   margin: ${borderSizeLarge};
   padding: ${borderSizeLarge};
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    height: 15rem;
+    flex-wrap: wrap;
+    align-content: flex-start;
+  `}
+
+  ${({ brightnessEnabled, isVisualEffects }) => brightnessEnabled && isVisualEffects && `
+    height: 10rem;
+  `}
 `;
 
 const BgNoneButton = styled(Button)`
@@ -32,8 +45,12 @@ const BgNoneButton = styled(Button)`
   height: 48px;
   width: 48px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  margin: 0 0.15em;
+  margin: 0 0.15rem;
   flex-shrink: 0;
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    margin: 0.15rem;
+  `}
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -49,7 +66,6 @@ const ThumbnailButton = styled(Button)`
   z-index: 1;
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
-  margin: 0 0.15em;
   flex-shrink: 0;
 
   & + img {
@@ -70,15 +86,16 @@ const ThumbnailButton = styled(Button)`
       filter: grayscale(1);
     }
   `}
-`;
 
-const Thumbnail = styled.img`
-  position: absolute;
-  cursor: pointer;
-  width: 47px;
-  height: 47px;
-  top: 0.063rem;
-  left: 0.188rem;
+  ${({ background }) => background && `
+    background-image: url(${background});
+    background-size: 46px 46px;
+    background-origin: padding-box;
+
+    &:active {
+      background-image: url(${background});
+    }
+  `}
 `;
 
 const Select = styled.select`
@@ -112,12 +129,52 @@ const Label = styled.label`
   color: ${colorGrayLabel};
 `;
 
+const ThumbnailButtonWrapper = styled.div`
+  position: relative;
+  margin: 0 0.15rem;
+
+  ${({ isVisualEffects }) => isVisualEffects && `
+    margin: 0.15rem;
+  `}
+`;
+
+const ButtonWrapper = styled.div`
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  top: 0;
+`;
+
+const ButtonRemove = styled(Button)`
+  span {
+    font-size: ${fontSizeSmallest};
+    padding: ${smPaddingY};
+  }
+`;
+
+const BgCustomButton = styled(BgNoneButton)``;
+
+const SkeletonWrapper = styled.div`
+  flex-basis: 0 0 48px;
+  margin: 0 0.15rem;
+  height: 48px;
+
+  & .react-loading-skeleton {    
+    height: 48px;
+    width: 48px;
+  }
+`;
+
 export default {
   VirtualBackgroundRowThumbnail,
   BgWrapper,
   BgNoneButton,
   ThumbnailButton,
-  Thumbnail,
   Select,
   Label,
+  ThumbnailButtonWrapper,
+  ButtonWrapper,
+  ButtonRemove,
+  BgCustomButton,
+  SkeletonWrapper,
 };

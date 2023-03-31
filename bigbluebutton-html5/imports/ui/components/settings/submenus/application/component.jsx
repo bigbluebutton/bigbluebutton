@@ -6,9 +6,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { ACTIONS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
-import { isLayoutsEnabled } from '/imports/ui/services/features';
 
 const MIN_FONTSIZE = 0;
 const SHOW_AUDIO_FILTERS = (Meteor.settings.public.app
@@ -29,6 +28,10 @@ const intlMessages = defineMessages({
   audioFilterLabel: {
     id: 'app.submenu.application.audioFilterLabel',
     description: 'audio filters label',
+  },
+  darkThemeLabel: {
+    id: 'app.submenu.application.darkThemeLabel',
+    description: 'dark mode label',
   },
   fontSizeControlLabel: {
     id: 'app.submenu.application.fontSizeControlLabel',
@@ -73,6 +76,10 @@ const intlMessages = defineMessages({
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
+  },
+  pushLayoutLabel: {
+    id: 'app.submenu.application.pushLayoutLabel',
+    description: 'push layout togle',
   },
   customLayout: {
     id: 'app.layout.style.custom',
@@ -276,7 +283,7 @@ class ApplicationMenu extends BaseMenu {
                 icons={false}
                 defaultChecked={this.state.audioFilterEnabled}
                 onChange={() => this.handleAudioFilterChange()}
-                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                ariaLabel={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
                 showToggleLabel={showToggleLabel}
               />
             </Styled.FormElementRight>
@@ -312,7 +319,7 @@ class ApplicationMenu extends BaseMenu {
               icons={false}
               defaultChecked={settings.paginationEnabled}
               onChange={() => this.handleToggle('paginationEnabled')}
-              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+              ariaLabel={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
               showToggleLabel={showToggleLabel}
             />
           </Styled.FormElementRight>
@@ -321,46 +328,37 @@ class ApplicationMenu extends BaseMenu {
     );
   }
 
-  renderChangeLayout() {
-    const { intl, isModerator } = this.props;
+  renderDarkThemeToggle() {
+    const { intl, showToggleLabel, displaySettingsStatus } = this.props;
     const { settings } = this.state;
 
-    if (isModerator) {
-      const pushLayouts = {
-        CUSTOM_PUSH: 'customPush',
-        SMART_PUSH: 'smartPush',
-        PRESENTATION_FOCUS_PUSH: 'presentationFocusPush',
-        VIDEO_FOCUS_PUSH: 'videoFocusPush',
-      };
-      Object.assign(LAYOUT_TYPE, pushLayouts);
-    }
+    const isDarkThemeEnabled = Meteor.settings.public.app.darkTheme.enabled;
+    if (!isDarkThemeEnabled) return null;
 
     return (
-      <>
-        <Styled.Row>
-          <Styled.Col>
-            <Styled.FormElement>
-              <Styled.Label htmlFor="layoutList">
-                {intl.formatMessage(intlMessages.layoutOptionLabel)}
-              </Styled.Label>
-            </Styled.FormElement>
-          </Styled.Col>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              <Styled.Select
-                onChange={(e) => this.handleSelectChange('selectedLayout', e)}
-                id="layoutList"
-                value={settings.selectedLayout}
-              >
-                {
-                  Object.values(LAYOUT_TYPE)
-                    .map((layout) => <option key={layout} value={layout}>{intl.formatMessage(intlMessages[`${layout}Layout`])}</option>)
-                }
-              </Styled.Select>
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
-      </>
+      <Styled.Row>
+        <Styled.Col aria-hidden="true">
+          <Styled.FormElement>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <Styled.Label>
+              {intl.formatMessage(intlMessages.darkThemeLabel)}
+            </Styled.Label>
+          </Styled.FormElement>
+        </Styled.Col>
+        <Styled.Col>
+          <Styled.FormElementRight>
+            {displaySettingsStatus(settings.darkTheme)}
+            <Toggle
+              icons={false}
+              defaultChecked={settings.darkTheme}
+              onChange={() => this.handleToggle('darkTheme')}
+              showToggleLabel={showToggleLabel}
+              ariaLabel={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
+              data-test="darkModeToggleBtn"
+            />
+          </Styled.FormElementRight>
+        </Styled.Col>
+      </Styled.Row>
     );
   }
 
@@ -411,7 +409,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.animations}
                   onChange={() => this.handleToggle('animations')}
-                  ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                  ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
@@ -420,14 +418,12 @@ class ApplicationMenu extends BaseMenu {
 
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
+          {this.renderDarkThemeToggle()}
 
           <Styled.Row>
             <Styled.Col>
               <Styled.FormElement>
-                <Styled.Label
-                  htmlFor="langSelector"
-                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
-                >
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </Styled.Label>
               </Styled.FormElement>
@@ -441,6 +437,7 @@ class ApplicationMenu extends BaseMenu {
                       handleChange={(e) => this.handleSelectChange('locale', e)}
                       value={settings.locale}
                       elementId="langSelector"
+                      ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
                       selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
                     />
                   </Styled.LocalesDropdownSelect>
@@ -486,6 +483,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
+                      data-test="decreaseFontSize"
                     />
                   </Styled.Col>
                   <Styled.Col>
@@ -498,13 +496,13 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
+                      data-test="increaseFontSize"
                     />
                   </Styled.Col>
                 </Styled.PullContentRight>
               </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
-          { isLayoutsEnabled() ? this.renderChangeLayout() : null }
         </Styled.Form>
       </div>
     );

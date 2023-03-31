@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
-import BreakoutRoomContainer from './breakout-remaining-time/container';
+import MeetingRemainingTime from '../notifications-bar/meeting-remaining-time/container';
 import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -157,6 +157,8 @@ class BreakoutRoom extends PureComponent {
       if (breakoutUrlData.redirectToHtml5JoinURL !== ''
         && breakoutUrlData.redirectToHtml5JoinURL !== prevBreakoutData.redirectToHtml5JoinURL) {
         prevBreakoutData = breakoutUrlData;
+
+        Session.set('lastBreakoutIdOpened', requestedBreakoutId);
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
         _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
       }
@@ -173,7 +175,6 @@ class BreakoutRoom extends PureComponent {
   }
 
   getBreakoutURL(breakoutId) {
-    Session.set('lastBreakoutOpened', breakoutId);
     const { requestJoinURL, getBreakoutRoomUrl } = this.props;
     const { waiting } = this.state;
     const breakoutRoomUrlData = getBreakoutRoomUrl(breakoutId);
@@ -189,6 +190,8 @@ class BreakoutRoom extends PureComponent {
     }
 
     if (breakoutRoomUrlData) {
+
+      Session.set('lastBreakoutIdOpened', breakoutId);
       window.open(breakoutRoomUrlData.redirectToHtml5JoinURL, '_blank');
       this.setState({ waiting: false, generated: false });
     }
@@ -426,11 +429,10 @@ class BreakoutRoom extends PureComponent {
     } = this.state;
 
     const { animations } = Settings.application;
-
     const roomItems = breakoutRooms.map((breakout) => (
-      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`} >
+      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`}>
         <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
-          <Styled.BreakoutRoomListNameLabel aria-hidden>
+          <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
             {breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
               : breakout.shortName}
@@ -451,7 +453,9 @@ class BreakoutRoom extends PureComponent {
             breakout.shortName,
           )}
         </Styled.Content>
-        <Styled.JoinedUserNames>
+        <Styled.JoinedUserNames
+          data-test={`userNameBreakoutRoom-${breakout.shortName}`}
+        >
           {breakout.joinedUsers
             .sort(BreakoutRoom.sortById)
             .filter((value, idx, arr) => !(value.userId === (arr[idx + 1] || {}).userId))
@@ -464,7 +468,7 @@ class BreakoutRoom extends PureComponent {
 
     return (
       <Styled.BreakoutColumn>
-        <Styled.BreakoutScrollableList>
+        <Styled.BreakoutScrollableList data-test="breakoutRoomList">
           {roomItems}
         </Styled.BreakoutScrollableList>
       </Styled.BreakoutColumn>
@@ -491,7 +495,7 @@ class BreakoutRoom extends PureComponent {
         ref={(ref) => this.durationContainerRef = ref}
       >
         <Styled.Duration>
-          <BreakoutRoomContainer
+          <MeetingRemainingTime
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
             fromBreakoutPanel
@@ -515,6 +519,7 @@ class BreakoutRoom extends PureComponent {
               &nbsp;
               &nbsp;
               <Styled.EndButton
+                data-test="sendButtonDurationTime"
                 color="primary"
                 disabled={!isMeteorConnected}
                 size="sm"

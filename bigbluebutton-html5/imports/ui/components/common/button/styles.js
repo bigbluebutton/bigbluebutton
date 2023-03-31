@@ -3,6 +3,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import {
   btnSpacing,
   borderRadius,
+  borderSizeSmall,
   borderSize,
   borderSizeLarge,
   smPaddingY,
@@ -23,9 +24,15 @@ import {
 import {
   btnDefaultColor,
   btnDefaultBg,
+  btnDefaultGhostColor,
+  btnDefaultGhostBg,
+  btnDefaultGhostActiveBg,
+  btnDefaultGhostBorder,
   btnPrimaryBorder,
   btnPrimaryColor,
   btnPrimaryBg,
+  btnPrimaryHoverBg,
+  btnPrimaryActiveBg,
   btnSuccessBorder,
   btnSuccessColor,
   btnSuccessBg,
@@ -44,12 +51,20 @@ import {
   btnMutedBorder,
   btnMutedColor,
   btnMutedBg,
+  colorWhite,
+  colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import BaseButton from './base/component';
 
 const ButtonIcon = styled(Icon)`
   width: 1em;
+  height: 1em;
   text-align: center;
+
+  &:before {
+    width: 1em;
+    height: 1em;
+  }
 
   .buttonWrapper & {
     font-size: 125%;
@@ -61,9 +76,6 @@ const ButtonIcon = styled(Icon)`
     [dir="rtl"] & {
       margin: 0 ${btnSpacing} 0 0;
     }
-  }
-  .buttonWrapper:hover & {
-    opacity: .75;
   }
 `;
 
@@ -147,9 +159,20 @@ const ButtonWrapper = styled(BaseButton)`
     box-shadow: none;
   }
 
+  & > span {
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    border: ${borderSizeSmall} solid transparent;
+  }
+
   ${({ size }) => size === 'sm' && `
     font-size: calc(${fontSizeSmall} * .85);
     padding: ${smPaddingY} ${smPaddingX};
+
+    & > span {
+      border: ${borderSizeLarge} solid transparent;
+    }
 
     & > label {
       display: inline-block;
@@ -164,10 +187,14 @@ const ButtonWrapper = styled(BaseButton)`
   ${({ size }) => size === 'md' && `
     font-size: calc(${fontSizeBase} * .85);
     padding: ${mdPaddingY} ${mdPaddingX};
+
+    & > span {
+      border: ${borderSizeLarge} solid transparent;
+    }
   `}
 
   ${({ size }) => size === 'lg' && `
-    font-size: calc(${fontSizeLarge} * .85);
+    font-size: ${fontSizeBase};
     padding: ${lgPaddingY} ${lgPaddingX};
   `}
 
@@ -176,11 +203,91 @@ const ButtonWrapper = styled(BaseButton)`
     padding: ${jumboPaddingY} ${jumboPaddingX};
   `}
 
-  & > span {
-    display: block;
-    text-align: center;
-    white-space: nowrap;
-  }
+  ${({ size, circle, color }) => size === 'lg' && circle && color === 'primary' && `
+    &:focus:not([aria-disabled="true"]){
+      & > span{
+        color: ${btnPrimaryColor};
+        background-color: ${btnPrimaryBg};
+        background-clip: padding-box;
+        box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      }
+    }
+
+    &:hover{
+      & > span{
+        filter: brightness(90%);
+        color: ${btnPrimaryColor};
+        background-color: ${btnPrimaryHoverBg} !important;
+      }
+    }
+
+    &:active:focus{
+      & > span{
+        filter: brightness(85%);
+        color: ${btnPrimaryColor};
+        background-color: ${btnPrimaryActiveBg};
+      }
+    }
+
+    &:active{
+      & > span{
+        filter: brightness(85%);
+        color: ${btnPrimaryColor};
+        background-color: ${btnPrimaryActiveBg};
+      }
+    }
+  `}
+
+  ${({
+    size, circle, ghost, color,
+  }) => size === 'lg' && circle && ghost && color === 'default' && `
+    span {
+      box-shadow: 0 0 1px 0px ${btnDefaultGhostColor} inset, 0 0 1px 0px ${btnDefaultGhostColor};
+      background-color: transparent !important;
+      border-color: ${btnDefaultGhostColor} !important;
+    }
+
+    & > span{
+      color: ${btnDefaultGhostColor};
+    }
+
+    &:focus:not([aria-disabled="true"]){
+      & > span{
+        background-color: ${btnDefaultGhostBg} !important;
+        background-clip: padding-box;
+        box-shadow: 0 0 0 ${borderSize} ${btnDefaultGhostBorder};
+        border-color: transparent !important;
+      }
+    }
+
+    &:hover{
+      & > span{
+        filter: brightness(85%);
+        background-color: ${btnDefaultGhostBg} !important;
+      }
+    }
+
+    &:active:focus{
+      & > span{
+        filter: brightness(85%);
+        background-color: ${btnDefaultGhostActiveBg} !important;
+      }
+    }
+
+    &:active{
+      & > span{
+        filter: brightness(85%);
+        background-color: ${btnDefaultGhostActiveBg};
+      }
+    }
+  `}
+
+  ${({ ghost }) => ghost && `
+    & > span{
+      background-image: none;
+      background-color: transparent;
+    }
+  `}
 `;
 
 const ButtonSpan = styled.span`
@@ -245,13 +352,83 @@ const ButtonSpan = styled.span`
   `}
 
   ${({ size }) => size === 'lg' && `
-    font-size: calc(${fontSizeLarge} * .85);
-    padding: ${lgPaddingY} ${lgPaddingX};
+    height: 3rem;
+    width: 3rem;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
   `}
 
   ${({ size }) => size === 'jumbo' && `
     font-size: 3rem;
     padding: ${jumboPaddingY} ${jumboPaddingX};
+  `}
+
+  ${({ size, color }) => size === 'md' && color === 'light' && `
+    color: ${colorGray};
+    
+    &:focus,
+    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+      color: ${colorGray};
+      box-shadow: 0 0 0 1px #CDD6E0 !important;
+      background-color: #DCE4EC !important;
+    }
+    
+    &:hover {
+      color: hsl(210, 13%, 20%) !important;
+      background-color: #DCE4EC !important;
+    }
+
+    &:active {
+      color: hsl(210, 13%, 20%) !important;
+      background-color: hsl(210, 30%, 80%) !important;
+    }
+
+    &:focus:hover {
+      color: hsl(210, 13%, 20%) !important;
+      box-shadow: 0 0 0 1px #CDD6E0 !important;
+      background-color: #DCE4EC !important;
+    }
+
+    &:focus:active {
+      color: hsl(210, 13%, 20%) !important;
+      box-shadow: 0 0 0 1px #CDD6E0 !important;
+      background-color: hsl(210, 30%, 80%) !important;
+    }
+  `}
+
+  ${({ size, color }) => size === 'md' && color === 'dark' && `
+    color: ${colorWhite};
+    background: none !important;
+    
+    &:focus,
+    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+      color: ${colorWhite};
+      box-shadow: 0 0 0 1px ${btnDefaultGhostBorder} !important;
+      background-color: ${btnDefaultGhostBg} !important;
+    }
+    
+    &:hover {
+      color: hsl(0, 0%, 85%) !important;
+      background-color: ${btnDefaultGhostBg} !important;
+    }
+
+    &:active {
+      color: hsl(0, 0%, 85%) !important;
+      background-color: ${btnDefaultGhostActiveBg} !important;
+    }
+
+    &:focus:hover {
+      color: hsl(0, 0%, 85%) !important;
+      box-shadow: 0 0 0 1px ${btnDefaultGhostBorder} !important;
+      background-color: ${btnDefaultGhostBg} !important;
+    }
+
+    &:focus:active {
+      color: hsl(0, 0%, 85%) !important;
+      box-shadow: 0 0 0 1px ${btnDefaultGhostBorder} !important;
+      background-color: ${btnDefaultGhostActiveBg} !important;
+    }
   `}
 
   ${({ color, ghost }) => color === 'default' && !ghost && `
@@ -264,7 +441,7 @@ const ButtonSpan = styled.span`
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
     &:hover & {
@@ -282,13 +459,13 @@ const ButtonSpan = styled.span`
       color: ${btnPrimaryColor};
       background-color: ${btnPrimaryBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
-
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnPrimaryColor};
     }
+  
   `}
 
   ${({ color }) => color === 'success' && `
@@ -404,12 +581,11 @@ const ButtonSpan = styled.span`
     }
   `}
 
-  ${({ ghost, color }) => ghost && color === 'default' && `
+  ${({ ghost, color, size }) => ghost && color === 'default' && size !== 'lg' && `
     color: ${btnDefaultBg};
     background-image: none;
     background-color: transparent;
     border: ${borderSizeLarge} solid transparent;
-
     &:focus,
     .buttonWrapper:focus & {
       color: ${btnDefaultBg};
@@ -417,7 +593,6 @@ const ButtonSpan = styled.span`
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSizeLarge} ${btnDefaultBg} !important;
     }
-
     &:hover,
     .buttonWrapper:hover & {
       color: ${btnDefaultBg};
@@ -427,9 +602,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'primary' && `
     color: ${btnPrimaryBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -448,9 +620,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'success' && `
     color: ${btnSuccessBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -469,9 +638,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'warning' && `
     color: ${btnWarningBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -490,9 +656,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'danger' && `
     color: ${btnDangerBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -511,9 +674,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'dark' && `
     color: ${btnDarkBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -532,9 +692,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'offline' && `
     color: ${btnOfflineBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -553,9 +710,6 @@ const ButtonSpan = styled.span`
 
   ${({ ghost, color }) => ghost && color === 'muted' && `
     color: ${btnMutedBg};
-    background-image: none;
-    background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -599,6 +753,7 @@ const ButtonSpan = styled.span`
 `;
 
 const Button = styled(BaseButton)`
+  border: ${borderSizeLarge} solid transparent;
   border: none;
   overflow: visible;
   display: inline-block;
@@ -672,14 +827,13 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'default' && `
     color: ${btnDefaultColor};
     background-color: ${btnDefaultBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
       color: ${btnDefaultColor};
       background-color: ${btnDefaultBg};
       background-clip: padding-box;
-      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
+      box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBg};
     }
 
     &:hover,
@@ -691,26 +845,37 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'primary' && `
     color: ${btnPrimaryColor};
     background-color: ${btnPrimaryBg};
-    border: ${borderSizeLarge} solid transparent;
+    border: ${borderSizeLarge} solid transparent !important;
 
-    &:focus,
-    .buttonWrapper:focus:not([aria-disabled="true"]) & {
+    &:focus:not([aria-disabled="true"]){
       color: ${btnPrimaryColor};
       background-color: ${btnPrimaryBg};
       background-clip: padding-box;
       box-shadow: 0 0 0 ${borderSize} ${btnPrimaryBorder};
     }
 
-    &:hover,
-    .buttonWrapper:hover & {
+    &:hover{
+      filter: brightness(90%);
       color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryHoverBg} !important;
+    }
+
+    &:active:focus{
+      filter: brightness(85%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryActiveBg};
+    }
+
+    &:active{
+      filter: brightness(85%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryActiveBg} !important;
     }
   `}
 
   ${({ color }) => color === 'success' && `
     color: ${btnSuccessColor};
     background-color: ${btnSuccessBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -729,7 +894,6 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'warning' && `
     color: ${btnWarningColor};
     background-color: ${btnWarningBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -748,7 +912,6 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'danger' && `
     color: ${btnDangerColor};
     background-color: ${btnDangerBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -767,7 +930,6 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'dark' && `
     color: ${btnDarkColor};
     background-color: ${btnDarkBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -786,7 +948,6 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'offline' && `
     color: ${btnOfflineColor};
     background-color: ${btnOfflineBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -805,7 +966,6 @@ const Button = styled(BaseButton)`
   ${({ color }) => color === 'muted' && `
     color: ${btnMutedColor};
     background-color: ${btnMutedBg};
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus:not([aria-disabled="true"]) & {
@@ -821,11 +981,49 @@ const Button = styled(BaseButton)`
     }
   `}
 
+  ${({ color }) => color === 'secondary' && `
+    background: transparent;
+    color: ${colorGray};
+    border: 3px solid transparent;
+    border-radius: 4px;
+  
+
+    &:focus {
+      background: hsl(210, 30%, 95%);
+      box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+    }
+
+    &:hover {
+      background: hsl(210, 30%, 95%);
+      color: hsl(210, 13%, 35%);
+    }
+
+    &:active {
+      background: hsl(210, 30%, 89%);
+      color: hsl(210, 13%, 30%);
+    }
+
+    &:hover {
+      &:focus {
+        background: hsl(210, 30%, 95%);
+        color: hsl(210, 13%, 30%);
+        box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+      }
+    }
+
+    &:focus {
+      &:active {
+        background: hsl(210, 30%, 89%);
+        color: hsl(210, 13%, 30%);
+        box-shadow: 0 0 0 ${borderSize} hsl(211, 87%, 80%);
+      }
+    }
+  `}
+
   ${({ ghost, color }) => ghost && color === 'default' && `
     color: ${btnDefaultBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -846,7 +1044,6 @@ const Button = styled(BaseButton)`
     color: ${btnPrimaryBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -867,7 +1064,6 @@ const Button = styled(BaseButton)`
     color: ${btnSuccessBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -888,7 +1084,6 @@ const Button = styled(BaseButton)`
     color: ${btnWarningBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -909,7 +1104,6 @@ const Button = styled(BaseButton)`
     color: ${btnDangerBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -930,7 +1124,6 @@ const Button = styled(BaseButton)`
     color: ${btnDarkBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -951,7 +1144,6 @@ const Button = styled(BaseButton)`
     color: ${btnOfflineBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {
@@ -972,7 +1164,6 @@ const Button = styled(BaseButton)`
     color: ${btnMutedBg};
     background-image: none;
     background-color: transparent;
-    border: ${borderSizeLarge} solid transparent;
 
     &:focus,
     .buttonWrapper:focus & {

@@ -7,7 +7,6 @@ import {
   colorGrayLabel,
   colorWhite,
   colorGrayLighter,
-  colorGrayDark,
   colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -115,20 +114,13 @@ const BrowserWarning = styled.p`
   text-align: center;
 `;
 
-const Title = styled.div`
-  display: block;
-  color: ${colorGrayDark};
-  font-size: 1.4rem;
-  text-align: center;
-`;
-
 const Footer = styled.div`
   display: flex;
 `;
 
 const Actions = styled.div`
   margin-left: auto;
-  margin-right: ${borderSizeLarge};
+  margin-right: auto;
 
   [dir="rtl"] & {
     margin-right: auto;
@@ -170,7 +162,7 @@ const ExtraActions = styled.div`
 const VideoPreviewModal = styled(Modal)`
   padding: 1rem;
   min-height: 25rem;
-  max-height: 60vh;
+  max-height: 100vh;
 
   @media ${smallOnly} {
     height: unset;
@@ -230,6 +222,28 @@ const VideoPreview = styled.video`
   `}
 `;
 
+const Marker = styled.div`
+  width: 2rem;
+  text-align: center;
+`;
+
+const MarkerDynamic = styled(Marker)`
+  position: absolute;
+  top: 0;
+`;
+
+const MarkerWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+`;
+
+const MarkerDynamicWrapper = styled.div`
+  position: relative;
+  height: 1rem;
+  user-select: none;
+`;
+
 export default {
   Warning,
   Main,
@@ -240,11 +254,14 @@ export default {
   Select,
   Content,
   BrowserWarning,
-  Title,
   Footer,
   Actions,
   ExtraActions,
   VideoPreviewModal,
   FetchingAnimation,
   VideoPreview,
+  Marker,
+  MarkerDynamic,
+  MarkerWrapper,
+  MarkerDynamicWrapper,
 };

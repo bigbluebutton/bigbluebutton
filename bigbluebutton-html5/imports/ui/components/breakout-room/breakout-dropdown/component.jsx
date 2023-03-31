@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import BBBMenu from "/imports/ui/components/common/menu/component";
+import CreateBreakoutRoomModal from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import Trigger from "/imports/ui/components/common/control-header/right/component";
 
 const intlMessages = defineMessages({
@@ -11,6 +13,10 @@ const intlMessages = defineMessages({
   manageDuration: {
     id: 'app.breakout.dropdown.manageDuration',
     description: 'Manage duration label',
+  },
+  manageUsers: {
+    id: 'app.breakout.dropdown.manageUsers',
+    description: 'Manage users label',
   },
   destroy: {
     id: 'app.breakout.dropdown.destroyAll',
@@ -30,6 +36,7 @@ class BreakoutDropdown extends PureComponent {
       endAllBreakouts,
       isMeteorConnected,
       amIModerator,
+      mountModal,
     } = this.props;
 
     this.menuItems = [];
@@ -41,6 +48,19 @@ class BreakoutDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.manageDuration),
         onClick: () => {
           openBreakoutTimeManager();
+        }
+      }
+    );
+
+    this.menuItems.push(
+      {
+        key: 'updateBreakoutUsers',
+        dataTest: 'openUpdateBreakoutUsersModal',
+        label: intl.formatMessage(intlMessages.manageUsers),
+        onClick: () => {
+          mountModal(
+            <CreateBreakoutRoomModal isUpdate />
+          );
         }
       }
     );
@@ -81,7 +101,7 @@ class BreakoutDropdown extends PureComponent {
             />
           }
           opts={{
-            id: "default-dropdown-menu",
+            id: "breakoutroom-dropdown-menu",
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
@@ -97,4 +117,4 @@ class BreakoutDropdown extends PureComponent {
   }
 }
 
-export default injectIntl(BreakoutDropdown);
+export default withModalMounter(injectIntl(BreakoutDropdown));

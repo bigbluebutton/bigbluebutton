@@ -8,6 +8,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
+import { formatLocaleCode } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -85,6 +86,7 @@ const propTypes = {
     guestWaitingAudioAlerts: PropTypes.bool,
     guestWaitingPushAlerts: PropTypes.bool,
     paginationEnabled: PropTypes.bool,
+    darkTheme: PropTypes.bool,
     fallbackLocale: PropTypes.string,
     fontSize: PropTypes.string,
     locale: PropTypes.string,
@@ -105,7 +107,7 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, application, selectedTab
+      dataSaving, application, selectedTab,
     } = props;
 
     this.state = {
@@ -117,7 +119,7 @@ class Settings extends Component {
         dataSaving: _.clone(dataSaving),
         application: _.clone(application),
       },
-      selectedTab: _.isFinite(selectedTab) && selectedTab >=0 && selectedTab <= 2
+      selectedTab: _.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
         ? selectedTab
         : 0,
     };
@@ -148,11 +150,14 @@ class Settings extends Component {
     });
   }
 
-  displaySettingsStatus(status) {
+  displaySettingsStatus(status, textOnly = false) {
     const { intl } = this.props;
-
+    if (textOnly) {
+      return status ? intl.formatMessage(intlMessages.on)
+          : intl.formatMessage(intlMessages.off)
+    }
     return (
-      <Styled.ToggleLabel>
+      <Styled.ToggleLabel aria-hidden>
         {status ? intl.formatMessage(intlMessages.on)
           : intl.formatMessage(intlMessages.off)}
       </Styled.ToggleLabel>
@@ -163,10 +168,13 @@ class Settings extends Component {
     const {
       intl,
       isModerator,
+      isPresenter,
       showGuestNotification,
       showToggleLabel,
       layoutContextDispatch,
       selectedLayout,
+      isScreenSharingEnabled,
+      isVideoEnabled,
     } = this.props;
 
     const {
@@ -174,6 +182,8 @@ class Settings extends Component {
       current,
       allLocales,
     } = this.state;
+
+    const isDataSavingTabEnabled = isScreenSharingEnabled || isVideoEnabled;
 
     return (
       <Styled.SettingsTabs
@@ -195,13 +205,17 @@ class Settings extends Component {
             <Styled.SettingsIcon iconName="alert" />
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
           </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
-            aria-labelledby="dataSavingTab"
-            selectedClassName="is-selected"
-          >
-            <Styled.SettingsIcon iconName="network" />
-            <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
-          </Styled.SettingsTabSelector>
+          {isDataSavingTabEnabled
+            ? (
+              <Styled.SettingsTabSelector
+                aria-labelledby="dataSavingTab"
+                selectedClassName="is-selected"
+              >
+                <Styled.SettingsIcon iconName="network" />
+                <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
+              </Styled.SettingsTabSelector>
+            )
+            : null}
         </Styled.SettingsTabList>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
@@ -212,7 +226,7 @@ class Settings extends Component {
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
-            isModerator={isModerator}
+            isPresenter={isPresenter}
           />
         </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
@@ -225,14 +239,20 @@ class Settings extends Component {
             {...{ isModerator }}
           />
         </Styled.SettingsTabPanel>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
-          <DataSaving
-            settings={current.dataSaving}
-            handleUpdateSettings={this.handleUpdateSettings}
-            showToggleLabel={showToggleLabel}
-            displaySettingsStatus={this.displaySettingsStatus}
-          />
-        </Styled.SettingsTabPanel>
+        {isDataSavingTabEnabled
+          ? (
+            <Styled.SettingsTabPanel selectedClassName="is-selected">
+              <DataSaving
+                settings={current.dataSaving}
+                handleUpdateSettings={this.handleUpdateSettings}
+                showToggleLabel={showToggleLabel}
+                displaySettingsStatus={this.displaySettingsStatus}
+                isScreenSharingEnabled={isScreenSharingEnabled}
+                isVideoEnabled={isVideoEnabled}
+              />
+            </Styled.SettingsTabPanel>
+          )
+          : null}
       </Styled.SettingsTabs>
     );
   }
@@ -251,10 +271,13 @@ class Settings extends Component {
         title={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
-            this.updateSettings(current, intl.formatMessage(intlMessages.savedAlertLabel));
-            document.body.classList.remove(`lang-${saved.application.locale.split('-')[0]}`)
-            document.body.classList.add(`lang-${current.application.locale.split('-')[0]}`);
-            document.getElementsByTagName('html')[0].lang = current.application.locale;
+            this.updateSettings(current, intlMessages.savedAlertLabel);
+
+            if (saved.application.locale !== current.application.locale) {
+              const { language } = formatLocaleCode(saved.application.locale);
+              document.body.classList.remove(`lang-${language}`);
+            }
+
             /* We need to use mountModal(null) here to prevent submenu state updates,
             *  from re-opening the modal.
             */

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { PresentationUploaderToast } from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import { TAB } from '/imports/utils/keyCodes';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
@@ -13,29 +14,42 @@ import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
-import Checkbox from '/imports/ui/components/common/checkbox/component';
+import Radio from '/imports/ui/components/common/radio/component';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
-
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  allowDownloadable: PropTypes.bool.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
   fileUploadConstraintsHint: PropTypes.bool.isRequired,
   fileSizeMax: PropTypes.number.isRequired,
   filePagesMax: PropTypes.number.isRequired,
   handleSave: PropTypes.func.isRequired,
   dispatchTogglePresentationDownloadable: PropTypes.func.isRequired,
-  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fileValidMimeTypes: PropTypes.arrayOf(PropTypes.shape).isRequired,
   presentations: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     filename: PropTypes.string.isRequired,
     isCurrent: PropTypes.bool.isRequired,
-    conversion: PropTypes.object,
-    upload: PropTypes.object,
+    conversion: PropTypes.shape,
+    upload: PropTypes.shape,
   })).isRequired,
   isOpen: PropTypes.bool.isRequired,
+  handleFiledrop: PropTypes.func.isRequired,
+  selectedToBeNextCurrent: PropTypes.string,
+  renderPresentationItemStatus: PropTypes.func.isRequired,
+  externalUploadData: PropTypes.shape({
+    presentationUploadExternalDescription: PropTypes.string.isRequired,
+    presentationUploadExternalUrl: PropTypes.string.isRequired,
+  }).isRequired,
+  isPresenter: PropTypes.bool.isRequired,
+  exportPresentationToChat: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
+  selectedToBeNextCurrent: '',
 };
 
 const intlMessages = defineMessages({
@@ -73,6 +87,14 @@ const intlMessages = defineMessages({
   dropzoneLabel: {
     id: 'app.presentationUploder.dropzoneLabel',
     description: 'message warning where drop files for upload',
+  },
+  externalUploadTitle: {
+    id: 'app.presentationUploder.externalUploadTitle',
+    description: 'title for external upload area',
+  },
+  externalUploadLabel: {
+    id: 'app.presentationUploder.externalUploadLabel',
+    description: 'message of external upload button',
   },
   dropzoneImagesLabel: {
     id: 'app.presentationUploder.dropzoneImagesLabel',
@@ -138,9 +160,9 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.conversion.timeout',
   },
   CONVERSION_TIMEOUT: {
-		id:'app.presentationUploder.conversion.conversionTimeout',
-		description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
-	},
+    id: 'app.presentationUploder.conversion.conversionTimeout',
+    description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
+  },
   GENERATING_THUMBNAIL: {
     id: 'app.presentationUploder.conversion.generatingThumbnail',
     description: 'indicatess that it is generating thumbnails',
@@ -232,8 +254,70 @@ const intlMessages = defineMessages({
   uploadViewTitle: {
     id: 'app.presentationUploder.uploadViewTitle',
     description: 'view name apended to document title',
-  }
+  },
+  exportHint: {
+    id: 'app.presentationUploader.exportHint',
+    description: 'message to indicate the export presentation option',
+  },
+  exportToastHeader: {
+    id: 'app.presentationUploader.exportToastHeader',
+    description: 'exporting toast header',
+  },
+  exportToastHeaderPlural: {
+    id: 'app.presentationUploader.exportToastHeaderPlural',
+    description: 'exporting toast header in plural',
+  },
+  export: {
+    id: 'app.presentationUploader.export',
+    description: 'send presentation to chat',
+  },
+  exporting: {
+    id: 'app.presentationUploader.exporting',
+    description: 'presentation is being sent to chat',
+  },
+  currentLabel: {
+    id: 'app.presentationUploader.currentPresentationLabel',
+    description: 'current presentation label',
+  },
+  downloadLabel: {
+    id: 'app.presentation.downloadLabel',
+    description: 'download label',
+  },
+  sending: {
+    id: 'app.presentationUploader.sending',
+    description: 'sending label',
+  },
+  collecting: {
+    id: 'app.presentationUploader.collecting',
+    description: 'collecting label',
+  },
+  processing: {
+    id: 'app.presentationUploader.processing',
+    description: 'processing label',
+  },
+  sent: {
+    id: 'app.presentationUploader.sent',
+    description: 'sent label',
+  },
+  exportingTimeout: {
+    id: 'app.presentationUploader.exportingTimeout',
+    description: 'exporting timeout label',
+  },
+  linkAvailable: {
+    id: 'app.presentationUploader.export.linkAvailable',
+    description: 'download presentation link available on public chat',
+  },
 });
+
+const EXPORT_STATUSES = {
+  RUNNING: 'RUNNING',
+  COLLECTING: 'COLLECTING',
+  PROCESSING: 'PROCESSING',
+  TIMEOUT: 'TIMEOUT',
+  EXPORTED: 'EXPORTED',
+};
+
+const handleDismissToast = (id) => toast.dismiss(id);
 
 class PresentationUploader extends Component {
   constructor(props) {
@@ -242,31 +326,34 @@ class PresentationUploader extends Component {
     this.state = {
       presentations: [],
       disableActions: false,
-      toUploadCount: 0,
+      presExporting: new Set(),
     };
 
     this.toastId = null;
     this.hasError = null;
+    this.exportToastId = null;
 
+    const { handleFiledrop } = this.props;
     // handlers
-    this.handleFiledrop = this.handleFiledrop.bind(this);
+    this.handleFiledrop = handleFiledrop;
     this.handleConfirm = this.handleConfirm.bind(this);
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
-    this.handleDismissToast = this.handleDismissToast.bind(this);
-    this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
+    this.handleSendToChat = this.handleSendToChat.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
+    this.renderExternalUpload = this.renderExternalUpload.bind(this);
     this.renderPicDropzone = this.renderPicDropzone.bind(this);
     this.renderPresentationList = this.renderPresentationList.bind(this);
     this.renderPresentationItem = this.renderPresentationItem.bind(this);
-    this.renderPresentationItemStatus = this.renderPresentationItemStatus.bind(this);
-    this.renderToastList = this.renderToastList.bind(this);
-    this.renderToastItem = this.renderToastItem.bind(this);
+    this.renderExportToast = this.renderExportToast.bind(this);
+    this.renderToastExportItem = this.renderToastExportItem.bind(this);
+    this.renderExportationStatus = this.renderExportationStatus.bind(this);
     // utilities
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
+    this.getPresentationsToShow = this.getPresentationsToShow.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -276,48 +363,68 @@ class PresentationUploader extends Component {
 
     let shouldUpdateState = isOpen && !prevProps.isOpen;
     const presState = Object.values({
-      ...propPresentations,
-      ...presentations,
+      ...JSON.parse(JSON.stringify(propPresentations)),
+      ...JSON.parse(JSON.stringify(presentations)),
     });
+    if (propPresentations.length > prevPropPresentations.length) {
+      shouldUpdateState = true;
+      const propsDiffs = propPresentations.filter(
+        (p) => !prevPropPresentations.some(
+          (presentation) => p.id === presentation.id
+            || p.temporaryPresentationId === presentation.temporaryPresentationId,
+        ),
+      );
+
+      propsDiffs.forEach((p) => {
+        const index = presState.findIndex(
+          (pres) => pres.temporaryPresentationId === p.temporaryPresentationId || pres.id === p.id,
+        );
+        if (index === -1) {
+          presState.push(p);
+        }
+      });
+    }
     const presStateFiltered = presState.filter((presentation) => {
       const currentPropPres = propPresentations.find((pres) => pres.id === presentation.id);
       const prevPropPres = prevPropPresentations.find((pres) => pres.id === presentation.id);
       const hasConversionError = presentation?.conversion?.error;
-      const finishedConversion = presentation?.conversion?.done || currentPropPres?.conversion?.done;
+      const finishedConversion = presentation?.conversion?.done
+        || currentPropPres?.conversion?.done;
       const hasTemporaryId = presentation.id.startsWith(presentation.filename);
 
       if (hasConversionError || (!finishedConversion && hasTemporaryId)) return true;
       if (!currentPropPres) return false;
 
-      if(presentation?.conversion?.done !== finishedConversion) {
+      if (presentation?.conversion?.done !== finishedConversion) {
         shouldUpdateState = true;
       }
 
+      const modPresentation = presentation;
       if (currentPropPres.isCurrent !== prevPropPres?.isCurrent) {
-        presentation.isCurrent = currentPropPres.isCurrent;
+        modPresentation.isCurrent = currentPropPres.isCurrent;
       }
 
-      presentation.conversion = currentPropPres.conversion;
-      presentation.isRemovable = currentPropPres.isRemovable;
+      modPresentation.conversion = currentPropPres.conversion;
+      modPresentation.isRemovable = currentPropPres.isRemovable;
 
       return true;
-    }).filter(presentation => {
+    }).filter((presentation) => {
       const duplicated = presentations.find(
         (pres) => pres.filename === presentation.filename
-          && pres.id !== presentation.id
+          && pres.id !== presentation.id,
       );
       if (duplicated
         && duplicated.id.startsWith(presentation.filename)
         && !presentation.id.startsWith(presentation.filename)
         && presentation?.conversion?.done === duplicated?.conversion?.done) {
-          return false;
+        return false; // Prioritizing propPresentations (the one with id from back-end)
       }
       return true;
     });
 
     if (shouldUpdateState) {
       this.setState({
-        presentations: _.uniqBy(presStateFiltered, 'id')
+        presentations: _.uniqBy(presStateFiltered, 'id'),
       });
     }
 
@@ -328,28 +435,25 @@ class PresentationUploader extends Component {
     // Updates presentation list when chat modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
       registerTitleView(intl.formatMessage(intlMessages.uploadViewTitle));
-      const  focusableElements =
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
       const modal = document.getElementById('upload-modal');
       const firstFocusableElement = modal?.querySelectorAll(focusableElements)[0];
       const focusableContent = modal?.querySelectorAll(focusableElements);
       const lastFocusableElement = focusableContent[focusableContent.length - 1];
-      
+
       firstFocusableElement.focus();
-  
-      modal.addEventListener('keydown', function(e) {
-        let tab = e.key === 'Tab' || e.keyCode === TAB;
+
+      modal.addEventListener('keydown', (e) => {
+        const tab = e.key === 'Tab' || e.keyCode === TAB;
         if (!tab) return;
         if (e.shiftKey) {
           if (document.activeElement === firstFocusableElement) {
             lastFocusableElement.focus();
             e.preventDefault();
           }
-        } else {
-          if (document.activeElement === lastFocusableElement) {
-            firstFocusableElement.focus();
-            e.preventDefault();
-          }
+        } else if (document.activeElement === lastFocusableElement) {
+          firstFocusableElement.focus();
+          e.preventDefault();
         }
       });
     }
@@ -359,98 +463,56 @@ class PresentationUploader extends Component {
       if (selected.length > 0) Session.set('selectedToBeNextCurrent', selected[0].id);
     }
 
-    if (this.toastId) {
+    if (this.exportToastId) {
       if (!prevProps.isOpen && isOpen) {
-        this.handleDismissToast(this.toastId);
+        handleDismissToast(this.exportToastId);
       }
 
-      toast.update(this.toastId, {
-        render: this.renderToastList(),
+      toast.update(this.exportToastId, {
+        render: this.renderExportToast(),
       });
     }
   }
 
   componentWillUnmount() {
-    Session.set('showUploadPresentationView', false);
-  }
-
-  handleDismissToast() {
-    return toast.dismiss(this.toastId);
-  }
-
-  handleFiledrop(files, files2) {
-    const { fileValidMimeTypes, intl } = this.props;
-    const { toUploadCount } = this.state;
-    const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
-    const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
-    const [accepted, rejected] = _.partition(files
-      .concat(files2), (f) => (
-        validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
-      ));
-
-    const presentationsToUpload = accepted.map((file) => {
-      const id = _.uniqueId(file.name);
-
-      return {
-        file,
-        isDownloadable: false, // by default new presentations are set not to be downloadable
-        isRemovable: true,
-        id,
-        filename: file.name,
-        isCurrent: false,
-        conversion: { done: false, error: false },
-        upload: { done: false, error: false, progress: 0 },
-        onProgress: (event) => {
-          if (!event.lengthComputable) {
-            this.deepMergeUpdateFileKey(id, 'upload', {
-              progress: 100,
-              done: true,
-            });
-
-            return;
-          }
-
-          this.deepMergeUpdateFileKey(id, 'upload', {
-            progress: (event.loaded / event.total) * 100,
-            done: event.loaded === event.total,
-          });
-        },
-        onConversion: (conversion) => {
-          this.deepMergeUpdateFileKey(id, 'conversion', conversion);
-        },
-        onUpload: (upload) => {
-          this.deepMergeUpdateFileKey(id, 'upload', upload);
-        },
-        onDone: (newId) => {
-          this.updateFileKey(id, 'id', newId);
-        },
-      };
-    });
-
-    this.setState(({ presentations }) => ({
-      presentations: presentations.concat(presentationsToUpload),
-      toUploadCount: (toUploadCount + presentationsToUpload.length),
-    }), () => {
-      // after the state is set (files have been dropped),
-      // make the first of the new presentations current
-      if (presentationsToUpload && presentationsToUpload.length) {
-        this.handleCurrentChange(presentationsToUpload[0].id);
-      }
-    });
-
-    if (rejected.length > 0) {
-      notify(intl.formatMessage(intlMessages.rejectedError), 'error');
+    const id = Session.get('presentationUploaderToastId');
+    if (id) {
+      toast.dismiss(id);
+      Session.set('presentationUploaderToastId', null);
     }
+    Session.set('showUploadPresentationView', false);
   }
 
   handleRemove(item, withErr = false) {
     if (withErr) {
-      const { presentations } = this.props;
+      const { presentations } = this.state;
+      const { presentations: propPresentations } = this.props;
+    
+      const filteredPropPresentations = propPresentations.filter(d => d.upload.done && d.conversion?.done);
+      const ids = new Set(filteredPropPresentations.map((d) => d.id));
+      const filteredPresentations = presentations.filter((d) => {
+        d.isCurrent = false;
+        return !ids.has(d.id) && !(d.upload.error || d.conversion.error) && !(d.upload.done && d.conversion.done)});
+      const merged = [
+        ...filteredPresentations,
+        ...filteredPropPresentations,
+      ];
+      let hasUploading
+      merged.forEach(d => {
+        if (!d.upload?.done || !d.conversion?.done) {
+          hasUploading = true;
+        }})
       this.hasError = false;
-      return this.setState({
-        presentations,
-        disableActions: false,
-      });
+      if (hasUploading) {
+        return this.setState({
+          presentations: merged,
+        });
+      } else {
+        return this.setState({
+          presentations: merged,
+          disableActions: false,
+        });
+      }
     }
 
     const { presentations } = this.state;
@@ -514,12 +576,7 @@ class PresentationUploader extends Component {
     this.setState({ presentations: presentationsUpdated });
   }
 
-  deepMergeUpdateFileKey(id, key, value) {
-    const applyValue = (toUpdate) => update(toUpdate, { $merge: value });
-    this.updateFileKey(id, key, applyValue, '$apply');
-  }
-
-  handleConfirm(hasNewUpload) {
+  handleConfirm() {
     const {
       handleSave,
       selectedToBeNextCurrent,
@@ -529,32 +586,26 @@ class PresentationUploader extends Component {
     const { disableActions, presentations } = this.state;
     const presentationsToSave = presentations;
 
+    if (!isPresentationEnabled()) {
+      this.setState(
+        { presentations: [] },
+        Session.set('showUploadPresentationView', false),
+      );
+      return null;
+    }
+
     this.setState({ disableActions: true });
 
-    presentations.forEach(item => {
+    presentations.forEach((item) => {
       if (item.upload.done) {
         const didDownloadableStateChange = propPresentations.some(
-          (p) => p.id === item.id && p.isDownloadable !== item.isDownloadable
+          (p) => p.id === item.id && p.isDownloadable !== item.isDownloadable,
         );
         if (didDownloadableStateChange) {
           dispatchTogglePresentationDownloadable(item, item.isDownloadable);
         }
       }
     });
-
-    if (hasNewUpload) {
-      this.toastId = toast.info(this.renderToastList(), {
-        hideProgressBar: true,
-        autoClose: false,
-        newestOnTop: true,
-        closeOnClick: true,
-        onClose: () => {
-          this.toastId = null;
-        },
-      });
-    }
-
-    if (this.toastId) Session.set('UploadPresentationToastId', this.toastId);
 
     if (!disableActions) {
       Session.set('showUploadPresentationView', false);
@@ -564,7 +615,6 @@ class PresentationUploader extends Component {
           if (!hasError) {
             this.setState({
               disableActions: false,
-              toUploadCount: 0,
             });
             return;
           }
@@ -595,10 +645,20 @@ class PresentationUploader extends Component {
   handleDismiss() {
     const { presentations } = this.state;
     const { presentations: propPresentations } = this.props;
-    const ids = new Set(propPresentations.map((d) => d.ID));
+
+    const ids = new Set(propPresentations.map((d) => d.id));
+
+    const filteredPresentations = presentations.filter((d) => {
+      return !ids.has(d.id) && (d.upload.done || d.upload.progress !== 0)});
+    const isThereStateCurrentPres = filteredPresentations.some(p => p.isCurrent);
     const merged = [
-      ...presentations.filter((d) => !ids.has(d.ID)),
-      ...propPresentations,
+      ...filteredPresentations,
+      ...propPresentations.filter(p => {
+        if (isThereStateCurrentPres) {
+          p.isCurrent = false;
+        }
+        return true;
+      }),
     ];
     this.setState(
       { presentations: merged },
@@ -606,25 +666,74 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleToggleDownloadable(item) {
-    const { presentations } = this.state;
+  handleSendToChat(item) {
+    const {
+      exportPresentationToChat,
+      intl,
+    } = this.props;
 
-    const oldDownloadableState = item.isDownloadable;
+    const observer = (exportation, stopped) => {
+      this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
-    const outOfDatePresentationIndex = presentations.findIndex((p) => p.id === item.id);
-    const commands = {};
-    commands[outOfDatePresentationIndex] = {
-      $apply: (presentation) => {
-        const p = presentation;
-        p.isDownloadable = !oldDownloadableState;
-        return p;
-      },
+      if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
+        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+      }
+
+      if ([
+        EXPORT_STATUSES.RUNNING,
+        EXPORT_STATUSES.COLLECTING,
+        EXPORT_STATUSES.PROCESSING,
+      ].includes(exportation.status)) {
+        this.setState((prevState) => {
+          prevState.presExporting.add(item.id);
+          return {
+            presExporting: prevState.presExporting,
+          };
+        }, () => {
+          if (this.exportToastId) {
+            toast.update(this.exportToastId, {
+              render: this.renderExportToast(),
+            });
+          } else {
+            this.exportToastId = toast.info(this.renderExportToast(), {
+              hideProgressBar: true,
+              autoClose: false,
+              newestOnTop: true,
+              closeOnClick: true,
+              onClose: () => {
+                this.exportToastId = null;
+                const presToShow = this.getPresentationsToShow();
+                const isAnyRunning = presToShow.some(
+                  (p) => p.exportation.status === EXPORT_STATUSES.RUNNING
+                    || p.exportation.status === EXPORT_STATUSES.COLLECTING
+                    || p.exportation.status === EXPORT_STATUSES.PROCESSING,
+                );
+                if (!isAnyRunning) {
+                  this.setState({ presExporting: new Set() });
+                }
+              },
+            });
+          }
+        });
+      }
     };
-    const presentationsUpdated = update(presentations, commands);
 
-    this.setState({
-      presentations: presentationsUpdated,
-    });
+    exportPresentationToChat(item.id, observer);
+
+    Session.set('showUploadPresentationView', false);
+  }
+
+  getPresentationsToShow() {
+    const { presentations, presExporting } = this.state;
+
+    return Array.from(presExporting)
+      .map((id) => presentations.find((p) => p.id === id))
+      .filter((p) => p);
+  }
+
+  deepMergeUpdateFileKey(id, key, value) {
+    const applyValue = (toUpdate) => update(toUpdate, { $merge: value });
+    this.updateFileKey(id, key, applyValue, '$apply');
   }
 
   updateFileKey(id, key, value, operation = '$set') {
@@ -645,47 +754,6 @@ class PresentationUploader extends Component {
     });
   }
 
-  renderToastItem(item) {
-    const isUploading = !item.upload.done && item.upload.progress > 0;
-    const isConverting = !item.conversion.done && item.upload.done;
-    const hasError = item.conversion.error || item.upload.error;
-    const isProcessing = (isUploading || isConverting) && !hasError;
-
-    let icon = isProcessing ? 'blank' : 'check';
-    if (hasError) icon = 'circle_close';
-
-    return (
-      <Styled.UploadRow
-        key={item.id}
-        onClick={() => {
-          if (hasError || isProcessing) Session.set('showUploadPresentationView', true);
-        }}
-      >
-        <Styled.FileLine>
-          <span>
-            <Icon iconName="file" />
-          </span>
-          <Styled.ToastFileName>
-            <span>{item.filename}</span>
-          </Styled.ToastFileName>
-          <Styled.StatusIcon>
-            <Styled.ToastItemIcon
-              done={!isProcessing && !hasError}
-              error={hasError}
-              loading={isProcessing}
-              iconName={icon}
-            />
-          </Styled.StatusIcon>
-        </Styled.FileLine>
-        <Styled.StatusInfo>
-          <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
-            {this.renderPresentationItemStatus(item)}
-          </Styled.StatusInfoSpan>
-        </Styled.StatusInfo>
-      </Styled.UploadRow>
-    );
-  }
-
   renderExtraHint() {
     const {
       intl,
@@ -694,7 +762,7 @@ class PresentationUploader extends Component {
     } = this.props;
 
     const options = {
-      0: fileSizeMax/1000000,
+      0: fileSizeMax / 1000000,
       1: filePagesMax,
     };
 
@@ -707,7 +775,7 @@ class PresentationUploader extends Component {
 
   renderPresentationList() {
     const { presentations } = this.state;
-    const { intl } = this.props;
+    const { intl, allowDownloadable } = this.props;
 
     let presentationsSorted = presentations;
 
@@ -734,7 +802,10 @@ class PresentationUploader extends Component {
         <Styled.Table>
           <thead>
             <tr>
-              <Styled.VisuallyHidden colSpan={3}>
+              <Styled.VisuallyHidden>
+                {intl.formatMessage(intlMessages.setAsCurrentPresentation)}
+              </Styled.VisuallyHidden>
+              <Styled.VisuallyHidden colSpan={2}>
                 {intl.formatMessage(intlMessages.filename)}
               </Styled.VisuallyHidden>
               <Styled.VisuallyHidden>
@@ -744,6 +815,12 @@ class PresentationUploader extends Component {
                 {intl.formatMessage(intlMessages.options)}
               </Styled.VisuallyHidden>
             </tr>
+            <Styled.Head>
+              <th colSpan={4}>{intl.formatMessage(intlMessages.currentLabel)}</th>
+              {
+                allowDownloadable ? <th>{intl.formatMessage(intlMessages.downloadLabel)}</th> : null
+              }
+            </Styled.Head>
           </thead>
           <tbody>
             {_.uniqBy(presentationsSorted, 'id').map((item) => this.renderPresentationItem(item))}
@@ -753,63 +830,50 @@ class PresentationUploader extends Component {
     );
   }
 
-  renderToastList() {
-    const { presentations, toUploadCount } = this.state;
-
-    if (toUploadCount === 0) {
-      return this.handleDismissToast(this.toastId);
-    }
-
+  renderExportToast() {
     const { intl } = this.props;
-    let converted = 0;
+    const { presExporting } = this.state;
 
-    let presentationsSorted = presentations
-      .filter((p) => (p.upload.progress || p.upload.error || p.conversion.status) && p.file)
-      .sort((a, b) => a.uploadTimestamp - b.uploadTimestamp)
-      .sort((a, b) => a.conversion.done - b.conversion.done);
+    const presToShow = this.getPresentationsToShow();
 
-    presentationsSorted = presentationsSorted
-      .splice(0, toUploadCount)
-      .map((p) => {
-        if (p.conversion.done) converted += 1;
-        return p;
-      });
+    const isAllExported = presToShow.every(
+      (p) => p.exportation.status === EXPORT_STATUSES.EXPORTED,
+    );
+    const shouldDismiss = isAllExported && this.exportToastId;
 
-    let toastHeading = '';
-    const itemLabel = presentationsSorted.length > 1
-      ? intl.formatMessage(intlMessages.itemPlural)
-      : intl.formatMessage(intlMessages.item);
+    if (shouldDismiss) {
+      handleDismissToast(this.exportToastId);
 
-    if (converted === 0) {
-      toastHeading = intl.formatMessage(intlMessages.uploading, {
-        0: presentationsSorted.length,
-        1: itemLabel,
-      });
+      if (presExporting.size) {
+        this.setState({ presExporting: new Set() });
+      }
+      return null;
     }
 
-    if (converted > 0 && converted !== presentationsSorted.length) {
-      toastHeading = intl.formatMessage(intlMessages.uploadStatus, {
-        0: converted,
-        1: presentationsSorted.length,
-      });
-    }
+    const presToShowSorted = [
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.RUNNING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.COLLECTING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.PROCESSING),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.TIMEOUT),
+      ...presToShow.filter((p) => p.exportation.status === EXPORT_STATUSES.EXPORTED),
+    ];
 
-    if (converted === presentationsSorted.length) {
-      toastHeading = intl.formatMessage(intlMessages.completed, {
-        0: converted,
-      });
-    }
+    const headerLabelId = presToShowSorted.length === 1
+      ? 'exportToastHeader'
+      : 'exportToastHeaderPlural';
 
     return (
-      <Styled.ToastWrapper>
+      <Styled.ToastWrapper data-test="downloadPresentationToast">
         <Styled.UploadToastHeader>
-          <Styled.UploadIcon iconName="upload" />
-          <Styled.UploadToastTitle>{toastHeading}</Styled.UploadToastTitle>
+          <Styled.UploadIcon iconName="download" />
+          <Styled.UploadToastTitle>
+            {intl.formatMessage(intlMessages[headerLabelId], { 0: presToShowSorted.length })}
+          </Styled.UploadToastTitle>
         </Styled.UploadToastHeader>
         <Styled.InnerToast>
           <div>
             <div>
-              {presentationsSorted.map((item) => this.renderToastItem(item))}
+              {presToShowSorted.map((item) => this.renderToastExportItem(item))}
             </div>
           </div>
         </Styled.InnerToast>
@@ -817,15 +881,110 @@ class PresentationUploader extends Component {
     );
   }
 
+  renderToastExportItem(item) {
+    const { status } = item.exportation;
+    const loading = (status === EXPORT_STATUSES.RUNNING
+      || status === EXPORT_STATUSES.COLLECTING
+      || status === EXPORT_STATUSES.PROCESSING);
+    const done = status === EXPORT_STATUSES.EXPORTED;
+    let icon;
+
+    switch (status) {
+      case EXPORT_STATUSES.RUNNING:
+        icon = 'blank';
+        break;
+      case EXPORT_STATUSES.COLLECTING:
+        icon = 'blank';
+        break;
+      case EXPORT_STATUSES.PROCESSING:
+        icon = 'blank';
+        break;
+      case EXPORT_STATUSES.EXPORTED:
+        icon = 'check';
+        break;
+      case EXPORT_STATUSES.TIMEOUT:
+        icon = 'warning';
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <Styled.UploadRow
+        key={item.id || item.temporaryPresentationId}
+      >
+        <Styled.FileLine>
+          <span>
+            <Icon iconName="file" />
+          </span>
+          <Styled.ToastFileName>
+            <span>{item.filename}</span>
+          </Styled.ToastFileName>
+          <Styled.StatusIcon>
+            <Styled.ToastItemIcon
+              loading={loading}
+              done={done}
+              iconName={icon}
+              color="#0F70D7"
+            />
+          </Styled.StatusIcon>
+        </Styled.FileLine>
+        <Styled.StatusInfo>
+          <Styled.StatusInfoSpan>
+            {this.renderExportationStatus(item)}
+          </Styled.StatusInfoSpan>
+        </Styled.StatusInfo>
+      </Styled.UploadRow>
+    );
+  }
+
+  renderExportationStatus(item) {
+    const { intl } = this.props;
+
+    switch (item.exportation.status) {
+      case EXPORT_STATUSES.RUNNING:
+        return intl.formatMessage(intlMessages.sending);
+      case EXPORT_STATUSES.COLLECTING:
+        return intl.formatMessage(intlMessages.collecting,
+          { 0: item.exportation.pageNumber, 1: item.exportation.totalPages });
+      case EXPORT_STATUSES.PROCESSING:
+        return intl.formatMessage(intlMessages.processing,
+          { 0: item.exportation.pageNumber, 1: item.exportation.totalPages });
+      case EXPORT_STATUSES.TIMEOUT:
+        return intl.formatMessage(intlMessages.exportingTimeout);
+      case EXPORT_STATUSES.EXPORTED:
+        return intl.formatMessage(intlMessages.sent);
+      default:
+        return '';
+    }
+  }
+
+  renderDownloadableWithAnnotationsHint() {
+    const {
+      intl,
+      allowDownloadable,
+    } = this.props;
+
+    return allowDownloadable ? (
+      <Styled.ExportHint>
+        {intl.formatMessage(intlMessages.exportHint)}
+      </Styled.ExportHint>
+    )
+      : null;
+  }
+
   renderPresentationItem(item) {
     const { disableActions } = this.state;
     const {
       intl,
       selectedToBeNextCurrent,
-      allowDownloadable
+      allowDownloadable,
+      renderPresentationItemStatus,
     } = this.props;
 
-    const isActualCurrent = selectedToBeNextCurrent ? item.id === selectedToBeNextCurrent : item.isCurrent;
+    const isActualCurrent = selectedToBeNextCurrent
+      ? item.id === selectedToBeNextCurrent
+      : item.isCurrent;
     const isUploading = !item.upload.done && item.upload.progress > 0;
     const isConverting = !item.conversion.done && item.upload.done;
     const hasError = item.conversion.error || item.upload.error;
@@ -835,15 +994,22 @@ class PresentationUploader extends Component {
       this.hasError = true;
     }
 
-    const formattedDownloadableLabel = !item.isDownloadable
-      ? intl.formatMessage(intlMessages.isDownloadable)
-      : intl.formatMessage(intlMessages.isNotDownloadable);
-
-    const formattedDownloadableAriaLabel = `${formattedDownloadableLabel} ${item.filename}`;
-
     const { animations } = Settings.application;
 
-    const { isRemovable } = item; 
+    const { isRemovable, exportation: { status } } = item;
+
+    const isExporting = status === 'RUNNING';
+
+    const shouldDisableExportButton = isExporting
+      || !item.conversion.done
+      || hasError
+      || disableActions;
+
+    const formattedDownloadLabel = isExporting
+      ? intl.formatMessage(intlMessages.exporting)
+      : intl.formatMessage(intlMessages.export);
+
+    const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
 
     return (
       <Styled.PresentationItem
@@ -855,9 +1021,19 @@ class PresentationUploader extends Component {
         animated={isProcessing}
         animations={animations}
       >
-        <Styled.TableItemIcon>
-          <Icon iconName="file" />
-        </Styled.TableItemIcon>
+        <Styled.SetCurrentAction>
+          <Radio
+            animations={animations}
+            ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
+            checked={item.isCurrent}
+            keyValue={item.id}
+            onChange={() => this.handleCurrentChange(item.id)}
+            disabled={disableActions || hasError}
+          />
+        </Styled.SetCurrentAction>
+        <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
+          <span>{item.filename}</span>
+        </Styled.TableItemName>
         {
           isActualCurrent
             ? (
@@ -869,39 +1045,23 @@ class PresentationUploader extends Component {
             )
             : null
         }
-        <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
-          <span>{item.filename}</span>
-        </Styled.TableItemName>
         <Styled.TableItemStatus colSpan={hasError ? 2 : 0}>
-          {this.renderPresentationItemStatus(item)}
+          {renderPresentationItemStatus(item, intl)}
         </Styled.TableItemStatus>
         {hasError ? null : (
           <Styled.TableItemActions notDownloadable={!allowDownloadable}>
             {allowDownloadable ? (
               <Styled.DownloadButton
-                disabled={disableActions}
-                isDownloadable={item.isDownloadable}
-                label={formattedDownloadableLabel}
-                data-test={item.isDownloadable ? 'disallowPresentationDownload' : 'allowPresentationDownload'}
-                aria-label={formattedDownloadableAriaLabel}
-                hideLabel
+                disabled={shouldDisableExportButton}
+                label={intl.formatMessage(intlMessages.export)}
+                data-test="exportPresentationToPublicChat"
+                aria-label={formattedDownloadAriaLabel}
                 size="sm"
-                icon={item.isDownloadable ? 'download' : 'download-off'}
-                onClick={() => this.handleToggleDownloadable(item)}
+                color="primary"
+                onClick={() => this.handleSendToChat(item)}
                 animations={animations}
               />
-              ) : null
-            }
-            <Styled.ItemAction>
-              <Checkbox
-              animations={animations}
-              ariaLabel={`${intl.formatMessage(intlMessages.setAsCurrentPresentation)} ${item.filename}`}
-              checked={item.isCurrent}
-              keyValue={item.id}
-              onChange={() => this.handleCurrentChange(item.id)}
-              disabled={disableActions}
-              />
-            </Styled.ItemAction>
+            ) : null}
             {isRemovable ? (
               <Styled.RemoveButton
                 disabled={disableActions}
@@ -914,8 +1074,7 @@ class PresentationUploader extends Component {
                 onClick={() => this.handleRemove(item)}
                 animations={animations}
               />
-              ) : null
-            }
+            ) : null}
           </Styled.TableItemActions>
         )}
       </Styled.PresentationItem>
@@ -950,10 +1109,10 @@ class PresentationUploader extends Component {
       // Error handling is being done in the onDrop prop.
       <Styled.UploaderDropzone
         multiple
-        activeClassName={"dropzoneActive"}
+        activeClassName="dropzoneActive"
         accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
         disablepreview="true"
-        onDrop={this.handleFiledrop}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -964,6 +1123,34 @@ class PresentationUploader extends Component {
           </Styled.DropzoneLink>
         </Styled.DropzoneMessage>
       </Styled.UploaderDropzone>
+    );
+  }
+
+  renderExternalUpload() {
+    const { externalUploadData, intl } = this.props;
+
+    const {
+      presentationUploadExternalDescription, presentationUploadExternalUrl,
+    } = externalUploadData;
+
+    if (!presentationUploadExternalDescription || !presentationUploadExternalUrl) return null;
+
+    return (
+      <Styled.ExternalUpload>
+        <div>
+          <Styled.ExternalUploadTitle>
+            {intl.formatMessage(intlMessages.externalUploadTitle)}
+          </Styled.ExternalUploadTitle>
+
+          <p>{presentationUploadExternalDescription}</p>
+        </div>
+        <Styled.ExternalUploadButton
+          color="default"
+          onClick={() => window.open(`${presentationUploadExternalUrl}`)}
+          label={intl.formatMessage(intlMessages.externalUploadLabel)}
+          aria-describedby={intl.formatMessage(intlMessages.externalUploadLabel)}
+        />
+      </Styled.ExternalUpload>
     );
   }
 
@@ -994,7 +1181,7 @@ class PresentationUploader extends Component {
         accept="image/*"
         disablepreview="true"
         data-test="fileUploadDropZone"
-        onDrop={this.handleFiledrop}
+        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -1006,71 +1193,6 @@ class PresentationUploader extends Component {
         </Styled.DropzoneMessage>
       </Styled.UploaderDropzone>
     );
-  }
-
-  renderPresentationItemStatus(item) {
-    const { intl, fileSizeMax } = this.props;
-    if (!item.upload.done && item.upload.progress === 0) {
-      return intl.formatMessage(intlMessages.fileToUpload);
-    }
-
-    if (!item.upload.done && !item.upload.error) {
-      return intl.formatMessage(intlMessages.uploadProcess, {
-        0: Math.floor(item.upload.progress).toString(),
-      });
-    }
-
-    const constraint = {};
-
-    if (item.upload.done && item.upload.error) {
-      if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status === 413) {
-        constraint['0'] = (fileSizeMax / 1000 / 1000).toFixed(2);
-      } else {
-        if (item.upload.progress < 100) {
-          const errorMessage = intlMessages.badConnectionError;
-          return intl.formatMessage(errorMessage);
-        }
-      }
-
-      const errorMessage = intlMessages[item.upload.status] || intlMessages.genericError;
-      return intl.formatMessage(errorMessage, constraint);
-    }
-
-    if (!item.conversion.done && item.conversion.error) {
-      const errorMessage = intlMessages[item.conversion.status] || intlMessages.genericConversionStatus;
-
-      switch (item.conversion.status) {
-        case 'CONVERSION_TIMEOUT': 
-          constraint['0'] = item.conversion.numberPageError;
-          constraint['1'] = item.conversion.maxNumberOfAttempts;
-          break;
-        case 'PAGE_COUNT_EXCEEDED':
-          constraint['0'] = item.conversion.maxNumberPages;
-          break;
-        case 'PDF_HAS_BIG_PAGE':
-          constraint['0'] = (item.conversion.bigPageSize / 1000 / 1000).toFixed(2);
-          break;
-        default:
-          break;
-      }
-
-      return intl.formatMessage(errorMessage, constraint);
-    }
-
-    if (!item.conversion.done && !item.conversion.error) {
-      if (item.conversion.pagesCompleted < item.conversion.numPages) {
-        return intl.formatMessage(intlMessages.conversionProcessingSlides, {
-          0: item.conversion.pagesCompleted,
-          1: item.conversion.numPages,
-        });
-      }
-
-      const conversionStatusMessage = intlMessages[item.conversion.status]
-        || intlMessages.genericConversionStatus;
-      return intl.formatMessage(conversionStatusMessage);
-    }
-
-    return null;
   }
 
   render() {
@@ -1089,40 +1211,49 @@ class PresentationUploader extends Component {
       if (item.id.indexOf(item.filename) !== -1 && item.upload.progress === 0) hasNewUpload = true;
     });
 
-    return isOpen ? (
-      <Styled.UploaderModal id="upload-modal">
-        <Styled.ModalInner>
-          <Styled.ModalHeader>
-            <h1>{intl.formatMessage(intlMessages.title)}</h1>
-            <Styled.ActionWrapper>
-              <Styled.DismissButton
-                color="default"
-                onClick={this.handleDismiss}
-                label={intl.formatMessage(intlMessages.dismissLabel)}
-                aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}
-              />
-              <Styled.ConfirmButton
-                data-test="confirmManagePresentation"
-                color="primary"
-                onClick={() => this.handleConfirm(hasNewUpload)}
-                disabled={disableActions}
-                label={hasNewUpload
-                  ? intl.formatMessage(intlMessages.uploadLabel)
-                  : intl.formatMessage(intlMessages.confirmLabel)}
-              />
-            </Styled.ActionWrapper>
-          </Styled.ModalHeader>
+    return (
+      <>
+        <PresentationUploaderToast intl={intl} />
+        {isOpen
+          ? (
+            <Styled.UploaderModal id="upload-modal">
+              <Styled.ModalInner>
+                <Styled.ModalHeader>
+                  <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+                  <Styled.ActionWrapper>
+                    <Styled.DismissButton
+                      color="secondary"
+                      onClick={this.handleDismiss}
+                      label={intl.formatMessage(intlMessages.dismissLabel)}
+                      aria-describedby={intl.formatMessage(intlMessages.dismissDesc)}
+                    />
+                    <Styled.ConfirmButton
+                      data-test="confirmManagePresentation"
+                      color="primary"
+                      onClick={() => this.handleConfirm()}
+                      disabled={disableActions}
+                      label={hasNewUpload
+                        ? intl.formatMessage(intlMessages.uploadLabel)
+                        : intl.formatMessage(intlMessages.confirmLabel)}
+                    />
+                  </Styled.ActionWrapper>
+                </Styled.ModalHeader>
 
-          <Styled.ModalHint>
-            {`${intl.formatMessage(intlMessages.message)}`}
-            {fileUploadConstraintsHint ? this.renderExtraHint() : null}
-          </Styled.ModalHint>
-          {this.renderPresentationList()}
-          {isMobile ? this.renderPicDropzone() : null}
-          {this.renderDropzone()}
-        </Styled.ModalInner>
-      </Styled.UploaderModal>
-    ) : null;
+                <Styled.ModalHint>
+                  {`${intl.formatMessage(intlMessages.message)}`}
+                  {fileUploadConstraintsHint ? this.renderExtraHint() : null}
+                </Styled.ModalHint>
+                {this.renderPresentationList()}
+                {this.renderDownloadableWithAnnotationsHint()}
+                {isMobile ? this.renderPicDropzone() : null}
+                {this.renderDropzone()}
+                {this.renderExternalUpload()}
+              </Styled.ModalInner>
+            </Styled.UploaderModal>
+          )
+          : null}
+      </>
+    );
   }
 }
 

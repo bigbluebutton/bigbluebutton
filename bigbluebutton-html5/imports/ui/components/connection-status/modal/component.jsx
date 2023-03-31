@@ -3,12 +3,11 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/connection-status/icon/component';
-import Switch from '/imports/ui/components/common/switch/component';
 import Service from '../service';
 import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/container';
 
-const NETWORK_MONITORING_INTERVAL_MS = 2000; 
+const NETWORK_MONITORING_INTERVAL_MS = 2000;
 const MIN_TIMEOUT = 3000;
 
 const intlMessages = defineMessages({
@@ -128,6 +127,10 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.prev',
     description: 'Label for the previous page of the connection stats tab',
   },
+  clientNotResponding: {
+    id: 'app.connection-status.clientNotRespondingWarning',
+    description: 'Text for Client not responding warning',
+  },
 });
 
 const propTypes = {
@@ -158,9 +161,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     this.help = Service.getHelp();
     this.state = {
-      selectedTab: '1',
-      dataPage: '1',
-      dataSaving: props.dataSaving,
+      selectedTab: 0,
       hasNetworkData: false,
       copyButtonText: intl.formatMessage(intlMessages.copy),
       networkData: {
@@ -180,13 +181,13 @@ class ConnectionStatusComponent extends PureComponent {
         },
       },
     };
-    this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
     this.setButtonMessage = this.setButtonMessage.bind(this);
     this.rateInterval = null;
     this.audioUploadLabel = intl.formatMessage(intlMessages.audioUploadRate);
     this.audioDownloadLabel = intl.formatMessage(intlMessages.audioDownloadRate);
     this.videoUploadLabel = intl.formatMessage(intlMessages.videoUploadRate);
     this.videoDownloadLabel = intl.formatMessage(intlMessages.videoDownloadRate);
+    this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
   async componentDidMount() {
@@ -197,10 +198,16 @@ class ConnectionStatusComponent extends PureComponent {
     Meteor.clearInterval(this.rateInterval);
   }
 
-  handleDataSavingChange(key) {
-    const { dataSaving } = this.state;
-    dataSaving[key] = !dataSaving[key];
-    this.setState(dataSaving);
+  handleSelectTab(tab) {
+    this.setState({
+      selectedTab: tab,
+    });
+  }
+
+  setButtonMessage(msg) {
+    this.setState({
+      copyButtonText: msg,
+    });
   }
 
   /**
@@ -262,6 +269,32 @@ class ConnectionStatusComponent extends PureComponent {
     }, NETWORK_MONITORING_INTERVAL_MS);
   }
 
+  /**
+   * Copy network data to clipboard
+   * @return {Promise}   A Promise that is resolved after data is copied.
+   *
+   *
+   */
+  async copyNetworkData() {
+    const { intl } = this.props;
+    const {
+      networkData,
+      hasNetworkData,
+    } = this.state;
+
+    if (!hasNetworkData) return;
+
+    this.setButtonMessage(intl.formatMessage(intlMessages.copied));
+
+    const data = JSON.stringify(networkData, null, 2);
+
+    await navigator.clipboard.writeText(data);
+
+    this.copyNetworkDataTimeout = setTimeout(() => {
+      this.setButtonMessage(intl.formatMessage(intlMessages.copy));
+    }, MIN_TIMEOUT);
+  }
+
   renderEmpty() {
     const { intl } = this.props;
 
@@ -278,52 +311,6 @@ class ConnectionStatusComponent extends PureComponent {
     );
   }
 
-  displaySettingsStatus(status) {
-    const { intl } = this.props;
-
-    return (
-      <Styled.ToggleLabel>
-        {status ? intl.formatMessage(intlMessages.on)
-          : intl.formatMessage(intlMessages.off)}
-      </Styled.ToggleLabel>
-    );
-  }
-
-  setButtonMessage(msg) {
-    this.setState({
-      copyButtonText: msg,
-    });
-  }
-
-  /**
-   * Copy network data to clipboard
-   * @param  {Object}  e              Event object from click event
-   * @return {Promise}   A Promise that is resolved after data is copied.
-   *
-   *
-   */
-  async copyNetworkData(e) {
-    const { intl } = this.props;
-    const {
-      networkData,
-      hasNetworkData,
-    } = this.state;
-
-    if (!hasNetworkData) return;
-
-    const { target: copyButton } = e;
-
-    this.setButtonMessage(intl.formatMessage(intlMessages.copied));
-
-    const data = JSON.stringify(networkData, null, 2);
-
-    await navigator.clipboard.writeText(data);
-
-    this.copyNetworkDataTimeout = setTimeout(() => {
-      this.setButtonMessage(intl.formatMessage(intlMessages.copy));
-    }, MIN_TIMEOUT);
-  }
-
   renderConnections() {
     const {
       connectionStatus,
@@ -335,17 +322,16 @@ class ConnectionStatusComponent extends PureComponent {
     if (isConnectionStatusEmpty(connectionStatus)) return this.renderEmpty();
 
     let connections = connectionStatus;
-    if (selectedTab === '2') {
+    if (selectedTab === 1) {
       connections = connections.filter(conn => conn.you);
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.timestamp);
-
       return (
         <Styled.Item
-          key={index}
+          key={`${conn?.name}-${conn.userId}`}
           last={(index + 1) === connections.length}
           data-test="connectionStatusItemUser"
         >
@@ -370,90 +356,31 @@ class ConnectionStatusComponent extends PureComponent {
                 {conn.offline ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
               </Styled.Text>
             </Styled.Name>
-            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.level}`}>
+            <Styled.Status aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.status}`}>
               <Styled.Icon>
-                <Icon level={conn.level} />
+                <Icon level={conn.status} />
               </Styled.Icon>
             </Styled.Status>
+            { conn.notResponding && !conn.offline
+              ? (
+                <Styled.ClientNotRespondingText>
+                  {intl.formatMessage(intlMessages.clientNotResponding)}
+                </Styled.ClientNotRespondingText>
+              ) : null }
           </Styled.Left>
-          <Styled.Right>
-            <Styled.Time>
-              <time dateTime={dateTime}>
-                <FormattedTime value={dateTime} />
-              </time>
-            </Styled.Time>
-          </Styled.Right>
+            <Styled.Right>
+              <Styled.Time>
+                { conn.timestamp ?
+                  <time dateTime={dateTime}>
+                    <FormattedTime value={dateTime} />
+                  </time>
+                  : null
+                }
+              </Styled.Time>
+            </Styled.Right>
         </Styled.Item>
       );
     });
-  }
-
-  renderDataSaving() {
-    const {
-      intl,
-      dataSaving,
-    } = this.props;
-
-    const {
-      viewParticipantsWebcams,
-      viewScreenshare,
-    } = dataSaving;
-
-    return (
-      <Styled.DataSaving>
-        <Styled.Description>
-          {intl.formatMessage(intlMessages.dataSaving)}
-        </Styled.Description>
-
-        <Styled.Row>
-          <Styled.Col aria-hidden="true">
-            <Styled.FormElement>
-              <Styled.Label>
-                {intl.formatMessage(intlMessages.webcam)}
-              </Styled.Label>
-            </Styled.FormElement>
-          </Styled.Col>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              {this.displaySettingsStatus(viewParticipantsWebcams)}
-              <Switch
-                icons={false}
-                defaultChecked={viewParticipantsWebcams}
-                onChange={() => this.handleDataSavingChange('viewParticipantsWebcams')}
-                ariaLabelledBy="webcam"
-                ariaLabel={intl.formatMessage(intlMessages.webcam)}
-                data-test="dataSavingWebcams"
-                showToggleLabel={false}
-              />
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
-
-        <Styled.Row>
-          <Styled.Col aria-hidden="true">
-            <Styled.FormElement>
-              <Styled.Label>
-                {intl.formatMessage(intlMessages.screenshare)}
-              </Styled.Label>
-            </Styled.FormElement>
-          </Styled.Col>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              {this.displaySettingsStatus(viewScreenshare)}
-              <Switch
-                icons={false}
-                defaultChecked={viewScreenshare}
-                onChange={() => this.handleDataSavingChange('viewScreenshare')}
-                ariaLabelledBy="screenshare"
-                ariaLabel={intl.formatMessage(intlMessages.screenshare)}
-                data-test="dataSavingScreenshare"
-                showToggleLabel={false}
-              />
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
-      </Styled.DataSaving>
-    );
   }
 
   /**
@@ -477,7 +404,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     const { intl, closeModal } = this.props;
 
-    const { networkData, dataSaving, dataPage } = this.state;
+    const { networkData } = this.state;
 
     const {
       audioCurrentUploadRate,
@@ -507,43 +434,17 @@ class ConnectionStatusComponent extends PureComponent {
       }
     }
 
-    function handlePaginationClick(action) {
-      if (action === 'next') {
-        this.setState({ dataPage: '2' });
-      }
-      else {
-        this.setState({ dataPage: '1' });
-      }
-    }
-
     return (
-      <Styled.NetworkDataContainer data-test="networkDataContainer">
-        <Styled.Prev>
-          <Styled.ButtonLeft
-            role="button"
-            disabled={dataPage === '1'}
-            aria-label={`${intl.formatMessage(intlMessages.prev)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
-            onClick={handlePaginationClick.bind(this, 'prev')}
-          >
-            <Styled.Chevron
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </Styled.Chevron>
-          </Styled.ButtonLeft>
-        </Styled.Prev>
-        <Styled.Helper page={dataPage}>
-          <ConnectionStatusHelper closeModal={() => closeModal(dataSaving, intl)} />
-        </Styled.Helper>
-        <Styled.NetworkDataContent page={dataPage}>
+      <Styled.NetworkDataContainer
+        data-test="networkDataContainer"
+        tabIndex={0}
+      >
+        <Styled.HelperWrapper>
+          <Styled.Helper>
+            <ConnectionStatusHelper closeModal={() => closeModal()} />
+          </Styled.Helper>
+        </Styled.HelperWrapper>
+        <Styled.NetworkDataContent>
           <Styled.DataColumn>
             <Styled.NetworkData>
               <div>{`${audioUploadLabel}`}</div>
@@ -551,7 +452,7 @@ class ConnectionStatusComponent extends PureComponent {
             </Styled.NetworkData>
             <Styled.NetworkData>
               <div>{`${videoUploadLabel}`}</div>
-              <div>{`${videoCurrentUploadRate}k ↑`}</div>
+              <div data-test="videoUploadRateData">{`${videoCurrentUploadRate}k ↑`}</div>
             </Styled.NetworkData>
             <Styled.NetworkData>
               <div>{`${intl.formatMessage(intlMessages.jitter)}`}</div>
@@ -582,28 +483,6 @@ class ConnectionStatusComponent extends PureComponent {
             </Styled.NetworkData>
           </Styled.DataColumn>
         </Styled.NetworkDataContent>
-        <Styled.Next>
-          <Styled.ButtonRight
-            role="button"
-            disabled={dataPage === '2'}
-            aria-label={`${intl.formatMessage(intlMessages.next)} ${intl.formatMessage(intlMessages.ariaTitle)}`}
-            onClick={handlePaginationClick.bind(this, 'next')}
-          >
-            <Styled.Chevron
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </Styled.Chevron>
-          </Styled.ButtonRight>
-        </Styled.Next>
       </Styled.NetworkDataContainer>
     );
   }
@@ -619,78 +498,20 @@ class ConnectionStatusComponent extends PureComponent {
       return null;
     }
 
-    const { intl } = this.props;
-
-    const { hasNetworkData } = this.state;
+    const { hasNetworkData, copyButtonText } = this.state;
     return (
       <Styled.CopyContainer aria-live="polite">
         <Styled.Copy
           disabled={!hasNetworkData}
           role="button"
-	  data-test="copyStats"
+	        data-test="copyStats"
           onClick={this.copyNetworkData.bind(this)}
           onKeyPress={this.copyNetworkData.bind(this)}
           tabIndex={0}
         >
-          {this.state.copyButtonText}
+          {copyButtonText}
         </Styled.Copy>
       </Styled.CopyContainer>
-    );
-  }
-
-  /**
-   * The navigation bar.
-   * @returns {Object} The component to be renderized.
-  */
-  renderNavigation() {
-    const { intl } = this.props;
-
-    const handleTabClick = (event) => {
-      const activeTabElement = document.querySelector('.activeConnectionStatusTab');
-      const { target } = event;
-
-      if (activeTabElement) {
-        activeTabElement.classList.remove('activeConnectionStatusTab');
-      }
-
-      target.classList.add('activeConnectionStatusTab');
-      this.setState({
-        selectedTab: target.dataset.tab,
-      });
-    }
-
-    return (
-      <Styled.Navigation>
-        <div
-          data-tab="1"
-          className="activeConnectionStatusTab"
-          onClick={handleTabClick}
-          onKeyDown={handleTabClick}
-          role="button"
-        >
-          {intl.formatMessage(intlMessages.connectionStats)}
-        </div>
-        <div
-          data-tab="2"
-          onClick={handleTabClick}
-          onKeyDown={handleTabClick}
-          role="button"
-        >
-          {intl.formatMessage(intlMessages.myLogs)}
-        </div>
-        {Service.isModerator()
-          && (
-            <div
-              data-tab="3"
-              onClick={handleTabClick}
-              onKeyDown={handleTabClick}
-              role="button"
-            >
-              {intl.formatMessage(intlMessages.sessionLogs)}
-            </div>
-          )
-        }
-      </Styled.Navigation>
     );
   }
 
@@ -700,11 +521,11 @@ class ConnectionStatusComponent extends PureComponent {
       intl,
     } = this.props;
 
-    const { dataSaving, selectedTab } = this.state;
+    const { selectedTab } = this.state;
 
     return (
       <Styled.ConnectionStatusModal
-        onRequestClose={() => closeModal(dataSaving, intl)}
+        onRequestClose={() => closeModal()}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
         data-test="connectionStatusModal"
@@ -715,18 +536,43 @@ class ConnectionStatusComponent extends PureComponent {
               {intl.formatMessage(intlMessages.title)}
             </Styled.Title>
           </Styled.Header>
-          {this.renderNavigation()}
-          <Styled.Main>
-            <Styled.Body>
-              {selectedTab === '1'
-                ? this.renderNetworkData()
-                : this.renderConnections()
+
+          <Styled.ConnectionTabs
+            onSelect={this.handleSelectTab}
+            selectedIndex={selectedTab}
+          >
+            <Styled.ConnectionTabList>
+              <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                <span id="connection-status-tab">{intl.formatMessage(intlMessages.title)}</span>
+              </Styled.ConnectionTabSelector>
+              <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                <span id="my-logs-tab">{intl.formatMessage(intlMessages.myLogs)}</span>
+              </Styled.ConnectionTabSelector>
+              {Service.isModerator()
+                && (
+                  <Styled.ConnectionTabSelector selectedClassName="is-selected">
+                    <span id="session-logs-tab">{intl.formatMessage(intlMessages.sessionLogs)}</span>
+                  </Styled.ConnectionTabSelector>
+                )
               }
-            </Styled.Body>
-            {selectedTab === '1' &&
-              this.renderCopyDataButton()
+            </Styled.ConnectionTabList>
+            <Styled.ConnectionTabPanel selectedClassName="is-selected">
+              <div>
+                {this.renderNetworkData()}
+                {this.renderCopyDataButton()}
+              </div>
+            </Styled.ConnectionTabPanel>
+            <Styled.ConnectionTabPanel selectedClassName="is-selected">
+                <div>{this.renderConnections()}</div>
+            </Styled.ConnectionTabPanel>
+            {Service.isModerator()
+              && (
+                <Styled.ConnectionTabPanel selectedClassName="is-selected">
+                  <div>{this.renderConnections()}</div>
+                </Styled.ConnectionTabPanel>
+              )
             }
-          </Styled.Main>
+          </Styled.ConnectionTabs>
         </Styled.Container>
       </Styled.ConnectionStatusModal>
     );

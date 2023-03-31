@@ -1,6 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import PadsService from '/imports/ui/components/pads/service';
 import NotesService from '/imports/ui/components/notes/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import UserNotes from './component';
@@ -16,7 +15,8 @@ const UserNotesContainer = (props) => {
 export default lockContextContainer(withTracker(({ userLocks }) => {
   const shouldDisableNotes = userLocks.userNotes;
   return {
-    rev: PadsService.getRev(NotesService.ID),
+    unread: NotesService.hasUnreadNotes(),
     disableNotes: shouldDisableNotes,
+    isPinned: NotesService.isSharedNotesPinned(),
   };
 })(UserNotesContainer));

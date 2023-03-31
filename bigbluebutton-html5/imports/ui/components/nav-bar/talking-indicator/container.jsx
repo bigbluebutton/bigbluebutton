@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
@@ -7,6 +7,8 @@ import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
+import SpeechService from '/imports/ui/components/audio/captions/speech/service';
+import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -14,6 +16,9 @@ const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 const TALKING_INDICATORS_MAX = 8;
 
 const TalkingIndicatorContainer = (props) => {
+  const usingUsersContext = useContext(UsersContext);
+  const { users } = usingUsersContext;
+
   if (!enableTalkingIndicator) return null;
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -28,6 +33,7 @@ const TalkingIndicatorContainer = (props) => {
         sidebarNavPanel,
         sidebarContentPanel,
         layoutContextDispatch,
+        users: users[Auth.meetingID],
         ...props,
       }}
     />
@@ -41,6 +47,7 @@ export default withTracker(() => {
     fields: {
       callerName: 1,
       talking: 1,
+      floor: 1,
       color: 1,
       startTime: 1,
       muted: 1,
@@ -59,11 +66,13 @@ export default withTracker(() => {
 
     for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
       const {
-        callerName, talking, color, muted, intId,
+        callerName, talking, floor, color, muted, intId,
       } = usersTalking[i];
 
       talkers[`${intId}`] = {
         color,
+        transcribing: SpeechService.hasSpeechLocale(intId),
+        floor,
         talking,
         muted,
         callerName,

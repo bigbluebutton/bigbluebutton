@@ -17,6 +17,7 @@ const colorTransparent = 'var(--color-transparent, #ff000000)';
 
 const colorPrimary = 'var(--color-primary, #0F70D7)';
 const colorDanger = 'var(--color-danger, #DF2721)';
+const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
 const colorSuccess = 'var(--color-success, #008081)';
 const colorWarning = 'var(--color-warning, purple)';
 const colorOffline = `var(--color-offline, ${colorGrayLight})`;
@@ -24,7 +25,7 @@ const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
 const colorBackground = `var(--color-background, ${colorGrayDark})`;
-const colorOverlay = `var(--color-overlay, rgba(6, 23, 42, 0.75))`;
+const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
 const userListText = `var(--user-list-text, ${colorGray})`;
@@ -41,9 +42,16 @@ const btnDefaultColor = `var(--btn-default-color, ${colorGray})`;
 const btnDefaultBg = `var(--btn-default-bg, ${colorWhite})`;
 const btnDefaultBorder = `var(--btn-default-border, ${colorWhite})`;
 
-const btnPrimaryBorder = `var(--btn-primary-border, ${colorPrimary})`;
+const btnDefaultGhostColor = `var(--btn-default-color, ${colorWhite})`;
+const btnDefaultGhostBg = 'var(--btn-default-bg, rgba(255, 255, 255, 0.1))'; // colorWhite, 10%
+const btnDefaultGhostBorder = 'var(--btn-default-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
+const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255, 0.2))'; // colorWhite, 20%
+
+const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
 const btnPrimaryBg = `var(--btn-primary-bg, ${colorPrimary})`;
+const btnPrimaryHoverBg = 'var(--btn-primary-hover-bg, #0C57A7)';
+const btnPrimaryActiveBg = 'var(--btn-primary-active-bg, #0A4B8F)';
 
 const btnSuccessBorder = `var(--btn-success-border, ${colorSuccess})`;
 const btnSuccessColor = `var(--btn-success-color, ${colorWhite})`;
@@ -107,6 +115,8 @@ const toastSuccessBg = `var(--toast-success-bg, ${colorSuccess})`;
 const toastErrorColor = `var(--toast-error-color, ${colorWhite})`;
 const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 
+const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
+
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 
@@ -125,6 +135,7 @@ export {
   colorBlueLightest,
   colorPrimary,
   colorDanger,
+  colorDangerDark,
   colorSuccess,
   colorWarning,
   colorBackground,
@@ -141,9 +152,15 @@ export {
   btnDefaultColor,
   btnDefaultBg,
   btnDefaultBorder,
+  btnDefaultGhostColor,
+  btnDefaultGhostBg,
+  btnDefaultGhostBorder,
+  btnDefaultGhostActiveBg,
   btnPrimaryBorder,
   btnPrimaryColor,
   btnPrimaryBg,
+  btnPrimaryHoverBg,
+  btnPrimaryActiveBg,
   btnSuccessBorder,
   btnSuccessColor,
   btnSuccessBg,
@@ -193,4 +210,5 @@ export {
   toastErrorBg,
   toastWarningColor,
   toastWarningBg,
+  webcamBackgroundColor,
 };

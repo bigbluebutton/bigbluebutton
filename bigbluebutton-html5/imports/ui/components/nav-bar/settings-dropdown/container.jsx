@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import SettingsDropdown from './component';
+import audioCaptionsService from '/imports/ui/components/audio/captions/service';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutSelect } from '../../layout/context';
@@ -27,6 +28,10 @@ export default withTracker((props) => {
   const handleToggleFullscreen = () => FullscreenService.toggleFullScreen();
   return {
     amIModerator: props.amIModerator,
+    audioCaptionsEnabled: audioCaptionsService.hasAudioCaptions(),
+    audioCaptionsActive: audioCaptionsService.getAudioCaptions(),
+    audioCaptionsSet: (value) => audioCaptionsService.setAudioCaptions(value),
+    isMobile: deviceInfo.isMobile,
     handleToggleFullscreen,
     noIOSFullscreen,
     isMeteorConnected: Meteor.status().connected,

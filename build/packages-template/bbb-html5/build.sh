@@ -26,6 +26,7 @@ cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 
 mkdir -p staging/etc/nginx/conf.d
 cp bbb-html5-loadbalancer.conf staging/etc/nginx/conf.d
+cp bbb-html5-conn-limit.conf staging/etc/nginx/conf.d
 
 
 mkdir -p staging/etc/systemd/system
@@ -49,6 +50,11 @@ cat .meteor/release
 # --production means we won't be installing devDependencies
 meteor npm ci --production
 
+# deleting links as they were repeatedly broken (node_modules/acorn/bin mostly)
+# I have not seen this on npm 8+ but meteor npm is still at 6.x right now
+# https://forums.meteor.com/t/broken-symbolic-link-on-running-app/57770/3
+find node_modules/.bin -xtype l -delete
+
 # Build the HTML5 client https://guide.meteor.com/deployment.html#custom-deployment
 # https://docs.meteor.com/environment-variables.html#METEOR-DISABLE-OPTIMISTIC-CACHING - disable caching because we're only building once
 # --allow-superuser
@@ -66,6 +72,10 @@ cd /tmp/html5-build/bundle/programs/server/
 npm i
 cd -
 cp -r /tmp/html5-build/bundle staging/usr/share/meteor
+
+# copy over tl;draw fonts due to a preset path
+mkdir -p staging/usr/share/meteor/bundle/programs/web.browser/app/files
+cp node_modules/@fontsource/*/files/*.woff[2] staging/usr/share/meteor/bundle/programs/web.browser/app/files/
 
 cp systemd_start.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/systemd_start.sh
@@ -93,15 +103,9 @@ cp bbb-html5-frontend@.service staging/usr/lib/systemd/system
 
 mkdir -p staging/usr/share
 
-if [ ! -f node-v14.21.2-linux-x64.tar.gz ]; then
-  wget https://nodejs.org/dist/v14.21.2/node-v14.21.2-linux-x64.tar.gz
-fi
-
-cp node-v14.21.2-linux-x64.tar.gz staging/usr/share
-
 # replace v=VERSION with build number in head and css files
 if [ -f staging/usr/share/meteor/bundle/programs/web.browser/head.html ]; then
-  sed -i "s/VERSION/$(($BUILD))/" staging/usr/share/meteor/bundle/programs/web.browser/head.html
+  sed -i "s/VERSION/$(($BUILD))/g" staging/usr/share/meteor/bundle/programs/web.browser/head.html
 fi
 
 find staging/usr/share/meteor/bundle/programs/web.browser -name '*.css' -exec sed -i "s/VERSION/$(($BUILD))/g" '{}' \;

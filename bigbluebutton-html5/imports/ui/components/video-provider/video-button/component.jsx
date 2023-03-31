@@ -7,10 +7,22 @@ import Styled from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'lodash';
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
+import Button from '/imports/ui/components/common/button/component';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
+const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
 
 const intlMessages = defineMessages({
+  videoSettings: {
+    id: 'app.video.videoSettings',
+    description: 'Open video settings',
+  },
+  visualEffects: {
+    id: 'app.video.visualEffects',
+    description: 'Visual effects label',
+  },
   joinVideo: {
     id: 'app.video.joinVideo',
     description: 'Join video button label',
@@ -66,6 +78,10 @@ const JoinVideoButton = ({
   const isDesktopSharingCamera = hasVideoStream && !isMobile;
   const shouldEnableWebcamSelectorButton = ENABLE_WEBCAM_SELECTOR_BUTTON
     && isDesktopSharingCamera;
+  const shouldEnableWebcamVisualEffectsButton =
+    (isVirtualBackgroundsEnabled() || ENABLE_CAMERA_BRIGHTNESS)
+    && hasVideoStream
+    && !isMobile;
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
     || shouldEnableWebcamSelectorButton);
 
@@ -88,9 +104,8 @@ const JoinVideoButton = ({
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
 
-  const handleOpenAdvancedOptions = (e) => {
-    e.stopPropagation();
-    mountVideoPreview(isDesktopSharingCamera);
+  const handleOpenAdvancedOptions = (props) => {
+    mountVideoPreview(isDesktopSharingCamera, props);
   };
 
   const getMessageFromStatus = () => {
@@ -107,22 +122,64 @@ const JoinVideoButton = ({
 
   const isSharing = hasVideoStream || status === 'videoConnecting';
 
-  const renderEmojiButton = () => (
-    shouldEnableWebcamSelectorButton
-      && (
-      <ButtonEmoji
-        onClick={handleOpenAdvancedOptions}
-        emoji="device_list_selector"
-        hideLabel
-        label={intl.formatMessage(intlMessages.advancedVideo)}
-        rotate
+  const renderUserActions = () => {
+    const actions = [];
+
+    if (shouldEnableWebcamSelectorButton) {
+      actions.push(
+        {
+          key: 'advancedVideo',
+          label: intl.formatMessage(intlMessages.advancedVideo),
+          onClick: () => handleOpenAdvancedOptions(),
+          dataTest: 'advancedVideoSettingsButton',
+        },
+      );
+    }
+
+    if (shouldEnableWebcamVisualEffectsButton) {
+      actions.push(
+        {
+          key: 'virtualBgSelection',
+          label: intl.formatMessage(intlMessages.visualEffects),
+          onClick: () => handleOpenAdvancedOptions({ isVisualEffects: true }),
+        },
+      );
+    }
+
+    if (actions.length === 0) return null;
+    const customStyles = { top: '-3.6rem' };
+
+    return (
+      <BBBMenu
+        customStyles={!isMobile ? customStyles : null}
+        trigger={(
+          <ButtonEmoji
+            emoji="device_list_selector"
+            data-test="videoDropdownMenu"
+            hideLabel
+            label={intl.formatMessage(intlMessages.videoSettings)}
+            rotate
+            tabIndex={0}
+          />
+        )}
+        actions={actions}
+        opts={{
+          id: "video-dropdown-menu",
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getContentAnchorEl: null,
+          fullwidth: "true",
+          anchorOrigin: { vertical: 'top', horizontal: 'center' },
+          transformOrigin: { vertical: 'top', horizontal: 'center'},
+      }}
       />
-      )
-  );
+    );
+  }
 
   return (
     <Styled.OffsetBottom>
-      <Styled.VideoButton
+      <Button
         label={label}
         data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
         onClick={handleOnClick}
@@ -134,7 +191,7 @@ const JoinVideoButton = ({
         circle
         disabled={!!disableReason}
       />
-      {renderEmojiButton()}
+      {renderUserActions()}
     </Styled.OffsetBottom>
   );
 };

@@ -30,6 +30,9 @@ trait EjectUserFromBreakoutInternalMsgHdlr {
       // send a system message to force disconnection
       Sender.sendDisconnectClientSysMsg(msg.breakoutId, registeredUser.id, msg.ejectedBy, msg.reasonCode, outGW)
 
+      //send users update to parent meeting
+      BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
+
       log.info("Eject user {} id={} in breakoutId {}", registeredUser.name, registeredUser.id, msg.breakoutId)
     }
 

@@ -50,6 +50,55 @@ You can also use this also through the test tree, adding the test suite / group 
 $ npm run test:filter "notifications chat"
 ```
 
+If you don't have `BBB_URL` and `BBB_SECRET` set, but have ssh access to the test server, you can use the following command to obtain `BBB_URL` and `BBB_SECRET` via ssh:
+
+```bash
+$ npm run test:ssh -- HOSTNAME
+```
+
+#### Recording Meteor messages
+
+A modified version of `websockify` can be used to record the Meteor messages exchanged between client and server, by inserted a WebSocket proxy between the client and server, configured to record the sessions.
+
+First, on the server, obtain the modified `websockify`:
+
+```bash
+git clone https://github.com/BrentBaccala/websockify.git
+```
+
+Install additional dependencies:
+
+```bash
+sudo apt install python3-numpy
+```
+
+Then add the following stanza to `/usr/share/bigbluebutton/nginx/bbb-html5.nginx`:
+
+```
+location ~* /html5client/.*/websocket {
+  proxy_pass http://127.0.0.1:4200;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
+```
+
+From the `websockify` directory, run `websockify` configured to proxy WebSocket connections from port 4200 to port 4100, recording the sessions to files named `bbb.1`, `bbb.2`, etc.:
+
+```bash
+./run -v --record=bbb --ws-target=ws://localhost:4100{path} 4200
+```
+
+Now reload nginx:
+
+```bash
+sudo systemctl reload nginx
+```
+
+Meteor messages for Big Blue Button sessions will now be recorded for later review.
+
+It doesn't seem necessary to relay cookies, but that could be done by giving a `--ws-relay-header=Cookie` argument to `websockify`.
+
 You can print the browser console log to standard output by setting the environment variable `CONSOLE`:
 ```
 $ CONSOLE= npm test chat -- --project=firefox

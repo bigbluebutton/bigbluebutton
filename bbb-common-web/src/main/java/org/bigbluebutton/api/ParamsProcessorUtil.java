@@ -81,6 +81,7 @@ public class ParamsProcessorUtil {
     private String defaultHTML5ClientUrl;
     private String defaultGuestWaitURL;
     private Boolean allowRequestsWithoutSession = false;
+    private Integer defaultHttpSessionTimeout = 14400;
     private Boolean useDefaultAvatar = false;
     private String defaultAvatarURL;
     private String defaultGuestPolicy;
@@ -95,16 +96,24 @@ public class ParamsProcessorUtil {
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
     private Integer defaultUserCameraCap = 0;
+    private Integer defaultMaxPinnedCameras = 3;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultDisabledFeatures;
+    private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
     private String defaultLogoURL;
+    private String defaultPresentationUploadExternalDescription = "";
+    private String defaultPresentationUploadExternalUrl = "";
 
 		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
+        private boolean defaultBreakoutRoomsCaptureSlides = false;
+        private boolean defaultBreakoutRoomsCaptureNotes = false;
+        private String  defaultBreakoutRoomsCaptureSlidesFilename = CONF_NAME;
+        private String  defaultBreakoutRoomsCaptureNotesFilename = CONF_NAME;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
 
 		private boolean defaultLockSettingsDisableCam;
@@ -113,7 +122,6 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisablePublicChat;
 		private boolean defaultLockSettingsDisableNotes;
 		private boolean defaultLockSettingsHideUserList;
-		private boolean defaultLockSettingsLockedLayout;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
@@ -127,6 +135,8 @@ public class ParamsProcessorUtil {
   	private Integer userInactivityThresholdInMinutes = 30;
     private Integer userActivitySignResponseDelayInMinutes = 5;
     private Boolean defaultAllowDuplicateExtUserid = true;
+
+    private Integer maxUserConcurrentAccesses = 0;
   	private Boolean defaultEndWhenNoModerator = false;
   	private Integer defaultEndWhenNoModeratorDelayInMinutes = 1;
   	private Integer defaultHtml5InstanceId = 1;
@@ -274,7 +284,31 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled);
+            Boolean breakoutRoomsCaptureSlides = defaultBreakoutRoomsCaptureSlides;
+            String breakoutRoomsCaptureParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureParam)) {
+				breakoutRoomsCaptureSlides = Boolean.parseBoolean(breakoutRoomsCaptureParam);
+			}
+
+            Boolean breakoutRoomsCaptureNotes = defaultBreakoutRoomsCaptureNotes;
+            String breakoutRoomsCaptureNotesParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesParam)) {
+				breakoutRoomsCaptureNotes = Boolean.parseBoolean(breakoutRoomsCaptureNotesParam);
+			}
+
+            String breakoutRoomsCaptureNotesFilename = defaultBreakoutRoomsCaptureNotesFilename;
+            String breakoutRoomsCaptureNotesFilenameParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureNotesFilenameParam)) {
+                breakoutRoomsCaptureNotesFilename = breakoutRoomsCaptureNotesFilenameParam;
+            }
+
+            String breakoutRoomsCaptureSlidesFilename = defaultBreakoutRoomsCaptureSlidesFilename;
+            String breakoutRoomsCaptureSlidesFilenameParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME);
+            if (!StringUtils.isEmpty(breakoutRoomsCaptureSlidesFilenameParam)) {
+                breakoutRoomsCaptureSlidesFilename = breakoutRoomsCaptureSlidesFilenameParam;
+            }
+
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides, breakoutRoomsCaptureNotesFilename, breakoutRoomsCaptureSlidesFilename);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -321,12 +355,6 @@ public class ParamsProcessorUtil {
 				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
 			}
 
-			Boolean lockSettingsLockedLayout = defaultLockSettingsLockedLayout;
-			String lockSettingsLockedLayoutParam = params.get(ApiParams.LOCK_SETTINGS_LOCKED_LAYOUT);
-			if (!StringUtils.isEmpty(lockSettingsLockedLayoutParam)) {
-				lockSettingsLockedLayout = Boolean.parseBoolean(lockSettingsLockedLayoutParam);
-			}
-
 			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
 			String lockSettingsLockOnJoinParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN);
 			if (!StringUtils.isEmpty(lockSettingsLockOnJoinParam)) {
@@ -351,7 +379,6 @@ public class ParamsProcessorUtil {
 							lockSettingsDisablePublicChat,
 							lockSettingsDisableNotes,
 							lockSettingsHideUserList,
-							lockSettingsLockedLayout,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor);
@@ -531,6 +558,11 @@ public class ParamsProcessorUtil {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
+        Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
+        if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
+            notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -561,6 +593,16 @@ public class ParamsProcessorUtil {
             } catch (NumberFormatException e) {
                 log.warn("Invalid param [userCameraCap] for meeting=[{}]", internalMeetingId);
             }
+        }
+
+        Integer maxPinnedCameras = defaultMaxPinnedCameras;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_PINNED_CAMERAS))) {
+          try {
+            Integer maxPinnedCamerasParam = Integer.parseInt(params.get(ApiParams.MAX_PINNED_CAMERAS));
+            if (maxPinnedCamerasParam > 0) maxPinnedCameras = maxPinnedCamerasParam;
+          } catch (NumberFormatException e) {
+            log.warn("Invalid param [maxPinnedCameras] for meeting =[{}]", internalMeetingId);
+          }
         }
 
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
@@ -603,6 +645,16 @@ public class ParamsProcessorUtil {
         if (!StringUtils.isEmpty(params.get(ApiParams.GUEST_POLICY))) {
         	guestPolicy = params.get(ApiParams.GUEST_POLICY);
 		    }
+
+        String presentationUploadExternalDescription = defaultPresentationUploadExternalDescription;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION))) {
+            presentationUploadExternalDescription = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION);
+        }
+
+        String presentationUploadExternalUrl = defaultPresentationUploadExternalUrl;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL))) {
+            presentationUploadExternalUrl = params.get(ApiParams.PRESENTATION_UPLOAD_EXTERNAL_URL);
+        }
 
         String meetingLayout = defaultMeetingLayout;
 
@@ -654,6 +706,11 @@ public class ParamsProcessorUtil {
 
         int html5InstanceId = processHtml5InstanceId(params.get(ApiParams.HTML5_INSTANCE_ID));
 
+        if(defaultAllowDuplicateExtUserid == false) {
+            log.warn("[DEPRECATION] use `maxUserConcurrentAccesses=1` instead of `allowDuplicateExtUserid=false`");
+            maxUserConcurrentAccesses = 1;
+        }
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -670,6 +727,7 @@ public class ParamsProcessorUtil {
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
+                .withMaxPinnedCameras(maxPinnedCameras)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage).isBreakout(isBreakout)
@@ -679,12 +737,15 @@ public class ParamsProcessorUtil {
                 .withMeetingLayout(meetingLayout)
 				.withBreakoutRoomsParams(breakoutParams)
 				.withLockSettingsParams(lockSettingsParams)
-				.withAllowDuplicateExtUserid(defaultAllowDuplicateExtUserid)
+				.withMaxUserConcurrentAccesses(maxUserConcurrentAccesses)
                 .withHTML5InstanceId(html5InstanceId)
                 .withLearningDashboardCleanupDelayInMinutes(learningDashboardCleanupMins)
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withDisabledFeatures(listOfDisabledFeatures)
+                .withNotifyRecordingIsOn(notifyRecordingIsOn)
+                .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
+                .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -712,6 +773,10 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
+            meeting.setCaptureSlides(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES)));
+            meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
+            meeting.setCaptureNotesFilename(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME));
+            meeting.setCaptureSlidesFilename(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME));
             meeting.setParentMeetingId(parentMeetingId);
         }
 
@@ -789,6 +854,14 @@ public class ParamsProcessorUtil {
 	public Boolean getAllowRequestsWithoutSession() {
 		return allowRequestsWithoutSession;
 	}
+
+  public Integer getDefaultHttpSessionTimeout() {
+    return defaultHttpSessionTimeout;
+  }
+
+  public void setDefaultHttpSessionTimeout(Integer value) {
+    this.defaultHttpSessionTimeout = value;
+  }
 
 	public String getDefaultLogoutUrl() {
 		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || "default".equalsIgnoreCase(defaultLogoutUrl)) {
@@ -981,7 +1054,7 @@ public class ParamsProcessorUtil {
                 log.info("No algorithm could be found that matches the provided checksum length");
         }
 
-		if (cs == null || !cs.equals(checksum)) {
+		if (cs == null || !cs.equalsIgnoreCase(checksum)) {
 			log.info("query string after checksum removed: [{}]", queryString);
 			log.info("checksumError: query string checksum failed. our: [{}], client: [{}]", cs, checksum);
 			return false;
@@ -1041,7 +1114,7 @@ public class ParamsProcessorUtil {
 		String baseString = csbuf.toString();
 		String cs = DigestUtils.sha1Hex(baseString);
 
-		if (cs == null || !cs.equals(checksum)) {
+		if (cs == null || !cs.equalsIgnoreCase(checksum)) {
 			log.info("POST basestring = {}", baseString);
 			log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", cs, checksum);
 			return false;
@@ -1160,6 +1233,10 @@ public class ParamsProcessorUtil {
 
     public void setDefaultUserCameraCap(Integer userCameraCap) {
         this.defaultUserCameraCap = userCameraCap;
+    }
+
+    public void setDefaultMaxPinnedCameras(Integer maxPinnedCameras) {
+        this.defaultMaxPinnedCameras = maxPinnedCameras;
     }
 
 	public void setUseDefaultAvatar(Boolean value) {
@@ -1345,10 +1422,6 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsHideUserList = lockSettingsHideUserList;
 	}
 
-	public void setLockSettingsLockedLayout(Boolean lockSettingsLockedLayout) {
-		this.defaultLockSettingsLockedLayout = lockSettingsLockedLayout;
-	}
-
 	public void setLockSettingsLockOnJoin(Boolean lockSettingsLockOnJoin) {
 		this.defaultLockSettingsLockOnJoin = lockSettingsLockOnJoin;
 	}
@@ -1365,6 +1438,10 @@ public class ParamsProcessorUtil {
 		this.defaultAllowDuplicateExtUserid = allow;
 	}
 
+    public void setMaxUserConcurrentAccesses(Integer maxUserConcurrentAccesses) {
+		this.maxUserConcurrentAccesses = maxUserConcurrentAccesses;
+	}
+
 	public void setEndWhenNoModerator(Boolean val) {
 		this.defaultEndWhenNoModerator = val;
 	}
@@ -1376,6 +1453,18 @@ public class ParamsProcessorUtil {
   public void setDisabledFeatures(String disabledFeatures) {
         this.defaultDisabledFeatures = disabledFeatures;
     }
+
+  public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
+      this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
+  }
+
+  public void setPresentationUploadExternalDescription(String presentationUploadExternalDescription) {
+    this.defaultPresentationUploadExternalDescription = presentationUploadExternalDescription;
+  }
+
+  public void setPresentationUploadExternalUrl(String presentationUploadExternalUrl) {
+    this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
+  }
 
   public void setBbbVersion(String version) {
       this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";

@@ -4,6 +4,7 @@ import { makeCall } from '/imports/ui/services/api';
 import Meetings from '/imports/api/meetings';
 import Breakouts from '/imports/api/breakouts';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
+import NotesService from '/imports/ui/components/notes/service';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 
 const USER_CONFIG = Meteor.settings.public.user;
@@ -30,7 +31,7 @@ const currentBreakoutUsers = (user) => !Breakouts.findOne({
 
 const filterBreakoutUsers = (filter) => (users) => users.filter(filter);
 
-const getUsersNotAssigned = filterBreakoutUsers(currentBreakoutUsers);
+const getUsersNotJoined = filterBreakoutUsers(currentBreakoutUsers);
 
 const takePresenterRole = () => makeCall('assignPresenter', Auth.userID);
 
@@ -63,14 +64,16 @@ export default {
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (rooms, durationInMinutes, record = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record),
+  createBreakoutRoom: (rooms, durationInMinutes, record = false, captureNotes = false, captureSlides = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record, captureNotes, captureSlides),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   breakoutJoinedUsers: () => Breakouts.find({
     joinedUsers: { $exists: true },
   }, { fields: { joinedUsers: 1, breakoutId: 1, sequence: 1 }, sort: { sequence: 1 } }).fetch(),
+  moveUser: (fromBreakoutId, toBreakoutId, userId) => makeCall('moveUser', fromBreakoutId, toBreakoutId, userId),
   getBreakouts,
   getLastBreakouts,
-  getUsersNotAssigned,
+  getUsersNotJoined,
   takePresenterRole,
+  isSharedNotesPinned: () => NotesService.isSharedNotesPinned(),
   isSharingVideo: () => getVideoUrl(),
 };

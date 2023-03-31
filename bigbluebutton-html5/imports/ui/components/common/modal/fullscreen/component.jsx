@@ -102,7 +102,7 @@ class ModalFullscreen extends PureComponent {
 
     return (
       <Styled.FullscreenModal
-      id="fsmodal"
+        id="fsmodal"
         isOpen={modalisOpen || preventClosing}
         contentLabel={title}
         overlayClassName={"fullscreenModalOverlay"}
@@ -118,6 +118,7 @@ class ModalFullscreen extends PureComponent {
               disabled={dismiss.disabled}
               onClick={() => this.handleAction('dismiss')}
               aria-describedby="modalDismissDescription"
+              color="secondary"
             />
             <Styled.ConfirmButton
               data-test="modalConfirmButton"

@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
-import Presentations from '/imports/api/presentations';
 
 export default function handlePresentationUploadTokenPass({ body, header }, meetingId) {
   check(body, Object);

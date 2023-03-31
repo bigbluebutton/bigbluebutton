@@ -1,0 +1,60 @@
+name: Build and Deploy Docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'develop'
+    paths:
+      - 'docs/**'
+
+# Do not build the docs concurrently
+concurrency:
+  group: docs
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./docs
+    steps:
+      # Setup
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: yarn
+          cache-dependency-path: ./docs/yarn.lock
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Build static docs
+      - name: Build all versions
+        run: ./build.sh
+      - name: Build website
+        run: yarn build
+      - name: upload build artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./docs/build
+
+  deploy:
+    name: Deploy docs to gh-pages
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: Documentation
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

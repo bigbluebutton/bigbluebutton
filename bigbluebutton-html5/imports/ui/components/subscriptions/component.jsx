@@ -5,7 +5,6 @@ import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
 import Annotations from '/imports/api/annotations';
 import Users from '/imports/api/users';
-import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import {
   localCollectionRegistry,
@@ -23,7 +22,8 @@ const SUBSCRIPTIONS = [
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'meeting-time-remaining',
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
-  'pads', 'pads-sessions', 'pads-updates',
+  'pads', 'pads-sessions', 'pads-updates', 'notifications', 'audio-captions',
+  'layout-meetings',
 ];
 const {
   localBreakoutsSync,
@@ -117,6 +117,7 @@ export default withTracker(() => {
         SubscriptionRegistry.getSubscription('users'),
         SubscriptionRegistry.getSubscription('breakouts'),
         SubscriptionRegistry.getSubscription('breakouts-history'),
+        SubscriptionRegistry.getSubscription('connection-status'),
         SubscriptionRegistry.getSubscription('guestUser'),
       ].forEach((item) => {
         if (item) item.stop();
@@ -154,9 +155,8 @@ export default withTracker(() => {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
     const annotationsHandler = Meteor.subscribe('annotations', {
       onReady: () => {
-        const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
-        AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
-        Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
+        AnnotationsLocal.remove({});
+        Annotations.find({}, { reactive: false }).forEach((a) => {
           try {
             AnnotationsLocal.insert(a);
           } catch (e) {

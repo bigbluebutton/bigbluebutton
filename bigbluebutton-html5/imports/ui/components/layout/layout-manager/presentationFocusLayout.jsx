@@ -100,6 +100,8 @@ const PresentationFocusLayout = (props) => {
           },
           screenShare: {
             hasScreenShare: input.screenShare.hasScreenShare,
+            width: input.screenShare.width,
+            height: input.screenShare.height,
           },
         }, INITIAL_INPUT_STATE),
       });
@@ -140,6 +142,7 @@ const PresentationFocusLayout = (props) => {
         }, INITIAL_INPUT_STATE),
       });
     }
+    Session.set('layoutReady', true);
     throttledCalculatesLayout();
   };
 
@@ -426,6 +429,7 @@ const PresentationFocusLayout = (props) => {
           bottom: false,
           left: false,
         },
+        focusedId: input.cameraDock.focusedId,
         zIndex: cameraDockBounds.zIndex,
       },
     });
@@ -459,6 +463,17 @@ const PresentationFocusLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
+      value: {
+        width: isOpen ? mediaBounds.width : 0,
+        height: isOpen ? mediaBounds.height : 0,
+        top: mediaBounds.top,
+        left: mediaBounds.left,
+        right: mediaBounds.right,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,

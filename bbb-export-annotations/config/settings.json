@@ -1,0 +1,42 @@
+{
+    "log": {
+      "level": "info",
+      "msgName": "PresAnnStatusMsg"
+    },
+    "shared": {
+      "presDir": "/var/bigbluebutton",
+      "presAnnDropboxDir": "/tmp/pres-ann-dropbox",
+      "cairosvg": "/usr/bin/cairosvg",
+      "ghostscript": "/usr/bin/gs",
+      "imagemagick": "/usr/bin/convert",
+      "pdftocairo": "/usr/bin/pdftocairo"
+    },
+    "collector": {
+      "pngWidthRasterizedSlides": 2560
+    },
+    "process": {
+      "whiteboardTextEncoding": "utf-8",
+      "maxImageWidth": 1440,
+      "maxImageHeight": 1080,
+      "textScaleFactor": 2,
+      "pointsPerInch": 72,
+      "pixelsPerInch": 96
+    },
+    "notifier": {
+      "pod_id": "DEFAULT_PRESENTATION_POD",
+      "is_downloadable": "false",
+      "msgName": "NewPresAnnFileAvailableMsg"
+    },
+    "bbbWebAPI": "http://127.0.0.1:8090",
+    "bbbWebPublicAPI": "/bigbluebutton/",
+    "bbbPadsAPI": "http://127.0.0.1:9002",
+    "redis": {
+      "host": "127.0.0.1",
+      "port": 6379,
+      "password": null,
+      "channels": {
+        "queue": "exportJobs",
+        "publish": "to-akka-apps-redis-channel"
+      }
+    }
+}

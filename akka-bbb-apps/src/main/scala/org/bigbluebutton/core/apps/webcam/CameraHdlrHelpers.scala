@@ -23,7 +23,6 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
         (applyPermissionCheck &&
           !camBroadcastLocked &&
           !camCapReached &&
-          !user.userLeftFlag.left &&
           streamId.startsWith(user.intId) &&
           liveMeeting.props.meetingProp.intId == meetingId)
       }
@@ -43,7 +42,6 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
 
         (applyPermissionCheck &&
           !camSubscribeLocked &&
-          !user.userLeftFlag.left &&
           liveMeeting.props.meetingProp.intId == meetingId)
       }
       case _ => false

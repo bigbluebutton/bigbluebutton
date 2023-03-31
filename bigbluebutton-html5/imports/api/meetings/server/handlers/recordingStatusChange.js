@@ -3,7 +3,7 @@ import { RecordMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
 export default function handleRecordingStatusChange({ body }, meetingId) {
-  const { recording } = body;
+  const { recording, setBy } = body;
   check(recording, Boolean);
 
   const selector = {
@@ -11,7 +11,7 @@ export default function handleRecordingStatusChange({ body }, meetingId) {
   };
 
   const modifier = {
-    $set: { recording },
+    $set: { recording, setBy },
   };
 
   try {

@@ -1,8 +1,9 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
 import Settings from '/imports/ui/services/settings';
-import { notify } from '/imports/ui/services/notification';
+import {notify} from '/imports/ui/services/notification';
 import GuestService from '/imports/ui/components/waiting-users/service';
+import Intl from '/imports/ui/services/locale';
 
 const getUserRoles = () => {
   const user = Users.findOne({
@@ -10,6 +11,14 @@ const getUserRoles = () => {
   });
 
   return user.role;
+};
+
+const isPresenter = () => {
+  const user = Users.findOne({
+    userId: Auth.userID,
+  });
+
+  return user.presenter;
 };
 
 const showGuestNotification = () => {
@@ -20,18 +29,22 @@ const showGuestNotification = () => {
   return guestPolicy === 'ASK_MODERATOR';
 };
 
-const updateSettings = (obj, msg) => {
+const isKeepPushingLayoutEnabled = () => Meteor.settings.public.layout.showPushLayoutToggle;
+
+const updateSettings = (obj, msgDescriptor) => {
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
   Settings.save();
 
-  if (msg) {
+  if (msgDescriptor) {
     // prevents React state update on unmounted component
     setTimeout(() => {
-      notify(
-        msg,
-        'info',
-        'settings',
-      );
+      Intl.formatMessage(msgDescriptor).then((txt) => {
+        notify(
+          txt,
+          'info',
+          'settings',
+        );
+      });
     }, 0);
   }
 };
@@ -40,7 +53,9 @@ const getAvailableLocales = () => fetch('./locale-list').then(locales => locales
 
 export {
   getUserRoles,
+  isPresenter,
   showGuestNotification,
   updateSettings,
+  isKeepPushingLayoutEnabled,
   getAvailableLocales,
 };

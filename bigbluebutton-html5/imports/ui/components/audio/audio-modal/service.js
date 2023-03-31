@@ -27,7 +27,7 @@ export const joinMicrophone = (skipEchoTest = false) => {
 
   const call = new Promise((resolve, reject) => {
     try {
-      if (skipEchoTest && !Service.isConnected()) {
+      if ((skipEchoTest && !Service.isConnected()) || Service.localEchoEnabled) {
         return resolve(Service.joinMicrophone());
       }
 
@@ -38,7 +38,7 @@ export const joinMicrophone = (skipEchoTest = false) => {
   });
 
   return call.then(() => {
-    showModal(null);
+    window.dispatchEvent(new Event("CLOSE_AUDIO_MODAL"));
   }).catch((error) => {
     throw error;
   });
@@ -55,7 +55,7 @@ export const joinListenOnly = () => {
       // prop transitions to a state where it was handled OR the user opts
       // to close the modal.
       if (!Service.autoplayBlocked()) {
-        showModal(null);
+        window.dispatchEvent(new Event("CLOSE_AUDIO_MODAL"));
       }
       resolve();
     });

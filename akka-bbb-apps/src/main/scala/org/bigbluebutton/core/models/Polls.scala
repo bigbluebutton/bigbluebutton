@@ -2,7 +2,6 @@ package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import org.bigbluebutton.core.apps.WhiteboardKeyUtil
 import org.bigbluebutton.core.domain.MeetingState2x
 
 import scala.collection.mutable.ArrayBuffer
@@ -95,10 +94,6 @@ object Polls {
       annotation.copy(annotationInfo = shape2)
     }
 
-    def updateWhiteboardAnnotation(annotation: AnnotationVO): AnnotationVO = {
-      lm.wbModel.updateAnnotation(annotation.wbId, annotation.userId, annotation)
-    }
-
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
       for {
         pod <- state.presentationPodManager.getDefaultPod()
@@ -107,10 +102,8 @@ object Polls {
       } yield {
         val pageId = if (poll.id.contains("deskshare")) "deskshare" else page.id
         val updatedShape = shape + ("whiteboardId" -> pageId)
-        val annotation = new AnnotationVO(poll.id, WhiteboardKeyUtil.DRAW_END_STATUS,
-          WhiteboardKeyUtil.POLL_RESULT_TYPE, updatedShape, pageId, requesterId, -1)
-        val sanitizedShape = sanitizeAnnotation(annotation)
-        updateWhiteboardAnnotation(sanitizedShape)
+        val annotation = new AnnotationVO(poll.id, updatedShape, pageId, requesterId)
+        annotation
       }
     }
 
@@ -119,6 +112,7 @@ object Polls {
       shape = pollResultToWhiteboardShape(result)
       annot <- send(result, shape)
     } yield {
+      lm.wbModel.addAnnotations(annot.wbId, requesterId, Array[AnnotationVO](annot), false, false)
       showPollResult(pollId, lm.polls)
       (result, annot)
     }
@@ -256,56 +250,10 @@ object Polls {
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     shape += "numRespondents" -> new Integer(result.numRespondents)
     shape += "numResponders" -> new Integer(result.numResponders)
-    shape += "type" -> WhiteboardKeyUtil.POLL_RESULT_TYPE
-    shape += "pollType" -> result.questionType
+    shape += "questionType" -> result.questionType
+    shape += "questionText" -> result.questionText
     shape += "id" -> result.id
-    shape += "status" -> WhiteboardKeyUtil.DRAW_END_STATUS
-
-    val answers = new ArrayBuffer[SimpleVoteOutVO]
-
-    def sortByNumVotes(s1: SimpleVoteOutVO, s2: SimpleVoteOutVO) = {
-      s1.numVotes > s2.numVotes
-    }
-
-    val sorted_answers = result.answers.sortWith(sortByNumVotes)
-
-    // Limit the number of answers displayed to minimize
-    // squishing the display.
-    if (sorted_answers.length <= 7) {
-      sorted_answers.foreach(ans => {
-        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
-      })
-    } else {
-      var highestId = 0
-
-      for (i <- 0 until 7) {
-        val ans = sorted_answers(i)
-        answers += SimpleVoteOutVO(ans.id, ans.key, ans.numVotes)
-        if (ans.id > highestId) {
-          highestId = ans.id
-        }
-      }
-
-      var otherNumVotes = 0
-      for (i <- 7 until sorted_answers.length) {
-        val ans = sorted_answers(i)
-        otherNumVotes += ans.numVotes
-        if (ans.id > highestId) {
-          highestId = ans.id
-        }
-      }
-
-      answers += SimpleVoteOutVO(highestId + 1, "...", otherNumVotes)
-    }
-
-    shape += "result" -> answers
-
-    // Hardcode poll result display location for now to display result
-    // in bottom-right corner.
-    val shapeHeight = 6.66 * answers.size
-    val mapA = List(66.toFloat, 100 - shapeHeight, 34.toFloat, shapeHeight)
-
-    shape += "points" -> mapA
+    shape += "answers" -> result.answers
     shape.toMap
   }
 

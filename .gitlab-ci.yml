@@ -75,11 +75,6 @@ bbb-config-build:
   script:
     - build/setup-inside-docker.sh bbb-config
 
-bbb-demo-build:
-  extends: .build_job
-  script:
-    - build/setup-inside-docker.sh bbb-demo
-
 bbb-etherpad-build:
   extends: .build_job
   script:
@@ -105,7 +100,7 @@ bbb-html5-build:
   script:
     - build/setup-inside-docker.sh bbb-html5
 
-bbb-learning-dashboard:
+bbb-learning-dashboard-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-learning-dashboard

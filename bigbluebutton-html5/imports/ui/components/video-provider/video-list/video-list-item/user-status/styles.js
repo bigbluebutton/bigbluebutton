@@ -1,33 +1,26 @@
 import styled from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
-import { audioIndicatorFs, audioIndicatorWidth } from '/imports/ui/stylesheets/styled-components/general';
 import { colorDanger, colorSuccess, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Voice = styled(Icon)`
-  width: ${audioIndicatorWidth};
-  height: ${audioIndicatorWidth};
-  min-width: ${audioIndicatorWidth};
-  min-height: ${audioIndicatorWidth};
+  height: 80%;
   color: ${colorWhite};
   border-radius: 50%;
 
   &::before {
-    font-size: ${audioIndicatorFs};
+    font-size: 80%;
   }
 
   background-color: ${colorSuccess};
 `;
 
 const Muted = styled(Icon)`
-  width: ${audioIndicatorWidth};
-  height: ${audioIndicatorWidth};
-  min-width: ${audioIndicatorWidth};
-  min-height: ${audioIndicatorWidth};
+  height: 80%;
   color: ${colorWhite};
   border-radius: 50%;
 
   &::before {
-    font-size: ${audioIndicatorFs};
+    font-size: 80%;
   }
 
   background-color: ${colorDanger};
