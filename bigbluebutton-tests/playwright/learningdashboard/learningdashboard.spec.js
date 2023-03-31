@@ -31,4 +31,7 @@ test.describe.serial('Learning Dashboard', async () => {
   test('Overview', async () => {
     await learningDashboard.overview();
   });
+  test('Download Session Learning Dashboard', async ({ context }, testInfo) => {
+    await learningDashboard.downloadSessionLearningDashboard(testInfo);
+  });  
 });
