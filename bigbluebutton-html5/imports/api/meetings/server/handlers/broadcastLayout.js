@@ -1,7 +1,27 @@
 import changeLayout from '../modifiers/changeLayout';
 
-export default function broadcastLayout({ body }, meetingId) {
-  const { layout, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, pushLayout, setByUserId } = body;
+export default async function broadcastLayout({ body }, meetingId) {
+  const {
+    layout,
+    presentationIsOpen,
+    isResizing,
+    cameraPosition,
+    focusedCamera,
+    presentationVideoRate,
+    pushLayout,
+    setByUserId,
+  } = body;
 
-  changeLayout(meetingId, layout, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, pushLayout, setByUserId);
+  const result = await changeLayout(
+    meetingId,
+    layout,
+    presentationIsOpen,
+    isResizing,
+    cameraPosition,
+    focusedCamera,
+    presentationVideoRate,
+    pushLayout,
+    setByUserId,
+  );
+  return result;
 }

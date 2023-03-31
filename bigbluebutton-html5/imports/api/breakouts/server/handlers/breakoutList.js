@@ -4,7 +4,7 @@ import { check } from 'meteor/check';
 import flat from 'flat';
 import handleBreakoutRoomsListHist from '/imports/api/breakouts-history/server/handlers/breakoutRoomsList';
 
-export default function handleBreakoutRoomsList({ body }, meetingId) {
+export default async function handleBreakoutRoomsList({ body }, meetingId) {
   // 0 seconds default breakout time, forces use of real expiration time
   const DEFAULT_TIME_REMAINING = 0;
 
@@ -14,7 +14,7 @@ export default function handleBreakoutRoomsList({ body }, meetingId) {
   } = body;
 
   // set firstly the last seq, then client will know when receive all
-  rooms.sort((a, b) => ((a.sequence < b.sequence) ? 1 : -1)).forEach((breakout) => {
+  await rooms.sort((a, b) => ((a.sequence < b.sequence) ? 1 : -1)).forEach(async (breakout) => {
     const { breakoutId, html5JoinUrls, ...breakoutWithoutUrls } = breakout;
 
     check(meetingId, String);
@@ -43,18 +43,13 @@ export default function handleBreakoutRoomsList({ body }, meetingId) {
         ...urls,
       },
     };
-
-    try {
-      const { numberAffected } = Breakouts.upsert(selector, modifier);
-
-      if (numberAffected) {
-        Logger.info('Updated timeRemaining and externalMeetingId '
-            + `for breakout id=${breakoutId}`);
-      }
-    } catch (err) {
-      Logger.error(`updating breakout: ${err}`);
+    const numberAffected = await Breakouts.upsertAsync(selector, modifier);
+    if (numberAffected) {
+      Logger.info('Updated timeRemaining and externalMeetingId '
+          + `for breakout id=${breakoutId}`);
+    } else {
+      Logger.error(`updating breakout: ${numberAffected}`);
     }
+    handleBreakoutRoomsListHist({ body });
   });
-
-  handleBreakoutRoomsListHist({ body });
 }

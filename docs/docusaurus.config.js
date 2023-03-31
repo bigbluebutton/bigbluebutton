@@ -35,6 +35,16 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
+                    lastVersion: '2.5',
+                    includeCurrentVersion: false,
+                    versions: {
+                        '2.5': {
+                            banner: 'none'
+                        },
+                        '2.6': {
+                            banner: 'none'
+                        },
+                    }
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
@@ -43,7 +53,29 @@ const config = {
         ],
     ],
 
-    plugins: [require.resolve("@cmfcmf/docusaurus-search-local")],
+    plugins: [
+        require.resolve("@cmfcmf/docusaurus-search-local"),
+        [
+            "@docusaurus/plugin-client-redirects",
+            {
+                fromExtensions: ["html"],
+                redirects: [
+                    {
+                        to: "/2.6/new-features",
+                        from: "/2.6/new"
+                    },
+                    {
+                        to: "/development/api",
+                        from: "/dev/api.html"
+                    },
+                    {
+                        to: "/greenlight/v3/migration",
+                        from: "/greenlight_v3/gl3-migration.html"
+                    }
+                ]
+            }
+        ],
+    ],
 
     themeConfig:
 

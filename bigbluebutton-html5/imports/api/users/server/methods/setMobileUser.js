@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import setMobile from '../modifiers/setMobile';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function setMobileUser() {
+export default async function setMobileUser() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -12,7 +12,7 @@ export default function setMobileUser() {
 
     Logger.verbose(`Mobile user ${requesterUserId} from meeting ${meetingId}`);
 
-    setMobile(meetingId, requesterUserId);
+    await setMobile(meetingId, requesterUserId);
   } catch (err) {
     Logger.error(`Exception while invoking method setMobileUser ${err.stack}`);
   }

@@ -1,10 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import VideoStreams from '/imports/api/video-streams';
 
-export default function clearVideoStreams(meetingId) {
+export default async function clearVideoStreams(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = VideoStreams.remove({ meetingId });
+      const numberAffected = await VideoStreams.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared VideoStreams in (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearVideoStreams(meetingId) {
     }
   } else {
     try {
-      const numberAffected = VideoStreams.remove({});
+      const numberAffected = await VideoStreams.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared VideoStreams in all meetings');

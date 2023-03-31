@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import setUserExitReason from '/imports/api/users/server/modifiers/setUserExitReason';
 
-export default function setExitReason(reason) {
+export default async function setExitReason(reason) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -14,8 +14,8 @@ export default function setExitReason(reason) {
     check(requesterUserId, String);
     check(reason, String);
 
-    setUserExitReason(meetingId, requesterUserId, reason);
+    await setUserExitReason(meetingId, requesterUserId, reason);
   } catch (err) {
     Logger.error(`Exception while invoking method setExitReason ${err.stack}`);
   }
-};
+}

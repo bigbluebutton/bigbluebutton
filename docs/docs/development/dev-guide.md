@@ -552,7 +552,7 @@ sudo service bbb-web start
 If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
 
 ```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && mv /usr/share/bbb-web-old /usr/share/bbb-web
+sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && sudo mv /usr/share/bbb-web-old /usr/share/bbb-web
 ```
 
 Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
