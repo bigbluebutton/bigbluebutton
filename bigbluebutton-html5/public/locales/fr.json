@@ -391,7 +391,7 @@
     "app.navBar.settingsDropdown.fullscreenDesc": "Passer le menu de paramétrage en plein écran",
     "app.navBar.settingsDropdown.settingsDesc": "Modifier les paramètres généraux",
     "app.navBar.settingsDropdown.aboutDesc": "Afficher les informations du client",
-    "app.navBar.settingsDropdown.leaveSessionDesc": "Quitter la conférence",
+    "app.navBar.settingsDropdown.leaveSessionDesc": "Quitter la réunion",
     "app.navBar.settingsDropdown.exitFullscreenDesc": "Quitter le mode plein écran",
     "app.navBar.settingsDropdown.hotkeysLabel": "Raccourcis clavier",
     "app.navBar.settingsDropdown.hotkeysDesc": "Liste des raccourcis clavier disponibles",
