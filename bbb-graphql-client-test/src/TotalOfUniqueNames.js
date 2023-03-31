@@ -2,7 +2,7 @@ import { useSubscription, gql } from '@apollo/client';
 import React, { useState } from "react";
 
 export default function TotalOfUniqueNames() {
-  const { loading: usersLoading, error: usersError, data: users } = useSubscription(
+  const { loading, error, data } = useSubscription(
     gql`subscription {
       user_aggregate {
         aggregate {
@@ -12,9 +12,9 @@ export default function TotalOfUniqueNames() {
     }`
   );
 
-    console.log('user', users);
+    console.log('totalUnique', data);
 
-  return  !usersLoading && !usersError &&
-    (<div>Unique names: { users.user_aggregate.aggregate.count } </div>);
+  return  !loading && !error &&
+    (<div>Unique names: { data.user_aggregate.aggregate.count } </div>);
 }
 

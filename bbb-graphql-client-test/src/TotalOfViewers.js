@@ -2,7 +2,7 @@ import { useSubscription, gql } from '@apollo/client';
 import React, { useState } from "react";
 
 export default function TotalOfViewers() {
-  const { loading: usersLoading, error: usersError, data: users } = useSubscription(
+  const { loading, error, data } = useSubscription(
       gql`subscription {
       user_aggregate(where: {role: {_eq: "VIEWER"}}) {
         aggregate {
@@ -12,9 +12,9 @@ export default function TotalOfViewers() {
     }`
   );
 
-    console.log('user colors', users);
+    console.log('user colors', data);
 
-    return  !usersLoading && !usersError &&
-        (<div>Viewers: { users.user_aggregate.aggregate.count } </div>);
+    return  !loading && !error &&
+        (<div>Viewers: { data.user_aggregate.aggregate.count } </div>);
 }
 

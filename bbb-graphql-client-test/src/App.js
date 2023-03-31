@@ -13,6 +13,8 @@ import TotalOfUniqueNames from './TotalOfUniqueNames';
 import ChatMessages from "./ChatMessages";
 import ChatsInfo from "./ChatsInfo";
 import ChatPublicMessages from "./ChatPublicMessages";
+import Annotations from "./Annotations";
+import AnnotationsHistory from "./AnnotationsHistory";
 
 
 function App() {
@@ -97,6 +99,10 @@ function App() {
             <ChatMessages />
             <br />
             <ChatPublicMessages />
+            <br />
+            <Annotations />
+            <br />
+            <AnnotationsHistory />
             <br />
             <TotalOfUsers />
             <TotalOfModerators />

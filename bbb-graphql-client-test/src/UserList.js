@@ -18,7 +18,7 @@ const ParentOfUserList = () => {
 }
 
 function UserList() {
-  const { loading: usersLoading, error: usersError, data: users } = useSubscription(
+  const { loading, error, data } = useSubscription(
     gql`subscription {
       user(where: {joined: {_eq: true}}, order_by: {name: asc}) {
         userId
@@ -44,8 +44,9 @@ function UserList() {
         cameras {
           streamId
         }
-        whiteboards {
-          whiteboardId
+        presPagesWritable(where: {isCurrentPage: {_eq: true}}) {
+          pageId
+          isCurrentPage
         }
         breakoutRoom {
           isDefaultName
@@ -57,7 +58,7 @@ function UserList() {
     }`
   );
 
-  return  !usersLoading && !usersError &&
+  return  !loading && !error &&
     (<table border="1">
       <thead>
         <tr>
@@ -83,7 +84,7 @@ function UserList() {
         </tr>
       </thead>
       <tbody>
-        {users.user.map((user) => {
+        {data.user.map((user) => {
             console.log('user', user);
           return (
               <tr key={user.userId} style={{ color: user.color }}>
@@ -96,7 +97,7 @@ function UserList() {
                   <td style={{backgroundColor: user.mobile === true ? '#A0DAA9' : ''}}>{user.mobile === true ? 'Yes' : 'No'}</td>
                   <td>{user.clientType}</td>
                   <td style={{backgroundColor: user.cameras.length > 0 ? '#A0DAA9' : ''}}>{user.cameras.length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.whiteboards.length > 0 ? '#A0DAA9' : ''}}>{user.whiteboards.length > 0 ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.presPagesWritable.length > 0 ? '#A0DAA9' : ''}}>{user.presPagesWritable.length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.pinned === true ? '#A0DAA9' : ''}}>{user.pinned === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.voices.length > 0 ? '#A0DAA9' : ''}}>{user.voices.length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.voices.filter(m => m.listenOnly === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.listenOnly === true).length > 0 ? 'Yes' : 'No'}</td>

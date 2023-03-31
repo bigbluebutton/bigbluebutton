@@ -24,19 +24,15 @@ array_relationships:
         remote_table:
           name: v_user_camera
           schema: public
-  - name: user_cameras
+  - name: presPagesWritable
     using:
-      foreign_key_constraint_on:
-        column: userId
-        table:
-          name: user_camera
-          schema: public
-  - name: user_voices
-    using:
-      foreign_key_constraint_on:
-        column: userId
-        table:
-          name: user_voice
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_pres_page_writers
           schema: public
   - name: voices
     using:
@@ -46,15 +42,6 @@ array_relationships:
         insertion_order: null
         remote_table:
           name: v_user_voice
-          schema: public
-  - name: whiteboards
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_whiteboard
           schema: public
 select_permissions:
   - role: bbb_client

@@ -2,7 +2,7 @@ import { useSubscription, gql } from '@apollo/client';
  import React, { useState } from "react";
 
 export default function TotalOfUsers() {
-  const { loading: usersLoading, error: usersError, data: users } = useSubscription(
+  const { loading, error, data } = useSubscription(
     gql`subscription {
       user_aggregate {
             aggregate {
@@ -12,8 +12,8 @@ export default function TotalOfUsers() {
     }`
   );
 
-    console.log('user', users);
+    console.log('totalUsers', data);
 
-  return  !usersLoading && !usersError &&
-    (<div>Total of users: { users.user_aggregate.aggregate.count } </div>);
+  return  !loading && !error &&
+    (<div>Total of users: { data.user_aggregate.aggregate.count } </div>);
 }

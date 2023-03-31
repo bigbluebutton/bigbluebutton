@@ -1,17 +1,20 @@
 table:
-  name: v_user_camera
+  name: v_pres_page_writers
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user_camera
+  custom_name: pres_page_writers
   custom_root_fields: {}
 select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - changedModeOn
+        - isCurrentPage
         - meetingId
-        - streamId
+        - pageId
+        - presentationId
         - userId
       filter:
         meetingId:

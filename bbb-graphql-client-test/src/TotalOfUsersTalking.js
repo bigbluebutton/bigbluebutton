@@ -2,7 +2,7 @@ import { useSubscription, gql } from '@apollo/client';
 import React, { useState } from "react";
 
 export default function TotalOfUsersTalking() {
-  const { loading: usersLoading, error: usersError, data: users } = useSubscription(
+  const { loading, error, data } = useSubscription(
       gql`subscription {
       user(where: {voices: {talking: {_eq: true}}}) {
         userId
@@ -10,9 +10,9 @@ export default function TotalOfUsersTalking() {
     }`
   );
 
-    console.log('user talking', users);
+    console.log('user talking', data);
 
-    return  !usersLoading && !usersError &&
-        (<div>Users talking: { users?.user?.length } </div>);
+    return  !loading && !error &&
+        (<div>Users talking: { data?.user?.length } </div>);
 }
 

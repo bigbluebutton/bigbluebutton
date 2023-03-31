@@ -2,7 +2,7 @@ import {useSubscription, gql, useQuery} from '@apollo/client';
  import React, { useState } from "react";
 
 export default function MeetingInfo() {
-  const { loading: usersLoading, error: usersError, data: meetingInfo } = useQuery(
+  const { loading, error, data } = useQuery(
     gql`query {
       meeting {
         createdTime
@@ -21,7 +21,7 @@ export default function MeetingInfo() {
     }`
   );
 
-  return  !usersLoading && !usersError &&
+  return  !loading && !error &&
     (<table border="1">
       <thead>
         <tr>
@@ -32,14 +32,14 @@ export default function MeetingInfo() {
         </tr>
       </thead>
       <tbody>
-        {meetingInfo.meeting.map((meeting) => {
-            console.log('meeting', meeting);
+        {data.meeting.map((curr) => {
+            console.log('meeting', curr);
           return (
-              <tr key={meeting.meetingId}>
+              <tr key={curr.meetingId}>
                   {/*<td>{user.userId}</td>*/}
-                  <td>{meeting.name}</td>
-                  <td>{meeting.extId}</td>
-                  <td>{meeting.duration}</td>
+                  <td>{curr.name}</td>
+                  <td>{curr.extId}</td>
+                  <td>{curr.duration}</td>
               </tr>
           );
         })}

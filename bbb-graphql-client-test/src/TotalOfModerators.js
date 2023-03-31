@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 
 export default function TotalOfModerators() {
-  const { loading: usersLoading, error: usersError, data: users } = useSubscription(
+  const { loading, error, data } = useSubscription(
     gql`subscription {
       user_aggregate(where: {role: {_eq: "MODERATOR"}}) {
         aggregate {
@@ -13,9 +13,9 @@ export default function TotalOfModerators() {
     }`
   );
 
-    console.log('user colors', users);
+    console.log('user colors', data);
 
-    return  !usersLoading && !usersError &&
-        (<div>Moderators: { users.user_aggregate.aggregate.count } </div>);
+    return  !loading && !error &&
+        (<div>Moderators: { data.user_aggregate.aggregate.count } </div>);
 }
 

@@ -1,16 +1,42 @@
+DROP VIEW IF EXISTS v_pres_annotation_curr;
+DROP VIEW IF EXISTS v_pres_annotation_history_curr;
+DROP VIEW IF EXISTS v_pres_page_writers;
+DROP TABLE IF EXISTS pres_annotation_history;
+DROP TABLE IF EXISTS pres_annotation;
+DROP TABLE IF EXISTS pres_page_writers;
+DROP TABLE IF EXISTS pres_page;
+DROP TABLE IF EXISTS pres_presentation;
 
+DROP VIEW IF EXISTS "v_chat";
+DROP VIEW IF EXISTS "v_chat_message_public";
+DROP VIEW IF EXISTS "v_chat_message_private";
+DROP VIEW IF EXISTS "v_chat_participant";
+DROP TABLE IF EXISTS "chat_user";
+DROP TABLE IF EXISTS "chat_message";
+DROP TABLE IF EXISTS "chat";
+
+DROP VIEW IF EXISTS "v_user_camera";
+DROP VIEW IF EXISTS "v_user_voice";
+--DROP VIEW IF EXISTS "v_user_whiteboard";
+DROP VIEW IF EXISTS "v_user_breakoutRoom";
+DROP TABLE IF EXISTS "user_camera";
+DROP TABLE IF EXISTS "user_voice";
+--DROP TABLE IF EXISTS "user_whiteboard";
+DROP TABLE IF EXISTS "user_breakoutRoom";
+DROP TABLE IF EXISTS "user";
+
+drop table if exists "meeting_breakout";
+drop table if exists "meeting_recording";
+drop table if exists "meeting_welcome";
+drop table if exists "meeting_voice";
+drop table if exists "meeting_users";
+drop table if exists "meeting_metadata";
+drop table if exists "meeting_lockSettings";
+drop table if exists "meeting_group";
+drop table if exists "meeting";
 
 -- ========== Meeting tables
 
-drop table "meeting_breakout";
-drop table "meeting_recording";
-drop table "meeting_welcome";
-drop table "meeting_voice";
-drop table "meeting_users";
-drop table "meeting_metadata";
-drop table "meeting_lockSettings";
-drop table "meeting_group";
-drop table "meeting";
 
 create table "meeting" (
 	"meetingId"	varchar(100) primary key,
@@ -42,7 +68,7 @@ create table "meeting_breakout" (
     "captureNotesFilename" varchar(100),
     "captureSlidesFilename" varchar(100)
 );
-
+create index "idx_meeting_breakout_meetingId" on "meeting_breakout"("meetingId");
 
 create table "meeting_recording" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -51,6 +77,7 @@ create table "meeting_recording" (
 	"allowStartStopRecording" boolean, 
 	"keepEvents" boolean
 );
+create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId");
 
 create table "meeting_welcome" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -58,6 +85,7 @@ create table "meeting_welcome" (
 	"welcomeMsg" text, 
 	"modOnlyMessage" text
 );
+create index "idx_meeting_welcome_meetingId" on "meeting_welcome"("meetingId");
 
 create table "meeting_voice" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -66,6 +94,7 @@ create table "meeting_voice" (
 	"dialNumber" varchar(100), 
 	"muteOnStart" boolean
 );
+create index "idx_meeting_voice_meetingId" on "meeting_voice"("meetingId");
 
 create table "meeting_users" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -79,6 +108,7 @@ create table "meeting_users" (
     "allowModsToEjectCameras"  boolean,
     "authenticatedGuest"       boolean
 );
+create index "idx_meeting_users_meetingId" on "meeting_users"("meetingId");
 
 create table "meeting_metadata"(
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -86,6 +116,7 @@ create table "meeting_metadata"(
 	"value" varchar(255),
 	CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
 );
+create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
 
 create table "meeting_lockSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -99,6 +130,7 @@ create table "meeting_lockSettings" (
     "lockOnJoinConfigurable" boolean,
     "hideViewersCursor"      boolean
 );
+create index "idx_meeting_lockSettings_meetingId" on "meeting_lockSettings"("meetingId");
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -107,19 +139,11 @@ create table "meeting_group" (
     "usersExtId" varchar[],
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );
+create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
 
 
 -- ========== User tables
 
-DROP VIEW IF EXISTS "v_user_camera";
-DROP VIEW IF EXISTS "v_user_voice";
-DROP VIEW IF EXISTS "v_user_whiteboard";
-DROP VIEW IF EXISTS "v_user_breakoutRoom";
-DROP TABLE IF EXISTS "user_camera";
-DROP TABLE IF EXISTS "user_voice";
-DROP TABLE IF EXISTS "user_whiteboard";
-DROP TABLE IF EXISTS "user_breakoutRoom";
-DROP TABLE IF EXISTS "user";
 
 CREATE TABLE public."user" (
 	"userId" varchar(50) NOT NULL PRIMARY KEY,
@@ -148,7 +172,7 @@ CREATE TABLE public."user" (
 	"locked" bool NULL
 );
 
-CREATE INDEX "user_meetingId" ON "user"("meetingId");
+CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 
 CREATE TABLE "user_voice" (
 	"voiceUserId" varchar(100) PRIMARY KEY,
@@ -168,8 +192,7 @@ CREATE TABLE "user_voice" (
 	"endTime" bigint NULL,
 	"startTime" bigint NULL
 );
-
-CREATE INDEX "user_voice_userId" ON "user_voice"("userId");
+CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
@@ -182,8 +205,7 @@ CREATE TABLE "user_camera" (
 	"streamId" varchar(100) PRIMARY KEY,
 	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE
 );
-
-CREATE INDEX "user_camera_userId" ON "user_camera"("userId");
+CREATE INDEX "idx_user_camera_userId" ON "user_camera"("userId");
 
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT
@@ -192,21 +214,20 @@ SELECT
 FROM "user_camera"
 JOIN "user" u ON u."userId" = user_camera."userId";
 
-CREATE TABLE "user_whiteboard" (
-	"whiteboardId" varchar(100),
-	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
-	"changedModeOn" bigint,
-	CONSTRAINT "user_whiteboard_pkey" PRIMARY KEY ("whiteboardId","userId")
-);
-
-CREATE INDEX "user_whiteboard_userId" ON "user_whiteboard"("userId");
-
-CREATE OR REPLACE VIEW "v_user_whiteboard" AS
-SELECT
-	u."meetingId",
-	"user_whiteboard" .*
-FROM "user_whiteboard"
-JOIN "user" u ON u."userId" = "user_whiteboard"."userId";
+--CREATE TABLE "user_whiteboard" (
+--	"whiteboardId" varchar(100),
+--	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+--	"changedModeOn" bigint,
+--	CONSTRAINT "user_whiteboard_pkey" PRIMARY KEY ("whiteboardId","userId")
+--);
+--CREATE INDEX "idx_user_whiteboard_userId" ON "user_whiteboard"("userId");
+--
+--CREATE OR REPLACE VIEW "v_user_whiteboard" AS
+--SELECT
+--	u."meetingId",
+--	"user_whiteboard" .*
+--FROM "user_whiteboard"
+--JOIN "user" u ON u."userId" = "user_whiteboard"."userId";
 
 CREATE TABLE "user_breakoutRoom" (
 	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
@@ -216,6 +237,7 @@ CREATE TABLE "user_breakoutRoom" (
 	"shortName" varchar(100),
 	"online" boolean
 );
+CREATE INDEX "idx_user_breakoutRoom_userId" ON "user_breakoutRoom"("userId");
 
 CREATE OR REPLACE VIEW "v_user_breakoutRoom" AS
 SELECT
@@ -226,12 +248,6 @@ JOIN "user" u ON u."userId" = "user_breakoutRoom"."userId";
 
 -- ===================== CHAT TABLES
 
-DROP VIEW IF EXISTS "v_chat";
-DROP VIEW IF EXISTS "v_chat_message_public";
-DROP VIEW IF EXISTS "v_chat_message_private";
-DROP TABLE IF EXISTS "chat_user";
-DROP TABLE IF EXISTS "chat_message";
-DROP TABLE IF EXISTS "chat";
 
 CREATE TABLE "chat" (
 	"chatId"  varchar(100),
@@ -240,8 +256,7 @@ CREATE TABLE "chat" (
 	"createdBy" varchar(25),
 	CONSTRAINT "chat_pkey" PRIMARY KEY ("chatId","meetingId")
 );
-
-CREATE INDEX "chat_meetingId" ON "chat"("meetingId");
+CREATE INDEX "idx_chat_meetingId" ON "chat"("meetingId");
 
 CREATE TABLE "chat_user" (
 	"chatId" varchar(100),
@@ -251,8 +266,7 @@ CREATE TABLE "chat_user" (
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
-
-CREATE INDEX "chat_user_chatId" ON "chat_user"("chatId","meetingId");
+CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId");
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
@@ -267,9 +281,7 @@ CREATE TABLE "chat_message" (
 	"senderRole" varchar(20),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
-
-CREATE INDEX "chat_message_chatId" ON "chat_message"("chatId","meetingId");
-
+CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
 CREATE OR REPLACE VIEW "v_chat" AS
 SELECT 	cu."userId",
@@ -286,7 +298,6 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND 
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
 GROUP BY cu."userId", chat."meetingId", chat."chatId", chat_with."userId";
 
-
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
 SELECT cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
 FROM chat_message cm
@@ -299,5 +310,98 @@ JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatI
 
 
 
+--============ Presentation / Annotation
 
 
+CREATE TABLE "pres_presentation" (
+	"presentationId" varchar(100) PRIMARY KEY,
+	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"current" boolean,
+	"downloadable" boolean,
+	"removable" boolean
+);
+CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
+
+CREATE TABLE pres_page (
+	"pageId" varchar(100) PRIMARY KEY,
+	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
+	"num" integer,
+	"urls" TEXT,
+	"current" boolean,
+	"xOffset" NUMERIC,
+	"yOffset" NUMERIC,
+	"widthRatio" NUMERIC,
+	"heightRatio" NUMERIC
+);
+CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
+
+CREATE TABLE pres_annotation (
+	"annotationId" varchar(100) PRIMARY KEY,
+	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
+	"userId" varchar(100),
+	"annotationInfo" TEXT,
+	"lastUpdatedAt" timestamp DEFAULT now()
+);
+CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
+
+CREATE INDEX idx_pres_annotation_updatedAt ON pres_annotation("lastUpdatedAt");
+
+CREATE TABLE pres_annotation_history (
+	"sequence" serial PRIMARY KEY,
+	"annotationId" varchar(100),
+	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
+	"userId" varchar(100),
+	"annotationInfo" TEXT
+--	"lastUpdatedAt" timestamp DEFAULT now()
+);
+CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");
+
+CREATE VIEW v_pres_annotation_curr AS
+SELECT p."meetingId", pp."presentationId", pa.*
+FROM pres_presentation p
+JOIN pres_page pp ON pp."presentationId" = p."presentationId"
+JOIN pres_annotation pa ON pa."pageId" = pp."pageId"
+WHERE p."current" IS TRUE
+AND pp."current" IS TRUE;
+
+CREATE VIEW v_pres_annotation_history_curr AS
+SELECT p."meetingId", pp."presentationId", pah.*
+FROM pres_presentation p
+JOIN pres_page pp ON pp."presentationId" = p."presentationId"
+JOIN pres_annotation_history pah ON pah."pageId" = pp."pageId"
+WHERE p."current" IS TRUE
+AND pp."current" IS TRUE;
+
+CREATE TABLE "pres_page_writers" (
+	"pageId" varchar(100)  REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
+    "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+    "changedModeOn" bigint,
+    CONSTRAINT "pres_page_writers_pkey" PRIMARY KEY ("pageId","userId")
+);
+create index "idx_pres_page_writers_userID" on "pres_page_writers"("userId");
+
+CREATE OR REPLACE VIEW "v_pres_page_writers" AS
+SELECT
+	u."meetingId",
+	"pres_presentation"."presentationId",
+	"pres_page_writers" .*,
+	CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN TRUE ELSE FALSE END AS "isCurrentPage"
+FROM "pres_page_writers"
+JOIN "user" u ON u."userId" = "pres_page_writers"."userId"
+JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
+JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
+
+
+--
+--CREATE TABLE whiteboard (
+--	"whiteboardId" varchar(100) PRIMARY KEY,
+--	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE
+--);
+--
+--CREATE TABLE whiteboard_annotation (
+--	"annotationId" varchar(100) PRIMARY KEY,
+--	"whiteboardId" varchar(100) REFERENCES "whiteboard"("whiteboardId") ON DELETE CASCADE,
+--	"userId" varchar(100),
+--	"annotationInfo" TEXT,
+--	"lastUpdatedAt" timestamp DEFAULT now()
+--);
