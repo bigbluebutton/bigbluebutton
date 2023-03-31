@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 
-export default function updateCaptionsOwner(meetingId, locale, ownerId) {
+export default async function updateCaptionsOwner(meetingId, locale, ownerId) {
   try {
     check(meetingId, String);
     check(locale, String);
@@ -20,7 +20,7 @@ export default function updateCaptionsOwner(meetingId, locale, ownerId) {
       },
     };
 
-    const numberAffected = Captions.upsert(selector, modifier);
+    const numberAffected = await Captions.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Added captions=${locale} owner=${ownerId} meeting=${meetingId}`);

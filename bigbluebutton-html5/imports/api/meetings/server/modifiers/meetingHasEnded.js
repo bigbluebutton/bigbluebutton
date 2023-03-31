@@ -33,41 +33,41 @@ import clearUsersPersistentData from '/imports/api/users-persistent-data/server/
 import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import Metrics from '/imports/startup/server/metrics';
 
-export default function meetingHasEnded(meetingId) {
+export default async function meetingHasEnded(meetingId) {
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
     removeAnnotationsStreamer(meetingId);
     removeCursorStreamer(meetingId);
     removeExternalVideoStreamer(meetingId);
   }
 
-  return Meetings.remove({ meetingId }, () => {
-    clearCaptions(meetingId);
-    clearPads(meetingId);
-    clearGroupChat(meetingId);
-    clearGuestUsers(meetingId);
-    clearPresentationPods(meetingId);
-    clearBreakouts(meetingId);
-    clearPolls(meetingId);
-    clearAnnotations(meetingId);
-    clearSlides(meetingId);
-    clearUsers(meetingId);
-    clearUsersSettings(meetingId);
-    clearVoiceUsers(meetingId);
-    clearUserInfo(meetingId);
-    clearConnectionStatus(meetingId);
-    clearAudioCaptions(meetingId);
-    clearLocalSettings(meetingId);
-    clearMeetingTimeRemaining(meetingId);
-    clearRecordMeeting(meetingId);
-    clearExternalVideoMeeting(meetingId);
-    clearVoiceCallStates(meetingId);
-    clearVideoStreams(meetingId);
-    clearAuthTokenValidation(meetingId);
-    clearWhiteboardMultiUser(meetingId);
-    clearScreenshare(meetingId);
-    clearUsersPersistentData(meetingId);
-    Metrics.removeMeeting(meetingId);
-
-    Logger.info(`Cleared Meetings with id ${meetingId}`);
-  });
+  await Meetings.removeAsync({ meetingId });
+  await Promise.all([
+    clearCaptions(meetingId),
+    clearPads(meetingId),
+    clearGroupChat(meetingId),
+    clearGuestUsers(meetingId),
+    clearPresentationPods(meetingId),
+    clearBreakouts(meetingId),
+    clearPolls(meetingId),
+    clearAnnotations(meetingId),
+    clearSlides(meetingId),
+    clearUsers(meetingId),
+    clearUsersSettings(meetingId),
+    clearVoiceUsers(meetingId),
+    clearUserInfo(meetingId),
+    clearConnectionStatus(meetingId),
+    clearAudioCaptions(meetingId),
+    clearLocalSettings(meetingId),
+    clearMeetingTimeRemaining(meetingId),
+    clearRecordMeeting(meetingId),
+    clearExternalVideoMeeting(meetingId),
+    clearVoiceCallStates(meetingId),
+    clearVideoStreams(meetingId),
+    clearAuthTokenValidation(meetingId),
+    clearWhiteboardMultiUser(meetingId),
+    clearScreenshare(meetingId),
+    clearUsersPersistentData(meetingId),
+  ]);
+  await Metrics.removeMeeting(meetingId);
+  return Logger.info(`Cleared Meetings with id ${meetingId}`);
 }

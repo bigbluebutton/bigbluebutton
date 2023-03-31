@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import { LayoutMeetings } from '/imports/api/meetings';
 import { check } from 'meteor/check';
 
-export default function setPushLayout(meetingId, pushLayout, requesterUserId) {
+export default async function setPushLayout(meetingId, pushLayout, requesterUserId) {
   try {
     check(meetingId, String);
     check(requesterUserId, String);
@@ -18,7 +18,7 @@ export default function setPushLayout(meetingId, pushLayout, requesterUserId) {
       },
     };
 
-    const numberAffected = LayoutMeetings.update(selector, modifier);
+    const numberAffected = await LayoutMeetings.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`MeetingLayout pushLayout changed to ${pushLayout} for meeting=${meetingId} requested by user=${requesterUserId}`);

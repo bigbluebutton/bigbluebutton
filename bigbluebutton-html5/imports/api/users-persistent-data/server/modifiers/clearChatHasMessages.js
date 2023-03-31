@@ -4,13 +4,13 @@ import UsersPersistentData from '/imports/api/users-persistent-data';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
-export default function clearChatHasMessages(meetingId, chatId) {
+export default async function clearChatHasMessages(meetingId, chatId) {
   const selector = {
     meetingId,
   };
 
   const type = chatId === PUBLIC_GROUP_CHAT_KEY ? 'public' : 'private';
-  
+
   const modifier = {
     $set: {
       [`shouldPersist.hasMessages.${type}`]: false,
@@ -18,7 +18,8 @@ export default function clearChatHasMessages(meetingId, chatId) {
   };
 
   try {
-    const numberAffected = UsersPersistentData.update(selector, modifier, { multi: true });
+    const numberAffected = await UsersPersistentData
+      .updateAsync(selector, modifier, { multi: true });
 
     if (numberAffected) {
       Logger.info(`Cleared hasMessages meeting=${meetingId}`);
