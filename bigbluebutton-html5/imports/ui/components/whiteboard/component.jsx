@@ -818,6 +818,16 @@ export default function Whiteboard(props) {
       setIsPanning(false);
     }
 
+    if (reason && reason.includes('ui:toggled_is_loading')) {
+      e?.patchState(
+        {
+          appState: {
+            currentStyle,
+          },
+        },
+      );
+    }
+
     e?.patchState(
       {
         appState: {
@@ -876,16 +886,6 @@ export default function Whiteboard(props) {
 
     if (command?.id?.includes('style')) {
       setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
-    }
-
-    if (command?.id?.includes('change_page')) {
-      app?.patchState(
-        {
-          appState: {
-            currentStyle,
-          },
-        },
-      );
     }
 
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
