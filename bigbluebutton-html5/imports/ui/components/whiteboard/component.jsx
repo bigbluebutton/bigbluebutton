@@ -86,6 +86,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [currentStyle, setCurrentStyle] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
@@ -102,12 +103,6 @@ export default function Whiteboard(props) {
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
       setTldrawAPI(api);
-    }
-  };
-
-  const setSafeCurrentTool = (tool) => {
-    if (isMountedRef.current) {
-      setCurrentTool(tool);
     }
   };
 
@@ -585,8 +580,6 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = document.getElementById('TD-Styles')?.parentElement;
-    setSafeCurrentTool('select');
-
     const canvas = document.getElementById('canvas');
     if (canvas) {
       canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
@@ -861,6 +854,20 @@ export default function Whiteboard(props) {
 
   const onCommand = (app, command) => {
     setHistory(app.history);
+
+    if (command?.id?.includes('style')) {
+      setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
+    }
+    if (command?.id?.includes('change_page')) {
+      app?.patchState(
+        {
+          appState: {
+            currentStyle,
+          },
+        },
+      );
+    }
+
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
