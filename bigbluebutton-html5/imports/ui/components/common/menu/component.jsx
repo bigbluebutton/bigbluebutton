@@ -204,6 +204,7 @@ BBBMenu.propTypes = {
     divider: PropTypes.bool,
     dividerTop: PropTypes.bool,
     accessKey: PropTypes.string,
+    dataTest: PropTypes.string,
   })).isRequired,
 
   onCloseCallback: PropTypes.func,

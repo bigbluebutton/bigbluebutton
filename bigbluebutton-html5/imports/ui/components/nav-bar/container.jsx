@@ -115,6 +115,7 @@ export default withTracker(() => {
   }
 
   return {
+    isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
     meetingId,
     presentationTitle: meetingTitle,

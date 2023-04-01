@@ -1,4 +1,4 @@
-bbb_version: '2.6.0'
+bbb_version: '2.6.1'
 raw_audio_src: /var/freeswitch/meetings
 kurento_video_src: /var/kurento/recordings
 kurento_screenshare_src: /var/kurento/screenshare
