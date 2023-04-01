@@ -176,7 +176,7 @@ const ChatListItem = (props) => {
               </UserAvatar>
             )}
         </Styled.ChatIcon>
-        <Styled.ChatName aria-live="off">
+        <Styled.ChatName>
           {!compact
             ? (
               <Styled.ChatNameMain>
