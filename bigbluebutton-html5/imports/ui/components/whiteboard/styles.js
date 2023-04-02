@@ -123,7 +123,7 @@ const PanTool = styled(Button)`
   ${({ panSelected }) => !panSelected && `
     &:hover,
     &:focus {
-      background-color: var(--colors-hover);
+      background-color: var(--colors-hover) !important;
     }
   `}
 `;
