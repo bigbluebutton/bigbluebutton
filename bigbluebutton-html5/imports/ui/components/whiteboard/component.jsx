@@ -1015,6 +1015,7 @@ export default function Whiteboard(props) {
             size,
             darkTheme,
             menuOffset,
+            panSelected,
           }}
         />
       </Cursors>
