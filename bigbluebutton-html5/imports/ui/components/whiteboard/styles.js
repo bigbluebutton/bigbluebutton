@@ -115,7 +115,7 @@ const PanTool = styled(Button)`
 
   &:hover,
   &:focus {
-    background-color: var(--colors-hover);
+    background-color: var(--colors-hover) !important;
   }
 `;
 
