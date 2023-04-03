@@ -15,6 +15,9 @@ import ChatsInfo from "./ChatsInfo";
 import ChatPublicMessages from "./ChatPublicMessages";
 import Annotations from "./Annotations";
 import AnnotationsHistory from "./AnnotationsHistory";
+import CursorsStream from "./CursorsStream";
+import CursorsAll from "./CursorsAll";
+import TalkingStream from "./TalkingStream";
 
 
 function App() {
@@ -101,6 +104,12 @@ function App() {
             <ChatMessages />
             <br />
             <ChatPublicMessages />
+            <br />
+            <CursorsAll />
+              <br />
+            <TalkingStream />
+            <br />
+            <CursorsStream />
             <br />
             <Annotations />
             <br />

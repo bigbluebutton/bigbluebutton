@@ -12,18 +12,18 @@ case class UserBreakoutRoomDbModel(
         isDefaultName: Boolean,
         sequence: Int,
         shortName: String,
-        online: Boolean,
+        currentlyInRoom: Boolean,
 )
 
 class UserBreakoutRoomDbTableDef(tag: Tag) extends Table[UserBreakoutRoomDbModel](tag, None, "user_breakoutRoom") {
   override def * = (
-    breakoutRoomId, userId, isDefaultName, sequence, shortName, online) <> (UserBreakoutRoomDbModel.tupled, UserBreakoutRoomDbModel.unapply)
+    breakoutRoomId, userId, isDefaultName, sequence, shortName, currentlyInRoom) <> (UserBreakoutRoomDbModel.tupled, UserBreakoutRoomDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val breakoutRoomId = column[String]("breakoutRoomId")
   val isDefaultName = column[Boolean]("isDefaultName")
   val sequence = column[Int]("sequence")
   val shortName = column[String]("shortName")
-  val online = column[Boolean]("online")
+  val currentlyInRoom = column[Boolean]("currentlyInRoom")
 }
 
 object UserBreakoutRoomDAO {
@@ -38,7 +38,7 @@ object UserBreakoutRoomDAO {
           isDefaultName = breakoutRoom.isDefaultName,
           sequence = breakoutRoom.sequence,
           shortName = breakoutRoom.shortName,
-          online = true
+          currentlyInRoom = true
         )
       )
     ).onComplete {
@@ -55,11 +55,11 @@ object UserBreakoutRoomDAO {
       TableQuery[UserBreakoutRoomDbTableDef]
         .filterNot(_.userId inSet usersInRoom)
         .filter(_.breakoutRoomId === breakoutRoom.id)
-        .map(u_bk => u_bk.online)
+        .map(u_bk => u_bk.currentlyInRoom)
         .update(false)
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated online=false on user_breakoutRoom table!")
-      case Failure(e) => println(s"Error updating online=false on user_breakoutRoom: $e")
+      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated currentlyInRoom=false on user_breakoutRoom table!")
+      case Failure(e) => println(s"Error updating currentlyInRoom=false on user_breakoutRoom: $e")
     }
 
     DatabaseConnection.db.run(DBIO.sequence(
@@ -73,7 +73,7 @@ object UserBreakoutRoomDAO {
             isDefaultName = breakoutRoom.isDefaultName,
             sequence = breakoutRoom.sequence,
             shortName = breakoutRoom.shortName,
-            online = true
+            currentlyInRoom = true
           )
         )
       }

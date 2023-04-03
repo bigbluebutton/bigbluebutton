@@ -1,0 +1,32 @@
+table:
+  name: chat_user
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - lastSeenAt
+        - chatId
+        - meetingId
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+update_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - lastSeenAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+      check: {}
+      set:
+        meetingId: x-hasura-MeetingId
+        userId: x-hasura-UserId

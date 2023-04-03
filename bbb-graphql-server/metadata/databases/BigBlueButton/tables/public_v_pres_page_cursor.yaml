@@ -1,10 +1,10 @@
 table:
-  name: v_user_voice
+  name: v_pres_page_cursor
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user_voice
+  custom_name: pres_page_cursor
   custom_root_fields: {}
 object_relationships:
   - name: user
@@ -21,24 +21,14 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - callerName
-        - callerNum
-        - callingWith
-        - color
-        - endTime
-        - floor
-        - joined
-        - lastFloorTime
-        - lastSpeakChangedAt
-        - listenOnly
+        - isCurrentPage
+        - lastUpdatedAt
         - meetingId
-        - muted
-        - spoke
-        - startTime
-        - talking
+        - pageId
+        - presentationId
         - userId
-        - voiceConf
-        - voiceUserId
+        - xPercent
+        - yPercent
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

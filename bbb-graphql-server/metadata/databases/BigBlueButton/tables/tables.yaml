@@ -1,3 +1,4 @@
+- "!include public_chat_user.yaml"
 - "!include public_meeting.yaml"
 - "!include public_user.yaml"
 - "!include public_v_chat.yaml"
@@ -5,6 +6,7 @@
 - "!include public_v_chat_message_public.yaml"
 - "!include public_v_pres_annotation_curr.yaml"
 - "!include public_v_pres_annotation_history_curr.yaml"
+- "!include public_v_pres_page_cursor.yaml"
 - "!include public_v_pres_page_writers.yaml"
 - "!include public_v_user_breakoutRoom.yaml"
 - "!include public_v_user_camera.yaml"

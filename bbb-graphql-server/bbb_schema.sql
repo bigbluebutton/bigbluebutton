@@ -197,7 +197,8 @@ CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
 	u."meetingId",
-	"user_voice" .*
+	"user_voice" .*,
+	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt"
 FROM "user_voice"
 JOIN "user" u ON u."userId" = "user_voice"."userId";
 
@@ -220,7 +221,7 @@ CREATE TABLE "user_breakoutRoom" (
 	"isDefaultName" boolean,
 	"sequence" int,
 	"shortName" varchar(100),
-	"online" boolean
+	"currentlyInRoom" boolean
 );
 CREATE INDEX "idx_user_breakoutRoom_userId" ON "user_breakoutRoom"("userId");
 
@@ -274,7 +275,7 @@ SELECT 	"user"."userId",
 		chat."chatId",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
-		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" IS DISTINCT FROM cu."lastSeenAt" THEN 1 ELSE 0 end) "totalUnread",
+		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(cu."lastSeenAt",0) THEN 1 ELSE 0 end) "totalUnread",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN TRUE ELSE FALSE end public
 FROM "user"
 LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
@@ -329,8 +330,7 @@ CREATE TABLE pres_annotation (
 	"lastUpdatedAt" timestamp DEFAULT now()
 );
 CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
-
-CREATE INDEX idx_pres_annotation_updatedAt ON pres_annotation("lastUpdatedAt");
+CREATE INDEX "idx_pres_annotation_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
 
 CREATE TABLE pres_annotation_history (
 	"sequence" serial PRIMARY KEY,
@@ -377,6 +377,23 @@ JOIN "user" u ON u."userId" = "pres_page_writers"."userId"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
 JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
 
+CREATE TABLE "pres_page_cursor" (
+	"pageId" varchar(100)  REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
+    "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+    "xPercent" numeric,
+    "yPercent" numeric,
+    "lastUpdatedAt" timestamp DEFAULT now(),
+    CONSTRAINT "pres_page_cursor_pkey" PRIMARY KEY ("pageId","userId")
+);
+create index "idx_pres_page_cursor_pageId" on "pres_page_cursor"("pageId");
+create index "idx_pres_page_cursor_userID" on "pres_page_cursor"("userId");
+create index "idx_pres_page_cursor_lastUpdatedAt" on "pres_page_cursor"("pageId","lastUpdatedAt");
+
+CREATE VIEW v_pres_page_cursor AS
+SELECT pres_presentation."meetingId", pres_page."presentationId", c.*
+FROM pres_page_cursor c
+JOIN pres_page ON pres_page."pageId" = c."pageId"
+JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
 --
 --CREATE TABLE whiteboard (

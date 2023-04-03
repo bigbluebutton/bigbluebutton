@@ -1,7 +1,29 @@
-import {useSubscription, gql, useQuery} from '@apollo/client';
+import {useSubscription, gql, useQuery, useMutation} from '@apollo/client';
  import React, { useState } from "react";
 
 export default function ChatPublicMessages() {
+  // const [updatedLastSeen, setUpdatedLastSeen] = useState(false);
+
+    const [updateLastSeen] = useMutation(gql`
+      mutation UpdateChatUser($chatId: String, $lastSeenAt: bigint) {
+        update_chat_user(
+            where: { chatId: { _eq: $chatId }, lastSeenAt: { _lt: $lastSeenAt } },
+            _set: { lastSeenAt: $lastSeenAt }
+          ) {
+            affected_rows
+          }
+      }
+    `);
+
+    const handleUpdateLastSeen = (chatId, lastSeenAt) => {
+        updateLastSeen({
+            variables: {
+                chatId,
+                lastSeenAt
+            },
+        });
+    };
+
   const { loading, error, data } = useSubscription(
     gql`subscription {
       chat_message_public(order_by: {createdTime: asc}) {
@@ -31,6 +53,7 @@ export default function ChatPublicMessages() {
             <th>Sender</th>
             <th>Message</th>
             <th>Sent At</th>
+            <th></th>
         </tr>
       </thead>
       <tbody>
@@ -42,6 +65,7 @@ export default function ChatPublicMessages() {
                   <td>{curr.senderName}</td>
                   <td>{curr.message}</td>
                   <td>{curr.createdTimeAsDate} ({curr.createdTime})</td>
+                  <td><button onClick={() => handleUpdateLastSeen(curr.chatId, curr.createdTime)}>Read it!</button></td>
               </tr>
           );
         })}

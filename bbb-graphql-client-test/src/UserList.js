@@ -48,7 +48,7 @@ function UserList() {
           pageId
           isCurrentPage
         }
-        breakoutRoom {
+        lastBreakoutRoom {
           isDefaultName
           sequence
           shortName
@@ -104,8 +104,8 @@ function UserList() {
                   <td style={{backgroundColor: user.voices.filter(m => m.talking === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.talking === true).length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.voices.filter(m => m.muted === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.muted === true).length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.locked === true ? '#A0DAA9' : ''}}>{user.locked === true ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.breakoutRoom?.online === true ? '#A0DAA9' : ''}}>
-                      {user.breakoutRoom?.shortName}{user.breakoutRoom?.online == true ? ' (Online)' : ''}
+                  <td style={{backgroundColor: user.lastBreakoutRoom?.online === true ? '#A0DAA9' : ''}}>
+                      {user.lastBreakoutRoom?.shortName}{user.lastBreakoutRoom?.online == true ? ' (Online)' : ''}
                   </td>
                   <td style={{backgroundColor: user.leftFlag === true ? '#A0DAA9' : ''}}>{user.leftFlag === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}</td>

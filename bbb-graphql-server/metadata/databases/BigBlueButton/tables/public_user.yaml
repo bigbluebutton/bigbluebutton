@@ -2,7 +2,7 @@ table:
   name: user
   schema: public
 object_relationships:
-  - name: breakoutRoom
+  - name: lastBreakoutRoom
     using:
       manual_configuration:
         column_mapping:

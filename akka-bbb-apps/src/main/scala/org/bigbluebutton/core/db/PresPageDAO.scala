@@ -49,4 +49,5 @@ object PresPageDAO {
         case Success(rowsAffected) => println(s"$rowsAffected row(s) updated current on PresPage table")
         case Failure(e)            => println(s"Error updating current on PresPage: $e")
       }
+  }
 }

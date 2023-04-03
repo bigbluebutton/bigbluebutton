@@ -30,15 +30,6 @@ class WhiteboardModel extends SystemConfiguration {
       new HashMap[String, AnnotationVO]
     )
 
-    println("--------------------------------------------------- CREATED WHITEBOARD!!! 1")
-    println("--------------------------------------------------- CREATED WHITEBOARD!!!")
-    println("--------------------------------------------------- CREATED WHITEBOARD!!!")
-    println("--------------------------------------------------- CREATED WHITEBOARD!!!")
-    println(wbId)
-    println("--------------------------------------------------- CREATED WHITEBOARD!!! 5")
-
-    //    WhiteboardDAO.insert(wbId)
-
     newWb
   }
 
