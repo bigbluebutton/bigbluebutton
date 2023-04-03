@@ -57,9 +57,19 @@ class Tooltip extends Component {
     const {
       position,
       title,
+      delay,
+      placement,
     } = this.props;
 
     const { animations } = Settings.application;
+    
+    const overridePlacement = placement ? placement : position;
+    let overrideDelay;
+    if (animations) {
+      overrideDelay = delay ? [delay, ANIMATION_DELAY[1]] : ANIMATION_DELAY;
+    } else {
+      overrideDelay = delay ? [delay, 0] : [ANIMATION_DELAY[0], 0];
+    }
 
     const options = {
       aria: null,
@@ -69,14 +79,14 @@ class Tooltip extends Component {
       arrow: roundArrow,
       boundary: 'window',
       content: title,
-      delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
+      delay: overrideDelay,
       duration: animations ? ANIMATION_DURATION : 0,
       interactive: true,
       interactiveBorder: 10,
       onShow: this.onShow,
       onHide: this.onHide,
       offset: TIP_OFFSET,
-      placement: position,
+      placement: overridePlacement,
       touch: 'hold',
       theme: 'bbbtip',
       multiple: false,
