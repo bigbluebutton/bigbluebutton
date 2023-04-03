@@ -6,6 +6,7 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import Auth from '/imports/ui/services/auth';
 import Meetings from '/imports/api/meetings';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import { isSnapshotEnabled } from '/imports/ui/services/features';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -37,6 +38,7 @@ export default withTracker((props) => {
 
   return {
     ...props,
+    allowSnapshot: isSnapshotEnabled(),
     handleToggleFullscreen,
     isIphone,
     isDropdownOpen: Session.get('dropdownOpen'),
