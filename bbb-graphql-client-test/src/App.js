@@ -20,6 +20,7 @@ import AnnotationsHistory from "./AnnotationsHistory";
 function App() {
   const [sessionToken, setSessionToken] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [joining, setJoining] = useState(false);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
@@ -41,6 +42,7 @@ function App() {
           setEnterApiResponse(json.response.returncode);
           if(json?.response?.internalUserID) {
             setUserId(json.response.internalUserID);
+            setUserName(json.response.fullname);
           }
         });
   }
@@ -89,7 +91,7 @@ function App() {
             }}
           >
           <ApolloProvider client={graphqlClient}>
-            User Id: {userId}
+            Who am I? {userName} ({userId})
             <MeetingInfo />
             <br />
             <UserList />

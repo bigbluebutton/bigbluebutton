@@ -23,33 +23,6 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
 }
 
 object PresPresentationDAO {
-
-//  implicit object AnyJsonFormat extends JsonFormat[Any] {
-//    def write(x: Any) = x match {
-//      case n: Int => JsNumber(n)
-//      case s: String => JsString(s)
-//      case b: Boolean if b == true => JsTrue
-//      case b: Boolean if b == false => JsFalse
-//      case v: Double => JsNumber(v)
-//      case v: Long => JsNumber(v)
-//      case v: Map[_, _] => write(v.asInstanceOf[Map[String, Any]])
-//      case _ => JsNull
-//    }
-//
-//    def read(value: JsValue) = value match {
-//      case JsNumber(n) => n.intValue
-//      case JsString(s) => s
-//      case JsTrue => true
-//      case JsFalse => false
-//    }
-//  }
-
-//  implicit val mapWriter: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
-//    def write(map: Map[String, String]): JsValue = {
-//      JsObject(map.mapValues(JsString(_)))
-//    }
-//  }
-
   implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
     def write(m: Map[String, String]): JsValue = {
       JsObject(m.map { case (k, v) => k -> JsString(v) })
@@ -62,7 +35,7 @@ object PresPresentationDAO {
         PresPresentationDbModel(
           presentationId = presentation.id,
           meetingId = meetingId,
-          current = presentation.current,
+          current = false, //Set after pages were inserted
           downloadable = presentation.downloadable,
           removable = presentation.removable
         )
@@ -94,8 +67,25 @@ object PresPresentationDAO {
               case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on PresentationPage table!")
               case Failure(e)            => println(s"Error inserting PresentationPage: $e")
             }
+
+          //Set current
+          if(presentation.current) {
+            setCurrentPres(presentation.id)
+          }
         }
         case Failure(e) => println(s"Error inserting Presentation: $e")
       }
   }
+
+  def setCurrentPres(presentationId: String) = {
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE pres_presentation SET
+                "current" = (case when "presentationId" = ${presentationId} then true else false end)
+                WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})"""
+    ).onComplete {
+      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated current on PresPresentation table")
+      case Failure(e) => println(s"Error updating current on PresPresentation: $e")
+    }
+  }
+
 }

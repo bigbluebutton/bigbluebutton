@@ -214,21 +214,6 @@ SELECT
 FROM "user_camera"
 JOIN "user" u ON u."userId" = user_camera."userId";
 
---CREATE TABLE "user_whiteboard" (
---	"whiteboardId" varchar(100),
---	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
---	"changedModeOn" bigint,
---	CONSTRAINT "user_whiteboard_pkey" PRIMARY KEY ("whiteboardId","userId")
---);
---CREATE INDEX "idx_user_whiteboard_userId" ON "user_whiteboard"("userId");
---
---CREATE OR REPLACE VIEW "v_user_whiteboard" AS
---SELECT
---	u."meetingId",
---	"user_whiteboard" .*
---FROM "user_whiteboard"
---JOIN "user" u ON u."userId" = "user_whiteboard"."userId";
-
 CREATE TABLE "user_breakoutRoom" (
 	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
 	"breakoutRoomId" varchar(100),
@@ -284,19 +269,19 @@ CREATE TABLE "chat_message" (
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
 CREATE OR REPLACE VIEW "v_chat" AS
-SELECT 	cu."userId",
+SELECT 	"user"."userId",
 		chat."meetingId",
 		chat."chatId",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
-		sum(CASE WHEN cm."createdTime" > cu."lastSeenAt" THEN 1 ELSE 0 end) "totalUnread",
+		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" IS DISTINCT FROM cu."lastSeenAt" THEN 1 ELSE 0 end) "totalUnread",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN TRUE ELSE FALSE end public
 FROM "user"
 LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
-JOIN "chat" ON cu."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
+JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat."chatId" != 'MAIN-PUBLIC-GROUP-CHAT' AND chat_with."userId" != cu."userId"
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
-GROUP BY cu."userId", chat."meetingId", chat."chatId", chat_with."userId";
+GROUP BY "user"."userId", chat."meetingId", chat."chatId", chat_with."userId";
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
 SELECT cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
@@ -340,6 +325,7 @@ CREATE TABLE pres_annotation (
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
 	"userId" varchar(100),
 	"annotationInfo" TEXT,
+	"lastHistorySequence" integer,
 	"lastUpdatedAt" timestamp DEFAULT now()
 );
 CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");

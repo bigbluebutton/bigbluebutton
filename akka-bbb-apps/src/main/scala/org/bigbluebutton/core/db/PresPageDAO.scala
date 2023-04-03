@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.models.PresentationInPod
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,21 +34,19 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   def * = (pageId, presentationId, num, urls, current, xOffset, yOffset, widthRatio, heightRatio) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
-//object PresPageDAO {
-//  def insert(meetingId: String, annotation: AnnotationVO) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[PresPageDbTableDef].insertOrUpdate(
-//        PresPageDbModel(
-//          annotationId = annotation.id,
-//          whiteboardId = annotation.wbId,
-//          userId = annotation.userId,
-//          annotationInfo = annotation.annotationInfo.toString(),
-//          lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis())
-//        )
-//      )
-//    ).onComplete {
-//        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on PresPage table!")
-//        case Failure(e)            => println(s"Error inserting PresPage: $e")
-//      }
-//  }
-//}
+object PresPageDAO {
+
+  //  def setCurrentPage(wbId: String, userId: String, annotationId: String) = {
+  def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
+
+    //    val updateSql =
+
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE pres_page SET
+                "current" = (case when "pageId" = ${pageId} then true else false end)
+                WHERE "presentationId" = ${presentation.id}"""
+    ).onComplete {
+        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated current on PresPage table")
+        case Failure(e)            => println(s"Error updating current on PresPage: $e")
+      }
+}

@@ -11,8 +11,6 @@ case class ChatDbModel(
     meetingId:    String,
     access:       String,
     createdBy:    String,
-//    participants: List[String],
-//    users:        List[String]
 )
 
 class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
@@ -20,8 +18,6 @@ class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val access = column[String]("access")
   val createdBy = column[String]("createdBy")
-//  val participants = column[List[String]]("participants")
-//  val users = column[List[String]]("users")
   //  val meeting = foreignKey("chat_meeting_fk", (meetingId), ChatDbTableDef.meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
   override def * = (chatId, meetingId, access, createdBy) <> (ChatDbModel.tupled, ChatDbModel.unapply)
 }
@@ -35,8 +31,6 @@ object ChatDAO {
           meetingId = meetingId,
           access = groupChat.access,
           createdBy = groupChat.createdBy.id,
-//          participants = groupChat.users.map(u => u.id).toList,
-//          users = groupChat.users.map(u => u.id).toList
         )
       )
     ).onComplete {
