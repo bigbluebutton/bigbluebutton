@@ -35,7 +35,7 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    lastVersion: '2.5',
+                    lastVersion: '2.6',
                     includeCurrentVersion: false,
                     versions: {
                         '2.5': {
