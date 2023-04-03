@@ -123,6 +123,8 @@ export default class Button extends BaseButton {
       'aria-label': ariaLabel,
       'aria-expanded': ariaExpanded,
       tooltipLabel,
+      tooltipDelay,
+      tooltipPlacement,
     } = this.props;
 
     const renderFuncName = circle ? 'renderCircle' : 'renderDefault';
@@ -132,6 +134,8 @@ export default class Button extends BaseButton {
       return (
         <TooltipContainer
           title={tooltipLabel || buttonLabel}
+          delay={tooltipDelay}
+          placement={tooltipPlacement}
         >
           {this[renderFuncName]()}
         </TooltipContainer>
