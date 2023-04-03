@@ -1,8 +1,10 @@
 DROP VIEW IF EXISTS v_pres_annotation_curr;
 DROP VIEW IF EXISTS v_pres_annotation_history_curr;
+DROP VIEW IF EXISTS v_pres_page_cursor;
 DROP VIEW IF EXISTS v_pres_page_writers;
 DROP TABLE IF EXISTS pres_annotation_history;
 DROP TABLE IF EXISTS pres_annotation;
+DROP TABLE IF EXISTS pres_page_cursor;
 DROP TABLE IF EXISTS pres_page_writers;
 DROP TABLE IF EXISTS pres_page;
 DROP TABLE IF EXISTS pres_presentation;
@@ -390,7 +392,8 @@ create index "idx_pres_page_cursor_userID" on "pres_page_cursor"("userId");
 create index "idx_pres_page_cursor_lastUpdatedAt" on "pres_page_cursor"("pageId","lastUpdatedAt");
 
 CREATE VIEW v_pres_page_cursor AS
-SELECT pres_presentation."meetingId", pres_page."presentationId", c.*
+SELECT pres_presentation."meetingId", pres_page."presentationId", c.*,
+        CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN TRUE ELSE FALSE END AS "isCurrentPage"
 FROM pres_page_cursor c
 JOIN pres_page ON pres_page."pageId" = c."pageId"
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";

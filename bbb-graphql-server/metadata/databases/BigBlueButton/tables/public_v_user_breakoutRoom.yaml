@@ -11,7 +11,7 @@ select_permissions:
     permission:
       columns:
         - isDefaultName
-        - online
+        - currentlyInRoom
         - breakoutRoomId
         - meetingId
         - shortName
