@@ -24,7 +24,6 @@ public:
     # audio. Default value is true
     # Firefox users: if no output devices is shown, you may set the flag
     # "media.setsinkid.enabled" to make it work properly
-    # enableDynamicAudioDeviceSelection: true
     #
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
@@ -688,6 +687,7 @@ public:
     help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
+    allowSnapshot: true
     panZoomThrottle: 32
     restoreOnUpdate: false
     uploadEndpoint: '/bigbluebutton/presentation/upload'
