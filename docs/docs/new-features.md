@@ -149,9 +149,9 @@ Learn more about [how to enable generating MP4 (h264 video) output](https://docs
 
 #### Change of parameters naming
 
-In 2.5 we had the hidePresentation which was responsible for disabling presentation Area, and it was configured in the join call. Now we have a new disabled feature which is responsible for that. it is called `disabledFeatures=presentation`, and it is configured in the create call, for more details see the [docs](https://docs.bigbluebutton.org/dev/api.html#create).
+In 2.5 we had the hidePresentation which was responsible for disabling presentation Area, and it was configured in the join call. Now we have a new disabled feature which is responsible for that. it is called `disabledFeatures=presentation`, and it is configured in the create call, for more details see the [docs](https://docs.bigbluebutton.org/2.6/development/api#create).
 
-There is another parameter renamed in 2.6, it is `swapLayout`, or `userdata-bbb_auto_swap_layout` in the join call. Now, this parameter is set to `hidePresentationOnJoin` or `userdata-bbb_hide_presentation_on_join` in the join call, and it does essentially the same thing: it starts meeting with presentation minimized.
+There is another parameter renamed in 2.6, it is `swapLayout`, or `userdata-bbb_auto_swap_layout` in the join call. Now, this parameter is set to `hidePresentationOnJoin` or `userdata-bbb_hide_presentation_on_join` in the join call, and it does essentially the same thing: it starts meeting with presentation minimized. And lastly, we've got another way to configure it: which is to set `public.layout.hidePresentationOnJoin: true` in the override settings file: `/etc/bigbluebutton/bbb-html5.yml`
 
 In brief:
 

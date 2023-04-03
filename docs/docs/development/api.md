@@ -86,6 +86,8 @@ Updated in 2.6:
 
 - **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
 
+- **join**: Added `userdata-bbb_hide_presentation_on_join`.
+
 ## API Data Types
 
 There are three types in the API.
