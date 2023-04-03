@@ -141,3 +141,27 @@ SMTP configuration requires following the guidelines provided by your SMTP serve
 | HCAPTCHA_SITE_KEY | The site key that links to your hCaptcha site  | - |
 | HCAPTCHA_SECRET_KEY | The secret to use to authenticate with hCaptcha  | - |
 
+### Relative URL root path (subdirectory) Setup
+
+Greenlight by default will expect being deployed on the root path **/** of your FQDN (Fully qualified domain name).
+If having a custom setup and not willing to deploy the application on the root path one could simply run the `bbb-install` command with the **GL_PATH** variable set to their chosen configuration and **while ensuring to include the -g option** to upgrade Greenlight.
+
+> An upgrade to Greenlight after a relative URL root path change is mandatory.
+
+So, to deploy Greenlight on a relative URL root path of **/gl** one would simply run:
+
+```bash
+GL_PATH=/gl bbb-install-2.6 [options] -g
+```
+
+Alternatively, one could directly update the Greenlight .env file located at `/root/greenlight-v3/.env` and manually set the **RELATIVE_URL_ROOT** variable to match their desired setup and simply re-run afterwards the `bbb-install` command **with the -g option included** but without defining and using the **GL_PATH** variable.
+
+- _We recommend the use of the first approach whenever possible._
+
+> The **GL_PATH** variable on the shell session _(if defined)_ will always be prioritized over the **RELATIVE_URL_ROOT** _(even if the latter is set)_.
+
+
+| Variable Name | Description                                                                                                                           | Default Value |
+|---------------|---------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| RELATIVE_URL_ROOT | The relative URL root path that Greenlight will be deployed on. This can be used to inform Greenlight to expect traffic relative to a certain path, admins can use this to have a custom deployment of the application meeting their requirements.  | / |
+
