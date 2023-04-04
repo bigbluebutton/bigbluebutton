@@ -69,12 +69,12 @@ const config = {
                         from: "/2.6/new.html"
                     },
                     {
-                        from: "/admin",
-                        to: "/administration"
+                        to: "/development/api",
+                        from: "/dev/api.html"
                     },
                     {
-                        from: "/dev",
-                        to: "/development"
+                        to: "/development",
+                        from: "/dev"
                     },
                     {
                         to: "/greenlight/v3/migration",
