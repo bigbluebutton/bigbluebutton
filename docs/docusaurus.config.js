@@ -73,10 +73,6 @@ const config = {
                         from: "/dev/api.html"
                     },
                     {
-                        to: "/development",
-                        from: "/dev"
-                    },
-                    {
                         to: "/greenlight/v3/migration",
                         from: "/greenlight_v3/gl3-migration.html"
                     }
