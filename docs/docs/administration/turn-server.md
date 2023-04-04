@@ -8,8 +8,10 @@ keywords:
 - coturn
 - turn server
 ---
+# BBB 2.6 now includes coturn for TURN server
+Starting with BigBlueButton version 2.6, the default installation process includes coturn, a TURN server that allows users behind restrictive firewalls to connect. You don't need any additional configuration changes unless you want to override the default configuration.
 
-This document covers how to set up a TURN server for BigBlueButton to allow users behind restrictive firewalls to connect.
+This document covers how to set up a TURN server for previous versions of BigBlueButton.
 
 You can also use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install#install-a-turn-server) to automate the steps in this document.
 
