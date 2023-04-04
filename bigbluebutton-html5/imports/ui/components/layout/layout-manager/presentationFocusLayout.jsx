@@ -221,13 +221,15 @@ const PresentationFocusLayout = (props) => {
           max((windowHeight() - sidebarContentHeight), cameraDockMinHeight),
           (windowHeight() - cameraDockMinHeight),
         );
+        const bannerAreaDiff = windowHeight() - sidebarContentHeight - cameraDockHeight - bannerAreaHeight();
+        cameraDockHeight += bannerAreaDiff;
       } else {
         cameraDockHeight = min(
           max(cameraDockInput.height, cameraDockMinHeight),
           (windowHeight() - cameraDockMinHeight),
         );
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
