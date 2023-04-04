@@ -73,8 +73,9 @@ const TldrawGlobalStyle = createGlobalStyle`
     }
   `}
   ${({ hasWBAccess, isPresenter, panSelected }) => (hasWBAccess || isPresenter) && panSelected && `
-    [id^="TD-PrimaryTools-"]:hover,:focus {
-      & > div {
+    [id^="TD-PrimaryTools-"] {
+      &:hover > div,
+      &:focus > div {
         background-color: var(--colors-hover) !important;
       }
     }
