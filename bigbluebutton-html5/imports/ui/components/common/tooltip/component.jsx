@@ -111,12 +111,15 @@ class Tooltip extends Component {
       return true;
     }).forEach((e) => {
       const instance = e._tippy;
-      instance.setProps({
+      const newProps = {
         animation: animations
           ? DEFAULT_ANIMATION : ANIMATION_NONE,
-        delay: animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0],
         duration: animations ? ANIMATION_DURATION : 0,
-      });
+      };
+      if (!e.getAttribute("delay")) {
+        newProps["delay"] = animations ? ANIMATION_DELAY : [ANIMATION_DELAY[0], 0];
+      }
+      instance.setProps(newProps);
     });
 
     const elem = document.getElementById(this.tippySelectorId);
