@@ -35,7 +35,7 @@ function UserList() {
         clientType
         leftFlag
         loggedOut
-        voices {
+        voice {
           joined
           listenOnly
           talking
@@ -52,7 +52,7 @@ function UserList() {
           isDefaultName
           sequence
           shortName
-          online
+          currentlyInRoom
         }
       }
     }`
@@ -99,13 +99,13 @@ function UserList() {
                   <td style={{backgroundColor: user.cameras.length > 0 ? '#A0DAA9' : ''}}>{user.cameras.length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.presPagesWritable.length > 0 ? '#A0DAA9' : ''}}>{user.presPagesWritable.length > 0 ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.pinned === true ? '#A0DAA9' : ''}}>{user.pinned === true ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.voices.length > 0 ? '#A0DAA9' : ''}}>{user.voices.length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.voices.filter(m => m.listenOnly === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.listenOnly === true).length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.voices.filter(m => m.talking === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.talking === true).length > 0 ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.voices.filter(m => m.muted === true).length > 0 ? '#A0DAA9' : ''}}>{user.voices.filter(m => m.muted === true).length > 0 ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voice?.joined === true ? '#A0DAA9' : ''}}>{user.voice?.joined === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voice?.listenOnly === true ? '#A0DAA9' : ''}}>{user.voice?.listenOnly === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voice?.talking === true ? '#A0DAA9' : ''}}>{user.voice?.talking === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.voice?.muted === true ? '#A0DAA9' : ''}}>{user.voice?.muted === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.locked === true ? '#A0DAA9' : ''}}>{user.locked === true ? 'Yes' : 'No'}</td>
-                  <td style={{backgroundColor: user.lastBreakoutRoom?.online === true ? '#A0DAA9' : ''}}>
-                      {user.lastBreakoutRoom?.shortName}{user.lastBreakoutRoom?.online == true ? ' (Online)' : ''}
+                  <td style={{backgroundColor: user.lastBreakoutRoom?.currentlyInRoom === true ? '#A0DAA9' : ''}}>
+                      {user.lastBreakoutRoom?.shortName}{user.lastBreakoutRoom?.currentlyInRoom == true ? ' (Online)' : ''}
                   </td>
                   <td style={{backgroundColor: user.leftFlag === true ? '#A0DAA9' : ''}}>{user.leftFlag === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}</td>

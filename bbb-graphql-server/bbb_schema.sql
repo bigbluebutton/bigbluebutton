@@ -177,8 +177,8 @@ CREATE TABLE public."user" (
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 
 CREATE TABLE "user_voice" (
-	"voiceUserId" varchar(100) PRIMARY KEY,
-	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
+	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
+	"voiceUserId" varchar(100),
 	"callerName" varchar(100),
 	"callerNum" varchar(100),
 	"callingWith" varchar(100),
@@ -194,7 +194,7 @@ CREATE TABLE "user_voice" (
 	"endTime" bigint NULL,
 	"startTime" bigint NULL
 );
-CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
+--CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT

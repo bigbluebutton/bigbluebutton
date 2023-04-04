@@ -7,8 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success }
 
 case class UserVoiceDbModel(
-    voiceUserId:        String,
     userId:             String,
+    voiceUserId:        String,
     callerName:         String,
     callerNum:          String,
     callingWith:        String,
@@ -27,11 +27,11 @@ case class UserVoiceDbModel(
 
 class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "user_voice") {
   override def * = (
-    voiceUserId, userId, callerName, callerNum, callingWith, joined, listenOnly,
+    userId, voiceUserId, callerName, callerNum, callingWith, joined, listenOnly,
     muted, spoke, talking, floor, lastFloorTime, voiceConf, color, startTime, endTime
   ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
-  val voiceUserId = column[String]("voiceUserId", O.PrimaryKey)
-  val userId = column[String]("userId")
+  val userId = column[String]("userId", O.PrimaryKey)
+  val voiceUserId = column[String]("voiceUserId")
   val callerName = column[String]("callerName")
   val callerNum = column[String]("callerNum")
   val callingWith = column[String]("callingWith")
@@ -53,11 +53,14 @@ object UserVoiceDAO {
   //  val usersTable = TableQuery[UserTableDef]
 
   def insert(voiceUserState: VoiceUserState) = {
+    println("Will add!")
+    println(voiceUserState)
+
     DatabaseConnection.db.run(
-      TableQuery[UserVoiceDbTableDef].forceInsert(
+      TableQuery[UserVoiceDbTableDef].insertOrUpdate(
         UserVoiceDbModel(
-          voiceUserId = voiceUserState.voiceUserId,
           userId = voiceUserState.intId,
+          voiceUserId = voiceUserState.voiceUserId,
           callerName = voiceUserState.callerName,
           callerNum = voiceUserState.callerNum,
           callingWith = voiceUserState.callingWith,
@@ -85,7 +88,7 @@ object UserVoiceDAO {
   def update(voiceUserState: VoiceUserState) = {
     DatabaseConnection.db.run(
       TableQuery[UserVoiceDbTableDef]
-        .filter(_.voiceUserId === voiceUserState.voiceUserId)
+        .filter(_.userId === voiceUserState.intId)
         .map(u => (u.listenOnly, u.muted, u.floor, u.lastFloorTime))
         .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.floor, voiceUserState.lastFloorTime))
     ).onComplete {
@@ -104,13 +107,13 @@ object UserVoiceDAO {
              "spoke" = true,
              "endTime" = null,
             "startTime" = (case when "talking" is false then $now else "startTime" end)
-            WHERE "voiceUserId" = ${voiceUserState.voiceUserId}"""
+            WHERE "userId" = ${voiceUserState.intId}"""
     } else {
       sqlu"""UPDATE user_voice SET
             "talking" = false,
             "startTime" = null,
             "endTime" = (case when "talking" is true then $now else "endTime" end)
-            WHERE "voiceUserId" = ${voiceUserState.voiceUserId}"""
+            WHERE "userId" = ${voiceUserState.intId}"""
     }
 
     DatabaseConnection.db.run(updateSql).onComplete {
@@ -119,18 +122,14 @@ object UserVoiceDAO {
     }
   }
 
-  def delete(voiceUserId: String) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserVoiceDbTableDef]
-        .filter(_.voiceUserId === voiceUserId)
-        .delete
-    ).onComplete {
-        case Success(rowsAffected) => println(s"Voice ${voiceUserId} deleted")
-        case Failure(e)            => println(s"Error deleting voice: $e")
-      }
-  }
-
   def deleteUser(userId: String) = {
+    //Meteor sets this props instead of removing
+    //    muted: false
+    //    talking: false
+    //    listenOnly: false
+    //    joined: false
+    //    spoke: false
+
     DatabaseConnection.db.run(
       TableQuery[UserVoiceDbTableDef]
         .filter(_.userId === userId)

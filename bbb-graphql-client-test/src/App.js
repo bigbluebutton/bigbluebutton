@@ -106,7 +106,7 @@ function App() {
             <ChatPublicMessages />
             <br />
             <CursorsAll />
-              <br />
+            <br />
             <TalkingStream />
             <br />
             <CursorsStream />
