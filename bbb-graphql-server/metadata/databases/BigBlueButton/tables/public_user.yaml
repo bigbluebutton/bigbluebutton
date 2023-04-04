@@ -14,6 +14,15 @@ object_relationships:
   - name: meeting
     using:
       foreign_key_constraint_on: meetingId
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
+          schema: public
 array_relationships:
   - name: cameras
     using:
@@ -33,15 +42,6 @@ array_relationships:
         insertion_order: null
         remote_table:
           name: v_pres_page_writers
-          schema: public
-  - name: voices
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_voice
           schema: public
 select_permissions:
   - role: bbb_client
