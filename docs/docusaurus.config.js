@@ -61,11 +61,11 @@ const config = {
                 fromExtensions: ["html"],
                 redirects: [
                     {
-                        to: "/2.6/new-features",
+                        to: "/new-features",
                         from: "/2.6/new"
                     },
                     {
-                        to: "/2.6/new-features",
+                        to: "/new-features",
                         from: "/2.6/new.html"
                     },
                     {
