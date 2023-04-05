@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Une erreur s'est produite",
     "app.error.fallback.presentation.description": "Cela a été consigné. Essayez de recharger la page s'il vous plaît.",
     "app.error.fallback.presentation.reloadButton": "Recharger",
-    "app.guest.waiting": "En attente de l'approbation pour rejoindre la séance",
     "app.guest.errorSeeConsole": "Erreur: plus de détail dans la console",
     "app.guest.noModeratorResponse": "Aucune réponse du modérateur.",
     "app.guest.noSessionToken": "Aucun jeton de session reçu.",
