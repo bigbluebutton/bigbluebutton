@@ -326,10 +326,10 @@ export default class WebRtcPeer extends EventEmitter2 {
     switch (this.mode) {
       case 'recvonly': {
         const useAudio = this.mediaConstraints
-        && ((typeof this.mediaConstraints.audio === 'boolean')
+        && ((typeof this.mediaConstraints.audio === 'boolean' && this.mediaConstraints.audio)
           || (typeof this.mediaConstraints.audio === 'object'));
         const useVideo = this.mediaConstraints
-        && ((typeof this.mediaConstraints.video === 'boolean')
+        && ((typeof this.mediaConstraints.video === 'boolean' && this.mediaConstraints.video)
           || (typeof this.mediaConstraints.video === 'object'));
 
         if (useAudio) {
