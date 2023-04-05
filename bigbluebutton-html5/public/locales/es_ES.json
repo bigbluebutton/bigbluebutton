@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Ocurrió un error",
     "app.error.fallback.presentation.description": "Ha sido registrado. Por favor, intente volver a cargar la página.",
     "app.error.fallback.presentation.reloadButton": "Recargar",
-    "app.guest.waiting": "Esperando aprobación para unirse",
     "app.guest.errorSeeConsole": "Error: más detalles en la consola.",
     "app.guest.noModeratorResponse": "Sin respuesta del moderador.",
     "app.guest.noSessionToken": "No se recibió ningún token de sesión.",
