@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Esines viga",
     "app.error.fallback.presentation.description": "Viga on registreeritud. Palun proovi leht uuesti laadida.",
     "app.error.fallback.presentation.reloadButton": "Laadi uuesti",
-    "app.guest.waiting": "Ootame ühendamiseks nõusolekut",
     "app.guest.errorSeeConsole": "Viga: täpsemad üksikasjad konsoolil.",
     "app.guest.noModeratorResponse": "Pole vastust moderaatorilt.",
     "app.guest.noSessionToken": "Pole kätte saanud sessioonitõendit.",
