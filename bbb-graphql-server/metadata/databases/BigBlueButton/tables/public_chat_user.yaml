@@ -1,0 +1,45 @@
+table:
+  name: chat_user
+  schema: public
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - chatId
+        - lastSeenAt
+        - meetingId
+        - typingAt
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+update_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - lastSeenAt
+        - typingAt
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+      check: {}
+      set:
+        meetingId: x-hasura-MeetingId
+        userId: x-hasura-UserId

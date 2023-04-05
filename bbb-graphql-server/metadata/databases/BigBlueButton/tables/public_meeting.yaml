@@ -1,0 +1,23 @@
+table:
+  name: meeting
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdTime
+        - disabledFeatures
+        - duration
+        - extId
+        - html5InstanceId
+        - isBreakout
+        - maxPinnedCameras
+        - meetingCameraCap
+        - meetingId
+        - name
+        - notifyRecordingIsOn
+        - presentationUploadExternalDescription
+        - presentationUploadExternalUrl
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

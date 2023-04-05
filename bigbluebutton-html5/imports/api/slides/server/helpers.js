@@ -5,8 +5,8 @@ const calculateSlideData = (slideData) => {
   } = slideData;
 
   // calculating viewBox and offsets for the current presentation
-  const maxImageWidth = 2048;
-  const maxImageHeight = 1536;
+  const maxImageWidth = 1440;
+  const maxImageHeight = 1080;
 
   const ratio = Math.min(maxImageWidth / width, maxImageHeight / height);
   const scaledWidth = width * ratio;

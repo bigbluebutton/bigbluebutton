@@ -283,7 +283,8 @@ class RedisRecorderActor(
   }
 
   private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
-    msg.body.annotations.foreach(annotation => {
+    // filter poll annotations that are still not tldraw ready
+    msg.body.annotations.filter(!_.annotationInfo.contains("answers")).foreach(annotation => {
       val ev = new AddTldrawShapeWhiteboardRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setPresentation(getPresentationId(annotation.wbId))

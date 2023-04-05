@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import UserSettings from '/imports/api/users-settings';
 import Logger from '/imports/startup/server/logger';
 
-export default function addUserSetting(meetingId, userId, setting, value) {
+export default async function addUserSetting(meetingId, userId, setting, value) {
   check(meetingId, String);
   check(userId, String);
   check(setting, String);
@@ -23,7 +23,7 @@ export default function addUserSetting(meetingId, userId, setting, value) {
   };
 
   try {
-    const { numberAffected } = UserSettings.upsert(selector, modifier);
+    const { numberAffected } = await UserSettings.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.verbose('Upserted user setting', { meetingId, userId, setting });

@@ -8,7 +8,7 @@ import handleEmojiStatus from './handlers/emojiStatus';
 import handleChangeRole from './handlers/changeRole';
 import handleUserPinChanged from './handlers/userPinChanged';
 import handleUserInactivityInspect from './handlers/userInactivityInspect';
-import handleChangeMobileFlag from "/imports/api/users/server/handlers/changeMobileFlag";
+import handleChangeMobileFlag from '/imports/api/users/server/handlers/changeMobileFlag';
 
 RedisPubSub.on('PresenterAssignedEvtMsg', handlePresenterAssigned);
 RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);

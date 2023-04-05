@@ -1,14 +1,14 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{RegisteredUser, UserState, VoiceUserState, WebcamStream}
+import org.bigbluebutton.core.models.{ VoiceUserState }
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success }
 
-case class UserMicrophoneDbModel(
-    voiceUserId:        String,
+case class UserVoiceDbModel(
     userId:             String,
+    voiceUserId:        String,
     callerName:         String,
     callerNum:          String,
     callingWith:        String,
@@ -25,13 +25,13 @@ case class UserMicrophoneDbModel(
     endTime:            Option[Long],
 )
 
-class UserMicrophoneDbTableDef(tag: Tag) extends Table[UserMicrophoneDbModel](tag, None, "user_microphone") {
+class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "user_voice") {
   override def * = (
-    voiceUserId, userId, callerName, callerNum, callingWith, joined, listenOnly,
+    userId, voiceUserId, callerName, callerNum, callingWith, joined, listenOnly,
     muted, spoke, talking, floor, lastFloorTime, voiceConf, color, startTime, endTime
-  ) <> (UserMicrophoneDbModel.tupled, UserMicrophoneDbModel.unapply)
-  val voiceUserId = column[String]("voiceUserId", O.PrimaryKey)
-  val userId = column[String]("userId")
+  ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
+  val userId = column[String]("userId", O.PrimaryKey)
+  val voiceUserId = column[String]("voiceUserId")
   val callerName = column[String]("callerName")
   val callerNum = column[String]("callerNum")
   val callingWith = column[String]("callingWith")
@@ -49,15 +49,15 @@ class UserMicrophoneDbTableDef(tag: Tag) extends Table[UserMicrophoneDbModel](ta
 }
 
 
-object UserMicrophoneDAO {
+object UserVoiceDAO {
   //  val usersTable = TableQuery[UserTableDef]
 
   def insert(voiceUserState: VoiceUserState) = {
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef].forceInsert(
-        UserMicrophoneDbModel(
-          voiceUserId = voiceUserState.voiceUserId,
+      TableQuery[UserVoiceDbTableDef].insertOrUpdate(
+        UserVoiceDbModel(
           userId = voiceUserState.intId,
+          voiceUserId = voiceUserState.voiceUserId,
           callerName = voiceUserState.callerName,
           callerNum = voiceUserState.callerNum,
           callingWith = voiceUserState.callingWith,
@@ -76,21 +76,21 @@ object UserMicrophoneDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on user_microphone table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_voice table!")
         }
-        case Failure(e)            => println(s"Error inserting voice: $e")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting voice: $e")
       }
   }
 
   def update(voiceUserState: VoiceUserState) = {
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
-        .filter(_.voiceUserId === voiceUserState.voiceUserId)
+      TableQuery[UserVoiceDbTableDef]
+        .filter(_.userId === voiceUserState.intId)
         .map(u => (u.listenOnly, u.muted, u.floor, u.lastFloorTime))
         .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.floor, voiceUserState.lastFloorTime))
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user_microphone table!")
-      case Failure(e) => println(s"Error updating user: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user_voice table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
     }
   }
 
@@ -99,45 +99,41 @@ object UserMicrophoneDAO {
     val now = System.currentTimeMillis()
 
     val updateSql = if(voiceUserState.talking) {
-      sqlu"""UPDATE user_microphone SET
+      sqlu"""UPDATE user_voice SET
              "talking" = true,
              "spoke" = true,
              "endTime" = null,
             "startTime" = (case when "talking" is false then $now else "startTime" end)
-            WHERE "voiceUserId" = ${voiceUserState.voiceUserId}"""
+            WHERE "userId" = ${voiceUserState.intId}"""
     } else {
-      sqlu"""UPDATE user_microphone SET
+      sqlu"""UPDATE user_voice SET
             "talking" = false,
             "startTime" = null,
             "endTime" = (case when "talking" is true then $now else "endTime" end)
-            WHERE "voiceUserId" = ${voiceUserState.voiceUserId}"""
+            WHERE "userId" = ${voiceUserState.intId}"""
     }
 
     DatabaseConnection.db.run(updateSql).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated with talking: ${voiceUserState.talking}")
-      case Failure(e) => println(s"Error updating voice talking: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated with talking: ${voiceUserState.talking}")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating voice talking: $e")
     }
   }
 
-  def delete(voiceUserId: String) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
-        .filter(_.voiceUserId === voiceUserId)
-        .delete
-    ).onComplete {
-        case Success(rowsAffected) => println(s"Voice ${voiceUserId} deleted")
-        case Failure(e)            => println(s"Error deleting voice: $e")
-      }
-  }
-
   def deleteUser(userId: String) = {
+    //Meteor sets this props instead of removing
+    //    muted: false
+    //    talking: false
+    //    listenOnly: false
+    //    joined: false
+    //    spoke: false
+
     DatabaseConnection.db.run(
-      TableQuery[UserMicrophoneDbTableDef]
+      TableQuery[UserVoiceDbTableDef]
         .filter(_.userId === userId)
         .delete
     ).onComplete {
-      case Success(rowsAffected) => println(s"Voice of user ${userId} deleted")
-      case Failure(e) => println(s"Error deleting voice: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Voice of user ${userId} deleted")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting voice: $e")
     }
   }
 

@@ -4,7 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default function changeLayout(payload) {
+export default async function changeLayout(payload) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'BroadcastLayoutMsg';
@@ -15,7 +15,7 @@ export default function changeLayout(payload) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const m = LayoutMeetings.findOne({ meetingId }) || {};
+    const m = await LayoutMeetings.findOneAsync({ meetingId }) || {};
     const {
       layout,
       pushLayout,

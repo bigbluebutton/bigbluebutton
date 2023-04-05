@@ -1,11 +1,11 @@
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearPresentations(meetingId, podId) {
+export default async function clearPresentations(meetingId, podId) {
   // clearing presentations for 1 pod
   if (meetingId && podId) {
     try {
-      const numberAffected = Presentations.remove({ meetingId, podId });
+      const numberAffected = await Presentations.removeAsync({ meetingId, podId });
 
       if (numberAffected) {
         Logger.info(`Cleared Presentations (${meetingId}, ${podId})`);
@@ -20,7 +20,7 @@ export default function clearPresentations(meetingId, podId) {
   // clearing presentations for the whole meeting
   if (meetingId) {
     try {
-      const numberAffected = Presentations.remove({ meetingId });
+      const numberAffected = await Presentations.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared Presentations (${meetingId})`);
@@ -30,7 +30,7 @@ export default function clearPresentations(meetingId, podId) {
     }
   } else {
     try {
-      const numberAffected = Presentations.remove({});
+      const numberAffected = await Presentations.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared Presentations (all)');
@@ -39,4 +39,6 @@ export default function clearPresentations(meetingId, podId) {
       Logger.error(`Error on cleaning Presentations (all). ${err}`);
     }
   }
+  // Returned true because the function requires some value to be returned.
+  return true;
 }

@@ -4,10 +4,26 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import './App.css';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import UserList from './UserList';
+import MeetingInfo from './MeetingInfo';
+import TotalOfUsers from './TotalOfUsers';
+import TotalOfModerators from './TotalOfModerators';
+import TotalOfViewers from './TotalOfViewers';
+import TotalOfUsersTalking from './TotalOfUsersTalking';
+import TotalOfUniqueNames from './TotalOfUniqueNames';
+import ChatMessages from "./ChatMessages";
+import ChatsInfo from "./ChatsInfo";
+import ChatPublicMessages from "./ChatPublicMessages";
+import Annotations from "./Annotations";
+import AnnotationsHistory from "./AnnotationsHistory";
+import CursorsStream from "./CursorsStream";
+import CursorsAll from "./CursorsAll";
+import TalkingStream from "./TalkingStream";
 
 
 function App() {
   const [sessionToken, setSessionToken] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [joining, setJoining] = useState(false);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
@@ -27,6 +43,10 @@ function App() {
         .then((json) => {
           console.log(json.response);
           setEnterApiResponse(json.response.returncode);
+          if(json?.response?.internalUserID) {
+            setUserId(json.response.internalUserID);
+            setUserName(json.response.fullname);
+          }
         });
   }
 
@@ -74,7 +94,32 @@ function App() {
             }}
           >
           <ApolloProvider client={graphqlClient}>
-              <UserList />
+            Who am I? {userName} ({userId})
+            <MeetingInfo />
+            <br />
+            <UserList userId={userId} />
+            <br />
+            <ChatsInfo />
+            <br />
+            <ChatMessages />
+            <br />
+            <ChatPublicMessages userId={userId} />
+            <br />
+            <CursorsAll />
+            <br />
+            <TalkingStream />
+            <br />
+            <CursorsStream />
+            <br />
+            <Annotations />
+            <br />
+            <AnnotationsHistory />
+            <br />
+            <TotalOfUsers />
+            <TotalOfModerators />
+            <TotalOfViewers />
+            <TotalOfUsersTalking />
+            <TotalOfUniqueNames />
         </ApolloProvider>
         </div>
          ) : sessionToken == null ? 'Param sessionToken missing' : 'Loading...'}

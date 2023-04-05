@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{RegisteredUser, UserState, VoiceUserState, WebcamStream}
+import org.bigbluebutton.core.models.{ WebcamStream}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 case class UserCameraDbModel(
         streamId:        String,
@@ -30,9 +30,9 @@ object UserCameraDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on user_webcam table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_webcam table!")
         }
-        case Failure(e)            => println(s"Error inserting webcam: $e")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting webcam: $e")
       }
   }
 
@@ -42,8 +42,8 @@ object UserCameraDAO {
         .filter(_.streamId === streamId)
         .delete
     ).onComplete {
-        case Success(rowsAffected) => println(s"Webcam ${streamId} deleted")
-        case Failure(e)            => println(s"Error deleting webcam: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Webcam ${streamId} deleted")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error deleting webcam: $e")
       }
   }
 

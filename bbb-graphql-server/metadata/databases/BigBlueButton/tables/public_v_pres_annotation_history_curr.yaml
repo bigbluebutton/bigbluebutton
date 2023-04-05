@@ -1,0 +1,22 @@
+table:
+  name: v_pres_annotation_history_curr
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pres_annotation_history_curr
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - annotationId
+        - meetingId
+        - pageId
+        - presentationId
+        - userId
+        - sequence
+        - annotationInfo
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

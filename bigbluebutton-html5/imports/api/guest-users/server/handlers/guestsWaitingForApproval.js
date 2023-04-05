@@ -11,14 +11,14 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
-export default function handleGuestsWaitingForApproval({ body }, meetingId) {
+export default async function handleGuestsWaitingForApproval({ body }, meetingId) {
   const { guests } = body;
   check(guests, Array);
   check(meetingId, String);
 
-  return guests.map((guest) => {
+  const result = await Promise.all(guests.map(async (guest) => {
     try {
-      const { insertedId, numberAffected } = GuestUsers.upsert({
+      const { insertedId, numberAffected } = await GuestUsers.upsertAsync({
         meetingId,
         intId: guest.intId,
       }, {
@@ -34,17 +34,18 @@ export default function handleGuestsWaitingForApproval({ body }, meetingId) {
       if (insertedId) {
         Logger.info(`Added guest user meeting=${meetingId}`);
 
-        /** Update position of waiting users after user 
+        /** Update position of waiting users after user
         *   has entered the guest lobby
         */
-         updatePositionInWaitingQueue(meetingId); 
+        updatePositionInWaitingQueue(meetingId);
       } else if (numberAffected) {
         Logger.info(`Upserted guest user meeting=${meetingId}`);
 
-        updatePositionInWaitingQueue(meetingId); 
+        updatePositionInWaitingQueue(meetingId);
       }
     } catch (err) {
       Logger.error(`Adding guest user to collection: ${err}`);
     }
-  });
+  }));
+  return result;
 }

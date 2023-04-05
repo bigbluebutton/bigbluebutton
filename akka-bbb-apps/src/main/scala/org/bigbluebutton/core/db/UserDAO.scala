@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser, UserState, VoiceUserState}
+import org.bigbluebutton.core.models.{RegisteredUser, UserState}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 case class UserDbModel(
     userId:       String,
@@ -62,8 +62,8 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val presenter = column[Boolean]("presenter")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
-//  val registeredOn: Rep[Option[Long]] = column[Option[Long]]("registeredOn")
-  //  val registeredOn: Rep[Option[LocalDate]] = column[Option[LocalDate]]("registeredOn")
+//  val registeredOn = column[Option[Long]]("registeredOn")
+  //  val registeredOn = column[Option[LocalDate]]("registeredOn")
 }
 
 object UserDAO {
@@ -91,9 +91,11 @@ object UserDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted in User table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in User table!")
+          ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
+          UserConnectionStatusdDAO.insert(meetingId, regUser.id)
         }
-        case Failure(e)            => println(s"Error inserting user: $e")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user: $e")
       }
   }
 
@@ -104,8 +106,8 @@ object UserDAO {
         .map(u => (u.guest, u.guestStatus, u.role, u.authed, u.joined, u.banned, u.loggedOut))
         .update((regUser.guest, regUser.guestStatus, regUser.role, regUser.authed, regUser.joined, regUser.banned, regUser.loggedOut))
     ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user table!")
-        case Failure(e)            => println(s"Error updating user: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating user: $e")
       }
   }
 
@@ -119,30 +121,40 @@ object UserDAO {
 //    "eject_reason" varchar (255)
 //    ,
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
-      case Failure(e) => println(s"Error updating user: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
     }
   }
 
-  def delete(regUser: RegisteredUser) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserDbTableDef]
-        .filter(_.userId === regUser.id)
-        .delete
-    ).onComplete {
-        case Success(rowsAffected) => println(s"User ${regUser.id} deleted")
-        case Failure(e)            => println(s"Error deleting user ${regUser.id}: $e")
-      }
-  }
+//  def delete(regUser: RegisteredUser) = {
+//    DatabaseConnection.db.run(
+//      TableQuery[UserDbTableDef]
+//        .filter(_.userId === regUser.id)
+//        .delete
+//    ).onComplete {
+//        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User ${regUser.id} deleted")
+//        case Failure(e)            => DatabaseConnection.logger.debug(s"Error deleting user ${regUser.id}: $e")
+//      }
+//  }
 
   def delete(intId: String) = {
+//    DatabaseConnection.db.run(
+//      TableQuery[UserDbTableDef]
+//        .filter(_.userId === intId)
+//        .delete
+//    ).onComplete {
+//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User ${intId} deleted")
+//      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting user ${intId}: $e")
+//    }
+
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.userId === intId)
-        .delete
+        .map(u => (u.loggedOut))
+        .update((true))
     ).onComplete {
-      case Success(rowsAffected) => println(s"User ${intId} deleted")
-      case Failure(e) => println(s"Error deleting user ${intId}: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated loggedOut=true on user table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating loggedOut=true user: $e")
     }
   }
 
@@ -152,19 +164,19 @@ object UserDAO {
         .filter(_.meetingId === meetingId)
         .delete
     ).onComplete {
-      case Success(rowsAffected) => println(s"User from meeting ${meetingId} deleted")
-      case Failure(e) => println(s"Error deleting user from meeting ${meetingId}: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User from meeting ${meetingId} deleted")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting user from meeting ${meetingId}: $e")
     }
   }
 
-  def insert(user: UserDbModel) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserDbTableDef].forceInsert(user)
-    ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
-        case Failure(e)            => println(s"Error updating user: $e")
-      }
-  }
+//  def insert(user: UserDbModel) = {
+//    DatabaseConnection.db.run(
+//      TableQuery[UserDbTableDef].forceInsert(user)
+//    ).onComplete {
+//        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated")
+//        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating user: $e")
+//      }
+//  }
 
 
 }

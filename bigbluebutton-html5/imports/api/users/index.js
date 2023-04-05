@@ -12,7 +12,7 @@ if (Meteor.isServer) {
   // 1. meetingId
   // 2. meetingId, userId
   // { connection: Meteor.isClient ? null : true }
-  Users._ensureIndex({ meetingId: 1, userId: 1 });
+  Users.createIndexAsync({ meetingId: 1, userId: 1 });
 }
 
 export default Users;

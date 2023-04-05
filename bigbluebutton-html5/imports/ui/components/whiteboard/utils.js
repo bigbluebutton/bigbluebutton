@@ -240,33 +240,9 @@ const getFontStyle = (style) => {
   https://github.com/tldraw/tldraw/blob/55a8831a6b036faae0dfd77d6733a8f585f5ae23/packages/tldraw/src/state/shapes/shared/getTextSize.ts */
 const getMeasurementDiv = (font) => {
   // A div used for measurement
-  document.getElementById('__textMeasure')?.remove();
+  const pre = document.getElementById('text-measure');
+  pre.style.font = font;
 
-  const pre = document.createElement('pre');
-  pre.id = '__textMeasure';
-
-  Object.assign(pre.style, {
-    whiteSpace: 'pre',
-    width: 'auto',
-    border: '1px solid transparent',
-    padding: '4px',
-    margin: '0px',
-    letterSpacing: '-0.03em',
-    opacity: '0',
-    position: 'absolute',
-    top: '-500px',
-    left: '0px',
-    zIndex: '9999',
-    pointerEvents: 'none',
-    userSelect: 'none',
-    alignmentBaseline: 'mathematical',
-    dominantBaseline: 'mathematical',
-    font,
-  });
-
-  pre.tabIndex = -1;
-
-  document.body.appendChild(pre);
   return pre;
 }
 
@@ -278,15 +254,12 @@ const getTextSize = (text, style, padding) => {
   }
 
   const melm = getMeasurementDiv(font);
+  melm.textContent = text;
 
   if (!melm) {
     // We're in SSR
     return [10, 10];
   }
-
-  if (!melm.parent) document.body.appendChild(melm);
-
-  melm.textContent = text;
 
   // In tests, offsetWidth and offsetHeight will be 0
   const width = melm.offsetWidth || 1;

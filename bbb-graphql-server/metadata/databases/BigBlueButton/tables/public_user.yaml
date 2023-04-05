@@ -2,7 +2,16 @@ table:
   name: user
   schema: public
 object_relationships:
-  - name: breakoutRoom
+  - name: connectionStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user_connectionStatus
+          schema: public
+  - name: lastBreakoutRoom
     using:
       manual_configuration:
         column_mapping:
@@ -10,6 +19,18 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_user_breakoutRoom
+          schema: public
+  - name: meeting
+    using:
+      foreign_key_constraint_on: meetingId
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
           schema: public
 array_relationships:
   - name: cameras
@@ -21,37 +42,15 @@ array_relationships:
         remote_table:
           name: v_user_camera
           schema: public
-  - name: microphones
+  - name: presPagesWritable
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_microphone
-          schema: public
-  - name: user_cameras
-    using:
-      foreign_key_constraint_on:
-        column: userId
-        table:
-          name: user_camera
-          schema: public
-  - name: user_microphones
-    using:
-      foreign_key_constraint_on:
-        column: userId
-        table:
-          name: user_microphone
-          schema: public
-  - name: whiteboards
-    using:
-      manual_configuration:
-        column_mapping:
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: v_user_whiteboard
+          name: v_pres_page_writers
           schema: public
 select_permissions:
   - role: bbb_client
@@ -60,18 +59,20 @@ select_permissions:
         - authed
         - avatar
         - banned
+        - clientType
         - color
         - emoji
         - extId
         - guest
         - guestStatus
+        - isModerator
+        - isOnline
         - joined
         - leftFlag
         - locked
         - loggedOut
         - meetingId
         - mobile
-        - clientType
         - name
         - pinned
         - presenter

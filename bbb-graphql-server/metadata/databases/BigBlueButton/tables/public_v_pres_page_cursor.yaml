@@ -1,0 +1,34 @@
+table:
+  name: v_pres_page_cursor
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: pres_page_cursor
+  custom_root_fields: {}
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - isCurrentPage
+        - lastUpdatedAt
+        - meetingId
+        - pageId
+        - presentationId
+        - userId
+        - xPercent
+        - yPercent
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

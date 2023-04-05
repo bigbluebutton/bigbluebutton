@@ -1,10 +1,9 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
-import setMobile from '../modifiers/setMobile';
 import { extractCredentials } from '/imports/api/common/server/helpers';
-import RedisPubSub from "/imports/startup/server/redis";
+import RedisPubSub from '/imports/startup/server/redis';
 
-export default function setMobileUser() {
+export default async function setMobileUser() {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;

@@ -22,7 +22,7 @@ const FeatureList: FeatureItem[] = [
             </>
         ),
         actionText: "Teaching Experience",
-        docId: "/teaching"
+        docId: "https://bigbluebutton.org/teachers/tutorials/"
     },
     {
         title: 'I am a developer',
@@ -65,7 +65,7 @@ const FeatureList: FeatureItem[] = [
         Svg: require('@site/static/img/icon_new.svg').default,
         description: (
             <>
-                Discover the new features of BigBlueButton in version 2.6 (still under development).
+                Discover the new features of BigBlueButton in version 2.6.
             </>
         ),
         actionText: "Discover",

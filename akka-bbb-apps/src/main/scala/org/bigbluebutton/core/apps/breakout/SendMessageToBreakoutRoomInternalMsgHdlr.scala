@@ -20,7 +20,7 @@ trait SendMessageToBreakoutRoomInternalMsgHdlr {
     } yield {
       val groupChatMsgFromUser = GroupChatMsgFromUser(sender.id, sender.copy(name = msg.senderName), true, msg.msg)
       val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.senderName), groupChatMsgFromUser)
-      val gcs = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm)
+      val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm)
 
       val event = buildGroupChatMessageBroadcastEvtMsg(
         liveMeeting.props.meetingProp.intId,

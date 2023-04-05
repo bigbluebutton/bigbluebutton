@@ -36,3 +36,23 @@ $ yarn build
 
 This command generates static content into the `build` directory
 and can be served using any static contents hosting service.
+
+### Troubleshooting
+
+Sometimes cached content can interfere with your changes during live updates
+in development or when building the docs.
+To avoid this you can run:
+
+```
+$ yarn clear  # ensure cached content is not interfering with your changes
+$ rm -r versioned_docs versioned_sidebars versions.json  # if you build multiple versions
+```
+
+## Cutting a new release
+
+The docs for all versions are build and deployed from the `develop`-branch,
+but the actual documentation per version lives in each version-branch (e.g. `v2.6.x-release`).
+When cutting a new BigBlueButton release at least these two files need to be adjusted on `develop`:
+
+- `build.sh`: the variable `BRANCHES` is a list of all branches for which documentation will be included
+- `docusaurus.config.js`: adjust metadata and versions in `config.presets.docs.versions`
