@@ -1,12 +1,8 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.msgs.AnnotationVO
-import slick.jdbc.PostgresProfile.api._
-import spray.json.{ JsValue, _ }
-
-import scala.concurrent.Await
+import PostgresProfile.api._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 import scala.util.{ Failure, Success }
 
 case class PresAnnotationDbModel(
@@ -30,45 +26,6 @@ class PresAnnotationDbTableDef(tag: Tag) extends Table[PresAnnotationDbModel](ta
 }
 
 object PresAnnotationDAO {
-  implicit object AnyJsonWriter extends JsonWriter[Any] {
-    def write(x: Any): JsValue = x match {
-      case n: Int       => JsNumber(n)
-      case s: String    => JsString(s)
-      case b: Boolean   => JsBoolean(b)
-      case f: Float     => JsNumber(f)
-      case d: Double    => JsNumber(d)
-      case m: Map[_, _] => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
-      case l: List[_]   => JsArray(l.map(write).toVector)
-      case _            => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
-      //      case _            => JsNull
-    }
-  }
-
-  // Cria um JsonWriter implícito para o tipo Map[String, Any]
-  implicit val mapFormat: JsonWriter[Map[String, Any]] = new JsonWriter[Map[String, Any]] {
-    def write(m: Map[String, Any]): JsValue = {
-      JsObject(m.map { case (k, v) => k -> AnyJsonWriter.write(v) })
-    }
-  }
-
-  //  def insertOrUpdate(annotation: AnnotationVO) = {
-  //    DatabaseConnection.db.run(
-  //      TableQuery[PresAnnotationDbTableDef].insertOrUpdate(
-  //        PresAnnotationDbModel(
-  //          annotationId = annotation.id,
-  //          pageId = annotation.wbId,
-  //          userId = annotation.userId,
-  //          annotationInfo = annotation.annotationInfo.toMap.toJson.compactPrint,
-  //          //          annotationInfo = annotation.annotationInfo.toString(),
-  //          lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis())
-  //        )
-  //      )
-  //    ).onComplete {
-  //        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresAnnotation table!")
-  //        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresAnnotation: $e")
-  //      }
-  //  }
-
   def insertOrUpdate(annotation: AnnotationVO, annotationDiff: AnnotationVO) = {
     PresAnnotationHistoryDAO.insert(annotationDiff).onComplete {
       case Success(sequence) => {
@@ -79,7 +36,7 @@ object PresAnnotationDAO {
               annotationId = annotation.id,
               pageId = annotation.wbId,
               userId = annotation.userId,
-              annotationInfo = annotation.annotationInfo.toJson.compactPrint,
+              annotationInfo = JsonUtils.mapToJson(annotation.annotationInfo),
               lastHistorySequence = sequence.getOrElse(0),
               lastUpdatedAt = new java.sql.Timestamp(System.currentTimeMillis())
             )

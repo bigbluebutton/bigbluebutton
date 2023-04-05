@@ -67,8 +67,6 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
 }
 
 object UserDAO {
-  //  val usersTable = TableQuery[UserTableDef]
-
   def insert(meetingId: String, regUser: RegisteredUser) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef].forceInsert(
@@ -126,17 +124,6 @@ object UserDAO {
     }
   }
 
-//  def delete(regUser: RegisteredUser) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[UserDbTableDef]
-//        .filter(_.userId === regUser.id)
-//        .delete
-//    ).onComplete {
-//        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"User ${regUser.id} deleted")
-//        case Failure(e)            => DatabaseConnection.logger.debug(s"Error deleting user ${regUser.id}: $e")
-//      }
-//  }
-
   def delete(intId: String) = {
 //    DatabaseConnection.db.run(
 //      TableQuery[UserDbTableDef]
@@ -168,15 +155,6 @@ object UserDAO {
       case Failure(e) => DatabaseConnection.logger.error(s"Error deleting user from meeting ${meetingId}: $e")
     }
   }
-
-//  def insert(user: UserDbModel) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[UserDbTableDef].forceInsert(user)
-//    ).onComplete {
-//        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated")
-//        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating user: $e")
-//      }
-//  }
 
 
 }

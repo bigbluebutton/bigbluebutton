@@ -6,6 +6,7 @@ import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter 
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core2.MeetingStatus2x
 
 import scala.util.Random
@@ -21,9 +22,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
 
-    val colorOptions = List("#7b1fa2", "#6a1b9a", "#4a148c", "#5e35b1", "#512da8", "#4527a0", "#311b92",
-      "#3949ab", "#303f9f", "#283593", "#1a237e", "#1976d2", "#1565c0", "#0d47a1", "#0277bd", "#01579b")
-    val userColor = colorOptions(Random.nextInt(colorOptions.length))
+    val userColor = RandomStringGenerator.randomColor
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
       val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)

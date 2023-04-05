@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.models.PresentationInPod
 import slick.jdbc.PostgresProfile.api._
 
@@ -29,18 +28,13 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val yOffset = column[Double]("yOffset")
   val widthRatio = column[Double]("widthRatio")
   val heightRatio = column[Double]("heightRatio")
-
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
   def * = (pageId, presentationId, num, urls, current, xOffset, yOffset, widthRatio, heightRatio) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
 
-  //  def setCurrentPage(wbId: String, userId: String, annotationId: String) = {
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
-
-    //    val updateSql =
-
     DatabaseConnection.db.run(
       sqlu"""UPDATE pres_page SET
                 "current" = (case when "pageId" = ${pageId} then true else false end)

@@ -53,8 +53,6 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
 }
 
 object MeetingDAO {
-  //  val usersTable = TableQuery[UserTableDef]
-
   def insert(meetingProps: DefaultProps) = {
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef].forceInsert(
