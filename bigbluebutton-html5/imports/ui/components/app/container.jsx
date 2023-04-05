@@ -16,13 +16,13 @@ import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
 import { isPresentationEnabled } from '/imports/ui/services/features';
-import _ from 'lodash';
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+import { isEqual } from 'radash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -125,7 +125,7 @@ const AppContainer = (props) => {
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
   const mountRandomUserModal = !isPresenter
-  && !_.isEqual(prevRandomUser, randomlySelectedUser)
+  && !isEqual(prevRandomUser, randomlySelectedUser)
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 

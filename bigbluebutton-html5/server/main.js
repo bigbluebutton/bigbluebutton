@@ -42,6 +42,6 @@ import '/imports/startup/server/logger';
 // Setting the global._ to utilize the npm lodash package is an interim fix
 // and its introduction was inspired by
 // https://github.com/RocketChat/meteor-streamer/issues/40#issuecomment-497627893
-import _ from 'lodash';
+import { isEmpty } from 'radash';
 
-global._ = _;
+global._ = { isEmpty };

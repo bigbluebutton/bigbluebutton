@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { TldrawApp, Tldraw } from '@tldraw/tldraw';
 import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -19,6 +18,8 @@ import PanToolInjector from './pan-tool-injector/component';
 import {
   findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
 } from './utils';
+import { throttle } from '/imports/utils/throttle';
+import { isEqual } from 'radash';
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
@@ -165,7 +166,7 @@ export default function Whiteboard(props) {
     };
   }, [tldrawAPI, isToolLocked]);
 
-  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
+  const throttledResetCurrentPoint = React.useRef(throttle(() => {
     setEnable(false);
     setEnable(true);
   }, 1000, { trailing: true }));
@@ -250,7 +251,7 @@ export default function Whiteboard(props) {
 
     let changed = false;
 
-    if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+    if (next.pageStates[curPageId] && !isEqual(prevShapes, shapes)) {
       const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
 
       if (editingShape) {
@@ -291,7 +292,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`] || (svgUri && !_.isEqual(prevSvgUri, svgUri)))) {
+    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`] || (svgUri && !isEqual(prevSvgUri, svgUri)))) {
       next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`];
       tldrawAPI?.patchState(
         {
@@ -335,7 +336,7 @@ export default function Whiteboard(props) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
         .filter(([, shape]) => shape.name?.includes('poll-result'));
       pollResults.forEach(([id, shape]) => {
-        if (_.isEqual(shape.point, [0, 0])) {
+        if (isEqual(shape.point, [0, 0])) {
           try {
             const shapeBounds = tldrawAPI?.getShapeBounds(id);
             if (shapeBounds) {

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { 
   layoutDispatch,
   layoutSelect,
@@ -9,6 +9,7 @@ import {
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -43,7 +44,7 @@ const VideoFocusLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
   useEffect(() => {
@@ -74,7 +75,7 @@ const VideoFocusLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep(
+        value: defaultsDeep(
           {
             sidebarNavigation: {
               isOpen: false,
@@ -114,7 +115,7 @@ const VideoFocusLayout = (props) => {
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep(
+        value: defaultsDeep(
           {
             sidebarNavigation: {
               isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,

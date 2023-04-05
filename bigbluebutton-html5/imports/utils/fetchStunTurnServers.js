@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const MEDIA = Meteor.settings.public.media;
 const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 const CACHE_STUN_TURN = MEDIA.cacheStunTurnServers;
@@ -21,7 +19,7 @@ const fetchStunTurnServers = function (sessionToken) {
 
     const turnReply = [];
     let max_ttl = null;
-    _.each(turnServers, (turnEntry) => {
+    turnServers.forEach((turnEntry) => {
       const { password, url, username } = turnEntry;
       const valid_until = parseInt(username.split(':')[0]);
       if (!max_ttl) {

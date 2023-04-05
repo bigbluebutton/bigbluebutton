@@ -5,11 +5,11 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
-import _ from 'lodash';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
+import { indexOf, without } from '/imports/utils/array-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -209,8 +209,8 @@ const sendGroupMessage = (message, idChatOpen) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.
-  if (_.indexOf(currentClosedChats, receiverId.id) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
+  if (indexOf(currentClosedChats, receiverId.id) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, receiverId.id));
   }
 
   return makeCall('sendGroupChatMsg', destinationChatId, payload);
@@ -239,7 +239,7 @@ const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (_.indexOf(currentClosedChats, chatId) < 0) {
+  if (indexOf(currentClosedChats, chatId) < 0) {
     currentClosedChats.push(chatId);
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
@@ -250,8 +250,8 @@ const closePrivateChat = (chatId) => {
 const removeFromClosedChatsSession = (idChatOpen) => {
   const chatID = idChatOpen;
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-  if (_.indexOf(currentClosedChats, chatID) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
+  if (indexOf(currentClosedChats, chatID) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatID));
   }
 };
 

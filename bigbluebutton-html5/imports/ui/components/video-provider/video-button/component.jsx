@@ -6,7 +6,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { debounce } from 'lodash';
+import { debounce } from 'radash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
@@ -85,7 +85,7 @@ const JoinVideoButton = ({
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
     || shouldEnableWebcamSelectorButton);
 
-  const handleOnClick = debounce(() => {
+  const handleOnClick = debounce({ delay: JOIN_VIDEO_DELAY_MILLISECONDS }, () => {
     if (!validIOSVersion()) {
       return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
     }
@@ -102,7 +102,7 @@ const JoinVideoButton = ({
           mountVideoPreview(isMobileSharingCamera);
         }
     }
-  }, JOIN_VIDEO_DELAY_MILLISECONDS);
+  });
 
   const handleOpenAdvancedOptions = (props) => {
     mountVideoPreview(isDesktopSharingCamera, props);

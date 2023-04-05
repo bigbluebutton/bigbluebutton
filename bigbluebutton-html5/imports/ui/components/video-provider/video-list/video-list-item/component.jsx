@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { injectIntl } from 'react-intl';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
