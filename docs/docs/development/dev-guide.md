@@ -43,7 +43,7 @@ The instructions in this guide are step-by-step so you can understand each step 
 
 Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/administration/install)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
 
-We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
+We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v2/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
 
 By starting with a working BigBlueButton server, you have the ability to switch back-and-forth between the default-packaged components and any modifications you make.
 
@@ -230,14 +230,14 @@ You should now confirm that you are in the correct branch.
 ```bash
 git status
 
-## On branch my-changes-branch
+# On branch my-changes-branch
 nothing to commit (working directory clean)
 ```
 
 <!--
 
 TODO: Add high-view diagrams
-## Production Environment
+# Production Environment
 
 Okay. Let's pause for a minute.
 
@@ -248,7 +248,7 @@ Below is an overview of the different components in a production set-up. When de
 
 ### (Optional) Install Greenlight
 
-Note that at this point we recommend installing and using [Greenlight](/greenlight/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
+Note that at this point we recommend installing and using [Greenlight](/greenlight/v2/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
 
 You can access https://BBB_DOMAIN , and you will be able to join meetings.
 
@@ -402,12 +402,12 @@ There we go! Remember that this will be overwritten every time you upgrade, so y
 
 <!--
 TODO
-### HTML5 Coding Practices
+## HTML5 Coding Practices
 
 For coding conventions related to the HTML5 code refer to [this document](/html5-best-practices.html).
 -->
 
-### /private/config
+### `/private/config`
 
 All configurations are located in **/private/config/settings.yml**. If you make any changes to the YAML configuration you will need to restart the meteor process.
 
@@ -484,7 +484,7 @@ or
 grails -reloading -Dserver.port=8090 run-app
 ```
 
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-war` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
+If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
 
 Now test again if you can create and join a meeting.
 
@@ -658,4 +658,4 @@ The above will re-sync your clock.
 
 ## Set up HTTPS
 
-Follow [Configure SSL on your BigBlueButton server](/administration/install#configure-ssl-on-your-bigbluebutton-server)
+See the [installation instructions](/administration/install) on how to configure ssl on your BigBlueButton server.

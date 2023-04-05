@@ -57,7 +57,6 @@ class ApiController {
   MeetingService meetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
-  ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
   HTML5LoadBalancingService html5LoadBalancingService
@@ -455,9 +454,8 @@ class ApiController {
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
-      destUrl = meeting.getLogoutUrl()
-      msgKey = "guestDeny"
-      msgValue = "Guest denied to join meeting."
+      invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", REDIRECT_RESPONSE)
+      return
     }
 
     Map<String, Object> logData = new HashMap<String, Object>();

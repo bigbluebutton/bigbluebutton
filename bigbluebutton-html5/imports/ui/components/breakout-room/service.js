@@ -51,6 +51,7 @@ const upsertCapturedContent = (filename, temporaryPresentationId) => {
         error: false,
       },
       uploadTimestamp: new Date(),
+      renderedInToast: false,
     },
   });
 };

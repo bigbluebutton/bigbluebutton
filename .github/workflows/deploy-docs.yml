@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'v*'
       - 'develop'
     paths:
-      - 'docs/'
+      - 'docs/**'
+      - '.github/**'
 
 # Do not build the docs concurrently
 concurrency:

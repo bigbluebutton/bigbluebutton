@@ -8,7 +8,7 @@ import Logger from '/imports/startup/server/logger';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ITENS_PER_PAGE = CHAT_CONFIG.itemsPerPage;
 
-export default function fetchMessagePerPage(chatId, page) {
+export default async function fetchMessagePerPage(chatId, page) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -17,9 +17,9 @@ export default function fetchMessagePerPage(chatId, page) {
     check(chatId, String);
     check(page, Number);
 
-    const User = Users.findOne({ userId: requesterUserId, meetingId });
+    const User = await Users.findOneAsync({ userId: requesterUserId, meetingId });
 
-    const messages = GroupChatMsg.find(
+    const messages = await GroupChatMsg.find(
       { chatId, meetingId, timestamp: { $lt: User.authTokenValidatedTime } },
       {
         sort: { timestamp: 1 },
@@ -27,9 +27,11 @@ export default function fetchMessagePerPage(chatId, page) {
         limit: ITENS_PER_PAGE,
       },
     )
-      .fetch();
+      .fetchAsync();
     return messages;
   } catch (err) {
     Logger.error(`Exception while invoking method fetchMessagePerPage ${err.stack}`);
   }
+  //True returned because the function requires a return.
+  return true;
 }

@@ -4,11 +4,11 @@ const Page = require('../core/page');
 const e = require('../core/elements');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
+const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
 const { getNotesLocator } = require('../sharednotes/util');
-const { checkTextContent } = require('../core/util');
 const { getSettings } = require('../core/settings');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class MultiUsers {
   constructor(browser, context) {
@@ -19,7 +19,7 @@ class MultiUsers {
   async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
     await this.initModPage(page1);
     if (waitAndClearDefaultPresentationNotificationModPage) {
-        await waitAndClearDefaultPresentationNotification(this.modPage);
+      await waitAndClearDefaultPresentationNotification(this.modPage);
     }
     await this.initUserPage();
   }
@@ -231,6 +231,32 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.closeModal);
     await this.userPage.wasRemoved(e.selectedUserName);
     await this.userPage2.wasRemoved(e.selectedUserName);
+  }
+
+  async pinningWebcams() {
+    await this.modPage.shareWebcam();
+    await this.modPage2.shareWebcam();
+    await this.userPage.shareWebcam();
+    await this.modPage.page.waitForFunction(
+      checkElementLengthEqualTo,
+      [e.webcamVideoItem, 3],
+      { timeout: ELEMENT_WAIT_TIME },
+    );
+    // Pin first webcam (Mod2)
+    await this.modPage.waitAndClick(`:nth-match(${e.dropdownWebcamButton}, 3)`);
+    await this.modPage.waitAndClick(`:nth-match(${e.pinWebcamBtn}, 2)`);
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
+    // Pin second webcam (user)
+    await this.modPage.waitAndClick(`:nth-match(${e.dropdownWebcamButton}, 3)`);
+    await this.modPage.waitAndClick(`:nth-match(${e.pinWebcamBtn}, 3)`);
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username);
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username);
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username);
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username);
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username);
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username);
   }
 
   async whiteboardAccess() {

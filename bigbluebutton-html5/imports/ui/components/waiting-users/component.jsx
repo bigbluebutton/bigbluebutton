@@ -118,36 +118,36 @@ const renderGuestUserItem = (
     </Styled.UserContentContainer>
 
     <Styled.ButtonContainer key={`userlist-btns-${userId}`}>
-    { isGuestLobbyMessageEnabled ? ( 
       <Styled.WaitingUsersButton
-        key={`userbtn-message-${userId}`}
-        color="primary"
-        size="lg"
+        key={`userbtn-accept-${userId}`}
+        size="md"
+        aria-label={intl.formatMessage(intlMessages.accept)}
         ghost
-        label={intl.formatMessage(intlMessages.privateMessageLabel)}
+        hideLabel
+        icon="add"
+        onClick={handleAccept}
+        data-test="acceptGuest"
+      />
+      { isGuestLobbyMessageEnabled ? ( 
+      <Styled.WaitingUsersButtonMsg
+        key={`userbtn-message-${userId}`}
+        size="lg"
+        aria-label={intl.formatMessage(intlMessages.privateMessageLabel)}
+        ghost
+        hideLabel
         onClick={privateMessageVisible}
         data-test="privateMessageGuest" 
       />
     ) : null}
-        |
-      <Styled.WaitingUsersButton
-        key={`userbtn-accept-${userId}`}
-        color="primary"
-        size="lg"
-        ghost
-        label={intl.formatMessage(intlMessages.accept)}
-        onClick={handleAccept}
-        data-test="acceptGuest"
-      />
-      |
-      <Styled.WaitingUsersButton
+      <Styled.WaitingUsersButtonDeny
         key={`userbtn-deny-${userId}`}
-        color="danger"
-        size="lg"
+        aria-label={intl.formatMessage(intlMessages.deny)}
         ghost
-        label={intl.formatMessage(intlMessages.deny)}
+        hideLabel
         onClick={handleDeny}
         data-test="denyGuest"
+        size="sm"
+        icon="close"
       />
     </Styled.ButtonContainer>
   </Styled.ListItem>
@@ -229,6 +229,7 @@ const WaitingUsers = (props) => {
     setPrivateGuestLobbyMessage,
     privateGuestLobbyMessage,
     authenticatedGuest,
+    guestPolicyExtraAllowOptions,
     layoutContextDispatch,
     allowRememberChoice,
   } = props;
@@ -322,7 +323,7 @@ const WaitingUsers = (props) => {
     },
   ];
 
-  const buttonsData = authenticatedGuest
+  const buttonsData = ( authenticatedGuest && guestPolicyExtraAllowOptions )
     ? authGuestButtonsData.concat(guestButtonsData)
     : guestButtonsData;
 

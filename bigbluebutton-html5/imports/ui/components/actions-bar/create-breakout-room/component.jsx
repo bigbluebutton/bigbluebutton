@@ -9,7 +9,7 @@ import Modal from '/imports/ui/components/common/modal/fullscreen/component';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
-import Icon from '/imports/ui/components/common/icon/component.jsx';
+import Icon from '/imports/ui/components/common/icon/component';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
@@ -196,6 +196,13 @@ const propTypes = {
   isBreakoutRecordable: PropTypes.bool,
 };
 
+const setPresentationVisibility = (state) => {
+  const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+  if (presentationInnerWrapper) {
+    presentationInnerWrapper.style.display = state;
+  }
+}
+
 class BreakoutRoom extends PureComponent {
   constructor(props) {
     super(props);
@@ -264,6 +271,7 @@ class BreakoutRoom extends PureComponent {
       allowUserChooseRoomByDefault, captureSharedNotesByDefault,
       captureWhiteboardByDefault,
     } = this.props;
+    setPresentationVisibility('none');
     this.setRoomUsers();
     if (isUpdate) {
       const usersToMerge = []
@@ -404,7 +412,7 @@ class BreakoutRoom extends PureComponent {
 
   handleDismiss() {
     const { mountModal } = this.props;
-
+    setPresentationVisibility('block');
     return new Promise((resolve) => {
       mountModal(null);
 
@@ -415,6 +423,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   onCreateBreakouts() {
+    setPresentationVisibility('block');
     const {
       createBreakoutRoom,
     } = this.props;
@@ -506,6 +515,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   onUpdateBreakouts() {
+    setPresentationVisibility('block');
     const { users } = this.state;
     const leastOneUserIsValid = users.some((user) => user.from !== user.room);
 

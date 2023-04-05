@@ -105,7 +105,7 @@ function determine_font_from_family(family) {
 }
 
 function rad_to_degree(angle) {
-  return angle * (180 / Math.PI);
+  return angle * (180 / Math.PI) || 0;
 }
 
 // Convert pixels to points
@@ -123,7 +123,6 @@ function to_px(pt) {
 function escapeText(string) {
   return string
       .replace(/[~`!.*+?%^${}()|[\]\\/]/g, '\\$&')
-      .replace(/-/g, '\\&#x2D;')
       .replace(/&/g, '\\&amp;')
       .replace(/'/g, '\\&#39;')
       .replace(/"/g, '\\&quot;')
@@ -609,24 +608,33 @@ function overlay_shape_label(svg, annotation) {
   const label_center_y = shape_y + shape_height * y_offset;
 
   render_textbox(fontColor, font, fontSize, textAlign, text, id);
-
   const shape_label = path.join(dropbox, `text${id}.png`);
 
   if (fs.existsSync(shape_label)) {
-    const dimensions = probe.sync(fs.readFileSync(shape_label));
-    const labelWidth = dimensions.width / config.process.textScaleFactor;
-    const labelHeight = dimensions.height / config.process.textScaleFactor;
+    // Poll results must fit inside shape, unlike other rectangle labels.
+    // Linewrapping handled by client.
+    const ref = `file://${dropbox}/text${id}.png`;
+    const transform = `rotate(${rotation} ${label_center_x} ${label_center_y})`
+    const fitLabelToShape = annotation?.name?.startsWith('poll-result');
 
+    let labelWidth = shape_width;
+    let labelHeight = shape_height;
+
+    if (!fitLabelToShape) {
+      const dimensions = probe.sync(fs.readFileSync(shape_label));
+      labelWidth = dimensions.width / config.process.textScaleFactor;
+      labelHeight = dimensions.height / config.process.textScaleFactor;
+    }    
     svg.ele('g', {
-      transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
+      transform: transform,
     }).ele('image', {
       'x': label_center_x - (labelWidth * x_offset),
       'y': label_center_y - (labelHeight * y_offset),
       'width': labelWidth,
       'height': labelHeight,
-      'xlink:href': `file://${dropbox}/text${id}.png`,
-    }).up();
-  }
+      'xlink:href': ref,
+      }).up();
+    }
 }
 
 function overlay_sticky(svg, annotation) {
@@ -801,11 +809,6 @@ async function process_presentation_annotations() {
     const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
     const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
 
-    // Output dimensions in pixels even if stated otherwise (pt)
-    // CairoSVG didn't like attempts to read the dimensions from a stream
-    // that would prevent loading file in memory
-    // Ideally, use dimensions provided by tldraw's background image asset
-    // (this is not yet always provided)
     const dimensions = svgBackgroundExists ?
     probe.sync(fs.readFileSync(svgBackgroundSlide)) :
     probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
@@ -813,13 +816,20 @@ async function process_presentation_annotations() {
     const slideWidth = parseInt(dimensions.width, 10);
     const slideHeight = parseInt(dimensions.height, 10);
 
+    const maxImageWidth = config.process.maxImageWidth;
+    const maxImageHeight = config.process.maxImageHeight;
+  
+    const ratio = Math.min(maxImageWidth / slideWidth, maxImageHeight / slideHeight);
+    const scaledWidth = slideWidth * ratio;
+    const scaledHeight = slideHeight * ratio;
+
     // Create the SVG slide with the background image
     let svg = create({version: '1.0', encoding: 'UTF-8'})
         .ele('svg', {
           'xmlns': 'http://www.w3.org/2000/svg',
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-          'width': `${slideWidth}px`,
-          'height': `${slideHeight}px`,
+          'width': `${scaledWidth}px`,
+          'height': `${scaledHeight}px`,
         })
         .dtd({
           pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -827,8 +837,8 @@ async function process_presentation_annotations() {
         })
         .ele('image', {
           'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-          'width': `${slideWidth}px`,
-          'height': `${slideHeight}px`,
+          'width': `${scaledWidth}px`,
+          'height': `${scaledHeight}px`,
         })
         .up()
         .ele('g', {

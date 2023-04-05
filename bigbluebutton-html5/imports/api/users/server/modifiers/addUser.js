@@ -16,7 +16,7 @@ const COLOR_LIST = [
   '#0d47a1', '#0277bd', '#01579b',
 ];
 
-export default function addUser(meetingId, userData) {
+export default async function addUser(meetingId, userData) {
   const user = userData;
 
   check(meetingId, String);
@@ -44,7 +44,7 @@ export default function addUser(meetingId, userData) {
     meetingId,
     userId,
   };
-  const Meeting = Meetings.findOne({ meetingId });
+  const Meeting = await Meetings.findOneAsync({ meetingId });
 
   /* While the akka-apps dont generate a color we just pick one
     from a list based on the userId */
@@ -71,11 +71,12 @@ export default function addUser(meetingId, userData) {
   const modifier = {
     $set: userInfos,
   };
-  addUserPsersistentData(userInfos);
+  await addUserPsersistentData(userInfos);
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
-  if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
-    addVoiceUser(meetingId, {
+  const voiceUser = await VoiceUsers.findOneAsync({ meetingId, intId: userId });
+  if (user.clientType !== 'dial-in-user' && !voiceUser) {
+    await addVoiceUser(meetingId, {
       voiceUserId: '',
       intId: userId,
       callerName: user.name,
@@ -94,14 +95,14 @@ export default function addUser(meetingId, userData) {
    * In some cases the user information is set after the presenter is set
    * causing the first moderator to join a meeting be marked as presenter: false
    */
-  const partialUser = Users.findOne(selector);
+  const partialUser = await Users.findOneAsync(selector);
 
   if (partialUser?.presenter) {
     modifier.$set.presenter = true;
   }
 
   try {
-    const { insertedId } = Users.upsert(selector, modifier);
+    const { insertedId } = await Users.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added user id=${userId} meeting=${meetingId}`);

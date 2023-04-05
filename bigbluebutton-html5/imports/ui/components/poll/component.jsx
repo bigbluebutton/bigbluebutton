@@ -837,6 +837,7 @@ class Poll extends Component {
             small={!smallSidebar}
             label={intl.formatMessage(intlMessages.tf)}
             aria-describedby="poll-config-button"
+            data-test="pollTrueFalse"
             color="default"
             onClick={() => {
               this.setState({

@@ -566,7 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ konuşuyordu",
     "app.talkingIndicator.wasTalking" : "{0} sustu",
     "app.actionsBar.actionsDropdown.actionsLabel": "İşlemler",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Sunum yönetimi",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Sunumları yükle/yönet",
     "app.actionsBar.actionsDropdown.initPollLabel": "Oylama başlat",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Ekranını paylaş",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Ekran paylaşımını bitir",

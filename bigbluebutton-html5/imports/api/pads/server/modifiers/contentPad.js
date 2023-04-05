@@ -3,7 +3,7 @@ import { patch } from '@mconf/bbb-diff';
 import { PadsUpdates } from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 
-export default function contentPad(meetingId, externalId, start, end, text) {
+export default async function contentPad(meetingId, externalId, start, end, text) {
   try {
     check(meetingId, String);
     check(externalId, String);
@@ -16,7 +16,7 @@ export default function contentPad(meetingId, externalId, start, end, text) {
       externalId,
     };
 
-    const pad = PadsUpdates.findOne(selector);
+    const pad = await PadsUpdates.findOneAsync(selector);
     const content = (pad && pad.content) ? pad.content : '';
 
     const modifier = {
@@ -25,7 +25,7 @@ export default function contentPad(meetingId, externalId, start, end, text) {
       },
     };
 
-    PadsUpdates.upsert(selector, modifier);
+    await PadsUpdates.upsertAsync(selector, modifier);
     Logger.debug(`Added pad content external=${externalId} meeting=${meetingId}`);
   } catch (err) {
     Logger.error(`Adding pad content to the collection: ${err}`);

@@ -3,7 +3,7 @@ import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/mo
 import clearAnnotations from '../modifiers/clearAnnotations';
 import addAnnotation from '../modifiers/addAnnotation';
 
-export default function handleWhiteboardAnnotations({ header, body }, meetingId) {
+async function handleWhiteboardAnnotations({ header, body }, meetingId) {
   check(header, Object);
   if (header.userId !== 'nodeJSapp') { return false; }
 
@@ -16,12 +16,15 @@ export default function handleWhiteboardAnnotations({ header, body }, meetingId)
   check(whiteboardId, String);
   check(multiUser, Array);
 
-  clearAnnotations(meetingId, whiteboardId);
-
-  annotations.forEach((annotation) => {
+  await clearAnnotations(meetingId, whiteboardId);
+  // we use a for loop here instead of a map because we need to guarantee the order of the annotations.
+  for (const annotation of annotations) {
     const { wbId, userId } = annotation;
-    addAnnotation(meetingId, wbId, userId, annotation);
-  });
+    await addAnnotation(meetingId, wbId, userId, annotation);
+  }
 
-  modifyWhiteboardAccess(meetingId, whiteboardId, multiUser);
+  await modifyWhiteboardAccess(meetingId, whiteboardId, multiUser);
+  return true;
 }
+
+export default handleWhiteboardAnnotations;

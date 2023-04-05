@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import { defaultsDeep } from '/imports/utils/array-utils';
 
-export default function addAnnotation(meetingId, whiteboardId, userId, annotation, Annotations) {
+async function addAnnotation(meetingId, whiteboardId, userId, annotation, Annotations) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(annotation, Object);
@@ -17,7 +17,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
     id,
   };
 
-  const oldAnnotation = Annotations.findOne(selector);
+  const oldAnnotation = await Annotations.findOneAsync(selector);
   if (oldAnnotation) {
     annotationInfo = defaultsDeep(annotationInfo, oldAnnotation.annotationInfo);
   }
@@ -34,3 +34,5 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
 
   return { selector, modifier };
 }
+
+export default addAnnotation;

@@ -566,7 +566,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking" : "{0}+ hitz egiten ari ziren",
     "app.talkingIndicator.wasTalking" : "{0}-k hitz egiteari utzi dio",
     "app.actionsBar.actionsDropdown.actionsLabel": "Ekintzak",
-    "app.actionsBar.actionsDropdown.presentationLabel": "Kudeatu aurkezpenak",
+    "app.actionsBar.actionsDropdown.presentationLabel": "Kargatu/Kudeatu aurkezpenak",
     "app.actionsBar.actionsDropdown.initPollLabel": "Hasi inkesta bat",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Partekatu zure pantaila",
     "app.actionsBar.actionsDropdown.stopDesktopShareLabel": "Gelditu pantailaren partekatzea",
