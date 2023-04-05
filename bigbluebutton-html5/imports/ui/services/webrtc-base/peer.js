@@ -29,8 +29,12 @@ export default class WebRtcPeer extends EventEmitter2 {
 
     this._outboundCandidateQueue = [];
     this._inboundCandidateQueue = [];
+    this._waitForGatheringPromise = null;
+    this._waitForGatheringTimeout = null;
+
     this._handleIceCandidate = this._handleIceCandidate.bind(this);
     this._handleSignalingStateChange = this._handleSignalingStateChange.bind(this);
+    this._gatheringTimeout = this.options.gatheringTimeout;
 
     this._assignOverrides();
   }
@@ -137,6 +141,48 @@ export default class WebRtcPeer extends EventEmitter2 {
     if (this.peerConnection?.signalingState === 'stable') {
       this._flushInboundCandidateQueue();
     }
+  }
+
+  waitForGathering(timeout = 0) {
+    if (timeout <= 0) return Promise.resolve();
+    if (this.isPeerConnectionClosed()) throw new Error('PeerConnection is closed');
+    if (this.peerConnection.iceGatheringState === 'complete') return Promise.resolve();
+    if (this._waitForGatheringPromise) return this._waitForGatheringPromise;
+
+    this._waitForGatheringPromise = new Promise((resolve) => {
+      this.once('candidategatheringdone', resolve);
+      this._waitForGatheringTimeout = setTimeout(() => {
+        this._emitCandidateGatheringDone();
+      }, timeout);
+    });
+
+    return this._waitForGatheringPromise;
+  }
+
+  _setRemoteDescription(rtcSessionDescription) {
+    if (this.isPeerConnectionClosed()) {
+      this.logger.error('BBB::WebRtcPeer::_setRemoteDescription - peer connection closed');
+      throw new Error('Peer connection is closed');
+    }
+
+    this.logger.debug('BBB::WebRtcPeer::_setRemoteDescription - setting remote description', rtcSessionDescription);
+    return this.peerConnection.setRemoteDescription(rtcSessionDescription);
+  }
+
+  _setLocalDescription(rtcSessionDescription) {
+    if (this.isPeerConnectionClosed()) {
+      this.logger.error('BBB::WebRtcPeer::_setLocalDescription - peer connection closed');
+      throw new Error('Peer connection is closed');
+    }
+
+    if (typeof this._gatheringTimeout === 'number' && this._gatheringTimeout > 0) {
+      this.logger.debug('BBB::WebRtcPeer::_setLocalDescription - setting description with gathering timer', rtcSessionDescription, this._gatheringTimeout);
+      return this.peerConnection.setLocalDescription(rtcSessionDescription)
+        .then(() => this.waitForGathering(this._gatheringTimeout));
+    }
+
+    this.logger.debug('BBB::WebRtcPeer::_setLocalDescription- setting description', rtcSessionDescription);
+    return this.peerConnection.setLocalDescription(rtcSessionDescription);
   }
 
   // Public method can be overriden via options
@@ -330,7 +376,7 @@ export default class WebRtcPeer extends EventEmitter2 {
     return this.peerConnection.createOffer()
       .then((offer) => {
         this.logger.debug('BBB::WebRtcPeer::generateOffer - created offer', offer);
-        return this.peerConnection.setLocalDescription(offer);
+        return this._setLocalDescription(offer);
       })
       .then(() => {
         this._processEncodingOptions();
@@ -346,14 +392,7 @@ export default class WebRtcPeer extends EventEmitter2 {
       sdp,
     });
 
-    if (this.isPeerConnectionClosed()) {
-      this.logger.error('BBB::WebRtcPeer::processAnswer - peer connection closed');
-      throw new Error('Peer connection is closed');
-    }
-
-    this.logger.debug('BBB::WebRtcPeer::processAnswer - setting remote description');
-
-    return this.peerConnection.setRemoteDescription(answer);
+    return this._setRemoteDescription(answer);
   }
 
   processOffer(sdp) {
@@ -362,18 +401,11 @@ export default class WebRtcPeer extends EventEmitter2 {
       sdp,
     });
 
-    if (this.isPeerConnectionClosed()) {
-      this.logger.error('BBB::WebRtcPeer::processOffer - peer connection closed');
-      throw new Error('Peer connection is closed');
-    }
-
-    this.logger.debug('BBB::WebRtcPeer::processOffer - setting remote description', offer);
-
-    return this.peerConnection.setRemoteDescription(offer)
+    return this._setRemoteDescription(offer)
       .then(() => this.peerConnection.createAnswer())
       .then((answer) => {
         this.logger.debug('BBB::WebRtcPeer::processOffer - created answer', answer);
-        return this.peerConnection.setLocalDescription(answer);
+        return this._setLocalDescription(answer);
       })
       .then(() => {
         const localDescription = this.getLocalSessionDescriptor();
@@ -404,6 +436,12 @@ export default class WebRtcPeer extends EventEmitter2 {
 
       this._outboundCandidateQueue = [];
       this.candidateGatheringDone = false;
+
+      if (this._waitForGatheringPromise) this._waitForGatheringPromise = null;
+      if (this._waitForGatheringTimeout) {
+        clearTimeout(this._waitForGatheringTimeout);
+        this._waitForGatheringTimeout = null;
+      }
     } catch (error) {
       this.logger.trace('BBB::WebRtcPeer::dispose - failed', error);
     }
