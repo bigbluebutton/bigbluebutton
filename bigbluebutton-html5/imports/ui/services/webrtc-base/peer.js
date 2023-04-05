@@ -240,16 +240,20 @@ export default class WebRtcPeer extends EventEmitter2 {
   }
 
   getLocalStream() {
-    if (this.localStream) {
-      return this.localStream;
-    }
-
     if (this.peerConnection) {
-      this.localStream = new MediaStream();
+      if (this.localStream == null) this.localStream = new MediaStream();
       const senders = this.peerConnection.getSenders();
+      const oldTracks = this.localStream.getTracks();
+
       senders.forEach(({ track }) => {
-        if (track) {
+        if (track && !oldTracks.includes(track)) {
           this.localStream.addTrack(track);
+        }
+      });
+
+      oldTracks.forEach((oldTrack) => {
+        if (!senders.some(({ track }) => track && track.id === oldTrack.id)) {
+          this.localStream.removeTrack(oldTrack);
         }
       });
 
