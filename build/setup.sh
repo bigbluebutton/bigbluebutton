@@ -43,7 +43,7 @@ trap 'kill_docker' SIGINT SIGTERM
 
 # -v "$CACHE_DIR/dev":/root/dev
 sudo docker run --rm --detach --cidfile $DOCKER_CONTAINER_ID_FILE \
-        --env GIT_REV=$GIT_REV --env COMMIT_DATE=$COMMIT_DATE --env "LOCAL_BUILD=1" \
+        --env GIT_REV=$GIT_REV --env COMMIT_DATE=$COMMIT_DATE --env "LOCAL_BUILD=1" --env BUILD_TYPE=$BUILD_TYPE \
         --mount type=bind,src="$PWD",dst=/mnt \
         --mount type=bind,src="${PWD}/artifacts,dst=/artifacts" \
         -t "$DOCKER_IMAGE" /mnt/build/setup-inside-docker.sh "$PACKAGE_TO_BUILD"
