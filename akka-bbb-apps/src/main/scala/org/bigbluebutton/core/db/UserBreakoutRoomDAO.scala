@@ -43,9 +43,9 @@ object UserBreakoutRoomDAO {
       )
     ).onComplete {
       case Success(rowsAffected) => {
-        println(s"$rowsAffected row(s) inserted on user_breakoutRoom table!")
+        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_breakoutRoom table!")
       }
-      case Failure(e) => println(s"Error inserting user_breakoutRoom: $e")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting user_breakoutRoom: $e")
     }
   }
 
@@ -58,8 +58,8 @@ object UserBreakoutRoomDAO {
         .map(u_bk => u_bk.currentlyInRoom)
         .update(false)
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated currentlyInRoom=false on user_breakoutRoom table!")
-      case Failure(e) => println(s"Error updating currentlyInRoom=false on user_breakoutRoom: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated currentlyInRoom=false on user_breakoutRoom table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating currentlyInRoom=false on user_breakoutRoom: $e")
     }
 
     DatabaseConnection.db.run(DBIO.sequence(
@@ -79,8 +79,8 @@ object UserBreakoutRoomDAO {
       }
     ).transactionally)
       .onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on user_breakoutRoom table!")
-        case Failure(e) => println(s"Error inserting user_breakoutRoom: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_breakoutRoom table!")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting user_breakoutRoom: $e")
       }
   }
 }

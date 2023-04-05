@@ -46,8 +46,8 @@ object PresPageDAO {
                 "current" = (case when "pageId" = ${pageId} then true else false end)
                 WHERE "presentationId" = ${presentation.id}"""
     ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated current on PresPage table")
-        case Failure(e)            => println(s"Error updating current on PresPage: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPage table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating current on PresPage: $e")
       }
   }
 }

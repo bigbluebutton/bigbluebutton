@@ -59,9 +59,9 @@ object MeetingBreakoutDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted in MeetingBreakout table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingBreakout table!")
         }
-        case Failure(e) => println(s"Error inserting MeetingBreakout: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingBreakout: $e")
       }
   }
 }

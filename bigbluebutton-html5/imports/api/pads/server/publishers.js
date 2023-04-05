@@ -3,8 +3,9 @@ import Logger from '/imports/startup/server/logger';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-function pads() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function pads() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing Pads was requested by unauth connection ${this.connection.id}`);
@@ -24,8 +25,9 @@ function pads() {
   return Pads.find({ meetingId }, options);
 }
 
-function padsSessions() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function padsSessions() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing PadsSessions was requested by unauth connection ${this.connection.id}`);
@@ -39,8 +41,9 @@ function padsSessions() {
   return PadsSessions.find({ meetingId, userId });
 }
 
-function padsUpdates() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function padsUpdates() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing PadsUpdates was requested by unauth connection ${this.connection.id}`);

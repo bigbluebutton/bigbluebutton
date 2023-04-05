@@ -38,9 +38,9 @@ object MeetingWelcomeDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted in MeetingWelcome table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingWelcome table!")
         }
-        case Failure(e) => println(s"Error inserting MeetingWelcome: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingWelcome: $e")
       }
   }
 }

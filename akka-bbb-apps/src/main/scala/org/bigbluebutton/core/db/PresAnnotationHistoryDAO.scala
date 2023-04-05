@@ -81,8 +81,8 @@ object PresAnnotationHistoryDAO {
     //        .map(a => (a.annotationInfo, a.lastUpdatedAt))
     //        .update("", new java.sql.Timestamp(System.currentTimeMillis()))
     //    ).onComplete {
-    //        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated annotationInfo=null on PresAnnotation table!")
-    //        case Failure(e)            => println(s"Error updating annotationInfo=null PresAnnotation: $e")
+    //        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated annotationInfo=null on PresAnnotation table!")
+    //        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating annotationInfo=null PresAnnotation: $e")
     //      }
   }
 
@@ -98,8 +98,8 @@ object PresAnnotationHistoryDAO {
   //        )
   //      )
   //    ).onComplete {
-  //        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on PresAnnotationHistory table!")
-  //        case Failure(e)            => println(s"Error inserting PresAnnotationHistory: $e")
+  //        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresAnnotationHistory table!")
+  //        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresAnnotationHistory: $e")
   //      }
   //  }
 
@@ -110,8 +110,8 @@ object PresAnnotationHistoryDAO {
   //        .map(a => (a.annotationInfo))
   //        .update(""))
   //    ).onComplete {
-  //        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated annotationInfo=null on PresAnnotationHistory table!")
-  //        case Failure(e)            => println(s"Error updating annotationInfo=null PresAnnotationHistory: $e")
+  //        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated annotationInfo=null on PresAnnotationHistory table!")
+  //        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating annotationInfo=null PresAnnotationHistory: $e")
   //      }
   //  }
 

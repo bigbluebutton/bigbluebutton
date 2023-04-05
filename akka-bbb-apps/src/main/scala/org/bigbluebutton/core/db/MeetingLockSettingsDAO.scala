@@ -56,9 +56,9 @@ object MeetingLockSettingsDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted in MeetingLockSettings table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingLockSettings table!")
         }
-        case Failure(e) => println(s"Error inserting MeetingLockSettings: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingLockSettings: $e")
       }
   }
 }

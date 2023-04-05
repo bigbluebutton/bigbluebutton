@@ -116,13 +116,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
 
-    <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
-
-    <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
-        <property name="configDir" value="${configDir}"/>
-        <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
-    </bean>
-
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
         <property name="securitySalt" value="${securitySalt}"/>
         <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>

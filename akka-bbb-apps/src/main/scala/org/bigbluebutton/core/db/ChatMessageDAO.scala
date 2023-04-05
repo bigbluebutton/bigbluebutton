@@ -54,8 +54,8 @@ object ChatMessageDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on ChatMessage table!")
-        case Failure(e)            => println(s"Error inserting ChatMessage: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatMessage table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatMessage: $e")
       }
   }
 }

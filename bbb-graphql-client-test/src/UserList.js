@@ -58,7 +58,7 @@ function UserList({userId}) {
 
   const { loading, error, data } = useSubscription(
     gql`subscription {
-      user(where: {joined: {_eq: true}}, order_by: {name: asc}) {
+      user(where: {isOnline: {_eq: true}}, order_by: {name: asc}) {
         userId
         name
         role

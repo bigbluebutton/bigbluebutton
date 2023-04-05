@@ -76,9 +76,9 @@ object UserVoiceDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on user_voice table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_voice table!")
         }
-        case Failure(e)            => println(s"Error inserting voice: $e")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting voice: $e")
       }
   }
 
@@ -89,8 +89,8 @@ object UserVoiceDAO {
         .map(u => (u.listenOnly, u.muted, u.floor, u.lastFloorTime))
         .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.floor, voiceUserState.lastFloorTime))
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user_voice table!")
-      case Failure(e) => println(s"Error updating user: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user_voice table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
     }
   }
 
@@ -114,8 +114,8 @@ object UserVoiceDAO {
     }
 
     DatabaseConnection.db.run(updateSql).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated with talking: ${voiceUserState.talking}")
-      case Failure(e) => println(s"Error updating voice talking: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated with talking: ${voiceUserState.talking}")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating voice talking: $e")
     }
   }
 
@@ -132,8 +132,8 @@ object UserVoiceDAO {
         .filter(_.userId === userId)
         .delete
     ).onComplete {
-      case Success(rowsAffected) => println(s"Voice of user ${userId} deleted")
-      case Failure(e) => println(s"Error deleting voice: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Voice of user ${userId} deleted")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting voice: $e")
     }
   }
 

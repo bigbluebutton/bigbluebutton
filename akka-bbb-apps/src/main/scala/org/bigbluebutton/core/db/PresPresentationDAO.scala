@@ -42,7 +42,7 @@ object PresPresentationDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on Presentation table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Presentation table!")
 
           DatabaseConnection.db.run(DBIO.sequence(
             for {
@@ -64,8 +64,8 @@ object PresPresentationDAO {
             }
           ).transactionally)
             .onComplete {
-              case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on PresentationPage table!")
-              case Failure(e)            => println(s"Error inserting PresentationPage: $e")
+              case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PresentationPage table!")
+              case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PresentationPage: $e")
             }
 
           //Set current
@@ -73,7 +73,7 @@ object PresPresentationDAO {
             setCurrentPres(presentation.id)
           }
         }
-        case Failure(e) => println(s"Error inserting Presentation: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Presentation: $e")
       }
   }
 
@@ -83,8 +83,8 @@ object PresPresentationDAO {
                 "current" = (case when "presentationId" = ${presentationId} then true else false end)
                 WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})"""
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated current on PresPresentation table")
-      case Failure(e) => println(s"Error updating current on PresPresentation: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPresentation table")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating current on PresPresentation: $e")
     }
   }
 

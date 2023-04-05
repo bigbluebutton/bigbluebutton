@@ -49,14 +49,12 @@ object ChatUserDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on ChatUser table!")
-        case Failure(e)            => println(s"Error inserting ChatUser: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatUser table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatUser: $e")
       }
   }
 
   def updateUserTyping(meetingId: String, chatId: String, userId: String) = {
-    println(meetingId, chatId, userId)
-    println(new java.sql.Timestamp(System.currentTimeMillis()))
     DatabaseConnection.db.run(
       TableQuery[ChatUserDbTableDef]
         .filter(_.meetingId === meetingId)
@@ -65,8 +63,8 @@ object ChatUserDAO {
         .map(u => (u.typingAt))
         .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
     ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated typingAt on chat_user table!")
-        case Failure(e)            => println(s"Error updating typingAt on chat_user table: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated typingAt on chat_user table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating typingAt on chat_user table: $e")
       }
   }
 

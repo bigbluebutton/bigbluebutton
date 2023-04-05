@@ -33,8 +33,8 @@ object UserWhiteboardDAO {
     }
 
     DatabaseConnection.db.run(deleteQuery.delete).onComplete {
-      case Success(rowsAffected) => println(s"Users deleted from Whiteboard ${whiteboard.id}")
-      case Failure(e) => println(s"Error deleting users from whiteboard: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Users deleted from Whiteboard ${whiteboard.id}")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting users from whiteboard: $e")
     }
 
     for {
@@ -50,9 +50,9 @@ object UserWhiteboardDAO {
         )
       ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on user_whiteboard table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on user_whiteboard table!")
         }
-        case Failure(e) => println(s"Error inserting user_whiteboard: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting user_whiteboard: $e")
       }
     }
   }

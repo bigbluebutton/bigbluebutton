@@ -42,8 +42,8 @@ object MeetingGroupDAO {
       }
     ).transactionally)
       .onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on MeetingGroup table!")
-        case Failure(e)            => println(s"Error inserting MeetingGroup: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on MeetingGroup table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting MeetingGroup: $e")
       }
   }
 }

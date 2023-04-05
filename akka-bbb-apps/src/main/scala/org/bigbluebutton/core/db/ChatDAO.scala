@@ -35,7 +35,7 @@ object ChatDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted on Chat table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on Chat table!")
 
           for {
             user <- groupChat.users
@@ -44,7 +44,7 @@ object ChatDAO {
           }
 
         }
-        case Failure(e)            => println(s"Error inserting Chat: $e")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting Chat: $e")
       }
   }
 }

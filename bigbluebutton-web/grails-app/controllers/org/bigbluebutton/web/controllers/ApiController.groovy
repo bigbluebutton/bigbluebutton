@@ -57,7 +57,6 @@ class ApiController {
   MeetingService meetingService;
   PresentationService presentationService
   ParamsProcessorUtil paramsProcessorUtil
-  ClientConfigService configService
   PresentationUrlDownloadService presDownloadService
   StunTurnService stunTurnService
   HTML5LoadBalancingService html5LoadBalancingService

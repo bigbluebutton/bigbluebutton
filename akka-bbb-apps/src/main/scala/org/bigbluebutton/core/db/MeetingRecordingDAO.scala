@@ -41,9 +41,9 @@ object MeetingRecordingDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted in MeetingRecording table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingRecording table!")
         }
-        case Failure(e) => println(s"Error inserting MeetingRecording: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingRecording: $e")
       }
   }
 }

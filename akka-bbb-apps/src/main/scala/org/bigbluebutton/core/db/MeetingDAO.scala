@@ -76,7 +76,7 @@ object MeetingDAO {
       )
     ).onComplete {
         case Success(rowsAffected) => {
-          println(s"$rowsAffected row(s) inserted in Meeting table!")
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in Meeting table!")
           MeetingUsersDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
           MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
           MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
@@ -86,7 +86,7 @@ object MeetingDAO {
           MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
           MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
         }
-        case Failure(e) => println(s"Error inserting Meeting: $e")
+        case Failure(e) => DatabaseConnection.logger.error(s"Error inserting Meeting: $e")
       }
   }
 
@@ -96,8 +96,8 @@ object MeetingDAO {
         .filter(_.meetingId === meetingIg)
         .delete
     ).onComplete {
-        case Success(rowsAffected) => println(s"Meeting ${meetingIg} deleted")
-        case Failure(e)            => println(s"Error deleting meeting ${meetingIg}: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Meeting ${meetingIg} deleted")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error deleting meeting ${meetingIg}: $e")
       }
   }
 

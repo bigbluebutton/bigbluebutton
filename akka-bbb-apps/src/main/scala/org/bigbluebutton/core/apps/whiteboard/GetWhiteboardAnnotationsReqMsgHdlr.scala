@@ -21,14 +21,10 @@ trait GetWhiteboardAnnotationsReqMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    println("-------------------------------GetWhiteboardAnnotationsReqMsg")
-
     val whiteboardId = msg.body.whiteboardId
 
     val history = getWhiteboardAnnotations(whiteboardId, liveMeeting)
     val multiUser = getWhiteboardAccess(whiteboardId, liveMeeting)
     broadcastEvent(msg, history, multiUser)
-
-    println("-------------------------------GetWhiteboardAnnotationsReqMsg FIIIIIIIIIIIIIIM")
   }
 }

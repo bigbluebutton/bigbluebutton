@@ -4,7 +4,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import Users from '/imports/api/users';
 import flat from 'flat';
 
-export default function addVoiceUser(meetingId, voiceUser) {
+export default async function addVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, {
     voiceUserId: String,
@@ -33,7 +33,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
     ),
   };
 
-  const user = Users.findOne({ meetingId, userId: intId }, {
+  const user = await Users.findOneAsync({ meetingId, userId: intId }, {
     fields: {
       color: 1,
     },
@@ -42,7 +42,7 @@ export default function addVoiceUser(meetingId, voiceUser) {
   if (user) modifier.$set.color = user.color;
 
   try {
-    const { numberAffected } = VoiceUsers.upsert(selector, modifier);
+    const { numberAffected } = await VoiceUsers.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Add voice user=${intId} meeting=${meetingId}`);

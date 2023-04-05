@@ -31,8 +31,8 @@ object UserConnectionStatusdDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) inserted on UserConnectionStatus table!")
-        case Failure(e)            => println(s"Error inserting UserConnectionStatus: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on UserConnectionStatus table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting UserConnectionStatus: $e")
       }
   }
 
