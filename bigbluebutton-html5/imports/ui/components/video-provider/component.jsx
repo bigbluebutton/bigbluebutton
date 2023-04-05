@@ -39,6 +39,7 @@ const {
 const PING_INTERVAL = 15000;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
+const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
 
 const intlClientErrors = defineMessages({
   permissionError: {
@@ -504,7 +505,9 @@ class VideoProvider extends Component {
 
     if (peer) {
       if (peer && peer.bbbVideoStream) {
-        peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
+        if (typeof peer.inactivationHandler === 'function') {
+          peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
+        }
         peer.bbbVideoStream.stop();
       }
 
@@ -618,6 +621,7 @@ class VideoProvider extends Component {
       },
       trace: TRACE_LOGS,
       networkPriorities: NETWORK_PRIORITY ? { video: NETWORK_PRIORITY } : undefined,
+      gatheringTimeout: GATHERING_TIMEOUT,
     };
 
     try {
