@@ -31,6 +31,7 @@ import ContextProviders from '/imports/ui/components/context-providers/component
 import ChatAdapter from '/imports/ui/components/components-data/chat-context/adapter';
 import UsersAdapter from '/imports/ui/components/components-data/users-context/adapter';
 import GroupChatAdapter from '/imports/ui/components/components-data/group-chat-context/adapter';
+import GraphqlProvider from '/imports/ui/components/graphql-provider/component';
 import { liveDataEventBrokerInitializer } from '/imports/ui/services/LiveDataEventBroker/LiveDataEventBroker';
 // The adapter import is "unused" as far as static code is concerned, but it
 // needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
@@ -45,7 +46,7 @@ import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
 const { disableWebsocketFallback } = Meteor.settings.public.app;
 
 if (disableWebsocketFallback) {
-  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; }
+  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
 
   Meteor.disconnect();
   Meteor.reconnect();
@@ -80,20 +81,22 @@ Meteor.startup(() => {
   // TODO make this a Promise
   render(
     <ContextProviders>
-      <React.Fragment>
+      <>
         <JoinHandler>
           <AuthenticatedHandler>
-            <Subscriptions>
-              <IntlStartup>
-                <Base />
-              </IntlStartup>
-            </Subscriptions>
+            <GraphqlProvider>
+              <Subscriptions>
+                <IntlStartup>
+                  <Base />
+                </IntlStartup>
+              </Subscriptions>
+            </GraphqlProvider>
           </AuthenticatedHandler>
         </JoinHandler>
         <UsersAdapter />
         <ChatAdapter />
         <GroupChatAdapter />
-      </React.Fragment>
+      </>
     </ContextProviders>,
     document.getElementById('app'),
   );

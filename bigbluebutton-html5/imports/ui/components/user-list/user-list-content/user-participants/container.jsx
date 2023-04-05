@@ -9,6 +9,7 @@ import useContextUsers from '/imports/ui/components/components-data/users-contex
 import VideoService from '/imports/ui/components/video-provider/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import Meetings from '/imports/api/meetings';
+import UserListParticipants from './user-list-participants/component';
 
 const UserParticipantsContainer = (props) => {
   const {
@@ -43,7 +44,7 @@ const UserParticipantsContainer = (props) => {
   );
 };
 
-export default withTracker(() => {
+const Container = withTracker(() => {
   ChatService.removePackagedClassAttribute(
     ['ReactVirtualized__Grid', 'ReactVirtualized__Grid__innerScrollContainer'],
     'role',
@@ -60,7 +61,7 @@ export default withTracker(() => {
     const { muteOnStart } = voiceProp;
     return muteOnStart;
   };
-  
+
   return ({
     isMeetingMuteOnStart: isMeetingMuteOnStart(),
     meetingIsBreakout: meetingIsBreakout(),
@@ -70,3 +71,11 @@ export default withTracker(() => {
     lockSettingsProps: currentMeeting && currentMeeting.lockSettingsProps,
   });
 })(UserParticipantsContainer);
+const blank = () => (
+  <>
+    <UserListParticipants />
+    <br />
+    <Container />
+  </>
+);
+export default blank;
