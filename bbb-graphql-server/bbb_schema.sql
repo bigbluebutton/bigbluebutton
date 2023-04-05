@@ -1,13 +1,13 @@
-DROP VIEW IF EXISTS v_pres_annotation_curr;
-DROP VIEW IF EXISTS v_pres_annotation_history_curr;
-DROP VIEW IF EXISTS v_pres_page_cursor;
-DROP VIEW IF EXISTS v_pres_page_writers;
-DROP TABLE IF EXISTS pres_annotation_history;
-DROP TABLE IF EXISTS pres_annotation;
-DROP TABLE IF EXISTS pres_page_cursor;
-DROP TABLE IF EXISTS pres_page_writers;
-DROP TABLE IF EXISTS pres_page;
-DROP TABLE IF EXISTS pres_presentation;
+DROP VIEW IF EXISTS "v_pres_annotation_curr";
+DROP VIEW IF EXISTS "v_pres_annotation_history_curr";
+DROP VIEW IF EXISTS "v_pres_page_cursor";
+DROP VIEW IF EXISTS "v_pres_page_writers";
+DROP TABLE IF EXISTS "pres_annotation_history";
+DROP TABLE IF EXISTS "pres_annotation";
+DROP TABLE IF EXISTS "pres_page_cursor";
+DROP TABLE IF EXISTS "pres_page_writers";
+DROP TABLE IF EXISTS "pres_page";
+DROP TABLE IF EXISTS "pres_presentation";
 
 DROP VIEW IF EXISTS "v_chat";
 DROP VIEW IF EXISTS "v_chat_message_public";
@@ -147,7 +147,7 @@ create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
 -- ========== User tables
 
 
-CREATE TABLE public."user" (
+CREATE TABLE "user" (
 	"userId" varchar(50) NOT NULL PRIMARY KEY,
 	"extId" varchar(50) NULL,
 	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
@@ -173,8 +173,11 @@ CREATE TABLE public."user" (
 	"pinned" bool NULL,
 	"locked" bool NULL
 );
-
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
+
+--Virtual columns isModerator and isOnline
+ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
+ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
 
 CREATE TABLE "user_voice" (
 	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
@@ -225,7 +228,7 @@ CREATE TABLE "user_breakoutRoom" (
 	"shortName" varchar(100),
 	"currentlyInRoom" boolean
 );
-CREATE INDEX "idx_user_breakoutRoom_userId" ON "user_breakoutRoom"("userId");
+--CREATE INDEX "idx_user_breakoutRoom_userId" ON "user_breakoutRoom"("userId");
 
 CREATE OR REPLACE VIEW "v_user_breakoutRoom" AS
 SELECT
@@ -233,6 +236,21 @@ SELECT
 	"user_breakoutRoom" .*
 FROM "user_breakoutRoom"
 JOIN "user" u ON u."userId" = "user_breakoutRoom"."userId";
+
+CREATE TABLE "user_connectionStatus" (
+	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
+	"meetingId" varchar(100) REFERENCES meeting("meetingId"),
+	"status" varchar(15),
+	"statusUpdatedAt" timestamp,
+	"connectionAliveAt" timestamp
+);
+create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("meetingId");
+
+--CREATE OR REPLACE VIEW "v_user_connectionStatus" AS
+--SELECT u."meetingId", u."userId", uc.status, uc."statusUpdatedAt", uc."connectionAliveAt",
+--CASE WHEN "statusUpdatedAt" < current_timestamp - INTERVAL '20 seconds' THEN TRUE ELSE FALSE END AS "clientNotResponding"
+--FROM "user" u
+--LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
 
 -- ===================== CHAT TABLES
 
@@ -249,12 +267,20 @@ CREATE INDEX "idx_chat_meetingId" ON "chat"("meetingId");
 CREATE TABLE "chat_user" (
 	"chatId" varchar(100),
 	"meetingId" varchar(100),
-	"userId" varchar(100),
+	"userId" varchar(50),
 	"lastSeenAt" bigint,
+	"typingAt"   timestamp,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId");
+
+CREATE OR REPLACE VIEW "v_user_typing_public" AS
+SELECT "meetingId", "chatId", "userId", "typingAt",
+CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+FROM chat_user
+WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
+
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
@@ -278,10 +304,12 @@ SELECT 	"user"."userId",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
 		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(cu."lastSeenAt",0) THEN 1 ELSE 0 end) "totalUnread",
-		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN TRUE ELSE FALSE end public
+		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN true ELSE false end public
 FROM "user"
 LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
-JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
+--now it will always add chat_user for public chat onUserJoin
+--JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND (cu."chatId" = chat."chatId" OR chat."chatId" = 'MAIN-PUBLIC-GROUP-CHAT')
+JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND cu."chatId" = chat."chatId"
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat."chatId" != 'MAIN-PUBLIC-GROUP-CHAT' AND chat_with."userId" != cu."userId"
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
 GROUP BY "user"."userId", chat."meetingId", chat."chatId", chat_with."userId";
@@ -310,7 +338,7 @@ CREATE TABLE "pres_presentation" (
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
 
-CREATE TABLE pres_page (
+CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
@@ -323,10 +351,10 @@ CREATE TABLE pres_page (
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 
-CREATE TABLE pres_annotation (
+CREATE TABLE "pres_annotation" (
 	"annotationId" varchar(100) PRIMARY KEY,
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
-	"userId" varchar(100),
+	"userId" varchar(50),
 	"annotationInfo" TEXT,
 	"lastHistorySequence" integer,
 	"lastUpdatedAt" timestamp DEFAULT now()
@@ -334,31 +362,31 @@ CREATE TABLE pres_annotation (
 CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
 CREATE INDEX "idx_pres_annotation_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
 
-CREATE TABLE pres_annotation_history (
+CREATE TABLE "pres_annotation_history" (
 	"sequence" serial PRIMARY KEY,
 	"annotationId" varchar(100),
 	"pageId" varchar(100) REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
-	"userId" varchar(100),
+	"userId" varchar(50),
 	"annotationInfo" TEXT
 --	"lastUpdatedAt" timestamp DEFAULT now()
 );
 CREATE INDEX "idx_pres_annotation_history_pageId" ON "pres_annotation"("pageId");
 
-CREATE VIEW v_pres_annotation_curr AS
+CREATE VIEW "v_pres_annotation_curr" AS
 SELECT p."meetingId", pp."presentationId", pa.*
 FROM pres_presentation p
 JOIN pres_page pp ON pp."presentationId" = p."presentationId"
 JOIN pres_annotation pa ON pa."pageId" = pp."pageId"
-WHERE p."current" IS TRUE
-AND pp."current" IS TRUE;
+WHERE p."current" IS true
+AND pp."current" IS true;
 
-CREATE VIEW v_pres_annotation_history_curr AS
+CREATE VIEW "v_pres_annotation_history_curr" AS
 SELECT p."meetingId", pp."presentationId", pah.*
 FROM pres_presentation p
 JOIN pres_page pp ON pp."presentationId" = p."presentationId"
 JOIN pres_annotation_history pah ON pah."pageId" = pp."pageId"
-WHERE p."current" IS TRUE
-AND pp."current" IS TRUE;
+WHERE p."current" IS true
+AND pp."current" IS true;
 
 CREATE TABLE "pres_page_writers" (
 	"pageId" varchar(100)  REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
@@ -373,7 +401,7 @@ SELECT
 	u."meetingId",
 	"pres_presentation"."presentationId",
 	"pres_page_writers" .*,
-	CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN TRUE ELSE FALSE END AS "isCurrentPage"
+	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
 FROM "pres_page_writers"
 JOIN "user" u ON u."userId" = "pres_page_writers"."userId"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
@@ -391,9 +419,9 @@ create index "idx_pres_page_cursor_pageId" on "pres_page_cursor"("pageId");
 create index "idx_pres_page_cursor_userID" on "pres_page_cursor"("userId");
 create index "idx_pres_page_cursor_lastUpdatedAt" on "pres_page_cursor"("pageId","lastUpdatedAt");
 
-CREATE VIEW v_pres_page_cursor AS
+CREATE VIEW "v_pres_page_cursor" AS
 SELECT pres_presentation."meetingId", pres_page."presentationId", c.*,
-        CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN TRUE ELSE FALSE END AS "isCurrentPage"
+        CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
 FROM pres_page_cursor c
 JOIN pres_page ON pres_page."pageId" = c."pageId"
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
@@ -407,7 +435,7 @@ JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presen
 --CREATE TABLE whiteboard_annotation (
 --	"annotationId" varchar(100) PRIMARY KEY,
 --	"whiteboardId" varchar(100) REFERENCES "whiteboard"("whiteboardId") ON DELETE CASCADE,
---	"userId" varchar(100),
+--	"userId" varchar(50),
 --	"annotationInfo" TEXT,
 --	"lastUpdatedAt" timestamp DEFAULT now()
 --);

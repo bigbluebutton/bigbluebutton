@@ -1,25 +1,18 @@
 table:
-  name: chat_user
+  name: user_connectionStatus
   schema: public
 object_relationships:
   - name: user
     using:
-      manual_configuration:
-        column_mapping:
-          meetingId: meetingId
-          userId: userId
-        insertion_order: null
-        remote_table:
-          name: user
-          schema: public
+      foreign_key_constraint_on: userId
 select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - chatId
-        - lastSeenAt
+        - connectionAliveAt
         - meetingId
-        - typingAt
+        - status
+        - statusUpdatedAt
         - userId
       filter:
         _and:
@@ -31,15 +24,16 @@ update_permissions:
   - role: bbb_client
     permission:
       columns:
-        - lastSeenAt
-        - typingAt
+        - connectionAliveAt
+        - status
+        - statusUpdatedAt
       filter:
         _and:
           - meetingId:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
-      check: {}
+      check: null
       set:
         meetingId: x-hasura-MeetingId
         userId: x-hasura-UserId

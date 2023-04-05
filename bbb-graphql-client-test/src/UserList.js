@@ -1,7 +1,7 @@
-import { useSubscription, gql } from '@apollo/client';
+import {useSubscription, gql, useMutation} from '@apollo/client';
  import React, { useState } from "react";
 
-const ParentOfUserList = () => {
+const ParentOfUserList = ({userId}) => {
   const [shouldRender, setShouldRender] = useState(true);
   return (
     <div>
@@ -12,12 +12,50 @@ const ParentOfUserList = () => {
           setShouldRender(e.target.checked);
         }
       }></input>
-      {shouldRender && <UserList />}
+      {shouldRender && <UserList userId={userId} />}
     </div>
   );
 }
 
-function UserList() {
+function UserList({userId}) {
+
+    //example specifying where and time (new Date().toISOString())
+    //but its not necessary
+    // const [updateConnectionAliveAt] = useMutation(gql`
+    //   mutation UpdateConnectionAliveAt($userId: String, $connectionAliveAt: timestamp) {
+    //     update_user_connectionStatus(
+    //         where: { userId: { _eq: $userId } },
+    //         _set: { connectionAliveAt: $connectionAliveAt }
+    //       ) {
+    //         affected_rows
+    //       }
+    //   }
+    // `);
+
+    //where is not necessary once user can update only its own status
+    //Hasura accepts "now()" as value to timestamp fields
+    const [updateConnectionAliveAtToMeAsNow] = useMutation(gql`
+      mutation UpdateConnectionAliveAt($userId: String, $connectionAliveAt: timestamp) {
+        update_user_connectionStatus(
+            where: {},
+            _set: { connectionAliveAt: "now()" }
+          ) {
+            affected_rows
+          }
+      }
+    `);
+
+    const handleUpdateConnectionAliveAt = (userId) => {
+        // updateConnectionAliveAt({
+        //     variables: {
+        //         userId,
+        //         connectionAliveAt: new Date().toISOString()
+        //     },
+        // });
+
+        updateConnectionAliveAtToMeAsNow();
+    };
+
   const { loading, error, data } = useSubscription(
     gql`subscription {
       user(where: {joined: {_eq: true}}, order_by: {name: asc}) {
@@ -54,6 +92,9 @@ function UserList() {
           shortName
           currentlyInRoom
         }
+        connectionStatus {
+            connectionAliveAt
+        }
       }
     }`
   );
@@ -79,6 +120,7 @@ function UserList() {
             <th>Muted</th>
             <th>Locked</th>
             <th>Last BreakoutRoom</th>
+            <th>connectionAliveAt</th>
             <th>LeftFlag</th>
             <th>LoggedOut</th>
         </tr>
@@ -105,7 +147,14 @@ function UserList() {
                   <td style={{backgroundColor: user.voice?.muted === true ? '#A0DAA9' : ''}}>{user.voice?.muted === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.locked === true ? '#A0DAA9' : ''}}>{user.locked === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.lastBreakoutRoom?.currentlyInRoom === true ? '#A0DAA9' : ''}}>
-                      {user.lastBreakoutRoom?.shortName}{user.lastBreakoutRoom?.currentlyInRoom == true ? ' (Online)' : ''}
+                      {user.lastBreakoutRoom?.shortName}{user.lastBreakoutRoom?.currentlyInRoom === true ? ' (Online)' : ''}
+                  </td>
+                  <td>
+                      {user?.connectionStatus?.connectionAliveAt}
+                      <br />
+                      { user?.userId === userId ? <button onClick={() => handleUpdateConnectionAliveAt(user.userId)}>Update now!</button>
+                       : ''
+                      }
                   </td>
                   <td style={{backgroundColor: user.leftFlag === true ? '#A0DAA9' : ''}}>{user.leftFlag === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}</td>

@@ -2,6 +2,15 @@ table:
   name: user
   schema: public
 object_relationships:
+  - name: connectionStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user_connectionStatus
+          schema: public
   - name: lastBreakoutRoom
     using:
       manual_configuration:
@@ -50,18 +59,20 @@ select_permissions:
         - authed
         - avatar
         - banned
+        - clientType
         - color
         - emoji
         - extId
         - guest
         - guestStatus
+        - isModerator
+        - isOnline
         - joined
         - leftFlag
         - locked
         - loggedOut
         - meetingId
         - mobile
-        - clientType
         - name
         - pinned
         - presenter

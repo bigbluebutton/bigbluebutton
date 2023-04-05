@@ -1,9 +1,6 @@
-import {useSubscription, gql, useQuery, useMutation} from '@apollo/client';
- import React, { useState } from "react";
+import {useSubscription, gql, useMutation} from '@apollo/client';
 
-export default function ChatPublicMessages() {
-  // const [updatedLastSeen, setUpdatedLastSeen] = useState(false);
-
+export default function ChatPublicMessages({userId}) {
     const [updateLastSeen] = useMutation(gql`
       mutation UpdateChatUser($chatId: String, $lastSeenAt: bigint) {
         update_chat_user(
@@ -23,6 +20,7 @@ export default function ChatPublicMessages() {
             },
         });
     };
+
 
   const { loading, error, data } = useSubscription(
     gql`subscription {
@@ -65,7 +63,13 @@ export default function ChatPublicMessages() {
                   <td>{curr.senderName}</td>
                   <td>{curr.message}</td>
                   <td>{curr.createdTimeAsDate} ({curr.createdTime})</td>
-                  <td><button onClick={() => handleUpdateLastSeen(curr.chatId, curr.createdTime)}>Read it!</button></td>
+                  <td>
+                      {
+                      curr.senderId !== userId ?
+                          <button onClick={() => handleUpdateLastSeen(curr.chatId, curr.createdTime)}>Read it!</button>
+                          : ''
+                  }
+                  </td>
               </tr>
           );
         })}

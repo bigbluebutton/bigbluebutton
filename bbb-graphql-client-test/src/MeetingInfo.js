@@ -1,10 +1,10 @@
-import {useSubscription, gql, useQuery} from '@apollo/client';
- import React, { useState } from "react";
+import {gql, useQuery} from '@apollo/client';
 
 export default function MeetingInfo() {
   const { loading, error, data } = useQuery(
     gql`query {
       meeting {
+        meetingId
         createdTime
         disabledFeatures
         duration

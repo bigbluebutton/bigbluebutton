@@ -92,6 +92,8 @@ object UserDAO {
     ).onComplete {
         case Success(rowsAffected) => {
           println(s"$rowsAffected row(s) inserted in User table!")
+          ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
+          UserConnectionStatusdDAO.insert(meetingId, regUser.id)
         }
         case Failure(e)            => println(s"Error inserting user: $e")
       }
@@ -119,7 +121,7 @@ object UserDAO {
 //    "eject_reason" varchar (255)
 //    ,
     ).onComplete {
-      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
+      case Success(rowsAffected) => println(s"$rowsAffected row(s) updated on user table!")
       case Failure(e) => println(s"Error updating user: $e")
     }
   }
@@ -167,14 +169,14 @@ object UserDAO {
     }
   }
 
-  def insert(user: UserDbModel) = {
-    DatabaseConnection.db.run(
-      TableQuery[UserDbTableDef].forceInsert(user)
-    ).onComplete {
-        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
-        case Failure(e)            => println(s"Error updating user: $e")
-      }
-  }
+//  def insert(user: UserDbModel) = {
+//    DatabaseConnection.db.run(
+//      TableQuery[UserDbTableDef].forceInsert(user)
+//    ).onComplete {
+//        case Success(rowsAffected) => println(s"$rowsAffected row(s) updated")
+//        case Failure(e)            => println(s"Error updating user: $e")
+//      }
+//  }
 
 
 }

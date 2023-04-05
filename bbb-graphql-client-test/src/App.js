@@ -97,13 +97,13 @@ function App() {
             Who am I? {userName} ({userId})
             <MeetingInfo />
             <br />
-            <UserList />
+            <UserList userId={userId} />
             <br />
             <ChatsInfo />
             <br />
             <ChatMessages />
             <br />
-            <ChatPublicMessages />
+            <ChatPublicMessages userId={userId} />
             <br />
             <CursorsAll />
             <br />

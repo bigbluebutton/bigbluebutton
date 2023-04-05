@@ -53,9 +53,6 @@ object UserVoiceDAO {
   //  val usersTable = TableQuery[UserTableDef]
 
   def insert(voiceUserState: VoiceUserState) = {
-    println("Will add!")
-    println(voiceUserState)
-
     DatabaseConnection.db.run(
       TableQuery[UserVoiceDbTableDef].insertOrUpdate(
         UserVoiceDbModel(
