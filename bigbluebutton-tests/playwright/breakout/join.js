@@ -2,7 +2,7 @@ const { default: test } = require('@playwright/test');
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
@@ -160,23 +160,16 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.presentationUploadProgressToast);
-    await this.modPage.waitForSelectorDetached(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
-
-    await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.checkElementCount(e.actionsItem, 9);
-    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
+    const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
+    await expect(shareNotesPDF).toHaveText(/Notes/, { timeout: 30000 });
+    await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await this.modPage.checkElementCount(e.actionsItem, 8);
+    await shareNotesPDF.click();
 
-    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
-    const clipObj = {
-      x: wbBox.x,
-      y: wbBox.y,
-      width: wbBox.width,
-      height: wbBox.height,
-    };
-    await expect(this.modPage.page).toHaveScreenshot('capture-breakout-notes.png', {
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbBox).toHaveScreenshot('capture-breakout-notes.png', {
       maxDiffPixels: 1000,
-      clip: clipObj,
     });
   }
 
@@ -206,23 +199,17 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.waitForSelector(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitForSelectorDetached(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
-
-    await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.checkElementCount(e.actionsItem, 9);
-    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
+    const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
+    await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
+    await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await this.modPage.checkElementCount(e.actionsItem, 8);
+    await whiteboardPDF.click();
+    await this.modPage.waitAndClick('i[type="info"]');
 
-    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
-    const clipObj = {
-      x: wbBox.x,
-      y: wbBox.y,
-      width: wbBox.width,
-      height: wbBox.height,
-    };
-    await expect(this.modPage.page).toHaveScreenshot('capture-breakout-whiteboard.png', {
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1000,
-      clip: clipObj,
     });
   }
 
