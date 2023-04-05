@@ -105,7 +105,7 @@ DEPENDENCIES
   rake (>= 12.3, < 14)
   rb-inotify (~> 0.10)
   redis (~> 4.1)
-  resque (~> 2.4, >= 2.4.0)
+  resque (~> 2.5, >= 2.5.0)
   rubocop (~> 1.31.1)
   rubyzip (~> 2.0)
   tzinfo (>= 1.2.10)
