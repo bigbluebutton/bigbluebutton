@@ -505,7 +505,9 @@ class VideoProvider extends Component {
 
     if (peer) {
       if (peer && peer.bbbVideoStream) {
-        peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
+        if (typeof peer.inactivationHandler === 'function') {
+          peer.bbbVideoStream.removeListener('inactive', peer.inactivationHandler);
+        }
         peer.bbbVideoStream.stop();
       }
 
