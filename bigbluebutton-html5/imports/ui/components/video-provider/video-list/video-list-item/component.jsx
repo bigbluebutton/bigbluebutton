@@ -25,7 +25,7 @@ const VideoListItem = (props) => {
     makeDragOperations, dragging, draggingOver, isRTL
   } = props;
 
-  const [videoIsReady, setVideoIsReady] = useState(false);
+  const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
   const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
@@ -40,7 +40,7 @@ const VideoListItem = (props) => {
   const videoTag = useRef();
   const videoContainer = useRef();
 
-  const shouldRenderReconnect = !isStreamHealthy && videoIsReady;
+  const videoIsReady = isStreamHealthy && videoDataLoaded;
   const { animations } = Settings.application;
   const talking = voiceUser?.talking;
 
@@ -48,14 +48,11 @@ const VideoListItem = (props) => {
     const { streamState } = e.detail;
     const newHealthState = !isStreamStateUnhealthy(streamState);
     e.stopPropagation();
-
-    if (newHealthState !== isStreamHealthy) {
-      setIsStreamHealthy(newHealthState);
-    }
+    setIsStreamHealthy(newHealthState);
   };
 
-  const handleSetVideoIsReady = () => {
-    setVideoIsReady(true);
+  const onLoadedData = () => {
+    setVideoDataLoaded(true);
     window.dispatchEvent(new Event('resize'));
 
     /* used when re-sharing cameras after leaving a breakout room.
@@ -70,10 +67,10 @@ const VideoListItem = (props) => {
     onVideoItemMount(videoTag.current);
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
     resizeObserver.observe(videoContainer.current);
-    videoTag?.current?.addEventListener('loadeddata', handleSetVideoIsReady);
+    videoTag?.current?.addEventListener('loadeddata', onLoadedData);
 
     return () => {
-      videoTag?.current?.removeEventListener('loadeddata', handleSetVideoIsReady);
+      videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
       resizeObserver.disconnect();
     };
   }, []);
@@ -95,10 +92,10 @@ const VideoListItem = (props) => {
     // This is here to prevent the videos from freezing when they're
     // moved around the dom by react, e.g., when  changing the user status
     // see https://bugs.chromium.org/p/chromium/issues/detail?id=382879
-    if (videoIsReady) {
+    if (videoDataLoaded) {
       playElement(videoTag.current);
     }
-  }, [videoIsReady]);
+  }, [videoDataLoaded]);
 
   // component will unmount
   useEffect(() => () => {
@@ -129,7 +126,7 @@ const VideoListItem = (props) => {
       <UserAvatarVideo
         user={user}
         voiceUser={voiceUser}
-        unhealthyStream={shouldRenderReconnect}
+        unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed={false}
       />
       <Styled.BottomBar>
@@ -157,7 +154,7 @@ const VideoListItem = (props) => {
     >
       <UserAvatarVideo
         user={user}
-        unhealthyStream={shouldRenderReconnect}
+        unhealthyStream={videoDataLoaded && !isStreamHealthy}
         squeezed
       />
       {renderSqueezedButton()}
@@ -212,7 +209,7 @@ const VideoListItem = (props) => {
       <Styled.VideoContainer>
         <Styled.Video
           mirrored={isMirrored}
-          unhealthyStream={shouldRenderReconnect}
+          unhealthyStream={videoDataLoaded && !isStreamHealthy}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
           ref={videoTag}
           autoPlay
@@ -228,8 +225,6 @@ const VideoListItem = (props) => {
         : (isVideoSqueezed)
           ? renderWebcamConnectingSqueezed()
           : renderWebcamConnecting()}
-
-      {shouldRenderReconnect && <Styled.Reconnecting animations={animations} />}
     </Styled.Content>
   );
 };
