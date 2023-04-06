@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { TldrawApp, Tldraw } from '@tldraw/tldraw';
 import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -19,6 +18,8 @@ import PanToolInjector from './pan-tool-injector/component';
 import {
   findRemoved, filterInvalidShapes, mapLanguage, sendShapeChanges, usePrevious,
 } from './utils';
+import { throttle } from '/imports/utils/throttle';
+import { isEqual } from 'radash';
 
 const SMALL_HEIGHT = 435;
 const SMALLEST_HEIGHT = 363;
@@ -91,6 +92,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [currentStyle, setCurrentStyle] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
@@ -107,12 +109,6 @@ export default function Whiteboard(props) {
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
       setTldrawAPI(api);
-    }
-  };
-
-  const setSafeCurrentTool = (tool) => {
-    if (isMountedRef.current) {
-      setCurrentTool(tool);
     }
   };
 
@@ -165,7 +161,7 @@ export default function Whiteboard(props) {
     };
   }, [tldrawAPI, isToolLocked]);
 
-  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
+  const throttledResetCurrentPoint = React.useRef(throttle(() => {
     setEnable(false);
     setEnable(true);
   }, 1000, { trailing: true }));
@@ -250,7 +246,7 @@ export default function Whiteboard(props) {
 
     let changed = false;
 
-    if (next.pageStates[curPageId] && !_.isEqual(prevShapes, shapes)) {
+    if (next.pageStates[curPageId] && !isEqual(prevShapes, shapes)) {
       const editingShape = tldrawAPI?.getShape(tldrawAPI?.getPageState()?.editingId);
 
       if (editingShape) {
@@ -291,7 +287,7 @@ export default function Whiteboard(props) {
       changed = true;
     }
 
-    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`] || (svgUri && !_.isEqual(prevSvgUri, svgUri)))) {
+    if (curPageId && (!next.assets[`slide-background-asset-${curPageId}`] || (svgUri && !isEqual(prevSvgUri, svgUri)))) {
       next.assets[`slide-background-asset-${curPageId}`] = assets[`slide-background-asset-${curPageId}`];
       tldrawAPI?.patchState(
         {
@@ -335,7 +331,7 @@ export default function Whiteboard(props) {
       const pollResults = Object.entries(next.pages[curPageId].shapes)
         .filter(([, shape]) => shape.name?.includes('poll-result'));
       pollResults.forEach(([id, shape]) => {
-        if (_.isEqual(shape.point, [0, 0])) {
+        if (isEqual(shape.point, [0, 0])) {
           try {
             const shapeBounds = tldrawAPI?.getShapeBounds(id);
             if (shapeBounds) {
@@ -594,8 +590,6 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = document.getElementById('TD-Styles')?.parentElement;
-    setSafeCurrentTool('select');
-
     const canvas = document.getElementById('canvas');
     if (canvas) {
       canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
@@ -825,6 +819,16 @@ export default function Whiteboard(props) {
       setIsPanning(false);
     }
 
+    if (reason && reason.includes('ui:toggled_is_loading')) {
+      e?.patchState(
+        {
+          appState: {
+            currentStyle,
+          },
+        },
+      );
+    }
+
     e?.patchState(
       {
         appState: {
@@ -832,6 +836,10 @@ export default function Whiteboard(props) {
         },
       },
     );
+
+    if ((panSelected || isPanning)) {
+      e.isForcePanning = isPanning;
+    }
   };
 
   const onUndo = (app) => {
@@ -880,6 +888,11 @@ export default function Whiteboard(props) {
     if (!isFirstCommand){
       setHistory(app.history);
     }
+
+    if (command?.id?.includes('style')) {
+      setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
+    }
+
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -968,10 +981,6 @@ export default function Whiteboard(props) {
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
 
-  if ((panSelected || isPanning) && tldrawAPI) {
-    tldrawAPI.isForcePanning = isPanning;
-  }
-
   if (hasWBAccess || isPresenter) {
     if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
@@ -1015,6 +1024,7 @@ export default function Whiteboard(props) {
             size,
             darkTheme,
             menuOffset,
+            panSelected,
           }}
         />
       </Cursors>

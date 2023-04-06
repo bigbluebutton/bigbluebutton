@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Bir sorun çıktı",
     "app.error.fallback.presentation.description": "Oturum açıldı. Lütfen sayfayı yeniden yüklemeyi deneyin.",
     "app.error.fallback.presentation.reloadButton": "Yeniden yükle",
-    "app.guest.waiting": "Katılma onayı bekleniyor",
     "app.guest.errorSeeConsole": "Hata: Konsoldan ayrıntılı bilgi alabilirsiniz.",
     "app.guest.noModeratorResponse": "Sorumlu yanıt vermedi.",
     "app.guest.noSessionToken": "Herhangi bir oturum kodu alınmadı.",

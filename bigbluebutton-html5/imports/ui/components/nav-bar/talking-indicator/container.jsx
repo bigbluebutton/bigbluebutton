@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import VoiceUsers from '/imports/api/voice-users';
 import Auth from '/imports/ui/services/auth';
-import { debounce } from 'lodash';
+import { debounce } from 'radash';
 import TalkingIndicator from './component';
 import { makeCall } from '/imports/ui/services/api';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
@@ -80,7 +80,7 @@ export default withTracker(() => {
     }
   }
 
-  const muteUser = debounce((id) => {
+  const muteUser = debounce({ delay: TALKING_INDICATOR_MUTE_INTERVAL }, (id) => {
     const user = VoiceUsers.findOne({ meetingId, intId: id }, {
       fields: {
         muted: 1,
@@ -88,7 +88,7 @@ export default withTracker(() => {
     });
     if (user.muted) return;
     makeCall('toggleVoice', id);
-  }, TALKING_INDICATOR_MUTE_INTERVAL, { leading: true, trailing: false });
+  });
 
   return {
     talkers,

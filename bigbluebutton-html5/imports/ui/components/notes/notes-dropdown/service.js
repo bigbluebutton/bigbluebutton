@@ -3,7 +3,7 @@ import PresentationUploaderService from '/imports/ui/components/presentation/pre
 import PadsService from '/imports/ui/components/pads/service';
 import NotesService from '/imports/ui/components/notes/service';
 import { UploadingPresentations } from '/imports/api/presentations';
-import _ from 'lodash';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
 
@@ -21,7 +21,7 @@ async function convertAndUpload() {
   filename = `${filename}.${extension}`;
 
   UploadingPresentations.insert({
-    id: _.uniqueId(filename),
+    id: uniqueId(filename),
     progress: 0,
     filename,
     lastModifiedUploader: false,

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { range } from '/imports/utils/array-utils';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
@@ -13,6 +13,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -258,7 +259,7 @@ class BreakoutRoom extends PureComponent {
       breakoutJoinedUsers: null,
     };
 
-    this.btnLevelId = _.uniqueId('btn-set-level-');
+    this.btnLevelId = uniqueId('btn-set-level-');
 
     this.handleMoveEvent = this.handleMoveEvent.bind(this);
     this.handleShiftUser = this.handleShiftUser.bind(this);
@@ -452,13 +453,13 @@ class BreakoutRoom extends PureComponent {
       return;
     }
 
-    const duplicatedNames = _.range(1, numberOfRooms + 1).filter((n) => this.hasNameDuplicated(n));
+    const duplicatedNames = range(1, numberOfRooms + 1).filter((n) => this.hasNameDuplicated(n));
     if (duplicatedNames.length > 0) {
       this.setState({ roomNameDuplicatedIsValid: false });
       return;
     }
 
-    const emptyNames = _.range(1, numberOfRooms + 1)
+    const emptyNames = range(1, numberOfRooms + 1)
       .filter((n) => this.getRoomName(n).length === 0);
     if (emptyNames.length > 0) {
       this.setState({ roomNameEmptyIsValid: false });
@@ -467,7 +468,7 @@ class BreakoutRoom extends PureComponent {
 
     this.handleDismiss();
 
-    const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
+    const rooms = range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
       name: this.getFullName(seq),
       captureNotesFilename: this.getCaptureFilename(seq, false),
@@ -761,7 +762,7 @@ class BreakoutRoom extends PureComponent {
   hasNameDuplicated(position) {
     const { numberOfRooms } = this.state;
     const currName = this.getRoomName(position).trim();
-    const equals = _.range(1, numberOfRooms + 1)
+    const equals = range(1, numberOfRooms + 1)
       .filter((n) => this.getRoomName(n).trim() === currName);
     if (equals.length > 1) return true;
 
@@ -784,7 +785,7 @@ class BreakoutRoom extends PureComponent {
       roomNameDuplicatedIsValid: true,
       roomNameEmptyIsValid: true,
     }, () => {
-      const rooms = _.range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
+      const rooms = range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
 
       users.forEach((u) => {
         const lastUserBreakout = getBreakoutUserWasIn(u.userId, u.extId);
@@ -883,7 +884,7 @@ class BreakoutRoom extends PureComponent {
           </Styled.SpanWarn>
         </Styled.Alert>
         {
-          _.range(1, rooms + 1).map((value) => (
+          range(1, rooms + 1).map((value) => (
             <div key={`room-${value}`}>
               <Styled.FreeJoinLabel>
                 <Styled.RoomName
@@ -951,7 +952,7 @@ class BreakoutRoom extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.numberOfRooms)}
             >
               {
-                _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={_.uniqueId('value-')}>{item}</option>))
+                range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
               }
             </Styled.InputRooms>
           </div>

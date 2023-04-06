@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import PollService from '/imports/ui/components/poll/service';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const CHAT_CLEAR_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_clear;
@@ -119,7 +119,7 @@ class TimeWindowChatItem extends PureComponent {
               ? (
                 <Styled.SystemMessageChatItem
                   border={message.id}
-                  key={message.id ? message.id : _.uniqueId('id-')}
+                  key={message.id ? message.id : uniqueId('id-')}
                   text={intlMessages[message.text] ? intl.formatMessage(
                     intlMessages[message.text],
                     messageValues || {},
@@ -244,7 +244,7 @@ class TimeWindowChatItem extends PureComponent {
     const dateTime = new Date(timestamp);
 
     return messages ? (
-      <Styled.Item key={_.uniqueId('message-poll-item-')}>
+      <Styled.Item key={uniqueId('message-poll-item-')}>
         <Styled.Wrapper ref={(ref) => { this.item = ref; }}>
           <Styled.AvatarWrapper>
             <UserAvatar
@@ -313,7 +313,7 @@ class TimeWindowChatItem extends PureComponent {
 
     return messages ? (
       <Styled.Item
-        key={_.uniqueId('message-presentation-item-')}
+        key={uniqueId('message-presentation-item-')}
         onMouseDown={(e) => { e.stopPropagation(); }}
       >
         <Styled.PresentationWrapper ref={(ref) => { this.item = ref; }}>

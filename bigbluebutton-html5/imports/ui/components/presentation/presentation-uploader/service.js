@@ -5,10 +5,11 @@ import Poll from '/imports/api/polls/';
 import { Meteor } from 'meteor/meteor';
 import { makeCall } from '/imports/ui/services/api';
 import logger from '/imports/startup/client/logger';
-import _ from 'lodash';
+import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
 import { Random } from 'meteor/random';
 import Meetings from '/imports/api/meetings';
+import { uniqueId } from '/imports/utils/string-utils';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 import { notify } from '/imports/ui/services/notification';
 
@@ -185,7 +186,7 @@ const uploadAndConvertPresentation = (
   onProgress,
   onConversion,
 ) => {
-  const temporaryPresentationId = _.uniqueId(Random.id(20));
+  const temporaryPresentationId = uniqueId(Random.id(20));
 
   const data = new FormData();
   data.append('fileUpload', file);
@@ -292,7 +293,7 @@ const removePresentations = (
 
 const persistPresentationChanges = (oldState, newState, uploadEndpoint, podId) => {
   const presentationsToUpload = newState.filter((p) => !p.upload.done);
-  const presentationsToRemove = oldState.filter((p) => !_.find(newState, ['id', p.id]));
+  const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.id === p.id }));
 
   let currentPresentation = newState.find((p) => p.isCurrent);
 
@@ -415,14 +416,14 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
     const { toUploadCount } = that.state;
     const validMimes = fileValidMimeTypes.map((fileValid) => fileValid.mime);
     const validExtentions = fileValidMimeTypes.map((fileValid) => fileValid.extension);
-    const [accepted, rejected] = _.partition(
+    const [accepted, rejected] = partition(
       files.concat(files2), (f) => (
         validMimes.includes(f.type) || validExtentions.includes(`.${f.name.split('.').pop()}`)
       ),
     );
 
     const presentationsToUpload = accepted.map((file) => {
-      const id = _.uniqueId(file.name);
+      const id = uniqueId(file.name);
 
       return {
         file,
