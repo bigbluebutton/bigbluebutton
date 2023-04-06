@@ -37,7 +37,7 @@ export default async function zoomSlide(slideNumber, podId, widthRatio, heightRa
     let validSlideNum = slideNumber;
     if (validSlideNum > Presentation?.pages?.length) validSlideNum = 1;
 
-    const Slide = Slides.findOneAsync({
+    const Slide = await Slides.findOneAsync({
       meetingId,
       podId,
       presentationId: Presentation.id,
