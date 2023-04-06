@@ -1,11 +1,11 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import SettingsService from '/imports/ui/services/settings';
-import _ from 'lodash';
 import Cursors from './component';
 import Service from './service';
+import { omit } from 'radash';
 
-const CursorsContainer = (props) => <Cursors {..._.omit(props, ['tldrawAPI'])} />;
+const CursorsContainer = (props) => <Cursors {...omit(props, ['tldrawAPI'])} />;
 
 export default withTracker((params) => (
   {

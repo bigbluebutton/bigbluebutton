@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Произошла ошибка",
     "app.error.fallback.presentation.description": "Действие было зарегистрировано. Пожалуйста, попробуйте перезагрузить страницу",
     "app.error.fallback.presentation.reloadButton": "Перезагрузить",
-    "app.guest.waiting": "Ожидание одобрения входа",
     "app.guest.errorSeeConsole": "Ошибка: Более подробная информация в консоли.",
     "app.guest.noModeratorResponse": "Нет ответа от Модератора.",
     "app.guest.noSessionToken": "Токен вебинара не получен.",

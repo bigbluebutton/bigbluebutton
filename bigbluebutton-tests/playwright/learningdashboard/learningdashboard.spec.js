@@ -15,12 +15,23 @@ test.describe.serial('Learning Dashboard', async () => {
     await learningDashboard.writeOnPublicChat();
   });
 
-  test('Meeting Duration Time', async() => {
+  test('User Time On Meeting', async() => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls', async ({ context })=> {
+  test('Polls', async ({ context }) => {
     await learningDashboard.initUserPage(true, context);
     await learningDashboard.polls();
   });
+
+  test('Basic Infos', async () => {
+    await learningDashboard.basicInfos();
+  });
+
+  test('Overview', async () => {
+    await learningDashboard.overview();
+  });
+  test('Download Session Learning Dashboard', async ({ context }, testInfo) => {
+    await learningDashboard.downloadSessionLearningDashboard(testInfo);
+  });  
 });

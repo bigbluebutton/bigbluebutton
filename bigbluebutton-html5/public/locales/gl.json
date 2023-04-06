@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Produciuse un erro",
     "app.error.fallback.presentation.description": "Accedeu. Tente volver cargar a páxina.",
     "app.error.fallback.presentation.reloadButton": "Recargar",
-    "app.guest.waiting": "Agardando a aprobación para unirse",
     "app.guest.errorSeeConsole": "Erro: máis detalles na consola.",
     "app.guest.noModeratorResponse": "Non hai resposta do moderador.",
     "app.guest.noSessionToken": "Non se recibiu ningún testemuño de sesión.",

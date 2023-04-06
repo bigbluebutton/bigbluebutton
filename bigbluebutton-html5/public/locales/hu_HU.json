@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Hiba lépett fel",
     "app.error.fallback.presentation.description": "Naplóztuk. Kérjük, próbáld újra betölteni az oldalt.",
     "app.error.fallback.presentation.reloadButton": "Újratöltése",
-    "app.guest.waiting": "Várakozás jóváhagyásra",
     "app.guest.errorSeeConsole": "Hiba: további részletek a konzolban.",
     "app.guest.noModeratorResponse": "A szervező elfoglalt. Kérlek, kíséreld meg a csatlakozást kicsit később!",
     "app.guest.noSessionToken": "Nem érkezett munkamenet Token.",

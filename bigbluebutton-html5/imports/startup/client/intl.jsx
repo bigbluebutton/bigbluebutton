@@ -5,11 +5,11 @@ import { IntlProvider } from 'react-intl';
 import Settings from '/imports/ui/services/settings';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import Logger from '/imports/startup/client/logger';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import Intl from '/imports/ui/services/locale';
+import { isEmpty } from 'radash';
 
 const propTypes = {
   locale: PropTypes.string,
@@ -58,7 +58,7 @@ class IntlStartup extends Component {
     if (overrideLocaleFromPassedParameter !== prevProps.overrideLocaleFromPassedParameter) {
       this.fetchLocalizedMessages(overrideLocaleFromPassedParameter);
     } else {
-      const shouldFetch = (!fetching && _.isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
+      const shouldFetch = (!fetching && isEmpty(messages)) || ((locale !== prevProps.locale) && (normalizedLocale && (locale !== normalizedLocale)));
       if (shouldFetch) this.fetchLocalizedMessages(locale);
     }
   }
