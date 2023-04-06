@@ -9,18 +9,18 @@ keywords:
 ---
 
 import APITableComponent from '@site/src/components/APITableComponent';
-import createEndpointTableData from '@site/src/data/create.tsx';
-import deleteRecordingsEndpointTableData from '@site/src/data/deleteRecordings.tsx';
-import endEndpointTableData from '@site/src/data/end.tsx';
-import getMeetingInfoEndpointTableData from '@site/src/data/getMeetingInfo.tsx';
-import getRecordingsEndpointTableData from '@site/src/data/getRecordings.tsx';
-import getRecordingTextTracksEndpointTableData from '@site/src/data/getRecordingTextTracks.tsx';
-import insertDocumentEndpointTableData from '@site/src/data/insertDocument.tsx';
-import isMeetingRunningEndpointTableData from '@site/src/data/isMeetingRunning.tsx';
-import joinEndpointTableData from '@site/src/data/join.tsx';
-import publishRecordingsEndpointTableData from '@site/src/data/publishRecordings.tsx';
-import putRecordingTextTrackEndpointTableData from '@site/src/data/putRecordingTextTrack.tsx';
-import updateRecordingsEndpointTableData from '@site/src/data/updateRecordings.tsx';
+import createEndpointTableData from '../data/create.tsx';
+import deleteRecordingsEndpointTableData from '../data/deleteRecordings.tsx';
+import endEndpointTableData from '../data/end.tsx';
+import getMeetingInfoEndpointTableData from '../data/getMeetingInfo.tsx';
+import getRecordingsEndpointTableData from '../data/getRecordings.tsx';
+import getRecordingTextTracksEndpointTableData from '../data/getRecordingTextTracks.tsx';
+import insertDocumentEndpointTableData from '../data/insertDocument.tsx';
+import isMeetingRunningEndpointTableData from '../data/isMeetingRunning.tsx';
+import joinEndpointTableData from '../data/join.tsx';
+import publishRecordingsEndpointTableData from '../data/publishRecordings.tsx';
+import putRecordingTextTrackEndpointTableData from '../data/putRecordingTextTrack.tsx';
+import updateRecordingsEndpointTableData from '../data/updateRecordings.tsx';
 
 ## Overview
 
