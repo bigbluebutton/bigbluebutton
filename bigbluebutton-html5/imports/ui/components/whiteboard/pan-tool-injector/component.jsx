@@ -101,9 +101,6 @@ class PanToolInjector extends React.Component {
             }
           }}
           hideLabel
-          {...{
-            panSelected,
-          }}
         />,
         container,
       );
