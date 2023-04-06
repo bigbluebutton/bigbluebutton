@@ -131,6 +131,7 @@ const JoinVideoButton = ({
           key: 'advancedVideo',
           label: intl.formatMessage(intlMessages.advancedVideo),
           onClick: () => handleOpenAdvancedOptions(),
+          dataTest: 'advancedVideoSettingsButton',
         },
       );
     }
@@ -154,6 +155,7 @@ const JoinVideoButton = ({
         trigger={(
           <ButtonEmoji
             emoji="device_list_selector"
+            data-test="videoDropdownMenu"
             hideLabel
             label={intl.formatMessage(intlMessages.videoSettings)}
             rotate

@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Es ist ein Fehler aufgetreten",
     "app.error.fallback.presentation.description": "Er wurde protokolliert. Bitte versuchen, die Seite neu zu laden.",
     "app.error.fallback.presentation.reloadButton": "Neu laden",
-    "app.guest.waiting": "Auf Erlaubnis zur Konferenzteilnahme wird gewartet",
     "app.guest.errorSeeConsole": "Fehler: weitere Details in der Konsole.",
     "app.guest.noModeratorResponse": "Keine Antwort vom Moderator.",
     "app.guest.noSessionToken": "Kein Konferenz-Token erhalten.",

@@ -72,6 +72,14 @@ const TldrawGlobalStyle = createGlobalStyle`
       margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
     }
   `}
+  ${({ hasWBAccess, isPresenter, panSelected }) => (hasWBAccess || isPresenter) && panSelected && `
+    [id^="TD-PrimaryTools-"] {
+      &:hover > div,
+      &:focus > div {
+        background-color: var(--colors-hover) !important;
+      }
+    }
+  `}
   ${({ darkTheme }) => darkTheme && `
     #TD-TopPanel-Undo,
     #TD-TopPanel-Redo,
@@ -290,10 +298,12 @@ const PanTool = styled(Button)`
     }
   }
 
-  &:hover,
-  &:focus {
-    background-color: var(--colors-hover);
-  }
+  ${({ panSelected }) => !panSelected && `
+    &:hover,
+    &:focus {
+      background-color: var(--colors-hover) !important;
+    }
+  `}
 `;
 
 export default {

@@ -322,8 +322,30 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
     && chat.shouldDisplayInChatList);
+  const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
+    if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
+      return -1;
+    }
+    if (b.chatId === PUBLIC_CHAT_ID) {
+      return 0;
+    }
+    if (a.unreadCounter > b.unreadCounter) {
+      return -1;
+    } else if (b.unreadCounter > a.unreadCounter) {
+      return 1;
+    } else {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return -1;
+        }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return 1;
+        }
+      return 0;
+      }
+  });
+  return sortByChatIdAndUnread;
 };
 
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');

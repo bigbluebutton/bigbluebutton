@@ -769,7 +769,6 @@
     "app.error.fallback.presentation.title": "An error occurred",
     "app.error.fallback.presentation.description": "It has been logged. Please try reloading the page.",
     "app.error.fallback.presentation.reloadButton": "Reload",
-    "app.guest.waiting": "Waiting for approval to join",
     "app.guest.errorSeeConsole": "Error: more details in the console.",
     "app.guest.noModeratorResponse": "No response from Moderator.",
     "app.guest.noSessionToken": "No session Token received.",

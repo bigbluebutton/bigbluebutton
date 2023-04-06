@@ -93,6 +93,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [currentStyle, setCurrentStyle] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
@@ -109,12 +110,6 @@ export default function Whiteboard(props) {
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
       setTldrawAPI(api);
-    }
-  };
-
-  const setSafeCurrentTool = (tool) => {
-    if (isMountedRef.current) {
-      setCurrentTool(tool);
     }
   };
 
@@ -523,6 +518,8 @@ export default function Whiteboard(props) {
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
       tldrawAPI.zoomTo(0);
+      setHistory(null);
+      tldrawAPI.resetHistory();
     }
   }, [curPres?.id]);
 
@@ -602,8 +599,6 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = presentationWindow.document.getElementById('TD-Styles')?.parentElement;
-    setSafeCurrentTool('select');
-
     if (!isPresentationDetached) {
       //when the presentation is detached, the canvas will be found hidden on the top-left corner of the main panel,
       // instead of the detached window. So we don't use below.
@@ -648,14 +643,21 @@ export default function Whiteboard(props) {
       newApp.setHoveredId = () => { };
     }
 
-    if (curPageId) {
-      app.changePage(curPageId);
-      setIsMounting(true);
-    }
-
     if (history) {
       app.replaceHistory(history);
     }
+
+    if (curPageId) {
+      app.patchState(
+        {
+         appState: {
+            currentPageId: curPageId,
+          },
+        },
+      );
+      setIsMounting(true);
+    }
+      
   };
 
   const onPatch = (e, t, reason) => {
@@ -829,6 +831,16 @@ export default function Whiteboard(props) {
       setIsPanning(false);
     }
 
+    if (reason && reason.includes('ui:toggled_is_loading')) {
+      e?.patchState(
+        {
+          appState: {
+            currentStyle,
+          },
+        },
+      );
+    }
+
     e?.patchState(
       {
         appState: {
@@ -836,6 +848,10 @@ export default function Whiteboard(props) {
         },
       },
     );
+
+    if ((panSelected || isPanning)) {
+      e.isForcePanning = isPanning;
+    }
   };
 
   const onUndo = (app) => {
@@ -880,7 +896,15 @@ export default function Whiteboard(props) {
   };
 
   const onCommand = (app, command) => {
-    setHistory(app.history);
+    const isFirstCommand = command.id === "change_page" && command.before?.appState.currentPageId === "0";
+    if (!isFirstCommand){
+      setHistory(app.history);
+    }
+
+    if (command?.id?.includes('style')) {
+      setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
+    }
+
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -969,10 +993,6 @@ export default function Whiteboard(props) {
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
 
-  if ((panSelected || isPanning) && tldrawAPI) {
-    tldrawAPI.isForcePanning = isPanning;
-  }
-
   if (hasWBAccess || isPresenter) {
     if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
@@ -1033,6 +1053,7 @@ export default function Whiteboard(props) {
             size,
             darkTheme,
             menuOffset,
+            panSelected,
           }}
         />
       </Cursors>
