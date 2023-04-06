@@ -88,11 +88,22 @@ case class UserJoinedMeetingEvtMsg(
     header: BbbClientMsgHeader,
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
-case class UserJoinedMeetingEvtMsgBody(intId: String, extId: String, name: String, role: String,
-                                       guest: Boolean, authed: Boolean, guestStatus: String,
-                                       emoji:     String,
-                                       pin:       Boolean,
-                                       presenter: Boolean, locked: Boolean, avatar: String, clientType: String)
+case class UserJoinedMeetingEvtMsgBody(
+    intId:       String,
+    extId:       String,
+    name:        String,
+    role:        String,
+    guest:       Boolean,
+    authed:      Boolean,
+    guestStatus: String,
+    emoji:       String,
+    pin:         Boolean,
+    presenter:   Boolean,
+    locked:      Boolean,
+    avatar:      String,
+    color:       String,
+    clientType:  String
+)
 
 /**
  * Sent by client to get all users in a meeting.

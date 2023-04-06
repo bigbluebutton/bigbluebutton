@@ -360,6 +360,7 @@ case class UserState(
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    color:                 String,
     roleChangedOn:         Long         = System.currentTimeMillis(),
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,
