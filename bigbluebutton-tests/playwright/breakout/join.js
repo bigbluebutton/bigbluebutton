@@ -165,7 +165,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.checkElementCount(e.actionsItem, 9);
-    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
+    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click({ timeout: ELEMENT_WAIT_TIME });
 
     const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const clipObj = {
@@ -211,7 +211,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.closeModal); // closing the audio modal
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.checkElementCount(e.actionsItem, 9);
-    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click();
+    await this.modPage.getLocatorByIndex(e.actionsItem, 1).click({ timeout: ELEMENT_WAIT_TIME });
 
     const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const clipObj = {

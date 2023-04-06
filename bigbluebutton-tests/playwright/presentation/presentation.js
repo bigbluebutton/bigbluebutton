@@ -208,7 +208,7 @@ class Presentation extends MultiUsers {
 
   async presentationFullscreen() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    const presentationLocator = await this.modPage.getLocator(e.presentationContainer);
+    const presentationLocator = this.modPage.getLocator(e.presentationContainer);
     const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
 
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
