@@ -362,7 +362,7 @@ const CustomLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = windowHeight() - cameraDockHeight;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

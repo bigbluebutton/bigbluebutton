@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "خطایی رخ داد",
     "app.error.fallback.presentation.description": "این مورد ثبت شد. لطفا صفحه را دوباره بارگیری کنید.",
     "app.error.fallback.presentation.reloadButton": "بارگیری دوباره",
-    "app.guest.waiting": "در انتظار تأیید برای پیوستن",
     "app.guest.errorSeeConsole": "خطا: جزئیات بیشتر در کنسول.",
     "app.guest.noModeratorResponse": "هیچ پاسخی از مدیر وجود ندارد",
     "app.guest.noSessionToken": "هیچ توکن جلسه‌ای دریافت نشد.",

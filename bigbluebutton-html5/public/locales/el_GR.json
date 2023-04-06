@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Παρουσιάστηκε σφάλμα",
     "app.error.fallback.presentation.description": "Καταγράφτηκε. Παρακαλούμε δοκιμάστε να ανανεώσετε τη σελίδα.",
     "app.error.fallback.presentation.reloadButton": "Επαναφόρτωση",
-    "app.guest.waiting": "Αναμονή για έγκριση συμμετοχής",
     "app.guest.errorSeeConsole": "Σφάλμα: δείτε περισσότερες πληροφορίες στην κονσόλα.",
     "app.guest.noModeratorResponse": "Καμία απάντηση από διαχειριστή.",
     "app.guest.noSessionToken": "Δεν έχει ληφθεί το αναγνωριστικό συνεδρίας.",
