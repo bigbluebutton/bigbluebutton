@@ -50,6 +50,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         guestStatus = GuestStatus.WAIT,
         emoji = "none",
         pin = false,
+        mobile = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",

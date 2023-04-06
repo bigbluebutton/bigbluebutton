@@ -200,6 +200,20 @@ object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
+/**
+ * Sent from client about a user mobile flag.
+ */
+object ChangeUserMobileFlagReqMsg { val NAME = "ChangeUserMobileFlagReqMsg" }
+case class ChangeUserMobileFlagReqMsg(header: BbbClientMsgHeader, body: ChangeUserMobileFlagReqMsgBody) extends StandardMsg
+case class ChangeUserMobileFlagReqMsgBody(userId: String, mobile: Boolean)
+
+/**
+ * Sent to all clients about a user mobile flag.
+ */
+object UserMobileFlagChangedEvtMsg { val NAME = "UserMobileFlagChangedEvtMsg" }
+case class UserMobileFlagChangedEvtMsg(header: BbbClientMsgHeader, body: UserMobileFlagChangedEvtMsgBody) extends BbbCoreMsg
+case class UserMobileFlagChangedEvtMsgBody(userId: String, mobile: Boolean)
+
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
 case class AssignPresenterReqMsgBody(requesterId: String, newPresenterId: String, newPresenterName: String, assignedBy: String)
