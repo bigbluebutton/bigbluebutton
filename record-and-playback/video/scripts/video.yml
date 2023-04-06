@@ -22,7 +22,7 @@ layout:
     - name: deskshare
       x: 0
       y: 0
-      width: 920
+      width: 960
       height: 720
       pad: true
 nopresentation_layout:

@@ -1,10 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import VoiceCallStates from '/imports/api/voice-call-states';
 
-export default function clearVoiceCallStates(meetingId) {
+export default async function clearVoiceCallStates(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = VoiceCallStates.remove({ meetingId });
+      const numberAffected = await VoiceCallStates.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared VoiceCallStates in (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearVoiceCallStates(meetingId) {
     }
   } else {
     try {
-      const numberAffected = VoiceCallStates.remove({});
+      const numberAffected = await VoiceCallStates.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared VoiceCallStates in all meetings');

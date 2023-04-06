@@ -330,7 +330,7 @@ module BigBlueButton
                 end
               elsif is_in_forbidden_period && event.at_xpath('value').text == "VIEWER"
                 filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, active_videos)
-                if filename != ""
+                if filename_to_add != ""
                   active_videos.delete(filename_to_add)
                   inactive_videos << filename_to_add
 

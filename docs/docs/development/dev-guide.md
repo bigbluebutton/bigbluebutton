@@ -484,7 +484,7 @@ or
 grails -reloading -Dserver.port=8090 run-app
 ```
 
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-war` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
+If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
 
 Now test again if you can create and join a meeting.
 
@@ -552,7 +552,7 @@ sudo service bbb-web start
 If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
 
 ```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && /usr/share/bbb-web-old /usr/share/bbb-web
+sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && sudo mv /usr/share/bbb-web-old /usr/share/bbb-web
 ```
 
 Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
@@ -658,4 +658,4 @@ The above will re-sync your clock.
 
 ## Set up HTTPS
 
-Follow [Configure SSL on your BigBlueButton server](/administration/install#configure-ssl-on-your-bigbluebutton-server)
+See the [installation instructions](/administration/install) on how to configure ssl on your BigBlueButton server.

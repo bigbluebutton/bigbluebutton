@@ -35,7 +35,7 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    lastVersion: '2.5',
+                    lastVersion: '2.6',
                     includeCurrentVersion: false,
                     versions: {
                         '2.5': {
@@ -61,12 +61,20 @@ const config = {
                 fromExtensions: ["html"],
                 redirects: [
                     {
-                        to: "/2.6/new-features",
+                        to: "/new-features",
                         from: "/2.6/new"
+                    },
+                    {
+                        to: "/new-features",
+                        from: "/2.6/new.html"
                     },
                     {
                         to: "/development/api",
                         from: "/dev/api.html"
+                    },
+                    {
+                        to: "/greenlight/v3/migration",
+                        from: "/greenlight_v3/gl3-migration.html"
                     }
                 ]
             }
@@ -89,10 +97,30 @@ const config = {
                 },
                 items: [
                     {to: 'https://bigbluebutton.org/teachers/tutorials/', label: 'Teaching', position: 'left'},
-                    {to: '/development/guide', label: 'Development', position: 'left'},
-                    {to: '/administration/install', label: 'Administration', position: 'left'},
-                    {to: '/greenlight/v2/overview', label: 'Greenlight', position: 'left'},
-                    {to: '/new-features', label: 'New Features', position: 'left'},
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'development/guide',
+                        label: 'Development',
+                    },
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'administration/install',
+                        label: 'Administration',
+                    },
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'greenlight/v2/overview',
+                        label: 'Greenlight',
+                    },
+                    {
+                        type: 'doc',
+                        position: 'left',
+                        docId: 'new-features',
+                        label: 'New Features',
+                    },
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',

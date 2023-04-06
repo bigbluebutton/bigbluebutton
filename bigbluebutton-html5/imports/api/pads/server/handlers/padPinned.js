@@ -1,6 +1,6 @@
 import pinPad from '/imports/api/pads/server/modifiers/pinPad';
 
-export default function padPinned({ header, body }) {
+export default async function padPinned({ header, body }) {
   const {
     meetingId,
   } = header;
@@ -10,5 +10,5 @@ export default function padPinned({ header, body }) {
     pinned,
   } = body;
 
-  pinPad(meetingId, externalId, pinned);
+  await pinPad(meetingId, externalId, pinned);
 }

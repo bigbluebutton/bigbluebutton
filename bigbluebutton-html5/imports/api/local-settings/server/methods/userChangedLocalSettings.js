@@ -5,7 +5,7 @@ import setChangedLocalSettings from '../modifiers/setChangedLocalSettings';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function userChangedLocalSettings(settings) {
+export default async function userChangedLocalSettings(settings) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -15,14 +15,14 @@ export default function userChangedLocalSettings(settings) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const userLocalSettings = LocalSettings
-      .findOne({ meetingId, userId: requesterUserId },
+    const userLocalSettings = await LocalSettings
+      .findOneAsync({ meetingId, userId: requesterUserId },
         {
           fields: { settings: 1 },
         });
 
     if (!userLocalSettings || !_.isEqual(userLocalSettings.settings, settings)) {
-      setChangedLocalSettings(meetingId, requesterUserId, settings);
+      await setChangedLocalSettings(meetingId, requesterUserId, settings);
     }
   } catch (err) {
     Logger.error(`Exception while invoking method userChangedLocalSettings ${err.stack}`);
