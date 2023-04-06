@@ -203,3 +203,11 @@ sudo docker exec -it greenlight-v3 bundle exec rake migration:reset_password_ema
 ```
 
 The &lt;BASE URL&gt; in the command above should be replaced with your Greenlight domain name.
+
+Also, please note that the BigBlueButton recordings list will now be empty.
+
+To re-sync the list of recordings, run the following command:
+
+```bash 
+sudo docker exec -it greenlight-v3 bundle exec rake server_recordings_sync
+```

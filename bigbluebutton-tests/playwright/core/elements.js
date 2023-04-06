@@ -336,6 +336,7 @@ exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
 exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
+exports.videoUploadRateData = 'div[data-test="videoUploadRateData"]';
 exports.connectionDataContainer = networkDataContainer;
 exports.avatarsWrapperAvatar = 'div[data-test="avatarsWrapperAvatar"]';
 exports.guestPolicyLabel = 'li[data-test="guestPolicyLabel"]';
@@ -398,7 +399,19 @@ exports.startSharingWebcam = 'button[data-test="startSharingWebcam"]';
 exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
 exports.webcamContainer = 'video[data-test="videoContainer"]';
 exports.webcamVideoItem = 'div[data-test="webcamVideoItem"]';
+exports.videoDropdownMenu = 'button[data-test="videoDropdownMenu"]';
+exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]';
+exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
+exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
+exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
+exports.webcamFullscreenButton = 'button[data-test="webcamFullscreenButton"]';
+exports.selectDefaultBackground = 'button[data-test="selectDefaultBackground"]';
+exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
+exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
+exports.inputBackgroundButton = 'button[data-test="inputBackgroundButton"]';
+exports.noneBackgroundButton = 'button[data-test="noneBackgroundButton"]';
 
+exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
 exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
@@ -425,6 +438,12 @@ exports.multiUsersWhiteboardOff = 'button[data-test="turnMultiUsersWhiteboardOff
 exports.whiteboardViewBox = 'svg g[clip-path="url(#viewBox)"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
+exports.resetZoomButton = 'button[data-test="resetZoomButton"]';
+exports.zoomInButton = 'button[data-test="zoomInBtn"]';
+exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
+exports.wbPan = 'button[data-test="panButton"]';
+exports.wbEraser = 'button[id="TD-PrimaryTools-Eraser"]';
+exports.wbArrowShape = 'button[id="TD-PrimaryTools-ArrowTopRight"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -452,7 +471,7 @@ exports.cameraDock = 'video[data-test="videoContainer"]';
 
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
-exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
+exports.decreaseFontSize = 'button[data-test="decreaseFontSize"]';
 
 // Learning dashboard
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
@@ -471,3 +490,12 @@ exports.pollYesNoAnswer = 'div[role="cell"]:nth-child(5)';
 exports.pollUserResponseQuestion = 'div[role="rowgroup"] div:nth-child(6) div';
 exports.pollUserResponseAnswer = 'div[role="cell"]:nth-child(6)';
 exports.pollTotal = 'div[role="cell"]:nth-child(2)';
+exports.meetingStatusActiveDashboard = 'span[data-test="meetingStatusActiveDashboard"]';
+exports.meetingDurationTimeDashboard = 'p[data-test="meetingDurationTimeDashboard"]';
+exports.userNameDashboard = 'td[data-test="userLabelDashboard"] button';
+exports.userWebcamTimeDashboard = 'td[data-test="userWebcamTimeDashboard"]';
+exports.userRaiseHandDashboard = 'td[data-test="userRaiseHandDashboard"]';
+exports.userStatusDashboard = 'td[data-test="userStatusDashboard"]';
+exports.userActivityScoreDashboard = 'td[data-test="userActivityScoreDashboard"]';
+exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashboard"]';
+exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';

@@ -34,15 +34,18 @@ export default async function zoomSlide(slideNumber, podId, widthRatio, heightRa
       throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
     }
 
-    const Slide = await Slides.findOneAsync({
+    let validSlideNum = slideNumber;
+    if (validSlideNum > Presentation?.pages?.length) validSlideNum = 1;
+
+    const Slide = Slides.findOneAsync({
       meetingId,
       podId,
       presentationId: Presentation.id,
-      num: slideNumber,
+      num: validSlideNum,
     });
 
     if (!Slide) {
-      throw new Meteor.Error('slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
+      throw new Meteor.Error('slide-not-found', `Slide number ${validSlideNum} not found in the current presentation`);
     }
 
     const payload = {

@@ -314,8 +314,9 @@ export const PresentationUploaderToast = ({ intl }) => {
     // main goal of this mapping is to sort out what doesn't need to be displayed
     UploadingPresentations.find().fetch().forEach((p) => {
       if (
-        ('upload' in p && p.upload.done) // if presentation is marked as done - it's potentially to be removed
-        && !p.subscriptionId // at upload stage or already converted
+        (('upload' in p && p.upload.done) // if presentation is marked as done - it's potentially to be removed
+        && !p.subscriptionId) // at upload stage or already converted
+        || (p.lastModifiedUploader === false) // if presentation uploaded internally (e.g., breakout capture)
       ) {
         if (convertingPresentations[0]) { // there are presentations being converted
           convertingPresentations.forEach((cp) => {
@@ -326,7 +327,7 @@ export const PresentationUploaderToast = ({ intl }) => {
                 .push({ temporaryPresentationId: p.temporaryPresentationId, id: p.id });
             }
           });
-          // upload stage is done and pesentation is entering conversion stage
+          // upload stage is done and presentation is entering conversion stage
         } else if (!enteredConversion[p.temporaryPresentationId]) {
           // we mark that it has entered conversion stage
           enteredConversion[p.temporaryPresentationId] = true;
