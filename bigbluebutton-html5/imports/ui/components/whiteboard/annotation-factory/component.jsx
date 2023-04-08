@@ -88,7 +88,7 @@ AnnotationFactory.propTypes = {
 
   // array of annotations, optional
   annotationsInfo: PropTypes.arrayOf(PropTypes.object).isRequired,
-  annotationSelector: PropTypes.objectOf(PropTypes.func).isRequired,
+  annotationSelector: PropTypes.objectOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object])).isRequired,
 };
 
 AnnotationFactory.defaultProps = {
