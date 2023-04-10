@@ -19,6 +19,10 @@ function checkElementLengthEqualTo([element, count]) {
   return document.querySelectorAll(element).length == count;
 }
 
+function getElementLength(element) {
+  return document.querySelectorAll(element).length;
+}
+
 // Text
 async function checkTextContent(baseContent, checkData) {
   if (typeof checkData === 'string') checkData = new Array(checkData);
@@ -38,5 +42,6 @@ function constructClipObj(wbBox) {
 
 exports.checkElement = checkElement;
 exports.checkElementLengthEqualTo = checkElementLengthEqualTo;
+exports.getElementLength = getElementLength;
 exports.checkTextContent = checkTextContent;
 exports.constructClipObj = constructClipObj;

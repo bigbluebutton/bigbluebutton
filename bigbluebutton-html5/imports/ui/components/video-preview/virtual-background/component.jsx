@@ -305,6 +305,7 @@ const VirtualBgSelector = ({
             disabled={disabled}
             isVisualEffects={isVisualEffects}
             background={getVirtualBackgroundThumbnail(imageName)}
+            data-test="selectDefaultBackground"
           />
           <div aria-hidden className="sr-only" id={`vr-cam-btn-${index + 1}`}>
             {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
@@ -343,6 +344,7 @@ const VirtualBgSelector = ({
             disabled={disabled}
             isVisualEffects={isVisualEffects}
             background={data}
+            data-test="selectCustomBackground"
           />
           <Styled.ButtonWrapper>
             <Styled.ButtonRemove
@@ -387,6 +389,7 @@ const VirtualBgSelector = ({
             }
           }}
           isVisualEffects={isVisualEffects}
+          data-test="inputBackgroundButton"
         />
         <input
           ref={customBgSelectorRef}
@@ -414,6 +417,7 @@ const VirtualBgSelector = ({
           disabled={disabled}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
           isVisualEffects={isVisualEffects}
+          data-test="noneBackgroundButton"
         />
         <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
           {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}

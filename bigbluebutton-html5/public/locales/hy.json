@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "Տեղի է ունեցել սխալ",
     "app.error.fallback.presentation.description": "Գործողությունը գրանցվել է Խնդրում ենք վերբեռնել /Refresh/ էջը",
     "app.error.fallback.presentation.reloadButton": "Վերբեռնել",
-    "app.guest.waiting": "Մուտքի թույլտվության սպասում",
     "app.guest.errorSeeConsole": "Ошибка: Более подробная информация в консоли.",
     "app.guest.noModeratorResponse": "Մոդերատորից պատասխան չի ստացվել",
     "app.guest.noSessionToken": "Սեանսի թոքեն չի ստացվել",
