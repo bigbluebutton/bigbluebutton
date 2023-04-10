@@ -305,7 +305,7 @@ class MeetingActor(
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
 
-    MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+    MeetingStatus2x.setPermissions(liveMeeting.props.meetingProp.intId, liveMeeting.status, settings)
 
   }
 

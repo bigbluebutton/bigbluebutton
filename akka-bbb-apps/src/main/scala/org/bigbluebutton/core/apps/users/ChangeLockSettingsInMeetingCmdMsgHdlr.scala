@@ -39,7 +39,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         val oldPermissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
-        MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+        MeetingStatus2x.setPermissions(liveMeeting.props.meetingProp.intId, liveMeeting.status, settings)
 
         // Dial-in
         def buildLockMessage(meetingId: String, userId: String, lockedBy: String, locked: Boolean): BbbCommonEnvCoreMsg = {

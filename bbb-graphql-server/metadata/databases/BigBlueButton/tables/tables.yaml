@@ -5,6 +5,7 @@
 - "!include public_v_chat.yaml"
 - "!include public_v_chat_message_private.yaml"
 - "!include public_v_chat_message_public.yaml"
+- "!include public_v_meeting_lockSettings.yaml"
 - "!include public_v_pres_annotation_curr.yaml"
 - "!include public_v_pres_annotation_history_curr.yaml"
 - "!include public_v_pres_page_cursor.yaml"
