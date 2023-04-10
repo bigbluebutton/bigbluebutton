@@ -76,7 +76,15 @@ const config = {
                         to: "/greenlight/v3/migration",
                         from: "/greenlight_v3/gl3-migration.html"
                     }
-                ]
+                ],
+                createRedirects: (path) =>  {
+                    // TODO: remove default route to /
+                    if ( path.startsWith("/2.6") ) {
+                        // remove the /2.6 from the path, for example:
+                        // /2.6/redirect -> /redirect
+                        return [ path.replace("/2.6","") ];
+                    }
+                },
             }
         ],
     ],
