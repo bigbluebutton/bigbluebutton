@@ -27,6 +27,7 @@ DROP TABLE IF EXISTS "user_voice";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user";
 
+drop view if exists "v_meeting_lockSettings";
 drop table if exists "meeting_breakout";
 drop table if exists "meeting_recording";
 drop table if exists "meeting_welcome";
@@ -133,6 +134,32 @@ create table "meeting_lockSettings" (
     "hideViewersCursor"      boolean
 );
 create index "idx_meeting_lockSettings_meetingId" on "meeting_lockSettings"("meetingId");
+
+CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
+SELECT
+	mls."meetingId",
+	mls."disableCam",
+	mls."disableMic",
+	mls."disablePrivateChat",
+	mls."disablePublicChat",
+	mls."disableNotes",
+	mls."hideUserList",
+	mls."hideViewersCursor",
+	mu."webcamsOnlyForModerator",
+	CASE WHEN
+	mls."disableCam" IS TRUE THEN TRUE
+	WHEN mls."disableMic"  IS TRUE THEN TRUE
+	WHEN mls."disablePrivateChat"  IS TRUE THEN TRUE
+	WHEN mls."disablePublicChat"  IS TRUE THEN TRUE
+	WHEN mls."disableNotes"  IS TRUE THEN TRUE
+	WHEN mls."hideUserList"  IS TRUE THEN TRUE
+	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
+	WHEN mu."webcamsOnlyForModerator"  IS TRUE THEN TRUE
+	ELSE FALSE
+	END "hasActiveLockSetting"
+FROM meeting m
+JOIN "meeting_lockSettings" mls ON mls."meetingId" = m."meetingId"
+JOIN meeting_users mu ON mu."meetingId" = m."meetingId";
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
