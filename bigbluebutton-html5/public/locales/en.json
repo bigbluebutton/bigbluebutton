@@ -237,6 +237,8 @@
     "app.presentation.presentationToolbar.goToSlide": "Slide {0}",
     "app.presentation.presentationToolbar.splitPresentationDesc": "Split presentation window",
     "app.presentation.presentationToolbar.mergePresentationDesc": "Merge presentation window",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Hide Toolbars",
+    "app.presentation.presentationToolbar.showToolsDesc": "Show Toolbars",
     "app.presentation.placeholder": "There is no currently active presentation",
     "app.presentationUploder.title": "Presentation",
     "app.presentationUploder.message": "As a presenter you have the ability to upload any office document or PDF file.  We recommend PDF file for best results. Please ensure that a presentation is selected using the circle checkbox on the left hand side.",

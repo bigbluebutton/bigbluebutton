@@ -71,6 +71,7 @@ const fetchedpresentation = {};
 export default lockContextContainer(
   withTracker(({ podId, presentationIsOpen, userLocks, isPresentationDetached, setPresentationDetached }) => {
     const currentSlide = PresentationService.getCurrentSlide(podId);
+    const numPages = PresentationService.getSlidesLength(podId);
     const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
 
@@ -127,6 +128,7 @@ export default lockContextContainer(
       presentationIsDownloadable,
       mountPresentation: !!currentSlide,
       currentPresentation: PresentationService.getCurrentPresentation(podId),
+      numPages,
       notify,
       zoomSlide: PresentationToolbarService.zoomSlide,
       podId,
