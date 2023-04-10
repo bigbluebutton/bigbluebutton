@@ -58,7 +58,7 @@ const config = {
         [
             "@docusaurus/plugin-client-redirects",
             {
-                fromExtensions: ["html"],
+                fromExtensions: ['html', 'htm'],
                 redirects: [
                     {
                         to: "/new-features",
