@@ -33,7 +33,16 @@ do
 	VALID_PACKAGE_VERSIONS="${VALID_PACKAGE_VERSIONS::-1}"
 	REQ_JSON="${REQ_JSON} \"$DEBNAME\": [\"${VALID_PACKAGE_VERSIONS//$' '/\",\"}\"],"
 	GITHUB_JSON=$(echo ${GITHUB_JSON} | jq ". + [{id: \"$DEBNAME\", key: \"$LAST_CHANGE\", path: \"artifacts/${DEBNAME}_*\"}]")
+	if [ "$1" == "--debug" ]; then
+	    echo package $DEBNAME
+	    echo LAST_CHANGE $LAST_CHANGE
+	fi
 done
+
+if [ "$1" == "--debug" ]; then
+    git log -n 5
+    exit
+fi
 
 REQ_JSON="{${REQ_JSON:1:-1}}"
 

@@ -24,6 +24,7 @@ jobs:
       with:
          # we're about to do change detection, which requires a full history
          fetch-depth: 0
+    - run: ./build/change_detection.sh --debug
     - id: set-packages
       run: echo "packages=$(./build/change_detection.sh --github-json)" >> $GITHUB_OUTPUT
     - id: check-package-cache
