@@ -4,22 +4,33 @@ export interface Cameras {
   userId: string;  
 }
 
-export interface BreakoutRoom {
+export interface LastBreakoutRoom {
     breakoutRoomId: string;
     isDefaultName: boolean;
     sequence: number;
     shortName: string;
-    online: boolean;
+    currentlyInRoom: boolean;
     meetingId: string;
     userId: string;
 }
 
-export interface Microphones {
+export interface Voice {
   joined: boolean;
   listenOnly: boolean;
   talking: boolean;
   muted: boolean;
   voiceUserId: string;
+  callerName: string;
+  callerNum: string;
+  callingWith: string;
+  color: string;
+  endTime: number;
+  floor: boolean;
+  lastFloorTime: string
+  lastSpeakChangedAt: number;
+  meetingId: string;
+  spoke: boolean;
+  startTime: number;
 }
 
 export interface User {
@@ -34,7 +45,7 @@ export interface User {
     guest?: boolean;
     mobile?: boolean;
     whiteboardAccess?: boolean;
-    microphones: Array<Microphones>;
-    breakoutRoom?: BreakoutRoom;
+    voice?: Voice;
+    lastBreakoutRoom?: LastBreakoutRoom;
     cameras: Array<Cameras>;  
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSubscription, gql } from '@apollo/client';
+import { useSubscription } from '@apollo/client';
 import {
   AutoSizer,
   CellMeasurer,
@@ -9,9 +9,10 @@ import {
 import Styled from './styles';
 import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
+import { USERS_SUBSCRIPTION } from './queries';
 
 
-import { ListProps, ListRowRenderer } from 'react-virtualized/dist/es/List';
+import { ListProps } from 'react-virtualized/dist/es/List';
 
 const cache = new CellMeasurerCache({
   fixedWidth: true,
@@ -40,48 +41,10 @@ const rowRenderer: React.FC<ListProps>  = (users, { index, key, parent, }) => {
 
 const UserListParticipants: React.FC = () => {
   const { loading: usersLoading, error: usersError, data } = useSubscription(
-    gql`subscription {
-      user(where: {joined: {_eq: true}}, order_by: {name: asc}) {
-        userId
-        name
-        role
-        color
-        avatar
-        emoji
-        avatar
-        presenter
-        pinned
-        locked
-        authed
-        mobile
-        guest
-        clientType
-        leftFlag
-        loggedOut
-        microphones {
-          joined
-          listenOnly
-          talking
-          muted
-          voiceUserId
-        }
-        cameras {
-          streamId
-        }
-        whiteboards {
-          whiteboardId
-        }
-        breakoutRoom {
-          isDefaultName
-          sequence
-          shortName
-          online
-        }
-      }
-    }`
+    USERS_SUBSCRIPTION,
   );
   const { user: users } = (data || {});
-
+    console.log('users', users, usersLoading, usersError);
   return (
     <Styled.UserListColumn>
       {
