@@ -560,6 +560,8 @@ module BigBlueButton
               ffmpeg_preprocess_write.fcntl(Fcntl::F_SETPIPE_SZ, 1_048_576)
             rescue Errno::EPERM
               BigBlueButton.logger.warn('Unable to increase pipe size to 1MB')
+            rescue NameError
+              # Fcntl::F_SETPIPE_SZ isn't available on Ruby version older than 3.0
             end
 
             in_time = video[:timestamp] + seek_offset

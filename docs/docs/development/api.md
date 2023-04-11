@@ -8,6 +8,20 @@ keywords:
 - api
 ---
 
+import APITableComponent from '@site/src/components/APITableComponent';
+import createEndpointTableData from '@site/docs/data/create.tsx';
+import deleteRecordingsEndpointTableData from '@site/docs/data/deleteRecordings.tsx';
+import endEndpointTableData from '@site/docs/data/end.tsx';
+import getMeetingInfoEndpointTableData from '@site/docs/data/getMeetingInfo.tsx';
+import getRecordingsEndpointTableData from '@site/docs/data/getRecordings.tsx';
+import getRecordingTextTracksEndpointTableData from '@site/docs/data/getRecordingTextTracks.tsx';
+import insertDocumentEndpointTableData from '@site/docs/data/insertDocument.tsx';
+import isMeetingRunningEndpointTableData from '@site/docs/data/isMeetingRunning.tsx';
+import joinEndpointTableData from '@site/docs/data/join.tsx';
+import publishRecordingsEndpointTableData from '@site/docs/data/publishRecordings.tsx';
+import putRecordingTextTrackEndpointTableData from '@site/docs/data/putRecordingTextTrack.tsx';
+import updateRecordingsEndpointTableData from '@site/docs/data/updateRecordings.tsx';
+
 ## Overview
 
 This document describes the BigBlueButton application programming interface (API).
@@ -253,7 +267,9 @@ http&#58;//yourserver.com/bigbluebutton/api/create?[parameters]&checksum=[checks
 
 **Parameters:**
 
-{% include api_table.html endpoint="create" %}
+```mdx-code-block
+<APITableComponent data={createEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -416,7 +432,9 @@ http&#58;//yourserver.com/bigbluebutton/api/join?[parameters]&checksum=[checksum
 
 **Parameters:**
 
-{% include api_table.html endpoint="join" %}
+```mdx-code-block
+<APITableComponent data={joinEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -451,7 +469,9 @@ https&#58;//yourserver.com/bigbluebutton/api/insertDocument?[parameters]&checksu
 
 **Parameters:**
 
-{% include api_table.html endpoint="insertDocument" %}
+```mdx-code-block
+<APITableComponent data={insertDocumentEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -499,7 +519,9 @@ http&#58;//yourserver.com/bigbluebutton/api/isMeetingRunning?[parameters]&checks
 
 **Parameters:**
 
-{% include api_table.html endpoint="isMeetingRunning" %}
+```mdx-code-block
+<APITableComponent data={isMeetingRunningEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -526,7 +548,9 @@ Use this to forcibly end a meeting and kick all participants out of the meeting.
 
 **Parameters:**
 
-{% include api_table.html endpoint="end" %}
+```mdx-code-block
+<APITableComponent data={endEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -568,7 +592,9 @@ Resource URL:
 
 **Parameters:**
 
-{% include api_table.html endpoint="getMeetingInfo" %}
+```mdx-code-block
+<APITableComponent data={getMeetingInfoEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -717,7 +743,9 @@ http&#58;//yourserver.com/bigbluebutton/api/getRecordings?[parameters]&checksum=
 
 **Parameters:**
 
-{% include api_table.html endpoint="getRecordings" %}
+```mdx-code-block
+<APITableComponent data={getRecordingsEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -830,7 +858,9 @@ Publish and unpublish recordings for a given recordID (or set of record IDs).
 
 **Parameters:**
 
-{% include api_table.html endpoint="publishRecordings" %}
+```mdx-code-block
+<APITableComponent data={publishRecordingsEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -856,7 +886,9 @@ http&#58;//yourserver.com/bigbluebutton/api/deleteRecordings?[parameters]&checks
 
 **Parameters:**
 
-{% include api_table.html endpoint="deleteRecordings" %}
+```mdx-code-block
+<APITableComponent data={deleteRecordingsEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -882,7 +914,9 @@ Update metadata for a given recordID (or set of record IDs). Available since ver
 
 **Parameters:**
 
-{% include api_table.html endpoint="updateRecordings" %}
+```mdx-code-block
+<APITableComponent data={updateRecordingsEndpointTableData}/>
+```
 
 **Example Requests:**
 
@@ -907,7 +941,9 @@ Get a list of the caption/subtitle files currently available for a recording. It
 
 **Parameters:**
 
-{% include api_table.html endpoint="getRecordingTextTracks" %}
+```mdx-code-block
+<APITableComponent data={getRecordingTextTracksEndpointTableData}/>
+```
 
 **Example Response:**
 
@@ -993,7 +1029,9 @@ This API is asynchronous. It can take several minutes for the uploaded file to b
 
 **Parameters:**
 
-{% include api_table.html endpoint="putRecordingTextTrack" %}
+```mdx-code-block
+<APITableComponent data={putRecordingTextTrackEndpointTableData}/>
+```
 
 POST Body
 : If the request has a body, the Content-Type header must specify multipart/form-data. The following parameters may be encoded in the post body.

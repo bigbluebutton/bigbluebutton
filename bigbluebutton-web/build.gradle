@@ -62,7 +62,10 @@ dependencies {
   implementation "org.grails:grails-core:5.2.4"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
+
   implementation "org.grails:grails-web-boot:5.2.5"
+  implementation "org.springframework:spring-webmvc:5.3.26"
+
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest:5.2.5"
   implementation "org.grails:grails-plugin-databinding:5.2.4"
@@ -122,6 +125,8 @@ tasks.named('bootWarMainClassName') {
 
 configurations.implementation {
     exclude group: 'io.micronaut', module: 'micronaut-aop'
+    exclude group: 'com.h2database', module: 'h2'
+    exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
 }
 
 configurations {
