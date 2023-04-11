@@ -12,7 +12,6 @@ on:
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
-
 jobs:
   pre-build:
     runs-on: ubuntu-20.04
