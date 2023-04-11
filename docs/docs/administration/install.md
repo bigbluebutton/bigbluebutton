@@ -131,7 +131,8 @@ $ grep -c ^processor /proc/cpuinfo
 8
 ```
 
-Next, if you choose the option -e for Let's Encrypt, check that your server has the port 80 and 443 open
+Next check that your server has the port 80 and 443 open
+
 
 ```bash
 $ sudo ufw status
