@@ -92,6 +92,18 @@ const createEndpointTableData = [
     "description": (<>If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.</>)
   },
   {
+    "name": "breakoutRoomsCaptureNotes",
+    "required": "(only breakout room)",
+    "type": "Boolean",
+    "description": (<>Whether the breakout shared notes should be sent to the parent upon the meeting's end.</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlides",
+    "required": "(only breakout room)",
+    "type": "Boolean",
+    "description": (<>Whether the breakout presentation with annotations should be sent to the parent upon the meeting's end.</>)
+  },
+  {
     "name": "breakoutRoomsEnabled",
     "required": "Optional(Breakout Room)",
     "type": "Boolean",

@@ -27,6 +27,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
 - bbb-playback-presentation -- Record and playback script to create presentation layout
+- bbb-export-annotations -- Handles capture of breakout content and annotated presentation download
 - bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
 - kurento-media-server -- WebRTC media server for sending/receiving/recording video (webcam and screen share)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
@@ -621,7 +622,10 @@ followed by
 npm start
 ```
 
-to begin exporting presentations with annotations.
+to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/settings.json` to a folder in your home directory
+and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
+
+Use `journalctl -u bbb-export-annotations -e` to see recent logs.
 
 ## Troubleshooting
 
