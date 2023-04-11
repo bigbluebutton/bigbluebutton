@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "幅に合わせる",
     "app.presentation.presentationToolbar.fitToPage": "ページに合わせる",
     "app.presentation.presentationToolbar.goToSlide": "スライド {0}",
+    "app.presentation.presentationToolbar.hideToolsDesc": "ツールバーを隠す",
+    "app.presentation.presentationToolbar.showToolsDesc": "ツールバーを表示",
     "app.presentation.placeholder": "現在アクティブなプレゼンテーションはありません",
     "app.presentationUploder.title": "プレゼンテーション",
     "app.presentationUploder.message": "発表者になるとオフィスドキュメントやPDFファイルをアップロードできるようになります。PDFファイルの使用がおすすめです。左側の丸いチェックボックスによってプレゼンファイルが選択されていることを確認してください。",
