@@ -11,8 +11,8 @@ import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import _ from "lodash";
 import { PANELS, ACTIONS } from '../layout/enums';
+import { isEqual } from 'radash';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -103,7 +103,7 @@ class NavBar extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!_.isEqual(prevProps.activeChats, this.props.activeChats)) {
+    if (!isEqual(prevProps.activeChats, this.props.activeChats)) {
       this.setState({ acs: this.props.activeChats})
     }
   }
@@ -166,11 +166,12 @@ class NavBar extends Component {
       amIModerator,
       style,
       main,
+      isPinned,
       sidebarNavigation,
       currentUserId,
     } = this.props;
 
-    const hasNotification = hasUnreadMessages || hasUnreadNotes;
+    const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
     let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
     ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';

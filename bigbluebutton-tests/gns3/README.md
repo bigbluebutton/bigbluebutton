@@ -35,11 +35,10 @@ Some special names are defined.  Requesting a device name starting with `testcli
 
 ## Usage
 
-1. You'll need several tools from Brent Baccala's NPDC repository on github, which is a submodule in the NPDC directory, so run this command to fetch it:
+1. You'll need several tools from Brent Baccala's NPDC repository on github, so run this command to fetch it:
 
    ```
-   git submodule init
-   git submodule update
+   ./NPDC.placeholder.sh
    ```
 
 1. Read, understand, and run the `install-gns3.sh` script in `NPDC/GNS3`

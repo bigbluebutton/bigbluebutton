@@ -5,7 +5,7 @@ import { getMultiUser } from '/imports/api/whiteboard-multi-user/server/helpers'
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function removeIndividualAccess(whiteboardId, userId) {
+export default async function removeIndividualAccess(whiteboardId, userId) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -19,7 +19,7 @@ export default function removeIndividualAccess(whiteboardId, userId) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const multiUser = getMultiUser(meetingId, whiteboardId);
+    const multiUser = await getMultiUser(meetingId, whiteboardId);
 
     if (multiUser.includes(userId)) {
       const payload = {

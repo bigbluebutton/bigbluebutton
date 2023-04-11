@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { omit } from 'radash';
 
 const propTypes = {
   /**
@@ -184,7 +184,7 @@ export default class ButtonBase extends React.Component {
         onKeyUp={this.internalKeyUpHandler}
 
         // remove props used in styled-components
-        {..._.omit(remainingProps, styleProps)}
+        {...omit(remainingProps, styleProps)}
       >
         {this.props.children}
       </Component>

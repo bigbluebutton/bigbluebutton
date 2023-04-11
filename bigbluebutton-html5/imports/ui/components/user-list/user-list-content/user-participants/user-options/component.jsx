@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
@@ -12,6 +11,7 @@ import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -132,15 +132,15 @@ class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.clearStatusId = _.uniqueId('list-item-');
-    this.muteId = _.uniqueId('list-item-');
-    this.muteAllId = _.uniqueId('list-item-');
-    this.lockId = _.uniqueId('list-item-');
-    this.guestPolicyId = _.uniqueId('list-item-');
-    this.createBreakoutId = _.uniqueId('list-item-');
-    this.learningDashboardId = _.uniqueId('list-item-');
-    this.saveUsersNameId = _.uniqueId('list-item-');
-    this.captionsId = _.uniqueId('list-item-');
+    this.clearStatusId = uniqueId('list-item-');
+    this.muteId = uniqueId('list-item-');
+    this.muteAllId = uniqueId('list-item-');
+    this.lockId = uniqueId('list-item-');
+    this.guestPolicyId = uniqueId('list-item-');
+    this.createBreakoutId = uniqueId('list-item-');
+    this.learningDashboardId = uniqueId('list-item-');
+    this.saveUsersNameId = uniqueId('list-item-');
+    this.captionsId = uniqueId('list-item-');
     this.state = {
       isCreateBreakoutRoomModalOpen: false,
       isGuestPolicyModalOpen: false,

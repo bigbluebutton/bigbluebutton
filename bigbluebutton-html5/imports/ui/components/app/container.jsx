@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { defineMessages, injectIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
 import Meetings, { LayoutMeetings } from '/imports/api/meetings';
@@ -16,13 +15,13 @@ import Settings from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';
 import LayoutService from '/imports/ui/components/layout/service';
 import { isPresentationEnabled } from '/imports/ui/services/features';
-import _ from 'lodash';
 import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
+import { isEqual } from 'radash';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -35,13 +34,6 @@ import {
 import App from './component';
 
 const CUSTOM_STYLE_URL = Meteor.settings.public.app.customStyleUrl;
-
-const intlMessages = defineMessages({
-  waitingApprovalMessage: {
-    id: 'app.guest.waiting',
-    description: 'Message while a guest is waiting to be approved',
-  },
-});
 
 const endMeeting = (code, ejectedReason) => {
   Session.set('codeError', code);
@@ -123,7 +115,7 @@ const AppContainer = (props) => {
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
   const mountRandomUserModal = !isPresenter
-  && !_.isEqual(prevRandomUser, randomlySelectedUser)
+  && !isEqual(prevRandomUser, randomlySelectedUser)
   && randomlySelectedUser.length > 0
   && !isModalOpen;
 
@@ -202,7 +194,7 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default injectIntl(withTracker(({ intl, baseControls }) => {
+export default withTracker(() => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
@@ -257,10 +249,6 @@ export default injectIntl(withTracker(({ intl, baseControls }) => {
     focusedCamera: meetingLayoutFocusedCamera,
     presentationVideoRate: meetingLayoutVideoRate,
   } = meetingLayoutObj;
-
-  if (currentUser && !currentUser.approved) {
-    baseControls.updateLoadingState(intl.formatMessage(intlMessages.waitingApprovalMessage));
-  }
 
   const UserInfo = UserInfos.find({
     meetingId: Auth.meetingID,
@@ -327,4 +315,4 @@ export default injectIntl(withTracker(({ intl, baseControls }) => {
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
-})(AppContainer));
+})(AppContainer);

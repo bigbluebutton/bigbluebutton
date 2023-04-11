@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
@@ -10,6 +9,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import { uniqueId } from '/imports/utils/string-utils';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 import {isLayoutsEnabled} from '/imports/ui/services/features';
 
@@ -103,10 +103,10 @@ class ActionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.presentationItemId = _.uniqueId('action-item-');
-    this.pollId = _.uniqueId('action-item-');
-    this.takePresenterId = _.uniqueId('action-item-');
-    this.selectUserRandId = _.uniqueId('action-item-');
+    this.presentationItemId = uniqueId('action-item-');
+    this.pollId = uniqueId('action-item-');
+    this.takePresenterId = uniqueId('action-item-');
+    this.selectUserRandId = uniqueId('action-item-');
     this.state = {
       isExternalVideoModalOpen: false,
       isRandomUserSelectModalOpen: false,

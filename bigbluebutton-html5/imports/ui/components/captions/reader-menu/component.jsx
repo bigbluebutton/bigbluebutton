@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Button from '/imports/ui/components/common/button/component';
-import { GithubPicker } from 'react-color';
+import ColorPicker from "./color-picker/component";
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 
@@ -11,13 +11,12 @@ const DEFAULT_INDEX = 0;
 const FONT_FAMILIES = ['Arial', 'Calibri', 'Times New Roman', 'Sans-serif'];
 const FONT_SIZES = ['12px', '14px', '18px', '24px', '32px', '42px'];
 
-// Not using hex values to force the githubPicker UI to display color names on hover
 const COLORS = [
-  'black', 'grey',
-  'red', 'orange',
-  'lime', 'white',
-  'cyan', 'blue',
-  'darkviolet', 'magenta',
+  "#000000", "#7a7a7a",
+  "#ff0000", "#ff8800",
+  "#88ff00", "#ffffff",
+  "#00ffff", "#0000ff",
+  "#8800ff", "#ff00ff"
 ];
 
 // Used to convert hex values to color names for screen reader aria labels
@@ -125,7 +124,8 @@ class ReaderMenu extends PureComponent {
     this.handleSelectChange = this.handleSelectChange.bind(this);
     this.handleColorPickerClick = this.handleColorPickerClick.bind(this);
     this.handleCloseColorPicker = this.handleCloseColorPicker.bind(this);
-    this.handleColorChange = this.handleColorChange.bind(this);
+    this.handleFontColorChange = this.handleFontColorChange.bind(this);
+    this.handleBackgroundColorChange = this.handleBackgroundColorChange.bind(this);
     this.handleLocaleChange = this.handleLocaleChange.bind(this);
     this.handleStart = this.handleStart.bind(this);
     this.getPreviewStyle = this.getPreviewStyle.bind(this);
@@ -145,16 +145,20 @@ class ReaderMenu extends PureComponent {
     });
   }
 
-  handleColorChange(fieldname, color) {
-    const obj = this.state;
-    obj[fieldname] = color.hex;
-    this.setState(obj);
+  handleFontColorChange(color) {
+    this.setState({ fontColor: color });
+    this.handleCloseColorPicker();
+  }
+
+  handleBackgroundColorChange(color) {
+    this.setState({ backgroundColor: color });
     this.handleCloseColorPicker();
   }
 
   handleLocaleChange(event) {
     this.setState({ locale: event.target.value });
   }
+
 
   handleSelectChange(fieldname, options, event) {
     const obj = {};
@@ -287,12 +291,11 @@ class ReaderMenu extends PureComponent {
                           tabIndex={0}
                           aria-label={ariaTextColor}
                         />
-                        <GithubPicker
-                          // eslint-disable-next-line react/jsx-no-bind
-                          onChange={this.handleColorChange.bind(this, 'fontColor')}
-                          colors={COLORS}
-                          width="140px"
-                          triangle="hide"
+                        <ColorPicker 
+                          color={fontColor}
+                          onChange={this.handleFontColorChange}
+                          presetColors={COLORS}
+                          colorNames={HEX_COLOR_NAMES}
                         />
                       </Styled.ColorPickerPopover>
                     )
@@ -324,12 +327,11 @@ class ReaderMenu extends PureComponent {
                           role="button"
                           onKeyPress={() => { }}
                         />
-                        <GithubPicker
-                          // eslint-disable-next-line react/jsx-no-bind
-                          onChange={this.handleColorChange.bind(this, 'backgroundColor')}
-                          colors={COLORS}
-                          width="140px"
-                          triangle="hide"
+                        <ColorPicker 
+                          color={fontColor}
+                          onChange={this.handleBackgroundColorChange}
+                          presetColors={COLORS}
+                          colorNames={HEX_COLOR_NAMES}
                         />
                       </Styled.ColorPickerPopover>
                     )

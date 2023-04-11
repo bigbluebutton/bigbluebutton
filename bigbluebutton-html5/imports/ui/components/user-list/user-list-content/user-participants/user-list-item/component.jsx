@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl, defineMessages } from 'react-intl';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -17,6 +16,7 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { isChatEnabled } from '/imports/ui/services/features';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const messages = defineMessages({
   presenter: {
@@ -205,8 +205,8 @@ class UserListItem extends PureComponent {
     this.resetMenuState = this.resetMenuState.bind(this);
     this.setConfirmationModalIsOpen = this.setConfirmationModalIsOpen.bind(this);
 
-    this.title = _.uniqueId('dropdown-title-');
-    this.seperator = _.uniqueId('action-separator-');
+    this.title = uniqueId('dropdown-title-');
+    this.seperator = uniqueId('action-separator-');
   }
 
   componentDidUpdate() {
@@ -424,7 +424,6 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToUnmuteAudio
-          && !user.locked
           && !userLocks.userMic
           && isMeteorConnected
           && !meetingIsBreakout
@@ -718,7 +717,7 @@ class UserListItem extends PureComponent {
 
     if (user.isSharingWebcam && LABEL.sharingWebcam) {
       userNameSub.push(
-        <span key={_.uniqueId('video-')}>
+        <span key={uniqueId('video-')}>
           { user.pin === true
             ? <Icon iconName="pin-video_on" />
             : <Icon iconName="video" /> }
@@ -730,7 +729,7 @@ class UserListItem extends PureComponent {
 
     if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
       userNameSub.push(
-        <span key={_.uniqueId('lock-')}>
+        <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />
           &nbsp;
           {intl.formatMessage(messages.locked)}
@@ -752,7 +751,7 @@ class UserListItem extends PureComponent {
 
     if (userInBreakout && userLastBreakout) {
       userNameSub.push(
-        <span key={_.uniqueId('breakout-')}>
+        <span key={uniqueId('breakout-')}>
           <Icon iconName="rooms" />
           &nbsp;
           {userLastBreakout.isDefaultName

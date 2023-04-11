@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { defineMessages, injectIntl } from 'react-intl';
 import ReactModal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
@@ -39,7 +39,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import DarkReader from 'darkreader';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -49,6 +48,7 @@ import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import AppService from '/imports/ui/components/app/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -449,22 +449,8 @@ class App extends Component {
 
   renderDarkMode() {
     const { darkTheme } = this.props;
-    if (darkTheme && !DarkReader.isEnabled()) {
-        DarkReader.enable(
-          { brightness: 100, contrast: 90 },
-          { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss], ignoreImageAnalysis: [Styled.DtfImages] },
-        )
-        logger.info({
-          logCode: 'dark_mode',
-        }, 'Dark mode is on.');
-    }
 
-    if (!darkTheme && DarkReader.isEnabled()){
-      DarkReader.disable();
-      logger.info({
-        logCode: 'dark_mode',
-      }, 'Dark mode is off.');
-    }
+    AppService.setDarkTheme(darkTheme);
   }
 
   mountPushLayoutEngine() {

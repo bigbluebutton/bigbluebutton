@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import SettingsService from '/imports/ui/components/settings/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Button from '/imports/ui/components/common/button/component';
@@ -25,10 +24,8 @@ const LayoutModalComponent = (props) => {
   const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
   const BASE_NAME = Meteor.settings.public.app.basename;
-  const CUSTOM_STYLE_URL = Boolean(Meteor.settings.public.app.customStyleUrl);
-  const customStyleUrl = Boolean(getFromUserSettings('bbb_custom_style_url', CUSTOM_STYLE_URL));
 
-  const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/${customStyleUrl ? 'customStyle/' : ''}`;
+  const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
   const intlMessages = defineMessages({
@@ -96,7 +93,7 @@ const LayoutModalComponent = (props) => {
       { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
     };
 
-    updateSettings(obj, intl.formatMessage(intlMessages.layoutToastLabel));
+    updateSettings(obj, intlMessages.layoutToastLabel);
     setIsOpen(false);
   };
 

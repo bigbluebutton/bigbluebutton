@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import {
   sendMessage,
   onMessage,
@@ -21,6 +20,8 @@ import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-
 import ArcPlayer from '/imports/ui/components/external-video-player/custom-players/arc-player';
 import PeerTubePlayer from '/imports/ui/components/external-video-player/custom-players/peertube';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { uniqueId } from '/imports/utils/string-utils';
+import { throttle } from 'radash';
 
 import Styled from './styles';
 
@@ -47,6 +48,7 @@ const SYNC_INTERVAL_SECONDS = 5;
 const THROTTLE_INTERVAL_SECONDS = 0.5;
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
+const THROTTLE_RELOAD_INTERVAL = 5000;
 
 Styled.VideoPlayer.addCustomPlayer(PeerTubePlayer);
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
@@ -143,7 +145,7 @@ class VideoPlayer extends Component {
     this.registerVideoListeners = this.registerVideoListeners.bind(this);
     this.autoPlayBlockDetected = this.autoPlayBlockDetected.bind(this);
     this.handleFirstPlay = this.handleFirstPlay.bind(this);
-    this.handleReload = this.handleReload.bind(this);
+    this.handleReload = throttle({ interval: THROTTLE_RELOAD_INTERVAL }, this.handleReload.bind(this));
     this.handleOnProgress = this.handleOnProgress.bind(this);
     this.handleOnReady = this.handleOnReady.bind(this);
     this.handleOnPlay = this.handleOnPlay.bind(this);
@@ -548,7 +550,7 @@ class VideoPlayer extends Component {
 
     return (
       <FullscreenButtonContainer
-        key={_.uniqueId('fullscreenButton-')}
+        key={uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.fullscreenLabel)}
         fullscreenRef={this.playerParent}
         elementId={fullscreenElementId}

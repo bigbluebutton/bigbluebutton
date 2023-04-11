@@ -10,11 +10,11 @@ import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
-import _ from 'lodash';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import Settings from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
+import { unique } from 'radash';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
@@ -424,7 +424,7 @@ class PresentationUploader extends Component {
 
     if (shouldUpdateState) {
       this.setState({
-        presentations: _.uniqBy(presStateFiltered, 'id'),
+        presentations: unique(presStateFiltered, p => p.id)
       });
     }
 
@@ -497,10 +497,22 @@ class PresentationUploader extends Component {
         ...filteredPresentations,
         ...filteredPropPresentations,
       ];
+      let hasUploading
+      merged.forEach(d => {
+        if (!d.upload?.done || !d.conversion?.done) {
+          hasUploading = true;
+        }})
       this.hasError = false;
-      return this.setState({
-        presentations: merged,
-      });
+      if (hasUploading) {
+        return this.setState({
+          presentations: merged,
+        });
+      } else {
+        return this.setState({
+          presentations: merged,
+          disableActions: false,
+        });
+      }
     }
 
     const { presentations } = this.state;
@@ -811,7 +823,7 @@ class PresentationUploader extends Component {
             </Styled.Head>
           </thead>
           <tbody>
-            {_.uniqBy(presentationsSorted, 'id').map((item) => this.renderPresentationItem(item))}
+            {unique(presentationsSorted, p => p.id) .map((item) => this.renderPresentationItem(item))}
           </tbody>
         </Styled.Table>
       </Styled.FileList>

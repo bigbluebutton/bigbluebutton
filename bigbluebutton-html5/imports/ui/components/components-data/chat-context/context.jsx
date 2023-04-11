@@ -8,7 +8,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import UserService from '/imports/ui/components/user-list/service';
-import { _ } from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -43,9 +42,9 @@ export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {})
 
 const generateTimeWindow = (timestamp) => {
   const groupingTime = getGroupingTime();
-  dateInMilliseconds = Math.floor(timestamp);
-  groupIndex = Math.floor(dateInMilliseconds / groupingTime)
-  date = groupIndex * 30000;
+  const dateInMilliseconds = Math.floor(timestamp);
+  const groupIndex = Math.floor(dateInMilliseconds / groupingTime)
+  const date = groupIndex * 30000;
   return date;
 }
 

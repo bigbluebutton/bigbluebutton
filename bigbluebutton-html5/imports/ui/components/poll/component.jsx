@@ -1,6 +1,5 @@
 import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
@@ -658,7 +657,7 @@ class Poll extends Component {
                 secretPoll,
                 question,
                 isMultipleResponse,
-                _.compact(verifiedOptions),
+                verifiedOptions.filter(Boolean),
               );
             } else {
               startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);

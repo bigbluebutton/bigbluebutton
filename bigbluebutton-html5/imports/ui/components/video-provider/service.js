@@ -16,7 +16,8 @@ import VideoPreviewService from '../video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import BBBStorage from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import _ from 'lodash';
+import { debounce } from 'radash';
+import { partition } from '/imports/utils/array-utils';
 import {
   getSortingMethod,
   sortVideoStreams,
@@ -378,10 +379,10 @@ class VideoService {
   getVideoPage (streams, pageSize) {
     // Publishers are taken into account for the page size calculations. They
     // also appear on every page. Same for pinned user.
-    const [filtered, others] = _.partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
+    const [filtered, others] = partition(streams, (vs) => Auth.userID === vs.userId || vs.pin);
 
     // Separate pin from local cameras
-    const [pin, mine] = _.partition(filtered, (vs) => vs.pin);
+    const [pin, mine] = partition(filtered, (vs) => vs.pin);
 
     // Recalculate total number of pages
     this.setNumberOfPages(filtered.length, others.length, pageSize);
@@ -1004,10 +1005,9 @@ export default {
   onBeforeUnload: () => videoService.onBeforeUnload(),
   notify: message => notify(message, 'error', 'video'),
   updateNumberOfDevices: devices => videoService.updateNumberOfDevices(devices),
-  applyCameraProfile: _.debounce(
-    videoService.applyCameraProfile.bind(videoService),
-    CAMERA_QUALITY_THR_DEBOUNCE,
-    { leading: false, trailing: true },
+  applyCameraProfile: debounce(
+    { delay: CAMERA_QUALITY_THR_DEBOUNCE }, 
+    videoService.applyCameraProfile.bind(videoService)
   ),
   getThreshold: (numberOfPublishers) => videoService.getThreshold(numberOfPublishers),
   isPaginationEnabled: () => videoService.isPaginationEnabled(),

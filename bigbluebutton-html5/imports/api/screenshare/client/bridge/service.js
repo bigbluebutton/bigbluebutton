@@ -16,6 +16,7 @@ const {
   maxTimeout: MAX_MEDIA_TIMEOUT,
   maxConnectionAttempts: MAX_CONN_ATTEMPTS,
   timeoutIncreaseFactor: TIMEOUT_INCREASE_FACTOR,
+  baseReconnectionTimeout: BASE_RECONNECTION_TIMEOUT,
 } = MEDIA_TIMEOUTS;
 
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
@@ -111,7 +112,7 @@ const getMediaServerAdapter = () => {
 
 const getNextReconnectionInterval = (oldInterval) => {
   return Math.min(
-    TIMEOUT_INCREASE_FACTOR * oldInterval,
+    (TIMEOUT_INCREASE_FACTOR * Math.max(oldInterval, BASE_RECONNECTION_TIMEOUT)),
     MAX_MEDIA_TIMEOUT,
   );
 }
@@ -157,6 +158,7 @@ export default {
   screenshareLoadAndPlayMediaStream,
   getMediaServerAdapter,
   BASE_MEDIA_TIMEOUT,
+  BASE_RECONNECTION_TIMEOUT,
   MAX_CONN_ATTEMPTS,
   BASE_BITRATE,
 };

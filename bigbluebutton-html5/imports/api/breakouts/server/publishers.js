@@ -7,8 +7,9 @@ import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
-function breakouts() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function breakouts() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing Breakouts was requested by unauth connection ${this.connection.id}`);
@@ -16,7 +17,7 @@ function breakouts() {
   }
   const { meetingId, userId } = tokenValidation;
 
-  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  const User = await Users.findOneAsync({ userId, meetingId }, { fields: { role: 1 } });
   Logger.debug('Publishing Breakouts', { meetingId, userId });
 
   const fields = {
@@ -45,8 +46,8 @@ function breakouts() {
       ],
     };
     // Monitor this publication and stop it when user is not a moderator anymore
-    const comparisonFunc = () => {
-      const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+    const comparisonFunc = async () => {
+      const user = await Users.findOneAsync({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
       const condition = user.role === ROLE_MODERATOR;
 
       if (!condition) {

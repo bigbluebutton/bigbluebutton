@@ -49,6 +49,12 @@ class SharedNotes extends MultiUsers {
     await this.editMessage(notesLocator);
     const editedMessage = '!Hello';
     await expect(notesLocator).toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
+
+    const wbBox = await this.modPage.getElementBoundingBox(e.etherpadFrame);
+    await expect(this.modPage.page).toHaveScreenshot('sharednotes-1.png', {
+      maxDiffPixels: 10,
+      clip: wbBox,
+    });
   }
 
   async formatMessage() {

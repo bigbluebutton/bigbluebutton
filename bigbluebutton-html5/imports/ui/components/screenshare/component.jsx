@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { debounce } from 'radash';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
@@ -30,6 +30,7 @@ import {
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Settings from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   screenShareLabel: {
@@ -100,12 +101,10 @@ class ScreenshareComponent extends React.Component {
     this.onSwitched = this.onSwitched.bind(this);
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
-    this.debouncedDispatchScreenShareSize = _.debounce(
-      this.dispatchScreenShareSize,
-      SCREEN_SIZE_DISPATCH_INTERVAL,
-      { leading: false, trailing: true },
+    this.debouncedDispatchScreenShareSize = debounce(
+      { delay: SCREEN_SIZE_DISPATCH_INTERVAL },
+      this.dispatchScreenShareSize
     );
-
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
     this.mediaFlowMonitor = null;
@@ -242,9 +241,16 @@ class ScreenshareComponent extends React.Component {
 
       try {
         mediaFlowing = isMediaFlowing(previousStats, currentStats);
-      } catch (_error) {
+      } catch (error) {
         // Stats processing failed for whatever reason - maintain previous state
         mediaFlowing = prevMediaFlowing;
+        logger.warn({
+          logCode: 'screenshare_media_monitor_stats_failed',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, 'Failed to collect screenshare stats, flow monitor');
       }
 
       previousStats = currentStats;
@@ -323,9 +329,7 @@ class ScreenshareComponent extends React.Component {
       this.clearMediaFlowingMonitor();
       // Current state is media not flowing - stream is now healthy so flip it
       if (!mediaFlowing) this.setState({ mediaFlowing: isStreamHealthy });
-    } else {
-      if (this.mediaFlowMonitor == null) this.monitorMediaFlow();
-    }
+    } else if (this.mediaFlowMonitor == null) this.monitorMediaFlow();
   }
 
   renderFullscreenButton() {
@@ -335,7 +339,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <FullscreenButtonContainer
-        key={_.uniqueId('fullscreenButton-')}
+        key={uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(intlMessages.screenShareLabel)}
         fullscreenRef={this.screenshareContainer}
         elementId={fullscreenElementId}
@@ -350,7 +354,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <AutoplayOverlay
-        key={_.uniqueId('screenshareAutoplayOverlay')}
+        key={uniqueId('screenshareAutoplayOverlay')}
         autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
         autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
         handleAllowAutoplay={this.handleAllowAutoplay}
@@ -548,7 +552,7 @@ class ScreenshareComponent extends React.Component {
         {(shouldRenderConnectingState)
           && (
             <Styled.SpinnerWrapper
-              key={_.uniqueId('screenshareArea-')}
+              key={uniqueId('screenshareArea-')}
               data-test="screenshareConnecting"
             >
               <Styled.Spinner animations={animations}>
