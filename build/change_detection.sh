@@ -40,7 +40,7 @@ do
 done
 
 if [ "$1" == "--debug" ]; then
-    git log -n 5
+    git log -n 5 --stat
     exit
 fi
 
