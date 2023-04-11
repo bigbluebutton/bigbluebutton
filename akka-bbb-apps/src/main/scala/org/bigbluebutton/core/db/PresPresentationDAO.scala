@@ -6,7 +6,6 @@ import org.bigbluebutton.core.models.{ PresentationInPod }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 import spray.json._
-//import DefaultJsonProtocol._
 
 case class PresPresentationDbModel(presentationId: String, meetingId: String, current: Boolean, downloadable: Boolean, removable: Boolean)
 
@@ -16,7 +15,6 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   val current = column[Boolean]("current")
   val downloadable = column[Boolean]("downloadable")
   val removable = column[Boolean]("removable")
-
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
   def * = (presentationId, meetingId, current, downloadable, removable) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)

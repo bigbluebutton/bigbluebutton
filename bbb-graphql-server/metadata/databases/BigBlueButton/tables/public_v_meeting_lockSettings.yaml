@@ -1,0 +1,25 @@
+table:
+  name: v_meeting_lockSettings
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting_lockSettings
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - disableCam
+        - disableMic
+        - disableNotes
+        - disablePrivateChat
+        - disablePublicChat
+        - hasActiveLockSetting
+        - hideUserList
+        - hideViewersCursor
+        - webcamsOnlyForModerator
+        - meetingId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

@@ -3,7 +3,9 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+
 import scala.util.Random
 
 trait RegisterUserReqMsgHdlr {
@@ -55,13 +57,9 @@ trait RegisterUserReqMsgHdlr {
 
     val guestStatus = msg.body.guestStatus
 
-    val colorOptions = List("#7b1fa2", "#6a1b9a", "#4a148c", "#5e35b1", "#512da8", "#4527a0", "#311b92",
-      "#3949ab", "#303f9f", "#283593", "#1a237e", "#1976d2", "#1565c0", "#0d47a1", "#0277bd", "#01579b")
-    val userColor = colorOptions(Random.nextInt(colorOptions.length))
-
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken,
-      msg.body.avatarURL, userColor, msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, false)
+      msg.body.avatarURL, RandomStringGenerator.randomColor, msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, false)
 
     checkUserConcurrentAccesses(regUser)
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)

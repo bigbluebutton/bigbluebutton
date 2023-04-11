@@ -1,8 +1,9 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ LockSettingsProps }
+import org.bigbluebutton.common2.domain.LockSettingsProps
+import org.bigbluebutton.core2.Permissions
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
@@ -61,4 +62,29 @@ object MeetingLockSettingsDAO {
         case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingLockSettings: $e")
       }
   }
+
+  def update(meetingId: String, permissions: Permissions) = {
+    DatabaseConnection.db.run(
+      TableQuery[MeetingLockSettingsDbTableDef].insertOrUpdate(
+        MeetingLockSettingsDbModel(
+          meetingId = meetingId,
+          disableCam = permissions.disableCam,
+          disableMic = permissions.disableMic,
+          disablePrivateChat = permissions.disablePrivChat,
+          disablePublicChat = permissions.disablePubChat,
+          disableNotes = permissions.disableNotes,
+          hideUserList = permissions.hideUserList,
+          lockOnJoin = permissions.lockOnJoin,
+          lockOnJoinConfigurable = permissions.lockOnJoinConfigurable,
+          hideViewersCursor = permissions.hideViewersCursor
+        ),
+      )
+    ).onComplete {
+        case Success(rowsAffected) => {
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated in MeetingLockSettings table!")
+        }
+        case Failure(e) => DatabaseConnection.logger.error(s"Error updating MeetingLockSettings: $e")
+      }
+  }
+
 }

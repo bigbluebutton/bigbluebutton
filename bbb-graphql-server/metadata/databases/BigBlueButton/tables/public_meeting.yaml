@@ -1,6 +1,16 @@
 table:
   name: meeting
   schema: public
+object_relationships:
+  - name: lockSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_lockSettings
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:

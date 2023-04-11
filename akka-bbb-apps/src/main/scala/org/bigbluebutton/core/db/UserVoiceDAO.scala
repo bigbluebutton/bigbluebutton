@@ -50,8 +50,6 @@ class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "
 
 
 object UserVoiceDAO {
-  //  val usersTable = TableQuery[UserTableDef]
-
   def insert(voiceUserState: VoiceUserState) = {
     DatabaseConnection.db.run(
       TableQuery[UserVoiceDbTableDef].insertOrUpdate(
@@ -95,7 +93,6 @@ object UserVoiceDAO {
   }
 
   def updateTalking(voiceUserState: VoiceUserState) = {
-//    DatabaseConnection.db.run(sql"SELECT * FROM $users".as[(Int, Double, String)]).onComplete {
     val now = System.currentTimeMillis()
 
     val updateSql = if(voiceUserState.talking) {

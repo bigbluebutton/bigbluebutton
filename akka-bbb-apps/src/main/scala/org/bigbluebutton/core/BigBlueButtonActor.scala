@@ -186,7 +186,8 @@ class BigBlueButtonActor(
       }
 
       MeetingDAO.delete(msg.meetingId)
-      UserDAO.deleteAllFromMeeting(msg.meetingId)
+      //      Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
+      //      UserDAO.deleteAllFromMeeting(msg.meetingId)
     }
   }
 
