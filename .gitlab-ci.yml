@@ -50,6 +50,7 @@ get_external_dependencies:
       - freeswitch
       - bbb-pads
       - bbb-playback
+      - bbb-lti
     expire_in: 1h 30min
     
 # template job for build step
