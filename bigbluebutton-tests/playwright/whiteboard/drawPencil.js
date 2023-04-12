@@ -2,7 +2,6 @@ const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
-const { constructClipObj } = require('../core/util');
 
 class DrawPencil extends MultiUsers {
   constructor(browser, context) {
@@ -12,11 +11,10 @@ class DrawPencil extends MultiUsers {
   async test() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
-    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
-    const clipObj = constructClipObj(wbBox);
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
     const screenshotOptions = {
       maxDiffPixels: 1000,
-      clip: clipObj,
     };
     
     await this.modPage.waitAndClick(e.wbPencilShape);
@@ -29,9 +27,10 @@ class DrawPencil extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.8 * wbBox.width, wbBox.y + 0.4 * wbBox.height, moveOptions);
     await this.modPage.page.mouse.up();
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-pencil.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-pencil.png', screenshotOptions);
 
-    await expect(this.modPage2.page).toHaveScreenshot('moderator2-pencil.png', screenshotOptions);
+    const userWbLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWbLocator).toHaveScreenshot('user-pencil.png', screenshotOptions);
   }
 }
 
