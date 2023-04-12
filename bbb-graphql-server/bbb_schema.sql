@@ -13,6 +13,7 @@ DROP VIEW IF EXISTS "v_chat";
 DROP VIEW IF EXISTS "v_chat_message_public";
 DROP VIEW IF EXISTS "v_chat_message_private";
 DROP VIEW IF EXISTS "v_chat_participant";
+DROP VIEW IF EXISTS "v_user_typing_public";
 DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
@@ -27,9 +28,11 @@ DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
 DROP TABLE IF EXISTS "user_breakoutRoom";
+DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user";
 
 drop view if exists "v_meeting_lockSettings";
+drop view if exists "v_meeting_usersPolicies";
 drop table if exists "meeting_breakout";
 drop table if exists "meeting_recording";
 drop table if exists "meeting_welcome";
@@ -37,6 +40,7 @@ drop table if exists "meeting_voice";
 drop table if exists "meeting_users";
 drop table if exists "meeting_metadata";
 drop table if exists "meeting_lockSettings";
+drop table if exists "meeting_usersPolicies";
 drop table if exists "meeting_group";
 drop table if exists "meeting";
 
@@ -77,26 +81,26 @@ create index "idx_meeting_breakout_meetingId" on "meeting_breakout"("meetingId")
 
 create table "meeting_recording" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-	"record" boolean, 
-	"autoStartRecording" boolean, 
-	"allowStartStopRecording" boolean, 
+	"record" boolean,
+	"autoStartRecording" boolean,
+	"allowStartStopRecording" boolean,
 	"keepEvents" boolean
 );
 create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId");
 
 create table "meeting_welcome" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-	"welcomeMsgTemplate" text, 
-	"welcomeMsg" text, 
+	"welcomeMsgTemplate" text,
+	"welcomeMsg" text,
 	"modOnlyMessage" text
 );
 create index "idx_meeting_welcome_meetingId" on "meeting_welcome"("meetingId");
 
 create table "meeting_voice" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-	"telVoice" varchar(100), 
-	"voiceConf" varchar(100), 
-	"dialNumber" varchar(100), 
+	"telVoice" varchar(100),
+	"voiceConf" varchar(100),
+	"dialNumber" varchar(100),
 	"muteOnStart" boolean
 );
 create index "idx_meeting_voice_meetingId" on "meeting_voice"("meetingId");
@@ -149,7 +153,7 @@ SELECT
 	mls."disableNotes",
 	mls."hideUserList",
 	mls."hideViewersCursor",
-	mu."webcamsOnlyForModerator",
+	mup."webcamsOnlyForModerator",
 	CASE WHEN
 	mls."disableCam" IS TRUE THEN TRUE
 	WHEN mls."disableMic"  IS TRUE THEN TRUE
@@ -158,12 +162,12 @@ SELECT
 	WHEN mls."disableNotes"  IS TRUE THEN TRUE
 	WHEN mls."hideUserList"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
-	WHEN mu."webcamsOnlyForModerator"  IS TRUE THEN TRUE
+	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"
 FROM meeting m
 JOIN "meeting_lockSettings" mls ON mls."meetingId" = m."meetingId"
-JOIN meeting_users mu ON mu."meetingId" = m."meetingId";
+JOIN "meeting_usersPolicies" mup ON mup."meetingId" = m."meetingId";
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -515,16 +519,3 @@ FROM pres_page_cursor c
 JOIN pres_page ON pres_page."pageId" = c."pageId"
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
---
---CREATE TABLE whiteboard (
---	"whiteboardId" varchar(100) PRIMARY KEY,
---	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE
---);
---
---CREATE TABLE whiteboard_annotation (
---	"annotationId" varchar(100) PRIMARY KEY,
---	"whiteboardId" varchar(100) REFERENCES "whiteboard"("whiteboardId") ON DELETE CASCADE,
---	"userId" varchar(50),
---	"annotationInfo" TEXT,
---	"lastUpdatedAt" timestamp DEFAULT now()
---);
