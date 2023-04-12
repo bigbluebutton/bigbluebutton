@@ -27,13 +27,13 @@ const intlMessages = defineMessages({
 
 let annotationsStreamListener = null;
 
-function handleAddedAnnotation({
+async function handleAddedAnnotation({
   meetingId,
   whiteboardId,
   userId,
   annotation,
 }) {
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
+  const query = await addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   Annotations.upsert(query.selector, query.modifier);
 }
@@ -90,7 +90,7 @@ export function initAnnotationsStreamListener() {
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach((annotation) => handleAddedAnnotation(annotation));
+      annotations.forEach(async (annotation) => handleAddedAnnotation(annotation));
     });
   });
 }
