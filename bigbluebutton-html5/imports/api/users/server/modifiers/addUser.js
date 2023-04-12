@@ -4,17 +4,10 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
 import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
-import stringHash from 'string-hash';
 import flat from 'flat';
 import { lowercaseTrim } from '/imports/utils/string-utils';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
-
-const COLOR_LIST = [
-  '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
-  '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
-  '#0d47a1', '#0277bd', '#01579b',
-];
 
 export default function addUser(meetingId, userData) {
   const user = userData;
@@ -34,6 +27,7 @@ export default function addUser(meetingId, userData) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    color: String,
     pin: Boolean,
     clientType: String,
   });
@@ -46,14 +40,9 @@ export default function addUser(meetingId, userData) {
   };
   const Meeting = Meetings.findOne({ meetingId });
 
-  /* While the akka-apps dont generate a color we just pick one
-    from a list based on the userId */
-  const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
-
   const userInfos = {
     meetingId,
     sortName: lowercaseTrim(user.name),
-    color,
     speechLocale: '',
     mobile: false,
     breakoutProps: {
