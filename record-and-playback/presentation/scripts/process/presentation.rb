@@ -128,6 +128,11 @@ unless FileTest.directory?(target_dir)
     participants = recording.at_xpath('participants')
     participants.content = BigBlueButton::Events.get_num_participants(@doc)
 
+    participantsIDs = BigBlueButton::Events.get_userIDs(@doc)
+    userID_file = File.new("#{target_dir}/users.json","w")
+    JSON.dump(participantsIDs, userID_file)
+    userID_file.close
+    
     ## Remove empty meta
     ## TODO: Clarify reasoning behind creating an empty node to then remove it
     metadata.search('recording/meta').each(&:remove)
