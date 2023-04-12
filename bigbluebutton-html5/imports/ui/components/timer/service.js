@@ -121,6 +121,7 @@ const fetchTimeOffset = () => {
   const t0 = Date.now();
 
   makeCall('getServerTime').then(result => {
+    if (result == 0) return;
     const t3 = Date.now();
 
     const ts = result;
