@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import Service from './service';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const DEBOUNCE_TIMEOUT = 15000;
 const NOTES_CONFIG = Meteor.settings.public.notes;
@@ -62,7 +62,7 @@ class NotesDropdown extends PureComponent {
     if (amIPresenter) {
       this.menuItems.push(
         {
-          key: _.uniqueId('notes-option-'),
+          key: uniqueId('notes-option-'),
           icon: uploadIcon,
           dataTest: 'moveNotesToWhiteboard',
           label: intl.formatMessage(intlMessages.convertAndUploadLabel),
@@ -79,7 +79,7 @@ class NotesDropdown extends PureComponent {
     if (amIPresenter && NOTES_IS_PINNABLE) {
       this.menuItems.push(
         {
-          key: _.uniqueId('notes-option-'),
+          key: uniqueId('notes-option-'),
           icon: pinIcon,
           dataTest: 'pinNotes',
           label: intl.formatMessage(intlMessages.pinNotes),

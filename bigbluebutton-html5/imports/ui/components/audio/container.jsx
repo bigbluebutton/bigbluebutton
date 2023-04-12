@@ -4,7 +4,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
-import _ from 'lodash';
+import { range } from '/imports/utils/array-utils';
 import Auth from '/imports/ui/services/auth';
 import Breakouts from '/imports/api/breakouts';
 import AppService from '/imports/ui/components/app/service';
@@ -139,7 +139,7 @@ class AudioContainer extends PureComponent {
 
 let didMountAutoJoin = false;
 
-const webRtcError = _.range(1001, 1011)
+const webRtcError = range(1001, 1011)
   .reduce((acc, value) => ({
     ...acc,
     [value]: { id: `app.audioNotification.audioFailedError${value}` },

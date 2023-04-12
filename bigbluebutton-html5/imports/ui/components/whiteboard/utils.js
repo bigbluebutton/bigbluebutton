@@ -1,5 +1,5 @@
 import React from 'react';
-import _ from 'lodash';
+import { isEqual } from 'radash';
 import {
   persistShape,
   removeShapes,
@@ -151,7 +151,7 @@ const sendShapeChanges = (
           Object.entries(pageBindings).forEach(([, b]) => {
             if (b.toId.includes(id)) {
               const boundShape = app.getShape(b.fromId);
-              if (shapes[b.fromId] && !_.isEqual(boundShape, shapes[b.fromId])) {
+              if (shapes[b.fromId] && !isEqual(boundShape, shapes[b.fromId])) {
                 const shapeBounds = app.getShapeBounds(b.fromId);
                 boundShape.size = [shapeBounds.width, shapeBounds.height];
                 persistShape(boundShape, whiteboardId);
@@ -169,7 +169,7 @@ const sendShapeChanges = (
         }
         const shapeBounds = app.getShapeBounds(id);
         const size = [shapeBounds.width, shapeBounds.height];
-        if (!shapes[id] || (shapes[id] && !_.isEqual(shapes[id].size, size))) {
+        if (!shapes[id] || (shapes[id] && !isEqual(shapes[id].size, size))) {
           modShape.size = size;
         }
         if (!shapes[id] || (shapes[id] && !shapes[id].userId)) {

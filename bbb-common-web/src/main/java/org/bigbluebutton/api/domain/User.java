@@ -30,6 +30,7 @@ public class User {
 	private String externalUserId;
 	private String fullname;
 	private String role;
+	private Boolean locked;
 	private String avatarURL;
 	private Map<String,String> status;
 	private Boolean guest;
@@ -44,6 +45,7 @@ public class User {
 							String externalUserId,
 							String fullname,
 							String role,
+							Boolean locked,
 							String avatarURL,
 							Boolean guest,
 							String  guestStatus,
@@ -52,6 +54,7 @@ public class User {
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;
 		this.role = role;
+		this.locked = locked;
 		this.avatarURL = avatarURL;
 		this.guest = guest;
 		this.guestStatus = guestStatus;
@@ -118,6 +121,9 @@ public class User {
 	}
 	public void setRole(String role) {
 		this.role = role;
+	}
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
 	}
 
 	public String getAvatarUrl() {

@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -325,7 +324,7 @@ const WaitingUsers = (props) => {
   ];
 
   const buttonsData = ( authenticatedGuest && guestPolicyExtraAllowOptions )
-    ? _.concat(authGuestButtonsData, guestButtonsData)
+    ? authGuestButtonsData.concat(guestButtonsData)
     : guestButtonsData;
 
   const { isChrome } = browserInfo;

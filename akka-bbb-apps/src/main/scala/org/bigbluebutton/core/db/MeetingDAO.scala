@@ -75,7 +75,7 @@ object MeetingDAO {
     ).onComplete {
         case Success(rowsAffected) => {
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in Meeting table!")
-          MeetingUsersDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
+          MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
           MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
           MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
           MeetingRecordingDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)

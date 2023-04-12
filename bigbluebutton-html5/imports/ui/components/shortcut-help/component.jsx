@@ -4,11 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Modal from '/imports/ui/components/common/modal/simple/component';
-import _ from 'lodash';
 import Styled from './styles';
 import StyledSettings from '../settings/styles';
 import withShortcutHelper from './service';
 import { isChatEnabled } from '/imports/ui/services/features';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   title: {
@@ -252,7 +252,7 @@ const intlMessages = defineMessages({
 
 const renderItem = (func, key) => {
   return (
-    <tr key={_.uniqueId('hotkey-item-')}>
+    <tr key={uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
       <Styled.KeyCell>{key}</Styled.KeyCell>
     </tr>
@@ -261,7 +261,7 @@ const renderItem = (func, key) => {
 
 const renderItemWhiteBoard = (func, key, alt) => {
   return (
-    <tr key={_.uniqueId('hotkey-item-')}>
+    <tr key={uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
       <Styled.KeyCell>{key}</Styled.KeyCell>
       <Styled.KeyCell>{alt}</Styled.KeyCell>

@@ -1,0 +1,40 @@
+table:
+  name: v_user_ref
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_ref
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - userId
+        - extId
+        - meetingId
+        - name
+        - avatar
+        - color
+        - emoji
+        - guest
+        - guestStatus
+        - mobile
+        - clientType
+        - role
+        - authed
+        - joined
+        - leftFlag
+        - banned
+        - loggedOut
+        - registeredOn
+        - presenter
+        - pinned
+        - locked
+        - isModerator
+        - isOnline
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+      query_root_fields: []
+      subscription_root_fields: []

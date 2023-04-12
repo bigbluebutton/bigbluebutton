@@ -1035,11 +1035,11 @@ def process_presentation(package_dir)
 
     # Perform cursor finalization
     if cursor_changed || panzoom_changed
-      if !tldraw
-        unless cursor_x >= 0 && cursor_x <= 100 &&
-            cursor_y >= 0 && cursor_y <= 100
-          cursor_visible = false
-        end
+      if cursor_x < 0 || cursor_y < 0
+        cursor_visible = false
+      end
+      if cursor_x >= 100 || cursor_y >= 100 && !tldraw
+        cursor_visible = false
       end
 
       panzoom = panzooms.last
