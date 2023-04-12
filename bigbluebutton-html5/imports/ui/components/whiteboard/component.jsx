@@ -69,6 +69,7 @@ export default function Whiteboard(props) {
     tldrawAPI,
     setTldrawAPI,
     isIphone,
+    sidebarNavigationWidth,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -924,7 +925,7 @@ export default function Whiteboard(props) {
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
-        key={`wb-${isRTL}-${dockPos}-${presentationAreaHeight}-${presentationAreaWidth}`}
+        key={`wb-${isRTL}-${dockPos}-${presentationAreaHeight}-${presentationAreaWidth}-${sidebarNavigationWidth}`}
         document={doc}
         // disable the ability to drag and drop files onto the whiteboard
         // until we handle saving of assets in akka.
@@ -1100,6 +1101,7 @@ Whiteboard.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   numberOfSlides: PropTypes.number.isRequired,
   previousSlide: PropTypes.func.isRequired,
+  sidebarNavigationWidth: PropTypes.number,
 };
 
 Whiteboard.defaultProps = {
@@ -1108,4 +1110,5 @@ Whiteboard.defaultProps = {
   slidePosition: undefined,
   svgUri: undefined,
   whiteboardId: undefined,
+  sidebarNavigationWidth: 0,
 };
