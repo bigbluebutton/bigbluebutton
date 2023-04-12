@@ -7,7 +7,7 @@ import slick.lifted.{ ProvenShape }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success }
 
-case class MeetingUsersDbModel(
+case class MeetingUsersPoliciesDbModel(
                                 meetingId: String,
                                 maxUsers: Int,
                                 maxUserConcurrentAccesses: Int,
@@ -20,7 +20,7 @@ case class MeetingUsersDbModel(
                                 authenticatedGuest: Boolean
                               )
 
-class MeetingUsersDbTableDef(tag: Tag) extends Table[MeetingUsersDbModel](tag, "meeting_users") {
+class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPoliciesDbModel](tag, "meeting_usersPolicies") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val maxUsers = column[Int]("maxUsers")
   val maxUserConcurrentAccesses = column[Int]("maxUserConcurrentAccesses")
@@ -34,14 +34,14 @@ class MeetingUsersDbTableDef(tag: Tag) extends Table[MeetingUsersDbModel](tag, "
 
 //  val fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override val * : ProvenShape[MeetingUsersDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest) <> (MeetingUsersDbModel.tupled, MeetingUsersDbModel.unapply)
+  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
 }
 
-object MeetingUsersDAO {
+object MeetingUsersPoliciesDAO {
   def insert(meetingId:String, usersProp: UsersProp) = {
     DatabaseConnection.db.run(
-      TableQuery[MeetingUsersDbTableDef].forceInsert(
-        MeetingUsersDbModel(
+      TableQuery[MeetingUsersPoliciesDbTableDef].forceInsert(
+        MeetingUsersPoliciesDbModel(
           meetingId = meetingId,
           maxUsers = usersProp.maxUsers,
           maxUserConcurrentAccesses = usersProp.maxUserConcurrentAccesses,
@@ -56,9 +56,9 @@ object MeetingUsersDAO {
       )
     ).onComplete {
       case Success(rowsAffected) => {
-        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingUsers table!")
+        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingUsersPolicies table!")
       }
-      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingUsers: $e")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingUsersPolicies: $e")
     }
   }
 }

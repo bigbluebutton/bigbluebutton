@@ -21,9 +21,11 @@ package org.bigbluebutton.web.controllers
 import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.domain.User
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
 import java.nio.charset.StandardCharsets
+
 
 class ConnectionController {
   MeetingService meetingService
@@ -68,6 +70,8 @@ class ConnectionController {
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
+      User u = meetingService.getMeeting(userSession.meetingID).getUserById(userSession.internalUserId)
+
       response.addHeader("Cache-Control", "no-cache")
 
       if (userSession != null && !isSessionTokenInvalid) {
@@ -77,7 +81,10 @@ class ConnectionController {
             def builder = new JsonBuilder()
             builder {
               "response" "authorized"
-              "x-hasura-role" "bbb_client"
+              "X-Hasura-Role" "bbb_client"
+              "X-Hasura-Locked" u.locked ? "true" : "false"
+              "X-Hasura-LockedInMeeting" u.locked ? userSession.meetingID : ""
+              "X-Hasura-ModeratorInMeeting" u.isModerator() ? userSession.meetingID : ""
               "X-Hasura-UserId" userSession.internalUserId
               "X-Hasura-MeetingId" userSession.meetingID
             }

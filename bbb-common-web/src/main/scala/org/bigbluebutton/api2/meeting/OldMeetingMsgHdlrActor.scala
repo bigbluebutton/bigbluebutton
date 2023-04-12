@@ -33,6 +33,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserJoinedVoiceConfToClientEvtMsg => handleUserJoinedVoiceConfToClientEvtMsg(m)
       case m: UserLeftVoiceConfToClientEvtMsg   => handleUserLeftVoiceConfToClientEvtMsg(m)
       case m: UserRoleChangedEvtMsg             => handleUserRoleChangedEvtMsg(m)
+      case m: UserLockedInMeetingEvtMsg         => handleUserLockedInMeetingEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg     => handleUserBroadcastCamStartedEvtMsg(m)
       case m: UserBroadcastCamStoppedEvtMsg     => handleUserBroadcastCamStoppedEvtMsg(m)
       case m: CreateBreakoutRoomSysCmdMsg       => handleCreateBreakoutRoomSysCmdMsg(m)
@@ -122,10 +123,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserJoinedMeetingEvtMsg(msg: UserJoinedMeetingEvtMsg): Unit = {
     olgMsgGW.handle(new UserJoined(msg.header.meetingId, msg.body.intId,
-      msg.body.extId, msg.body.name, msg.body.role, msg.body.avatar, msg.body.guest,
-      msg.body.guestStatus,
-      msg.body.clientType))
-
+      msg.body.extId, msg.body.name, msg.body.role, msg.body.locked, msg.body.avatar,
+      msg.body.guest, msg.body.guestStatus, msg.body.clientType))
   }
 
   def handlePresenterUnassignedEvtMsg(msg: PresenterUnassignedEvtMsg): Unit = {
@@ -166,6 +165,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserRoleChangedEvtMsg(msg: UserRoleChangedEvtMsg): Unit = {
     olgMsgGW.handle(new UserRoleChanged(msg.header.meetingId, msg.body.userId, msg.body.role))
+  }
+
+  def handleUserLockedInMeetingEvtMsg(msg: UserLockedInMeetingEvtMsg): Unit = {
+    olgMsgGW.handle(new UserLockedInMeeting(msg.header.meetingId, msg.body.userId, msg.body.locked))
   }
 
   def handlePresentationUploadTokenSysPubMsg(msg: PresentationUploadTokenSysPubMsg): Unit = {

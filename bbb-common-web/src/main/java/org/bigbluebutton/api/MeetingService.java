@@ -32,12 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.bigbluebutton.api.domain.GuestPolicy;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.domain.Recording;
-import org.bigbluebutton.api.domain.RegisteredUser;
-import org.bigbluebutton.api.domain.User;
-import org.bigbluebutton.api.domain.UserSession;
+import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.converters.messages.DestroyMeetingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.EndMeetingMessage;
@@ -921,7 +916,7 @@ public class MeetingService implements MessageListener {
       }
 
       User user = new User(message.userId, message.externalUserId,
-        message.name, message.role, message.avatarURL, message.guest, message.guestStatus,
+        message.name, message.role, message.locked, message.avatarURL, message.guest, message.guestStatus,
               message.clientType);
 
       if(m.getMaxUsers() > 0 && m.countUniqueExtIds() >= m.getMaxUsers()) {
@@ -1041,7 +1036,7 @@ public class MeetingService implements MessageListener {
       } else {
         if (message.userId.startsWith("v_")) {
           // A dial-in user joined the meeting. Dial-in users by convention has userId that starts with "v_".
-                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", "",
+                    User vuser = new User(message.userId, message.userId, message.name, "DIAL-IN-USER", true, "",
                             true, GuestPolicy.ALLOW, "DIAL-IN");
           vuser.setVoiceJoined(true);
           m.userJoined(vuser);
@@ -1121,6 +1116,21 @@ public class MeetingService implements MessageListener {
     log.warn("The meeting {} doesn't exist", message.meetingId);
   }
 
+  private void userLockedInMeeting(UserLockedInMeeting message) {
+    Meeting m = getMeeting(message.meetingId);
+    if (m != null) {
+      User user = m.getUserById(message.userId);
+      if (user != null) {
+        user.setLocked(message.locked);
+        log.debug("Setting locked flag in meeting {} for participant: {}", message.meetingId, user.getFullname());
+        return;
+      }
+      log.warn("The participant {} doesn't exist in the meeting {}", message.userId, message.meetingId);
+      return;
+    }
+    log.warn("The meeting {} doesn't exist", message.meetingId);
+  }
+
   private void processMessage(final IMessage message) {
     Runnable task = new Runnable() {
       public void run() {
@@ -1138,6 +1148,8 @@ public class MeetingService implements MessageListener {
           updatedStatus((UserStatusChanged) message);
         } else if (message instanceof UserRoleChanged) {
           userRoleChanged((UserRoleChanged) message);
+        } else if (message instanceof UserLockedInMeeting) {
+          userLockedInMeeting((UserLockedInMeeting) message);
         } else if (message instanceof UserJoinedVoice) {
           userJoinedVoice((UserJoinedVoice) message);
         } else if (message instanceof UserLeftVoice) {

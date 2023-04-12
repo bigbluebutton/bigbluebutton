@@ -21,6 +21,8 @@ DROP VIEW IF EXISTS "v_user_camera";
 DROP VIEW IF EXISTS "v_user_voice";
 --DROP VIEW IF EXISTS "v_user_whiteboard";
 DROP VIEW IF EXISTS "v_user_breakoutRoom";
+DROP VIEW IF EXISTS "v_user";
+DROP VIEW IF EXISTS "v_user_ref";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
@@ -99,7 +101,7 @@ create table "meeting_voice" (
 );
 create index "idx_meeting_voice_meetingId" on "meeting_voice"("meetingId");
 
-create table "meeting_users" (
+create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "maxUsers"                 integer,
     "maxUserConcurrentAccesses" integer,
@@ -111,7 +113,9 @@ create table "meeting_users" (
     "allowModsToEjectCameras"  boolean,
     "authenticatedGuest"       boolean
 );
-create index "idx_meeting_users_meetingId" on "meeting_users"("meetingId");
+create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
+
+CREATE OR REPLACE VIEW "v_meeting_usersPolicies" AS SELECT * FROM "meeting_usersPolicies";
 
 create table "meeting_metadata"(
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
@@ -203,8 +207,66 @@ CREATE TABLE "user" (
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 
 --Virtual columns isModerator and isOnline
-ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
-ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
+--ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
+--ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
+
+CREATE OR REPLACE VIEW "v_user"
+AS SELECT "user"."userId",
+    "user"."extId",
+    "user"."meetingId",
+    "user"."name",
+    "user"."avatar",
+    "user"."color",
+    "user"."emoji",
+    "user"."guest",
+    "user"."guestStatus",
+    "user"."mobile",
+    "user"."clientType",
+    "user"."role",
+    "user"."authed",
+    "user"."joined",
+    "user"."leftFlag",
+    "user"."banned",
+    "user"."loggedOut",
+    "user"."registeredOn",
+    "user"."presenter",
+    "user"."pinned",
+    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+   FROM "user"
+  WHERE "user"."loggedOut" IS FALSE
+  AND "user".joined IS TRUE;
+CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user".joined IS TRUE;
+
+--v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
+--it is necessary because v_user has some conditions like "lockSettings-hideUserList"
+--but viewers still needs to query this users as foreign key of chat, cameras, etc
+CREATE OR REPLACE VIEW "v_user_ref"
+AS SELECT "user"."userId",
+    "user"."extId",
+    "user"."meetingId",
+    "user"."name",
+    "user"."avatar",
+    "user"."color",
+    "user"."emoji",
+    "user"."guest",
+    "user"."guestStatus",
+    "user"."mobile",
+    "user"."clientType",
+    "user"."role",
+    "user"."authed",
+    "user"."joined",
+    "user"."leftFlag",
+    "user"."banned",
+    "user"."loggedOut",
+    "user"."registeredOn",
+    "user"."presenter",
+    "user"."pinned",
+    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+   FROM "user";
 
 CREATE TABLE "user_voice" (
 	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,

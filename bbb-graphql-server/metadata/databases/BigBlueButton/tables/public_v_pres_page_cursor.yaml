@@ -11,11 +11,10 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
-          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
-          name: user
+          name: v_user_ref
           schema: public
 select_permissions:
   - role: bbb_client
