@@ -129,7 +129,6 @@ class RandomUserSelect extends Component {
       mappedRandomlySelectedUsers,
       isOpen,
       priority,
-      randomUserReq,
     } = this.props;
 
     const counter = SELECT_RANDOM_USER_COUNTDOWN ? this.state.count : 0;
@@ -193,7 +192,7 @@ class RandomUserSelect extends Component {
       return (
         <ModalSimple
           onRequestClose={() => {
-            clearRandomlySelectedUser();
+            if (currentUser.presenter) clearRandomlySelectedUser();
             toggleKeepModalOpen();
             setIsOpen(false);
           }}

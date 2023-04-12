@@ -615,7 +615,7 @@ class App extends Component {
               onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
               priority: "low",
               setIsOpen: this.setRandomUserSelectModalIsOpen,
-              isOpen: isRandomUserSelectModalOpen
+              isOpen: isRandomUserSelectModalOpen,
             }}
           /> : null}
         </Styled.Layout>
