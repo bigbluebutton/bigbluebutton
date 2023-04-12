@@ -92,18 +92,6 @@ const createEndpointTableData = [
     "description": (<>If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.</>)
   },
   {
-    "name": "breakoutRoomsCaptureNotes",
-    "required": "(only breakout room)",
-    "type": "Boolean",
-    "description": (<>Whether the breakout shared notes should be sent to the parent upon the meeting's end.</>)
-  },
-  {
-    "name": "breakoutRoomsCaptureSlides",
-    "required": "(only breakout room)",
-    "type": "Boolean",
-    "description": (<>Whether the breakout presentation with annotations should be sent to the parent upon the meeting's end.</>)
-  },
-  {
     "name": "breakoutRoomsEnabled",
     "required": "Optional(Breakout Room)",
     "type": "Boolean",
@@ -349,7 +337,7 @@ const createEndpointTableData = [
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
-    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Bring back breakout slides</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li></ul></>)
+    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li></ul></>)
   },
   {
     "name": "preUploadedPresentationOverrideDefault",
