@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "Genişliğe sığdır",
     "app.presentation.presentationToolbar.fitToPage": "Sayfaya sığdır",
     "app.presentation.presentationToolbar.goToSlide": "{0}. slayt",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Araç çubuklarını gizle",
+    "app.presentation.presentationToolbar.showToolsDesc": "Araç çubuklarını görüntüle",
     "app.presentation.placeholder": "Şu anda etkin bir sunum yok",
     "app.presentationUploder.title": "Sunum",
     "app.presentationUploder.message": "Sunucu olarak, herhangi bir ofis ya da PDF belgesi yükleyebilirsiniz. En iyi sonucu almak için PDF belgesi kullanmanız önerilir. Lütfen sol taraftaki daire işaret kutusunu kullanarak bir sunum seçildiğinden emin olun.",

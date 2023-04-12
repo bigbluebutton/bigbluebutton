@@ -13,5 +13,6 @@ object RandomStringGenerator {
   // Generate a random alphabnumeric string of length n
   def randomAlphanumericString(n: Int) =
     randomString("abcdefghijklmnopqrstuvwxyz0123456789")(n)
+
 }
 
