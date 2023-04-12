@@ -33,11 +33,11 @@ async function checkTextContent(baseContent, checkData) {
 
 function constructClipObj(wbBox) {
   return {
-      x: wbBox.x,
-      y: wbBox.y,
-      width: wbBox.width,
-      height: wbBox.height,
-    };
+    x: wbBox.x,
+    y: wbBox.y,
+    width: wbBox.width,
+    height: wbBox.height,
+  };
 }
 
 exports.checkElement = checkElement;

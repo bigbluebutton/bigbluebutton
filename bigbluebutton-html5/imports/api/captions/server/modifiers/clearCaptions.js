@@ -1,10 +1,10 @@
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearCaptions(meetingId) {
+export default async function clearCaptions(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = Captions.remove({ meetingId });
+      const numberAffected = await Captions.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared Captions (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearCaptions(meetingId) {
     }
   } else {
     try {
-      const numberAffected = Captions.remove({});
+      const numberAffected = await Captions.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared Captions (all)');
