@@ -87,7 +87,7 @@ class ExternalVideoModal extends Component {
   }
 
   render() {
-    const { intl, setIsOpen, isOpen } = this.props;
+    const { intl, setIsOpen, isOpen, onRequestClose, priority, } = this.props;
     const { url, sharing } = this.state;
     const { animations } = Settings.application;
 
@@ -98,7 +98,12 @@ class ExternalVideoModal extends Component {
         onRequestClose={() => setIsOpen(false)}
         contentLabel={intl.formatMessage(intlMessages.title)}
         title={intl.formatMessage(intlMessages.title)}
-        {...this.props}
+        {...{
+          setIsOpen, 
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <Styled.Content>
           <Styled.VideoUrl animations={animations}>

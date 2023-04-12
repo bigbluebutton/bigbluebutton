@@ -55,12 +55,14 @@ const RandomUserSelectContainer = (props) => {
   if (randomlySelectedUser) {
     mappedRandomlySelectedUsers = randomlySelectedUser.map((ui) => {
       const selectedUser = users[Auth.meetingID][ui[0]];
-      return [{
-        userId: selectedUser.userId,
-        avatar: selectedUser.avatar,
-        color: selectedUser.color,
-        name: selectedUser.name,
-      }, ui[1]];
+      if (selectedUser){
+        return [{
+          userId: selectedUser.userId,
+          avatar: selectedUser.avatar,
+          color: selectedUser.color,
+          name: selectedUser.name,
+        }, ui[1]];
+      }
     });
   }
 

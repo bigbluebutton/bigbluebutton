@@ -39,7 +39,7 @@ const intlMessages = defineMessages({
 });
 
 const AboutComponent = (props) => {
-  const { intl, settings } = props;
+  const { intl, settings, isOpen, onRequestClose, priority, } = props;
   const {
     html5ClientBuild,
     copyright,
@@ -62,7 +62,11 @@ const AboutComponent = (props) => {
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),
       }}
-      {...props}
+      {...{
+        isOpen,
+        onRequestClose,
+        priority,
+      }}
     >
       {`${intl.formatMessage(intlMessages.copyright)} ${copyright}`}
       <br />

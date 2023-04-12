@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
@@ -114,10 +114,14 @@ const AppContainer = (props) => {
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
-  const mountRandomUserModal = !isPresenter
-  && !isEqual(prevRandomUser, randomlySelectedUser)
-  && randomlySelectedUser.length > 0
-  && !isModalOpen;
+  const [mountRandomUserModal, setMountRandomUserModal] = useState(false);
+
+  useEffect(() => {
+    setMountRandomUserModal(!isPresenter
+      && !isEqual(prevRandomUser, randomlySelectedUser)
+      && randomlySelectedUser.length > 0
+      && !isModalOpen);
+  }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
     LayoutService.setPushLayout(pushLayout);
@@ -174,6 +178,7 @@ const AppContainer = (props) => {
           sidebarContentIsOpen,
           shouldShowPresentation,
           mountRandomUserModal,
+          setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
         }}

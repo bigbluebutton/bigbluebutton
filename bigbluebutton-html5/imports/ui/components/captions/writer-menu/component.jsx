@@ -100,7 +100,11 @@ class WriterMenu extends PureComponent {
     const {
       intl,
       availableLocales,
-      setIsOpen,
+      isOpen,
+      onRequestClose,
+      priority,
+      setIsOpen
+
     } = this.props;
 
     const { locale } = this.state;
@@ -110,7 +114,12 @@ class WriterMenu extends PureComponent {
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
         title={intl.formatMessage(intlMessages.title)}
-        {...this.props}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+          setIsOpen
+        }}
       >
         <Styled.Content>
           <span>

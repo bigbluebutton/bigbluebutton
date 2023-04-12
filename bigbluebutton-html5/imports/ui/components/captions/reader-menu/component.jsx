@@ -206,6 +206,8 @@ class ReaderMenu extends PureComponent {
       intl,
       ownedLocales,
       closeModal,
+      isOpen,
+      priority,
     } = this.props;
 
     const {
@@ -230,7 +232,10 @@ class ReaderMenu extends PureComponent {
         onRequestClose={closeModal}
         hideBorder
         contentLabel={intl.formatMessage(intlMessages.title)}
-        {...this.props}
+        {...{
+          isOpen,
+          priority,
+        }}
       >
         <Styled.Title>
           {intl.formatMessage(intlMessages.title)}

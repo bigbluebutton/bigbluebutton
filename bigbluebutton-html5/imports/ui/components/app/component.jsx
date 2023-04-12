@@ -524,7 +524,9 @@ class App extends Component {
   }
 
   setRandomUserSelectModalIsOpen(value) {
+    const {setMountRandomUserModal} = this.props;
     this.setState({isRandomUserSelectModalOpen: value});
+    setMountRandomUserModal(false);
   }
 
   render() {

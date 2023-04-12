@@ -34,7 +34,7 @@ const intlMessages = defineMessages({
 const LOGOUT_CODE = '680';
 
 const RecordingNotifyModal = (props) => {
-  const { intl, toggleShouldNotify, closeModal } = props;
+  const { intl, toggleShouldNotify, closeModal, isOpen, priority, } = props;
 
   function skipButtonHandle() {
     makeCall('userLeftMeeting');
@@ -47,7 +47,10 @@ const RecordingNotifyModal = (props) => {
       contentLabel={intl.formatMessage(intlMessages.title)}
       shouldShowCloseButton={false}
       title={intl.formatMessage(intlMessages.title)}
-      {...props}
+      {...{
+        isOpen,
+        priority,
+      }}
     >
       <Styled.Container>
         <Styled.Description>

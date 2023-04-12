@@ -1,58 +1,39 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useCallback, useEffect } from 'react';
 import Styled from './styles';
-import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 
-const propTypes = {
-  overlayClassName: PropTypes.string.isRequired,
-  portalClassName: PropTypes.string.isRequired,
-  contentLabel: PropTypes.string.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-};
+const BaseModal = (props) => { 
+  const { setIsOpen, modalName, children,
+    isOpen, onRequestClose, className, overlayClassName,
+  } = props;
 
-const defaultProps = {
-  overlayClassName: 'modalOverlay',
-  contentLabel: 'Modal',
-  isOpen: true,
-};
+  const closeEventHandler = useCallback (() => {
+      setIsOpen(false);
+  } , []);
+  useEffect( () => {
+    // Only add event listener if name is specified
+    if(!modalName) return;
 
-export default class ModalBase extends Component {
+    const closeEventName = `CLOSE_MODAL_${modalName.toUpperCase()}`;
 
-  componentDidMount() {
-    registerTitleView(this.props.contentLabel);
-  }
+    // Listen to close event on mount
+    document.addEventListener(closeEventName, closeEventHandler);
 
-  componentWillUnmount() {
-    unregisterTitleView();
-  }
+    // Remove listener on unmount
+    return () => {
+        document.removeEventListener(closeEventName, closeEventHandler);
+    };
+  }, []);
+  const priority = props.priority ? props.priority : "low"
+  return (<Styled.BaseModal
+    portalClassName={`modal-${priority}`}
+    parentSelector={()=>document.querySelector('#modals-container')}
+    isOpen={isOpen}
+    onRequestClose={onRequestClose}
+    className={className}
+    overlayClassName={overlayClassName}
+  >
+    {children}
+  </Styled.BaseModal>
+)}
 
-  render() {
-    const {
-      isOpen,
-      'data-test': dataTest,
-    } = this.props;
-
-    if (!isOpen) return null;
-
-    return (
-      <Styled.BaseModal
-        {...this.props}
-        parentSelector={() => {
-          if (document.fullscreenElement &&
-            document.fullscreenElement.nodeName &&
-            document.fullscreenElement.nodeName.toLowerCase() === 'div')
-            return document.fullscreenElement;
-          else return document.body;
-        }}
-        data={{
-          test: dataTest ?? null,
-        }}
-      >
-        {this.props.children}
-      </Styled.BaseModal>
-    );
-  }
-}
-
-ModalBase.propTypes = propTypes;
-ModalBase.defaultProps = defaultProps;
+export default { BaseModal };

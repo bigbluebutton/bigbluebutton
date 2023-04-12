@@ -1315,7 +1315,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   render() {
-    const { intl, isUpdate } = this.props;
+    const { intl, isUpdate, isOpen, priority, setIsOpen, } = this.props;
     const {
       preventClosing,
       leastOneUserIsValid,
@@ -1355,7 +1355,11 @@ class BreakoutRoom extends PureComponent {
             : intl.formatMessage(intlMessages.dismissLabel),
         }}
         preventClosing={preventClosing}
-        {...this.props}
+        {...{
+          isOpen,
+          priority,
+          setIsOpen,
+        }}
       >
         <Styled.Content>
           {this.renderTitle()}

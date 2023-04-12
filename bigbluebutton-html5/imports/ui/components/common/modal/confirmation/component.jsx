@@ -50,6 +50,9 @@ class ConfirmationModal extends Component {
       confirmParam,
       disableConfirmButton,
       description,
+      isOpen,
+      onRequestClose,
+      priority,
     } = this.props;
 
     const {
@@ -63,7 +66,11 @@ class ConfirmationModal extends Component {
         onRequestClose={() => setIsOpen(false)}
         contentLabel={title}
         title={title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
-        {...this.props}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <Styled.Container>
           <Styled.Description>

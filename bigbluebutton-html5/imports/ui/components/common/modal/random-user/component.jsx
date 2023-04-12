@@ -127,6 +127,9 @@ class RandomUserSelect extends Component {
       currentUser,
       clearRandomlySelectedUser,
       mappedRandomlySelectedUsers,
+      isOpen,
+      priority,
+      randomUserReq,
     } = this.props;
 
     const counter = SELECT_RANDOM_USER_COUNTDOWN ? this.state.count : 0;
@@ -190,13 +193,16 @@ class RandomUserSelect extends Component {
       return (
         <ModalSimple
           onRequestClose={() => {
-            if (currentUser.presenter) clearRandomlySelectedUser();
+            clearRandomlySelectedUser();
             toggleKeepModalOpen();
             setIsOpen(false);
           }}
           contentLabel={intl.formatMessage(messages.ariaModalTitle)}
           title={title}
-          {...this.props}
+          {...{
+            isOpen,
+            priority,
+          }}
         >
           {viewElement}
         </ModalSimple>

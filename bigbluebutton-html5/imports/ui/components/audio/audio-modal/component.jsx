@@ -592,6 +592,9 @@ class AudioModal extends Component {
       showPermissionsOvelay,
       closeModal,
       isIE,
+      isOpen,
+      priority,
+      setIsOpen,
     } = this.props;
 
     const { content } = this.state;
@@ -613,7 +616,11 @@ class AudioModal extends Component {
               )
               : null
           }
-          {...this.props}
+          {...{
+            setIsOpen,
+            isOpen,
+            priority,
+          }}
         >
           {isIE ? (
             <Styled.BrowserWarning>

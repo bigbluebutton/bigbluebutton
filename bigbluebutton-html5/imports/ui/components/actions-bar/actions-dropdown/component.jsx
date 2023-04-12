@@ -295,10 +295,9 @@ class ActionsDropdown extends PureComponent {
     this.setState({isLayoutModalOpen: value});
   }
 
-  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+  renderModal(isOpen, setIsOpen, priority, Component) {
     return isOpen ? <Component 
       {...{
-        ...otherOptions,
         onRequestClose: () => setIsOpen(false),
         priority,
         setIsOpen,
@@ -316,6 +315,7 @@ class ActionsDropdown extends PureComponent {
       isDropdownOpen,
       isMobile,
       isRTL,
+      isSelectRandomUserEnabled,
     } = this.props;
 
     const { isExternalVideoModalOpen, 
@@ -366,10 +366,10 @@ class ActionsDropdown extends PureComponent {
         />
         {this.renderModal(isExternalVideoModalOpen, this.setExternalVideoModalIsOpen, "low",
           ExternalVideoModal)}
-        {this.renderModal(isRandomUserSelectModalOpen, this.setRandomUserSelectModalIsOpen, 
-          "low", RandomUserSelectContainer)}
+        {(amIPresenter && isSelectRandomUserEnabled) ? this.renderModal(isRandomUserSelectModalOpen, this.setRandomUserSelectModalIsOpen, 
+          "low", RandomUserSelectContainer) : null }
         {this.renderModal(isLayoutModalOpen, this.setLayoutModalIsOpen, 
-          "low", LayoutModalContainer, {...this.props, isSelectedUser:false})}
+          "low", LayoutModalContainer)}
       </>
     );
   }

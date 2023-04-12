@@ -9,7 +9,12 @@ import {
 } from '/imports/ui/components/settings/service';
 
 const LayoutModalContainer = (props) => {
-  return <LayoutModalComponent {...props} />};
+  const { intl, setIsOpen,onRequestClose, isOpen, isModerator, isPresenter, showToggleLabel,
+          application, updateSettings, } = props;
+  return <LayoutModalComponent {...{ 
+      intl, setIsOpen, isModerator, isPresenter, showToggleLabel,
+      application, updateSettings, onRequestClose, isOpen,
+   }} />};
 
 export default withTracker(({ amIModerator }) => ({
   application: SettingsService.application,

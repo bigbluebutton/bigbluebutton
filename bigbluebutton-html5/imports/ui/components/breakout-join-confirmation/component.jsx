@@ -199,7 +199,9 @@ class BreakoutJoinConfirmation extends Component {
   }
 
   render() {
-    const { intl, breakoutName, isFreeJoin, setIsOpen } = this.props;
+    const { intl, breakoutName, isFreeJoin, setIsOpen,
+      isOpen, priority,
+    } = this.props;
     const { waiting } = this.state;
 
     return (
@@ -217,7 +219,11 @@ class BreakoutJoinConfirmation extends Component {
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
-        {...this.props}
+        {...{ 
+          setIsOpen,
+          isOpen,
+          priority,
+        }}
       >
         { isFreeJoin ? this.renderSelectMeeting() : `${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
       </ModalFullscreen>

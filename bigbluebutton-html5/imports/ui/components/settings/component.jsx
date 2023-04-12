@@ -259,6 +259,8 @@ class Settings extends Component {
     const {
       intl,
       setIsOpen,
+      isOpen,
+      priority,
     } = this.props;
     const {
       current,
@@ -293,7 +295,10 @@ class Settings extends Component {
           label: intl.formatMessage(intlMessages.CancelLabel),
           description: intl.formatMessage(intlMessages.CancelLabelDesc),
         }}
-        {...this.props}
+        {...{
+          isOpen,
+          priority,
+        }}
       >
         {this.renderModalContent()}
       </ModalFullscreen>

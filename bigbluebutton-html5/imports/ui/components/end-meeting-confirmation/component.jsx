@@ -41,6 +41,7 @@ class EndMeetingComponent extends PureComponent {
   render() {
     const {
       users, intl, endMeeting, meetingTitle,
+      isOpen, onRequestClose, priority, setIsOpen,
     } = this.props;
 
     const title = intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle });
@@ -63,7 +64,12 @@ class EndMeetingComponent extends PureComponent {
         confirmButtonColor="danger"
         confirmButtonDataTest="confirmEndMeeting"
         confirmButtonLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
-        {...this.props}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+          setIsOpen,
+        }}
       />
     );
   }

@@ -59,6 +59,9 @@ class GuestPolicyComponent extends PureComponent {
       intl,
       guestPolicy,
       changeGuestPolicy,
+      isOpen,
+      onRequestClose,
+      priority,
     } = this.props;
 
     return (
@@ -66,7 +69,11 @@ class GuestPolicyComponent extends PureComponent {
         onRequestClose={() => setIsOpen(false)}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.guestPolicyTitle)}
-        {...this.props}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <Styled.Container
           data-test="guestPolicySettingsModal"

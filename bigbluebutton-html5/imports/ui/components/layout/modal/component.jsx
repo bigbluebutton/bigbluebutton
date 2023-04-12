@@ -17,6 +17,8 @@ const LayoutModalComponent = (props) => {
     showToggleLabel,
     application,
     updateSettings,
+    onRequestClose,
+    isOpen,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
@@ -155,7 +157,10 @@ const LayoutModalComponent = (props) => {
       data-test="layoutChangeModal"
       onRequestClose={() => setIsOpen(false)}
       title={intl.formatMessage(intlMessages.title)}
-      {...props}
+      {...{
+        isOpen,
+        onRequestClose,
+      }}
     >
       <Styled.Content>
         <Styled.BodyContainer>

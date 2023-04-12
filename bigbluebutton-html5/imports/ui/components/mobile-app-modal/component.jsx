@@ -97,7 +97,7 @@ class MobileAppModal extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, isOpen, onRequestClose, priority, } = this.props;
     const { url, urlMessage, meetingName } = this.state;
 
     return (
@@ -107,7 +107,11 @@ class MobileAppModal extends Component {
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
-        {...this.props}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <Styled.Center>
           {`${intl.formatMessage(intlMessages.description)}`}
