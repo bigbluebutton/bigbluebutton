@@ -44,6 +44,22 @@ module BigBlueButton
       participants_ids.length
     end
 
+    # Get userID list
+    def self.get_userIDs(events)
+      participants_ids = Hash.new
+
+      events.xpath("/recording/event[@eventname='ParticipantJoinEvent']").each do |joinEvent|
+         name = joinEvent.at_xpath("name").text
+         userId = joinEvent.at_xpath("userId").text
+
+         #removing "_N" at the end of userId
+         userId.gsub!(/_\d*$/, "")
+
+         participants_ids[userId] = name if name.size != 0
+      end
+      participants_ids
+    end
+    
     # Get the meeting metadata
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")
