@@ -63,6 +63,7 @@ trait HandlerHelpers extends SystemConfiguration {
         guestStatus = regUser.guestStatus,
         emoji = "none",
         pin = false,
+        mobile = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
