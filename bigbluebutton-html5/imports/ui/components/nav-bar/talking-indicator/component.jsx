@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import Service from './service';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -73,7 +73,7 @@ class TalkingIndicator extends PureComponent {
 
       return (
         <Styled.TalkingIndicatorWrapper
-          key={_.uniqueId(`${name}-`)}
+          key={uniqueId(`${name}-`)}
           muted={muted}
           talking={talking}
           floor={floor}
@@ -89,7 +89,7 @@ class TalkingIndicator extends PureComponent {
             $spoke={!talking || undefined}
             $muted={muted}
             $isViewer={!amIModerator || undefined}
-            key={_.uniqueId(`${name}-`)}
+            key={uniqueId(`${name}-`)}
             onClick={() => this.handleMuteUser(id)}
             label={name}
             tooltipLabel={!muted && amIModerator
@@ -133,7 +133,7 @@ class TalkingIndicator extends PureComponent {
           $spoke={nobodyTalking}
           $muted={false}
           $isViewer={false}
-          key={_.uniqueId('_has__More_')}
+          key={uniqueId('_has__More_')}
           onClick={() => {}} // maybe add a dropdown to show the rest of the users
           label="..."
           tooltipLabel={ariaLabel}

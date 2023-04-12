@@ -246,8 +246,6 @@ class Base extends Component {
   }
 
   renderByState() {
-    const { updateLoadingState } = this;
-    const stateControls = { updateLoadingState };
     const { loading, userRemoved } = this.state;
     const {
       codeError,
@@ -301,7 +299,7 @@ class Base extends Component {
       return (<MeetingEnded code={codeError} callback={() => Base.setExitReason('logout')} />);
     }
 
-    return (<AppContainer {...this.props} baseControls={stateControls} />);
+    return (<AppContainer {...this.props} />);
   }
 
   render() {

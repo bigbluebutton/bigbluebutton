@@ -15,5 +15,11 @@ function timeInSeconds(locator){
   return hours * 3600 + minutes * 60 + seconds;
 }
 
+async function rowFilter(testPage, locator, role, selector) {
+  const locatorToFilter = await testPage.getLocator(locator);
+  return locatorToFilter.filter({ hasText: role }).locator(selector);
+}
+
 exports.openPoll = openPoll;
 exports.timeInSeconds = timeInSeconds;
+exports.rowFilter = rowFilter;

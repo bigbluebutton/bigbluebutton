@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const propTypes = {
   icon: PropTypes.string,
@@ -29,8 +29,8 @@ const messages = defineMessages({
 class DropdownListItem extends Component {
   constructor(props) {
     super(props);
-    this.labelID = _.uniqueId('dropdown-item-label-');
-    this.descID = _.uniqueId('dropdown-item-desc-');
+    this.labelID = uniqueId('dropdown-item-label-');
+    this.descID = uniqueId('dropdown-item-desc-');
   }
 
   renderDefault() {
