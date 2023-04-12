@@ -32,7 +32,7 @@ module BigBlueButton
       NAME_BGCOLOR = 'black'
       NAME_FGCOLOR = 'yellow'
       NAME_SIZE_RECIPRCL = 10
-      NAME_ALPHA = 0.7
+      NAME_ALPHA = 0.5
       NAME_UNIFONT = false # Use Unifont irrespective to the used language. Always working but quality is not the best; sudo apt install unifont is necessary when true
       NAME_DEF = "NotoSans-Regular" # Default font in case nothing found (never happens).
       
