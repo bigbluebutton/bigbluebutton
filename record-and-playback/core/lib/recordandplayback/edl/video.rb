@@ -27,7 +27,15 @@ module BigBlueButton
       FFMPEG_WF_CODEC = 'libx264'
       FFMPEG_WF_ARGS = ['-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'veryfast', '-crf', '30', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p']
       WF_EXT = 'mp4'
-
+      # Parameters for burning-in the user's name. Could be moved to a more accessible place such as setting files.
+      NAME_BURNIN = true
+      NAME_BGCOLOR = 'black'
+      NAME_FGCOLOR = 'yellow'
+      NAME_SIZE_RECIPRCL = 10
+      NAME_ALPHA = 0.7
+      NAME_UNIFONT = false # Use Unifont irrespective to the used language. Always working but quality is not the best; sudo apt install unifont is necessary when true
+      NAME_DEF = "NotoSans-Regular" # Default font in case nothing found (never happens).
+      
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
         edl.each do |entry|
@@ -167,6 +175,47 @@ module BigBlueButton
         merged_edl
       end
 
+      def self.find_best_font(id, nm, bdir, flist)
+        tmpdir = "/tmp/"
+        sofficedir = tmpdir+".sofficeNameTagCreator"
+        f = File.open("#{bdir+id}.html", 'w')
+        f.puts "<span STYLE=\"font-family: 'sans-serif';\">#{nm.gsub(/&/,"&amp;").gsub(/</,"&lt;").gsub(/>/,"&gt;")}</span>"
+        f.close
+        BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --terminate_after_init -env:UserInstallation=file://#{sofficedir}", false) unless File.exist?(sofficedir)
+        BigBlueButton.execute("/usr/lib/libreoffice/program/soffice.bin --headless --norestore --writer --convert-to pdf --outdir #{bdir} -env:UserInstallation=file://#{sofficedir} #{bdir+id}.html", false)
+        pdffont = NAME_DEF
+        if File.exist?("#{bdir+id}.pdf")
+          #Since the commit https://github.com/bigbluebutton/bigbluebutton/commit/1268753519d9b6ea403bd632216c0199a5b9e20c, execute method no longer returns output.
+          #pdffonts_res = BigBlueButton.execute("/usr/bin/pdffonts #{bdir+id}.pdf | tail -n 1 | awk '{print$1}'")
+          #pdffont = pdffonts_res.output[0].sub(/^.*\+(\S+).*/,'\1').chomp
+          IO.popen("/usr/bin/pdffonts #{bdir+id}.pdf | tail -n 1 | awk '{print$1}'") do |io|
+            pdffont = io.gets.sub(/^.*\+(\S+).*/,'\1').chomp
+          end
+        end
+        f_ngram = []
+        flist.each do |h,v|
+          f_ngram << [v, ngram(h, pdffont, 3)]
+        end
+        f_ngram.sort!{|x,y| y[1] <=> x[1]}
+        BigBlueButton.execute("rm #{bdir+id}.html #{bdir+id}.pdf", false)
+        BigBlueButton.logger.info "#{f_ngram[0][0]} will be used for #{nm}."
+        f_ngram[0][0]
+      end
+
+      def self.escapeffmpg(s)
+        return s.gsub(/\\/,"\\\\\\\\\\\\\\\\").gsub(/\"/,"\\\\\\\\\\\"").gsub(/'/,"'\\\\\\\\\\\\''").gsub(/%/,"\\\\\\\\\\\%").gsub(/:/, "\\\\\\\\\\\:")
+      end
+
+      # To quickly calculate the similarity of two words
+      def self.ngram(s1, s2, n)
+        strings = [s1.gsub(/[ _-]/, "").downcase, s2.gsub(/[ _-]/, "").downcase] # -_ matches to capital letters?
+        return 0.0  if strings[0].size < n || strings[1].size < n
+        a = strings.map { |s| s.chars.each_cons(n).collect(&:join) }
+        dup = (a[0] & a[1]).size
+        all = (a[0] + a[1]).uniq.size
+        return dup/all.to_f
+      end
+      
       # Edit the EDL to make sure that every cut has a minimum length to ensure processing will work properly
       def self.enforce_cut_lengths(edl, framerate)
         # Set the minimum cut length to 2 frames long
@@ -294,12 +343,43 @@ module BigBlueButton
 
         dump(edl)
 
+        uids = Hash.new
+        fonts = Hash.new
+        basedir = output_basename.sub(/webcams$/,'')
+        userIds_file = basedir+'users.json'
+        if NAME_BURNIN && File.exist?(userIds_file)
+          f = File.open(userIds_file)
+          uids = JSON.load(f)
+          f.close
+
+          uf = BigBlueButton.execute("/usr/bin/fc-match -f '%{file}' unifont") if NAME_UNIFONT
+          fclist = Hash.new
+          #Since the commit https://github.com/bigbluebutton/bigbluebutton/commit/1268753519d9b6ea403bd632216c0199a5b9e20c, execute method no longer returns output.
+          #fclist_res = BigBlueButton.execute("/usr/bin/fc-list -f '%{file}\\n'")
+          #fclist_res.output.each do |s|
+          #  fclist[File.basename(s, ".*")] = s.chomp
+          #end
+          IO.popen("/usr/bin/fc-list -f '%{file}\\n'") do |io|
+            io.each_line do |s|
+              fclist[File.basename(s, ".*")] = s.chomp
+            end
+          end
+
+          uids.each do |h,v|
+            if NAME_UNIFONT
+              fonts[h] = uf.output[0].chomp
+            else
+              fonts[h] = find_best_font(h,v,basedir, fclist)
+            end
+          end
+        end
+        
         BigBlueButton.logger.info "Compositing cuts"
         render = "#{output_basename}.#{WF_EXT}"
         concat = []
         for i in 0...(edl.length - 1)
           segment = "#{output_basename}_#{i}.#{WF_EXT}"
-          composite_cut(segment, edl[i], layout, videoinfo)
+          composite_cut(segment, edl[i], layout, videoinfo, uids, fonts)
           concat << segment
         end
 
@@ -421,7 +501,7 @@ module BigBlueButton
         [new_width, new_height]
       end
 
-      def self.composite_cut(output, cut, layout, videoinfo)
+      def self.composite_cut(output, cut, layout, videoinfo, id_names, id_fonts)
         duration = cut[:next_timestamp] - cut[:timestamp]
         BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
@@ -603,6 +683,11 @@ module BigBlueButton
             ffmpeg_filter << "setpts=PTS*#{scale}," unless scale.nil?
             # Extend the video if needed and clean up the framerate
             ffmpeg_filter << "tpad=stop=-1:stop_mode=clone,fps=#{layout[:framerate]}:start_time=#{ms_to_s(in_time)}"
+            # Burn-in the user's name in the video
+            uid = video[:filename].sub(/.*medium-(.+)-\d+.webm$/,'\1')
+            if id_names[uid]
+              ffmpeg_filter << ",drawtext=fontfile=#{id_fonts[uid]}:text='#{escapeffmpg(id_names[uid])}':fontsize=#{tile_height/NAME_SIZE_RECIPRCL}:box=1:fontcolor=#{NAME_FGCOLOR}:boxcolor=#{NAME_BGCOLOR}@#{NAME_ALPHA}:boxborderw=3"
+            end
             # Apply PTS offset so '0' time is aligned, and trim frames before start point
             ffmpeg_filter << ",setpts=PTS-#{ms_to_s(in_time)}/TB,trim=start=0"
             # Trim frames after stop time, which can be generated by the pre-processing ffmpeg if there's an unlucky
