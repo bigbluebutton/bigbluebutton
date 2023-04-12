@@ -206,6 +206,7 @@ class Join extends Create {
     await this.modPage.checkElementCount(e.actionsItem, 8);
     await whiteboardPDF.click();
     await this.modPage.waitAndClick('i[type="info"]');
+    await this.modPage.waitAndClick(e.currentPresentationToast);
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
     await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {

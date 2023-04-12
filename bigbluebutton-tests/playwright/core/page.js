@@ -310,7 +310,7 @@ class Page {
   }
 
   async dragDropSelector(selector, position) {
-    await this.page.locator(selector).dragTo(this.page.locator(position));
+    await this.page.locator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
   }
 
   async checkElementCount(selector, count) {
