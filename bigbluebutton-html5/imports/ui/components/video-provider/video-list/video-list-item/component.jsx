@@ -201,7 +201,7 @@ const VideoListItem = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       {...{
-        ...makeDragOperations(onVirtualBgDrop, user?.userId),
+        ...makeDragOperations(user?.userId),
         dragging,
         draggingOver,
       }}
@@ -212,6 +212,7 @@ const VideoListItem = (props) => {
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
           ref={videoTag}
+          muted="muted"
           autoPlay
           playsInline
         />

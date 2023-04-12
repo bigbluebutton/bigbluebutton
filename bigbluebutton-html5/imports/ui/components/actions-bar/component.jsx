@@ -4,6 +4,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
+import CaptionsReaderMenuContainer from '/imports/ui/components/captions/reader-menu/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
@@ -12,6 +13,20 @@ import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isCaptionsReaderMenuModalOpen: false,
+    };
+
+    this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
+  }
+
+  setCaptionsReaderMenuModalIsOpen(value) {
+    this.setState({ isCaptionsReaderMenuModalOpen: value })
+  }
+
   render() {
     const {
       amIPresenter,
@@ -41,8 +56,10 @@ class ActionsBar extends PureComponent {
       setPushLayout,
     } = this.props;
 
-    const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation) 
-                                    || isSharingVideo || hasScreenshare || isSharedNotesPinned;
+    const { isCaptionsReaderMenuModalOpen } = this.state;
+
+    const shouldShowOptionsButton = (isPresentationEnabled() && isThereCurrentPresentation)
+      || isSharingVideo || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar
         style={
@@ -71,7 +88,20 @@ class ActionsBar extends PureComponent {
           />
           {isCaptionsAvailable
             ? (
-              <CaptionsButtonContainer {...{ intl }} />
+              <>
+                <CaptionsButtonContainer {...{ intl, 
+                  setIsOpen: this.setCaptionsReaderMenuModalIsOpen,}} />
+                {
+                  isCaptionsReaderMenuModalOpen ? <CaptionsReaderMenuContainer
+                    {...{
+                      onRequestClose: () => this.setCaptionsReaderMenuModalIsOpen(false),
+                      priority: "low",
+                      setIsOpen: this.setCaptionsReaderMenuModalIsOpen,
+                      isOpen: isCaptionsReaderMenuModalOpen,
+                    }}
+                  /> : null
+                }
+              </>
             )
             : null}
           { !deviceInfo.isMobile

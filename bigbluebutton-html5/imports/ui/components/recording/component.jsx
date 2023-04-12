@@ -50,6 +50,10 @@ class RecordingComponent extends PureComponent {
       amIModerator,
       toggleRecording,
       isMeteorConnected,
+      isOpen,
+      onRequestClose,
+      priority,
+      setIsOpen,
     } = this.props;
 
     let title;
@@ -74,6 +78,12 @@ class RecordingComponent extends PureComponent {
         title={title}
         description={description}
         disableConfirmButton={!isMeteorConnected}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+          setIsOpen,
+        }}
       />
     );
   }

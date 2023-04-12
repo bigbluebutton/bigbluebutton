@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ConfirmationModalStyles from '/imports/ui/components/common/modal/confirmation/styles';
 
-const RecordingNotifyModal = styled(Modal)``;
+const RecordingNotifyModal = styled(ModalSimple)``;
 
 const Container = styled(ConfirmationModalStyles.Container)`
   padding: 3.625em 0 3.625em 0;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
   smPaddingX,
   mdPaddingX,
@@ -10,7 +10,7 @@ import {
 import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import { lineHeightBase } from '/imports/ui/stylesheets/styled-components/typography';
 
-const ConfirmationModal = styled(Modal)`
+const ConfirmationModal = styled(ModalSimple)`
   padding: ${mdPaddingX};
 `;
 

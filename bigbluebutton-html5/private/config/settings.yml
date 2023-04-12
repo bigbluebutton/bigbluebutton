@@ -164,6 +164,7 @@ public:
     userSettingsStorage: session
     defaultSettings:
       application:
+        selectedLayout: 'custom'
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false

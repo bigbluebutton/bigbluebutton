@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
@@ -19,6 +18,13 @@ const intlMessages = defineMessages({
 });
 
 class ConnectionStatusButton extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isModalOpen: false,
+    }
+  }
+
   renderIcon(level = 'normal') {
     return(
       <Styled.IconWrapper>
@@ -30,11 +36,27 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
+
+  renderModal(isModalOpen) {
+    return (
+      isModalOpen ?
+      <ConnectionStatusModalContainer
+        {...{
+          isModalOpen,
+          setModalIsOpen: this.setModalIsOpen
+        }}
+      /> : null
+    )
+  }
+
   render() {
     const {
       intl,
       connected,
     } = this.props;
+    const { isModalOpen } = this.state;
+
 
     if (!connected) {
       return (
@@ -51,13 +73,13 @@ class ConnectionStatusButton extends PureComponent {
             onClick={() => {}}
             data-test="connectionStatusButton"
           />
+          {this.renderModal(isModalOpen)}
         </Styled.ButtonWrapper>
       );
     }
 
     const {
       stats,
-      mountModal,
     } = this.props;
 
     let color;
@@ -89,12 +111,13 @@ class ConnectionStatusButton extends PureComponent {
           size="sm"
           color={color}
           circle
-          onClick={() => mountModal(<ConnectionStatusModalContainer />)}
+          onClick={() => this.setState({isModalOpen: true})}
           data-test="connectionStatusButton"
         />
+        {this.renderModal(isModalOpen)}
       </Styled.ButtonWrapper>
     );
   }
 }
 
-export default injectIntl(withModalMounter(ConnectionStatusButton));
+export default injectIntl(ConnectionStatusButton);
