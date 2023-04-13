@@ -240,6 +240,10 @@ For full details on what is new in BigBlueButton 2.6, see the release notes. Rec
 
 We recommend using API MATE or Greenlight - see the [development setup section](/development/guide) for more information.
 
+#### bbb-install-2.6.sh installs a local TURN server and shares port 443 by default
+
+If you are using bbb-install to configure your servers, be aware that in BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 2.6](/development/guide).
