@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "Умістити за шириною",
     "app.presentation.presentationToolbar.fitToPage": "Умістити на сторінку",
     "app.presentation.presentationToolbar.goToSlide": "Слайд {0}",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Приховати панель",
+    "app.presentation.presentationToolbar.showToolsDesc": "Показати панель інструментів",
     "app.presentation.placeholder": "Немає активної презентації",
     "app.presentationUploder.title": "Презентація",
     "app.presentationUploder.message": "У ролі доповідача у вас є можливість завантажити будь який офісний документ або PDF файл. Ми рекомендуємо PDF файли для кращої сумісності. Переконайтесь, що презентація помічена як обрана для показу на дошці ліворуч  від імені файлу.",
