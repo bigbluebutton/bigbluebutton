@@ -1,11 +1,11 @@
 import createPad from '/imports/api/pads/server/modifiers/createPad';
 
-export default function padCreated({ header, body }) {
+export default async function padCreated({ header, body }) {
   const { meetingId } = header;
   const {
     externalId,
     padId,
   } = body;
 
-  createPad(meetingId, externalId, padId);
+  await createPad(meetingId, externalId, padId);
 }

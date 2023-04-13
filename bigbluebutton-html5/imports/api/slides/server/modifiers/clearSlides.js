@@ -1,12 +1,12 @@
 import { Slides, SlidePositions } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearSlides(meetingId) {
+export default async function clearSlides(meetingId) {
   if (meetingId) {
     try {
-      const numberAffectedSlidePositions = SlidePositions.remove({ meetingId });
+      const numberAffectedSlidePositions = await SlidePositions.removeAsync({ meetingId });
 
-      const numberAffected = Slides.remove({ meetingId });
+      const numberAffected = await Slides.removeAsync({ meetingId });
 
       if (numberAffectedSlidePositions) {
         Logger.info(`Cleared SlidePositions (${meetingId})`);
@@ -20,9 +20,9 @@ export default function clearSlides(meetingId) {
     }
   } else {
     try {
-      const numberAffectedSlidePositions = SlidePositions.remove({ meetingId });
+      const numberAffectedSlidePositions = await SlidePositions.removeAsync({ meetingId });
 
-      const numberAffected = Slides.remove({ meetingId });
+      const numberAffected = await Slides.removeAsync({ meetingId });
 
       if (numberAffectedSlidePositions) {
         Logger.info(`Cleared SlidePositions (${meetingId})`);

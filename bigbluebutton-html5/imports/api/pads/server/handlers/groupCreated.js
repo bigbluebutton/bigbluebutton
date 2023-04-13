@@ -1,6 +1,6 @@
 import createGroup from '/imports/api/pads/server/modifiers/createGroup';
 
-export default function groupCreated({ header, body }) {
+export default async function groupCreated({ header, body }) {
   const {
     meetingId,
     userId,
@@ -12,5 +12,5 @@ export default function groupCreated({ header, body }) {
     name,
   } = body;
 
-  createGroup(meetingId, userId, externalId, model, name);
+  await createGroup(meetingId, userId, externalId, model, name);
 }

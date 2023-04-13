@@ -4,7 +4,7 @@ import UsersPersistentData from '/imports/api/users-persistent-data';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
-export default function changeHasMessages(hasMessages, userId, meetingId, chatId) {
+export default async function changeHasMessages(hasMessages, userId, meetingId, chatId) {
   const selector = {
     meetingId,
     userId,
@@ -19,7 +19,7 @@ export default function changeHasMessages(hasMessages, userId, meetingId, chatId
   };
 
   try {
-    const numberAffected = UsersPersistentData.update(selector, modifier);
+    const numberAffected = await UsersPersistentData.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed hasMessages=${hasMessages} id=${userId} meeting=${meetingId}`);

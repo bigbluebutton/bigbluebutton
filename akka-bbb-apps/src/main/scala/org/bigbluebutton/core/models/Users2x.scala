@@ -107,6 +107,12 @@ object Users2x {
     newUserState
   }
 
+  def setMobile(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.mobile).setTo(true)
+    users.save(newUserState)
+    newUserState
+  }
+
   def ejectFromMeeting(users: Users2x, intId: String): Option[UserState] = {
     for {
       _ <- users.remove(intId)
@@ -354,12 +360,14 @@ case class UserState(
     role:                  String,
     guest:                 Boolean,
     pin:                   Boolean,
+    mobile:                Boolean,
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    color:                 String,
     roleChangedOn:         Long         = System.currentTimeMillis(),
     lastActivityTime:      Long         = System.currentTimeMillis(),
     lastInactivityInspect: Long         = 0,

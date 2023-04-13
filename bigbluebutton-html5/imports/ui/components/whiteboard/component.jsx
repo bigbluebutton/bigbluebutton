@@ -69,6 +69,7 @@ export default function Whiteboard(props) {
     tldrawAPI,
     setTldrawAPI,
     isIphone,
+    sidebarNavigationWidth,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -83,7 +84,6 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
-  const [enable, setEnable] = React.useState(true);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -159,11 +159,6 @@ export default function Whiteboard(props) {
       toolbar?.removeEventListener('dblclick', handleDBClick);
     };
   }, [tldrawAPI, isToolLocked]);
-
-  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
-    setEnable(false);
-    setEnable(true);
-  }, 1000, { trailing: true }));
 
   const calculateZoom = (localWidth, localHeight) => {
     const calcedZoom = fitToWidth ? (presentationWidth / localWidth) : Math.min(
@@ -517,11 +512,8 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
-
     if (currentZoom !== tldrawZoom) {
       setTldrawZoom(currentZoom);
-    } else {
-      throttledResetCurrentPoint.current();
     }
   }, [presentationAreaHeight, presentationAreaWidth]);
 
@@ -933,7 +925,7 @@ export default function Whiteboard(props) {
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
-        key={`wb-${isRTL}-${dockPos}`}
+        key={`wb-${isRTL}-${dockPos}-${presentationAreaHeight}-${presentationAreaWidth}-${sidebarNavigationWidth}`}
         document={doc}
         // disable the ability to drag and drop files onto the whiteboard
         // until we handle saving of assets in akka.
@@ -1014,7 +1006,7 @@ export default function Whiteboard(props) {
         isMoving={isMoving}
         currentTool={currentTool}
       >
-        {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
+        {(hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle
           hideContextMenu={!hasWBAccess && !isPresenter}
           {...{
@@ -1109,6 +1101,7 @@ Whiteboard.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   numberOfSlides: PropTypes.number.isRequired,
   previousSlide: PropTypes.func.isRequired,
+  sidebarNavigationWidth: PropTypes.number,
 };
 
 Whiteboard.defaultProps = {
@@ -1117,4 +1110,5 @@ Whiteboard.defaultProps = {
   slidePosition: undefined,
   svgUri: undefined,
   whiteboardId: undefined,
+  sidebarNavigationWidth: 0,
 };
