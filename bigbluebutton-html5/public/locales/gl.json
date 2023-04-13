@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "Axustar ao largo",
     "app.presentation.presentationToolbar.fitToPage": "Axustar á páxina",
     "app.presentation.presentationToolbar.goToSlide": "Diapositiva {0}",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Agochar barras de ferramentas",
+    "app.presentation.presentationToolbar.showToolsDesc": "Amosar barras de ferramentas",
     "app.presentation.placeholder": "Non hai ningunha presentación activa actualmente",
     "app.presentationUploder.title": "Presentación",
     "app.presentationUploder.message": "Como presentador tes a posibilidade de cargar calquera documento ofimático ou ficheiro PDF. Recomendamos o ficheiro PDF para obter os mellores resultados. Asegúrate de seleccionar unha presentación usando a caixa de verificación   circular do lado esquerdo.",
