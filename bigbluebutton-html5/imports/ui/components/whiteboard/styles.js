@@ -120,6 +120,12 @@ const PanTool = styled(Button)`
       transform: scale(-1, 1);
     }
   }
+  ${({ panSelected }) => !panSelected && `
+    &:hover,
+    &:focus {
+      background-color: var(--colors-hover) !important;
+    }
+  `}
 `;
 
 export default {
