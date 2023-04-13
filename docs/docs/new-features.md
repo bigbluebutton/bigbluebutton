@@ -158,6 +158,12 @@ In brief:
 - 2.5 **JOIN** `hidePresentation` -> 2.6 **CREATE** `disabledFeatures=presentation` (permanent disabling of presentation area for all users)
 - 2.5 **JOIN** `swapLayout` -> 2.6 **JOIN** `hidePresentation` (join a meeting with presentation area hidden, not permanently)
 
+#### Change of location for default presentation
+
+We used to keep the default presentation (`default.pdf` on a stock installation) in `/var/www/bigbluebutton-default/`.
+In BigBlueButton 2.6 we added a directory `assets` so now the full path is `/var/www/bigbluebutton-default/assets/default.pdf`.
+In case you are overriding the file/filename, please pass `beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/assets/file.pdf` in `/etc/bigbluebutton/bbb-web.properties`
+
 ### Engagement
 
 #### Fully reimplemented whiteboard (tl;draw)

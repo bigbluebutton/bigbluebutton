@@ -1,10 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import UsersPersistentData from '/imports/api/users-persistent-data/index';
 
-export default function clearUsersPersistentData(meetingId) {
+export default async function clearUsersPersistentData(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = UsersPersistentData.remove({ meetingId });
+      const numberAffected = await UsersPersistentData.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared users persistent data (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearUsersPersistentData(meetingId) {
     }
   } else {
     try {
-      const numberAffected = UsersPersistentData.remove({});
+      const numberAffected = await UsersPersistentData.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared users persistent data (all)');

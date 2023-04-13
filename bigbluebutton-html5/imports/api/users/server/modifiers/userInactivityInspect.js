@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function userInactivityInspect(userId, responseDelay) {
+export default async function userInactivityInspect(userId, responseDelay) {
   check(userId, String);
   check(responseDelay, Match.Integer);
 
@@ -19,7 +19,7 @@ export default function userInactivityInspect(userId, responseDelay) {
   };
 
   try {
-    const { numberAffected } = Users.update(selector, modifier);
+    const { numberAffected } = await Users.updateAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Updated user ${userId} with inactivity inspect`);

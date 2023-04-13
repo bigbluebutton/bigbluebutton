@@ -22,9 +22,9 @@ class Zoom extends MultiUsers {
     };
 
     // 100%
-    const zoomOutButtonLocator = await this.modPage.getLocator(e.zoomOutButton);
+    const zoomOutButtonLocator = this.modPage.getLocator(e.zoomOutButton);
     await expect(zoomOutButtonLocator).toBeDisabled();
-    const resetZoomButtonLocator = await this.modPage.getLocator(e.resetZoomButton);
+    const resetZoomButtonLocator = this.modPage.getLocator(e.resetZoomButton);
     await expect(resetZoomButtonLocator).toContainText(defaultZoomLevel);
 
     // 125%

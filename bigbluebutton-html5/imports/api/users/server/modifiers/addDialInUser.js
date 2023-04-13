@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import addUser from '/imports/api/users/server/modifiers/addUser';
 
-export default function addDialInUser(meetingId, voiceUser) {
+export default async function addDialInUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, Object);
 
@@ -26,6 +26,6 @@ export default function addDialInUser(meetingId, voiceUser) {
     pin: false,
     clientType: 'dial-in-user',
   };
-
-  return addUser(meetingId, voiceOnlyUser);
+  const user = await addUser(meetingId, voiceOnlyUser);
+  return user;
 }
