@@ -209,7 +209,7 @@ test.describe.parallel('CustomParameters', () => {
     });
   });
 
-  test.describe.parallel('Disabled Features', () => {
+  test.describe.parallel.only('Disabled Features', () => {
     test('Breakout Rooms', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.breakoutRooms });
@@ -292,6 +292,18 @@ test.describe.parallel('CustomParameters', () => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRooms });
       await customParam.importSharedNotesFromBreakoutRooms();
+    });
+
+    test('Presentation', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.presentation });
+      await customParam.presentation();
+    });
+
+    test('Custom Virtual Background', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.customVirtualBackground });
+      await customParam.customVirtualBackground();
     });
   });
 });

@@ -305,6 +305,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.wasRemoved(e.captureBreakoutSharedNotes);
   }
+
+  async presentation() {
+    await this.modPage.wasRemoved(e.whiteboard);
+  }
+
+  async customVirtualBackground() {
+    await this.modPage.waitAndClick (e.joinVideo);
+    await this.modPage.waitForSelector(e.webcamSettingsModal);
+    await this.modPage.wasRemoved(e.inputBackgroundButton);
+  }
 }
 
 exports.CustomParameters = CustomParameters;
