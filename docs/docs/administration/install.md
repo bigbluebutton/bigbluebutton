@@ -318,7 +318,7 @@ You can upgrade in a few steps:
 
   Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
   
-  Make sure you read through the "what's new in 2.6" document https://docs.bigbluebutton.org/2.6/new and specifically https://docs.bigbluebutton.org/2.6/new#change-of-parameters-naming and https://docs.bigbluebutton.org/2.6/new#other-notable-changes
+  Make sure you read through the "what's new in 2.6" document https://docs.bigbluebutton.org/2.6/new and specifically https://docs.bigbluebutton.org/2.6/new#other-notable-changes
 
 ### Upgrading from BigBlueButton 2.4
 
