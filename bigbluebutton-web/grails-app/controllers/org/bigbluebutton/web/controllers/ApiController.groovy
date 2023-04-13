@@ -211,15 +211,13 @@ class ApiController {
     roles.put("viewer", ROLE_ATTENDEE)
 
     //check if exists the param redirect
-    boolean redirectClient = true
+    boolean redirectClient = REDIRECT_RESPONSE
     String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);
-      } catch (Exception ignored) {
-        redirectClient = true
-      }
+      } catch (Exception ignored) {}
     }
 
     if(!(validationResponse == null)) {
@@ -249,13 +247,9 @@ class ApiController {
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
 
-    String redirectUrl = ""
-    if(!StringUtils.isEmpty(params.redirectUrl)) {
-      if(StringUtils.equals(params.redirectUrl, "logout")) {
-        redirectUrl = meeting.getLogoutUrl()
-      } else {
-        redirectUrl = params.redirectUrl
-      }
+    String errorRedirectUrl = ""
+    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
+      errorRedirectUrl = params.errorRedirectUrl
     }
 
     // the createTime mismatch with meeting's createTime, complain
@@ -270,7 +264,7 @@ class ApiController {
       }
       if (createTime != meeting.getCreateTime()) {
         // BEGIN - backward compatibility
-        invalid("mismatchCreateTimeParam", "The createTime parameter submitted mismatches with the current meeting.", redirectClient, redirectUrl);
+        invalid("mismatchCreateTimeParam", "The createTime parameter submitted mismatches with the current meeting.", redirectClient, errorRedirectUrl);
         return
         // END - backward compatibility
 
@@ -406,7 +400,7 @@ class ApiController {
 
     if (hasReachedMaxParticipants(meeting, us)) {
       // BEGIN - backward compatibility
-      invalid("maxParticipantsReached", "The number of participants allowed for this meeting has been reached.", redirectClient, redirectUrl)
+      invalid("maxParticipantsReached", "The number of participants allowed for this meeting has been reached.", redirectClient, errorRedirectUrl)
       return
       // END - backward compatibility
 
@@ -464,7 +458,7 @@ class ApiController {
       msgKey = "guestWait"
       msgValue = "Guest waiting for approval to join meeting."
     } else if (guestStatusVal.equals(GuestPolicy.DENY)) {
-      invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, redirectUrl)
+      invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, errorRedirectUrl)
       return
     }
 
@@ -1792,7 +1786,7 @@ class ApiController {
   }
 
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
-  private void invalid(key, msg, redirectResponse = false, redirectUrl = "") {
+  private void invalid(key, msg, redirectResponse = false, errorRedirectUrl = "") {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
@@ -1805,7 +1799,7 @@ class ApiController {
       JSONArray errorsJSONArray = new JSONArray(errors)
       log.debug "JSON Errors {}", errorsJSONArray.toString()
 
-      respondWithRedirect(errorsJSONArray, redirectUrl)
+      respondWithRedirect(errorsJSONArray, errorRedirectUrl)
     } else {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
