@@ -15,13 +15,13 @@ class FocusOnPresentation extends MultiUsers {
     await this.modPage.waitAndClick(e.focusOnPresentation);
     await this.modPage.waitAndClick(e.confirmButton);
 
-    const modPageCameraDockLocator = await this.modPage.getLocator(e.cameraDock);
+    const modPageCameraDockLocator = this.modPage.getLocator(e.cameraDock);
     await expect(this.modPage.page).toHaveScreenshot('moderator1-focus-on-presentation.png', {
       maxDiffPixels: 1000,
       mask: [modPageCameraDockLocator],
     });
 
-    const modPage2CameraDockLocator = await this.modPage2.getLocator(e.cameraDock);
+    const modPage2CameraDockLocator = this.modPage2.getLocator(e.cameraDock);
     await expect(this.modPage2.page).toHaveScreenshot('moderator2-focus-on-presentation.png', {
       maxDiffPixels: 1000,
       mask: [modPage2CameraDockLocator],

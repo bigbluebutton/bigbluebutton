@@ -7,7 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const UserInfos = new Mongo.Collection('users-infos', collectionOptions);
 
 if (Meteor.isServer) {
-  UserInfos._ensureIndex({ meetingId: 1, userId: 1 });
+  UserInfos.createIndexAsync({ meetingId: 1, userId: 1 });
 }
 
 export default UserInfos;

@@ -1,10 +1,10 @@
 import { ExternalVideoMeetings } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearExternalVideoMeeting(meetingId) {
+export default async function clearExternalVideoMeeting(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = ExternalVideoMeetings.remove({ meetingId });
+      const numberAffected = await ExternalVideoMeetings.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared ExternalVideoMeetings in (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearExternalVideoMeeting(meetingId) {
     }
   } else {
     try {
-      const numberAffected = ExternalVideoMeetings.remove({});
+      const numberAffected = await ExternalVideoMeetings.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared ExternalVideoMeetings in all meetings');

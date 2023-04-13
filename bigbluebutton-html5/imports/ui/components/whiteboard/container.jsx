@@ -35,6 +35,7 @@ const WhiteboardContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
+  const sidebarNavigationWidth = layoutSelect((i) => i?.output?.sidebarNavigation?.width);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
@@ -73,6 +74,7 @@ const WhiteboardContainer = (props) => {
         fontFamily,
         hasShapeAccess,
         handleToggleFullScreen,
+        sidebarNavigationWidth,
       }}
       {...props}
       meetingId={Auth.meetingID}

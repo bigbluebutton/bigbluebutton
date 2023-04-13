@@ -2,7 +2,7 @@ import Pads, { PadsUpdates } from '/imports/api/pads';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 
-export default function padCapture(breakoutId, parentMeetingId, filename) {
+export default async function padCapture(breakoutId, parentMeetingId, filename) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'PadCapturePubMsg';
@@ -10,7 +10,7 @@ export default function padCapture(breakoutId, parentMeetingId, filename) {
   const EXTERNAL_ID = Meteor.settings.public.notes.id;
 
   try {
-    const pad = Pads.findOne(
+    const pad = await Pads.findOneAsync(
       {
         meetingId: breakoutId,
         externalId: EXTERNAL_ID,
@@ -22,7 +22,7 @@ export default function padCapture(breakoutId, parentMeetingId, filename) {
       },
     );
 
-    const update = PadsUpdates.findOne(
+    const update = await PadsUpdates.findOneAsync(
       {
         meetingId: breakoutId,
         externalId: EXTERNAL_ID,

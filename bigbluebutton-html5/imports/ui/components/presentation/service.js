@@ -56,6 +56,10 @@ const getCurrentSlide = (podId) => {
   });
 };
 
+const getSlidesLength = (podId) => {
+  return getCurrentPresentation(podId)?.pages?.length || 0;
+}
+
 const getSlidePosition = (podId, presentationId, slideId) => SlidePositions.findOne({
   podId,
   presentationId,
@@ -222,4 +226,5 @@ export default {
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,
+  getSlidesLength,
 };

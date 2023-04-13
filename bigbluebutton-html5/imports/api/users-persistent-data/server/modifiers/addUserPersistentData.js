@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Logger from '/imports/startup/server/logger';
 
-export default function addUserPersistentData(user) {
+export default async function addUserPersistentData(user) {
   check(user, {
     meetingId: String,
     sortName: String,
@@ -68,7 +68,7 @@ export default function addUserPersistentData(user) {
   };
 
   try {
-    const { insertedId } = UsersPersistentData.upsert(selector, modifier);
+    const { insertedId } = await UsersPersistentData.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added user id=${intId} to user persistent Data: meeting=${meetingId}`);

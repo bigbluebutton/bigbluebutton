@@ -51,7 +51,7 @@ public:
     # If you run a cluster setup with a load balancer which hides the individual
     # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
     learningDashboardBase: '/learning-analytics-dashboard'
-    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
+    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/administration/customize
     customStyleUrl: null
     darkTheme:
       enabled: true
@@ -157,7 +157,7 @@ public:
     enableCopyNetworkStatsButton: true
     # where should client settings be stored? if you run a single BBB server or
     # a cluster with a reverse proxy in front of it, you may set this to 'local'
-    # See https://docs.bigbluebutton.org/admin/clusterproxy.html
+    # See See https://docs.bigbluebutton.org/administration/cluster-proxy
     # allowed values:
     # 'session' -> settings are stored in browser sessionStorage
     # 'local' -> settings are stored in browser localStorage
@@ -264,9 +264,18 @@ public:
     enabled: true
   kurento:
     wsUrl: HOST
-    # Valid for video-provider. Time (ms) before its WS connection times out
-    # and tries to reconnect.
-    wsConnectionTimeout: 4000
+    cameraWsOptions:
+      # Valid for video-provider. Time (ms) before its WS connection times out
+      # and tries to reconnect.
+      wsConnectionTimeout: 4000
+      # maxRetries: max reconnection retries
+      maxRetries: 7
+      # debug: console trace logging for video-provider's ws
+      debug: false
+      heartbeat:
+        interval: 15000
+        delay: 3000
+        reconnectOnFailure: true
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
@@ -295,11 +304,13 @@ public:
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
-        # Base screen media timeout (send|recv)
-        baseTimeout: 30000
-        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # Base screen media timeout (send|recv) - first connections
+        baseTimeout: 20000
+        # Base screen media timeout (send|recv) - re-connections
+        baseReconnectionTimeout: 8000
+        # Max timeout: used as the max camera subscribe connection timeout. Each
         # subscribe reattempt increases the reconnection timer up to this
-        maxTimeout: 60000
+        maxTimeout: 25000
         timeoutIncreaseFactor: 1.5
       constraints:
         video:
