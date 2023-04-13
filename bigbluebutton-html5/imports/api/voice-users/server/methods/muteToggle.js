@@ -7,7 +7,7 @@ import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function muteToggle(uId, toggle) {
+export default async function muteToggle(uId, toggle) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -20,12 +20,12 @@ export default function muteToggle(uId, toggle) {
 
     const userToMute = uId || requesterUserId;
 
-    const requester = Users.findOne({
+    const requester = await Users.findOneAsync({
       meetingId,
       userId: requesterUserId,
     });
 
-    const voiceUser = VoiceUsers.findOne({
+    const voiceUser = await VoiceUsers.findOneAsync({
       intId: userToMute,
       meetingId,
     });
@@ -37,7 +37,7 @@ export default function muteToggle(uId, toggle) {
 
     // if allowModsToUnmuteUsers is false, users will be kicked out for attempting to unmute others
     if (requesterUserId !== userToMute && muted) {
-      const meeting = Meetings.findOne({ meetingId },
+      const meeting = await Meetings.findOneAsync({ meetingId },
         { fields: { 'usersProp.allowModsToUnmuteUsers': 1 } });
       if (meeting.usersProp && !meeting.usersProp.allowModsToUnmuteUsers) {
         Logger.warn(`Attempted unmuting by another user meetingId:${meetingId} requester: ${requesterUserId} userId: ${userToMute}`);

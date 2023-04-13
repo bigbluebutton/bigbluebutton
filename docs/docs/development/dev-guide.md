@@ -27,6 +27,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
 - bbb-playback-presentation -- Record and playback script to create presentation layout
+- bbb-export-annotations -- Handles capture of breakout content and annotated presentation download
 - bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
 - kurento-media-server -- WebRTC media server for sending/receiving/recording video (webcam and screen share)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
@@ -75,6 +76,9 @@ usermod -a -G sudo bigbluebutton
 mkhomedir_helper bigbluebutton # to add homedir to existing user
 chown -R bigbluebutton:bigbluebutton /home/bigbluebutton/
 sudo su - bigbluebutton
+# if you cannot switch to user bigbluebutton, you may need to switch /bin/false to /bin/bash for user bigbluebutton in /etc/passwd
+# and then retry "sudo su - bigbluebutton"
+# Note that you may want to disable terminal sessions for user bigbluebutton if you will later use the server in production
 ```
 
 ```bash
@@ -484,7 +488,7 @@ or
 grails -reloading -Dserver.port=8090 run-app
 ```
 
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-war` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
+If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
 
 Now test again if you can create and join a meeting.
 
@@ -552,7 +556,7 @@ sudo service bbb-web start
 If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
 
 ```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && /usr/share/bbb-web-old /usr/share/bbb-web
+sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && mv /usr/share/bbb-web-old /usr/share/bbb-web
 ```
 
 Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
@@ -621,7 +625,10 @@ followed by
 npm start
 ```
 
-to begin exporting presentations with annotations.
+to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/settings.json` to a folder in your home directory
+and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
+
+Use `journalctl -u bbb-export-annotations -e` to see recent logs.
 
 ## Troubleshooting
 

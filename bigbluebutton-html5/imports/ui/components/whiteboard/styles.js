@@ -12,10 +12,10 @@ const TldrawGlobalStyle = createGlobalStyle`
       display: none;
     }
   `}
-  ${({ isRTL }) => `
+  ${({ menuOffset }) => `
     #TD-StylesMenu {
       position: relative;
-      right: ${isRTL ? '7rem' : '-7rem'};
+      right: ${menuOffset};
     }
   `}
   #TD-PrimaryTools-Image {
@@ -23,6 +23,7 @@ const TldrawGlobalStyle = createGlobalStyle`
   }
   #slide-background-shape div {
     pointer-events: none;
+    user-select: none;
   }
   div[dir*="ltr"]:has(button[aria-expanded*="false"][aria-controls*="radix-"]) {
     pointer-events: none;
@@ -71,6 +72,14 @@ const TldrawGlobalStyle = createGlobalStyle`
       margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
     }
   `}
+  ${({ hasWBAccess, isPresenter, panSelected }) => (hasWBAccess || isPresenter) && panSelected && `
+    [id^="TD-PrimaryTools-"] {
+      &:hover > div,
+      &:focus > div {
+        background-color: var(--colors-hover) !important;
+      }
+    }
+  `}
   ${({ darkTheme }) => darkTheme && `
     #TD-TopPanel-Undo,
     #TD-TopPanel-Redo,
@@ -78,6 +87,11 @@ const TldrawGlobalStyle = createGlobalStyle`
       &:focus {
         border: solid ${borderSize} ${colorWhite} !important;
       }
+    }
+  `}
+  ${({ isPresenter }) => (!isPresenter) && `
+    #presentationInnerWrapper div{
+      cursor: default !important;
     }
   `}
 `;
@@ -106,11 +120,12 @@ const PanTool = styled(Button)`
       transform: scale(-1, 1);
     }
   }
-
-  &:hover,
-  &:focus {
-    background-color: var(--colors-hover);
-  }
+  ${({ panSelected }) => !panSelected && `
+    &:hover,
+    &:focus {
+      background-color: var(--colors-hover) !important;
+    }
+  `}
 `;
 
 export default {

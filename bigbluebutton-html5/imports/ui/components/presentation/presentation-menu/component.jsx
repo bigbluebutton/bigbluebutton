@@ -9,6 +9,7 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
+import AppService from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -55,6 +56,14 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.whiteboard',
     description: 'used for aria whiteboard options button label',
     defaultMessage: 'Whiteboard',
+  },
+  hideToolsDesc: {
+    id: 'app.presentation.presentationToolbar.hideToolsDesc',
+    description: 'Hide toolbar label',
+  },
+  showToolsDesc: {
+    id: 'app.presentation.presentationToolbar.showToolsDesc',
+    description: 'Show toolbar label',
   },
 });
 
@@ -125,6 +134,11 @@ const PresentationMenu = (props) => {
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
+  );
+  
+  const formattedVisibilityLabel = (visible) => (visible
+    ? intl.formatMessage(intlMessages.hideToolsDesc)
+    : intl.formatMessage(intlMessages.showToolsDesc)
   );
 
   function renderToastContent() {
@@ -206,6 +220,13 @@ const PresentationMenu = (props) => {
               },
             });
 
+            // This is a workaround to a conflict of the
+            // dark mode's styles and the html-to-image lib.
+            // Issue:
+            //  https://github.com/bubkoo/html-to-image/issues/370
+            const darkThemeState = AppService.isDarkThemeEnabled();
+            AppService.setDarkTheme(false);
+
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
               const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
@@ -239,6 +260,39 @@ const PresentationMenu = (props) => {
                 logCode: 'presentation_snapshot_error',
                 extraInfo: e,
               });
+            } finally {
+              // Workaround
+              AppService.setDarkTheme(darkThemeState);
+            }
+          },
+        },
+      );
+    }
+    
+    const tools = document.querySelector('#TD-Tools');
+    if (tools && (props.hasWBAccess || props.amIPresenter)){
+      const isVisible = tools.style.visibility == 'hidden' ? false : true;
+      const styles = document.querySelector('#TD-Styles').parentElement;
+      const option = document.querySelector('#WhiteboardOptionButton');
+      if (option) {
+        //When the RTL-LTR changed, the toolbar appears again,
+        // while the opacity of this button remains the same.
+        //So we need to reset the opacity here.
+        option.style.opacity = isVisible ? 'unset' : '0.2';
+      }
+      menuItems.push(
+        {
+          key: 'list-item-toolvisibility',
+          dataTest: 'toolVisibility',
+          label: formattedVisibilityLabel(isVisible),
+          icon: isVisible ? 'close' : 'pen_tool',
+          onClick: () => {
+            tools.style.visibility = isVisible ? 'hidden' : 'visible';
+            if (styles) {
+              styles.style.visibility = isVisible ? 'hidden' : 'visible';
+            }
+            if (option) {
+              option.style.opacity = isVisible ? '0.2' : 'unset';
             }
           },
         },
@@ -283,7 +337,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Right>
+    <Styled.Right id='WhiteboardOptionButton'>
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>

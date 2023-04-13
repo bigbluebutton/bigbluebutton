@@ -4,7 +4,7 @@ import addDialInUser from '/imports/api/users/server/modifiers/addDialInUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
 
-export default function handleJoinVoiceUser({ body }, meetingId) {
+export default async function handleJoinVoiceUser({ body }, meetingId) {
   const voiceUser = body;
   voiceUser.joined = true;
 
@@ -26,15 +26,16 @@ export default function handleJoinVoiceUser({ body }, meetingId) {
     intId,
   } = voiceUser;
 
-  const User = Users.findOne({
+  const User = await Users.findOneAsync({
     meetingId,
     intId,
   });
 
   if (!User) {
     /* voice-only user - called into the conference */
-    addDialInUser(meetingId, voiceUser);
+    await addDialInUser(meetingId, voiceUser);
   }
 
-  return addVoiceUser(meetingId, voiceUser);
+  const result = await addVoiceUser(meetingId, voiceUser);
+  return result;
 }

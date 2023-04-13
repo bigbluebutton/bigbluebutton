@@ -25,7 +25,10 @@ module BigBlueButton
   module EDL
     module Video
       FFMPEG_WF_CODEC = 'libx264'
-      FFMPEG_WF_ARGS = ['-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'veryfast', '-crf', '30', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p']
+      FFMPEG_WF_ARGS = [
+        '-codec', FFMPEG_WF_CODEC.to_s, '-preset', 'fast', '-crf', '23',
+        '-x264opts', 'stitchable=1', '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p',
+      ]
       WF_EXT = 'mp4'
 
       def self.dump(edl)
@@ -555,6 +558,8 @@ module BigBlueButton
               ffmpeg_preprocess_write.fcntl(Fcntl::F_SETPIPE_SZ, 1_048_576)
             rescue Errno::EPERM
               BigBlueButton.logger.warn('Unable to increase pipe size to 1MB')
+            rescue NameError
+              # Fcntl::F_SETPIPE_SZ isn't available on Ruby version older than 3.0
             end
 
             in_time = video[:timestamp] + seek_offset

@@ -127,8 +127,6 @@ test.describe.parallel('Breakout', () => {
       await join.exportBreakoutNotes();
     });
 
-    // temporarily skipped until the following issue gets resolved:
-    // https://github.com/bigbluebutton/bigbluebutton/issues/16368
     test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);

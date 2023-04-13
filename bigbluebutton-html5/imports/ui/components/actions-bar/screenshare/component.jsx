@@ -125,7 +125,7 @@ const ScreenshareButton = ({
   const handleFailure = (error) => {
     const {
       errorCode = SCREENSHARING_ERRORS.UNKNOWN_ERROR.errorCode,
-      errorMessage,
+      errorMessage = error.message,
     } = error;
 
     const localizedError = getErrorLocale(errorCode);
