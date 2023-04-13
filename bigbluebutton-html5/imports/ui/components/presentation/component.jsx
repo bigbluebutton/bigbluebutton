@@ -152,7 +152,7 @@ class Presentation extends PureComponent {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
         value: numPages,
-      })
+      });
     }
   }
 
@@ -172,6 +172,7 @@ class Presentation extends PureComponent {
       intl,
       multiUser,
       numPages,
+      currentPresentationId,
     } = this.props;
 
     const {
@@ -195,7 +196,7 @@ class Presentation extends PureComponent {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
         value: numPages,
-      })
+      });
     }
 
     if (
@@ -254,14 +255,18 @@ class Presentation extends PureComponent {
           },
         });
       }
+      const presentationChanged = currentPresentationId !== prevProps.currentPresentationId;
+      console.log('ID: ', currentPresentationId);
+      console.log('ID ANTIGO: ', prevProps.currentPresentationId);
+      console.log('ID: ', presentationChanged);
 
-      if (!presentationIsOpen && restoreOnUpdate && currentSlide) {
+      if (!presentationIsOpen && restoreOnUpdate && (currentSlide || presentationChanged)) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
-        if (slideChanged || positionChanged || pollPublished) {
+        if (slideChanged || positionChanged || pollPublished || presentationChanged) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
         }
       }
@@ -725,7 +730,7 @@ class Presentation extends PureComponent {
                   textAlign: 'center',
                   display: !presentationIsOpen ? 'none' : 'block',
                 }}
-                id={"presentationInnerWrapper"}
+                id="presentationInnerWrapper"
               >
                 <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
                 {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}
