@@ -418,6 +418,15 @@ function overlay_arrow(svg, annotation) {
     }
   }
 
+  if (annotation.label) {
+    if (!isStraightLine) {
+      const [shape_width, shape_height] = annotation.size;
+      const bendOffset = [bend_x - shape_width, bend_y - shape_height];
+      annotation["bendOffset"] = bendOffset;
+    }
+    overlay_shape_label(svg, annotation);
+  }
+
   // The arrowhead is purposely not styled (e.g., dashed / dotted)
   svg.ele('g', {
     style: `stroke:${shapeColor};stroke-width:${sw};fill:none;`,
@@ -601,11 +610,13 @@ function overlay_shape_label(svg, annotation) {
   const [shape_width, shape_height] = annotation.size;
   const [shape_x, shape_y] = annotation.point;
 
-  const x_offset = annotation.labelPoint[0];
-  const y_offset = annotation.labelPoint[1];
+  const bendOffset = annotation.bendOffset;
+  
+  // Label position of curved arrows and lines not determined by labelPoint
+  const [x_offset, y_offset] = annotation.labelPoint;
 
-  const label_center_x = shape_x + shape_width * x_offset;
-  const label_center_y = shape_y + shape_height * y_offset;
+  const label_x = bendOffset ? (shape_x + shape_width + bendOffset[0]) : (shape_x + shape_width * x_offset)
+  const label_y = bendOffset ? (shape_y + shape_height + bendOffset[1]) : (shape_y + shape_height * y_offset) 
 
   render_textbox(fontColor, font, fontSize, textAlign, text, id);
   const shape_label = path.join(dropbox, `text${id}.png`);
@@ -614,7 +625,7 @@ function overlay_shape_label(svg, annotation) {
     // Poll results must fit inside shape, unlike other rectangle labels.
     // Linewrapping handled by client.
     const ref = `file://${dropbox}/text${id}.png`;
-    const transform = `rotate(${rotation} ${label_center_x} ${label_center_y})`
+    const transform = `rotate(${rotation} ${label_x} ${label_y})`
     const fitLabelToShape = annotation?.name?.startsWith('poll-result');
 
     let labelWidth = shape_width;
@@ -624,12 +635,13 @@ function overlay_shape_label(svg, annotation) {
       const dimensions = probe.sync(fs.readFileSync(shape_label));
       labelWidth = dimensions.width / config.process.textScaleFactor;
       labelHeight = dimensions.height / config.process.textScaleFactor;
-    }    
+    }
+        
     svg.ele('g', {
       transform: transform,
     }).ele('image', {
-      'x': label_center_x - (labelWidth * x_offset),
-      'y': label_center_y - (labelHeight * y_offset),
+      'x': label_x - (labelWidth * x_offset),
+      'y': label_y - (labelHeight * y_offset),
       'width': labelWidth,
       'height': labelHeight,
       'xlink:href': ref,
