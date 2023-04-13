@@ -69,6 +69,10 @@ const config = {
                         from: "/2.6/new.html"
                     },
                     {
+                        to: "/new-features",
+                        from: "/2.6/new-features"
+                    },
+                    {
                         to: "/development/api",
                         from: "/dev/api.html"
                     },
@@ -83,6 +87,14 @@ const config = {
                         // remove the /2.6 from the path, for example:
                         // /2.6/redirect -> /redirect
                         return [ path.replace("/2.6","") ];
+                    }
+                    if ( path.startsWith("/admin/") ) {
+                        // handle the old docs group /admin
+                        return [ path.replace("/admin/","/administration/") ];
+                    }
+                    if ( path.startsWith("/dev/") ) {
+                        // handle the old docs group /dev
+                        return [ path.replace("/dev/","/development/") ];
                     }
                 },
             }
