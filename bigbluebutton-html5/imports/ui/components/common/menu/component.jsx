@@ -131,7 +131,7 @@ class BBBMenu extends React.Component {
           style={customStyles}
           onClick={(event) => {
             onClick();
-            const close = !key.includes('setstatus') && !key.includes('back');
+            const close = !key?.includes('setstatus') && !key?.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
             event.stopPropagation();
