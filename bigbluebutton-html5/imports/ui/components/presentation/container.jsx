@@ -128,7 +128,7 @@ export default lockContextContainer(
       presentationIsDownloadable,
       mountPresentation: !!currentSlide,
       currentPresentation,
-      currentPresentationId: currentPresentation && currentPresentation.id,
+      currentPresentationId: currentPresentation?.id,
       numPages,
       notify,
       zoomSlide: PresentationToolbarService.zoomSlide,

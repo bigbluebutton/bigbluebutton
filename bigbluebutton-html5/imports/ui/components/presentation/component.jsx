@@ -76,6 +76,7 @@ class Presentation extends PureComponent {
       tldrawAPI: null,
       isPanning: false,
       tldrawIsMounting: true,
+      presentationId: '',
     };
 
     this.currentPresentationToastId = null;
@@ -176,7 +177,7 @@ class Presentation extends PureComponent {
     } = this.props;
 
     const {
-      presentationWidth, presentationHeight, zoom, isPanning, fitToWidth,
+      presentationWidth, presentationHeight, zoom, isPanning, fitToWidth, presentationId,
     } = this.state;
     const {
       numCameras: prevNumCameras,
@@ -255,11 +256,12 @@ class Presentation extends PureComponent {
           },
         });
       }
-      const presentationChanged = currentPresentationId !== prevProps.currentPresentationId;
-      console.log('ID: ', currentPresentationId);
-      console.log('ID ANTIGO: ', prevProps.currentPresentationId);
-      console.log('ID: ', presentationChanged);
-
+      const presentationChanged = presentationId !== currentPresentationId;
+      if (presentationChanged) {
+        this.setState({
+          presentationId: currentPresentationId,
+        });
+      }
       if (!presentationIsOpen && restoreOnUpdate && (currentSlide || presentationChanged)) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
