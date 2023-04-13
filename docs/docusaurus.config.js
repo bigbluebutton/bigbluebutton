@@ -81,21 +81,31 @@ const config = {
                         from: "/greenlight_v3/gl3-migration.html"
                     }
                 ],
+                // We interpret the path argument as the path "to"
+                // and the return of this function as the paths "from"
                 createRedirects: (path) =>  {
                     // TODO: remove default route to /
-                    if ( path.startsWith("/2.6") ) {
-                        // remove the /2.6 from the path, for example:
-                        // /2.6/redirect -> /redirect
-                        return [ path.replace("/2.6","") ];
+                    const redirect_list = [];
+
+                    // Create redirect paths for all routes except 2.5 ones
+                    if ( !path.startsWith("/2.5") ){
+                        redirect_list.push("/2.6" + path);
                     }
-                    if ( path.startsWith("/admin/") ) {
-                        // handle the old docs group /admin
-                        return [ path.replace("/admin/","/administration/") ];
+
+                    if ( path.includes("/testing/release-testing") ){
+                        redirect_list.push( path.replace("/testing/release-testing", "/release-tests.html") )
                     }
-                    if ( path.startsWith("/dev/") ) {
-                        // handle the old docs group /dev
-                        return [ path.replace("/dev/","/development/") ];
+                    // Handle the old docs group /admin
+                    if ( path.startsWith("/administration") ) {
+                        // creates new routes /admin/something pointing to /administration
+                        redirect_list.push( path.replace("/administration", "/admin") );
                     }
+                    // handle the old docs group /dev
+                    if ( path.startsWith("/development") ) {
+                        // creates new routes /dev/something pointing to /development
+                        redirect_list.push( path.replace("/development", "/dev") );
+                    }
+                    return redirect_list;
                 },
             }
         ],
