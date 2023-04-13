@@ -241,7 +241,8 @@ AS SELECT "user"."userId",
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
   AND "user".joined IS TRUE;
-CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user".joined IS TRUE;
+CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
