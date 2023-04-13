@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "Ajustar a lo ancho",
     "app.presentation.presentationToolbar.fitToPage": "Ajustar a la página",
     "app.presentation.presentationToolbar.goToSlide": "Diapositiva {0}",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Esconder barras de herramientas",
+    "app.presentation.presentationToolbar.showToolsDesc": "Mostrar barras de herramientas",
     "app.presentation.placeholder": "No hay actualmente una presentación activa",
     "app.presentationUploder.title": "Presentación",
     "app.presentationUploder.message": "Como presentador, tiene la posibilidad de cargar cualquier documento de oficina o archivo PDF. Se recomienda el archivo PDF para obtener los mejores resultados. Asegúrese de seleccionar una presentación usando la casilla de verificación círcular en el lado izquierdo.",
