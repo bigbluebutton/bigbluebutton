@@ -11,6 +11,7 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import Meetings from '/imports/api/meetings';
 import UserListParticipants from './user-list-participants/component';
 
+window.showOldUserList = false;
 const UserParticipantsContainer = (props) => {
   const {
     formatUsers,
@@ -73,7 +74,7 @@ const Container = withTracker(() => {
 })(UserParticipantsContainer);
 const blank = () => (
   <>
-    <UserListParticipants />
+    {window.showOldUserList ? <UserListParticipants /> : null }
     <br />
     <Container />
   </>
