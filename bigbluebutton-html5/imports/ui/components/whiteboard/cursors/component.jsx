@@ -48,12 +48,13 @@ const Cursors = (props) => {
     currentTool,
     toggleToolsAnimations,
     whiteboardToolbarAutoHide,
+    application,
   } = props;
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
 
   const start = () => {
-    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-out', 'fade-in');
+    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-out', 'fade-in', application?.animations ? '.3s' : '0s');
     setActive(true);
   };
   const handleGrabbing = () => setPanGrabbing(true);
@@ -68,7 +69,7 @@ const Cursors = (props) => {
         whiteboardId,
       });
     }
-    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-in', 'fade-out', '3s');
+    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-in', 'fade-out', application?.animations ? '3s' : '0s');
     setActive(false);
   };
 

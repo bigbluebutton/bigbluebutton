@@ -72,6 +72,7 @@ export default function Whiteboard(props) {
     toggleToolsAnimations,
     isIphone,
     sidebarNavigationWidth,
+    animations,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -164,9 +165,9 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     if (whiteboardToolbarAutoHide) {
-      toggleToolsAnimations('fade-in', 'fade-out', '3s');
+      toggleToolsAnimations('fade-in', 'fade-out', animations ? '3s' : '0s');
     } else {
-      toggleToolsAnimations('fade-out', 'fade-in');
+      toggleToolsAnimations('fade-out', 'fade-in', animations ? '.3s' : '0s');
     }
   }, [whiteboardToolbarAutoHide]);
   
@@ -1007,7 +1008,7 @@ export default function Whiteboard(props) {
   const menuOffset = menuOffsetValues[isRTL][isIphone];
 
   return (
-    <>
+    <div key={`animations=-${animations}`}>
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
@@ -1049,7 +1050,7 @@ export default function Whiteboard(props) {
           formatMessage={intl?.formatMessage}
         />
       )}
-    </>
+    </div>
   );
 }
 

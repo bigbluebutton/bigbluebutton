@@ -142,6 +142,7 @@ export default withTracker(({
     notifyShapeNumberExceeded,
     darkTheme,
     whiteboardToolbarAutoHide: SettingsService?.application?.whiteboardToolbarAutoHide,
+    animations: SettingsService?.application?.animations,
     toggleToolsAnimations,
     isIphone,
   };
