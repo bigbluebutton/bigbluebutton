@@ -33,9 +33,11 @@ public class Main {
 
   private boolean check(Main main, String file) {
   	boolean valid = true;
+  	FileInputStream stream;
   	XMLSlideShow xmlSlideShow;
       try {
-        xmlSlideShow = new XMLSlideShow(new FileInputStream(file));
+        stream = new FileInputStream(file);
+        xmlSlideShow = new XMLSlideShow(stream);
         valid &= !main.embedsEmf(xmlSlideShow);
         valid &= !main.containsTinyTileBackground(xmlSlideShow);
         valid &= !main.allSlidesAreHidden(xmlSlideShow);
@@ -43,6 +45,8 @@ public class Main {
         xmlSlideShow.close();
       } catch (IOException e) {
         valid = false;
+      } finally {
+          if(stream != null) stream.close();
       }
 
       return valid;
