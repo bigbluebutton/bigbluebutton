@@ -2,6 +2,7 @@ const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
+const { constructClipObj } = require('../core/util');
 
 class DrawStickyNote extends MultiUsers {
   constructor(browser, context) {
@@ -10,9 +11,16 @@ class DrawStickyNote extends MultiUsers {
 
   async test() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.wbStickyNoteShape);
 
     const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
+    const clipObj = constructClipObj(wbBox);
+    const screenshotOptions = {
+      maxDiffPixels: 1000,
+      clip: clipObj,
+    };
+
+    await this.modPage.waitAndClick(e.wbStickyNoteShape);
+
     await this.modPage.page.mouse.click(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
 
     await this.modPage.press('A');
@@ -24,21 +32,8 @@ class DrawStickyNote extends MultiUsers {
     await this.modPage.hasText(e.wbTypedStickyNote, 'AB');
     await this.modPage2.hasText(e.wbTypedStickyNote, 'AB');
 
-    const clipObj = {
-      x: wbBox.x,
-      y: wbBox.y,
-      width: wbBox.width,
-      height: wbBox.height,
-    };
-
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-sticky.png', {
-      maxDiffPixels: 1000,
-      clip: clipObj,
-    });
-    await expect(this.modPage2.page).toHaveScreenshot('moderator2-sticky.png', {
-      maxDiffPixels: 1000,
-      clip: clipObj,
-    });
+    await expect(this.modPage.page).toHaveScreenshot('moderator1-sticky.png', screenshotOptions);
+    await expect(this.modPage2.page).toHaveScreenshot('moderator2-sticky.png', screenshotOptions);
   }
 }
 

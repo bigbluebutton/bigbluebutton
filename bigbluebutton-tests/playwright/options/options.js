@@ -135,8 +135,8 @@ class Options extends Page {
     
     // Decreasing font size
     await openSettings(this);
-    await this.waitAndClick(e.descreaseFontSize);
-    await this.waitAndClick(e.descreaseFontSize);
+    await this.waitAndClick(e.decreaseFontSize);
+    await this.waitAndClick(e.decreaseFontSize);
     await this.waitAndClick(e.modalConfirmButton);
 
     await this.fontSizeCheck(e.chatButton, '12px');

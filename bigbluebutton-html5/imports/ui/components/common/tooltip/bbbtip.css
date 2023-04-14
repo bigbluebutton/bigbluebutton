@@ -9,3 +9,9 @@
     fill: #333333;
     background-color: transparent;
 }
+
+.tippy-tooltip.bbbtip-theme>.tippy-content{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -43,9 +43,9 @@ export const getLoginTime = () => (Users.findOne({ userId: Auth.userID }) || {})
 
 const generateTimeWindow = (timestamp) => {
   const groupingTime = getGroupingTime();
-  dateInMilliseconds = Math.floor(timestamp);
-  groupIndex = Math.floor(dateInMilliseconds / groupingTime)
-  date = groupIndex * 30000;
+  const dateInMilliseconds = Math.floor(timestamp);
+  const groupIndex = Math.floor(dateInMilliseconds / groupingTime)
+  const date = groupIndex * 30000;
   return date;
 }
 

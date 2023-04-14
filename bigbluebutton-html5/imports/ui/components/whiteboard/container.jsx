@@ -25,6 +25,7 @@ import Auth from '/imports/ui/services/auth';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import { layoutSelect } from '../layout/context';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
@@ -34,6 +35,7 @@ const WhiteboardContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
+  const sidebarNavigationWidth = layoutSelect((i) => i?.output?.sidebarNavigation?.width);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
@@ -72,6 +74,7 @@ const WhiteboardContainer = (props) => {
         fontFamily,
         hasShapeAccess,
         handleToggleFullScreen,
+        sidebarNavigationWidth,
       }}
       {...props}
       meetingId={Auth.meetingID}
@@ -91,6 +94,7 @@ export default withTracker(({
 }) => {
   const shapes = getShapes(whiteboardId, curPageId, intl);
   const curPres = getCurrentPres();
+  const { isIphone } = deviceInfo;
 
   shapes['slide-background-shape'] = {
     assetId: `slide-background-asset-${curPageId}`,
@@ -135,6 +139,7 @@ export default withTracker(({
     notifyNotAllowedChange,
     notifyShapeNumberExceeded,
     darkTheme,
+    isIphone,
   };
 })(WhiteboardContainer);
 

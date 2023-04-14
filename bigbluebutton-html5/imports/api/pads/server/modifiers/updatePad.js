@@ -3,7 +3,7 @@ import { PadsUpdates } from '/imports/api/pads';
 import { getDataFromChangeset } from '/imports/api/pads/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function updatePad(meetingId, externalId, padId, userId, rev, changeset) {
+export default async function updatePad(meetingId, externalId, padId, userId, rev, changeset) {
   try {
     check(meetingId, String);
     check(externalId, String);
@@ -27,7 +27,7 @@ export default function updatePad(meetingId, externalId, padId, userId, rev, cha
       },
     };
 
-    PadsUpdates.upsert(selector, modifier);
+    await PadsUpdates.upsertAsync(selector, modifier);
     Logger.debug(`Added pad update external=${externalId} user=${userId} rev=${rev} meeting=${meetingId}`);
   } catch (err) {
     Logger.error(`Adding pad update to the collection: ${err}`);
