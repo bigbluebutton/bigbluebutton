@@ -11,7 +11,6 @@ const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
 const redis = require('redis');
 const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
-const { round } = require('lodash');
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
