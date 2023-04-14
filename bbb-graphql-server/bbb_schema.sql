@@ -416,7 +416,8 @@ WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 CREATE OR REPLACE VIEW "v_chat_message_private" AS
 SELECT cu."userId", cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
 FROM chat_message cm
-JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId";
+JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
+WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 
 

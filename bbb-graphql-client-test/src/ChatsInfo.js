@@ -77,13 +77,15 @@ export default function ChatsInfo() {
                   <td>{curr.chatId}</td>
                   <td>{curr.meetingId}</td>
                   <td>{curr.participant?.name} {curr.participant?.role} {curr.participant?.color}  {curr.participant?.loggedOut === true ? ' (Offline)' : ''}</td>
-                  <td>
                       {
-                          (dataTyping?.user_typing_public || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)
+                          curr.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ? (
+                          <td>
+                              {(dataTyping?.user_typing_public || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
+                              <br />
+                              <button onClick={() => handleUpdateTypingAt(curr.chatId)}>I'm typing!</button>
+                          </td>
+                          ) : <td></td>
                       }
-                      <br />
-                      <button onClick={() => handleUpdateTypingAt(curr.chatId)}>I'm typing!</button>
-                  </td>
                   <td>{curr.totalMessages}</td>
                   <td>{curr.totalUnread}</td>
               </tr>

@@ -58,7 +58,7 @@ function UserList({userId}) {
 
   const { loading, error, data } = useSubscription(
     gql`subscription {
-      user(limit: 200, order_by: {name: asc}) {
+      user(limit: 200, order_by: [{role: asc}, {name: asc}]) {
         userId
         name
         role
@@ -131,7 +131,9 @@ function UserList({userId}) {
           return (
               <tr key={user.userId} style={{ color: user.color }}>
                   {/*<td>{user.userId}</td>*/}
-                  <td>{user.name}</td>
+                  <td>
+                      <div style={{backgroundColor: user.color, padding: 2, borderRadius: "15px", color: "#FFFFFF"}}>{user.name}</div>
+                  </td>
                   <td>{user.role}</td>
                   <td>{user.emoji}</td>
                   <td>{user.avatar}</td>
