@@ -11,7 +11,6 @@ const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
 const redis = require('redis');
 const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
-const { round } = require('lodash');
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
@@ -372,8 +371,6 @@ function overlay_arrow(svg, annotation) {
   const [x, y] = annotation.point;
   const bend = annotation.bend;
   const decorations = annotation.decorations;
-  const hasLabel = annotation.label;
-  const id = sanitize(annotation.id);
 
   let dash = annotation.style.dash;
   dash = (dash == 'draw') ? 'solid' : dash; // Use 'solid' thickness
@@ -421,11 +418,19 @@ function overlay_arrow(svg, annotation) {
     }
   }
 
+  if (annotation.label) {
+    if (!isStraightLine) {
+      const [shape_width, shape_height] = annotation.size;
+      const bendOffset = [bend_x - shape_width, bend_y - shape_height];
+      annotation["bendOffset"] = bendOffset;
+    }
+    overlay_shape_label(svg, annotation);
+  }
+
   // The arrowhead is purposely not styled (e.g., dashed / dotted)
   svg.ele('g', {
     style: `stroke:${shapeColor};stroke-width:${sw};fill:none;`,
     transform: `translate(${x} ${y})`,
-    'clip-path': hasLabel ? `url(#clip-${id})` : '',
   }).ele('path', {
     'style': stroke_dasharray,
     'd': line.join(' '),
@@ -433,16 +438,6 @@ function overlay_arrow(svg, annotation) {
       .ele('path', {
         d: arrowHead.join(' '),
       }).up();
-  
-  if (hasLabel) {
-    if (!isStraightLine) {
-      const [shape_width, shape_height] = annotation.size;
-      const bendOffset = [bend_x - shape_width, bend_y - shape_height];
-      annotation["bendOffset"] = bendOffset;
-    }
-
-    overlay_shape_label(svg, annotation);
-  }
 }
 
 function overlay_draw(svg, annotation) {
@@ -617,9 +612,6 @@ function overlay_shape_label(svg, annotation) {
 
   const bendOffset = annotation.bendOffset;
   
-  // Clip path for arrow and line labels (masking not supported in cairosvg)
-  const hasClipPath = annotation.type === 'arrow';
-
   // Label position of curved arrows and lines not determined by labelPoint
   const [x_offset, y_offset] = annotation.labelPoint;
 
@@ -643,29 +635,6 @@ function overlay_shape_label(svg, annotation) {
       const dimensions = probe.sync(fs.readFileSync(shape_label));
       labelWidth = dimensions.width / config.process.textScaleFactor;
       labelHeight = dimensions.height / config.process.textScaleFactor;
-    }
-
-    if (hasClipPath) {
-      // Clip path coordinates are relative to the shapes's position
-      const [rel_x, rel_y] = [label_x - shape_x, label_y - shape_y];
-      const [left_x, right_x] = [Math.floor(rel_x - (labelWidth / 2)),  Math.ceil(rel_x + (labelWidth / 2))];
-      const [top_y, bottom_y] = [Math.floor(rel_y - (labelHeight / 2)), Math.ceil(rel_y + (labelHeight / 2))];
-     
-      svg.ele('defs')
-        .ele('clipPath', { id: `clip-${id}` })
-        .ele('rect', {
-          x: 0, y: 0, width: left_x, height: '100%',
-        }).up()
-        .ele('rect', {
-          x: right_x, y: 0,
-          width:'100%', height: '100%',
-        }).up()
-        .ele('rect', {
-          x: 0, y: 0, width: '100%', height: top_y,
-        }).up()
-        .ele('rect', {
-          x: 0, y: bottom_y, width: '100%', height: '100%'
-        }).up()
     }
         
     svg.ele('g', {
