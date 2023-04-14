@@ -7,6 +7,7 @@ import {
   SizeStyle,
   TDShapeType,
 } from '@tldraw/tldraw';
+import SettingsService from '/imports/ui/services/settings';
 import {
   getShapes,
   getCurrentPres,
@@ -18,6 +19,7 @@ import {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  toggleToolsAnimations,
 } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
@@ -144,6 +146,9 @@ export default withTracker(({
     notifyNotAllowedChange,
     notifyShapeNumberExceeded,
     darkTheme,
+    whiteboardToolbarAutoHide: SettingsService?.application?.whiteboardToolbarAutoHide,
+    animations: SettingsService?.application?.animations,
+    toggleToolsAnimations,
     isIphone,
   };
 })(WhiteboardContainer);
