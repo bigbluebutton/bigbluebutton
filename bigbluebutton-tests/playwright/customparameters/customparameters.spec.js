@@ -209,7 +209,7 @@ test.describe.parallel('CustomParameters', () => {
     });
   });
 
-  test.describe.parallel.only('Disabled Features', () => {
+  test.describe.parallel('Disabled Features', () => {
     test('Breakout Rooms', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.breakoutRooms });
