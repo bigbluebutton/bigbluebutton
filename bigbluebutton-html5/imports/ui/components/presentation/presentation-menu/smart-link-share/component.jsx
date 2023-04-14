@@ -28,6 +28,7 @@ export const SmartLinkShare = (props) => {
         actions.push({
           label: l,
           onClick: () => window.open(`https://${l}`, '_blank'),
+          iconRight: 'popout_window',
         });
 
     })
@@ -43,9 +44,9 @@ export const SmartLinkShare = (props) => {
   };
 
   if (isRTL) {
-    wrapperStyles.left = userIsPresenter ? '15rem' : '3rem';
+    wrapperStyles.left = userIsPresenter ? '17.25rem' : '3rem';
   } else {
-    wrapperStyles.right = userIsPresenter ? '15.5rem' : '3rem';
+    wrapperStyles.right = userIsPresenter ? '17.75rem' : '3rem';
   }
 
   return (
@@ -54,14 +55,14 @@ export const SmartLinkShare = (props) => {
             customStyles={!isMobile ? customStyles : null}
             trigger={(
                 <Styled.QuickLinkButton
-                role="button"
-                label={'Links'}
-                color="light"
-                circle
-                icon="external-video"
-                size="md"
-                onClick={() => null}
-                hideLabel
+                  role="button"
+                  label={'Links'}
+                  color="light"
+                  icon="external-video"
+                  circle
+                  size="md"
+                  onClick={() => null}
+                  hideLabel
                 />
             )}
             actions={actions}

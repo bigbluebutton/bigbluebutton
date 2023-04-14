@@ -342,6 +342,7 @@ const PresentationMenu = (props) => {
 
   return (
     <Styled.Right id='WhiteboardOptionButton'>
+      <SmartLinkShareContainer {...{ intl, currentSlide, userIsPresenter }} />
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
