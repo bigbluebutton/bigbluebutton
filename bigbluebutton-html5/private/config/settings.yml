@@ -58,7 +58,7 @@ public:
     askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
-    askForConfirmationOnLeave: true
+    askForConfirmationOnLeave: false
     allowDefaultLogoutUrl: true
     allowUserLookup: false
     dynamicGuestPolicy: true

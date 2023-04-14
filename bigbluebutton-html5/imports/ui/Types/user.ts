@@ -36,6 +36,7 @@ export interface Voice {
 export interface User {
     userId: string;
     name: string;
+    isModerator: boolean;
     role: string;
     color: string;
     avatar: string;
