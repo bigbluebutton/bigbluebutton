@@ -33,6 +33,9 @@ class RealTimeText extends MultiUsers {
 
     await expect(this.modPage.page).toHaveScreenshot('moderator1-realtime-text-2.png', screenshotOptions);
     await expect(this.userPage.page).toHaveScreenshot('viewer-realtime-text-2.png', screenshotOptions);
+
+    const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
+    await expect(whiteboardLocator).toHaveText('AA');
   }
 }
 
