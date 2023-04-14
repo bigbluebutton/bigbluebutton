@@ -1,11 +1,12 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.common2.domain.{ UsersProp}
+import org.bigbluebutton.common2.domain.UsersProp
+import org.bigbluebutton.core.models.GuestPolicy
 import slick.jdbc.PostgresProfile.api._
-import slick.lifted.{ ProvenShape }
+import slick.lifted.ProvenShape
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success }
+import scala.util.{Failure, Success}
 
 case class MeetingUsersPoliciesDbModel(
                                 meetingId: String,
@@ -59,6 +60,18 @@ object MeetingUsersPoliciesDAO {
         DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in MeetingUsersPolicies table!")
       }
       case Failure(e) => DatabaseConnection.logger.error(s"Error inserting MeetingUsersPolicies: $e")
+    }
+  }
+
+  def update(meetingId: String, policy: GuestPolicy) = {
+    DatabaseConnection.db.run(
+      TableQuery[MeetingUsersPoliciesDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(u => u.guestPolicy)
+        .update(policy.policy)
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on meeting_usersPolicies table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating meeting_usersPolicies: $e")
     }
   }
 }
