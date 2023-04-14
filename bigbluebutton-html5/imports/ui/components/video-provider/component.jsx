@@ -130,21 +130,26 @@ class VideoProvider extends Component {
     VideoService.onBeforeUnload();
   }
 
-  static isAbleToAttach(peer) {
+  static shouldAttachVideoStream(peer, videoElement) {
     // Conditions to safely attach a stream to a video element in all browsers:
-    // 1 - Peer exists
-    // 2 - It hasn't been attached yet
+    // 1 - Peer exists, video element exists
+    // 2 - Target stream differs from videoElement's (diff)
     // 3a - If the stream is a remote one, the safest (*ahem* Safari) moment to
     //      do so is waiting for the server to confirm that media has flown out of it
     //      towards te remote end (peer.started)
     // 3b - If the stream is a local one (webcam sharer) and is started
     // 4 - If the stream is local one, check if there area video tracks there are
     //     video tracks: attach it
-    if (peer == null || peer.attached) return false;
-    if (peer.started) return true;
+    if (peer == null || videoElement == null) return false;
+    const stream = peer.isPublisher ? peer.getLocalStream() : peer.getRemoteStream();
+    const diff = stream && (stream.id !== videoElement.srcObject?.id || !videoElement.paused);
+
+    if (peer.started && diff) return true;
+
     return peer.isPublisher
       && peer.getLocalStream()
-      && peer.getLocalStream().getVideoTracks().length > 0;
+      && peer.getLocalStream().getVideoTracks().length > 0
+      && diff;
   }
 
   constructor(props) {
@@ -654,7 +659,6 @@ class VideoProvider extends Component {
         this.webRtcPeers[stream] = peer;
         peer.stream = stream;
         peer.started = false;
-        peer.attached = false;
         peer.didSDPAnswered = false;
         peer.inboundIceQueue = [];
         peer.isPublisher = true;
@@ -698,7 +702,6 @@ class VideoProvider extends Component {
         this.webRtcPeers[stream] = peer;
         peer.stream = stream;
         peer.started = false;
-        peer.attached = false;
         peer.didSDPAnswered = false;
         peer.inboundIceQueue = [];
         peer.isPublisher = false;
@@ -1019,26 +1022,19 @@ class VideoProvider extends Component {
   }
 
   attachVideoStream(stream) {
-    const video = this.getVideoElement(stream);
-
-    if (video == null) {
-      logger.warn({
-        logCode: 'video_provider_delay_attach_video_stream',
-        extraInfo: { cameraId: stream },
-      }, 'Delaying video stream attachment');
-      return;
-    }
-
+    const videoElement = this.getVideoElement(stream);
     const isLocal = VideoService.isLocalStream(stream);
     const peer = this.webRtcPeers[stream];
 
-    if (peer && peer.attached && video.srcObject) {
-      return; // Skip if the stream is already attached
-    }
-
-    if (VideoProvider.isAbleToAttach(peer)) {
-      this.attach(peer, video);
-      peer.attached = true;
+    if (VideoProvider.shouldAttachVideoStream(peer, videoElement)) {
+      const pc = peer.peerConnection;
+      // Notify current stream state again on attachment since the
+      // video-list-item component may not have been mounted before the stream
+      // reached the connected state.
+      // This is necessary to ensure that the video element is properly
+      // hidden/shown when the stream is attached.
+      notifyStreamStateChange(stream, pc.connectionState);
+      this.attach(peer, videoElement);
 
       if (isLocal) {
         if (peer.bbbVideoStream == null) {
@@ -1119,7 +1115,7 @@ class VideoProvider extends Component {
     const peer = this.webRtcPeers[stream];
     this.videoTags[stream] = video;
 
-    if (peer && !peer.attached && peer.stream === stream) {
+    if (peer && peer.stream === stream) {
       this.attachVideoStream(stream);
     }
   }
@@ -1170,10 +1166,7 @@ class VideoProvider extends Component {
 
       // Clear camera shared timeout when camera succesfully starts
       this.clearRestartTimers(stream);
-
-      if (!peer.attached) {
-        this.attachVideoStream(stream);
-      }
+      this.attachVideoStream(stream);
 
       VideoService.playStart(stream);
     } else {
