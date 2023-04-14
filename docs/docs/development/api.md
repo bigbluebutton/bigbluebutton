@@ -102,6 +102,10 @@ Updated in 2.6:
 
 - **join**: Added `userdata-bbb_hide_presentation_on_join`.
 
+Updated in 2.7:
+
+- **join** - **Added:** `redirectErrorUrl`
+
 ## API Data Types
 
 There are three types in the API.
