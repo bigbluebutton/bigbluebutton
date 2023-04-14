@@ -112,7 +112,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     }
   }
 
-  def handle(m: MakePresentationWithAnnotationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(m: MakePresentationDownloadReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     val meetingId = liveMeeting.props.meetingProp.intId
     val userId = m.header.userId
@@ -146,8 +146,9 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
       val storeAnnotationPages: List[PresentationPageForExport] = getPresentationPagesForExport(pagesRange, pageCount, presId, currentPres, liveMeeting);
 
       val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
+      val isOriginalPresentationType = m.body.typeOfExport == "Original"
 
-      if (annotationCount > 0) {
+      if (annotationCount > 0 && !isOriginalPresentationType) {
         // Send Export Job to Redis
         val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
         bus.outGW.send(job)

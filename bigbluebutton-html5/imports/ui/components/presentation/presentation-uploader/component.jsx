@@ -12,6 +12,7 @@ import { notify } from '/imports/ui/services/notification';
 import { toast } from 'react-toastify';
 import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
+import PresentationDownloadDropdown from './presentation-download-dropdown/component';
 import Settings from '/imports/ui/services/settings';
 import Radio from '/imports/ui/components/common/radio/component';
 import { unique } from 'radash';
@@ -666,7 +667,7 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleSendToChat(item) {
+  handleSendToChat(item, type) {
     const {
       exportPresentationToChat,
       intl,
@@ -718,7 +719,7 @@ class PresentationUploader extends Component {
       }
     };
 
-    exportPresentationToChat(item.id, observer);
+    exportPresentationToChat(item.id, observer, type);
 
     Session.set('showUploadPresentationView', false);
   }
@@ -1048,18 +1049,16 @@ class PresentationUploader extends Component {
         <Styled.TableItemStatus colSpan={hasError ? 2 : 0}>
           {renderPresentationItemStatus(item, intl)}
         </Styled.TableItemStatus>
-        {hasError ? null : (
+        {
+        hasError ? null : (
           <Styled.TableItemActions notDownloadable={!allowDownloadable}>
             {allowDownloadable ? (
-              <Styled.DownloadButton
+              <PresentationDownloadDropdown 
                 disabled={shouldDisableExportButton}
-                label={intl.formatMessage(intlMessages.export)}
                 data-test="exportPresentationToPublicChat"
                 aria-label={formattedDownloadAriaLabel}
-                size="sm"
                 color="primary"
-                onClick={() => this.handleSendToChat(item)}
-                animations={animations}
+                handleSendToChat={(type) => this.handleSendToChat(item, type)}
               />
             ) : null}
             {isRemovable ? (

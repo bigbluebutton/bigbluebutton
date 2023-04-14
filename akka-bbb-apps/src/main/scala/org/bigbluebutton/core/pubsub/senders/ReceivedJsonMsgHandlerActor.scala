@@ -312,8 +312,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PdfConversionInvalidErrorSysPubMsg](envelope, jsonNode)
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
-      case MakePresentationWithAnnotationDownloadReqMsg.NAME =>
-        routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
+      case MakePresentationDownloadReqMsg.NAME =>
+        routeGenericMsg[MakePresentationDownloadReqMsg](envelope, jsonNode)
       case NewPresAnnFileAvailableMsg.NAME =>
         routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
       case PresAnnStatusMsg.NAME =>

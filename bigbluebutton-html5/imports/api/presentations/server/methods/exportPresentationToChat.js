@@ -7,10 +7,10 @@ import Presentations from '/imports/api/presentations';
 
 const EXPORTING_THRESHOLD_PER_SLIDE = 2500;
 
-export default async function exportPresentationToChat(presentationId) {
+export default async function exportPresentationToChat(presentationId, type) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'MakePresentationWithAnnotationDownloadReqMsg';
+  const EVENT_NAME = 'MakePresentationDownloadReqMsg';
 
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
@@ -22,6 +22,7 @@ export default async function exportPresentationToChat(presentationId) {
     const payload = {
       presId: presentationId,
       allPages: true,
+      typeOfExport: type,
       pages: [],
     };
 

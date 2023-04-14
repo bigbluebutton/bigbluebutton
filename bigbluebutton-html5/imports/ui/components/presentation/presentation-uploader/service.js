@@ -378,7 +378,7 @@ const getExternalUploadData = () => {
   };
 };
 
-const exportPresentationToChat = (presentationId, observer) => {
+const exportPresentationToChat = (presentationId, observer, type) => {
   let lastStatus = {};
 
   Tracker.autorun((c) => {
@@ -407,7 +407,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     });
   });
 
-  makeCall('exportPresentationToChat', presentationId);
+  makeCall('exportPresentationToChat', presentationId, type);
 };
 
 function handleFiledrop(files, files2, that, intl, intlMessages) {
