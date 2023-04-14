@@ -233,6 +233,16 @@ case class DeletedRecordingSysMsg(header: BbbCoreBaseHeader, body: DeletedRecord
 case class DeletedRecordingSysMsgBody(recordId: String)
 
 /**
+ * Sent from akka-apps to graphql-middleware
+ */
+object InvalidateUserGraphqlConnectionSysMsg { val NAME = "InvalidateUserGraphqlConnectionSysMsg" }
+case class InvalidateUserGraphqlConnectionSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   InvalidateUserGraphqlConnectionSysMsgBody
+) extends BbbCoreMsg
+case class InvalidateUserGraphqlConnectionSysMsgBody(meetingId: String, userId: String, reason: String)
+
+/**
  * Sent from akka-apps to bbb-web to inform a summary of the meeting activities
  */
 object LearningDashboardEvtMsg { val NAME = "LearningDashboardEvtMsg" }
