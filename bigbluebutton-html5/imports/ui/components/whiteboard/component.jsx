@@ -69,6 +69,7 @@ export default function Whiteboard(props) {
     tldrawAPI,
     setTldrawAPI,
     isIphone,
+    sidebarNavigationWidth,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -83,7 +84,6 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
-  const [enable, setEnable] = React.useState(true);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -91,6 +91,7 @@ export default function Whiteboard(props) {
   const prevSvgUri = usePrevious(svgUri);
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
+  const [currentStyle, setCurrentStyle] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
@@ -107,12 +108,6 @@ export default function Whiteboard(props) {
   const setSafeTLDrawAPI = (api) => {
     if (isMountedRef.current) {
       setTldrawAPI(api);
-    }
-  };
-
-  const setSafeCurrentTool = (tool) => {
-    if (isMountedRef.current) {
-      setCurrentTool(tool);
     }
   };
 
@@ -164,11 +159,6 @@ export default function Whiteboard(props) {
       toolbar?.removeEventListener('dblclick', handleDBClick);
     };
   }, [tldrawAPI, isToolLocked]);
-
-  const throttledResetCurrentPoint = React.useRef(_.throttle(() => {
-    setEnable(false);
-    setEnable(true);
-  }, 1000, { trailing: true }));
 
   const calculateZoom = (localWidth, localHeight) => {
     const calcedZoom = fitToWidth ? (presentationWidth / localWidth) : Math.min(
@@ -522,11 +512,8 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
-
     if (currentZoom !== tldrawZoom) {
       setTldrawZoom(currentZoom);
-    } else {
-      throttledResetCurrentPoint.current();
     }
   }, [presentationAreaHeight, presentationAreaWidth]);
 
@@ -594,8 +581,6 @@ export default function Whiteboard(props) {
 
   const onMount = (app) => {
     const menu = document.getElementById('TD-Styles')?.parentElement;
-    setSafeCurrentTool('select');
-
     const canvas = document.getElementById('canvas');
     if (canvas) {
       canvas.addEventListener('wheel', handleWheelEvent, { capture: true });
@@ -825,6 +810,16 @@ export default function Whiteboard(props) {
       setIsPanning(false);
     }
 
+    if (reason && reason.includes('ui:toggled_is_loading')) {
+      e?.patchState(
+        {
+          appState: {
+            currentStyle,
+          },
+        },
+      );
+    }
+
     e?.patchState(
       {
         appState: {
@@ -832,6 +827,10 @@ export default function Whiteboard(props) {
         },
       },
     );
+
+    if ((panSelected || isPanning)) {
+      e.isForcePanning = isPanning;
+    }
   };
 
   const onUndo = (app) => {
@@ -880,6 +879,11 @@ export default function Whiteboard(props) {
     if (!isFirstCommand){
       setHistory(app.history);
     }
+
+    if (command?.id?.includes('style')) {
+      setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
+    }
+
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -921,7 +925,7 @@ export default function Whiteboard(props) {
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
-        key={`wb-${isRTL}-${dockPos}`}
+        key={`wb-${isRTL}-${dockPos}-${presentationAreaHeight}-${presentationAreaWidth}-${sidebarNavigationWidth}`}
         document={doc}
         // disable the ability to drag and drop files onto the whiteboard
         // until we handle saving of assets in akka.
@@ -968,10 +972,6 @@ export default function Whiteboard(props) {
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
 
-  if ((panSelected || isPanning) && tldrawAPI) {
-    tldrawAPI.isForcePanning = isPanning;
-  }
-
   if (hasWBAccess || isPresenter) {
     if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
@@ -1006,7 +1006,7 @@ export default function Whiteboard(props) {
         isMoving={isMoving}
         currentTool={currentTool}
       >
-        {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
+        {(hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle
           hideContextMenu={!hasWBAccess && !isPresenter}
           {...{
@@ -1015,6 +1015,7 @@ export default function Whiteboard(props) {
             size,
             darkTheme,
             menuOffset,
+            panSelected,
           }}
         />
       </Cursors>
@@ -1100,6 +1101,7 @@ Whiteboard.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   numberOfSlides: PropTypes.number.isRequired,
   previousSlide: PropTypes.func.isRequired,
+  sidebarNavigationWidth: PropTypes.number,
 };
 
 Whiteboard.defaultProps = {
@@ -1108,4 +1110,5 @@ Whiteboard.defaultProps = {
   slidePosition: undefined,
   svgUri: undefined,
   whiteboardId: undefined,
+  sidebarNavigationWidth: 0,
 };

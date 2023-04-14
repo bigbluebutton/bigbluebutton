@@ -1,10 +1,10 @@
 import Polls from '/imports/api/polls';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearPolls(meetingId) {
+export default async function clearPolls(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = Polls.remove({ meetingId });
+      const numberAffected = await Polls.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared Polls (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearPolls(meetingId) {
     }
   } else {
     try {
-      const numberAffected = Polls.remove({});
+      const numberAffected = await Polls.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared Polls (all)');

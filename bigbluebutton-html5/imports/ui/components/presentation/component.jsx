@@ -134,7 +134,7 @@ class Presentation extends PureComponent {
     window.addEventListener('resize', this.onResize, false);
 
     const {
-      currentSlide, slidePosition, layoutContextDispatch,
+      currentSlide, slidePosition, numPages, layoutContextDispatch,
     } = this.props;
 
     if (currentSlide) {
@@ -149,6 +149,10 @@ class Presentation extends PureComponent {
           height: slidePosition.height,
         },
       });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+        value: numPages,
+      })
     }
   }
 
@@ -167,6 +171,7 @@ class Presentation extends PureComponent {
       numCameras,
       intl,
       multiUser,
+      numPages,
     } = this.props;
 
     const {
@@ -184,6 +189,13 @@ class Presentation extends PureComponent {
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
+    }
+
+    if (numPages !== prevProps.numPages) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+        value: numPages,
+      })
     }
 
     if (
@@ -802,6 +814,7 @@ Presentation.propTypes = {
     name: PropTypes.string.isRequired,
   }),
   presentationIsOpen: PropTypes.bool.isRequired,
+  numPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,

@@ -767,7 +767,6 @@
     "app.error.fallback.presentation.title": "エラーが発生しました",
     "app.error.fallback.presentation.description": "記録されました。ページを再読み込みしてください。",
     "app.error.fallback.presentation.reloadButton": "再読み込み",
-    "app.guest.waiting": "主催者の承認待ち",
     "app.guest.errorSeeConsole": "エラー：詳細はコンソールに表示。",
     "app.guest.noModeratorResponse": "司会者からの反応がありません。",
     "app.guest.noSessionToken": "会議の参加許可が得られていません。",

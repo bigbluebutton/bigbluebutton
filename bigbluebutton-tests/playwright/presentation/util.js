@@ -1,7 +1,7 @@
 const { expect } = require('@playwright/test');
 const path = require('path');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 
 async function checkSvgIndex(test, element) {
   const check = await test.page.evaluate(([el, slideImg]) => {
@@ -22,7 +22,8 @@ async function getCurrentPresentationHeight(locator) {
   });
 }
 
-async function uploadSinglePresentation(test, fileName, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
+async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
+  const firstSlideSrc = await test.page.evaluate(selector => document.querySelector(selector).src, [e.currentSlideImg]);
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
   await test.waitForSelector(e.fileUpload);
@@ -31,7 +32,12 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = ELEMENT_
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasElement(e.currentPresentationToast, uploadTimeout);
+  await test.page.waitForFunction(([selector, firstSlideSrc]) => {
+    const currentSrc = document.querySelector(selector).src;
+    return currentSrc != firstSlideSrc;
+  }, [e.currentSlideImg, firstSlideSrc], {
+    timeout: uploadTimeout,
+  });
 }
 
 async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEMENT_WAIT_LONGER_TIME) {
@@ -39,7 +45,7 @@ async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEM
   await test.waitAndClick(e.managePresentations);
   await test.waitForSelector(e.fileUpload);
 
-  await test.page.setInputFiles(e.fileUpload, fileNames.map(function (fileName) { return path.join(__dirname, `../core/media/${fileName}`); }));
+  await test.page.setInputFiles(e.fileUpload, fileNames.map((fileName) => path.join(__dirname, `../core/media/${fileName}`)));
   await test.hasText('body', e.statingUploadPresentationToast);
 
   await test.waitAndClick(e.confirmManagePresentation);

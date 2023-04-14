@@ -129,13 +129,12 @@ class DeviceSelector extends Component {
     } = this.props;
 
     const { options } = this.state;
-    const { isSafari } = browserInfo;
 
     let notFoundOption;
 
     if (blocked) {
       notFoundOption = <option value="finding">{intl.formatMessage(intlMessages.findingDevicesLabel)}</option>;
-    } else if (kind === 'audiooutput' && isSafari) {
+    } else if (kind === 'audiooutput' && !('setSinkId' in HTMLMediaElement.prototype)) {
       const defaultOutputDeviceLabel = intl.formatMessage(intlMessages.defaultOutputDeviceLabel);
       notFoundOption = <option value="not-found">{defaultOutputDeviceLabel}</option>;
     } else {

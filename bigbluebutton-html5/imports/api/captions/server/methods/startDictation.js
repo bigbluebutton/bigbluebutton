@@ -4,7 +4,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 import setDictation from '/imports/api/captions/server/modifiers/setDictation';
 
-export default function startDictation(locale) {
+export default async function startDictation(locale) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -12,13 +12,13 @@ export default function startDictation(locale) {
     check(requesterUserId, String);
     check(locale, String);
 
-    const captions = Captions.findOne({
+    const captions = await Captions.findOneAsync({
       meetingId,
       ownerId: requesterUserId,
       locale,
     });
 
-    if (captions) setDictation(meetingId, locale, true);
+    if (captions) await setDictation(meetingId, locale, true);
   } catch (err) {
     Logger.error(`Exception while invoking method startDictation ${err.stack}`);
   }

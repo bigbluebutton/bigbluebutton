@@ -479,7 +479,7 @@ exports.cameraDock = 'video[data-test="videoContainer"]';
 
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
-exports.descreaseFontSize = 'button[data-test="decreaseFontSize"]';
+exports.decreaseFontSize = 'button[data-test="decreaseFontSize"]';
 
 // Learning dashboard
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
@@ -498,3 +498,12 @@ exports.pollYesNoAnswer = 'div[role="cell"]:nth-child(5)';
 exports.pollUserResponseQuestion = 'div[role="rowgroup"] div:nth-child(6) div';
 exports.pollUserResponseAnswer = 'div[role="cell"]:nth-child(6)';
 exports.pollTotal = 'div[role="cell"]:nth-child(2)';
+exports.meetingStatusActiveDashboard = 'span[data-test="meetingStatusActiveDashboard"]';
+exports.meetingDurationTimeDashboard = 'p[data-test="meetingDurationTimeDashboard"]';
+exports.userNameDashboard = 'td[data-test="userLabelDashboard"] button';
+exports.userWebcamTimeDashboard = 'td[data-test="userWebcamTimeDashboard"]';
+exports.userRaiseHandDashboard = 'td[data-test="userRaiseHandDashboard"]';
+exports.userStatusDashboard = 'td[data-test="userStatusDashboard"]';
+exports.userActivityScoreDashboard = 'td[data-test="userActivityScoreDashboard"]';
+exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashboard"]';
+exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';

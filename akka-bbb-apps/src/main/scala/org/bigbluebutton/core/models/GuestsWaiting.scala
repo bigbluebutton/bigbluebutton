@@ -68,7 +68,7 @@ class GuestsWaiting {
   }
 }
 
-case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)
+case class GuestWaiting(intId: String, name: String, role: String, guest: Boolean, avatar: String, color: String, authenticated: Boolean, registeredOn: Long)
 case class GuestPolicy(policy: String, setBy: String)
 
 object GuestPolicyType {

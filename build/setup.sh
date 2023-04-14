@@ -15,6 +15,7 @@ mkdir -p artifacts
 
 DOCKER_IMAGE=$(python3 -c 'import yaml; print(yaml.load(open("./.gitlab-ci.yml"), Loader=yaml.SafeLoader)["default"]["image"])')
 
+LOCAL_BUILD=1
 if [ "$LOCAL_BUILD" != 1 ] ; then
     GIT_REV="${CI_COMMIT_SHA:0:10}"
 else
@@ -43,7 +44,7 @@ trap 'kill_docker' SIGINT SIGTERM
 
 # -v "$CACHE_DIR/dev":/root/dev
 sudo docker run --rm --detach --cidfile $DOCKER_CONTAINER_ID_FILE \
-        --env GIT_REV=$GIT_REV --env COMMIT_DATE=$COMMIT_DATE --env "LOCAL_BUILD=1" \
+        --env GIT_REV=$GIT_REV --env COMMIT_DATE=$COMMIT_DATE --env LOCAL_BUILD=$LOCAL_BUILD \
         --mount type=bind,src="$PWD",dst=/mnt \
         --mount type=bind,src="${PWD}/artifacts,dst=/artifacts" \
         -t "$DOCKER_IMAGE" /mnt/build/setup-inside-docker.sh "$PACKAGE_TO_BUILD"
