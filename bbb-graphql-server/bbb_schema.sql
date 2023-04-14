@@ -241,7 +241,8 @@ AS SELECT "user"."userId",
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
   AND "user".joined IS TRUE;
-CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user".joined IS TRUE;
+CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -415,7 +416,8 @@ WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 CREATE OR REPLACE VIEW "v_chat_message_private" AS
 SELECT cu."userId", cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
 FROM chat_message cm
-JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId";
+JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
+WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 
 

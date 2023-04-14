@@ -101,7 +101,7 @@ function App() {
             <br />
             <ChatsInfo />
             <br />
-            <ChatMessages />
+            <ChatMessages userId={userId} />
             <br />
             <ChatPublicMessages userId={userId} />
             <br />

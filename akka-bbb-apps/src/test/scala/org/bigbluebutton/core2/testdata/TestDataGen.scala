@@ -10,11 +10,12 @@ object TestDataGen {
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
     val authToken = RandomStringGenerator.randomAlphanumericString(16)
+    val sessionToken = RandomStringGenerator.randomAlphanumericString(16)
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
 
     val ru = RegisteredUsers.create(userId = id, extId, name, role,
-      authToken, avatarURL, guest, authed, GuestStatus.ALLOW, false)
+      authToken, sessionToken, avatarURL, guest, authed, GuestStatus.ALLOW, false)
 
     RegisteredUsers.add(users, ru, meetingId = "test")
     ru

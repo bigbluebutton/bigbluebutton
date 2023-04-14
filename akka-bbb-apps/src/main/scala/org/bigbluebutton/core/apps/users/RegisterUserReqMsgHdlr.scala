@@ -49,6 +49,9 @@ trait RegisterUserReqMsgHdlr {
 
                 // send a system message to force disconnection
                 Sender.sendDisconnectClientSysMsg(meetingId, userToRemove.id, SystemUser.ID, EjectReasonCode.DUPLICATE_USER, outGW)
+
+                // Force reconnection with graphql to refresh permissions
+                Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, userToRemove.id, userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER, outGW)
               }
           }
         }
@@ -58,7 +61,7 @@ trait RegisterUserReqMsgHdlr {
     val guestStatus = msg.body.guestStatus
 
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
-      msg.body.name, msg.body.role, msg.body.authToken,
+      msg.body.name, msg.body.role, msg.body.authToken, msg.body.sessionToken,
       msg.body.avatarURL, RandomStringGenerator.randomColor, msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, false)
 
     checkUserConcurrentAccesses(regUser)

@@ -39,7 +39,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(RegisterUserReqMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(RegisterUserReqMsg.NAME, msg.meetingId)
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
-      name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken,
+      name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
       excludeFromDashboard = msg.excludeFromDashboard)
     val req = RegisterUserReqMsg(header, body)

@@ -1,11 +1,11 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, Users2x, UserState }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -67,6 +67,13 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
           LockSettingsUtil.enforceCamLockSettingsForAllUsers(liveMeeting, outGW)
 
           outGW.send(event)
+        }
+
+        // Force reconnection with graphql to refresh permissions
+        for {
+          u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
         }
       }
     }

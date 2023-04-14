@@ -47,7 +47,7 @@ public interface IBbbWebApiGWApp {
                      String presentationUploadExternalUrl);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String avatarURL,
+                    String externUserID, String authToken, String sessionToken, String avatarURL,
                     Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard);
   void guestWaitingLeft(String meetingID, String internalUserId);
 
