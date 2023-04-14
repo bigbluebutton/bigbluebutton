@@ -425,8 +425,8 @@ function overlay_arrow(svg, annotation) {
   svg.ele('g', {
     style: `stroke:${shapeColor};stroke-width:${sw};fill:none;`,
     transform: `translate(${x} ${y})`,
-    'clip-path': hasLabel ? `url(#clip-${id})` : '',
   }).ele('path', {
+    'clip-path': hasLabel ? `url(#clip-${id})` : '',
     'style': stroke_dasharray,
     'd': line.join(' '),
   }).up()
@@ -648,8 +648,8 @@ function overlay_shape_label(svg, annotation) {
     if (hasClipPath) {
       // Clip path coordinates are relative to the shapes's position
       const [rel_x, rel_y] = [label_x - shape_x, label_y - shape_y];
-      const [left_x, right_x] = [Math.floor(rel_x - (labelWidth / 2)),  Math.ceil(rel_x + (labelWidth / 2))];
-      const [top_y, bottom_y] = [Math.floor(rel_y - (labelHeight / 2)), Math.ceil(rel_y + (labelHeight / 2))];
+      const [left_x, right_x] = [Math.round(rel_x - (labelWidth / 2)),  Math.round(rel_x + (labelWidth / 2))];
+      const [top_y, bottom_y] = [Math.round(rel_y - (labelHeight / 2)), Math.round(rel_y + (labelHeight / 2))];
      
       svg.ele('defs')
         .ele('clipPath', { id: `clip-${id}` })
@@ -657,8 +657,7 @@ function overlay_shape_label(svg, annotation) {
           x: 0, y: 0, width: left_x, height: '100%',
         }).up()
         .ele('rect', {
-          x: right_x, y: 0,
-          width:'100%', height: '100%',
+          x: right_x, y: 0, width: '100%', height: '100%',
         }).up()
         .ele('rect', {
           x: 0, y: 0, width: '100%', height: top_y,
