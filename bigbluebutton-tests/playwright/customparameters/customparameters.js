@@ -308,6 +308,8 @@ class CustomParameters extends MultiUsers {
 
   async presentation() {
     await this.modPage.wasRemoved(e.whiteboard);
+    await this.modPage.wasRemoved(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.restorePresentation);
   }
 
   async customVirtualBackground() {
