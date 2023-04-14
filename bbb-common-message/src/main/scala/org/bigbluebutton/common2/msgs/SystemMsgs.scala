@@ -240,7 +240,7 @@ case class InvalidateUserGraphqlConnectionSysMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   InvalidateUserGraphqlConnectionSysMsgBody
 ) extends BbbCoreMsg
-case class InvalidateUserGraphqlConnectionSysMsgBody(meetingId: String, userId: String, reason: String)
+case class InvalidateUserGraphqlConnectionSysMsgBody(meetingId: String, userId: String, sessionToken: String, reason: String)
 
 /**
  * Sent from akka-apps to bbb-web to inform a summary of the meeting activities

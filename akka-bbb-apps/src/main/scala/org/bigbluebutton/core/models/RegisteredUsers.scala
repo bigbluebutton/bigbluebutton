@@ -6,14 +6,15 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
-             token: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
+             authToken: String, sessionToken: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
       extId,
       name,
       roles,
-      token,
+      authToken,
+      sessionToken,
       avatar,
       color,
       guest,
@@ -201,6 +202,7 @@ case class RegisteredUser(
     name:                     String,
     role:                     String,
     authToken:                String,
+    sessionToken:             String,
     avatarURL:                String,
     color:                    String,
     guest:                    Boolean,

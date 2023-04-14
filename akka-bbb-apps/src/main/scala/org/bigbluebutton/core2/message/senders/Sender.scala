@@ -8,12 +8,10 @@ object Sender {
                                  ejectedBy: String, reason: String, outGW: OutMsgRouter): Unit = {
     val ejectFromMeetingSystemEvent = MsgBuilder.buildDisconnectClientSysMsg(meetingId, userId, ejectedBy, reason)
     outGW.send(ejectFromMeetingSystemEvent)
-
-    //Disconnect graphql too
-    sendInvalidateUserGraphqlConnectionSysMsg(meetingId, userId, reason, outGW)
   }
-  def sendInvalidateUserGraphqlConnectionSysMsg(meetingId: String, userId: String, reason: String, outGW: OutMsgRouter): Unit = {
-    val invalidateUserGraphqlConnectionSysMsg = MsgBuilder.buildInvalidateUserGraphqlConnectionSysMsg(meetingId, userId, reason)
+
+  def sendInvalidateUserGraphqlConnectionSysMsg(meetingId: String, userId: String, sessionToken: String, reason: String, outGW: OutMsgRouter): Unit = {
+    val invalidateUserGraphqlConnectionSysMsg = MsgBuilder.buildInvalidateUserGraphqlConnectionSysMsg(meetingId, userId, sessionToken, reason)
     outGW.send(invalidateUserGraphqlConnectionSysMsg)
   }
 

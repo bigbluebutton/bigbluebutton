@@ -70,7 +70,11 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
         }
 
         // Force reconnection with graphql to refresh permissions
-        Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, "role_changed", outGW)
+        for {
+          u <- RegisteredUsers.findWithUserId(uvo.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, uvo.intId, u.sessionToken, "role_changed", outGW)
+        }
       }
     }
   }

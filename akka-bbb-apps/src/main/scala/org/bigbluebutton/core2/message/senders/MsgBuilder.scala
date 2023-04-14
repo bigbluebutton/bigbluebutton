@@ -246,11 +246,11 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildInvalidateUserGraphqlConnectionSysMsg(meetingId: String, userId: String, reason: String): BbbCommonEnvCoreMsg = {
+  def buildInvalidateUserGraphqlConnectionSysMsg(meetingId: String, userId: String, sessionToken: String, reason: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.SYSTEM, meetingId, userId)
     val envelope = BbbCoreEnvelope(InvalidateUserGraphqlConnectionSysMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(InvalidateUserGraphqlConnectionSysMsg.NAME, meetingId)
-    val body = InvalidateUserGraphqlConnectionSysMsgBody(meetingId, userId, reason)
+    val body = InvalidateUserGraphqlConnectionSysMsgBody(meetingId, userId, sessionToken, reason)
     val event = InvalidateUserGraphqlConnectionSysMsg(header, body)
 
     BbbCommonEnvCoreMsg(envelope, event)

@@ -401,6 +401,7 @@ class ApiController {
         us.role,
         us.externUserID,
         us.authToken,
+        sessionToken,
         us.avatarURL,
         us.guest,
         us.authed,
