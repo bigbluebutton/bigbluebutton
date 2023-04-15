@@ -74,11 +74,7 @@ class ActionsBar extends PureComponent {
               <CaptionsButtonContainer {...{ intl }} />
             )
             : null}
-          { !deviceInfo.isMobile
-            ? (
-              <AudioCaptionsButtonContainer />
-            )
-            : null }
+          <AudioCaptionsButtonContainer />
         </Styled.Left>
         <Styled.Center>
           <AudioControlsContainer />
