@@ -17,7 +17,7 @@ Starting with BigBlueButton version 2.6, the default installation process includ
 
 This document covers how to set up a TURN server for previous versions of BigBlueButton.
 
-## Setup a TURN server
+## Setup an external TURN server
 
 BigBlueButton normally requires a wide range of UDP ports to be available for WebRTC communication. In some network restricted sites or development environments, such as those behind NAT or a firewall that restricts outgoing UDP connections, users may be unable to make outgoing UDP connections to your BigBlueButton server.
 
@@ -37,7 +37,7 @@ Having the server behind NAT (for example, on Amazon EC2) is OK, but all incomin
 
 ### Required Software
 
-We recommend using a minimal server installation of Ubuntu 20.04. The [coturn](https://github.com/coturn/coturn) software requires port 443 for its exclusive use in our recommended configuration, which means the server cannot have any dashboard software or other web applications running.
+We recommend using a minimal server installation of Debian 11 (bullseye). The [coturn](https://github.com/coturn/coturn) software requires port 443 for its exclusive use in our recommended configuration, which means the server cannot have any dashboard software or other web applications running.
 
 Stable versions of coturn are already available in the Ubuntu packaging repositories for version 20.04 and later, and it can be installed with apt-get:
 
