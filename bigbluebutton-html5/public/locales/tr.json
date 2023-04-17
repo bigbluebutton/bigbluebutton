@@ -450,6 +450,7 @@
     "app.submenu.application.applicationSectionTitle": "Uygulama",
     "app.submenu.application.animationsLabel": "Canlandırmalar",
     "app.submenu.application.audioFilterLabel": "Mikrofon için ses süzgeçleri",
+    "app.submenu.application.wbToolbarsAutoHideLabel": "Beyaz tahta araç çubukları otomatik gizlensin",
     "app.submenu.application.darkThemeLabel": "Koyu kip",
     "app.submenu.application.fontSizeControlLabel": "Yazı boyutu",
     "app.submenu.application.increaseFontBtnLabel": "Uygulamanın yazı boyutunu büyüt",
