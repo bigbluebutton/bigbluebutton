@@ -40,20 +40,20 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildNewPresAnnFileAvailable(fileURI: String, presId: String): NewPresAnnFileAvailableMsg = {
-    val header = BbbClientMsgHeader(NewPresAnnFileAvailableMsg.NAME, "not-used", "not-used")
-    val body = NewPresAnnFileAvailableMsgBody(fileURI, presId)
+  def buildNewPresFileAvailable(fileURI: String, presId: String, typeOfExport: String): NewPresFileAvailableMsg = {
+    val header = BbbClientMsgHeader(NewPresFileAvailableMsg.NAME, "not-used", "not-used")
+    val body = NewPresFileAvailableMsgBody(fileURI, presId, typeOfExport)
 
-    NewPresAnnFileAvailableMsg(header, body)
+    NewPresFileAvailableMsg(header, body)
   }
 
-  def buildBroadcastNewPresAnnFileAvailable(newPresAnnFileAvailableMsg: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
+  def buildBroadcastNewPresFileAvailable(newPresFileAvailableMsg: NewPresFileAvailableMsg, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, "not-used")
     val envelope = BbbCoreEnvelope(PresentationPageConvertedEventMsg.NAME, routing)
-    val header = BbbClientMsgHeader(NewPresAnnFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
-    val body = NewPresAnnFileAvailableEvtMsgBody(fileURI = newPresAnnFileAvailableMsg.body.fileURI, presId = newPresAnnFileAvailableMsg.body.presId)
-    val event = NewPresAnnFileAvailableEvtMsg(header, body)
-
+    val header = BbbClientMsgHeader(NewPresFileAvailableEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
+    val body = NewPresFileAvailableEvtMsgBody(fileURI = newPresFileAvailableMsg.body.fileURI, presId = newPresFileAvailableMsg.body.presId,
+      typeOfExport = newPresFileAvailableMsg.body.typeOfExport)
+    val event = NewPresFileAvailableEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
@@ -154,6 +154,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(job)
 
         // Send Annotations to Redis
+        log.info("Teste antes do log ---> {}", presId)
         val annotations = StoredAnnotations(jobId, presId, storeAnnotationPages)
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
@@ -164,7 +165,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
 
         val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}").mkString(File.separator, File.separator, "")
-        val event = buildNewPresAnnFileAvailable(fileURI, presId)
+        val event = buildNewPresFileAvailable(fileURI, presId, m.body.typeOfExport)
 
         handle(event, liveMeeting, bus)
       }
@@ -222,9 +223,9 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
     }
   }
 
-  def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
-    bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
+  def handle(m: NewPresFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+    log.info("Received NewPresFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
+    bus.outGW.send(buildBroadcastNewPresFileAvailable(m, liveMeeting))
   }
 
   def handle(m: CaptureSharedNotesReqInternalMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {

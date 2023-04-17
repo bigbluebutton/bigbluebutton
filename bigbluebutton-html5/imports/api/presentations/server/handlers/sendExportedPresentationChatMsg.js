@@ -3,7 +3,7 @@ import Presentations from '/imports/api/presentations';
 
 const DEFAULT_FILENAME = 'annotated_slides.pdf';
 
-export default async function sendExportedPresentationChatMsg(meetingId, presentationId, fileURI) {
+export default async function sendExportedPresentationChatMsg(meetingId, presentationId, fileURI, typeOfExport) {
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
@@ -16,6 +16,7 @@ export default async function sendExportedPresentationChatMsg(meetingId, present
     type: 'presentation',
     fileURI,
     filename: pres?.name || DEFAULT_FILENAME,
+    typeOfExport,
   };
 
   const payload = {

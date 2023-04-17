@@ -253,6 +253,8 @@
     "app.presentationUploader.dropdownExportOptions": "Export options",
     "app.presentationUploader.export.linkAvailable": "Link for downloading {0} available on the public chat.",
     "app.presentationUploader.export.notAccessibleWarning": "may not be accessibility compliant",
+    "app.presentationUploader.export.original": "Original",
+    "app.presentationUploader.export.annotated": "With Annotations",
     "app.presentationUploader.currentPresentationLabel": "Current presentation",
     "app.presentationUploder.extraHint": "IMPORTANT: each file may not exceed {0} MB and {1} pages.",
     "app.presentationUploder.uploadLabel": "Upload",

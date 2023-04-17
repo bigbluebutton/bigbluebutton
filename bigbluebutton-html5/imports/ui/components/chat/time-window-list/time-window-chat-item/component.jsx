@@ -308,6 +308,7 @@ class TimeWindowChatItem extends PureComponent {
       chatId,
       getExportedPresentationString,
     } = this.props;
+    console.log("Teste ---> ", extra)
 
     const dateTime = new Date(timestamp);
 
@@ -332,7 +333,7 @@ class TimeWindowChatItem extends PureComponent {
             <Styled.PresentationChatItem
               type="presentation"
               key={messages[0].id}
-              text={getExportedPresentationString(extra.fileURI, extra.filename, intl)}
+              text={getExportedPresentationString(extra.fileURI, extra.filename, intl, extra.typeOfExport)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
