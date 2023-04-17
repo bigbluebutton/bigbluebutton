@@ -308,7 +308,6 @@ class TimeWindowChatItem extends PureComponent {
       chatId,
       getExportedPresentationString,
     } = this.props;
-    console.log("Teste ---> ", extra)
 
     const dateTime = new Date(timestamp);
 
