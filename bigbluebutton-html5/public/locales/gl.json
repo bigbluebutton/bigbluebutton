@@ -450,6 +450,7 @@
     "app.submenu.application.applicationSectionTitle": "Aplicación",
     "app.submenu.application.animationsLabel": "Animacións",
     "app.submenu.application.audioFilterLabel": " Filtros de son para o micrófono",
+    "app.submenu.application.wbToolbarsAutoHideLabel": "Ocultar automaticamente as barras de ferramentas do encerado",
     "app.submenu.application.darkThemeLabel": "Modo escuro",
     "app.submenu.application.fontSizeControlLabel": "Tamaño da letra",
     "app.submenu.application.increaseFontBtnLabel": "Incrementar o tamaño da letra",
