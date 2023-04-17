@@ -33,8 +33,8 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
     try {
       //val xml = XML.loadFile(path)
       stream = new FileInputStream(path)
-      reader = new InputStreamReader(stream)
-      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), StandardCharsets.UTF_8.name()))
+      reader = new InputStreamReader(stream, StandardCharsets.UTF_8.name())
+      val xml = XML.load(reader)
       Some(xml)
     } catch {
       case ioe: IOException =>
