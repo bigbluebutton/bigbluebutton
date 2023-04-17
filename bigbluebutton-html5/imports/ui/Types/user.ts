@@ -4,6 +4,15 @@ export interface Cameras {
   userId: string;  
 }
 
+export interface PresPagesWritable {
+  isCurrentPage: boolean;
+  changedModeOn: number;
+  meetingId: string;
+  pageId: string;
+  presentationId: string;
+  userId: string;
+}
+
 export interface LastBreakoutRoom {
     breakoutRoomId: string;
     isDefaultName: boolean;
@@ -35,6 +44,7 @@ export interface Voice {
 
 export interface User {
     userId: string;
+    extId: string;
     name: string;
     isModerator: boolean;
     role: string;
@@ -47,6 +57,8 @@ export interface User {
     mobile?: boolean;
     whiteboardAccess?: boolean;
     voice?: Voice;
+    locked: boolean;
     lastBreakoutRoom?: LastBreakoutRoom;
-    cameras: Array<Cameras>;  
+    cameras: Array<Cameras>;
+    presPagesWritable: Array<PresPagesWritable>;
 }

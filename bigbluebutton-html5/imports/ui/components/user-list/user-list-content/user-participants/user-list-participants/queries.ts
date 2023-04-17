@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 export const USERS_SUBSCRIPTION = gql`subscription {
   user(where: {joined: {_eq: true}}, order_by: [{role: asc}, {name: asc}]) {
     userId
+    extId
     name
     isModerator
     role
