@@ -13,6 +13,7 @@
 - "!include public_v_user.yaml"
 - "!include public_v_user_breakoutRoom.yaml"
 - "!include public_v_user_camera.yaml"
+- "!include public_v_user_current.yaml"
 - "!include public_v_user_ref.yaml"
 - "!include public_v_user_typing_public.yaml"
 - "!include public_v_user_voice.yaml"

@@ -1,0 +1,106 @@
+table:
+  name: v_user_current
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_current
+  custom_root_fields: {}
+object_relationships:
+  - name: connectionStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user_connectionStatus
+          schema: public
+  - name: lastBreakoutRoom
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_breakoutRoom
+          schema: public
+  - name: meeting
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: meeting
+          schema: public
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
+          schema: public
+array_relationships:
+  - name: cameras
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_camera
+          schema: public
+  - name: chats
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_chat
+          schema: public
+  - name: presPagesWritable
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_pres_page_writers
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - userId
+        - extId
+        - meetingId
+        - name
+        - avatar
+        - color
+        - emoji
+        - guest
+        - guestStatus
+        - mobile
+        - clientType
+        - role
+        - authed
+        - joined
+        - leftFlag
+        - banned
+        - loggedOut
+        - registeredOn
+        - presenter
+        - pinned
+        - locked
+        - isModerator
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

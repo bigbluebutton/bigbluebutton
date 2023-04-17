@@ -23,6 +23,7 @@ DROP VIEW IF EXISTS "v_user_voice";
 --DROP VIEW IF EXISTS "v_user_whiteboard";
 DROP VIEW IF EXISTS "v_user_breakoutRoom";
 DROP VIEW IF EXISTS "v_user";
+DROP VIEW IF EXISTS "v_user_current";
 DROP VIEW IF EXISTS "v_user_ref";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
@@ -243,6 +244,31 @@ AS SELECT "user"."userId",
   AND "user".joined IS TRUE;
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
 CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+
+CREATE OR REPLACE VIEW "v_user_current"
+AS SELECT "user"."userId",
+    "user"."extId",
+    "user"."meetingId",
+    "user"."name",
+    "user"."avatar",
+    "user"."color",
+    "user"."emoji",
+    "user"."guest",
+    "user"."guestStatus",
+    "user"."mobile",
+    "user"."clientType",
+    "user"."role",
+    "user"."authed",
+    "user"."joined",
+    "user"."leftFlag",
+    "user"."banned",
+    "user"."loggedOut",
+    "user"."registeredOn",
+    "user"."presenter",
+    "user"."pinned",
+    "user"."locked",
+    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
+   FROM "user";
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"

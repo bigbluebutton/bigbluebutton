@@ -18,6 +18,7 @@ import AnnotationsHistory from "./AnnotationsHistory";
 import CursorsStream from "./CursorsStream";
 import CursorsAll from "./CursorsAll";
 import TalkingStream from "./TalkingStream";
+import MyInfo from "./MyInfo";
 
 
 function App() {
@@ -96,6 +97,8 @@ function App() {
           <ApolloProvider client={graphqlClient}>
             Who am I? {userName} ({userId})
             <MeetingInfo />
+            <br />
+            <MyInfo />
             <br />
             <UserList userId={userId} />
             <br />
