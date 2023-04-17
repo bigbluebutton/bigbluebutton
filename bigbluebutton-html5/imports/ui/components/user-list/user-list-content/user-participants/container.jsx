@@ -11,7 +11,9 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import Meetings from '/imports/api/meetings';
 import UserListParticipants from './user-list-participants/component';
 
-window.showOldUserList = false;
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const userList = urlParams.get('userList');
 const UserParticipantsContainer = (props) => {
   const {
     formatUsers,
@@ -74,9 +76,22 @@ const Container = withTracker(() => {
 })(UserParticipantsContainer);
 const blank = () => (
   <>
-    {window.showOldUserList ? <UserListParticipants /> : null }
+    {
+      (
+        userList === 'graphql'
+        || userList === 'both'
+        || !userList
+      ) ? <UserListParticipants />
+        : null
+    }
     <br />
-    <Container />
+    {
+      (
+        userList === 'meteor'
+        || userList === 'both'
+      ) ? <Container />
+        : null
+    }
   </>
 );
 export default blank;
