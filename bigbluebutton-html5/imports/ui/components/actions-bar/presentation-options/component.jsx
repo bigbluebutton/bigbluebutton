@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 
-
 const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -48,8 +47,7 @@ const PresentationOptionsContainer = ({
     buttonType = 'desktop';
   }
 
-  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
-  || hasPresentation || hasPinnedSharedNotes;
+  const isThereCurrentPresentation = hasExternalVideo || hasScreenshare || hasPresentation || hasPinnedSharedNotes;
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
@@ -61,12 +59,7 @@ const PresentationOptionsContainer = ({
       hideLabel
       circle
       size="lg"
-      onClick={() => {
-        setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
-        if (!hasExternalVideo && !hasScreenshare && !hasPinnedSharedNotes) {
-          Session.set('presentationLastState', !presentationIsOpen);
-        }
-      }}
+      onClick={() => setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen)}
       id="restore-presentation"
       ghost={!presentationIsOpen}
       disabled={!isThereCurrentPresentation}

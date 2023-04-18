@@ -231,10 +231,6 @@ class VideoPlayer extends Component {
       type: ACTIONS.SET_HAS_EXTERNAL_VIDEO,
       value: false,
     });
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: Session.get('presentationLastState'),
-    });
 
     if (hidePresentationOnJoin) {
       layoutContextDispatch({
