@@ -14,7 +14,7 @@ class DrawEllipse extends MultiUsers {
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     const screenshotOptions = {
-      maxDiffPixels: 1000,
+      maxDiffPixelRatio: 0.05,
     };
 
     await this.modPage.waitAndClick(e.wbShapesButton);

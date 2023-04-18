@@ -14,6 +14,11 @@ const { DrawArrow } = require('./drawArrow');
 const { MultiUsers } = require('../user/multiusers');
 const { encodeCustomParams } = require('../customparameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+const { DeleteDrawing } = require('./deleteDrawing');
+const { UndoDrawing } = require('./undoDraw');
+const { RedoDrawing } = require('./redoDraw');
+const { ChangeStyles } = require('./changeStyles');
+const { RealTimeText } = require('./realTimeText');
 
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
@@ -112,5 +117,61 @@ test.describe.parallel('Whiteboard tools - visual regression', () => {
     await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
     await drawArrow.initUserPage(true, context, { customParameter: hidePresentationToast });
     await drawArrow.test();
+  });
+
+  test('Delete drawing', async ({ browser, context, page }) => {
+    const deleteDrawing = new DeleteDrawing(browser, context);
+    await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await deleteDrawing.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await deleteDrawing.test();
+  });
+
+  test('Undo drawing', async ({ browser, context, page }) => {
+    const undoDrawing = new UndoDrawing(browser, context);
+    await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await undoDrawing.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await undoDrawing.test();
+  });
+
+  test('Redo drawing', async ({ browser, context, page }) => {
+    const redoDrawing = new RedoDrawing(browser, context);
+    await redoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await redoDrawing.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await redoDrawing.test();
+  });
+
+  test('Change color', async ({ browser, context, page }) => {
+    const changeColor = new ChangeStyles(browser, context);
+    await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await changeColor.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await changeColor.changingColor();
+  });
+
+  test('Fill drawing', async ({ browser, context, page }) => {
+    const fillDrawing = new ChangeStyles(browser, context);
+    await fillDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await fillDrawing.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await fillDrawing.fillDrawing();
+  });
+
+  test('Dash drawing', async ({ browser, context, page }) => {
+    const dashDrawing = new ChangeStyles(browser, context);
+    await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await dashDrawing.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await dashDrawing.dashDrawing();
+  });
+
+  test('Size drawing', async ({ browser, context, page }) => {
+    const sizeDrawing = new ChangeStyles(browser, context);
+    await sizeDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await sizeDrawing.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await sizeDrawing.sizeDrawing();
+  });
+
+  test('Real time text typing', async ({ browser, context, page }) => {
+    const realTimeText = new RealTimeText(browser, context);
+    await realTimeText.initModPage(page, true, { customMeetingId: 'draw_line_meeting', customParameter: hidePresentationToast });
+    await realTimeText.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await realTimeText.realTimeTextTyping();
   });
 });

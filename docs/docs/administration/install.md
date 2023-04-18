@@ -312,11 +312,13 @@ You can upgrade by re-running the `bbb-install-2.6.sh` script again -- it will d
 
 ### Upgrading from BigBlueButton 2.5
 
-You can upgrade in two steps:
+You can upgrade in a few steps:
 
   Make sure you don't have `bbb-demo` installed `sudo apt purge bbb-demo`
 
   Then run the `bbb-install-2.6.sh` script -- it will download and install the latest release of BigBlueButton 2.6 on top of your old 2.5 version.
+  
+  Make sure you read through the "what's new in 2.6" document https://docs.bigbluebutton.org/2.6/new and specifically https://docs.bigbluebutton.org/2.6/new#other-notable-changes
 
 ### Upgrading from BigBlueButton 2.4
 
