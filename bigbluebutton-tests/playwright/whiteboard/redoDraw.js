@@ -1,9 +1,7 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
-const { constructClipObj } = require('../core/util');
 
 class RedoDrawing extends MultiUsers {
   constructor(browser, page) {
@@ -13,11 +11,10 @@ class RedoDrawing extends MultiUsers {
   async test() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
 
-    const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
-    const clipObj = constructClipObj(wbBox);
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
     const screenshotOptions = {
-      maxDiffPixels: 1000,
-      clip: clipObj,
+      maxDiffPixelRatio: 0.05,
     };
 
     await this.modPage.waitAndClick(e.wbArrowShape);
@@ -30,9 +27,10 @@ class RedoDrawing extends MultiUsers {
     await this.modPage.waitAndClick(e.wbUndo);
     await this.modPage.waitAndClick(e.wbRedo);
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-redo-drawing.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-redo-drawing.png', screenshotOptions);
 
-    await expect(this.userPage.page).toHaveScreenshot('viewer-redo-drawing.png', screenshotOptions);
+    const userWbLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWbLocator).toHaveScreenshot('viewer-redo-drawing.png', screenshotOptions);
   }
 }
 

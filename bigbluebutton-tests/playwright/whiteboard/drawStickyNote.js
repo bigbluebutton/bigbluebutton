@@ -32,7 +32,7 @@ class DrawStickyNote extends MultiUsers {
 
     await expect(modWbLocator).toHaveScreenshot('moderator-sticky.png', screenshotOptions);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-sticky.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-sticky.png', screenshotOptions);
   }
 }
 

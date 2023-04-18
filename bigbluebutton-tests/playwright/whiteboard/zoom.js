@@ -32,7 +32,7 @@ class Zoom extends MultiUsers {
     await expect(zoomOutButtonLocator).toBeEnabled();
     await expect(resetZoomButtonLocator).toContainText(zoomedInZoomLevel);
     await expect(modWbLocator).toHaveScreenshot('moderator-zoom125.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('user-zoom125.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-zoom125.png', screenshotOptions);
 
     // max zoom
     for(let i = 125; i < 400; i += 25) {
@@ -40,7 +40,7 @@ class Zoom extends MultiUsers {
     }
     await expect(resetZoomButtonLocator).toContainText(maxZoomLevel);
     await expect(modWbLocator).toHaveScreenshot('moderator-zoom400.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('user-zoom400.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-zoom400.png', screenshotOptions);
   }
 }
 

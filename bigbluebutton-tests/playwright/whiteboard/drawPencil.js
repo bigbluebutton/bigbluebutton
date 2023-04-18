@@ -30,7 +30,7 @@ class DrawPencil extends MultiUsers {
     await expect(modWbLocator).toHaveScreenshot('moderator-pencil.png', screenshotOptions);
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-pencil.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-pencil.png', screenshotOptions);
   }
 }
 

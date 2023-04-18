@@ -28,7 +28,7 @@ class DrawLine extends MultiUsers {
     await expect(modWbLocator).toHaveScreenshot('moderator-line.png', screenshotOptions);
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-line.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-line.png', screenshotOptions);
   }
 }
 

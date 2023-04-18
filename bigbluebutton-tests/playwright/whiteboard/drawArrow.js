@@ -26,7 +26,7 @@ class DrawArrow extends MultiUsers {
 
     await expect(modWbLocator).toHaveScreenshot('moderator-arrow.png', screenshotOptions);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-arrow.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-arrow.png', screenshotOptions);
   }
 }
 

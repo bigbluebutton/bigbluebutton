@@ -27,7 +27,7 @@ class DrawRectangle extends MultiUsers {
 
     await expect(modWbLocator).toHaveScreenshot('moderator-rectangle.png', screenshotOptions);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-rectangle.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-rectangle.png', screenshotOptions);
   }
 }
 

@@ -29,7 +29,7 @@ class Pan extends MultiUsers {
     await expect(modWbLocator).toHaveScreenshot('moderator-pan.png', screenshotOptions);
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-pan.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-pan.png', screenshotOptions);
   }
 }
 

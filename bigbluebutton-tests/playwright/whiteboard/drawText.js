@@ -29,7 +29,7 @@ class DrawText extends MultiUsers {
 
     await expect(modWbLocator).toHaveScreenshot('moderator-text.png', screenshotOptions);
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-text.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-text.png', screenshotOptions);
   }
 }
 

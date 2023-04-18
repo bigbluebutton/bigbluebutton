@@ -32,11 +32,11 @@ class Eraser extends MultiUsers {
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(modWbLocator).toHaveScreenshot('moderator-eraser1.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('user-eraser1.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-eraser1.png', screenshotOptions);
 
     await this.modPage.page.mouse.up();
     await expect(modWbLocator).toHaveScreenshot('moderator-eraser2.png', screenshotOptions);
-    await expect(userWbLocator).toHaveScreenshot('user-eraser2.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-eraser2.png', screenshotOptions);
   }
 }
 

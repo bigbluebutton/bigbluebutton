@@ -28,7 +28,7 @@ class DrawEllipse extends MultiUsers {
     await expect(modWbLocator).toHaveScreenshot('moderator-ellipse.png', screenshotOptions);
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-ellipse.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-ellipse.png', screenshotOptions);
   }
 }
 

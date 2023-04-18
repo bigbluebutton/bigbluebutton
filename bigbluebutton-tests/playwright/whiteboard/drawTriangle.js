@@ -28,7 +28,7 @@ class DrawTriangle extends MultiUsers {
     await expect(modWbLocator).toHaveScreenshot('moderator-triangle.png', screenshotOptions);
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('user-triangle.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-triangle.png', screenshotOptions);
   }
 }
 
