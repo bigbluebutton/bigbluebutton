@@ -24,6 +24,7 @@ DEBNAME_TO_SOURCEDIR[bbb-record-core]="record-and-playback/core"
 DEBNAME_TO_SOURCEDIR[bbb-web]="bigbluebutton-web bbb-common-web bbb-common-message"
 DEBNAME_TO_SOURCEDIR[bbb-webhooks]="bbb-webhooks"
 DEBNAME_TO_SOURCEDIR[bbb-webrtc-sfu]="bbb-webrtc-sfu"
+DEBNAME_TO_SOURCEDIR[bbb-webrtc-recorder]="bbb-webrtc-recorder"
 DEBNAME_TO_SOURCEDIR[bigbluebutton]="do_not_copy_anything"
 
 export DEBNAME_TO_SOURCEDIR
