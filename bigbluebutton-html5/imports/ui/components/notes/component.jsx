@@ -136,10 +136,6 @@ const Notes = ({
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: false,
         });
-        layoutContextDispatch({
-          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-          value: Session.get('presentationLastState'),
-        });
       };
     }
   }, []);
