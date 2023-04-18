@@ -120,6 +120,8 @@ const PresentationMenu = (props) => {
     meetingName,
     isIphone,
     isRTL,
+    isToolbarVisible,
+    setIsToolbarVisible,
   } = props;
 
   const [state, setState] = useState({
@@ -271,29 +273,14 @@ const PresentationMenu = (props) => {
     
     const tools = document.querySelector('#TD-Tools');
     if (tools && (props.hasWBAccess || props.amIPresenter)){
-      const isVisible = tools.style.visibility == 'hidden' ? false : true;
-      const styles = document.querySelector('#TD-Styles').parentElement;
-      const option = document.querySelector('#WhiteboardOptionButton');
-      if (option) {
-        //When the RTL-LTR changed, the toolbar appears again,
-        // while the opacity of this button remains the same.
-        //So we need to reset the opacity here.
-        option.style.opacity = isVisible ? 'unset' : '0.2';
-      }
       menuItems.push(
         {
           key: 'list-item-toolvisibility',
           dataTest: 'toolVisibility',
-          label: formattedVisibilityLabel(isVisible),
-          icon: isVisible ? 'close' : 'pen_tool',
+          label: formattedVisibilityLabel(isToolbarVisible),
+          icon: isToolbarVisible ? 'close' : 'pen_tool',
           onClick: () => {
-            tools.style.visibility = isVisible ? 'hidden' : 'visible';
-            if (styles) {
-              styles.style.visibility = isVisible ? 'hidden' : 'visible';
-            }
-            if (option) {
-              option.style.opacity = isVisible ? '0.2' : 'unset';
-            }
+            setIsToolbarVisible(!isToolbarVisible);
           },
         },
       );
