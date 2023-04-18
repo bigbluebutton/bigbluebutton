@@ -164,6 +164,7 @@ export default class ButtonBase extends React.Component {
       'iconRight',
       'isVisualEffects',
       'panning',
+      'panSelected',
     ];
 
     return (

@@ -367,6 +367,19 @@ const notifyShapeNumberExceeded = (intl, limit) => {
   if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
 };
 
+const toggleToolsAnimations = (activeAnim, anim, time) => {
+  const tdTools = document.querySelector("#TD-Tools");
+  const topToolbar = document.getElementById("TD-Styles")?.parentElement;
+  if (tdTools && topToolbar) {
+    tdTools.classList.remove(activeAnim);
+    topToolbar.classList.remove(activeAnim);
+    topToolbar.style.transition = `opacity ${time} ease-in-out`;
+    tdTools.style.transition = `opacity ${time} ease-in-out`;
+    tdTools?.classList?.add(anim);
+    topToolbar?.classList?.add(anim);
+  }
+}
+
 export {
   initDefaultPages,
   Annotations,
@@ -388,4 +401,5 @@ export {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  toggleToolsAnimations,
 };

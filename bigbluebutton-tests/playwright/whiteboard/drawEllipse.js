@@ -15,7 +15,7 @@ class DrawEllipse extends MultiUsers {
     const wbBox = await this.modPage.getElementBoundingBox(e.whiteboard);
     const clipObj = constructClipObj(wbBox);
     const screenshotOptions = {
-      maxDiffPixels: 1000,
+      maxDiffPixelRatio: 0.05,
       clip: clipObj,
     };
 

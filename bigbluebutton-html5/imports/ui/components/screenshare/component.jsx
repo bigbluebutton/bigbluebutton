@@ -182,6 +182,10 @@ class ScreenshareComponent extends React.Component {
     }
 
     this.clearMediaFlowingMonitor();
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: Session.get('presentationLastState'),
+    });
   }
 
   clearMediaFlowingMonitor() {
