@@ -73,6 +73,7 @@ export default function Whiteboard(props) {
     isIphone,
     sidebarNavigationWidth,
     animations,
+    isToolbarVisible,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -603,6 +604,7 @@ export default function Whiteboard(props) {
       const MENU_OFFSET = '48px';
       menu.style.position = 'relative';
       menu.style.height = presentationMenuHeight;
+      menu.setAttribute('id', 'TD-Styles-Parent');
       if (isRTL) {
         menu.style.left = MENU_OFFSET;
       } else {
@@ -1032,6 +1034,7 @@ export default function Whiteboard(props) {
             darkTheme,
             menuOffset,
             panSelected,
+            isToolbarVisible,
           }}
         />
       </Cursors>
