@@ -896,6 +896,10 @@ export default function Whiteboard(props) {
       setHistory(app.history);
     }
 
+    if (whiteboardToolbarAutoHide && command && command.id === "change_page") {
+      toggleToolsAnimations('fade-in', 'fade-out', '0s');
+    }
+
     if (command?.id?.includes('style')) {
       setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
     }
