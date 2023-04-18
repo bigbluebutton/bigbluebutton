@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
-export const USERS_SUBSCRIPTION = gql`subscription {
-  user(where: {joined: {_eq: true}}, order_by: [{role: asc}, {name: asc}]) {
+export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: Int!) {
+  user(limit:$limit, offset: $offset, order_by: [{role: asc}, {name: asc}, {userId: asc}]) {
     userId
     extId
     name
@@ -82,8 +82,20 @@ export const CURRENT_USER_SUBSCRIPTION = gql`subscription User($userId: String!)
   }
 }`;
 
+
+export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
+subscription {
+  user_aggregate {
+    aggregate {
+      count
+    }
+  }
+}
+`;
+
 export default {
   USERS_SUBSCRIPTION,
   MEETING_PERMISSIONS_SUBSCRIPTION,
   CURRENT_USER_SUBSCRIPTION,
+  USER_AGGREGATE_COUNT_SUBSCRIPTION
 };

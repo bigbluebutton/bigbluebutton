@@ -5,6 +5,7 @@ import {
   CellMeasurer,
   CellMeasurerCache,
   List,
+  InfiniteLoader
 } from 'react-virtualized';
 import Styled from './styles';
 import ListItem from './list-item/component';
@@ -14,7 +15,8 @@ import Auth from '/imports/ui/services/auth';
 import {
   USERS_SUBSCRIPTION,
   MEETING_PERMISSIONS_SUBSCRIPTION,
-  CURRENT_USER_SUBSCRIPTION
+  CURRENT_USER_SUBSCRIPTION,
+  USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
@@ -22,33 +24,38 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import { ListProps } from 'react-virtualized/dist/es/List';
 
 const cache = new CellMeasurerCache({
-  fixedWidth: true,
   keyMapper: () => 1,
 });
 
 const SKELETON_COUNT = 10;
+
+interface UserListParticipantsProps {
+  users: Array<User>;
+  offset: number;
+  setOffset: (offset: number) => void;
+  setLimit: (limit: number) => void,
+  meeting: Meeting;
+  currentUser: User;
+  count: number;
+}
 interface RowRendererProps extends ListProps {
   users: Array<User>;
   currentUser: User;
   meeting: Meeting;
+  offset: number;
 }
 
-const rowRenderer: React.FC<RowRendererProps>  = (users: Array<User>, currentUser: User, meeting: Meeting, { index, key, parent, }) => {
-  const user = users && users[index];
-  return (
-    <CellMeasurer
-      key={key}
-      cache={cache}
-      columnIndex={0}
-      parent={parent}
-      rowIndex={index}
-    >
-      
-      {
-        (user && currentUser && meeting)
+const rowRenderer: React.FC<RowRendererProps>  = (users, currentUser, offset, meeting { index, key, parent, style }) => {
+  const user = users && users[index - offset];
+  return <div
+    key={key}
+    index={index}
+    style={style}
+  >
+    {
+      (user && currentUser && meeting)
         ? (
-        <>
-          <UserActions 
+          <UserActions
             user={user}
             currentUser={currentUser}
             lockSettings={meeting.lockSettings}
@@ -56,19 +63,65 @@ const rowRenderer: React.FC<RowRendererProps>  = (users: Array<User>, currentUse
             isBreakout={meeting.isBreakout}
           >
             <ListItem user={user} />
-        </UserActions>
-        </>
-        ) : <Skeleton />
+          </UserActions>
+        )
+        :
+        <Skeleton />
+    }
+  </div>
+};
+
+const UserListParticipants: React.FC<UserListParticipantsProps> = ({
+  users,
+  setOffset,
+  setLimit,
+  offset,
+  currentUser,
+  meeting,
+  count,
+}) => {
+  return (
+    <Styled.UserListColumn>
+      {
+        <AutoSizer>
+          {({ width, height }) => {
+                return (
+                  <Styled.VirtualizedList
+                  rowRenderer={rowRenderer.bind(null, users, currentUser, offset, meeting)}
+                  noRowRenderer={() => <div>no users</div>}
+                  rowCount={count}
+                  height={height - 1}
+                  width={width - 1}
+                  onRowsRendered={({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+                    setOffset(overscanStartIndex);
+                    const limit = (overscanStopIndex - overscanStartIndex) + 1;
+                    console.log('onRowsRendered:limit', limit);
+                    setLimit(limit);
+                  }}
+                  overscanRowCount={5}
+                  rowHeight={50}
+                  tabIndex={0}
+                  />
+                );
+              }}            
+        </AutoSizer>
       }
-    </CellMeasurer>
+    </Styled.UserListColumn>
   );
-};  
+};
 
-
-const UserListParticipants: React.FC = () => {
-  const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION);
+const UserListParticipantsContainer: React.FC = () => {
+  const [offset, setOffset] = React.useState(0);
+  const [limit, setLimit] = React.useState(0);
+  
+  const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
+    variables:{
+      offset,
+      limit,
+    },
+  });
   const { user: users } = (usersData || {});
-  console.log('users', users, usersLoading, usersError);
+
   const {
     loading: meetingLoading,
     error: meetingError,
@@ -76,7 +129,7 @@ const UserListParticipants: React.FC = () => {
   } = useSubscription(MEETING_PERMISSIONS_SUBSCRIPTION)
   const { meeting: meetingArray } = (meetingData || {});
   const meeting = meetingArray && meetingArray[0];
-  console.log('meeting', meetingData, meetingLoading, meetingError);
+
   const {
     loading: currentUserLoading,
     error: currentUserError,
@@ -86,32 +139,26 @@ const UserListParticipants: React.FC = () => {
       userId: Auth.userID,
     }
   });
+
   const { user: currentUserArr } = (currentUserData || {});
   const currentUser = currentUserArr && currentUserArr[0];
-  console.log('currentUser', currentUserData, currentUserLoading, currentUserError);
-  return (
-    <Styled.UserListColumn>
-      {
-        <AutoSizer>
-          {({ width, height }) => {
-            return <Styled.VirtualizedList
-                rowHeight={cache.rowHeight}
-                rowRenderer={rowRenderer.bind(null, users, currentUser, meeting)}
-                noRowRenderer={() => <div>no users</div>}
-                rowCount={(!meetingLoading 
-                  && !currentUserLoading 
-                  && users?.length)
-                  || SKELETON_COUNT}
-                height={height - 1}
-                width={width - 1}
-                overscanRowCount={30}
-                deferredMeasurementCache={cache}
-                tabIndex={-1}
-            />;
-          }}
-        </AutoSizer>
-      }
-    </Styled.UserListColumn>
-  );
+
+  const {
+    loading: countLoading,
+    error: countError,
+    data: countData,
+  } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
+  const count = countData?.user_aggregate?.aggregate?.count || 0;
+
+  return <UserListParticipants
+    users={users}
+    offset={offset}
+    setOffset={setOffset}
+    setLimit={setLimit}
+    meeting={meeting}
+    currentUser={currentUser}
+    count={count}
+    />
 };
-export default UserListParticipants;
+
+export default UserListParticipantsContainer;
