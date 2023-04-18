@@ -101,7 +101,11 @@ select_permissions:
                   _eq: true
               - meetingId:
                   _neq: X-Hasura-LockedInMeeting
-              - meeting:
-                  lockSettings:
-                    hideUserList:
-                      _eq: false
+              - _exists:
+                  _table:
+                    name: v_meeting_showUserlist
+                    schema: public
+                  _where:
+                    meetingId:
+                      _eq: X-Hasura-MeetingId
+      allow_aggregations: true

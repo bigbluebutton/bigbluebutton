@@ -33,6 +33,7 @@ DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user";
 
 drop view if exists "v_meeting_lockSettings";
+drop view if exists "v_meeting_showUserlist";
 drop view if exists "v_meeting_usersPolicies";
 drop table if exists "meeting_breakout";
 drop table if exists "meeting_recording";
@@ -169,6 +170,14 @@ SELECT
 FROM meeting m
 JOIN "meeting_lockSettings" mls ON mls."meetingId" = m."meetingId"
 JOIN "meeting_usersPolicies" mup ON mup."meetingId" = m."meetingId";
+
+CREATE OR REPLACE VIEW "v_meeting_showUserlist" AS
+SELECT "meetingId"
+FROM "meeting_lockSettings"
+WHERE "hideUserList" IS FALSE;
+
+CREATE INDEX "idx_meeting_lockSettings_hideUserList_false" ON "meeting_lockSettings"("meetingId") WHERE "hideUserList" IS FALSE;
+
 
 create table "meeting_group" (
 	"meetingId"  varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
