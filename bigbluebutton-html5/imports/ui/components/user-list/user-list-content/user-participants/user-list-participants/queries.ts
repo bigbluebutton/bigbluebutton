@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: Int!) {
-  user(limit:$limit, offset: $offset, order_by: [{role: asc}, {name: asc}, {userId: asc}]) {
+  user(limit:$limit, offset: $offset, order_by: [{presenter: desc_nulls_last},{role: asc}, {name: asc}, {userId: asc}]) {
     userId
     extId
     name
