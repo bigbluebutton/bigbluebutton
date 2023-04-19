@@ -1,10 +1,10 @@
 table:
-  name: v_user
+  name: v_user_current
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user
+  custom_name: user_current
   custom_root_fields: {}
 object_relationships:
   - name: connectionStatus
@@ -53,6 +53,15 @@ array_relationships:
         remote_table:
           name: v_user_camera
           schema: public
+  - name: chats
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_chat
+          schema: public
   - name: presPagesWritable
     using:
       manual_configuration:
@@ -67,45 +76,31 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - registeredOn
-        - authed
-        - banned
-        - guest
-        - isModerator
-        - isOnline
-        - joined
-        - leftFlag
-        - locked
-        - loggedOut
-        - mobile
-        - pinned
-        - presenter
-        - avatar
-        - clientType
-        - color
-        - emoji
+        - userId
         - extId
-        - guestStatus
         - meetingId
         - name
+        - avatar
+        - color
+        - emoji
+        - guest
+        - guestStatus
+        - mobile
+        - clientType
         - role
-        - userId
+        - authed
+        - joined
+        - leftFlag
+        - banned
+        - loggedOut
+        - registeredOn
+        - presenter
+        - pinned
+        - locked
+        - isModerator
       filter:
         _and:
           - meetingId:
               _eq: X-Hasura-MeetingId
-          - _or:
-              - meetingId:
-                  _eq: X-Hasura-ModeratorInMeeting
-              - isModerator:
-                  _eq: true
-              - meetingId:
-                  _neq: X-Hasura-LockedInMeeting
-              - _exists:
-                  _table:
-                    name: v_meeting_showUserlist
-                    schema: public
-                  _where:
-                    meetingId:
-                      _eq: X-Hasura-MeetingId
-      allow_aggregations: true
+          - userId:
+              _eq: X-Hasura-UserId

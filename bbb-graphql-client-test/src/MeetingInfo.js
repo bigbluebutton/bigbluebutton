@@ -24,6 +24,9 @@ export default function MeetingInfo() {
   return  !loading && !error &&
     (<table border="1">
       <thead>
+      <tr>
+          <th colSpan={3}>Meeting Info</th>
+      </tr>
         <tr>
             {/*<th>Id</th>*/}
             <th>Name</th>

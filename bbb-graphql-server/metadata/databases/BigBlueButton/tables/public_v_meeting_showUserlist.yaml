@@ -1,0 +1,3 @@
+table:
+  name: v_meeting_showUserlist
+  schema: public
