@@ -187,6 +187,7 @@ Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the follo
 
 For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
 
+- [2.6.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.3)
 - [2.6.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.2)
 - [2.6.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.1)
 - [2.6.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0)
