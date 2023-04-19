@@ -109,5 +109,6 @@ libraryDependencies ++= Seq(
   "org.postgresql" % "postgresql" % "42.4.3",
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
-  "com.zaxxer" % "HikariCP" % "4.0.3"
+  "com.zaxxer" % "HikariCP" % "4.0.3",
+  "commons-validator" % "commons-validator" % "1.7"
 )
