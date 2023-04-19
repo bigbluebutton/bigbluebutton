@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +26,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
 import org.apache.http.nio.client.methods.ZeroCopyConsumer;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bigbluebutton.api.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -213,6 +216,28 @@ public class PresentationUrlDownloadService {
             log.error("IOException for url=[{}] with meeting[{}]", redirectUrl, meetingId, e);
             return null;
         }
+    }
+
+    private boolean isValidRedirectUrl(String redirectUrl) {
+        String[] validProtocolIdentifiers = { "https" };
+
+        try {
+            URL url = new URL(redirectUrl);
+            String protocolIdentifier = url.getProtocol();
+
+            if(Stream.of(validProtocolIdentifiers).noneMatch(s -> s.equalsIgnoreCase(protocolIdentifier))) return false;
+
+            InetAddress[] addresses = InetAddress.getAllByName(redirectUrl);
+            InetAddressValidator validator = InetAddressValidator.getInstance();
+
+            for(InetAddress address: addresses) {
+                if(!validator.isValid(address.getHostAddress())) return false;
+            }
+        } catch(Exception e) {
+            return false;
+        }
+
+        return true;
     }
 
     public boolean savePresentation(final String meetingId,
