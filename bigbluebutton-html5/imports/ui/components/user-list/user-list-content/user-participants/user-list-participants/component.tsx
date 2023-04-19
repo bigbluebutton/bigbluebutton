@@ -11,6 +11,7 @@ import Styled from './styles';
 import ListItem from './list-item/component';
 import Skeleton from './list-item/skeleton/component';
 import UserActions from './user-actions/component';
+import UsersTitle from './users-title/component';
 import Auth from '/imports/ui/services/auth';
 import {
   USERS_SUBSCRIPTION,
@@ -95,7 +96,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   onRowsRendered={({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
                     setOffset(overscanStartIndex);
                     const limit = (overscanStopIndex - overscanStartIndex) + 1;
-                    console.log('onRowsRendered:limit', limit);
                     setLimit(limit);
                   }}
                   overscanRowCount={5}
@@ -150,7 +150,9 @@ const UserListParticipantsContainer: React.FC = () => {
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
-  return <UserListParticipants
+  return <>
+    <UsersTitle count={count} />
+    <UserListParticipants
     users={users}
     offset={offset}
     setOffset={setOffset}
@@ -159,6 +161,7 @@ const UserListParticipantsContainer: React.FC = () => {
     currentUser={currentUser}
     count={count}
     />
+  </>
 };
 
 export default UserListParticipantsContainer;
