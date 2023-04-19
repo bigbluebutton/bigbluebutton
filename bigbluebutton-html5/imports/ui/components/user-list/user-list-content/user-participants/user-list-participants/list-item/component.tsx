@@ -1,11 +1,12 @@
 import React from 'react';
 import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
-import { injectIntl, defineMessages, useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import { User } from '/imports/ui/Types/user';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import Auth from '/imports/ui/services/auth';
 import _ from 'lodash';
 const messages = defineMessages({
   moderator: {
@@ -31,6 +32,10 @@ const messages = defineMessages({
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
+  },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
   },
 });
 
@@ -94,6 +99,8 @@ const UserListItem: React.FC<UserListItemProps> = ({ user }) => {
       <TooltipContainer title={user.name}>
         <span>{user.name}</span>
       </TooltipContainer>
+      &nbsp;
+      {(user.userId === Auth.userID) ? `(${intl.formatMessage(messages.you)})` : ''}
     </Styled.UserName>
     <Styled.UserNameSub>
       {subs.length ? subs.reduce((prev, curr) => [prev, ' | ', curr]) : null}
