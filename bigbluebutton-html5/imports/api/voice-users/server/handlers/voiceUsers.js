@@ -5,7 +5,6 @@ import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
-
 export default async function handleVoiceUsers({ header, body }) {
   const { voiceUsers } = body;
   const { meetingId } = header;
@@ -38,6 +37,7 @@ export default async function handleVoiceUsers({ header, body }) {
         intId: voice.intId,
         callerName: voice.callerName,
         callerNum: voice.callerNum,
+        color: voice.color,
         muted: voice.muted,
         talking: voice.talking,
         callingWith: voice.callingWith,
