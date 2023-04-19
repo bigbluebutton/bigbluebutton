@@ -7,6 +7,7 @@ import { User } from '/imports/ui/Types/user';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
+import { LockSettings } from '/imports/ui/Types/meeting';
 import _ from 'lodash';
 const messages = defineMessages({
   moderator: {
@@ -46,17 +47,24 @@ const { isChrome, isFirefox, isEdge } = browserInfo;
 
 interface UserListItemProps {
   user: User;
+  lockSettings: LockSettings;
 }
 
-const UserListItem: React.FC<UserListItemProps> = ({ user }) => {
+const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings }) => {
   const intl = useIntl()
   const voiceUser = user.voice;
-  const subs = [
-    (user.cameras.length > 0 && LABEL.sharingWebcam) && intl.formatMessage(messages.sharingWebcam),
-    // TODO: make locked work
+  const subs = [   
     (user.role === ROLE_MODERATOR && LABEL.moderator) && intl.formatMessage(messages.moderator),
     (user.guest && LABEL.guest) && intl.formatMessage(messages.guest),
     (user.mobile && LABEL.mobile) && intl.formatMessage(messages.mobile),
+    (user.locked && lockSettings.hasActiveLockSetting && !user.isModerator) 
+    && (
+      <span key={_.uniqueId('lock-')}>
+          <Icon iconName="lock" />
+          &nbsp;
+          {intl.formatMessage(messages.locked)}
+        </span>
+    ),
     user.lastBreakoutRoom?.currentlyInRoom && (
       <span key={_.uniqueId('breakout-')}>
           <Icon iconName="rooms" />
@@ -64,6 +72,15 @@ const UserListItem: React.FC<UserListItemProps> = ({ user }) => {
           {user.lastBreakoutRoom?.shortName
             ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
             : user.lastBreakoutRoom?.shortName}
+        </span>
+    ),
+    (user.cameras.length > 0 && LABEL.sharingWebcam) && (
+      <span key={_.uniqueId('breakout-')}>
+          { user.pinned === true
+            ? <Icon iconName="pin-video_on" />
+            : <Icon iconName="video" /> }
+          &nbsp;
+          {intl.formatMessage(messages.sharingWebcam)}
         </span>
     ),
   ].filter(Boolean);
@@ -84,7 +101,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user }) => {
     voice={voiceUser?.joined}
     noVoice={!voiceUser?.joined}
     color={user.color}
-    whiteboardAccess={user.whiteboardAccess}
+    whiteboardAccess={user?.presPagesWritable?.length > 0}
     animations={true} 
     emoji={user.emoji !== 'none'}
     avatar={user.avatar || ''}
