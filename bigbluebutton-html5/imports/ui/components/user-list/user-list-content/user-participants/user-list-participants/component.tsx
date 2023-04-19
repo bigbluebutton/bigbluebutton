@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import {
   AutoSizer,
@@ -47,7 +47,7 @@ interface RowRendererProps extends ListProps {
   offset: number;
 }
 
-const rowRenderer: React.FC<RowRendererProps>  = (users, currentUser, offset, meeting { index, key, parent, style }) => {
+const rowRenderer: React.FC<RowRendererProps>  = (users, currentUser, offset, meeting, { index, key, parent, style }) => {
   const user = users && users[index - offset];
   return <div
     key={key}
@@ -82,7 +82,12 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   meeting,
   count,
 }) => {
-  const [receivedUsers, setReceivedUsers] = React.useState<Array<User>>([]);
+  const [previousUsersData, setPreviousUsersData] = React.useState(users);
+  useEffect(() => {
+    if (users?.length){
+      setPreviousUsersData(users);
+    }
+  }, [users]);
   return (
     <Styled.UserListColumn>
       {
@@ -90,17 +95,17 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           {({ width, height }) => {
                 return (
                   <Styled.VirtualizedList
-                  rowRenderer={rowRenderer.bind(null, users, currentUser, offset, meeting)}
+                  rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting)}
                   noRowRenderer={() => <div>no users</div>}
                   rowCount={count}
                   height={height - 1}
                   width={width - 1}
-                  onRowsRendered={debounce({delay: 250}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+                  onRowsRendered={debounce({delay: 500}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
                     setOffset(overscanStartIndex);
                     const limit = (overscanStopIndex - overscanStartIndex) + 1;
-                    setLimit(limit);
+                    setLimit(limit < 50 ? 50 : limit);
                   })}
-                  overscanRowCount={5}
+                  overscanRowCount={10}
                   rowHeight={50}
                   tabIndex={0}
                   />
@@ -115,7 +120,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
-  const [receivedOffset, setReceivedOffset] = React.useState(0);
   
   const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
     variables:{
@@ -152,7 +156,7 @@ const UserListParticipantsContainer: React.FC = () => {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
   const count = countData?.user_aggregate?.aggregate?.count || 0;
-
+  console.log('users', users);
   return <>
     <UsersTitle count={count} />
     <UserListParticipants
