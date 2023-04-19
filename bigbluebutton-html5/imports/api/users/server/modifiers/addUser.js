@@ -70,6 +70,7 @@ export default async function addUser(meetingId, userData) {
       intId: userId,
       callerName: user.name,
       callerNum: '',
+      color: user.color,
       muted: false,
       talking: false,
       callingWith: '',
