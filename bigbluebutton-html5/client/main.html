@@ -116,6 +116,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     .fade-out {
       opacity: 0 !important;
     }
+
+    html, div, span {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
