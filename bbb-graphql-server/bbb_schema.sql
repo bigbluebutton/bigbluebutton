@@ -368,7 +368,7 @@ JOIN "user" u ON u."userId" = "user_breakoutRoom"."userId";
 
 CREATE TABLE "user_connectionStatus" (
 	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
-	"meetingId" varchar(100) REFERENCES meeting("meetingId"),
+	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"status" varchar(15),
 	"statusUpdatedAt" timestamp,
 	"connectionAliveAt" timestamp
