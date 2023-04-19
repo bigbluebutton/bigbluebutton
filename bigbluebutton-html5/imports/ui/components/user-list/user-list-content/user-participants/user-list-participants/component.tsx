@@ -21,6 +21,7 @@ import {
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
+import  { debounce } from 'radash';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 
@@ -63,7 +64,7 @@ const rowRenderer: React.FC<RowRendererProps>  = (users, currentUser, offset, me
             usersPolicies={meeting.usersPolicies}
             isBreakout={meeting.isBreakout}
           >
-            <ListItem user={user} />
+            <ListItem user={user} lockSettings={meeting.lockSettings} />
           </UserActions>
         )
         :
@@ -81,6 +82,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   meeting,
   count,
 }) => {
+  const [receivedUsers, setReceivedUsers] = React.useState<Array<User>>([]);
   return (
     <Styled.UserListColumn>
       {
@@ -93,11 +95,11 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   rowCount={count}
                   height={height - 1}
                   width={width - 1}
-                  onRowsRendered={({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+                  onRowsRendered={debounce({delay: 250}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
                     setOffset(overscanStartIndex);
                     const limit = (overscanStopIndex - overscanStartIndex) + 1;
                     setLimit(limit);
-                  }}
+                  })}
                   overscanRowCount={5}
                   rowHeight={50}
                   tabIndex={0}
@@ -113,6 +115,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
+  const [receivedOffset, setReceivedOffset] = React.useState(0);
   
   const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
     variables:{
