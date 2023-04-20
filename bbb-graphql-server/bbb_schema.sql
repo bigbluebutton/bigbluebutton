@@ -32,19 +32,25 @@ DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user";
 
-drop view if exists "v_meeting_lockSettings";
-drop view if exists "v_meeting_showUserlist";
-drop view if exists "v_meeting_usersPolicies";
-drop table if exists "meeting_breakout";
-drop table if exists "meeting_recording";
-drop table if exists "meeting_welcome";
-drop table if exists "meeting_voice";
-drop table if exists "meeting_users";
-drop table if exists "meeting_metadata";
-drop table if exists "meeting_lockSettings";
-drop table if exists "meeting_usersPolicies";
-drop table if exists "meeting_group";
-drop table if exists "meeting";
+DROP VIEW IF EXISTS "v_meeting_lockSettings";
+DROP VIEW IF EXISTS "v_meeting_showUserlist";
+DROP VIEW IF EXISTS "v_meeting_usersPolicies";
+DROP TABLE IF EXISTS "meeting_breakout";
+DROP TABLE IF EXISTS "meeting_recording";
+DROP TABLE IF EXISTS "meeting_welcome";
+DROP TABLE IF EXISTS "meeting_voice";
+DROP TABLE IF EXISTS "meeting_users";
+DROP TABLE IF EXISTS "meeting_metadata";
+DROP TABLE IF EXISTS "meeting_lockSettings";
+DROP TABLE IF EXISTS "meeting_usersPolicies";
+DROP TABLE IF EXISTS "meeting_group";
+DROP TABLE IF EXISTS "meeting";
+
+DROP FUNCTION IF EXISTS "update_user_presenter_trigger_func";
+DROP FUNCTION IF EXISTS "update_pres_presentation_current_trigger_func";
+DROP FUNCTION IF EXISTS "update_pres_page_current_trigger_func";
+DROP FUNCTION IF EXISTS "pres_page_writers_update_delete_trigger_func";
+DROP FUNCTION IF EXISTS "update_user_hasDrawPermissionOnCurrentPage(varchar, varchar)";
 
 -- ========== Meeting tables
 
@@ -200,6 +206,7 @@ CREATE TABLE "user" (
 	"avatar" varchar(500) NULL,
 	"color" varchar(7) NULL,
 	"emoji" varchar,
+	"emojiTime" timestamp,
 	"guest" bool NULL,
 	"guestStatus" varchar(50),
 	"mobile" bool NULL,
@@ -216,11 +223,16 @@ CREATE TABLE "user" (
 	"registeredOn" bigint NULL,
 	"presenter" bool NULL,
 	"pinned" bool NULL,
-	"locked" bool NULL
+	"locked" bool NULL,
+	"hasDrawPermissionOnCurrentPage" bool default FALSE
 );
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 
---Virtual columns isModerator and isOnline
+--hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
+COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
+
+--Virtual columns isDialIn, isModerator and isOnline
+ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS (CASE WHEN "clientType" = 'dial-in-user' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
 
@@ -232,10 +244,12 @@ AS SELECT "user"."userId",
     "user"."avatar",
     "user"."color",
     "user"."emoji",
+    "user"."emojiTime",
     "user"."guest",
     "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
+    "user"."isDialIn",
     "user"."role",
     "user"."authed",
     "user"."joined",
@@ -246,13 +260,15 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
+    "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
   AND "user".joined IS TRUE;
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -266,6 +282,7 @@ AS SELECT "user"."userId",
     "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
+    "user"."isDialIn",
     "user"."role",
     "user"."authed",
     "user"."joined",
@@ -276,6 +293,7 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
+    "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
    FROM "user";
 
@@ -294,6 +312,7 @@ AS SELECT "user"."userId",
     "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
+    "user"."isDialIn",
     "user"."role",
     "user"."authed",
     "user"."joined",
@@ -304,6 +323,7 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
+    "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user";
@@ -536,6 +556,101 @@ FROM "pres_page_writers"
 JOIN "user" u ON u."userId" = "pres_page_writers"."userId"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
 JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
+
+------------------------------------------------------------
+-- Triggers to automatically control "user" flag "hasDrawPermissionOnCurrentPage"
+
+CREATE OR REPLACE FUNCTION "update_user_hasDrawPermissionOnCurrentPage"("p_userId" varchar DEFAULT NULL, "p_meetingId" varchar DEFAULT NULL)
+RETURNS VOID AS $$
+DECLARE
+    where_clause TEXT := '';
+BEGIN
+    IF "p_userId" IS NOT NULL THEN
+        where_clause := format(' AND "userId" = %L', "p_userId");
+    END IF;
+    IF "p_meetingId" IS NOT NULL THEN
+        where_clause := format('%s AND "meetingId" = %L', where_clause, "p_meetingId");
+    END IF;
+
+    IF where_clause <> '' THEN
+        where_clause := substring(where_clause from 6);
+        EXECUTE format('UPDATE "user"
+						SET "hasDrawPermissionOnCurrentPage" =
+						CASE WHEN presenter THEN TRUE
+						WHEN EXISTS (
+							SELECT 1 FROM "v_pres_page_writers" v
+							WHERE v."userId" = "user"."userId"
+							AND v."isCurrentPage" IS TRUE
+						) THEN TRUE
+						ELSE FALSE
+						END  WHERE %s', where_clause);
+    ELSE
+        RAISE EXCEPTION 'No params provided';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- user (on update presenter)
+CREATE OR REPLACE FUNCTION update_user_presenter_trigger_func() RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD."presenter" <> NEW."presenter" THEN
+        PERFORM "update_user_hasDrawPermissionOnCurrentPage"(NEW."userId", NULL);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_presenter_trigger AFTER UPDATE OF "presenter" ON "user"
+FOR EACH ROW EXECUTE FUNCTION update_user_presenter_trigger_func();
+
+-- pres_presentation (on update current)
+CREATE OR REPLACE FUNCTION update_pres_presentation_current_trigger_func() RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD."current" <> NEW."current" THEN
+    	PERFORM "update_user_hasDrawPermissionOnCurrentPage"(NULL, NEW."meetingId");
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_pres_presentation_current_trigger AFTER UPDATE OF "current" ON "pres_presentation"
+FOR EACH ROW EXECUTE FUNCTION update_pres_presentation_current_trigger_func();
+
+-- pres_page (on update current)
+CREATE OR REPLACE FUNCTION update_pres_page_current_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD."current" <> NEW."current" THEN
+    	PERFORM "update_user_hasDrawPermissionOnCurrentPage"(NULL, pres_presentation."meetingId")
+        FROM pres_presentation
+        WHERE "presentationId" = NEW."presentationId";
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_pres_page_current_trigger AFTER UPDATE OF "current" ON "pres_page"
+FOR EACH ROW EXECUTE FUNCTION update_pres_page_current_trigger_func();
+
+-- pres_page_writers (on insert, update or delete)
+CREATE OR REPLACE FUNCTION ins_upd_del_pres_page_writers_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'UPDATE' or TG_OP = 'INSERT' THEN
+        PERFORM "update_user_hasDrawPermissionOnCurrentPage"(NEW."userId", NULL);
+    ELSIF TG_OP = 'DELETE' THEN
+        PERFORM "update_user_hasDrawPermissionOnCurrentPage"(OLD."userId", NULL);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ins_upd_del_pres_page_writers_trigger AFTER INSERT OR UPDATE OR DELETE ON "pres_page_writers"
+FOR EACH ROW EXECUTE FUNCTION ins_upd_del_pres_page_writers_trigger_func();
+
+------------------------------------------------------------
+
+
 
 CREATE TABLE "pres_page_cursor" (
 	"pageId" varchar(100)  REFERENCES "pres_page"("pageId") ON DELETE CASCADE,

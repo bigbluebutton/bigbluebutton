@@ -189,7 +189,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserDAO.updateEmoji(newUser)
       newUser
     }
   }

@@ -10,29 +10,31 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - userId
-        - extId
-        - meetingId
-        - name
+        - authed
         - avatar
+        - banned
+        - clientType
         - color
         - emoji
+        - extId
         - guest
         - guestStatus
-        - mobile
-        - clientType
-        - role
-        - authed
-        - joined
-        - leftFlag
-        - banned
-        - loggedOut
-        - registeredOn
-        - presenter
-        - pinned
-        - locked
+        - hasDrawPermissionOnCurrentPage
+        - isDialIn
         - isModerator
         - isOnline
+        - joined
+        - leftFlag
+        - locked
+        - loggedOut
+        - meetingId
+        - mobile
+        - name
+        - pinned
+        - presenter
+        - registeredOn
+        - role
+        - userId
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

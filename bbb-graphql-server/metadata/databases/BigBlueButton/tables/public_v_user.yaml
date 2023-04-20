@@ -67,27 +67,30 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - registeredOn
         - authed
+        - avatar
         - banned
+        - clientType
+        - color
+        - emoji
+        - emojiTime
+        - extId
         - guest
+        - guestStatus
+        - hasDrawPermissionOnCurrentPage
+        - isDialIn
         - isModerator
         - isOnline
         - joined
         - leftFlag
         - locked
         - loggedOut
+        - meetingId
         - mobile
+        - name
         - pinned
         - presenter
-        - avatar
-        - clientType
-        - color
-        - emoji
-        - extId
-        - guestStatus
-        - meetingId
-        - name
+        - registeredOn
         - role
         - userId
       filter:

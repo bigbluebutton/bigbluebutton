@@ -12,7 +12,7 @@ apt update
 apt install postgresql postgresql-contrib -y
 sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'bigbluebutton'"
 sudo -u postgres psql -c "create database bigbluebutton"
-sudo -u postgres psql -U postgres -d bigbluebutton -a -f bbb_schema.sql
+sudo -u postgres psql -U postgres -d bigbluebutton -a -f bbb_schema.sql --set ON_ERROR_STOP=on
 sudo -u postgres psql -c "create database hasura_app"
 
 echo "Postgresql installed!"
