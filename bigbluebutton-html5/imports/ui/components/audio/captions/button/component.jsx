@@ -104,7 +104,7 @@ const CaptionsButton = ({
     if (!isTranscriptionDisabled()) selectedLocale.current = getSelectedLocaleValue;
   }, [currentSpeechLocale]);
 
-  if (!enabled) return null;
+    if (!enabled) return null;
 
   const shouldRenderChevron = isSupported && isVoiceUser;
 

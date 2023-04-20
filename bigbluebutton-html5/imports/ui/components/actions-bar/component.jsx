@@ -86,7 +86,7 @@ class ActionsBar extends PureComponent {
             showPushLayout,
           }}
           />
-          {isCaptionsAvailable
+          { isCaptionsAvailable
             ? (
               <>
                 <CaptionsButtonContainer {...{ intl, 
@@ -103,7 +103,7 @@ class ActionsBar extends PureComponent {
                 }
               </>
             )
-            : null}
+            : null }
           { !deviceInfo.isMobile
             ? (
               <AudioCaptionsButtonContainer />

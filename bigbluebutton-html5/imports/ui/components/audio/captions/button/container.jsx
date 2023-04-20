@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Service from '/imports/ui/components/audio/captions/service';
 import Button from './component';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';

@@ -88,6 +88,8 @@ public:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
+      # provider: [webspeech, vosk, whisper, deepspeech]
+      provider: webspeech
       language:
         available:
         # - de-DE
