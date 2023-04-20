@@ -3,10 +3,7 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -179,6 +176,8 @@ public class PresentationUrlDownloadService {
             return null;
         }
 
+        if(!isValidRedirectUrl(redirectUrl)) return null;
+
         URL presUrl;
         try {
             presUrl = new URL(redirectUrl);
@@ -219,21 +218,44 @@ public class PresentationUrlDownloadService {
     }
 
     private boolean isValidRedirectUrl(String redirectUrl) {
-        String[] validProtocolIdentifiers = { "https" };
+        String[] validProtocols = { "https" };
+        URL url;
 
         try {
-            URL url = new URL(redirectUrl);
-            String protocolIdentifier = url.getProtocol();
+            url = new URL(redirectUrl);
+            String protocol = url.getProtocol();
 
-            if(Stream.of(validProtocolIdentifiers).noneMatch(s -> s.equalsIgnoreCase(protocolIdentifier))) return false;
+            if(Stream.of(validProtocols).noneMatch(s -> s.equalsIgnoreCase(protocol))) {
+                log.error("Invalid protocol [{}]", protocol);
+                return false;
+            }
+        } catch(MalformedURLException e) {
+            log.error("Malformed URL [{}]", redirectUrl);
+            return false;
+        }
 
-            InetAddress[] addresses = InetAddress.getAllByName(redirectUrl);
+        try {
+            InetAddress[] addresses = InetAddress.getAllByName(url.getHost());
             InetAddressValidator validator = InetAddressValidator.getInstance();
 
             for(InetAddress address: addresses) {
-                if(!validator.isValid(address.getHostAddress())) return false;
+                if(!validator.isValid(address.getHostAddress())) {
+                    log.error("Invalid address [{}]", address.getHostAddress());
+                    return false;
+                }
+
+                if(address.isAnyLocalAddress()) {
+                    log.error("Address [{}] is a local address", address.getHostAddress());
+                    return false;
+                }
+
+                if(address.isLoopbackAddress()) {
+                    log.error("Address [{}] is a loopback address", address.getHostAddress());
+                    return false;
+                }
             }
-        } catch(Exception e) {
+        } catch(UnknownHostException e) {
+            log.error("Unknown host [{}]", url.getHost());
             return false;
         }
 
