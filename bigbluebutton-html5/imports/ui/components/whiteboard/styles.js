@@ -72,6 +72,14 @@ const TldrawGlobalStyle = createGlobalStyle`
       margin: ${borderSize} ${borderSizeLarge} 0px ${borderSizeLarge};
     }
   `}
+  ${({ hasWBAccess, isPresenter, panSelected }) => (hasWBAccess || isPresenter) && panSelected && `
+    [id^="TD-PrimaryTools-"] {
+      &:hover > div,
+      &:focus > div {
+        background-color: var(--colors-hover) !important;
+      }
+    }
+  `}
   ${({ darkTheme }) => darkTheme && `
     #TD-TopPanel-Undo,
     #TD-TopPanel-Redo,
@@ -84,6 +92,18 @@ const TldrawGlobalStyle = createGlobalStyle`
   ${({ isPresenter }) => (!isPresenter) && `
     #presentationInnerWrapper div{
       cursor: default !important;
+    }
+  `}
+
+  ${({ isToolbarVisible }) => (!isToolbarVisible) && `
+    #TD-Tools {
+      visibility: hidden;
+    }
+    #TD-Styles-Parent {
+      visibility: hidden;
+    }
+    #WhiteboardOptionButton {
+      opacity: 0.2;
     }
   `}
 `;
@@ -112,11 +132,12 @@ const PanTool = styled(Button)`
       transform: scale(-1, 1);
     }
   }
-
-  &:hover,
-  &:focus {
-    background-color: var(--colors-hover);
-  }
+  ${({ panSelected }) => !panSelected && `
+    &:hover,
+    &:focus {
+      background-color: var(--colors-hover) !important;
+    }
+  `}
 `;
 
 export default {

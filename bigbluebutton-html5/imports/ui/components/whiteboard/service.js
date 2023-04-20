@@ -27,13 +27,13 @@ const intlMessages = defineMessages({
 
 let annotationsStreamListener = null;
 
-function handleAddedAnnotation({
+async function handleAddedAnnotation({
   meetingId,
   whiteboardId,
   userId,
   annotation,
 }) {
-  const query = addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
+  const query = await addAnnotationQuery(meetingId, whiteboardId, userId, annotation, Annotations);
 
   Annotations.upsert(query.selector, query.modifier);
 }
@@ -90,7 +90,7 @@ export function initAnnotationsStreamListener() {
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
     annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach((annotation) => handleAddedAnnotation(annotation));
+      annotations.forEach(async (annotation) => handleAddedAnnotation(annotation));
     });
   });
 }
@@ -367,6 +367,19 @@ const notifyShapeNumberExceeded = (intl, limit) => {
   if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
 };
 
+const toggleToolsAnimations = (activeAnim, anim, time) => {
+  const tdTools = document.querySelector("#TD-Tools");
+  const topToolbar = document.getElementById("TD-Styles")?.parentElement;
+  if (tdTools && topToolbar) {
+    tdTools.classList.remove(activeAnim);
+    topToolbar.classList.remove(activeAnim);
+    topToolbar.style.transition = `opacity ${time} ease-in-out`;
+    tdTools.style.transition = `opacity ${time} ease-in-out`;
+    tdTools?.classList?.add(anim);
+    topToolbar?.classList?.add(anim);
+  }
+}
+
 export {
   initDefaultPages,
   Annotations,
@@ -388,4 +401,5 @@ export {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  toggleToolsAnimations,
 };

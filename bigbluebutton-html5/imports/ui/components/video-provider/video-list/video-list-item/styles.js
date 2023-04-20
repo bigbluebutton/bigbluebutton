@@ -109,29 +109,6 @@ const LoadingText = styled(TextElipsis)`
   font-size: 100%;
 `;
 
-const Reconnecting = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  display: flex;
-  font-size: 2.5rem;
-  z-index: 1;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  color: ${colorWhite};
-
-  &::before {
-    font-family: 'bbb-icons' !important;
-    content: "\\e949";
-    /* ascii code for the ellipsis character */
-    display: inline-block;
-    ${({ animations }) => animations && css`
-      animation: ${rotate360} 2s infinite linear;
-    `}
-  }
-`;
-
 const VideoContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -180,7 +157,6 @@ export default {
   Content,
   WebcamConnecting,
   LoadingText,
-  Reconnecting,
   VideoContainer,
   Video,
   TopBar,

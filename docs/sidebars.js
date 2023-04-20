@@ -64,7 +64,7 @@ const sidebars = {
             ],
             link: {
                 type: 'doc',
-                id: 'greenlight/v2/overview',
+                id: 'greenlight/v3/install',
             },
         }
     ],

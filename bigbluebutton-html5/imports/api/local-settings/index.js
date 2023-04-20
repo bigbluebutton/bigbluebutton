@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 const LocalSettings = new Mongo.Collection('local-settings');
 
 if (Meteor.isServer) {
-  LocalSettings._ensureIndex({
+  LocalSettings.createIndexAsync({
     meetingId: 1, userId: 1,
   });
 }

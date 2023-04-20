@@ -42,7 +42,7 @@ test.describe.parallel('Audio', () => {
     test('Mute yourself by clicking the talking indicator', async ({ browser, page }) => {
       const audio = new Audio(browser, page);
       await audio.init(true, false);
-      await audio.muteYourselfBytalkingIndicator();
+      await audio.muteYourselfByTalkingIndicator();
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator

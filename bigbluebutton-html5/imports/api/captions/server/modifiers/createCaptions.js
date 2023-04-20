@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Captions from '/imports/api/captions';
 import Logger from '/imports/startup/server/logger';
 
-export default function createCaptions(meetingId, locale, name) {
+export default async function createCaptions(meetingId, locale, name) {
   try {
     check(meetingId, String);
     check(locale, String);
@@ -22,7 +22,7 @@ export default function createCaptions(meetingId, locale, name) {
       transcript: '',
     };
 
-    const numberAffected = Captions.upsert(selector, modifier);
+    const { numberAffected } = await Captions.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.verbose(`Created captions=${locale} meeting=${meetingId}`);

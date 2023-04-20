@@ -1,10 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
 
-export default function clearVoiceUser(meetingId) {
+export default async function clearVoiceUser(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = VoiceUsers.remove({ meetingId });
+      const numberAffected = await VoiceUsers.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared VoiceUsers in (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearVoiceUser(meetingId) {
     }
   } else {
     try {
-      const numberAffected = VoiceUsers.remove({});
+      const numberAffected = await VoiceUsers.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared VoiceUsers in all meetings');

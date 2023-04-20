@@ -1,7 +1,6 @@
 const { test } = require('@playwright/test');
 const { FocusOnPresentation } = require('./focusOnPresentation');
 const { FocusOnVideo } = require('./focusOnVideo');
-const { MultiUsers } = require('../user/multiusers');
 const { encodeCustomParams } = require('../customparameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
