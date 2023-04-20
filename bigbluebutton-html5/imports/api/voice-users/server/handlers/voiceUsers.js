@@ -5,23 +5,24 @@ import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
-
-export default function handleVoiceUsers({ header, body }) {
+export default async function handleVoiceUsers({ header, body }) {
   const { voiceUsers } = body;
   const { meetingId } = header;
 
-  const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const usersIds = voiceUsers.map(m => m.intId);
+  const meeting = await Meetings.findOneAsync({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
+  const usersIds = voiceUsers.map((m) => m.intId);
 
-  const voiceUsersIdsToUpdate = VoiceUsers.find({
+  const voiceUsersFetch = await VoiceUsers.find({
     meetingId,
     intId: { $in: usersIds },
-  }, { fields: { intId: 1 } }).fetch().map(m => m.intId);
+  }, { fields: { intId: 1 } }).fetchAsync();
 
-  voiceUsers.forEach((voice) => {
+  const voiceUsersIdsToUpdate = voiceUsersFetch.map((m) => m.intId);
+
+  await Promise.all(voiceUsers.map(async (voice) => {
     if (voiceUsersIdsToUpdate.indexOf(voice.intId) >= 0) {
       // user already exist, then update
-      updateVoiceUser(meetingId, {
+      await updateVoiceUser(meetingId, {
         intId: voice.intId,
         voiceUserId: voice.voiceUserId,
         talking: voice.talking,
@@ -31,11 +32,12 @@ export default function handleVoiceUsers({ header, body }) {
       });
     } else {
       // user doesn't exist yet, then add it
-      addVoiceUser(meetingId, {
+      await addVoiceUser(meetingId, {
         voiceUserId: voice.voiceUserId,
         intId: voice.intId,
         callerName: voice.callerName,
         callerNum: voice.callerNum,
+        color: voice.color,
         muted: voice.muted,
         talking: voice.talking,
         callingWith: voice.callingWith,
@@ -44,18 +46,21 @@ export default function handleVoiceUsers({ header, body }) {
         joined: true,
       });
 
-      addDialInUser(meetingId, voice);
+      await addDialInUser(meetingId, voice);
     }
-  });
+  }));
 
   // removing extra users already existing in Mongo
-  const voiceUsersToRemove = VoiceUsers.find({
+  const voiceUsersToRemove = await VoiceUsers.find({
     meetingId,
     intId: { $nin: usersIds },
-  }, { fields: { voiceUserId: 1, intId: 1 } }).fetch();
-  voiceUsersToRemove.forEach(user => removeVoiceUser(meetingId, {
-    voiceConf: meeting.voiceProp.voiceConf,
-    voiceUserId: user.voiceUserId,
-    intId: user.intId,
+  }, { fields: { voiceUserId: 1, intId: 1 } }).fetchAsync();
+
+  await Promise.all(voiceUsersToRemove.map(async (user) => {
+    await removeVoiceUser(meetingId, {
+      voiceConf: meeting.voiceProp.voiceConf,
+      voiceUserId: user.voiceUserId,
+      intId: user.intId,
+    });
   }));
 }

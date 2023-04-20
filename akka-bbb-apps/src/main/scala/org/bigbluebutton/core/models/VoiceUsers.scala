@@ -174,6 +174,7 @@ case class VoiceUserState(
     callingWith:        String,
     callerName:         String,
     callerNum:          String,
+    color:              String,
     muted:              Boolean,
     talking:            Boolean,
     listenOnly:         Boolean,

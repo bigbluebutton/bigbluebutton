@@ -73,6 +73,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.paginationEnabledLabel',
     description: 'enable/disable video pagination',
   },
+  wbToolbarsAutoHideLabel: {
+    id: 'app.submenu.application.wbToolbarsAutoHideLabel',
+    description: 'enable/disable auto hiding of whitebord toolbars',
+  },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
@@ -419,6 +423,29 @@ class ApplicationMenu extends BaseMenu {
           {this.renderAudioFilters()}
           {this.renderPaginationToggle()}
           {this.renderDarkThemeToggle()}
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.whiteboardToolbarAutoHide)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.whiteboardToolbarAutoHide}
+                  onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
 
           <Styled.Row>
             <Styled.Col>

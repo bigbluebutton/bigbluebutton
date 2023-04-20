@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import GroupChat from '/imports/api/group-chat';
 import clearGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/clearGroupChatMsg';
 
-export default function removeGroupChat(meetingId, chatId) {
+export default async function removeGroupChat(meetingId, chatId) {
   check(meetingId, String);
   check(chatId, String);
 
@@ -13,7 +13,7 @@ export default function removeGroupChat(meetingId, chatId) {
   };
 
   try {
-    const numberAffected = GroupChat.remove(selector);
+    const numberAffected = await GroupChat.removeAsync(selector);
 
     if (numberAffected) {
       Logger.info(`Removed group-chat id=${chatId} meeting=${meetingId}`);

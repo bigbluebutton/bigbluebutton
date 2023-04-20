@@ -8,7 +8,7 @@ async function startSharedNotes(test) {
 }
 
 function getNotesLocator(test) {
-  return test.page.frameLocator(e.etherpadFrame)
+  return test.page.frameLocator(e.etherpadFrame).last()
     .frameLocator(e.etherpadOuter)
     .frameLocator(e.etherpadInner)
     .locator(e.etherpadEditable);

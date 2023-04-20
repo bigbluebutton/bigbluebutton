@@ -182,6 +182,10 @@ class ScreenshareComponent extends React.Component {
     }
 
     this.clearMediaFlowingMonitor();
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+      value: Session.get('presentationLastState'),
+    });
   }
 
   clearMediaFlowingMonitor() {
@@ -242,9 +246,16 @@ class ScreenshareComponent extends React.Component {
 
       try {
         mediaFlowing = isMediaFlowing(previousStats, currentStats);
-      } catch (_error) {
+      } catch (error) {
         // Stats processing failed for whatever reason - maintain previous state
         mediaFlowing = prevMediaFlowing;
+        logger.warn({
+          logCode: 'screenshare_media_monitor_stats_failed',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, 'Failed to collect screenshare stats, flow monitor');
       }
 
       previousStats = currentStats;
@@ -323,9 +334,7 @@ class ScreenshareComponent extends React.Component {
       this.clearMediaFlowingMonitor();
       // Current state is media not flowing - stream is now healthy so flip it
       if (!mediaFlowing) this.setState({ mediaFlowing: isStreamHealthy });
-    } else {
-      if (this.mediaFlowMonitor == null) this.monitorMediaFlow();
-    }
+    } else if (this.mediaFlowMonitor == null) this.monitorMediaFlow();
   }
 
   renderFullscreenButton() {

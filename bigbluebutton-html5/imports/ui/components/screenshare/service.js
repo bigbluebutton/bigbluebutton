@@ -245,8 +245,8 @@ const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
 // This method may throw errors
 const isMediaFlowing = (previousStats, currentStats) => {
   const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats.screenshareStats,
-    previousStats.screenshareStats,
+    currentStats?.screenshareStats,
+    previousStats?.screenshareStats,
   );
   const bpsDataAggr = Object.values(bpsData)
     .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);

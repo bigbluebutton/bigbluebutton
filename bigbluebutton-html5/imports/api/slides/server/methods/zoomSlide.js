@@ -6,7 +6,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function zoomSlide(slideNumber, podId, widthRatio, heightRatio, x, y) {
+export default async function zoomSlide(slideNumber, podId, widthRatio, heightRatio, x, y) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ResizeAndMovePagePubMsg';
@@ -28,21 +28,24 @@ export default function zoomSlide(slideNumber, podId, widthRatio, heightRatio, x
       podId,
       current: true,
     };
-    const Presentation = Presentations.findOne(selector);
+    const Presentation = await Presentations.findOneAsync(selector);
 
     if (!Presentation) {
       throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
     }
 
-    const Slide = Slides.findOne({
+    let validSlideNum = slideNumber;
+    if (validSlideNum > Presentation?.pages?.length) validSlideNum = 1;
+
+    const Slide = await Slides.findOneAsync({
       meetingId,
       podId,
       presentationId: Presentation.id,
-      num: slideNumber,
+      num: validSlideNum,
     });
 
     if (!Slide) {
-      throw new Meteor.Error('slide-not-found', `Slide number ${slideNumber} not found in the current presentation`);
+      throw new Meteor.Error('slide-not-found', `Slide number ${validSlideNum} not found in the current presentation`);
     }
 
     const payload = {
