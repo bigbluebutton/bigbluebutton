@@ -53,7 +53,15 @@ const Cursors = (props) => {
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
 
-  const start = () => {
+  const start = (event) => {
+    const targetElement = event.target;
+    const className = targetElement instanceof SVGElement
+      ? targetElement?.className?.baseVal
+      : targetElement?.className;
+    const hasTlPartial = className?.includes('tl-');
+    if (hasTlPartial) {
+      event?.preventDefault();
+    }
     if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-out', 'fade-in', application?.animations ? '.3s' : '0s');
     setActive(true);
   };
