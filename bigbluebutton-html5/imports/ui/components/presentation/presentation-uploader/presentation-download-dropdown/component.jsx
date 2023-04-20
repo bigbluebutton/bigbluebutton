@@ -7,8 +7,12 @@ import Styled from './styles'
 
 
 const intlMessages = defineMessages({
-  sendOriginalDocument: {
-    id: 'app.presentationUploader.exportOriginalPresentation',
+  enableOriginalPresentationDownload: {
+    id: 'app.presentationUploader.enableOriginalPresentationDownload',
+    description: 'Send original presentation to chat',
+  },
+  disableOriginalPresentationDownload: {
+    id: 'app.presentationUploader.disableOriginalPresentationDownload',
     description: 'Send original presentation to chat',
   },
   sendAnnotatedDocument: {
@@ -43,19 +47,40 @@ class PresentationDownloadDropdown extends PureComponent {
   getAvailableActions() {
     const {
       intl,
-      handleSendToChat
+      handleDownloadingOfPresentation,
+      handleToggleDownloadable,
+      isDownloadable,
+      item,
     } = this.props;
 
     this.menuItems = [];
 
-    this.menuItems.push(
-      {
-        key: this.actionsKey[0],
-        dataTest: 'sendOriginalDocument',
-        label: intl.formatMessage(intlMessages.sendOriginalDocument),
-        onClick: () => handleSendToChat("Original"),
-      },
-    );
+    const toggleDownloadOriginalPresentation = (enableDownload) => {
+      if (enableDownload) {
+        handleDownloadingOfPresentation("Original");
+      }
+      handleToggleDownloadable(item);
+    }
+
+    if (!isDownloadable) {
+      this.menuItems.push(
+        {
+          key: this.actionsKey[0],
+          dataTest: 'enableOriginalPresentationDownload',
+          label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
+          onClick: () => toggleDownloadOriginalPresentation(true),
+        },
+      );
+    } else {
+      this.menuItems.push(
+        {
+          key: this.actionsKey[0],
+          dataTest: 'disableOriginalPresentationDownload',
+          label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload),
+          onClick: () => toggleDownloadOriginalPresentation(false),
+        },
+      );
+    } 
 
     this.menuItems.push(
       {
@@ -63,7 +88,7 @@ class PresentationDownloadDropdown extends PureComponent {
         id: 'sendAnnotatedDocument',
         dataTest: 'sendAnnotatedDocument',
         label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-        onClick: () => handleSendToChat("Annotated"),
+        onClick: () => handleDownloadingOfPresentation("Annotated"),
       },
     );
 

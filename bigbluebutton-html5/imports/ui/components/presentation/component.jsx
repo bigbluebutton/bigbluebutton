@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { Session } from 'meteor/session';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationMenu from './presentation-menu/container';
+import DownloadPresentationButton from './download-presentation-button/component';
 import Styled from './styles';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -591,6 +592,23 @@ class Presentation extends PureComponent {
     );
   }
 
+  renderPresentationDownload() {
+    const { presentationIsDownloadable, downloadPresentationUri } = this.props;
+
+    if (!presentationIsDownloadable || !downloadPresentationUri) return null;
+
+    const handleDownloadPresentation = () => {
+      window.open(downloadPresentationUri);
+    };
+
+    return (
+      <DownloadPresentationButton
+        handleDownloadPresentation={handleDownloadPresentation}
+        dark
+      />
+    );
+  }
+
   renderPresentationMenu() {
     const {
       intl,
@@ -715,6 +733,7 @@ class Presentation extends PureComponent {
                 }}
                 id={"presentationInnerWrapper"}
               >
+                {this.renderPresentationDownload()}
                 <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
                 {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}
                 <WhiteboardContainer

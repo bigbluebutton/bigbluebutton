@@ -308,6 +308,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.export.linkAvailable',
     description: 'download presentation link available on public chat',
   },
+  downloadButtonAvailable: {
+    id: 'app.presentationUploader.export.downloadButtonAvailable',
+    description: 'download presentation link available on public chat',
+  },
 });
 
 const EXPORT_STATUSES = {
@@ -341,7 +345,7 @@ class PresentationUploader extends Component {
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
     this.handleCurrentChange = this.handleCurrentChange.bind(this);
-    this.handleSendToChat = this.handleSendToChat.bind(this);
+    this.handleDownloadingOfPresentation = this.handleDownloadingOfPresentation.bind(this);
     // renders
     this.renderDropzone = this.renderDropzone.bind(this);
     this.renderExternalUpload = this.renderExternalUpload.bind(this);
@@ -355,6 +359,7 @@ class PresentationUploader extends Component {
     this.deepMergeUpdateFileKey = this.deepMergeUpdateFileKey.bind(this);
     this.updateFileKey = this.updateFileKey.bind(this);
     this.getPresentationsToShow = this.getPresentationsToShow.bind(this);
+    this.handleToggleDownloadable = this.handleToggleDownloadable.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -403,6 +408,11 @@ class PresentationUploader extends Component {
       const modPresentation = presentation;
       if (currentPropPres.isCurrent !== prevPropPres?.isCurrent) {
         modPresentation.isCurrent = currentPropPres.isCurrent;
+      }
+
+      if (currentPropPres?.isDownloadable !== prevPropPres?.isDownloadable) {
+        presentation.isDownloadable = currentPropPres.isDownloadable;
+        shouldUpdateState = true;
       }
 
       modPresentation.conversion = currentPropPres.conversion;
@@ -643,6 +653,14 @@ class PresentationUploader extends Component {
     return null;
   }
 
+  handleToggleDownloadable(item) {
+    const { dispatchTogglePresentationDownloadable, } = this.props;
+
+    const oldDownloadableState = item.isDownloadable;
+
+    dispatchTogglePresentationDownloadable(item, !oldDownloadableState)
+  }
+
   handleDismiss() {
     const { presentations } = this.state;
     const { presentations: propPresentations } = this.props;
@@ -667,7 +685,7 @@ class PresentationUploader extends Component {
     );
   }
 
-  handleSendToChat(item, type) {
+  handleDownloadingOfPresentation(item, type) {
     const {
       exportPresentationToChat,
       intl,
@@ -677,14 +695,20 @@ class PresentationUploader extends Component {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+        if (type === "Original") {
+          if (!item.isDownloadable) {
+            notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
+          }
+        } else {
+          notify(intl.formatMessage(intlMessages.linkAvailable, { 0: item.filename }), 'success');
+        }
       }
 
       if ([
         EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status)) {
+      ].includes(exportation.status) && type !== "Original") {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {
@@ -997,7 +1021,7 @@ class PresentationUploader extends Component {
 
     const { animations } = Settings.application;
 
-    const { isRemovable, exportation: { status } } = item;
+    const { isRemovable, exportation: { status }, isDownloadable } = item;
 
     const isExporting = status === 'RUNNING';
 
@@ -1058,7 +1082,10 @@ class PresentationUploader extends Component {
                 data-test="exportPresentationToPublicChat"
                 aria-label={formattedDownloadAriaLabel}
                 color="primary"
-                handleSendToChat={(type) => this.handleSendToChat(item, type)}
+                isDownloadable={isDownloadable}
+                handleToggleDownloadable={this.handleToggleDownloadable}
+                item={item}
+                handleDownloadingOfPresentation={(type) => this.handleDownloadingOfPresentation(item, type)}
               />
             ) : null}
             {isRemovable ? (

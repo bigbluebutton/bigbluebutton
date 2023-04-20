@@ -52,11 +52,11 @@ const intlMessages = defineMessages({
     description: 'used for indicating that a link may be not accessible',
   },
   original: {
-    id: 'app.presentationUploader.export.original',
+    id: 'app.presentationUploader.export.originalLabel',
     description: 'Label to identify original presentation exported',
   },
   annotated: {
-    id: 'app.presentationUploader.export.annotated',
+    id: 'app.presentationUploader.export.withAnnotationsLabel',
     description: 'Label to identify annotated presentation exported',
   },
 });

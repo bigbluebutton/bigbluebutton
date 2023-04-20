@@ -11,7 +11,7 @@ object PresentationSender {
       podId:     String, userId: String,
       presentationId: String,
       downloadable:   Boolean,
-      presFilename:   String
+      presFilename:   String,
   ): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,

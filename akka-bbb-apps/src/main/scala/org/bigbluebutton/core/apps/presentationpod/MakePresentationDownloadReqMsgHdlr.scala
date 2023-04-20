@@ -8,10 +8,13 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.models.{ PresentationPod, PresentationPage, PresentationInPod }
-import java.io.File
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 
-trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+
+trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   object JobTypes {
@@ -163,7 +166,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
 
-        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}").mkString(File.separator, File.separator, "")
+        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}&filename=${filename}").mkString(File.separator, File.separator, "")
         val event = buildNewPresFileAvailable(fileURI, presId, m.body.typeOfExport)
 
         handle(event, liveMeeting, bus)
