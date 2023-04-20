@@ -54,7 +54,7 @@ const Cursors = (props) => {
   const [panGrabbing, setPanGrabbing] = React.useState(false);
 
   const start = (event) => {
-    const targetElement = event.target;
+    const targetElement = event?.target;
     const className = targetElement instanceof SVGElement
       ? targetElement?.className?.baseVal
       : targetElement?.className;
