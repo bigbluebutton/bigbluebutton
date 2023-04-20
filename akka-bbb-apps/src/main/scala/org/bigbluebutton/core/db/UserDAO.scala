@@ -12,7 +12,8 @@ case class UserDbModel(
     name:         String,
     avatar:       String = "",
     color:        String = "",
-    emoji:        String = "",
+    emoji:        String = "none",
+    emojiTime:    Option[java.sql.Timestamp],
     guest:        Boolean,
     guestStatus:  String = "",
     mobile:       Boolean,
@@ -36,7 +37,7 @@ case class UserDbModel(
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    userId, extId, meetingId, name, avatar, color, emoji, guest, guestStatus, mobile, clientType, role, authed, joined,
+    userId, extId, meetingId, name, avatar, color, emoji, emojiTime, guest, guestStatus, mobile, clientType, role, authed, joined,
     leftFlag, banned, loggedOut, registeredOn, presenter, pinned, locked) <> (UserDbModel.tupled, UserDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -45,6 +46,7 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val avatar = column[String]("avatar")
   val color = column[String]("color")
   val emoji = column[String]("emoji")
+  val emojiTime = column[Option[java.sql.Timestamp]]("emojiTime")
   val guest = column[Boolean]("guest")
   val guestStatus = column[String]("guestStatus")
   val mobile = column[Boolean]("mobile")
@@ -81,6 +83,7 @@ object UserDAO {
           guestStatus = regUser.guestStatus,
           mobile = false,
           clientType = "",
+          emojiTime = None,
 //          excludeFromDashboard = regUser.excludeFromDashboard,
           role = regUser.role,
           authed = regUser.authed,
@@ -121,6 +124,27 @@ object UserDAO {
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
+    }
+  }
+  def updateEmoji(userState: UserState) = {
+    DatabaseConnection.db.run(
+      TableQuery[UserDbTableDef]
+        .filter(_.userId === userState.intId)
+        .map(u => (u.emoji, u.emojiTime))
+        .update((
+          userState.emoji match {
+            case "" => "none"
+            case emoji: String => emoji
+          },
+          userState.emoji match {
+            case "" => None
+            case "none" => None
+            case _ => Some(new java.sql.Timestamp(System.currentTimeMillis()))
+          },
+        ))
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user emoji table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating user emoji: $e")
     }
   }
 
