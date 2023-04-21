@@ -5,6 +5,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,6 +40,8 @@ public class PresentationUrlDownloadService {
     private String presentationBaseURL;
     private String presentationDir;
     private String BLANK_PRESENTATION;
+    private List<String> presentationDownloadSupportedProtocols;
+    private List<String> presentationDownloadBlockedHosts;
 
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
 
@@ -218,15 +222,20 @@ public class PresentationUrlDownloadService {
     }
 
     private boolean isValidRedirectUrl(String redirectUrl) {
-        String[] validProtocols = { "https" };
         URL url;
 
         try {
             url = new URL(redirectUrl);
             String protocol = url.getProtocol();
+            String host = url.getHost();
 
-            if(Stream.of(validProtocols).noneMatch(s -> s.equalsIgnoreCase(protocol))) {
+            if(presentationDownloadSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
                 log.error("Invalid protocol [{}]", protocol);
+                return false;
+            }
+
+            if(presentationDownloadBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+                log.error("Attempted to download from blocked host [{}]", host);
                 return false;
             }
         } catch(MalformedURLException e) {
@@ -327,6 +336,14 @@ public class PresentationUrlDownloadService {
 
     public void setBlankPresentation(String blankPresentation) {
         this.BLANK_PRESENTATION = blankPresentation;
+    }
+
+    public void setPresentationDownloadSupportedProtocols(String presentationDownloadSupportedProtocols) {
+        this.presentationDownloadSupportedProtocols = new ArrayList<>(Arrays.asList(presentationDownloadSupportedProtocols.split(",")));
+    }
+
+    public void setPresentationDownloadBlockedHosts(String presentationDownloadBlockedHosts) {
+        this.presentationDownloadBlockedHosts = new ArrayList<>(Arrays.asList(presentationDownloadBlockedHosts.split(",")));
     }
 
 }
