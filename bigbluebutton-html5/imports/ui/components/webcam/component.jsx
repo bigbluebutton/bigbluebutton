@@ -236,8 +236,8 @@ const WebcamComponent = ({
               role="region"
               draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
               style={{
-                width: isDragging ? cameraSize.width : cameraDock.width,
-                height: isDragging ? cameraSize.height : cameraDock.height,
+                width: `${isDragging ? cameraSize.width : cameraDock.width}pt`,
+                height: `${isDragging ? cameraSize.height : cameraDock.height}pt`,
                 opacity: isDragging ? 0.5 : undefined,
                 background: isCameraSidebar ? colorContentBackground : null,
               }}
