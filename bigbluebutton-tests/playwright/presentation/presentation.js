@@ -278,7 +278,13 @@ class Presentation extends MultiUsers {
     };
 
     await this.modPage.getLocator(e.skipSlide).selectOption('Slide 10');
-    await expect(wbBox).toHaveScreenshot('moderator1-select-slide.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide10.png', screenshotOptions);
+
+    await this.modPage.getLocator(e.skipSlide).selectOption('Slide 5');
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide5.png', screenshotOptions);
+
+    await this.modPage.getLocator(e.skipSlide).selectOption('Slide 13');
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png', screenshotOptions);
   }
 }
 
