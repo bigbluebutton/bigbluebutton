@@ -29,7 +29,8 @@ bbb-playback
 bbb-playback-presentation
 bbb-record-core
 bbb-web
-bbb-webrtc-sfu"
+bbb-webrtc-sfu
+bbb-webrtc-recorder"
 
 DEPENDENCIES=$(
   for PKG in $PKGS; do

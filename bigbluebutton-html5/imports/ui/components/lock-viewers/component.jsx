@@ -146,6 +146,9 @@ class LockViewersComponent extends Component {
       showToggleLabel,
       updateLockSettings,
       updateWebcamsOnlyForModerator,
+      isOpen,
+      onRequestClose,
+      priority,
     } = this.props;
 
     const { lockSettingsProps, usersProp } = this.state;
@@ -157,6 +160,11 @@ class LockViewersComponent extends Component {
         onRequestClose={closeModal}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
+        {...{
+          isOpen,
+          onRequestClose,
+          priority,
+        }}
       >
         <Styled.Container>
           <Styled.Description>

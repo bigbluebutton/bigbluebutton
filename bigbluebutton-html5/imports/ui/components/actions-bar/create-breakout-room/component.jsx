@@ -5,8 +5,7 @@ import { range } from '/imports/utils/array-utils';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -192,7 +191,6 @@ const propTypes = {
   getUsersNotJoined: PropTypes.func.isRequired,
   getBreakouts: PropTypes.func.isRequired,
   sendInvitation: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
   isBreakoutRecordable: PropTypes.bool,
 };
 
@@ -411,10 +409,10 @@ class BreakoutRoom extends PureComponent {
   }
 
   handleDismiss() {
-    const { mountModal } = this.props;
+    const { setIsOpen } = this.props;
     setPresentationVisibility('block');
     return new Promise((resolve) => {
-      mountModal(null);
+      setIsOpen(false);
 
       this.setState({
         preventClosing: false,
@@ -1317,7 +1315,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   render() {
-    const { intl, isUpdate } = this.props;
+    const { intl, isUpdate, isOpen, priority, setIsOpen, } = this.props;
     const {
       preventClosing,
       leastOneUserIsValid,
@@ -1330,7 +1328,7 @@ class BreakoutRoom extends PureComponent {
     const { isMobile } = deviceInfo;
 
     return (
-      <Modal
+      <ModalFullscreen
         title={
           isUpdate
             ? intl.formatMessage(intlMessages.updateTitle)
@@ -1357,16 +1355,21 @@ class BreakoutRoom extends PureComponent {
             : intl.formatMessage(intlMessages.dismissLabel),
         }}
         preventClosing={preventClosing}
+        {...{
+          isOpen,
+          priority,
+          setIsOpen,
+        }}
       >
         <Styled.Content>
           {this.renderTitle()}
           {isMobile ? this.renderMobile() : this.renderDesktop()}
         </Styled.Content>
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }
 
 BreakoutRoom.propTypes = propTypes;
 
-export default withModalMounter(injectIntl(BreakoutRoom));
+export default injectIntl(BreakoutRoom);

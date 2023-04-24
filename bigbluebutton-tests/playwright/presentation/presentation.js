@@ -6,7 +6,7 @@ const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultip
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
+const { waitAndClearDefaultPresentationNotification, waitAndClearNotification } = require('../notifications/util');
 
 class Presentation extends MultiUsers {
   constructor(browser, context) {
@@ -64,8 +64,6 @@ class Presentation extends MultiUsers {
   async uploadSinglePresentationTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
-
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
@@ -135,9 +133,9 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
     await this.modPage.wasRemoved(e.whiteboard);
-    await this.modPage.hasElementDisabled(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.minimizePresentation);
     await this.userPage.wasRemoved(e.whiteboard);
-    await this.userPage.hasElementDisabled(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.minimizePresentation);
   }
 
   async uploadAndRemoveAllPresentations() {
@@ -157,9 +155,9 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
     await this.modPage.wasRemoved(e.whiteboard);
-    await this.modPage.hasElementDisabled(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.minimizePresentation);
     await this.userPage.wasRemoved(e.whiteboard);
-    await this.userPage.hasElementDisabled(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.minimizePresentation);
 
     // Check removed presentations inside the Manage Presentations
     await this.modPage.waitAndClick(e.actions);
@@ -177,7 +175,6 @@ class Presentation extends MultiUsers {
   }
 
   async removePreviousPresentationFromPreviousPresenter() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
@@ -210,7 +207,7 @@ class Presentation extends MultiUsers {
 
   async presentationFullscreen() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    const presentationLocator = await this.modPage.getLocator(e.presentationContainer);
+    const presentationLocator = this.modPage.getLocator(e.presentationContainer);
     const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
 
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
@@ -224,6 +221,7 @@ class Presentation extends MultiUsers {
 
   async presentationSnapshot(testInfo) {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
     await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);

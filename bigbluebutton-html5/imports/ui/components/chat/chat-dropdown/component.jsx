@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { getDateString, uniqueId } from '/imports/utils/string-utils';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
@@ -159,4 +158,4 @@ class ChatDropdown extends PureComponent {
   }
 }
 
-export default withModalMounter(injectIntl(ChatDropdown));
+export default injectIntl(ChatDropdown);

@@ -293,5 +293,17 @@ test.describe.parallel('CustomParameters', () => {
       await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRooms });
       await customParam.importSharedNotesFromBreakoutRooms();
     });
+
+    test('Presentation', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.presentation });
+      await customParam.presentation();
+    });
+
+    test('Custom Virtual Background', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.customVirtualBackground });
+      await customParam.customVirtualBackground();
+    });
   });
 });

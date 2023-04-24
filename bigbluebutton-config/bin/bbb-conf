@@ -154,6 +154,14 @@ get_bbb_web_config_value() {
 
 RECORD_CONFIG=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
+WEBRTC_RECORDER_DEFAULT_CONFIG=/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+WEBRTC_RECORDER_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-recorder.yml
+if [ -f $WEBRTC_RECORDER_ETC_CONFIG ]; then
+    WEBRTC_RECORDER_CONFIG=$(yq m -x $WEBRTC_RECORDER_DEFAULT_CONFIG $WEBRTC_RECORDER_ETC_CONFIG)
+else
+    WEBRTC_RECORDER_CONFIG=$(yq r $WEBRTC_RECORDER_DEFAULT_CONFIG)
+fi
+
 HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
@@ -407,16 +415,7 @@ display_bigbluebutton_status () {
     fi
 
     if [ -f /usr/lib/systemd/system/bbb-html5.service ]; then
-        units="$units mongod bbb-html5 bbb-webrtc-sfu kurento-media-server"
-
-        for i in `seq 8888 8890`; do
-            # check if multi-kurento setup is configured
-            if [ -f /usr/lib/systemd/system/kurento-media-server-${i}.service ]; then
-                if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
-                    units="$units kurento-media-server-${i}"
-                fi
-            fi
-        done
+        units="$units mongod bbb-html5"
 
         source /usr/share/meteor/bundle/bbb-html5-with-roles.conf
 
@@ -432,6 +431,27 @@ display_bigbluebutton_status () {
           units="$units bbb-html5-frontend@$i"
         done
     fi
+
+    if [ -f /usr/lib/systemd/system/bbb-webrtc-sfu.service ]; then
+        units="$units bbb-webrtc-sfu"
+    fi
+
+    if [ -f /usr/lib/systemd/system/bbb-webrtc-recorder.service ]; then
+        units="$units bbb-webrtc-recorder"
+    fi
+
+    if [ -f /usr/lib/systemd/system/kurento-media-server.service ]; then
+        units="$units kurento-media-server"
+    fi
+
+    for i in `seq 8888 8890`; do
+        # check if multi-kurento setup is configured
+        if [ -f /usr/lib/systemd/system/kurento-media-server-${i}.service ]; then
+            if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
+                units="$units kurento-media-server-${i}"
+            fi
+        fi
+    done
 
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         units="$units etherpad"
@@ -706,6 +726,9 @@ if [[ $PORT_RANGE ]]; then
         yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMinPort $START_PORT
         yq w -i $WEBRTC_SFU_ETC_CONFIG mediasoup.worker.rtcMaxPort $END_PORT
 
+        yq w -i $WEBRTC_RECORDER_DEFAULT_CONFIG webrtc.rtcMinPort $START_PORT
+        yq w -i $WEBRTC_RECORDER_DEFAULT_CONFIG webrtc.rtcMaxPort $END_PORT
+
         echo
         echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
         echo
@@ -744,14 +767,18 @@ check_configuration() {
     # Look for properties with no values set
     #
     CONFIG_FILES="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
+    ignore_configs_args=()
+    ignore_configs_args+=(-e "redis.pass")
+    ignore_configs_args+=(-e "redisPassword")
+    ignore_configs_args+=(-e "disabledFeatures")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
             echo "# Error: File not found: $file"
         else
-            if cat $file | grep -v redis.pass | grep -v redisPassword  | grep -v ^# | grep -q "^[^=]*=[ ]*$"; then
+            if cat $file | grep -v "${ignore_configs_args[@]}"  | grep -v ^# | grep -q "^[^=]*=[ ]*$"; then
                 echo "# The following properties in $file have no value:"
-                echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v redis.pass | grep -v redisPassword | sed 's/=//g')"
+                echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v "${ignore_configs_args[@]}" | sed 's/=//g')"
             fi
         fi
     done
@@ -1393,6 +1420,8 @@ if [ $CHECK ]; then
     echo "                           kurento: $(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /minPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)-$(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /maxPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)"
 
     echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMinPort)-$(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMaxPort)"
+    echo "                    bbb-webrtc-recorder: $(echo "$WEBRTC_RECORDER_CONFIG" | yq r - webrtc.rtcMinPort)-$(echo "$WEBRTC_RECORDER_CONFIG" | yq r - webrtc.rtcMaxPort)"
+
 
 
 #     if [ -f ${LTI_DIR}/WEB-INF/classes/lti-config.properties ]; then
@@ -1427,10 +1456,20 @@ if [ $CHECK ]; then
         echo "                        kurento.ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].ip)"
         echo "                       kurento.url: $(echo "$WEBRTC_SFU_CONFIG" | yq r - kurento[0].url)"
         echo "                 freeswitch.sip_ip: $(echo "$WEBRTC_SFU_CONFIG" | yq r - freeswitch.sip_ip)"
+        echo "                  recordingAdapter: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordingAdapter)"
         echo "               recordScreenSharing: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordScreenSharing)"
         echo "                     recordWebcams: $(echo "$WEBRTC_SFU_CONFIG" | yq r - recordWebcams)"
         echo "                  codec_video_main: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_main)"
         echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq r - conference-media-specs.codec_video_content)"
+
+    fi
+
+    if [ -n "$WEBRTC_RECORDER_CONFIG" ]; then
+        echo
+        echo "/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml (bbb-webrtc-recorder)"
+        echo "/etc/bigbluebutton/bbb-webrtc-recorder.yml (bbb-webrtc-recorder - override)"
+        echo "               debug: $(echo "$WEBRTC_RECORDER_CONFIG" | yq r - debug)"
+        echo "               recorder.directory: $(echo "$WEBRTC_RECORDER_CONFIG" | yq r - recorder.directory)"
     fi
 
     if [ -n "$HTML5_CONFIG" ]; then

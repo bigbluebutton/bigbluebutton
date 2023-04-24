@@ -7,7 +7,6 @@ import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -195,6 +194,7 @@ class UserListItem extends PureComponent {
       dropdownVisible: false,
       showNestedOptions: false,
       selected: false,
+      isConfirmationModalOpen: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -203,6 +203,7 @@ class UserListItem extends PureComponent {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
+    this.setConfirmationModalIsOpen = this.setConfirmationModalIsOpen.bind(this);
 
     this.title = uniqueId('dropdown-title-');
     this.seperator = uniqueId('action-separator-');
@@ -292,7 +293,6 @@ class UserListItem extends PureComponent {
       userLocks,
       isMe,
       meetingIsBreakout,
-      mountModal,
       usersProp,
       layoutContextDispatch,
     } = this.props;
@@ -515,17 +515,9 @@ class UserListItem extends PureComponent {
         key: 'remove',
         label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
         onClick: () => {
-          this.onActionsHide(mountModal(
-            <ConfirmationModal
-              intl={intl}
-              titleMessageId="app.userList.menu.removeConfirmation.label"
-              titleMessageExtra={user.name}
-              checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-              confirmParam={user.userId}
-              onConfirm={removeUser}
-              confirmButtonDataTest="removeUserConfirmation"
-            />,
-          ));
+          this.onActionsHide(
+            this.setConfirmationModalIsOpen(true),
+          );
 
           this.handleClose();
         },
@@ -649,6 +641,12 @@ class UserListItem extends PureComponent {
     );
   }
 
+  setConfirmationModalIsOpen(value) {
+    this.setState({
+      isConfirmationModalOpen: value,
+    });
+  }
+
   render() {
     const {
       compact,
@@ -660,11 +658,13 @@ class UserListItem extends PureComponent {
       isMe,
       isRTL,
       selectedUserId,
+      removeUser,
     } = this.props;
 
     const {
       isActionsOpen,
       selected,
+      isConfirmationModalOpen
     } = this.state;
 
     if (!user) return (
@@ -821,34 +821,51 @@ class UserListItem extends PureComponent {
     if (!actions.length) return contents;
 
     return (
-      <BBBMenu
-        trigger={
-          (
-            <Styled.UserItemContents
-              isActionsOpen={isActionsOpen}
-              selected={selected === true}
-              tabIndex={-1}
-              onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId));
-                }
-              }}
-              role="button"
-            >
-              {contents}
-            </Styled.UserItemContents>
-          )
-        }
-        actions={actions}
-        selectedEmoji={user.emoji}
-        onCloseCallback={() => this.setState({ selected: false }, () => Session.set('dropdownOpenUserId', null))}
-        open={selectedUserId === user.userId}
-      />
+      <>
+        <BBBMenu
+          trigger={
+            (
+              <Styled.UserItemContents
+                isActionsOpen={isActionsOpen}
+                selected={selected === true}
+                tabIndex={-1}
+                onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId));
+                  }
+                }}
+                role="button"
+              >
+                {contents}
+              </Styled.UserItemContents>
+            )
+          }
+          actions={actions}
+          selectedEmoji={user.emoji}
+          onCloseCallback={() => this.setState({ selected: false }, () => Session.set('dropdownOpenUserId', null))}
+          open={selectedUserId === user.userId}
+        />
+        {isConfirmationModalOpen ? <ConfirmationModal
+          intl={intl}
+          titleMessageId="app.userList.menu.removeConfirmation.label"
+          titleMessageExtra={user.name}
+          checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+          confirmParam={user.userId}
+          onConfirm={removeUser}
+          confirmButtonDataTest="removeUserConfirmation" 
+          {...{
+            onRequestClose: () => this.setConfirmationModalIsOpen(false),
+            priority: "low",
+            setIsOpen: this.setConfirmationModalIsOpen,
+            isOpen: isConfirmationModalOpen
+          }}
+        /> : null}
+      </>
     );
   }
 }
 
 UserListItem.propTypes = propTypes;
 
-export default withModalMounter(lockContextContainer(injectIntl(UserListItem)));
+export default lockContextContainer(injectIntl(UserListItem));

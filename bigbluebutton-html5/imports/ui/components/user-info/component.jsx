@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 import Service from './service';
 
@@ -55,12 +55,12 @@ class UserInfoComponent extends Component {
   render() {
     const { intl } = this.props;
     return (
-      <Modal
+      <ModalSimple
         title={intl.formatMessage(intlMessages.title)}
         onRequestClose={() => Service.handleCloseUserInfo()}
       >
         {this.renderUserInfo()}
-      </Modal>
+      </ModalSimple>
     );
   }
 }

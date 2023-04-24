@@ -8,7 +8,7 @@ export default async function addDialInUser(meetingId, voiceUser) {
   const USER_CONFIG = Meteor.settings.public.user;
   const ROLE_VIEWER = USER_CONFIG.role_viewer;
 
-  const { intId, callerName } = voiceUser;
+  const { intId, callerName, color } = voiceUser;
 
   const voiceOnlyUser = {
     intId,
@@ -23,6 +23,7 @@ export default async function addDialInUser(meetingId, voiceUser) {
     presenter: false,
     locked: false, // TODO
     avatar: '',
+    color,
     pin: false,
     clientType: 'dial-in-user',
   };
