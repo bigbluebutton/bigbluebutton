@@ -1,18 +1,18 @@
 const { expect } = require('@playwright/test');
-const Page = require('../core/page');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { MultiUsers } = require('../user/multiusers');
 
 
-class Options extends Page {
-  constructor(browser, page) {
-    super(browser, page);
+class Options extends MultiUsers {
+  constructor(browser, context) {
+    super(browser, context);
   }
 
   async openedAboutModal() {
-    await openAboutModal(this);
-    await this.hasElement(e.closeModal);
+    await openAboutModal(this.modPage);
+    await this.modPage.hasElement(e.closeModal);
   }
 
   async openHelp(context) {
