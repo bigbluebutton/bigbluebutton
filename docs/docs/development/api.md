@@ -358,6 +358,23 @@ In the body part, you would append a simple XML like the example below:
 
 When you need to provide a document using a URL, and the document URL does not contain an extension, you can use the `filename` parameter, such as `filename=test-results.pdf` to help the BigBlueButton server determine the file type (in this example it would be a PDF file).
 
+**From `2.5.x` and on** there is also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
+
+| Parameter      | Description                                    | Default Value |
+| -------------- | ---------------------------------------------- | ------------- |
+| `downloadable` | Dictates if the presentation can be downloaded | `true`        |
+| `removable`    | dictates if one can remove the presentation.   | `false`       |
+
+In the payload the variables are passed inside each `<document>` tag of the xml, as follows:
+
+```xml
+<document downloadable="false" removable="true" url="http://www.sample-pdf.com/sample.pdf" filename="report.pdf"/>
+<document removable="false" name="sample-presentation.pdf">JVBERi0xLjQKJ....
+  [clipped here]
+  ....0CiUlRU9GCg==
+</document>
+```
+
 In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79). For a complete example of the pre-upload slides check the following demos: [demo7](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo7.jsp) and [demo8](https://github.com/bigbluebutton/bigbluebutton/blob/master/bbb-api-demo/src/main/webapp/demo8.jsp)
@@ -514,6 +531,8 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
    </module>
 </modules>'
 ```
+
+There is also the possibility of passing the removable and downloadable variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides) 
 
 ### isMeetingRunning
 

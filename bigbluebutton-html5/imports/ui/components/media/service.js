@@ -35,7 +35,7 @@ function shouldShowScreenshare() {
 }
 
 function shouldShowExternalVideo() {
-  return isExternalVideoEnabled() && getVideoUrl();
+  return isExternalVideoEnabled() && !!getVideoUrl();
 }
 
 function shouldShowSharedNotes() {

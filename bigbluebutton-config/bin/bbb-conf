@@ -767,14 +767,18 @@ check_configuration() {
     # Look for properties with no values set
     #
     CONFIG_FILES="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
+    ignore_configs_args=()
+    ignore_configs_args+=(-e "redis.pass")
+    ignore_configs_args+=(-e "redisPassword")
+    ignore_configs_args+=(-e "disabledFeatures")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
             echo "# Error: File not found: $file"
         else
-            if cat $file | grep -v redis.pass | grep -v redisPassword  | grep -v ^# | grep -q "^[^=]*=[ ]*$"; then
+            if cat $file | grep -v "${ignore_configs_args[@]}"  | grep -v ^# | grep -q "^[^=]*=[ ]*$"; then
                 echo "# The following properties in $file have no value:"
-                echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v redis.pass | grep -v redisPassword | sed 's/=//g')"
+                echo "#     $(grep '^[^=#]*=[ ]*$' $file | grep -v "${ignore_configs_args[@]}" | sed 's/=//g')"
             fi
         fi
     done

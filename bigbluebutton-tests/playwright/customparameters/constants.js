@@ -54,6 +54,8 @@ exports.downloadPresentationWithAnnotations = 'disabledFeatures=downloadPresenta
 exports.importPresentationWithAnnotationsFromBreakoutRooms = 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms';
 exports.importSharedNotesFromBreakoutRooms = 'disabledFeatures=importSharedNotesFromBreakoutRooms';
 exports.layouts = 'disabledFeatures=layouts';
+exports.presentation = 'disabledFeatures=presentation';
+exports.customVirtualBackground = 'disabledFeatures=customVirtualBackgrounds';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';

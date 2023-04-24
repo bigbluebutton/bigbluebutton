@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "A szélességhez illeszkedjen",
     "app.presentation.presentationToolbar.fitToPage": "Az oldalhoz illeszkedjen",
     "app.presentation.presentationToolbar.goToSlide": "{0}. dia",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Eszköztár elrejtése",
+    "app.presentation.presentationToolbar.showToolsDesc": "Eszköztár megjelenítése",
     "app.presentation.placeholder": "Jelenleg nincs aktív előadás",
     "app.presentationUploder.title": "Prezentáció",
     "app.presentationUploder.message": "Előadóként tetszőleges office dokumentumot, illetve PDF fájlt fel tudsz tölteni. A legjobb eredmény érdekében javasoljuk PDF fájl használatát. Kérjük, ellenőrizd, hogy egy prezentációt kiválasztottál a bal oldalon lévő kör alakú jelölővel. ",

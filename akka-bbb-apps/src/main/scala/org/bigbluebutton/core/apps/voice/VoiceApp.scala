@@ -7,9 +7,10 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.util.ColorPicker
 
 object VoiceApp extends SystemConfiguration {
 
@@ -164,6 +165,7 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callingWith,
                 cvu.callerIdName,
                 cvu.callerIdNum,
+                ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
                 cvu.muted,
                 cvu.talking,
                 cvu.calledInto
@@ -213,6 +215,7 @@ object VoiceApp extends SystemConfiguration {
       callingWith:  String,
       callerIdName: String,
       callerIdNum:  String,
+      color:        String,
       muted:        Boolean,
       talking:      Boolean,
       callingInto:  String
@@ -240,6 +243,7 @@ object VoiceApp extends SystemConfiguration {
         voiceUserState.voiceUserId,
         voiceUserState.callerName,
         voiceUserState.callerNum,
+        voiceUserState.color,
         voiceUserState.muted,
         voiceUserState.talking,
         voiceUserState.callingWith,
@@ -267,6 +271,7 @@ object VoiceApp extends SystemConfiguration {
       callingWith,
       callerIdName,
       callerIdNum,
+      color,
       muted,
       talking,
       listenOnly = isListenOnly,
