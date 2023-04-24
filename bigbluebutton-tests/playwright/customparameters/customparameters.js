@@ -22,7 +22,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
-    await this.modPage.wasRemoved(e.userslist);
+    await this.modPage.wasRemoved(e.usersList);
   }
 
   async clientTitle() {
@@ -242,7 +242,7 @@ class CustomParameters extends MultiUsers {
 
   async liveTranscription() {
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.liveTranscritpion);
+    await this.modPage.wasRemoved(e.liveTranscription);
   }
 
   async captions() {
