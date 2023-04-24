@@ -4,7 +4,6 @@ import Auth from '/imports/ui/services/auth';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import { EFFECT_TYPES } from '/imports/ui/services/virtual-background/service';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
@@ -25,12 +24,15 @@ const intlMessages = defineMessages({
 const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 const DragAndDrop = (props) => {
-  const { children, mountModal, intl, readFile } = props;
+  const { children, intl, readFile, onVirtualBgDrop: onAction } = props;
 
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
+  const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
+  const [file, setFile] = useState(false);
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
 
+  let callback;
   const resetEvent = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -61,12 +63,10 @@ const DragAndDrop = (props) => {
     };
   }, []);
 
-  const makeDragOperations = useCallback((onAction, userId) => {
-    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
-
-    const startAndSaveVirtualBackground = (file) => {
-      const onSuccess = (background) => {
-        const { filename, data } = background;
+  const handleStartAndSaveVirtualBackground = (file) => {
+    const onSuccess = (background) => {
+      const { filename, data } = background;
+      if (onAction) {
         onAction(EFFECT_TYPES.IMAGE_TYPE, filename, data).then(() => {
           dispatchCustomBackground({
             type: 'new',
@@ -77,20 +77,38 @@ const DragAndDrop = (props) => {
             },
           });
         });
-      };
-
-      const onError = (error) => {
-        logger.warn({
-          logCode: 'read_file_error',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, error.message);
-      };
-
-      readFile(file, onSuccess, onError);
+      } else dispatchCustomBackground({
+        type: 'new',
+        background: {
+          ...background,
+          custom: true,
+          lastActivityDate: Date.now(),
+        },
+      });
     };
+
+    const onError = (error) => {
+      logger.warn({
+        logCode: 'read_file_error',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, error.message);
+    };
+
+    readFile(file, onSuccess, onError);
+  };
+
+  callback = (checked) => {
+    handleStartAndSaveVirtualBackground(file);
+    Session.set('skipBackgroundDropConfirmation', checked);
+  };
+
+  const makeDragOperations = useCallback((userId) => {
+    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
+
+    const startAndSaveVirtualBackground = (file) => handleStartAndSaveVirtualBackground(file);
 
     const onDragOverHandler = (e) => {
       resetEvent(e);
@@ -110,20 +128,8 @@ const DragAndDrop = (props) => {
         return startAndSaveVirtualBackground(file);
       }
 
-      const onConfirm = (confirmParam, checked) => {
-        startAndSaveVirtualBackground(file);
-        Session.set('skipBackgroundDropConfirmation', checked);
-      };
-
-      mountModal(
-        <ConfirmationModal
-          intl={intl}
-          onConfirm={onConfirm}
-          title={intl.formatMessage(intlMessages.confirmationTitle)}
-          description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file.name })}
-          checkboxMessageId="app.confirmation.skipConfirm"
-        />
-      );
+      setFile(file);
+      setConfirmModalIsOpen(true);
     };
 
     const onDragLeaveHandler = (e) => {
@@ -139,7 +145,22 @@ const DragAndDrop = (props) => {
     };
   }, [Auth.userID]);
 
-  return React.cloneElement(children, { ...props, dragging, draggingOver, makeDragOperations });
+  return <>
+    {React.cloneElement(children, { ...props, dragging, draggingOver, makeDragOperations })}
+    {isConfirmModalOpen ? <ConfirmationModal
+        intl={intl}
+        onConfirm={callback}
+        title={intl.formatMessage(intlMessages.confirmationTitle)}
+        description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file.name })}
+        checkboxMessageId="app.confirmation.skipConfirm" 
+        {...{
+          onRequestClose: () => setConfirmModalIsOpen(false),
+          priority: "low",
+          setIsOpen: setConfirmModalIsOpen,
+          isOpen: isConfirmModalOpen
+        }}
+      /> : null}
+  </>;
 };
 
 const Wrapper = (Component) => (props) => (
@@ -149,4 +170,4 @@ const Wrapper = (Component) => (props) => (
 );
 
 export const withDragAndDrop = (Component) =>
-  withModalMounter(injectIntl(withFileReader(Wrapper(Component), MIME_TYPES_ALLOWED, MAX_FILE_SIZE)));
+  injectIntl(withFileReader(Wrapper(Component), MIME_TYPES_ALLOWED, MAX_FILE_SIZE));

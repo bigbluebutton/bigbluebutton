@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Toggle from '/imports/ui/components/common/switch/component';
@@ -12,12 +11,14 @@ import Styled from './styles';
 const LayoutModalComponent = (props) => {
   const {
     intl,
-    closeModal,
+    setIsOpen,
     isModerator,
     isPresenter,
     showToggleLabel,
     application,
     updateSettings,
+    onRequestClose,
+    isOpen,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
@@ -95,7 +96,7 @@ const LayoutModalComponent = (props) => {
     };
 
     updateSettings(obj, intlMessages.layoutToastLabel);
-    closeModal();
+    setIsOpen(false);
   };
 
   const renderPushLayoutsOptions = () => {
@@ -154,8 +155,12 @@ const LayoutModalComponent = (props) => {
       shouldCloseOnOverlayClick
       isPhone={deviceInfo.isPhone}
       data-test="layoutChangeModal"
-      onRequestClose={closeModal}
+      onRequestClose={() => setIsOpen(false)}
       title={intl.formatMessage(intlMessages.title)}
+      {...{
+        isOpen,
+        onRequestClose,
+      }}
     >
       <Styled.Content>
         <Styled.BodyContainer>
@@ -166,7 +171,7 @@ const LayoutModalComponent = (props) => {
       <Styled.ButtonBottomContainer>
         <Styled.BottomButton
           label={intl.formatMessage(intlMessages.cancel)}
-          onClick={closeModal}
+          onClick={() => setIsOpen(false)}
           color="secondary"
         />
         <Button
@@ -184,7 +189,6 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  closeModal: PropTypes.func.isRequired,
   isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
@@ -196,4 +200,4 @@ const propTypes = {
 
 LayoutModalComponent.propTypes = propTypes;
 
-export default injectIntl(withModalMounter(LayoutModalComponent));
+export default injectIntl(LayoutModalComponent);

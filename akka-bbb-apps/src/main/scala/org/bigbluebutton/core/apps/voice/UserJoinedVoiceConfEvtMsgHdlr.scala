@@ -5,11 +5,8 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.MeetingStatus2x
-
-import scala.util.Random
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
   this: MeetingActor =>
@@ -21,8 +18,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
-
-    val userColor = RandomStringGenerator.randomColor
+    val userColor = ColorPicker.nextColor(liveMeeting.props.meetingProp.intId)
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
       val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
@@ -67,7 +63,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserAsGuest() = {
       if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
-        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", true, System.currentTimeMillis())
+        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", userColor, true, System.currentTimeMillis())
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
         notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
 
@@ -91,6 +87,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         msg.body.callingWith,
         msg.body.callerIdName,
         msg.body.callerIdNum,
+        userColor,
         msg.body.muted,
         msg.body.talking,
         "freeswitch"

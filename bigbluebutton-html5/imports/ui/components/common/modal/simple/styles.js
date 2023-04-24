@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Styled from '../base/styles';
+import Styled from '../base/component';
 import {
   borderSize,
   mdPaddingX,

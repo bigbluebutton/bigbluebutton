@@ -444,6 +444,14 @@ exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
 exports.wbPan = 'button[data-test="panButton"]';
 exports.wbEraser = 'button[id="TD-PrimaryTools-Eraser"]';
 exports.wbArrowShape = 'button[id="TD-PrimaryTools-ArrowTopRight"]';
+exports.wbDelete = 'span[id="TD-Delete"]';
+exports.wbUndo = 'button[id="TD-TopPanel-Undo"]';
+exports.wbRedo = 'button[id="TD-TopPanel-Redo"]';
+exports.wbStyles = 'button[id="TD-Styles"]';
+exports.wbColorRed = 'button[id="TD-Styles-Color-Swatch-red"]';
+exports.wbFillDrawing = 'button[id="TD-Styles-Fill"]';
+exports.wbDashDotted = 'div[id="TD-Styles-Dash-dotted"]';
+exports.wbSizeLarge = 'div[id="TD-Styles-Dash-large"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';

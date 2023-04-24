@@ -15,7 +15,7 @@ export default function setPushLayout(payload) {
     check(requesterUserId, String);
 
     check(payload, {
-      pushLayout: Boolean,
+      pushLayout: Match.Maybe(Boolean),
     });
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

@@ -12,9 +12,9 @@ import {
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
-const WriterMenuModal = styled(Modal)`
+const WriterMenuModal = styled(ModalSimple)`
   min-height: 20rem;
 `;
 

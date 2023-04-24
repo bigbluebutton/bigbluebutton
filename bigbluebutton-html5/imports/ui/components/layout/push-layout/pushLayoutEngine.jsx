@@ -7,6 +7,7 @@ import MediaService from '/imports/ui/components/media/service';
 import { LAYOUT_TYPE, ACTIONS } from '../enums';
 import { isMobile } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
+import { Session } from 'meteor/session';
 
 const HIDE_PRESENTATION = Meteor.settings.public.layout.hidePresentationOnJoin;
 
@@ -76,6 +77,7 @@ class PushLayoutEngine extends React.Component {
 
     const initialPresentation = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION || !meetingPresentationIsOpen) || shouldShowScreenshare || shouldShowExternalVideo;
     MediaService.setPresentationIsOpen(layoutContextDispatch, initialPresentation);
+    Session.set('presentationLastState', initialPresentation);
 
     if (selectedLayout === 'custom') {
       setTimeout(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import Auth from '/imports/ui/services/auth';
 import Users from '/imports/api/users';
@@ -30,8 +30,6 @@ import {
   getBreakoutRooms,
   validIOSVersion,
 } from './service';
-
-import { withModalMounter, getModal } from '/imports/ui/components/common/modal/service';
 
 import App from './component';
 
@@ -116,10 +114,14 @@ const AppContainer = (props) => {
 
   const prevRandomUser = usePrevious(randomlySelectedUser);
 
-  const mountRandomUserModal = !isPresenter
-  && !isEqual(prevRandomUser, randomlySelectedUser)
-  && randomlySelectedUser.length > 0
-  && !isModalOpen;
+  const [mountRandomUserModal, setMountRandomUserModal] = useState(false);
+
+  useEffect(() => {
+    setMountRandomUserModal(!isPresenter
+      && !isEqual(prevRandomUser, randomlySelectedUser)
+      && randomlySelectedUser.length > 0
+      && !isModalOpen);
+  }, [isPresenter, prevRandomUser, randomlySelectedUser, isModalOpen]);
 
   const setPushLayout = () => {
     LayoutService.setPushLayout(pushLayout);
@@ -176,6 +178,7 @@ const AppContainer = (props) => {
           sidebarContentIsOpen,
           shouldShowPresentation,
           mountRandomUserModal,
+          setMountRandomUserModal,
           isPresenter,
           numCameras: cameraDockInput.numCameras,
         }}
@@ -196,7 +199,7 @@ const currentUserEmoji = (currentUser) => (currentUser
   }
 );
 
-export default withModalMounter(withTracker(() => {
+export default withTracker(() => {
   Users.find({ userId: Auth.userID, meetingId: Auth.meetingID }).observe({
     removed(userData) {
       // wait 3secs (before endMeeting), client will try to authenticate again
@@ -315,7 +318,6 @@ export default withModalMounter(withTracker(() => {
     ),
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
-    isModalOpen: !!getModal(),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
   };
-})(AppContainer));
+})(AppContainer);

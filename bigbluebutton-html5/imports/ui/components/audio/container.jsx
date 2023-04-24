@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Session } from 'meteor/session';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { injectIntl, defineMessages } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
 import Auth from '/imports/ui/services/auth';
@@ -133,7 +132,24 @@ class AudioContainer extends PureComponent {
   }
 
   render() {
-    return null;
+    const { isAudioModalOpen, setAudioModalIsOpen,
+            setVideoPreviewModalIsOpen, isVideoPreviewModalOpen } = this.props;
+    return <>
+      {isAudioModalOpen ? <AudioModalContainer 
+        {...{
+          priority: "low",
+          setIsOpen: setAudioModalIsOpen,
+          isOpen: isAudioModalOpen
+        }}
+      /> : null}
+      {isVideoPreviewModalOpen ? <VideoPreviewContainer 
+        {...{
+          priority: "low",
+          setIsOpen: setVideoPreviewModalIsOpen,
+          isOpen: isVideoPreviewModalOpen
+        }}
+      /> : null}
+    </>;
   }
 }
 
@@ -163,7 +179,8 @@ const messages = {
   },
 };
 
-export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ mountModal, intl, userLocks }) => {
+export default lockContextContainer(injectIntl(withTracker(({ intl, userLocks, isAudioModalOpen, setAudioModalIsOpen,
+                          setVideoPreviewModalIsOpen, isVideoPreviewModalOpen }) => {
   const { microphoneConstraints } = Settings.application;
   const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
@@ -174,14 +191,12 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
   const userSelectedListenOnly = didUserSelectedListenOnly();
   const meetingIsBreakout = AppService.meetingIsBreakout();
   const hasBreakoutRooms = AppService.getBreakoutRooms().length > 0;
-  const openAudioModal = () => new Promise((resolve) => {
-    mountModal(<AudioModalContainer resolve={resolve} />);
-  });
+  const openAudioModal = () => setAudioModalIsOpen(true);
 
-  const openVideoPreviewModal = () => new Promise((resolve) => {
-    if (userWebcam) return resolve();
-    mountModal(<VideoPreviewContainer resolve={resolve} />);
-  });
+  const openVideoPreviewModal = () => {
+    if (userWebcam) return;
+    setVideoPreviewModalIsOpen(true);
+  };
 
   if (Service.isConnected() && !Service.isListenOnly()) {
     Service.updateAudioConstraints(microphoneConstraints);
@@ -208,11 +223,12 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
 
           return; 
         }
-        setTimeout(() => openAudioModal().then(() => {
-          if (enableVideo && autoShareWebcam) {
-            openVideoPreviewModal();
+        setTimeout(() => {
+            openAudioModal();
+            if (enableVideo && autoShareWebcam) {
+              openVideoPreviewModal();
             }
-          }), 0);
+          }, 0);
       },
     });
   }
@@ -222,6 +238,8 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
     meetingIsBreakout,
     userSelectedMicrophone,
     userSelectedListenOnly,
+    isAudioModalOpen, 
+    setAudioModalIsOpen,
     init: async () => {
       await Service.init(messages, intl);
       const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
@@ -234,7 +252,9 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       }
       Session.set('audioModalIsOpen', true);
       if (enableVideo && autoShareWebcam) {
-        openAudioModal().then(() => { openVideoPreviewModal(); didMountAutoJoin = true; });
+        openAudioModal()
+        openVideoPreviewModal(); 
+        didMountAutoJoin = true;
       } else if (!(
         userSelectedMicrophone
         && userSelectedListenOnly
@@ -245,7 +265,7 @@ export default lockContextContainer(withModalMounter(injectIntl(withTracker(({ m
       return Promise.resolve(true);
     },
   };
-})(AudioContainer))));
+})(AudioContainer)));
 
 AudioContainer.propTypes = {
   hasBreakoutRooms: PropTypes.bool.isRequired,

@@ -408,7 +408,7 @@ case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String,
 object UserJoinedVoiceConfToClientEvtMsg { val NAME = "UserJoinedVoiceConfToClientEvtMsg" }
 case class UserJoinedVoiceConfToClientEvtMsg(header: BbbClientMsgHeader, body: UserJoinedVoiceConfToClientEvtMsgBody) extends BbbCoreMsg
 case class UserJoinedVoiceConfToClientEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, callerName: String,
-                                                 callerNum: String, muted: Boolean,
+                                                 callerNum: String, color: String, muted: Boolean,
                                                  talking: Boolean, callingWith: String, listenOnly: Boolean)
 
 /**

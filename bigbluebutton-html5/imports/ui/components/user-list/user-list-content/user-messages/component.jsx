@@ -123,7 +123,7 @@ class UserMessages extends PureComponent {
           tabIndex={-1}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <Styled.List aria-live="polite">
+          <Styled.List>
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.getActiveChats()}
             </TransitionGroup>

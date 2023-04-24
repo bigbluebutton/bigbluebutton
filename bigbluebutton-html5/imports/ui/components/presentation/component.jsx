@@ -76,6 +76,7 @@ class Presentation extends PureComponent {
       tldrawAPI: null,
       isPanning: false,
       tldrawIsMounting: true,
+      isToolbarVisible: true,
     };
 
     this.currentPresentationToastId = null;
@@ -91,6 +92,7 @@ class Presentation extends PureComponent {
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
     this.setIsPanning = this.setIsPanning.bind(this);
+    this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
@@ -134,7 +136,7 @@ class Presentation extends PureComponent {
     window.addEventListener('resize', this.onResize, false);
 
     const {
-      currentSlide, slidePosition, layoutContextDispatch,
+      currentSlide, slidePosition, numPages, layoutContextDispatch,
     } = this.props;
 
     if (currentSlide) {
@@ -149,6 +151,10 @@ class Presentation extends PureComponent {
           height: slidePosition.height,
         },
       });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+        value: numPages,
+      })
     }
   }
 
@@ -167,6 +173,7 @@ class Presentation extends PureComponent {
       numCameras,
       intl,
       multiUser,
+      numPages,
     } = this.props;
 
     const {
@@ -184,6 +191,13 @@ class Presentation extends PureComponent {
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
+    }
+
+    if (numPages !== prevProps.numPages) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
+        value: numPages,
+      })
     }
 
     if (
@@ -349,6 +363,12 @@ class Presentation extends PureComponent {
     this.setState((prevState) => ({
       isPanning: !prevState.isPanning,
     }));
+  }
+
+  setIsToolbarVisible(isVisible) {
+    this.setState({
+      isToolbarVisible: isVisible,
+    });
   }
 
   setPresentationRef(ref) {
@@ -597,7 +617,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
     } = this.props;
-    const { tldrawAPI } = this.state;
+    const { tldrawAPI, isToolbarVisible } = this.state;
 
     return (
       <PresentationMenu
@@ -606,6 +626,8 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         layoutContextDispatch={layoutContextDispatch}
+        setIsToolbarVisible={this.setIsToolbarVisible}
+        isToolbarVisible={isToolbarVisible}
       />
     );
   }
@@ -638,6 +660,7 @@ class Presentation extends PureComponent {
       tldrawIsMounting,
       isPanning,
       tldrawAPI,
+      isToolbarVisible,
     } = this.state;
 
     let viewBoxDimensions;
@@ -744,6 +767,7 @@ class Presentation extends PureComponent {
                   fullscreenRef={this.refPresentationContainer}
                   presentationId={currentPresentation?.id}
                   darkTheme={darkTheme}
+                  isToolbarVisible={isToolbarVisible}
                 />
                 {isFullscreen && <PollingContainer />}
               </div>
@@ -802,6 +826,7 @@ Presentation.propTypes = {
     name: PropTypes.string.isRequired,
   }),
   presentationIsOpen: PropTypes.bool.isRequired,
+  numPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,
