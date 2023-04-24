@@ -1,0 +1,36 @@
+table:
+  name: v_chat_message_public
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: chat_message_public
+  custom_root_fields: {}
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          senderId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdTime
+        - chatEmphasizedText
+        - chatId
+        - correlationId
+        - meetingId
+        - messageId
+        - senderId
+        - senderName
+        - senderRole
+        - message
+        - createdTimeAsDate
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

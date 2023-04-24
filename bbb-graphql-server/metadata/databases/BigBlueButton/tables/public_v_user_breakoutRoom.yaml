@@ -1,0 +1,22 @@
+table:
+  name: v_user_breakoutRoom
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_breakoutRoom
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - isDefaultName
+        - currentlyInRoom
+        - breakoutRoomId
+        - meetingId
+        - shortName
+        - userId
+        - sequence
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

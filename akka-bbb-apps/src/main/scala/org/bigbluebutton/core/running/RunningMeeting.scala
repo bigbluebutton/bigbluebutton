@@ -43,6 +43,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
     webcams, voiceUsers, users2x, guestsWaiting)
 
   GuestsWaiting.setGuestPolicy(
+    liveMeeting.props.meetingProp.intId,
     liveMeeting.guestsWaiting,
     GuestPolicy(props.usersProp.guestPolicy, SystemUser.ID)
   )

@@ -1,7 +1,8 @@
 package org.bigbluebutton.core2
 
-import java.util.concurrent.TimeUnit
+import org.bigbluebutton.core.db.MeetingLockSettingsDAO
 
+import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util.TimeUtil
 
 case class Permissions(
@@ -98,9 +99,10 @@ object MeetingStatus2x {
   def initializeAudioSettings(status: MeetingStatus2x) = status.audioSettingsInited = true
   def permissionsEqual(status: MeetingStatus2x, other: Permissions): Boolean = status.permissions == other
   def getPermissions(status: MeetingStatus2x): Permissions = status.permissions
-  def setPermissions(status: MeetingStatus2x, p: Permissions) = {
+  def setPermissions(meetingId: String, status: MeetingStatus2x, p: Permissions) = {
     status.permissions = p
     status.permissionsChangedOn = System.currentTimeMillis()
+    MeetingLockSettingsDAO.update(meetingId, p)
   }
   def getPermissionsChangedOn(status: MeetingStatus2x): Long = status.permissionsChangedOn
   def areNotesDisabled(status: MeetingStatus2x): Boolean = status.permissions.disableNotes

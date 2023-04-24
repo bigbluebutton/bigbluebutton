@@ -1,0 +1,84 @@
+table:
+  name: user
+  schema: public
+object_relationships:
+  - name: connectionStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user_connectionStatus
+          schema: public
+  - name: lastBreakoutRoom
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_breakoutRoom
+          schema: public
+  - name: meeting
+    using:
+      foreign_key_constraint_on: meetingId
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
+          schema: public
+array_relationships:
+  - name: cameras
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_camera
+          schema: public
+  - name: presPagesWritable
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_pres_page_writers
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - authed
+        - avatar
+        - banned
+        - clientType
+        - color
+        - emoji
+        - extId
+        - guest
+        - guestStatus
+        - isModerator
+        - isOnline
+        - joined
+        - leftFlag
+        - locked
+        - loggedOut
+        - meetingId
+        - mobile
+        - name
+        - pinned
+        - presenter
+        - role
+        - userId
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+      allow_aggregations: true

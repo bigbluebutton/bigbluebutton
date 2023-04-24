@@ -18,11 +18,14 @@
 */
 package org.bigbluebutton.web.controllers
 
+import groovy.json.JsonBuilder
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.domain.User
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.ParamsProcessorUtil
 import java.nio.charset.StandardCharsets
+
 
 class ConnectionController {
   MeetingService meetingService
@@ -52,6 +55,57 @@ class ConnectionController {
       }
     } catch (IOException e) {
       log.error("Error while authenticating connection.\n" + e.getMessage())
+    }
+  }
+
+  def checkGraphqlAuthorization = {
+    try {
+      if(!request.getHeader("User-Agent").startsWith('hasura-graphql-engine')) {
+        throw new Exception("Invalid User Agent")
+      }
+
+      def sessionToken = request.getHeader("x-session-token")
+
+      UserSession userSession = meetingService.getUserSessionWithAuthToken(sessionToken)
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+
+      User u = meetingService.getMeeting(userSession.meetingID).getUserById(userSession.internalUserId)
+
+      response.addHeader("Cache-Control", "no-cache")
+
+      if (userSession != null && !isSessionTokenInvalid) {
+        response.setStatus(200)
+        withFormat {
+          json {
+            def builder = new JsonBuilder()
+            builder {
+              "response" "authorized"
+              "X-Hasura-Role" "bbb_client"
+              "X-Hasura-Locked" u.locked ? "true" : "false"
+              "X-Hasura-LockedInMeeting" u.locked ? userSession.meetingID : ""
+              "X-Hasura-ModeratorInMeeting" u.isModerator() ? userSession.meetingID : ""
+              "X-Hasura-UserId" userSession.internalUserId
+              "X-Hasura-MeetingId" userSession.meetingID
+            }
+            render(contentType: "application/json", text: builder.toPrettyString())
+          }
+        }
+      } else {
+        throw new Exception("Invalid User Session")
+      }
+    } catch (Exception e) {
+      log.error("Error while authenticating graphql connection.\n" + e.getMessage())
+      response.setStatus(401)
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder {
+            "response" "unauthorized"
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
     }
   }
 

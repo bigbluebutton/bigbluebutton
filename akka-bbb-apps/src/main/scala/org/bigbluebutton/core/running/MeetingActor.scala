@@ -305,7 +305,7 @@ class MeetingActor(
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
 
-    MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+    MeetingStatus2x.setPermissions(liveMeeting.props.meetingProp.intId, liveMeeting.status, settings)
 
   }
 
@@ -972,6 +972,13 @@ class MeetingActor(
         )
 
         Sender.sendDisconnectClientSysMsg(liveMeeting.props.meetingProp.intId, u.intId, SystemUser.ID, EjectReasonCode.USER_INACTIVITY, outGW)
+
+        // Force reconnection with graphql to refresh permissions
+        for {
+          regUser <- RegisteredUsers.findWithUserId(u.intId, liveMeeting.registeredUsers)
+        } yield {
+          Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.sessionToken, EjectReasonCode.USER_INACTIVITY, outGW)
+        }
       }
     }
   }

@@ -1,0 +1,42 @@
+table:
+  name: meeting
+  schema: public
+object_relationships:
+  - name: lockSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_lockSettings
+          schema: public
+  - name: usersPolicies
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_usersPolicies
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - createdTime
+        - disabledFeatures
+        - duration
+        - extId
+        - html5InstanceId
+        - isBreakout
+        - maxPinnedCameras
+        - meetingCameraCap
+        - meetingId
+        - name
+        - notifyRecordingIsOn
+        - presentationUploadExternalDescription
+        - presentationUploadExternalUrl
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

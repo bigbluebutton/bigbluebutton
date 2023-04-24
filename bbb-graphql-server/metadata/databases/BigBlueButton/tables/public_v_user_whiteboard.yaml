@@ -1,0 +1,14 @@
+table:
+  name: v_user_whiteboard
+  schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - meetingId
+        - whiteboardId
+        - userId
+        - changedModeOn
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

@@ -28,6 +28,11 @@ object Dependencies {
     // BigBlueButton
     val bbbCommons = "0.0.22-SNAPSHOT"
 
+    // Database
+    val slick = "3.4.1"
+    val postgresql = "42.5.0"
+    val slickPg = "0.21.1"
+
     // Test
     val scalaTest = "3.2.11"
     val mockito = "2.23.0"
@@ -55,6 +60,11 @@ object Dependencies {
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
+
+    val slick = "com.typesafe.slick" %% "slick" % Versions.slick
+    val slickHikaricp = "com.typesafe.slick" %% "slick-hikaricp" % Versions.slick
+    val slickPg = "com.github.tminglei" %% "slick-pg" % Versions.slickPg
+    val postgresql = "org.postgresql" % "postgresql" % Versions.postgresql
   }
 
   object Test {
@@ -87,5 +97,9 @@ object Dependencies {
     Compile.apacheLang,
     Compile.akkaHttp,
     Compile.akkaHttpSprayJson,
-    Compile.bbbCommons) ++ testing
+    Compile.bbbCommons,
+    Compile.slick,
+    Compile.slickHikaricp,
+    Compile.slickPg,
+    Compile.postgresql) ++ testing
 }

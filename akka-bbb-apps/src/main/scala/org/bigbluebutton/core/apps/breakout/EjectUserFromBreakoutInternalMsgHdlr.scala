@@ -30,6 +30,9 @@ trait EjectUserFromBreakoutInternalMsgHdlr {
       // send a system message to force disconnection
       Sender.sendDisconnectClientSysMsg(msg.breakoutId, registeredUser.id, msg.ejectedBy, msg.reasonCode, outGW)
 
+      // Force reconnection with graphql to refresh permissions
+      Sender.sendInvalidateUserGraphqlConnectionSysMsg(liveMeeting.props.meetingProp.intId, registeredUser.id, registeredUser.sessionToken, msg.reasonCode, outGW)
+
       //send users update to parent meeting
       BreakoutHdlrHelpers.updateParentMeetingWithUsers(liveMeeting, eventBus)
 

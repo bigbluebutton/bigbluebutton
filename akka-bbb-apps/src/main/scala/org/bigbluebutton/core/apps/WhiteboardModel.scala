@@ -4,6 +4,7 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresPageWritersDAO }
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -57,6 +58,7 @@ class WhiteboardModel extends SystemConfiguration {
           val newAnnotation = oldAnnotation.get.copy(annotationInfo = deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo))
           newAnnotationsMap += (annotation.id -> newAnnotation)
           annotationsAdded :+= annotation
+          PresAnnotationDAO.insertOrUpdate(newAnnotation, annotation)
           println(s"Updated annotation onpage [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
         } else {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
@@ -64,6 +66,7 @@ class WhiteboardModel extends SystemConfiguration {
       } else if (annotation.annotationInfo.contains("type")) {
         newAnnotationsMap += (annotation.id -> annotation)
         annotationsAdded :+= annotation
+        PresAnnotationDAO.insertOrUpdate(annotation, annotation)
         println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       } else {
         println(s"New annotation [${annotation.id}] with no type, ignoring (probably received a remove message before and now the shape is incomplete, ignoring...")
@@ -100,12 +103,16 @@ class WhiteboardModel extends SystemConfiguration {
     }
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
+
+    annotationsIdsRemoved.map(PresAnnotationDAO.delete(wbId, userId, _))
+
     annotationsIdsRemoved
   }
 
   def modifyWhiteboardAccess(wbId: String, multiUser: Array[String]) {
     val wb = getWhiteboard(wbId)
     val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
+    PresPageWritersDAO.updateMultiuser(newWb)
     saveWhiteboard(newWb)
   }
 

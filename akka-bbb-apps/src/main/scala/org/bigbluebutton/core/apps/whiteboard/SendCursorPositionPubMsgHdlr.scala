@@ -4,6 +4,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.PresPageCursorDAO
 
 trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
@@ -29,6 +30,7 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       //PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       broadcastEvent(msg)
+      PresPageCursorDAO.insertOrUpdate(msg.body.whiteboardId, msg.header.userId, msg.body.xPercent, msg.body.yPercent)
     }
   }
 }

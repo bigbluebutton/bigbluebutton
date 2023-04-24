@@ -7,6 +7,7 @@ import org.bigbluebutton.core.models.GroupChat
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.SystemConfiguration
+import org.bigbluebutton.core.db.ChatDAO
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.models.Roles
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -66,6 +67,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
         sendMessages(msg, gc, liveMeeting, bus)
 
         val groupChats = state.groupChats.add(gc)
+        ChatDAO.insert(liveMeeting.props.meetingProp.intId, gc)
         state.update(groupChats)
       }
 

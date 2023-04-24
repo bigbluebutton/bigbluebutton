@@ -1,0 +1,114 @@
+table:
+  name: v_user
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user
+  custom_root_fields: {}
+object_relationships:
+  - name: connectionStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: user_connectionStatus
+          schema: public
+  - name: lastBreakoutRoom
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_breakoutRoom
+          schema: public
+  - name: meeting
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: meeting
+          schema: public
+  - name: voice
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_voice
+          schema: public
+array_relationships:
+  - name: cameras
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_camera
+          schema: public
+  - name: presPagesWritable
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_pres_page_writers
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - authed
+        - avatar
+        - banned
+        - clientType
+        - color
+        - emoji
+        - emojiTime
+        - extId
+        - guest
+        - guestStatus
+        - hasDrawPermissionOnCurrentPage
+        - isDialIn
+        - isModerator
+        - isOnline
+        - joined
+        - leftFlag
+        - locked
+        - loggedOut
+        - meetingId
+        - mobile
+        - name
+        - pinned
+        - presenter
+        - registeredOn
+        - role
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - meetingId:
+                  _eq: X-Hasura-ModeratorInMeeting
+              - isModerator:
+                  _eq: true
+              - meetingId:
+                  _neq: X-Hasura-LockedInMeeting
+              - _exists:
+                  _table:
+                    name: v_meeting_showUserlist
+                    schema: public
+                  _where:
+                    meetingId:
+                      _eq: X-Hasura-MeetingId
+      allow_aggregations: true

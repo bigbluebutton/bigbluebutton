@@ -18,7 +18,6 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
-
     val userColor = ColorPicker.nextColor(liveMeeting.props.meetingProp.intId)
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
@@ -34,9 +33,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, "", userColor,
-        "", true, true, GuestStatus.WAIT, true, false)
-      RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
+        msg.body.callerIdName, Roles.VIEWER_ROLE, "", "", "", userColor,
+        true, true, GuestStatus.WAIT, true, false)
+      RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
     def registerUserInUsers2x() = {

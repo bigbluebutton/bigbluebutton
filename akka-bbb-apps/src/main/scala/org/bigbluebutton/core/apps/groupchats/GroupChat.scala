@@ -1,6 +1,7 @@
 package org.bigbluebutton.core.apps.groupchats
 
 import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
+import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
@@ -26,8 +27,9 @@ object GroupChatApp {
       sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message)
   }
 
-  def addGroupChatMessage(chat: GroupChat, chats: GroupChats,
+  def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
                           msg: GroupChatMessage): GroupChats = {
+    ChatMessageDAO.insert(meetingId, chat.id, msg)
     val c = chat.add(msg)
     chats.update(c)
   }
@@ -71,7 +73,7 @@ object GroupChatApp {
       } yield {
 
         val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg)
-        val gcs1 = GroupChatApp.addGroupChatMessage(chat, state.groupChats, gcm1)
+        val gcs1 = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm1)
         state.update(gcs1)
       }
 
