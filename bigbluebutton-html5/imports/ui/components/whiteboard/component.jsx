@@ -69,7 +69,12 @@ export default function Whiteboard(props) {
     hasMultiUserAccess,
     tldrawAPI,
     setTldrawAPI,
+    whiteboardToolbarAutoHide,
+    toggleToolsAnimations,
     isIphone,
+    sidebarNavigationWidth,
+    animations,
+    isToolbarVisible,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -84,7 +89,6 @@ export default function Whiteboard(props) {
   const [history, setHistory] = React.useState(null);
   const [zoom, setZoom] = React.useState(HUNDRED_PERCENT);
   const [tldrawZoom, setTldrawZoom] = React.useState(1);
-  const [enable, setEnable] = React.useState(true);
   const [isMounting, setIsMounting] = React.useState(true);
   const prevShapes = usePrevious(shapes);
   const prevSlidePosition = usePrevious(slidePosition);
@@ -161,11 +165,14 @@ export default function Whiteboard(props) {
     };
   }, [tldrawAPI, isToolLocked]);
 
-  const throttledResetCurrentPoint = React.useRef(throttle(() => {
-    setEnable(false);
-    setEnable(true);
-  }, 1000, { trailing: true }));
-
+  React.useEffect(() => {
+    if (whiteboardToolbarAutoHide) {
+      toggleToolsAnimations('fade-in', 'fade-out', animations ? '3s' : '0s');
+    } else {
+      toggleToolsAnimations('fade-out', 'fade-in', animations ? '.3s' : '0s');
+    }
+  }, [whiteboardToolbarAutoHide]);
+  
   const calculateZoom = (localWidth, localHeight) => {
     const calcedZoom = fitToWidth ? (presentationWidth / localWidth) : Math.min(
       (presentationWidth) / localWidth,
@@ -212,7 +219,9 @@ export default function Whiteboard(props) {
         clientY: event.clientY,
       });
       const canvas = document.getElementById('canvas');
-      canvas && canvas.dispatchEvent(newEvent);
+      if (canvas) {
+        canvas.dispatchEvent(newEvent);
+      }
     }
   }
 
@@ -518,11 +527,8 @@ export default function Whiteboard(props) {
 
   React.useEffect(() => {
     const currentZoom = tldrawAPI?.getPageState()?.camera?.zoom;
-
     if (currentZoom !== tldrawZoom) {
       setTldrawZoom(currentZoom);
-    } else {
-      throttledResetCurrentPoint.current();
     }
   }, [presentationAreaHeight, presentationAreaWidth]);
 
@@ -599,6 +605,7 @@ export default function Whiteboard(props) {
       const MENU_OFFSET = '48px';
       menu.style.position = 'relative';
       menu.style.height = presentationMenuHeight;
+      menu.setAttribute('id', 'TD-Styles-Parent');
       if (isRTL) {
         menu.style.left = MENU_OFFSET;
       } else {
@@ -609,6 +616,7 @@ export default function Whiteboard(props) {
         .sort((a, b) => (a?.id > b?.id ? -1 : 1))
         .forEach((n) => menu.appendChild(n));
     }
+
     app.setSetting('language', language);
     app?.setSetting('isDarkMode', false);
     app?.patchState(
@@ -889,6 +897,10 @@ export default function Whiteboard(props) {
       setHistory(app.history);
     }
 
+    if (whiteboardToolbarAutoHide && command && command.id === "change_page") {
+      toggleToolsAnimations('fade-in', 'fade-out', '0s');
+    }
+
     if (command?.id?.includes('style')) {
       setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
     }
@@ -934,7 +946,7 @@ export default function Whiteboard(props) {
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
-        key={`wb-${isRTL}-${dockPos}`}
+        key={`wb-${isRTL}-${dockPos}-${presentationAreaHeight}-${presentationAreaWidth}-${sidebarNavigationWidth}`}
         document={doc}
         // disable the ability to drag and drop files onto the whiteboard
         // until we handle saving of assets in akka.
@@ -1003,7 +1015,7 @@ export default function Whiteboard(props) {
   const menuOffset = menuOffsetValues[isRTL][isIphone];
 
   return (
-    <>
+    <div key={`animations=-${animations}`}>
       <Cursors
         tldrawAPI={tldrawAPI}
         currentUser={currentUser}
@@ -1014,8 +1026,10 @@ export default function Whiteboard(props) {
         isPanning={isPanning || panSelected}
         isMoving={isMoving}
         currentTool={currentTool}
+        whiteboardToolbarAutoHide={whiteboardToolbarAutoHide}
+        toggleToolsAnimations={toggleToolsAnimations}
       >
-        {enable && (hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
+        {(hasWBAccess || isPresenter) ? editableWB : readOnlyWB}
         <Styled.TldrawGlobalStyle
           hideContextMenu={!hasWBAccess && !isPresenter}
           {...{
@@ -1025,6 +1039,7 @@ export default function Whiteboard(props) {
             darkTheme,
             menuOffset,
             panSelected,
+            isToolbarVisible,
           }}
         />
       </Cursors>
@@ -1043,7 +1058,7 @@ export default function Whiteboard(props) {
           formatMessage={intl?.formatMessage}
         />
       )}
-    </>
+    </div>
   );
 }
 
@@ -1110,6 +1125,7 @@ Whiteboard.propTypes = {
   nextSlide: PropTypes.func.isRequired,
   numberOfSlides: PropTypes.number.isRequired,
   previousSlide: PropTypes.func.isRequired,
+  sidebarNavigationWidth: PropTypes.number,
 };
 
 Whiteboard.defaultProps = {
@@ -1118,4 +1134,5 @@ Whiteboard.defaultProps = {
   slidePosition: undefined,
   svgUri: undefined,
   whiteboardId: undefined,
+  sidebarNavigationWidth: 0,
 };

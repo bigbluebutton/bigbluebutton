@@ -262,15 +262,18 @@ const SmartLayout = (props) => {
   }
 
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
-    const { isOpen, currentSlide } = presentationInput;
+    const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
+  
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { num: currentSlideNumber } = currentSlide;
 
-    if (!isOpen || ((isPresentationEnabled() && currentSlideNumber === 0) && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned)) {
+    if (!isOpen || isGeneralMediaOff) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;

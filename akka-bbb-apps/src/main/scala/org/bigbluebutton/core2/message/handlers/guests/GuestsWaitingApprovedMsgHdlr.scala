@@ -42,6 +42,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                     "none",
                     dialInUser.name,
                     dialInUser.name,
+                    dialInUser.color,
                     MeetingStatus2x.isMeetingMuted(liveMeeting.status),
                     false,
                     "freeswitch"

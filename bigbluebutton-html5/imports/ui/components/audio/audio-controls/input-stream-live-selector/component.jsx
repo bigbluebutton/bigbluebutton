@@ -14,6 +14,7 @@ const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
 const DEFAULT_DEVICE = 'default';
 const DEVICE_LABEL_MAX_LENGTH = 40;
+const SET_SINK_ID_SUPPORTED = 'setSinkId' in HTMLMediaElement.prototype;
 
 const intlMessages = defineMessages({
   changeAudioDevice: {
@@ -51,6 +52,10 @@ const intlMessages = defineMessages({
   deviceChangeFailed: {
     id: 'app.audioNotification.deviceChangeFailed',
     description: 'Device change failed',
+  },
+  defaultOutputDeviceLabel: {
+    id: 'app.audio.audioSettings.defaultOutputDeviceLabel',
+    description: 'Default output device label',
   },
 });
 
@@ -263,8 +268,10 @@ class InputStreamLiveSelector extends Component {
       },
     ];
 
-    const deviceList = (listLength > 0)
-      ? list.map((device, index) => (
+    let deviceList = [];
+
+    if (listLength > 0) {
+      deviceList = list.map((device, index) => (
         {
           key: `${device.deviceId}-${deviceKind}`,
           dataTest: `${deviceKind}-${index + 1}`,
@@ -273,8 +280,21 @@ class InputStreamLiveSelector extends Component {
           iconRight: (device.deviceId === currentDeviceId) ? 'check' : null,
           onClick: () => this.onDeviceListClick(device.deviceId, deviceKind, callback),
         }
-      ))
-      : [
+      ));
+    } else if (deviceKind === AUDIO_OUTPUT && !SET_SINK_ID_SUPPORTED && listLength === 0) {
+      // If the browser doesn't support setSinkId, show the chosen output device
+      // as a placeholder Default - like it's done in audio/device-selector
+      deviceList = [
+        {
+          key: `defaultDeviceKey-${deviceKind}`,
+          label: intl.formatMessage(intlMessages.defaultOutputDeviceLabel),
+          customStyles: Styled.SelectedLabel,
+          iconRight: 'check',
+          disabled: true,
+        },
+      ];
+    } else {
+      deviceList = [
         {
           key: `noDeviceFoundKey-${deviceKind}-`,
           label: listLength < 0
@@ -282,6 +302,8 @@ class InputStreamLiveSelector extends Component {
             : intl.formatMessage(intlMessages.noDeviceFound),
         },
       ];
+    }
+
     return listTitle.concat(deviceList);
   }
 

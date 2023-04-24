@@ -89,6 +89,8 @@ class PanToolInjector extends React.Component {
           size="md"
           label={label}
           aria-label={label}
+          tooltipdelay={700}
+          tooltipplacement="top"
           onClick={() => {
             setPanSelected(true);
             setIsPanning(true);

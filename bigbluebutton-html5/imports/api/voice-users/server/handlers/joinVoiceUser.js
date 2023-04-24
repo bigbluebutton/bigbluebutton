@@ -3,7 +3,6 @@ import Users from '/imports/api/users';
 import addDialInUser from '/imports/api/users/server/modifiers/addDialInUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
-
 export default async function handleJoinVoiceUser({ body }, meetingId) {
   const voiceUser = body;
   voiceUser.joined = true;
@@ -15,6 +14,7 @@ export default async function handleJoinVoiceUser({ body }, meetingId) {
     voiceUserId: String,
     callerName: String,
     callerNum: String,
+    color: String,
     muted: Boolean,
     talking: Boolean,
     callingWith: String,

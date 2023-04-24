@@ -63,7 +63,7 @@ class Audio extends Page {
     await this.hasElement(e.unmuteMicButton);
   }
 
-  async muteYourselfBytalkingIndicator() {
+  async muteYourselfByTalkingIndicator() {
     await connectMicrophone(this);
     await this.waitAndClick(e.talkingIndicator);
     await this.hasElement(e.wasTalking);

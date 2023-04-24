@@ -44,6 +44,7 @@ const EmojiButton = styled.button`
   overflow: hidden;
   z-index: 2;
   border: none;
+  padding: 0;
 
   [dir="rtl"] & {
     right: initial;
