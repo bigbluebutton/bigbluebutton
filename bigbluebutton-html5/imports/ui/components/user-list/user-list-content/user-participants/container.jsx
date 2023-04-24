@@ -9,7 +9,11 @@ import useContextUsers from '/imports/ui/components/components-data/users-contex
 import VideoService from '/imports/ui/components/video-provider/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import Meetings from '/imports/api/meetings';
+import UserListParticipants from './user-list-participants/component';
 
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const userList = urlParams.get('userList');
 const UserParticipantsContainer = (props) => {
   const {
     formatUsers,
@@ -43,7 +47,7 @@ const UserParticipantsContainer = (props) => {
   );
 };
 
-export default withTracker(() => {
+const Container = withTracker(() => {
   ChatService.removePackagedClassAttribute(
     ['ReactVirtualized__Grid', 'ReactVirtualized__Grid__innerScrollContainer'],
     'role',
@@ -60,7 +64,7 @@ export default withTracker(() => {
     const { muteOnStart } = voiceProp;
     return muteOnStart;
   };
-  
+
   return ({
     isMeetingMuteOnStart: isMeetingMuteOnStart(),
     meetingIsBreakout: meetingIsBreakout(),
@@ -70,3 +74,24 @@ export default withTracker(() => {
     lockSettingsProps: currentMeeting && currentMeeting.lockSettingsProps,
   });
 })(UserParticipantsContainer);
+const blank = () => (
+  <>
+    {
+      (
+        userList === 'graphql'
+        || userList === 'both'
+        || !userList
+      ) ? <UserListParticipants />
+        : null
+    }
+    <br />
+    {
+      (
+        userList === 'meteor'
+        || userList === 'both'
+      ) ? <Container />
+        : null
+    }
+  </>
+);
+export default blank;

@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
+    "@apollo/client": "^3.7.10",
     "@babel/runtime": "^7.17.9",
     "@browser-bunyan/server-stream": "^1.8.0",
     "@jitsi/sdp-interop": "0.1.14",
@@ -47,6 +48,7 @@
     "fastdom": "^1.0.10",
     "fibers": "^4.0.2",
     "flat": "^5.0.2",
+    "graphql": "^16.6.0",
     "hark": "^1.2.3",
     "html-to-image": "^1.9.0",
     "immutability-helper": "~2.8.1",
@@ -85,6 +87,7 @@
     "smile2emoji": "^2.8.0",
     "string-hash": "~1.1.3",
     "styled-components": "^5.3.3",
+    "subscriptions-transport-ws": "^0.11.0",
     "tippy.js": "^5.1.3",
     "use-context-selector": "^1.3.7",
     "wasm-check": "^2.0.3",
