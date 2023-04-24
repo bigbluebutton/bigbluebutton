@@ -1,6 +1,5 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import ScreenshareButton from './component';
 import { isScreenSharingEnabled } from '/imports/ui/services/features';
 import {
@@ -18,8 +17,8 @@ const ScreenshareButtonContainer = (props) => <ScreenshareButton {...props} />;
  * isMeteorConnected,
  * screenshareDataSavingSetting,
  */
-export default withModalMounter(withTracker(() => ({
+export default withTracker(() => ({
   isVideoBroadcasting: isVideoBroadcasting(),
   screenshareDataSavingSetting: dataSavingSetting(),
   enabled: isScreenSharingEnabled(),
-}))(ScreenshareButtonContainer));
+}))(ScreenshareButtonContainer);

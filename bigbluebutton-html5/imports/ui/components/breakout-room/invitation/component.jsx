@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
-import BreakoutJoinConfirmation from '/imports/ui/components/breakout-join-confirmation/container';
+import BreakoutJoinConfirmationContainer from '/imports/ui/components/breakout-join-confirmation/container';
 import BreakoutService from '../service';
 
 const BREAKOUT_MODAL_DELAY = 200;
 
 const propTypes = {
-  mountModal: PropTypes.func.isRequired,
   lastBreakoutReceived: PropTypes.shape({
     breakoutUrlData: PropTypes.object.isRequired,
   }),
@@ -26,20 +24,17 @@ const defaultProps = {
   breakouts: [],
 };
 
-const openBreakoutJoinConfirmation = (breakout, breakoutName, mountModal) => mountModal(
-  <BreakoutJoinConfirmation
-    breakout={breakout}
-    breakoutName={breakoutName}
-  />,
-);
-
 class BreakoutRoomInvitation extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       didSendBreakoutInvite: false,
+      isBreakoutJoinConfirmationModalOpen: false,
+      breakout: null,
+      breakoutName: null,
     };
+    this.setBreakoutJoinConfirmationModalIsOpen = this.setBreakoutJoinConfirmationModalIsOpen.bind(this);
   }
 
   componentDidMount() {
@@ -101,23 +96,43 @@ class BreakoutRoomInvitation extends Component {
 
   inviteUserToBreakout(breakout) {
     Session.set('lastBreakoutIdInvited', breakout.breakoutId);
-    const {
-      mountModal,
-    } = this.props;
     // There's a race condition on page load with modals. Only one modal can be shown at a
     // time and new ones overwrite old ones. We delay the opening of the breakout modal
     // because it should always be on top if breakouts are running.
     setTimeout(() => {
-      openBreakoutJoinConfirmation.call(this, breakout, breakout.name, mountModal);
+      this.setState({
+        breakout: breakout,
+        breakoutName: breakout.name,
+      })
+      this.setBreakoutJoinConfirmationModalIsOpen(true);
     }, BREAKOUT_MODAL_DELAY);
   }
 
+  setBreakoutJoinConfirmationModalIsOpen(value) {
+    this.setState({
+      isBreakoutJoinConfirmationModalOpen: value,
+    });
+  }
+
   render() {
-    return null;
+    const { isBreakoutJoinConfirmationModalOpen, breakout, breakoutName } = this.state;
+    return (<>
+        {isBreakoutJoinConfirmationModalOpen ? <BreakoutJoinConfirmationContainer
+          breakout={breakout}
+          breakoutName={breakoutName} 
+          {...{
+            onRequestClose: () => this.setBreakoutJoinConfirmationModalIsOpen(false),
+            priority: "medium",
+            setIsOpen: this.setBreakoutJoinConfirmationModalIsOpen,
+            isOpen: isBreakoutJoinConfirmationModalOpen
+          }}
+        /> : null}
+      </>
+    );
   }
 }
 
 BreakoutRoomInvitation.propTypes = propTypes;
 BreakoutRoomInvitation.defaultProps = defaultProps;
 
-export default withModalMounter(BreakoutRoomInvitation);
+export default BreakoutRoomInvitation;

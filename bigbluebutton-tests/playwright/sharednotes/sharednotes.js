@@ -123,10 +123,10 @@ class SharedNotes extends MultiUsers {
     await notesLocator.type(e.message);
 
     const showMoreButtonLocator = getShowMoreButtonLocator(this.modPage);
-    await showMoreButtonLocator.click();
+    await showMoreButtonLocator.click({ timeout: ELEMENT_WAIT_TIME });
 
     const exportButtonLocator = getExportButtonLocator(this.modPage);
-    await exportButtonLocator.click();
+    await exportButtonLocator.click({ timeout: ELEMENT_WAIT_TIME });
 
     const exportPlainTextLocator = getExportPlainTextLocator(this.modPage);
     const exportHtmlLocator = getExportHTMLLocator(this.modPage);

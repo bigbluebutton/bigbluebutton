@@ -7,6 +7,7 @@ import {
   SizeStyle,
   TDShapeType,
 } from '@tldraw/tldraw';
+import SettingsService from '/imports/ui/services/settings';
 import {
   getShapes,
   getCurrentPres,
@@ -18,6 +19,7 @@ import {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  toggleToolsAnimations,
 } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
@@ -35,6 +37,7 @@ const WhiteboardContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
+  const sidebarNavigationWidth = layoutSelect((i) => i?.output?.sidebarNavigation?.width);
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
   const isPresenter = currentUser.presenter;
@@ -73,6 +76,7 @@ const WhiteboardContainer = (props) => {
         fontFamily,
         hasShapeAccess,
         handleToggleFullScreen,
+        sidebarNavigationWidth,
       }}
       {...props}
       meetingId={Auth.meetingID}
@@ -137,6 +141,9 @@ export default withTracker(({
     notifyNotAllowedChange,
     notifyShapeNumberExceeded,
     darkTheme,
+    whiteboardToolbarAutoHide: SettingsService?.application?.whiteboardToolbarAutoHide,
+    animations: SettingsService?.application?.animations,
+    toggleToolsAnimations,
     isIphone,
   };
 })(WhiteboardContainer);

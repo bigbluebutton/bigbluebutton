@@ -235,6 +235,8 @@
     "app.presentation.presentationToolbar.fitToWidth": "An Breite anpassen",
     "app.presentation.presentationToolbar.fitToPage": "An Seite anpassen",
     "app.presentation.presentationToolbar.goToSlide": "Folie {0}",
+    "app.presentation.presentationToolbar.hideToolsDesc": "Werkzeugleisten ausblenden",
+    "app.presentation.presentationToolbar.showToolsDesc": "Werkzeugleisten anzeigen",
     "app.presentation.placeholder": "Es gibt derzeit keine aktive Präsentation",
     "app.presentationUploder.title": "Präsentation",
     "app.presentationUploder.message": "Es können Office-Dokumente oder PDFs als Präsentation hochgeladen werden. Wir empfehlen PDF für beste Ergebnisse. Bitte sicherstellen, dass die richtige Präsentation mit runden Auswahlfeld auf der linken Seite ausgewählt ist.",

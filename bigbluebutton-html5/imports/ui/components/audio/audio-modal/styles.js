@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -90,7 +90,7 @@ const ConnectingAnimation = styled.span`
   }
 `;
 
-const AudioModal = styled(Modal)`
+const AudioModal = styled(ModalSimple)`
   padding: 1rem;
   min-height: 20rem;
 `;
