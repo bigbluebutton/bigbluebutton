@@ -345,6 +345,10 @@ class Page {
   async reloadPage() {
     await this.page.reload();
   }
+
+  async selectSlide(slideOption, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.locator(e.skipSlide).selectOption({ label: slideOption }, { timeout });
+  }
 }
 
 module.exports = exports = Page;
