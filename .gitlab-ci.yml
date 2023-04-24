@@ -12,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2022-12-29-grails-524
+  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2023-04-18
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of
@@ -47,11 +47,12 @@ get_external_dependencies:
       - bbb-etherpad
       - bbb-webhooks
       - bbb-webrtc-sfu
+      - bbb-webrtc-recorder
       - freeswitch
       - bbb-pads
       - bbb-playback
     expire_in: 1h 30min
-    
+
 # template job for build step
 .build_job:
   stage: build
@@ -170,6 +171,11 @@ bbb-webrtc-sfu-build:
   script:
     - build/setup-inside-docker.sh bbb-webrtc-sfu
 
+bbb-webrtc-recorder-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-webrtc-recorder
+
 bigbluebutton-build:
   extends: .build_job
   script:
@@ -180,12 +186,12 @@ push_packages:
   stage: push packages
   script: build/push_packages.sh
   resource_group: push_packages
-  
-  # uncomment the lines below if you want one final 
-  # "artifacts" dir with all packages (increases runtime, fills up space on gitlab server) 
+
+  # uncomment the lines below if you want one final
+  # "artifacts" dir with all packages (increases runtime, fills up space on gitlab server)
   #artifacts:
   #    paths:
   #      - artifacts/*
   #    expire_in: 2 days
- 
- 
+
+

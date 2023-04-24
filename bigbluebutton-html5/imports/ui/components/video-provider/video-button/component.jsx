@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import VideoService from '../service';
@@ -10,6 +10,7 @@ import { debounce } from 'radash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { isVirtualBackgroundsEnabled } from '/imports/ui/services/features';
 import Button from '/imports/ui/components/common/button/component';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 
 const ENABLE_WEBCAM_SELECTOR_BUTTON = Meteor.settings.public.app.enableWebcamSelectorButton;
 const ENABLE_CAMERA_BRIGHTNESS = Meteor.settings.public.app.enableCameraBrightness;
@@ -63,7 +64,6 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   hasVideoStream: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
-  mountVideoPreview: PropTypes.func.isRequired,
 };
 
 const JoinVideoButton = ({
@@ -71,7 +71,6 @@ const JoinVideoButton = ({
   hasVideoStream,
   status,
   disableReason,
-  mountVideoPreview,
 }) => {
   const { isMobile } = deviceInfo;
   const isMobileSharingCamera = hasVideoStream && isMobile;
@@ -84,6 +83,10 @@ const JoinVideoButton = ({
     && !isMobile;
   const exitVideo = () => isDesktopSharingCamera && (!VideoService.isMultipleCamerasEnabled()
     || shouldEnableWebcamSelectorButton);
+
+  const [propsToPassModal, setPropsToPassModal] = useState({});
+  const [forceOpen, setForceOpen] = useState(false);
+  const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
 
   const handleOnClick = debounce({ delay: JOIN_VIDEO_DELAY_MILLISECONDS }, () => {
     if (!validIOSVersion()) {
@@ -99,13 +102,16 @@ const JoinVideoButton = ({
         if (exitVideo()) {
           VideoService.exitVideo();
         } else {
-          mountVideoPreview(isMobileSharingCamera);
+          setForceOpen(isMobileSharingCamera);
+          setVideoPreviewModalIsOpen(true);
         }
     }
   });
 
-  const handleOpenAdvancedOptions = (props) => {
-    mountVideoPreview(isDesktopSharingCamera, props);
+  const handleOpenAdvancedOptions = (callback) => {
+    if (callback) callback();
+    setForceOpen(isDesktopSharingCamera);
+    setVideoPreviewModalIsOpen(true);
   };
 
   const getMessageFromStatus = () => {
@@ -141,7 +147,7 @@ const JoinVideoButton = ({
         {
           key: 'virtualBgSelection',
           label: intl.formatMessage(intlMessages.visualEffects),
-          onClick: () => handleOpenAdvancedOptions({ isVisualEffects: true }),
+          onClick: () => handleOpenAdvancedOptions(() => setPropsToPassModal({ isVisualEffects: true })),
         },
       );
     }
@@ -178,21 +184,36 @@ const JoinVideoButton = ({
   }
 
   return (
-    <Styled.OffsetBottom>
-      <Button
-        label={label}
-        data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
-        onClick={handleOnClick}
-        hideLabel
-        color={isSharing ? 'primary' : 'default'}
-        icon={isSharing ? 'video' : 'video_off'}
-        ghost={!isSharing}
-        size="lg"
-        circle
-        disabled={!!disableReason}
-      />
-      {renderUserActions()}
-    </Styled.OffsetBottom>
+    <>
+      <Styled.OffsetBottom>
+        <Button
+          label={label}
+          data-test={hasVideoStream ? 'leaveVideo' : 'joinVideo'}
+          onClick={handleOnClick}
+          hideLabel
+          color={isSharing ? 'primary' : 'default'}
+          icon={isSharing ? 'video' : 'video_off'}
+          ghost={!isSharing}
+          size="lg"
+          circle
+          disabled={!!disableReason}
+        />
+        {renderUserActions()}
+      </Styled.OffsetBottom>
+      {isVideoPreviewModalOpen ? <VideoPreviewContainer 
+        {...{
+          callbackToClose: () => {
+            setPropsToPassModal({});
+            setForceOpen(false);
+          }, 
+          forceOpen,
+          priority: "low",
+          setIsOpen: setVideoPreviewModalIsOpen,
+          isOpen: isVideoPreviewModalOpen
+        }}
+        {...propsToPassModal}
+      /> : null}
+    </>
   );
 };
 

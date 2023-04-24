@@ -1030,6 +1030,8 @@ class VideoPreview extends Component {
       isCamLocked,
       forceOpen,
       isVisualEffects,
+      isOpen,
+      priority,
     } = this.props;
 
     if (isCamLocked === true) {
@@ -1063,6 +1065,10 @@ class VideoPreview extends Component {
         isPhone={deviceInfo.isPhone}
         data-test="webcamSettingsModal"
         title={title}
+        {...{
+          isOpen,
+          priority,
+        }}
       >
         {deviceInfo.hasMediaDevices
           ? this.renderModalContent()

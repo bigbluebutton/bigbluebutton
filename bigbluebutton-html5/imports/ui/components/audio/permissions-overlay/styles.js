@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { colorBlack } from '/imports/ui/stylesheets/styled-components/palette';
 import { jumboPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -22,7 +22,7 @@ const bounce = keyframes`
   }
 `;
 
-const PermissionsOverlayModal = styled(Modal)`
+const PermissionsOverlayModal = styled(ModalSimple)`
   ${({ isFirefox }) => isFirefox && `
     top: 8em;
     left: 22em;

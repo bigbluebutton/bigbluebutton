@@ -130,7 +130,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   def sendAllVoiceUsersInMeeting(requesterId: String, voiceUsers: VoiceUsers, meetingId: String): Unit = {
     val vu = VoiceUsers.findAll(voiceUsers).map { u =>
       VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
-        callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
+        callerNum = u.callerNum, color = u.color, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
     }
 
     val event = MsgBuilder.buildGetVoiceUsersMeetingRespMsg(meetingId, requesterId, vu)

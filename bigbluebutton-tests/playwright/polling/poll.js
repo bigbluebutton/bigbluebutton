@@ -141,7 +141,6 @@ class Polling extends MultiUsers {
   async typeOnLastChoiceInput() {
     const lastInput = this.modPage.getLocatorByIndex(e.pollOptionItem, -1);
     await lastInput.fill(this.newInputText);
-
   }
 
   async checkLastOptionText() {
