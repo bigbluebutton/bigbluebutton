@@ -16,12 +16,15 @@ class Options extends MultiUsers {
   }
 
   async openHelp(context) {
-    await this.waitAndClick(e.optionsButton);
+    await this.modPage.reloadPage();
+    await this.modPage.waitForSelector(e.audioModal);
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.waitAndClick(e.optionsButton);
 
-    const newPage = await this.handleNewTab(e.helpButton, context);
+    const newPage = await this.modPage.handleNewTab(e.helpButton, context);
 
     await expect(newPage).toHaveTitle(/BigBlueButton Tutorials/);
-    await this.hasElement(e.presentationTitle);
+    await this.modPage.hasElement(e.presentationTitle);
   }
 
   async localesTest() {
