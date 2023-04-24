@@ -13,6 +13,7 @@ export const PDF = 'application/pdf';
 export const JPEG = 'image/jpeg';
 export const PNG = 'image/png';
 export const SVG = 'image/svg+xml';
+export const WEBP = 'image/webp';
 
 export const UPLOAD_SUPORTED = [
   XLS,
@@ -29,4 +30,5 @@ export const UPLOAD_SUPORTED = [
   PDF,
   JPEG,
   PNG,
+  WEBP,
 ];
