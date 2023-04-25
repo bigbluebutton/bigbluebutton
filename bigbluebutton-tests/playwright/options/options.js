@@ -1,7 +1,6 @@
 const { expect } = require('@playwright/test');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
-const Page = require("../core/page");
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 
@@ -11,26 +10,18 @@ class Options extends MultiUsers {
     super(browser, context);
   }
 
-  async handleHelpPage(context) {
-    await this.modPage.waitAndClick(e.optionsButton);
-
-    const [newPage] = await Promise.all([
-      context.waitForEvent('page'),
-      this.modPage.waitAndClick(e.helpButton),
-    ]);
-    
-    this.helpPage = new Page(context, newPage);
-  }
-
   async openedAboutModal() {
     await openAboutModal(this.modPage);
     await this.modPage.hasElement(e.closeModal);
     await this.modPage.waitAndClick(e.closeModal);
   }
 
-  async openHelp() {
-    await this.helpPage.haveTitle(/BigBlueButton Tutorials/);
-    await this.modPage.hasElement(e.presentationTitle);
+  async openHelp(context) {
+    await this.modPage.waitAndClick(e.optionsButton);
+    const newPage = await this.modPage.handleNewTab(e.helpButton, context);
+    await expect(newPage).toHaveTitle(/Tutorials/);
+    await newPage.close();
+    await this.modPage.hasElement(e.whiteboard);
   }
 
   async localesTest() {

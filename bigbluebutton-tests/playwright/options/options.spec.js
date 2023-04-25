@@ -3,11 +3,11 @@ const { Options } = require('./options');
 
 test.describe.serial('Options', () => {
   const options = new Options();
+  let context;
   test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
+    context = await browser.newContext();
     const page = await context.newPage();
     await options.initModPage(page, true);
-    await options.handleHelpPage(context);
   });
 
   test('Open about modal', async () => {
@@ -15,7 +15,7 @@ test.describe.serial('Options', () => {
   });
 
   test('Open Help Button', async () => {
-    await options.openHelp();
+    await options.openHelp(context);
   });
 
   test('Locales test', async () => {
