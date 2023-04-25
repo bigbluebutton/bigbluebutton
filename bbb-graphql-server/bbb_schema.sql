@@ -14,6 +14,7 @@ DROP VIEW IF EXISTS "v_chat_message_public";
 DROP VIEW IF EXISTS "v_chat_message_private";
 DROP VIEW IF EXISTS "v_chat_participant";
 DROP VIEW IF EXISTS "v_user_typing_public";
+DROP VIEW IF EXISTS "v_user_typing_private";
 DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
@@ -460,6 +461,8 @@ CREATE TABLE "chat_user" (
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId");
+CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("typingAt") WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
+CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("chatId", "typingAt") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
 SELECT "meetingId", "chatId", "userId", "typingAt",
@@ -467,6 +470,14 @@ CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE f
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 
+CREATE OR REPLACE VIEW "v_user_typing_private" AS
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."typingAt",
+CASE WHEN chat_with."typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+FROM chat_user
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
+									AND chat_with."chatId" = chat_user."chatId"
+									AND chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+									AND chat_with."userId" != chat_user."userId";
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
