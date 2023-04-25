@@ -12,12 +12,13 @@ import {
   isMe,
   removeUser,
 } from './service';
+
 import { makeCall } from '/imports/ui/services/api';
 import { isChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import { showModal } from '/imports/ui/components/common/modal/service';
+
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -110,23 +111,6 @@ const messages = defineMessages({
   },
 });
 
-const confirmRemoveUser = (userId: string, userName: string,) => {
-  const intl = useIntl();
-  const modal = (
-    <ConfirmationModal
-      intl={intl}
-      titleMessageId="app.userList.menu.removeConfirmation.label"
-      titleMessageExtra={userName}
-      checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-      confirmParam={userId}
-      onConfirm={removeUser}
-      confirmButtonDataTest="removeUserConfirmation"
-    />
-  );
-
-  showModal(modal);
-};
-
 const UserActions: React.FC<UserActionsProps> = ({
   user,
   currentUser,
@@ -137,6 +121,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 }) => {
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
   const actionsnPermitions = generateActionsPermissions(
@@ -338,7 +323,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'remove',
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
       onClick: () => {
-        confirmRemoveUser(user.userId, user.name)
+        setIsConfirmationModalOpen(true)
         setSelected(false);
       },
       icon: 'circle_close',
@@ -385,7 +370,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     ? nestedOptions.filter(key => key.allowed)
     : dropdownOptions.filter(key => key.allowed);
   if (!actions.length) return children;
-  return <BBBMenu
+  return <div>
+  <BBBMenu
   trigger={
     (
       <div
@@ -411,7 +397,23 @@ const UserActions: React.FC<UserActionsProps> = ({
     setShowNestedOptions(false);
   }}
   open={selected}
-/>;
+/>
+{isConfirmationModalOpen ? <ConfirmationModal
+  intl={intl}
+  titleMessageId="app.userList.menu.removeConfirmation.label"
+  titleMessageExtra={user.name}
+  checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+  confirmParam={user.userId}
+  onConfirm={removeUser}
+  confirmButtonDataTest="removeUserConfirmation"
+  {...{
+    onRequestClose: () => setIsConfirmationModalOpen(false),
+    priority: "low",
+    setIsOpen: setIsConfirmationModalOpen,
+    isOpen: isConfirmationModalOpen
+  }}
+/> : null}
+  </div>;
 };
 
 export default UserActions;
