@@ -440,19 +440,6 @@ display_bigbluebutton_status () {
         units="$units bbb-webrtc-recorder"
     fi
 
-    if [ -f /usr/lib/systemd/system/kurento-media-server.service ]; then
-        units="$units kurento-media-server"
-    fi
-
-    for i in `seq 8888 8890`; do
-        # check if multi-kurento setup is configured
-        if [ -f /usr/lib/systemd/system/kurento-media-server-${i}.service ]; then
-            if systemctl is-enabled kurento-media-server-${i}.service > /dev/null; then
-                units="$units kurento-media-server-${i}"
-            fi
-        fi
-    done
-
     if [ -f /usr/share/etherpad-lite/settings.json ]; then
         units="$units etherpad"
     fi
@@ -717,9 +704,6 @@ if [[ $PORT_RANGE ]]; then
 
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-start-port"]/@value' --value $START_PORT $FREESWITCH_SWITCH_CONF
         xmlstarlet edit --inplace --update '/configuration/settings/param[@name="rtp-end-port"]/@value' --value $END_PORT $FREESWITCH_SWITCH_CONF
-
-        sed -i "s/minPort=.*/minPort=$START_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
-        sed -i "s/maxPort=.*/maxPort=$END_PORT/" /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini
 
         mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
         touch $WEBRTC_SFU_ETC_CONFIG
@@ -1417,7 +1401,6 @@ if [ $CHECK ]; then
     echo "UDP port ranges"
     echo
     echo "                        FreeSWITCH: $(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-start-port"]' -v @value $FREESWITCH_SWITCH_CONF)-$(xmlstarlet sel -t -m './configuration/settings/param[@name="rtp-end-port"]' -v @value $FREESWITCH_SWITCH_CONF)"
-    echo "                           kurento: $(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /minPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)-$(awk -F '=' '{if (! ($0 ~ /^;/) && $0 ~ /maxPort/) print $2}' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini)"
 
     echo "                    bbb-webrtc-sfu: $(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMinPort)-$(echo "$WEBRTC_SFU_CONFIG" | yq r - mediasoup.worker.rtcMaxPort)"
     echo "                    bbb-webrtc-recorder: $(echo "$WEBRTC_RECORDER_CONFIG" | yq r - webrtc.rtcMinPort)-$(echo "$WEBRTC_RECORDER_CONFIG" | yq r - webrtc.rtcMaxPort)"
@@ -1518,7 +1501,6 @@ if [ $ZIP ]; then
     tar rf  $TMP_LOG_FILE /var/log/bbb-apps-akka   > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-fsesl-akka         > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/bbb-webrtc-sfu         > /dev/null 2>&1
-    tar rf  $TMP_LOG_FILE /var/log/kurento-media-server > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/mongodb              > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/redis                > /dev/null 2>&1
     tar rf  $TMP_LOG_FILE /var/log/nginx/error.log*     > /dev/null 2>&1
@@ -1818,10 +1800,6 @@ if [ $CLEAN ]; then
 
     if [ -d /var/log/mongodb ]; then
         rm -f /var/log/mongodb/*
-    fi
-
-    if [ -d /var/log/kurento-media-server ]; then
-        rm -f /var/log/kurento-media-server/*
     fi
 
     start_bigbluebutton
