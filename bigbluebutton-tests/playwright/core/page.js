@@ -310,7 +310,15 @@ class Page {
   }
 
   async dragDropSelector(selector, position) {
-    await this.page.locator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
+    await this.getLocator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async dragAndDropWebcams(position) {
+    await this.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
+    await this.page.mouse.down();
+    await this.getLocator(e.whiteboard).hover({ timeout: 5000 });   // action for dispatching isDragging event
+    await this.getLocator(position).hover({ timeout: 5000 });
+    await this.page.mouse.up();
   }
 
   async checkElementCount(selector, count) {

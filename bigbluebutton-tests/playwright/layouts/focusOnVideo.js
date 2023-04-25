@@ -15,16 +15,16 @@ class FocusOnVideo extends MultiUsers {
     await this.modPage.waitAndClick(e.focusOnVideo);
     await this.modPage.waitAndClick(e.confirmButton);
 
-    const modPageCameraDockLocator = this.modPage.getLocator(e.cameraDock);
+    const modPageWebcamsLocator = this.modPage.getLocator(e.webcamContainer);
     await expect(this.modPage.page).toHaveScreenshot('moderator1-focus-on-video.png', {
       maxDiffPixels: 1000,
-      mask: [modPageCameraDockLocator],
+      mask: [modPageWebcamsLocator],
     });
 
-    const modPage2CameraDockLocator = this.modPage2.getLocator(e.cameraDock);
+    const modPage2WebcamsLocator = this.modPage2.getLocator(e.webcamContainer);
     await expect(this.modPage2.page).toHaveScreenshot('moderator2-focus-on-video.png', {
       maxDiffPixels: 1000,
-      mask: [modPage2CameraDockLocator],
+      mask: [modPage2WebcamsLocator],
     });
   }
 }
