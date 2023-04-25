@@ -31,7 +31,6 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   intl,
   error,
 }) => {
-  console.log({typingUsers})
   if (!indicatorEnabled || !typingUsers) return null;
 
   const { length } = typingUsers;
@@ -107,14 +106,14 @@ const TypingIndicatorContainer: React.FC = ({ userId, isTypingTo, error }) => {
     data: typingUsersData,
   } = useSubscription(IS_TYPING_SUBSCRIPTION, {
     variables: {
-      userId,
       chatId: isTypingTo,
     }
   });
 
   const typingUsers = typingUsersData?.user_typing_public || [];
-
-  const typingUsersArray = typingUsers.map(user => user.user);
+  const typingUsersArray = typingUsers
+    .filter(user => user?.userId !== userId)
+    .map(user => user.user);
 
   return <TypingIndicator
     typingUsers={typingUsersArray}
