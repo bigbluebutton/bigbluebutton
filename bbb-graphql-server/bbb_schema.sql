@@ -221,7 +221,7 @@ CREATE TABLE "user" (
 --	"ejected" bool null,
 --	"ejectReason" varchar(255),
 	"banned" bool NULL,
-	"loggedOut" bool NULL,  -- when user clicked to exit or after some time he is expired
+	"loggedOut" bool NULL,  -- when user clicked Leave meeting button
 	"registeredOn" bigint NULL,
 	"presenter" bool NULL,
 	"pinned" bool NULL,
@@ -232,6 +232,10 @@ CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
+COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
+COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
+COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
+COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
 --Virtual columns isDialIn, isModerator and isOnline
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS (CASE WHEN "clientType" = 'dial-in-user' THEN true ELSE false END) STORED;
