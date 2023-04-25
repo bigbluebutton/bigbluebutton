@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SettingsService from '/imports/ui/components/settings/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Button from '/imports/ui/components/common/button/component';
@@ -13,11 +11,14 @@ import Styled from './styles';
 const LayoutModalComponent = (props) => {
   const {
     intl,
-    closeModal,
+    setIsOpen,
+    isModerator,
     isPresenter,
     showToggleLabel,
     application,
     updateSettings,
+    onRequestClose,
+    isOpen,
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
@@ -25,10 +26,8 @@ const LayoutModalComponent = (props) => {
   const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
   const BASE_NAME = Meteor.settings.public.app.basename;
-  const CUSTOM_STYLE_URL = Boolean(Meteor.settings.public.app.customStyleUrl);
-  const customStyleUrl = Boolean(getFromUserSettings('bbb_custom_style_url', CUSTOM_STYLE_URL));
 
-  const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/${customStyleUrl ? 'customStyle/' : ''}`;
+  const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
   const intlMessages = defineMessages({
@@ -96,12 +95,12 @@ const LayoutModalComponent = (props) => {
       { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
     };
 
-    updateSettings(obj, intl.formatMessage(intlMessages.layoutToastLabel));
-    closeModal();
+    updateSettings(obj, intlMessages.layoutToastLabel);
+    setIsOpen(false);
   };
 
   const renderPushLayoutsOptions = () => {
-    if (!isPresenter) {
+    if (!isModerator && !isPresenter) {
       return null;
     }
 
@@ -142,6 +141,7 @@ const LayoutModalComponent = (props) => {
               onClick={() => handleSwitchLayout(layout)}
               active={(layout === selectedLayout).toString()}
               aria-describedby="layout-btn-desc"
+              data-test={`${layout}Layout`}
             />
           </Styled.ButtonLayoutContainer>
         ))}
@@ -155,8 +155,12 @@ const LayoutModalComponent = (props) => {
       shouldCloseOnOverlayClick
       isPhone={deviceInfo.isPhone}
       data-test="layoutChangeModal"
-      onRequestClose={closeModal}
+      onRequestClose={() => setIsOpen(false)}
       title={intl.formatMessage(intlMessages.title)}
+      {...{
+        isOpen,
+        onRequestClose,
+      }}
     >
       <Styled.Content>
         <Styled.BodyContainer>
@@ -167,7 +171,7 @@ const LayoutModalComponent = (props) => {
       <Styled.ButtonBottomContainer>
         <Styled.BottomButton
           label={intl.formatMessage(intlMessages.cancel)}
-          onClick={closeModal}
+          onClick={() => setIsOpen(false)}
           color="secondary"
         />
         <Button
@@ -185,7 +189,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  closeModal: PropTypes.func.isRequired,
+  isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   showToggleLabel: PropTypes.bool.isRequired,
   application: PropTypes.shape({
@@ -196,4 +200,4 @@ const propTypes = {
 
 LayoutModalComponent.propTypes = propTypes;
 
-export default injectIntl(withModalMounter(LayoutModalComponent));
+export default injectIntl(LayoutModalComponent);

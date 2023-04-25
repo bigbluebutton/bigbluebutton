@@ -40,13 +40,6 @@ const Alert = styled.div`
       color: ${colorDanger};
     }
   `}
-
-  grid-row: span 3;
-
-  & > div {
-    height: 25.2rem;
-    max-height: 25.2rem;
-  }
 `;
 
 const FreeJoinLabel = styled.label`
@@ -85,8 +78,7 @@ const BreakoutNameInput = styled.input`
 
 const BreakoutBox = styled(ScrollboxVertical)`
   width: 100%;
-  min-height: 6rem;
-  max-height: 8rem;
+  height: 21rem;
   border: 1px solid ${colorGrayLightest};
   border-radius: ${borderRadius};
   padding: ${lgPaddingY} 0;
@@ -247,6 +239,11 @@ const RoomUserItem = styled.p`
     justify-content: center;
     margin-right: 5px;
     font-size: ${fontSizeSmaller};
+  }
+
+  &:focus {
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
   }
 
   ${({ selected }) => selected && `

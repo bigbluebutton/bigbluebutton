@@ -1,14 +1,22 @@
 import { check } from 'meteor/check';
 import padCapture from '../methods/padCapture';
 
-export default function captureSharedNotes({ body }, meetingId) {
+export default async function captureSharedNotes({ header, body }) {
+  check(header, Object);
   check(body, Object);
-  check(meetingId, String);
 
-  const { parentMeetingId, meetingName } = body;
+  const {
+    meetingId: parentMeetingId,
+  } = header;
 
+  const {
+    breakoutId,
+    filename,
+  } = body;
+
+  check(breakoutId, String);
   check(parentMeetingId, String);
-  check(meetingName, String);
+  check(filename, String);
 
-  padCapture(meetingId, parentMeetingId, meetingName);
+  await padCapture(breakoutId, parentMeetingId, filename);
 }

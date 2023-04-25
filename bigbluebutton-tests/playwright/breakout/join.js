@@ -1,9 +1,12 @@
+const { default: test } = require('@playwright/test');
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
+const { sleep } = require('../core/helpers');
+const { getNotesLocator } = require('../sharednotes/util');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -109,7 +112,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
     await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/);
 
-    await breakoutUserPage.hasText(e.timeRemaining,/[11-12]:[0-5][0-9]/);
+    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/);
   }
 
   async endAllBreakoutRooms() {
@@ -133,11 +136,95 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     await this.userPage.waitForSelector(e.modalConfirmButton);
-
-    await expect(breakoutUserPage.page.isClosed(), "Previous breakout room page did not close!").toBeTruthy();
+    await breakoutUserPage.page.isClosed();
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/);
+  }
+
+  async exportBreakoutNotes() {
+    const { sharedNotesEnabled } = getSettings();
+    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+    await breakoutUserPage.waitAndClick(e.sharedNotes);
+    await breakoutUserPage.waitForSelector(e.hideNotesLabel);
+
+    const notesLocator = getNotesLocator(breakoutUserPage);
+    await notesLocator.type(e.message);
+    await sleep(1000); // making sure there's enough time for the typing to finish
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.endAllBreakouts);
+
+    await this.modPage.hasElement(e.presentationUploadProgressToast);
+    await this.modPage.waitAndClick(e.actions);
+    const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
+    await expect(shareNotesPDF).toHaveText(/Notes/, { timeout: 30000 });
+    await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await this.modPage.checkElementCount(e.actionsItem, 8);
+    await shareNotesPDF.click();
+
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbBox).toHaveScreenshot('capture-breakout-notes.png', {
+      maxDiffPixels: 1000,
+    });
+  }
+
+  async exportBreakoutWhiteboard() {
+    const { sharedNotesEnabled } = getSettings();
+    test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(e.presentationTitle);
+    await breakoutUserPage.waitAndClick(e.sharedNotes);
+    await breakoutUserPage.waitForSelector(e.hideNotesLabel);
+
+    // draw a line
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await breakoutUserPage.waitAndClick(e.wbShapesButton);
+    await breakoutUserPage.waitAndClick(e.wbLineShape);
+    const wbBreakout = await breakoutUserPage.page.$(e.whiteboard);
+    const wbBoxBreakout = await wbBreakout.boundingBox();
+    await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.3 * wbBoxBreakout.width, wbBoxBreakout.y + 0.3 * wbBoxBreakout.height);
+    await breakoutUserPage.page.mouse.down();
+    await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.7 * wbBoxBreakout.width, wbBoxBreakout.y + 0.7 * wbBoxBreakout.height);
+    await breakoutUserPage.page.mouse.up();
+    await sleep(1000); // making sure there's enough time for the typing to finish
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.waitAndClick(e.endAllBreakouts);
+
+    await this.modPage.waitForSelector(e.presentationUploadProgressToast, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.actions);
+    const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
+    await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
+    await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await this.modPage.checkElementCount(e.actionsItem, 8);
+    await whiteboardPDF.click();
+    await this.modPage.waitAndClick('i[type="info"]');
+    await this.modPage.waitAndClick(e.currentPresentationToast);
+
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
+      maxDiffPixels: 1000,
+    });
+  }
+
+  async userCanChooseRoom() {
+    await this.userPage.bringToFront();
+
+    await this.userPage.checkElementCount(e.roomOption, 2);
+
+    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.bringToFront();
+    await breakoutUserPage.waitForSelector(e.presentationTitle, ELEMENT_WAIT_LONGER_TIME);    
   }
 }
 

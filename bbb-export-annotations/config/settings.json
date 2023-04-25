@@ -16,7 +16,9 @@
     },
     "process": {
       "whiteboardTextEncoding": "utf-8",
-      "textScaleFactor": 4,
+      "maxImageWidth": 1440,
+      "maxImageHeight": 1080,
+      "textScaleFactor": 2,
       "pointsPerInch": 72,
       "pixelsPerInch": 96
     },
@@ -26,6 +28,7 @@
       "msgName": "NewPresAnnFileAvailableMsg"
     },
     "bbbWebAPI": "http://127.0.0.1:8090",
+    "bbbWebPublicAPI": "/bigbluebutton/",
     "bbbPadsAPI": "http://127.0.0.1:9002",
     "redis": {
       "host": "127.0.0.1",

@@ -2,14 +2,14 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { useEffect } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import Auth from '/imports/ui/services/auth';
 import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Meetings from '/imports/api/meetings';
-import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
+import MeetingRemainingTime from './meeting-remaining-time/container';
 import Styled from './styles';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
+import { isEmpty } from 'radash';
 
 import breakoutService from '/imports/ui/components/breakout-room/service';
 import NotificationsBar from './component';
@@ -93,7 +93,7 @@ const NotificationsBarContainer = (props) => {
     }
   }, [message, hasNotification]);
 
-  if (_.isEmpty(message)) {
+  if (isEmpty(message)) {
     return null;
   }
 
@@ -176,7 +176,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     if (currentBreakout) {
       data.message = (
-        <BreakoutRemainingTime
+        <MeetingRemainingTime
           breakoutRoom={currentBreakout}
           messageDuration={intlMessages.breakoutTimeRemaining}
           timeEndedMessage={intlMessages.breakoutWillClose}
@@ -197,7 +197,7 @@ export default injectIntl(withTracker(({ intl }) => {
 
     if (underThirtyMin && !isBreakout) {
       data.message = (
-        <BreakoutRemainingTime
+        <MeetingRemainingTime
           breakoutRoom={meetingTimeRemaining}
           messageDuration={intlMessages.meetingTimeRemaining}
           timeEndedMessage={intlMessages.meetingWillClose}

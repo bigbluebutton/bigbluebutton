@@ -8,7 +8,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
-import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -19,6 +18,8 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
+import { indexOf, without } from '/imports/utils/array-utils';
+import { isEmpty, throttle } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -60,8 +61,8 @@ const sortUsersByUserId = (a, b) => {
 };
 
 const sortUsersByName = (a, b) => {
-  const aName = a.name ? a.name.toLowerCase() : '';
-  const bName = b.name ? b.name.toLowerCase() : '';
+  const aName = a.sortName || '';
+  const bName = b.sortName || '';
 
   // Extending for sorting strings with non-ASCII characters
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#sorting_non-ascii_characters
@@ -250,7 +251,7 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
 const isMe = (userId) => userId === Auth.userID;
 
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
-  if (_.isEmpty(groupChats) && _.isEmpty(users)) return [];
+  if (isEmpty(groupChats) && isEmpty(users)) return [];
 
   const chatIds = Object.keys(groupChats);
   const lastTimeWindows = chatIds.reduce((acc, chatId) => {
@@ -322,8 +323,30 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
     && chat.shouldDisplayInChatList);
+  const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
+    if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
+      return -1;
+    }
+    if (b.chatId === PUBLIC_CHAT_ID) {
+      return 0;
+    }
+    if (a.unreadCounter > b.unreadCounter) {
+      return -1;
+    } else if (b.unreadCounter > a.unreadCounter) {
+      return 1;
+    } else {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) {
+          return -1;
+        }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) {
+          return 1;
+        }
+      return 0;
+      }
+  });
+  return sortByChatIdAndUnread;
 };
 
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
@@ -464,12 +487,12 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = _.debounce((userId, emoji) => {
+const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
   return statusAvailable
     ? makeCall('setEmojiStatus', Auth.userID, emoji)
     : makeCall('setEmojiStatus', userId, 'none');
-}, 1000, { leading: true, trailing: false });
+});
 
 const clearAllEmojiStatus = (users) => {
   users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));
@@ -563,7 +586,6 @@ const roving = (...args) => {
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
     Session.set('dropdownOpen', false);
-    document.activeElement.blur();
     changeState(null);
   }
 
@@ -599,14 +621,14 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
     makeCall('createGroupChat', receiver);
   } else {
     const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (_.indexOf(startedChats, chat.chatId) < 0) {
+    if (indexOf(startedChats, chat.chatId) < 0) {
       startedChats.push(chat.chatId);
       Session.set(STARTED_CHAT_LIST_KEY, startedChats);
     }
 
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-    if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
-      Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
+    if (indexOf(currentClosedChats, chat.chatId) > -1) {
+      Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chat.chatId));
     }
   }
 };

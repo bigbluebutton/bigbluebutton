@@ -21,7 +21,7 @@ public class RecordingImportHandlerTest {
     @Test
     @DisplayName("RecordIDs should be properly parsed")
     public void testParseRecordId() {
-        String metadataDirectory = "metadata";
+        String metadataDirectory = "src/metadata";
 
         String[] entries = new File(metadataDirectory).list();
         Set<String> ids = new HashSet<>();

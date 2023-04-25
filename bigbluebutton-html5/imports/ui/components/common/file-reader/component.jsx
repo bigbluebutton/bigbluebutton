@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
-import _ from 'lodash';
 import { defineMessages } from 'react-intl';
 import { toast } from 'react-toastify';
 import { notify } from '/imports/ui/services/notification';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   maximumSizeExceeded: {
@@ -155,7 +155,7 @@ const withFileReader = (
       const data = {
         filename: filenameWithoutExtension,
         data: e.target.result,
-        uniqueId: _.uniqueId(),
+        uniqueId: uniqueId(),
       };
       renderToast(name, STATUS.DONE, () => { onSuccess(data); });
     };

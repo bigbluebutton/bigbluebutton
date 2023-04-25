@@ -1,8 +1,8 @@
 import {default as LocalStorage} from '/imports/ui/services/storage/local';
 import {default as SessionStorage} from '/imports/ui/services/storage/session';
 
-import _ from 'lodash';
 import { makeCall } from '/imports/ui/services/api';
+import { isEmpty } from 'radash';
 
 const APP_CONFIG = Meteor.settings.public.app;
 
@@ -16,7 +16,7 @@ const SETTINGS = [
 ];
 
 const CHANGED_SETTINGS = 'changed_settings';
-const DEFAULT_SETTINGS = 'dafault_settings';
+const DEFAULT_SETTINGS = 'default_settings';
 
 class Settings {
   constructor(defaultValues = {}) {
@@ -91,7 +91,7 @@ class Settings {
             [item]: values[item],
           }), {});
 
-        if (_.isEmpty(changedValues)) Storage.removeItem(`${settings}${k}`);
+        if (isEmpty(changedValues)) Storage.removeItem(`${settings}${k}`);
         Storage.setItem(`${settings}${k}`, changedValues);
       });
     } else {

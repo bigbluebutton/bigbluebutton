@@ -6,8 +6,13 @@ on:
       - opened
       - synchronize
 
+permissions:
+  contents: read
+
 jobs:
   main:
+    permissions:
+      pull-requests: write  # for eps1lon/actions-label-merge-conflict to label PRs
     runs-on: ubuntu-latest
     steps:
       - name: Check for dirty pull requests

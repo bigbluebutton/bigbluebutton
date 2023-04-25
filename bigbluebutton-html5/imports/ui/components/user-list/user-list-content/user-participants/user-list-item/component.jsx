@@ -2,13 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl, defineMessages } from 'react-intl';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { findDOMNode } from 'react-dom';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -18,6 +16,7 @@ import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { isChatEnabled } from '/imports/ui/services/features';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const messages = defineMessages({
   presenter: {
@@ -195,6 +194,7 @@ class UserListItem extends PureComponent {
       dropdownVisible: false,
       showNestedOptions: false,
       selected: false,
+      isConfirmationModalOpen: false,
     };
 
     this.handleScroll = this.handleScroll.bind(this);
@@ -203,9 +203,10 @@ class UserListItem extends PureComponent {
     this.getDropdownMenuParent = this.getDropdownMenuParent.bind(this);
     this.renderUserAvatar = this.renderUserAvatar.bind(this);
     this.resetMenuState = this.resetMenuState.bind(this);
+    this.setConfirmationModalIsOpen = this.setConfirmationModalIsOpen.bind(this);
 
-    this.title = _.uniqueId('dropdown-title-');
-    this.seperator = _.uniqueId('action-separator-');
+    this.title = uniqueId('dropdown-title-');
+    this.seperator = uniqueId('action-separator-');
   }
 
   componentDidUpdate() {
@@ -292,7 +293,6 @@ class UserListItem extends PureComponent {
       userLocks,
       isMe,
       meetingIsBreakout,
-      mountModal,
       usersProp,
       layoutContextDispatch,
     } = this.props;
@@ -424,7 +424,6 @@ class UserListItem extends PureComponent {
       },
       {
         allowed: allowedToUnmuteAudio
-          && !user.locked
           && !userLocks.userMic
           && isMeteorConnected
           && !meetingIsBreakout
@@ -516,20 +515,14 @@ class UserListItem extends PureComponent {
         key: 'remove',
         label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
         onClick: () => {
-          this.onActionsHide(mountModal(
-            <ConfirmationModal
-              intl={intl}
-              titleMessageId="app.userList.menu.removeConfirmation.label"
-              titleMessageExtra={user.name}
-              checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-              confirmParam={user.userId}
-              onConfirm={removeUser}
-            />,
-          ));
+          this.onActionsHide(
+            this.setConfirmationModalIsOpen(true),
+          );
 
           this.handleClose();
         },
         icon: 'circle_close',
+        dataTest: 'removeUser'
       },
       {
         allowed: allowedToEjectCameras
@@ -648,6 +641,12 @@ class UserListItem extends PureComponent {
     );
   }
 
+  setConfirmationModalIsOpen(value) {
+    this.setState({
+      isConfirmationModalOpen: value,
+    });
+  }
+
   render() {
     const {
       compact,
@@ -659,11 +658,13 @@ class UserListItem extends PureComponent {
       isMe,
       isRTL,
       selectedUserId,
+      removeUser,
     } = this.props;
 
     const {
       isActionsOpen,
       selected,
+      isConfirmationModalOpen
     } = this.state;
 
     if (!user) return (
@@ -716,7 +717,7 @@ class UserListItem extends PureComponent {
 
     if (user.isSharingWebcam && LABEL.sharingWebcam) {
       userNameSub.push(
-        <span key={_.uniqueId('video-')}>
+        <span key={uniqueId('video-')}>
           { user.pin === true
             ? <Icon iconName="pin-video_on" />
             : <Icon iconName="video" /> }
@@ -728,7 +729,7 @@ class UserListItem extends PureComponent {
 
     if (isThisMeetingLocked && user.locked && user.role !== ROLE_MODERATOR) {
       userNameSub.push(
-        <span key={_.uniqueId('lock-')}>
+        <span key={uniqueId('lock-')}>
           <Icon iconName="lock" />
           &nbsp;
           {intl.formatMessage(messages.locked)}
@@ -750,7 +751,7 @@ class UserListItem extends PureComponent {
 
     if (userInBreakout && userLastBreakout) {
       userNameSub.push(
-        <span key={_.uniqueId('breakout-')}>
+        <span key={uniqueId('breakout-')}>
           <Icon iconName="rooms" />
           &nbsp;
           {userLastBreakout.isDefaultName
@@ -820,30 +821,51 @@ class UserListItem extends PureComponent {
     if (!actions.length) return contents;
 
     return (
-      <BBBMenu
-        trigger={
-          (
-            <Styled.UserItemContents
-              isActionsOpen={isActionsOpen}
-              selected={selected === true}
-              tabIndex={-1}
-              onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
-              onKeyPress={() => { }}
-              role="button"
-            >
-              {contents}
-            </Styled.UserItemContents>
-          )
-        }
-        actions={actions}
-        selectedEmoji={user.emoji}
-        onCloseCallback={() => this.setState({ selected: false }, () => Session.set('dropdownOpenUserId', null))}
-        open={selectedUserId === user.userId}
-      />
+      <>
+        <BBBMenu
+          trigger={
+            (
+              <Styled.UserItemContents
+                isActionsOpen={isActionsOpen}
+                selected={selected === true}
+                tabIndex={-1}
+                onClick={() => this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    this.setState({ selected: true }, () => Session.set('dropdownOpenUserId', user.userId));
+                  }
+                }}
+                role="button"
+              >
+                {contents}
+              </Styled.UserItemContents>
+            )
+          }
+          actions={actions}
+          selectedEmoji={user.emoji}
+          onCloseCallback={() => this.setState({ selected: false }, () => Session.set('dropdownOpenUserId', null))}
+          open={selectedUserId === user.userId}
+        />
+        {isConfirmationModalOpen ? <ConfirmationModal
+          intl={intl}
+          titleMessageId="app.userList.menu.removeConfirmation.label"
+          titleMessageExtra={user.name}
+          checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+          confirmParam={user.userId}
+          onConfirm={removeUser}
+          confirmButtonDataTest="removeUserConfirmation" 
+          {...{
+            onRequestClose: () => this.setConfirmationModalIsOpen(false),
+            priority: "low",
+            setIsOpen: this.setConfirmationModalIsOpen,
+            isOpen: isConfirmationModalOpen
+          }}
+        /> : null}
+      </>
     );
   }
 }
 
 UserListItem.propTypes = propTypes;
 
-export default withModalMounter(lockContextContainer(injectIntl(UserListItem)));
+export default lockContextContainer(injectIntl(UserListItem));

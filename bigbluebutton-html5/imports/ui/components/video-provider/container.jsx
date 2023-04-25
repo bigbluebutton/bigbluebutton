@@ -25,6 +25,7 @@ export default withTracker(({ swapLayout, ...rest }) => {
     totalNumberOfStreams,
     isUserLocked: VideoService.isUserLocked(),
     currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
+    isMeteorConnected: Meteor.status().connected,
     ...rest,
   };
 })(VideoProviderContainer);

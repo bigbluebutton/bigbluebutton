@@ -758,9 +758,18 @@ class SIPSession {
 
       const setupRemoteMedia = () => {
         const mediaElement = document.querySelector(MEDIA_TAG);
+        const { sdp } = this.currentSession.sessionDescriptionHandler
+          .peerConnection.remoteDescription;
+
+        logger.info({
+          logCode: 'sip_js_session_setup_remote_media',
+          extraInfo: {
+            callerIdName: this.user.callerIdName,
+            sdp,
+          },
+        }, 'Audio call - setup remote media');
 
         this.remoteStream = new MediaStream();
-
         this.currentSession.sessionDescriptionHandler
           .peerConnection.getReceivers().forEach((receiver) => {
             if (receiver.track) {
@@ -792,22 +801,15 @@ class SIPSession {
             fsReady,
           },
         }, 'Audio call - check if ICE is finished and FreeSWITCH is ready');
-        if (iceCompleted && fsReady) {
+
+        if (iceCompleted) {
           this.webrtcConnected = true;
           setupRemoteMedia();
+        }
 
-          const { sdp } = this.currentSession.sessionDescriptionHandler
-            .peerConnection.remoteDescription;
-
-          logger.info({
-            logCode: 'sip_js_session_setup_remote_media',
-            extraInfo: {
-              callerIdName: this.user.callerIdName,
-              sdp,
-            },
-          }, 'Audio call - setup remote media');
-
+        if (fsReady) {
           this.callback({ status: this.baseCallStates.started, bridge: this.bridgeName });
+
           resolve();
         }
       };
@@ -1296,6 +1298,8 @@ export default class SIPBridge extends BaseAudioBridge {
   }
 
   exitAudio() {
+    if (this.activeSession == null) return Promise.resolve();
+
     return this.activeSession.exitAudio();
   }
 

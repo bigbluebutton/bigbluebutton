@@ -5,11 +5,11 @@ import Auth from '/imports/ui/services/auth';
 import UnreadMessages from '/imports/ui/services/unread-messages';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
-import _ from 'lodash';
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
+import { indexOf, without } from '/imports/utils/array-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
@@ -46,6 +46,10 @@ const intlMessages = defineMessages({
   download: {
     id: 'app.presentation.downloadLabel',
     description: 'used as label for presentation download link',
+  },
+  notAccessibleWarning: {
+    id: 'app.presentationUploader.export.notAccessibleWarning',
+    description: 'used for indicating that a link may be not accessible',
   },
 });
 
@@ -205,8 +209,8 @@ const sendGroupMessage = (message, idChatOpen) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.
-  if (_.indexOf(currentClosedChats, receiverId.id) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, receiverId.id));
+  if (indexOf(currentClosedChats, receiverId.id) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, receiverId.id));
   }
 
   return makeCall('sendGroupChatMsg', destinationChatId, payload);
@@ -235,7 +239,7 @@ const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (_.indexOf(currentClosedChats, chatId) < 0) {
+  if (indexOf(currentClosedChats, chatId) < 0) {
     currentClosedChats.push(chatId);
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
@@ -246,8 +250,8 @@ const closePrivateChat = (chatId) => {
 const removeFromClosedChatsSession = (idChatOpen) => {
   const chatID = idChatOpen;
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-  if (_.indexOf(currentClosedChats, chatID) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chatID));
+  if (indexOf(currentClosedChats, chatID) > -1) {
+    Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatID));
   }
 };
 
@@ -325,8 +329,10 @@ const removePackagedClassAttribute = (classnames, attribute) => {
 };
 
 const getExportedPresentationString = (fileURI, filename, intl) => {
-  const label = intl.formatMessage(intlMessages.download);
-  const link = `<a href=${fileURI} type="application/pdf" rel="noopener, noreferrer" download>${label}</a>`;
+  const warningIcon = `<i class="icon-bbb-warning"></i>`;
+  const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
+  const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
+  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${fileURI} type="application/pdf" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
   const name = `<span>${filename}</span>`;
   return `${name}</br>${link}`;
 };

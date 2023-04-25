@@ -1,7 +1,7 @@
 /* eslint react/jsx-filename-extension: 0 */
 import React from 'react';
-import _ from 'lodash';
 import { toast } from 'react-toastify';
+import { isEqual } from 'radash';
 
 import Toast from '/imports/ui/components/common/toast/component';
 
@@ -27,9 +27,9 @@ export function notify(message, type = 'default', icon, options, content, small)
     small,
   };
 
-  if (!toast.isActive(lastToast.id) || !_.isEqual(lastToastProps, toastProps)) {
+  if (!toast.isActive(lastToast.id) || !isEqual(lastToastProps, toastProps)) {
     if (toast.isActive(lastToast.id)
-      && _.isEqual(lastToastProps.key, toastProps.key) && options?.autoClose > 0) {
+      && isEqual(lastToastProps.key, toastProps.key) && options?.autoClose > 0) {
       toast.update(
         lastToast.id,
         {

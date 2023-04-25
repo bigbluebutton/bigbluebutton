@@ -37,7 +37,7 @@ public interface RecordingService {
     String getCaptionTrackInboxDir();
     String getCaptionsDir();
     boolean isRecordingExist(String recordId);
-    String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, Pageable pageable);
+    String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, int offset, Pageable pageable);
     boolean existAnyRecording(List<String> idList);
     boolean changeState(String recordingId, String state);
     void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams);
@@ -47,9 +47,9 @@ public interface RecordingService {
     void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg);
     File getDownloadablePresentationFile(String meetingId, String presId, String presFilename);
 
-    default <T> Page<T> listToPage(List<T> list, Pageable pageable) {
-        int start = (int) pageable.getOffset();
-        int end = (int) (Math.min((start + pageable.getPageSize()), list.size()));
-        return new PageImpl<>(list.subList(start, end), pageable, list.size());
+    // Construct page using offset and limit parameters
+    default <T> Page<T> listToPage(List<T> list, int offset, Pageable pageable) {
+        int end = (int) (Math.min((offset + pageable.getPageSize()), list.size()));
+        return new PageImpl<>(list.subList(offset, end), pageable, list.size());
     }
 }

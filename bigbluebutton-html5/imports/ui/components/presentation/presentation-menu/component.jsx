@@ -5,12 +5,11 @@ import { toPng } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
-import BBBMenu from "/imports/ui/components/common/menu/component";
+import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import browserInfo from '/imports/utils/browserInfo';
-
-const OLD_MINIMIZE_BUTTON_ENABLED = Meteor.settings.public.presentation.oldMinimizeButton;
+import AppService from '/imports/ui/components/app/service';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -54,10 +53,18 @@ const intlMessages = defineMessages({
     defaultMessage: 'Snapshot of current slide',
   },
   whiteboardLabel: {
-    id: "app.shortcut-help.whiteboard",
+    id: 'app.shortcut-help.whiteboard',
     description: 'used for aria whiteboard options button label',
     defaultMessage: 'Whiteboard',
-  }
+  },
+  hideToolsDesc: {
+    id: 'app.presentation.presentationToolbar.hideToolsDesc',
+    description: 'Hide toolbar label',
+  },
+  showToolsDesc: {
+    id: 'app.presentation.presentationToolbar.showToolsDesc',
+    description: 'Show toolbar label',
+  },
 });
 
 const propTypes = {
@@ -65,23 +72,36 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   handleToggleFullscreen: PropTypes.func.isRequired,
-  isDropdownOpen: PropTypes.bool,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
   fullscreenRef: PropTypes.instanceOf(Element),
-  screenshotRef: PropTypes.instanceOf(Element),
   meetingName: PropTypes.string,
   isIphone: PropTypes.bool,
+  elementId: PropTypes.string,
+  elementGroup: PropTypes.string,
+  currentElement: PropTypes.string,
+  currentGroup: PropTypes.string,
+  layoutContextDispatch: PropTypes.func.isRequired,
+  isRTL: PropTypes.bool,
+  tldrawAPI: PropTypes.shape({
+    copySvg: PropTypes.func.isRequired,
+    getShapes: PropTypes.func.isRequired,
+    currentPageId: PropTypes.string.isRequired,
+  }),
 };
 
 const defaultProps = {
-  isDropdownOpen: false,
   isIphone: false,
   isFullscreen: false,
+  isRTL: false,
   elementName: '',
   meetingName: '',
   fullscreenRef: null,
-  screenshotRef: null,
+  elementId: '',
+  elementGroup: '',
+  currentElement: '',
+  currentGroup: '',
+  tldrawAPI: null,
 };
 
 const PresentationMenu = (props) => {
@@ -99,7 +119,9 @@ const PresentationMenu = (props) => {
     layoutContextDispatch,
     meetingName,
     isIphone,
-    isRTL
+    isRTL,
+    isToolbarVisible,
+    setIsToolbarVisible,
   } = props;
 
   const [state, setState] = useState({
@@ -114,6 +136,11 @@ const PresentationMenu = (props) => {
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
+  );
+  
+  const formattedVisibilityLabel = (visible) => (visible
+    ? intl.formatMessage(intlMessages.hideToolsDesc)
+    : intl.formatMessage(intlMessages.showToolsDesc)
   );
 
   function renderToastContent() {
@@ -152,6 +179,7 @@ const PresentationMenu = (props) => {
           key: 'list-item-fullscreen',
           dataTest: 'presentationFullscreen',
           label: formattedLabel(isFullscreen),
+          icon: isFullscreen ? 'exit_fullscreen' : 'fullscreen',
           onClick: () => {
             handleToggleFullscreen(fullscreenRef);
             const newElement = (elementId === currentElement) ? '' : elementId;
@@ -176,7 +204,8 @@ const PresentationMenu = (props) => {
         {
           key: 'list-item-screenshot',
           label: intl.formatMessage(intlMessages.snapshotLabel),
-          dataTest: "presentationSnapshot",
+          dataTest: 'presentationSnapshot',
+          icon: 'video',
           onClick: async () => {
             setState({
               loading: true,
@@ -192,6 +221,13 @@ const PresentationMenu = (props) => {
                 toastId.current = null;
               },
             });
+
+            // This is a workaround to a conflict of the
+            // dark mode's styles and the html-to-image lib.
+            // Issue:
+            //  https://github.com/bubkoo/html-to-image/issues/370
+            const darkThemeState = AppService.isDarkThemeEnabled();
+            AppService.setDarkTheme(false);
 
             try {
               const { copySvg, getShapes, currentPageId } = tldrawAPI;
@@ -226,7 +262,25 @@ const PresentationMenu = (props) => {
                 logCode: 'presentation_snapshot_error',
                 extraInfo: e,
               });
+            } finally {
+              // Workaround
+              AppService.setDarkTheme(darkThemeState);
             }
+          },
+        },
+      );
+    }
+    
+    const tools = document.querySelector('#TD-Tools');
+    if (tools && (props.hasWBAccess || props.amIPresenter)){
+      menuItems.push(
+        {
+          key: 'list-item-toolvisibility',
+          dataTest: 'toolVisibility',
+          label: formattedVisibilityLabel(isToolbarVisible),
+          icon: isToolbarVisible ? 'close' : 'pen_tool',
+          onClick: () => {
+            setIsToolbarVisible(!isToolbarVisible);
           },
         },
       );
@@ -260,40 +314,44 @@ const PresentationMenu = (props) => {
   if (options.length === 0) {
     const undoCtrls = document.getElementById('TD-Styles')?.nextSibling;
     if (undoCtrls?.style) {
-      undoCtrls.style = "padding:0px";
+      undoCtrls.style = 'padding:0px';
     }
-    return null
-  };
+    const styleTool = document.getElementById('TD-Styles')?.parentNode;
+    if (styleTool?.style) {
+      styleTool.style = 'right:0px';
+    }
+    return null;
+  }
 
   return (
-    <Styled.Right>
-      <BBBMenu 
-        trigger={
+    <Styled.Right id='WhiteboardOptionButton'>
+      <BBBMenu
+        trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
             <Styled.DropdownButton
               state={isDropdownOpen ? 'open' : 'closed'}
               aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
               data-test="whiteboardOptionsButton"
               onClick={() => {
-                setIsDropdownOpen((isOpen) => !isOpen)
+                setIsDropdownOpen((isOpen) => !isOpen);
               }}
-              >
-                <Styled.ButtonIcon iconName="more" />
+            >
+              <Styled.ButtonIcon iconName="more" />
             </Styled.DropdownButton>
           </TooltipContainer>
-        }
+        )}
         opts={{
-          id: "presentation-dropdown-menu",
+          id: 'presentation-dropdown-menu',
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
           getContentAnchorEl: null,
-          fullwidth: "true",
+          fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          container: fullscreenRef
+          container: fullscreenRef,
         }}
-        actions={getAvailableOptions()}
+        actions={options}
       />
     </Styled.Right>
   );

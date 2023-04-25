@@ -64,9 +64,12 @@ const Select = ({
   locale,
   voices,
 }) => {
+  const useLocaleHook = SpeechService.useFixedLocale();
+  if (!enabled || useLocaleHook) return null;
+
   if (voices.length === 0) {
     return (
-      <div
+      <div  data-test="speechRecognition"
         style={{
           fontSize: '.75rem',
           padding: '1rem 0',
@@ -76,8 +79,6 @@ const Select = ({
       </div>
     );
   }
-
-  if (!enabled || SpeechService.useFixedLocale()) return null;
 
   const onChange = (e) => {
     const { value } = e.target;

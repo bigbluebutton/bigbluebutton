@@ -2,11 +2,12 @@ import { check } from 'meteor/check';
 
 import removeUser from '../modifiers/removeUser';
 
-export default function handleRemoveUser({ body }, meetingId) {
+export default async function handleRemoveUser({ body }, meetingId) {
   const { intId } = body;
 
   check(meetingId, String);
   check(intId, String);
 
-  return removeUser(body, meetingId);
+  const result = await removeUser(body, meetingId);
+  return result;
 }

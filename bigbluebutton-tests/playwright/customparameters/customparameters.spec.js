@@ -67,6 +67,30 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.autoSwapLayout();
   });
 
+  test('Hide Actions Bar', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.hideActionsBar });
+    await customParam.hideActionsBarTest();
+  });
+
+  test('Override Default Locale', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.overrideDefaultLocale });
+    await customParam.overrideDefaultLocaleTest();
+  });
+
+  test('Hide NavBar', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.hideNavBar });
+    await customParam.hideNavBarTest();
+  });
+
+  test('Preferred Camera Profile', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { customParameter: c.preferredCameraProfile });
+    await customParam.preferredCameraProfileTest();
+  });
+
   test.describe.parallel('Audio', () => {
     test('Auto join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
@@ -115,12 +139,6 @@ test.describe.parallel('CustomParameters', () => {
   })
 
   test.describe.parallel('Presentation', () => {
-    test('Disable screensharing', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.enableScreensharing });
-      await customParam.disableScreensharing();
-    });
-
     test('Hide Presentation', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentation) });
@@ -188,6 +206,104 @@ test.describe.parallel('CustomParameters', () => {
       await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.multiUserTools) });
       await customParam.initUserPage(true, context, { useModMeetingId: true, customParameter: encodeCustomParams(c.multiUserTools) });
       await customParam.multiUserTools();
+    });
+  });
+
+  test.describe.parallel('Disabled Features', () => {
+    test('Breakout Rooms', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.breakoutRooms });
+      await customParam.breakoutRooms();
+    });
+
+    test('Live Transcription', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, false, { customParameter: c.liveTranscription });
+      await customParam.liveTranscription();
+    });
+
+    test('Captions', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.captions });
+      await customParam.captions();
+    });
+
+    test('Chat', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.chat });
+      await customParam.chat();
+    });
+
+    test('External Videos', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.externalVideos });
+      await customParam.externalVideos();
+    });
+
+    test('Layouts', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.layouts });
+      await customParam.layouts();
+    });
+
+    test('Learning Dashboard', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.learningDashboard });
+      await customParam.learningDashboard();
+    });
+
+    test('Polls', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.polls });
+      await customParam.polls();
+    });
+
+    test('Screenshare', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.screenshare });
+      await customParam.screenshare();
+    });
+
+    test('Shared Notes', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.sharedNotes });
+      await customParam.sharedNotes();
+    });
+
+    test('Virtual Backgrounds', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.virtualBackgrounds });
+      await customParam.virtualBackgrounds();
+    });
+
+    test('Download Presentation With Annotations', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.downloadPresentationWithAnnotations });
+      await customParam.downloadPresentationWithAnnotations();
+    });
+
+    test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.importPresentationWithAnnotationsFromBreakoutRooms });
+      await customParam.importPresentationWithAnnotationsFromBreakoutRooms();
+    });
+
+    test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRooms });
+      await customParam.importSharedNotesFromBreakoutRooms();
+    });
+
+    test('Presentation', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.presentation });
+      await customParam.presentation();
+    });
+
+    test('Custom Virtual Background', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { customParameter: c.customVirtualBackground });
+      await customParam.customVirtualBackground();
     });
   });
 });

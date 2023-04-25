@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { defineMessages, injectIntl } from 'react-intl';
-import Modal from 'react-modal';
+import ReactModal from 'react-modal';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -13,7 +13,6 @@ import BreakoutRoomInvitation from '/imports/ui/components/breakout-room/invitat
 import { Meteor } from 'meteor/meteor';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
-import ModalContainer from '/imports/ui/components/common/modal/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
@@ -40,7 +39,6 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
-import DarkReader from 'darkreader';
 import Settings from '/imports/ui/services/settings';
 import { registerTitleView } from '/imports/utils/dom-utils';
 import Notifications from '../notifications/container';
@@ -50,6 +48,7 @@ import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
+import AppService from '/imports/ui/components/app/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -135,10 +134,16 @@ class App extends Component {
     super(props);
     this.state = {
       enableResize: !window.matchMedia(MOBILE_MEDIA).matches,
+      isAudioModalOpen: false,
+      isRandomUserSelectModalOpen: false,
+      isVideoPreviewModalOpen: false,
     };
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
+    this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
+    this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
+    this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
 
     this.throttledDeviceType = throttle(() => this.setDeviceType(),
       50, { trailing: true, leading: true }).bind(this);
@@ -162,7 +167,7 @@ class App extends Component {
       value: isRTL,
     });
 
-    Modal.setAppElement('#app');
+    ReactModal.setAppElement('#app');
 
     const fontSize = isMobile() ? MOBILE_FONT_SIZE : DESKTOP_FONT_SIZE;
     document.getElementsByTagName('html')[0].style.fontSize = fontSize;
@@ -220,7 +225,6 @@ class App extends Component {
       notify,
       currentUserEmoji,
       intl,
-      mountModal,
       deviceType,
       mountRandomUserModal,
       selectedLayout,
@@ -232,7 +236,7 @@ class App extends Component {
 
     this.renderDarkMode();
 
-    if (mountRandomUserModal) mountModal(<RandomUserSelectContainer />);
+    if (mountRandomUserModal) this.setRandomUserSelectModalIsOpen(true);
 
     if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
@@ -446,12 +450,7 @@ class App extends Component {
   renderDarkMode() {
     const { darkTheme } = this.props;
 
-    return darkTheme
-      ? DarkReader.enable(
-        { brightness: 100, contrast: 90 },
-        { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss] },
-      )
-      : DarkReader.disable();
+    AppService.setDarkTheme(darkTheme);
   }
 
   mountPushLayoutEngine() {
@@ -478,6 +477,7 @@ class App extends Component {
       pushLayoutMeeting,
       selectedLayout,
       setMeetingLayout,
+      setPushLayout,
       shouldShowScreenshare,
       shouldShowExternalVideo,
     } = this.props;
@@ -507,11 +507,26 @@ class App extends Component {
           pushLayoutMeeting,
           selectedLayout,
           setMeetingLayout,
+          setPushLayout,
           shouldShowScreenshare,
-          shouldShowExternalVideo,
+          shouldShowExternalVideo: !!shouldShowExternalVideo,
         }}
       />
     );
+  }
+
+  setAudioModalIsOpen(value) {
+    this.setState({isAudioModalOpen: value});
+  }
+  
+  setVideoPreviewModalIsOpen(value) {
+    this.setState({isVideoPreviewModalOpen: value});
+  }
+
+  setRandomUserSelectModalIsOpen(value) {
+    const {setMountRandomUserModal} = this.props;
+    this.setState({isRandomUserSelectModalOpen: value});
+    setMountRandomUserModal(false);
   }
 
   render() {
@@ -527,8 +542,10 @@ class App extends Component {
       isPresenter,
       selectedLayout,
       presentationIsOpen,
+      darkTheme,
     } = this.props;
 
+    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
     return (
       <>
         <Notifications />
@@ -548,24 +565,36 @@ class App extends Component {
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
-          <SidebarContentContainer />
+          <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
           <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
-          {shouldShowPresentation ? <PresentationAreaContainer presentationIsOpen={presentationIsOpen} /> : null}
+          <Styled.TextMeasure id="text-measure" />
+          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes ? <NotesContainer area="media" layoutType={selectedLayout} /> : null}
+          {shouldShowSharedNotes 
+            ? (
+              <NotesContainer
+                area="media"
+                layoutType={selectedLayout}
+              />
+            ) : null}
           {this.renderCaptions()}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
           <UploaderContainer />
           <CaptionsSpeechContainer />
           <BreakoutRoomInvitation />
-          <AudioContainer />
+          <AudioContainer {...{
+            isAudioModalOpen,
+            setAudioModalIsOpen: this.setAudioModalIsOpen,
+            isVideoPreviewModalOpen,
+            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
+          }} />
           <ToastContainer rtl />
           {(audioAlertEnabled || pushAlertEnabled)
             && (
@@ -577,11 +606,18 @@ class App extends Component {
           <StatusNotifier status="raiseHand" />
           <ManyWebcamsNotifier />
           <PollingContainer />
-          <ModalContainer />
           <PadsSessionsContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
+          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer 
+            {...{
+              onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
+              priority: "low",
+              setIsOpen: this.setRandomUserSelectModalIsOpen,
+              isOpen: isRandomUserSelectModalOpen,
+            }}
+          /> : null}
         </Styled.Layout>
       </>
     );

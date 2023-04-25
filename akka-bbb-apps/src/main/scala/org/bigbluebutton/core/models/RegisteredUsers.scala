@@ -5,7 +5,7 @@ import org.bigbluebutton.core.domain.BreakoutRoom2x
 
 object RegisteredUsers {
   def create(userId: String, extId: String, name: String, roles: String,
-             token: String, avatar: String, guest: Boolean, authenticated: Boolean,
+             token: String, avatar: String, color: String, guest: Boolean, authenticated: Boolean,
              guestStatus: String, excludeFromDashboard: Boolean, loggedOut: Boolean): RegisteredUser = {
     new RegisteredUser(
       userId,
@@ -14,6 +14,7 @@ object RegisteredUsers {
       roles,
       token,
       avatar,
+      color,
       guest,
       authenticated,
       guestStatus,
@@ -70,6 +71,10 @@ object RegisteredUsers {
 
   def numUniqueJoinedUsers(regUsers: RegisteredUsers): Int = {
     regUsers.toVector.filter(_.joined).map(_.externId).distinct.length
+  }
+
+  def numRegisteredUsers(regUsers: RegisteredUsers): Int = {
+    regUsers.toVector.size
   }
 
   def add(users: RegisteredUsers, user: RegisteredUser): Vector[RegisteredUser] = {
@@ -187,6 +192,7 @@ case class RegisteredUser(
     role:                     String,
     authToken:                String,
     avatarURL:                String,
+    color:                    String,
     guest:                    Boolean,
     authed:                   Boolean,
     guestStatus:              String,

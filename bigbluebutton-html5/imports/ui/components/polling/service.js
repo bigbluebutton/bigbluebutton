@@ -1,6 +1,6 @@
 import { makeCall } from '/imports/ui/services/api';
 import Polls from '/imports/api/polls';
-import { debounce } from 'lodash';
+import { debounce } from 'radash';
 
 const MAX_CHAR_LENGTH = 5;
 
@@ -43,8 +43,8 @@ const mapPolls = () => {
     },
     pollExists: true,
     amIRequester,
-    handleVote: debounce(handleVote, 500, { leading: true, trailing: false }),
-    handleTypedVote: debounce(handleTypedVote, 500, { leading: true, trailing: false }),
+    handleVote: debounce({ delay: 500 }, handleVote),
+    handleTypedVote: debounce({ delay: 500 }, handleTypedVote),
   };
 };
 

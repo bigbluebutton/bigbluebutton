@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
   colorGrayDark,
   colorWhite,
@@ -10,7 +10,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 
-const ReaderMenuModal = styled(Modal)`
+const ReaderMenuModal = styled(ModalSimple)`
   padding: 1rem;
 `;
 

@@ -1,9 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
-import _ from 'lodash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { getDateString } from '/imports/utils/string-utils';
+import { getDateString, uniqueId } from '/imports/utils/string-utils';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 
 import ChatService from '../service';
@@ -44,9 +42,9 @@ class ChatDropdown extends PureComponent {
     super(props);
 
     this.actionsKey = [
-      _.uniqueId('action-item-'),
-      _.uniqueId('action-item-'),
-      _.uniqueId('action-item-'),
+      uniqueId('action-item-'),
+      uniqueId('action-item-'),
+      uniqueId('action-item-'),
     ];
   }
 
@@ -160,4 +158,4 @@ class ChatDropdown extends PureComponent {
   }
 }
 
-export default withModalMounter(injectIntl(ChatDropdown));
+export default injectIntl(ChatDropdown);

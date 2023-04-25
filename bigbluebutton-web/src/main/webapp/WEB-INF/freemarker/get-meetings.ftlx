@@ -32,7 +32,7 @@
         <listenerCount>${meeting.getNumListenOnly()}</listenerCount>
         <voiceParticipantCount>${meeting.getNumVoiceJoined()}</voiceParticipantCount>
         <videoCount>${meeting.getNumVideos()}</videoCount>
-        <maxUsers>${meeting.getMaxUsers()}</maxUsers>
+        <maxUsers>${meeting.getMaxUsers()?c}</maxUsers>
         <moderatorCount>${meeting.getNumModerators()}</moderatorCount>
         <attendees>
         <#list meetingDetail.meeting.getUsers() as att>

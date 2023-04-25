@@ -12,7 +12,8 @@ class Audio extends Page {
     const { autoJoinAudioModal, listenOnlyCallTimeout } = this.settings;
     if (!autoJoinAudioModal) await this.waitAndClick(e.joinAudio);
     await this.waitAndClick(e.listenOnlyButton);
-    await this.wasRemoved(e.establishingAudioLabel);
+    await this.waitForSelector(e.establishingAudioLabel);
+    await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.waitForSelector(e.leaveListenOnly, listenOnlyCallTimeout);
     await this.waitAndClick(e.audioDropdownMenu);
     await this.hasElement(e.leaveAudio);
@@ -62,7 +63,7 @@ class Audio extends Page {
     await this.hasElement(e.unmuteMicButton);
   }
 
-  async muteYourselfBytalkingIndicator() {
+  async muteYourselfByTalkingIndicator() {
     await connectMicrophone(this);
     await this.waitAndClick(e.talkingIndicator);
     await this.hasElement(e.wasTalking);

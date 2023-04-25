@@ -15,8 +15,7 @@ class Draw extends Page {
 
     const shapes1 = await this.getOuterHtmlDrawn();
 
-    const wb = await this.page.$(e.whiteboard);
-    const wbBox = await wb.boundingBox();
+    const wbBox = await this.getElementBoundingBox(e.whiteboard);
     await this.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.page.mouse.down();
     await this.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);

@@ -5,7 +5,7 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   this: UsersApp =>
@@ -20,6 +20,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
     var failReason = "Invalid auth token."
     var failReasonCode = EjectReasonCode.VALIDATE_TOKEN
 
+    log.info("Number of registered users [{}]", RegisteredUsers.numRegisteredUsers(liveMeeting.registeredUsers))
     val regUser = RegisteredUsers.getRegisteredUserWithToken(msg.body.authToken, msg.body.userId,
       liveMeeting.registeredUsers)
     regUser match {
@@ -129,7 +130,7 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
   def sendAllVoiceUsersInMeeting(requesterId: String, voiceUsers: VoiceUsers, meetingId: String): Unit = {
     val vu = VoiceUsers.findAll(voiceUsers).map { u =>
       VoiceConfUser(intId = u.intId, voiceUserId = u.voiceUserId, callingWith = u.callingWith, callerName = u.callerName,
-        callerNum = u.callerNum, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
+        callerNum = u.callerNum, color = u.color, muted = u.muted, talking = u.talking, listenOnly = u.listenOnly)
     }
 
     val event = MsgBuilder.buildGetVoiceUsersMeetingRespMsg(meetingId, requesterId, vu)

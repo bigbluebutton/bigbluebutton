@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import logger from '/imports/startup/client/logger';
 import PropTypes from 'prop-types';
 import AudioService from '../audio/service';
@@ -49,7 +48,6 @@ const propTypes = {
   intl: PropTypes.object.isRequired,
   breakout: PropTypes.objectOf(Object).isRequired,
   getURL: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
   breakoutURL: PropTypes.string.isRequired,
   isFreeJoin: PropTypes.bool.isRequired,
   voiceUserJoined: PropTypes.bool.isRequired,
@@ -97,7 +95,7 @@ class BreakoutJoinConfirmation extends Component {
   handleJoinBreakoutConfirmation() {
     const {
       getURL,
-      mountModal,
+      setIsOpen,
       breakoutURL,
       isFreeJoin,
       voiceUserJoined,
@@ -133,7 +131,7 @@ class BreakoutJoinConfirmation extends Component {
 
     Session.set('lastBreakoutIdOpened', selectValue);
     window.open(url);
-    mountModal(null);
+    setIsOpen(false);
   }
 
   async fetchJoinURL(selectValue) {
@@ -186,6 +184,7 @@ class BreakoutJoinConfirmation extends Component {
           {
             breakouts.map(({ name, breakoutId }) => (
               <option
+                data-test="roomOption"
                 key={breakoutId}
                 value={breakoutId}
               >
@@ -200,11 +199,13 @@ class BreakoutJoinConfirmation extends Component {
   }
 
   render() {
-    const { intl, breakoutName, isFreeJoin } = this.props;
+    const { intl, breakoutName, isFreeJoin, setIsOpen,
+      isOpen, priority,
+    } = this.props;
     const { waiting } = this.state;
 
     return (
-      <Modal
+      <ModalFullscreen
         title={intl.formatMessage(intlMessages.title)}
         confirm={{
           callback: this.handleJoinBreakoutConfirmation,
@@ -214,16 +215,22 @@ class BreakoutJoinConfirmation extends Component {
           disabled: waiting,
         }}
         dismiss={{
+          callback: () => setIsOpen(false),
           label: intl.formatMessage(intlMessages.dismissLabel),
           description: intl.formatMessage(intlMessages.dismissDesc),
         }}
+        {...{ 
+          setIsOpen,
+          isOpen,
+          priority,
+        }}
       >
         { isFreeJoin ? this.renderSelectMeeting() : `${intl.formatMessage(intlMessages.message)} ${breakoutName}?`}
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }
 
-export default withModalMounter(injectIntl(BreakoutJoinConfirmation));
+export default injectIntl(BreakoutJoinConfirmation);
 
 BreakoutJoinConfirmation.propTypes = propTypes;

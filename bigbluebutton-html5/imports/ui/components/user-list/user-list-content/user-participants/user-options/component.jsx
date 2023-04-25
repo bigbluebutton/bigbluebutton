@@ -1,18 +1,17 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
-import BreakoutRoom from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import CaptionsService from '/imports/ui/components/captions/service';
-import CaptionsWriterMenu from '/imports/ui/components/captions/writer-menu/container';
+import WriterMenuContainer from '/imports/ui/components/captions/writer-menu/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import Settings from '/imports/ui/services/settings';
 import { isBreakoutRoomsEnabled, isLearningDashboardEnabled } from '/imports/ui/services/features';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -22,7 +21,6 @@ const propTypes = {
   toggleMuteAllUsers: PropTypes.func.isRequired,
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
   users: PropTypes.arrayOf(Object).isRequired,
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
@@ -134,15 +132,22 @@ class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.clearStatusId = _.uniqueId('list-item-');
-    this.muteId = _.uniqueId('list-item-');
-    this.muteAllId = _.uniqueId('list-item-');
-    this.lockId = _.uniqueId('list-item-');
-    this.guestPolicyId = _.uniqueId('list-item-');
-    this.createBreakoutId = _.uniqueId('list-item-');
-    this.learningDashboardId = _.uniqueId('list-item-');
-    this.saveUsersNameId = _.uniqueId('list-item-');
-    this.captionsId = _.uniqueId('list-item-');
+    this.clearStatusId = uniqueId('list-item-');
+    this.muteId = uniqueId('list-item-');
+    this.muteAllId = uniqueId('list-item-');
+    this.lockId = uniqueId('list-item-');
+    this.guestPolicyId = uniqueId('list-item-');
+    this.createBreakoutId = uniqueId('list-item-');
+    this.learningDashboardId = uniqueId('list-item-');
+    this.saveUsersNameId = uniqueId('list-item-');
+    this.captionsId = uniqueId('list-item-');
+    this.state = {
+      isCreateBreakoutRoomModalOpen: false,
+      isGuestPolicyModalOpen: false,
+      isInvitation: false,
+      isWriterMenuModalOpen: false,
+      isLockViewersModalOpen: false,
+    }
 
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
     this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
@@ -150,6 +155,10 @@ class UserOptions extends PureComponent {
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
     this.onSaveUserNames = this.onSaveUserNames.bind(this);
+    this.setCreateBreakoutRoomModalIsOpen = this.setCreateBreakoutRoomModalIsOpen.bind(this);
+    this.setGuestPolicyModalIsOpen = this.setGuestPolicyModalIsOpen.bind(this);
+    this.setWriterMenuModalIsOpen = this.setWriterMenuModalIsOpen.bind(this);
+    this.setLockViewersModalIsOpen = this.setLockViewersModalIsOpen.bind(this);
   }
 
   onSaveUserNames() {
@@ -181,31 +190,18 @@ class UserOptions extends PureComponent {
   }
 
   handleCreateBreakoutRoomClick(isInvitation) {
-    const {
-      mountModal,
-      isBreakoutRecordable,
-    } = this.props;
-
-    return mountModal(
-      <BreakoutRoom
-        {...{
-          isBreakoutRecordable,
-          isInvitation,
-        }}
-      />,
-    );
+    this.setState({isInvitation})
+    return this.setCreateBreakoutRoomModalIsOpen(true);
   }
 
   handleCaptionsClick() {
-    const { mountModal } = this.props;
-    mountModal(<CaptionsWriterMenu />);
+    this.setWriterMenuModalIsOpen(true);
   }
 
   renderMenuItems() {
     const {
       intl,
       isMeetingMuted,
-      mountModal,
       toggleStatus,
       toggleMuteAllUsers,
       toggleMuteAllUsersExceptPresenter,
@@ -213,7 +209,6 @@ class UserOptions extends PureComponent {
       hasBreakoutRoom,
       openLearningDashboardUrl,
       amIModerator,
-      users,
       isMeteorConnected,
       dynamicGuestPolicy,
     } = this.props;
@@ -235,6 +230,7 @@ class UserOptions extends PureComponent {
           description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
           onClick: toggleMuteAllUsers,
           icon: isMeetingMuted ? 'unmute' : 'mute',
+          dataTest: 'muteAll',
         });
 
         if (!isMeetingMuted) {
@@ -244,6 +240,7 @@ class UserOptions extends PureComponent {
             description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
             onClick: toggleMuteAllUsersExceptPresenter,
             icon: 'mute',
+            dataTest: 'muteAllExceptPresenter',
           });
         }
 
@@ -251,7 +248,7 @@ class UserOptions extends PureComponent {
           key: this.lockId,
           label: intl.formatMessage(intlMessages.lockViewersLabel),
           description: intl.formatMessage(intlMessages.lockViewersDesc),
-          onClick: () => mountModal(<LockViewersContainer />),
+          onClick: () => this.setLockViewersModalIsOpen(true),
           icon: 'lock',
           dataTest: 'lockViewersButton',
         });
@@ -262,7 +259,7 @@ class UserOptions extends PureComponent {
             icon: 'user',
             label: intl.formatMessage(intlMessages.guestPolicyLabel),
             description: intl.formatMessage(intlMessages.guestPolicyDesc),
-            onClick: () => mountModal(<GuestPolicyContainer />),
+            onClick: () => this.setGuestPolicyModalIsOpen(true),
             dataTest: 'guestPolicyLabel',
           });
         }
@@ -306,6 +303,7 @@ class UserOptions extends PureComponent {
           description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
           onClick: this.handleCaptionsClick,
+          dataTest: 'writeClosedCaptions',
         });
       }
       if (amIModerator) {
@@ -318,6 +316,7 @@ class UserOptions extends PureComponent {
             key: this.learningDashboardId,
             onClick: () => { openLearningDashboardUrl(locale); },
             dividerTop: true,
+            dataTest: 'learningDashboard'
           });
         }
       }
@@ -326,38 +325,83 @@ class UserOptions extends PureComponent {
     return this.menuItems;
   }
 
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    return isOpen ? <Component 
+      {...{
+        ...otherOptions,
+        onRequestClose: () => setIsOpen(false),
+        priority,
+        setIsOpen,
+        isOpen
+      }}
+    /> : null
+  }
+
+  setCreateBreakoutRoomModalIsOpen(value) {
+    this.setState({
+      isCreateBreakoutRoomModalOpen: value,
+    })
+  }
+  
+  setGuestPolicyModalIsOpen(value) {
+    this.setState({
+      isGuestPolicyModalOpen: value,
+    })
+  }
+
+  setWriterMenuModalIsOpen(value) {
+    this.setState({isWriterMenuModalOpen: value});
+  }
+  
+  setLockViewersModalIsOpen(value) {
+    this.setState({isLockViewersModalOpen: value});
+  }
+
   render() {
-    const { intl, isRTL } = this.props;
+    const { intl, isRTL, isBreakoutRecordable } = this.props;
+    const { isCreateBreakoutRoomModalOpen, isInvitation,
+            isGuestPolicyModalOpen, isWriterMenuModalOpen,
+            isLockViewersModalOpen } = this.state;
 
     return (
-      <BBBMenu
-        trigger={(
-          <Styled.OptionsButton
-            label={intl.formatMessage(intlMessages.optionsLabel)}
-            data-test="manageUsers"
-            icon="settings"
-            color="light"
-            hideLabel
-            size="md"
-            circle
-            onClick={() => null}
-          />
-        )}
-        actions={this.renderMenuItems()}
-        opts={{
-          id: "user-options-dropdown-menu",
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getContentAnchorEl: null,
-          fullwidth: "true",
-          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-        }}
-      />
+      <>
+        <BBBMenu
+          trigger={(
+            <Styled.OptionsButton
+              label={intl.formatMessage(intlMessages.optionsLabel)}
+              data-test="manageUsers"
+              icon="settings"
+              color="light"
+              hideLabel
+              size="md"
+              circle
+              onClick={() => null}
+            />
+          )}
+          actions={this.renderMenuItems()}
+          opts={{
+            id: "user-options-dropdown-menu",
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getContentAnchorEl: null,
+            fullwidth: "true",
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+          }}
+        />
+        {this.renderModal(isCreateBreakoutRoomModalOpen, this.setCreateBreakoutRoomModalIsOpen, "medium", 
+          CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation})}
+        {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low", 
+          GuestPolicyContainer)}
+        {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "low", 
+          WriterMenuContainer)}
+        {this.renderModal(isLockViewersModalOpen, this.setLockViewersModalIsOpen, "low", 
+          LockViewersContainer)}
+      </>
     );
   }
 }
 
 UserOptions.propTypes = propTypes;
-export default withModalMounter(injectIntl(UserOptions));
+export default injectIntl(UserOptions);

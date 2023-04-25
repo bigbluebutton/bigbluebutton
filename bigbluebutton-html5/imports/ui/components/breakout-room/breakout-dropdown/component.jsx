@@ -1,8 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import BBBMenu from "/imports/ui/components/common/menu/component";
-import CreateBreakoutRoomModal from '/imports/ui/components/actions-bar/create-breakout-room/container';
+import CreateBreakoutRoomContainer from '/imports/ui/components/actions-bar/create-breakout-room/container';
 import Trigger from "/imports/ui/components/common/control-header/right/component";
 
 const intlMessages = defineMessages({
@@ -27,6 +26,11 @@ const intlMessages = defineMessages({
 class BreakoutDropdown extends PureComponent {
   constructor(props) {
     super(props);
+
+    this.state = {
+      isCreateBreakoutRoomModalOpen: false,
+    };
+    this.setCreateBreakoutRoomModalIsOpen = this.setCreateBreakoutRoomModalIsOpen.bind(this);
   }
 
   getAvailableActions() {
@@ -36,7 +40,6 @@ class BreakoutDropdown extends PureComponent {
       endAllBreakouts,
       isMeteorConnected,
       amIModerator,
-      mountModal,
     } = this.props;
 
     this.menuItems = [];
@@ -58,9 +61,7 @@ class BreakoutDropdown extends PureComponent {
         dataTest: 'openUpdateBreakoutUsersModal',
         label: intl.formatMessage(intlMessages.manageUsers),
         onClick: () => {
-          mountModal(
-            <CreateBreakoutRoomModal isUpdate />
-          );
+          this.setCreateBreakoutRoomModalIsOpen(true);
         }
       }
     );
@@ -82,12 +83,19 @@ class BreakoutDropdown extends PureComponent {
     return this.menuItems;
   }
 
+  setCreateBreakoutRoomModalIsOpen(value) {
+    this.setState({
+      isCreateBreakoutRoomModalOpen: value,
+    });
+  }
+
   render() {
     const {
       intl,
       isRTL,
     } = this.props;
 
+    const { isCreateBreakoutRoomModalOpen } = this.state;
     return (
       <>
         <BBBMenu
@@ -112,9 +120,18 @@ class BreakoutDropdown extends PureComponent {
           }}
           actions={this.getAvailableActions()}
         />
+        {isCreateBreakoutRoomModalOpen ? <CreateBreakoutRoomContainer 
+          {...{
+            isUpdate: true,
+            onRequestClose: () => this.setCreateBreakoutRoomModalIsOpen(false),
+            priority: "low",
+            setIsOpen: this.setCreateBreakoutRoomModalIsOpen,
+            isOpen: isCreateBreakoutRoomModalOpen
+          }}
+        /> : null}
       </>
     );
   }
 }
 
-export default withModalMounter(injectIntl(BreakoutDropdown));
+export default injectIntl(BreakoutDropdown);

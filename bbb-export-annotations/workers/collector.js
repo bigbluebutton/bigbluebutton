@@ -8,6 +8,7 @@ const redis = require('redis');
 const sanitize = require('sanitize-filename');
 const stream = require('stream');
 const WorkerStarter = require('../lib/utils/worker-starter');
+const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
 const {workerData} = require('worker_threads');
 const {promisify} = require('util');
 
@@ -55,29 +56,7 @@ async function collectAnnotationsFromRedis() {
   const pdfFile = `${presFile}.pdf`;
 
   // Message to display conversion progress toast
-  const statusUpdate = {
-    envelope: {
-      name: config.log.msgName,
-      routing: {
-        sender: exportJob.module,
-      },
-      timestamp: (new Date()).getTime(),
-    },
-    core: {
-      header: {
-        name: config.log.msgName,
-        meetingId: exportJob.parentMeetingId,
-        userId: '',
-      },
-      body: {
-        presId: exportJob.presId,
-        pageNumber: 1,
-        totalPages: pages.length,
-        status: 'COLLECTING',
-        error: false,
-      },
-    },
-  };
+  const statusUpdate = new PresAnnStatusMsg(exportJob);
 
   if (fs.existsSync(pdfFile)) {
     for (const p of pages) {
@@ -103,35 +82,32 @@ async function collectAnnotationsFromRedis() {
       try {
         cp.spawnSync(config.shared.pdftocairo, extract_png_from_pdf, {shell: false});
       } catch (error) {
-        const error_reason = `PDFtoCairo failed extracting slide ${pageNumber}`;
-        logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
-        statusUpdate.core.body.status = error_reason;
-        statusUpdate.core.body.error = true;
+        logger.error(`PDFtoCairo failed extracting slide ${pageNumber} in job ${jobId}: ${error.message}`);
+        statusUpdate.setError();
       }
 
-      statusUpdate.core.body.pageNumber = pageNumber;
-      statusUpdate.envelope.timestamp = (new Date()).getTime();
-      await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
-      statusUpdate.core.body.error = false;
+      await client.publish(config.redis.channels.publish, statusUpdate.build(pageNumber));
     }
-  // If PNG file already available
-  } else if (fs.existsSync(`${presFile}.png`)) {
-    fs.copyFileSync(`${presFile}.png`, path.join(dropbox, 'slide1.png'));
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
-  // If JPEG file available
-  } else if (fs.existsSync(`${presFile}.jpeg`)) {
-    fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
   } else {
-    statusUpdate.core.body.error = true;
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
-    client.disconnect();
-    return logger.error(`Presentation file missing for job ${exportJob.jobId}`);
+    if (fs.existsSync(`${presFile}.png`)) {
+      // PNG file available
+      fs.copyFileSync(`${presFile}.png`, path.join(dropbox, 'slide1.png'));
+    } else if (fs.existsSync(`${presFile}.jpeg`)) {
+      // JPEG file available
+      fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
+      await client.publish(config.redis.channels.publish, statusUpdate.build());
+    } else {
+      await client.publish(config.redis.channels.publish, statusUpdate.build());
+      client.disconnect();
+      return logger.error(`No PDF, PNG or JPEG file available for job ${jobId}`);
+    }
+
+    await client.publish(config.redis.channels.publish, statusUpdate.build());
   }
 
   client.disconnect();
 
-  const process = new WorkerStarter({jobId, statusUpdate});
+  const process = new WorkerStarter({jobId});
   process.process();
 }
 

@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, createRef } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { defineMessages, injectIntl } from 'react-intl';
 import { Session } from 'meteor/session';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
@@ -8,7 +7,6 @@ import DraggableTextArea from '/imports/ui/components/poll/dragAndDrop/component
 import LiveResult from '/imports/ui/components/poll/live-result/component';
 import Styled from './styles';
 import Toggle from '/imports/ui/components/common/switch/component';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import { addNewAlert } from '../screenreader-alert/service';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -249,6 +247,8 @@ class Poll extends Component {
       type: null,
     };
 
+    this.textarea = createRef();
+
     this.handleBackClick = this.handleBackClick.bind(this);
     this.handleAddOption = this.handleAddOption.bind(this);
     this.handleRemoveOption = this.handleRemoveOption.bind(this);
@@ -261,11 +261,9 @@ class Poll extends Component {
   }
 
   componentDidMount() {
-    const { props } = this.hideBtn;
-    const { className } = props;
-    const hideBtn = document.getElementsByClassName(`${className}`);
-  
-    if (hideBtn[0]) hideBtn[0].focus();
+    if (this.textarea.current) {
+      this.textarea.current.focus();
+    }
   }
 
   componentDidUpdate() {
@@ -538,8 +536,9 @@ class Poll extends Component {
               type="text"
               value={o.val}
               placeholder={
-                `${i < MAX_CUSTOM_FIELDS ? `${intl.formatMessage(POLL_OPTIONS_PLACEHOLDERS[i].val)}. ` : ''}
-                ${intl.formatMessage(intlMessages.customPlaceholder)}`
+                `${i < MAX_CUSTOM_FIELDS && POLL_OPTIONS_PLACEHOLDERS[i] 
+                  ? intl.formatMessage(POLL_OPTIONS_PLACEHOLDERS[i].val)
+                  : intl.formatMessage(intlMessages.customPlaceholder)}`
               }
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
@@ -658,7 +657,7 @@ class Poll extends Component {
                 secretPoll,
                 question,
                 isMultipleResponse,
-                _.compact(verifiedOptions),
+                verifiedOptions.filter(Boolean),
               );
             } else {
               startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
@@ -682,11 +681,12 @@ class Poll extends Component {
                 onChange={this.toggleIsMultipleResponse}
                 checked={isMultipleResponse}
                 ariaLabelledBy="multipleResponseCheckboxLabel"
+                label={intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
               />
             </Styled.PollCheckbox>
-            <Styled.InstructionsLabel id="multipleResponseCheckboxLabel">
+            <div id="multipleResponseCheckboxLabel" hidden>
               {intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
-            </Styled.InstructionsLabel>
+            </div>
           </div>
         )}
         {defaultPoll && this.renderInputs()}
@@ -806,6 +806,7 @@ class Poll extends Component {
           {...{ MAX_INPUT_CHARS }}
           handlePollValuesText={(e) => this.handlePollValuesText(e)}
           as={customInput ? DraggableTextArea : 'textarea'}
+          ref={this.textarea}
         />
         {hasQuestionError || hasOptionError ? (
           <Styled.InputError>{error}</Styled.InputError>
@@ -835,6 +836,7 @@ class Poll extends Component {
             small={!smallSidebar}
             label={intl.formatMessage(intlMessages.tf)}
             aria-describedby="poll-config-button"
+            data-test="pollTrueFalse"
             color="default"
             onClick={() => {
               this.setState({
@@ -998,7 +1000,6 @@ class Poll extends Component {
                 value: PANELS.NONE,
               });
             },
-            ref: (node) => { this.hideBtn = node; },
           }}
           rightButtonProps={{
             'aria-label': `${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`,
@@ -1029,7 +1030,7 @@ class Poll extends Component {
   }
 }
 
-export default withModalMounter(injectIntl(Poll));
+export default injectIntl(Poll);
 
 Poll.propTypes = {
   intl: PropTypes.shape({

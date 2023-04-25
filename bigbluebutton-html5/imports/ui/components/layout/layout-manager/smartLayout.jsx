@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -34,11 +36,12 @@ const SmartLayout = (props) => {
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
   useEffect(() => {
@@ -69,7 +72,7 @@ const SmartLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
             sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
@@ -106,7 +109,7 @@ const SmartLayout = (props) => {
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
@@ -166,7 +169,7 @@ const SmartLayout = (props) => {
       return baseBounds;
     }
 
-    const { camerasMargin, presentationToolbarMinWidth } = DEFAULT_VALUES;
+    const { camerasMargin, presentationToolbarMinWidth, navBarHeight } = DEFAULT_VALUES;
 
     const cameraDockBounds = {};
 
@@ -176,12 +179,13 @@ const SmartLayout = (props) => {
       ? mediaBounds.width
       : presentationToolbarMinWidth;
 
-    cameraDockBounds.top = mediaAreaBounds.top;
+    cameraDockBounds.top = navBarHeight;
     cameraDockBounds.left = mediaAreaBounds.left;
     cameraDockBounds.right = isRTL ? sidebarSize + (camerasMargin * 2) : null;
     cameraDockBounds.zIndex = 1;
 
     if (mediaBounds.width < mediaAreaBounds.width) {
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.width = mediaAreaBounds.width - mediaBoundsWidth;
       cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
       cameraDockBounds.height = mediaAreaBounds.height;
@@ -258,14 +262,18 @@ const SmartLayout = (props) => {
   }
 
   const calculatesMediaBounds = (mediaAreaBounds, slideSize, sidebarSize, screenShareSize) => {
-    const { isOpen, currentSlide } = presentationInput;
+    const { isOpen, slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
     const { hasScreenShare } = screenShareInput;
+    const { isPinned: isSharedNotesPinned } = sharedNotesInput;
+  
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const { num: currentSlideNumber } = currentSlide;
 
-    if (!isOpen || (currentSlideNumber === 0 && !hasExternalVideo && !hasScreenShare)) {
+    if (!isOpen || isGeneralMediaOff) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;

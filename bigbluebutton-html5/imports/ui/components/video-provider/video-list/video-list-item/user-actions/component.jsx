@@ -51,7 +51,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL
+    isVideoSqueezed, videoContainer, isRTL,
   } = props;
 
   const intl = useIntl();
@@ -90,6 +90,7 @@ const UserActions = (props) => {
       label: intl.formatMessage(intlMessages.mirrorLabel),
       description: intl.formatMessage(intlMessages.mirrorDesc),
       onClick: () => onHandleMirror(),
+      dataTest: 'mirrorWebcamBtn',
     });
 
     if (numOfStreams > 2) {
@@ -98,6 +99,7 @@ const UserActions = (props) => {
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus(cameraId),
+        dataTest: 'FocusWebcamBtn',
       });
     }
 
@@ -107,6 +109,7 @@ const UserActions = (props) => {
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Desc`]),
         onClick: () => VideoService.toggleVideoPin(userId, pinned),
+        dataTest: 'pinWebcamBtn',
       });
     }
 
@@ -119,6 +122,7 @@ const UserActions = (props) => {
         trigger={(
           <Styled.OptionsButton
             label={intl.formatMessage(intlMessages.squeezedLabel)}
+            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
             data-test="webcamOptionsMenuSqueezed"
             icon="device_list_selector"
             ghost

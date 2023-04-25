@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
 
-export default function changeLockSettings(meetingId, payload) {
+export default async function changeLockSettings(meetingId, payload) {
   check(meetingId, String);
   check(payload, {
     disableCam: Boolean,
@@ -11,7 +11,6 @@ export default function changeLockSettings(meetingId, payload) {
     disablePubChat: Boolean,
     disableNotes: Boolean,
     hideUserList: Boolean,
-    lockedLayout: Boolean,
     lockOnJoin: Boolean,
     lockOnJoinConfigurable: Boolean,
     hideViewersCursor: Boolean,
@@ -26,7 +25,6 @@ export default function changeLockSettings(meetingId, payload) {
     disablePubChat,
     disableNotes,
     hideUserList,
-    lockedLayout,
     lockOnJoin,
     lockOnJoinConfigurable,
     hideViewersCursor,
@@ -47,7 +45,6 @@ export default function changeLockSettings(meetingId, payload) {
         disablePublicChat: disablePubChat,
         disableNotes,
         hideUserList,
-        lockedLayout,
         lockOnJoin,
         lockOnJoinConfigurable,
         hideViewersCursor,
@@ -57,9 +54,8 @@ export default function changeLockSettings(meetingId, payload) {
     },
   };
 
-
   try {
-    const { numberAffected } = Meetings.upsert(selector, modifier);
+    const { numberAffected } = Meetings.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed meeting={${meetingId}} updated lock settings`);

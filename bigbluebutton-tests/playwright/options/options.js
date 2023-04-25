@@ -117,6 +117,37 @@ class Options extends Page {
     await this.waitAndClick(e.modalConfirmButton);
     await this.backgroundColorTest(e.presentationToolbarWrapper, 'rgb(39, 42, 42)');
   }
+
+  async fontSizeTest() {
+    // Increasing font size
+    await openSettings(this);
+    await this.waitAndClick(e.increaseFontSize);
+    await this.waitAndClick(e.modalConfirmButton);
+
+    await this.fontSizeCheck(e.chatButton, '16px');//text + icon
+    await this.fontSizeCheck(e.chatWelcomeMessageText, '16px');
+    await this.fontSizeCheck(e.chatMessages, '16px');
+    await this.fontSizeCheck(e.sharedNotes, '14px');
+    await this.fontSizeCheck(e.userslist, '16px');
+    await this.fontSizeCheck(e.currentUser, '16px');
+    await this.fontSizeCheck(e.actionsBarBackground, '16px');
+    await this.fontSizeCheck(e.navbarBackground, '24px');
+    
+    // Decreasing font size
+    await openSettings(this);
+    await this.waitAndClick(e.decreaseFontSize);
+    await this.waitAndClick(e.decreaseFontSize);
+    await this.waitAndClick(e.modalConfirmButton);
+
+    await this.fontSizeCheck(e.chatButton, '12px');
+    await this.fontSizeCheck(e.chatWelcomeMessageText, '12px');
+    await this.fontSizeCheck(e.chatMessages, '12px')
+    await this.fontSizeCheck(e.sharedNotes, '10.5px');
+    await this.fontSizeCheck(e.userslist, '12px');
+    await this.fontSizeCheck(e.currentUser, '12px');
+    await this.fontSizeCheck(e.actionsBarBackground, '12px');
+    await this.fontSizeCheck(e.navbarBackground, '18px');
+  }
 }
 
 exports.Options = Options;

@@ -3,7 +3,6 @@ const { Create } = require('./create');
 const { Join } = require('./join');
 
 test.describe.parallel('Breakout', () => {
-
   test.describe.parallel('Creating', () => {
     test('Create Breakout room @ci', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
@@ -39,7 +38,7 @@ test.describe.parallel('Breakout', () => {
       const create = new Create(browser, context);
       await create.initPages(page);
       await create.dragDropUserInRoom();
-    });    
+    });
   });
 
   test.describe.parallel('After creating', () => {
@@ -119,6 +118,27 @@ test.describe.parallel('Breakout', () => {
       await join.initPages(page);
       await join.create();
       await join.moveUserToOtherRoom();
+    });
+
+    test('Export breakout room shared notes', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.create(true); // capture breakout notes
+      await join.exportBreakoutNotes();
+    });
+
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.create(false, true); // capture breakout whiteboard
+      await join.exportBreakoutWhiteboard();
+    });
+
+    test('User can choose a room', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.createToAllowChooseOwnRoom();
+      await join.userCanChooseRoom();
     });
   });
 });

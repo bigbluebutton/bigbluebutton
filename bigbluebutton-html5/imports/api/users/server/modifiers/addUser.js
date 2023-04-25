@@ -4,18 +4,12 @@ import Users from '/imports/api/users';
 import Meetings from '/imports/api/meetings';
 import VoiceUsers from '/imports/api/voice-users/';
 import addUserPsersistentData from '/imports/api/users-persistent-data/server/modifiers/addUserPersistentData';
-import stringHash from 'string-hash';
 import flat from 'flat';
+import { lowercaseTrim } from '/imports/utils/string-utils';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 
-const COLOR_LIST = [
-  '#7b1fa2', '#6a1b9a', '#4a148c', '#5e35b1', '#512da8', '#4527a0',
-  '#311b92', '#3949ab', '#303f9f', '#283593', '#1a237e', '#1976d2', '#1565c0',
-  '#0d47a1', '#0277bd', '#01579b',
-];
-
-export default function addUser(meetingId, userData) {
+export default async function addUser(meetingId, userData) {
   const user = userData;
 
   check(meetingId, String);
@@ -33,6 +27,7 @@ export default function addUser(meetingId, userData) {
     presenter: Boolean,
     locked: Boolean,
     avatar: String,
+    color: String,
     pin: Boolean,
     clientType: String,
   });
@@ -43,16 +38,11 @@ export default function addUser(meetingId, userData) {
     meetingId,
     userId,
   };
-  const Meeting = Meetings.findOne({ meetingId });
-
-  /* While the akka-apps dont generate a color we just pick one
-    from a list based on the userId */
-  const color = COLOR_LIST[stringHash(user.intId) % COLOR_LIST.length];
+  const Meeting = await Meetings.findOneAsync({ meetingId });
 
   const userInfos = {
     meetingId,
-    sortName: user.name.trim().toLowerCase(),
-    color,
+    sortName: lowercaseTrim(user.name),
     speechLocale: '',
     mobile: false,
     breakoutProps: {
@@ -70,15 +60,17 @@ export default function addUser(meetingId, userData) {
   const modifier = {
     $set: userInfos,
   };
-  addUserPsersistentData(userInfos);
+  await addUserPsersistentData(userInfos);
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
-  if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
-    addVoiceUser(meetingId, {
+  const voiceUser = await VoiceUsers.findOneAsync({ meetingId, intId: userId });
+  if (user.clientType !== 'dial-in-user' && !voiceUser) {
+    await addVoiceUser(meetingId, {
       voiceUserId: '',
       intId: userId,
       callerName: user.name,
       callerNum: '',
+      color: user.color,
       muted: false,
       talking: false,
       callingWith: '',
@@ -93,14 +85,14 @@ export default function addUser(meetingId, userData) {
    * In some cases the user information is set after the presenter is set
    * causing the first moderator to join a meeting be marked as presenter: false
    */
-  const partialUser = Users.findOne(selector);
+  const partialUser = await Users.findOneAsync(selector);
 
   if (partialUser?.presenter) {
     modifier.$set.presenter = true;
   }
 
   try {
-    const { insertedId } = Users.upsert(selector, modifier);
+    const { insertedId } = await Users.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added user id=${userId} meeting=${meetingId}`);

@@ -10,14 +10,16 @@ const sanitize = require('sanitize-filename');
 const {getStrokePoints, getStrokeOutlinePoints} = require('perfect-freehand');
 const probe = require('probe-image-size');
 const redis = require('redis');
+const {PresAnnStatusMsg} = require('../lib/utils/message-builder');
 
-const [jobId, statusUpdate] = [workerData.jobId, workerData.statusUpdate];
-
+const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
 logger.info('Processing PDF for job ' + jobId);
-statusUpdate.core.body.status = 'PROCESSING';
 
 const dropbox = path.join(config.shared.presAnnDropboxDir, jobId);
+const job = fs.readFileSync(path.join(dropbox, 'job'));
+const exportJob = JSON.parse(job);
+const statusUpdate = new PresAnnStatusMsg(exportJob, PresAnnStatusMsg.EXPORT_STATUSES.PROCESSING);
 
 // General utilities for rendering SVGs resembling Tldraw as much as possible
 function align_to_pango(alignment) {
@@ -103,7 +105,7 @@ function determine_font_from_family(family) {
 }
 
 function rad_to_degree(angle) {
-  return angle * (180 / Math.PI);
+  return angle * (180 / Math.PI) || 0;
 }
 
 // Convert pixels to points
@@ -121,7 +123,6 @@ function to_px(pt) {
 function escapeText(string) {
   return string
       .replace(/[~`!.*+?%^${}()|[\]\\/]/g, '\\$&')
-      .replace(/-/g, '\\&#x2D;')
       .replace(/&/g, '\\&amp;')
       .replace(/'/g, '\\&#39;')
       .replace(/"/g, '\\&quot;')
@@ -157,10 +158,8 @@ function render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxW
   try {
     cp.spawnSync(config.shared.imagemagick, commands, {shell: false});
   } catch (error) {
-    const error_reason = 'ImageMagick failed to render textbox';
-    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
-    statusUpdate.core.body.status = error_reason;
-    statusUpdate.core.body.error = true;
+    logger.error(`ImageMagick failed to render textbox in job ${jobId}: ${error.message}`);
+    statusUpdate.setError();
   }
 }
 
@@ -596,7 +595,7 @@ function overlay_shape_label(svg, annotation) {
   const fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
   const textAlign = 'center';
   const text = annotation.label;
-  const id = annotation.id;
+  const id = sanitize(annotation.id);
   const rotation = rad_to_degree(annotation.rotation);
 
   const [shape_width, shape_height] = annotation.size;
@@ -609,24 +608,33 @@ function overlay_shape_label(svg, annotation) {
   const label_center_y = shape_y + shape_height * y_offset;
 
   render_textbox(fontColor, font, fontSize, textAlign, text, id);
-
   const shape_label = path.join(dropbox, `text${id}.png`);
 
   if (fs.existsSync(shape_label)) {
-    const dimensions = probe.sync(fs.readFileSync(shape_label));
-    const labelWidth = dimensions.width / config.process.textScaleFactor;
-    const labelHeight = dimensions.height / config.process.textScaleFactor;
+    // Poll results must fit inside shape, unlike other rectangle labels.
+    // Linewrapping handled by client.
+    const ref = `file://${dropbox}/text${id}.png`;
+    const transform = `rotate(${rotation} ${label_center_x} ${label_center_y})`
+    const fitLabelToShape = annotation?.name?.startsWith('poll-result');
 
+    let labelWidth = shape_width;
+    let labelHeight = shape_height;
+
+    if (!fitLabelToShape) {
+      const dimensions = probe.sync(fs.readFileSync(shape_label));
+      labelWidth = dimensions.width / config.process.textScaleFactor;
+      labelHeight = dimensions.height / config.process.textScaleFactor;
+    }    
     svg.ele('g', {
-      transform: `rotate(${rotation} ${label_center_x} ${label_center_y})`,
+      transform: transform,
     }).ele('image', {
       'x': label_center_x - (labelWidth * x_offset),
       'y': label_center_y - (labelHeight * y_offset),
       'width': labelWidth,
       'height': labelHeight,
-      'xlink:href': `file://${dropbox}/text${id}.png`,
-    }).up();
-  }
+      'xlink:href': ref,
+      }).up();
+    }
 }
 
 function overlay_sticky(svg, annotation) {
@@ -641,7 +649,7 @@ function overlay_sticky(svg, annotation) {
 
   const textColor = '#0d0d0d'; // For sticky notes
   const text = annotation.text;
-  const id = annotation.id;
+  const id = sanitize(annotation.id);
 
   render_textbox(textColor, font, fontSize, textAlign, text, id, textBoxWidth);
 
@@ -701,7 +709,7 @@ function overlay_text(svg, annotation) {
   const fontSize = text_size_to_px(annotation.style.size, annotation.style.scale);
   const textAlign = align_to_pango(annotation.style.textAlign);
   const text = annotation.text;
-  const id = annotation.id;
+  const id = sanitize(annotation.id);
 
   const rotation = rad_to_degree(annotation.rotation);
   const [textBox_x, textBox_y] = annotation.point;
@@ -787,17 +795,13 @@ async function process_presentation_annotations() {
 
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  // 1. Get the job
-  const job = fs.readFileSync(path.join(dropbox, 'job'));
-  const exportJob = JSON.parse(job);
-
-  // 2. Get the annotations
+  // Get the annotations
   const annotations = fs.readFileSync(path.join(dropbox, 'whiteboard'));
   const whiteboard = JSON.parse(annotations);
   const pages = JSON.parse(whiteboard.pages);
   const ghostScriptInput = [];
 
-  // 3. Convert annotations to SVG
+  // Convert annotations to SVG
   for (const currentSlide of pages) {
     const bgImagePath = path.join(dropbox, `slide${currentSlide.page}`);
     const svgBackgroundSlide = path.join(exportJob.presLocation,
@@ -805,11 +809,6 @@ async function process_presentation_annotations() {
     const svgBackgroundExists = fs.existsSync(svgBackgroundSlide);
     const backgroundFormat = fs.existsSync(`${bgImagePath}.png`) ? 'png' : 'jpeg';
 
-    // Output dimensions in pixels even if stated otherwise (pt)
-    // CairoSVG didn't like attempts to read the dimensions from a stream
-    // that would prevent loading file in memory
-    // Ideally, use dimensions provided by tldraw's background image asset
-    // (this is not yet always provided)
     const dimensions = svgBackgroundExists ?
     probe.sync(fs.readFileSync(svgBackgroundSlide)) :
     probe.sync(fs.readFileSync(`${bgImagePath}.${backgroundFormat}`));
@@ -817,13 +816,20 @@ async function process_presentation_annotations() {
     const slideWidth = parseInt(dimensions.width, 10);
     const slideHeight = parseInt(dimensions.height, 10);
 
+    const maxImageWidth = config.process.maxImageWidth;
+    const maxImageHeight = config.process.maxImageHeight;
+  
+    const ratio = Math.min(maxImageWidth / slideWidth, maxImageHeight / slideHeight);
+    const scaledWidth = slideWidth * ratio;
+    const scaledHeight = slideHeight * ratio;
+
     // Create the SVG slide with the background image
     let svg = create({version: '1.0', encoding: 'UTF-8'})
         .ele('svg', {
           'xmlns': 'http://www.w3.org/2000/svg',
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-          'width': `${slideWidth}px`,
-          'height': `${slideHeight}px`,
+          'width': `${scaledWidth}px`,
+          'height': `${scaledHeight}px`,
         })
         .dtd({
           pubID: '-//W3C//DTD SVG 1.1//EN',
@@ -831,8 +837,8 @@ async function process_presentation_annotations() {
         })
         .ele('image', {
           'xlink:href': `file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-          'width': `${slideWidth}px`,
-          'height': `${slideHeight}px`,
+          'width': `${scaledWidth}px`,
+          'height': `${scaledHeight}px`,
         })
         .up()
         .ele('g', {
@@ -854,14 +860,7 @@ async function process_presentation_annotations() {
       }
     });
 
-    // Dimensions converted to a pixel size which,
-    // when converted to points, will yield the desired
-    // dimension in pixels when read without conversion
-
-    // e.g. say the background SVG dimensions are set to 1920x1080 pt
-    // Resize output to 2560x1440 px so that the SVG
-    // generates with the original size in pt.
-
+    // Scale slide back to its original size
     const convertAnnotatedSlide = [
       SVGfile,
       '--output-width', to_px(slideWidth),
@@ -873,15 +872,11 @@ async function process_presentation_annotations() {
       cp.spawnSync(config.shared.cairosvg, convertAnnotatedSlide, {shell: false});
     } catch (error) {
       logger.error(`Processing slide ${currentSlide.page} failed for job ${jobId}: ${error.message}`);
-      statusUpdate.core.body.error = true;
+      statusUpdate.setError();
     }
 
-    statusUpdate.core.body.pageNumber = currentSlide.page;
-    statusUpdate.envelope.timestamp = (new Date()).getTime();
-
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    await client.publish(config.redis.channels.publish, statusUpdate.build(currentSlide.page));
     ghostScriptInput.push(PDFfile);
-    statusUpdate.core.body.error = false;
   }
 
   // Create PDF output directory if it doesn't exist
@@ -903,11 +898,7 @@ async function process_presentation_annotations() {
   try {
     cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
   } catch (error) {
-    const error_reason = 'GhostScript failed to merge PDFs';
-    logger.error(`${error_reason} in job ${jobId}: ${error.message}`);
-    statusUpdate.core.body.status = error_reason;
-    statusUpdate.core.body.error = true;
-    await client.publish(config.redis.channels.publish, JSON.stringify(statusUpdate));
+    return logger.error(`GhostScript failed to merge PDFs in job ${jobId}: ${error.message}`);
   }
 
   // Launch Notifier Worker depending on job type

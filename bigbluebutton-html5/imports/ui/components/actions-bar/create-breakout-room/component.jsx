@@ -1,17 +1,18 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { range } from '/imports/utils/array-utils';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import { Session } from 'meteor/session';
-import Modal from '/imports/ui/components/common/modal/fullscreen/component';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
+import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import SortList from './sort-user-list/component';
 import Styled from './styles';
-import Icon from '/imports/ui/components/common/icon/component.jsx';
+import Icon from '/imports/ui/components/common/icon/component';
 import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
+import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -91,6 +92,14 @@ const intlMessages = defineMessages({
   captureSlidesLabel: {
     id: 'app.createBreakoutRoom.captureSlides',
     description: 'capture slides label',
+  },
+  captureNotesType: {
+    id: 'app.notes.label',
+    description: 'indicates notes have been captured',
+  },
+  captureSlidesType: {
+    id: 'app.shortcut-help.whiteboard',
+    description: 'indicates the whiteboard has been captured',
   },
   roomLabel: {
     id: 'app.createBreakoutRoom.room',
@@ -182,9 +191,15 @@ const propTypes = {
   getUsersNotJoined: PropTypes.func.isRequired,
   getBreakouts: PropTypes.func.isRequired,
   sendInvitation: PropTypes.func.isRequired,
-  mountModal: PropTypes.func.isRequired,
-  isBreakoutRecordable: PropTypes.bool.isRequired,
+  isBreakoutRecordable: PropTypes.bool,
 };
+
+const setPresentationVisibility = (state) => {
+  const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+  if (presentationInnerWrapper) {
+    presentationInnerWrapper.style.display = state;
+  }
+}
 
 class BreakoutRoom extends PureComponent {
   constructor(props) {
@@ -242,7 +257,7 @@ class BreakoutRoom extends PureComponent {
       breakoutJoinedUsers: null,
     };
 
-    this.btnLevelId = _.uniqueId('btn-set-level-');
+    this.btnLevelId = uniqueId('btn-set-level-');
 
     this.handleMoveEvent = this.handleMoveEvent.bind(this);
     this.handleShiftUser = this.handleShiftUser.bind(this);
@@ -251,7 +266,10 @@ class BreakoutRoom extends PureComponent {
   componentDidMount() {
     const {
       breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
+      allowUserChooseRoomByDefault, captureSharedNotesByDefault,
+      captureWhiteboardByDefault,
     } = this.props;
+    setPresentationVisibility('none');
     this.setRoomUsers();
     if (isUpdate) {
       const usersToMerge = []
@@ -276,6 +294,11 @@ class BreakoutRoom extends PureComponent {
         };
       });
     }
+    this.setState({
+      freeJoin: allowUserChooseRoomByDefault,
+      captureSlides: captureWhiteboardByDefault,
+      captureNotes: captureSharedNotesByDefault,
+    });
 
     const lastBreakouts = getLastBreakouts();
     if (lastBreakouts.length > 0) {
@@ -386,10 +409,10 @@ class BreakoutRoom extends PureComponent {
   }
 
   handleDismiss() {
-    const { mountModal } = this.props;
-
+    const { setIsOpen } = this.props;
+    setPresentationVisibility('block');
     return new Promise((resolve) => {
-      mountModal(null);
+      setIsOpen(false);
 
       this.setState({
         preventClosing: false,
@@ -398,6 +421,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   onCreateBreakouts() {
+    setPresentationVisibility('block');
     const {
       createBreakoutRoom,
     } = this.props;
@@ -427,13 +451,13 @@ class BreakoutRoom extends PureComponent {
       return;
     }
 
-    const duplicatedNames = _.range(1, numberOfRooms + 1).filter((n) => this.hasNameDuplicated(n));
+    const duplicatedNames = range(1, numberOfRooms + 1).filter((n) => this.hasNameDuplicated(n));
     if (duplicatedNames.length > 0) {
       this.setState({ roomNameDuplicatedIsValid: false });
       return;
     }
 
-    const emptyNames = _.range(1, numberOfRooms + 1)
+    const emptyNames = range(1, numberOfRooms + 1)
       .filter((n) => this.getRoomName(n).length === 0);
     if (emptyNames.length > 0) {
       this.setState({ roomNameEmptyIsValid: false });
@@ -442,9 +466,11 @@ class BreakoutRoom extends PureComponent {
 
     this.handleDismiss();
 
-    const rooms = _.range(1, numberOfRooms + 1).map((seq) => ({
+    const rooms = range(1, numberOfRooms + 1).map((seq) => ({
       users: this.getUserByRoom(seq).map((u) => u.userId),
       name: this.getFullName(seq),
+      captureNotesFilename: this.getCaptureFilename(seq, false),
+      captureSlidesFilename: this.getCaptureFilename(seq),
       shortName: this.getRoomName(seq),
       isDefaultName: !this.hasNameChanged(seq),
       freeJoin,
@@ -487,6 +513,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   onUpdateBreakouts() {
+    setPresentationVisibility('block');
     const { users } = this.state;
     const leastOneUserIsValid = users.some((user) => user.from !== user.room);
 
@@ -607,7 +634,7 @@ class BreakoutRoom extends PureComponent {
     return breakoutJoinedUsers.filter((room) => room.sequence === sequence)[0].joinedUsers || [];
   }
 
-  getRoomName(position) {
+  getRoomName(position, padWithZeroes = false) {
     const { intl } = this.props;
     const { roomNamesChanged } = this.state;
 
@@ -615,13 +642,31 @@ class BreakoutRoom extends PureComponent {
       return roomNamesChanged[position];
     }
 
-    return intl.formatMessage(intlMessages.breakoutRoom, { 0: position });
+    return intl.formatMessage(intlMessages.breakoutRoom, {
+      0: padWithZeroes ? `${position}`.padStart(2, '0') : position
+    });
   }
 
   getFullName(position) {
     const { meetingName } = this.props;
 
     return `${meetingName} (${this.getRoomName(position)})`;
+  }
+
+  getCaptureFilename(position, slides = true) {
+    const { intl } = this.props;
+    const presentations = PresentationUploaderService.getPresentations();
+
+    const captureType = slides
+      ? intl.formatMessage(intlMessages.captureSlidesType)
+      : intl.formatMessage(intlMessages.captureNotesType);
+
+    const fileName = `${this.getRoomName(position,true)}_${captureType}`.replace(/ /g, '_');
+
+    const fileNameDuplicatedCount = presentations.filter((pres) => pres.filename?.startsWith(fileName)
+            || pres.name?.startsWith(fileName)).length;
+
+    return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
   }
 
   resetUserWhenRoomsChange(rooms) {
@@ -715,7 +760,7 @@ class BreakoutRoom extends PureComponent {
   hasNameDuplicated(position) {
     const { numberOfRooms } = this.state;
     const currName = this.getRoomName(position).trim();
-    const equals = _.range(1, numberOfRooms + 1)
+    const equals = range(1, numberOfRooms + 1)
       .filter((n) => this.getRoomName(n).trim() === currName);
     if (equals.length > 1) return true;
 
@@ -723,8 +768,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   populateWithLastBreakouts(lastBreakouts) {
-    const { getBreakoutUserWasIn, intl } = this.props;
-    const { users } = this.state;
+    const { getBreakoutUserWasIn, users, intl } = this.props;
 
     const changedNames = [];
     lastBreakouts.forEach((breakout) => {
@@ -739,7 +783,7 @@ class BreakoutRoom extends PureComponent {
       roomNameDuplicatedIsValid: true,
       roomNameEmptyIsValid: true,
     }, () => {
-      const rooms = _.range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
+      const rooms = range(1, lastBreakouts.length + 1).map((seq) => this.getRoomName(seq));
 
       users.forEach((u) => {
         const lastUserBreakout = getBreakoutUserWasIn(u.userId, u.extId);
@@ -838,7 +882,7 @@ class BreakoutRoom extends PureComponent {
           </Styled.SpanWarn>
         </Styled.Alert>
         {
-          _.range(1, rooms + 1).map((value) => (
+          range(1, rooms + 1).map((value) => (
             <div key={`room-${value}`}>
               <Styled.FreeJoinLabel>
                 <Styled.RoomName
@@ -906,7 +950,7 @@ class BreakoutRoom extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.numberOfRooms)}
             >
               {
-                _.range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={_.uniqueId('value-')}>{item}</option>))
+                range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
               }
             </Styled.InputRooms>
           </div>
@@ -1271,7 +1315,7 @@ class BreakoutRoom extends PureComponent {
   }
 
   render() {
-    const { intl, isUpdate } = this.props;
+    const { intl, isUpdate, isOpen, priority, setIsOpen, } = this.props;
     const {
       preventClosing,
       leastOneUserIsValid,
@@ -1284,7 +1328,7 @@ class BreakoutRoom extends PureComponent {
     const { isMobile } = deviceInfo;
 
     return (
-      <Modal
+      <ModalFullscreen
         title={
           isUpdate
             ? intl.formatMessage(intlMessages.updateTitle)
@@ -1311,16 +1355,21 @@ class BreakoutRoom extends PureComponent {
             : intl.formatMessage(intlMessages.dismissLabel),
         }}
         preventClosing={preventClosing}
+        {...{
+          isOpen,
+          priority,
+          setIsOpen,
+        }}
       >
         <Styled.Content>
           {this.renderTitle()}
           {isMobile ? this.renderMobile() : this.renderDesktop()}
         </Styled.Content>
-      </Modal>
+      </ModalFullscreen>
     );
   }
 }
 
 BreakoutRoom.propTypes = propTypes;
 
-export default withModalMounter(injectIntl(BreakoutRoom));
+export default injectIntl(BreakoutRoom);

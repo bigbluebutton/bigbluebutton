@@ -161,7 +161,7 @@ class ZoomTool extends PureComponent {
     }
 
     const stateZoomPct = intl.formatNumber((stateZoomValue / 100), { style: 'percent' });
-    
+
     return (
       [
         (
@@ -179,6 +179,7 @@ class ZoomTool extends PureComponent {
               aria-describedby="zoomOutDescription"
               aria-label={zoomOutAriaLabel}
               label={intl.formatMessage(intlMessages.zoomOutLabel)}
+              data-test="zoomOutBtn"
               icon="substract"
               onClick={() => { }}
               disabled={(zoomValue <= minBound) || !isMeteorConnected}
@@ -198,6 +199,7 @@ class ZoomTool extends PureComponent {
               size="md"
               onClick={() => this.resetZoom()}
               label={intl.formatMessage(intlMessages.resetZoomLabel)}
+              data-test="resetZoomButton"
               hideLabel
             />
             <div id="resetZoomDescription" hidden>
@@ -235,7 +237,10 @@ class ZoomTool extends PureComponent {
 }
 
 const propTypes = {
-  intl: PropTypes.object.isRequired,
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+    formatNumber: PropTypes.func.isRequired,
+  }).isRequired,
   zoomValue: PropTypes.number.isRequired,
   change: PropTypes.func.isRequired,
   minBound: PropTypes.number.isRequired,

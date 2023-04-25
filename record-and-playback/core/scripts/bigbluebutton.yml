@@ -1,9 +1,11 @@
-bbb_version: '2.6.0'
+bbb_version: '2.6.1'
 raw_audio_src: /var/freeswitch/meetings
 kurento_video_src: /var/kurento/recordings
 kurento_screenshare_src: /var/kurento/screenshare
 mediasoup_video_src: /var/mediasoup/recordings
 mediasoup_screenshare_src: /var/mediasoup/screenshare
+webrtc_recorder_video_src: /var/lib/bbb-webrtc-recorder/recordings
+webrtc_recorder_screenshare_src: /var/lib/bbb-webrtc-recorder/screenshare
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://127.0.0.1:9002/p

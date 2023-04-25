@@ -28,9 +28,9 @@ $ npm test
 
 You can also run a single test suite and limit the execution to only one browser:
 ```bash
-$ npx playwright test chat --browser=firefox
+$ npx playwright test chat --project="firefox"
 or
-$ npm test chat -- --browser=firefox
+$ npm test chat -- --project="firefox" # or "chromium" for example
 ```
 #### Additional commands
 
@@ -48,6 +48,12 @@ _(note that this filter needs to be passed in "double quotes")_
 You can also use this also through the test tree, adding the test suite / group of tests before the test filter:
 ```bash
 $ npm run test:filter "notifications chat"
+```
+
+If you don't have `BBB_URL` and `BBB_SECRET` set, but have ssh access to the test server, you can use the following command to obtain `BBB_URL` and `BBB_SECRET` via ssh:
+
+```bash
+$ npm run test:ssh -- HOSTNAME
 ```
 
 #### Recording Meteor messages
@@ -92,3 +98,18 @@ sudo systemctl reload nginx
 Meteor messages for Big Blue Button sessions will now be recorded for later review.
 
 It doesn't seem necessary to relay cookies, but that could be done by giving a `--ws-relay-header=Cookie` argument to `websockify`.
+
+You can print the browser console log to standard output by setting the environment variable `CONSOLE`:
+```
+$ CONSOLE= npm test chat -- --project=firefox
+```
+
+`CONSOLE` can be blank (as in the example), or can be a comma-separated list of the following options:
+
+| Option | Meaning |
+| ------ | ------- |
+| color  | (or "colour") colorize the output |
+| label  | label each line with the BigBlueButton user |
+| norefs | remove JavaScript reference URLs |
+| nots   | remove timestamps |
+| nocl   | remove "clientLogger:" strings |

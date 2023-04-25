@@ -73,6 +73,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.paginationEnabledLabel',
     description: 'enable/disable video pagination',
   },
+  wbToolbarsAutoHideLabel: {
+    id: 'app.submenu.application.wbToolbarsAutoHideLabel',
+    description: 'enable/disable auto hiding of whitebord toolbars',
+  },
   layoutOptionLabel: {
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
@@ -283,7 +287,7 @@ class ApplicationMenu extends BaseMenu {
                 icons={false}
                 defaultChecked={this.state.audioFilterEnabled}
                 onChange={() => this.handleAudioFilterChange()}
-                ariaLabel={intl.formatMessage(intlMessages.audioFilterLabel)}
+                ariaLabel={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
                 showToggleLabel={showToggleLabel}
               />
             </Styled.FormElementRight>
@@ -319,7 +323,7 @@ class ApplicationMenu extends BaseMenu {
               icons={false}
               defaultChecked={settings.paginationEnabled}
               onChange={() => this.handleToggle('paginationEnabled')}
-              ariaLabel={intl.formatMessage(intlMessages.paginationEnabledLabel)}
+              ariaLabel={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
               showToggleLabel={showToggleLabel}
             />
           </Styled.FormElementRight>
@@ -353,6 +357,7 @@ class ApplicationMenu extends BaseMenu {
               defaultChecked={settings.darkTheme}
               onChange={() => this.handleToggle('darkTheme')}
               showToggleLabel={showToggleLabel}
+              ariaLabel={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
               data-test="darkModeToggleBtn"
             />
           </Styled.FormElementRight>
@@ -408,7 +413,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.animations}
                   onChange={() => this.handleToggle('animations')}
-                  ariaLabel={intl.formatMessage(intlMessages.animationsLabel)}
+                  ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
@@ -420,12 +425,32 @@ class ApplicationMenu extends BaseMenu {
           {this.renderDarkThemeToggle()}
 
           <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.whiteboardToolbarAutoHide)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.whiteboardToolbarAutoHide}
+                  onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
+          <Styled.Row>
             <Styled.Col>
               <Styled.FormElement>
-                <Styled.Label
-                  htmlFor="langSelector"
-                  aria-label={intl.formatMessage(intlMessages.languageLabel)}
-                >
+                <Styled.Label aria-hidden>
                   {intl.formatMessage(intlMessages.languageLabel)}
                 </Styled.Label>
               </Styled.FormElement>
@@ -439,6 +464,7 @@ class ApplicationMenu extends BaseMenu {
                       handleChange={(e) => this.handleSelectChange('locale', e)}
                       value={settings.locale}
                       elementId="langSelector"
+                      ariaLabel={intl.formatMessage(intlMessages.languageLabel)}
                       selectMessage={intl.formatMessage(intlMessages.languageOptionLabel)}
                     />
                   </Styled.LocalesDropdownSelect>
@@ -484,6 +510,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isSmallestFontSize}
+                      data-test="decreaseFontSize"
                     />
                   </Styled.Col>
                   <Styled.Col>
@@ -496,6 +523,7 @@ class ApplicationMenu extends BaseMenu {
                       label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
                       aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
                       disabled={isLargestFontSize}
+                      data-test="increaseFontSize"
                     />
                   </Styled.Col>
                 </Styled.PullContentRight>

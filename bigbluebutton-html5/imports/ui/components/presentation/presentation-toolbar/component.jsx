@@ -161,17 +161,21 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, currentSlideNum, numberOfSlides, podId,
+      nextSlide, currentSlideNum, numberOfSlides, podId, endCurrentPoll,
     } = this.props;
 
     if (event) event.currentTarget.blur();
+    endCurrentPoll();
     nextSlide(currentSlideNum, numberOfSlides, podId);
   }
 
   previousSlideHandler(event) {
-    const { previousSlide, currentSlideNum, podId } = this.props;
+    const {
+      previousSlide, currentSlideNum, podId, endCurrentPoll,
+    } = this.props;
 
     if (event) event.currentTarget.blur();
+    endCurrentPoll();
     previousSlide(currentSlideNum, podId);
   }
 
@@ -279,14 +283,12 @@ class PresentationToolbar extends PureComponent {
 
     const prevSlideAriaLabel = startOfSlides
       ? intl.formatMessage(intlMessages.previousSlideLabel)
-      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${
-        currentSlideNum <= 1 ? '' : currentSlideNum - 1
+      : `${intl.formatMessage(intlMessages.previousSlideLabel)} (${currentSlideNum <= 1 ? '' : currentSlideNum - 1
       })`;
 
     const nextSlideAriaLabel = endOfSlides
       ? intl.formatMessage(intlMessages.nextSlideLabel)
-      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${
-        currentSlideNum >= 1 ? currentSlideNum + 1 : ''
+      : `${intl.formatMessage(intlMessages.nextSlideLabel)} (${currentSlideNum >= 1 ? currentSlideNum + 1 : ''
       })`;
 
     let visionLabel = 'Whiteboard vision';
@@ -320,8 +322,8 @@ class PresentationToolbar extends PureComponent {
             role="button"
             aria-label={prevSlideAriaLabel}
             aria-describedby={
-                startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
-              }
+              startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
+            }
             disabled={startOfSlides || !isMeteorConnected || wbVision}
             color="light"
             circle
@@ -354,8 +356,8 @@ class PresentationToolbar extends PureComponent {
             role="button"
             aria-label={nextSlideAriaLabel}
             aria-describedby={
-                endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
-              }
+              endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
+            }
             disabled={endOfSlides || !isMeteorConnected || wbVision}
             color="light"
             circle
@@ -384,10 +386,10 @@ class PresentationToolbar extends PureComponent {
             data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
             role="button"
             aria-label={
-                multiUser
-                  ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-                  : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-              }
+              multiUser
+                ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
+                : intl.formatMessage(intlMessages.toolbarMultiUserOn)
+            }
             color="light"
             disabled={!isMeteorConnected}
             icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
@@ -395,10 +397,10 @@ class PresentationToolbar extends PureComponent {
             circle
             onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
             label={
-                multiUser
-                  ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
-                  : intl.formatMessage(intlMessages.toolbarMultiUserOn)
-              }
+              multiUser
+                ? intl.formatMessage(intlMessages.toolbarMultiUserOff)
+                : intl.formatMessage(intlMessages.toolbarMultiUserOn)
+            }
             hideLabel
           />
           {multiUser ? (
@@ -422,31 +424,17 @@ class PresentationToolbar extends PureComponent {
           ) : null}
           <Styled.FitToWidthButton
             role="button"
-            data-test="panButton"
-            aria-label={intl.formatMessage(intlMessages.pan)}
-            color="light"
-            disabled={(zoom <= HUNDRED_PERCENT && !fitToWidth)}
-            icon="hand"
-            size="md"
-            circle
-            onClick={setIsPanning}
-            label={intl.formatMessage(intlMessages.pan)}
-            hideLabel
-            panning={isPanning}
-          />
-          <Styled.FitToWidthButton
-            role="button"
             data-test="fitToWidthButton"
             aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
             aria-label={
-                fitToWidth
-                  ? `${intl.formatMessage(
-                    intlMessages.presentationLabel,
-                  )} ${intl.formatMessage(intlMessages.fitToPage)}`
-                  : `${intl.formatMessage(
-                    intlMessages.presentationLabel,
-                  )} ${intl.formatMessage(intlMessages.fitToWidth)}`
-              }
+              fitToWidth
+                ? `${intl.formatMessage(
+                  intlMessages.presentationLabel,
+                )} ${intl.formatMessage(intlMessages.fitToPage)}`
+                : `${intl.formatMessage(
+                  intlMessages.presentationLabel,
+                )} ${intl.formatMessage(intlMessages.fitToWidth)}`
+            }
             color="light"
             disabled={!isMeteorConnected}
             icon="fit_to_width"
@@ -487,6 +475,25 @@ PresentationToolbar.propTypes = {
   fullscreenAction: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  setIsPanning: PropTypes.func.isRequired,
+  multiUser: PropTypes.bool.isRequired,
+  whiteboardId: PropTypes.string.isRequired,
+  removeWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  addWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  fullscreenRef: PropTypes.instanceOf(Element),
+  handleToggleFullScreen: PropTypes.func.isRequired,
+  isPollingEnabled: PropTypes.bool.isRequired,
+  amIPresenter: PropTypes.bool.isRequired,
+  currentSlidHasContent: PropTypes.bool.isRequired,
+  parseCurrentSlideContent: PropTypes.func.isRequired,
+  startPoll: PropTypes.func.isRequired,
+  currentSlide: PropTypes.shape().isRequired,
+  slidePosition: PropTypes.shape().isRequired,
+  multiUserSize: PropTypes.number.isRequired,
+};
+
+PresentationToolbar.defaultProps = {
+  fullscreenRef: null,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

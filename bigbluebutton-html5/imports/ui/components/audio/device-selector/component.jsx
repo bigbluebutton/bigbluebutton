@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
@@ -7,6 +6,7 @@ import {
   defineMessages,
 } from 'react-intl';
 import Styled from './styles';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -87,7 +87,7 @@ class DeviceSelector extends Component {
       options: devices.map((d, i) => ({
         label: d.label || this.getFallbackLabel(i),
         value: d.deviceId,
-        key: _.uniqueId('device-option-'),
+        key: uniqueId('device-option-'),
       })),
     });
   }
@@ -129,13 +129,12 @@ class DeviceSelector extends Component {
     } = this.props;
 
     const { options } = this.state;
-    const { isSafari } = browserInfo;
 
     let notFoundOption;
 
     if (blocked) {
       notFoundOption = <option value="finding">{intl.formatMessage(intlMessages.findingDevicesLabel)}</option>;
-    } else if (kind === 'audiooutput' && isSafari) {
+    } else if (kind === 'audiooutput' && !('setSinkId' in HTMLMediaElement.prototype)) {
       const defaultOutputDeviceLabel = intl.formatMessage(intlMessages.defaultOutputDeviceLabel);
       notFoundOption = <option value="not-found">{defaultOutputDeviceLabel}</option>;
     } else {

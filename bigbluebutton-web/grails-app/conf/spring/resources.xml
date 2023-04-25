@@ -102,6 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="publishedDir" value="${publishedDir}"/>
         <property name="unpublishedDir" value="${unpublishedDir}"/>
         <property name="captionsDir" value="${captionsDir}"/>
+        <property name="allowFetchAllRecordings" value="${allowFetchAllRecordings}"/>
         <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
         <property name="xmlService" ref="xmlService" />
         <property name="presentationBaseDir" value="${presentationDir}"/>
@@ -114,13 +115,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
-
-    <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
-
-    <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
-        <property name="configDir" value="${configDir}"/>
-        <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
-    </bean>
 
     <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
         <property name="securitySalt" value="${securitySalt}"/>
@@ -152,11 +146,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultLogoURL" value="${defaultLogoURL}"/>
         <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
         <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
+        <property name="defaultHttpSessionTimeout" value="${defaultHttpSessionTimeout}"/>
         <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
-        <property name="learningDashboardEnabled" value="${learningDashboardEnabled:true}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
         <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
@@ -177,7 +172,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="muteOnStart" value="${muteOnStart}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
-        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled:true}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
@@ -186,12 +181,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
         <property name="lockSettingsDisableNotes" value="${lockSettingsDisableNotes}"/>
         <property name="lockSettingsHideUserList" value="${lockSettingsHideUserList}"/>
-        <property name="lockSettingsLockedLayout" value="${lockSettingsLockedLayout}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="lockSettingsHideViewersAnnotation" value="${lockSettingsHideViewersAnnotation}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid:true}"/>
+        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
         <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>

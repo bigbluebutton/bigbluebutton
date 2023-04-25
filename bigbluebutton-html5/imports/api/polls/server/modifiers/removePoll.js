@@ -2,7 +2,7 @@ import Polls from '/imports/api/polls';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default function removePoll(meetingId, id) {
+export default async function removePoll(meetingId, id) {
   check(meetingId, String);
   check(id, String);
 
@@ -12,7 +12,7 @@ export default function removePoll(meetingId, id) {
   };
 
   try {
-    const numberAffected = Polls.remove(selector);
+    const numberAffected = await Polls.removeAsync(selector);
 
     if (numberAffected) {
       Logger.info(`Removed Poll id=${id}`);
