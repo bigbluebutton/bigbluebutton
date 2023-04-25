@@ -13,7 +13,7 @@ case class UserDbModel(
     avatar:       String = "",
     color:        String = "",
     emoji:        String = "none",
-    emojiTime:    Option[java.sql.Timestamp],
+    //emojiTime:    Option[java.sql.Timestamp],
     guest:        Boolean,
     guestStatus:  String = "",
     mobile:       Boolean,
@@ -22,7 +22,8 @@ case class UserDbModel(
     role:         String,
     authed:       Boolean = false,
     joined:       Boolean = false,
-    leftFlag:     Boolean = false,
+    disconnected: Boolean = false,
+    expired:      Boolean = false,
 //    ejected:      Boolean = false, -- user is being removed when ejected, so this column is not useful
 //    ejectReason:  String = "",
     banned:       Boolean = false,
@@ -37,8 +38,8 @@ case class UserDbModel(
 
 class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   override def * = (
-    userId, extId, meetingId, name, avatar, color, emoji, emojiTime, guest, guestStatus, mobile, clientType, role, authed, joined,
-    leftFlag, banned, loggedOut, registeredOn, presenter, pinned, locked) <> (UserDbModel.tupled, UserDbModel.unapply)
+    userId, extId, meetingId, name, avatar, color, emoji, guest, guestStatus, mobile, clientType, role, authed, joined,
+    disconnected, expired, banned, loggedOut, registeredOn, presenter, pinned, locked) <> (UserDbModel.tupled, UserDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val extId = column[String]("extId")
   val meetingId = column[String]("meetingId")
@@ -46,7 +47,6 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val avatar = column[String]("avatar")
   val color = column[String]("color")
   val emoji = column[String]("emoji")
-  val emojiTime = column[Option[java.sql.Timestamp]]("emojiTime")
   val guest = column[Boolean]("guest")
   val guestStatus = column[String]("guestStatus")
   val mobile = column[Boolean]("mobile")
@@ -55,7 +55,8 @@ class UserDbTableDef(tag: Tag) extends Table[UserDbModel](tag, None, "user") {
   val role = column[String]("role")
   val authed = column[Boolean]("authed")
   val joined = column[Boolean]("joined")
-  val leftFlag = column[Boolean]("leftFlag")
+  val disconnected = column[Boolean]("disconnected")
+  val expired = column[Boolean]("expired")
 //  val ejected = column[Boolean]("ejected")   -- user is being removed when ejected, so this column is not useful
 //  val ejectReason = column[String]("ejectReason")
   val banned = column[Boolean]("banned")
@@ -83,7 +84,7 @@ object UserDAO {
           guestStatus = regUser.guestStatus,
           mobile = false,
           clientType = "",
-          emojiTime = None,
+//          emojiTime = None,
 //          excludeFromDashboard = regUser.excludeFromDashboard,
           role = regUser.role,
           authed = regUser.authed,
@@ -116,7 +117,7 @@ object UserDAO {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.pinned, u.locked, u.emoji, u.mobile, u.clientType, u.leftFlag))
+        .map(u => (u.presenter, u.pinned, u.locked, u.emoji, u.mobile, u.clientType, u.disconnected))
         .update((userState.presenter, userState.pin, userState.locked, userState.emoji, userState.mobile, userState.clientType, userState.userLeftFlag.left))
 //    "ejected" bool null
 //    "eject_reason" varchar (255)
@@ -126,28 +127,19 @@ object UserDAO {
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
     }
   }
-  def updateEmoji(userState: UserState) = {
+
+  def updateExpired(intId: String, expired: Boolean) = {
     DatabaseConnection.db.run(
       TableQuery[UserDbTableDef]
-        .filter(_.userId === userState.intId)
-        .map(u => (u.emoji, u.emojiTime))
-        .update((
-          userState.emoji match {
-            case "" => "none"
-            case emoji: String => emoji
-          },
-          userState.emoji match {
-            case "" => None
-            case "none" => None
-            case _ => Some(new java.sql.Timestamp(System.currentTimeMillis()))
-          },
-        ))
+        .filter(_.userId === intId)
+        .map(u => (u.expired))
+        .update((expired))
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user emoji table!")
-      case Failure(e) => DatabaseConnection.logger.error(s"Error updating user emoji: $e")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated loggedOut=true on user table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating loggedOut=true user: $e")
     }
   }
-
+  
   def delete(intId: String) = {
 //    DatabaseConnection.db.run(
 //      TableQuery[UserDbTableDef]
