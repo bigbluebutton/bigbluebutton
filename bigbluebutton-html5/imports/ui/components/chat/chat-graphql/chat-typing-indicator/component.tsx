@@ -2,7 +2,8 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { useSubscription } from '@apollo/client';
 import {
-  IS_TYPING_SUBSCRIPTION,
+  IS_TYPING_PUBLIC_SUBSCRIPTION,
+  IS_TYPING_PRIVATE_SUBSCRIPTION,
 } from '../queries';
 import { defineMessages, FormattedMessage, useIntl } from 'react-intl';
 import { User } from '/imports/ui/Types/user';
@@ -99,18 +100,22 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   );
 };
 
-const TypingIndicatorContainer: React.FC = ({ userId, isTypingTo, error }) => {
+const TypingIndicatorContainer: React.FC = ({ userId, isTypingTo, isPrivate, error }) => {
   const intl = useIntl();
 
   const {
     data: typingUsersData,
-  } = useSubscription(IS_TYPING_SUBSCRIPTION, {
+  } = useSubscription(isPrivate ? IS_TYPING_PRIVATE_SUBSCRIPTION : IS_TYPING_PUBLIC_SUBSCRIPTION, {
     variables: {
       chatId: isTypingTo,
     }
   });
 
-  const typingUsers = typingUsersData?.user_typing_public || [];
+  const publicTypingUsers = typingUsersData?.user_typing_public || [];
+  const privateTypingUsers = typingUsersData?.user_typing_private || [];
+
+  const typingUsers = privateTypingUsers.concat(publicTypingUsers);
+
   const typingUsersArray = typingUsers
     .filter(user => user?.userId !== userId)
     .map(user => user.user);

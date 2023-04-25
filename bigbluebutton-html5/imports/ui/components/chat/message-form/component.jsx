@@ -376,7 +376,8 @@ class MessageForm extends PureComponent {
         </Styled.Wrapper>
         <TypingIndicatorContainer
           {...{ idChatOpen, error }}
-          isTypingTo={idChatOpen === PUBLIC_CHAT_KEY ? PUBLIC_CHAT_GROUP_KEY : Auth.userID}
+          isPrivate={idChatOpen !== PUBLIC_CHAT_KEY}
+          isTypingTo={idChatOpen === PUBLIC_CHAT_KEY ? PUBLIC_CHAT_GROUP_KEY : idChatOpen}
           userId={Auth.userID}
         />
       </Styled.Form>
