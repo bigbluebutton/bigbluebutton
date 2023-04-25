@@ -35,6 +35,7 @@ const SMALL_WIDTH = 800;
 const SMALLEST_WIDTH = 645;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 38;
+const TOOLBAR_OFFSET = -8;
 
 export default function Whiteboard(props) {
   const {

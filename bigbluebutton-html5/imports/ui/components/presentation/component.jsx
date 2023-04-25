@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
-import WhiteboardToolbarContainer from '/imports/ui/components/whiteboard/whiteboard-toolbar/container';
 import Vision from '/imports/ui/components/whiteboard/vision';
 import Service from '/imports/ui/components/whiteboard/service';
 import { HUNDRED_PERCENT, MAX_PERCENT } from '/imports/utils/slideCalcUtils';

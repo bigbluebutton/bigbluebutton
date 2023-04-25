@@ -1,12 +1,8 @@
 import { withTracker } from "meteor/react-meteor-data";
 import Service from "./service";
-import Whiteboard from "./component";
 import React, { useContext } from "react";
-import { UsersContext } from "../components-data/users-context/context";
 import Auth from "/imports/ui/services/auth";
 import Meetings from '/imports/api/meetings';
-import PresentationToolbarService from '../presentation/presentation-toolbar/service';
-import { layoutSelect } from '../layout/context';
 import PropTypes from 'prop-types';
 import {
   ColorStyle,
@@ -30,7 +26,6 @@ import {
 } from './service';
 import Whiteboard from './component';
 import { UsersContext } from '../components-data/users-context/context';
-import Auth from '/imports/ui/services/auth';
 import PresentationToolbarService from '../presentation/presentation-toolbar/service';
 import { layoutSelect } from '../layout/context';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
@@ -101,6 +96,7 @@ export default withTracker(({
   podId,
   presentationId,
   darkTheme,
+  zoomChanger,
 }) => {
   const shapes = getShapes(whiteboardId, curPageId, intl);
   const curPres = getCurrentPres();

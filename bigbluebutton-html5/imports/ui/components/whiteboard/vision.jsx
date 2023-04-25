@@ -10,7 +10,7 @@ import {
     TDSnapshot,
     Tldraw,
     TldrawApp,
-  } from '@tldraw/tldraw';
+} from '@tldraw/tldraw';
 import { Utils } from "@tldraw/core";
 import GridLayout from "react-grid-layout";
 
@@ -21,7 +21,7 @@ import './override.css';
 function usePrevious(value) {
     const ref = React.useRef();
     React.useEffect(() => {
-      ref.current = value;
+        ref.current = value;
     }, [value]);
     return ref.current;
 }
@@ -64,28 +64,29 @@ export default function Vision(props) {
         let changed = false;
 
         if (next.pageStates[1] && !_.isEqual(prevShapes, shapes)) {
-          next.pages[1].shapes = shapes;
-          changed = true;
-        }
-
-        if (changed && api) {
-          // merge patch manually (this improves performance and reduce side effects on fast updates)
-          const patch = {
-            document: {
-              pages: {
-                [1]: { shapes: shapes }
-              },
-            },
-          };
-          const prevState = api._state;
-          const nextState = Utils.deepMerge(api._state, patch);
-          const final = api.cleanup(nextState, prevState, patch, '');
-          api._state = final;
-          api?.forceUpdate();
+            next.pages[1].shapes = shapes;
+            changed = true;
         }
 
         return currentDoc;
     }, [props.shapes]);
+
+    React.useEffect(() => {
+        if (api && !_.isEqual(prevShapes, shapes)) {
+            const patch = {
+                document: {
+                    pages: {
+                        [1]: { shapes: shapes }
+                    },
+                },
+            };
+            const prevState = api._state;
+            const nextState = Utils.deepMerge(api._state, patch);
+            const final = api.cleanup(nextState, prevState, patch, '');
+            api._state = final;
+            api?.forceUpdate();
+        }
+    }, [api, prevShapes, shapes]);
 
     return (
         <Tldraw
@@ -112,5 +113,5 @@ export default function Vision(props) {
             showMultiplayerMenu={false}
             readOnly={true}
         />
-  );
+    );
 }
