@@ -89,7 +89,7 @@ select_permissions:
         - isDialIn
         - isModerator
         - joined
-        - leftFlag
+        - disconnected
         - locked
         - loggedOut
         - meetingId

@@ -51,6 +51,7 @@ DROP FUNCTION IF EXISTS "update_pres_presentation_current_trigger_func";
 DROP FUNCTION IF EXISTS "update_pres_page_current_trigger_func";
 DROP FUNCTION IF EXISTS "pres_page_writers_update_delete_trigger_func";
 DROP FUNCTION IF EXISTS "update_user_hasDrawPermissionOnCurrentPage(varchar, varchar)";
+DROP FUNCTION IF EXISTS "update_user_emoji_time_trigger_func";
 
 -- ========== Meeting tables
 
@@ -215,11 +216,12 @@ CREATE TABLE "user" (
 	"role" varchar(20) NULL,
 	"authed" bool NULL,
 	"joined" bool NULL,
-	"leftFlag" bool NULL,
+	"disconnected" bool NULL, -- this is the old leftFlag (that was renamed), set when the user just closed the client
+	"expired" bool NULL, -- when it is been some time the user is disconnected
 --	"ejected" bool null,
 --	"ejectReason" varchar(255),
 	"banned" bool NULL,
-	"loggedOut" bool NULL,
+	"loggedOut" bool NULL,  -- when user clicked to exit or after some time he is expired
 	"registeredOn" bigint NULL,
 	"presenter" bool NULL,
 	"pinned" bool NULL,
@@ -235,6 +237,25 @@ COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dyn
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS (CASE WHEN "clientType" = 'dial-in-user' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
+
+-- user (on update emoji, set new emojiTime)
+CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."emoji" <> OLD."emoji" THEN
+        IF NEW."emoji" = 'none' or  NEW."emoji" = '' THEN
+            NEW."emojiTime" := NULL;
+        ELSE
+            NEW."emojiTime" := NOW();
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_emoji_time_trigger BEFORE UPDATE OF "emoji" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_emoji_time_trigger_func();
+
 
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
@@ -253,7 +274,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
-    "user"."leftFlag",
+    "user"."disconnected",
+    "user"."expired",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -262,12 +284,21 @@ AS SELECT "user"."userId",
     "user"."locked",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
-  AND "user".joined IS TRUE;
-CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+  AND "user"."expired" IS FALSE
+  AND "user"."joined" IS TRUE;
+
+CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
+                where "user"."loggedOut" IS FALSE
+                AND "user"."expired" IS FALSE
+                and "user"."joined" IS TRUE;
+
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") 
+                where "user"."loggedOut" IS FALSE
+                AND "user"."expired" IS FALSE
+                and "user"."joined" IS TRUE;
 
 
 CREATE OR REPLACE VIEW "v_user_current"
@@ -286,7 +317,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
-    "user"."leftFlag",
+    "user"."disconnected",
+    "user"."expired",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -316,7 +348,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
-    "user"."leftFlag",
+    "user"."disconnected",
+    "user"."expired",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -325,7 +358,7 @@ AS SELECT "user"."userId",
     "user"."locked",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user";
 
 CREATE TABLE "user_voice" (

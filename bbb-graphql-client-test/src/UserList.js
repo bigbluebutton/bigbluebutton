@@ -78,7 +78,7 @@ function UserList({userId}) {
         authed
         mobile
         clientType
-        leftFlag
+        disconnected
         loggedOut
         voice {
           joined
@@ -125,7 +125,7 @@ function UserList({userId}) {
             <th>Locked</th>
             <th>Last BreakoutRoom</th>
             <th>connectionAliveAt</th>
-            <th>LeftFlag</th>
+            <th>Disconnected (leftFlag)</th>
             <th>LoggedOut</th>
         </tr>
       </thead>
@@ -162,7 +162,7 @@ function UserList({userId}) {
                        : ''
                       }
                   </td>
-                  <td style={{backgroundColor: user.leftFlag === true ? '#A0DAA9' : ''}}>{user.leftFlag === true ? 'Yes' : 'No'}</td>
+                  <td style={{backgroundColor: user.disconnected === true ? '#A0DAA9' : ''}}>{user.disconnected === true ? 'Yes' : 'No'}</td>
                   <td style={{backgroundColor: user.loggedOut === true ? '#A0DAA9' : ''}}>{user.loggedOut === true ? 'Yes' : 'No'}</td>
               </tr>
           );

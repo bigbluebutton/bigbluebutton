@@ -171,6 +171,7 @@ object RegisteredUsers {
   def setUserLoggedOutFlag(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
     val u = user.copy(loggedOut = true)
     users.save(u)
+    println("seeeeeeeeeeeeeeeeeeeeeeeting userLoggedOut----------------------------------")
     UserDAO.update(u)
     u
   }
