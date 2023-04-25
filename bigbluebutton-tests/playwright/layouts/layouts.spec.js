@@ -15,14 +15,14 @@ test.describe.parallel('Layout management', () => {
   test('Focus on presentation', async ({ browser, context, page }) => {
     const focusOnPresentation = new FocusOnPresentation(browser, context);
     await focusOnPresentation.initModPage(page, true, { customMeetingId: CUSTOM_MEETING_ID, customParameter: hidePresentationToast });
-    await focusOnPresentation.initModPage2(true, context, { customParameter: hidePresentationToast });
+    await focusOnPresentation.initUserPage(true, context, { customParameter: hidePresentationToast });
     await focusOnPresentation.test();
   });
 
   test('Focus on video', async ({ browser, context, page }) => {
     const focusOnVideo = new FocusOnVideo(browser, context);
     await focusOnVideo.initModPage(page, true, { customMeetingId: CUSTOM_MEETING_ID, customParameter: hidePresentationToast });
-    await focusOnVideo.initModPage2(true, context, { customParameter: hidePresentationToast });
+    await focusOnVideo.initUserPage(true, context, { customParameter: hidePresentationToast });
     await focusOnVideo.test();
   });
 

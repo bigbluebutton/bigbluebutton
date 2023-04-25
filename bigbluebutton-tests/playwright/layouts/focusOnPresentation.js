@@ -9,22 +9,22 @@ class FocusOnPresentation extends MultiUsers {
 
   async test() {
     await this.modPage.shareWebcam();
-    await this.modPage2.shareWebcam();
+    await this.userPage.shareWebcam();
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.layoutSettingsModalButton);
     await this.modPage.waitAndClick(e.focusOnPresentation);
     await this.modPage.waitAndClick(e.confirmButton);
 
     const modPageWebcamsLocator = this.modPage.getLocator(e.webcamContainer);
-    await expect(this.modPage.page).toHaveScreenshot('moderator1-focus-on-presentation.png', {
+    await expect(this.modPage.page).toHaveScreenshot('moderator-focus-on-presentation.png', {
       maxDiffPixels: 1000,
       mask: [modPageWebcamsLocator],
     });
 
-    const modPage2WebcamsLocator = this.modPage2.getLocator(e.webcamContainer);
-    await expect(this.modPage2.page).toHaveScreenshot('moderator2-focus-on-presentation.png', {
+    const userWebcamsLocator = this.userPage.getLocator(e.webcamContainer);
+    await expect(this.userPage.page).toHaveScreenshot('user-focus-on-presentation.png', {
       maxDiffPixels: 1000,
-      mask: [modPage2WebcamsLocator],
+      mask: [userWebcamsLocator],
     });
   }
 }
