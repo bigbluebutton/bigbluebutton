@@ -1,0 +1,33 @@
+table:
+  name: v_user_typing_private
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_typing_private
+  custom_root_fields: {}
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - chatId
+        - isCurrentlyTyping
+        - meetingId
+        - typingAt
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - queryUserId:
+              _eq: X-Hasura-UserId

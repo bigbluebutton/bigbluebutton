@@ -1,6 +1,14 @@
 import { gql } from '@apollo/client';
 export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: Int!) {
-  user(limit:$limit, offset: $offset, order_by: [{presenter: desc_nulls_last},{role: asc}, {name: asc}, {userId: asc}]) {
+  user(limit:$limit, offset: $offset, 
+                order_by: [
+                  {role: asc},
+                  {emojiTime: asc_nulls_last},
+                  {isDialIn: desc},
+                  {hasDrawPermissionOnCurrentPage: desc},
+                  {name: asc},
+                  {userId: asc}
+                ]) {
     userId
     extId
     name
@@ -17,7 +25,7 @@ export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: 
     mobile
     guest
     clientType
-    leftFlag
+    disconnected
     loggedOut
     voice {
       joined
@@ -74,7 +82,7 @@ export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`subscription {
   }
 }`;
 
-export const CURRENT_USER_SUBSCRIPTION = gql`subscription User($userId: String!) {
+export const CURRENT_USER_SUBSCRIPTION   = gql`subscription User($userId: String!) {
   user(where: {userId: {_eq: $userId}}) {
     isModerator
     guest

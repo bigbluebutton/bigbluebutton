@@ -14,6 +14,7 @@ DROP VIEW IF EXISTS "v_chat_message_public";
 DROP VIEW IF EXISTS "v_chat_message_private";
 DROP VIEW IF EXISTS "v_chat_participant";
 DROP VIEW IF EXISTS "v_user_typing_public";
+DROP VIEW IF EXISTS "v_user_typing_private";
 DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
@@ -51,6 +52,7 @@ DROP FUNCTION IF EXISTS "update_pres_presentation_current_trigger_func";
 DROP FUNCTION IF EXISTS "update_pres_page_current_trigger_func";
 DROP FUNCTION IF EXISTS "pres_page_writers_update_delete_trigger_func";
 DROP FUNCTION IF EXISTS "update_user_hasDrawPermissionOnCurrentPage(varchar, varchar)";
+DROP FUNCTION IF EXISTS "update_user_emoji_time_trigger_func";
 
 -- ========== Meeting tables
 
@@ -215,11 +217,12 @@ CREATE TABLE "user" (
 	"role" varchar(20) NULL,
 	"authed" bool NULL,
 	"joined" bool NULL,
-	"leftFlag" bool NULL,
+	"disconnected" bool NULL, -- this is the old leftFlag (that was renamed), set when the user just closed the client
+	"expired" bool NULL, -- when it is been some time the user is disconnected
 --	"ejected" bool null,
 --	"ejectReason" varchar(255),
 	"banned" bool NULL,
-	"loggedOut" bool NULL,
+	"loggedOut" bool NULL,  -- when user clicked Leave meeting button
 	"registeredOn" bigint NULL,
 	"presenter" bool NULL,
 	"pinned" bool NULL,
@@ -230,11 +233,34 @@ CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
+COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
+COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
+COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
+COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
 --Virtual columns isDialIn, isModerator and isOnline
 ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS (CASE WHEN "clientType" = 'dial-in-user' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
+
+-- user (on update emoji, set new emojiTime)
+CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."emoji" <> OLD."emoji" THEN
+        IF NEW."emoji" = 'none' or  NEW."emoji" = '' THEN
+            NEW."emojiTime" := NULL;
+        ELSE
+            NEW."emojiTime" := NOW();
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_emoji_time_trigger BEFORE UPDATE OF "emoji" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_emoji_time_trigger_func();
+
 
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
@@ -253,7 +279,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
-    "user"."leftFlag",
+    "user"."disconnected",
+    "user"."expired",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -262,12 +289,21 @@ AS SELECT "user"."userId",
     "user"."locked",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user"
   WHERE "user"."loggedOut" IS FALSE
-  AND "user".joined IS TRUE;
-CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
-CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") where "user"."loggedOut" IS FALSE and "user"."joined" IS TRUE;
+  AND "user"."expired" IS FALSE
+  AND "user"."joined" IS TRUE;
+
+CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId") 
+                where "user"."loggedOut" IS FALSE
+                AND "user"."expired" IS FALSE
+                and "user"."joined" IS TRUE;
+
+CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"("meetingId","role","emojiTime","isDialIn","hasDrawPermissionOnCurrentPage","name","userId") 
+                where "user"."loggedOut" IS FALSE
+                AND "user"."expired" IS FALSE
+                and "user"."joined" IS TRUE;
 
 
 CREATE OR REPLACE VIEW "v_user_current"
@@ -286,7 +322,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
-    "user"."leftFlag",
+    "user"."disconnected",
+    "user"."expired",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -316,7 +353,8 @@ AS SELECT "user"."userId",
     "user"."role",
     "user"."authed",
     "user"."joined",
-    "user"."leftFlag",
+    "user"."disconnected",
+    "user"."expired",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -325,7 +363,7 @@ AS SELECT "user"."userId",
     "user"."locked",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
-    CASE WHEN "user"."joined" IS true AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
+    CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user";
 
 CREATE TABLE "user_voice" (
@@ -423,6 +461,8 @@ CREATE TABLE "chat_user" (
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId");
+CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("typingAt") WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
+CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("chatId", "typingAt") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
 SELECT "meetingId", "chatId", "userId", "typingAt",
@@ -430,6 +470,14 @@ CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE f
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 
+CREATE OR REPLACE VIEW "v_user_typing_private" AS
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."typingAt",
+CASE WHEN chat_with."typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+FROM chat_user
+LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
+									AND chat_with."chatId" = chat_user."chatId"
+									AND chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+									AND chat_with."userId" != chat_user."userId";
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
