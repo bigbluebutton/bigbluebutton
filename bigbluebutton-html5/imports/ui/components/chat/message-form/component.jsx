@@ -4,7 +4,8 @@ import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
 import { throttle } from '/imports/utils/throttle';
-import TypingIndicatorContainer from './typing-indicator/container';
+import TypingIndicatorContainer from '/imports/ui/components/chat/chat-graphql/chat-typing-indicator/component';
+import Auth from '/imports/ui/services/auth';
 import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
 import { escapeHtml } from '/imports/utils/string-utils';
@@ -70,6 +71,8 @@ const messages = defineMessages({
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const PUBLIC_CHAT_GROUP_KEY = CHAT_CONFIG.public_group_id;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -371,7 +374,11 @@ class MessageForm extends PureComponent {
             data-test="sendMessageButton"
           />
         </Styled.Wrapper>
-        <TypingIndicatorContainer {...{ idChatOpen, error }} />
+        <TypingIndicatorContainer
+          {...{ idChatOpen, error }}
+          isTypingTo={idChatOpen === PUBLIC_CHAT_KEY ? PUBLIC_CHAT_GROUP_KEY : Auth.userID}
+          userId={Auth.userID}
+        />
       </Styled.Form>
     );
   }
