@@ -50,6 +50,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
+import { runRelayPreflightCheck } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -211,6 +212,16 @@ class App extends Component {
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
+
+    runRelayPreflightCheck().catch((error) => {
+      logger.error({
+        logCode: 'relay_preflight_failed',
+        extraInfo: {
+          errorMessage: error.message,
+          errorCode: error.code,
+        },
+      }, 'Relay preflight check failed, iceTransportPolicy will not be enforced');
+    });
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -558,7 +569,7 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes 
+          {shouldShowSharedNotes
             ? (
               <NotesContainer
                 area="media"

@@ -4,11 +4,13 @@ const MEDIA = Meteor.settings.public.media;
 const STUN_TURN_FETCH_URL = MEDIA.stunTurnServersFetchAddress;
 const CACHE_STUN_TURN = MEDIA.cacheStunTurnServers;
 const FALLBACK_STUN_SERVER = MEDIA.fallbackStunServer;
+const RELAY_PREFLIGHT_TIMEOUT = 2000;
 
 let STUN_TURN_DICT;
 let MAPPED_STUN_TURN_DICT;
 let TURN_CACHE_VALID_UNTIL = Math.floor(Date.now() / 1000);
 let HAS_SEEN_TURN_SERVER = false;
+let TURN_SERVER_WORKS = false;
 
 const fetchStunTurnServers = function (sessionToken) {
   const now = Math.floor(Date.now() / 1000);
@@ -87,7 +89,56 @@ const fetchWebRTCMappedStunTurnServers = function (sessionToken) {
 
 const hasTurnServer = () => {
   return HAS_SEEN_TURN_SERVER;
-}
+};
+
+const hasWorkingTurnServer = () => hasTurnServer() && TURN_SERVER_WORKS;
+
+// Runs a relayPreflight check to verify the following:
+//  - there's a relay server configured
+//  - relay candidates are gathered by a peer connection with iceTransportPolicy: relay
+//
+//  If no candidates are generated within RELAY_PREFLIGHT_TIMEOUT seconds, the check fails.
+const relayPreflightCheck = async (sessionToken) => {
+  const stDictionary = await fetchStunTurnServers(sessionToken);
+  const mappedStDictionary = mapStunTurn(stDictionary);
+
+  const pc = new RTCPeerConnection({
+    iceServers: mappedStDictionary,
+    iceTransportPolicy: 'relay',
+  });
+
+  pc.createDataChannel('relayPreflightCheck');
+  const candidates = new Promise((resolve) => {
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        resolve(event.candidate);
+      }
+    };
+  });
+
+  pc.createOffer().then((offer) => {
+    pc.setLocalDescription(offer);
+  });
+
+  const timeout = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error('Relay candidates not generated in time'));
+    }, RELAY_PREFLIGHT_TIMEOUT);
+  });
+
+  return Promise.race([timeout, candidates])
+    .then(() => {
+      TURN_SERVER_WORKS = true;
+      return Promise.resolve();
+    })
+    .catch((error) => {
+      TURN_SERVER_WORKS = false;
+      return Promise.reject(error);
+    })
+    .finally(() => {
+      pc.close();
+    });
+};
 
 export {
   fetchStunTurnServers,
@@ -95,4 +146,6 @@ export {
   getFallbackStun,
   getMappedFallbackStun,
   hasTurnServer,
+  relayPreflightCheck,
+  hasWorkingTurnServer,
 };
