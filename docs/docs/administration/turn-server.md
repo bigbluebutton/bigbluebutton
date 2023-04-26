@@ -253,7 +253,7 @@ Ensure that the `coturn` has binded to port 443 with `netstat -antp | grep 443`.
 
 ## Configure BigBlueButton to use your TURN server
 
-You must configure bbb-web so that it will provide the list of turn servers to the web browser. Edit the file `/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml` using the contents below and make edits:
+You must configure bbb-web so that it will provide the list of turn servers to the web browser. Edit the file `/etc/bigbluebutton/turn-stun-servers.xml` using the contents below and make edits:
 
 - replace both instances of `<turn.example.com>` with the hostname of the TURN server, and
 - replace `<secret_value>` with the secret you configured in `turnserver.conf`.
