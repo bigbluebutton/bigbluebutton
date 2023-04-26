@@ -7,8 +7,13 @@ import Service from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import { withTracker } from 'meteor/react-meteor-data';
 import Storage from '/imports/ui/services/storage/session';
+import ChatList from './chat-list/component';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const chatList = urlParams.get('chatList');
 
 const UserMessagesContainer = () => {
   const usingChatContext = useContext(ChatContext);
@@ -23,10 +28,34 @@ const UserMessagesContainer = () => {
   return <UserMessages {...{ activeChats, roving }} />;
 };
 
-export default withTracker(() => {
+const Container = withTracker(() => {
   // Here just to add reactivity to this component.
   // We need to rerender this component whenever this
   // Storage variable changes.
   Storage.getItem(CLOSED_CHAT_LIST_KEY);
   return {};
 })(UserMessagesContainer);
+
+
+const blank = () => (
+  <>
+    {
+      // console.log("Teste chat item list", chatList)
+      (
+        chatList === 'graphql'
+        || chatList === 'both'
+        || !chatList
+      ) ? <ChatList />
+        : null
+    }
+    <br />
+    {
+      (
+        chatList === 'meteor'
+        || chatList === 'both'
+      ) ? <Container />
+        : null
+    }
+  </>
+);
+export default blank;
