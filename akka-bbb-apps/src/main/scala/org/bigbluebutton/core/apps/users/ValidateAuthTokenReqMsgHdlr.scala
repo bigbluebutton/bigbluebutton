@@ -27,6 +27,11 @@ trait ValidateAuthTokenReqMsgHdlr extends HandlerHelpers {
       case Some(u) =>
         // Check if maxParticipants has been reached
         // User are able to reenter if he already joined previously with the same extId
+        log.info("===== MaxParticipants Check =====")
+        log.info("Max users: [{}]", liveMeeting.props.usersProp.maxUsers)
+        log.info("Number of unique joined users: [{}]", RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers))
+        log.info("Is the user rejoining with the same external ID? [{}]", RegisteredUsers.checkUserExtIdHasJoined(u.externId, liveMeeting.registeredUsers))
+        log.info("=================================")
         val hasReachedMaxParticipants = liveMeeting.props.usersProp.maxUsers > 0 &&
           RegisteredUsers.numUniqueJoinedUsers(liveMeeting.registeredUsers) >= liveMeeting.props.usersProp.maxUsers &&
           RegisteredUsers.checkUserExtIdHasJoined(u.externId, liveMeeting.registeredUsers) == false
