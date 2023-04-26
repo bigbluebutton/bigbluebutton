@@ -457,10 +457,11 @@ CREATE TABLE "chat_user" (
 	"userId" varchar(50),
 	"lastSeenAt" bigint,
 	"typingAt"   timestamp,
+	"visible" boolean,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
-CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId");
+CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId") WHERE "visible" is true;
 CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("typingAt") WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("chatId", "typingAt") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
@@ -477,7 +478,8 @@ FROM chat_user
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
 									AND chat_with."chatId" = chat_user."chatId"
 									AND chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-									AND chat_with."userId" != chat_user."userId";
+									AND chat_with."userId" != chat_user."userId"
+WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
@@ -496,9 +498,10 @@ CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
 CREATE OR REPLACE VIEW "v_chat" AS
 SELECT 	"user"."userId",
-        case when "user"."userId" = "chat"."createdBy" then true else false end "owner",
+        case when "user"."userId" = "chat"."createdBy" then true else false end "amIOwner",
 		chat."meetingId",
 		chat."chatId",
+		cu."visible",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
 		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(cu."lastSeenAt",0) THEN 1 ELSE 0 end) "totalUnread",
@@ -510,15 +513,19 @@ LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" 
 JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND cu."chatId" = chat."chatId"
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat."chatId" != 'MAIN-PUBLIC-GROUP-CHAT' AND chat_with."userId" != cu."userId"
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
-GROUP BY "user"."userId", chat."meetingId", chat."chatId", chat_with."userId";
+WHERE cu."visible" is true
+GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", chat_with."userId";
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
-SELECT cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+SELECT cm.*,
+        to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
 FROM chat_message cm
 WHERE cm."chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE OR REPLACE VIEW "v_chat_message_private" AS
-SELECT cu."userId", cm.*, to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
+SELECT cu."userId",
+        cm.*,
+        to_timestamp("createdTime" / 1000) AS "createdTimeAsDate"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';

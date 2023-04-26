@@ -22,7 +22,7 @@ select_permissions:
       columns:
         - chatId
         - meetingId
-        - owner
+        - visible
         - participantId
         - public
         - totalMessages
