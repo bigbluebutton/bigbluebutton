@@ -102,6 +102,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   width={width - 1}
                   onRowsRendered={debounce({delay: 500}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
                     setOffset(overscanStartIndex);
+                    console.log(overscanStartIndex);
+                    
                     const limit = (overscanStopIndex - overscanStartIndex) + 1;
                     setLimit(limit < 50 ? 50 : limit);
                   })}
