@@ -35,7 +35,7 @@ public:
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
-      enabled: false
+      enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
     lockOnJoin: true
