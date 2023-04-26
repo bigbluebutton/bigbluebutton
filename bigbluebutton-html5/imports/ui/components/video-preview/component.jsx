@@ -205,6 +205,10 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.wholeImageBrightnessDesc',
     description: 'Whole image brightness aria description',
   },
+  cameraAsContentSettingsTitle: {
+    id: 'app.videoPreview.cameraAsContentSettingsTitle',
+    description: 'Title for the video preview modal when sharing camera as content',
+  },
   sliderDesc: {
     id: 'app.videoPreview.sliderDesc',
     description: 'Brightness slider aria description',
@@ -264,6 +268,7 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
       forceOpen,
+      cameraAsContent
     } = this.props;
 
     this._isMounted = true;
@@ -479,6 +484,8 @@ class VideoPreview extends Component {
     const {
       resolve,
       startSharing,
+      cameraAsContent,
+      startSharingCameraAsContent,
     } = this.props;
     const {
       webcamDeviceId,
@@ -503,9 +510,14 @@ class VideoPreview extends Component {
 
     this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
+
     PreviewService.changeProfile(selectedProfile);
     PreviewService.changeWebcam(webcamDeviceId);
-    startSharing(webcamDeviceId);
+    if (cameraAsContent) {
+      startSharingCameraAsContent(webcamDeviceId);
+    } else {
+      startSharing(webcamDeviceId);
+    }
     if (resolve) resolve();
   }
 
@@ -631,7 +643,8 @@ class VideoPreview extends Component {
   }
 
   getInitialCameraStream(deviceId) {
-    const defaultProfile = PreviewService.getDefaultProfile();
+    const { cameraAsContent } = this.props;
+    const defaultProfile = !cameraAsContent ? PreviewService.getDefaultProfile() : PreviewService.getCameraAsContentProfile();
 
     return this.getCameraStream(deviceId, defaultProfile).then(() => {
       this.updateDeviceId(deviceId);
@@ -711,15 +724,16 @@ class VideoPreview extends Component {
       intl,
       sharedDevices,
       isVisualEffects,
+      cameraAsContent,
     } = this.props;
 
     const {
       webcamDeviceId,
       availableWebcams,
-      selectedProfile,
     } = this.state;
 
     const shared = sharedDevices.includes(webcamDeviceId);
+    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
 
     if (isVisualEffects) {
       return (
@@ -769,7 +783,7 @@ class VideoPreview extends Component {
                 ? (
                   <Styled.Select
                     id="setQuality"
-                    value={selectedProfile || ''}
+                    value={''}
                     onChange={this.handleSelectProfile}
                   >
                     {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
@@ -794,7 +808,7 @@ class VideoPreview extends Component {
             </>
           )
         }
-        {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
+        {shouldShowVirtualBackgrounds && this.renderVirtualBgSelector()}
       </>
     );
   }
@@ -949,6 +963,12 @@ class VideoPreview extends Component {
           </Styled.Content>
         );
     }
+  }
+
+  getModalTitle() {
+    const { intl, cameraAsContent } = this.props;
+    if (cameraAsContent) return intl.formatMessage(intlMessages.cameraAsContentSettingsTitle);
+    return intl.formatMessage(intlMessages.webcamSettingsTitle);
   }
 
   renderModalContent() {

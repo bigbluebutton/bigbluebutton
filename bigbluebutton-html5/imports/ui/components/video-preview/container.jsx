@@ -3,6 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import Service from './service';
 import VideoPreview from './component';
 import VideoService from '../video-provider/service';
+import ScreenShareService from '/imports/ui/components/screenshare/service';
 
 const VideoPreviewContainer = (props) => <VideoPreview {...props} />;
 
@@ -11,6 +12,13 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     callbackToClose();
     setIsOpen(false);
     VideoService.joinVideo(deviceId);
+  },
+  startSharingCameraAsContent: (deviceId) => {
+    callbackToClose();
+    setIsOpen(false);
+    ScreenShareService.shareScreen(true,
+      (error) => console.log(error),
+      { stream: Service.getStream(deviceId)._mediaStream });
   },
   stopSharing: (deviceId) => {
     callbackToClose();
