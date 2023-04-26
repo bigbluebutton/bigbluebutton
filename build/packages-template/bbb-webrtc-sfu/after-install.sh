@@ -10,11 +10,6 @@ case "$1" in
     cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.example.yml $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-      yq w -i $TARGET kurento[0].ip  "$IP"
-
-      # https://github.com/bigbluebutton/bbb-webrtc-sfu/pull/37
-      # yq w -i $TARGET kurento[0].url "ws://$SERVER_URL:8888/kurento"
-
       # Set mediasoup IPs
       yq w -i $TARGET mediasoup.webrtc.listenIps[0].announcedIp "$IP"
       yq w -i $TARGET mediasoup.plainRtp.listenIp.announcedIp "$IP"
@@ -56,37 +51,11 @@ case "$1" in
       mkdir -p /var/mediasoup
     fi
 
-    # Create a symbolic link from /var/kurento -> /var/lib/kurento if needed
-    if [ ! -d /var/kurento ]; then
-      if [ -d /var/lib/kurento ]; then
-        ln -s /var/lib/kurento /var/kurento
-      fi
-    fi
-
     chmod 644 $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-    if [ ! -d /var/log/kurento-media-server ]; then
-      mkdir -p /var/log/kurento-media-server
-    fi
-
-    chown kurento:root /var/log/kurento-media-server
-
-    # Ensure a default port range is setup
-    if ! grep -v '^;' /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini | grep -q minPort; then
-      cat >> /etc/kurento/modules/kurento/BaseRtpEndpoint.conf.ini << HERE
-
-# Added by bbb-webrtc-sfu.postinst $(date)
-minPort=24577
-maxPort=32768
-HERE
-    fi
-
-    # Check if using Kurento packages with focal
-
     reloadService nginx
     startService bbb-webrtc-sfu        || echo "bbb-webrtc-sfu could not be registered or started"
-    startService kurento-media-server  || echo "kurento-media-serve could not be registered or started"
 
   ;;
 

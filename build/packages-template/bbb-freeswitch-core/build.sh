@@ -97,7 +97,7 @@ patch -p1 < $BUILDDIR/1914.patch
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java \
-    --prefix=/opt/freeswitch
+    --prefix=/opt/freeswitch CFLAGS="-Wno-error" CXXFLAGS="-Wno-error"
 
 # Overrides for generating debug version
 #   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
