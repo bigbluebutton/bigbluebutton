@@ -244,7 +244,7 @@ const WebcamComponent = ({
               style={{
                 width: isIphone ? mobileWidth : isDesktopWidth,
                 height: isIphone ? mobileHeight : isDesktopHeight,
-                opacity: camOpcity,
+                opacity: camOpacity,
                 background: isCameraSidebar ? colorContentBackground : null,
               }}
             >
