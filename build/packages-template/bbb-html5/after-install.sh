@@ -25,9 +25,9 @@ TARGET=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
 
   WSURL=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-  yq w -i $TARGET public.kurento.wsUrl               "$WSURL/bbb-webrtc-sfu"
+  yq -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $TARGET
 
-  yq w -i $TARGET public.pads.url                    "$PROTOCOL://$HOST/pad"
+  yq -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $TARGET
 
   sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /usr/share/bigbluebutton/nginx/sip.nginx
   sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
@@ -46,7 +46,7 @@ BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/conf
 if [ -f $BBB_RELEASE_FILE ] && [ -f $BBB_HTML5_SETTINGS_FILE ]; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' | tail -n 1)
   echo "setting public.app.bbbServerVersion: $BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
-  yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
+  yq -i ".public.app.bbbServerVersion = \"$BBB_FULL_VERSION\"" $BBB_HTML5_SETTINGS_FILE
 fi    
 
 

@@ -61,5 +61,4 @@ fpm -s dir -C ./staging -n $PACKAGE                 \
     --before-remove before-remove.sh                \
     --description "BigBlueButton WebRTC SFU"        \
     $DIRECTORIES                                    \
-    $OPTS                                           \
-    -d 'yq (>= 3)' -d 'yq (<< 4)'
+    $OPTS
