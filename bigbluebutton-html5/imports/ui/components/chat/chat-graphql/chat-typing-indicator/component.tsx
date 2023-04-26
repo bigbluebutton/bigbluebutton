@@ -117,7 +117,7 @@ const TypingIndicatorContainer: React.FC = ({ userId, isTypingTo, isPrivate, err
   const typingUsers = privateTypingUsers.concat(publicTypingUsers);
 
   const typingUsersArray = typingUsers
-    .filter(user => user?.userId !== userId)
+    .filter(user => user?.user && user?.userId !== userId)
     .map(user => user.user);
 
   return <TypingIndicator
