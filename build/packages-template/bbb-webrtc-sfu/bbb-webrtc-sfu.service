@@ -1,7 +1,7 @@
 [Unit]
 Description=BigBlueButton WebRTC SFU
 Wants=redis-server.service
-After=syslog.target network.target freeswitch.service bbb-webrtc-recorder.service kurento-media-server.service redis-server.service
+After=syslog.target network.target freeswitch.service bbb-webrtc-recorder.service redis-server.service
 PartOf=bigbluebutton.target
 
 [Service]

@@ -54,7 +54,12 @@ object ChatMessageDAO {
         )
       )
     ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatMessage table!")
+        case Success(rowsAffected) => {
+          DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatMessage table!")
+
+          //Set chat visible for all participant users
+          ChatUserDAO.updateChatVisible(meetingId, chatId)
+        }
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatMessage: $e")
       }
   }

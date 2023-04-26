@@ -32,12 +32,15 @@ update_permissions:
       columns:
         - lastSeenAt
         - typingAt
+        - visible
       filter:
         _and:
           - meetingId:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
+          - visible:
+              _eq: true
       check: {}
       set:
         meetingId: x-hasura-MeetingId

@@ -100,21 +100,6 @@ fi
 usermod bigbluebutton -a -G freeswitch
 chmod 0775 /var/freeswitch/meetings
 
-if ! id kurento >/dev/null 2>&1; then
-    useradd --home-dir "/var/lib/kurento" --system kurento
-fi
-usermod bigbluebutton -a -G kurento
-chown kurento:kurento /var/kurento
-chmod 0775 /var/kurento
-
-if [ -d /var/kurento/recordings ]; then
-  chmod 0775 /var/kurento/recordings
-fi
-
-if [ -d /var/kurento/screenshare ]; then 
-  chmod 0775 /var/kurento/screenshare
-fi
-
 # Verify mediasoup raw media directories ownership and perms
 if [ -d /var/mediasoup ]; then
   chown bigbluebutton:bigbluebutton /var/mediasoup
