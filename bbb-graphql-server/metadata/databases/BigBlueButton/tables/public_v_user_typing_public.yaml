@@ -14,7 +14,7 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user
+          name: v_user_ref
           schema: public
 select_permissions:
   - role: bbb_client
@@ -26,5 +26,21 @@ select_permissions:
         - typingAt
         - isCurrentlyTyping
       filter:
-        meetingId:
-          _eq: X-Hasura-MeetingId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - meetingId:
+                  _eq: X-Hasura-ModeratorInMeeting
+              - user:
+                  isModerator:
+                    _eq: true
+              - meetingId:
+                  _neq: X-Hasura-LockedInMeeting
+              - _exists:
+                  _table:
+                    name: v_meeting_showUserlist
+                    schema: public
+                  _where:
+                    meetingId:
+                      _eq: X-Hasura-MeetingId
