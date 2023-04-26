@@ -160,7 +160,7 @@ const WebcamComponent = ({
   const mobileHeight = `${isDragging ? cameraSize.height : cameraDock.height}pt`;
   const isDesktopWidth = isDragging ? cameraSize.width : cameraDock.width;
   const isDesktopHeight = isDragging ? cameraSize.height : cameraDock.height;
-  const camOpcity = isDragging ? 0.5 : undefined;
+  const camOpacity = isDragging ? 0.5 : undefined;
   return (
     <>
       {isDragging ? <DropAreaContainer /> : null}
