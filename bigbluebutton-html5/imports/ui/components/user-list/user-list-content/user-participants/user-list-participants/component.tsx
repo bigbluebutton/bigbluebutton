@@ -156,7 +156,7 @@ const UserListParticipantsContainer: React.FC = () => {
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
   const count = countData?.user_aggregate?.aggregate?.count || 0;
-  console.log('users', users);
+
   return <>
     <UsersTitle count={count} />
     <UserListParticipants

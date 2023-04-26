@@ -8,6 +8,7 @@ import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import TimeWindowChatItem from './time-window-chat-item/container';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
+import ChatList from '../chat-graphql/chat-list/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -383,4 +384,6 @@ class TimeWindowList extends PureComponent {
 TimeWindowList.propTypes = propTypes;
 TimeWindowList.defaultProps = defaultProps;
 
-export default injectIntl(TimeWindowList);
+const OldChatList = injectIntl(TimeWindowList);
+
+export default ChatList;

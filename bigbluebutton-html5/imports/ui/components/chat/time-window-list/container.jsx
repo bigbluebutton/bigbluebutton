@@ -3,7 +3,7 @@ import TimeWindowList from './component';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import ChatService from '../service';
 
-export default class TimeWindowListContainer extends PureComponent {
+class TimeWindowListContainer extends PureComponent {
   render() {
     const { chatId, userSentMessage } = this.props;
     const scrollPosition = ChatService.getScrollPosition(chatId);
@@ -25,3 +25,8 @@ export default class TimeWindowListContainer extends PureComponent {
     );
   }
 }
+const stopProps = (props) => {
+  return <TimeWindowList />
+}
+
+export default stopProps;
