@@ -22,10 +22,11 @@ select_permissions:
       columns:
         - chatId
         - meetingId
+        - owner
         - participantId
+        - public
         - totalMessages
         - totalUnread
-        - public
       filter:
         _and:
           - meetingId:

@@ -496,6 +496,7 @@ CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
 CREATE OR REPLACE VIEW "v_chat" AS
 SELECT 	"user"."userId",
+        case when "user"."userId" = "chat"."createdBy" then true else false end "owner",
 		chat."meetingId",
 		chat."chatId",
 		chat_with."userId" AS "participantId",
