@@ -516,12 +516,12 @@ const normalizeEmojiName = (emoji) => (
 const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
   return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
+    ? makeCall('setUserReaction', emoji)
+    : makeCall('setUserReaction', 'none');
 }, 250, { leading: false, trailing: true });
 
 const clearAllEmojiStatus = (users) => {
-  users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));
+  users.forEach((user) => makeCall('clearEmojiStatus', user.userId, 'none'));
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };

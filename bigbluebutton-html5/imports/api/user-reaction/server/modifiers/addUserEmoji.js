@@ -1,10 +1,9 @@
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
-import sendStatusChatMsg from '../methods/sendStatusChatMsg';
+import sendStatusChatMsg from './sendStatusChatMsg';
 
-export default async function handleEmojiStatus({ body }, meetingId) {
-  const { userId, emoji } = body;
+export default function handleEmojiStatus(meetingId, userId, emoji) {
 
   check(userId, String);
   check(emoji, String);
