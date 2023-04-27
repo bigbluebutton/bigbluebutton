@@ -54,7 +54,6 @@ const UserAvatar = ({
   noVoice,
   whiteboardAccess,
   isSkeleton,
-  className,
 }) => (
   <>
     {isSkeleton && (<Styled.Skeleton>{children}</Styled.Skeleton>)}

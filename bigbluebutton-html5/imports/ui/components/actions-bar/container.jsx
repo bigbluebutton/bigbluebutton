@@ -50,7 +50,7 @@ const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButt
 
 const isInteractionsButtonEnabled = () => {
   const INTERACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.interactionsButton.enabled;
-  return getFromMeetingSettingsAsBoolean('enable-interactions-button', INTERACTIONS_BUTTON_ENABLED);
+  return getFromUserSettings('enable-interactions-button', INTERACTIONS_BUTTON_ENABLED);
 };
 
 export default withTracker(() => ({

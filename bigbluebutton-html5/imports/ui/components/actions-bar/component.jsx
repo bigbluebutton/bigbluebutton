@@ -10,7 +10,6 @@ import InteractionsButtonContainer from '/imports/ui/components/actions-bar/inte
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
-import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
@@ -45,7 +44,6 @@ class ActionsBar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       isSelectRandomUserEnabled,
-      isRaiseHandButtonEnabled,
       isInteractionsButtonEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
@@ -139,16 +137,6 @@ class ActionsBar extends PureComponent {
             />
             : null
           }
-          {isRaiseHandButtonEnabled
-            ? (
-              <RaiseHandDropdownContainer {...{
-                setEmojiStatus,
-                currentUser,
-                intl,
-              }
-              }
-              />
-            ) : null}
         </Styled.Right>
       </Styled.ActionsBar>
     );

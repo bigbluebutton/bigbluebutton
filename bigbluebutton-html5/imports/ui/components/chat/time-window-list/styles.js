@@ -6,6 +6,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { VirtualizedScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import MessageChatItem from '/imports/ui/components/chat/time-window-list/time-window-chat-item/message-chat-item/component';
 
 const UnreadButton = styled(ButtonElipsis)`
   flex-shrink: 0;
@@ -121,4 +122,21 @@ export default {
   UnreadButton,
   MessageListWrapper,
   MessageList,
+  Time,
+  Content,
+  Meta,
+  Wrapper,
+  AvatarWrapper,
+  Name,
+  Read,
+  Messages,
+  SystemMessageChatItem,
+  Item,
+  ChatItem,
+  OnlineIndicator,
+  Offline,
+  PollIcon,
+  PollMessageChatItem,
+  StatusMessageChatItem,
 };
+

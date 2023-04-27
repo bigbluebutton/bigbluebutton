@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import { styles } from './styles.scss';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -62,6 +61,7 @@ const ReactionsPicker = (props) => {
       showSkinTones={false}
       emojisToShowFilter={(emoji) => emojisToExclude.includes(emoji.unified)}
     />
+
   );
 };
 
