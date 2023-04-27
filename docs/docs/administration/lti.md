@@ -10,15 +10,11 @@ keywords:
 
 ## Overview
 
-BigBlueButton is [certified](https://site.imsglobal.org/certifications/bigbluebutton-inc/36891/bigbluebutton) by IMS Global to support IMS Learning Tools Interoperability (LTI) 1.0/1.1.
+BigBlueButton can accept incoming LTI launch requests from a tool consumer, which is the IMS term for any platform that can make an LTI request to an external tool.  
 
-![imscertifiedsm](/img/imscertifiedsm.png)
-
-BigBlueButton can accept incoming LTI launch requests from a tool consumer,
-which is the IMS term for any platform that can make an LTI request to an external tool (such as BigBlueButton).
 Such platforms include Open edX, Desire2Learn, BlackBoard, Pearson Learning Studio, etc.
 
-What this means is that with no custom code, any LTI compliant platform can add BigBlueButton virtual classrooms to its system.
+What this means is that with no custom code, any LTI compliant platform can integrate BigBlueButton virtual classrooms to its system.
 
 ### Installation of LTI components 
 
