@@ -701,7 +701,7 @@ public:
   presentation:
     allowDownloadable: true
     panZoomThrottle: 32
-    restoreOnUpdate: false
+    restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
     # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
