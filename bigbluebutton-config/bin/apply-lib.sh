@@ -55,9 +55,9 @@ fi
 enableHTML5ClientLog() {
   echo "  - Enable HTML5 client log to /var/log/nginx/html5-client.log"
 
-  yq w -i $HTML5_CONFIG public.clientLog.external.enabled true
-  yq w -i $HTML5_CONFIG public.clientLog.external.url     "$PROTOCOL://$HOST/html5log"
-  yq w -i $HTML5_CONFIG public.app.askForFeedbackOnLogout true
+  yq -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
+  yq -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
+  yq -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
   chown meteor:meteor $HTML5_CONFIG
 
   cat > /usr/share/bigbluebutton/nginx/html5-client-log.nginx << HERE
@@ -106,7 +106,7 @@ enableUFWRules() {
       echo "  - Local haproxy detected and running -- opening port 3478"
       ufw allow 3478
       # echo "  - Forcing FireFox to use turn server"
-      # yq w -i $HTML5_CONFIG public.kurento.forceRelayOnFirefox true
+      # yq -i '.public.kurento.forceRelayOnFirefox = true' $HTML5_CONFIG
     else
       if grep -q 3478 /etc/ufw/user.rules; then
         echo "  - Local haproxy not running -- closing port 3478"

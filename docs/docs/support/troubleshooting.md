@@ -131,7 +131,7 @@ Accepted values are:
    * The default and fallback values are `auto`.
 
 For example:
-   * To set the number of workers to `cores`: `yq w -i /etc/bigbluebutton/bbb-webrtc-sfu/production.yml mediasoup.workers "cores"`
+   * To set the number of workers to `cores`: `yq -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 #### mediasoup.dedicatedMediaTypeWorkers
 
@@ -154,7 +154,7 @@ The media types semantics are:
    * `content`: screen sharing streams (audio and video).
 
 For example:
-  * To set the number of dedicated audio workers to `auto`: `yq w -i /etc/bigbluebutton/bbb-webrtc-sfu/production.yml mediasoup.dedicatedMediaTypeWorkers.audio "auto"`
+  * To set the number of dedicated audio workers to `auto`: `yq -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 ### Can I scale the number of streams up indefinitely with mediasoup?
 
