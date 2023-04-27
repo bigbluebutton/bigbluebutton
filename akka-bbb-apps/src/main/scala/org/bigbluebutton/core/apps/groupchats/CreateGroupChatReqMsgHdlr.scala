@@ -54,16 +54,12 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
       val groupChat = GroupChatApp.getGroupChatOfUsers(msg.body.users, msg.header.userId, state, liveMeeting.users2x)
       groupChat match {
         case Some(groupChat) =>
-          log.debug("Teste aqui no akka antes do for  {} ---- \n\n {}---\n\n\n\n\n\n", state.groupChats, groupChat)
           ChatUserDAO.updateChatVisible(msg.header.meetingId, groupChat.id, msg.header.userId)
           state
         case None =>
           val newState = for {
             createdBy <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
           } yield {
-
-            log.debug("Teste aqui no akka entrou no for então vai enviar algo --{} \n\n\n\n\n\n", createdBy)
-
             val msgs = msg.body.msg.map(m => GroupChatApp.toGroupChatMessage(createdBy, m))
             val users = {
               if (msg.body.access == GroupChatAccess.PRIVATE) {
