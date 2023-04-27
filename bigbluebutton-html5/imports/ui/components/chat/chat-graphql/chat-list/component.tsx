@@ -95,13 +95,11 @@ const ChatList: React.FC<ChatlistProps> = ({
 
   useEffect(
     () => {
-      // console.log(`Recreating keyMapper`, messages);
       keyMapperFunctionHolder.keyMapper = (index:number) => {
         
         const resultsArrayIndex = totalMessages - offset - index - 1;
         const message = messages[resultsArrayIndex];
         const previousMessage = messages[resultsArrayIndex+1];
-        // console.log(`KeyMapper called with index ${index} - returning key ${message?.messageId}::${previousMessage?.messageId}`, {totalMessages, offset, index, msgLength: messages.length, resultsArrayIndex,  messages: JSON.parse(JSON.stringify(messages))});
         return `${message?.messageId}::${previousMessage?.messageId}`;
       }
 
@@ -142,9 +140,7 @@ const ChatList: React.FC<ChatlistProps> = ({
             overscanRowCount={10}
             onRowsRendered={({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
               const newScrollToBottom = totalMessages - stopIndex < 10;
-              console.log('jujuba', {totalMessages, stopIndex, overscanStopIndex, diferenca: Math.abs(stopIndex - overscanStopIndex)});
               if( scrollToBottom !== newScrollToBottom && listRef.current?.Grid.state.scrollPositionChangeReason==='observed' ) {
-                console.log('Modifying scrollToBottom', newScrollToBottom);
                 setScrollToBottom(newScrollToBottom);
               }
               setSubscriptionVariables({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex });
@@ -214,9 +210,6 @@ const ChatContainer = () => {
 
   const expectedRows = Math.min(totalMessages - offset, limit);
   const avaliableRows = messages.length;
-
-  console.log("XUXU", {totalMessages, offset, avaliableRows, expectedRows})
-
   const useOld = messagesLoading || expectedRows !== avaliableRows
 
   useEffect(()=>{
