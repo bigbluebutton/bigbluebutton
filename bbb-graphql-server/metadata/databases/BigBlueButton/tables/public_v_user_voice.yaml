@@ -32,6 +32,7 @@ select_permissions:
         - listenOnly
         - meetingId
         - muted
+        - showTalkingIndicator
         - spoke
         - startTime
         - talking
