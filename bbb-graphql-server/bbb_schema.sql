@@ -386,14 +386,14 @@ CREATE TABLE "user_voice" (
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
-CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","hideTalkingIndicatorAt","startTime");
+CREATE INDEX "idx_user_voice_userId_talking" ON "user_voice"("userId","talking","hideTalkingIndicatorAt","startTime");
 
 CREATE OR REPLACE VIEW "v_user_voice" AS
 SELECT
 	u."meetingId",
 	"user_voice" .*,
 	greatest(coalesce(user_voice."startTime", 0), coalesce(user_voice."endTime", 0)) AS "lastSpeakChangedAt",
-	case when "hideTalkingIndicatorAt" > current_timestamp then true else false end "showTalkingIndicator"
+	case when "talking" is true then true when "hideTalkingIndicatorAt" > current_timestamp then true else false end "showTalkingIndicator"
 FROM "user" u
 JOIN "user_voice" ON u."userId" = "user_voice"."userId";
 
