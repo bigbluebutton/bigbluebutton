@@ -30,11 +30,18 @@ public class HoldUserCommand extends FreeswitchCommand {
     }
 
     @Override
-    public String getCommandArgs() {
-            String action = "unhold";
-            if (hold) action = "hold";
+    public String getCommand() {
+        return "uuid_hold"; //conference is default, override if needed.
+    }
 
-            return room + SPACE + action + SPACE + participant;
+
+    @Override
+    public String getCommandArgs() {
+        if (hold) {
+            return "toggle" + SPACE +  participant;
+        } else {
+            return "off" + SPACE +  participant;
+        }
     }
 
 }
