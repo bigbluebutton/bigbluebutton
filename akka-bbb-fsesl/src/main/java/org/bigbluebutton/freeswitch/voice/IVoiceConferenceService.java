@@ -22,7 +22,9 @@ public interface IVoiceConferenceService {
                            String callerIdNum,
                            Boolean muted,
                            Boolean speaking,
-                           String avatarURL);
+                           String avatarURL,
+                           String uuid
+                           );
 
   void voiceUsersStatus(String voiceConfId,
                         java.util.List<ConfMember> confMembers,

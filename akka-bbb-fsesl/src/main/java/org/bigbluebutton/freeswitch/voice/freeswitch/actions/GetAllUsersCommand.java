@@ -1,13 +1,13 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
+*
 * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-* 
+*
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -44,14 +44,14 @@ public class GetAllUsersCommand extends FreeswitchCommand {
     public GetAllUsersCommand(String room, String requesterId) {
             super(room, requesterId);
     }
-    
+
     @Override
     public String getCommandArgs() {
         return getRoom() + SPACE + "xml_list";
     }
 
     private static final Pattern CALLERNAME_PATTERN = Pattern.compile("(.*)-bbbID-(.*)$");
-    
+
     public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
 
         //Test for Known Conference
@@ -59,7 +59,7 @@ public class GetAllUsersCommand extends FreeswitchCommand {
         String firstLine = response.getBodyLines().get(0);
 
         //E.g. Conference 85115 not found
-        
+
         if(!firstLine.startsWith("<?xml")) {
 //            System.out.println("Not XML: [{}]", firstLine);
             return;
@@ -76,7 +76,7 @@ public class GetAllUsersCommand extends FreeswitchCommand {
             SAXParser sp = spf.newSAXParser();
 
             //Hack turning body lines back into string then to ByteStream.... BLAH!
-            
+
             String responseBody = StringUtils.join(response.getBodyLines(), "\n");
 
             //http://mark.koli.ch/2009/02/resolving-orgxmlsaxsaxparseexception-content-is-not-allowed-in-prolog.html
@@ -108,7 +108,7 @@ public class GetAllUsersCommand extends FreeswitchCommand {
                         }
 
                         VoiceUserJoinedEvent pj = new VoiceUserJoinedEvent(voiceUserId, member.getId().toString(), confXML.getConferenceRoom(),
-                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none");
+                                callerId, callerIdName, member.getMuted(), member.getSpeaking(), "none", uuid);
                         eventListener.handleConferenceEvent(pj);
                     } else if ("recording_node".equals(member.getMemberType())) {
 

@@ -28,11 +28,11 @@ public class ESLEventListener implements IEslEventListener {
     private static final String FLOOR_CHANGE_EVENT = "video-floor-change";
 
     private final ConferenceEventListener conferenceEventListener;
-    
+
     public ESLEventListener(ConferenceEventListener conferenceEventListener) {
         this.conferenceEventListener = conferenceEventListener;
     }
-    
+
     @Override
     public void conferenceEventPlayFile(String uniqueId, String confName, int confSize, EslEvent event) {
         //Ignored, Noop
@@ -55,7 +55,7 @@ public class ESLEventListener implements IEslEventListener {
     private static final Pattern CALLERNAME_WITH_SESS_INFO_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-(.*)$");
     private static final Pattern CALLERNAME_LISTENONLY_PATTERN = Pattern.compile("^(.*)_(\\d+)-bbbID-LISTENONLY-(.*)$");
     private static final Pattern ECHO_TEST_DEST_PATTERN = Pattern.compile("^echo(\\d+)$");
-    
+
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
 
@@ -124,12 +124,14 @@ public class ESLEventListener implements IEslEventListener {
                 callerIdName,
                 muted,
                 speaking,
-                "none");
+                "none",
+                callerUUID
+                );
         conferenceEventListener.handleConferenceEvent(pj);
     }
 
     @Override
-    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {      
+    public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
         Integer memberId = this.getMemberIdFromEvent(event);
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
@@ -167,11 +169,11 @@ public class ESLEventListener implements IEslEventListener {
         if (action.equals(START_TALKING_EVENT)) {
             Integer memberId = this.getMemberIdFromEvent(event);
             VoiceUserTalkingEvent pt = new VoiceUserTalkingEvent(memberId.toString(), confName, true);
-            conferenceEventListener.handleConferenceEvent(pt);          
+            conferenceEventListener.handleConferenceEvent(pt);
         } else if (action.equals(STOP_TALKING_EVENT)) {
             Integer memberId = this.getMemberIdFromEvent(event);
             VoiceUserTalkingEvent pt = new VoiceUserTalkingEvent(memberId.toString(), confName, false);
-            conferenceEventListener.handleConferenceEvent(pt);          
+            conferenceEventListener.handleConferenceEvent(pt);
         } else if (action.equals(CONFERENCE_CREATED_EVENT)) {
             VoiceConfRunningEvent pt = new VoiceConfRunningEvent(confName, true);
             conferenceEventListener.handleConferenceEvent(pt);
@@ -196,9 +198,9 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
-        
+
     }
-    
+
     //@Override
     public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
         String action = event.getEventHeaders().get("Action");
@@ -218,7 +220,7 @@ public class ESLEventListener implements IEslEventListener {
             sre.setRecordingFilename(getRecordFilenameFromEvent(event));
             sre.setTimestamp(genTimestamp().toString());
             conferenceEventListener.handleConferenceEvent(sre);
-        } 
+        }
 
         else {
             log.warn("Processing UNKNOWN conference Action " + action + "]");
@@ -228,7 +230,7 @@ public class ESLEventListener implements IEslEventListener {
     private Long genTimestamp() {
         return TimeUnit.NANOSECONDS.toMillis(System.nanoTime());
     }
-    
+
     @Override
     public void eventReceived(EslEvent event) {
 //        System.out.println("*********** ESL Event Listener received event=[" + event.getEventName() + "]" +

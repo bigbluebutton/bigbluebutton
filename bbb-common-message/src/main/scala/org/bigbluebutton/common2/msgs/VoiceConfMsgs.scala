@@ -400,7 +400,7 @@ case class UserJoinedVoiceConfEvtMsg(
 ) extends VoiceStandardMsg
 case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, intId: String,
                                          callerIdName: String, callerIdNum: String, muted: Boolean,
-                                         talking: Boolean, callingWith: String)
+                                         talking: Boolean, callingWith: String, uuid: String)
 
 /**
  * Sent to client that a user has joined the voice conference.

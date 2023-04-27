@@ -1,13 +1,13 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
+*
 * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-* 
+*
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -28,10 +28,11 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 	private final Boolean locked = false;
 	private final String userId;
 	private final String callingWith;
-	
-	public VoiceUserJoinedEvent(String userId, String voiceUserId, String room, 
+	private final String uuid;
+
+	public VoiceUserJoinedEvent(String userId, String voiceUserId, String room,
 								String callerIdNum, String callerIdName,
-								Boolean muted, Boolean speaking, String callingWith) {
+								Boolean muted, Boolean speaking, String callingWith, String uuid) {
 		super(room);
 		this.userId = userId;
 		this.voiceUserId = voiceUserId;
@@ -40,16 +41,21 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 		this.muted = muted;
 		this.speaking = speaking;
 		this.callingWith = callingWith;
+		this.uuid = uuid;
+	}
+
+	public String getUUID() {
+		return uuid;
 	}
 
 	public String getUserId() {
 		return userId;
 	}
-	
+
 	public String getVoiceUserId() {
 		return voiceUserId;
 	}
-	
+
 	public String getCallerIdNum() {
 		return callerIdNum;
 	}
@@ -65,7 +71,7 @@ public class VoiceUserJoinedEvent extends VoiceConferenceEvent {
 	public Boolean getSpeaking() {
 		return speaking;
 	}
-	
+
 	public Boolean isLocked() {
 		return locked;
 	}
