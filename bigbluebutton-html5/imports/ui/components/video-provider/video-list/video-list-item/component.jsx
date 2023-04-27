@@ -65,8 +65,8 @@ const VideoListItem = (props) => {
 
   // component did mount
   useEffect(() => {
-    onVideoItemMount(videoTag.current);
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
+    onVideoItemMount(videoTag.current);
     resizeObserver.observe(videoContainer.current);
     videoTag?.current?.addEventListener('loadeddata', onLoadedData);
 

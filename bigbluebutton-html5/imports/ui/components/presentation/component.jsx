@@ -76,7 +76,7 @@ class Presentation extends PureComponent {
       tldrawAPI: null,
       isPanning: false,
       tldrawIsMounting: true,
-      presentationId: '',
+      isToolbarVisible: true,
     };
 
     this.currentPresentationToastId = null;
@@ -92,6 +92,7 @@ class Presentation extends PureComponent {
     this.handleResize = this.handleResize.bind(this);
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
     this.setIsPanning = this.setIsPanning.bind(this);
+    this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
@@ -370,6 +371,12 @@ class Presentation extends PureComponent {
     }));
   }
 
+  setIsToolbarVisible(isVisible) {
+    this.setState({
+      isToolbarVisible: isVisible,
+    });
+  }
+
   setPresentationRef(ref) {
     this.refPresentationContainer = ref;
   }
@@ -616,7 +623,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
     } = this.props;
-    const { tldrawAPI } = this.state;
+    const { tldrawAPI, isToolbarVisible } = this.state;
 
     return (
       <PresentationMenu
@@ -625,6 +632,8 @@ class Presentation extends PureComponent {
         elementName={intl.formatMessage(intlMessages.presentationLabel)}
         elementId={fullscreenElementId}
         layoutContextDispatch={layoutContextDispatch}
+        setIsToolbarVisible={this.setIsToolbarVisible}
+        isToolbarVisible={isToolbarVisible}
       />
     );
   }
@@ -657,6 +666,7 @@ class Presentation extends PureComponent {
       tldrawIsMounting,
       isPanning,
       tldrawAPI,
+      isToolbarVisible,
     } = this.state;
 
     let viewBoxDimensions;
@@ -763,6 +773,7 @@ class Presentation extends PureComponent {
                   fullscreenRef={this.refPresentationContainer}
                   presentationId={currentPresentation?.id}
                   darkTheme={darkTheme}
+                  isToolbarVisible={isToolbarVisible}
                 />
                 {isFullscreen && <PollingContainer />}
               </div>

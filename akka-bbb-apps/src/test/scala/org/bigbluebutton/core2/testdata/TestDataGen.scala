@@ -24,7 +24,7 @@ object TestDataGen {
                              listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     VoiceUserState(intId = user.id, voiceUserId = voiceUserId, callingWith, callerName = user.name,
-      callerNum = user.name, muted, talking, listenOnly)
+      callerNum = user.name, "#ff6242", muted, talking, listenOnly)
   }
 
   def createFakeVoiceOnlyUser(callingWith: String, muted: Boolean, talking: Boolean,
@@ -32,7 +32,7 @@ object TestDataGen {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
     VoiceUserState(intId, voiceUserId = voiceUserId, callingWith, callerName = name,
-      callerNum = name, muted, talking, listenOnly)
+      callerNum = name, "#ff6242", muted, talking, listenOnly)
   }
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {

@@ -94,6 +94,18 @@ const TldrawGlobalStyle = createGlobalStyle`
       cursor: default !important;
     }
   `}
+
+  ${({ isToolbarVisible }) => (!isToolbarVisible) && `
+    #TD-Tools {
+      visibility: hidden;
+    }
+    #TD-Styles-Parent {
+      visibility: hidden;
+    }
+    #WhiteboardOptionButton {
+      opacity: 0.2;
+    }
+  `}
 `;
 
 const EditableWBWrapper = styled.div`
@@ -120,7 +132,6 @@ const PanTool = styled(Button)`
       transform: scale(-1, 1);
     }
   }
-
   ${({ panSelected }) => !panSelected && `
     &:hover,
     &:focus {

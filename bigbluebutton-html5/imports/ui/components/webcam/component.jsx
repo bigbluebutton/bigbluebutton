@@ -154,7 +154,13 @@ const WebcamComponent = ({
   if (isRTL) {
     draggableOffset.left = draggableOffset.left * -1;
   }
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
+  const mobileWidth = `${isDragging ? cameraSize.width : cameraDock.width}pt`;
+  const mobileHeight = `${isDragging ? cameraSize.height : cameraDock.height}pt`;
+  const isDesktopWidth = isDragging ? cameraSize.width : cameraDock.width;
+  const isDesktopHeight = isDragging ? cameraSize.height : cameraDock.height;
+  const camOpacity = isDragging ? 0.5 : undefined;
   return (
     <>
       {isDragging ? <DropAreaContainer /> : null}
@@ -236,9 +242,9 @@ const WebcamComponent = ({
               role="region"
               draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
               style={{
-                width: isDragging ? cameraSize.width : cameraDock.width,
-                height: isDragging ? cameraSize.height : cameraDock.height,
-                opacity: isDragging ? 0.5 : undefined,
+                width: isIphone ? mobileWidth : isDesktopWidth,
+                height: isIphone ? mobileHeight : isDesktopHeight,
+                opacity: camOpacity,
                 background: isCameraSidebar ? colorContentBackground : null,
               }}
             >
