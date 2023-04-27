@@ -28,6 +28,7 @@ const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -479,7 +480,7 @@ const getAvailableActions = (
     && !isBreakoutRoom
     && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser;
+  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
