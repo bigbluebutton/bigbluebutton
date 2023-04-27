@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func RedisConnectionnInvalidator() {
-	log := log.WithField("_routine", "RedisConnectionnInvalidator")
+func BrowserConnectionInvalidator() {
+	log := log.WithField("_routine", "BrowserConnectionInvalidator")
 
 	var ctx = context.Background()
 

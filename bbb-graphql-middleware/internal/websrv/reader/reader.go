@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-func WebsocketConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserChannel1 chan interface{}, fromBrowserChannel2 chan interface{}, waitGroups []*sync.WaitGroup) {
-	log := log.WithField("_routine", "WebsocketConnectionReader").WithField("browserConnectionId", browserConnectionId)
+func BrowserConnectionReader(browserConnectionId string, ctx context.Context, c *websocket.Conn, fromBrowserChannel1 chan interface{}, fromBrowserChannel2 chan interface{}, waitGroups []*sync.WaitGroup) {
+	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
 
 	defer func() {
 		close(fromBrowserChannel1)

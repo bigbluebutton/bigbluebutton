@@ -15,7 +15,7 @@ func main() {
 	log := log.WithField("_routine", "SessionTokenReader")
 
 	// Connection invalidator
-	go invalidator.RedisConnectionnInvalidator()
+	go invalidator.BrowserConnectionInvalidator()
 
 	// Websocket listener
 	var listenPort = 8378

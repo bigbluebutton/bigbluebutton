@@ -102,14 +102,14 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	wgReader.Add(1)
 
 	// Reads from browser connection, writes into fromBrowserChannel1 and fromBrowserChannel2
-	go reader.WebsocketConnectionReader(browserConnectionId, browserConnectionContext, c, fromBrowserChannel1, fromBrowserChannel2, []*sync.WaitGroup{&wgAll, &wgReader})
+	go reader.BrowserConnectionReader(browserConnectionId, browserConnectionContext, c, fromBrowserChannel1, fromBrowserChannel2, []*sync.WaitGroup{&wgAll, &wgReader})
 	go func() {
 		wgReader.Wait()
 		thisConnection.Disconnected = true
 	}()
 
 	// Reads from toBrowserChannel, writes to browser connection
-	go writer.WebsocketConnectionWriter(browserConnectionId, browserConnectionContext, c, toBrowserChannel, &wgAll)
+	go writer.BrowserConnectionWriter(browserConnectionId, browserConnectionContext, c, toBrowserChannel, &wgAll)
 
 	go SessionTokenReader(browserConnectionId, browserConnectionContext, fromBrowserChannel2, &wgAll)
 
