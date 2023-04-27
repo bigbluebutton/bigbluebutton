@@ -4,7 +4,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import RecordingIndicator from './recording-indicator/container';
-import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator/container';
+import TalkingIndicatorContainer from '/imports/ui/components/nav-bar/talking-indicator-graphql/component';
 import ConnectionStatusButton from '/imports/ui/components/connection-status/button/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
