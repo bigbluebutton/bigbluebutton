@@ -1,8 +1,8 @@
 [Unit]
-Description=BigBlueButton GraphQL Server
+Description=BigBlueButton GraphQL Middleware
 Requires=network.target
-Wants=postgresql.service
-After=postgresql.service
+Wants=postgresql.service redis-server.service bbb-graphql-server.service
+After=postgresql.service redis-server.service bbb-graphql-server.service
 PartOf=bigbluebutton.target
 
 [Service]
@@ -10,8 +10,8 @@ Type=simple
 User=bigbluebutton
 Group=bigbluebutton
 WorkingDirectory=/usr/local/bin
-EnvironmentFile=/etc/default/bbb-graphql-server
-ExecStart=/usr/local/bin/hasura-graphql-engine serve
+EnvironmentFile=/etc/default/bbb-graphql-middleware
+ExecStart=/usr/local/bin/bbb-graphql-middleware
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=60
