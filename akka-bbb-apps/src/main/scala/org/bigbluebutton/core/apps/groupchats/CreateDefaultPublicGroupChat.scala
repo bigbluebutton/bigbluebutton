@@ -34,7 +34,8 @@ trait CreateDefaultPublicGroupChat {
 
     bus.outGW.send(respMsg)
     val groupChats = state.groupChats.add(groupChat)
-    ChatDAO.insert(liveMeeting.props.meetingProp.intId, groupChat)
+    //The public chat will be created in DB after meeting was inserted successfully
+    //ChatDAO.insert(liveMeeting.props.meetingProp.intId, groupChat)
     state.update(groupChats)
   }
 }

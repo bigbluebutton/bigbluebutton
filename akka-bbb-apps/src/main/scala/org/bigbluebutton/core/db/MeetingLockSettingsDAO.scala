@@ -64,6 +64,11 @@ object MeetingLockSettingsDAO {
   }
 
   def update(meetingId: String, permissions: Permissions) = {
+
+    //Temporary delay to update LockSettings
+    import scala.concurrent.duration._
+    Thread.sleep(1.second.toMillis)
+
     DatabaseConnection.db.run(
       TableQuery[MeetingLockSettingsDbTableDef].insertOrUpdate(
         MeetingLockSettingsDbModel(
