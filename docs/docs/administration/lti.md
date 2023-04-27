@@ -30,6 +30,6 @@ When installing using [bbb-install-2.6.sh](https://github.com/bigbluebutton/bbb-
 -t <key>:<secret>      Install BigBlueButton LTI framework tools and add/update LTI consumer credentials <key>:<secret>
 ```
 
-After using the `-t` option, you can access the LTI launch URL by opening the URL https://<hostnam>/lti.  With the LTI launchh URL, key, and secret, you can test the LTI integration using the [TUSGI test](https://www.tsugi.org/lti-test/lms.php) page.
+After using the `-t` option, you can access the LTI launch URL by opening the URL `https://<hostnam>/lti`.  With the LTI launchh URL, key, and secret, you can test the LTI integration using the [TUSGI test](https://www.tsugi.org/lti-test/lms.php) page.
 
 For more details on the configuration of the LTI integration for BigBlueButton, see the README files for [bbb-lti-broker](https://github.com/bigbluebutton/bbb-lti-broker) and [bbb-apps-room](https://github.com/bigbluebutton/bbb-app-rooms).
