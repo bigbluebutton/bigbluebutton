@@ -108,7 +108,7 @@ object UserDAO {
         .map(u => (u.guest, u.guestStatus, u.role, u.authed, u.joined, u.banned, u.loggedOut))
         .update((regUser.guest, regUser.guestStatus, regUser.role, regUser.authed, regUser.joined, regUser.banned, regUser.loggedOut))
     ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table from RegisteredUser!")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating user: $e")
       }
   }
@@ -123,7 +123,7 @@ object UserDAO {
 //    "eject_reason" varchar (255)
 //    ,
     ).onComplete {
-      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table from UserState!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
     }
   }
