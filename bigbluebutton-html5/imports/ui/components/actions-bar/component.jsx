@@ -86,7 +86,6 @@ class ActionsBar extends PureComponent {
             setPushLayout,
             presentationIsOpen,
             showPushLayout,
-            pushLayoutMeeting,
             hasCameraAsContent,
           }}
           />

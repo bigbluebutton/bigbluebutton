@@ -47,7 +47,6 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     }
   },
   stopSharingCameraAsContent: () => {
-    mountModal(null);
     ScreenShareService.screenshareHasEnded();
   },
   sharedDevices: VideoService.getSharedDevices(),

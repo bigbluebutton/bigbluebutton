@@ -10,8 +10,7 @@ import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
-import {isLayoutsEnabled} from '/imports/ui/services/features';
+import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/features';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 
@@ -122,8 +121,6 @@ class ActionsDropdown extends PureComponent {
       isRandomUserSelectModalOpen: false,
       isLayoutModalOpen: false,
       isCameraAsContentModalOpen: false,
-      propsToPassModal: this.props,
-      forceOpen: false,
     };
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
@@ -275,7 +272,7 @@ class ActionsDropdown extends PureComponent {
           ? screenshareHasEnded
           : () => {
             screenshareHasEnded();
-            this.setCameraAsContentModalIsOpen(true),
+            this.setCameraAsContentModalIsOpen(true);
           },
       });
     }
@@ -335,11 +332,9 @@ class ActionsDropdown extends PureComponent {
   setPropsToPassModal(value) {
     this.setState({propsToPassModal: value});
   }
-
   setForceOpen(value){
     this.setState({forceOpen: value});
   }
-
 
   renderModal(isOpen, setIsOpen, priority, Component) {
     return isOpen ? <Component 
@@ -370,7 +365,6 @@ class ActionsDropdown extends PureComponent {
       isRandomUserSelectModalOpen,
       isLayoutModalOpen,
       isCameraAsContentModalOpen,
-      setPropsToPassModal,
     } = this.state;
 
     const availableActions = this.getAvailableActions();

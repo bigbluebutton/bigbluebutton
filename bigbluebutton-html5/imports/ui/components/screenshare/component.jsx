@@ -66,12 +66,13 @@ class ScreenshareComponent extends React.Component {
     this.onStreamStateChange = this.onStreamStateChange.bind(this);
     this.onSwitched = this.onSwitched.bind(this);
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
+    this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
     this.debouncedDispatchScreenShareSize = debounce(
       { delay: SCREEN_SIZE_DISPATCH_INTERVAL },
-      this.dispatchScreenShareSize
+      this.dispatchScreenShareSize,
     );
-    
+
     const { locales, icon } = props;
     this.locales = locales;
     this.icon = icon;
@@ -248,18 +249,12 @@ class ScreenshareComponent extends React.Component {
       height,
       browserWidth: window.innerWidth,
       browserHeight: window.innerHeight,
-    }
+    };
 
     layoutContextDispatch({
       type: ACTIONS.SET_SCREEN_SHARE_SIZE,
       value,
     });
-  }
-
-  onVideoResize() {
-    // Debounced version of the dispatcher to pace things out - we don't want
-    // to hog the CPU just for resize recalculations...
-    this.debouncedDispatchScreenShareSize();
   }
 
   onLoadedMetadata() {
@@ -294,6 +289,12 @@ class ScreenshareComponent extends React.Component {
     } else {
       setVolume(this.volume);
     }
+  }
+
+  onVideoResize() {
+    // Debounced version of the dispatcher to pace things out - we don't want
+    // to hog the CPU just for resize recalculations...
+    this.debouncedDispatchScreenShareSize();
   }
 
   onStreamStateChange(event) {
@@ -557,5 +558,6 @@ ScreenshareComponent.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
   enableVolumeControl: PropTypes.bool.isRequired,
 };

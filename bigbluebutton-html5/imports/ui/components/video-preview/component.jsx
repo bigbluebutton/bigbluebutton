@@ -268,7 +268,6 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
       forceOpen,
-      cameraAsContent
     } = this.props;
 
     this._isMounted = true;
@@ -747,6 +746,7 @@ class VideoPreview extends Component {
     const {
       webcamDeviceId,
       availableWebcams,
+      selectedProfile,
     } = this.state;
 
     const shared = sharedDevices.includes(webcamDeviceId);
@@ -800,7 +800,7 @@ class VideoPreview extends Component {
                 ? (
                   <Styled.Select
                     id="setQuality"
-                    value={''}
+                    value={selectedProfile || ''}
                     onChange={this.handleSelectProfile}
                   >
                     {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
@@ -837,6 +837,10 @@ class VideoPreview extends Component {
   }
 
   renderBrightnessInput() {
+
+    const {
+      webcamDeviceId,
+    } = this.state;
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     const { intl } = this.props;
