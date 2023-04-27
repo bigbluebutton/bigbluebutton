@@ -6,6 +6,7 @@ import (
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 func RedisConnectionnInvalidator() {
@@ -25,6 +26,11 @@ func RedisConnectionnInvalidator() {
 		msg, err := subscriber.ReceiveMessage(ctx)
 		if err != nil {
 			log.Errorf("error: ", err)
+		}
+
+		// Skip parsing unnecessary messages
+		if !strings.Contains(msg.Payload, "InvalidateUserGraphqlConnectionSysMsg") {
+			continue
 		}
 
 		var message interface{}
