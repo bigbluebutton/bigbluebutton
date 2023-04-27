@@ -42,7 +42,6 @@ export const ChatWrapper = styled.div`
   position: relative;
   ${({ sameSender }) => sameSender && `
     flex: 1;
-    padding: calc(${lineHeightComputed} / 4) 0 calc(${lineHeightComputed} / 2) 0;
     margin: ${borderSize} 0 0 ${borderSize};
   `})}
   
@@ -133,7 +132,7 @@ export const ChatMessage = styled.div`
   color: ${colorText};
   word-break: break-word;
   ${({ sameSender }) => sameSender && `
-    margin-left: 2.75rem;
+    margin-left: calc(2.75rem - 2px);
   `}
   ${({ emphasizedMessage }) => emphasizedMessage && `
     font-weight: bold;

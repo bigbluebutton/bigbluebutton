@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Ref, useEffect } from "react";
 import { Message } from '/imports/ui/Types/message';
 import { FormattedTime, defineMessages, useIntl } from 'react-intl';
 import {
@@ -11,10 +11,14 @@ import {
   ChatMessage,
   ChatContent,
 } from "./styles";
+import { List } from "react-virtualized";
 
 interface ChatListItemProps {
   message: Message;
   previousMessage?: Message;
+  index: number;
+  listRef: Ref<List>;
+  cacheClearFn: Function;
 }
 
 const intlMessages = defineMessages({
@@ -24,11 +28,21 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatListItem: React.FC<ChatListItemProps> = ({ message, previousMessage,}) => {
+const ChatListItem: React.FC<ChatListItemProps> = ({ message, previousMessage, index, listRef, cacheClearFn}) => {
   const intl = useIntl();
   if (!message) return null;
   const sameSender = previousMessage?.user?.userId === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
+  
+  useEffect( () => {
+    requestAnimationFrame(() => {
+      cacheClearFn(index, 0);
+      if(listRef) {
+        listRef.current.forceUpdateGrid();
+      }
+    });
+  }, []);
+
   return (
     <ChatWrapper
       sameSender={sameSender}

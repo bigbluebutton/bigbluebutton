@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSubscription } from "@apollo/client";
 import {
   CHAT_MESSAGE_SUBSCRIPTION,
@@ -14,7 +14,7 @@ import { MessageList, MessageListWrapper } from "./styles";
 import ChatListItem from "./list-item/component";
 import { layoutSelectOutput } from "/imports/ui/components/layout/context";
 import { debounce } from "radash";
-import { ListRowRenderer, ListRowProps } from 'react-virtualized/dist/es/List';
+import List, { ListRowRenderer, ListRowProps } from 'react-virtualized/dist/es/List';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -29,31 +29,47 @@ interface ChatlistProps{
   offset: number;
 }
 
+const keyMapperFunctionHolder = {
+  keyMapper: (index:number) => ''
+}
+
 const cache = new CellMeasurerCache({
   fixedWidth: true,
   minHeight: 18,
+  keyMapper: function (index:number) {
+    if(keyMapperFunctionHolder.keyMapper) {
+      const key = keyMapperFunctionHolder.keyMapper(index);
+      return key;
+    }
+  }
 });
 
-const rowRender = (messages: Array<Message>, offset: number, totalMessages:number ,{ index, key, parent, style }: ListRowProps) => {
-  const message = messages[index - (offset+totalMessages)];
-  const previousMessage = messages[(index - offset) - 1];
+const rowRenderer = (messages: Array<Message>, offset: number, totalMessages:number, listRef:Ref<List>, { index, key, parent, style }: ListRowProps) => {
+  const resultsArrayIndex = totalMessages - offset - index - 1;
+  const message = messages[resultsArrayIndex];
+
+  const previousMessage = messages[resultsArrayIndex + 1];
+
   return (
     <CellMeasurer
-        key={key}
         cache={cache}
         columnIndex={0}
         parent={parent}
         rowIndex={index}
+        key={`cm-${index}-${message?.messageId}`}
       >
         <span
           style={style}
-          key={`span-${key}-${index}`}
+          key={`span-${index}-${message?.messageId}`}
           role="listitem"
           data-test="msgListItem"
         >
           <ChatListItem
             message={message}
+            index={index}
             previousMessage={previousMessage}
+            listRef={listRef}
+            cacheClearFn={cache.clear.bind(cache)}
           />
         </span>
       </CellMeasurer>
@@ -69,43 +85,73 @@ const ChatList: React.FC<ChatlistProps> = ({
   offset,
 }) => {
   const [lastWindowWidth, setLastWindowWidth] = React.useState(0);
+
   useEffect(() => {
     if (lastWindowWidth !== sidebarWidth) {
       cache.clearAll();
       setLastWindowWidth(sidebarWidth);
     }
-  },[sidebarWidth]);
+  },[lastWindowWidth, sidebarWidth]);
 
-  useEffect(() => {
-    cache.keyMapper = (index) => {
-      const message = messages[index];
-      return message?.messageId;
+  useEffect(
+    () => {
+      // console.log(`Recreating keyMapper`, messages);
+      keyMapperFunctionHolder.keyMapper = (index:number) => {
+        
+        const resultsArrayIndex = totalMessages - offset - index - 1;
+        const message = messages[resultsArrayIndex];
+        const previousMessage = messages[resultsArrayIndex+1];
+        // console.log(`KeyMapper called with index ${index} - returning key ${message?.messageId}::${previousMessage?.messageId}`, {totalMessages, offset, index, msgLength: messages.length, resultsArrayIndex,  messages: JSON.parse(JSON.stringify(messages))});
+        return `${message?.messageId}::${previousMessage?.messageId}`;
+      }
+
+
+    }, [messages]
+  );
+
+  const listRef = useRef<List>();
+
+  const [scrollToBottom, setScrollToBottom] = useState(true);
+
+  const setSubscriptionVariables = debounce({delay: 500}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+    if(scrollToBottom) {
+      setOffset(0);
+      setLimit(50);
+    } else {
+      const newOffset = totalMessages - overscanStopIndex - 1;
+      setOffset(newOffset);
+      
+      const limit = (overscanStopIndex - overscanStartIndex) + 1;
+      setLimit(limit < 50 ? 50 : limit);
     }
-  }, [messages]);
+  });
 
   return (
     <MessageListWrapper>
       <AutoSizer>
         {({ height, width }) => {         
           return <MessageList
+            ref={listRef}
             // isScrolling
             rowHeight={cache.rowHeight}
-            rowRenderer={rowRender.bind(null, messages, offset, totalMessages)}
+            estimatedRowSize={100}
+            rowRenderer={rowRenderer.bind(null, messages, offset, totalMessages, listRef)}
             rowCount={totalMessages}
             height={height - 1}
             width={width - 1}
             overscanRowCount={10}
-            onRowsRendered={debounce({delay: 500}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
-              setOffset(totalMessages - overscanStopIndex);
-              console.log('overscanStartIndex', overscanStartIndex);
-              console.log('overscanStopIndex', overscanStopIndex);
-              console.log('totalMessages', totalMessages);
-              console.log('totalMessages - overscanStopIndex', totalMessages - overscanStopIndex);
-              const limit = (overscanStopIndex - overscanStartIndex) + 1;
-              setLimit(limit < 50 ? 50 : limit);
-            })}
-            deferredMeasurementCache={cache}
-            // scrollToIndex={totalMessages - 1}
+            onRowsRendered={({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+              const newScrollToBottom = totalMessages - stopIndex < 10;
+              console.log('jujuba', {totalMessages, stopIndex, overscanStopIndex, diferenca: Math.abs(stopIndex - overscanStopIndex)});
+              if( scrollToBottom !== newScrollToBottom && listRef.current?.Grid.state.scrollPositionChangeReason==='observed' ) {
+                console.log('Modifying scrollToBottom', newScrollToBottom);
+                setScrollToBottom(newScrollToBottom);
+              }
+              setSubscriptionVariables({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex });
+            }}
+            // scrollToRow={totalMessages - 1}
+            scrollToIndex={scrollToBottom?totalMessages - 1:undefined}
+            // scrollToAlignment={scrollToBottom ? "end" : undefined}
           // scrollToIndex={shouldAutoScroll ? scrollPosition : undefined}
           // onRowsRendered={({ stopIndex }) => {
           //   this.handleScrollUpdate(stopIndex);
@@ -136,33 +182,51 @@ const ChatContainer = () => {
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
   const [limit, setLimit] = React.useState(5);
   const [offset, setOffset] = React.useState(0);
+  let emptyMessagesArray : Array<Message> = []
+  const [old, setOld] = React.useState({
+    messages: emptyMessagesArray,
+    limit: 50,
+    offset: 0,
+    totalMessages: 0
+  });
+  
+  // Chat information
+  const {
+    data: chatData,
+    loading: chatLoading,
+  } = useSubscription<ChatSubscriptionResponse>(CHAT_SUBSCRIPTION);
+  
+  const currentChat = chatData?.chat?.filter((chat) => chat?.chatId === chatId)?.[0];
+  const totalMessages = currentChat?.totalMessages || 0;
+  const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
+
+  // Chat messages
   const {
     data: messagesData,
     loading: messagesLoading,
   } = useSubscription<ChatMessageSubscriptionResponse>(CHAT_MESSAGE_SUBSCRIPTION, {
     variables: {
-      offset: offset,
-      limit:limit,
+      offset,
+      limit,
     }
   });
-  // We show the chat list from the bottom to the top so we orderby it in descending order and reverse it
-  const messages = messagesData?.chat_message_public?.toReversed();
-  const {
-    data: chatData,
-    loading: chatLoading,
-  } = useSubscription<ChatSubscriptionResponse>(CHAT_SUBSCRIPTION);
+  const messages = (messagesData?.chat_message_public||[]);
 
-  const currentChat = chatData?.chat?.filter((chat) => chat?.chatId === chatId)?.[0];
-  const totalMessages = currentChat?.totalMessages || 0;
-  const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
+  useEffect(()=>{
+    if(!messagesLoading) {
+      setOld({...old, totalMessages, messages: (JSON.parse(JSON.stringify(messages)) as Array<Message>), offset});
+    }
+  }, [messagesLoading])
+
+  const useOld = messagesLoading || totalMessages - offset < messages.length
 
   return <ChatList
-      messages={messages || []}
-      totalMessages={totalMessages}
+      totalMessages={useOld ? old.totalMessages : totalMessages}
+      offset={useOld ? old.offset : offset}
+      messages={useOld ? old.messages : messages}
       sidebarWidth={sidebarContentOutput?.width || 0}
       setLimit={setLimit}
       setOffset={setOffset}
-      offset={offset}
     />;
 };
 
