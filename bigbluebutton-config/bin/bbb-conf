@@ -159,7 +159,7 @@ WEBRTC_RECORDER_ETC_CONFIG=/etc/bigbluebutton/bbb-webrtc-recorder.yml
 if [ -f $WEBRTC_RECORDER_ETC_CONFIG ]; then
     WEBRTC_RECORDER_CONFIG=$(yq m -x $WEBRTC_RECORDER_DEFAULT_CONFIG $WEBRTC_RECORDER_ETC_CONFIG)
 else
-    WEBRTC_RECORDER_CONFIG=$(yq $WEBRTC_RECORDER_DEFAULT_CONFIG)
+    WEBRTC_RECORDER_CONFIG=$(yq e $WEBRTC_RECORDER_DEFAULT_CONFIG)
 fi
 
 HTML5_DEFAULT_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
@@ -167,7 +167,7 @@ HTML5_ETC_CONFIG=/etc/bigbluebutton/bbb-html5.yml
 if [ -f $HTML5_ETC_CONFIG ]; then
     HTML5_CONFIG=$(yq m -x $HTML5_DEFAULT_CONFIG $HTML5_ETC_CONFIG)
 else
-    HTML5_CONFIG=$(yq $HTML5_DEFAULT_CONFIG)
+    HTML5_CONFIG=$(yq e $HTML5_DEFAULT_CONFIG)
 fi
 
 WEBRTC_SFU_DEFAULT_CONFIG=/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml
@@ -176,7 +176,7 @@ if [ -f $WEBRTC_SFU_ETC_CONFIG ]; then
     # -a overwrite: merges arrays by replacement (yq 3.4+, like the override)
     WEBRTC_SFU_CONFIG=$(yq m -a overwrite -x $WEBRTC_SFU_DEFAULT_CONFIG $WEBRTC_SFU_ETC_CONFIG)
 else
-    WEBRTC_SFU_CONFIG=$(yq $WEBRTC_SFU_DEFAULT_CONFIG)
+    WEBRTC_SFU_CONFIG=$(yq e $WEBRTC_SFU_DEFAULT_CONFIG)
 fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
@@ -707,11 +707,11 @@ if [[ $PORT_RANGE ]]; then
 
         mkdir -p $(dirname $WEBRTC_SFU_ETC_CONFIG)
         touch $WEBRTC_SFU_ETC_CONFIG
-        yq -i ".mediasoup.worker.rtcMinPort = \"$START_PORT\"" $WEBRTC_SFU_ETC_CONFIG
-        yq -i ".mediasoup.worker.rtcMaxPort = \"$END_PORT\"" $WEBRTC_SFU_ETC_CONFIG
+        yq e -i ".mediasoup.worker.rtcMinPort = \"$START_PORT\"" $WEBRTC_SFU_ETC_CONFIG
+        yq e -i ".mediasoup.worker.rtcMaxPort = \"$END_PORT\"" $WEBRTC_SFU_ETC_CONFIG
 
-        yq -i ".webrtc.rtcMinPort = \"$START_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
-        yq -i ".webrtc.rtcMaxPort = \"$END_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
+        yq e -i ".webrtc.rtcMinPort = \"$START_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
+        yq e -i ".webrtc.rtcMaxPort = \"$END_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
 
         echo
         echo "BigBlueButton's UDP port range is now $START_PORT-$END_PORT"
@@ -790,7 +790,7 @@ check_configuration() {
 
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         WEBHOOKS_CONF=/usr/local/bigbluebutton/bbb-webhooks/config/default.yml
-        WEBHOOKS_SECRET=$(yq '.bbb.sharedSecret' $WEBHOOKS_CONF)
+        WEBHOOKS_SECRET=$(yq e '.bbb.sharedSecret' $WEBHOOKS_CONF)
 
         if [ "$BBB_SECRET" != "$WEBHOOKS_SECRET" ]; then
             echo "# Warning: Webhooks API Shared Secret mismatch: "
@@ -800,7 +800,7 @@ check_configuration() {
         fi
 
         WEBHOOKS_PROXY_PORT=$(cat /usr/share/bigbluebutton/nginx/webhooks.nginx | grep -v '#' | grep '^[ \t]*proxy_pass[ \t]*' | sed 's|.*http[s]\?://[^:]*:\([^;]*\);.*|\1|g')
-        WEBHOOKS_APP_PORT=$(yq '.server.port' $WEBHOOKS_CONF)
+        WEBHOOKS_APP_PORT=$(yq e '.server.port' $WEBHOOKS_CONF)
 
         if [ "$WEBHOOKS_PROXY_PORT" != "$WEBHOOKS_APP_PORT" ]; then
             echo "# Warning: Webhooks port mismatch: "
@@ -1143,7 +1143,7 @@ check_state() {
         echo "#"
     fi
 
-    if [ `yq '.public.media.sipjsHackViaWs'` != "true" ]; then
+    if [ `yq e '.public.media.sipjsHackViaWs' "$HTML5_CONFIG" ` != "true" ]; then
       if [ "$PROTOCOL" == "https" ]; then
         if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
           echo "# Warning: You have this server defined for https, but in"
@@ -1228,7 +1228,7 @@ check_state() {
     fi
 
     FREESWITCH_SIP=$(ss -anlt4 | grep :5066 | grep -v tcp6 | grep LISTEN | sed 's/ [ ]*/ /g' | cut -d' ' -f4 | sed 's/:5066//g')
-    WEBRTC_SFU_SIP_IP=$(yq '.freeswitch.sip_ip' "$WEBRTC_SFU_CONFIG" )
+    WEBRTC_SFU_SIP_IP=$(yq e '.freeswitch.sip_ip' "$WEBRTC_SFU_CONFIG" )
 
     if [ ! -z "$FREESWITCH_SIP" ]; then
       if [ "$FREESWITCH_SIP" != "$WEBRTC_SFU_SIP_IP" ]; then
@@ -1238,7 +1238,7 @@ check_state() {
         echo "#"
         echo "# To fix, run the commands"
         echo "#"
-        echo "# sudo yq -i 'freeswitch.sip_ip = $FREESWITCH_SIP /etc/bigbluebutton/bbb-webrtc-sfu/production.yml"
+        echo "# sudo yq e -i 'freeswitch.sip_ip = $FREESWITCH_SIP /etc/bigbluebutton/bbb-webrtc-sfu/production.yml"
         echo "# sudo chown bigbluebutton:bigbluebutton /etc/bigbluebutton/bbb-webrtc-sfu/production.yml"
         echo "#"
       fi
@@ -1690,8 +1690,8 @@ if [ -n "$HOST" ]; then
     # Update HTML5 client
     #
     if [ -f $HTML5_DEFAULT_CONFIG ]; then
-        yq -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_DEFAULT_CONFIG
-        yq -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_DEFAULT_CONFIG
+        yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" $HTML5_DEFAULT_CONFIG
+        yq e -i ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $HTML5_DEFAULT_CONFIG
         chown meteor:meteor $HTML5_DEFAULT_CONFIG
     fi
 
@@ -1704,7 +1704,7 @@ if [ -n "$HOST" ]; then
         sudo sed -i "s/ClueCon/$ESL_PASSWORD/g" /etc/bigbluebutton/bbb-fsesl-akka.conf
     fi
 
-    sudo yq -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+    sudo yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
 
 

@@ -131,7 +131,7 @@ Accepted values are:
    * The default and fallback values are `auto`.
 
 For example:
-   * To set the number of workers to `cores`: `yq -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+   * To set the number of workers to `cores`: `yq e -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 #### mediasoup.dedicatedMediaTypeWorkers
 
@@ -154,7 +154,7 @@ The media types semantics are:
    * `content`: screen sharing streams (audio and video).
 
 For example:
-  * To set the number of dedicated audio workers to `auto`: `yq -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  * To set the number of dedicated audio workers to `auto`: `yq e -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 ### Can I scale the number of streams up indefinitely with mediasoup?
 
@@ -564,7 +564,7 @@ Then do `systemctl daemon-reload` and restart BigBlueButton.
 
 When installing the latest build of BigBlueButton, the package `bbb-conf` now uses `yq` to manage YAML files.
 
-You need to add the repository `ppa:rmescandon/yq` to your server. For steps on how to do this, see [Update your server](/administration/install#1-update-your-server) in the BigBlueButton 2.2 install guide.
+You need to add the repository `ppa:rmescandon/yq` to your server. For steps on how to do this, see `https://launchpad.net/~rmescandon/+archive/ubuntu/yq?field.series_filter=jammy`.
 
 Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (the `bbb-install.sh` script will automatically install the repository for `yq`).
 

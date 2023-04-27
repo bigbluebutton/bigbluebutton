@@ -54,7 +54,7 @@ declare -r BBB_YML=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 # $1: Desired property
 # Only returns 'PRODUCTION' values
 get_yml_value(){
-   yq ".\"$1\"" "$BBB_YML" --prettyPrint
+   yq e ".\"$1\"" "$BBB_YML" --prettyPrint
 }
 
 PLAYBACK_PROTOCOL=$(get_yml_value playback_protocol)
