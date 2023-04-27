@@ -63,4 +63,16 @@ object ChatMessageDAO {
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatMessage: $e")
       }
   }
+
+  def delete(meetingId: String, chatId: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[ChatMessageDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .delete
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Chat messages for meeting ${meetingId} deleted")
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error deleting chat messages: $e")
+    }
+  }
 }
