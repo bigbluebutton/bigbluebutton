@@ -25,6 +25,13 @@ export const CHATS_SUBSCRIPTION = gql`subscription {
     }
 }`;
 
-export default {
-    CHATS_SUBSCRIPTION
-};
+export const CLOSE_PRIVATE_CHAT_MUTATION = gql`
+    mutation UpdateChatUser($chatId: String) {
+    update_chat_user(
+        where: { chatId: { _eq: $chatId } },
+        _set: { visible: false }
+        ) {
+        affected_rows
+        }
+    }
+`

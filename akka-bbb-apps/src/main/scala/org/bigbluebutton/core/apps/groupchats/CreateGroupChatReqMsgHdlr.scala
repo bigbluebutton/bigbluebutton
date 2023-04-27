@@ -8,6 +8,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.ChatDAO
+import org.bigbluebutton.core.db.ChatUserDAO
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.models.Roles
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -50,28 +51,38 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      val newState = for {
-        createdBy <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
-      } yield {
-        val msgs = msg.body.msg.map(m => GroupChatApp.toGroupChatMessage(createdBy, m))
-        val users = {
-          if (msg.body.access == GroupChatAccess.PRIVATE) {
-            val cu = msg.body.users.toSet + msg.header.userId
-            cu.flatMap(u => GroupChatApp.findGroupChatUser(u, liveMeeting.users2x)).toVector
-          } else {
-            Vector.empty
+      val groupChat = GroupChatApp.getGroupChatOfUsers(msg.body.users, msg.header.userId, state, liveMeeting.users2x)
+      groupChat match {
+        case Some(groupChat) =>
+          log.debug("Teste aqui no akka antes do for  {} ---- \n\n {}---\n\n\n\n\n\n", state.groupChats, groupChat)
+          ChatUserDAO.updateChatVisible(msg.header.meetingId, groupChat.id, msg.header.userId)
+          state
+        case None =>
+          val newState = for {
+            createdBy <- GroupChatApp.findGroupChatUser(msg.header.userId, liveMeeting.users2x)
+          } yield {
+
+            log.debug("Teste aqui no akka entrou no for então vai enviar algo --{} \n\n\n\n\n\n", createdBy)
+
+            val msgs = msg.body.msg.map(m => GroupChatApp.toGroupChatMessage(createdBy, m))
+            val users = {
+              if (msg.body.access == GroupChatAccess.PRIVATE) {
+                val cu = msg.body.users.toSet + msg.header.userId
+                cu.flatMap(u => GroupChatApp.findGroupChatUser(u, liveMeeting.users2x)).toVector
+              } else {
+                Vector.empty
+              }
+            }
+
+            val gc = GroupChatApp.createGroupChat(msg.body.access, createdBy, users, msgs)
+            sendMessages(msg, gc, liveMeeting, bus)
+
+            val groupChats = state.groupChats.add(gc)
+            ChatDAO.insert(liveMeeting.props.meetingProp.intId, gc)
+            state.update(groupChats)
           }
-        }
-
-        val gc = GroupChatApp.createGroupChat(msg.body.access, createdBy, users, msgs)
-        sendMessages(msg, gc, liveMeeting, bus)
-
-        val groupChats = state.groupChats.add(gc)
-        ChatDAO.insert(liveMeeting.props.meetingProp.intId, gc)
-        state.update(groupChats)
+          newState.getOrElse(state)
       }
-
-      newState.getOrElse(state)
     }
   }
 

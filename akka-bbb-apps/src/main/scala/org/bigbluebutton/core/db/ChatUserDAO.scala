@@ -71,20 +71,21 @@ object ChatUserDAO {
       }
   }
 
-  def updateChatVisible(meetingId: String, chatId: String): Unit = {
+  def updateChatVisible(meetingId: String, chatId: String, userId: String = ""): Unit = {
     if (chatId != "MAIN-PUBLIC-GROUP-CHAT" && chatId != "public") { //Public chat is always visible
-      DatabaseConnection.db.run(
-        TableQuery[ChatUserDbTableDef]
-          .filter(_.meetingId === meetingId)
-          .filter(_.chatId === chatId)
-          .filter(_.visible === false)
-          .map(u => (u.visible))
-          .update(true)
-      ).onComplete {
-          case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated visible on chat_user table!")
-          case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating visible on chat_user table: $e")
-        }
+      val baseQuery = TableQuery[ChatUserDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .filter(_.visible === false)
+      val updateQuery = if (userId.nonEmpty) {
+        baseQuery.filter(_.userId === userId).map(_.visible).update(true)
+      } else {
+        baseQuery.map(_.visible).update(true)
+      }
+      DatabaseConnection.db.run(updateQuery).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated visible on chat_user table!")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating visible on chat_user table: $e")
+      }
     }
   }
-
 }
