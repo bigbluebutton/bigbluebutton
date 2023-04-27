@@ -180,7 +180,7 @@ const ChatContainer = () => {
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const [limit, setLimit] = React.useState(5);
+  const [limit, setLimit] = React.useState(50);
   const [offset, setOffset] = React.useState(0);
   let emptyMessagesArray : Array<Message> = []
   const [old, setOld] = React.useState({
@@ -212,13 +212,18 @@ const ChatContainer = () => {
   });
   const messages = (messagesData?.chat_message_public||[]);
 
+  const expectedRows = Math.min(totalMessages - offset, limit);
+  const avaliableRows = messages.length;
+
+  console.log("XUXU", {totalMessages, offset, avaliableRows, expectedRows})
+
+  const useOld = messagesLoading || expectedRows !== avaliableRows
+
   useEffect(()=>{
-    if(!messagesLoading) {
+    if(!useOld) {
       setOld({...old, totalMessages, messages: (JSON.parse(JSON.stringify(messages)) as Array<Message>), offset});
     }
-  }, [messagesLoading])
-
-  const useOld = messagesLoading || totalMessages - offset < messages.length
+  }, [useOld, totalMessages, messages.length])
 
   return <ChatList
       totalMessages={useOld ? old.totalMessages : totalMessages}
