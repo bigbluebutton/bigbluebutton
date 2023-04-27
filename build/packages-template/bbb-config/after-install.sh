@@ -100,21 +100,6 @@ fi
 usermod bigbluebutton -a -G freeswitch
 chmod 0775 /var/freeswitch/meetings
 
-if ! id kurento >/dev/null 2>&1; then
-    useradd --home-dir "/var/lib/kurento" --system kurento
-fi
-usermod bigbluebutton -a -G kurento
-chown kurento:kurento /var/kurento
-chmod 0775 /var/kurento
-
-if [ -d /var/kurento/recordings ]; then
-  chmod 0775 /var/kurento/recordings
-fi
-
-if [ -d /var/kurento/screenshare ]; then 
-  chmod 0775 /var/kurento/screenshare
-fi
-
 # Verify mediasoup raw media directories ownership and perms
 if [ -d /var/mediasoup ]; then
   chown bigbluebutton:bigbluebutton /var/mediasoup
@@ -153,7 +138,7 @@ BBB_HTML5_SETTINGS_FILE=/usr/share/meteor/bundle/programs/server/assets/app/conf
 if [ -f $BBB_RELEASE_FILE ] && [ -f $BBB_HTML5_SETTINGS_FILE ]; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' | tail -n 1)
   echo "setting public.app.bbbServerVersion: $BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
-  yq w -i $BBB_HTML5_SETTINGS_FILE public.app.bbbServerVersion $BBB_FULL_VERSION
+  yq e -i ".public.app.bbbServerVersion = \"$BBB_FULL_VERSION\"" $BBB_HTML5_SETTINGS_FILE
 fi
 
 # Fix permissions for logging

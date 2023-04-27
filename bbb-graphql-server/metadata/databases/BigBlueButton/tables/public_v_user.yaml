@@ -82,7 +82,7 @@ select_permissions:
         - isModerator
         - isOnline
         - joined
-        - leftFlag
+        - disconnected
         - locked
         - loggedOut
         - meetingId

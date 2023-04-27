@@ -176,8 +176,6 @@ redis_host = props['redis_host']
 redis_port = props['redis_port']
 redis_password = props['redis_password']
 presentation_dir = props['raw_presentation_src']
-kurento_video_dir = props['kurento_video_src']
-kurento_screenshare_dir = props['kurento_screenshare_src']
 mediasoup_video_dir = props['mediasoup_video_src']
 mediasoup_screenshare_dir = props['mediasoup_screenshare_src']
 webrtc_recorder_video_dir = props['webrtc_recorder_video_src']
@@ -206,9 +204,6 @@ archive_audio(meeting_id, audio_dir, raw_archive_dir)
 archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
-# Kurento media
-archive_directory("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
-archive_directory("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
 # mediasoup media
 archive_directory("#{mediasoup_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 archive_directory("#{mediasoup_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")
@@ -221,9 +216,6 @@ if break_timestamp.nil?
   BigBlueButton.logger.info('Deleting originals of archived media files.')
   # FreeSWITCH Audio files
   delete_audio(meeting_id, audio_dir)
-  # Kurento media
-  FileUtils.rm_rf("#{kurento_screenshare_dir}/#{meeting_id}")
-  FileUtils.rm_rf("#{kurento_video_dir}/#{meeting_id}")
   # mediasoup media
   FileUtils.rm_rf("#{mediasoup_screenshare_dir}/#{meeting_id}")
   FileUtils.rm_rf("#{mediasoup_video_dir}/#{meeting_id}")

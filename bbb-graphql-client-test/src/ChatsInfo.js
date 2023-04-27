@@ -1,4 +1,5 @@
 import {useSubscription, gql, useMutation} from '@apollo/client';
+import React from "react";
 
 export default function ChatsInfo() {
 
@@ -21,9 +22,30 @@ export default function ChatsInfo() {
         });
     };
 
+    const handleCloseChat = (chatId) => {
+        updateVisible({
+            variables: {
+                chatId
+            },
+        });
+    };
+
+    const [updateVisible] = useMutation(gql`
+      mutation UpdateChatUser($chatId: String) {
+        update_chat_user(
+            where: { chatId: { _eq: $chatId } },
+            _set: { visible: false }
+          ) {
+            affected_rows
+          }
+      }
+    `);
+
+
+
   const { loading, error, data } = useSubscription(
     gql`subscription {
-      chat {
+      chat(order_by: {public: desc}) {
         chatId
         meetingId
         participant {
@@ -35,13 +57,29 @@ export default function ChatsInfo() {
         totalMessages
         totalUnread
         public
+        visible
       }
     }`
   );
 
-    const { data: dataTyping } = useSubscription(
+    const { data: publicChatTypingSub } = useSubscription(
       gql`subscription {
         user_typing_public(where: {isCurrentlyTyping: {_eq: true}}) {
+            chatId
+            isCurrentlyTyping
+            meetingId
+            typingAt
+            userId
+            user {
+                name
+            }
+          }
+        }`
+    );
+
+    const { data: privateChatTypingSub } = useSubscription(
+        gql`subscription {
+        user_typing_private(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
             isCurrentlyTyping
             meetingId
@@ -67,6 +105,7 @@ export default function ChatsInfo() {
             <th>Who's typing</th>
             <th>Total Mgs</th>
             <th>Unread</th>
+            <th>Visible</th>
         </tr>
       </thead>
       <tbody>
@@ -78,16 +117,24 @@ export default function ChatsInfo() {
                   <td>{curr.meetingId}</td>
                   <td>{curr.participant?.name} {curr.participant?.role} {curr.participant?.color}  {curr.participant?.loggedOut === true ? ' (Offline)' : ''}</td>
                       {
-                          curr.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ? (
+                          curr.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ?
                           <td>
-                              {(dataTyping?.user_typing_public || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
+                              {(publicChatTypingSub?.user_typing_public || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
                               <br />
                               <button onClick={() => handleUpdateTypingAt(curr.chatId)}>I'm typing!</button>
                           </td>
-                          ) : <td></td>
+                           :
+                              <td>
+                                  {(privateChatTypingSub?.user_typing_private || []).map((currUserTyping) => <span>{currUserTyping.user.name} ({currUserTyping.userId})</span>)}
+                                  <br />
+                                  <button onClick={() => handleUpdateTypingAt(curr.chatId)}>I'm typing!</button>
+                              </td>
                       }
                   <td>{curr.totalMessages}</td>
                   <td>{curr.totalUnread}</td>
+                  <td>{curr.visible == true ? 'Yes' : 'No'}
+                      <button onClick={() => handleCloseChat(curr.chatId)}>Close chat!</button>
+                  </td>
               </tr>
           );
         })}

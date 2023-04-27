@@ -12,7 +12,8 @@ case class ChatUserDbModel(
     meetingId:  String,
     userId:     String,
     lastSeenAt: Long,
-    typingAt:   Option[java.sql.Timestamp]
+    typingAt:   Option[java.sql.Timestamp],
+    visible:    Boolean
 )
 
 class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "chat_user") {
@@ -21,23 +22,24 @@ class ChatUserDbTableDef(tag: Tag) extends Table[ChatUserDbModel](tag, None, "ch
   val userId = column[String]("userId", O.PrimaryKey)
   val lastSeenAt = column[Long]("lastSeenAt")
   val typingAt = column[Option[java.sql.Timestamp]]("typingAt")
+  val visible = column[Boolean]("visible")
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (chatId, meetingId, userId, lastSeenAt, typingAt) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
+  override def * = (chatId, meetingId, userId, lastSeenAt, typingAt, visible) <> (ChatUserDbModel.tupled, ChatUserDbModel.unapply)
 }
 
 object ChatUserDAO {
 
-  def insert(meetingId: String, chatId: String, groupChatUser: GroupChatUser) = {
-    ChatUserDAO.insertUser(meetingId, chatId, groupChatUser.id)
+  def insert(meetingId: String, chatId: String, groupChatUser: GroupChatUser, visible: Boolean) = {
+    ChatUserDAO.insertUser(meetingId, chatId, groupChatUser.id, visible)
   }
 
   def insertUserPublicChat(meetingId: String, userId: String) = {
-    ChatUserDAO.insertUser(meetingId, "MAIN-PUBLIC-GROUP-CHAT", userId)
+    ChatUserDAO.insertUser(meetingId, "MAIN-PUBLIC-GROUP-CHAT", userId, true)
   }
 
-  def insertUser(meetingId: String, chatId: String, userId: String) = {
+  def insertUser(meetingId: String, chatId: String, userId: String, visible: Boolean) = {
     DatabaseConnection.db.run(
       TableQuery[ChatUserDbTableDef].insertOrUpdate(
         ChatUserDbModel(
@@ -45,7 +47,8 @@ object ChatUserDAO {
           chatId = chatId,
           meetingId = meetingId,
           lastSeenAt = 0,
-          typingAt = None
+          typingAt = None,
+          visible = visible
         )
       )
     ).onComplete {
@@ -66,6 +69,22 @@ object ChatUserDAO {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated typingAt on chat_user table!")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating typingAt on chat_user table: $e")
       }
+  }
+
+  def updateChatVisible(meetingId: String, chatId: String): Unit = {
+    if (chatId != "MAIN-PUBLIC-GROUP-CHAT" && chatId != "public") { //Public chat is always visible
+      DatabaseConnection.db.run(
+        TableQuery[ChatUserDbTableDef]
+          .filter(_.meetingId === meetingId)
+          .filter(_.chatId === chatId)
+          .filter(_.visible === false)
+          .map(u => (u.visible))
+          .update(true)
+      ).onComplete {
+          case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated visible on chat_user table!")
+          case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating visible on chat_user table: $e")
+        }
+    }
   }
 
 }
