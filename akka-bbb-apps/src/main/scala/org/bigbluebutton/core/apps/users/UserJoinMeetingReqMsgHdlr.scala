@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
+import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ RegisteredUser, RegisteredUsers, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting, MeetingActor, OutMsgRouter }
@@ -67,6 +68,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
           // fresh user joined (not due to reconnection). Clear (pop) the cached voice user
           VoiceUsers.recoverVoiceUser(liveMeeting.voiceUsers, msg.body.userId)
+          UserDAO.updateExpired(msg.body.userId, false)
 
           newState
         } else {

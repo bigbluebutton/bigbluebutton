@@ -25,7 +25,7 @@ export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: 
     mobile
     guest
     clientType
-    leftFlag
+    disconnected
     loggedOut
     voice {
       joined
@@ -82,11 +82,13 @@ export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`subscription {
   }
 }`;
 
-export const CURRENT_USER_SUBSCRIPTION = gql`subscription User($userId: String!) {
-  user(where: {userId: {_eq: $userId}}) {
+export const CURRENT_USER_SUBSCRIPTION   = gql`subscription {
+  user_current {
+    userId 
     isModerator
     guest
     presenter
+    locked
   }
 }`;
 

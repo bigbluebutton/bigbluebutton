@@ -27,7 +27,7 @@ object Users2x {
   }
 
   def remove(users: Users2x, intId: String): Option[UserState] = {
-    UserDAO.delete(intId)
+    //UserDAO.delete(intId)
     users.remove(intId)
   }
 
@@ -49,6 +49,7 @@ object Users2x {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
       users.save(newUser)
       UserDAO.update(newUser)
+      UserDAO.updateExpired(u.intId, false)
       newUser
     }
   }
@@ -124,7 +125,7 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      UserDAO.delete(intId)
+      //      UserDAO.delete(intId)
       ejectedUser
     }
   }
@@ -189,7 +190,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
       users.save(newUser)
-      UserDAO.updateEmoji(newUser)
+      UserDAO.update(newUser)
       newUser
     }
   }
