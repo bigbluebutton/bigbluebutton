@@ -1176,9 +1176,22 @@ You can see the list of languages installed with BigBlueButton in the directory 
 
 #### Change favicon
 
-To change the favicon, overwrite the file `/var/www/bigbluebutton-default/favicon.ico`.
+First method:
+
+To change the favicon, overwrite the file `/var/www/bigbluebutton-default/images/favicon.ico`.
 
 You'll need to update file each time the `bbb-config` package updates.
+
+Second method:
+
+Create a custom directory under `/var/www/bigbluebutton-default/` like `/var/www/bigbluebutton-default/site` and copy your favicon.ico into this directory. Add a new file `favicon.nginx` to `/etc/bigbluebutton/nginx` and add the following lines:
+
+```
+location = /favicon.ico {
+    alias /var/www/bigbluebutton-default/site/favicon.ico;
+```
+
+After a restart of nginx, your customized favicon.ico will be delivered. This change will affect BigBlueButton and Greenlight and will persist during updates.
 
 #### Change title in the HTML5 client
 
