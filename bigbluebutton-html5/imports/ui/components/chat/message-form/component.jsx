@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
-import { throttle } from '/imports/utils/throttle';
 import TypingIndicatorContainer from '/imports/ui/components/chat/chat-graphql/chat-typing-indicator/component';
 import Auth from '/imports/ui/services/auth';
 import ClickOutside from '/imports/ui/components/click-outside/component';
@@ -89,7 +88,7 @@ class MessageForm extends PureComponent {
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
-    this.handleUserTyping = throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
+    this.handleUserTyping = this.handleUserTyping.bind(this);
     this.typingIndicator = CHAT_CONFIG.typingIndicator.enabled;
   }
 
