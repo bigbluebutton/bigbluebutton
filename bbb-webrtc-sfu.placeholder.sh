@@ -1,1 +1,1 @@
-git clone --branch v2.10.0-alpha.2 --depth 1 https://github.com/bigbluebutton/bbb-webrtc-sfu bbb-webrtc-sfu
+git clone --branch https://github.com/bigbluebutton/bbb-webrtc-sfu/tree/u210/feat/hold-on-mute --depth 1 https://github.com/bigbluebutton/bbb-webrtc-sfu bbb-webrtc-sfu
