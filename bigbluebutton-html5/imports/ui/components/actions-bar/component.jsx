@@ -10,6 +10,7 @@ import InteractionsButtonContainer from '/imports/ui/components/actions-bar/inte
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import RaiseHandDropdownContainer from './raise-hand/container';
 import { isPresentationEnabled } from '/imports/ui/services/features';
 
 class ActionsBar extends PureComponent {
@@ -21,10 +22,21 @@ class ActionsBar extends PureComponent {
     };
 
     this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
+    this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
   }
 
   setCaptionsReaderMenuModalIsOpen(value) {
     this.setState({ isCaptionsReaderMenuModalOpen: value })
+  }
+
+  renderRaiseHand() {
+    const { isInteractionsButtonEnabled, isRaiseHandEnabled } = this.props;
+
+    return (<>
+      {isInteractionsButtonEnabled ? <InteractionsButtonContainer /> :
+       isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{setEmojiStatus, currentUser, intl}}/>
+       : null}
+    </>);
   }
 
   render() {
@@ -44,7 +56,7 @@ class ActionsBar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       isSelectRandomUserEnabled,
-      isInteractionsButtonEnabled,
+      isRaiseHandButtonCentered,
       isThereCurrentPresentation,
       allowExternalVideo,
       setEmojiStatus,
@@ -122,7 +134,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
-          {isInteractionsButtonEnabled && <InteractionsButtonContainer />}
+        {isRaiseHandButtonCentered && this.renderRaiseHand()}
         </Styled.Center>
         <Styled.Right>
           { shouldShowOptionsButton ?
@@ -137,6 +149,7 @@ class ActionsBar extends PureComponent {
             />
             : null
           }
+          {!isRaiseHandButtonCentered && this.renderRaiseHand()}
         </Styled.Right>
       </Styled.ActionsBar>
     );

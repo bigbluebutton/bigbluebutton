@@ -47,6 +47,7 @@ const ActionsBarContainer = (props) => {
 
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
+const RAISE_HAND_BUTTON_CENTERED = Meteor.settings.public.app.raiseHandActionButton.centered;
 
 const isInteractionsButtonEnabled = () => {
   const INTERACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.interactionsButton.enabled;
@@ -69,6 +70,7 @@ export default withTracker(() => ({
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
+  isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
   isInteractionsButtonEnabled: isInteractionsButtonEnabled(),
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),

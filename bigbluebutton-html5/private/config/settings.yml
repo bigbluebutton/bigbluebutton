@@ -140,6 +140,7 @@ public:
     showAudioFilters: true
     raiseHandActionButton:
       enabled: false
+      centered: true
     interactionsButton:
       enabled: false
     # If enabled, before joining microphone the client will perform a trickle
