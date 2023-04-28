@@ -12,7 +12,13 @@ import Styled from './styles';
 interface TypingIndicatorProps {
   typingUsers: Array<User>,
   indicatorEnabled: boolean,
-  intl: object,
+  error: string,
+}
+
+interface TypingIndicatorContainerProps {
+  userId: string,
+  isTypingTo: string,
+  isPrivate: boolean,
   error: string,
 }
 
@@ -29,9 +35,10 @@ const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   typingUsers,
   indicatorEnabled,
-  intl,
   error,
 }) => {
+  const intl = useIntl();
+
   if (!indicatorEnabled || !typingUsers) return null;
 
   const { length } = typingUsers;
@@ -100,9 +107,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   );
 };
 
-const TypingIndicatorContainer: React.FC = ({ userId, isTypingTo, isPrivate, error }) => {
-  const intl = useIntl();
-
+const TypingIndicatorContainer: React.FC<TypingIndicatorContainerProps> = ({ userId, isTypingTo, isPrivate, error }) => {
   const {
     data: typingUsersData,
   } = useSubscription(isPrivate ? IS_TYPING_PRIVATE_SUBSCRIPTION : IS_TYPING_PUBLIC_SUBSCRIPTION, {
@@ -123,7 +128,6 @@ const TypingIndicatorContainer: React.FC = ({ userId, isTypingTo, isPrivate, err
   return <TypingIndicator
     typingUsers={typingUsersArray}
     indicatorEnabled={TYPING_INDICATOR_ENABLED}
-    intl={intl}
     error={error}
   />
 };
