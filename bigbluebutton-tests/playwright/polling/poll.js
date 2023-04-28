@@ -16,6 +16,8 @@ class Polling extends MultiUsers {
   async createPoll() {
     await util.startPoll(this.modPage);
     await this.modPage.hasElement(e.pollMenuButton);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
   }
 
   async pollAnonymous() {
@@ -24,6 +26,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.publishPollingLabel);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.userPage.wasRemoved(e.receivedAnswer);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
   }
 
   async quickPoll() {
@@ -35,6 +39,8 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.pollMenuButton);
 
     await this.userPage.hasElement(e.pollingContainer);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
   }
 
   async pollUserResponse() {
@@ -56,6 +62,8 @@ class Polling extends MultiUsers {
 
     await this.modPage.hasElement(e.wbDrawnRectangle);
     await this.userPage.hasElement(e.wbDrawnRectangle);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
   }
 
   async stopPoll() {
@@ -64,6 +72,55 @@ class Polling extends MultiUsers {
     await this.userPage.waitForSelector(e.pollingContainer);
     await this.modPage.waitAndClick(e.cancelPollBtn);
     await this.userPage.wasRemoved(e.pollingContainer);
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+  }
+
+  async manageResponseChoices() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.startNewPoll();
+    const initialRespCount = await this.modPage.getSelectorCount(e.pollOptionItem);
+
+    // Add
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.typeOnLastChoiceInput();
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await expect(initialRespCount + 1).toEqual(await this.getAnswerOptionCount());
+    await this.checkLastOptionText();
+
+    // Delete
+    await this.startNewPoll();
+    await this.modPage.waitAndClick(e.deletePollOption);
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await expect(initialRespCount - 1).toEqual(await this.getAnswerOptionCount());
+
+    // Edit
+    await this.startNewPoll();
+    await this.typeOnLastChoiceInput();
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await expect(initialRespCount).toEqual(await this.getAnswerOptionCount());
+    await this.checkLastOptionText();
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+  }
+
+  async notAbleStartNewPollWithoutPresentation() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.hasElement(e.noPresentation);
   }
 
   async pollResultsOnChat() {
@@ -95,34 +152,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.wbDrawnRectangle);
   }
 
-  async manageResponseChoices() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.startNewPoll();
-    const initialRespCount = await this.modPage.getSelectorCount(e.pollOptionItem);
-
-    // Add
-    await this.modPage.waitAndClick(e.addPollItem);
-    await this.typeOnLastChoiceInput();
-    await this.modPage.waitAndClick(e.startPoll);
-
-    await expect(initialRespCount + 1).toEqual(await this.getAnswerOptionCount());
-    await this.checkLastOptionText();
-
-    // Delete
-    await this.startNewPoll();
-    await this.modPage.waitAndClick(e.deletePollOption);
-    await this.modPage.waitAndClick(e.startPoll);
-
-    await expect(initialRespCount - 1).toEqual(await this.getAnswerOptionCount());
-
-    // Edit
-    await this.startNewPoll();
-    await this.typeOnLastChoiceInput();
-    await this.modPage.waitAndClick(e.startPoll);
-
-    await expect(initialRespCount).toEqual(await this.getAnswerOptionCount());
-    await this.checkLastOptionText();
-  }
+  
 
   async startNewPoll() {
     const hasPollStarted = await this.modPage.checkElement(e.pollMenuButton);
@@ -149,16 +179,7 @@ class Polling extends MultiUsers {
     await expect(lastOptionText).toHaveText(this.newInputText);
   }
 
-  async notAbleStartNewPollWithoutPresentation() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.waitAndClick(e.confirmManagePresentation);
-
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.polling);
-    await this.modPage.hasElement(e.noPresentation);
-  }
+  
 
   async customInput() {
     await this.modPage.waitAndClick(e.actions);
