@@ -10,8 +10,7 @@ import Styled from './styles';
 import { Meteor } from 'meteor/meteor';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 import { debounce } from "radash";
-import { makeCall } from "/imports/ui/services/api";
-import { User } from "/imports/ui/Types/user";
+import { TalkingIndicatorProps } from "/imports/ui/Types/talking-indicator";
 import { uniqueId } from '/imports/utils/string-utils';
 import { CurrentUser } from "/imports/api/users";
 
@@ -50,25 +49,17 @@ const PUBLIC_CONFIG = Meteor.settings.public;
 const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
 const amIModerator = CurrentUser.role === ROLE_MODERATOR;
 
-interface TalkingIndicatorProps {
-    muteUser: Function,
-    talkers: Array<User>,
-    moreThanMaxIndicators: Boolean,
-    color: String,
-    muted: Boolean,
-    name: String,
-    userId: String,
-    talking: Boolean,
-    transcribing: Boolean,
-    floor: Boolean,
-}
-
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     moreThanMaxIndicators,
     talkers,
 }) => {
 
     const intl = useIntl();
+
+    const handleMuteUser = (id) => {
+        if (!amIModerator || isBreakoutRoom) return;
+        handleMuteUser(id);
+    }
 
     const talkingUserElements = Object.keys(talkers).map((id) => {
         const {
