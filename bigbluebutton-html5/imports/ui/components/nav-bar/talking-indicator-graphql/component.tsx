@@ -4,15 +4,14 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
     TALKING_INDICATOR_SUBSCRIPTION,
     MEETING_IS_BREAKOUT,
+    AM_I_MODERATOR,
 } from "../queries";
 import Service from '../talking-indicator/service';
 import Styled from './styles';
-import { Meteor } from 'meteor/meteor';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 import { debounce } from "radash";
 import { TalkingIndicatorProps } from "/imports/ui/Types/talking-indicator";
 import { uniqueId } from '/imports/utils/string-utils';
-import { CurrentUser } from "/imports/api/users";
 
 const intlMessages = defineMessages({
     wasTalking: {
@@ -45,9 +44,7 @@ const TALKING_INDICATORS_MAX = 8;
 const TALKING_INDICATOR_MUTE_INTERVAL = 500;
 
 const isBreakoutRoom = MEETING_IS_BREAKOUT;
-const PUBLIC_CONFIG = Meteor.settings.public;
-const ROLE_MODERATOR = PUBLIC_CONFIG.user.role_moderator;
-const amIModerator = CurrentUser.role === ROLE_MODERATOR;
+const amIModerator = AM_I_MODERATOR;
 
 const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     moreThanMaxIndicators,

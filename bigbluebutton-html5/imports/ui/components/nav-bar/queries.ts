@@ -21,8 +21,17 @@ export const MEETING_IS_BREAKOUT = gql ` subscription MeetingIsBreakout {
       isBreakout
     }
   }`;
+
+  export const AM_I_MODERATOR = gql ` subscription AmIModerator{
+    user {
+      role
+    }
+  }`;
+  
+  
  
   export default {
     TALKING_INDICATOR_SUBSCRIPTION,
     MEETING_IS_BREAKOUT,
+    AM_I_MODERATOR,
   };
