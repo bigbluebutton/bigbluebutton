@@ -25,7 +25,7 @@ mkdir -p staging/usr/local/bin/hasura-graphql-engine
 cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 
 mkdir -p staging/etc/default/bbb-graphql-server
-cp ./hasura-config.env staging/etc/default/bbb-graphql-server
+cp -r ./hasura-config.env bbb_schema.sql metadata staging/etc/default/bbb-graphql-server
 
 mkdir -p staging/lib/systemd/system/bbb-graphql-server.service  
 cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service

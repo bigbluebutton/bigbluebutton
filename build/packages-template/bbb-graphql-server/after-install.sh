@@ -7,13 +7,13 @@ case "$1" in
 
   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'bigbluebutton'"
   sudo -u postgres psql -c "create database bigbluebutton"
-  sudo -u postgres psql -U postgres -d bigbluebutton -a -f bbb_schema.sql --set ON_ERROR_STOP=on
+  sudo -u postgres psql -U postgres -d bigbluebutton -a -f /etc/default/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
   sudo -u postgres psql -c "create database hasura_app"
   echo "Postgresql configured"
 
   # Apply BBB metadata in Hasura
-  /usr/local/bin/hasura metadata apply
-
+  /usr/local/bin/hasura /etc/default/bbb-graphql-server/metadata apply
+  rm -rf /etc/default/bbb-graphql-server/metadata
 
   systemctl enable bbb-graphql-server.service
   systemctl daemon-reload
