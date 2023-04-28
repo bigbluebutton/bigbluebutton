@@ -96,7 +96,6 @@
     "yaml": "^1.7.2"
   },
   "devDependencies": {
-    "@types/meteor": "^2.9.2",
     "chai": "~4.2.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
