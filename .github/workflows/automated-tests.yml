@@ -17,7 +17,7 @@ permissions:
   contents: read
 jobs:
   build-install-and-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
@@ -28,6 +28,7 @@ jobs:
       - run: ./build/setup.sh bbb-freeswitch-core
       - run: ./build/setup.sh bbb-freeswitch-sounds
       - run: ./build/setup.sh bbb-fsesl-akka
+      - run: ./build/setup.sh bbb-graphql-server
       - run: ./build/setup.sh bbb-html5-nodejs
       - run: ./build/setup.sh bbb-html5
       - run: ./build/setup.sh bbb-learning-dashboard

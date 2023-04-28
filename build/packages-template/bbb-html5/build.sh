@@ -91,7 +91,8 @@ cp bbb-html5-with-roles.conf staging/usr/share/meteor/bundle
 cp mongod_start_pre.sh staging/usr/share/meteor/bundle
 chmod +x staging/usr/share/meteor/bundle/mongod_start_pre.sh
 
-cp mongo-ramdisk.conf staging/etc/mongod.conf
+cp mongo-ramdisk.conf staging/usr/share/meteor/bundle
+# cp mongo-ramdisk.conf staging/etc/mongod.conf
 
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-html5.service staging/usr/lib/systemd/system
