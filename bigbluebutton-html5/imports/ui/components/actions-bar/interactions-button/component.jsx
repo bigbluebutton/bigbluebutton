@@ -111,7 +111,7 @@ const InteractionsButton = (props) => {
       dropdownActions.push({
         key: 'setstatus',
         dataTest: 'setstatus',
-        icon: 'interactions-reaction',
+        icon: 'happy',
         label: intl.formatMessage(intlMessages.addReactionLabel),
         onClick: () => {
           setDropdownList([{
@@ -184,7 +184,7 @@ const InteractionsButton = (props) => {
         label={intl.formatMessage(intlMessages.presentLabel)}
         onClick={() => handlePresent()}
         id="btn"
-        icon="interactions-notAway"
+        icon="user"
         disabled={emoji !== 'away'}
         size="md"
         color={emoji !== 'away' ? 'primary' : 'default'}
@@ -193,7 +193,7 @@ const InteractionsButton = (props) => {
         label={intl.formatMessage(intlMessages.awayLabel)}
         onClick={() => handleAFK()}
         id="btn"
-        icon="interactions-away"
+        icon="clear_status"
         disabled={emoji === 'away'}
         size="md"
         color={emoji === 'away' ? 'primary' : 'default'}

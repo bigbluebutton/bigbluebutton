@@ -102,7 +102,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji, intl } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled, description, selected } = a;
+      const { dataTest, label, onClick, key, disabled, accessKey, description, selected } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -150,7 +150,7 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest, opts, accessKey } = this.props;
+    const { accessKey, trigger, intl, customStyles, renderOtherComponents, dataTest, opts } = this.props;
     const actionsItems = this.makeMenuItems();
 
     let menuStyles = { zIndex: 9999 };
@@ -192,6 +192,7 @@ class BBBMenu extends React.Component {
           onKeyDownCapture={this.handleKeyDown}
         >
           {actionsItems}
+          {renderOtherComponents}
           {anchorEl && window.innerWidth < SMALL_VIEWPORT_BREAKPOINT &&
             <Styled.CloseButton
               label={intl.formatMessage(intlMessages.close)}
