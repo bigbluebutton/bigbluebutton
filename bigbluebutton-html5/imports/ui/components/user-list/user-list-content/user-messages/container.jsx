@@ -40,7 +40,6 @@ const Container = withTracker(() => {
 const blank = () => (
   <>
     {
-      // console.log("Teste chat item list", chatList)
       (
         chatList === 'graphql'
         || chatList === 'both'
