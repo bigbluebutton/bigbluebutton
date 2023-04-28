@@ -110,7 +110,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   tabIndex={0}
                   />
                 );
-              }}            
+              }}
         </AutoSizer>
       }
     </Styled.UserListColumn>
@@ -120,7 +120,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
-  
+
   const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
     variables:{
       offset,
@@ -141,13 +141,9 @@ const UserListParticipantsContainer: React.FC = () => {
     loading: currentUserLoading,
     error: currentUserError,
     data: currentUserData,
-  } = useSubscription(CURRENT_USER_SUBSCRIPTION, {
-    variables:{
-      userId: Auth.userID,
-    }
-  });
+  } = useSubscription(CURRENT_USER_SUBSCRIPTION);
 
-  const { user: currentUserArr } = (currentUserData || {});
+  const { user_current: currentUserArr } = (currentUserData || {});
   const currentUser = currentUserArr && currentUserArr[0];
 
   const {
