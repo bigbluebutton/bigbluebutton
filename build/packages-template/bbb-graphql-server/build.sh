@@ -33,12 +33,12 @@ cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.se
 mkdir -p staging/usr/share/bigbluebutton/nginx
 cp graphql.nginx staging/usr/share/bigbluebutton/nginx
 
+mkdir -p staging/usr/local/bin/hasura
 mkdir -p hasura-cli
 cd hasura-cli
 npm install --save-dev hasura-cli
 ls -l node_modules
-mkdir -p staging/usr/local/bin/hasura
-cp -r node_modules/hasura-cli/* staging/usr/local/bin/hasura
+cp -r node_modules/hasura-cli/* ../staging/usr/local/bin/hasura
 cd ..
 rm -rf hasura-cli
 
