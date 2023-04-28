@@ -16,13 +16,13 @@ done;
 echo "Mongo started";
 
 echo "Initializing replicaset"
-mongo 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
+mongosh 127.0.1.1 --eval 'rs.initiate({ _id: "rs0", members: [ {_id: 0, host: "127.0.1.1"} ]})'
 
 
 echo "Waiting to become a master"
 IS_MASTER="XX"
 while [ "$IS_MASTER" \!= "true" ]; do
-    IS_MASTER=$(mongo mongodb://127.0.1.1:27017/ --eval  'db.isMaster().ismaster' | tail -n 1)
+    IS_MASTER=$(mongosh mongodb://127.0.1.1:27017/ --eval  'db.isMaster().ismaster' | tail -n 1)
     sleep 0.5;
 done;
 
