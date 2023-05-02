@@ -8,7 +8,7 @@ import switchTimer from './methods/switchTimer';
 import setTimer from './methods/setTimer';
 import getServerTime from './methods/getServerTime';
 import setTrack from './methods/setTrack';
-import timerEnded from './methods/timerEnded';
+import timerEnded from './methods/endTimer';
 
 Meteor.methods({
   activateTimer,

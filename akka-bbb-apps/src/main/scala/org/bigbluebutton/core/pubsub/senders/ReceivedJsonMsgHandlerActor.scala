@@ -404,6 +404,29 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
       case StopExternalVideoPubMsg.NAME =>
         routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
+
+      // Timer
+      case CreateTimerPubMsg.NAME =>
+        routeGenericMsg[CreateTimerPubMsg](envelope, jsonNode)
+      case ActivateTimerReqMsg.NAME =>
+        routeGenericMsg[ActivateTimerReqMsg](envelope, jsonNode)
+      case DeactivateTimerReqMsg.NAME =>
+        routeGenericMsg[DeactivateTimerReqMsg](envelope, jsonNode)
+      case StartTimerReqMsg.NAME =>
+        routeGenericMsg[StartTimerReqMsg](envelope, jsonNode)
+      case StopTimerReqMsg.NAME =>
+        routeGenericMsg[StopTimerReqMsg](envelope, jsonNode)
+      case SwitchTimerReqMsg.NAME =>
+        routeGenericMsg[SwitchTimerReqMsg](envelope, jsonNode)
+      case SetTimerReqMsg.NAME =>
+        routeGenericMsg[SetTimerReqMsg](envelope, jsonNode)
+      case ResetTimerReqMsg.NAME =>
+        routeGenericMsg[ResetTimerReqMsg](envelope, jsonNode)
+      case SetTrackReqMsg.NAME =>
+        routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
+      case TimerEndedPubMsg.NAME =>
+        routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

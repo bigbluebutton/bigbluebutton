@@ -13,6 +13,5 @@ const TimerContainer = (props) => {
 
 export default withTracker(() => ({
   isModerator: TimerService.isModerator(),
-  isTimerActive: TimerService.isActive(),
   stopwatch: TimerService.getStopwatch(),
 }))(TimerContainer);

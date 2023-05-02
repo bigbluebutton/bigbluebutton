@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import TimerService from '/imports/ui/components/timer/service';
+import { PANELS, ACTIONS } from '../../../layout/enums';
 import Styled from './styles';
 
 const propTypes = {
@@ -27,17 +28,27 @@ const intlMessages = defineMessages({
 });
 
 class Timer extends PureComponent {
+  componentDidMount() {
+    const { layoutContextDispatch } = this.props;
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.TIMER,
+    });
+  }
+
   render() {
     const {
       intl,
       isModerator,
-      isTimerActive,
-      stopwatch,
       sidebarContentPanel,
       layoutContextDispatch,
     } = this.props;
 
-    if (!isModerator || !isTimerActive) return null;
+    if (!isModerator) return null;
 
     const message = stopwatch ? intlMessages.stopwatch : intlMessages.timer;
 

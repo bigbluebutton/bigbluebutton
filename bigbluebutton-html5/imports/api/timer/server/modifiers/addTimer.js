@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import Timer from '/imports/api/timer';
 import Logger from '/imports/startup/server/logger';
-import { TRACKS, getDefaultTime } from '/imports/api/timer/server/helpers';
+import { getInitialState } from '/imports/api/timer/server/helpers';
 
 // This method should only be used by the server
 export default function addTimer(meetingId) {
@@ -11,18 +11,10 @@ export default function addTimer(meetingId) {
     meetingId,
   };
 
-  const time = getDefaultTime();
-  check(time, Number);
-
   const modifier = {
     meetingId,
-    stopwatch: true,
+    ...getInitialState(),
     active: false,
-    running: false,
-    time,
-    accumulated: 0,
-    timestamp: 0,
-    track: TRACKS[0],
     ended: 0,
   };
 

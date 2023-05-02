@@ -273,6 +273,14 @@ class ActionsDropdown extends PureComponent {
     return actions;
   }
 
+  handleTimerClick(activate) {
+    if (activate) {
+      TimerService.activateTimer();
+    } else {
+      TimerService.deactivateTimer();
+    }
+  }
+
   makePresentationItems() {
     const {
       presentations,

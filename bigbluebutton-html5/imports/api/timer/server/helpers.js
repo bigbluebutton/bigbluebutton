@@ -15,11 +15,26 @@ const isEnabled = () => TIMER_CONFIG.enabled;
 
 const getDefaultTime = () => TIMER_CONFIG.time * MILLI_IN_MINUTE;
 
+const getInitialState = () => {
+  const time = getDefaultTime();
+  check(time, Number);
+
+  return {
+    stopwatch: true,
+    running: false,
+    time,
+    accumulated: 0,
+    timestamp: 0,
+    track: TRACKS[0],
+  }
+};
+
 const isTrackValid = (track) => TRACKS.includes(track);
 
 export {
   TRACKS,
   isEnabled,
   getDefaultTime,
+  getInitialState,
   isTrackValid,
 };

@@ -2,21 +2,15 @@ import { check } from 'meteor/check';
 import Timer from '/imports/api/timer';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
-import { TRACKS, getDefaultTime } from '/imports/api/timer/server/helpers';
+import { TRACKS, getInitialState } from '/imports/api/timer/server/helpers';
+import { sysStopTimer } from '../methods/stopTimer';
+import { sysEndTimer } from '../methods/endTimer';
 
 const getActivateModifier = () => {
-  const time = getDefaultTime();
-  check(time, Number);
-
   return {
     $set: {
-      stopwatch: true,
       active: true,
-      running: false,
-      time,
-      accumulated: 0,
-      timestamp: 0,
-      track: TRACKS[0],
+      ...getInitialState(),
       ended: 0,
     },
   };
@@ -50,11 +44,8 @@ const handleTimerEndedNotifications = (fields, meetingId, handle) => {
   }
 
   if (fields.ended >= meetingUsers) {
-    updateTimer({
-      action: 'stop',
-      meetingId,
-      stopwatch: false,
-    });
+    sysStopTimer(meetingId);
+    sysEndTimer(meetingId);
   }
 };
 
@@ -135,10 +126,22 @@ const getEndedModifier = () => {
   };
 };
 
+const logTimer = (meetingId, requesterUserId, action, stopwatch, time, track) => {
+  if (action === 'switch') {
+    Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} stopwatch=${stopwatch} `);
+  } else if (action === 'set' && time !== 0) {
+    Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} ${time}ms`);
+  } else if (action == 'track') {
+    Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} changed to ${track}`);
+  } else {
+    Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action}`);
+  }
+}
+
 export default function updateTimer({
   action,
   meetingId,
-  requesterUserId = 'SYSTEM_REQUEST',
+  requesterUserId,
   time = 0,
   stopwatch = true,
   accumulated = 0,
@@ -195,20 +198,7 @@ export default function updateTimer({
     const { numberAffected } = Timer.upsert(selector, modifier);
 
     if (numberAffected) {
-      Logger.verbose(`Updated timer meetingId=${meetingId}`);
-
-      if (action === 'switch'){
-        if (stopwatch === false){     //required if because timer is a boolean
-          Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} timer `);
-        }else{ 
-          Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} stopwatch `);
-        }
-      }else if (action === 'set' && time !== 0) {
-        Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} ${time}ms`);
-      }else if (action == 'track') {
-        Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} changed to ${track}`);
-      }else 
-        Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action}`);
+      logTimer(meetingId, requesterUserId, action, stopwatch, time, track);
     }
     
   } catch (err) {

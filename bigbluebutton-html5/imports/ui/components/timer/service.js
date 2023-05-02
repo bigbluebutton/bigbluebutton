@@ -98,16 +98,7 @@ const setTimer = (time) => makeCall('setTimer', time);
 
 const resetTimer = () => makeCall('resetTimer');
 
-const activateTimer = (layoutContextDispatch) => makeCall('activateTimer').then(result => {
-  layoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-    value: true,
-  });
-  layoutContextDispatch({
-    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-    value: PANELS.TIMER,
-  });
-});;
+const activateTimer = () => makeCall('activateTimer');
 
 const deactivateTimer = () => makeCall('deactivateTimer');
 
