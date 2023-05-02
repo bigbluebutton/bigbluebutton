@@ -1,25 +1,25 @@
 import styled from 'styled-components';
 import { colorText, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
 import Icon from '/imports/ui/components/common/icon/component';
-import BaseRadio from '@material-ui/core/Radio';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { withStyles } from '@material-ui/core/styles';
+import BaseRadio from '@mui/material/Radio';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { styled as muiStyled } from '@mui/system';
 
-const Radio = withStyles({
-  checked: {
+const Radio = muiStyled(BaseRadio)(() => ({
+  '&.Mui-checked': {
     color: `${colorSuccess} !important`,
   },
-})(BaseRadio);
+}));
 
-const Label = withStyles({
-  label: {
+const Label = muiStyled(FormControlLabel)(() => ({
+  '& .MuiFormControlLabel-label': {
     fontFamily: 'inherit !important',
     color: `${colorText} !important`,
   },
-  disabled: {
+  '&.Mui-disabled': {
     cursor: 'not-allowed !important',
   },
-})(FormControlLabel);
+}));
 
 const RadioIcon = styled(Icon)``;
 
