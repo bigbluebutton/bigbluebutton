@@ -18,7 +18,7 @@ pushd .
 mkdir -p staging/usr/lib/bbb-html5/node
 cd staging/usr/lib/bbb-html5/node
 
-wget --waitretry=30 --timeout=20 --retry-connrefused --retry-on-host-error --retry-on-http-error=404,522 https:///static.meteor.com/dev-bundle-node-os/v${NODE_VERSION}/${NODE_DIRNAME}.tar.gz
+wget --waitretry=30 --timeout=20 --retry-connrefused --retry-on-host-error --retry-on-http-error=404,522 https://static.meteor.com/dev-bundle-node-os/v${NODE_VERSION}/${NODE_DIRNAME}.tar.gz
 if [ -f ${NODE_DIRNAME}.tar.gz ]; then
     tar xfz ${NODE_DIRNAME}.tar.gz
     mv ${NODE_DIRNAME}/* .
