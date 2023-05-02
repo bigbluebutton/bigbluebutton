@@ -43,11 +43,15 @@ class Indicator extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { timer } = this.props;
-    const { timer: prevTimer } = prevProps;
+    const { timer, isTimerActive } = this.props;
+    const { timer: prevTimer, isTimerActive: prevTimerActive } = prevProps;
 
     if (this.shouldPlayMusic()) {
       this.playMusic();
+    }
+
+    if (!isTimerActive && prevTimerActive) {
+      this.updateTabTitleTimer(true, this.getTime());
     }
 
     this.updateInterval(prevTimer, timer);
@@ -301,6 +305,22 @@ class Indicator extends Component {
     const { current } = this.timeRef;
     if (current) {
       current.textContent = this.getTime();
+      this.updateTabTitleTimer(false, current.textContent);
+    }
+  }
+
+  updateTabTitleTimer(deactivation, timeString) {
+    const matchTimerString = /\[[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\]/g;
+
+    if (deactivation) {
+      document.title = document.title.replace(matchTimerString, '');
+    } else {
+      if (RegExp(matchTimerString).test(document.title)) {
+        document.title = document.title.replace(matchTimerString, '');
+        document.title = '[' + timeString + '] ' + document.title;
+      } else {
+        document.title = '[' + timeString + '] ' + document.title;
+      }
     }
   }
 
@@ -323,7 +343,7 @@ class Indicator extends Component {
     }
 
     const onClick = running ? TimerService.stopTimer : TimerService.startTimer;
-
+    this.updateTabTitleTimer(false, time);
     return (
       <Styled.TimerWrapper>
         <Styled.Timer>
