@@ -31,7 +31,8 @@ export default async function exportPresentationToChat(presentationId, type) {
 
       const selector = { meetingId, id: presentationId };
       const cursor = Presentations.find(selector);
-      const numPages = await cursor.fetchAsync()[0]?.pages?.length ?? 1;
+      const pres = await Presentations.findOneAsync(selector);
+      const numPages = pres?.pages?.length ?? 1;
       const threshold = EXPORTING_THRESHOLD_PER_SLIDE * numPages;
 
       const observer = cursor.observe({

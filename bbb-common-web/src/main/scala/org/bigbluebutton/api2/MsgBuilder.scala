@@ -151,7 +151,7 @@ object MsgBuilder {
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(), msg.removable.booleanValue())
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
-      code = msg.key, presentation)
+      code = msg.key, presentation, msg.presentationConvertedName)
     val req = PresentationConversionCompletedSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }

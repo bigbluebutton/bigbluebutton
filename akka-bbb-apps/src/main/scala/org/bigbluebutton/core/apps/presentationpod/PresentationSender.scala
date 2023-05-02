@@ -30,7 +30,8 @@ object PresentationSender {
       bus:       MessageBus,
       meetingId: String,
       podId:     String, userId: String, messageKey: String,
-      code: String, presentation: PresentationVO
+      code: String, presentation: PresentationVO,
+      presentationConvertedName: String
   ): Unit = {
     val routing = Routing.addMsgToClientRouting(
       MessageTypes.BROADCAST_TO_MEETING,
@@ -39,7 +40,7 @@ object PresentationSender {
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedEvtMsg.NAME, meetingId, userId)
 
-    val body = PresentationConversionCompletedEvtMsgBody(podId, messageKey, code, presentation)
+    val body = PresentationConversionCompletedEvtMsgBody(podId, messageKey, code, presentation, presentationConvertedName)
     val event = PresentationConversionCompletedEvtMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
     bus.outGW.send(msgEvent)

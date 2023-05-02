@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
@@ -30,7 +31,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.header.userId,
         msg.body.messageKey,
         msg.body.code,
-        presVO
+        presVO,
+        msg.body.presentationConvertedName
       )
       PresentationSender.broadcastSetPresentationDownloadableEvtMsg(
         bus,
@@ -42,8 +44,10 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         pres.name
       )
 
+      val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,
+        pres.downloadable, pres.removable, msg.body.presentationConvertedName)
       var pods = state.presentationPodManager.addPod(pod)
-      pods = pods.addPresentationToPod(pod.id, pres)
+      pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
       state.update(pods)
     }

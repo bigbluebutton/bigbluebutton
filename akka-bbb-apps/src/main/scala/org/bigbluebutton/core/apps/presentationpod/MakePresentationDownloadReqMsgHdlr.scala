@@ -161,7 +161,8 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
         // Return existing uploaded file directly
-        val filename = currentPres.get.name
+        val convertedFileName = currentPres.get.presentationConvertedName
+        val filename = if (convertedFileName == "") currentPres.get.name else convertedFileName
         val presFilenameExt = filename.split("\\.").last
 
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)

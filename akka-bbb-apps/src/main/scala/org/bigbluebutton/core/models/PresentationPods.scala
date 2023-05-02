@@ -62,6 +62,7 @@ case class PresentationInPod(
     pages:        scala.collection.immutable.Map[String, PresentationPage],
     downloadable: Boolean,
     removable:    Boolean,
+    presentationConvertedName: String = "",
 )
 
 object PresentationPod {

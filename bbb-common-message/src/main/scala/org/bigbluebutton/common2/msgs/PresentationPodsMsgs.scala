@@ -90,7 +90,7 @@ case class PresentationConversionCompletedSysPubMsg(
     body:   PresentationConversionCompletedSysPubMsgBody
 ) extends StandardMsg
 case class PresentationConversionCompletedSysPubMsgBody(podId: String, messageKey: String, code: String,
-                                                        presentation: PresentationVO)
+                                                        presentation: PresentationVO, presentationConvertedName: String)
 
 object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
 case class PresentationPageConvertedSysMsg(
@@ -311,7 +311,8 @@ case class PresentationConversionEndedEventMsgBody(
 
 object PresentationConversionCompletedEvtMsg { val NAME = "PresentationConversionCompletedEvtMsg" }
 case class PresentationConversionCompletedEvtMsg(header: BbbClientMsgHeader, body: PresentationConversionCompletedEvtMsgBody) extends BbbCoreMsg
-case class PresentationConversionCompletedEvtMsgBody(podId: String, messageKey: String, code: String, presentation: PresentationVO)
+case class PresentationConversionCompletedEvtMsgBody(podId: String, messageKey: String, code: String, presentation: PresentationVO,
+                                                     presentationConvertedName: String)
 
 object GetAllPresentationPodsRespMsg { val NAME = "GetAllPresentationPodsRespMsg" }
 case class GetAllPresentationPodsRespMsg(header: BbbClientMsgHeader, body: GetAllPresentationPodsRespMsgBody) extends StandardMsg

@@ -27,6 +27,9 @@ import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class SlidesGenerationProgressNotifier {
   private static Logger log = LoggerFactory.getLogger(SlidesGenerationProgressNotifier.class);
 
@@ -113,7 +116,7 @@ public class SlidesGenerationProgressNotifier {
       pres.getId(), pres.getTemporaryPresentationId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.CONVERSION_COMPLETED_KEY,
-      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent());
+      pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent(), pres.getPresentationConvertedName());
     messagingService.sendDocConversionMsg(progress);
   }
 
