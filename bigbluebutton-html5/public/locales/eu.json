@@ -450,6 +450,7 @@
     "app.submenu.application.applicationSectionTitle": "Aplikazioa",
     "app.submenu.application.animationsLabel": "Animazioak",
     "app.submenu.application.audioFilterLabel": "Mikrofonorako audio iragazkiak",
+    "app.submenu.application.wbToolbarsAutoHideLabel": "Ezkutatu automatikoki arbel zuriko tresna-barrak",
     "app.submenu.application.darkThemeLabel": "Modu iluna",
     "app.submenu.application.fontSizeControlLabel": "Letra tamaina",
     "app.submenu.application.increaseFontBtnLabel": "Handitu aplikazioaren letra",
