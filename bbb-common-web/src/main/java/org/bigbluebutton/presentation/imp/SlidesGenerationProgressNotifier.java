@@ -27,6 +27,7 @@ import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -111,6 +112,8 @@ public class SlidesGenerationProgressNotifier {
       log.error("GeneratedSlidesInfoHelper was not set. Could not notify interested listeners.");
       return;
     }
+    // Completed conversion -> delete original file
+    pres.deleteOriginalFile();
 
     DocPageCompletedProgress progress = new DocPageCompletedProgress(pres.getPodId(), pres.getMeetingId(),
       pres.getId(), pres.getTemporaryPresentationId(), pres.getId(),
