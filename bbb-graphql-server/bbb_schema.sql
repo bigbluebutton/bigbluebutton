@@ -129,7 +129,21 @@ create table "meeting_usersPolicies" (
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
-CREATE OR REPLACE VIEW "v_meeting_usersPolicies" AS SELECT * FROM "meeting_usersPolicies";
+CREATE OR REPLACE VIEW "v_meeting_usersPolicies" AS
+SELECT "meeting_usersPolicies"."meetingId",
+    "meeting_usersPolicies"."maxUsers",
+    "meeting_usersPolicies"."maxUserConcurrentAccesses",
+    "meeting_usersPolicies"."webcamsOnlyForModerator",
+    "meeting_usersPolicies"."userCameraCap",
+    "meeting_usersPolicies"."guestPolicy",
+    "meeting_usersPolicies"."meetingLayout",
+    "meeting_usersPolicies"."allowModsToUnmuteUsers",
+    "meeting_usersPolicies"."allowModsToEjectCameras",
+    "meeting_usersPolicies"."authenticatedGuest",
+    "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
+    "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
+   FROM "meeting_usersPolicies"
+   JOIN "meeting" using("meetingId");
 
 create table "meeting_metadata"(
 	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
