@@ -744,8 +744,6 @@ class PresentationUploader extends Component {
     };
 
     exportPresentationToChat(item.id, observer, type);
-
-    Session.set('showUploadPresentationView', false);
   }
 
   getPresentationsToShow() {
@@ -1025,10 +1023,10 @@ class PresentationUploader extends Component {
 
     const isExporting = status === 'RUNNING';
 
-    const shouldDisableExportButton = isExporting
+    const shouldDisableExportButton = (isExporting
       || !item.conversion.done
       || hasError
-      || disableActions;
+      || disableActions) && !item.conversion?.done;
 
     const formattedDownloadLabel = isExporting
       ? intl.formatMessage(intlMessages.exporting)
@@ -1085,6 +1083,7 @@ class PresentationUploader extends Component {
                 isDownloadable={isDownloadable}
                 handleToggleDownloadable={this.handleToggleDownloadable}
                 item={item}
+                closeModal={() => Session.set('showUploadPresentationView', false)}
                 handleDownloadingOfPresentation={(type) => this.handleDownloadingOfPresentation(item, type)}
               />
             ) : null}

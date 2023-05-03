@@ -3,8 +3,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { uniqueId } from '/imports/utils/string-utils';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
-import Styled from './styles'
-
+import PresentationDownloadDropdownWrapper from './presentation-download-dropdown-wrapper/component'
 
 const intlMessages = defineMessages({
   enableOriginalPresentationDownload: {
@@ -51,15 +50,17 @@ class PresentationDownloadDropdown extends PureComponent {
       handleToggleDownloadable,
       isDownloadable,
       item,
+      closeModal,
     } = this.props;
 
     this.menuItems = [];
 
     const toggleDownloadOriginalPresentation = (enableDownload) => {
+      handleToggleDownloadable(item);
       if (enableDownload) {
         handleDownloadingOfPresentation("Original");
       }
-      handleToggleDownloadable(item);
+      closeModal();
     }
 
     if (!isDownloadable) {
@@ -88,7 +89,10 @@ class PresentationDownloadDropdown extends PureComponent {
         id: 'sendAnnotatedDocument',
         dataTest: 'sendAnnotatedDocument',
         label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-        onClick: () => handleDownloadingOfPresentation("Annotated"),
+        onClick: () => {
+          closeModal();
+          handleDownloadingOfPresentation("Annotated");
+        },
       },
     );
 
@@ -99,10 +103,13 @@ class PresentationDownloadDropdown extends PureComponent {
     const {
       intl,
       isRTL,
+      disabled
     } = this.props;
 
     return (
-      <Styled.DropdownMenuWrapper>
+      <PresentationDownloadDropdownWrapper
+        disabled={disabled}
+      >
         <BBBMenu
           trigger={
             <Trigger
@@ -125,7 +132,7 @@ class PresentationDownloadDropdown extends PureComponent {
           }}
           actions={this.getAvailableActions()}
         />
-      </Styled.DropdownMenuWrapper>
+      </PresentationDownloadDropdownWrapper>
     );
   }
 }
