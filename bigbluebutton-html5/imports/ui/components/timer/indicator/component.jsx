@@ -8,6 +8,7 @@ const CDN = Meteor.settings.public.app.cdn;
 const BASENAME = Meteor.settings.public.app.basename;
 const HOST = CDN + BASENAME;
 const trackName = Meteor.settings.public.timer.music;
+const TAB_TIMER_INDICATOR = Meteor.settings.public.timer.tabIndicator;
 
 class Indicator extends Component {
   constructor(props) {
@@ -310,6 +311,8 @@ class Indicator extends Component {
   }
 
   updateTabTitleTimer(deactivation, timeString) {
+    if (!TAB_TIMER_INDICATOR) return;
+
     const matchTimerString = /\[[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\]/g;
 
     if (deactivation) {

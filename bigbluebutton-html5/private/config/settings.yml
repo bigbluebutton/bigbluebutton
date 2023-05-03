@@ -526,6 +526,7 @@ public:
       clock: 100
       offset: 60000
     time: 5
+    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
