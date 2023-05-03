@@ -43,7 +43,7 @@ export default async function handleValidateAuthToken({ body }, meetingId) {
 
   if (!valid) {
     await Promise.all(pendingAuths.map(
-      async (pendingAuth) => {
+      Meteor.bindEnvironment(async (pendingAuth) => {
         try {
           const { methodInvocationObject } = pendingAuth;
           const connectionId = methodInvocationObject.connection.id;
@@ -68,7 +68,7 @@ export default async function handleValidateAuthToken({ body }, meetingId) {
         } catch (e) {
           Logger.error(`Error closing socket for meetingId '${meetingId}', userId '${userId}', authToken ${authToken}`);
         }
-      },
+      }),
     ));
 
     return;
