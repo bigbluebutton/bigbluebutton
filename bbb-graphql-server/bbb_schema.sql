@@ -53,6 +53,7 @@ DROP FUNCTION IF EXISTS "update_pres_page_current_trigger_func";
 DROP FUNCTION IF EXISTS "pres_page_writers_update_delete_trigger_func";
 DROP FUNCTION IF EXISTS "update_user_hasDrawPermissionOnCurrentPage(varchar, varchar)";
 DROP FUNCTION IF EXISTS "update_user_emoji_time_trigger_func";
+DROP FUNCTION IF EXISTS "update_chatUser_clear_typingAt_trigger_func";
 
 -- ========== Meeting tables
 
@@ -473,48 +474,43 @@ CREATE TABLE "chat_user" (
 	"meetingId" varchar(100),
 	"userId" varchar(50),
 	"lastSeenAt" bigint,
-	"lastMsgSentAt" timestamp,
 	"typingAt"   timestamp,
 	"visible" boolean,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
-ALTER TABLE "chat_user" ADD COLUMN "typedAfterLastMsg" boolean GENERATED ALWAYS AS
-(case when "typingAt" is null then false
-    when "lastMsgSentAt" is null then true
-    when "typingAt" > "lastMsgSentAt" then true
-    else false END) STORED;
 
-CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId") WHERE "visible" is true;
-CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("typingAt")
+CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("meetingId", "userId", "chatId") WHERE "visible" is true;
+
+CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "typingAt")
         WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "typedAfterLastMsg" is true;
+        AND "typingAt" is not null;
 
-CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("chatId", "typingAt")
+CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
         WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "visible" is true
-        AND "typedAfterLastMsg" is true;
+        AND "visible" is true;
 
-
+CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+        WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+        AND "typingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
 SELECT "meetingId", "chatId", "userId", "typingAt",
 CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-AND "typedAfterLastMsg" is true;
+AND "typingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_private" AS
 SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."typingAt",
 CASE WHEN chat_with."typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
-									AND chat_with."chatId" = chat_user."chatId"
-									AND chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 									AND chat_with."userId" != chat_user."userId"
+									AND chat_with."chatId" = chat_user."chatId"
+									AND chat_with."typingAt" is not null
 WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-AND chat_user."visible" is true
-AND "typedAfterLastMsg" is true;
+AND chat_user."visible" is true;
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
@@ -531,17 +527,17 @@ CREATE TABLE "chat_message" (
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
 
-CREATE OR REPLACE FUNCTION "update_chatUser_lastMsgSentAt"() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION "update_chatUser_clear_typingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
   UPDATE "chat_user"
-  SET "lastMsgSentAt" = to_timestamp(NEW."createdTime" / 1000)
-  WHERE "chatId =" NEW."chatId" AND "meetingId" = NEW."meetingId" AND "userId" = NEW."senderId";
+  SET "typingAt" = null
+  WHERE "chatId" = NEW."chatId" AND "meetingId" = NEW."meetingId" AND "userId" = NEW."senderId";
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_lastMsgSentAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
-EXECUTE FUNCTION "update_chatUser_lastMsgSentAt"();
+CREATE TRIGGER "update_chatUser_clear_typingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+EXECUTE FUNCTION "update_chatUser_clear_typingAt_trigger_func"();
 
 
 CREATE OR REPLACE VIEW "v_chat" AS
