@@ -93,7 +93,7 @@ export function initAnnotationsStreamListener() {
       await Promise.all(annotations.map(async (annotation) => {
         const addedHandeler = await handleAddedAnnotation(annotation);
         return addedHandeler;
-      }))
+      }));
     });
   });
 }
