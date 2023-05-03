@@ -9,7 +9,7 @@ const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOA
 const CUSTOM_MEETING_ID = 'layout_management_meeting';
 
 test.describe.parallel('Layout management', () => {
-  test.only('Focus on presentation', async ({ browser, context, page }) => {
+  test('Focus on presentation', async ({ browser, context, page }) => {
     const focusOnPresentation = new FocusOnPresentation(browser, context);
     await focusOnPresentation.initModPage(page, true, { customMeetingId: CUSTOM_MEETING_ID, customParameter: hidePresentationToast });
     await focusOnPresentation.initModPage2(true, context, { customParameter: hidePresentationToast });
