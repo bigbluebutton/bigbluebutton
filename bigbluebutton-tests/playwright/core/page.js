@@ -293,6 +293,10 @@ class Page {
     await expect(locator).toContainText(text, { timeout });
   }
 
+  async haveTitle(title) {
+    await expect(this.page).toHaveTitle(title);
+  }
+
   async press(key) {
     await this.page.keyboard.press(key);
   }
