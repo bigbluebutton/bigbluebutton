@@ -29,6 +29,10 @@ class PrivateChat extends MultiUsers {
     // check sent messages 
     await this.modPage.hasText(e.privateChat, e.message2);
     await this.userPage.hasText(e.privateChat, e.message2);
+
+    await this.modPage.waitAndClick(e.chatButton);
+    await this.modPage.waitAndClick(e.chatOptions);
+    await this.modPage.waitAndClick(e.chatClear);
   }
 
   async closeChat() {
