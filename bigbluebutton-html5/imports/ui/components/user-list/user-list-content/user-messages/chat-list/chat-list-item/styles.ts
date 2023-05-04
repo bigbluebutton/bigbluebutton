@@ -1,6 +1,4 @@
 import styled from 'styled-components';
-import Styled from '/imports/ui/components/user-list/styles';
-import ContentStyled from '/imports/ui/components/user-list/user-list-content/styles';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   lgPaddingY,
@@ -16,6 +14,8 @@ import {
   colorWhite,
   userListBg,
   colorSuccess,
+  itemFocusBorder,
+  unreadMessagesBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface UserAvatarProps {
@@ -150,7 +150,41 @@ const ChatNameMain = styled.span`
   `}
 `;
 
-const ChatListItem = styled(Styled.ListItem)`
+const ChatListItem = styled.div`
+  display: flex;
+  flex-flow: row;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  cursor: pointer;
+
+  [dir="rtl"] & {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:hover {
+    outline: transparent;
+    outline-style: dotted;
+    outline-width: ${borderSize};
+    background-color: ${listItemBgHover};
+  }
+
+  &:active,
+  &:focus {
+    outline: transparent;
+    outline-width: ${borderSize};
+    outline-style: solid;
+    background-color: ${listItemBgHover};
+    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
+  }
   cursor: pointer;
   text-decoration: none;
   flex-grow: 1;
@@ -182,8 +216,29 @@ const ChatThumbnail = styled.div`
   font-size: 175%;
 `;
 
-const UnreadMessages = styled(ContentStyled.UnreadMessages)``;
-const UnreadMessagesText = styled(ContentStyled.UnreadMessagesText)``;
+const UnreadMessages = styled.div`
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  margin-left: auto;
+  [dir="rtl"] & {
+    margin-right: auto;
+    margin-left: 0;
+  }
+`;
+const UnreadMessagesText = styled.div`
+  display: flex;
+  flex-flow: column;
+  margin: 0;
+  justify-content: center;
+  color: ${colorWhite};
+  line-height: calc(1rem + 1px);
+  padding: 0 0.5rem;
+  text-align: center;
+  border-radius: 0.5rem/50%;
+  font-size: 0.8rem;
+  background-color: ${unreadMessagesBg};
+`;
 
 export default {
   ChatListItemLink,

@@ -115,9 +115,7 @@ margin: 0 0 1px ${mdPaddingY};
 const ListTransition = styled.div`
   display: flex;
   flex-flow: column;
-  margin: 0;
-  padding: 0;
-  padding-top: ${borderSize};
+  padding: ${borderSize} 0 0 0;.
   outline: none;
   overflow: hidden;
   flex-shrink: 1;

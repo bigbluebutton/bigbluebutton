@@ -43,7 +43,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  const TOGGLE_CHAT_PUB_AK: Object | undefined = useShortcutHelp();
+  const TOGGLE_CHAT_PUB_AK: Object | string | undefined = useShortcutHelp("togglePublicChat");
   const {
     chat,
   } = props;
