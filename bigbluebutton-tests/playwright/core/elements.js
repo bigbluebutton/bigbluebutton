@@ -411,6 +411,11 @@ exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
 exports.inputBackgroundButton = 'button[data-test="inputBackgroundButton"]';
 exports.noneBackgroundButton = 'button[data-test="noneBackgroundButton"]';
+exports.dropAreaBottom = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
+exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
+exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
@@ -475,8 +480,11 @@ exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
 exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
+exports.smartLayout = 'button[data-test="smartLayout"]';
+exports.customLayout = 'button[data-test="customLayout"]';
+exports.pushLayoutToggle = 'input#TogglePush';
 exports.confirmButton = 'button[aria-label="Confirm"]';
-exports.cameraDock = 'video[data-test="videoContainer"]';
+exports.cameraDock = 'div#cameraDock';
 
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';
