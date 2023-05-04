@@ -57,6 +57,14 @@ const intlMessages = defineMessages({
     description: 'used for aria whiteboard options button label',
     defaultMessage: 'Whiteboard',
   },
+  hideToolsDesc: {
+    id: 'app.presentation.presentationToolbar.hideToolsDesc',
+    description: 'Hide toolbar label',
+  },
+  showToolsDesc: {
+    id: 'app.presentation.presentationToolbar.showToolsDesc',
+    description: 'Show toolbar label',
+  },
 });
 
 const propTypes = {
@@ -112,6 +120,8 @@ const PresentationMenu = (props) => {
     meetingName,
     isIphone,
     isRTL,
+    isToolbarVisible,
+    setIsToolbarVisible,
   } = props;
 
   const [state, setState] = useState({
@@ -126,6 +136,11 @@ const PresentationMenu = (props) => {
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
     : intl.formatMessage(intlMessages.fullscreenLabel)
+  );
+  
+  const formattedVisibilityLabel = (visible) => (visible
+    ? intl.formatMessage(intlMessages.hideToolsDesc)
+    : intl.formatMessage(intlMessages.showToolsDesc)
   );
 
   function renderToastContent() {
@@ -255,6 +270,21 @@ const PresentationMenu = (props) => {
         },
       );
     }
+    
+    const tools = document.querySelector('#TD-Tools');
+    if (tools && (props.hasWBAccess || props.amIPresenter)){
+      menuItems.push(
+        {
+          key: 'list-item-toolvisibility',
+          dataTest: 'toolVisibility',
+          label: formattedVisibilityLabel(isToolbarVisible),
+          icon: isToolbarVisible ? 'close' : 'pen_tool',
+          onClick: () => {
+            setIsToolbarVisible(!isToolbarVisible);
+          },
+        },
+      );
+    }
 
     return menuItems;
   }
@@ -294,7 +324,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Right>
+    <Styled.Right id='WhiteboardOptionButton'>
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>

@@ -40,6 +40,7 @@ export default async function handleGetVoiceUsers({ body }, meetingId) {
         callerName: user.callerName,
         callerNum: user.callerNum,
         muted: user.muted,
+        color: user.color,
         talking: user.talking,
         callingWith: user.callingWith,
         listenOnly: user.listenOnly,

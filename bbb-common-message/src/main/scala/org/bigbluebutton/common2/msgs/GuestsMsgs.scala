@@ -19,7 +19,7 @@ case class GetGuestsWaitingApprovalRespMsg(
     body:   GetGuestsWaitingApprovalRespMsgBody
 ) extends BbbCoreMsg
 case class GetGuestsWaitingApprovalRespMsgBody(guests: Vector[GuestWaitingVO])
-case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, avatar: String, authenticated: Boolean, registeredOn: Long)
+case class GuestWaitingVO(intId: String, name: String, role: String, guest: Boolean, avatar: String, color: String, authenticated: Boolean, registeredOn: Long)
 
 /**
  * Message sent to client for list of guest waiting for approval. This is sent when

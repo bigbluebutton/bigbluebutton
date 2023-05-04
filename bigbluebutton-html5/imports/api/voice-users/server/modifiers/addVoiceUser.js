@@ -1,7 +1,6 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
-import Users from '/imports/api/users';
 import flat from 'flat';
 
 export default async function addVoiceUser(meetingId, voiceUser) {
@@ -11,6 +10,7 @@ export default async function addVoiceUser(meetingId, voiceUser) {
     intId: String,
     callerName: String,
     callerNum: String,
+    color: String,
     muted: Boolean,
     talking: Boolean,
     callingWith: String,
@@ -27,19 +27,12 @@ export default async function addVoiceUser(meetingId, voiceUser) {
   };
 
   const modifier = {
-    $set: Object.assign(
-      { meetingId, spoke: talking },
-      flat(voiceUser),
-    ),
-  };
-
-  const user = await Users.findOneAsync({ meetingId, userId: intId }, {
-    fields: {
-      color: 1,
+    $set: {
+      meetingId,
+      spoke: talking,
+      ...flat(voiceUser),
     },
-  });
-
-  if (user) modifier.$set.color = user.color;
+  };
 
   try {
     const { numberAffected } = await VoiceUsers.upsertAsync(selector, modifier);

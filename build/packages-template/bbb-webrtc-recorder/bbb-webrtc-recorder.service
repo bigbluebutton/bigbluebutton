@@ -1,0 +1,18 @@
+[Unit]
+Description=BigBlueButton WebRTC Recorder
+Wants=redis-server.service
+After=syslog.target network.target redis-server.service
+PartOf=bigbluebutton.target
+
+[Service]
+EnvironmentFile=-/etc/default/bbb-webrtc-recorder
+ExecStart=/usr/bin/bbb-webrtc-recorder $ARGS
+SyslogIdentifier=bbb-webrtc-recorder
+Restart=always
+User=bigbluebutton
+Group=bigbluebutton
+RestartSec=3s
+Nice=-10
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target
