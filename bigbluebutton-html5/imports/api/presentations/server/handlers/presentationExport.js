@@ -14,7 +14,7 @@ export default async function handlePresentationExport({ body }, meetingId) {
   check(typeOfExport, Match.Maybe(String));
 
   if (typeOfExport === "Original") {
-    setOriginalUriDownload(meetingId, presId, fileURI)
+    await setOriginalUriDownload(meetingId, presId, fileURI)
   } else {
     await sendExportedPresentationChatMsg(meetingId, presId, fileURI, typeOfExport);
   }

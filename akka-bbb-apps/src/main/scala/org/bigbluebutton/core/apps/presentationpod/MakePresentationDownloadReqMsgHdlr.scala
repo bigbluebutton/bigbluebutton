@@ -151,7 +151,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       val annotationCount: Int = storeAnnotationPages.map(_.annotations.size).sum
       val isOriginalPresentationType = m.body.typeOfExport == "Original"
 
-      if (annotationCount > 0 && !isOriginalPresentationType) {
+      if (!isOriginalPresentationType && annotationCount > 0) {
         // Send Export Job to Redis
         val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
         bus.outGW.send(job)
@@ -159,7 +159,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         // Send Annotations to Redis
         val annotations = StoredAnnotations(jobId, presId, storeAnnotationPages)
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
-      } else {
+      } else if (!isOriginalPresentationType && annotationCount == 0) {
+        log.error("There is no annotations for presentation with Id {}... Ignoring", presId)
+      } else if (isOriginalPresentationType) {
         // Return existing uploaded file directly
         val convertedFileName = currentPres.get.presentationConvertedName
         val filename = if (convertedFileName == "") currentPres.get.name else convertedFileName

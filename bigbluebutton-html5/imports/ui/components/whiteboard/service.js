@@ -38,6 +38,13 @@ async function handleAddedAnnotation({
   Annotations.upsert(query.selector, query.modifier);
 }
 
+const getHasAnnotations = (presentationId) => {
+  const ann = Annotations.find(
+    {},
+  ).fetch();
+  return ann.filter(a => a.whiteboardId.includes(presentationId)).length > 0;
+}
+
 function handleRemovedAnnotation({
   meetingId, whiteboardId, userId, shapeId,
 }) {
@@ -388,4 +395,5 @@ export {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  getHasAnnotations,
 };

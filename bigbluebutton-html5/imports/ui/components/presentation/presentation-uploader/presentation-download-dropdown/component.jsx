@@ -51,6 +51,7 @@ class PresentationDownloadDropdown extends PureComponent {
       isDownloadable,
       item,
       closeModal,
+      hasAnnotations
     } = this.props;
 
     this.menuItems = [];
@@ -83,18 +84,20 @@ class PresentationDownloadDropdown extends PureComponent {
       );
     } 
 
-    this.menuItems.push(
-      {
-        key: this.actionsKey[1],
-        id: 'sendAnnotatedDocument',
-        dataTest: 'sendAnnotatedDocument',
-        label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-        onClick: () => {
-          closeModal();
-          handleDownloadingOfPresentation("Annotated");
+    if (hasAnnotations) {
+      this.menuItems.push(
+        {
+          key: this.actionsKey[1],
+          id: 'sendAnnotatedDocument',
+          dataTest: 'sendAnnotatedDocument',
+          label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
+          onClick: () => {
+            closeModal();
+            handleDownloadingOfPresentation("Annotated");
+          },
         },
-      },
-    );
+      );
+    }
 
     return this.menuItems;
   }

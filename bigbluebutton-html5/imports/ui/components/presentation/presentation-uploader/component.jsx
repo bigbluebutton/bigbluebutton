@@ -46,7 +46,8 @@ const propTypes = {
     presentationUploadExternalUrl: PropTypes.string.isRequired,
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
-  exportPresentationToChat: PropTypes.func.isRequired,
+  exportPresentation: PropTypes.func.isRequired,
+  getHasAnnotations: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -687,7 +688,7 @@ class PresentationUploader extends Component {
 
   handleDownloadingOfPresentation(item, type) {
     const {
-      exportPresentationToChat,
+      exportPresentation,
       intl,
     } = this.props;
 
@@ -743,7 +744,7 @@ class PresentationUploader extends Component {
       }
     };
 
-    exportPresentationToChat(item.id, observer, type);
+    exportPresentation(item.id, observer, type);
   }
 
   getPresentationsToShow() {
@@ -1003,6 +1004,7 @@ class PresentationUploader extends Component {
       selectedToBeNextCurrent,
       allowDownloadable,
       renderPresentationItemStatus,
+      getHasAnnotations,
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent
@@ -1034,6 +1036,7 @@ class PresentationUploader extends Component {
 
     const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
 
+    const hasAnnotations = getHasAnnotations(item.id);
     return (
       <Styled.PresentationItem
         key={item.id}
@@ -1075,9 +1078,10 @@ class PresentationUploader extends Component {
         hasError ? null : (
           <Styled.TableItemActions notDownloadable={!allowDownloadable}>
             {allowDownloadable ? (
-              <PresentationDownloadDropdown 
+              <PresentationDownloadDropdown
+                hasAnnotations={hasAnnotations}
                 disabled={shouldDisableExportButton}
-                data-test="exportPresentationToPublicChat"
+                data-test="exportPresentation"
                 aria-label={formattedDownloadAriaLabel}
                 color="primary"
                 isDownloadable={isDownloadable}
