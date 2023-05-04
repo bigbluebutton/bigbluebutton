@@ -4,7 +4,6 @@ import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defineMessages, useIntl } from 'react-intl';
 import { Meteor } from 'meteor/meteor'
 import Styled from './styles';
-import UserAvatar from '/imports/ui/components/user-avatar/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Chat } from './chatTypes';
@@ -34,6 +33,8 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
+const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
+
 const ChatListItem = (props: ChatListItemProps) => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
@@ -46,8 +47,6 @@ const ChatListItem = (props: ChatListItemProps) => {
   const {
     chat,
   } = props;
-
-  const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
 
   const countUnreadMessages = chat.totalUnread;
 
@@ -140,13 +139,13 @@ const ChatListItem = (props: ChatListItemProps) => {
                 <Icon iconName={"group_chat"} />
               </Styled.ChatThumbnail>
             ) : (
-              <UserAvatar
+              <Styled.UserAvatar
                 moderator={chat.participant.role === ROLE_MODERATOR}
                 avatar={chat.participant.avatar}
                 color={chat.participant.color}
               >
                 {chat.participant.name.toLowerCase().slice(0, 2)}
-              </UserAvatar>
+              </Styled.UserAvatar>
             )}
         </Styled.ChatIcon>
         <Styled.ChatName>

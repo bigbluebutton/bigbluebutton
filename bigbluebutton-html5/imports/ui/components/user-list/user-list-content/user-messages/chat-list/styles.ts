@@ -1,23 +1,116 @@
 import styled from 'styled-components';
+import { colorGray, 
+  colorGrayLighter, 
+  colorPrimary, 
+  userListBg,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import { borderSize, smPaddingX, lgPaddingY, mdPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 
-import Styled from '/imports/ui/components/user-list/styles';
-import StyledContent from '/imports/ui/components/user-list/user-list-content/styles';
-import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
+const Messages = styled.div`
+  flex-grow: 0;
+  display: flex;
+  flex-flow: column;
+  flex-shrink: 0;
+  max-height: 30vh;
+`;
 
-const Messages = styled(Styled.Messages)``;
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: ${lgPaddingY};
+  margin-top: ${smPaddingX};
+`;
 
-const Container = styled(StyledContent.Container)``;
+const Separator = styled.hr`
+  margin: 1rem auto;
+  width: 2.2rem;
+  border: 0;
+  border-top: 1px solid ${colorGrayLighter};
+`;
 
-const Separator = styled(StyledContent.Separator)``;
-
-const MessagesTitle = styled(Styled.SmallTitle)`
+const MessagesTitle = styled.h2`
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 ${smPaddingX};
+  color: ${colorGray};
+  flex: 1;
+  margin: 0;
   flex: 1;
   margin: 0;
 `;
 
-const ScrollableList = styled(StyledContent.ScrollableList)``;
+const ScrollableList = styled.div`
+  overflow-y: auto;
+  background: linear-gradient(white 30%, rgba(255,255,255,0)),
+    linear-gradient(rgba(255,255,255,0), white 70%) 0 100%,
+    /* Shadows */
+    radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
+    radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
 
-const List = styled(StyledContent.List)``;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+  background-attachment: local, local, scroll, scroll;
+
+  // Fancy scroll
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.25);
+    border: none;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.5); }
+  &::-webkit-scrollbar-thumb:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-track {
+    background: rgba(0,0,0,.25);
+    border: none;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-track:hover { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-track:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-corner { background: 0 0; }
+  background: linear-gradient(${userListBg} 30%, rgba(255,255,255,0)),
+    linear-gradient(rgba(255,255,255,0), ${userListBg} 70%) 0 100%,
+    /* Shadows */
+    radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.2), rgba(0,0,0,0)),
+    radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.2), rgba(0,0,0,0)) 0 100%;
+
+  outline: none;
+  
+  &:hover {
+    /* Visible in Windows high-contrast themes */
+    outline: transparent;
+    outline-style: dotted;
+    outline-width: ${borderSize};
+  }
+
+  &:focus,
+  &:active {
+    border-radius: none;
+    box-shadow: inset 0 0 1px ${colorPrimary};
+    outline-style: transparent;
+  }
+
+  overflow-x: hidden;
+  padding-top: 1px;
+  padding-right: 1px;
+`;
+
+const List = styled.div`
+margin: 0 0 1px ${mdPaddingY};
+
+[dir="rtl"] & {
+  margin: 0 ${mdPaddingY} 1px 0;
+}
+`;
 
 const ListTransition = styled.div`
   display: flex;

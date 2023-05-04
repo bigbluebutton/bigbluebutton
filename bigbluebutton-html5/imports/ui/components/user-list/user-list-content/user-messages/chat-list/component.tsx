@@ -16,7 +16,7 @@ const intlMessages = defineMessages({
     },
 });
 
-const ChatListContainer: React.FC = () => {
+const ChatList: React.FC = () => {
     const { data } = useSubscription(CHATS_SUBSCRIPTION);
 
     const getActiveChats = () => {
@@ -65,5 +65,5 @@ const ChatListContainer: React.FC = () => {
     </Styled.Messages>)
 };
 
-export default ChatListContainer;
+export default ChatList;
 
