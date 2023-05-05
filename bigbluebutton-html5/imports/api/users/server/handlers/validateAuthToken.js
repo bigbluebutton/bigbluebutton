@@ -59,10 +59,10 @@ export default async function handleValidateAuthToken({ body }, meetingId) {
           // Schedule socket disconnection for this user
           // giving some time for client receiving the reason of disconnection
           new Promise((resolve) => {
-            setTimeout(() => {
+            Meteor.setTimeout(() => {
               methodInvocationObject.connection.close();
               Logger.info(`Closed connection ${connectionId} due to invalid auth token.`);
-              resolve();
+              resolve(); 
             }, 2000);
           });
         } catch (e) {
