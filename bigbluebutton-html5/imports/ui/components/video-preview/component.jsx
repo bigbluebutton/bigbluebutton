@@ -762,70 +762,103 @@ class VideoPreview extends Component {
 
     return (
       <>
-        <Styled.Label htmlFor="setCam">
-          {intl.formatMessage(intlMessages.cameraLabel)}
-        </Styled.Label>
-        { availableWebcams && availableWebcams.length > 0
-          ? (
-            <Styled.Select
-              id="setCam"
-              value={webcamDeviceId || ''}
-              onChange={this.handleSelectWebcam}
-            >
-              {availableWebcams.map((webcam, index) => (
-                <option key={webcam.deviceId} value={webcam.deviceId}>
-                  {webcam.label || this.getFallbackLabel(webcam, index)}
-                </option>
-              ))}
-            </Styled.Select>
-          )
-          : (
-            <span>
-              {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
-            </span>
-          )
-        }
-        { shared
-          ? (
-            <Styled.Label>
-              {intl.formatMessage(intlMessages.sharedCameraLabel)}
-            </Styled.Label>
-          )
-          : (
-            <>
-              <Styled.Label htmlFor="setQuality">
-                {intl.formatMessage(intlMessages.qualityLabel)}
-              </Styled.Label>
-              {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
-                ? (
-                  <Styled.Select
-                    id="setQuality"
-                    value={selectedProfile || ''}
-                    onChange={this.handleSelectProfile}
-                  >
-                    {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
-                      const label = intlMessages[`${profile.id}`]
-                        ? intl.formatMessage(intlMessages[`${profile.id}`])
-                        : profile.name;
 
-                      return (
-                        <option key={profile.id} value={profile.id}>
-                          {`${label}`}
-                        </option>
-                      );
-                    })}
+      { cameraAsContent
+        ? (
+          <>
+            <Styled.Label htmlFor="setCam">
+              {intl.formatMessage(intlMessages.cameraLabel)}
+            </Styled.Label>
+            { availableWebcams && availableWebcams.length > 0
+              ? (
+                  <Styled.Select
+                    id="setCam"
+                    value={webcamDeviceId || ''}
+                    onChange={this.handleSelectWebcam}
+                  >
+                    {availableWebcams.map((webcam, index) => (
+                      <option key={webcam.deviceId} value={webcam.deviceId}>
+                        {webcam.label || this.getFallbackLabel(webcam, index)}
+                      </option>
+                    ))}
                   </Styled.Select>
                 )
                 : (
-                  <span>
-                    {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-                  </span>
-                )
-              }
-            </>
-          )
-        }
-        {shouldShowVirtualBackgrounds && this.renderVirtualBgSelector()}
+                    <span>
+                      {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+                    </span>
+                  )
+            }
+          </>
+        ) 
+        :
+          <>
+          <Styled.Label htmlFor="setCam">
+            {intl.formatMessage(intlMessages.cameraLabel)}
+          </Styled.Label>
+          { availableWebcams && availableWebcams.length > 0
+            ? (
+              <Styled.Select
+                id="setCam"
+                value={webcamDeviceId || ''}
+                onChange={this.handleSelectWebcam}
+              >
+                {availableWebcams.map((webcam, index) => (
+                  <option key={webcam.deviceId} value={webcam.deviceId}>
+                    {webcam.label || this.getFallbackLabel(webcam, index)}
+                  </option>
+                ))}
+              </Styled.Select>
+            )
+            : (
+              <span>
+                {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+              </span>
+            )
+          }
+          { shared
+            ? (
+              <Styled.Label>
+                {intl.formatMessage(intlMessages.sharedCameraLabel)}
+              </Styled.Label>
+            )
+            : (
+              <>
+                <Styled.Label htmlFor="setQuality">
+                  {intl.formatMessage(intlMessages.qualityLabel)}
+                </Styled.Label>
+                {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
+                  ? (
+                    <Styled.Select
+                      id="setQuality"
+                      value={selectedProfile || ''}
+                      onChange={this.handleSelectProfile}
+                    >
+                      {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
+                        const label = intlMessages[`${profile.id}`]
+                          ? intl.formatMessage(intlMessages[`${profile.id}`])
+                          : profile.name;
+
+                        return (
+                          <option key={profile.id} value={profile.id}>
+                            {`${label}`}
+                          </option>
+                        );
+                      })}
+                    </Styled.Select>
+                  )
+                  : (
+                    <span>
+                      {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                    </span>
+                  )
+                }
+              </>
+            )
+          }
+          {shouldShowVirtualBackgrounds && this.renderVirtualBgSelector()}
+          </>
+      }
       </>
     );
   }
@@ -837,7 +870,9 @@ class VideoPreview extends Component {
   }
 
   renderBrightnessInput() {
-
+    const {
+      cameraAsContent,
+    } = this.props;
     const {
       webcamDeviceId,
     } = this.state;
@@ -851,6 +886,8 @@ class VideoPreview extends Component {
     const offset = origin === 'left'
       ? (brightness * 100) / 200
       : ((200 - brightness) * 100) / 200;
+
+    if(cameraAsContent){ return null }
 
     return (
       <>
