@@ -39,28 +39,23 @@ test.describe.serial('Polling', () => {
   test('Not able to start new poll without presentation', async () => {
     await polling.notAbleStartNewPollWithoutPresentation();
   });
+
+  test('Custom input', async () => {
+    await polling.customInput();
+  });
+
+  test('Allow multiple choices', async () => {
+    await polling.allowMultipleChoices();
+  });
+
+  test.only('Smart slides questions', async () => {
+    await polling.smartSlidesQuestions();
+  });  
 });
 
 /*
 test.describe.parallel('Polling', () => {
   test.describe.parallel('Manage', () => {
-    test('Not able to start new poll without presentation', async ({ browser, context, page }) => {
-      const polling = new Polling(browser, context);
-      await polling.initPages(page);
-      await polling.notAbleStartNewPollWithoutPresentation();
-    });
-
-    test('Custom input', async ({ browser, context, page }) => {
-      const polling = new Polling(browser, context);
-      await polling.initPages(page);
-      await polling.customInput();
-    });
-
-    test('Allow multiple choices', async ({ browser, context, page }) => {
-      const polling = new Polling(browser, context);
-      await polling.initPages(page);
-      await polling.allowMultipleChoices();
-    });
 
     test('Smart slides questions', async ({ browser, context, page }) => {
       const polling = new Polling(browser, context);

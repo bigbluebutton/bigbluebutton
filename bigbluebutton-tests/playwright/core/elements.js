@@ -241,7 +241,7 @@ exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
 exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
 exports.allowMultiple = 'div[data-test="allowMultiple"] input[type="checkbox"]';
 const pollAnswerOptionDesc = 'button[data-test="pollAnswerOption"]';
-exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=0`;
+exports.firstPollAnswerDescOption = 'div[data-test="optionsAnswers"] input:nth-child(1)';
 exports.secondPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=1`;
 exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.numberVotes = 'div[data-test="numberOfVotes"]';

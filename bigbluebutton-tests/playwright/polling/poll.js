@@ -123,6 +123,87 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.noPresentation);
   }
 
+  async customInput() {
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem, 'test1');
+    await this.modPage.waitAndClick(e.startPoll);
+
+    await this.userPage.hasElement(e.pollingContainer);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+
+    await this.modPage.hasText(e.currentPollQuestion, /Test/);
+    await this.modPage.hasText(e.answer1, '1');
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+  }
+
+  async allowMultipleChoices() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.polling);
+    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
+
+    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.waitAndClickElement(e.allowMultiple);
+
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasElement(e.errorNoValueInput);
+
+    await this.modPage.type(e.pollOptionItem1, 'test1');
+    await this.modPage.waitAndClick(e.addPollItem);
+    await this.modPage.type(e.pollOptionItem2, 'test2');
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasText(e.currentPollQuestion, /Test/);
+
+    await this.userPage.waitAndClick(e.firstPollAnswerOptionBtn);
+    await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
+    await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
+
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.answer2, '1');
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+  }
+
+  async smartSlidesQuestions() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    //await waitAndClearDefaultPresentationNotification(this.modPage);
+    await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.currentUser);
+
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.hasElement(e.responsePollQuestion);
+    await this.userPage.type(e.pollAnswerOptionInput, 'test');
+    await this.userPage.waitAndClick(e.pollSubmitAnswer);
+    await this.userPage.wasRemoved(e.pollingContainer, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(e.receivedAnswer, 'test');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn)
+
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
+    await this.userPage.waitAndClick(e.submitAnswersMultiple);
+
+    await this.modPage.hasText(e.answer1, '1');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasElementDisabled(e.nextSlide);
+  }
+
   async pollResultsOnChat() {
     const { pollChatMessage } = getSettings();
     test.fail(!pollChatMessage, 'Poll results on chat is disabled');
@@ -181,78 +262,7 @@ class Polling extends MultiUsers {
 
   
 
-  async customInput() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.polling);
-    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
-
-    await this.modPage.type(e.pollQuestionArea, 'Test');
-    await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.type(e.pollOptionItem, 'test1');
-    await this.modPage.waitAndClick(e.startPoll);
-
-    await this.userPage.hasElement(e.pollingContainer);
-    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-
-    await this.modPage.hasText(e.currentPollQuestion, /Test/);
-    await this.modPage.hasText(e.answer1, '1');
-  }
-
-  async allowMultipleChoices() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.polling);
-    await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
-
-    await this.modPage.type(e.pollQuestionArea, 'Test');
-    await this.modPage.waitAndClickElement(e.allowMultiple);
-
-    await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElement(e.errorNoValueInput);
-
-    await this.modPage.type(e.pollOptionItem1, 'test1');
-    await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.type(e.pollOptionItem2, 'test2');
-    await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasText(e.currentPollQuestion, /Test/);
-
-    await this.userPage.waitAndClick(e.firstPollAnswerOptionBtn);
-    await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
-    await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
-
-    await this.modPage.hasText(e.answer1, '1');
-    await this.modPage.hasText(e.answer2, '1');
-  }
-
-  async smartSlidesQuestions() {
-    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await waitAndClearDefaultPresentationNotification(this.modPage);
-    await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.currentUser);
-
-    await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.hasElement(e.responsePollQuestion);
-    await this.userPage.type(e.pollAnswerOptionInput, 'test');
-    await this.userPage.waitAndClick(e.pollSubmitAnswer);
-
-    await this.modPage.hasText(e.receivedAnswer, 'test');
-
-    await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitAndClick(e.nextSlide);
-    await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.waitAndClick(e.firstCheckboxInput);
-    await this.userPage.waitAndClick(e.submitAnswersMultiple);
-
-    await this.modPage.hasText(e.answer1, '1');
-
-    await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.waitAndClick(e.nextSlide);
-    await this.modPage.waitAndClick(e.quickPoll);
-    await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
-
-    await this.modPage.hasText(e.answer1, '1');
-    await this.modPage.hasElementDisabled(e.nextSlide);
-  }
+  
 }
 
 exports.Polling = Polling;
