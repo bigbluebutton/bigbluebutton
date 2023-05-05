@@ -1,4 +1,5 @@
 import { check } from 'meteor/check';
+import _ from 'lodash';
 
 export default function addAnnotation(meetingId, whiteboardId, userId, annotation, Annotations) {
   check(meetingId, String);
@@ -18,7 +19,7 @@ export default function addAnnotation(meetingId, whiteboardId, userId, annotatio
 
   const oldAnnotation = Annotations.findOne(selector);
   if (oldAnnotation) {
-    annotationInfo = _.merge(oldAnnotation.annotationInfo, annotationInfo)
+    annotationInfo = _.merge(oldAnnotation.annotationInfo, annotationInfo);
   }
 
   const modifier = {
