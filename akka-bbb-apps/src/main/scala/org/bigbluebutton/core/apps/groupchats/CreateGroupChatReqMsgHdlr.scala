@@ -51,8 +51,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      val groupChat = GroupChatApp.getGroupChatOfUsers(msg.header.userId, msg.body.users, state)
-      groupChat match {
+      GroupChatApp.getGroupChatOfUsers(msg.header.userId, msg.body.users, state) match {
         case Some(groupChat) =>
           ChatUserDAO.updateChatVisible(msg.header.meetingId, groupChat.id, msg.header.userId)
           state
