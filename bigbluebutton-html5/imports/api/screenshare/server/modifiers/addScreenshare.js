@@ -3,7 +3,7 @@ import flat from 'flat';
 import Logger from '/imports/startup/server/logger';
 import Screenshare from '/imports/api/screenshare';
 
-export default async function addScreenshare(meetingId, body) {
+export default function addScreenshare(meetingId, body) {
   check(meetingId, String);
 
   const selector = {
@@ -18,7 +18,7 @@ export default async function addScreenshare(meetingId, body) {
   };
 
   try {
-    const { numberAffected } = await Screenshare.upsertAsync(selector, modifier);
+    const { numberAffected } = Screenshare.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Upserted screenshare id=${body.screenshareConf}`);

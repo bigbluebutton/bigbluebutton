@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import Users from '/imports/api/users';
 
-export default async function handleEmojiStatus({ body }, meetingId) {
+export default function handleEmojiStatus({ body }, meetingId) {
   const { userId, emoji } = body;
 
   check(userId, String);
@@ -21,7 +21,7 @@ export default async function handleEmojiStatus({ body }, meetingId) {
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Assigned user emoji status ${emoji} id=${userId} meeting=${meetingId}`);

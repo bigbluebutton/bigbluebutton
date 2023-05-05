@@ -1,10 +1,10 @@
 import AudioCaptions from '/imports/api/audio-captions';
 import Logger from '/imports/startup/server/logger';
 
-export default async function clearAudioCaptions(meetingId) {
+export default function clearAudioCaptions(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = await AudioCaptions.removeAsync({ meetingId });
+      const numberAffected = AudioCaptions.remove({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared AudioCaptions (${meetingId})`);
@@ -14,7 +14,7 @@ export default async function clearAudioCaptions(meetingId) {
     }
   } else {
     try {
-      const numberAffected = await AudioCaptions.removeAsync({});
+      const numberAffected = AudioCaptions.remove({});
 
       if (numberAffected) {
         Logger.info('Cleared AudioCaptions (all)');

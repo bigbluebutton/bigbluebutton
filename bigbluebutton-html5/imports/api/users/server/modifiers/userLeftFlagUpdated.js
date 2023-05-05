@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default async function userLeftFlagUpdated(meetingId, userId, left) {
+export default function userLeftFlagUpdated(meetingId, userId, left) {
   const selector = {
     meetingId,
     userId,
@@ -14,7 +14,7 @@ export default async function userLeftFlagUpdated(meetingId, userId, left) {
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
     if (numberAffected) {
       Logger.info(`Updated user ${userId} with left flag as ${left} in meeting ${meetingId}`);
     }

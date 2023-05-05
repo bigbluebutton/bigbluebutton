@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import removePresentationPod from '../modifiers/removePresentationPod';
 
-export default async function handleRemovePresentationPod({ body }, meetingId) {
+export default function handleRemovePresentationPod({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
 
@@ -9,5 +9,5 @@ export default async function handleRemovePresentationPod({ body }, meetingId) {
 
   check(podId, String);
 
-  await removePresentationPod(meetingId, podId);
+  removePresentationPod(meetingId, podId);
 }

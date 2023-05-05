@@ -5,24 +5,23 @@ import removeVoiceUser from '../modifiers/removeVoiceUser';
 import updateVoiceUser from '../modifiers/updateVoiceUser';
 import addVoiceUser from '../modifiers/addVoiceUser';
 
-export default async function handleVoiceUsers({ header, body }) {
+
+export default function handleVoiceUsers({ header, body }) {
   const { voiceUsers } = body;
   const { meetingId } = header;
 
-  const meeting = await Meetings.findOneAsync({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
-  const usersIds = voiceUsers.map((m) => m.intId);
+  const meeting = Meetings.findOne({ meetingId }, { fields: { 'voiceProp.voiceConf': 1 } });
+  const usersIds = voiceUsers.map(m => m.intId);
 
-  const voiceUsersFetch = await VoiceUsers.find({
+  const voiceUsersIdsToUpdate = VoiceUsers.find({
     meetingId,
     intId: { $in: usersIds },
-  }, { fields: { intId: 1 } }).fetchAsync();
+  }, { fields: { intId: 1 } }).fetch().map(m => m.intId);
 
-  const voiceUsersIdsToUpdate = voiceUsersFetch.map((m) => m.intId);
-
-  await Promise.all(voiceUsers.map(async (voice) => {
+  voiceUsers.forEach((voice) => {
     if (voiceUsersIdsToUpdate.indexOf(voice.intId) >= 0) {
       // user already exist, then update
-      await updateVoiceUser(meetingId, {
+      updateVoiceUser(meetingId, {
         intId: voice.intId,
         voiceUserId: voice.voiceUserId,
         talking: voice.talking,
@@ -32,7 +31,7 @@ export default async function handleVoiceUsers({ header, body }) {
       });
     } else {
       // user doesn't exist yet, then add it
-      await addVoiceUser(meetingId, {
+      addVoiceUser(meetingId, {
         voiceUserId: voice.voiceUserId,
         intId: voice.intId,
         callerName: voice.callerName,
@@ -46,21 +45,18 @@ export default async function handleVoiceUsers({ header, body }) {
         joined: true,
       });
 
-      await addDialInUser(meetingId, voice);
+      addDialInUser(meetingId, voice);
     }
-  }));
+  });
 
   // removing extra users already existing in Mongo
-  const voiceUsersToRemove = await VoiceUsers.find({
+  const voiceUsersToRemove = VoiceUsers.find({
     meetingId,
     intId: { $nin: usersIds },
-  }, { fields: { voiceUserId: 1, intId: 1 } }).fetchAsync();
-
-  await Promise.all(voiceUsersToRemove.map(async (user) => {
-    await removeVoiceUser(meetingId, {
-      voiceConf: meeting.voiceProp.voiceConf,
-      voiceUserId: user.voiceUserId,
-      intId: user.intId,
-    });
+  }, { fields: { voiceUserId: 1, intId: 1 } }).fetch();
+  voiceUsersToRemove.forEach(user => removeVoiceUser(meetingId, {
+    voiceConf: meeting.voiceProp.voiceConf,
+    voiceUserId: user.voiceUserId,
+    intId: user.intId,
   }));
 }

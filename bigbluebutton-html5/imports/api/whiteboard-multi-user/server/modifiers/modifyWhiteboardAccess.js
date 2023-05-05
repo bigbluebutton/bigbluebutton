@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 
-export default async function modifyWhiteboardAccess(meetingId, whiteboardId, multiUser) {
+export default function modifyWhiteboardAccess(meetingId, whiteboardId, multiUser) {
   check(meetingId, String);
   check(whiteboardId, String);
   check(multiUser, Array);
@@ -19,7 +19,7 @@ export default async function modifyWhiteboardAccess(meetingId, whiteboardId, mu
   };
 
   try {
-    const { insertedId } = await WhiteboardMultiUser.upsertAsync(selector, modifier);
+    const { insertedId } = WhiteboardMultiUser.upsert(selector, modifier);
     if (insertedId) {
       Logger.info(`Added multiUser flag=${multiUser} meetingId=${meetingId} whiteboardId=${whiteboardId}`);
     } else {

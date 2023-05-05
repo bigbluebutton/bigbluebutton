@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import changePin from '../modifiers/changePin';
 
-export default async function handlePinAssigned({ body }, meetingId) {
+export default function handlePinAssigned({ body }, meetingId) {
   const { userId, pin, changedBy } = body;
 
   check(meetingId, String);
@@ -9,6 +9,5 @@ export default async function handlePinAssigned({ body }, meetingId) {
   check(pin, Boolean);
   check(changedBy, String);
 
-  const result = await changePin(meetingId, userId, pin, changedBy);
-  return result;
+  return changePin(meetingId, userId, pin, changedBy);
 }

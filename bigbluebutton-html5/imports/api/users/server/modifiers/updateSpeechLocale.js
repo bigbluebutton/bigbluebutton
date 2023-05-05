@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default async function updateSpeechLocale(meetingId, userId, locale) {
+export default function updateSpeechLocale(meetingId, userId, locale) {
   const selector = {
     meetingId,
     userId,
@@ -14,7 +14,7 @@ export default async function updateSpeechLocale(meetingId, userId, locale) {
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Updated speech locale=${locale} userId=${userId} meetingId=${meetingId}`);

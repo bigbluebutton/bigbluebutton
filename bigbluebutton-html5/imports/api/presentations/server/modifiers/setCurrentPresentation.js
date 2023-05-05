@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Presentations from '/imports/api/presentations';
 import Logger from '/imports/startup/server/logger';
 
-export default async function setCurrentPresentation(meetingId, podId, presentationId) {
+export default function setCurrentPresentation(meetingId, podId, presentationId) {
   check(meetingId, String);
   check(presentationId, String);
   check(podId, String);
@@ -48,23 +48,24 @@ export default async function setCurrentPresentation(meetingId, podId, presentat
     },
   };
 
-  const oldPresentation = await Presentations.findOneAsync(oldCurrent.selector);
-  const newPresentation = await Presentations.findOneAsync(newCurrent.selector);
+  const oldPresentation = Presentations.findOne(oldCurrent.selector);
+  const newPresentation = Presentations.findOne(newCurrent.selector);
 // We update it before unset current to avoid the case where theres no current presentation.
   if (newPresentation) {
     try{
-      await Presentations.updateAsync(newPresentation._id, newCurrent.modifier);
+      Presentations.update(newPresentation._id, newCurrent.modifier);
     } catch(e){
       newCurrent.callback(e);
     }
   }
 
   if (oldPresentation) {
-    try {
-      await Presentations.updateAsync(oldCurrent.selector, oldCurrent.modifier, { multi: true });
-    } catch (e) {
+    try{
+      Presentations.update(oldCurrent.selector, oldCurrent.modifier, {multi: true});
+    } catch(e){
       oldCurrent.callback(e);
     }
   }
 
 }
+ 

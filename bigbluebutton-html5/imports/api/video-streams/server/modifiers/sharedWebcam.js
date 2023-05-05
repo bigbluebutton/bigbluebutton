@@ -11,18 +11,18 @@ import { lowercaseTrim } from '/imports/utils/string-utils';
 
 const BASE_FLOOR_TIME = "0";
 
-export default async function sharedWebcam(meetingId, userId, stream) {
+export default function sharedWebcam(meetingId, userId, stream) {
   check(meetingId, String);
   check(userId, String);
   check(stream, String);
 
   const deviceId = getDeviceId(stream);
-  const name = await getUserName(userId, meetingId);
-  const vu = await VoiceUsers.findOneAsync(
+  const name = getUserName(userId, meetingId);
+  const vu = VoiceUsers.findOne(
     { meetingId, intId: userId },
     { fields: { floor: 1, lastFloorTime: 1 }}
   ) || {};
-  const u = await Users.findOneAsync(
+  const u = Users.findOne(
     { meetingId, intId: userId },
     { fields: { pin: 1 } },
   ) || {};
@@ -49,7 +49,7 @@ export default async function sharedWebcam(meetingId, userId, stream) {
   };
 
   try {
-    const { insertedId } = await VideoStreams.upsertAsync(selector, modifier);
+    const { insertedId } = VideoStreams.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Updated stream=${stream} meeting=${meetingId}`);
@@ -59,7 +59,7 @@ export default async function sharedWebcam(meetingId, userId, stream) {
   }
 }
 
-export async function addWebcamSync(meetingId, videoStream) {
+export function addWebcamSync(meetingId, videoStream) {
   check(videoStream, {
     userId: String,
     stream: String,
@@ -92,7 +92,7 @@ export async function addWebcamSync(meetingId, videoStream) {
   };
 
   try {
-    const { insertedId } = await VideoStreams.upsertAsync(selector, modifier);
+    const { insertedId } = VideoStreams.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Synced stream=${stream} meeting=${meetingId}`);

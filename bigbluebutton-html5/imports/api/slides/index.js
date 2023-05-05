@@ -17,11 +17,11 @@ if (Meteor.isServer) {
   // 4. meetingId, podId, presentationId, id       ( 3 ) - incl. resizeSlide, which can be intense
   // 5. meetingId, podId, presentationId, current  ( 1 )
 
-  Slides.createIndexAsync({
+  Slides._ensureIndex({
     meetingId: 1, podId: 1, presentationId: 1, id: 1,
   });
 
-  SlidePositions.createIndexAsync({
+  SlidePositions._ensureIndex({
     meetingId: 1, podId: 1, presentationId: 1, id: 1,
   });
 }

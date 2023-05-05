@@ -4,9 +4,8 @@ import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 import ejectUserFromVoice from './methods/ejectUserFromVoice';
 
-async function voiceUser() {
-  const tokenValidation = await AuthTokenValidation
-    .findOneAsync({ connectionId: this.connection.id });
+function voiceUser() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing VoiceUsers was requested by unauth connection ${this.connection.id}`);
@@ -15,12 +14,12 @@ async function voiceUser() {
 
   const { meetingId, userId: requesterUserId } = tokenValidation;
 
-  const onCloseConnection = Meteor.bindEnvironment(async () => {
+  const onCloseConnection = Meteor.bindEnvironment(() => {
     try {
       // I used user because voiceUser is the function's name
-      const User = await VoiceUsers.findOneAsync({ meetingId, requesterUserId });
+      const User = VoiceUsers.findOne({ meetingId, requesterUserId });
       if (User) {
-        await ejectUserFromVoice(requesterUserId);
+        ejectUserFromVoice(requesterUserId);
       }
     } catch (e) {
       Logger.error(`Exception while executing ejectUserFromVoice for ${requesterUserId}: ${e}`);

@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 
-export default async function handlePresentationUploadTokenFail({ body, header }, meetingId) {
+export default function handlePresentationUploadTokenFail({ body, header }, meetingId) {
   check(body, Object);
 
   const { userId } = header;
@@ -20,8 +20,7 @@ export default async function handlePresentationUploadTokenFail({ body, header }
   };
 
   try {
-    const { numberAffected } = await PresentationUploadToken
-      .upsertAsync(selector, { failed: true, authzToken: null });
+    const { numberAffected } = PresentationUploadToken.upsert(selector, { failed: true, authzToken: null });
 
     if (numberAffected) {
       Logger.info(`Removing presentationToken filename=${filename} podId=${podId} meeting=${meetingId}`);

@@ -23,11 +23,11 @@ const addSlides = (meetingId, podId, presentationId, slides) => {
 
     Object.assign(slide, { content });
 
-    await addSlide(meetingId, podId, presentationId, slide);
+    addSlide(meetingId, podId, presentationId, slide);
   });
 };
 
-export default async function addPresentation(meetingId, podId, presentation) {
+export default function addPresentation(meetingId, podId, presentation) {
   check(meetingId, String);
   check(podId, String);
   check(presentation, {
@@ -70,9 +70,9 @@ export default async function addPresentation(meetingId, podId, presentation) {
   };
 
   try {
-    const { insertedId } = await Presentations.upsertAsync(selector, modifier);
+    const { insertedId } = Presentations.upsert(selector, modifier);
 
-    await addSlides(meetingId, podId, presentation.id, presentation.pages);
+    addSlides(meetingId, podId, presentation.id, presentation.pages);
 
     if (presentation.current) {
       setCurrentPresentation(meetingId, podId, presentation.id);
@@ -80,6 +80,7 @@ export default async function addPresentation(meetingId, podId, presentation) {
     } else {
       Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
     }
+
   } catch (err) {
     Logger.error(`Adding presentation to collection: ${err}`);
   }

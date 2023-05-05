@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import setCurrentPresentation from '../modifiers/setCurrentPresentation';
 
-export default async function handlePresentationCurrentSet({ body }, meetingId) {
+export default function handlePresentationCurrentSet({ body }, meetingId) {
   check(body, Object);
 
   const { presentationId, podId } = body;
@@ -10,6 +10,5 @@ export default async function handlePresentationCurrentSet({ body }, meetingId) 
   check(presentationId, String);
   check(podId, String);
 
-  const result = await setCurrentPresentation(meetingId, podId, presentationId);
-  return result;
+  return setCurrentPresentation(meetingId, podId, presentationId);
 }

@@ -5,7 +5,7 @@ import Logger from '/imports/startup/server/logger';
 import setTranscript from '/imports/api/captions/server/modifiers/setTranscript';
 import updatePad from '/imports/api/pads/server/methods/updatePad';
 
-export default async function pushSpeechTranscript(locale, transcript, type) {
+export default function pushSpeechTranscript(locale, transcript, type) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -15,7 +15,7 @@ export default async function pushSpeechTranscript(locale, transcript, type) {
     check(transcript, String);
     check(type, String);
 
-    const captions = await Captions.findOneAsync({
+    const captions = Captions.findOne({
       meetingId,
       ownerId: requesterUserId,
       locale,
@@ -28,7 +28,7 @@ export default async function pushSpeechTranscript(locale, transcript, type) {
         updatePad(meetingId, requesterUserId, locale, text);
       }
 
-      await setTranscript(meetingId, locale, transcript);
+      setTranscript(meetingId, locale, transcript);
     }
   } catch (err) {
     Logger.error(`Exception while invoking method pushSpeechTranscript ${err.stack}`);

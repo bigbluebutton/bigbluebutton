@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default async function setMobile(meetingId, userId) {
+export default function setMobile(meetingId, userId) {
   const selector = {
     meetingId,
     userId,
@@ -14,7 +14,7 @@ export default async function setMobile(meetingId, userId) {
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Assigned mobile user id=${userId} meeting=${meetingId}`);

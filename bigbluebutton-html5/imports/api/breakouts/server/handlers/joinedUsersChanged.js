@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import { lowercaseTrim } from '/imports/utils/string-utils';
 
-export default async function joinedUsersChanged({ body }) {
+export default function joinedUsersChanged({ body }) {
   check(body, Object);
 
   const {
@@ -22,8 +22,7 @@ export default async function joinedUsersChanged({ body }) {
     breakoutId,
   };
 
-  const usersMapped = users
-    .map((user) => ({ userId: user.id, name: user.name, sortName: lowercaseTrim(user.name) }));
+  const usersMapped = users.map(user => ({ userId: user.id, name: user.name, sortName: lowercaseTrim(user.name) }));
   const modifier = {
     $set: {
       joinedUsers: usersMapped,
@@ -31,23 +30,14 @@ export default async function joinedUsersChanged({ body }) {
   };
 
   try {
-    const numberAffected = await Breakouts.updateAsync(selector, modifier);
+    const numberAffected = Breakouts.update(selector, modifier);
 
     if (numberAffected) {
-      await updateUserBreakoutRoom(parentId, breakoutId, users);
+      updateUserBreakoutRoom(parentId, breakoutId, users);
 
       Logger.info(`Updated joined users in breakout id=${breakoutId}`);
     }
   } catch (err) {
     Logger.error(`updating joined users in breakout: ${err}`);
   }
-  // .then((res) => {
-  //   if (res.numberAffected) {
-  //     updateUserBreakoutRoom(parentId, breakoutId, users);
-
-  //     Logger.info(`Updated joined users in breakout id=${breakoutId}`);
-  //   }
-  // }).catch((err) => {
-  //   Logger.error(`updating joined users in breakout: ${err}`);
-  // });
 }

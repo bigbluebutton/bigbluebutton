@@ -3,17 +3,9 @@ import { LayoutMeetings } from '/imports/api/meetings';
 import { check } from 'meteor/check';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
-export default async function changeLayout(
-  meetingId,
-  layout,
-  presentationIsOpen,
-  isResizing,
-  cameraPosition,
-  focusedCamera,
-  presentationVideoRate,
-  pushLayout,
-  requesterUserId,
-) {
+const APP_CONFIG = Meteor.settings.public.app.defaultSettings.application;
+
+export default function changeLayout(meetingId, layout, presentationIsOpen, isResizing, cameraPosition, focusedCamera, presentationVideoRate, pushLayout, requesterUserId) {
   try {
     check(meetingId, String);
     check(requesterUserId, String);
@@ -37,7 +29,7 @@ export default async function changeLayout(
       },
     };
 
-    const numberAffected = LayoutMeetings.updateAsync(selector, modifier);
+    const numberAffected = LayoutMeetings.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`MeetingLayout changed to ${layout} for meeting=${meetingId} requested by user=${requesterUserId}`);

@@ -8,7 +8,6 @@ import handleEmojiStatus from './handlers/emojiStatus';
 import handleChangeRole from './handlers/changeRole';
 import handleUserPinChanged from './handlers/userPinChanged';
 import handleUserInactivityInspect from './handlers/userInactivityInspect';
-import handleChangeMobileFlag from '/imports/api/users/server/handlers/changeMobileFlag';
 
 RedisPubSub.on('PresenterAssignedEvtMsg', handlePresenterAssigned);
 RedisPubSub.on('UserJoinedMeetingEvtMsg', handleUserJoined);
@@ -16,7 +15,6 @@ RedisPubSub.on('UserLeftMeetingEvtMsg', handleRemoveUser);
 RedisPubSub.on('ValidateAuthTokenRespMsg', handleValidateAuthToken);
 RedisPubSub.on('UserEmojiChangedEvtMsg', handleEmojiStatus);
 RedisPubSub.on('UserRoleChangedEvtMsg', handleChangeRole);
-RedisPubSub.on('UserMobileFlagChangedEvtMsg', handleChangeMobileFlag);
 RedisPubSub.on('UserLeftFlagUpdatedEvtMsg', handleUserLeftFlagUpdated);
 RedisPubSub.on('UserPinStateChangedEvtMsg', handleUserPinChanged);
 RedisPubSub.on('UserInactivityInspectMsg', handleUserInactivityInspect);

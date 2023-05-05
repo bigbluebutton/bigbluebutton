@@ -1,14 +1,14 @@
 import Logger from '/imports/startup/server/logger';
 import Breakouts from '/imports/api/breakouts';
 
-export default async function clearBreakouts(breakoutId) {
+export default function clearBreakouts(breakoutId) {
   if (breakoutId) {
     const selector = {
       breakoutId,
     };
 
     try {
-      const numberAffected = await Breakouts.removeAsync(selector);
+      const numberAffected = Breakouts.remove(selector);
 
       if (numberAffected) {
         Logger.info(`Cleared Breakouts (${breakoutId})`);
@@ -18,7 +18,7 @@ export default async function clearBreakouts(breakoutId) {
     }
   } else {
     try {
-      const numberAffected = await Breakouts.removeAsync({});
+      const numberAffected = Breakouts.remove({});
       if (numberAffected) {
         Logger.info('Cleared Breakouts (all)');
       }

@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default async function setUsedToken(authzToken) {
+export default function setUsedToken(authzToken) {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -17,7 +17,7 @@ export default async function setUsedToken(authzToken) {
       },
     };
 
-    const numberAffected = await PresentationUploadToken.updateAsync({
+    const numberAffected = PresentationUploadToken.update({
       meetingId,
       userId: requesterUserId,
       authzToken,

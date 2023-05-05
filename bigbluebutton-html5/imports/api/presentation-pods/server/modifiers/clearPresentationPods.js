@@ -3,14 +3,14 @@ import Logger from '/imports/startup/server/logger';
 import clearPresentations from '/imports/api/presentations/server/modifiers/clearPresentations';
 import clearPresentationUploadToken from '/imports/api/presentation-upload-token/server/modifiers/clearPresentationUploadToken';
 
-export default async function clearPresentationPods(meetingId) {
+export default function clearPresentationPods(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = await PresentationPods.removeAsync({ meetingId });
+      const numberAffected = PresentationPods.remove({ meetingId });
 
       if (numberAffected) {
-        await clearPresentations(meetingId);
-        await clearPresentationUploadToken(meetingId);
+        clearPresentations(meetingId);
+        clearPresentationUploadToken(meetingId);
         Logger.info(`Cleared Presentations Pods (${meetingId})`);
       }
     } catch (err) {
@@ -18,11 +18,11 @@ export default async function clearPresentationPods(meetingId) {
     }
   } else {
     try {
-      const numberAffected = await PresentationPods.removeAsync({});
+      const numberAffected = PresentationPods.remove({});
 
       if (numberAffected) {
-        await clearPresentations();
-        await clearPresentationUploadToken();
+        clearPresentations();
+        clearPresentationUploadToken();
         Logger.info('Cleared Presentations Pods (all)');
       }
     } catch (err) {

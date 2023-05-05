@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import startExternalVideo from '../modifiers/startExternalVideo';
 
-export default async function handleStartExternalVideo({ header, body }, meetingId) {
+export default function handleStartExternalVideo({ header, body }, meetingId) {
   check(header, Object);
   check(body, Object);
   check(meetingId, String);
@@ -9,5 +9,5 @@ export default async function handleStartExternalVideo({ header, body }, meeting
   const { userId } = header;
   const { externalVideoUrl } = body;
 
-  await startExternalVideo(meetingId, userId, externalVideoUrl);
+  startExternalVideo(meetingId, userId, externalVideoUrl);
 }

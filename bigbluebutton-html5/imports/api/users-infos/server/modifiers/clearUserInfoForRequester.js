@@ -1,9 +1,9 @@
 import UserInfos from '/imports/api/users-infos';
 import Logger from '/imports/startup/server/logger';
 
-export default async function clearUsersInfoForRequester(meetingId, requesterUserId) {
+export default function clearUsersInfoForRequester(meetingId, requesterUserId) {
   try {
-    const numberAffected = await UserInfos.removeAsync({ meetingId });
+    const numberAffected = UserInfos.remove({ meetingId });
 
     if (numberAffected) {
       Logger.info(`Cleared User Infos requested by user=${requesterUserId}`);

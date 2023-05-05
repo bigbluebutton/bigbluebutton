@@ -18,10 +18,10 @@ function setPresenterInPodReqMsg(credentials) { // TODO-- switch to meetingId, e
   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
 }
 
-export default async function handlePresenterAssigned({ body }, meetingId) {
+export default function handlePresenterAssigned({ body }, meetingId) {
   const { presenterId, assignedBy } = body;
 
-  await changePresenter(true, presenterId, meetingId, assignedBy);
+  changePresenter(true, presenterId, meetingId, assignedBy);
 
   const selector = {
     meetingId,
@@ -34,7 +34,7 @@ export default async function handlePresenterAssigned({ body }, meetingId) {
     podId: 'DEFAULT_PRESENTATION_POD',
   };
 
-  const currentDefaultPod = await PresentationPods.findOneAsync(defaultPodSelector);
+  const currentDefaultPod = PresentationPods.findOne(defaultPodSelector);
 
   const setPresenterPayload = {
     meetingId,
@@ -42,10 +42,10 @@ export default async function handlePresenterAssigned({ body }, meetingId) {
     presenterId,
   };
 
-  const prevPresenter = await Users.findOneAsync(selector);
+  const prevPresenter = Users.findOne(selector);
 
   if (prevPresenter) {
-    await changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
+    changePresenter(false, prevPresenter.userId, meetingId, assignedBy);
   }
 
   /**
@@ -55,7 +55,7 @@ export default async function handlePresenterAssigned({ body }, meetingId) {
    */
 
   if (currentDefaultPod.currentPresenterId !== presenterId) {
-    const presenterToBeAssigned = await Users.findOneAsync({ userId: presenterId });
+    const presenterToBeAssigned = Users.findOne({ userId: presenterId });
 
     if (!presenterToBeAssigned) setPresenterPayload.presenterId = '';
 

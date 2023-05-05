@@ -3,9 +3,8 @@ import LocalSettings from '/imports/api/local-settings';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-async function localSettings() {
-  const tokenValidation = await AuthTokenValidation
-    .findOneAsync({ connectionId: this.connection.id });
+function localSettings() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing LocalSettings was requested by unauth connection ${this.connection.id}`);

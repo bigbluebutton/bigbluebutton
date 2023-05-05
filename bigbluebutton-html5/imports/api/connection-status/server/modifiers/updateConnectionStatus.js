@@ -7,7 +7,7 @@ const STATS = Meteor.settings.public.stats;
 const STATS_INTERVAL = STATS.interval;
 const STATS_CRITICAL_RTT = STATS.rtt[STATS.rtt.length - 1];
 
-export default async function updateConnectionStatus(meetingId, userId, status) {
+export default function updateConnectionStatus(meetingId, userId, status) {
   check(meetingId, String);
   check(userId, String);
 
@@ -32,15 +32,14 @@ export default async function updateConnectionStatus(meetingId, userId, status) 
   }
 
   try {
-    const { numberAffected } = await ConnectionStatus.upsertAsync(selector, { $set: modifier });
+    const { numberAffected } = ConnectionStatus.upsert(selector, { $set: modifier });
     if (numberAffected && status !== 'normal') {
-      await changeHasConnectionStatus(true, userId, meetingId);
+      changeHasConnectionStatus(true, userId, meetingId);
       Logger.verbose(`Updated connection status meetingId=${meetingId} userId=${userId} status=${status}`);
     }
 
-    Meteor.setTimeout(async () => {
-      const connectionLossTimeThreshold = new Date()
-        .getTime() - (STATS_INTERVAL + STATS_CRITICAL_RTT);
+    Meteor.setTimeout(() => {
+      const connectionLossTimeThreshold = new Date().getTime() - (STATS_INTERVAL + STATS_CRITICAL_RTT);
 
       const selectorNotResponding = {
         meetingId,
@@ -49,15 +48,15 @@ export default async function updateConnectionStatus(meetingId, userId, status) 
         clientNotResponding: false,
       };
 
-      const numberAffectedNotResponding = await ConnectionStatus
-        .updateAsync(selectorNotResponding, {
-          $set: { clientNotResponding: true },
-        });
+      const numberAffectedNotResponding = ConnectionStatus.update(selectorNotResponding, {
+        $set: { clientNotResponding: true }
+      });
 
       if (numberAffectedNotResponding) {
         Logger.info(`Updated clientNotResponding=true meetingId=${meetingId} userId=${userId}`);
       }
     }, STATS_INTERVAL + STATS_CRITICAL_RTT);
+
   } catch (err) {
     Logger.error(`Updating connection status meetingId=${meetingId} userId=${userId}: ${err}`);
   }

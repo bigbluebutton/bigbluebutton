@@ -4,9 +4,8 @@ import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-async function presentationUploadToken(podId, filename, temporaryPresentationId) {
-  const tokenValidation = await AuthTokenValidation
-    .findOneAsync({ connectionId: this.connection.id });
+function presentationUploadToken(podId, filename, temporaryPresentationId) {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing PresentationUploadToken was requested by unauth connection ${this.connection.id}`);

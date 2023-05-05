@@ -9,7 +9,7 @@ import { lowercaseTrim } from '/imports/utils/string-utils';
 
 import addVoiceUser from '/imports/api/voice-users/server/modifiers/addVoiceUser';
 
-export default async function addUser(meetingId, userData) {
+export default function addUser(meetingId, userData) {
   const user = userData;
 
   check(meetingId, String);
@@ -38,7 +38,7 @@ export default async function addUser(meetingId, userData) {
     meetingId,
     userId,
   };
-  const Meeting = await Meetings.findOneAsync({ meetingId });
+  const Meeting = Meetings.findOne({ meetingId });
 
   const userInfos = {
     meetingId,
@@ -60,12 +60,11 @@ export default async function addUser(meetingId, userData) {
   const modifier = {
     $set: userInfos,
   };
-  await addUserPsersistentData(userInfos);
+  addUserPsersistentData(userInfos);
   // Only add an empty VoiceUser if there isn't one already and if the user coming in isn't a
   // dial-in user. We want to avoid overwriting good data
-  const voiceUser = await VoiceUsers.findOneAsync({ meetingId, intId: userId });
-  if (user.clientType !== 'dial-in-user' && !voiceUser) {
-    await addVoiceUser(meetingId, {
+  if (user.clientType !== 'dial-in-user' && !VoiceUsers.findOne({ meetingId, intId: userId })) {
+    addVoiceUser(meetingId, {
       voiceUserId: '',
       intId: userId,
       callerName: user.name,
@@ -85,14 +84,14 @@ export default async function addUser(meetingId, userData) {
    * In some cases the user information is set after the presenter is set
    * causing the first moderator to join a meeting be marked as presenter: false
    */
-  const partialUser = await Users.findOneAsync(selector);
+  const partialUser = Users.findOne(selector);
 
   if (partialUser?.presenter) {
     modifier.$set.presenter = true;
   }
 
   try {
-    const { insertedId } = await Users.upsertAsync(selector, modifier);
+    const { insertedId } = Users.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added user id=${userId} meeting=${meetingId}`);

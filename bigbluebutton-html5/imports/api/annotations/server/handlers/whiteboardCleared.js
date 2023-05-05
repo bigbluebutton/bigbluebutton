@@ -3,7 +3,7 @@ import AnnotationsStreamer from '/imports/api/annotations/server/streamer';
 
 import clearAnnotations from '../modifiers/clearAnnotations';
 
-export default async function handleWhiteboardCleared({ body }, meetingId) {
+export default function handleWhiteboardCleared({ body }, meetingId) {
   check(body, {
     userId: String,
     whiteboardId: String,
@@ -14,11 +14,9 @@ export default async function handleWhiteboardCleared({ body }, meetingId) {
 
   if (fullClear) {
     AnnotationsStreamer(meetingId).emit('removed', { meetingId, whiteboardId });
-    const result = await clearAnnotations(meetingId, whiteboardId);
-    return result;
+    return clearAnnotations(meetingId, whiteboardId);
   }
 
   AnnotationsStreamer(meetingId).emit('removed', { meetingId, whiteboardId, userId });
-  const result = await clearAnnotations(meetingId, whiteboardId, userId);
-  return result;
+  return clearAnnotations(meetingId, whiteboardId, userId);
 }

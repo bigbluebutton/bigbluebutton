@@ -4,7 +4,7 @@ import removeVoiceUser from '/imports/api/voice-users/server/modifiers/removeVoi
 import removeUser from '/imports/api/users/server/modifiers/removeUser';
 import Users from '/imports/api/users';
 
-export default async function handleVoiceUpdate({ body }, meetingId) {
+export default function handleVoiceUpdate({ body }, meetingId) {
   const voiceUser = body;
 
   check(meetingId, String);
@@ -19,14 +19,10 @@ export default async function handleVoiceUpdate({ body }, meetingId) {
     voiceUserId,
   } = voiceUser;
 
-  const isDialInUser = async (userId, meetingID) => {
-    const user = await Users.findOneAsync({ meetingId: meetingID, userId, clientType: 'dial-in-user' });
-    return !!user;
-  };
+  const isDialInUser = (userId, meetingID) => !!Users.findOne({ meetingId: meetingID, userId, clientType: 'dial-in-user' });
 
   // if the user is dial-in, leaving voice also means leaving userlist
-  if (await isDialInUser(voiceUserId, meetingId)) removeUser(voiceUser, meetingId);
+  if (isDialInUser(voiceUserId, meetingId)) removeUser(voiceUser, meetingId);
 
-  const result = await removeVoiceUser(meetingId, voiceUser);
-  return result;
+  return removeVoiceUser(meetingId, voiceUser);
 }

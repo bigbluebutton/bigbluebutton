@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import addPoll from '../modifiers/addPoll';
 import setPublishedPoll from '../../../meetings/server/modifiers/setPublishedPoll';
 
-export default async function pollStarted({ body }, meetingId) {
+export default function pollStarted({ body }, meetingId) {
   const {
     userId, poll, pollType, secretPoll, question,
   } = body;
@@ -16,7 +16,5 @@ export default async function pollStarted({ body }, meetingId) {
 
   setPublishedPoll(meetingId, false);
 
-  const result = await addPoll(meetingId, userId, poll, pollType, secretPoll, question);
-
-  return result;
+  return addPoll(meetingId, userId, poll, pollType, secretPoll, question);
 }

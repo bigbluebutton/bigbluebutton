@@ -1,11 +1,11 @@
-import { check } from 'meteor/check';
 import setGuestLobbyMessage from '../modifiers/setGuestLobbyMessage';
+import { check } from 'meteor/check';
 
-export default async function handleGuestLobbyMessageChanged({ body }, meetingId) {
+export default function handleGuestLobbyMessageChanged({ body }, meetingId) {
   const { message } = body;
 
   check(meetingId, String);
   check(message, String);
-  const result = await setGuestLobbyMessage(meetingId, message);
-  return result;
+
+  return setGuestLobbyMessage(meetingId, message);
 }

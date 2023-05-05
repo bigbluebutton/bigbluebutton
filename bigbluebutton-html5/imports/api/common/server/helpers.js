@@ -22,7 +22,7 @@ export const indexOf = [].indexOf || function (item) {
   return -1;
 };
 
-export const processForHTML5ServerOnly = (fn) => async (message, ...args) => {
+export const processForHTML5ServerOnly = (fn) => (message, ...args) => {
   const { envelope } = message;
   const { routing } = envelope;
   const { msgType, meetingId, userId } = routing;
@@ -32,7 +32,7 @@ export const processForHTML5ServerOnly = (fn) => async (message, ...args) => {
     meetingId,
   };
 
-  const user = await Users.findOneAsync(selector);
+  const user = Users.findOne(selector);
 
   const shouldSkip = user && msgType === MSG_DIRECT_TYPE && userId !== NODE_USER && user.clientType !== 'HTML5';
   if (shouldSkip) return () => { };
@@ -51,10 +51,9 @@ export const extractCredentials = (credentials) => {
 // The provided function is publication-specific and must check the "survival condition" of the publication.
 export const publicationSafeGuard = function (fn, self) {
   let stopped = false;
-  const periodicCheck = async function () {
+  const periodicCheck = function () {
     if (stopped) return;
-    const result = await fn();
-    if (!result) {
+    if (!fn()) {
       self.added(self._name, 'publication-stop-marker', { id: 'publication-stop-marker', stopped: true });
       self.stop();
     } else Meteor.setTimeout(periodicCheck, 1000);

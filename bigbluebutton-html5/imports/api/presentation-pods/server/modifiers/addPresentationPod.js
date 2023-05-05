@@ -5,7 +5,7 @@ import addPresentation from '/imports/api/presentations/server/modifiers/addPres
 
 // 'presentations' is passed down here when we receive a Sync message
 // and it's not used when we just create a new presentation pod
-export default async function addPresentationPod(meetingId, pod, presentations = undefined) {
+export default function addPresentationPod(meetingId, pod, presentations = undefined) {
   check(meetingId, String);
   check(presentations, Match.Maybe(Array));
   check(pod, {
@@ -27,12 +27,11 @@ export default async function addPresentationPod(meetingId, pod, presentations =
   };
 
   try {
-    const { insertedId } = await PresentationPods.upsertAsync(selector, modifier);
+    const { insertedId } = PresentationPods.upsert(selector, modifier);
 
     // if it's a Sync message - continue adding the attached presentations
     if (presentations) {
-      presentations.forEach(async (presentation) =>
-        addPresentation(meetingId, podId, presentation));
+      presentations.forEach(presentation => addPresentation(meetingId, podId, presentation));
     }
 
     if (insertedId) {

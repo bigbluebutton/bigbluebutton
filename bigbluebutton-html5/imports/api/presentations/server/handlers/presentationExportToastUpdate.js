@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import setPresentationExporting from '/imports/api/presentations/server/modifiers/setPresentationExporting';
 
-export default async function handlePresentationExportToastUpdate({ body }, meetingId) {
+export default function handlePresentationExportToastUpdate({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
 
@@ -15,7 +15,7 @@ export default async function handlePresentationExportToastUpdate({ body }, meet
   check(status, String);
   check(error, Boolean);
 
-  await setPresentationExporting(meetingId, presId, {
+  setPresentationExporting(meetingId, presId, {
     pageNumber, totalPages, status, error,
   });
 }

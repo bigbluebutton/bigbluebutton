@@ -11,9 +11,9 @@ import { publicationSafeGuard } from '/imports/api/common/server/helpers';
 
 Meteor.server.setPublicationStrategy('polls', DDPServer.publicationStrategies.NO_MERGE);
 
-async function currentPoll(secretPoll) {
+function currentPoll(secretPoll) {
   check(secretPoll, Boolean);
-  const tokenValidation = await AuthTokenValidation.findOneAsync({
+  const tokenValidation = AuthTokenValidation.findOne({
     connectionId: this.connection.id,
   });
 
@@ -24,14 +24,12 @@ async function currentPoll(secretPoll) {
     Logger.warn(
       `Publishing Polls was requested by unauth connection ${this.connection.id}`,
     );
-
     return Polls.find({ meetingId: '' });
   }
 
   const { meetingId, userId } = tokenValidation;
 
-  const User = await Users.findOneAsync({ userId, meetingId },
-    { fields: { role: 1, presenter: 1 } });
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
 
   if (!!User && User.presenter) {
     Logger.debug('Publishing Polls', { meetingId, userId });
@@ -43,7 +41,7 @@ async function currentPoll(secretPoll) {
 
     const options = { fields: {} };
 
-    const hasPoll = await Polls.findOneAsync(selector);
+    const hasPoll = Polls.findOne(selector);
 
     if ((hasPoll && hasPoll.secretPoll) || secretPoll) {
       options.fields.responses = 0;
@@ -70,8 +68,8 @@ function publishCurrentPoll(...args) {
 
 Meteor.publish('current-poll', publishCurrentPoll);
 
-async function polls() {
-  const tokenValidation = await AuthTokenValidation.findOneAsync({
+function polls() {
+  const tokenValidation = AuthTokenValidation.findOne({
     connectionId: this.connection.id,
   });
 
@@ -101,8 +99,7 @@ async function polls() {
   };
 
   const { meetingId, userId } = tokenValidation;
-  const User = await Users.findOneAsync({ userId, meetingId },
-    { fields: { role: 1, presenter: 1 } });
+  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1, presenter: 1 } });
 
   Logger.debug('Publishing polls', { meetingId, userId });
 
@@ -112,14 +109,12 @@ async function polls() {
   };
 
   if (User) {
-    const poll = await Polls.findOneAsync(selector, noKeyOptions);
+    const poll = Polls.findOne(selector, noKeyOptions);
     if (User.presenter || poll?.pollType !== 'R-') {
-      // Monitor this publication and stop it when user is not a presenter anymore
-      // or poll type has changed
-      const comparisonFunc = async () => {
-        const user = await Users.findOneAsync({ userId, meetingId },
-          { fields: { role: 1, userId: 1 } });
-        const currentPoll = await Polls.findOneAsync(selector, noKeyOptions);
+      // Monitor this publication and stop it when user is not a presenter anymore or poll type has changed
+      const comparisonFunc = () => {
+        const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+        const currentPoll = Polls.findOne(selector, noKeyOptions);
 
         const condition = user.presenter || currentPoll?.pollType !== 'R-';
 

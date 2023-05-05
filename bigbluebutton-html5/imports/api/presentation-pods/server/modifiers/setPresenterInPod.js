@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import PresentationPods from '/imports/api/presentation-pods';
 import Logger from '/imports/startup/server/logger';
 
-export default async function setPresenterInPod(meetingId, podId, nextPresenterId) {
+export default function setPresenterInPod(meetingId, podId, nextPresenterId) {
   check(meetingId, String);
   check(podId, String);
   check(nextPresenterId, String);
@@ -19,7 +19,7 @@ export default async function setPresenterInPod(meetingId, podId, nextPresenterI
   };
 
   try {
-    const { numberAffected } = await PresentationPods.upsertAsync(selector, modifier);
+    const { numberAffected } = PresentationPods.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Set a new presenter in pod id=${podId} meeting=${meetingId} presenter=${nextPresenterId}`);

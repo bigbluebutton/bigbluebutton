@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 import clearUserInfoForRequester from '/imports/api/users-infos/server/modifiers/clearUserInfoForRequester';
 
-export default async function userEjected(meetingId, userId, ejectedReason) {
+export default function userEjected(meetingId, userId, ejectedReason) {
   check(meetingId, String);
   check(userId, String);
   check(ejectedReason, String);
@@ -21,10 +21,10 @@ export default async function userEjected(meetingId, userId, ejectedReason) {
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
-      await clearUserInfoForRequester(meetingId, userId);
+      clearUserInfoForRequester(meetingId, userId);
       Logger.info(`Ejected user id=${userId} meeting=${meetingId} reason=${ejectedReason}`);
     }
   } catch (err) {

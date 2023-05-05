@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default async function setUserExitReason(meetingId, userId, reason) {
+export default function setUserExitReason(meetingId, userId, reason) {
   const selector = {
     meetingId,
     userId,
@@ -14,7 +14,7 @@ export default async function setUserExitReason(meetingId, userId, reason) {
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Set exit reason userId=${userId} meeting=${meetingId}`);

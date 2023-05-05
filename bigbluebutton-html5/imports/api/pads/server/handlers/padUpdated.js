@@ -1,6 +1,6 @@
 import updatePad from '/imports/api/pads/server/modifiers/updatePad';
 
-export default async function padUpdated({ header, body }) {
+export default function padUpdated({ header, body }) {
   const {
     meetingId,
   } = header;
@@ -13,5 +13,5 @@ export default async function padUpdated({ header, body }) {
     changeset,
   } = body;
 
-  await updatePad(meetingId, externalId, padId, userId, rev, changeset);
+  updatePad(meetingId, externalId, padId, userId, rev, changeset);
 }

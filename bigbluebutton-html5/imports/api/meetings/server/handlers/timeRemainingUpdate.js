@@ -3,7 +3,7 @@ import Meetings, { MeetingTimeRemaining } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import addSystemMsg from '/imports/api/group-chat-msg/server/modifiers/addSystemMsg';
 
-export default async function handleTimeRemainingUpdate({ body }, meetingId) {
+export default function handleTimeRemainingUpdate({ body }, meetingId) {
   check(meetingId, String);
 
   check(body, {
@@ -23,13 +23,13 @@ export default async function handleTimeRemainingUpdate({ body }, meetingId) {
   };
 
   try {
-    await MeetingTimeRemaining.upsertAsync(selector, modifier);
+    MeetingTimeRemaining.upsert(selector, modifier);
   } catch (err) {
     Logger.error(`Changing recording time: ${err}`);
   }
 
   if (timeUpdatedInMinutes > 0) {
-    const Meeting = await Meetings.findOneAsync({ meetingId });
+    const Meeting = Meetings.findOne({ meetingId });
 
     if (Meeting.meetingProp.isBreakout) {
       const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -54,7 +54,7 @@ export default async function handleTimeRemainingUpdate({ body }, meetingId) {
         messageValues,
       };
 
-      await addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, payload);
+      addSystemMsg(meetingId, PUBLIC_GROUP_CHAT_ID, payload);
     }
   }
 }

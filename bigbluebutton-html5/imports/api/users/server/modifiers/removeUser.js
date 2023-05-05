@@ -24,7 +24,7 @@ const disconnectUser = (meetingId, userId) => {
   }
 };
 
-export default async function removeUser(body, meetingId) {
+export default function removeUser(body, meetingId) {
   const { intId: userId, reasonCode } = body;
   check(meetingId, String);
   check(userId, String);
@@ -39,32 +39,30 @@ export default async function removeUser(body, meetingId) {
     // since the backend is supposed to update Mongo
     if ((process.env.BBB_HTML5_ROLE !== 'frontend')) {
       if (body.eject) {
-        await userEjected(meetingId, userId, reasonCode);
+        userEjected(meetingId, userId, reasonCode);
       }
 
-      await setloggedOutStatus(userId, meetingId, true);
-      await VideoStreams.removeAsync({ meetingId, userId });
+      setloggedOutStatus(userId, meetingId, true);
+      VideoStreams.remove({ meetingId, userId });
 
-      await clearUserInfoForRequester(meetingId, userId);
+      clearUserInfoForRequester(meetingId, userId);
 
-      const currentUser = await UsersPersistentData.findOneAsync({ userId, meetingId });
-      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || 
-      currentUser?.shouldPersist?.hasMessages?.private;
+      const currentUser = UsersPersistentData.findOne({ userId, meetingId });
+      const hasMessages = currentUser?.shouldPersist?.hasMessages?.public || currentUser?.shouldPersist?.hasMessages?.private;
       const hasConnectionStatus = currentUser?.shouldPersist?.hasConnectionStatus;
 
       if (!hasMessages && !hasConnectionStatus) {
-        await UsersPersistentData.removeAsync(selector);
+        UsersPersistentData.remove(selector);
       }
 
-      await Users.removeAsync(selector);
-      await clearVoiceUser(meetingId, userId);
+      Users.remove(selector);
+      clearVoiceUser(meetingId, userId);
     }
 
     if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
       // Wait for user removal and then kill user connections and sessions
       const queryCurrentUser = Users.find(selector);
-      const countUser = await queryCurrentUser.countAsync();
-      if (countUser === 0) {
+      if (queryCurrentUser.count() === 0) {
         disconnectUser(meetingId, userId);
       } else {
         const queryUserObserver = queryCurrentUser.observeChanges({

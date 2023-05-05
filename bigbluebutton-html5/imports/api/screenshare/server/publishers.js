@@ -3,9 +3,8 @@ import { Meteor } from 'meteor/meteor';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-async function screenshare() {
-  const tokenValidation = await AuthTokenValidation
-    .findOneAsync({ connectionId: this.connection.id });
+function screenshare() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing Screenshare was requested by unauth connection ${this.connection.id}`);

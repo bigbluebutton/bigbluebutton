@@ -7,7 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const UsersPersistentData = new Mongo.Collection('users-persistent-data', collectionOptions);
 
 if (Meteor.isServer) {
-  UsersPersistentData.createIndexAsync({ meetingId: 1, userId: 1 });
+  UsersPersistentData._ensureIndex({ meetingId: 1, userId: 1 });
 }
 
 export default UsersPersistentData;

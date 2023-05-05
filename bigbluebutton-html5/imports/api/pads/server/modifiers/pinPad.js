@@ -2,14 +2,14 @@ import { check } from 'meteor/check';
 import { default as Pads } from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 
-export default async function pinPad(meetingId, externalId, pinned) {
+export default function pinPad(meetingId, externalId, pinned) {
   try {
     check(meetingId, String);
     check(externalId, String);
     check(pinned, Boolean);
 
     if (pinned) {
-      await Pads.updateAsync({ meetingId, pinned: true }, { $set: { pinned: false } });
+      Pads.update({ meetingId, pinned: true }, { $set: { pinned: false } });
     }
 
     const selector = {
@@ -23,7 +23,7 @@ export default async function pinPad(meetingId, externalId, pinned) {
       },
     };
 
-    const numberAffected = await Pads.updateAsync(selector, modifier);
+    const numberAffected = Pads.update(selector, modifier);
 
     if (numberAffected) {
       const prefix = pinned ? '' : 'un';

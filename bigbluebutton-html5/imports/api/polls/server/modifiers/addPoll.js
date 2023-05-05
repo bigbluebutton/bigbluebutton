@@ -4,7 +4,7 @@ import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
 import { check } from 'meteor/check';
 
-export default async function addPoll(meetingId, requesterId, poll, pollType, secretPoll, question = '') {
+export default function addPoll(meetingId, requesterId, poll, pollType, secretPoll, question = '') {
   check(requesterId, String);
   check(meetingId, String);
   check(poll, {
@@ -24,9 +24,9 @@ export default async function addPoll(meetingId, requesterId, poll, pollType, se
     clientType: { $ne: 'dial-in-user' },
   };
 
-  const users = await Users.find(userSelector, { fields: { userId: 1 } })
-    .fetchAsync();
-  const userIds = users.map(user => user.userId);
+  const userIds = Users.find(userSelector, { fields: { userId: 1 } })
+    .fetch()
+    .map(user => user.userId);
 
   const selector = {
     meetingId,
@@ -42,8 +42,9 @@ export default async function addPoll(meetingId, requesterId, poll, pollType, se
     flat(poll, { safe: true }),
   );
 
+
   try {
-    const { insertedId } = await Polls.upsertAsync(selector, modifier);
+    const { insertedId } = Polls.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added Poll id=${poll.id}`);

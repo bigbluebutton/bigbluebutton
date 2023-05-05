@@ -2,7 +2,8 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import BreakoutsHistory from '/imports/api/breakouts-history';
 
-export default async function handleSendMessageToAllBreakoutRoomsEvtMsg({ body }, meetingId) {
+export default function handleSendMessageToAllBreakoutRoomsEvtMsg({ body }, meetingId) {
+
   const {
     senderId,
     msg,
@@ -29,7 +30,7 @@ export default async function handleSendMessageToAllBreakoutRoomsEvtMsg({ body }
   };
 
   try {
-    const { insertedId } = await BreakoutsHistory.upsertAsync(selector, modifier);
+    const { insertedId } = BreakoutsHistory.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added broadCastMsg to breakout-history Data: meeting=${meetingId}`);

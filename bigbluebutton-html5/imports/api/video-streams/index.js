@@ -10,7 +10,7 @@ if (Meteor.isServer) {
   // types of queries for the video users:
   // 2. meetingId
 
-  VideoStreams.createIndexAsync({ meetingId: 1 });
+  VideoStreams._ensureIndex({ meetingId: 1 });
 }
 
 export default VideoStreams;

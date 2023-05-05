@@ -7,7 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const UserSettings = new Mongo.Collection('users-settings', collectionOptions);
 
 if (Meteor.isServer) {
-  UserSettings.createIndexAsync({
+  UserSettings._ensureIndex({
     meetingId: 1, userId: 1,
   });
 }

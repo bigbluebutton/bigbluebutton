@@ -1,10 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users/index';
 
-export default async function clearUsers(meetingId) {
+export default function clearUsers(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = await Users.removeAsync({ meetingId });
+      const numberAffected = Users.remove({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared Users (${meetingId})`);
@@ -14,7 +14,7 @@ export default async function clearUsers(meetingId) {
     }
   } else {
     try {
-      const numberAffected = await Users.removeAsync({});
+      const numberAffected = Users.remove({});
 
       if (numberAffected) {
         Logger.info('Cleared Users (all)');

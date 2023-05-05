@@ -5,7 +5,7 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default async function muteAllToggle() {
+export default function muteAllToggle() {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -16,7 +16,7 @@ export default async function muteAllToggle() {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const meeting = await Meetings.findOneAsync({ meetingId });
+    const meeting = Meetings.findOne({ meetingId });
     const toggleMeetingMuted = !meeting.voiceProp.muteOnStart;
 
     const payload = {

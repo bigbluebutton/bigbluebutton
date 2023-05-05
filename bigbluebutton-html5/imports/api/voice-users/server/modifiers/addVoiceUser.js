@@ -1,9 +1,10 @@
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import VoiceUsers from '/imports/api/voice-users';
+import Users from '/imports/api/users';
 import flat from 'flat';
 
-export default async function addVoiceUser(meetingId, voiceUser) {
+export default function addVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, {
     voiceUserId: String,
@@ -35,7 +36,7 @@ export default async function addVoiceUser(meetingId, voiceUser) {
   };
 
   try {
-    const { numberAffected } = await VoiceUsers.upsertAsync(selector, modifier);
+    const { numberAffected } = VoiceUsers.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Add voice user=${intId} meeting=${meetingId}`);

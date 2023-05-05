@@ -6,9 +6,8 @@ import GroupChat from '/imports/api/group-chat';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-async function groupChatMsg() {
-  const tokenValidation = await AuthTokenValidation
-    .findOneAsync({ connectionId: this.connection.id });
+function groupChatMsg() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing GroupChatMsg was requested by unauth connection ${this.connection.id}`);
@@ -22,15 +21,15 @@ async function groupChatMsg() {
 
   Logger.debug('Publishing group-chat-msg', { meetingId, userId });
 
-  const chats = await GroupChat.find({
+  const chats = GroupChat.find({
     $or: [
       { meetingId, users: { $all: [userId] } },
     ],
-  }).fetchAsync();
+  }).fetch();
 
   const chatsIds = chats.map((ct) => ct.chatId);
 
-  const User = await Users.findOneAsync({ userId, meetingId });
+  const User = Users.findOne({ userId, meetingId });
   const selector = {
     timestamp: { $gte: User.authTokenValidatedTime },
     $or: [

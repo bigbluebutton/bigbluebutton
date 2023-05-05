@@ -3,14 +3,14 @@ import Logger from '/imports/startup/server/logger';
 import GuestUsers from '/imports/api/guest-users/';
 import updatePositionInWaitingQueue from '../methods/updatePositionInWaitingQueue';
 
-export default async function handleGuestsWaitingForApproval({ body }, meetingId) {
+export default function handleGuestsWaitingForApproval({ body }, meetingId) {
   const { guests } = body;
   check(guests, Array);
   check(meetingId, String);
 
-  const result = await Promise.all(guests.map(async (guest) => {
+  return guests.map((guest) => {
     try {
-      const { insertedId, numberAffected } = await GuestUsers.upsertAsync({
+      const { insertedId, numberAffected } = GuestUsers.upsert({
         meetingId,
         intId: guest.intId,
       }, {
@@ -28,7 +28,7 @@ export default async function handleGuestsWaitingForApproval({ body }, meetingId
         /** Update position of waiting users after user
         *   has entered the guest lobby
         */
-        updatePositionInWaitingQueue(meetingId);
+         updatePositionInWaitingQueue(meetingId);
       } else if (numberAffected) {
         Logger.info(`Upserted guest user meeting=${meetingId}`);
 
@@ -37,6 +37,5 @@ export default async function handleGuestsWaitingForApproval({ body }, meetingId
     } catch (err) {
       Logger.error(`Adding guest user to collection: ${err}`);
     }
-  }));
-  return result;
+  });
 }

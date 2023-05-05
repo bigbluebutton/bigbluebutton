@@ -6,7 +6,7 @@ const SELECT_RANDOM_USER_COUNTDOWN = Meteor.settings.public.selectRandomUser.cou
 
 //  Time intervals in milliseconds
 //  for iteration in animation.
-const intervals = [0, 200, 450, 750, 1100, 1500];
+let intervals = [0, 200, 450, 750, 1100, 1500];
 
 //  Used to togle to the first value of intervals to
 //  differenciare whether this function has been called
@@ -25,12 +25,11 @@ function toggleIndicator() {
 
 function getFiveRandom(userList, userIds) {
   let IDs = userIds.slice();
-  for (let i = 0; i < intervals.length - 1; i += 1) {
+  for (let i = 0; i < intervals.length - 1; i++) {
     if (IDs.length === 0) { // we used up all the options
       IDs = userIds.slice(); // start over
       let userId = IDs.splice(0, 1);
-      if (userList[userList.length] === [userId, intervals[i]]) {
-        // If we start over with the one we finnished, change it
+      if (userList[userList.length] === [userId, intervals[i]]) { // If we start over with the one we finnished, change it
         IDs.push(userId);
         userId = IDs.splice(0, 1);
       }
@@ -53,7 +52,7 @@ const optionsFor3 = [
   [2, 1, 0],
 ];
 
-export default async function updateRandomUser(meetingId, userIds, choice, requesterId) {
+export default function updateRandomUser(meetingId, userIds, choice, requesterId) {
   check(meetingId, String);
   check(userIds, Array);
   check(choice, String);
@@ -69,8 +68,7 @@ export default async function updateRandomUser(meetingId, userIds, choice, reque
 
   const numberOfUsers = userIds.length;
 
-  if (choice === '') {
-    // no viewer
+  if (choice == "") { // no viewer
     userList = [
       [requesterId, intervals[0]],
       [requesterId, 0],
@@ -88,8 +86,9 @@ export default async function updateRandomUser(meetingId, userIds, choice, reque
       [userIds[0], 0],
       [userIds[0], 0],
     ];
-  } else if (!SELECT_RANDOM_USER_COUNTDOWN) {
-    //  If animation is disabled, we only care about the chosen one
+  }
+
+  else if (!SELECT_RANDOM_USER_COUNTDOWN) { //  If animation is disabled, we only care about the chosen one
     userList = [
       [choice, intervals[0]],
       [choice, 0],
@@ -98,7 +97,9 @@ export default async function updateRandomUser(meetingId, userIds, choice, reque
       [choice, 0],
       [choice, 0],
     ];
-  } else if (numberOfUsers === 2) { // If there are only two users, we can just chow them in turns
+  }
+
+  else if (numberOfUsers === 2) { // If there are only two users, we can just chow them in turns
     const IDs = userIds.slice();
     IDs.splice(choice, 1);
     userList = [
@@ -109,8 +110,7 @@ export default async function updateRandomUser(meetingId, userIds, choice, reque
       [IDs[0], intervals[4]],
       [choice, intervals[5]],
     ];
-  } else if (numberOfUsers === 3) {
-    //  If there are 3 users, the number of combinations is small, so we'll use that
+  } else if (numberOfUsers === 3) { //  If there are 3 users, the number of combinations is small, so we'll use that
     const option = Math.floor(Math.random() * 6);
     const order = optionsFor3[option];
     userList = [
@@ -121,7 +121,9 @@ export default async function updateRandomUser(meetingId, userIds, choice, reque
       [userIds[order[1]], intervals[4]],
       [choice, intervals[5]],
     ];
-  } else { // We generate 5 users randomly, just for animation, and last one is the chosen one
+  }
+
+  else { // We generate 5 users randomly, just for animation, and last one is the chosen one
     getFiveRandom(userList, userIds);
     userList.push([choice, intervals[intervals.length]]);
   }
@@ -133,7 +135,7 @@ export default async function updateRandomUser(meetingId, userIds, choice, reque
   };
 
   try {
-    const { insertedId } = await Meetings.upsertAsync(selector, modifier);
+    const { insertedId } = Meetings.upsert(selector, modifier);
     if (insertedId) {
       Logger.info(`Set randomly selected userId and interval = ${userList} by requesterId=${requesterId} in meeitingId=${meetingId}`);
     }

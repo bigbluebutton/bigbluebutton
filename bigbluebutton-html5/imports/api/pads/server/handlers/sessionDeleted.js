@@ -1,6 +1,6 @@
 import deleteSession from '/imports/api/pads/server/modifiers/deleteSession';
 
-export default async function sessionDeleted({ header, body }) {
+export default function sessionDeleted({ header, body }) {
   const {
     meetingId,
   } = header;
@@ -11,5 +11,5 @@ export default async function sessionDeleted({ header, body }) {
     sessionId,
   } = body;
 
-  await deleteSession(meetingId, externalId, userId, sessionId);
+  deleteSession(meetingId, externalId, userId, sessionId);
 }

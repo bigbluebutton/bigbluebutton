@@ -17,7 +17,7 @@ import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
-const addExternalVideo = async (meetingId) => {
+const addExternalVideo = (meetingId) => {
   const selector = { meetingId };
 
   const modifier = {
@@ -26,7 +26,7 @@ const addExternalVideo = async (meetingId) => {
   };
 
   try {
-    const { numberAffected } = await ExternalVideoMeetings.upsertAsync(selector, modifier);
+    const { numberAffected } = ExternalVideoMeetings.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.verbose(`Added external video meetingId=${meetingId}`);
@@ -36,7 +36,7 @@ const addExternalVideo = async (meetingId) => {
   }
 };
 
-const addLayout = async (meetingId, layout) => {
+const addLayout = (meetingId, layout) => {
   const selector = { meetingId };
 
   const modifier = {
@@ -52,7 +52,7 @@ const addLayout = async (meetingId, layout) => {
   };
 
   try {
-    const { numberAffected } = await LayoutMeetings.upsertAsync(selector, modifier);
+    const { numberAffected } = LayoutMeetings.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.verbose(`Added layout meetingId=${meetingId}`, numberAffected);
@@ -62,7 +62,7 @@ const addLayout = async (meetingId, layout) => {
   }
 };
 
-export default async function addMeeting(meeting) {
+export default function addMeeting(meeting) {
   const meetingId = meeting.meetingProp.intId;
 
   check(meetingId, String);
@@ -171,7 +171,7 @@ export default async function addMeeting(meeting) {
 
   let { welcomeMsg } = newMeeting.welcomeProp;
 
-  const sanitizeTextInChat = (original) => SanitizeHTML(original, {
+  const sanitizeTextInChat = original => SanitizeHTML(original, {
     allowedTags: ['a', 'b', 'br', 'i', 'img', 'li', 'small', 'span', 'strong', 'u', 'ul'],
     allowedAttributes: {
       a: ['href', 'target'],
@@ -179,8 +179,8 @@ export default async function addMeeting(meeting) {
     },
     allowedSchemes: ['https'],
     allowedSchemesByTag: {
-      a: ['https', 'mailto', 'tel'],
-    },
+      a: ['https', 'mailto', 'tel']
+    }
   });
 
   const sanitizedWelcomeText = sanitizeTextInChat(welcomeMsg);
@@ -200,7 +200,7 @@ export default async function addMeeting(meeting) {
         welcomeMsg,
         linkWithoutTarget.lastIndex - 1,
       );
-      linkWithoutTarget.lastIndex -= 1;
+      linkWithoutTarget.lastIndex = linkWithoutTarget.lastIndex - 1;
     }
   } while (linkWithoutTarget.lastIndex > 0);
 
@@ -214,17 +214,16 @@ export default async function addMeeting(meeting) {
   const { meetingLayout } = meeting.usersProp;
 
   const modifier = {
-    $set: {
+    $set: Object.assign({
       meetingId,
       meetingEnded,
       layout: LAYOUT_TYPE[meetingLayout] || 'smart',
       publishedPoll: false,
       guestLobbyMessage: '',
       randomlySelectedUser: [],
-      ...flat(newMeeting, {
-        safe: true,
-      }),
-    },
+    }, flat(newMeeting, {
+      safe: true,
+    })),
   };
 
   if (!process.env.BBB_HTML5_ROLE || process.env.BBB_HTML5_ROLE === 'frontend') {
@@ -232,18 +231,14 @@ export default async function addMeeting(meeting) {
     addCursorStreamer(meetingId);
     addExternalVideoStreamer(meetingId);
 
-    // we don't want to fully process the create meeting message
-    // in frontend since it can lead to duplication of meetings in mongo.
+    // we don't want to fully process the create meeting message in frontend since it can lead to duplication of meetings in mongo.
     if (process.env.BBB_HTML5_ROLE === 'frontend') {
       return;
     }
   }
 
   try {
-    const {
-      insertedId,
-      numberAffected,
-    } = await RecordMeetings.upsertAsync(selector, { meetingId, ...recordProp });
+    const { insertedId, numberAffected } = RecordMeetings.upsert(selector, { meetingId, ...recordProp });
 
     if (insertedId) {
       Logger.info(`Added record prop id=${meetingId}`);
@@ -254,11 +249,11 @@ export default async function addMeeting(meeting) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
 
-  await addExternalVideo(meetingId);
-  await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
+  addExternalVideo(meetingId);
+  addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 
   try {
-    const { insertedId, numberAffected } = await Meetings.upsertAsync(selector, modifier);
+    const { insertedId, numberAffected } = Meetings.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
@@ -266,7 +261,7 @@ export default async function addMeeting(meeting) {
         initPads(meetingId);
       }
       if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
-        await initCaptions(meetingId);
+        initCaptions(meetingId);
       }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);

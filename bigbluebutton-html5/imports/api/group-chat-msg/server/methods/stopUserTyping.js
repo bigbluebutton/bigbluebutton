@@ -4,14 +4,14 @@ import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 
-export default async function stopUserTyping() {
+export default function stopUserTyping() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const userTyping = await UsersTyping.findOneAsync({
+    const userTyping = UsersTyping.findOne({
       meetingId,
       userId: requesterUserId,
     });

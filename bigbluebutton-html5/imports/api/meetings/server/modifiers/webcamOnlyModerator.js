@@ -2,7 +2,7 @@ import Logger from '/imports/startup/server/logger';
 import Meetings from '/imports/api/meetings';
 import { check } from 'meteor/check';
 
-export default async function changeWebcamOnlyModerator(meetingId, payload) {
+export default function changeWebcamOnlyModerator(meetingId, payload) {
   check(meetingId, String);
   check(payload, {
     webcamsOnlyForModerator: Boolean,
@@ -21,7 +21,7 @@ export default async function changeWebcamOnlyModerator(meetingId, payload) {
   };
 
   try {
-    const { numberAffected } = await Meetings.upsertAsync(selector, modifier);
+    const { numberAffected } = Meetings.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed meeting={${meetingId}} updated webcam Only for Moderator`);

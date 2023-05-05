@@ -9,7 +9,7 @@ const msgBuffer = [];
 
 const bulkFn = _.throttle(addBulkGroupChatMsgs, bufferChatInsertsMs);
 
-export default async function handleGroupChatMsgBroadcast({ body }, meetingId) {
+export default function handleGroupChatMsgBroadcast({ body }, meetingId) {
   const { chatId, msg } = body;
 
   check(meetingId, String);
@@ -20,6 +20,6 @@ export default async function handleGroupChatMsgBroadcast({ body }, meetingId) {
     msgBuffer.push({ meetingId, chatId, msg });
     bulkFn(msgBuffer);
   } else {
-    await addGroupChatMsg(meetingId, chatId, msg);
+    addGroupChatMsg(meetingId, chatId, msg);
   }
 }

@@ -2,14 +2,14 @@ import { check } from 'meteor/check';
 import Pads from '/imports/api/pads';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default async function getPadId(externalId) {
+export default function getPadId(externalId) {
   try {
     const { meetingId } = extractCredentials(this.userId);
 
     check(meetingId, String);
     check(externalId, String);
 
-    const pad = await Pads.findOneAsync(
+    const pad = Pads.findOne(
       {
         meetingId,
         externalId,
@@ -17,7 +17,7 @@ export default async function getPadId(externalId) {
       {
         fields: {
           padId: 1,
-        },
+        }
       },
     );
 

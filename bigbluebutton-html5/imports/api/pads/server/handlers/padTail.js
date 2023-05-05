@@ -1,6 +1,6 @@
 import tailPad from '/imports/api/pads/server/modifiers/tailPad';
 
-export default async function padTail({ header, body }) {
+export default function padTail({ header, body }) {
   const {
     meetingId,
   } = header;
@@ -10,5 +10,5 @@ export default async function padTail({ header, body }) {
     tail,
   } = body;
 
-  await tailPad(meetingId, externalId, tail);
+  tailPad(meetingId, externalId, tail);
 }

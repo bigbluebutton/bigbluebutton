@@ -1,7 +1,7 @@
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default async function changePresenter(presenter, userId, meetingId, changedBy) {
+export default function changePresenter(presenter, userId, meetingId, changedBy) {
   const selector = {
     meetingId,
     userId,
@@ -14,7 +14,7 @@ export default async function changePresenter(presenter, userId, meetingId, chan
   };
 
   try {
-    const numberAffected = await Users.updateAsync(selector, modifier);
+    const numberAffected = Users.update(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Changed presenter=${presenter} id=${userId} meeting=${meetingId}`

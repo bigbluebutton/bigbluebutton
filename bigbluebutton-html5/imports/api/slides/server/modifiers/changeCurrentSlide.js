@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import { Slides } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 
-export default async function changeCurrentSlide(meetingId, podId, presentationId, slideId) {
+export default function changeCurrentSlide(meetingId, podId, presentationId, slideId) {
   check(meetingId, String);
   check(presentationId, String);
   check(slideId, String);
@@ -48,8 +48,8 @@ export default async function changeCurrentSlide(meetingId, podId, presentationI
     },
   };
 
-  const oldSlide = await Slides.findOneAsync(oldCurrent.selector);
-  const newSlide = await Slides.findOneAsync(newCurrent.selector);
+  const oldSlide = Slides.findOne(oldCurrent.selector);
+  const newSlide = Slides.findOne(newCurrent.selector);
 
   // if the oldCurrent and newCurrent have the same ids
   if (oldSlide && newSlide && (oldSlide._id === newSlide._id)) {
@@ -57,10 +57,10 @@ export default async function changeCurrentSlide(meetingId, podId, presentationI
   }
 
   if (newSlide) {
-    await Slides.updateAsync(newSlide._id, newCurrent.modifier, newCurrent.callback);
+    Slides.update(newSlide._id, newCurrent.modifier, newCurrent.callback);
   }
 
   if (oldSlide) {
-    await Slides.updateAsync(oldSlide._id, oldCurrent.modifier, oldCurrent.callback);
+    Slides.update(oldSlide._id, oldCurrent.modifier, oldCurrent.callback);
   }
 }

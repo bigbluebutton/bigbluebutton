@@ -3,7 +3,7 @@ import GuestUsers from '/imports/api/guest-users';
 import Logger from '/imports/startup/server/logger';
 import updatePositionInWaitingQueue from '../methods/updatePositionInWaitingQueue';
 
-export default async function removeGuest(meetingId, intId) {
+export default function removeGuest(meetingId, intId) {
   check(meetingId, String);
   check(intId, String);
 
@@ -12,17 +12,18 @@ export default async function removeGuest(meetingId, intId) {
     intId,
   };
 
-  try {
-    const result = await GuestUsers.removeAsync(selector);
-    if (result) {
-      Logger.info(`Removed guest user id=${intId} meetingId=${meetingId}`);
+  const cb = (err) => {
+    if (err) {
+      return Logger.error(`Removing guest user from collection: ${err}`);
     }
-  } catch (err) {
-    return Logger.error(`Removing guest user from collection: ${err}`);
-  }
 
-  // Update position of waiting users after user has left the guest lobby.
-  await updatePositionInWaitingQueue(meetingId);
+    /**
+     *  Update position of waiting users after user has left the guest lobby 
+     */
+     updatePositionInWaitingQueue(meetingId);
 
-  return true;
+    return Logger.info(`Removed guest user id=${intId} meetingId=${meetingId}`);
+  };
+
+  return GuestUsers.remove(selector, cb);
 }

@@ -3,7 +3,7 @@ import Pads from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 import createPad from '/imports/api/pads/server/methods/createPad';
 
-export default async function createGroup(meetingId, userId, externalId, model, name) {
+export default function createGroup(meetingId, userId, externalId, model, name) {
   try {
     check(meetingId, String);
     check(userId, String);
@@ -23,7 +23,7 @@ export default async function createGroup(meetingId, userId, externalId, model, 
       name,
     };
 
-    const { insertedId } = await Pads.upsertAsync(selector, modifier);
+    const { insertedId } = Pads.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added pad group external=${externalId} meeting=${meetingId}`);

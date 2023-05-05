@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import LocalSettings from '/imports/api/local-settings';
 import Logger from '/imports/startup/server/logger';
 
-export default async function setChangedLocalSettings(meetingId, userId, settings) {
+export default function setChangedLocalSettings(meetingId, userId, settings) {
   check(meetingId, String);
   check(userId, String);
   check(settings, Object);
@@ -19,7 +19,7 @@ export default async function setChangedLocalSettings(meetingId, userId, setting
   };
 
   try {
-    const { numChanged } = await LocalSettings.upsertAsync(selector, modifier);
+    const { numChanged } = LocalSettings.upsert(selector, modifier);
 
     if (numChanged) {
       Logger.info(`Updated settings for user ${userId} on meeting ${meetingId}`);

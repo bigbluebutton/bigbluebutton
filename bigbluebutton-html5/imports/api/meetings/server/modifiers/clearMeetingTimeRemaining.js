@@ -1,10 +1,10 @@
 import { MeetingTimeRemaining } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 
-export default async function clearMeetingTimeRemaining(meetingId) {
+export default function clearMeetingTimeRemaining(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = await MeetingTimeRemaining.removeAsync({ meetingId });
+      const numberAffected = MeetingTimeRemaining.remove({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared MeetingTimeRemaining in (${meetingId})`);
@@ -14,7 +14,7 @@ export default async function clearMeetingTimeRemaining(meetingId) {
     }
   } else {
     try {
-      const numberAffected = await MeetingTimeRemaining.removeAsync({});
+      const numberAffected = MeetingTimeRemaining.remove({});
 
       if (numberAffected) {
         Logger.info('Cleared MeetingTimeRemaining in all meetings');

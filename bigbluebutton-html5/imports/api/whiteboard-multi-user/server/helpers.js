@@ -1,8 +1,8 @@
 import Users from '/imports/api/users';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user/';
 
-const getMultiUser = async (meetingId, whiteboardId) => {
-  const data = await WhiteboardMultiUser.findOneAsync(
+const getMultiUser = (meetingId, whiteboardId) => {
+  const data = WhiteboardMultiUser.findOne(
     {
       meetingId,
       whiteboardId,
@@ -14,11 +14,11 @@ const getMultiUser = async (meetingId, whiteboardId) => {
   return data.multiUser;
 };
 
-const getUsers = async (meetingId) => {
-  const data = await Users.find(
+const getUsers = (meetingId) => {
+  const data = Users.find(
     { meetingId },
     { fields: { userId: 1 } },
-  ).fetchAsync();
+  ).fetch();
 
   if (!data) return [];
 

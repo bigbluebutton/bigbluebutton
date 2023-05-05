@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import flat from 'flat';
 
-export default async function addSlidePositions(
+export default function addSlidePositions(
   meetingId,
   podId,
   presentationId,
@@ -43,7 +43,7 @@ export default async function addSlidePositions(
   };
 
   try {
-    const { insertedId } = await SlidePositions.upsertAsync(selector, modifier);
+    const { insertedId } = SlidePositions.upsert(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added slide position id=${slideId} pod=${podId} presentation=${presentationId}`);

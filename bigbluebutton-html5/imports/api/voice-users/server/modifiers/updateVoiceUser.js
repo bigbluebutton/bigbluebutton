@@ -6,7 +6,7 @@ import { spokeTimeoutHandles, clearSpokeTimeout } from '/imports/api/common/serv
 
 const TALKING_TIMEOUT = 6000;
 
-export default async function updateVoiceUser(meetingId, voiceUser) {
+export default function updateVoiceUser(meetingId, voiceUser) {
   check(meetingId, String);
   check(voiceUser, {
     intId: String,
@@ -33,7 +33,7 @@ export default async function updateVoiceUser(meetingId, voiceUser) {
   };
 
   if (voiceUser.talking) {
-    const user = await VoiceUsers.findOneAsync({ meetingId, intId }, {
+    const user = VoiceUsers.findOne({ meetingId, intId }, {
       fields: {
         startTime: 1,
       },
@@ -46,8 +46,8 @@ export default async function updateVoiceUser(meetingId, voiceUser) {
   }
 
   if (!voiceUser.talking) {
-    const timeoutHandle = Meteor.setTimeout(async () => {
-      const user = await VoiceUsers.findOneAsync({ meetingId, intId }, {
+    const timeoutHandle = Meteor.setTimeout(() => {
+      const user = VoiceUsers.findOne({ meetingId, intId }, {
         fields: {
           endTime: 1,
           talking: 1,
@@ -61,7 +61,7 @@ export default async function updateVoiceUser(meetingId, voiceUser) {
         modifier.$set.spoke = false;
         modifier.$set.startTime = null;
         try {
-          const numberAffected = await VoiceUsers.updateAsync(selector, modifier);
+          const numberAffected = VoiceUsers.update(selector, modifier);
 
           if (numberAffected) {
             Logger.debug('Update voiceUser', { voiceUser: intId, meetingId });
@@ -77,7 +77,7 @@ export default async function updateVoiceUser(meetingId, voiceUser) {
   }
 
   try {
-    const numberAffected = await VoiceUsers.updateAsync(selector, modifier);
+    const numberAffected = VoiceUsers.update(selector, modifier);
 
     if (numberAffected) {
       Logger.debug('Update voiceUser', { voiceUser: intId, meetingId });

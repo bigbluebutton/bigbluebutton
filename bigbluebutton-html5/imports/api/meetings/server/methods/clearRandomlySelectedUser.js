@@ -3,7 +3,7 @@ import Meetings from '/imports/api/meetings';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import { check } from 'meteor/check';
 
-export default async function clearRandomlySelectedUser() {
+export default function clearRandomlySelectedUser() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -20,7 +20,7 @@ export default async function clearRandomlySelectedUser() {
       },
     };
 
-    const numberAffected = await Meetings.updateAsync(selector, modifier);
+    const numberAffected = Meetings.update(selector, modifier);
     if (numberAffected) {
       Logger.info(`Cleared randomly selected user from meeting=${meetingId} by id=${requesterUserId}`);
     }

@@ -1,12 +1,12 @@
-import { check } from 'meteor/check';
 import setGuestPolicy from '../modifiers/setGuestPolicy';
+import { check } from 'meteor/check';
 
-export default async function handleGuestPolicyChanged({ body }, meetingId) {
+export default function handleGuestPolicyChanged({ body }, meetingId) {
   const { policy } = body;
 
   check(meetingId, String);
   check(policy, String);
 
-  const result = await setGuestPolicy(meetingId, policy);
-  return result;
+
+  return setGuestPolicy(meetingId, policy);
 }

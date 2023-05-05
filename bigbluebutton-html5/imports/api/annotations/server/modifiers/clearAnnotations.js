@@ -1,7 +1,7 @@
 import Annotations from '/imports/api/annotations';
 import Logger from '/imports/startup/server/logger';
 
-export default async function clearAnnotations(meetingId, whiteboardId, userId) {
+export default function clearAnnotations(meetingId, whiteboardId, userId) {
   const selector = {};
 
   if (meetingId) {
@@ -17,7 +17,7 @@ export default async function clearAnnotations(meetingId, whiteboardId, userId) 
   }
 
   try {
-    const numberAffected = await Annotations.removeAsync(selector);
+    const numberAffected = Annotations.remove(selector);
 
     if (numberAffected) {
       if (userId) {

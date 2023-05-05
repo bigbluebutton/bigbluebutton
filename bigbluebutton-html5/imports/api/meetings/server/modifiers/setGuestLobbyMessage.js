@@ -2,7 +2,7 @@ import Meetings from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default async function setGuestLobbyMessage(meetingId, guestLobbyMessage) {
+export default function setGuestLobbyMessage(meetingId, guestLobbyMessage) {
   check(meetingId, String);
   check(guestLobbyMessage, String);
 
@@ -17,7 +17,7 @@ export default async function setGuestLobbyMessage(meetingId, guestLobbyMessage)
   };
 
   try {
-    const { numberAffected } = await Meetings.upsertAsync(selector, modifier);
+    const { numberAffected } = Meetings.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.verbose(`Set guest lobby message meetingId=${meetingId} guestLobbyMessage=${guestLobbyMessage}`);

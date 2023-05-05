@@ -10,7 +10,7 @@ if (Meteor.isServer) {
   // types of queries for the screenshare:
   // 1. meetingId
 
-  Screenshare.createIndexAsync({ meetingId: 1 });
+  Screenshare._ensureIndex({ meetingId: 1 });
 }
 
 export default Screenshare;

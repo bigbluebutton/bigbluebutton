@@ -6,7 +6,7 @@ import AuthTokenValidation from '/imports/api/auth-token-validation';
 import Users from '/imports/api/users';
 import ClientConnections from '/imports/startup/server/ClientConnections';
 
-export default async function userLeaving(meetingId, userId, connectionId) {
+export default function userLeaving(meetingId, userId, connectionId) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -19,14 +19,14 @@ export default async function userLeaving(meetingId, userId, connectionId) {
       userId,
     };
 
-    const user = await Users.findOneAsync(selector);
+    const user = Users.findOne(selector);
 
     if (!user) {
       Logger.info(`Skipping userLeaving. Could not find ${userId} in ${meetingId}`);
       return;
     }
 
-    const auth = await AuthTokenValidation.findOneAsync({
+    const auth = AuthTokenValidation.findOne({
       meetingId,
       userId,
     }, { sort: { updatedAt: -1 } });

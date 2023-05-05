@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Logger from '/imports/startup/server/logger';
 
-export default async function setloggedOutStatus(userId, meetingId, status = true) {
+export default function setloggedOutStatus(userId, meetingId, status = true) {
   check(userId, String);
   check(meetingId, String);
   check(status, Boolean);
@@ -19,7 +19,7 @@ export default async function setloggedOutStatus(userId, meetingId, status = tru
   };
 
   try {
-    await UsersPersistentData.updateAsync(selector, modifier);
+    UsersPersistentData.update(selector, modifier);
   } catch (err) {
     Logger.error(`Setting users persistent data's logged out status to the collection: ${err}`);
   }

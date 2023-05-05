@@ -6,7 +6,7 @@ import stopTyping from './stopTyping';
 
 const TYPING_TIMEOUT = 5000;
 
-export default async function startTyping(meetingId, userId, chatId) {
+export default function startTyping(meetingId, userId, chatId) {
   check(meetingId, String);
   check(userId, String);
 
@@ -15,7 +15,7 @@ export default async function startTyping(meetingId, userId, chatId) {
     userId,
   };
 
-  const user = await Users.findOneAsync(selector, { fields: { name: 1, role: 1 } });
+  const user = Users.findOne(selector, { fields: { name: 1, role: 1 } });
 
   const modifier = {
     meetingId,
@@ -26,7 +26,7 @@ export default async function startTyping(meetingId, userId, chatId) {
     time: (new Date()),
   };
 
-  const typingUser = await UsersTyping.findOneAsync(selector, {
+  const typingUser = UsersTyping.findOne(selector, {
     fields: {
       time: 1,
     },
@@ -37,7 +37,7 @@ export default async function startTyping(meetingId, userId, chatId) {
   }
 
   try {
-    const { numberAffected } = await UsersTyping.upsertAsync(selector, modifier);
+    const { numberAffected } = UsersTyping.upsert(selector, modifier);
 
     if (numberAffected) {
       Logger.debug('Typing indicator update', { userId, chatId });

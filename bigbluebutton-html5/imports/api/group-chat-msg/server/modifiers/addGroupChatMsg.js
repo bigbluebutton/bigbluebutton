@@ -18,7 +18,7 @@ export function parseMessage(message) {
   return parsedMessage;
 }
 
-export default async function addGroupChatMsg(meetingId, chatId, msg) {
+export default function addGroupChatMsg(meetingId, chatId, msg) {
   check(meetingId, String);
   check(chatId, String);
   check(msg, {
@@ -49,10 +49,10 @@ export default async function addGroupChatMsg(meetingId, chatId, msg) {
   };
 
   try {
-    const insertedId = await GroupChatMsg.insertAsync(msgDocument);
+    const insertedId = GroupChatMsg.insert(msgDocument);
 
     if (insertedId) {
-      await changeHasMessages(true, sender.id, meetingId, chatId);
+      changeHasMessages(true, sender.id, meetingId, chatId);
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
     }
   } catch (err) {

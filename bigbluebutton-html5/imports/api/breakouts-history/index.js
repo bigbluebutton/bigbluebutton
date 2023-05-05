@@ -7,7 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const BreakoutsHistory = new Mongo.Collection('breakouts-history', collectionOptions);
 
 if (Meteor.isServer) {
-  BreakoutsHistory.createIndexAsync({ meetingId: 1 });
+  BreakoutsHistory._ensureIndex({ meetingId: 1 });
 }
 
 export default BreakoutsHistory;
