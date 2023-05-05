@@ -38,7 +38,10 @@ export default async function handleValidateAuthToken({ body }, meetingId) {
   check(reasonCode, String);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
-  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  const printablePendingAuthStore = pendingAuths.map((a) => {
+    return { meetingId: a.meetingId, userId: a.userId, authToken: a.authToken }
+  })
+  Logger.info(`PendingAuths length [${pendingAuths.length}]: ${JSON.stringify(printablePendingAuthStore)}`);
   if (pendingAuths.length === 0) return;
 
   if (!valid) {
