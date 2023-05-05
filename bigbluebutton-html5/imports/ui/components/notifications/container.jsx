@@ -9,6 +9,8 @@ import UserService from '/imports/ui/components/user-list/service';
 export default injectIntl(withTracker(({ intl }) => {
   NotificationsCollection.find({}).observe({
     added: (obj) => {
+      NotificationsCollection.remove(obj);
+
       if (obj.messageId === 'app.userList.guest.pendingGuestAlert') {
         return WaitingUsersAlertService.alert(obj, intl);
       }
