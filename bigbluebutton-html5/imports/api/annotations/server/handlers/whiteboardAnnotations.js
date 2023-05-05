@@ -2,6 +2,7 @@ import { check } from 'meteor/check';
 import modifyWhiteboardAccess from '/imports/api/whiteboard-multi-user/server/modifiers/modifyWhiteboardAccess';
 import clearAnnotations from '../modifiers/clearAnnotations';
 import addAnnotation from '../modifiers/addAnnotation';
+import _ from 'lodash';
 
 export default function handleWhiteboardAnnotations({ header, body }, meetingId) {
   check(header, Object);
