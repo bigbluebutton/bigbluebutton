@@ -7,27 +7,9 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
 object GroupChatApp {
-  def getGroupChatOfUsers(usersTo: Vector[String], userIdFrom: String, state: MeetingState2x, users2x: Users2x): Option[GroupChat] = {
-    val groupChats = Users2x.findWithIntId(users2x, userIdFrom) match {
-      case Some(u) => state.groupChats.findAllPrivateChatsForUser(userIdFrom)
-      case None    => Vector.empty
-    }
-    val groupChat = usersTo.map(userId =>
-      Users2x.findWithIntId(users2x, userId) match {
-        case Some(u) => groupChats.find((gc: GroupChat) =>
-          gc.users.exists(u => u.id == userId))
-        case None => None
-      })
-    groupChat.reduce((acc, current) =>
-      current match {
-        case Some(gcCurrent) =>
-          acc match {
-            case Some(gcAcc) => if (gcCurrent == gcAcc) Some(gcCurrent)
-            else None
-            case None => None
-          }
-        case None => None
-      })
+  def getGroupChatOfUsers(userId: String, participantIds: Vector[String], state: MeetingState2x): Option[GroupChat] = {
+    state.groupChats.findAllPrivateChatsForUser(userId)
+      .find(groupChat => participantIds.forall(groupChat.users.map(u => u.id).contains))
   }
 
   val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
