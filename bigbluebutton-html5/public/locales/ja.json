@@ -717,7 +717,7 @@
     "app.audio.captions.button.transcriptionSettings": "文字起こし設定",
     "app.audio.captions.speech.title": "自動文字起こし",
     "app.audio.captions.speech.disabled": "無効",
-    "app.audio.captions.speech.unsupported": "お使いのブラウザは音声認識をサポートしていません。音声は書き起こされません。",
+    "app.audio.captions.speech.unsupported": "お使いのブラウザは音声認識をサポートしていないため、自動書き起こし機能は使用できません。",
     "app.audio.captions.select.de-DE": "ドイツ語",
     "app.audio.captions.select.en-US": "英語",
     "app.audio.captions.select.es-ES": "スペイン語",
