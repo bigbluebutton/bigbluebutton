@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { Polling } = require('./poll');
 
 
-test.describe.parallel('Polling', () => {
+test.describe.serial('Polling', () => {
   const polling = new Polling();
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
