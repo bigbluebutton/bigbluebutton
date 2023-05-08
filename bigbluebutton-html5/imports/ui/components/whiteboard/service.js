@@ -317,7 +317,7 @@ const getShapes = (whiteboardId, curPageId, intl) => {
       modAnnotation.annotationInfo = {
         isLocked: true,
         childIndex: 0,
-        id: annotation.annotationInfo.id,
+        id: `poll-result-${annotation.annotationInfo.id}`,
         name: `poll-result-${annotation.annotationInfo.id}`,
         type: 'rectangle',
         label: pollResult,
