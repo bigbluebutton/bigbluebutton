@@ -7,6 +7,10 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 const TldrawGlobalStyle = createGlobalStyle`
+  div[id^="poll-result-"] * {
+    pointer-events: none;
+    user-select: none;
+  }
   ${({ hideContextMenu }) => hideContextMenu && `
     #TD-ContextMenu {
       display: none;
