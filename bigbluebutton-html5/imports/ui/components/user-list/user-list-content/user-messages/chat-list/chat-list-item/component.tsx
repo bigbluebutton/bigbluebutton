@@ -7,7 +7,7 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Chat } from './chatTypes';
-import { useShortcutHelp } from '/imports/ui/components/shortcut-help/useShortcutHelp'
+import { UseShortcutHelp, useShortcutHelp } from '/imports/ui/components/shortcut-help/useShortcutHelp'
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -43,7 +43,7 @@ const ChatListItem = (props: ChatListItemProps) => {
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
 
-  const TOGGLE_CHAT_PUB_AK: Object | string | undefined = useShortcutHelp("togglePublicChat");
+  const TOGGLE_CHAT_PUB_AK: UseShortcutHelp = useShortcutHelp("togglePublicChat");
   const {
     chat,
   } = props;
