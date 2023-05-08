@@ -29,4 +29,26 @@ module.exports = {
   globals: {
     browser: 'writable',
   },
+  overrides: [{
+    files: ['*.ts', '*.tsx'],
+    parser: '@typescript-eslint/parser',
+    parserOptions: {
+      ecmaVersion: 2020,
+      project: true,
+      tsconfigRootDir: __dirname,
+    },
+    extends: [
+      'eslint:recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@typescript-eslint/recommended-requiring-type-checking',
+      'airbnb',
+    ],
+
+    plugins: [
+      '@typescript-eslint',
+      'react',
+      'jsx-a11y',
+      'import',
+    ],
+  }],
 };
