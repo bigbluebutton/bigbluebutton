@@ -18,6 +18,15 @@ const Adapter = () => {
           },
         });
       },
+      // These arguments are ordered and there is no callback "changed" with only `oldDocument`
+      changed: (newDocument, oldDocument) => {
+        dispatch({
+          type: ACTIONS.CHANGED,
+          value: {
+            groupChat: oldDocument,
+          },
+        });
+      }
     });
   }, []);
   return null;

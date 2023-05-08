@@ -616,8 +616,11 @@ const hasPrivateChatBetweenUsers = (senderId, receiverId) => GroupChat
 const getGroupChatPrivate = (senderUserId, receiver) => {
   const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
   if (!chat) {
-    makeCall('createGroupChat', receiver);
+    makeCall("createGroupChat", receiver);
   } else {
+    if (!chat.notified){
+      makeCall("notifyGroupChatToOpen", chat.chatId);
+    }
     const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
     if (_.indexOf(startedChats, chat.chatId) < 0) {
       startedChats.push(chat.chatId);

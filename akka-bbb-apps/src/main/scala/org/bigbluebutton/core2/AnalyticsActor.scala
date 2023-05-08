@@ -140,6 +140,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: GetGroupChatMsgsReqMsg => logChatMessage(msg)
       case m: GetGroupChatMsgsRespMsg => logChatMessage(msg)
       case m: CreateGroupChatReqMsg => logChatMessage(msg)
+      case m: NotifyGroupChatToOpenReqMsg => logChatMessage(msg)
       case m: GroupChatCreatedEvtMsg => logChatMessage(msg)
       case m: GetGroupChatsReqMsg => logChatMessage(msg)
       case m: GetGroupChatsRespMsg => logChatMessage(msg)
