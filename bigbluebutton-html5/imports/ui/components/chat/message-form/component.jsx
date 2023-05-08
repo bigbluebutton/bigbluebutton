@@ -262,7 +262,7 @@ class MessageForm extends PureComponent {
     const callback = this.typingIndicator ? stopUserTyping : null;
 
     handleSendMessage(escapeHtml(msg));
-    this.setState({ message: '', hasErrors: false, showEmojiPicker: false }, callback);
+    this.setState({ message: '', error: '', hasErrors: false, showEmojiPicker: false }, callback);
   }
 
   handleEmojiSelect(emojiObject) {
