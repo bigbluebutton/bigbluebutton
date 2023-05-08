@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { Polling } = require('./poll');
 
 
-test.describe.serial('Polling', () => {
+test.describe.parallel('Polling', () => {
   const polling = new Polling();
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
@@ -48,40 +48,20 @@ test.describe.serial('Polling', () => {
     await polling.allowMultipleChoices();
   });
 
-  test.only('Smart slides questions', async () => {
+  test('Smart slides questions', async () => {
     await polling.smartSlidesQuestions();
-  });  
-});
-
-/*
-test.describe.parallel('Polling', () => {
-  test.describe.parallel('Manage', () => {
-
-    test('Smart slides questions', async ({ browser, context, page }) => {
-      const polling = new Polling(browser, context);
-      await polling.initPages(page);
-      await polling.smartSlidesQuestions();
-    });
   });
 
-  test.describe.parallel('Results', () => {
-    test('Poll results in chat message @ci', async ({ browser, context, page }) => {
-      const polling = new Polling(browser, context);
-      await polling.initPages(page);
-      await polling.pollResultsOnChat();
-    });
+  // Results
+  test('Poll results in chat message @ci', async () => {
+    await polling.pollResultsOnChat();
+  });
 
-    test('Poll results on whiteboard @ci', async ({ browser, page }) => {
-      const polling = new Polling(browser);
-      await polling.initModPage(page);
-      await polling.pollResultsOnWhiteboard();
-    });
+  test('Poll results on whiteboard @ci', async () => {
+    await polling.pollResultsOnWhiteboard();
+  });
 
-    test('Poll results in a different presentation', async ({ browser, page }) => {
-      const polling = new Polling(browser);
-      await polling.initModPage(page);
-      await polling.pollResultsInDifferentPresentation();
-    });
+  test('Poll results in a different presentation', async () => {
+    await polling.pollResultsInDifferentPresentation();
   });
 });
-*/
