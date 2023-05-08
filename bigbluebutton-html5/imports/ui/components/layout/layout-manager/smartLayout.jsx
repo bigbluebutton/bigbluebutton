@@ -101,6 +101,9 @@ const SmartLayout = (props) => {
             width: screenShareInput.width,
             height: screenShareInput.height,
           },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -136,6 +139,9 @@ const SmartLayout = (props) => {
             hasScreenShare: screenShareInput.hasScreenShare,
             width: screenShareInput.width,
             height: screenShareInput.height,
+          },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
           },
         }, INITIAL_INPUT_STATE),
       });

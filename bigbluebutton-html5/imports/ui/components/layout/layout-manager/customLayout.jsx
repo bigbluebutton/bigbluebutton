@@ -169,6 +169,9 @@ const CustomLayout = (props) => {
             width: input.screenShare.width,
             height: input.screenShare.height,
           },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -204,6 +207,9 @@ const CustomLayout = (props) => {
             hasScreenShare: input.screenShare.hasScreenShare,
             width: input.screenShare.width,
             height: input.screenShare.height,
+          },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
           },
         }, INITIAL_INPUT_STATE),
       });
