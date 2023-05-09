@@ -899,7 +899,7 @@ $ sudo bbb-conf --restart
 
 #### Change the default presentation
 
-When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users.
+When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users.
 
 Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
 
@@ -1176,7 +1176,7 @@ You can see the list of languages installed with BigBlueButton in the directory 
 
 #### Change favicon
 
-To change the favicon, overwrite the file `/var/www/bigbluebutton-default/favicon.ico`.
+To change the favicon, overwrite the file `/var/www/bigbluebutton-default/assets/favicon.ico`.
 
 You'll need to update file each time the `bbb-config` package updates.
 
