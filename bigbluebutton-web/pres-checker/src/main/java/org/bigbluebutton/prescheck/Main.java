@@ -47,7 +47,11 @@ public class Main {
       } catch (IOException e) {
         valid = false;
       } finally {
-          if(stream != null) stream.close();
+          try {
+              if(stream != null) stream.close();
+          } catch(IOException e) {
+              e.printStackTrace();
+          }
       }
 
       return valid;
