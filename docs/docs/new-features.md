@@ -177,6 +177,24 @@ Allows for quicker, more efficient search and retrieval of recording data.
 
 ### Experimental
 
+#### New camera and screen share recorder
+
+Kurento Media Server is still used in BigBlueButton as a recorder for mediasoup streams.
+In 2.7, however, there's a new experimental recorder based on the Pion project: `bbb-webrtc-recorder`. This application is written in Go as a standalone service that can be used to record video and screen share streams.
+The main goal is for `bbb-webrtc-recorder` to replace Kurento Media Server in BigBlueButton once production grade. Progress can be tracked in:
+  - [Issue 13999](https://github.com/bigbluebutton/bigbluebutton/issues/13999)
+  - [The bbb-webrtc-recorder repository](https://github.com/bigbluebutton/bbb-webrtc-recorder)
+
+If you want to try the new recorder, you need to instruct `bbb-webrtc-sfu` to use it:
+```bash
+  $ mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
+  $ if ! grep -q "recordingAdapter: bbb-webrtc-recorder" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml; then echo "recordingAdapter: bbb-webrtc-recorder" >> /etc/bigbluebutton/bbb-webrtc-sfu/production.yml; fi
+  $ systemctl restart bbb-webrtc-sfu
+```
+
+Issues found during testing should be reported on [BigBlueButton's issue tracker](https://github.com/bigbluebutton/bigbluebutton/issues) or [issue 13999](https://github.com/bigbluebutton/bigbluebutton/issues/13999).
+
+Reverting to the default recorder (Kurento) can be achieved by removing the `recordingAdapter` line from `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` and restarting `bbb-webrtc-sfu`.
 
 ### Upgraded components
 
