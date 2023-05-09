@@ -3,7 +3,7 @@ const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util.js');
 const utilPresentation = require('../presentation/util');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
@@ -231,7 +231,9 @@ class Polling extends MultiUsers {
   async pollResultsOnWhiteboard() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
-    await this.modPage.hasElement(e.wbDrawnRectangle);
+    //await this.modPage.hasElement(e.wbDrawnRectangle);
+    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle).last();
+    await expect(wbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
 
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn);
