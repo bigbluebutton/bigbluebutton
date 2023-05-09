@@ -1466,7 +1466,8 @@ class ApiController {
     return true
   }
 
-  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable) {
+  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
+                                  isInitialPresentation) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
 
@@ -1513,7 +1514,8 @@ class ApiController {
               uploadFailed,
               uploadFailReasons,
               isDownloadable,
-              isRemovable
+              isRemovable,
+              isInitialPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
