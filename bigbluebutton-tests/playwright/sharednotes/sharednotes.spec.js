@@ -1,8 +1,27 @@
 const { test } = require('@playwright/test');
 const { SharedNotes } = require('./sharednotes');
 
-test.describe.parallel('Shared Notes', () => {
-  test('Open Shared notes @ci', async ({ browser, page, context }) => {
+test.describe.serial('Shared Notes', () => {
+  const sharedNotes = new SharedNotes();
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await sharedNotes.initModPage(page, true);
+  });
+  test('Open shared notes @ci', async () => {
+    await sharedNotes.openSharedNotes();
+  });
+
+  test('Type in shared notes', async () => {
+    await sharedNotes.typeInSharedNotes();
+  });
+
+  test('Formate text in shared notes', async () => {
+    await sharedNotes.formatTextInSharedNotes();
+  });
+
+  /*test('Open Shared notes @ci', async ({ browser, page, context }) => {
     const sharedNotes = new SharedNotes(browser, context);
     await sharedNotes.initModPage(page);
     await sharedNotes.openSharedNotes();
@@ -46,4 +65,5 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.initUserPage1();
     await sharedNotes.pinNotesOntoWhiteboard();
   });
+  */
 });

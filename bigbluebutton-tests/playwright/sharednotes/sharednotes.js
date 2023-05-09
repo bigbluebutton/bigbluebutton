@@ -21,6 +21,9 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const sharedNotesContent = await getNotesLocator(this.modPage);
     await expect(sharedNotesContent).toBeEditable({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel);
   }
 
   async editMessage() {
@@ -55,6 +58,9 @@ class SharedNotes extends MultiUsers {
       maxDiffPixels: 10,
       clip: wbBox,
     });
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel);
   }
 
   async formatMessage() {
@@ -97,6 +103,7 @@ class SharedNotes extends MultiUsers {
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.message);
 
+    await notesLocator.press('Control+Z');
     await notesLocator.press('Control+Z');
     await expect(notesLocator).toBeEmpty();
     await notesLocator.press('Control+Y');
