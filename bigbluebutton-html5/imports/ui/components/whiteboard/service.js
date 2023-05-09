@@ -315,9 +315,8 @@ const getShapes = (whiteboardId, curPageId, intl) => {
       const textSize = getTextSize(pollResult, style, padding = 20);
 
       modAnnotation.annotationInfo = {
-        isLocked: true,
         childIndex: 0,
-        id: `poll-result-${annotation.annotationInfo.id}`,
+        id: annotation.annotationInfo.id,
         name: `poll-result-${annotation.annotationInfo.id}`,
         type: 'rectangle',
         label: pollResult,
