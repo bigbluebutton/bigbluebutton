@@ -71,6 +71,20 @@ public final class UploadedPresentation {
   public UploadedPresentation(String podId,
                               String meetingId,
                               String id,
+                              String temporaryPresentationId,
+                              String name,
+                              String baseUrl,
+                              Boolean current,
+                              String authzToken,
+                              Boolean uploadFailed,
+                              ArrayList<String> uploadFailReason) {
+    this(podId, meetingId, id, temporaryPresentationId, name, baseUrl,
+            current, authzToken, uploadFailed, uploadFailReason, false);
+  }
+
+  public UploadedPresentation(String podId,
+                              String meetingId,
+                              String id,
                               String name,
                               String baseUrl,
                               Boolean current,
