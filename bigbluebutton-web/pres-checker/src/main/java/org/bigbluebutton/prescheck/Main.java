@@ -33,8 +33,9 @@ public class Main {
 
   private boolean check(Main main, String file) {
   	boolean valid = true;
-  	FileInputStream stream;
-  	XMLSlideShow xmlSlideShow;
+  	FileInputStream stream = null;
+  	XMLSlideShow xmlSlideShow = null;
+
       try {
         stream = new FileInputStream(file);
         xmlSlideShow = new XMLSlideShow(stream);

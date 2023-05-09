@@ -56,7 +56,7 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
       val Encoding = StandardCharsets.UTF_8.name()
       val pp = new PrettyPrinter(80, 2)
       val fos = new FileOutputStream(xml.getAbsolutePath)
-      val writer = Channels.newWriter(fos.getChannel(), Encoding)
+      val writer = Channels.newWriter(fos.getChannel, Encoding)
 
       try {
         writer.write("<?xml version='1.0' encoding='" + Encoding + "'?>\n")
