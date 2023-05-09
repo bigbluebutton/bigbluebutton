@@ -22,7 +22,7 @@ RangeLoop:
 			break RangeLoop
 		case toBrowserMessage := <-toBrowserChannel:
 			{
-				var fromBrowserMessageAsMap = toBrowserMessage.(map[string]interface{})
+				var toBrowserMessageAsMap = toBrowserMessage.(map[string]interface{})
 
 				log.Tracef("sending to browser: %v", toBrowserMessage)
 				err := wsjson.Write(ctx, c, toBrowserMessage)
@@ -33,8 +33,8 @@ RangeLoop:
 
 				// After the error is sent to client, close its connection
 				// Authentication hook unauthorized this request
-				if fromBrowserMessageAsMap["type"] == "connection_error" {
-					var payloadAsString = fromBrowserMessageAsMap["payload"].(string)
+				if toBrowserMessageAsMap["type"] == "connection_error" {
+					var payloadAsString = toBrowserMessageAsMap["payload"].(string)
 					c.Close(websocket.StatusInternalError, payloadAsString)
 				}
 			}

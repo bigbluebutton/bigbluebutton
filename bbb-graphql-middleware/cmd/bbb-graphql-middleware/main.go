@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/invalidator"
 	log "github.com/sirupsen/logrus"
@@ -15,6 +16,9 @@ func main() {
 	log.SetLevel(log.InfoLevel)
 	log.SetFormatter(&log.JSONFormatter{})
 	log := log.WithField("_routine", "SessionTokenReader")
+
+	//Clear cache from last exec
+	msgpatch.ClearAllCaches()
 
 	// Connection invalidator
 	go invalidator.BrowserConnectionInvalidator()

@@ -3,16 +3,16 @@ package websrv
 import (
 	"context"
 	"fmt"
+	"github.com/iMDT/bbb-graphql-middleware/internal/common"
+	"github.com/iMDT/bbb-graphql-middleware/internal/hascli"
+	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/reader"
 	"github.com/iMDT/bbb-graphql-middleware/internal/websrv/writer"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"nhooyr.io/websocket"
 	"sync"
 	"time"
-
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/hascli"
-	"nhooyr.io/websocket"
 )
 
 var lastBrowserConnectionId int
@@ -59,6 +59,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Unlock()
 
 	defer func() {
+		if thisConnection.JsonPatchSupported {
+			msgpatch.RemoveConnCacheDir(BrowserConnections[browserConnectionId])
+		}
 		BrowserConnectionsMutex.Lock()
 		delete(BrowserConnections, browserConnectionId)
 		BrowserConnectionsMutex.Unlock()

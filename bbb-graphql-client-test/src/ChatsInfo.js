@@ -1,5 +1,6 @@
 import {useSubscription, gql, useMutation} from '@apollo/client';
 import React from "react";
+import usePatchedSubscription from "./usePatchedSubscription";
 
 export default function ChatsInfo() {
 
@@ -43,7 +44,7 @@ export default function ChatsInfo() {
 
 
 
-  const { loading, error, data } = useSubscription(
+  const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
       chat(order_by: {public: desc}) {
         chatId
@@ -62,7 +63,7 @@ export default function ChatsInfo() {
     }`
   );
 
-    const { data: publicChatTypingSub } = useSubscription(
+    const { data: publicChatTypingSub } = usePatchedSubscription(
       gql`subscription {
         user_typing_public(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
@@ -77,7 +78,7 @@ export default function ChatsInfo() {
         }`
     );
 
-    const { data: privateChatTypingSub } = useSubscription(
+    const { data: privateChatTypingSub } = usePatchedSubscription(
         gql`subscription {
         user_typing_private(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
@@ -109,7 +110,7 @@ export default function ChatsInfo() {
         </tr>
       </thead>
       <tbody>
-        {data.chat.map((curr) => {
+        {data.map((curr) => {
             console.log('chat', curr);
           return (
               <tr key={curr.chatId}>
