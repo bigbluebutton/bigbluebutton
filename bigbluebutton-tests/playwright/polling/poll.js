@@ -18,6 +18,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.pollMenuButton);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async pollAnonymous() {
@@ -28,6 +29,7 @@ class Polling extends MultiUsers {
     await this.userPage.wasRemoved(e.receivedAnswer);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async quickPoll() {
@@ -41,6 +43,7 @@ class Polling extends MultiUsers {
     await this.userPage.hasElement(e.pollingContainer);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async pollUserResponse() {
@@ -64,6 +67,7 @@ class Polling extends MultiUsers {
     await this.userPage.hasElement(e.wbDrawnRectangle);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async stopPoll() {
@@ -74,6 +78,7 @@ class Polling extends MultiUsers {
     await this.userPage.wasRemoved(e.pollingContainer);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async manageResponseChoices() {
@@ -142,6 +147,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasText(e.answer1, '1');
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async allowMultipleChoices() {
@@ -170,6 +176,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasText(e.answer2, '1');
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async smartSlidesQuestions() {
@@ -186,6 +193,7 @@ class Polling extends MultiUsers {
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
@@ -203,6 +211,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElementDisabled(e.nextSlide);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async pollResultsOnChat() {
@@ -225,6 +234,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.wbDrawnRectangle);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async pollResultsInDifferentPresentation() {
@@ -239,6 +249,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.wbDrawnRectangle);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
   }
 
   async startNewPoll() {
