@@ -47,6 +47,8 @@ export default withTracker(({ setIsOpen, callbackToClose }) => ({
     }
   },
   stopSharingCameraAsContent: () => {
+    callbackToClose();
+    setIsOpen(false);
     ScreenShareService.screenshareHasEnded();
   },
   sharedDevices: VideoService.getSharedDevices(),
