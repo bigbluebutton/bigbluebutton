@@ -2,7 +2,7 @@ BigBlueButton
 =============
 BigBlueButton is an open source virtual classroom designed to help teachers teach and learners learn.  
 
-BigBlueButton supports real-time sharing of audio, video, slides (with whiteboard annotations), chat, and the screen.  Instructors can engage remote students with polling, emojis, multi-user whiteboard, shared notes, and breakout rooms.  During the session, BigBlueButton generates analytics that are visible in the 
+BigBlueButton supports real-time sharing of audio, video, slides (with whiteboard annotations), chat, and the screen.  Instructors can engage remote students with polling, emojis, multi-user whiteboard, shared notes, and breakout rooms.  During the session, BigBlueButton generates analytics that are visible to moderators in the Learning Analytics Dashboard.
 
 Presenters can record and playback content for later sharing with others.
 
