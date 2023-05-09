@@ -1,5 +1,6 @@
 import {useSubscription, gql, useMutation} from '@apollo/client';
  import React, { useState } from "react";
+import usePatchedSubscription from "./usePatchedSubscription";
 
 const ParentOfUserList = ({userId}) => {
   const [shouldRender, setShouldRender] = useState(true);
@@ -56,9 +57,9 @@ function UserList({userId}) {
         updateConnectionAliveAtToMeAsNow();
     };
 
-  const { loading, error, data } = useSubscription(
+  const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
-      user(limit: 200, order_by: [
+      user(limit: 50, order_by: [
                 {role: asc}, 
                 {emojiTime: asc_nulls_last}, 
                 {isDialIn: desc}, 
@@ -130,7 +131,7 @@ function UserList({userId}) {
         </tr>
       </thead>
       <tbody>
-        {data.user.map((user) => {
+        {data.map((user) => {
             console.log('user', user);
           return (
               <tr key={user.userId} style={{ color: user.color }}>

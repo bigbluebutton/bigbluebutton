@@ -7,9 +7,20 @@ import (
 	"nhooyr.io/websocket"
 )
 
+type QueryType string
+
+const (
+	Query                 QueryType = "query"
+	Subscription          QueryType = "subscription"
+	Streaming             QueryType = "streaming"
+	SubscriptionAggregate QueryType = "subscription_aggregate"
+	Mutation              QueryType = "mutation"
+)
+
 type GraphQlSubscription struct {
 	Id                        string
 	Message                   interface{}
+	Type                      QueryType
 	LastSeenOnHasuraConnetion string // id of the hasura connection that this query was active
 }
 
@@ -21,6 +32,7 @@ type BrowserConnection struct {
 	ActiveSubscriptionsMutex sync.Mutex                     // mutex to control the map usage
 	ConnectionInitMessage    interface{}                    // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection         *HasuraConnection              // associated hasura connection
+	JsonPatchSupported       bool                           // indicate if client support Json Patch
 	Disconnected             bool                           // indicate if the connection is gone
 }
 

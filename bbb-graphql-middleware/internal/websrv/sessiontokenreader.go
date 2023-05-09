@@ -31,6 +31,15 @@ func SessionTokenReader(connectionId string, browserConnectionContext context.Co
 					log.Infof("[SessionTokenReader] intercepted session token %v", sessionToken)
 					browserConnection.SessionToken = sessionToken
 				}
+
+				var jsonPatchSupported = headersAsMap["json-patch-supported"]
+				if jsonPatchSupported != nil {
+					jsonPatchSupported := headersAsMap["json-patch-supported"].(string)
+					log.Infof("[SessionTokenReader] intercepted json-patch-supported %v", jsonPatchSupported)
+					browserConnection.JsonPatchSupported = jsonPatchSupported == "true"
+				} else {
+					browserConnection.JsonPatchSupported = false
+				}
 			}
 		}
 	}
