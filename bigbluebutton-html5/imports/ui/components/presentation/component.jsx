@@ -266,8 +266,7 @@ class Presentation extends PureComponent {
       }
       const presentationChanged = presentationId !== currentPresentationId;
 
-      // TODO: this information should be received from server
-      const isInitialPresentation = currentPresentation.name === 'default.pdf';
+      const isInitialPresentation = currentPresentation.isInitialPresentation;
 
       if (!presentationIsOpen && restoreOnUpdate && (currentSlide || presentationChanged)) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
