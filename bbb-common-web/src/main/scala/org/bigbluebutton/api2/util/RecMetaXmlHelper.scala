@@ -1,11 +1,10 @@
 package org.bigbluebutton.api2.util
 
-import java.io.{ File, FileOutputStream, FileWriter, IOException }
+import java.io.{ File, FileInputStream, FileOutputStream, FileWriter, IOException, InputStreamReader }
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.util
 import java.nio.file.{ Files, Paths }
-
 import com.google.gson.Gson
 import org.bigbluebutton.api.domain.RecordingMetadata
 import org.bigbluebutton.api2.{ BbbWebApiGWApp, RecordingServiceGW }
@@ -15,11 +14,9 @@ import scala.xml.{ Elem, PrettyPrinter, XML }
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ Buffer, ListBuffer, Map }
 import scala.collection.Iterable
-import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
-
 import com.google.gson.internal.LinkedTreeMap
 
 import scala.util.Try
@@ -31,9 +28,13 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
   val CAPTIONS_FILE = "captions.json"
 
   def loadMetadataXml(path: String): Option[Elem] = {
+    var stream: FileInputStream = null
+    var reader: InputStreamReader = null
     try {
       //val xml = XML.loadFile(path)
-      val xml = XML.load(new java.io.InputStreamReader(new java.io.FileInputStream(path), StandardCharsets.UTF_8.name()))
+      stream = new FileInputStream(path)
+      reader = new InputStreamReader(stream, StandardCharsets.UTF_8.name())
+      val xml = XML.load(reader)
       Some(xml)
     } catch {
       case ioe: IOException =>
@@ -43,6 +44,9 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
         logger.info("Exception while loading {}", path)
         logger.info("Exception details: {}", ex.getMessage)
         None
+    } finally {
+      if (reader != null) reader.close()
+      if (stream != null) stream.close()
     }
   }
 
@@ -52,7 +56,7 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
       val Encoding = StandardCharsets.UTF_8.name()
       val pp = new PrettyPrinter(80, 2)
       val fos = new FileOutputStream(xml.getAbsolutePath)
-      val writer = Channels.newWriter(fos.getChannel(), Encoding)
+      val writer = Channels.newWriter(fos.getChannel, Encoding)
 
       try {
         writer.write("<?xml version='1.0' encoding='" + Encoding + "'?>\n")
@@ -64,6 +68,7 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
           logger.info("Exception details: {}", ex.fillInStackTrace())
       } finally {
         writer.close()
+        fos.close()
       }
     } catch {
       case ioe: IOException =>
@@ -72,6 +77,7 @@ class RecMetaXmlHelper(gw: BbbWebApiGWApp) extends RecordingServiceGW with LogHe
         logger.info("Exception while saving {}", xml.getAbsolutePath)
         logger.info("Exception details: {}", ex.fillInStackTrace())
     }
+
     result
   }
 
