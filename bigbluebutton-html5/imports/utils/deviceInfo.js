@@ -10,7 +10,7 @@ const isMobile = isPhone || isTablet;
 const hasMediaDevices = !!navigator.mediaDevices;
 const osName = BOWSER_RESULTS.os.name;
 const osVersion = BOWSER_RESULTS.os.version;
-const isIos = osName === 'iOS';
+const isIos = osName === 'iOS' || (isTablet && osName=="macOS");
 const isMacos = osName === 'macOS';
 const isIphone = !!(userAgent.match(/iPhone/i));
 

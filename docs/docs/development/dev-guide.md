@@ -27,6 +27,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
 - bbb-playback-presentation -- Record and playback script to create presentation layout
+- bbb-export-annotations -- Handles capture of breakout content and annotated presentation download
 - bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
 - kurento-media-server -- WebRTC media server for sending/receiving/recording video (webcam and screen share)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
@@ -43,7 +44,7 @@ The instructions in this guide are step-by-step so you can understand each step 
 
 Before you can start developing on BigBlueButton, you must install BigBlueButton (see [installation steps](/administration/install)) and ensure it's working correctly. Make sure there were no errors during the installation and that you can join a session successfully.
 
-We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
+We emphasize that your BigBlueButton server must be working **before** you start setting up the development environment. Be sure that you can log in, start sessions, join the audio bridge, share your webcam, and record and play back sessions -- you can verify this if you install [Greenlight](/greenlight/v2/install) or navigate to [API MATE](https://mconf.github.io/api-mate/) using your server's secret and url.
 
 By starting with a working BigBlueButton server, you have the ability to switch back-and-forth between the default-packaged components and any modifications you make.
 
@@ -75,6 +76,9 @@ usermod -a -G sudo bigbluebutton
 mkhomedir_helper bigbluebutton # to add homedir to existing user
 chown -R bigbluebutton:bigbluebutton /home/bigbluebutton/
 sudo su - bigbluebutton
+# if you cannot switch to user bigbluebutton, you may need to switch /bin/false to /bin/bash for user bigbluebutton in /etc/passwd
+# and then retry "sudo su - bigbluebutton"
+# Note that you may want to disable terminal sessions for user bigbluebutton if you will later use the server in production
 ```
 
 ```bash
@@ -230,14 +234,14 @@ You should now confirm that you are in the correct branch.
 ```bash
 git status
 
-## On branch my-changes-branch
+# On branch my-changes-branch
 nothing to commit (working directory clean)
 ```
 
 <!--
 
 TODO: Add high-view diagrams
-## Production Environment
+# Production Environment
 
 Okay. Let's pause for a minute.
 
@@ -248,7 +252,7 @@ Below is an overview of the different components in a production set-up. When de
 
 ### (Optional) Install Greenlight
 
-Note that at this point we recommend installing and using [Greenlight](/greenlight/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
+Note that at this point we recommend installing and using [Greenlight](/greenlight/v2/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
 
 You can access https://BBB_DOMAIN , and you will be able to join meetings.
 
@@ -402,12 +406,12 @@ There we go! Remember that this will be overwritten every time you upgrade, so y
 
 <!--
 TODO
-### HTML5 Coding Practices
+## HTML5 Coding Practices
 
 For coding conventions related to the HTML5 code refer to [this document](/html5-best-practices.html).
 -->
 
-### /private/config
+### `/private/config`
 
 All configurations are located in **/private/config/settings.yml**. If you make any changes to the YAML configuration you will need to restart the meteor process.
 
@@ -484,7 +488,7 @@ or
 grails -reloading -Dserver.port=8090 run-app
 ```
 
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-war` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
+If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
 
 Now test again if you can create and join a meeting.
 
@@ -552,7 +556,7 @@ sudo service bbb-web start
 If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
 
 ```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && /usr/share/bbb-web-old /usr/share/bbb-web
+sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && mv /usr/share/bbb-web-old /usr/share/bbb-web
 ```
 
 Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
@@ -621,7 +625,10 @@ followed by
 npm start
 ```
 
-to begin exporting presentations with annotations.
+to begin exporting presentations with annotations. If you run into permission issues, change `presAnnDropboxDir` in `config/settings.json` to a folder in your home directory
+and make sure your user account has access to the presentation directory (see "Developing BBB-Web").
+
+Use `journalctl -u bbb-export-annotations -e` to see recent logs.
 
 ## Troubleshooting
 
@@ -658,4 +665,4 @@ The above will re-sync your clock.
 
 ## Set up HTTPS
 
-Follow [Configure SSL on your BigBlueButton server](/administration/install#configure-ssl-on-your-bigbluebutton-server)
+See the [installation instructions](/administration/install) on how to configure ssl on your BigBlueButton server.

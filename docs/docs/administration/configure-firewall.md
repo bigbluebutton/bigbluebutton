@@ -21,7 +21,7 @@ The easiest network configuration for installing BigBlueButton is on a server th
 
 ![Install](/img/11-install-net0.png)
 
-In this simple network configuration, BigBlueButton should work out-of-the-box after installation. This is because the packaging scripts automatically configure BigBlueButton using the first non-loopback IP address, whereas access to sensitive ports is blocked.  
+In this simple network configuration, BigBlueButton should work out-of-the-box after installation. This is because the packaging scripts automatically configure BigBlueButton using the first non-loopback IP address, whereas access to sensitive ports is blocked.
 A variation of this setup occurs when the server has multiple network interfaces, but the external IP is still the first network interface (such as `eth0`) picked up by the installation scripts.
 
 ![Install](/img/11-install-net1.png)
@@ -186,7 +186,7 @@ Keep in mind the following steps should already be done by bbb-install.
 To configure an appropriate external address in Kurento, you need to edit `/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini` and uncomment and assign values for `externalIPv4`. Here's the relevant section in the default configuration.
 
 ```ini
-## cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
+# cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
 [...]
 ;; External IPv4 and IPv6 addresses of the media server.
 ;;
@@ -282,16 +282,16 @@ to
 
 so that FreeSWITCH announces the external IP address when a connection is established.
 
-Check `/etc/bigbluebutton/nginx/sip.nginx` to ensure its binding to the external IP address of the firewall [Configure FreeSWITCH for using SSL](/administration/install#configure-freeswitch-for-using-ssl).
+Check `/etc/bigbluebutton/nginx/sip.nginx` to ensure its binding to the external IP address of the firewall.
 
-Check that `enableListenOnly` is set to true in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml`, as in
+Check that `enableListenOnly` is set to true in `/etc/bigbluebutton/bbb-html5.yml`, as in
 
 ```bash
-$ grep enableListenOnly /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
+$ grep enableListenOnly /etc/bigbluebutton/bbb-html5.yml
     enableListenOnly: true
 ```
 
-Next, edit `/usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml` change the value to `ip` to match the external IP address of the server.
+Next, edit `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml` change the value to `ip` to match the external IP address of the server.
 
 ```yaml
 freeswitch:
@@ -300,7 +300,8 @@ freeswitch:
   port: 5066
 ```
 
-If your runnig 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs` set to true or false in `/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml` (see [Configure FreeSWITCH for using SSL](/administration/install#configure-freeswitch-for-using-ssl)).
+If your runnig 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
+set to true or false in `/etc/bigbluebutton/bbb-html5.yml`.
 
 You also need to [setup Kurento to use a STUN server](#extra-steps-when-server-is-behind-nat).
 
@@ -310,7 +311,8 @@ After making the above changes, restart BigBlueButton.
 $ bbb-conf --restart
 ```
 
-To test, launch FireFox and try connecting to your BigBlueButton server and join the audio. If you see the words '[ WebRTC Audio ]' in the lower right-hand corner, it worked.
+To test, launch FireFox and try connecting to your BigBlueButton server and join the audio.
+If you see the words '[ WebRTC Audio ]' in the lower right-hand corner, it worked.
 
 If it didn't work, there are two likely error messages when you try to connect with audio.
 
@@ -434,7 +436,7 @@ At this point, restart your BigBlueButton server with `bbb-conf --restart`, then
 Finally, to ensure this dummy NIC to be automatically created on restart, edit `/etc/network/interfaces` and add the following
 
 ```
-## The loopback network interface
+# The loopback network interface
 auto lo
 iface lo inet loopback
         post-up ip addr add EXTERNAL_IP_ADDRESS/32 dev lo

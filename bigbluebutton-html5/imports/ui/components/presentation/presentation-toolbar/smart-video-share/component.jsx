@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import { safeMatch } from '/imports/utils/string-utils';
 import { isUrlValid, startWatching } from '/imports/ui/components/external-video-player/service';
@@ -15,17 +16,19 @@ export const SmartMediaShare = (props) => {
   const {
     currentSlide, intl, isMobile, isRTL,
   } = props;
-  const linkPatt = /(https?:\/\/[^\s]+)/gm;
-  const externalLinks = safeMatch(linkPatt, currentSlide?.content, false);
+  const linkPatt = /(https?:\/\/.*[ ]$)/g;
+  const externalLinks = safeMatch(linkPatt, currentSlide?.content?.replace(/[\r\n]/g, '  '), false);
   if (!externalLinks) return null;
 
+  const lnkParts = externalLinks[0]?.split('  ')?.filter(s => !s?.includes(' ')).join('');
   const actions = [];
-
-  externalLinks.forEach((lnk) => {
-    if (isUrlValid(lnk)) {
+  
+  const splitLink = lnkParts?.split('https://');
+  splitLink.forEach((l) => {
+    if (isUrlValid(`https://${l}`)) {
       actions.push({
-        label: lnk,
-        onClick: () => startWatching(lnk),
+        label: l,
+        onClick: () => startWatching(`https://${l}`),
       });
     }
   });
@@ -65,3 +68,18 @@ export const SmartMediaShare = (props) => {
 };
 
 export default SmartMediaShare;
+
+SmartMediaShare.propTypes = {
+  currentSlide: PropTypes.shape({
+    content: PropTypes.string.isRequired,
+  }),
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  isMobile: PropTypes.bool.isRequired,
+  isRTL: PropTypes.bool.isRequired,
+};
+
+SmartMediaShare.defaultProps = {
+  currentSlide: undefined,
+};

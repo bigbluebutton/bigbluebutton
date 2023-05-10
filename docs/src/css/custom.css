@@ -86,7 +86,7 @@ html {
     font-family: 'Open Sans';
     src: url('/static/fonts/OpenSans-Bold.ttf');
     font-weight: bold;
-    font-style: italic;
+    font-style: normal;
 }
 
 @font-face {
@@ -100,7 +100,7 @@ html {
     font-family: 'Open Sans';
     src: url('/static/fonts/OpenSans-ExtraBold.ttf');
     font-weight: bold;
-    font-style: italic;
+    font-style: normal;
 }
 
 @font-face {
@@ -112,7 +112,7 @@ html {
 
 .col {
     padding-bottom: 48px;
-} 
+}
 
 .button.button--install {
     background-color: #273d85;

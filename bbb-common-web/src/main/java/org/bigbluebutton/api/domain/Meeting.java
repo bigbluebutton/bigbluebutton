@@ -202,7 +202,7 @@ public class Meeting {
 	}
 
 	public Integer countUniqueExtIds() {
-		List<String> uniqueExtIds = new ArrayList<String>();
+		List<String> uniqueExtIds = new ArrayList<>();
 		for (User user : users.values()) {
 			if(!uniqueExtIds.contains(user.getExternalUserId())) {
 				uniqueExtIds.add(user.getExternalUserId());

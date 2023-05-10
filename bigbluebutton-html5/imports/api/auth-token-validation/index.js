@@ -7,7 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const AuthTokenValidation = new Mongo.Collection('auth-token-validation', collectionOptions);
 
 if (Meteor.isServer) {
-  AuthTokenValidation._ensureIndex({ meetingId: 1, userId: 1 });
+  AuthTokenValidation.createIndexAsync({ connectionId: 1 });
 }
 
 export const ValidationStates = Object.freeze({

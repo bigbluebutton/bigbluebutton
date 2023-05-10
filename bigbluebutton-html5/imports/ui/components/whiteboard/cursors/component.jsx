@@ -1,6 +1,8 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { Meteor } from 'meteor/meteor';
-import { throttle } from 'lodash';
+import Cursor from './cursor/component';
+import PositionLabel from './position-label/component';
 
 const XS_OFFSET = 8;
 const SMALL_OFFSET = 18;
@@ -8,14 +10,13 @@ const XL_OFFSET = 85;
 const BOTTOM_CAM_HANDLE_HEIGHT = 10;
 const PRES_TOOLBAR_HEIGHT = 35;
 
-const { cursorInterval: CURSOR_INTERVAL } = Meteor.settings.public.whiteboard;
 const baseName = Meteor.settings.public.app.cdn + Meteor.settings.public.app.basename;
 const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
 const TOOL_CURSORS = {
   select: 'default',
-  erase: 'none',
-  arrow: 'none',
+  erase: 'crosshair',
+  arrow: 'crosshair',
   draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
   rectangle: `url('${makeCursorUrl('square.png')}'), default`,
   ellipse: `url('${makeCursorUrl('ellipse.png')}'), default`,
@@ -23,130 +24,11 @@ const TOOL_CURSORS = {
   line: `url('${makeCursorUrl('line.png')}'), default`,
   text: `url('${makeCursorUrl('text.png')}'), default`,
   sticky: `url('${makeCursorUrl('square.png')}'), default`,
-  pan: `grab`,
+  pan: 'grab',
   grabbing: 'grabbing',
   moving: 'move',
 };
-
-const Cursor = (props) => {
-  const {
-    name,
-    color,
-    x,
-    y,
-    currentPoint,
-    tldrawCamera,
-    isMultiUserActive,
-    owner = false,
-  } = props;
-
-  const z = !owner ? 2 : 1;
-  let _x = null;
-  let _y = null;
-
-  if (!currentPoint) {
-    _x = (x + tldrawCamera?.point[0]) * tldrawCamera?.zoom;
-    _y = (y + tldrawCamera?.point[1]) * tldrawCamera?.zoom;
-  }
-
-  return (
-    <>
-      <div
-        style={{
-          zIndex: z,
-          position: 'absolute',
-          left: (_x || x) - 2.5,
-          top: (_y || y) - 2.5,
-          width: 5,
-          height: 5,
-          borderRadius: '50%',
-          background: `${color}`,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {isMultiUserActive && (
-      <div
-        style={{
-          zIndex: z,
-          position: 'absolute',
-          pointerEvents: 'none',
-          left: (_x || x) + 3.75,
-          top: (_y || y) + 3,
-          paddingLeft: '.25rem',
-          paddingRight: '.25rem',
-          paddingBottom: '.1rem',
-          lineHeight: '1rem',
-          borderRadius: '2px',
-          color: '#FFF',
-          backgroundColor: color,
-          border: `1px solid ${color}`,
-        }}
-      >
-        {name}
-      </div>
-      )}
-    </>
-  );
-};
-
-const PositionLabel = (props) => {
-  const {
-    currentUser,
-    currentPoint,
-    tldrawCamera,
-    publishCursorUpdate,
-    whiteboardId,
-    pos,
-    isMultiUserActive,
-  } = props;
-
-  const { name, color, userId } = currentUser;
-  const { x, y } = pos;
-
-  const cursorUpdate = (x,y) => {
-    try {
-      const point = [x, y];
-      publishCursorUpdate({
-        xPercent:
-          point[0] / tldrawCamera?.zoom - tldrawCamera?.point[0],
-        yPercent:
-          point[1] / tldrawCamera?.zoom - tldrawCamera?.point[1],
-        whiteboardId,
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const throttledCursorUpdate = React.useRef(throttle((x,y) => {
-    cursorUpdate(x,y);
-  },
-  CURSOR_INTERVAL, { trailing: false }));
-
-  React.useEffect(() => {
-    throttledCursorUpdate.current(x,y);
-  }, [x, y]);
-
-  return (
-    <>
-      <div style={{ position: 'absolute', height: '100%', width: '100%' }}>
-        <Cursor
-          key={`${userId}-label`}
-          name={name}
-          color={color}
-          x={x}
-          y={y}
-          currentPoint={currentPoint}
-          tldrawCamera={tldrawCamera}
-          isMultiUserActive={isMultiUserActive(whiteboardId)}
-        />
-      </div>
-    </>
-  );
-};
-
-export default function Cursors(props) {
+const Cursors = (props) => {
   const cursorWrapper = React.useRef();
   const [active, setActive] = React.useState(false);
   const [pos, setPos] = React.useState({ x: 0, y: 0 });
@@ -164,23 +46,38 @@ export default function Cursors(props) {
     isPanning,
     isMoving,
     currentTool,
-    disabledPan,
+    toggleToolsAnimations,
+    whiteboardToolbarAutoHide,
+    application,
   } = props;
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
 
-  const start = () => setActive(true);
+  const start = (event) => {
+    const targetElement = event?.target;
+    const className = targetElement instanceof SVGElement
+      ? targetElement?.className?.baseVal
+      : targetElement?.className;
+    const hasTlPartial = className?.includes('tl-');
+    if (hasTlPartial) {
+      event?.preventDefault();
+    }
+    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-out', 'fade-in', application?.animations ? '.3s' : '0s');
+    setActive(true);
+  };
   const handleGrabbing = () => setPanGrabbing(true);
   const handleReleaseGrab = () => setPanGrabbing(false);
 
+  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
   const end = () => {
-    if (whiteboardId) {
+    if (whiteboardId && (multiUserAccess || currentUser?.presenter)) {
       publishCursorUpdate({
         xPercent: -1.0,
         yPercent: -1.0,
         whiteboardId,
       });
     }
+    if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-in', 'fade-out', application?.animations ? '3s' : '0s');
     setActive(false);
   };
 
@@ -207,7 +104,7 @@ export default function Cursors(props) {
       yOffset
         += (parseFloat(presentationContainer?.style?.height)
           - (parseFloat(presentation?.style?.height)
-          + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))
+            + (currentUser.presenter ? PRES_TOOLBAR_HEIGHT : 0))
         ) / 2;
       xOffset
         += (parseFloat(presentationContainer?.style?.width)
@@ -324,27 +221,29 @@ export default function Cursors(props) {
   React.useEffect(() => {
     const currentCursor = cursorWrapper?.current;
     currentCursor?.addEventListener('mouseenter', start);
+    currentCursor?.addEventListener('touchstart', start);
     currentCursor?.addEventListener('mouseleave', end);
-    currentCursor?.addEventListener("mousedown", handleGrabbing);
-    currentCursor?.addEventListener("mouseup", handleReleaseGrab);
+    currentCursor?.addEventListener('mousedown', handleGrabbing);
+    currentCursor?.addEventListener('mouseup', handleReleaseGrab);
     currentCursor?.addEventListener('touchend', end);
     currentCursor?.addEventListener('mousemove', moved);
     currentCursor?.addEventListener('touchmove', moved);
 
     return () => {
       currentCursor?.removeEventListener('mouseenter', start);
+      currentCursor?.addEventListener('touchstart', start);
       currentCursor?.removeEventListener('mouseleave', end);
-      currentCursor?.removeEventListener("mousedown", handleGrabbing);
-      currentCursor?.removeEventListener("mouseup", handleReleaseGrab);
+      currentCursor?.removeEventListener('mousedown', handleGrabbing);
+      currentCursor?.removeEventListener('mouseup', handleReleaseGrab);
       currentCursor?.removeEventListener('touchend', end);
       currentCursor?.removeEventListener('mousemove', moved);
       currentCursor?.removeEventListener('touchmove', moved);
     };
-  }, [cursorWrapper, whiteboardId, currentUser.presenter]);
+  }, [cursorWrapper, whiteboardId, currentUser.presenter, whiteboardToolbarAutoHide]);
 
-  const multiUserAccess = hasMultiUserAccess(whiteboardId, currentUser?.userId);
-  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
-  if (isPanning && !disabledPan) {
+  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] : 'default';
+
+  if (isPanning) {
     if (panGrabbing) {
       cursorType = TOOL_CURSORS.grabbing;
     } else {
@@ -352,7 +251,6 @@ export default function Cursors(props) {
     }
   }
   if (isMoving) cursorType = TOOL_CURSORS.moving;
-
   return (
     <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>
@@ -400,20 +298,52 @@ export default function Cursors(props) {
 
             return hasMultiUserAccess(whiteboardId, c?.userId)
               && (
-              <Cursor
-                key={`${c?.userId}`}
-                name={c?.userName}
-                color="#AFE1AF"
-                x={c?.xPercent}
-                y={c?.yPercent}
-                tldrawCamera={tldrawCamera}
-                isMultiUserActive={isMultiUserActive(whiteboardId)}
-                owner
-              />
+                <Cursor
+                  key={`${c?.userId}`}
+                  name={c?.userName}
+                  color="#AFE1AF"
+                  x={c?.xPercent}
+                  y={c?.yPercent}
+                  tldrawCamera={tldrawCamera}
+                  isMultiUserActive={isMultiUserActive(whiteboardId)}
+                  owner
+                />
               );
           }
           return null;
         })}
     </span>
   );
-}
+};
+
+Cursors.propTypes = {
+  whiteboardId: PropTypes.string,
+  otherCursors: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  currentUser: PropTypes.shape({
+    userId: PropTypes.string.isRequired,
+    presenter: PropTypes.bool.isRequired,
+  }).isRequired,
+  currentPoint: PropTypes.arrayOf(PropTypes.number),
+  tldrawCamera: PropTypes.shape({
+    point: PropTypes.arrayOf(PropTypes.number).isRequired,
+    zoom: PropTypes.number.isRequired,
+  }),
+  publishCursorUpdate: PropTypes.func.isRequired,
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  isViewersCursorLocked: PropTypes.bool.isRequired,
+  hasMultiUserAccess: PropTypes.func.isRequired,
+  isMultiUserActive: PropTypes.func.isRequired,
+  isPanning: PropTypes.bool.isRequired,
+  isMoving: PropTypes.bool.isRequired,
+  currentTool: PropTypes.string,
+  toggleToolsAnimations: PropTypes.func.isRequired,
+};
+
+Cursors.defaultProps = {
+  whiteboardId: undefined,
+  currentPoint: undefined,
+  tldrawCamera: undefined,
+  currentTool: null,
+};
+
+export default Cursors;

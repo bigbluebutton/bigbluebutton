@@ -1,18 +1,9 @@
----
-layout: page
-title: "What's New"
-category: 2.6
-date: 2021-06-09 11:42:28
-order: 1
----
 
 ![BigBlueButton 2.6 runs on Ubuntu 20.04](/img/26_BBB_header.png)
 
 ## Overview
 
-This document gives you an overview of BigBlueButton 2.6, the latest version of BigBlueButton now in development.
-
-*Note:* This document is DRAFT and will be expanded upon as 2.6 development goes through alpha, beta, and release.
+This document gives you an overview of BigBlueButton 2.6.
 
 BigBlueButton 2.6 offers users improved usability, increased engagement, and more performance.
 
@@ -119,7 +110,7 @@ Selecting "Send to chat" in the presentation upload modal sends a link in the pu
 
 #### Upload a presentation straight from NextCloud
 
-Two new create parameters: uploadExternalDescription and uploadExternalUrl have been introduced.
+Two new create parameters: presentationUploadExternalDescription and presentationUploadExternalUrl have been introduced.
 
 The client supports these parameters, displaying a message in the presentation upload modal when both values are set at meeting creation.
 
@@ -139,9 +130,15 @@ When you click Apply, BigBlueButton well send prompts to each user to move them 
 
 ![Move users prompt](/img/26-move-prompt.png)
 
-#### Recording in MP4 format
+When you click Apply, BigBlueButton will send prompts to each user to move them to the target breakout room.
 
-This release will introduce a new recording format that creates a single video file from audio, video, screen share, presentation, and whiteboard marks recorded during the session.  The file format will be .vp8 (with configuration options to alternatively create an .mp4 file as well).
+
+
+#### Recording in Video format
+
+This release introduces a new recording format that creates a single video file from audio, video, screen share, presentation, and whiteboard marks recorded during the session.  The file format is webm (vp9 video), although configuration options is available to create an mp4 (h264 video) file instead.
+
+Learn more about [how to enable generating MP4 (h264 video) output](https://docs.bigbluebutton.org/administration/customize#enable-generating-mp4-h264-video-output)
 
 ### Engagement
 
@@ -183,8 +180,34 @@ Allows for quicker, more efficient search and retrieval of recording data.
 
 ### Upgraded components
 
+Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
+- Meteor 2.12
+- Grails 5.2.4
+- Spring 2.7.1
+
 For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
 
+- [2.6.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.6)
+- [2.6.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.5)
+- [2.6.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.4)
+- [2.6.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.3)
+- [2.6.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.2)
+- [2.6.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.1)
+- [2.6.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0)
+- [rc.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.9)
+- [rc.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.8)
+- [rc.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.7)
+- [rc.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.6)
+- [rc.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.5)
+- [rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.4)
+- [rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.3)
+- [rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.2)
+- [rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-rc.1)
+- [beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.7)
+- [beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.6)
+- [beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.5)
+- [beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.4)
+- [beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.3)
 - [beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.2)
 - [beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-beta.1)
 - [alpha.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.0-alpha.4)
@@ -197,6 +220,28 @@ For full details on what is new in BigBlueButton 2.6, see the release notes. Rec
 #### We have retired the `bbb-demo` API Demos development only package
 
 We recommend using API MATE or Greenlight - see the [development setup section](/development/guide) for more information.
+
+#### bbb-install-2.6.sh installs a local TURN server and shares port 443 by default
+
+If you are using bbb-install to configure your servers, be aware that in BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
+
+#### Change of parameters naming
+
+In 2.5 we had the hidePresentation which was responsible for disabling presentation Area, and it was configured in the join call. Now we have a new disabled feature which is responsible for that. it is called `disabledFeatures=presentation`, and it is configured in the create call, for more details see the [docs](https://docs.bigbluebutton.org/2.6/development/api#create).
+
+There is another parameter renamed in 2.6, it is `swapLayout`, or `userdata-bbb_auto_swap_layout` in the join call. Now, this parameter is set to `hidePresentationOnJoin` or `userdata-bbb_hide_presentation_on_join` in the join call, and it does essentially the same thing: it starts meeting with presentation minimized. And lastly, we've got another way to configure it: which is to set `public.layout.hidePresentationOnJoin: true` in the override settings file: `/etc/bigbluebutton/bbb-html5.yml`
+
+In brief:
+
+- 2.5 **JOIN** `hidePresentation` -> 2.6 **CREATE** `disabledFeatures=presentation` (permanent disabling of presentation area for all users)
+- 2.5 **JOIN** `swapLayout` -> 2.6 **JOIN** `hidePresentation` (join a meeting with presentation area hidden, not permanently)
+
+#### Change of location for default presentation
+
+We used to keep the default presentation (`default.pdf` on a stock installation) in `/var/www/bigbluebutton-default/`.
+In BigBlueButton 2.6 we added a directory `assets` so now the full path is `/var/www/bigbluebutton-default/assets/default.pdf`.
+In case you are overriding the file/filename, please pass `beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/assets/file.pdf` in `/etc/bigbluebutton/bbb-web.properties`
+
 
 ### Development
 

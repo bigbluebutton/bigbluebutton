@@ -3,7 +3,7 @@ import { SlidePositions } from '/imports/api/slides';
 import Logger from '/imports/startup/server/logger';
 import calculateSlideData from '/imports/api/slides/server/helpers';
 
-export default function resizeSlide(meetingId, slide) {
+export default async function resizeSlide(meetingId, slide) {
   check(meetingId, String);
 
   const {
@@ -26,7 +26,7 @@ export default function resizeSlide(meetingId, slide) {
   // fetching the current slide data
   // and pre-calculating the width, height, and vieBox coordinates / sizes
   // to reduce the client-side load
-  const SlidePosition = SlidePositions.findOne(selector);
+  const SlidePosition = await SlidePositions.findOneAsync(selector);
 
   if (SlidePosition) {
     const {
@@ -49,7 +49,7 @@ export default function resizeSlide(meetingId, slide) {
     };
 
     try {
-      const numberAffected = SlidePositions.update(selector, modifier);
+      const numberAffected = await SlidePositions.updateAsync(selector, modifier);
 
       if (numberAffected) {
         Logger.debug(`Resized slide positions id=${pageId}`);

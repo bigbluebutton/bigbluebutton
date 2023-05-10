@@ -3,6 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
 import changeHasMessages from '/imports/api/users-persistent-data/server/modifiers/changeHasMessages';
+import GroupChat from '/imports/api/group-chat';
 
 export function parseMessage(message) {
   let parsedMessage = message || '';
@@ -17,7 +18,7 @@ export function parseMessage(message) {
   return parsedMessage;
 }
 
-export default function addGroupChatMsg(meetingId, chatId, msg) {
+export default async function addGroupChatMsg(meetingId, chatId, msg) {
   check(meetingId, String);
   check(chatId, String);
   check(msg, {
@@ -34,6 +35,8 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     ...restMsg
   } = msg;
 
+  const groupChat = GroupChat.findOne({ meetingId, chatId });
+
   const msgDocument = {
     ...restMsg,
     sender: sender.id,
@@ -41,14 +44,15 @@ export default function addGroupChatMsg(meetingId, chatId, msg) {
     senderRole: sender.role,
     meetingId,
     chatId,
+    participants: [...groupChat.users],
     message: parseMessage(msg.message),
   };
 
   try {
-    const insertedId = GroupChatMsg.insert(msgDocument);
+    const insertedId = await GroupChatMsg.insertAsync(msgDocument);
 
     if (insertedId) {
-      changeHasMessages(true, sender.id, meetingId, chatId);
+      await changeHasMessages(true, sender.id, meetingId, chatId);
       Logger.info(`Added group-chat-msg msgId=${msg.id} chatId=${chatId} meetingId=${meetingId}`);
     }
   } catch (err) {

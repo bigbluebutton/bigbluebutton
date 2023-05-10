@@ -1,23 +1,41 @@
 const { test } = require('@playwright/test');
-const { FocusOnPresentation } = require('./focusOnPresentation');
-const { FocusOnVideo } = require('./focusOnVideo');
-const { MultiUsers } = require('../user/multiusers');
 const { encodeCustomParams } = require('../customparameters/util');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+const { Layouts } = require('./layouts');
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 const CUSTOM_MEETING_ID = 'layout_management_meeting';
-const CUSTOM_STYLE = `userdata-bbb_custom_style=.presentationUploaderToast{display: none;}.currentPresentationToast{display:none;}`;
 
-test.describe.parallel('Layout management', () => {
-  test('Focus on presentation', async ({ browser, context, page }) => {
-    const focusOnPresentation = new FocusOnPresentation(browser, context);
-    await focusOnPresentation.initModPage(page, true, { customMeetingId: CUSTOM_MEETING_ID, customParameter: encodeCustomParams(CUSTOM_STYLE) });
-    await focusOnPresentation.initModPage2(true, context, { customParameter: encodeCustomParams(CUSTOM_STYLE) });
-    await focusOnPresentation.test();
+test.describe.serial('Layout management', () => {
+  const layouts = new Layouts();
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await layouts.initModPage(page, true,  { customParameter: hidePresentationToast, customMeetingId: CUSTOM_MEETING_ID });
+    await layouts.initUserPage(true, context, { customParameter: hidePresentationToast });
+    await layouts.modPage.shareWebcam();
+    await layouts.userPage.shareWebcam();
   });
-  test('Focus on video', async ({ browser, context, page }) => {
-    const focusOnVideo = new FocusOnVideo(browser, context);
-    await focusOnVideo.initModPage(page, true, { customMeetingId: CUSTOM_MEETING_ID, customParameter: encodeCustomParams(CUSTOM_STYLE) });
-    await focusOnVideo.initModPage2(true, context, { customParameter: encodeCustomParams(CUSTOM_STYLE) });
-    await focusOnVideo.test();
+
+  test('Focus on presentation', async () => {
+    await layouts.focusOnPresentation();
+  });
+
+  test('Focus on video', async () => {
+    await layouts.focusOnVideo();
+  });
+
+  test('Smart layout', async () => {
+    await layouts.smartLayout();
+  });
+
+  test('Custom layout', async () => {
+    await layouts.customLayout();
+  });
+
+  test('Push layout to all', async () => {
+    await layouts.pushLayout();
   });
 });

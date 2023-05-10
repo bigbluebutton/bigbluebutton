@@ -384,10 +384,11 @@ class MeetingActor(
       case m: RecordAndClearPreviousMarkersCmdMsg =>
         state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
-      case m: GetRecordingStatusReqMsg => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: ChangeUserEmojiCmdMsg    => handleChangeUserEmojiCmdMsg(m)
-      case m: SelectRandomViewerReqMsg => usersApp.handleSelectRandomViewerReqMsg(m)
-      case m: ChangeUserPinStateReqMsg => usersApp.handleChangeUserPinStateReqMsg(m)
+      case m: GetRecordingStatusReqMsg   => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: ChangeUserEmojiCmdMsg      => handleChangeUserEmojiCmdMsg(m)
+      case m: SelectRandomViewerReqMsg   => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg   => usersApp.handleChangeUserPinStateReqMsg(m)
+      case m: ChangeUserMobileFlagReqMsg => usersApp.handleChangeUserMobileFlagReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -868,8 +869,11 @@ class MeetingActor(
     leftUsers foreach { leftUser =>
       for {
         u <- Users2x.remove(liveMeeting.users2x, leftUser.intId)
+        ru <- RegisteredUsers.findWithUserId(leftUser.intId, liveMeeting.registeredUsers)
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+        RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
 
         captionApp2x.handleUserLeavingMsg(leftUser.intId, liveMeeting, msgBus)
 

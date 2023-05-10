@@ -7,7 +7,7 @@ const collectionOptions = Meteor.isClient ? {
 const GroupChat = new Mongo.Collection('group-chat', collectionOptions);
 
 if (Meteor.isServer) {
-  GroupChat._ensureIndex({
+  GroupChat.createIndexAsync({
     meetingId: 1, chatId: 1, access: 1, users: 1,
   });
 }

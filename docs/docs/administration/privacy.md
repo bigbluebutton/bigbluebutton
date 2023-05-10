@@ -140,7 +140,7 @@ BigBlueButton retains various cache and log files. The general retention period 
 
 - `history` is the retention period for presentations, red5 caches, kurento caches, and freeswitch caches in days
 - `unrecorded_days` the retention periods of recordings for meetings which have no recording markers set (user expectation: Were not recorded)
-- `published_days` the retention period of recordings' raw data, if these got published. To enable this, the line `#remove_raw_of_published_recordings` also has to be uncommented
+- `published_days` the retention period of recordings' raw data, if these got published. To disable this, the line `remove_raw_of_published_recordings` has to be commented
 
 For directly deleting these caches, please see
 'Post-recording script to remove recordings without any recording markers'

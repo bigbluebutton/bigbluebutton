@@ -1,8 +1,9 @@
 ---
 id: release-notes
-description: 'Testing a release'
-date: 2022-02-10 21:59:03
-tags:
+slug: /release-notes
+description: BigBlueButton release notes
+sidebar_position: 4
+keywords:
  - Release notes
  - Versions
 ---
@@ -67,7 +68,7 @@ Major features in this release include:
 
 * **Faster Screen Sharing** - Screen sharing now is faster, works across all browsers (using a Java application that launches outside the browser), and captures the cursor (see [video](https://www.youtube.com/watch?v=xTFuEvmEqB0)).
 
-* **Greenlight** - Administrators can install a new front-end, called Greenlight, that makes it easy for users to quickly creating meetings, invite others, and manage recordings on a BigBlueButton server.  Using Docker, administrators can [install](/greenlight/overview) on the BigBlueButton server itself (no need for a separate server).  Greenlight is written in Rails 5 and can be easily customized by any rails developer (see [source on GitHub](https://github.com/bigbluebutton/greenlight)).
+* **Greenlight** - Administrators can install a new front-end, called Greenlight, that makes it easy for users to quickly creating meetings, invite others, and manage recordings on a BigBlueButton server.  Using Docker, administrators can [install](/greenlight/v3/install) on the BigBlueButton server itself (no need for a separate server).  Greenlight is written in Rails 5 and can be easily customized by any rails developer (see [source on GitHub](https://github.com/bigbluebutton/greenlight)).
 
 * **Ubuntu 16.04 packages** - This release installs on Ubuntu 16.04 64-bit (the most recent long-term support release from Canonical) and uses `systemd` for new start/stop scripts for individual components.
 

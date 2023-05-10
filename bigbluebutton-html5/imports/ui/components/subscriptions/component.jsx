@@ -5,7 +5,6 @@ import logger from '/imports/startup/client/logger';
 import GroupChat from '/imports/api/group-chat';
 import Annotations from '/imports/api/annotations';
 import Users from '/imports/api/users';
-import AnnotationsTextService from '/imports/ui/components/whiteboard/annotations/text/service';
 import { Annotations as AnnotationsLocal } from '/imports/ui/components/whiteboard/service';
 import {
   localCollectionRegistry,
@@ -132,22 +131,11 @@ export default withTracker(() => {
   let groupChatMessageHandler = {};
 
   if (isChatEnabled() && ready) {
-    const chatsCount = GroupChat.find({
-      $or: [
-        {
-          meetingId,
-          access: PUBLIC_CHAT_TYPE,
-          chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-        },
-        { meetingId, users: { $all: [requesterUserId] } },
-      ],
-    }).count();
-
     const subHandler = {
       ...subscriptionErrorHandler,
     };
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatsCount, subHandler);
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', subHandler);
   }
 
   // TODO: Refactor all the late subscribers
@@ -156,9 +144,8 @@ export default withTracker(() => {
     usersPersistentDataHandler = Meteor.subscribe('users-persistent-data');
     const annotationsHandler = Meteor.subscribe('annotations', {
       onReady: () => {
-        const activeTextShapeId = AnnotationsTextService.activeTextShapeId();
-        AnnotationsLocal.remove({ id: { $ne: `${activeTextShapeId}-fake` } });
-        Annotations.find({ id: { $ne: activeTextShapeId } }, { reactive: false }).forEach((a) => {
+        AnnotationsLocal.remove({});
+        Annotations.find({}, { reactive: false }).forEach((a) => {
           try {
             AnnotationsLocal.insert(a);
           } catch (e) {

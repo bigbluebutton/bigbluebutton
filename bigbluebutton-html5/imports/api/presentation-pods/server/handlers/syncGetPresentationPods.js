@@ -3,23 +3,23 @@ import PresentationPods from '/imports/api/presentation-pods';
 import removePresentationPod from '../modifiers/removePresentationPod';
 import addPresentationPod from '../modifiers/addPresentationPod';
 
-export default function handleSyncGetPresentationPods({ body }, meetingId) {
+export default async function handleSyncGetPresentationPods({ body }, meetingId) {
   check(body, Object);
   check(meetingId, String);
 
   const { pods } = body;
   check(pods, Array);
 
-  const presentationPodIds = pods.map(pod => pod.id);
+  const presentationPodIds = pods.map((pod) => pod.id);
 
-  const presentationPodsToRemove = PresentationPods.find({
+  const presentationPodsToRemove = await PresentationPods.find({
     meetingId,
     podId: { $nin: presentationPodIds },
-  }, { fields: { podId: 1 } }).fetch();
+  }, { fields: { podId: 1 } }).fetchAsync();
 
-  presentationPodsToRemove.forEach(p => removePresentationPod(meetingId, p.podId));
+  presentationPodsToRemove.forEach(async (p) => removePresentationPod(meetingId, p.podId));
 
-  pods.forEach((pod) => {
+  pods.forEach(async (pod) => {
     // 'podId' and 'currentPresenterId' for some reason called 'id' and 'currentPresenter'
     // in this message
     const {
@@ -27,6 +27,6 @@ export default function handleSyncGetPresentationPods({ body }, meetingId) {
       currentPresenter: currentPresenterId,
       presentations,
     } = pod;
-    addPresentationPod(meetingId, { podId, currentPresenterId }, presentations);
+    await addPresentationPod(meetingId, { podId, currentPresenterId }, presentations);
   });
 }

@@ -8,6 +8,8 @@ const CaptionsWrapper = styled.div`
   bottom: 100px;
   left: 20%;
   z-index: 5;
+  pointer-events: none;
+  user-select:none;
 `;
 
 const ActionsBar = styled.section`
@@ -66,6 +68,25 @@ const DtfImages = `
   svg
 `;
 
+const TextMeasure = styled.pre`
+  white-space: pre;
+  width: auto;
+  border: 1px solid red;
+  padding: 4px;
+  margin: 0px;
+  letter-spacing: -0.03em;
+  opacity: 0;
+  position: absolute;
+  top: -500px;
+  left: 0px;
+  z-index: 9999;
+  pointer-events: none;
+  user-select: none;
+  alignment-baseline: mathematical;
+  dominant-baseline: mathematical;
+  font-family: "Source Code Pro";
+`;
+
 export default {
   CaptionsWrapper,
   ActionsBar,
@@ -73,4 +94,5 @@ export default {
   DtfInvert,
   DtfCss,
   DtfImages,
+  TextMeasure,
 };

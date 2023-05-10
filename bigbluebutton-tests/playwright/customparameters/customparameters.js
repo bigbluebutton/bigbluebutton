@@ -22,7 +22,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
-    await this.modPage.wasRemoved(e.userslist);
+    await this.modPage.wasRemoved(e.usersList);
   }
 
   async clientTitle() {
@@ -242,7 +242,7 @@ class CustomParameters extends MultiUsers {
 
   async liveTranscription() {
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.liveTranscritpion);
+    await this.modPage.wasRemoved(e.liveTranscription);
   }
 
   async captions() {
@@ -304,6 +304,18 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.wasRemoved(e.captureBreakoutSharedNotes);
+  }
+
+  async presentation() {
+    await this.modPage.wasRemoved(e.whiteboard);
+    await this.modPage.wasRemoved(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.restorePresentation);
+  }
+
+  async customVirtualBackground() {
+    await this.modPage.waitAndClick (e.joinVideo);
+    await this.modPage.waitForSelector(e.webcamSettingsModal);
+    await this.modPage.wasRemoved(e.inputBackgroundButton);
   }
 }
 

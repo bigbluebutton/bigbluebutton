@@ -1,5 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
 import Styled from '../styles';
 
@@ -16,10 +17,9 @@ class PanToolInjector extends React.Component {
       fitToWidth,
       isPanning,
       setIsPanning,
-      formatMessage,
       tldrawAPI,
       panSelected,
-      setPanSelected
+      setPanSelected,
     } = this.props;
     if (prevProps.zoomValue !== zoomValue
       || prevProps.fitToWidth !== fitToWidth
@@ -42,12 +42,11 @@ class PanToolInjector extends React.Component {
     const {
       zoomValue,
       fitToWidth,
-      isPanning,
       setIsPanning,
       formatMessage,
       tldrawAPI,
       panSelected,
-      setPanSelected
+      setPanSelected,
     } = this.props;
 
     if (panSelected) {
@@ -55,8 +54,8 @@ class PanToolInjector extends React.Component {
     }
 
     const tools = document.querySelectorAll('[id*="TD-PrimaryTools-"]');
-    tools.forEach(tool => {
-      const classList = tool.firstElementChild.classList;
+    tools.forEach((tool) => {
+      const { classList } = tool.firstElementChild;
       if (panSelected) {
         classList.add('overrideSelect');
       } else {
@@ -76,26 +75,22 @@ class PanToolInjector extends React.Component {
         id: 'app.whiteboard.toolbar.tools.hand',
         description: 'presentation toolbar pan label',
       });
-      const disabledLabel = formatMessage({
-        id: `app.whiteboard.toolbar.tools.disabled.pan`,
-        description: 'pan label when disabled',
-      });
-      const disabled = (zoomValue <= HUNDRED_PERCENT && !fitToWidth);
       const container = document.createElement('span');
       parentElement.appendChild(container);
       ReactDOM.render(
         <Styled.PanTool
-          key={'bbb-panBtn'}
+          key="bbb-panBtn"
           role="button"
           data-test="panButton"
           data-zoom={zoomValue}
-          className={panSelected ? "select" : "overrideSelect"}
+          className={panSelected ? 'select' : 'overrideSelect'}
           color="light"
           icon="hand"
           size="md"
-          label={disabled ? disabledLabel : label}
-          aria-label={disabled ? disabledLabel : label}
-          disabled={disabled}
+          label={label}
+          aria-label={label}
+          tooltipdelay={700}
+          tooltipplacement="top"
           onClick={() => {
             setPanSelected(true);
             setIsPanning(true);
@@ -108,10 +103,13 @@ class PanToolInjector extends React.Component {
             }
           }}
           hideLabel
+          {...{
+            panSelected,
+          }}
         />,
-        container
+        container,
       );
-      const lastChild = parentElement.lastChild;
+      const { lastChild } = parentElement;
       const secondChild = parentElement.children[1];
       parentElement.insertBefore(lastChild, secondChild);
     }
@@ -121,5 +119,22 @@ class PanToolInjector extends React.Component {
     return null;
   }
 }
+
+PanToolInjector.propTypes = {
+  fitToWidth: PropTypes.bool.isRequired,
+  zoomValue: PropTypes.number.isRequired,
+  formatMessage: PropTypes.func.isRequired,
+  isPanning: PropTypes.bool.isRequired,
+  setIsPanning: PropTypes.func.isRequired,
+  tldrawAPI: PropTypes.shape({
+    selectTool: PropTypes.func.isRequired,
+  }),
+  panSelected: PropTypes.bool.isRequired,
+  setPanSelected: PropTypes.func.isRequired,
+};
+
+PanToolInjector.defaultProps = {
+  tldrawAPI: null,
+};
 
 export default PanToolInjector;

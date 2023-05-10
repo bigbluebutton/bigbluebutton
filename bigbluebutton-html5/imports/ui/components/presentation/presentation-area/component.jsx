@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import PresentationPodsContainer from '../../presentation-pod/container';
 
 const PresentationArea = ({
@@ -17,3 +18,10 @@ const PresentationArea = ({
 };
 
 export default PresentationArea;
+
+PresentationArea.propTypes = {
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  presentationIsOpen: PropTypes.bool.isRequired,
+  darkTheme: PropTypes.bool.isRequired,
+};
