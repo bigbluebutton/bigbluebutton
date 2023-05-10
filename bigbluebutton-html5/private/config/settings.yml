@@ -513,6 +513,9 @@ public:
       size: 24px
     lines: 2
     time: 5000
+  timer:
+    enabled: false
+    interval: 100
   chat:
     enabled: true
     itemsPerPage: 100

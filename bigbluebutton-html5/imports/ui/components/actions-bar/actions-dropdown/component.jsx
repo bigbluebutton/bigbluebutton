@@ -7,6 +7,7 @@ import RandomUserSelectContainer from '/imports/ui/components/common/modal/rando
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
+import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -21,6 +22,8 @@ const propTypes = {
   amIModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
+  isTimerActive: PropTypes.bool.isRequired,
+  isTimerEnabled: PropTypes.bool.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
@@ -38,6 +41,14 @@ const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
+  },
+  activateTimerLabel: {
+    id: 'app.actionsBar.actionsDropdown.activateTimerLabel',
+    description: 'Activate timer label',
+  },
+  deactivateTimerLabel: {
+    id: 'app.actionsBar.actionsDropdown.deactivateTimerLabel',
+    description: 'Deactivate timer label',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
@@ -106,6 +117,7 @@ class ActionsDropdown extends PureComponent {
     this.presentationItemId = uniqueId('action-item-');
     this.pollId = uniqueId('action-item-');
     this.takePresenterId = uniqueId('action-item-');
+    this.timerId = uniqueId('action-item-');
     this.selectUserRandId = uniqueId('action-item-');
     this.state = {
       isExternalVideoModalOpen: false,
@@ -142,6 +154,8 @@ class ActionsDropdown extends PureComponent {
       isPollingEnabled,
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
+      isTimerActive,
+      isTimerEnabled,
       layoutContextDispatch,
       setMeetingLayout,
       setPushLayout,
@@ -225,6 +239,16 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
+    if (amIModerator && isTimerEnabled) {
+      actions.push({
+        icon: "time",
+        label: isTimerActive ? intl.formatMessage(intlMessages.deactivateTimerLabel)
+          : intl.formatMessage(intlMessages.activateTimerLabel),
+        key: this.timerId,
+        onClick: () => this.handleTimerClick(!isTimerActive),
+      })       
+    }
+
     if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
       actions.push({
         icon: 'send',
@@ -304,6 +328,15 @@ class ActionsDropdown extends PureComponent {
         isOpen
       }}
     /> : null
+  }
+
+  handleTimerClick(activate) {
+    const { mountModal } = this.props;
+    if (activate) {
+      TimerService.activateTimer();
+    } else {
+      TimerService.deactivateTimer();
+    }
   }
 
   render() {
