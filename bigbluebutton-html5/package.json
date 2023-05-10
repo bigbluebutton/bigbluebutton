@@ -31,9 +31,12 @@
   "dependencies": {
     "@babel/runtime": "^7.17.9",
     "@browser-bunyan/server-stream": "^1.8.0",
+    "@emotion/react": "^11.10.8",
+    "@emotion/styled": "^11.10.8",
     "@jitsi/sdp-interop": "0.1.14",
-    "@material-ui/core": "^4.12.4",
     "@mconf/bbb-diff": "^1.2.0",
+    "@mui/material": "^5.12.2",
+    "@mui/system": "^5.12.3",
     "@tldraw/tldraw": "^1.27.0",
     "autoprefixer": "^10.4.4",
     "axios": "^0.21.3",
