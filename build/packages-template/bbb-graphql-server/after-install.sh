@@ -15,7 +15,7 @@ case "$1" in
   echo "Postgresql configured"
 
   # Apply BBB metadata in Hasura
-  /usr/local/bin/hasura /etc/default/bbb-graphql-server/metadata apply
+  /usr/local/bin/hasura/hasura /etc/default/bbb-graphql-server/metadata apply
   rm -rf /etc/default/bbb-graphql-server/metadata
 
   systemctl enable bbb-graphql-server.service
