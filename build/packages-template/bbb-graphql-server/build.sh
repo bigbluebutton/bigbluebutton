@@ -16,7 +16,7 @@ rm -rf staging
 #
 # package
 
-git clone --branch v2.22.1 https://github.com/iMDT/hasura-graphql-engine.git #TODO
+git clone --branch v2.23.0 https://github.com/iMDT/hasura-graphql-engine.git #TODO
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
