@@ -5,9 +5,12 @@ case "$1" in
 
   fc-cache -f
 
-  sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'bigbluebutton'"
-  sudo -u postgres psql -c "create database bigbluebutton"
-  sudo -u postgres psql -U postgres -d bigbluebutton -a -f /etc/default/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
+  sudo -u postgres psql -c "alter user postgres password 'bbb_graphql'"
+  sudo -u postgres psql -c "drop database if exists bbb_graphql"
+  sudo -u postgres psql -c "create database bbb_graphql"
+  sudo -u postgres psql -U postgres -d bbb_graphql -a -f bbb_schema.sql --set ON_ERROR_STOP=on
+  sudo -u postgres psql -c "drop database if exists hasura_app"
+
   sudo -u postgres psql -c "create database hasura_app"
   echo "Postgresql configured"
 
