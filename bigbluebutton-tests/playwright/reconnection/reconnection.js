@@ -1,8 +1,9 @@
 const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { killConnection } = require('./util');
+const { runScript } = require('../core/util');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 class Reconnection extends MultiUsers {
   constructor(browser, context) {
@@ -17,15 +18,18 @@ class Reconnection extends MultiUsers {
 
     killConnection();
 
-    // chat disabled
-    await expect(chatBoxLocator).toBeDisabled();
+    // chat disabled and notification bar displayed
+    Promise.all([
+      expect(chatBoxLocator).toBeDisabled({ timeout: ELEMENT_WAIT_TIME }),
+      this.modPage.hasElement(e.reconnectingBar),
+    ]);
 
     // reconnected -> chat enabled
-    await this.modPage.wasRemoved('//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]');
     await expect(chatBoxLocator).toBeEnabled();
+    await this.modPage.wasRemoved(e.notificationBannerBar);
   }
 
-  async mute() {
+  async microphone() {
     // join audio
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
@@ -35,20 +39,21 @@ class Reconnection extends MultiUsers {
     await expect(muteMicButtonLocator).toBeEnabled();
 
     killConnection();
+    await this.modPage.hasElement(e.reconnectingBar);
 
-    // mute button is removed
-    await this.modPage.wasRemoved(e.muteMicButton);
+    // reconnected
+    await this.modPage.wasRemoved(e.notificationBannerBar);
 
-    // join audio appears disabled
-    const joinAudioLocator = this.modPage.getLocator(e.joinAudio);
-    await expect(joinAudioLocator).toBeDisabled();
+    // audio connection should keep connected
+    await this.modPage.hasElement(e.muteMicButton);
+    await this.modPage.hasElement(e.isTalking);
+  }
 
-    // toast notification
-    await this.modPage.hasElement('//div[@data-test="toastSmallMsg"]/span[contains(text(), "You have left the audio conference")]');
-
-    // reconnected -> join audio button enabled
-    await this.modPage.wasRemoved('//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]');
-    await expect(joinAudioLocator).toBeEnabled();
+  async checkRootPermission() {
+    const checkSudo = await runScript('timeout -k 1 1 sudo id', {
+      handleOutput: (output) => output ? true : false
+    })
+    await expect(checkSudo, 'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)').toBeTruthy();
   }
 }
 
