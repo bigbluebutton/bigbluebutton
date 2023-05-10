@@ -550,6 +550,8 @@ public class ParamsProcessorUtil {
                             internalMeetingId);
                 }
             }
+        } else {
+            listOfDisabledFeatures.add("learningDashboard");
         }
 
         //Generate token to access Activity Report
