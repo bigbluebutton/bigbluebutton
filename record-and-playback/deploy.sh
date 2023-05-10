@@ -34,15 +34,15 @@ function deploy_format() {
 	for format in $formats
 	do
 		playback_dir="$format/playback/$format"
-		if [ $format = "screenshare" ]; then
+		if [ $format == "screenshare" ]; then
 			playback_dir="$format/playback"
 		fi
 		scripts_dir="$format/scripts"
 		nginx_file="$format/scripts/*.nginx"
 		if [ -d $playback_dir ]; then
-			if [ $format = "presentation" ]; then sudo cp -r $playback_dir /var/bigbluebutton/playback/; fi
-			if [ $format = "screenshare" ]; then sudo mkdir -p /usr/local/bigbluebutton/core/playback/$format; sudo cp -r $playback_dir/* /usr/local/bigbluebutton/core/playback/screenshare/; fi
-			if ([ $format != "presentation" ] & [ $format != "screenshare" ]); then sudo mkdir -p /usr/local/bigbluebutton/core/playback/$format; sudo cp -r $playback_dir /usr/local/bigbluebutton/core/playback/; fi
+			if [ "$format" == "presentation" ]; then sudo cp -r $playback_dir /var/bigbluebutton/playback/; fi
+			if [ "$format" == "screenshare" ]; then sudo mkdir -p /usr/local/bigbluebutton/core/playback/$format; sudo cp -r $playback_dir/* /usr/local/bigbluebutton/core/playback/screenshare/; fi
+			if ([ "$format" != "presentation" ] & [ "$format" != "screenshare" ]); then sudo mkdir -p /usr/local/bigbluebutton/core/playback/$format; sudo cp -r $playback_dir /usr/local/bigbluebutton/core/playback/; fi
 		fi
 		if [ -d $scripts_dir ]; then sudo cp -r $scripts_dir/* /usr/local/bigbluebutton/core/scripts/; fi
 		if [ -f $nginx_file ]; then sudo cp $scripts_dir/*.nginx /usr/share/bigbluebutton/nginx/; fi
@@ -50,7 +50,7 @@ function deploy_format() {
 	done
 }
 
-deploy_format "presentation"
+deploy_format "presentation screenshare notes"
 
 CAPTIONS_DIR=/var/bigbluebutton/captions/
 if [ ! -d "$CAPTIONS_DIR" ]; then
