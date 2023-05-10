@@ -642,7 +642,7 @@ ruby publish/presentation.rb -m <meeting-id>-presentation
 
 Notice we appended "presentation" to the meetingId, this will tell the script to publish using the "presentation" format.
 
-### Running recordings on service
+### Running record-and-playback as a service
 
 You can deploy your changes by running `deploy.sh` and restarting the recording-related services:
 ```
