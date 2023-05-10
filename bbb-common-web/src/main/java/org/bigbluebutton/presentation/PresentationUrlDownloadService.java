@@ -230,8 +230,12 @@ public class PresentationUrlDownloadService {
             String host = url.getHost();
 
             if(presentationDownloadSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
-                log.error("Invalid protocol [{}]", protocol);
-                return false;
+                if(presentationDownloadSupportedProtocols.size() == 1 && presentationDownloadSupportedProtocols.get(0).equalsIgnoreCase("*")) {
+                    log.info("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
+                } else {
+                    log.error("Invalid protocol [{}]", protocol);
+                    return false;
+                }
             }
 
             if(presentationDownloadBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
