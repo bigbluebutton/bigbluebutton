@@ -231,7 +231,6 @@ class Polling extends MultiUsers {
   async pollResultsOnWhiteboard() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage, true);
-    //await this.modPage.hasElement(e.wbDrawnRectangle);
     const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbDrawnRectangle).last();
     await expect(wbDrawnRectangleLocator).toBeVisible({ timeout: ELEMENT_WAIT_TIME});
 
