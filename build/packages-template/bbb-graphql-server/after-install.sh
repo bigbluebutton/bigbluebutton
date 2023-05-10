@@ -17,6 +17,7 @@ case "$1" in
   # Apply BBB metadata in Hasura
   cd /etc/default/bbb-graphql-server
   /usr/local/bin/hasura/hasura metadata apply
+  cd ..
   rm -rf /etc/default/bbb-graphql-server/metadata
 
   systemctl enable bbb-graphql-server.service
