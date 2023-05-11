@@ -14,14 +14,14 @@ export default async function setOriginalUriDownload(meetingId, presentationId, 
 
   const modifier = {
     $set: {
-        originalFileURI: fileURI,
+      originalFileURI: fileURI,
     },
   };
 
   try {
     const { numberAffected } = await Presentations.upsertAsync(selector, modifier);
 
-    if (numberAffected && ['RUNNING', 'EXPORTED'].includes(exportation?.status)) {
+    if (numberAffected) {
       Logger.info(`Set URI for file ${presentationId} in meeting ${meetingId} URI=${fileURI}`);
     }
   } catch (err) {

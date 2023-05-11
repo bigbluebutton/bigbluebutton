@@ -11,10 +11,10 @@ export default async function handlePresentationExport({ body }, meetingId) {
 
   check(fileURI, String);
   check(presId, String);
-  check(typeOfExport, Match.Maybe(String));
+  check(typeOfExport, String);
 
-  if (typeOfExport === "Original") {
-    await setOriginalUriDownload(meetingId, presId, fileURI)
+  if (typeOfExport === 'Original') {
+    await setOriginalUriDownload(meetingId, presId, fileURI);
   } else {
     await sendExportedPresentationChatMsg(meetingId, presId, fileURI, typeOfExport);
   }

@@ -27,10 +27,6 @@ import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-
 public class SlidesGenerationProgressNotifier {
   private static Logger log = LoggerFactory.getLogger(SlidesGenerationProgressNotifier.class);
 

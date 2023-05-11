@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const DropdownMenuWrapper= styled.div`
+const DropdownMenuWrapper = styled.div`
     display: inline-block;
 
     &[aria-disabled="true"] {
@@ -12,5 +12,5 @@ const DropdownMenuWrapper= styled.div`
 `;
 
 export default {
-    DropdownMenuWrapper
+  DropdownMenuWrapper,
 };

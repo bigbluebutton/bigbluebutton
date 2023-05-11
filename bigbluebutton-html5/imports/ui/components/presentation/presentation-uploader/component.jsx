@@ -47,7 +47,7 @@ const propTypes = {
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   exportPresentation: PropTypes.func.isRequired,
-  getHasAnnotations: PropTypes.func.isRequired,
+  hasAnnotations: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -655,11 +655,11 @@ class PresentationUploader extends Component {
   }
 
   handleToggleDownloadable(item) {
-    const { dispatchTogglePresentationDownloadable, } = this.props;
+    const { dispatchTogglePresentationDownloadable } = this.props;
 
     const oldDownloadableState = item.isDownloadable;
 
-    dispatchTogglePresentationDownloadable(item, !oldDownloadableState)
+    dispatchTogglePresentationDownloadable(item, !oldDownloadableState);
   }
 
   handleDismiss() {
@@ -668,12 +668,12 @@ class PresentationUploader extends Component {
 
     const ids = new Set(propPresentations.map((d) => d.id));
 
-    const filteredPresentations = presentations.filter((d) => {
-      return !ids.has(d.id) && (d.upload.done || d.upload.progress !== 0)});
-    const isThereStateCurrentPres = filteredPresentations.some(p => p.isCurrent);
+    const filteredPresentations = presentations.filter((d) => !ids.has(d.id)
+      && (d.upload.done || d.upload.progress !== 0));
+    const isThereStateCurrentPres = filteredPresentations.some((p) => p.isCurrent);
     const merged = [
       ...filteredPresentations,
-      ...propPresentations.filter(p => {
+      ...propPresentations.filter((p) => {
         if (isThereStateCurrentPres) {
           p.isCurrent = false;
         }
@@ -696,7 +696,7 @@ class PresentationUploader extends Component {
       this.deepMergeUpdateFileKey(item.id, 'exportation', exportation);
 
       if (exportation.status === EXPORT_STATUSES.EXPORTED && stopped) {
-        if (type === "Original") {
+        if (type === 'Original') {
           if (!item.isDownloadable) {
             notify(intl.formatMessage(intlMessages.downloadButtonAvailable, { 0: item.filename }), 'success');
           }
@@ -709,7 +709,7 @@ class PresentationUploader extends Component {
         EXPORT_STATUSES.RUNNING,
         EXPORT_STATUSES.COLLECTING,
         EXPORT_STATUSES.PROCESSING,
-      ].includes(exportation.status) && type !== "Original") {
+      ].includes(exportation.status) && type !== 'Original') {
         this.setState((prevState) => {
           prevState.presExporting.add(item.id);
           return {
@@ -1004,7 +1004,7 @@ class PresentationUploader extends Component {
       selectedToBeNextCurrent,
       allowDownloadable,
       renderPresentationItemStatus,
-      getHasAnnotations,
+      hasAnnotations,
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent
@@ -1036,7 +1036,7 @@ class PresentationUploader extends Component {
 
     const formattedDownloadAriaLabel = `${formattedDownloadLabel} ${item.filename}`;
 
-    const hasAnnotations = getHasAnnotations(item.id);
+    const hasAnyAnnotation = hasAnnotations(item.id);
     return (
       <Styled.PresentationItem
         key={item.id}
@@ -1079,7 +1079,7 @@ class PresentationUploader extends Component {
           <Styled.TableItemActions notDownloadable={!allowDownloadable}>
             {allowDownloadable ? (
               <PresentationDownloadDropdown
-                hasAnnotations={hasAnnotations}
+                hasAnnotations={hasAnyAnnotation}
                 disabled={shouldDisableExportButton}
                 data-test="exportPresentation"
                 aria-label={formattedDownloadAriaLabel}
@@ -1088,7 +1088,8 @@ class PresentationUploader extends Component {
                 handleToggleDownloadable={this.handleToggleDownloadable}
                 item={item}
                 closeModal={() => Session.set('showUploadPresentationView', false)}
-                handleDownloadingOfPresentation={(type) => this.handleDownloadingOfPresentation(item, type)}
+                handleDownloadingOfPresentation={(type) => this
+                  .handleDownloadingOfPresentation(item, type)}
               />
             ) : null}
             {isRemovable ? (

@@ -38,13 +38,6 @@ async function handleAddedAnnotation({
   Annotations.upsert(query.selector, query.modifier);
 }
 
-const getHasAnnotations = (presentationId) => {
-  const ann = Annotations.find(
-    {},
-  ).fetch();
-  return ann.filter(a => a.whiteboardId.includes(presentationId)).length > 0;
-}
-
 function handleRemovedAnnotation({
   meetingId, whiteboardId, userId, shapeId,
 }) {
@@ -214,6 +207,13 @@ const getCurrentWhiteboardId = () => {
   );
 
   return currentSlide && currentSlide.id;
+};
+
+const hasAnnotations = (presentationId) => {
+  const ann = Annotations.findOne(
+    { whiteboardId: { $regex: `^${presentationId}` } },
+  );
+  return ann !== undefined;
 };
 
 const isMultiUserActive = (whiteboardId) => {
@@ -408,6 +408,6 @@ export {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
-  getHasAnnotations,
+  hasAnnotations,
   toggleToolsAnimations,
 };

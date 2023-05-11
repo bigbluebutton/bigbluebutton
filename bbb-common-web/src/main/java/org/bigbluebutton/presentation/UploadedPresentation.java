@@ -188,9 +188,9 @@ public final class UploadedPresentation {
     }
   }
 
-  public void generatePresentationConvertedName() {
+  public void generatePresentationConvertedName(String newExtension) {
     String nameWithoutExtension = FilenameUtils.removeExtension(name);
-    this.presentationConvertedName = nameWithoutExtension.concat(".pdf");;
+    this.presentationConvertedName = nameWithoutExtension.concat("." + newExtension);
   }
 
   public void deleteOriginalFile() {

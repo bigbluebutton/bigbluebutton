@@ -22,8 +22,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
       pres <- pod.getPresentation(msg.body.presentation.id)
     } yield {
-      val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres, temporaryPresentationId)
-
+      val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres, temporaryPresentationId,
+        msg.body.presentation.presentationConvertedName)
       PresentationSender.broadcastPresentationConversionCompletedEvtMsg(
         bus,
         meetingId,
@@ -32,7 +32,6 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         msg.body.messageKey,
         msg.body.code,
         presVO,
-        msg.body.presentationConvertedName
       )
       PresentationSender.broadcastSetPresentationDownloadableEvtMsg(
         bus,
@@ -45,7 +44,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       )
 
       val presWithConvertedName = PresentationInPod(pres.id, pres.name, pres.current, pres.pages,
-        pres.downloadable, pres.removable, msg.body.presentationConvertedName)
+        pres.downloadable, pres.removable, msg.body.presentation.presentationConvertedName)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 

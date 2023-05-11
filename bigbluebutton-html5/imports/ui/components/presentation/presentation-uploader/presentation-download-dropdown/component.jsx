@@ -1,9 +1,10 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { uniqueId } from '/imports/utils/string-utils';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
-import PresentationDownloadDropdownWrapper from './presentation-download-dropdown-wrapper/component'
+import PresentationDownloadDropdownWrapper from './presentation-download-dropdown-wrapper/component';
 
 const intlMessages = defineMessages({
   enableOriginalPresentationDownload: {
@@ -32,6 +33,31 @@ const intlMessages = defineMessages({
   },
 });
 
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  handleDownloadingOfPresentation: PropTypes.func.isRequired,
+  handleToggleDownloadable: PropTypes.func.isRequired,
+  isDownloadable: PropTypes.bool.isRequired,
+  item: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    filename: PropTypes.string.isRequired,
+    isCurrent: PropTypes.bool.isRequired,
+    temporaryPresentationId: PropTypes.string.isRequired,
+    isDownloadable: PropTypes.bool.isRequired,
+    isRemovable: PropTypes.bool.isRequired,
+    conversion: PropTypes.shape,
+    upload: PropTypes.shape,
+    exportation: PropTypes.shape,
+    uploadTimestamp: PropTypes.number.isRequired,
+  }).isRequired,
+  closeModal: PropTypes.func.isRequired,
+  hasAnnotations: PropTypes.bool.isRequired,
+  isRTL: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool.isRequired,
+};
+
 class PresentationDownloadDropdown extends PureComponent {
   constructor(props) {
     super(props);
@@ -51,7 +77,7 @@ class PresentationDownloadDropdown extends PureComponent {
       isDownloadable,
       item,
       closeModal,
-      hasAnnotations
+      hasAnnotations,
     } = this.props;
 
     this.menuItems = [];
@@ -59,10 +85,10 @@ class PresentationDownloadDropdown extends PureComponent {
     const toggleDownloadOriginalPresentation = (enableDownload) => {
       handleToggleDownloadable(item);
       if (enableDownload) {
-        handleDownloadingOfPresentation("Original");
+        handleDownloadingOfPresentation('Original');
       }
       closeModal();
-    }
+    };
 
     if (!isDownloadable) {
       this.menuItems.push(
@@ -82,7 +108,7 @@ class PresentationDownloadDropdown extends PureComponent {
           onClick: () => toggleDownloadOriginalPresentation(false),
         },
       );
-    } 
+    }
 
     if (hasAnnotations) {
       this.menuItems.push(
@@ -93,7 +119,7 @@ class PresentationDownloadDropdown extends PureComponent {
           label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
           onClick: () => {
             closeModal();
-            handleDownloadingOfPresentation("Annotated");
+            handleDownloadingOfPresentation('Annotated');
           },
         },
       );
@@ -106,7 +132,7 @@ class PresentationDownloadDropdown extends PureComponent {
     const {
       intl,
       isRTL,
-      disabled
+      disabled,
     } = this.props;
 
     return (
@@ -115,13 +141,15 @@ class PresentationDownloadDropdown extends PureComponent {
       >
         <BBBMenu
           trigger={
-            <Trigger
-              data-test="presentationOptionsDownload"
-              icon="more"
-              label={intl.formatMessage(intlMessages.options)}
-              aria-label={intl.formatMessage(intlMessages.options)}
-              onClick={() => null}
-            />                    
+            (
+              <Trigger
+                data-test="presentationOptionsDownload"
+                icon="more"
+                label={intl.formatMessage(intlMessages.options)}
+                aria-label={intl.formatMessage(intlMessages.options)}
+                onClick={() => null}
+              />
+            )
           }
           opts={{
             id: 'presentation-download-dropdown',
@@ -139,5 +167,7 @@ class PresentationDownloadDropdown extends PureComponent {
     );
   }
 }
+
+PresentationDownloadDropdown.propTypes = propTypes;
 
 export default injectIntl(PresentationDownloadDropdown);

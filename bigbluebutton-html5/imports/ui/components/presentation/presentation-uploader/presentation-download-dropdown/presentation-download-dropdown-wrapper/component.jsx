@@ -1,7 +1,21 @@
-
-
 import React, { PureComponent } from 'react';
-import Styled from './styles'
+import PropTypes from 'prop-types';
+import Styled from './styles';
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  children: PropTypes.shape.isRequired,
+  disabled: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+  onDoubleClick: PropTypes.func.isRequired,
+  onMouseDown: PropTypes.func.isRequired,
+  onMouseUp: PropTypes.func.isRequired,
+  onKeyPress: PropTypes.func.isRequired,
+  onKeyDown: PropTypes.func.isRequired,
+  onKeyUp: PropTypes.func.isRequired,
+};
 
 class PresentationDownloadDropdownWrapper extends PureComponent {
   constructor(props) {
@@ -20,7 +34,8 @@ class PresentationDownloadDropdownWrapper extends PureComponent {
   }
 
   validateDisabled(eventHandler, ...args) {
-    if (!this.props.disabled && typeof eventHandler === 'function') {
+    const { disabled } = this.props;
+    if (!disabled && typeof eventHandler === 'function') {
       return eventHandler(...args);
     }
 
@@ -29,32 +44,39 @@ class PresentationDownloadDropdownWrapper extends PureComponent {
 
   // Define Mouse Event Handlers
   internalClickHandler(...args) {
-    return this.validateDisabled(this.props.onClick, ...args);
+    const { onClick } = this.props;
+    return this.validateDisabled(onClick, ...args);
   }
 
   internalDoubleClickHandler(...args) {
-    return this.validateDisabled(this.props.onDoubleClick, ...args);
+    const { onDoubleClick } = this.props;
+    return this.validateDisabled(onDoubleClick, ...args);
   }
 
   internalMouseDownHandler(...args) {
-    return this.validateDisabled(this.props.onMouseDown, ...args);
+    const { onMouseDown } = this.props;
+    return this.validateDisabled(onMouseDown, ...args);
   }
 
   internalMouseUpHandler(...args) {
-    return this.validateDisabled(this.props.onMouseUp, ...args);
+    const { onMouseUp } = this.props;
+    return this.validateDisabled(onMouseUp, ...args);
   }
 
   // Define Keyboard Event Handlers
   internalKeyPressHandler(...args) {
-    return this.validateDisabled(this.props.onKeyPress, ...args);
+    const { onKeyPress } = this.props;
+    return this.validateDisabled(onKeyPress, ...args);
   }
 
   internalKeyDownHandler(...args) {
-    return this.validateDisabled(this.props.onKeyDown, ...args);
+    const { onKeyDown } = this.props;
+    return this.validateDisabled(onKeyDown, ...args);
   }
 
   internalKeyUpHandler(...args) {
-    return this.validateDisabled(this.props.onKeyUp, ...args);
+    const { onKeyUp } = this.props;
+    return this.validateDisabled(onKeyUp, ...args);
   }
 
   render() {
@@ -67,13 +89,11 @@ class PresentationDownloadDropdownWrapper extends PureComponent {
       <Styled.DropdownMenuWrapper
         disabled={disabled}
         aria-disabled={disabled}
-
         // Render Mouse event handlers
         onClick={this.internalClickHandler}
         onDoubleClick={this.internalDoubleClickHandler}
         onMouseDown={this.internalMouseDownHandler}
         onMouseUp={this.internalMouseUpHandler}
-
         // Render Keyboard event handlers
         onKeyPress={this.internalKeyPressHandler}
         onKeyDown={this.internalKeyDownHandler}
@@ -84,5 +104,7 @@ class PresentationDownloadDropdownWrapper extends PureComponent {
     );
   }
 }
+
+PresentationDownloadDropdownWrapper.propTypes = propTypes;
 
 export default PresentationDownloadDropdownWrapper;
