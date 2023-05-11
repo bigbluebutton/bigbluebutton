@@ -234,6 +234,9 @@ export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
+  onVideoItemMount: () => {},
+  onVideoItemUnmount: () => {},
+  onVirtualBgDrop: () => {},
 };
 
 VideoListItem.propTypes = {
@@ -244,8 +247,9 @@ VideoListItem.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   onHandleVideoFocus: PropTypes.func.isRequired,
-  onVideoItemMount: PropTypes.func.isRequired,
-  onVideoItemUnmount: PropTypes.func.isRequired,
+  onVideoItemMount: PropTypes.func,
+  onVideoItemUnmount: PropTypes.func,
+  onVirtualBgDrop: PropTypes.func,
   isFullscreenContext: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   user: PropTypes.shape({
