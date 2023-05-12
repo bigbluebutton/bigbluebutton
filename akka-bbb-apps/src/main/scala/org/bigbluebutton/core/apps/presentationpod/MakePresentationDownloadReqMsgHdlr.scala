@@ -163,7 +163,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         log.error("There is no annotations for presentation with Id {}... Ignoring", presId)
       } else if (isOriginalPresentationType) {
         // Return existing uploaded file directly
-        val convertedFileName = currentPres.get.presentationConvertedName
+        val convertedFileName = currentPres.get.filenameConverted
         val filename = if (convertedFileName == "") currentPres.get.name else convertedFileName
         val presFilenameExt = filename.split("\\.").last
 

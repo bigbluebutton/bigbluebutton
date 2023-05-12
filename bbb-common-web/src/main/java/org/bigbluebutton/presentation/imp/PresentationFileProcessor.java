@@ -73,7 +73,7 @@ public class PresentationFileProcessor {
 
     private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
-            pres.generatePresentationConvertedName("pdf");
+            pres.generateFilenameConverted("pdf");
             determineNumberOfPages(pres);
             sendDocPageConversionStartedProgress(pres);
             PresentationConvertMessage msg = new PresentationConvertMessage(pres);

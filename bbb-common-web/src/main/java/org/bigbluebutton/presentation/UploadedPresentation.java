@@ -35,7 +35,7 @@ public final class UploadedPresentation {
   private String fileType = "unknown";
   private int numberOfPages = 0;
   private String conversionStatus;
-  private String presentationConvertedName;
+  private String filenameConverted;
   private final String baseUrl;
   private boolean isDownloadable = false;
   private boolean isRemovable = true;
@@ -180,17 +180,17 @@ public final class UploadedPresentation {
     return uploadFailReason;
   }
 
-  public String getPresentationConvertedName() {
-    if (presentationConvertedName != null) {
-      return presentationConvertedName;
+  public String getFilenameConverted() {
+    if (filenameConverted != null) {
+      return filenameConverted;
     } else {
       return "";
     }
   }
 
-  public void generatePresentationConvertedName(String newExtension) {
+  public void generateFilenameConverted(String newExtension) {
     String nameWithoutExtension = FilenameUtils.removeExtension(name);
-    this.presentationConvertedName = nameWithoutExtension.concat("." + newExtension);
+    this.filenameConverted = nameWithoutExtension.concat("." + newExtension);
   }
 
   public void deleteOriginalFile() {

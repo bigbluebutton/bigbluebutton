@@ -51,7 +51,7 @@ export default async function addPresentation(meetingId, podId, presentation) {
     ],
     downloadable: Boolean,
     removable: Boolean,
-    presentationConvertedName: String,
+    filenameConverted: String,
   });
 
   const selector = {
