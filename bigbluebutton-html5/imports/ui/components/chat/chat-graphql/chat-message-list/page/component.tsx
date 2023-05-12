@@ -23,7 +23,7 @@ interface ChatListPageProps {
 const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage }) => {  
   
   return (
-    <span>
+    <span style={{ border: '1px solid red'}}>
       {
         messages.map((message, index, Array) => {
           const previousMessage = Array[index-1];
@@ -53,7 +53,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     error: chatMessageError,
   } = useSubscription<ChatMessageSubscriptionResponse>(
     CHAT_MESSAGE_SUBSCRIPTION,
-    { variables: { offset: (page-1)*pageSize, limit: pageSize-1 } }
+    { variables: { offset: (page-1)*pageSize, limit: pageSize } }
   );
   if (chatMessageError) return <p>chatMessageError: {chatMessageError}</p>;
   if (chatMessageLoading) return null;
