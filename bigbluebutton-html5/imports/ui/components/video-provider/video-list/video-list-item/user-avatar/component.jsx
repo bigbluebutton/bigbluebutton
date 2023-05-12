@@ -5,13 +5,15 @@ import Icon from '/imports/ui/components/common/icon/component';
 import UserListService from '/imports/ui/components/user-list/service';
 
 const UserAvatarVideo = (props) => {
-  const { user, unhealthyStream, squeezed } = props;
+  const { user, unhealthyStream, squeezed, voiceUser } = props;
   const {
     name, color, avatar, role, emoji,
   } = user;
   let {
     presenter, clientType,
   } = user;
+
+  const { muted, talking } = voiceUser;
 
   const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -37,6 +39,8 @@ const UserAvatarVideo = (props) => {
       emoji={emoji !== 'none'}
       avatar={avatar}
       unhealthyStream={unhealthyStream}
+      talking={talking}
+      muted={muted}
     >
       {handleUserIcon()}
     </Styled.UserAvatarStyled>
