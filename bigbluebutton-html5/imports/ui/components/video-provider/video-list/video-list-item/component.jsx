@@ -22,7 +22,7 @@ const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, dragging, draggingOver, isRTL
+    makeDragOperations, dragging, draggingOver, isRTL, isStream,
   } = props;
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
@@ -115,6 +115,7 @@ const VideoListItem = (props) => {
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
       isRTL={isRTL}
+      isStream={isStream}
     />
   );
 
@@ -139,6 +140,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
+          isStream={isStream}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -185,6 +187,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
+          isStream={isStream}
         />
         <UserStatus
           voiceUser={voiceUser}

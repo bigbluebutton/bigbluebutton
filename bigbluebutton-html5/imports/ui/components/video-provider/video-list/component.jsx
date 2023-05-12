@@ -326,7 +326,8 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             focused={false}
-            onVideoItemMount={(videoRef) => {
+            isStream={false}
+            onVideoItemMount={() => {
               this.handleCanvasResize();
             }}
             onVideoItemUnmount={onVideoItemUnmount}
@@ -352,6 +353,7 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             focused={isFocused}
+            isStream={true}
             onHandleVideoFocus={handleVideoFocus}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();

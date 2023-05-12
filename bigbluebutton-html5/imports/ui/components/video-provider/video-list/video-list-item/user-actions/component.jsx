@@ -51,7 +51,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL,
+    isVideoSqueezed, videoContainer, isRTL, isStream,
   } = props;
 
   const intl = useIntl();
@@ -93,7 +93,7 @@ const UserActions = (props) => {
       dataTest: 'mirrorWebcamBtn',
     });
 
-    if (numOfStreams > 2) {
+    if (numOfStreams > 2 && isStream) {
       menuItems.push({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
@@ -103,7 +103,7 @@ const UserActions = (props) => {
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser()) {
+    if (VideoService.isVideoPinEnabledForCurrentUser() && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
