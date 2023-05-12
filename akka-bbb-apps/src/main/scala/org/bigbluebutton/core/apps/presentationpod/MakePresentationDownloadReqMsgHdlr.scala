@@ -11,8 +11,6 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Calendar
 
 trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
