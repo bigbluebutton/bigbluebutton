@@ -231,7 +231,7 @@ public class PresentationUrlDownloadService {
 
             if(presentationDownloadSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
                 if(presentationDownloadSupportedProtocols.size() == 1 && presentationDownloadSupportedProtocols.get(0).equalsIgnoreCase("*")) {
-                    log.info("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
+                    log.warn("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
                 } else {
                     log.error("Invalid protocol [{}]", protocol);
                     return false;
