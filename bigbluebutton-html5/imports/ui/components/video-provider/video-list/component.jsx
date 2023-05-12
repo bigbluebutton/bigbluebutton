@@ -95,12 +95,13 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock, streams, focusedId } = this.props;
+    const { layoutType, cameraDock, streams, focusedId, isGridEnabled, users } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
       streams: prevStreams,
+      users: prevUsers,
       focusedId: prevFocusedId,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
@@ -111,6 +112,7 @@ class VideoList extends Component {
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
+      || (isGridEnabled && users?.length !== prevUsers?.length)
       || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
