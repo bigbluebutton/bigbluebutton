@@ -15,6 +15,7 @@ import {
   isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
+  setOutputDeviceId,
   getMediaElement,
   getMediaElementDimensions,
   attachLocalPreviewStream,
@@ -116,9 +117,10 @@ class ScreenshareComponent extends React.Component {
       layoutContextDispatch,
       intl,
       isPresenter,
+      outputDeviceId,
     } = this.props;
 
-    screenshareHasStarted(isPresenter);
+    screenshareHasStarted(isPresenter, outputDeviceId);
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections
@@ -142,9 +144,12 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isPresenter } = this.props;
+    const { isPresenter, outputDeviceId } = this.props;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
+    }
+    if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
+      setOutputDeviceId();
     }
   }
 

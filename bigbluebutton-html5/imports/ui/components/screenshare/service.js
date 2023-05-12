@@ -12,6 +12,10 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
 import NotesService from '/imports/ui/components/notes/service';
+import SCREENSHARE_VIDEO_TAG from '/imports/api/screenshare/client/bridge/kurento';
+import {
+  reloadAudioElement,
+} from '/imports/api/audio/client/bridge/service';
 
 const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
@@ -144,10 +148,47 @@ const attachLocalPreviewStream = (mediaElement) => {
   }
 }
 
-const screenshareHasStarted = (isPresenter) => {
+const setOutputDeviceId = (outputDeviceId) => {
+  const screenShareElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+  const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
+
+  if (typeof outputDeviceId === 'string' && sinkIdSupported) {
+    try {
+      screenShareElement.setSinkId(outputDeviceId);
+      reloadAudioElement(screenShareElement);
+      logger.debug({
+        logCode: 'audiomanager_output_device_change',
+        extraInfo: {
+          newDeviceId: outputDeviceId,
+        },
+      }, `ScreenShareAudio output device changed: to ${outputDeviceId || 'default'}`);
+    } catch (error) {
+      logger.error({
+        logCode: 'audiomanager_output_device_change_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          newDeviceId: outputDeviceId,
+        },
+      }, `Error changing output device - {${error.name}: ${error.message}}`);
+
+      // Rollback/enforce current sinkId (if possible)
+      // if (sinkIdSupported) {
+      //   this.outputDeviceId = getCurrentAudioSinkId();
+      // } else {
+      //   this.outputDeviceId = currentDeviceId;
+      // }
+
+      throw error;
+    }
+  }
+};
+
+const screenshareHasStarted = (isPresenter, ScreenShareAudioId) => {
   // Presenter's screen preview is local, so skip
   if (!isPresenter) {
     viewScreenshare();
+    setOutputDeviceId(ScreenShareAudioId);
   }
 };
 
