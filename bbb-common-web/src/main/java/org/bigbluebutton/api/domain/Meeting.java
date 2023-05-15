@@ -809,8 +809,8 @@ public class Meeting {
     	this.meetingEndedCallbackURL = meetingEndedCallbackURL;
     }
 
-	public Map<String, Object> getUserCustomData(String userID){
-		return (Map<String, Object>) userCustomData.get(userID);
+	public Map<String, String> getUserCustomData(String userID){
+		return (Map<String, String>) userCustomData.get(userID);
 	}
 
 	public void userRegistered(RegisteredUser user) {

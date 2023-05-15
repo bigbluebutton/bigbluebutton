@@ -349,8 +349,7 @@ class ApiController {
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
     //Currently, it's associated with the externalUserID
-    if (userCustomData.size() > 0)
-      meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
+    meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
 
     String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated)
 
@@ -422,7 +421,8 @@ class ApiController {
         us.authed,
         guestStatusVal,
         us.excludeFromDashboard,
-        us.leftGuestLobby
+        us.leftGuestLobby,
+        meeting.getUserCustomData(us.externUserID)
     )
 
     session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
