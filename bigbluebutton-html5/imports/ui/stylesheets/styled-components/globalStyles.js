@@ -38,7 +38,7 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${dropdownBg};
     border-radius: ${borderRadius};
     border: 0;
-    z-index: 9999;
+    z-index: 999;
     max-width: 22rem;
   }
 
@@ -138,7 +138,7 @@ const GlobalStyle = createGlobalStyle`
     right: auto;
     width: 0;
     height: 5px;
-    z-index: 9999;
+    z-index: 999;
     animation: track-progress linear 1;
     background-color: ${colorGrayLighter};
     border-radius: ${borderRadius};
