@@ -46,6 +46,24 @@ test.describe.parallel('Presentation', () => {
     await presentation.presentationSnapshot(testInfo);
   });
 
+  test('Hide Presentation Toolbar', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.hidePresentationToolbar();
+  });
+
+  test('Zoom In, Zoom Out, Reset Zoom', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.zoom();
+  });
+
+  test('Select Slide', async ({ browser, context, page }) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page);
+    await presentation.selectSlide();
+  });
+
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
     test('Upload single presentation @ci', async ({ browser, context, page }) => {
