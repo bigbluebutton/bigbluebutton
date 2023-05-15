@@ -36,6 +36,7 @@ const propTypes = {
     conversion: PropTypes.shape,
     upload: PropTypes.shape,
   })).isRequired,
+  currentPresentation: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
   handleFiledrop: PropTypes.func.isRequired,
   selectedToBeNextCurrent: PropTypes.string,
@@ -53,7 +54,7 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  current: {
+  currentBadge: {
     id: 'app.presentationUploder.currentBadge',
   },
   title: {
@@ -357,7 +358,7 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isOpen, presentations: propPresentations, intl } = this.props;
+    const { isOpen, presentations: propPresentations, currentPresentation, intl } = this.props;
     const { presentations } = this.state;
     const { presentations: prevPropPresentations } = prevProps;
 
@@ -432,7 +433,7 @@ class PresentationUploader extends Component {
       unregisterTitleView();
     }
 
-    // Updates presentation list when chat modal opens to avoid missing presentations
+    // Updates presentation list when modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
       registerTitleView(intl.formatMessage(intlMessages.uploadViewTitle));
       const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -456,6 +457,10 @@ class PresentationUploader extends Component {
           e.preventDefault();
         }
       });
+    }
+
+    if (currentPresentation && currentPresentation !== prevProps.currentPresentation) {
+       this.handleCurrentChange(currentPresentation);
     }
 
     if (presentations.length > 0) {
@@ -547,7 +552,7 @@ class PresentationUploader extends Component {
   handleCurrentChange(id) {
     const { presentations, disableActions } = this.state;
 
-    if (disableActions) return;
+    if (disableActions || presentations?.length === 0) return;
 
     const currentIndex = presentations.findIndex((p) => p.isCurrent);
     const newCurrentIndex = presentations.findIndex((p) => p.id === id);
@@ -1039,7 +1044,7 @@ class PresentationUploader extends Component {
             ? (
               <Styled.TableItemCurrent>
                 <Styled.CurrentLabel>
-                  {intl.formatMessage(intlMessages.current)}
+                  {intl.formatMessage(intlMessages.currentBadge)}
                 </Styled.CurrentLabel>
               </Styled.TableItemCurrent>
             )

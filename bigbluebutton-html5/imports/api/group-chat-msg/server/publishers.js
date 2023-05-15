@@ -6,8 +6,7 @@ import GroupChat from '/imports/api/group-chat';
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation, { ValidationStates } from '/imports/api/auth-token-validation';
 
-async function groupChatMsg(chatCount) {
-  check(chatCount, Number);
+async function groupChatMsg() {
   const tokenValidation = await AuthTokenValidation
     .findOneAsync({ connectionId: this.connection.id });
 
@@ -36,10 +35,10 @@ async function groupChatMsg(chatCount) {
     timestamp: { $gte: User.authTokenValidatedTime },
     $or: [
       { meetingId, chatId: { $eq: PUBLIC_GROUP_CHAT_ID } },
-      { meetingId, chatId: { $in: chatsIds } },
+      { meetingId, participants: { $in: [userId] } },
     ],
   };
-  return GroupChatMsg.find(selector);
+  return GroupChatMsg.find(selector, { fields: { participants: 0 } });
 }
 
 function publish(...args) {

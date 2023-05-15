@@ -209,7 +209,7 @@ const QuickPollDropdown = (props) => {
 
         setTimeout(() => {
           handleClickQuickPoll(layoutContextDispatch);
-          if (singlePollType === 'R-' || singlePollType === 'TF') {
+          if (singlePollType === 'R-' || singlePollType === 'TF' || singlePollType === 'YN') {
             startPoll(singlePollType, currentSlide.id, answers, pollQuestion, multiResponse);
           } else {
             startPoll(
