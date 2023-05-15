@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Session } from 'meteor/session';
 import { defineMessages, injectIntl } from 'react-intl';
@@ -35,6 +35,18 @@ const intlMessages = defineMessages({
     id: 'app.timer.button.reset',
     description: 'Timer reset button',
   },
+  hours: {
+    id: 'app.timer.hours',
+    description: 'Timer hours label',
+  },
+  minutes: {
+    id: 'app.timer.minutes',
+    description: 'Timer minutes label',
+  },
+  seconds: {
+    id: 'app.timer.seconds',
+    description: 'Timer seconds label',
+  },
 });
 
 const propTypes = {
@@ -43,22 +55,87 @@ const propTypes = {
   }).isRequired,
 };
 
-class Timer extends PureComponent {
+class Timer extends Component {
   constructor(props) {
     super(props);
 
-    this.handleControlClick = this.handleControlClick.bind(this);
-    this.handleSwitchToStopwatch = this.handleSwitchToStopwatch.bind(this);
-    this.handleSwitchToTimer = this.handleSwitchToTimer.bind(this);
-    this.handleOnHoursChange = this.handleOnHoursChange.bind(this);
-    this.handleOnMinutesChange = this.handleOnMinutesChange.bind(this);
-    this.handleOnSecondsChange = this.handleOnSecondsChange.bind(this);
+    this.timeRef = React.createRef();
+    this.interval = null;
+
+    this.updateTime = this.updateTime.bind(this);
+  }
+
+  componentDidMount() {
+    const { timer } = this.props;
+    const { running } = timer;
+
+    const { current } = this.timeRef;
+    if (current && running) {
+      this.interval = setInterval(this.updateTime, Service.getInterval());
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { timer } = this.props;
+    const { timer: prevTimer } = prevProps;
+
+    this.updateInterval(prevTimer, timer);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  updateInterval(prevTimer, timer) {
+    const { running } = timer;
+    const { running: prevRunning } = prevTimer;
+
+    if (!prevRunning && running) {
+      this.interval = setInterval(this.updateTime, Service.getInterval());
+    }
+
+    if (prevRunning && !running) {
+      clearInterval(this.interval);
+    }
+  }
+
+  getTime() {
+    const {
+      timer,
+      timeOffset,
+    } = this.props;
+
+    const {
+      stopwatch,
+      running,
+      time,
+      accumulated,
+      timestamp,
+    } = timer;
+
+    const elapsedTime = Service.getElapsedTime(running, timestamp, timeOffset, accumulated);
+
+    let updatedTime;
+    if (stopwatch) {
+      updatedTime = elapsedTime;
+    } else {
+      updatedTime = Math.max(time - elapsedTime, 0);
+    }
+
+    return Service.getTimeAsString(updatedTime, stopwatch);
+  }
+
+  updateTime() {
+    const { current } = this.timeRef;
+    if (current) {
+      current.textContent = this.getTime();
+    }
   }
 
   handleControlClick() {
-    const { timerStatus } = this.props;
+    const { timer } = this.props;
 
-    if (timerStatus.running) {
+    if (timer.running) {
       Service.stopTimer();
     } else {
       Service.startTimer();
@@ -66,47 +143,47 @@ class Timer extends PureComponent {
   }
 
   handleOnHoursChange(event) {
-    const { timerStatus } = this.props;
+    const { timer } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const hours = parseInt(target.value);
-      Service.setHours(hours, timerStatus.time);
+      Service.setHours(hours, timer.time);
     }
   }
 
   handleOnMinutesChange(event) {
-    const { timerStatus } = this.props;
+    const { timer } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const minutes = parseInt(target.value);
-      Service.setMinutes(minutes, timerStatus.time);
+      Service.setMinutes(minutes, timer.time);
     }
   }
 
   handleOnSecondsChange(event) {
-    const { timerStatus } = this.props;
+    const { timer } = this.props;
     const { target } = event;
 
     if (target && target.value) {
       const seconds = parseInt(target.value);
-      Service.setSeconds(seconds, timerStatus.time);
+      Service.setSeconds(seconds, timer.time);
     }
   }
 
   handleSwitchToStopwatch() {
-    const { timerStatus } = this.props;
+    const { timer } = this.props;
 
-    if (!timerStatus.stopwatch) {
+    if (!timer.stopwatch) {
       Service.switchTimer(true);
     }
   }
 
   handleSwitchToTimer() {
-    const { timerStatus } = this.props;
+    const { timer } = this.props;
 
-    if (timerStatus.stopwatch) {
+    if (timer.stopwatch) {
       Service.switchTimer(false);
     }
   }
@@ -114,10 +191,10 @@ class Timer extends PureComponent {
   renderControls() {
     const {
       intl,
-      timerStatus,
+      timer,
     } = this.props;
 
-    const { running } = timerStatus;
+    const { running } = timer;
 
     const label = running ? intlMessages.stop : intlMessages.start;
 
@@ -126,7 +203,7 @@ class Timer extends PureComponent {
         <Styled.TimerControlButton
           color="primary"
           label={intl.formatMessage(label)}
-          onClick={this.handleControlClick}
+          onClick={() => this.handleControlClick()}
         />
         <Styled.TimerControlButton
           label={intl.formatMessage(intlMessages.reset)}
@@ -136,42 +213,16 @@ class Timer extends PureComponent {
     );
   }
 
-  renderPreset() {
-    const { timerStatus } = this.props;
-    const preset = Service.getPreset();
-
-    return (
-      <Styled.TimerPreset>
-        {preset.map((p, index) => {
-          const label = Service.buildPresetLabel(p);
-
-          return (
-            <Styled.TimerLine
-              key={index}
-            >
-              <Styled.TimerPresetButton
-                label="-"
-                onClick={() => Service.subtractTime(p, timerStatus.time)}
-              />
-              <Styled.TimerPresetButton
-                color="primary"
-                label={label}
-                onClick={() => Service.setTime(p)}
-              />
-              <Styled.TimerPresetButton
-                label="+"
-                onClick={() => Service.addTime(p, timerStatus.time)}
-              />
-            </Styled.TimerLine>
-          );
-        })}
-      </Styled.TimerPreset>
-    );
-  }
-
   renderTimer() {
-    const { timerStatus } = this.props;
-    const { time } = timerStatus;
+    const {
+      intl,
+      timer,
+    } = this.props;
+
+    const {
+      time,
+      stopwatch,
+    } = timer;
 
     const timeArray = Service.getTimeAsString(time).split(':');
 
@@ -186,32 +237,34 @@ class Timer extends PureComponent {
         <Styled.StopwatchTime>
           <input
             type="number"
+            disabled={stopwatch}
             value={hours}
             maxLength="2"
             max={Service.getMaxHours()}
             min="0"
-            onChange={this.handleOnHoursChange}
+            onChange={(event) => this.handleOnHoursChange(event)}
           />
           <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
           <input
             type="number"
+            disabled={stopwatch}
             value={minutes}
             maxLength="2"
             max="59"
             min="0"
-            onChange={this.handleOnMinutesChange}
+            onChange={(event) => this.handleOnMinutesChange(event)}
           />
           <Styled.StopwatchTimeColon>:</Styled.StopwatchTimeColon>
           <input
             type="number"
+            disabled={stopwatch}
             value={seconds}
             maxLength="2"
             max="59"
             min="0"
-            onChange={this.handleOnSecondsChange}
+            onChange={(event) => this.handleOnSecondsChange(event)}
           />
         </Styled.StopwatchTime>
-        {this.renderPreset()}
         {this.renderControls()}
       </div>
     );
@@ -220,26 +273,29 @@ class Timer extends PureComponent {
   renderContent() {
     const {
       intl,
-      timerStatus,
+      timer,
     } = this.props;
 
-    const { stopwatch } = timerStatus;
+    const { stopwatch } = timer;
 
     return (
       <Styled.TimerContent>
+        <Styled.TimerCurrent>
+          {this.getTime()}
+        </Styled.TimerCurrent>
         <Styled.TimerType>
           <Styled.TimerSwitchButton
             color={stopwatch ? 'primary' : 'default'}
             label={intl.formatMessage(intlMessages.stopwatch)}
-            onClick={this.handleSwitchToStopwatch}
+            onClick={() => this.handleSwitchToStopwatch()}
           />
           <Styled.TimerSwitchButton
             color={stopwatch ? 'default' : 'primary'}
             label={intl.formatMessage(intlMessages.timer)}
-            onClick={this.handleSwitchToTimer}
+            onClick={() => this.handleSwitchToTimer()}
           />
         </Styled.TimerType>
-        {stopwatch ? this.renderControls() : this.renderTimer()}
+        {this.renderTimer()}
       </Styled.TimerContent>
     );
   }
@@ -251,12 +307,16 @@ class Timer extends PureComponent {
       isActive,
       isModerator,
       layoutContextDispatch,
+      timer,
     } = this.props;
 
     if (!isActive || !isModerator) {
       Service.closePanel(layoutContextDispatch)
       return null;
     }
+
+    const { stopwatch } = timer;
+    const message = stopwatch ? intlMessages.stopwatch : intlMessages.timer;
 
     return (
       <Styled.TimerSidebarContent
@@ -269,7 +329,7 @@ class Timer extends PureComponent {
             <Styled.TimerMinimizeButton
               onClick={() => Service.closePanel(layoutContextDispatch)}
               aria-label={intl.formatMessage(intlMessages.hideTimerLabel)}
-              label={intl.formatMessage(intlMessages.title)}
+              label={intl.formatMessage(message)}
               icon={isRTL ? "right_arrow" : "left_arrow"}
             />
           </Styled.TimerTitle>

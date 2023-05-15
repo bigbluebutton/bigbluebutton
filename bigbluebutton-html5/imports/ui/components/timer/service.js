@@ -42,12 +42,6 @@ const getDefaultTime = () => TIMER_CONFIG.time * MILLI_IN_MINUTE;
 
 const getInterval = () => TIMER_CONFIG.interval.clock;
 
-const getPreset = () => {
-  const { preset } = TIMER_CONFIG;
-
-  return preset.map(minutes => minutes * MILLI_IN_MINUTE);
-};
-
 const isRunning = () => {
   const timer = Timer.findOne(
     { meetingId: Auth.meetingID },
@@ -112,6 +106,17 @@ const getElapsedTime = (running, timestamp, timeOffset, accumulated) => {
   return accumulated + Math.abs(now - timestamp + timeOffset);
 };
 
+const getStopwatch = () => {
+  const timer = Timer.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { stopwatch: 1 } },
+  );
+
+  if (timer) return timer.stopwatch;
+
+  return true;
+};
+
 const getTimer = () => {
   const timer = Timer.findOne(
     { meetingId: Auth.meetingID },
@@ -153,39 +158,6 @@ const getTimer = () => {
   }
 };
 
-const getTimerStatus = () => {
-  const timerStatus = Timer.findOne(
-    { meetingId: Auth.meetingID },
-    { fields:
-      {
-        stopwatch: 1,
-        running: 1,
-        time: 1,
-      },
-    },
-  );
-
-  if (timerStatus) {
-    const {
-      stopwatch,
-      running,
-      time,
-    } = timerStatus;
-
-    return {
-      stopwatch,
-      running,
-      time,
-    }
-  }
-
-  return {
-    stopwatch: true,
-    running: false,
-    time: getDefaultTime(),
-  }
-};
-
 const getTimeAsString = (time, stopwatch) => {
   let milliseconds = time;
 
@@ -198,45 +170,24 @@ const getTimeAsString = (time, stopwatch) => {
   let seconds = Math.floor((milliseconds - mHours - mMinutes) / MILLI_IN_SECOND);
   const mSeconds = seconds * MILLI_IN_SECOND;
 
-  milliseconds = milliseconds - mHours - mMinutes - mSeconds;
-
   let timeAsString = '';
 
-  // Only add hour if it exists
-  if (hours > 0) {
-    if (hours < 10) {
-      timeAsString += `0${hours}:`;
-    } else {
-      timeAsString += `${hours}:`;
-    }
+  if (hours < 10) {
+    timeAsString += `0${hours}:`;
+  } else {
+    timeAsString += `${hours}:`;
   }
 
-  // Add minute if exists, has at least an hour
-  // or is not stopwatch
-  if (minutes > 0 || hours > 0 || !stopwatch) {
-    if (minutes < 10) {
-      timeAsString += `0${minutes}:`;
-    } else {
-      timeAsString += `${minutes}:`;
-    }
+  if (minutes < 10) {
+    timeAsString += `0${minutes}:`;
+  } else {
+    timeAsString += `${minutes}:`;
   }
 
-  // Always add seconds
   if (seconds < 10) {
     timeAsString += `0${seconds}`;
   } else {
     timeAsString += `${seconds}`;
-  }
-
-  // Only add milliseconds if it's a stopwatch
-  if (stopwatch) {
-    if (milliseconds < 10) {
-      timeAsString += `:00${milliseconds}`;
-    } else if (milliseconds < 100) {
-      timeAsString += `:0${milliseconds}`;
-    } else {
-      timeAsString += `:${milliseconds}`;
-    }
   }
 
   return timeAsString;
@@ -317,42 +268,6 @@ const setSeconds = (seconds, time) => {
   }
 };
 
-const subtractTime = (preset, time) => {
-  if (!isNaN(preset)) {
-    const min = 0;
-    setTimer(Math.max(time - preset, min));
-  } else {
-    Logger.warn('Invalid time');
-  }
-};
-
-const setTime = (preset) => {
-  if (!isNaN(preset)) {
-    setTimer(preset);
-  } else {
-    Logger.warn('Invalid time');
-  }
-};
-
-const addTime = (preset, time) => {
-  if (!isNaN(preset)) {
-    const max = MAX_TIME;
-    setTimer(Math.min(time + preset, max));
-  } else {
-    Logger.warn('Invalid time');
-  }
-};
-
-const buildPresetLabel = (preset) => {
-  const minutes = preset / MILLI_IN_MINUTE;
-
-  if (minutes < 10) {
-    return `0${minutes}"00'`;
-  }
-
-  return `${minutes}"00'`;
-};
-
 export default {
   OFFSET_INTERVAL,
   isActive,
@@ -366,9 +281,6 @@ export default {
   setHours,
   setMinutes,
   setSeconds,
-  setTime,
-  subtractTime,
-  addTime,
   resetTimer,
   activateTimer,
   deactivateTimer,
@@ -376,13 +288,11 @@ export default {
   getTimeOffset,
   getElapsedTime,
   getInterval,
-  getPreset,
   getMaxHours,
+  getStopwatch,
   getTimer,
-  getTimerStatus,
   getTimeAsString,
   closePanel,
   togglePanel,
   isModerator,
-  buildPresetLabel,
 };

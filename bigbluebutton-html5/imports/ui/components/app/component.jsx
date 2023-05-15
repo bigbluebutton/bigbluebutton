@@ -15,7 +15,6 @@ import ToastContainer from '/imports/ui/components/common/toast/container';
 import PadsSessionsContainer from '/imports/ui/components/pads/sessions/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
-import TimerAlarmContainer from '/imports/ui/components/timer/alarm/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
 import StatusNotifier from '/imports/ui/components/status-notifier/container';
@@ -138,7 +137,6 @@ class App extends Component {
     };
 
     this.isTimerEnabled = TimerService.isEnabled();
-    this.isTimerAlarmEnabled = TimerService.isAlarmEnabled();
     this.timeOffsetInterval = null;
 
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
@@ -600,7 +598,6 @@ class App extends Component {
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
           }} />
           <ToastContainer rtl />
-          { this.isTimerAlarmEnabled ? <TimerAlarmContainer /> : null }
           {(audioAlertEnabled || pushAlertEnabled)
             && (
               <ChatAlertContainer

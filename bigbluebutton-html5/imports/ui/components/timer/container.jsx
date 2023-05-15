@@ -19,6 +19,7 @@ export default withTracker(() => {
     isRTL,
     isActive: Service.isActive(),
     isModerator: Service.isModerator(),
-    timerStatus: Service.getTimerStatus(),
+    timeOffset: Service.getTimeOffset(),
+    timer: Service.getTimer(),
   };
 })(TimerContainer);
