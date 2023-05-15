@@ -91,10 +91,11 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /^.+\?\s*$/gm;
+  const questionRegex = /^[\s\S]+\?\s*$/gm;
   const question = safeMatch(questionRegex, content, '');
 
   if (question?.length > 0) {
+    question[0] = question[0]?.replace(/\n/g, ' ');
     const urlRegex = /\bhttps?:\/\/\S+\b/g;
     const hasUrl = safeMatch(urlRegex, question[0], '');
     if (hasUrl.length > 0) question.pop();
