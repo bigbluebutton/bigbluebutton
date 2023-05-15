@@ -450,6 +450,7 @@
     "app.submenu.application.applicationSectionTitle": "Alkalmazás",
     "app.submenu.application.animationsLabel": "Animációk",
     "app.submenu.application.audioFilterLabel": "Zajszűrés",
+    "app.submenu.application.wbToolbarsAutoHideLabel": "Auto Hide Whiteboard Toolbars",
     "app.submenu.application.darkThemeLabel": "Sötét mód",
     "app.submenu.application.fontSizeControlLabel": "Betűméret",
     "app.submenu.application.increaseFontBtnLabel": "Az alkalmazás betűméretének csökkentése",
