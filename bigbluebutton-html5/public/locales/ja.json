@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "（あれば）表示する",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "インターネット上の動画を共有",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "動画の共有停止",
-    "app.iOSWarning.label": "iOS 12.2またはそれ以降のバージョンにアップグレードしてください",
     "app.legacy.unsupportedBrowser": "サポート対象外のブラウザを使用している可能性があります。サポート対象の{0}または{1}をお使いください。",
     "app.legacy.upgradeBrowser": "ブラウザのバージョンが古い可能性があります。サポート対象のブラウザへアップグレードしてください。",
     "app.legacy.criosBrowser": "iOSをお使いの場合、Safariを使ってください",
