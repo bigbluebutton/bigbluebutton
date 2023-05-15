@@ -6,6 +6,7 @@ import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
 import { isPresentationEnabled } from '/imports/ui/services/features';
+import Draggable from 'react-draggable';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -168,6 +169,9 @@ const CustomLayout = (props) => {
             width: input.screenShare.width,
             height: input.screenShare.height,
           },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -203,6 +207,9 @@ const CustomLayout = (props) => {
             hasScreenShare: input.screenShare.hasScreenShare,
             width: input.screenShare.width,
             height: input.screenShare.height,
+          },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
           },
         }, INITIAL_INPUT_STATE),
       });
@@ -645,7 +652,7 @@ const CustomLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet,
+        isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
         resizableEdge: {
           top: (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM)
             || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM

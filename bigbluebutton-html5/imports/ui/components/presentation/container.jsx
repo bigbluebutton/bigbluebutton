@@ -116,7 +116,7 @@ export default lockContextContainer(
         });
       }
     }
-
+    const currentPresentation = PresentationService.getCurrentPresentation(podId);
     return {
       currentSlide,
       slidePosition,
@@ -127,7 +127,8 @@ export default lockContextContainer(
         ) && presentationIsOpen,
       presentationIsDownloadable,
       mountPresentation: !!currentSlide,
-      currentPresentation: PresentationService.getCurrentPresentation(podId),
+      currentPresentation,
+      currentPresentationId: currentPresentation?.id,
       numPages,
       notify,
       zoomSlide: PresentationToolbarService.zoomSlide,

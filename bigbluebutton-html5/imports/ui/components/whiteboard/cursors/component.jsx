@@ -53,7 +53,15 @@ const Cursors = (props) => {
 
   const [panGrabbing, setPanGrabbing] = React.useState(false);
 
-  const start = () => {
+  const start = (event) => {
+    const targetElement = event?.target;
+    const className = targetElement instanceof SVGElement
+      ? targetElement?.className?.baseVal
+      : targetElement?.className;
+    const hasTlPartial = className?.includes('tl-');
+    if (hasTlPartial) {
+      event?.preventDefault();
+    }
     if (whiteboardToolbarAutoHide) toggleToolsAnimations('fade-out', 'fade-in', application?.animations ? '.3s' : '0s');
     setActive(true);
   };
@@ -213,7 +221,7 @@ const Cursors = (props) => {
   React.useEffect(() => {
     const currentCursor = cursorWrapper?.current;
     currentCursor?.addEventListener('mouseenter', start);
-    currentCursor?.addEventListener('touchstart', start); 
+    currentCursor?.addEventListener('touchstart', start);
     currentCursor?.addEventListener('mouseleave', end);
     currentCursor?.addEventListener('mousedown', handleGrabbing);
     currentCursor?.addEventListener('mouseup', handleReleaseGrab);
@@ -223,7 +231,7 @@ const Cursors = (props) => {
 
     return () => {
       currentCursor?.removeEventListener('mouseenter', start);
-      currentCursor?.addEventListener('touchstart', start); 
+      currentCursor?.addEventListener('touchstart', start);
       currentCursor?.removeEventListener('mouseleave', end);
       currentCursor?.removeEventListener('mousedown', handleGrabbing);
       currentCursor?.removeEventListener('mouseup', handleReleaseGrab);
@@ -233,7 +241,8 @@ const Cursors = (props) => {
     };
   }, [cursorWrapper, whiteboardId, currentUser.presenter, whiteboardToolbarAutoHide]);
 
-  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
+  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] : 'default';
+
   if (isPanning) {
     if (panGrabbing) {
       cursorType = TOOL_CURSORS.grabbing;
@@ -242,7 +251,6 @@ const Cursors = (props) => {
     }
   }
   if (isMoving) cursorType = TOOL_CURSORS.moving;
-
   return (
     <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>

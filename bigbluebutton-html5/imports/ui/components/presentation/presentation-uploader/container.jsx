@@ -26,7 +26,8 @@ const PresentationUploaderContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const currentPresentations = Service.getPresentations();
+  const presentations = Service.getPresentations();
+  const currentPresentation = presentations.find((p) => p.isCurrent)?.id || '';
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
@@ -36,7 +37,8 @@ export default withTracker(() => {
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
-    presentations: currentPresentations,
+    presentations,
+    currentPresentation,
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
