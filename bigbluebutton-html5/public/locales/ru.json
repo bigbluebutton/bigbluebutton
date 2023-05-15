@@ -450,6 +450,7 @@
     "app.submenu.application.applicationSectionTitle": "Приложение",
     "app.submenu.application.animationsLabel": "Анимация",
     "app.submenu.application.audioFilterLabel": "Звуковые фильтры микрофона",
+    "app.submenu.application.wbToolbarsAutoHideLabel": "Auto Hide Whiteboard Toolbars",
     "app.submenu.application.darkThemeLabel": "Тёмная тема",
     "app.submenu.application.fontSizeControlLabel": "Размер шрифта",
     "app.submenu.application.increaseFontBtnLabel": "Увеличить шрифт приложения",
