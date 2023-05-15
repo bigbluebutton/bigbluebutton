@@ -197,11 +197,12 @@ class Timer extends Component {
     const { running } = timer;
 
     const label = running ? intlMessages.stop : intlMessages.start;
+    const color = running ? 'danger' : 'primary';
 
     return (
       <Styled.TimerControls>
         <Styled.TimerControlButton
-          color="primary"
+          color={color}
           label={intl.formatMessage(label)}
           onClick={() => this.handleControlClick()}
         />
