@@ -450,6 +450,7 @@
     "app.submenu.application.applicationSectionTitle": "Застосунок",
     "app.submenu.application.animationsLabel": "Анімації",
     "app.submenu.application.audioFilterLabel": "Аудіофільтри для мікрофона",
+    "app.submenu.application.wbToolbarsAutoHideLabel": "Автоприховування панелі інстирументів дошки",
     "app.submenu.application.darkThemeLabel": "Темний режим",
     "app.submenu.application.fontSizeControlLabel": "Розмір шрифту",
     "app.submenu.application.increaseFontBtnLabel": "Збільшити розмір шрифту",

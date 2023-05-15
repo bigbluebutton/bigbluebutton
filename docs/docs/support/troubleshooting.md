@@ -80,7 +80,7 @@ This issue can be worked around by forcing TURN usage in Firefox user agents. To
 
 ```yaml
 public:
-  kurento:
+  media:
     forceRelayOnFirefox: true
 ```
 
