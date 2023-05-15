@@ -1,6 +1,8 @@
 package org.bigbluebutton.api.messaging.messages;
 
 
+import java.util.Map;
+
 public class RegisterUser implements IMessage {
 
 	public final String meetingID;
@@ -16,10 +18,12 @@ public class RegisterUser implements IMessage {
 	public final String guestStatus;
 	public final Boolean excludeFromDashboard;
 	public final Boolean leftGuestLobby;
+	public final Map<String, String> customParameters;
 
 	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
 						String authToken, String sessionToken, String avatarURL, Boolean guest,
-						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby) {
+						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
+						Map<String, String> customParameters) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -33,5 +37,6 @@ public class RegisterUser implements IMessage {
 		this.guestStatus = guestStatus;
 		this.excludeFromDashboard = excludeFromDashboard;
 		this.leftGuestLobby = leftGuestLobby;
+		this.customParameters = customParameters;
 	}
 }

@@ -26,11 +26,13 @@ DROP VIEW IF EXISTS "v_user_breakoutRoom";
 DROP VIEW IF EXISTS "v_user";
 DROP VIEW IF EXISTS "v_user_current";
 DROP VIEW IF EXISTS "v_user_ref";
+DROP VIEW IF EXISTS "v_user_customParameter";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user_connectionStatus";
+DROP TABLE IF EXISTS "user_customParameter";
 DROP TABLE IF EXISTS "user";
 
 DROP VIEW IF EXISTS "v_meeting_lockSettings";
@@ -146,13 +148,17 @@ SELECT "meeting_usersPolicies"."meetingId",
    FROM "meeting_usersPolicies"
    JOIN "meeting" using("meetingId");
 
-create table "meeting_metadata"(
-	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-	"name" varchar(255),
+create table "user_customParameter"(
+    "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"parameter" varchar(255),
 	"value" varchar(255),
-	CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
+	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("userId","parameter")
 );
-create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
+
+CREATE VIEW "v_user_customParameter" AS
+SELECT u."meetingId", "user_customParameter".*
+FROM "user_customParameter"
+JOIN "user" u ON u."userId" = "user_customParameter"."userId";
 
 create table "meeting_lockSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -456,6 +462,15 @@ create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("m
 --CASE WHEN "statusUpdatedAt" < current_timestamp - INTERVAL '20 seconds' THEN TRUE ELSE FALSE END AS "clientNotResponding"
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
+
+create table "user_custom_parameter"(
+    "userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
+	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"parameter" varchar(255),
+	"value" varchar(255)
+);
+create index "idx_user_custom_parameter_parameter" on "user_custom_parameter"("userId","parameter");
+create index "idx_user_custom_parameter_meetingId" on "user_custom_parameter"("meetingId");
 
 -- ===================== CHAT TABLES
 

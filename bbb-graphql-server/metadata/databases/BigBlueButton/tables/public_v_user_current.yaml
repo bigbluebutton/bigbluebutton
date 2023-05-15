@@ -62,6 +62,15 @@ array_relationships:
         remote_table:
           name: v_chat
           schema: public
+  - name: customParameters
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_customParameter
+          schema: public
   - name: presPagesWritable
     using:
       manual_configuration:
