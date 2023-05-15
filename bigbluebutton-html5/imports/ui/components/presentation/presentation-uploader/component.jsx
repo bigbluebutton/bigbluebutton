@@ -888,7 +888,8 @@ class PresentationUploader extends Component {
 
   renderToastExportItem(item) {
     const { status } = item.exportation;
-    const loading = [EXPORT_STATUSES.RUNNING, EXPORT_STATUSES.COLLECTING, EXPORT_STATUSES.PROCESSING].includes(status);
+    const loading = [EXPORT_STATUSES.RUNNING, EXPORT_STATUSES.COLLECTING,
+      EXPORT_STATUSES.PROCESSING].includes(status);
     const done = status === EXPORT_STATUSES.EXPORTED;
     const statusIconMap = {
       [EXPORT_STATUSES.RUNNING]: 'blank',
@@ -897,9 +898,9 @@ class PresentationUploader extends Component {
       [EXPORT_STATUSES.EXPORTED]: 'check',
       [EXPORT_STATUSES.TIMEOUT]: 'warning',
     };
-    
+
     const icon = statusIconMap[status] || '';
-    
+
     return (
       <Styled.UploadRow
         key={item.id || item.temporaryPresentationId}
