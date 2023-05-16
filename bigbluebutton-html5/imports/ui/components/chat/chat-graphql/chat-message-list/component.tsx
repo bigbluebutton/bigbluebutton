@@ -54,17 +54,40 @@ const setLastSender = (lastSenderPerPage: Map<number, string>,) =>{
 }
 
 const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
-  const intl = useIntl();  
+  const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>();
   const contentRef = React.useRef<HTMLDivElement>();
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
 
-  const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = React.useState(-2);
+  const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = React.useState<number | null>(null);
+  const [followingTail, setFollowingTail] = React.useState(true);
+
+  const toggleFollowingTail = (toggle: boolean) => {
+    setFollowingTail(toggle);
+    if (toggle) {
+      if (isElement(contentRef.current)) {
+        scrollObserver.observe(contentRef.current as HTMLDivElement);
+      }
+    } else {
+      if (isElement(contentRef.current)) {
+        if (userLoadedBackUntilPage === null) {
+          setUserLoadedBackUntilPage(totalPages-2);
+        }
+        scrollObserver.unobserve(contentRef.current as HTMLDivElement);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (followingTail){
+      setUserLoadedBackUntilPage(null);
+    }
+  }, [followingTail]);
 
   useEffect(() => {
     if (isElement(contentRef.current)) {
-      scrollObserver.observe(contentRef.current as HTMLDivElement);
+      toggleFollowingTail(true);
     }
 
     if (isElement(messageListRef.current)) {
@@ -72,44 +95,56 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
     }
 
     return ()=>{
-      scrollObserver.unobserve(contentRef.current as HTMLDivElement)
+      toggleFollowingTail(false);
     }
   }, [contentRef]);
 
-  useEffect(() => {
-    // if userLoadedBackUntilPage is -2, then means user is following the tail.
-    if (userLoadedBackUntilPage !== -2){
-      setUserLoadedBackUntilPage(userLoadedBackUntilPage-1);
-    }
-  }, [totalPages]);
+  const totalLoadPages = userLoadedBackUntilPage !== null
+    ? userLoadedBackUntilPage : Math.max(totalPages-2, 0);
+  const pagesToLoad = (totalPages-totalLoadPages) || 1;
 
   return (
     <MessageListWrapper>
       <MessageList
-        
+        ref={messageListRef}
         onWheel={(e)=>{
-          if (e.deltaY < 0) {
+          const el = messageListRef.current as HTMLDivElement;
+          if (e.deltaY < 0 && el.scrollTop) {
             if (isElement(contentRef.current)) {
-              scrollObserver.unobserve(contentRef.current)
+              toggleFollowingTail(false)
             }
           } else if (e.deltaY > 0) {
-            const el = contentRef.current as HTMLDivElement;
             if (Math.abs(el.scrollHeight-el.clientHeight-el.scrollTop) === 0) {
               if (isElement(contentRef.current)) {
-                scrollObserver.observe(el)
+                toggleFollowingTail(true)
               }
             }
           }
         }}
+        onMouseUp={(e)=>{
+          const el = messageListRef.current as HTMLDivElement;
+
+          if (Math.abs(el.scrollHeight-el.clientHeight-el.scrollTop) === 0) {
+            if (isElement(contentRef.current)) {
+              toggleFollowingTail(true)
+            }
+          } else {
+            if (isElement(contentRef.current)) {
+              toggleFollowingTail(false)
+            }
+          }
+        }
       >
         <span>
           {
-            Math.abs(userLoadedBackUntilPage) < totalPages
+            (userLoadedBackUntilPage) 
             ? (
               <ButtonLoadMore
             onClick={()=>{
+              if (followingTail){
+                toggleFollowingTail(false);
+              }
               setUserLoadedBackUntilPage(userLoadedBackUntilPage-1);
-              scrollObserver.unobserve(contentRef.current as HTMLDivElement);
               }
             }
           >
@@ -120,14 +155,15 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
         </span>
         <div ref={contentRef}>
           {
-            Array.from(Array(totalPages).keys()).slice(userLoadedBackUntilPage).map((page) => {
+            Array.from(Array(pagesToLoad).keys()).map((page) => {              
               return (
                 <ChatListPage
-                  key={`page-${page}`}
-                  page={page+1}
+                  key={`page-${totalLoadPages+page}`}
+                  page={totalLoadPages+page}
                   pageSize={PAGE_SIZE}
                   setLastSender={setLastSender(lastSenderPerPage.current)}
-                  lastSenderPreviousPage={lastSenderPerPage.current.get(page)}
+                  // avoid the first page to have a lastSenderPreviousPage, because it doesn't exist
+                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(totalLoadPages+page) : undefined}
                 />
               )
             })
@@ -137,7 +173,7 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
     </MessageListWrapper>
   );
 }
-// totalPage = (totalMessages + PageSize - 1) / PageSize;
+
 const ChatListContainer: React.FC = ({}) => {
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
@@ -147,7 +183,6 @@ const ChatListContainer: React.FC = ({}) => {
     loading: chatLoading,
     error: chatError,
   } = useSubscription<ChatSubscriptionResponse>(CHAT_SUBSCRIPTION);
-
 
   if (chatError) return <p>chatError: {chatError}</p>;
   const currentChat = chatData?.chat?.filter((chat) => chat?.chatId === chatId)?.[0];

@@ -29,7 +29,6 @@ const intlMessages = defineMessages({
 const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, lastSenderPreviousPage}) => {
   const intl = useIntl();
   if (!message) return null;
- 
   const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
   

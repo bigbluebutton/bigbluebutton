@@ -17,13 +17,10 @@ interface ChatListPageProps {
   lastSenderPreviousPage: string;
 }
 
-// {`Offset ${(page-1)*pageSize}`}
-// {`last item ${((page-1)*pageSize)+pageSize-1}`}
-
 const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage }) => {  
   
   return (
-    <span style={{ border: '1px solid red'}}>
+    <span>
       {
         messages.map((message, index, Array) => {
           const previousMessage = Array[index-1];
@@ -53,14 +50,16 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     error: chatMessageError,
   } = useSubscription<ChatMessageSubscriptionResponse>(
     CHAT_MESSAGE_SUBSCRIPTION,
-    { variables: { offset: (page-1)*pageSize, limit: pageSize } }
+    { variables: { offset: (page)*pageSize, limit: pageSize } }
   );
-  if (chatMessageError) return <p>chatMessageError: {chatMessageError}</p>;
+
+  if (chatMessageError) return (<p>chatMessageError: {JSON.stringify(chatMessageError)}</p>);
   if (chatMessageLoading) return null;
   const messages = chatMessageData?.chat_message_public || [];
   if (messages.length > 0) {
     setLastSender(page, messages[messages.length-1].user.userId);
   }
+  
   return (
     <ChatListPage
       messages={messages}
