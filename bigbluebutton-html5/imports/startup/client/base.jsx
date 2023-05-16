@@ -262,7 +262,7 @@ class Base extends Component {
     if ((loading || !subscriptionsReady) && !meetingHasEnded && meetingExist) {
       return (<LoadingScreen>{loading}</LoadingScreen>);
     }
-    
+
     if (( meetingHasEnded || ejected || userRemoved ) && meetingIsBreakout) {
       Base.setExitReason('breakoutEnded').finally(() => {
         Meteor.disconnect();
@@ -270,7 +270,7 @@ class Base extends Component {
       });
       return null;
     }
-    
+
     if (ejected || userWasEjected) {
       return (
         <MeetingEnded
@@ -386,7 +386,7 @@ export default withTracker(() => {
   const currentConnectionId = User?.currentConnectionId;
   const { connectionID, connectionAuthTime } = Auth;
   const connectionIdUpdateTime = User?.connectionIdUpdateTime;
-  
+
   if (ejected) {
     BBBStorage.setItem(USER_WAS_EJECTED, ejected);
   }

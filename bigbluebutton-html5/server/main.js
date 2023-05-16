@@ -16,7 +16,6 @@ import '/imports/api/breakouts-history/server';
 import '/imports/api/group-chat/server';
 import '/imports/api/group-chat-msg/server';
 import '/imports/api/screenshare/server';
-import '/imports/api/users-settings/server';
 import '/imports/api/voice-users/server';
 import '/imports/api/whiteboard-multi-user/server';
 import '/imports/api/video-streams/server';

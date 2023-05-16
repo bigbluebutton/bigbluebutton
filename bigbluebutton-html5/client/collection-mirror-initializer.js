@@ -8,7 +8,6 @@ import Screenshare from '/imports/api/screenshare';
 import UserInfos from '/imports/api/users-infos';
 import Polls, { CurrentPoll } from '/imports/api/polls';
 import UsersPersistentData from '/imports/api/users-persistent-data';
-import UserSettings from '/imports/api/users-settings';
 import VideoStreams from '/imports/api/video-streams';
 import VoiceUsers from '/imports/api/voice-users';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
@@ -42,7 +41,6 @@ export const localCollectionRegistry = {
   localScreenshareSync: new AbstractCollection(Screenshare, Screenshare),
   localUserInfosSync: new AbstractCollection(UserInfos, UserInfos),
   localUsersPersistentDataSync: new AbstractCollection(UsersPersistentData, UsersPersistentData),
-  localUserSettingsSync: new AbstractCollection(UserSettings, UserSettings),
   localVideoStreamsSync: new AbstractCollection(VideoStreams, VideoStreams),
   localVoiceUsersSync: new AbstractCollection(VoiceUsers, VoiceUsers),
   localWhiteboardMultiUserSync: new AbstractCollection(WhiteboardMultiUser, WhiteboardMultiUser),

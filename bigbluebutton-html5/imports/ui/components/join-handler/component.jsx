@@ -162,17 +162,6 @@ class JoinHandler extends Component {
       return resp;
     };
 
-    const setCustomData = (resp) => {
-      const { customdata } = resp;
-
-      return new Promise((resolve) => {
-        if (customdata.length) {
-          makeCall('addUserSettings', customdata).then((r) => resolve(r));
-        }
-        resolve(true);
-      });
-    };
-
     const setBannerProps = (resp) => {
       Session.set('bannerText', resp.bannerText);
       Session.set('bannerColor', resp.bannerColor);
@@ -193,15 +182,6 @@ class JoinHandler extends Component {
       setBannerProps(response);
       setLogoURL(response);
       setModOnlyMessage(response);
-
-      Tracker.autorun(async (cd) => {
-        const user = CurrentUser
-          .findOne({ userId: Auth.userID, approved: true }, { fields: { _id: 1 } });
-        if (user) {
-          await setCustomData(response);
-          cd.stop();
-        }
-      });
 
       logger.info({
         logCode: 'joinhandler_component_joinroutehandler_success',
