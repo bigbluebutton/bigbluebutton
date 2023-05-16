@@ -99,10 +99,10 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
     }
   }, [contentRef]);
 
-  const totalLoadPages = userLoadedBackUntilPage !== null
+  const firstPageToLoad = userLoadedBackUntilPage !== null
     ? userLoadedBackUntilPage : Math.max(totalPages-2, 0);
-  const pagesToLoad = (totalPages-totalLoadPages) || 1;
-
+  const pagesToLoad = (totalPages-firstPageToLoad) || 1;
+  console.log('\n\ntotalPages', totalPages, firstPageToLoad);
   return (
     <MessageListWrapper>
       <MessageList
@@ -155,15 +155,17 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
         </span>
         <div ref={contentRef}>
           {
-            Array.from(Array(pagesToLoad).keys()).map((page) => {              
+            Array.from({length: pagesToLoad }, (v, k) => k+(firstPageToLoad)).map((page) => { 
+              console.log('page', page);
+                          
               return (
                 <ChatListPage
-                  key={`page-${totalLoadPages+page}`}
-                  page={totalLoadPages+page}
+                  key={`page-${page}`}
+                  page={page}
                   pageSize={PAGE_SIZE}
                   setLastSender={setLastSender(lastSenderPerPage.current)}
                   // avoid the first page to have a lastSenderPreviousPage, because it doesn't exist
-                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(totalLoadPages+page) : undefined}
+                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page) : undefined}
                 />
               )
             })
@@ -185,7 +187,7 @@ const ChatListContainer: React.FC = ({}) => {
   } = useSubscription<ChatSubscriptionResponse>(CHAT_SUBSCRIPTION);
 
   if (chatError) return <p>chatError: {chatError}</p>;
-  const currentChat = chatData?.chat?.filter((chat) => chat?.chatId === chatId)?.[0];
+  const currentChat = chatData?.chat?.find((chat) => chat?.chatId === chatId);
   const totalMessages = currentChat?.totalMessages || 0;
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
