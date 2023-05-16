@@ -133,6 +133,17 @@ const Video = styled.video`
   `}
 `;
 
+const VideoDisabled = styled.div`
+  color: white;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+`;
+
 const TopBar = styled.div`
   position: absolute;
   display: flex;
@@ -161,4 +172,5 @@ export default {
   Video,
   TopBar,
   BottomBar,
+  VideoDisabled,
 };

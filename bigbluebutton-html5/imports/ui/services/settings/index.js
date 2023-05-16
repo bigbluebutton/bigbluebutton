@@ -13,6 +13,7 @@ const SETTINGS = [
   'cc',
   'dataSaving',
   'animations',
+  'disableCam',
 ];
 
 const CHANGED_SETTINGS = 'changed_settings';

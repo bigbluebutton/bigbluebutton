@@ -117,6 +117,9 @@ const intlMessages = defineMessages({
     id: 'app.layout.style.customPush',
     description: 'label for custom layout style (push to all)',
   },
+  disableLabel: {
+    id: 'app.videoDock.webcamDisableLabel',
+  }
 });
 
 class ApplicationMenu extends BaseMenu {
@@ -441,6 +444,29 @@ class ApplicationMenu extends BaseMenu {
                   defaultChecked={settings.whiteboardToolbarAutoHide}
                   onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
                   ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
+                  showToggleLabel={showToggleLabel}
+                />
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+
+          <Styled.Row>
+            <Styled.Col aria-hidden="true">
+              <Styled.FormElement>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <Styled.Label>
+                  {intl.formatMessage(intlMessages.disableLabel)}
+                </Styled.Label>
+              </Styled.FormElement>
+            </Styled.Col>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                {displaySettingsStatus(settings.disableCam)}
+                <Toggle
+                  icons={false}
+                  defaultChecked={settings.disableCam}
+                  onChange={() => this.handleToggle('disableCam')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.disableCam, false)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>

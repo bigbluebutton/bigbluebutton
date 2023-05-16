@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { useEffect, useRef, useState } from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -22,13 +23,14 @@ const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, dragging, draggingOver, isRTL
+    makeDragOperations, dragging, draggingOver, isRTL,
   } = props;
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
   const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
+  const [isCamDisabled, setIsCamDisabled] = useState(false);
 
   const resizeObserver = new ResizeObserver((entry) => {
     if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
@@ -40,7 +42,7 @@ const VideoListItem = (props) => {
   const videoTag = useRef();
   const videoContainer = useRef();
 
-  const videoIsReady = isStreamHealthy && videoDataLoaded;
+  const videoIsReady = isStreamHealthy && videoDataLoaded && !isCamDisabled;
   const { animations } = Settings.application;
   const talking = voiceUser?.talking;
 
@@ -88,20 +90,20 @@ const VideoListItem = (props) => {
         });
       }
     };
-
-    // This is here to prevent the videos from freezing when they're
-    // moved around the dom by react, e.g., when  changing the user status
-    // see https://bugs.chromium.org/p/chromium/issues/detail?id=382879
-    if (videoDataLoaded) {
+    if (!isCamDisabled && videoDataLoaded) {
       playElement(videoTag.current);
     }
-  }, [videoDataLoaded]);
+  }, [isCamDisabled, videoDataLoaded]);
 
   // component will unmount
   useEffect(() => () => {
     unsubscribeFromStreamStateChange(cameraId, onStreamStateChange);
     onVideoItemUnmount(cameraId);
   }, []);
+
+  useEffect(() => {
+    setIsCamDisabled(Settings.application.disableCam);
+  }, [Settings.application.disableCam]);
 
   const renderSqueezedButton = () => (
     <UserActions
@@ -115,6 +117,7 @@ const VideoListItem = (props) => {
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
       isRTL={isRTL}
+      onHandleDisableCam={() => setIsCamDisabled((value) => !value)}
     />
   );
 
@@ -139,6 +142,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
+          onHandleDisableCam={() => setIsCamDisabled((value) => !value)}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -185,6 +189,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
+          onHandleDisableCam={() => setIsCamDisabled((value) => !value)}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -206,26 +211,33 @@ const VideoListItem = (props) => {
         draggingOver,
       }}
     >
+
       <Styled.VideoContainer>
-        <Styled.Video
-          mirrored={isMirrored}
-          unhealthyStream={videoDataLoaded && !isStreamHealthy}
-          data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
-          ref={videoTag}
-          muted="muted"
-          autoPlay
-          playsInline
-        />
+        {isCamDisabled && (
+          <Styled.VideoDisabled> Self cam disabled </Styled.VideoDisabled>
+        )}
+        {!isCamDisabled && (
+          <Styled.Video
+            mirrored={isMirrored}
+            unhealthyStream={videoDataLoaded && !isStreamHealthy}
+            data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+            ref={videoTag}
+            muted="muted"
+            autoPlay
+            playsInline
+          />
+        )}
       </Styled.VideoContainer>
 
       {/* eslint-disable-next-line no-nested-ternary */}
-      {videoIsReady
-        ? (isVideoSqueezed)
-          ? renderSqueezedButton()
-          : renderDefaultButtons()
-        : (isVideoSqueezed)
-          ? renderWebcamConnectingSqueezed()
-          : renderWebcamConnecting()}
+
+      {(videoIsReady || isCamDisabled) && (
+        isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
+      )}
+      {!videoIsReady && !isCamDisabled && (
+        isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
+      )}
+
     </Styled.Content>
   );
 };

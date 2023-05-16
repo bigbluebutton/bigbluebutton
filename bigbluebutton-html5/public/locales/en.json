@@ -1093,6 +1093,8 @@
     "app.videoDock.webcamFocusDesc": "Focus the selected webcam",
     "app.videoDock.webcamUnfocusLabel": "Unfocus",
     "app.videoDock.webcamUnfocusDesc": "Unfocus the selected webcam",
+    "app.videoDock.webcamDisableLabel": "Disable/Enable self cam",
+    "app.videoDock.webcamDisableDesc": "Disable/Enable self-cam output",
     "app.videoDock.webcamPinLabel": "Pin",
     "app.videoDock.webcamPinDesc": "Pin the selected webcam",
     "app.videoDock.webcamFullscreenLabel": "Fullscreen webcam",
