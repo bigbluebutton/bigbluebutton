@@ -251,20 +251,24 @@ public class PresentationUrlDownloadService {
             InetAddress[] addresses = InetAddress.getAllByName(url.getHost());
             InetAddressValidator validator = InetAddressValidator.getInstance();
 
+            boolean localhostBlocked = presentationDownloadBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
+
             for(InetAddress address: addresses) {
                 if(!validator.isValid(address.getHostAddress())) {
                     log.error("Invalid address [{}]", address.getHostAddress());
                     return false;
                 }
 
-                if(address.isAnyLocalAddress()) {
-                    log.error("Address [{}] is a local address", address.getHostAddress());
-                    return false;
-                }
+                if(localhostBlocked) {
+                    if(address.isAnyLocalAddress()) {
+                        log.error("Address [{}] is a local address", address.getHostAddress());
+                        return false;
+                    }
 
-                if(address.isLoopbackAddress()) {
-                    log.error("Address [{}] is a loopback address", address.getHostAddress());
-                    return false;
+                    if(address.isLoopbackAddress()) {
+                        log.error("Address [{}] is a loopback address", address.getHostAddress());
+                        return false;
+                    }
                 }
             }
         } catch(UnknownHostException e) {
