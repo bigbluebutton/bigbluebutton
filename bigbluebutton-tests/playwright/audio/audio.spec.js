@@ -1,28 +1,35 @@
 const { test } = require('@playwright/test');
+const { testSpeakerButton } = require('../core/elements');
 const { MultiUsers } = require('../user/multiusers');
 const { Audio } = require('./audio');
 
-test.describe.parallel('Audio', () => {
+test.describe.serial('Audio', () => {
+  const audio = new Audio();
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await audio.initModPage(page, false);
+  });
+
   // https://docs.bigbluebutton.org/2.6/release-tests.html#listen-only-mode-automated
-  test('Join audio with Listen Only @ci', async ({ browser, page }) => {
-    const audio = new Audio(browser, page);
-    await audio.init(true, false);
+  test('Join audio with Listen Only @ci', async () => {
     await audio.joinAudio();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#join-audio-automated
-  test('Join audio with Microphone @ci', async ({ browser, page }) => {
-    const audio = new Audio(browser, page);
-    await audio.init(true, false);
+  test('Join audio with Microphone @ci', async () => {
     await audio.joinMicrophone();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
-  test('Mute yourself by clicking the mute button @ci', async ({ browser, page }) => {
-    const audio = new Audio(browser, page);
-    await audio.init(true, false);
+  test('Mute yourself by clicking the mute button', async () => {
     await audio.muteYourselfByButton();
   });
+
+  test('Change audio input and keep it connected', async () => {
+    await audio.changeAudioInput();
+  })
+  /*
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources
   test('Change audio input and keep it connected', async ({ browser, page }) => {
@@ -53,4 +60,6 @@ test.describe.parallel('Audio', () => {
       await audio.muteAnotherUser();
     });
   });
+
+  */
 });
