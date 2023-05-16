@@ -93,6 +93,9 @@ const VideoListItem = (props) => {
     if (!isCamDisabled && videoDataLoaded) {
       playElement(videoTag.current);
     }
+    if (isCamDisabled) {
+      videoTag.current.pause();
+    }
   }, [isCamDisabled, videoDataLoaded]);
 
   // component will unmount
@@ -216,17 +219,15 @@ const VideoListItem = (props) => {
         {isCamDisabled && (
           <Styled.VideoDisabled> Self cam disabled </Styled.VideoDisabled>
         )}
-        {!isCamDisabled && (
-          <Styled.Video
-            mirrored={isMirrored}
-            unhealthyStream={videoDataLoaded && !isStreamHealthy}
-            data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
-            ref={videoTag}
-            muted="muted"
-            autoPlay
-            playsInline
-          />
-        )}
+        <Styled.Video
+          mirrored={isMirrored}
+          unhealthyStream={videoDataLoaded && !isStreamHealthy}
+          data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+          ref={videoTag}
+          muted="muted"
+          autoPlay
+          playsInline
+        />
       </Styled.VideoContainer>
 
       {/* eslint-disable-next-line no-nested-ternary */}

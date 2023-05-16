@@ -134,15 +134,21 @@ const Video = styled.video`
 `;
 
 const VideoDisabled = styled.div`
-  color: white;
+color: white;
   width: 100%;
-  height: 100%;
-  background-color: black;
+  height: 20%;
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
   border-radius: 10px;
-`;
+  z-index: 2;
+  top: 50%;
+  padding: 20px;
+  backdrop-filter: blur(10px); 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}`;
 
 const TopBar = styled.div`
   position: absolute;
