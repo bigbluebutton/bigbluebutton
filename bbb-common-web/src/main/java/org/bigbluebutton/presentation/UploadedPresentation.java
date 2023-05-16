@@ -41,6 +41,7 @@ public final class UploadedPresentation {
   private String authzToken;
   private boolean conversionStarted = false;
 
+  private boolean isInitialPresentation;
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -51,7 +52,8 @@ public final class UploadedPresentation {
                               Boolean current,
                               String authzToken,
                               Boolean uploadFailed,
-                              ArrayList<String> uploadFailReason) {
+                              ArrayList<String> uploadFailReason,
+                              Boolean isInitialPresentation) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.id = id;
@@ -63,6 +65,21 @@ public final class UploadedPresentation {
     this.authzToken = authzToken;
     this.uploadFailed = uploadFailed;
     this.uploadFailReason = uploadFailReason;
+    this.isInitialPresentation = isInitialPresentation;
+  }
+
+  public UploadedPresentation(String podId,
+                              String meetingId,
+                              String id,
+                              String temporaryPresentationId,
+                              String name,
+                              String baseUrl,
+                              Boolean current,
+                              String authzToken,
+                              Boolean uploadFailed,
+                              ArrayList<String> uploadFailReason) {
+    this(podId, meetingId, id, temporaryPresentationId, name, baseUrl,
+            current, authzToken, uploadFailed, uploadFailReason, false);
   }
 
   public UploadedPresentation(String podId,
@@ -75,7 +92,21 @@ public final class UploadedPresentation {
                               Boolean uploadFailed,
                               ArrayList<String> uploadFailReason) {
     this(podId, meetingId, id, "", name, baseUrl,
-            current, authzToken, uploadFailed, uploadFailReason);
+            current, authzToken, uploadFailed, uploadFailReason, false);
+  }
+
+  public UploadedPresentation(String podId,
+                              String meetingId,
+                              String id,
+                              String name,
+                              String baseUrl,
+                              Boolean current,
+                              String authzToken,
+                              Boolean uploadFailed,
+                              ArrayList<String> uploadFailReason,
+                              Boolean isInitialPresentation) {
+    this(podId, meetingId, id, "", name, baseUrl,
+            current, authzToken, uploadFailed, uploadFailReason, isInitialPresentation);
   }
 
   public File getUploadedFile() {
@@ -176,5 +207,9 @@ public final class UploadedPresentation {
 
   public ArrayList<String> getUploadFailReason() {
     return uploadFailReason;
+  }
+
+  public boolean getIsInitialPresentation() {
+    return isInitialPresentation;
   }
 }

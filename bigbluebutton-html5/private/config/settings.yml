@@ -746,6 +746,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+      - extension: .webp
+        mime: image/webp
   selectRandomUser:
     enabled: true
     countdown: false
