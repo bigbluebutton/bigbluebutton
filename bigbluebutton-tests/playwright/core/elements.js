@@ -170,8 +170,8 @@ exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
 exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
-exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
-exports.exportPlainButton = 'span[id="exportplain"]';
+exports.exportSharedNotesButton = 'li[data-key="import_export"] button';
+exports.exportPlainButton = 'a[id="exportplaina"] span';
 exports.pinNotes = 'li[data-test="pinNotes"]';
 exports.unpinNotes = 'button[data-test="unpinNotes"]';
 exports.exportetherpad = 'span[id="exportetherpad"]';
