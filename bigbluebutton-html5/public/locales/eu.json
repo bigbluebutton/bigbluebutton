@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Piztu (ahal bada)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Partekatu kanpoko bideo bat",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Gelditu kanpoko bideoaren partekatzea",
-    "app.iOSWarning.label": "Eguneratu iOS 12.2 edo berriagora",
     "app.legacy.unsupportedBrowser": "Ematen du onartzen ez den nabigatzailea erabiltzen ari zarela. Erabili  {0} edo {1} emaitzak hobetzeko.",
     "app.legacy.upgradeBrowser": "Ematen du onartutako nabigatzaile baten bertsio zaharra erabiltzen ari zarela. Emaitzak hobetzeko nabigatzailea eguneratu ezazu .",
     "app.legacy.criosBrowser": "iOS sisteman emaitzak hobetzeko Safari erabili ezazu.",
