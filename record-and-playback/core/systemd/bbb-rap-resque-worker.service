@@ -14,6 +14,7 @@ Environment=COUNT=1
 User=bigbluebutton
 Restart=always
 RestartSec=3
+Nice=19
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
