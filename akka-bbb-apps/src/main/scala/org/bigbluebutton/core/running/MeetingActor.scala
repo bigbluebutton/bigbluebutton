@@ -869,8 +869,11 @@ class MeetingActor(
     leftUsers foreach { leftUser =>
       for {
         u <- Users2x.remove(liveMeeting.users2x, leftUser.intId)
+        ru <- RegisteredUsers.findWithUserId(leftUser.intId, liveMeeting.registeredUsers)
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+        RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
 
         captionApp2x.handleUserLeavingMsg(leftUser.intId, liveMeeting, msgBus)
 

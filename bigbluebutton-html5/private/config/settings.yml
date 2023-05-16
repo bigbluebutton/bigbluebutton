@@ -35,7 +35,7 @@ public:
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
-      enabled: false
+      enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
     lockOnJoin: true
@@ -567,7 +567,7 @@ public:
       #
       # Default bridge to be used by full audio mechanism.
       # This is the bridge's name as contained in 'bridges' array
-      defaultFullAudioBridge: sipjs
+      defaultFullAudioBridge: fullaudio
       #
       #
       # Server wide configuration to choose which bbb-webrtc-sfu
@@ -702,7 +702,7 @@ public:
   presentation:
     allowDownloadable: true
     panZoomThrottle: 32
-    restoreOnUpdate: false
+    restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
     # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
@@ -746,6 +746,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+      - extension: .webp
+        mime: image/webp
   selectRandomUser:
     enabled: true
     countdown: false

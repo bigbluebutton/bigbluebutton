@@ -89,8 +89,11 @@ export function initAnnotationsStreamListener() {
 
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
-    annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach(async (annotation) => handleAddedAnnotation(annotation));
+    annotationsStreamListener.on('added', async ({ annotations }) => {
+      await Promise.all(annotations.map(async (annotation) => {
+        const addedHandeler = await handleAddedAnnotation(annotation);
+        return addedHandeler;
+      }));
     });
   });
 }

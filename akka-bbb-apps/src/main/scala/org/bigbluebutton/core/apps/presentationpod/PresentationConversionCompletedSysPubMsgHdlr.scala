@@ -23,7 +23,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pres <- pod.getPresentation(msg.body.presentation.id)
     } yield {
       val presVO = PresentationPodsApp.translatePresentationToPresentationVO(pres, temporaryPresentationId,
-        msg.body.presentation.filenameConverted)
+        msg.body.presentation.isInitialPresentation, msg.body.presentation.filenameConverted)
       PresentationSender.broadcastPresentationConversionCompletedEvtMsg(
         bus,
         meetingId,

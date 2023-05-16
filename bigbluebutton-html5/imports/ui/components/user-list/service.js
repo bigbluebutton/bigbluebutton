@@ -337,14 +337,14 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     } else if (b.unreadCounter > a.unreadCounter) {
       return 1;
     } else {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        }
-        if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
-        }
-      return 0;
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1;
       }
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1;
+      }
+      return 0;
+    }
   });
   return sortByChatIdAndUnread;
 };
@@ -641,15 +641,15 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
-  const aUser = { name: a.firstName ? a.firstName : '' };
-  const bUser = { name: b.firstName ? b.firstName : '' };
+  const aUser = { sortName: a.firstName ? a.firstName : '' };
+  const bUser = { sortName: b.firstName ? b.firstName : '' };
 
   return sortUsersByName(aUser, bUser);
 };
 
 const sortUsersByLastName = (a, b) => {
-  const aUser = { name: a.lastName ? a.lastName : '' };
-  const bUser = { name: b.lastName ? b.lastName : '' };
+  const aUser = { sortName: a.lastName ? a.lastName : '' };
+  const bUser = { sortName: b.lastName ? b.lastName : '' };
 
   return sortUsersByName(aUser, bUser);
 };
