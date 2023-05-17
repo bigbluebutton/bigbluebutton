@@ -61,7 +61,6 @@ export const ChatUserName = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
 
   ${({ isOnline }) => isOnline && `
     color: ${colorHeading};
@@ -90,8 +89,9 @@ export const ChatUserOffline = styled.span`
   font-style: italic;
   font-size: 90%;
   line-height: 1;
-  align-self: flex-end;
+  align-self: center;
   user-select: none;
+  margin: 0 0 0 calc(${lineHeightComputed} / 2);
 `;
 
 export const ChatTime = styled.time`
@@ -102,7 +102,7 @@ export const ChatTime = styled.time`
   text-transform: uppercase;
   font-size: 75%;
   margin: 0 0 0 calc(${lineHeightComputed} / 2);
-  align-self: flex-end;
+  align-self: center;
   [dir="rtl"] & {
     margin: 0 calc(${lineHeightComputed} / 2) 0 0;
   }
