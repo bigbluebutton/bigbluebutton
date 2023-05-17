@@ -6,6 +6,9 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import PropTypes from 'prop-types';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
+import Settings from '/imports/ui/services/settings';
+import { updateSettings } from '/imports/ui/components/settings/service';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -25,6 +28,9 @@ const intlMessages = defineMessages({
   },
   unpinLabel: {
     id: 'app.videoDock.webcamUnpinLabel',
+  },
+  disableLabel: {
+    id: 'app.videoDock.webcamDisableLabel',
   },
   pinDesc: {
     id: 'app.videoDock.webcamPinDesc',
@@ -46,6 +52,9 @@ const intlMessages = defineMessages({
     id: 'app.videoDock.webcamSqueezedButtonLabel',
     description: 'User selected webcam squeezed options',
   },
+  disableDesc: {
+    id: 'app.videoDock.webcamDisableDesc',
+  },
 });
 
 const UserActions = (props) => {
@@ -66,12 +75,21 @@ const UserActions = (props) => {
 
     const menuItems = [];
 
+    const toggleDisableCam = () => {
+      const applicationValues = { ...Settings.application };
+      applicationValues.selfViewDisable = !Settings.application.selfViewDisable;
+      updateSettings({
+        ...Settings,
+        application: applicationValues,
+      });
+    };
+
     if (isVideoSqueezed) {
       menuItems.push({
         key: `${cameraId}-name`,
         label: name,
         description: name,
-        onClick: () => {},
+        onClick: () => { },
         disabled: true,
       });
 
@@ -84,12 +102,21 @@ const UserActions = (props) => {
         },
       );
     }
+    if (userId === Auth.userID) {
+      menuItems.push({
+        key: `${cameraId}-disable`,
+        label: intl.formatMessage(intlMessages.disableLabel),
+        description: intl.formatMessage(intlMessages.disableDesc),
+        onClick: () => toggleDisableCam(cameraId),
+        dataTest: 'selfViewDisableBtn',
+      });
+    }
 
     menuItems.push({
       key: `${cameraId}-mirror`,
       label: intl.formatMessage(intlMessages.mirrorLabel),
       description: intl.formatMessage(intlMessages.mirrorDesc),
-      onClick: () => onHandleMirror(),
+      onClick: () => onHandleMirror(cameraId),
       dataTest: 'mirrorWebcamBtn',
     });
 
@@ -131,7 +158,7 @@ const UserActions = (props) => {
             size="sm"
             onClick={() => null}
           />
-          )}
+        )}
         actions={getAvailableActions()}
       />
     </Styled.MenuWrapperSqueezed>
@@ -185,7 +212,7 @@ export default UserActions;
 UserActions.defaultProps = {
   focused: false,
   isVideoSqueezed: false,
-  videoContainer: () => {},
+  videoContainer: () => { },
 };
 
 UserActions.propTypes = {
@@ -204,4 +231,5 @@ UserActions.propTypes = {
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   ]),
   onHandleMirror: PropTypes.func.isRequired,
+  onHandleDisableCam: PropTypes.func.isRequired,
 };

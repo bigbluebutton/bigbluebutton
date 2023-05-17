@@ -152,7 +152,7 @@ class Settings extends Component {
     const { intl } = this.props;
     if (textOnly) {
       return status ? intl.formatMessage(intlMessages.on)
-          : intl.formatMessage(intlMessages.off)
+        : intl.formatMessage(intlMessages.off);
     }
     return (
       <Styled.ToggleLabel aria-hidden>
