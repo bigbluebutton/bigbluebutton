@@ -93,7 +93,7 @@ export const ChatUserOffline = styled.span`
   font-style: italic;
   font-size: 90%;
   line-height: 1;
-  align-self: center;
+  align-self: flex-end;
   user-select: none;
 `;
 
