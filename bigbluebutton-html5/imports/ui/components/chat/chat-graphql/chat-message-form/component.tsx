@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { makeCall } from '/imports/ui/services/api';
-import ChatService from '/imports/ui/components/chat/service';
+import Service from './service';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -338,8 +338,8 @@ const ChatMessageFormContainer: React.FC = ({
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
 
   const handleSendMessage = (message) => {
-    ChatService.setUserSentMessage(true);
-    return ChatService.sendGroupMessage(message, idChatOpen);
+    Service.setUserSentMessage(true);
+    return Service.sendGroupMessage(message, idChatOpen);
   };
   const startUserTyping = throttle(
     (chatId) => makeCall('startUserTyping', chatId),
@@ -357,7 +357,7 @@ const ChatMessageFormContainer: React.FC = ({
     {...{
       startUserTyping,
       stopUserTyping,
-      UnsentMessagesCollection: ChatService.UnsentMessagesCollection,
+      UnsentMessagesCollection: Service.UnsentMessagesCollection,
       minMessageLength: CHAT_CONFIG.min_message_length,
       maxMessageLength: CHAT_CONFIG.max_message_length,
       handleSendMessage,
