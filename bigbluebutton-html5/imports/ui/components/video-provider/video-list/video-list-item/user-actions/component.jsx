@@ -77,7 +77,7 @@ const UserActions = (props) => {
 
     const toggleDisableCam = () => {
       const applicationValues = { ...Settings.application };
-      applicationValues.disableCam = !Settings.application.disableCam;
+      applicationValues.selfViewDisable = !Settings.application.selfViewDisable;
       updateSettings({
         ...Settings,
         application: applicationValues,
@@ -107,8 +107,8 @@ const UserActions = (props) => {
         key: `${cameraId}-disable`,
         label: intl.formatMessage(intlMessages.disableLabel),
         description: intl.formatMessage(intlMessages.disableDesc),
-        onClick: () => toggleDisableCam(),
-        dataTest: 'disableWebcamBtn',
+        onClick: () => toggleDisableCam(cameraId),
+        dataTest: 'selfViewDisableBtn',
       });
     }
 

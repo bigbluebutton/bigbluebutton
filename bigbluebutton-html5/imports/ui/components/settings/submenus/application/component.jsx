@@ -453,7 +453,6 @@ class ApplicationMenu extends BaseMenu {
           <Styled.Row>
             <Styled.Col aria-hidden="true">
               <Styled.FormElement>
-                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
                 <Styled.Label>
                   {intl.formatMessage(intlMessages.disableLabel)}
                 </Styled.Label>
@@ -464,9 +463,9 @@ class ApplicationMenu extends BaseMenu {
                 {displaySettingsStatus(settings.disableCam)}
                 <Toggle
                   icons={false}
-                  defaultChecked={settings.disableCam}
-                  onChange={() => this.handleToggle('disableCam')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.disableCam, false)}`}
+                  defaultChecked={settings.selfViewDisable}
+                  onChange={() => this.handleToggle('selfViewDisable')}
+                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>

@@ -16,6 +16,7 @@ import Settings from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 import { withDragAndDrop } from './drag-and-drop/component';
+import Auth from '/imports/ui/services/auth';
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
@@ -30,7 +31,7 @@ const VideoListItem = (props) => {
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
   const [isMirrored, setIsMirrored] = useState(VideoService.mirrorOwnWebcam(user?.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
-  const [isCamDisabled, setIsCamDisabled] = useState(false);
+  const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
 
   const resizeObserver = new ResizeObserver((entry) => {
     if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
@@ -42,7 +43,7 @@ const VideoListItem = (props) => {
   const videoTag = useRef();
   const videoContainer = useRef();
 
-  const videoIsReady = isStreamHealthy && videoDataLoaded && !isCamDisabled;
+  const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
   const { animations } = Settings.application;
   const talking = voiceUser?.talking;
 
@@ -90,13 +91,13 @@ const VideoListItem = (props) => {
         });
       }
     };
-    if (!isCamDisabled && videoDataLoaded) {
+    if (!isSelfViewDisabled && videoDataLoaded) {
       playElement(videoTag.current);
     }
-    if (isCamDisabled) {
+    if (isSelfViewDisabled && user.userId === Auth.userID) {
       videoTag.current.pause();
     }
-  }, [isCamDisabled, videoDataLoaded]);
+  }, [isSelfViewDisabled, videoDataLoaded]);
 
   // component will unmount
   useEffect(() => () => {
@@ -105,8 +106,8 @@ const VideoListItem = (props) => {
   }, []);
 
   useEffect(() => {
-    setIsCamDisabled(Settings.application.disableCam);
-  }, [Settings.application.disableCam]);
+    setIsSelfViewDisabled(Settings.application.selfViewDisable);
+  }, [Settings.application.selfViewDisable]);
 
   const renderSqueezedButton = () => (
     <UserActions
@@ -120,7 +121,7 @@ const VideoListItem = (props) => {
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
       isRTL={isRTL}
-      onHandleDisableCam={() => setIsCamDisabled((value) => !value)}
+      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
     />
   );
 
@@ -145,7 +146,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
-          onHandleDisableCam={() => setIsCamDisabled((value) => !value)}
+          onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -192,7 +193,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
-          onHandleDisableCam={() => setIsCamDisabled((value) => !value)}
+          onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -216,7 +217,7 @@ const VideoListItem = (props) => {
     >
 
       <Styled.VideoContainer>
-        {isCamDisabled && (
+        {isSelfViewDisabled && user.userId === Auth.userID && (
           <Styled.VideoDisabled> Self cam disabled </Styled.VideoDisabled>
         )}
         <Styled.Video
@@ -232,10 +233,10 @@ const VideoListItem = (props) => {
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {(videoIsReady || isCamDisabled) && (
+      {(videoIsReady || (isSelfViewDisabled && user.userId === Auth.userID)) && (
         isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
       )}
-      {!videoIsReady && !isCamDisabled && (
+      {!videoIsReady && !isSelfViewDisabled && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
 
