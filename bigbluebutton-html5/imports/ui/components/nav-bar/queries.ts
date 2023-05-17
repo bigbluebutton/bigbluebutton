@@ -23,7 +23,7 @@ export const MEETING_IS_BREAKOUT = gql ` subscription MeetingIsBreakout {
   }`;
 
   export const AM_I_MODERATOR = gql ` subscription AmIModerator{
-    user {
+    user_current {
       role
     }
   }`;
