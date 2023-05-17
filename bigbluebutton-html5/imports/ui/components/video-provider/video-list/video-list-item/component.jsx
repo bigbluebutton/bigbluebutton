@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useEffect, useRef, useState } from 'react';
-import { injectIntl } from 'react-intl';
+import { injectIntl, defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
@@ -18,6 +18,12 @@ import Styled from './styles';
 import { withDragAndDrop } from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
 
+const intlMessages = defineMessages({
+  disableDesc: {
+    id: 'app.videoDock.webcamDisableDesc',
+  },
+});
+
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
 const VideoListItem = (props) => {
@@ -26,6 +32,8 @@ const VideoListItem = (props) => {
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
     makeDragOperations, dragging, draggingOver, isRTL,
   } = props;
+
+  const intl = useIntl();
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
@@ -218,7 +226,9 @@ const VideoListItem = (props) => {
 
       <Styled.VideoContainer>
         {isSelfViewDisabled && user.userId === Auth.userID && (
-          <Styled.VideoDisabled> Self cam disabled </Styled.VideoDisabled>
+          <Styled.VideoDisabled>
+            {intl.formatMessage(intlMessages.disableDesc)}
+          </Styled.VideoDisabled>
         )}
         <Styled.Video
           mirrored={isMirrored}
@@ -233,7 +243,7 @@ const VideoListItem = (props) => {
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {(videoIsReady || (isSelfViewDisabled && user.userId === Auth.userID)) && (
+      {(videoIsReady || isSelfViewDisabled) && (
         isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
       )}
       {!videoIsReady && !isSelfViewDisabled && (

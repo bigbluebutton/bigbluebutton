@@ -144,7 +144,7 @@ color: white;
   position: absolute;
   border-radius: 10px;
   z-index: 2;
-  top: 50%;
+  top: 40%;
   padding: 20px;
   backdrop-filter: blur(10px); 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
