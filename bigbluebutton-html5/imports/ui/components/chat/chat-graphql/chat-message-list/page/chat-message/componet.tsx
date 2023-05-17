@@ -31,7 +31,6 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
   if (!message) return null;
   const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
-  
   return (
     <ChatWrapper
       sameSender={sameSender}
@@ -55,11 +54,15 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
             >
               {message.user.name}
             </ChatUserName>
-            <ChatUserOffline
-              isOnline={message.user.isOnline}
-            >
-               {`(${intl.formatMessage(intlMessages.offline)})`}
-            </ChatUserOffline>
+              {
+                message.user.isOnline ? null : (
+                  <ChatUserOffline
+                  >
+                    {`(${intl.formatMessage(intlMessages.offline)})`}
+                  </ChatUserOffline>
+                )
+              }
+
             <ChatTime>
               <FormattedTime value={dateTime} />
             </ChatTime>

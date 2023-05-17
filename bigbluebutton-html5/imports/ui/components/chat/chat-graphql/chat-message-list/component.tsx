@@ -73,7 +73,7 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
     } else {
       if (isElement(contentRef.current)) {
         if (userLoadedBackUntilPage === null) {
-          setUserLoadedBackUntilPage(totalPages-2);
+          setUserLoadedBackUntilPage(Math.max(totalPages-2, 0));
         }
         scrollObserver.unobserve(contentRef.current as HTMLDivElement);
       }
@@ -103,7 +103,6 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
   const firstPageToLoad = userLoadedBackUntilPage !== null
     ? userLoadedBackUntilPage : Math.max(totalPages-2, 0);
   const pagesToLoad = (totalPages-firstPageToLoad) || 1;
-  console.log('\n\ntotalPages', totalPages, firstPageToLoad);
   return (
     <MessageListWrapper>
       <MessageList

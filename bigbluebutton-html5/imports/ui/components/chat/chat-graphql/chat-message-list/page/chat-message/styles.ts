@@ -84,9 +84,6 @@ export const ChatUserName = styled.div`
 `;
 
 export const ChatUserOffline = styled.span`
-  ${({ isOnline })=> !isOnline && `
-    display: none;
-  `}
   color: ${colorGrayLight};
   font-weight: 100;
   text-transform: lowercase;
