@@ -4,7 +4,6 @@ import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/Butto
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'radash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -52,10 +51,6 @@ const intlMessages = defineMessages({
     id: 'app.video.clientDisconnected',
     description: 'Meteor disconnected label',
   },
-  iOSWarning: {
-    id: 'app.iOSWarning.label',
-    description: 'message indicating to upgrade ios version',
-  },
 });
 
 const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
@@ -89,10 +84,6 @@ const JoinVideoButton = ({
   const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
 
   const handleOnClick = debounce({ delay: JOIN_VIDEO_DELAY_MILLISECONDS }, () => {
-    if (!validIOSVersion()) {
-      return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
-    }
-
     switch (status) {
       case 'videoConnecting':
         VideoService.stopVideo();

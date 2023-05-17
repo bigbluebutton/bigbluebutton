@@ -56,9 +56,7 @@ const getCurrentSlide = (podId) => {
   });
 };
 
-const getSlidesLength = (podId) => {
-  return getCurrentPresentation(podId)?.pages?.length || 0;
-}
+const getSlidesLength = (podId) => getCurrentPresentation(podId)?.pages?.length || 0;
 
 const getSlidePosition = (podId, presentationId, slideId) => SlidePositions.findOne({
   podId,
@@ -87,7 +85,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /.*?\?/gm;
+  const questionRegex = /^.+\?\s*$/gm;
   const question = safeMatch(questionRegex, content, '');
 
   if (question?.length > 0) {

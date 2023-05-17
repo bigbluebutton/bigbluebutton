@@ -77,6 +77,7 @@ class Presentation extends PureComponent {
       isPanning: false,
       tldrawIsMounting: true,
       isToolbarVisible: true,
+      hadPresentation: false,
     };
 
     this.currentPresentationToastId = null;
@@ -136,8 +137,14 @@ class Presentation extends PureComponent {
     window.addEventListener('resize', this.onResize, false);
 
     const {
-      currentSlide, slidePosition, numPages, layoutContextDispatch,
+      currentSlide, slidePosition, numPages, layoutContextDispatch, currentPresentationId,
     } = this.props;
+
+    if (currentPresentationId) {
+      this.setState({
+        hadPresentation: true
+      });
+    }
 
     if (currentSlide) {
       layoutContextDispatch({
@@ -154,7 +161,7 @@ class Presentation extends PureComponent {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
         value: numPages,
-      })
+      });
     }
   }
 
@@ -174,10 +181,11 @@ class Presentation extends PureComponent {
       intl,
       multiUser,
       numPages,
+      currentPresentationId,
     } = this.props;
 
     const {
-      presentationWidth, presentationHeight, zoom, isPanning, fitToWidth,
+      presentationWidth, presentationHeight, zoom, isPanning, fitToWidth, presentationId, hadPresentation,
     } = this.state;
     const {
       numCameras: prevNumCameras,
@@ -197,7 +205,7 @@ class Presentation extends PureComponent {
       layoutContextDispatch({
         type: ACTIONS.SET_PRESENTATION_SLIDES_LENGTH,
         value: numPages,
-      })
+      });
     }
 
     if (
@@ -256,16 +264,26 @@ class Presentation extends PureComponent {
           },
         });
       }
+      const presentationChanged = presentationId !== currentPresentationId;
 
-      if (!presentationIsOpen && restoreOnUpdate && currentSlide) {
+      const isInitialPresentation = currentPresentation.isInitialPresentation;
+
+      if (!presentationIsOpen && restoreOnUpdate && (currentSlide || presentationChanged)) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
-        if (slideChanged || positionChanged || pollPublished) {
+        if (slideChanged || positionChanged || pollPublished || (presentationChanged && (hadPresentation || !isInitialPresentation))) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
         }
+      }
+
+      if (presentationChanged) {
+        this.setState({
+          presentationId: currentPresentationId,
+          hadPresentation: true
+        });
       }
 
       if ((presentationBounds !== prevPresentationBounds)
@@ -736,7 +754,7 @@ class Presentation extends PureComponent {
                   textAlign: 'center',
                   display: !presentationIsOpen ? 'none' : 'block',
                 }}
-                id={"presentationInnerWrapper"}
+                id="presentationInnerWrapper"
               >
                 <Styled.VisuallyHidden id="currentSlideText">{slideContent}</Styled.VisuallyHidden>
                 {!tldrawIsMounting && currentSlide && this.renderPresentationMenu()}

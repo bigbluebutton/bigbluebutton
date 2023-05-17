@@ -94,9 +94,11 @@ remove_raw_of_recordings_without_marks
 #
 
 remove_raw_of_published_recordings(){
-    #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+    TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
-    TYPES="presentation"
+    if [ "$TYPES" == "" ]; then
+        TYPES="presentation"
+    fi
     cd /var/bigbluebutton/recording/raw/
     old_meetings=$(find . -name events.xml -mtime +$published_days | cut -d"/" -f2 )
     for meeting in $old_meetings

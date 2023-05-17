@@ -36,6 +36,7 @@ const propTypes = {
     conversion: PropTypes.shape,
     upload: PropTypes.shape,
   })).isRequired,
+  currentPresentation: PropTypes.string.isRequired,
   isOpen: PropTypes.bool.isRequired,
   handleFiledrop: PropTypes.func.isRequired,
   selectedToBeNextCurrent: PropTypes.string,
@@ -53,7 +54,7 @@ const defaultProps = {
 };
 
 const intlMessages = defineMessages({
-  current: {
+  currentBadge: {
     id: 'app.presentationUploder.currentBadge',
   },
   title: {
@@ -357,7 +358,7 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isOpen, presentations: propPresentations, intl } = this.props;
+    const { isOpen, presentations: propPresentations, currentPresentation, intl } = this.props;
     const { presentations } = this.state;
     const { presentations: prevPropPresentations } = prevProps;
 
@@ -432,7 +433,7 @@ class PresentationUploader extends Component {
       unregisterTitleView();
     }
 
-    // Updates presentation list when chat modal opens to avoid missing presentations
+    // Updates presentation list when modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
       registerTitleView(intl.formatMessage(intlMessages.uploadViewTitle));
       const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -456,6 +457,10 @@ class PresentationUploader extends Component {
           e.preventDefault();
         }
       });
+    }
+
+    if (currentPresentation && currentPresentation !== prevProps.currentPresentation) {
+       this.handleCurrentChange(currentPresentation);
     }
 
     if (presentations.length > 0) {
@@ -547,7 +552,7 @@ class PresentationUploader extends Component {
   handleCurrentChange(id) {
     const { presentations, disableActions } = this.state;
 
-    if (disableActions) return;
+    if (disableActions || presentations?.length === 0) return;
 
     const currentIndex = presentations.findIndex((p) => p.isCurrent);
     const newCurrentIndex = presentations.findIndex((p) => p.id === id);
@@ -883,31 +888,18 @@ class PresentationUploader extends Component {
 
   renderToastExportItem(item) {
     const { status } = item.exportation;
-    const loading = (status === EXPORT_STATUSES.RUNNING
-      || status === EXPORT_STATUSES.COLLECTING
-      || status === EXPORT_STATUSES.PROCESSING);
+    const loading = [EXPORT_STATUSES.RUNNING, EXPORT_STATUSES.COLLECTING,
+      EXPORT_STATUSES.PROCESSING].includes(status);
     const done = status === EXPORT_STATUSES.EXPORTED;
-    let icon;
+    const statusIconMap = {
+      [EXPORT_STATUSES.RUNNING]: 'blank',
+      [EXPORT_STATUSES.COLLECTING]: 'blank',
+      [EXPORT_STATUSES.PROCESSING]: 'blank',
+      [EXPORT_STATUSES.EXPORTED]: 'check',
+      [EXPORT_STATUSES.TIMEOUT]: 'warning',
+    };
 
-    switch (status) {
-      case EXPORT_STATUSES.RUNNING:
-        icon = 'blank';
-        break;
-      case EXPORT_STATUSES.COLLECTING:
-        icon = 'blank';
-        break;
-      case EXPORT_STATUSES.PROCESSING:
-        icon = 'blank';
-        break;
-      case EXPORT_STATUSES.EXPORTED:
-        icon = 'check';
-        break;
-      case EXPORT_STATUSES.TIMEOUT:
-        icon = 'warning';
-        break;
-      default:
-        break;
-    }
+    const icon = statusIconMap[status] || '';
 
     return (
       <Styled.UploadRow
@@ -1039,7 +1031,7 @@ class PresentationUploader extends Component {
             ? (
               <Styled.TableItemCurrent>
                 <Styled.CurrentLabel>
-                  {intl.formatMessage(intlMessages.current)}
+                  {intl.formatMessage(intlMessages.currentBadge)}
                 </Styled.CurrentLabel>
               </Styled.TableItemCurrent>
             )

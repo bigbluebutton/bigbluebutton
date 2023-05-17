@@ -5,6 +5,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../../layout/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
+import Users from '/imports/api/users';
 
 const VideoListContainer = ({ children, ...props }) => {
   const layoutType = layoutSelect((i) => i.layoutType);
@@ -41,7 +42,17 @@ const VideoListContainer = ({ children, ...props }) => {
   );
 };
 
-export default withTracker((props) => ({
-  numberOfPages: VideoService.getNumberOfPages(),
-  ...props,
-}))(VideoListContainer);
+export default withTracker((props) => {
+  const { streams } = props;
+
+  return {
+    ...props,
+    numberOfPages: VideoService.getNumberOfPages(),
+    streams: streams.filter((stream) => Users.findOne({ userId: stream.userId },
+      {
+        fields: {
+          userId: 1,
+        },
+      })),
+  };
+})(VideoListContainer);
