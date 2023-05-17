@@ -618,12 +618,15 @@ export default function Whiteboard(props) {
 
     app.setSetting('language', language);
     app?.setSetting('isDarkMode', false);
+
+    const textAlign = isRTL ? 'end' : 'start';
+
     app?.patchState(
       {
         appState: {
           currentStyle: {
-            textAlign: isRTL ? 'end' : 'start',
-            font: fontFamily,
+            textAlign: currentStyle?.textAlign || textAlign,
+            font: currentStyle?.font || fontFamily,
           },
         },
       },
