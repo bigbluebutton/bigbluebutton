@@ -52,17 +52,14 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
         (
           <ChatUserContent>
             <ChatUserName
-              isOnline={message.user.isOnline}
             >
               {message.user.name}
-              {message.user.isOnline
-                ? null
-                : (
-                  <ChatUserOffline>
-                    {`(${intl.formatMessage(intlMessages.offline)})`}
-                  </ChatUserOffline>
-                )}
             </ChatUserName>
+            <ChatUserOffline
+              isOnline={message.user.isOnline}
+            >
+               {`(${intl.formatMessage(intlMessages.offline)})`}
+            </ChatUserOffline>
             <ChatTime>
               <FormattedTime value={dateTime} />
             </ChatTime>

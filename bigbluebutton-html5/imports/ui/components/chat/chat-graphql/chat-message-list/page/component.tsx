@@ -24,6 +24,7 @@ interface ChatListPageContainerProps {
 interface ChatListPageProps {
   messages: Array<Message>;
   lastSenderPreviousPage: string | undefined;
+  page: number;
 }
 
 const verifyIfIsPublicChat = (message: unknown): message is ChatMessagePublicSubscriptionResponse => {
@@ -35,10 +36,10 @@ const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateS
 }
 
 
-const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage }) => {  
+const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage, page }) => {  
   
   return (
-    <span>
+    <div id={`messagePage-${page}`}>
       {
         messages.map((message, index, Array) => {
           const previousMessage = Array[index-1];
@@ -52,7 +53,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviou
           )
         })
       }
-    </span>
+    </div>
   );
 }
 
@@ -95,6 +96,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     <ChatListPage
       messages={messages}
       lastSenderPreviousPage={lastSenderPreviousPage}
+      page={page}
     />
   );
 }

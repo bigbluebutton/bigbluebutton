@@ -31,8 +31,11 @@ export const ChatWrapper = styled.div`
   ${({ sameSender }) => sameSender && `
     flex: 1;
     margin: ${borderSize} 0 0 ${borderSize};
-  `})}
-  
+    margin-top: calc(${lineHeightComputed} / 3);
+  `}
+  ${({ sameSender }) => !sameSender && `
+    padding-top:${lineHeightComputed};
+  `}
   [dir="rtl"] & {
     margin: ${borderSize} ${borderSize} 0 0;
   }
@@ -44,6 +47,7 @@ export const ChatWrapper = styled.div`
 export const ChatUserContent = styled.div`
   display: flex;
   flex-flow: row;
+  width: 100%;
 `;
 
 export const ChatUserName = styled.div`
@@ -57,7 +61,7 @@ export const ChatUserName = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  
+  width: 100%;
 
   ${({ isOnline }) => isOnline && `
     color: ${colorHeading};
@@ -80,6 +84,9 @@ export const ChatUserName = styled.div`
 `;
 
 export const ChatUserOffline = styled.span`
+  ${({ isOnline })=> !isOnline && `
+    display: none;
+  `}
   color: ${colorGrayLight};
   font-weight: 100;
   text-transform: lowercase;
@@ -98,7 +105,7 @@ export const ChatTime = styled.time`
   text-transform: uppercase;
   font-size: 75%;
   margin: 0 0 0 calc(${lineHeightComputed} / 2);
-
+  align-self: flex-end;
   [dir="rtl"] & {
     margin: 0 calc(${lineHeightComputed} / 2) 0 0;
   }
@@ -111,6 +118,7 @@ export const ChatTime = styled.time`
 export const ChatContent = styled.div`
   display: flex;
   flex-flow: column;
+  width: 100%;
 `
 
 export const ChatMessage = styled.div`

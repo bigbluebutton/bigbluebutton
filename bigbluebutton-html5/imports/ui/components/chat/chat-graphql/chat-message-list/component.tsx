@@ -154,7 +154,7 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
             ): null
           }
         </span>
-        <div ref={contentRef}>
+        <div id="contentRef" ref={contentRef}>
           {
             Array.from({length: pagesToLoad }, (v, k) => k+(firstPageToLoad)).map((page) => { 
               console.log('page', page);
