@@ -19,7 +19,7 @@ class Reconnection extends MultiUsers {
     killConnection();
 
     // chat disabled and notification bar displayed
-    Promise.all([
+    await Promise.all([
       expect(chatBoxLocator).toBeDisabled({ timeout: ELEMENT_WAIT_TIME }),
       this.modPage.hasElement(e.reconnectingBar),
     ]);
