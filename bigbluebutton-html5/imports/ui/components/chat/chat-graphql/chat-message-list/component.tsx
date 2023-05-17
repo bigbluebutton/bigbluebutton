@@ -26,6 +26,7 @@ const intlMessages = defineMessages({
 
 interface ChatListProps {
   totalPages: number;
+  chatId: string;
 }
 const isElement = (el: any): el is HTMLElement => {
   return el instanceof HTMLElement;
@@ -53,7 +54,7 @@ const setLastSender = (lastSenderPerPage: Map<number, string>,) =>{
   }
 }
 
-const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
+const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>();
   const contentRef = React.useRef<HTMLDivElement>();
@@ -166,6 +167,7 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages }) => {
                   setLastSender={setLastSender(lastSenderPerPage.current)}
                   // avoid the first page to have a lastSenderPreviousPage, because it doesn't exist
                   lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page) : undefined}
+                  chatId={chatId}
                 />
               )
             })
@@ -185,7 +187,9 @@ const ChatListContainer: React.FC = ({}) => {
     loading: chatLoading,
     error: chatError,
   } = useSubscription<ChatSubscriptionResponse>(CHAT_SUBSCRIPTION);
-
+  // We verify if the chat is loading to avoid fetching uneccessary messages
+  // and we use MessageListWrapper to fill the space in interface while loading.
+  if (chatLoading) return <MessageListWrapper />;
   if (chatError) return <p>chatError: {chatError}</p>;
   const currentChat = chatData?.chat?.find((chat) => chat?.chatId === chatId);
   const totalMessages = currentChat?.totalMessages || 0;
@@ -193,6 +197,7 @@ const ChatListContainer: React.FC = ({}) => {
   return (
     <ChatList
       totalPages={totalPages}
+      chatId={chatId}
     />
   );
 }
