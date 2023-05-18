@@ -132,7 +132,7 @@ const Adapter = () => {
       throttledDispatch();
     };
 
-    CollectionEventsBroker.addListener('group-chat-msg', 'added', insertToContext);
+    // CollectionEventsBroker.addListener('group-chat-msg', 'added', insertToContext);
   }, [Meteor.status().connected, Meteor.connection._lastSessionId]);
 
   return null;
