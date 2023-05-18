@@ -1018,7 +1018,7 @@
     "app.video.virtualBackground.background": "پس‌زمینه",
     "app.video.virtualBackground.backgroundWithIndex": "پس‌زمینه {0}",
     "app.video.virtualBackground.custom": "از رایانه خود بارگذاری کنید",
-    "app.video.virtualBackground.remove": "حذف تصویر اضافه شده",
+    "app.video.virtualBackground.remove": "حذف تصویر اضافه‌شده",
     "app.video.virtualBackground.genericError": "جلوه دوربین اعمال نشد. دوباره تلاش کنید.",
     "app.video.virtualBackground.camBgAriaDesc": "پس‌زمینه مجازی دوربین را روی {0} تنظیم می‌کند",
     "app.video.virtualBackground.maximumFileSizeExceeded": "از حداکثر اندازه پرونده بیشتر شده است. ({0} مگابایت)",
