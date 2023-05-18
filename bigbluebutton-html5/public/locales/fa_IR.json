@@ -190,7 +190,7 @@
     "app.meeting.meetingTimeHasEnded": "زمان به پایان رسید. جلسه به زودی بسته خواهد شد",
     "app.meeting.endedByUserMessage": "این جلسه توسط {0} به پایان رسید",
     "app.meeting.endedByNoModeratorMessageSingular": "جلسه به دلیل عدم حضور مدیر به مدت یک دقیقه، به پایان رسیده است",
-    "app.meeting.endedByNoModeratorMessagePlural": "جلسه به دلیل عدم حضور هیچ مدیری، {0} دقیقه است که به پایان رسیده",
+    "app.meeting.endedByNoModeratorMessagePlural": "جلسه به دلیل عدم حضور مدیر به مدت {0} دقیقه، به پایان رسیده است",
     "app.meeting.endedMessage": "شما در حال انتقال به صفحه اصلی هستید",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "جلسه تا یک دقیقه دیگر به پایان می‌رسد.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "جلسه تا {0} دقیقه دیگر به پایان می‌رسد.",
