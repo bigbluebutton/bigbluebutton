@@ -40,9 +40,6 @@ class UserContent extends PureComponent {
         <UserNotesContainer />
         { isTimerActive && <TimerContainer
           isModerator={currentUser?.role === ROLE_MODERATOR}
-          {...{
-            intl,
-          }}
         /> }
         {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (

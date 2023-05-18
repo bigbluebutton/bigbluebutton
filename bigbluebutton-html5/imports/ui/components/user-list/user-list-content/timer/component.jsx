@@ -44,6 +44,7 @@ class Timer extends PureComponent {
     const {
       intl,
       isModerator,
+      stopwatch,
       sidebarContentPanel,
       layoutContextDispatch,
     } = this.props;
