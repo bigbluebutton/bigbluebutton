@@ -60,7 +60,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL,
+    isVideoSqueezed, videoContainer, isRTL, isStream,
   } = props;
 
   const intl = useIntl();
@@ -93,16 +93,18 @@ const UserActions = (props) => {
         disabled: true,
       });
 
-      menuItems.push(
-        {
-          key: `${cameraId}-fullscreen`,
-          label: intl.formatMessage(intlMessages.fullscreenLabel),
-          description: intl.formatMessage(intlMessages.fullscreenLabel),
-          onClick: () => FullscreenService.toggleFullScreen(videoContainer.current),
-        },
-      );
+      if (isStream) {
+        menuItems.push(
+          {
+            key: `${cameraId}-fullscreen`,
+            label: intl.formatMessage(intlMessages.fullscreenLabel),
+            description: intl.formatMessage(intlMessages.fullscreenLabel),
+            onClick: () => FullscreenService.toggleFullScreen(videoContainer.current),
+          },
+        );
+      }
     }
-    if (userId === Auth.userID) {
+    if (userId === Auth.userID && isStream) {
       menuItems.push({
         key: `${cameraId}-disable`,
         label: intl.formatMessage(intlMessages.disableLabel),
@@ -120,7 +122,7 @@ const UserActions = (props) => {
       dataTest: 'mirrorWebcamBtn',
     });
 
-    if (numOfStreams > 2) {
+    if (numOfStreams > 2 && isStream) {
       menuItems.push({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
@@ -130,7 +132,7 @@ const UserActions = (props) => {
       });
     }
 
-    if (VideoService.isVideoPinEnabledForCurrentUser()) {
+    if (VideoService.isVideoPinEnabledForCurrentUser() && isStream) {
       menuItems.push({
         key: `${cameraId}-pin`,
         label: intl.formatMessage(intlMessages[`${isPinnedIntlKey}Label`]),
@@ -213,13 +215,14 @@ UserActions.defaultProps = {
   focused: false,
   isVideoSqueezed: false,
   videoContainer: () => { },
+  onHandleVideoFocus: () => {},
 };
 
 UserActions.propTypes = {
   name: PropTypes.string.isRequired,
   cameraId: PropTypes.string.isRequired,
   numOfStreams: PropTypes.number.isRequired,
-  onHandleVideoFocus: PropTypes.func.isRequired,
+  onHandleVideoFocus: PropTypes.func,
   user: PropTypes.shape({
     pin: PropTypes.bool.isRequired,
     userId: PropTypes.string.isRequired,

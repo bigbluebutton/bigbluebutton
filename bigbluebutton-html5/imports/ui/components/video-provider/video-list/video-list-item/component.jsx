@@ -30,7 +30,7 @@ const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, dragging, draggingOver, isRTL,
+    makeDragOperations, dragging, draggingOver, isRTL, isStream,
   } = props;
 
   const intl = useIntl();
@@ -129,6 +129,7 @@ const VideoListItem = (props) => {
       focused={focused}
       onHandleMirror={() => setIsMirrored((value) => !value)}
       isRTL={isRTL}
+      isStream={isStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
     />
   );
@@ -154,6 +155,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
+          isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
         />
         <UserStatus
@@ -189,6 +191,7 @@ const VideoListItem = (props) => {
           cameraId={cameraId}
           isFullscreenContext={isFullscreenContext}
           layoutContextDispatch={layoutContextDispatch}
+          isStream={isStream}
         />
       </Styled.TopBar>
       <Styled.BottomBar>
@@ -201,6 +204,7 @@ const VideoListItem = (props) => {
           focused={focused}
           onHandleMirror={() => setIsMirrored((value) => !value)}
           isRTL={isRTL}
+          isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
         />
         <UserStatus
@@ -246,7 +250,7 @@ const VideoListItem = (props) => {
       {(videoIsReady || isSelfViewDisabled) && (
         isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
       )}
-      {!videoIsReady && !isSelfViewDisabled && (
+      {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
 
@@ -258,6 +262,9 @@ export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
+  onVideoItemMount: () => {},
+  onVideoItemUnmount: () => {},
+  onVirtualBgDrop: () => {},
 };
 
 VideoListItem.propTypes = {
@@ -268,8 +275,9 @@ VideoListItem.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   onHandleVideoFocus: PropTypes.func.isRequired,
-  onVideoItemMount: PropTypes.func.isRequired,
-  onVideoItemUnmount: PropTypes.func.isRequired,
+  onVideoItemMount: PropTypes.func,
+  onVideoItemUnmount: PropTypes.func,
+  onVirtualBgDrop: PropTypes.func,
   isFullscreenContext: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   user: PropTypes.shape({
