@@ -73,7 +73,7 @@
     "app.captions.dictationStop": "توقف نوشتن کلمات",
     "app.captions.dictationOnDesc": "تشخیص گفتار را روشن می‌کند",
     "app.captions.dictationOffDesc": "تشخیص گفتار را خاموش می‌کند",
-    "app.captions.speech.start": "امکان تشخیص گفتار آغاز شد",
+    "app.captions.speech.start": "تشخیص گفتار آغاز شد",
     "app.captions.speech.stop": "تشخیص گفتار متوقف شد",
     "app.captions.speech.error": "به دلیل ناسازگاری مرورگر یا مدتی سکوت، تشخیص گفتار متوقف شد",
     "app.confirmation.skipConfirm": "دوباره نپرس",
