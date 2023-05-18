@@ -431,7 +431,7 @@
     "app.mobileAppModal.openApp": "بله، اکنون برنامه را باز کنید",
     "app.mobileAppModal.obtainUrlMsg": "دریافت نشانی اینترنتی جلسه",
     "app.mobileAppModal.obtainUrlErrorMsg": "خطا در تلاش برای دریافت نشانی اینترنتی جلسه",
-    "app.mobileAppModal.openStore": "خیر، فروشگاه برنامه را برای دانلود باز کن",
+    "app.mobileAppModal.openStore": "خیر، فروشگاه برنامه را برای بارگیری باز کن",
     "app.mobileAppModal.dismissLabel": "لغو",
     "app.mobileAppModal.dismissDesc": "بستن",
     "app.mobileAppModal.userConnectedWithSameId": "کاربر {0} با استفاده از همان شناسه شما متصل شد.",
