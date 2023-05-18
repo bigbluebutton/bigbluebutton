@@ -305,7 +305,7 @@
     "app.presentationUploder.uploadViewTitle": "بارگذاری ارائه ",
     "app.poll.questionAndoptions.label" : "متن پرسش برای نمایش.\nالف. گزینه نظرسنجی *\nب. گزینه نظرسنجی (اختیاری)\nپ. گزینه نظرسنجی (اختیاری)\nت. گزینه نظرسنجی (اختیاری)\nث. گزینه نظرسنجی (اختیاری)",
     "app.poll.customInput.label": "ورودی سفارشی",
-    "app.poll.customInputInstructions.label": "ورودی سفارشی فعال است - سوال نظرسنجی و گزینه(های) را در قالب مشخص بنویسید یا یک پرونده متنی را با همان قالب بکشید و رها کنید.",
+    "app.poll.customInputInstructions.label": "ورودی سفارشی فعال است - سوال نظرسنجی و گزینه(ها) را در قالب مشخص بنویسید یا یک پرونده متنی را با همان قالب بکشید و رها کنید.",
     "app.poll.maxOptionsWarning.label": "فقط ۵ گزینه اول می‌تواند مورد استفاده قرار گیرد!",
     "app.poll.pollPaneTitle": "نظرسنجی",
     "app.poll.enableMultipleResponseLabel": "اجازه برای پاسخ‌های متعدد به ازای هر پاسخ‌دهنده؟ ",
