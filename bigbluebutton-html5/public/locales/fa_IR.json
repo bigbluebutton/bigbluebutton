@@ -246,7 +246,7 @@
     "app.presentationUploader.exporting": "در حال ارسال به گفتگو",
     "app.presentationUploader.sending": "در حال ارسال",
     "app.presentationUploader.collecting": "در حال استخراج اسلاید {0} از {1}...",
-    "app.presentationUploader.processing": "حاشیه نویسی اسلاید {0} از {1}...",
+    "app.presentationUploader.processing": "حاشیه‌نویسی اسلاید {0} از {1}...",
     "app.presentationUploader.sent": "ارسال شد",
     "app.presentationUploader.exportingTimeout": "خروجی‌گرفتن خیلی طول می‌کشد...",
     "app.presentationUploader.export": "ارسال به گفتگو",
