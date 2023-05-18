@@ -552,7 +552,7 @@
     "app.settings.main.save.label.description": "تغییرات را ذخیره کرده و منوی تنظیمات را می‌بندد",
     "app.settings.dataSavingTab.label": "صرفه‌جویی در مصرف داده",
     "app.settings.dataSavingTab.webcam": "فعال‌سازی دوربین‌های دیگر شرکت‌کنندگان",
-    "app.settings.dataSavingTab.screenShare": "فعال‌سازی اشتراک‌گذاری دسکتاپ دیگر شرکت‌کنندگان",
+    "app.settings.dataSavingTab.screenShare": "فعال‌سازی اشتراک‌گذاری میزکار دیگر شرکت‌کنندگان",
     "app.settings.dataSavingTab.description": "برای صرفه جویی در مصرف پهنای باند اینترنت، آنچه را که باید نمایش داده شود انتخاب کنید.",
     "app.settings.save-notification.label": "تنظیمات ذخیره شدند",
     "app.statusNotifier.lowerHands": "پایین آوردن دست‌ها",
