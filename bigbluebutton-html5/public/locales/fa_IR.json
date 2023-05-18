@@ -239,7 +239,7 @@
     "app.presentation.presentationToolbar.showToolsDesc": "نمایش نوارابزارها",
     "app.presentation.placeholder": "در حال حاضر هیچ ارائه فعالی وجود ندارد",
     "app.presentationUploder.title": "ارائه",
-    "app.presentationUploder.message": "به عنوان یک ارائه‌دهنده، شما توانایی بارگذاری انواع پرونده‌های Office یا پرونده PDF را دارید. ما پرونده PDF را برای بهترین نتیجه توصیه می‌کنیم. لطفا مطمئن شوید که یک ارائه با استفاده از کادر دایره‌ای در سمت چپ انتخاب شده است.",
+    "app.presentationUploder.message": "به عنوان یک ارائه‌دهنده، شما توانایی بارگذاری انواع پرونده‌های اداری یا پرونده PDF را دارید. ما پرونده PDF را برای بهترین نتیجه توصیه می‌کنیم. لطفا مطمئن شوید که یک ارائه با استفاده از کادر دایره‌ای در سمت چپ انتخاب شده است.",
     "app.presentationUploader.exportHint": "با انتخاب «ارسال به گفتگو» یک پیوند قابل بارگیری به همراه حاشیه‌نویسی‌ها در گفتگوی عمومی در اختیار کاربران قرار می‌گیرد.",
     "app.presentationUploader.exportToastHeader": "در حال ارسال به گفتگو «{0} مورد»",
     "app.presentationUploader.exportToastHeaderPlural": "در حال ارسال به گفتگو «{0} مورد»",
