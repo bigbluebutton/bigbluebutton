@@ -74,7 +74,7 @@
     "app.captions.dictationOnDesc": "تشخیص گفتار را روشن می‌کند",
     "app.captions.dictationOffDesc": "تشخیص گفتار را خاموش می‌کند",
     "app.captions.speech.start": "امکان تشخیص گفتار آغاز شد",
-    "app.captions.speech.stop": "امکان تشخیص گفتار متوقف شد",
+    "app.captions.speech.stop": "تشخیص گفتار متوقف شد",
     "app.captions.speech.error": "به دلیل ناسازگاری مرورگر یا مدتی سکوت، تشخیص گفتار متوقف شد",
     "app.confirmation.skipConfirm": "دوباره نپرس",
     "app.confirmation.virtualBackground.title": "شروع پس‌زمینه مجازی جدید",
