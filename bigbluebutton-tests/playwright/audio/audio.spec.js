@@ -28,16 +28,19 @@ test.describe.serial('Audio', () => {
 
   test('Change audio input and keep it connected', async () => {
     await audio.changeAudioInput();
-  })
+  });
+
+  test('Keep the last mute state after rejoining audio @ci', async () => {
+    await audio.keepMuteStateOnRejoin();
+  });
+
+  test('Mute yourself by clicking the talking indicator', async () => {
+    await audio.keepMuteStateOnRejoin();
+  });
+
   /*
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources
-  test('Change audio input and keep it connected', async ({ browser, page }) => {
-    const audio = new Audio(browser, page);
-    await audio.init(true, false);
-    await audio.changeAudioInput();
-  });
-
   test('Keep the last mute state after rejoining audio @ci', async ({ browser, page }) => {
     const audio = new Audio(browser, page);
     await audio.init(true, false);
