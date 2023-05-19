@@ -19,21 +19,6 @@ class PollOptionDbTableDef(tag: Tag) extends Table[PollOptionDbModel](tag, None,
 }
 
 object PollOptionDAO {
-  //  def insert(pollId: String, optionId: Int, optionDesc: String) = {
-  //    DatabaseConnection.db.run(
-  //      TableQuery[PollOptionDbTableDef].insertOrUpdate(
-  //        PollOptionDbModel(
-  //          pollId = pollId,
-  //          optionId = optionId,
-  //          optionDesc = optionDesc
-  //        )
-  //      )
-  //    ).onComplete {
-  //        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on PollOption table!")
-  //        case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting PollOption: $e")
-  //      }
-  //  }
-
   def prepareOptionInsert(pollId: String, answer: Answer) = {
     TableQuery[PollOptionDbTableDef].forceInsert(
       PollOptionDbModel(
