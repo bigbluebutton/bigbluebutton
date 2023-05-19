@@ -229,7 +229,7 @@ const VideoListItem = (props) => {
     >
 
       <Styled.VideoContainer>
-        {isSelfViewDisabled && user.userId === Auth.userID && (
+        {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
           <Styled.VideoDisabled>
             {intl.formatMessage(intlMessages.disableDesc)}
           </Styled.VideoDisabled>
