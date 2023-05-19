@@ -79,8 +79,6 @@ export const ChatActions: React.FC = () => {
           + `${encodeURIComponent(exportedString)}`,
         );
         link.dispatchEvent(new MouseEvent('click', { bubbles: false, cancelable: true, view: window }));
-        link.attributes.removeNamedItemNS(null, 'download');
-        link.attributes.removeNamedItem('href');
         downloadOrCopyRef.current = null;
       } else if (downloadOrCopyRef.current === 'copy') {
         navigator.clipboard.writeText(exportedString);

@@ -8,7 +8,7 @@ import { layoutSelect, layoutDispatch } from '../../../layout/context';
 import { useShortcutHelp } from '../../../shortcut-help/useShortcutHelp';
 import { Layout } from '../../../layout/layoutTypes';
 import  { ACTIONS, PANELS } from '../../../layout/enums';
-import { ChatActions } from './chat-acations/component';
+import { ChatActions } from './chat-actions/component';
 
 interface ChatHeaderProps {
   chatId: string;
