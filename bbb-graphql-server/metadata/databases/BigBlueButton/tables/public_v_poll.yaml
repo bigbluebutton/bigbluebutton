@@ -1,0 +1,52 @@
+table:
+  name: v_poll
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: poll
+  custom_root_fields: {}
+array_relationships:
+  - name: options
+    using:
+      manual_configuration:
+        column_mapping:
+          pollId: pollId
+        insertion_order: null
+        remote_table:
+          name: v_poll_option
+          schema: public
+  - name: responses
+    using:
+      manual_configuration:
+        column_mapping:
+          pollId: pollId
+        insertion_order: null
+        remote_table:
+          name: v_poll_response
+          schema: public
+  - name: users
+    using:
+      manual_configuration:
+        column_mapping:
+          pollId: pollId
+        insertion_order: null
+        remote_table:
+          name: v_poll_user
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - ended
+        - multipleResponses
+        - ownerId
+        - pollId
+        - published
+        - publishedAt
+        - questionText
+        - secret
+        - type
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

@@ -1,0 +1,19 @@
+table:
+  name: v_meeting_voiceSettings
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting_voiceSettings
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - dialNumber
+        - muteOnStart
+        - telVoice
+        - voiceConf
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
