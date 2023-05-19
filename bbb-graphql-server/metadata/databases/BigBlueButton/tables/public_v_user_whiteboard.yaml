@@ -5,7 +5,6 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - meetingId
         - whiteboardId
         - userId
         - changedModeOn
