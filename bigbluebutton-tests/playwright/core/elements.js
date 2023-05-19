@@ -348,6 +348,7 @@ exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
+exports.deniedMessageElement = 'p[class="error-message"]';
 exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
 exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
 exports.selectedUserName = 'div[data-test="selectedUserName"]';

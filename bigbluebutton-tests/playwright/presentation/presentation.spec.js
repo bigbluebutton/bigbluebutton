@@ -20,45 +20,45 @@ test.describe.parallel('Presentation', () => {
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#start-youtube-video-sharing
-  test('Start external video', async ({ browser, context, page }) => {
+  test('Start external video @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.startExternalVideo();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#fit-to-width-option
-  test('Presentation fit to width', async ({ browser, context, page }) => {
+  test('Presentation fit to width @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true, { customParameter: customStyleAvoidUploadingNotifications });
     await presentation.initUserPage(true, context);
     await presentation.fitToWidthTest();
   });
 
-  test('Presentation fullscreen', async ({ browser, context, page }) => {
+  test('Presentation fullscreen @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot @ci', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
   });
 
-  test('Hide Presentation Toolbar', async ({ browser, context, page }) => {
+  test('Hide Presentation Toolbar @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom', async ({ browser, context, page }) => {
+  test('Zoom In, Zoom Out, Reset Zoom @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
   });
 
-  test('Select Slide', async ({ browser, context, page }) => {
+  test('Select Slide @ci', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.selectSlide();
@@ -86,7 +86,7 @@ test.describe.parallel('Presentation', () => {
       await presentation.downloadPresentation(testInfo);
     });
 
-    test('Remove all presentation', async ({ browser, context, page }) => {
+    test('Remove all presentation @ci', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.removeAllPresentation();
