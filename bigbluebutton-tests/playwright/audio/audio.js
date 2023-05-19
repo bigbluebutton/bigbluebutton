@@ -4,6 +4,7 @@ const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { connectMicrophone, isAudioItemSelected } = require('./util');
 const { MultiUsers } = require('../user/multiusers');
 const { getSettings, generateSettingsData } = require('../core/settings');
+const { expect } = require('@playwright/test');
 
 
 class Audio extends MultiUsers {
@@ -25,8 +26,13 @@ class Audio extends MultiUsers {
   }
 
   async joinMicrophone() {
-    await this.modPage.waitAndClick(e.joinAudio)
-    await connectMicrophone(this.modPage);
+    try {
+      await connectMicrophone(this.modPage);
+    } catch {
+      await this.modPage.waitAndClick(e.joinAudio);
+      await connectMicrophone(this.modPage);
+    }
+
     await this.modPage.hasElement(e.muteMicButton);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.hasElement(e.leaveAudio);
@@ -59,6 +65,7 @@ class Audio extends MultiUsers {
       await this.modPage.waitAndClick(e.joinAudio);
       await connectMicrophone(this.modPage);
     }
+    
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await isAudioItemSelected(this.modPage, e.defaultInputAudioDevice);
     await this.modPage.waitAndClick(e.secondInputAudioDevice);
@@ -66,7 +73,6 @@ class Audio extends MultiUsers {
     await this.modPage.hasElement(e.muteMicButton);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await isAudioItemSelected(this.modPage, e.secondInputAudioDevice);
-
     await this.modPage.waitAndClick(e.leaveAudio);
   }
 
@@ -90,16 +96,49 @@ class Audio extends MultiUsers {
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.unmuteMicButton);
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.waitAndClick(e.audioDropdownMenu);
+    await this.modPage.waitAndClick(e.leaveAudio);
   }
 
   async muteYourselfByTalkingIndicator() {
-    await connectMicrophone(this);
-    await this.waitAndClick(e.talkingIndicator);
-    await this.hasElement(e.wasTalking);
-    await this.wasRemoved(e.muteMicButton);
-    await this.hasElement(e.unmuteMicButton);
-    await this.wasRemoved(e.isTalking);
-    await this.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    try {
+      await connectMicrophone(this.modPage);
+    } catch {
+      await this.modPage.waitAndClick(e.joinAudio);
+      await connectMicrophone(this.modPage);
+    }
+    await this.modPage.waitAndClick(e.talkingIndicator);
+    await this.modPage.hasElement(e.wasTalking);
+    await this.modPage.wasRemoved(e.muteMicButton);
+    await this.modPage.hasElement(e.unmuteMicButton);
+    await this.modPage.wasRemoved(e.isTalking);
+    await this.modPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.audioDropdownMenu);
+    await this.modPage.waitAndClick(e.leaveAudio);
+  }
+
+  async muteAnotherUser() {
+    try {
+      await this.modPage.waitAndClick(e.joinAudio);
+      await connectMicrophone(this.modPage);
+      await this.userPage.joinMicrophone();
+    } catch {
+      await connectMicrophone(this.modPage);
+      await this.userPage.joinMicrophone();
+    }
+
+    await this.userPage.waitAndClick(e.muteMicButton);
+    await this.modPage.waitAndClick(e.isTalking);
+    await this.userPage.hasElement(e.unmuteMicButton);
+
+    const moderatorWasTalkingLocator = await this.modPage.getLocator(e.wasTalking).first();
+    const userWasTalkingLocator = await this.userPage.getLocator(e.wasTalking).last();
+
+    await expect(moderatorWasTalkingLocator).toBeVisible();
+    await expect(userWasTalkingLocator).toBeVisible();
+    await this.userPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.wasRemoved(e.talkingIndicator);
   }
 }
 
