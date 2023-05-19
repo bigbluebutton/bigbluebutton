@@ -773,7 +773,7 @@
     "app.guest.errorSeeConsole": "خطا: جزئیات بیشتر در کنسول.",
     "app.guest.noModeratorResponse": "هیچ پاسخی از مدیر وجود ندارد",
     "app.guest.noSessionToken": "هیچ ژتون جلسه‌ای دریافت نشد.",
-    "app.guest.windowTitle": "سالن انتظار مهمان",
+    "app.guest.windowTitle": "اتاق انتظار مهمان",
     "app.guest.missingToken": "کلید ژتون جلسه مهمان وجود ندارد.",
     "app.guest.missingSession": "میهمان جلسه را از دست داد.",
     "app.guest.missingMeeting": "جلسه وجود ندارد.",
