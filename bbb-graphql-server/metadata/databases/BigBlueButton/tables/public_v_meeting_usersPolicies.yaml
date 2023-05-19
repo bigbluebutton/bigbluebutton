@@ -11,7 +11,6 @@ select_permissions:
         - guestPolicy
         - maxUserConcurrentAccesses
         - maxUsers
-        - meetingId
         - meetingLayout
         - moderatorsCanMuteAudio
         - moderatorsCanUnmuteAudio
