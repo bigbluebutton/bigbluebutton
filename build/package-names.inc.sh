@@ -25,6 +25,7 @@ DEBNAME_TO_SOURCEDIR[bbb-web]="bigbluebutton-web bbb-common-web bbb-common-messa
 DEBNAME_TO_SOURCEDIR[bbb-webhooks]="bbb-webhooks"
 DEBNAME_TO_SOURCEDIR[bbb-webrtc-sfu]="bbb-webrtc-sfu"
 DEBNAME_TO_SOURCEDIR[bbb-webrtc-recorder]="bbb-webrtc-recorder"
+DEBNAME_TO_SOURCEDIR[bbb-transcription-controller]="bbb-transcription-controller"
 DEBNAME_TO_SOURCEDIR[bigbluebutton]="do_not_copy_anything"
 
 export DEBNAME_TO_SOURCEDIR

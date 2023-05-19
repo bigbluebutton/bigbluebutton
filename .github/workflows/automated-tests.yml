@@ -44,6 +44,7 @@ jobs:
       - run: ./build/setup.sh bbb-web
       - run: ./build/setup.sh bbb-webrtc-sfu
       - run: ./build/setup.sh bbb-webrtc-recorder
+      - run: ./build/setup.sh bbb-transcription-controller
       - run: ./build/setup.sh bigbluebutton
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
