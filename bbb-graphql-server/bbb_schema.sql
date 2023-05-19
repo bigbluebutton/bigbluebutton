@@ -27,6 +27,7 @@ DROP VIEW IF EXISTS "v_user";
 DROP VIEW IF EXISTS "v_user_current";
 DROP VIEW IF EXISTS "v_user_ref";
 DROP VIEW IF EXISTS "v_user_customParameter";
+DROP VIEW IF EXISTS "v_user_welcomeMsgs";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
@@ -40,7 +41,6 @@ DROP VIEW IF EXISTS "v_meeting_showUserlist";
 DROP VIEW IF EXISTS "v_meeting_usersPolicies";
 DROP VIEW IF EXISTS "v_meeting_breakoutPolicies";
 DROP VIEW IF EXISTS "v_meeting_recordingPolicies";
-DROP VIEW IF EXISTS "v_meeting_welcomeSettings";
 DROP VIEW IF EXISTS "v_meeting_voiceSettings";
 DROP VIEW IF EXISTS "v_meeting_group";
 DROP TABLE IF EXISTS "meeting_breakout";
@@ -117,13 +117,12 @@ create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId
 create view "v_meeting_recordingPolicies" as select * from meeting_recording;
 
 create table "meeting_welcome" (
-	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
 	"welcomeMsgTemplate" text,
 	"welcomeMsg" text,
-	"modOnlyMessage" text
+	"welcomeMsgForModerators" text
 );
 create index "idx_meeting_welcome_meetingId" on "meeting_welcome"("meetingId");
-create view "v_meeting_welcomeSettings" as select * from meeting_welcome;
 
 create table "meeting_voice" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -404,6 +403,16 @@ CREATE VIEW "v_user_customParameter" AS
 SELECT u."meetingId", "user_customParameter".*
 FROM "user_customParameter"
 JOIN "user" u ON u."userId" = "user_customParameter"."userId";
+
+CREATE VIEW "v_user_welcomeMsgs" AS
+SELECT
+u."meetingId",
+u."userId",
+w."welcomeMsg",
+CASE WHEN u."role" = 'MODERATOR' THEN w."welcomeMsgForModerators" ELSE NULL END "welcomeMsgForModerators"
+FROM "user" u
+join meeting_welcome w USING("meetingId");
+
 
 CREATE TABLE "user_voice" (
 	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
@@ -868,7 +877,6 @@ poll."type",
 poll."questionText",
 poll."ownerId" AS "pollOwnerId",
 u."userId",
-u.name,
 array_remove(array_agg(o."optionId"), NULL) AS "optionIds",
 array_remove(array_agg(o."optionDesc"), NULL) AS "optionDescIds",
 CASE WHEN count(o."optionId") > 0 THEN TRUE ELSE FALSE end responded

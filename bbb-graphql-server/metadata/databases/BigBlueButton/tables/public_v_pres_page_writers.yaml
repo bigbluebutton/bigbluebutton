@@ -12,7 +12,6 @@ select_permissions:
       columns:
         - changedModeOn
         - isCurrentPage
-        - meetingId
         - pageId
         - presentationId
         - userId

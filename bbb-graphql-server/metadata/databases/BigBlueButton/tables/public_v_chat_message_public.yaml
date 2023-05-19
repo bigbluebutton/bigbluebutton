@@ -24,7 +24,6 @@ select_permissions:
         - chatEmphasizedText
         - chatId
         - correlationId
-        - meetingId
         - messageId
         - senderId
         - senderName

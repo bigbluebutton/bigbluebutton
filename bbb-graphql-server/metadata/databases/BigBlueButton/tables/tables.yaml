@@ -11,7 +11,6 @@
 - "!include public_v_meeting_showUserlist.yaml"
 - "!include public_v_meeting_usersPolicies.yaml"
 - "!include public_v_meeting_voiceSettings.yaml"
-- "!include public_v_meeting_welcomeSettings.yaml"
 - "!include public_v_poll.yaml"
 - "!include public_v_poll_option.yaml"
 - "!include public_v_poll_response.yaml"
@@ -29,3 +28,4 @@
 - "!include public_v_user_typing_private.yaml"
 - "!include public_v_user_typing_public.yaml"
 - "!include public_v_user_voice.yaml"
+- "!include public_v_user_welcomeMsgs.yaml"
