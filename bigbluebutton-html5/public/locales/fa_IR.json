@@ -273,7 +273,7 @@
     "app.presentationUploder.conversion.204": "محتوایی برای ضبط وجود ندارد",
     "app.presentationUploder.upload.413": "حجم پرونده زیاد است، از حداکثر {0} مگابایت بیشتر است",
     "app.presentationUploder.genericError": "اوه، مشکلی پیش آمد...",
-    "app.presentationUploder.upload.408": "زمان درخواست توکن بارگذاری به پایان رسید.",
+    "app.presentationUploder.upload.408": "زمان درخواست ژتون بارگذاری به پایان رسید.",
     "app.presentationUploder.upload.404": "۴۰۴: توکن بارگذاری نامعتبر است.",
     "app.presentationUploder.upload.401": "درخواست توکن بارگذاری ارائه ناموفق بود.",
     "app.presentationUploder.conversion.conversionProcessingSlides": "در حال پردازش صفحه {0} از {1}",
