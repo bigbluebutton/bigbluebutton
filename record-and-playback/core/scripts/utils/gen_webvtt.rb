@@ -188,6 +188,7 @@ class Caption
     prev_break = 0
     next_break = break_iter.following(prev_break)
 
+    #This code is to reduce the max caption length for locales using 2-byte characters such as Japanese 
     $logger.debug("Max lentgh reduced because the locale #{@locale} seems not composed only by one byte letters.")
     max_length /= 2 if @text.size * 2 < @text.bytesize
 
