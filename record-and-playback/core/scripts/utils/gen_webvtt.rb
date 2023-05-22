@@ -180,7 +180,7 @@ class Caption
     locale = ICU::Locale.new(@locale)
     $logger.debug("Using locale #{locale.display_name(locale)} for word-wrapping")
 
-    break_iter = ICU::BreakIterator.new(:line, @locale)
+    break_iter = ICU::BreakIterator.new(:word, @locale)
     break_iter.text = @text
 
     line = CaptionLine.new
