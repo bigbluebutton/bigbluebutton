@@ -1,0 +1,22 @@
+From 8e5dc5a087634145e5fc68b4e6a693d7723fe643 Mon Sep 17 00:00:00 2001
+From: Andrey Volk <andywolk@gmail.com>
+Date: Wed, 29 Dec 2021 22:05:20 +0300
+Subject: [PATCH] [mod_opusfile] Fix missing rdlock unlock in
+ switch_opusfile_open()
+
+---
+ src/mod/formats/mod_opusfile/mod_opusfile.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/mod/formats/mod_opusfile/mod_opusfile.c b/src/mod/formats/mod_opusfile/mod_opusfile.c
+index afd5f512676..15601422631 100644
+--- a/src/mod/formats/mod_opusfile/mod_opusfile.c
++++ b/src/mod/formats/mod_opusfile/mod_opusfile.c
+@@ -295,6 +295,7 @@ static switch_status_t switch_opusfile_open(switch_file_handle_t *handle, const
+ 	context->of = op_open_file(path, &ret);
+ 	if (!context->of) {
+ 		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "[OGG/OPUS File] Error opening %s\n", path);
++		switch_thread_rwlock_unlock(context->rwlock);
+ 		return SWITCH_STATUS_GENERR;
+ 	}
+ 

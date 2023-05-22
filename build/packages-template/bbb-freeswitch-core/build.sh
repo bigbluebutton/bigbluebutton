@@ -93,6 +93,11 @@ patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch 
 #   rather well and seems sound.
 patch -p1 < $BUILDDIR/1914.patch
 
+# Applies https://github.com/signalwire/freeswitch/commit/8e5dc5a087634145e5fc68b4e6a693d7723fe6430
+# as a patch to try to fix a crash when starting recordings - revert if it doesn't work
+# or, if it works, once we adopt a release with it (still unreleased as of 1.10.9) - prlanzarin May 22 2023
+patch -p1 < $BUILDDIR/8e5dc5a087634145e5fc68b4e6a693d7723fe643.patch
+
 ./bootstrap.sh
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
