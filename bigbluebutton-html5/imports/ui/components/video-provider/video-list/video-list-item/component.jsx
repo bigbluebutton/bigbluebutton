@@ -131,6 +131,7 @@ const VideoListItem = (props) => {
       isRTL={isRTL}
       isStream={isStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+      isSelfViewDisabled={isSelfViewDisabled}
     />
   );
 
@@ -157,6 +158,7 @@ const VideoListItem = (props) => {
           isRTL={isRTL}
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+          isSelfViewDisabled={isSelfViewDisabled}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -206,6 +208,7 @@ const VideoListItem = (props) => {
           isRTL={isRTL}
           isStream={isStream}
           onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+          isSelfViewDisabled={isSelfViewDisabled}
         />
         <UserStatus
           voiceUser={voiceUser}
