@@ -3,8 +3,6 @@
 
 ## Overview
 
-This document gives you an overview of BigBlueButton 2.6.
-
 BigBlueButton 2.6 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -17,7 +15,7 @@ Here's a breakdown of what's new in 2.6.
 
 #### Dark theme
 
-BigBlueButton supports dark theme. To enable it just navigate to the Settings.
+BigBlueButton supports dark theme. To enable it just navigate to the Settings and enabled Dark mode.
 
 ![The toggle for dark theme is located in the main settings panel](/img/26-dark-theme-setting.png)
 

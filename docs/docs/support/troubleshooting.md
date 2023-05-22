@@ -159,7 +159,7 @@ For example:
 ### Can I scale the number of streams up indefinitely with mediasoup?
 
 No. Scalability improves a lot with mediasoup, but there are still a couple of bottlenecks that can be hit as far  **as far as the media stack is concerned**. Namely:
-  - The signaling server (bbb-webrtc-sfu): it does not scale vertically indefinitely. There's always work ongoing on this area that can be tracked in [this issue](https://github.com/mconf/mconf-tracker/issues/238);
+  - The signaling server (bbb-webrtc-sfu): it does not scale vertically indefinitely. 
   - The mediasoup worker balancing algorithm implemented by bbb-webrtc-sfu is still focused on multiparty meetings with a restrained number of users. If your goal is thousand-user 1-N (streaming-like) meetings, you may max out CPU usage on certain mediasoup workers even though there are other idle oworkers free.
 
 ### bbb-webrtc-sfu fails to start with a SETSCHEDULER error
