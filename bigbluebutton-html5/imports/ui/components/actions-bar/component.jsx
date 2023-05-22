@@ -30,7 +30,7 @@ class ActionsBar extends PureComponent {
   }
 
   renderRaiseHand() {
-    const { isInteractionsButtonEnabled, isRaiseHandEnabled } = this.props;
+    const { isInteractionsButtonEnabled, isRaiseHandButtonEnabled } = this.props;
 
     return (<>
       {isInteractionsButtonEnabled ? <InteractionsButtonContainer /> :
