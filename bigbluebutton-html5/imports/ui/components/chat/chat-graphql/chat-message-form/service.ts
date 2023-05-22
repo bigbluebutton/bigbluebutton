@@ -2,27 +2,19 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { makeCall } from '/imports/ui/services/api';
 import { indexOf, without } from '/imports/utils/array-utils';
+import { throttle } from '/imports/utils/throttle';;
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
-
-const UnsentMessagesCollection = new Mongo.Collection(null);
-export const UserSentMessageCollection = new Mongo.Collection(null);
+const START_TYPING_THROTTLE_INTERVAL = 2000;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
-const setUserSentMessage = (bool) => {
-  UserSentMessageCollection.upsert(
-    { userId: Auth.userID },
-    { $set: { sent: bool } },
-  );
-};
-
-const sendGroupMessage = (message, idChatOpen) => {
+export const sendGroupMessage = (message: string, idChatOpen: string) => {
   const { userID: senderUserId } = Auth;
   const chatID = idChatOpen === PUBLIC_CHAT_ID
     ? PUBLIC_GROUP_CHAT_ID
@@ -51,8 +43,20 @@ const sendGroupMessage = (message, idChatOpen) => {
   return makeCall('sendGroupChatMsg', chatID, payload);
 };
 
+
+export const handleSendMessage = (message: string, idChatOpen: string) => {
+  return sendGroupMessage(message, idChatOpen);
+};
+
+export const startUserTyping = throttle(
+  (chatId: string) => makeCall('startUserTyping', chatId),
+  START_TYPING_THROTTLE_INTERVAL,
+);
+export const stopUserTyping = () => makeCall('stopUserTyping');
+
 export default {
-  setUserSentMessage,
   sendGroupMessage,
-  UnsentMessagesCollection,
+  handleSendMessage,
+  startUserTyping,
+  stopUserTyping,
 };

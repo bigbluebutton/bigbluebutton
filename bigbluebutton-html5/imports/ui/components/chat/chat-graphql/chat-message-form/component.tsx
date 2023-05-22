@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
-import { makeCall } from '/imports/ui/services/api';
-import Service from './service';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { isChatEnabled } from '/imports/ui/services/features';
@@ -12,16 +10,16 @@ import { checkText } from 'smile2emoji';
 import TypingIndicatorContainer from '/imports/ui/components/chat/message-form/typing-indicator/container';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import {
+  handleSendMessage,
+  startUserTyping,
+  stopUserTyping,
+} from './service';
 
 interface ChatMessageFormProps {
-  startUserTyping: Function,
-  stopUserTyping: Function,
-  UnsentMessagesCollection: object,
   minMessageLength: number,
   maxMessageLength: number,
-  handleSendMessage: Function,
   idChatOpen: string,
-  intl: object,
   chatAreaId: string,
   chatId: string,
   chatTitle: string,
@@ -74,15 +72,12 @@ const messages = defineMessages({
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const START_TYPING_THROTTLE_INTERVAL = 2000;
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
 const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
-  startUserTyping,
   handleClickOutside,
-  intl,
   chatTitle,
   title,
   disabled,
@@ -90,16 +85,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   partnerIsLoggedOut,
   minMessageLength,
   maxMessageLength,
-  handleSendMessage,
-  stopUserTyping,
   chatId,
   connected,
   locked,
 }) => {
   if (!isChatEnabled()) return null;
-
+  const intl = useIntl();
   const [hasErrors, setHasErrors] = React.useState(false);
-  const [error, setError] = React.useState(null);
+  const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const textAreaRef = useRef();
@@ -180,7 +173,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       return;
     }
 
-    handleSendMessage(escapeHtml(msg));
+    handleSendMessage(escapeHtml(msg), chatId);
     setMessage('');
     updateUnreadMessages(chatId, '');
     setHasErrors(false);
@@ -188,9 +181,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     if(ENABLE_TYPING_INDICATOR) stopUserTyping();
   }
 
-  const handleEmojiSelect = (emojiObject) => {
-    const cursor = textAreaRef.selectionStart;
-
+  const handleEmojiSelect = (emojiObject: { native: string} ) => {
+    const txtArea = textAreaRef?.current?.textarea;
+    const cursor = txtArea.selectionStart;
+    console.log(cursor);
+    
     setMessage(
       message.slice(0, cursor)
         + emojiObject.native
@@ -198,10 +193,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     );
 
     const newCursor = cursor + emojiObject.native.length;
-    setTimeout(() => textAreaRef.setSelectionRange(newCursor, newCursor), 10);
+    setTimeout(() => txtArea.setSelectionRange(newCursor, newCursor), 10);
   }
 
-  const handleMessageChange = (e) => {
+  const handleMessageChange = (e: React.FormEvent<HTMLInputElement>) => {
     let newMessage = null;
     let newError = null;
 
@@ -224,7 +219,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     throttledHandleUserTyping(newError);
   }
 
-  const handleUserTyping = (error) => {
+  const handleUserTyping = (error?: boolean) => {
     if (error || !ENABLE_TYPING_INDICATOR) return;
     startUserTyping(chatId);
   }
@@ -232,7 +227,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const throttledHandleUserTyping = throttle(() => handleUserTyping(),
   2000, { trailing: false });
 
-  const handleMessageKeyDown = (e) => {
+  const handleMessageKeyDown = (e: React.FormEvent<HTMLInputElement>) => {
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
     if (e.keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -333,19 +328,7 @@ const ChatMessageFormContainer: React.FC = ({
   locked,
 }) => {
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
-
-  const intl = useIntl();
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
-
-  const handleSendMessage = (message) => {
-    Service.setUserSentMessage(true);
-    return Service.sendGroupMessage(message, idChatOpen);
-  };
-  const startUserTyping = throttle(
-    (chatId) => makeCall('startUserTyping', chatId),
-    START_TYPING_THROTTLE_INTERVAL,
-  );
-  const stopUserTyping = () => makeCall('stopUserTyping');
 
   const handleClickOutside = () => {
     if (showEmojiPicker) {
@@ -355,14 +338,9 @@ const ChatMessageFormContainer: React.FC = ({
 
   return <ChatMessageForm
     {...{
-      startUserTyping,
-      stopUserTyping,
-      UnsentMessagesCollection: Service.UnsentMessagesCollection,
       minMessageLength: CHAT_CONFIG.min_message_length,
       maxMessageLength: CHAT_CONFIG.max_message_length,
-      handleSendMessage,
       idChatOpen,
-      intl,
       handleClickOutside,
       chatAreaId,
       chatId,

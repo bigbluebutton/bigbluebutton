@@ -6,7 +6,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import Styled from './styles';
-import ChatMessageFormContainer from '/imports/ui/components/chat/chat-graphql/chat-message-form/component';
+import MessageFormContainer from './message-form/container';
 import TimeWindowList from './time-window-list/container';
 import ChatDropdownContainer from './chat-dropdown/container';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -153,7 +153,7 @@ const Chat = (props) => {
           width,
         }}
       />
-      <ChatMessageFormContainer
+      <MessageFormContainer
         title={title}
         chatId={chatID}
         chatTitle={title}
