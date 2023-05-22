@@ -5,7 +5,7 @@ import { generateActionsPermissions, isVoiceOnlyUser } from './service';
 import { useIntl, defineMessages } from 'react-intl';
 import {
   isVideoPinEnabledForCurrentUser,
-  getGroupChatPrivate,
+  sendCreatePrivateChat,
   setEmojiStatus,
   toggleVoice,
   changeWhiteboardAccess,
@@ -195,7 +195,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
         setSelected(false);
-        getGroupChatPrivate(currentUser.userId, user);
+        sendCreatePrivateChat(user);
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: true,

@@ -12,11 +12,11 @@ case "$1" in
     BBB_SECRET=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | grep securitySalt | cut -d= -f2)
     BBB_HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 
-    yq w -i $TARGET bbb.sharedSecret "$BBB_SECRET"
-    yq w -i $TARGET bbb.serverDomain "$BBB_HOST"
-    yq w -i $TARGET bbb.auth2_0 "true"
-    yq w -i $TARGET server.port "3005"
-    yq w -i $TARGET hooks.getRaw "false"
+    yq e -i  ".bbb.sharedSecret  = \"$BBB_SECRET\"" $TARGET
+    yq e -i  ".bbb.serverDomain = \"$BBB_HOST\"" $TARGET
+    yq e -i  '.bbb.auth2_0 = true' $TARGET
+    yq e -i  '.server.port = 3005' $TARGET
+    yq e -i  '.hooks.getRaw = false' $TARGET
 
     cd /usr/local/bigbluebutton/bbb-webhooks
     mkdir -p node_modules

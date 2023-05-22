@@ -96,6 +96,7 @@ object UserDAO {
           DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted in User table!")
           ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
           UserConnectionStatusdDAO.insert(meetingId, regUser.id)
+          UserCustomParameterDAO.insert(regUser.id, regUser.customParameters)
         }
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user: $e")
       }

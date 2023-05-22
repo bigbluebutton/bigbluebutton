@@ -64,7 +64,6 @@ export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`subscription {
       hasActiveLockSetting
       hideUserList
       hideViewersCursor
-      meetingId
       webcamsOnlyForModerator
     }
     usersPolicies {
@@ -74,7 +73,6 @@ export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`subscription {
       guestPolicy
       maxUserConcurrentAccesses
       maxUsers
-      meetingId
       meetingLayout
       userCameraCap
       webcamsOnlyForModerator

@@ -27,7 +27,6 @@ select_permissions:
         - disconnected
         - locked
         - loggedOut
-        - meetingId
         - mobile
         - name
         - pinned

@@ -30,8 +30,8 @@ select_permissions:
         - lastFloorTime
         - lastSpeakChangedAt
         - listenOnly
-        - meetingId
         - muted
+        - showTalkingIndicator
         - spoke
         - startTime
         - talking

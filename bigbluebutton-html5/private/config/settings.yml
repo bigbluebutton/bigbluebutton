@@ -528,7 +528,7 @@ public:
     type_private: PRIVATE_ACCESS
     system_userid: SYSTEM_MESSAGE
     system_username: SYSTEM_MESSAGE
-    public_id: public
+    public_id: MAIN-PUBLIC-GROUP-CHAT
     public_group_id: MAIN-PUBLIC-GROUP-CHAT
     public_userid: public_chat_userid
     public_username: public_chat_username

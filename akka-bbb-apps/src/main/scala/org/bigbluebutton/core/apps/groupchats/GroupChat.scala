@@ -7,6 +7,10 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
 object GroupChatApp {
+  def getGroupChatOfUsers(userId: String, participantIds: Vector[String], state: MeetingState2x): Option[GroupChat] = {
+    state.groupChats.findAllPrivateChatsForUser(userId)
+      .find(groupChat => participantIds.forall(groupChat.users.map(u => u.id).contains))
+  }
 
   val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
 

@@ -40,7 +40,7 @@ object ChatDAO {
           for {
             user <- groupChat.users
           } yield {
-            ChatUserDAO.insert(meetingId, groupChat.id, user)
+            ChatUserDAO.insert(meetingId, groupChat.id, user, visible = groupChat.createdBy.id == user.id)
           }
 
         }

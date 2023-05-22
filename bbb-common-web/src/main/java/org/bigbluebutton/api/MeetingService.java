@@ -122,9 +122,9 @@ public class MeetingService implements MessageListener {
   public void registerUser(String meetingID, String internalUserId,
                            String fullname, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, Boolean guest,
-                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby) {
+                           Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby, Map<String, String> customParameters) {
     handle(new RegisterUser(meetingID, internalUserId, fullname, role,
-      externUserID, authToken, sessionToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard, leftGuestLobby));
+      externUserID, authToken, sessionToken, avatarURL, guest, authed, guestStatus, excludeFromDashboard, leftGuestLobby, customParameters));
 
     Meeting m = getMeeting(meetingID);
     if (m != null) {
@@ -421,7 +421,7 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.guest,
-            message.authed, message.guestStatus, message.excludeFromDashboard);
+            message.authed, message.guestStatus, message.excludeFromDashboard, message.customParameters);
   }
 
     public Meeting getMeeting(String meetingId) {
@@ -763,12 +763,12 @@ public class MeetingService implements MessageListener {
 
         if (parentUser != null) {
           // Custom data is stored indexed by user's external id
-          Map<String, Object> customData = parentMeeting.getUserCustomData(parentUser.getExternalUserId());
+          Map<String, String> customData = parentMeeting.getUserCustomData(parentUser.getExternalUserId());
 
           if (customData != null) {
             for (String key : customData.keySet()) {
               if (!resp.containsKey(key)) {
-                resp.put(key, String.valueOf(customData.get(key)));
+                resp.put(key, customData.get(key));
               }
             }
           }

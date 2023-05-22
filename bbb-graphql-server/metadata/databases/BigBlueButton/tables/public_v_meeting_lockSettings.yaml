@@ -19,7 +19,6 @@ select_permissions:
         - hideUserList
         - hideViewersCursor
         - webcamsOnlyForModerator
-        - meetingId
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

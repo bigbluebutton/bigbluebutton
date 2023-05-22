@@ -349,8 +349,7 @@ class ApiController {
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
     //Currently, it's associated with the externalUserID
-    if (userCustomData.size() > 0)
-      meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
+    meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
 
     String guestStatusVal = meeting.calcGuestStatus(role, guest, authenticated)
 
@@ -422,7 +421,8 @@ class ApiController {
         us.authed,
         guestStatusVal,
         us.excludeFromDashboard,
-        us.leftGuestLobby
+        us.leftGuestLobby,
+        meeting.getUserCustomData(us.externUserID)
     )
 
     session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
@@ -865,20 +865,11 @@ class ApiController {
         }
       }
     } else {
-
-      Map<String, String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
-
-      // Generate a new userId for this user. This prevents old connections from
-      // removing the user when the user reconnects after being disconnected. (ralam jan 22, 2015)
-      // We use underscore (_) to associate userid with the user. We are also able to track
-      // how many times a user reconnects or refresh the browser.
-      String newInternalUserID = us.internalUserId //+ "_" + us.incrementConnectionNum()
-
       Map<String, Object> logData = new HashMap<String, Object>();
       logData.put("meetingid", us.meetingID);
       logData.put("extMeetingid", us.externMeetingID);
       logData.put("name", us.fullname);
-      logData.put("userid", newInternalUserID);
+      logData.put("userid", us.internalUserId);
       logData.put("sessionToken", sessionToken);
       logData.put("logCode", "handle_enter_api");
       logData.put("description", "Handling ENTER API.");
@@ -899,7 +890,7 @@ class ApiController {
             meetingID us.meetingID
             externMeetingID us.externMeetingID
             externUserID us.externUserID
-            internalUserID newInternalUserID
+            internalUserID us.internalUserId
             authToken us.authToken
             role us.role
             guest us.guest
