@@ -11,7 +11,6 @@ export const CHATS_SUBSCRIPTION = gql`subscription {
         }}, 
     ]) {
         chatId
-        meetingId
         participant {
             name
             role
