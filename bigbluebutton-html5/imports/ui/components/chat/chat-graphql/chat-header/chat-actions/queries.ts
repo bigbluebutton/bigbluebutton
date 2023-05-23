@@ -6,6 +6,7 @@ import { Message } from "/imports/ui/Types/message";
 export type getChatMessageHistory = {
   chat_message_public: Array<Message>
   meeting: Array<Meeting>;
+  user_welcomeMsgs: Array<{welcomeMsg: string, welcomeMsgForModerators: string | null}>;
 };
 
 export type getPermissions = {
@@ -27,10 +28,10 @@ query getChatMessageHistory {
   }
   meeting {
     name
-    welcomeSettings {
-      welcomeMsg
-      modOnlyMessage
-    }
+  }
+  user_welcomeMsgs {
+    welcomeMsg
+    welcomeMsgForModerators
   }
 }
 `;

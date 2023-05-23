@@ -48,5 +48,4 @@ export interface Meeting {
   presentationUploadExternalUrl: string;
   usersPolicies: UsersPolicies;
   lockSettings: LockSettings;
-  welcomeSettings: WelcomeSettings;
 }

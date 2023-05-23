@@ -1,5 +1,4 @@
 import { Message } from "/imports/ui/Types/message";
-import { WelcomeSettings } from "/imports/ui/Types/meeting";
 import { makeCall } from "/imports/ui/services/api";
 import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 
@@ -8,9 +7,9 @@ export const htmlDecode = (input: string) => {
   return unescapeHtml(stripTags(replacedBRs));
 };
 
-export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: WelcomeSettings ): string  => {
+export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: {welcomeMsg: string, modOnlyMessage: string | null} ): string  => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
-  const modOnlyMessage = htmlDecode(welcomeSettings.modOnlyMessage);
+  const modOnlyMessage = welcomeSettings.modOnlyMessage && htmlDecode(welcomeSettings.modOnlyMessage);
   const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}`: ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}`: ''}\n`
   
   const text = messages.reduce((acc, message) => {
