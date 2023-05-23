@@ -521,7 +521,7 @@ const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
 }, 250, { leading: false, trailing: true });
 
 const clearAllEmojiStatus = (users) => {
-  users.forEach((user) => makeCall('clearEmojiStatus', user.userId, 'none'));
+  makeCall('clearAllUsersEmoji');
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };

@@ -386,6 +386,7 @@ class MeetingActor(
         updateUserLastActivity(m.body.setBy)
       case m: GetRecordingStatusReqMsg   => usersApp.handleGetRecordingStatusReqMsg(m)
       case m: ChangeUserEmojiCmdMsg      => handleChangeUserEmojiCmdMsg(m)
+      case m: ClearAllUsersEmojiCmdMsg   => handleClearAllUsersEmojiCmdMsg(m)
       case m: SelectRandomViewerReqMsg   => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg   => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg => usersApp.handleChangeUserMobileFlagReqMsg(m)
