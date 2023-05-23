@@ -1,0 +1,28 @@
+table:
+  name: v_poll_response
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: poll_response
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - optionDesc
+        - optionId
+        - optionResponsesCount
+        - pollId
+        - pollResponsesCount
+        - questionText
+        - type
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - published:
+                  _eq: true
+              - pollOwnerId:
+                  _eq: X-Hasura-UserId

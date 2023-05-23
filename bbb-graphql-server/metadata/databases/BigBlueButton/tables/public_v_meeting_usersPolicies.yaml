@@ -8,13 +8,14 @@ select_permissions:
         - allowModsToEjectCameras
         - allowModsToUnmuteUsers
         - authenticatedGuest
-        - webcamsOnlyForModerator
         - guestPolicy
-        - meetingId
-        - meetingLayout
         - maxUserConcurrentAccesses
         - maxUsers
+        - meetingLayout
+        - moderatorsCanMuteAudio
+        - moderatorsCanUnmuteAudio
         - userCameraCap
+        - webcamsOnlyForModerator
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

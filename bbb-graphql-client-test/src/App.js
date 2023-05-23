@@ -1,6 +1,6 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
  import { WebSocketLink } from "@apollo/client/link/ws";
- import React, { useState } from "react";
+ import React, {useEffect, useState} from "react";
 import './App.css';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 import UserList from './UserList';
@@ -25,19 +25,13 @@ function App() {
   const [sessionToken, setSessionToken] = useState(null);
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
-  const [joining, setJoining] = useState(false);
   const [graphqlClient, setGraphqlClient] = useState(null);
   const [enterApiResponse, setEnterApiResponse] = useState('');
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
 
-  if(urlParams.has('sessionToken') && sessionToken !== urlParams.get('sessionToken')) {
-    setSessionToken(urlParams.get('sessionToken'));
-  }
-
-
-  function callApiEnter(sessionToken) {
+  async function callApiEnter(sessionToken) {
     // get url from input text box
     fetch('/bigbluebutton/api/enter/?sessionToken=' + sessionToken, { credentials: 'include' })
         .then((response) => response.json())
@@ -51,11 +45,22 @@ function App() {
         });
   }
 
+    useEffect(() => {
+        const fetchApiData = async () => {
+            if (urlParams.has('sessionToken')) {
+                const sessionTokenFromUrl = urlParams.get('sessionToken');
+
+                if (sessionTokenFromUrl !== null) {
+                    await callApiEnter(sessionTokenFromUrl);
+                    setSessionToken(sessionTokenFromUrl);
+                }
+            }
+        };
+        fetchApiData();
+    },[]);
+
   async function connectGraphqlServer(sessionToken) {
-
-    setSessionToken(sessionToken);
-    setJoining(false);
-
+    // setSessionToken(sessionToken);
     const wsLink = new WebSocketLink(
       new SubscriptionClient(`wss://${window.location.hostname}/v1/graphql`, {
         reconnect: true,
@@ -63,6 +68,7 @@ function App() {
         connectionParams: {
           headers: {
             'X-Session-Token': sessionToken,
+            'json-patch-supported': 'true'
           }
         }
       })
@@ -71,20 +77,19 @@ function App() {
     setGraphqlClient(new ApolloClient({link: wsLink, cache: new InMemoryCache()}));
   }
 
-  if(enterApiResponse === '' && joining === false && sessionToken !== null) {
-    setJoining(true);
-    callApiEnter(sessionToken);
-  }
+    useEffect(() => {
+        if(enterApiResponse === 'SUCCESS' && !graphqlClient) {
+            console.log(`Creating graphql socket with token ${sessionToken}`);
+            const fetchData = async () => {
+                await connectGraphqlServer(sessionToken);
+            }
+            fetchData();
+        } else if(enterApiResponse === 'FAILED') {
+            console.log('Error on enter API call: ' + enterApiResponse.message);
+            console.log(enterApiResponse);
+        }
+    },[sessionToken, enterApiResponse]);
 
-  if(enterApiResponse === 'SUCCESS' && !graphqlClient) {
-    setTimeout(async ()=>{
-      console.log(`Creating graphql socket with token ${sessionToken}`);
-      await connectGraphqlServer(sessionToken);
-    }, 1000);
-  } else if(enterApiResponse === 'FAILED') {
-    console.log('Error on enter API call: ' + enterApiResponse.message);
-    console.log(enterApiResponse);
-  }
 
   return (
     <div className="App">

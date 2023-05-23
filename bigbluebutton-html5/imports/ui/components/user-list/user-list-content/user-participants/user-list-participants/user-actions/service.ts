@@ -122,28 +122,10 @@ export const isVideoPinEnabledForCurrentUser = (
 // disclaimer: For the first version of the userlist using graphql
 // we decide keep using the same actions as the old userlist
 // so this code is duplicated from the old userlist service
-const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 // session for chats the current user started
-const STARTED_CHAT_LIST_KEY = 'startedChatList';
-const hasPrivateChatBetweenUsers = (senderId: string, receiverId: string) => GroupChat
-  .findOne({ users: { $all: [receiverId, senderId] } });
 
-export const getGroupChatPrivate = (senderUserId: string, receiver: User) => {
-  const chat = hasPrivateChatBetweenUsers(senderUserId, receiver.userId);
-  if (!chat) {
-    makeCall('createGroupChat', receiver);
-  } else {
-    const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (indexOf(startedChats, chat.chatId) < 0) {
-      startedChats.push(chat.chatId);
-      Session.set(STARTED_CHAT_LIST_KEY, startedChats);
-    }
-
-    const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-    if (indexOf(currentClosedChats, chat.chatId) > -1) {
-      Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chat.chatId));
-    }
-  }
+export const sendCreatePrivateChat = (receiver: User) => {
+  makeCall('createGroupChat', receiver);
 };
 
 export const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {

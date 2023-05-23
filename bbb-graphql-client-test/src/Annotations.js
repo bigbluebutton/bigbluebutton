@@ -1,8 +1,9 @@
 import {useSubscription, gql, useQuery} from '@apollo/client';
  import React, { useState } from "react";
+import usePatchedSubscription from "./usePatchedSubscription";
 
 export default function Annotations() {
-  const { loading, error, data } = useSubscription(
+  const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
           pres_annotation_curr_stream(batch_size: 10, cursor: {initial_value: {lastUpdatedAt: "\\"2023-03-29T20:26:29.002\\""}}) {
             annotationId
@@ -30,7 +31,7 @@ export default function Annotations() {
         </tr>
       </thead>
       <tbody>
-        {data.pres_annotation_curr_stream.map((curr) => {
+        {data.map((curr) => {
             console.log('pres_annotation_curr_stream', curr);
           return (
               <tr key={curr.annotationId}>

@@ -18,9 +18,9 @@
     connection_info:
       database_url:
         connection_parameters:
-          database: bigbluebutton
+          database: bbb_graphql
           host: localhost
-          password: bigbluebutton
+          password: bbb_graphql
           port: 5432
           username: postgres
       isolation_level: read-committed

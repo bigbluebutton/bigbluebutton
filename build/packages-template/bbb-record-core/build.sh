@@ -59,5 +59,4 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --before-remove before-remove.sh    \
     --description "BigBlueButton record and playback" \
     $DIRECTORIES \
-    $OPTS \
-    -d 'yq (>= 3)' -d 'yq (<< 4)'
+    $OPTS

@@ -2,6 +2,15 @@ table:
   name: meeting
   schema: public
 object_relationships:
+  - name: breakoutPolicies
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_breakoutPolicies
+          schema: public
   - name: lockSettings
     using:
       manual_configuration:
@@ -11,6 +20,15 @@ object_relationships:
         remote_table:
           name: v_meeting_lockSettings
           schema: public
+  - name: recordingPolicies
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_recordingPolicies
+          schema: public
   - name: usersPolicies
     using:
       manual_configuration:
@@ -19,6 +37,34 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_meeting_usersPolicies
+          schema: public
+  - name: voiceSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_voiceSettings
+          schema: public
+array_relationships:
+  - name: groups
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_meeting_group
+          schema: public
+  - name: polls
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_poll
           schema: public
 select_permissions:
   - role: bbb_client

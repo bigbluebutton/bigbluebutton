@@ -16,6 +16,15 @@ object_relationships:
         remote_table:
           name: user_connectionStatus
           schema: public
+  - name: customParameters
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_customParameter
+          schema: public
   - name: lastBreakoutRoom
     using:
       manual_configuration:
@@ -92,7 +101,6 @@ select_permissions:
         - disconnected
         - locked
         - loggedOut
-        - meetingId
         - mobile
         - name
         - pinned
