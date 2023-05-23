@@ -38,7 +38,7 @@ async function convertAndUpload() {
   const data = await sharedNotesAsFile.blob();
 
   const sharedNotesData = new File([data], filename, {
-    type: data.type,
+    type: 'application/pdf',
   });
 
   PresentationUploaderService.handleSavePresentation([], isFromPresentationUploaderInterface = false, {
