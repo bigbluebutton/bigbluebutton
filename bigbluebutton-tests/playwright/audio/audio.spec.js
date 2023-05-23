@@ -2,7 +2,7 @@ const { test } = require('@playwright/test');
 const { testSpeakerButton } = require('../core/elements');
 const { Audio } = require('./audio');
 
-test.describe.parallel('Audio', () => {
+test.describe.serial('Audio', () => {
   const audio = new Audio();
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
