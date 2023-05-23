@@ -121,8 +121,8 @@ jobs:
       - name: Install BBB
         run: |
             sudo sh -c '
-            cd /root/ && wget -q https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh -O bbb-install.sh
-            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-26-dev -s bbb-ci.test -j -d /certs/
+            cd /root/ && wget -q https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
+            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-27-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
