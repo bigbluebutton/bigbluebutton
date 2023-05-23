@@ -37,6 +37,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import PluginsLoader from '../plugins-loader/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
@@ -56,6 +57,7 @@ const DESKTOP_FONT_SIZE = APP_CONFIG.desktopFontSize;
 const MOBILE_FONT_SIZE = APP_CONFIG.mobileFontSize;
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
 const CONFIRMATION_ON_LEAVE = Meteor.settings.public.app.askForConfirmationOnLeave;
+const PLUGINS = Meteor.settings.public.plugins;
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -545,9 +547,18 @@ class App extends Component {
       darkTheme,
     } = this.props;
 
-    const { isAudioModalOpen, isRandomUserSelectModalOpen, isVideoPreviewModalOpen } = this.state;
+    const {
+      isAudioModalOpen,
+      isRandomUserSelectModalOpen,
+      isVideoPreviewModalOpen,
+      allPluginsLoaded,
+    } = this.state;
     return (
       <>
+        <PluginsLoader onReady={() => {
+          this.setState({ allPluginsLoaded: true });
+        }}
+        />
         <Notifications />
         {this.mountPushLayoutEngine()}
         {selectedLayout ? <LayoutEngine layoutType={selectedLayout} /> : null}
@@ -569,7 +580,15 @@ class App extends Component {
           <NavBarContainer main="new" />
           <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
           <Styled.TextMeasure id="text-measure" />
-          {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
+          {
+            shouldShowPresentation && (allPluginsLoaded || !PLUGINS)
+              ? (
+                <PresentationAreaContainer
+                  darkTheme={darkTheme}
+                  presentationIsOpen={presentationIsOpen}
+                />
+              ) : null
+          }
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
           {
             shouldShowExternalVideo

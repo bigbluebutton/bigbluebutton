@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import Button from '/imports/ui/components/common/button/component';
 import {
   HUNDRED_PERCENT,
   MAX_PERCENT,
@@ -104,6 +105,17 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidMount() {
+    let pluginProvidedButtons = [];
+    Object.keys(window.bbb_plugins).forEach((pluginName) => {
+      const plugin = window.bbb_plugins[pluginName];
+      if (plugin.getWhiteboardToolbarButtons) {
+        const buttons = plugin.getWhiteboardToolbarButtons();
+        pluginProvidedButtons = [...pluginProvidedButtons, ...buttons];
+      }
+    });
+    this.setState({
+      pluginProvidedButtons,
+    });
     document.addEventListener('keydown', this.switchSlide);
   }
 
@@ -271,6 +283,14 @@ class PresentationToolbar extends PureComponent {
       multiUser,
     } = this.props;
 
+    let pluginProvidedButtons = [];
+    if (this.state) {
+      const {
+        pluginProvidedButtons: ppb,
+      } = this.state;
+      pluginProvidedButtons = ppb;
+    }
+
     const { isMobile } = deviceInfo;
 
     const startOfSlides = !(currentSlideNum > 1);
@@ -292,6 +312,13 @@ class PresentationToolbar extends PureComponent {
       >
         {this.renderAriaDescs()}
         <div style={{ display: 'flex' }}>
+          {pluginProvidedButtons?.map((ppb) => (
+            <Button
+              key={ppb.name}
+              label={ppb.label}
+              onClick={ppb.onClick}
+            />
+          ))}
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
