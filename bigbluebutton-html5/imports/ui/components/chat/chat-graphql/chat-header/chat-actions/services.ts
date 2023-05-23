@@ -7,9 +7,9 @@ export const htmlDecode = (input: string) => {
   return unescapeHtml(stripTags(replacedBRs));
 };
 
-export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: {welcomeMsg: string, modOnlyMessage: string | null} ): string  => {
+export const generateExportedMessages = (messages: Array<Message>, welcomeSettings: {welcomeMsg: string, welcomeMsgForModerators: string | null} ): string  => {
   const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
-  const modOnlyMessage = welcomeSettings.modOnlyMessage && htmlDecode(welcomeSettings.modOnlyMessage);
+  const modOnlyMessage = welcomeSettings.welcomeMsgForModerators && htmlDecode(welcomeSettings.welcomeMsgForModerators);
   const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}`: ''}\n ${modOnlyMessage ? `system: ${modOnlyMessage}`: ''}\n`
   
   const text = messages.reduce((acc, message) => {
