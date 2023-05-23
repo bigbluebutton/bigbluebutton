@@ -15,7 +15,8 @@ class Audio extends MultiUsers {
   async joinAudio() {
     this.modPage.settings = await generateSettingsData(this.modPage);
     const { autoJoinAudioModal, listenOnlyCallTimeout } = this.modPage.settings;
-    if (!autoJoinAudioModal) await this.waitAndClick(e.joinAudio);
+    if (!autoJoinAudioModal) await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
@@ -26,12 +27,8 @@ class Audio extends MultiUsers {
   }
 
   async joinMicrophone() {
-    try {
-      await connectMicrophone(this.modPage);
-    } catch {
-      await this.modPage.waitAndClick(e.joinAudio);
-      await connectMicrophone(this.modPage);
-    }
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
 
     await this.modPage.hasElement(e.muteMicButton);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
@@ -40,12 +37,8 @@ class Audio extends MultiUsers {
   }
 
   async muteYourselfByButton() {
-    try {
-      await connectMicrophone(this.modPage);
-    } catch {
-      await this.modPage.waitAndClick(e.joinAudio);
-      await connectMicrophone(this.modPage);
-    }
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
     
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.wasRemoved(e.isTalking);
@@ -59,12 +52,8 @@ class Audio extends MultiUsers {
   }
 
   async changeAudioInput() {
-    try {
+    await this.modPage.waitAndClick(e.joinAudio);
       await connectMicrophone(this.modPage);
-    } catch {
-      await this.modPage.waitAndClick(e.joinAudio);
-      await connectMicrophone(this.modPage);
-    }
     
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await isAudioItemSelected(this.modPage, e.defaultInputAudioDevice);
@@ -77,12 +66,8 @@ class Audio extends MultiUsers {
   }
 
   async keepMuteStateOnRejoin() {
-    try {
+    await this.modPage.waitAndClick(e.joinAudio);
       await connectMicrophone(this.modPage);
-    } catch {
-      await this.modPage.waitAndClick(e.joinAudio);
-      await connectMicrophone(this.modPage);
-    }
     
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.hasElement(e.wasTalking);
@@ -102,12 +87,9 @@ class Audio extends MultiUsers {
   }
 
   async muteYourselfByTalkingIndicator() {
-    try {
-      await connectMicrophone(this.modPage);
-    } catch {
-      await this.modPage.waitAndClick(e.joinAudio);
-      await connectMicrophone(this.modPage);
-    }
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+
     await this.modPage.waitAndClick(e.talkingIndicator);
     await this.modPage.hasElement(e.wasTalking);
     await this.modPage.wasRemoved(e.muteMicButton);
@@ -119,14 +101,10 @@ class Audio extends MultiUsers {
   }
 
   async muteAnotherUser() {
-    try {
-      await this.modPage.waitAndClick(e.joinAudio);
-      await connectMicrophone(this.modPage);
-      await this.userPage.joinMicrophone();
-    } catch {
-      await connectMicrophone(this.modPage);
-      await this.userPage.joinMicrophone();
-    }
+    await this.modPage.waitAndClick(e.joinAudio);
+    await connectMicrophone(this.modPage);
+    await this.userPage.waitAndClick(e.joinAudio);
+    await this.userPage.joinMicrophone();
 
     await this.userPage.waitAndClick(e.muteMicButton);
     await this.modPage.waitAndClick(e.isTalking);

@@ -7,8 +7,8 @@ test.describe.parallel('Audio', () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await audio.initModPage(page, false);
-    await audio.initUserPage(false, context);
+    await audio.initModPage(page, true);
+    await audio.initUserPage(true, context);
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#listen-only-mode-automated
