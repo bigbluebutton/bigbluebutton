@@ -25,7 +25,6 @@ select_permissions:
         - correlationId
         - createdTime
         - createdTimeAsDate
-        - meetingId
         - message
         - messageId
         - senderId

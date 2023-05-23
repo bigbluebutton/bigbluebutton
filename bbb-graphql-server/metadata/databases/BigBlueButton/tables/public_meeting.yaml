@@ -11,6 +11,15 @@ object_relationships:
         remote_table:
           name: v_meeting_breakoutPolicies
           schema: public
+  - name: externalVideo
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_external_video
+          schema: public
   - name: lockSettings
     using:
       manual_configuration:
@@ -29,6 +38,15 @@ object_relationships:
         remote_table:
           name: v_meeting_recordingPolicies
           schema: public
+  - name: screenshare
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_screenshare
+          schema: public
   - name: usersPolicies
     using:
       manual_configuration:
@@ -46,15 +64,6 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_meeting_voiceSettings
-          schema: public
-  - name: welcomeSettings
-    using:
-      manual_configuration:
-        column_mapping:
-          meetingId: meetingId
-        insertion_order: null
-        remote_table:
-          name: v_meeting_welcomeSettings
           schema: public
 array_relationships:
   - name: groups

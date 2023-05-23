@@ -226,7 +226,7 @@ class Caption:
                     do_break = True
 
             else:
-                # Status [100,200) indicates a required (hard) line break
+                # Status [100,200] indicates a required (hard) line break
                 if next_break >= len(self.text) or (status >= 100 and status < 200):
                     line.text = text_section
                     line.start_time = start_time

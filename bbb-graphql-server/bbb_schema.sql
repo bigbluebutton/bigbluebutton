@@ -27,6 +27,7 @@ DROP VIEW IF EXISTS "v_user";
 DROP VIEW IF EXISTS "v_user_current";
 DROP VIEW IF EXISTS "v_user_ref";
 DROP VIEW IF EXISTS "v_user_customParameter";
+DROP VIEW IF EXISTS "v_user_welcomeMsgs";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
@@ -40,7 +41,6 @@ DROP VIEW IF EXISTS "v_meeting_showUserlist";
 DROP VIEW IF EXISTS "v_meeting_usersPolicies";
 DROP VIEW IF EXISTS "v_meeting_breakoutPolicies";
 DROP VIEW IF EXISTS "v_meeting_recordingPolicies";
-DROP VIEW IF EXISTS "v_meeting_welcomeSettings";
 DROP VIEW IF EXISTS "v_meeting_voiceSettings";
 DROP VIEW IF EXISTS "v_meeting_group";
 DROP TABLE IF EXISTS "meeting_breakout";
@@ -61,6 +61,10 @@ drop view if exists "v_poll";
 drop table if exists "poll_response";
 drop table if exists "poll_option";
 drop table if exists "poll";
+drop view if exists "v_external_video";
+drop table if exists "external_video";
+drop view if exists "v_screenshare";
+drop table if exists "screenshare";
 
 
 DROP FUNCTION IF EXISTS "update_user_presenter_trigger_func";
@@ -117,13 +121,12 @@ create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId
 create view "v_meeting_recordingPolicies" as select * from meeting_recording;
 
 create table "meeting_welcome" (
-	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
 	"welcomeMsgTemplate" text,
 	"welcomeMsg" text,
-	"modOnlyMessage" text
+	"welcomeMsgForModerators" text
 );
 create index "idx_meeting_welcome_meetingId" on "meeting_welcome"("meetingId");
-create view "v_meeting_welcomeSettings" as select * from meeting_welcome;
 
 create table "meeting_voice" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -404,6 +407,16 @@ CREATE VIEW "v_user_customParameter" AS
 SELECT u."meetingId", "user_customParameter".*
 FROM "user_customParameter"
 JOIN "user" u ON u."userId" = "user_customParameter"."userId";
+
+CREATE VIEW "v_user_welcomeMsgs" AS
+SELECT
+u."meetingId",
+u."userId",
+w."welcomeMsg",
+CASE WHEN u."role" = 'MODERATOR' THEN w."welcomeMsgForModerators" ELSE NULL END "welcomeMsgForModerators"
+FROM "user" u
+join meeting_welcome w USING("meetingId");
+
 
 CREATE TABLE "user_voice" (
 	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
@@ -842,7 +855,7 @@ CREATE INDEX "idx_poll_response_pollId" ON "poll_response"("pollId");
 CREATE INDEX "idx_poll_response_userId" ON "poll_response"("userId");
 CREATE INDEX "idx_poll_response_pollId_userId" ON "poll_response"("pollId", "userId");
 
-CREATE OR REPLACE VIEW v_poll_response AS
+CREATE OR REPLACE VIEW "v_poll_response" AS
 SELECT
 poll."meetingId",
 poll."pollId",
@@ -860,7 +873,7 @@ LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND o."optionId" = r."op
 GROUP BY poll."pollId", o."optionId", o."optionDesc"
 ORDER BY poll."pollId";
 
-CREATE VIEW v_poll_user AS
+CREATE VIEW "v_poll_user" AS
 SELECT
 poll."meetingId",
 poll."pollId",
@@ -868,7 +881,6 @@ poll."type",
 poll."questionText",
 poll."ownerId" AS "pollOwnerId",
 u."userId",
-u.name,
 array_remove(array_agg(o."optionId"), NULL) AS "optionIds",
 array_remove(array_agg(o."optionDesc"), NULL) AS "optionDescIds",
 CASE WHEN count(o."optionId") > 0 THEN TRUE ELSE FALSE end responded
@@ -878,10 +890,54 @@ LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND r."userId" = u."user
 LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionId"
 GROUP BY poll."pollId", u."userId", u.name ;
 
-CREATE VIEW v_poll AS SELECT * FROM poll;
+CREATE VIEW "v_poll" AS SELECT * FROM "poll";
 
 CREATE VIEW v_poll_option AS
 SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"
 FROM poll_option o
 JOIN poll using("pollId")
 WHERE poll."type" != 'R-';
+
+--------------------------------
+----External video
+
+create table "external_video"(
+"externalVideoId" varchar(100) primary key,
+"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+"externalVideoUrl" varchar(500),
+"startedAt" timestamp,
+"stoppedAt" timestamp,
+"lastEventAt" timestamp,
+"lastEventDesc" varchar(50),
+"playerRate" numeric,
+"playerTime" numeric,
+"playerState" integer
+);
+create index "external_video_meetingId_current" on "external_video"("meetingId") WHERE "stoppedAt" IS NULL;
+
+CREATE VIEW "v_external_video" AS
+SELECT * FROM "external_video"
+WHERE "stoppedAt" IS NULL;
+
+--------------------------------
+----Screenshare
+
+
+create table "screenshare"(
+"screenshareId" varchar(50) primary key,
+"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+"voiceConf" varchar(50),
+"screenshareConf" varchar(50),
+"stream" varchar(100),
+"vidWidth" integer,
+"vidHeight" integer,
+"startedAt" timestamp,
+"stoppedAt" timestamp,
+"hasAudio" boolean
+);
+create index "screenshare_meetingId" on "screenshare"("meetingId");
+create index "screenshare_meetingId_current" on "screenshare"("meetingId") WHERE "stoppedAt" IS NULL;
+
+CREATE VIEW "v_screenshare" AS
+SELECT * FROM "screenshare"
+WHERE "stoppedAt" IS NULL;
