@@ -8,10 +8,10 @@ import _ from 'lodash';
 const PADS_CONFIG = Meteor.settings.public.pads;
 
 async function convertAndUpload() {
-
   let filename = 'Shared_Notes';
   const presentations = PresentationUploaderService.getPresentations();
-  const duplicates = presentations.filter((pres) => pres.filename?.startsWith(filename) || pres.name?.startsWith(filename)).length;
+  const duplicates = presentations.filter((pres) => pres.filename?.startsWith(filename)
+    || pres.name?.startsWith(filename)).length;
 
   if (duplicates !== 0) { filename = `${filename}(${duplicates})`; }
 
@@ -27,7 +27,7 @@ async function convertAndUpload() {
     lastModifiedUploader: false,
     upload: {
       done: false,
-      error: false
+      error: false,
     },
     uploadTimestamp: new Date(),
   });
