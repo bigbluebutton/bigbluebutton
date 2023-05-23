@@ -184,7 +184,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const handleEmojiSelect = (emojiObject: { native: string} ) => {
     const txtArea = textAreaRef?.current?.textarea;
     const cursor = txtArea.selectionStart;
-    console.log(cursor);
     
     setMessage(
       message.slice(0, cursor)
