@@ -146,6 +146,7 @@ exports.userListContent = 'div[data-test="userListContent"]';
 exports.brandingAreaLogo = 'div[data-test="brandingArea"]';
 exports.toolbarToolsList = 'div[data-test="toolbarToolsList"]';
 exports.notificationBannerBar = 'div[data-test="notificationBannerBar"]';
+exports.reconnectingBar = '//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]';
 exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
@@ -170,8 +171,8 @@ exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
 exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
-exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
-exports.exportPlainButton = 'span[id="exportplain"]';
+exports.exportSharedNotesButton = 'li[data-key="import_export"] button';
+exports.exportPlainButton = 'a[id="exportplaina"] span';
 exports.pinNotes = 'li[data-test="pinNotes"]';
 exports.unpinNotes = 'button[data-test="unpinNotes"]';
 exports.exportetherpad = 'span[id="exportetherpad"]';

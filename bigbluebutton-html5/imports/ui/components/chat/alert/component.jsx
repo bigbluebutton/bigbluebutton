@@ -180,8 +180,12 @@ const ChatAlert = (props) => {
 
   const createPollMessage = () => (
     <Styled.PushMessageContent>
-      <Styled.UserNameMessage>{intl.formatMessage(intlMessages.pollResults)}</Styled.UserNameMessage>
-      <Styled.ContentMessagePoll>{intl.formatMessage(intlMessages.pollResultsClick)}</Styled.ContentMessagePoll>
+      <Styled.UserNameMessage>
+        {intl.formatMessage(intlMessages.pollResults)}
+      </Styled.UserNameMessage>
+      <Styled.ContentMessagePoll>
+        {intl.formatMessage(intlMessages.pollResultsClick)}
+      </Styled.ContentMessagePoll>
     </Styled.PushMessageContent>
   );
 
