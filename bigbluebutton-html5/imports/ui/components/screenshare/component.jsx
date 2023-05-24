@@ -101,9 +101,10 @@ class ScreenshareComponent extends React.Component {
     this.onSwitched = this.onSwitched.bind(this);
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
+    this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.debouncedDispatchScreenShareSize = debounce(
       { delay: SCREEN_SIZE_DISPATCH_INTERVAL },
-      this.dispatchScreenShareSize
+      this.dispatchScreenShareSize,
     );
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
