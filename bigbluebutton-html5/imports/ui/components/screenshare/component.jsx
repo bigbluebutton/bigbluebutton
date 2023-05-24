@@ -120,7 +120,7 @@ class ScreenshareComponent extends React.Component {
       outputDeviceId,
     } = this.props;
 
-    screenshareHasStarted(isPresenter, outputDeviceId);
+    screenshareHasStarted(isPresenter, { outputDeviceId });
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections
@@ -148,8 +148,9 @@ class ScreenshareComponent extends React.Component {
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
+
     if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
-      setOutputDeviceId();
+      setOutputDeviceId(outputDeviceId);
     }
   }
 
@@ -586,4 +587,5 @@ ScreenshareComponent.propTypes = {
   }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   enableVolumeControl: PropTypes.bool.isRequired,
+  outputDeviceId: PropTypes.string,
 };

@@ -12,10 +12,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
 import NotesService from '/imports/ui/components/notes/service';
-import SCREENSHARE_VIDEO_TAG from '/imports/api/screenshare/client/bridge/kurento';
-import {
-  reloadAudioElement,
-} from '/imports/api/audio/client/bridge/service';
 
 const VOLUME_CONTROL_ENABLED = Meteor.settings.public.kurento.screenshare.enableVolumeControl;
 const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
@@ -146,49 +142,43 @@ const attachLocalPreviewStream = (mediaElement) => {
     // Always muted, presenter preview.
     BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
   }
-}
+};
 
 const setOutputDeviceId = (outputDeviceId) => {
-  const screenShareElement = document.getElementById(SCREENSHARE_VIDEO_TAG);
+  const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
   const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
+  const srcStream = screenShareElement?.srcObject;
 
-  if (typeof outputDeviceId === 'string' && sinkIdSupported) {
+  if (typeof outputDeviceId === 'string'
+    && sinkIdSupported
+    && screenShareElement.sinkId !== outputDeviceId
+    && srcStream
+    && srcStream.getAudioTracks().length > 0) {
     try {
       screenShareElement.setSinkId(outputDeviceId);
-      reloadAudioElement(screenShareElement);
       logger.debug({
-        logCode: 'audiomanager_output_device_change',
+        logCode: 'screenshare_output_device_change',
         extraInfo: {
           newDeviceId: outputDeviceId,
         },
-      }, `ScreenShareAudio output device changed: to ${outputDeviceId || 'default'}`);
+      }, `Screenshare output device changed: to ${outputDeviceId || 'default'}`);
     } catch (error) {
       logger.error({
-        logCode: 'audiomanager_output_device_change_failure',
+        logCode: 'screenshare_output_device_change_failure',
         extraInfo: {
           errorName: error.name,
           errorMessage: error.message,
           newDeviceId: outputDeviceId,
         },
-      }, `Error changing output device - {${error.name}: ${error.message}}`);
-
-      // Rollback/enforce current sinkId (if possible)
-      // if (sinkIdSupported) {
-      //   this.outputDeviceId = getCurrentAudioSinkId();
-      // } else {
-      //   this.outputDeviceId = currentDeviceId;
-      // }
-
-      throw error;
+      }, `Error changing screenshare output device - {${error.name}: ${error.message}}`);
     }
   }
 };
 
-const screenshareHasStarted = (isPresenter, ScreenShareAudioId) => {
+const screenshareHasStarted = (isPresenter, options = {}) => {
   // Presenter's screen preview is local, so skip
   if (!isPresenter) {
-    viewScreenshare();
-    setOutputDeviceId(ScreenShareAudioId);
+    viewScreenshare({ outputDeviceId: options.outputDeviceId });
   }
 };
 
@@ -227,17 +217,18 @@ const shareScreen = async (isPresenter, onFail) => {
   }
 };
 
-const viewScreenshare = () => {
+const viewScreenshare = (options = {}) => {
   const hasAudio = screenshareHasAudio();
-  KurentoBridge.view(hasAudio).catch((error) => {
-    logger.error({
-      logCode: 'screenshare_view_failed',
-      extraInfo: {
-        errorName: error.name,
-        errorMessage: error.message,
-      },
-    }, `Screenshare viewer failure`);
-  });
+  KurentoBridge.view({ hasAudio, outputDeviceId: options.outputDeviceId })
+    .catch((error) => {
+      logger.error({
+        logCode: 'screenshare_view_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, 'Screenshare viewer failure');
+    });
 };
 
 const screenShareEndAlert = () => AudioService
@@ -315,4 +306,5 @@ export {
   setVolume,
   getVolume,
   shouldEnableVolumeControl,
+  setOutputDeviceId,
 };
