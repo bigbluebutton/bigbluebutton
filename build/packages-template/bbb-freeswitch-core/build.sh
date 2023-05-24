@@ -62,7 +62,7 @@ if [ ! -d libks ]; then
   git clone https://github.com/signalwire/libks.git
 fi
 cd libks/
-git checkout 707bda51db7b1a858a5e608bb5484632cc84a349
+git checkout v1.8.2
 
 cmake .
 make
