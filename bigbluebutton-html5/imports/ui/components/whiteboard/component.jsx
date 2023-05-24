@@ -101,6 +101,7 @@ export default function Whiteboard(props) {
   const [panSelected, setPanSelected] = React.useState(isPanning);
   const isMountedRef = React.useRef(true);
   const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState?.isToolLocked);
+  const [bgShape, setBgShape] = React.useState(null);
 
   // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
@@ -237,6 +238,14 @@ export default function Whiteboard(props) {
       }
     };
   }, [tldrawAPI]);
+
+  /* needed to prevent an issue with presentation images not loading correctly in Firefox
+  more info: https://github.com/bigbluebutton/bigbluebutton/issues/17969#issuecomment-1561758200 */
+  React.useEffect(() => {
+    if (bgShape) {
+      bgShape.parentElement.style.width = `${bgShape.parentElement.clientWidth + .1}px`;
+    }
+  }, [bgShape]);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -529,6 +538,7 @@ export default function Whiteboard(props) {
     if (currentZoom !== tldrawZoom) {
       setTldrawZoom(currentZoom);
     }
+    setBgShape(null);
   }, [presentationAreaHeight, presentationAreaWidth]);
 
   const fullscreenToggleHandler = () => {
@@ -942,9 +952,13 @@ export default function Whiteboard(props) {
 
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute('data-position');
+  const backgroundShape = document.getElementById('slide-background-shape_image');
 
   if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
+  if (backgroundShape?.src && backgroundShape?.complete && backgroundShape?.src !== bgShape?.src) {
+    setBgShape(backgroundShape);
+  }
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
