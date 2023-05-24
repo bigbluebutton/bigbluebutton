@@ -188,13 +188,6 @@ class Caption
     prev_break = 0
     next_break = break_iter.following(prev_break)
 
-    #This code is to reduce the max caption length 
-    # for locales using bulky multi-byte characters such as Japanese 
-    if @text.size * 2 < @text.bytesize
-      max_length /= 2 
-      $logger.debug("Max lentgh reduced for the locale #{@locale} due to the bulky characters.")
-    end
-
     # Super simple "greedy" line break algorithm.
     while prev_break < @text.size do
       line_end = next_break
@@ -260,7 +253,7 @@ class Caption
     @group.each do |g|
       next if g.size < sm
       g[0..-sm].each_with_index do |l, i|
-        inverval = (g[i+sm-1].start_time - l.start_time) / (sm-1)
+        inverval = (g[i+sm-1].end_time - l.start_time) / sm
         (i..(i+sm-2)).each do |k|
           g[k].end_time = g[k+1].start_time = g[k].start_time + inverval - 1
         end
@@ -272,7 +265,17 @@ class Caption
     # Write magic
     f.write("WEBVTT\n\n".encode(Encoding::UTF_8))
 
-    lines = self.split_lines()
+    #This code is to reduce the max caption length 
+    # for locales using bulky multi-byte characters such as Japanese
+    maxlength = 32
+    minduration = 100
+    if @text.size * 2 < @text.bytesize
+      maxlength /= 2 
+      minduration *= 2
+      $logger.debug("Max lentgh reduced for the locale #{@locale} due to the bulky characters.")
+    end
+    
+    lines = self.split_lines(maxlength)
 
     i = 0
     # Don't generate cues for empty lines
@@ -296,8 +299,8 @@ class Caption
       # line durations
       duration = end_time - start_time
       # A minimum per-character time for display (up to 3.2s for 32char)
-      if duration < 100 * text.size
-        duration = 100 * text.size
+      if duration < minduration * text.size
+        duration = minduration * text.size
       end
       # Don't show a caption (even a short one) for less than 1s
       if duration < 1000
