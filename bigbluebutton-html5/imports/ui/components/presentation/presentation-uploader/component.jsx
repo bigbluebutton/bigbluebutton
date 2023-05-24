@@ -888,31 +888,18 @@ class PresentationUploader extends Component {
 
   renderToastExportItem(item) {
     const { status } = item.exportation;
-    const loading = (status === EXPORT_STATUSES.RUNNING
-      || status === EXPORT_STATUSES.COLLECTING
-      || status === EXPORT_STATUSES.PROCESSING);
+    const loading = [EXPORT_STATUSES.RUNNING, EXPORT_STATUSES.COLLECTING,
+      EXPORT_STATUSES.PROCESSING].includes(status);
     const done = status === EXPORT_STATUSES.EXPORTED;
-    let icon;
+    const statusIconMap = {
+      [EXPORT_STATUSES.RUNNING]: 'blank',
+      [EXPORT_STATUSES.COLLECTING]: 'blank',
+      [EXPORT_STATUSES.PROCESSING]: 'blank',
+      [EXPORT_STATUSES.EXPORTED]: 'check',
+      [EXPORT_STATUSES.TIMEOUT]: 'warning',
+    };
 
-    switch (status) {
-      case EXPORT_STATUSES.RUNNING:
-        icon = 'blank';
-        break;
-      case EXPORT_STATUSES.COLLECTING:
-        icon = 'blank';
-        break;
-      case EXPORT_STATUSES.PROCESSING:
-        icon = 'blank';
-        break;
-      case EXPORT_STATUSES.EXPORTED:
-        icon = 'check';
-        break;
-      case EXPORT_STATUSES.TIMEOUT:
-        icon = 'warning';
-        break;
-      default:
-        break;
-    }
+    const icon = statusIconMap[status] || '';
 
     return (
       <Styled.UploadRow

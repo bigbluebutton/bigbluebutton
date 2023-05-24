@@ -159,7 +159,11 @@ class ApiController {
       if (existing != null) {
         log.debug "Existing conference found"
         Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-        if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
+        if (
+          (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW")))
+          ||
+          (!params.attendeePW && !params.moderatorPW)
+        ) {
           //paramsProcessorUtil.updateMeeting(updateParams, existing);
           // trying to create a conference a second time, return success, but give extra info
           // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
@@ -1412,10 +1416,16 @@ class ApiController {
       def Boolean isCurrent = false;
       def Boolean isRemovable = true;
       def Boolean isDownloadable = false;
+      def Boolean isInitialPresentation = false;
 
       if (document.name != null && "default".equals(document.name)) {
         if (presentationService.defaultUploadedPresentation) {
-          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(), document.current /* default presentation */, '', false, true);
+          if (document.current) {
+            isInitialPresentation = true
+          }
+          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
+                  document.current /* default presentation */, '', false,
+                  true, isInitialPresentation);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1434,6 +1444,7 @@ class ApiController {
             isCurrent = true
           }
         } else if (index == 0 && !isFromInsertAPI) {
+          isInitialPresentation = true
           isCurrent = true
         }
 
@@ -1445,12 +1456,12 @@ class ApiController {
             fileName = document.@filename.toString();
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable);
+                  fileName, isDownloadable, isRemovable, isInitialPresentation);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
           processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */);
+                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isInitialPresentation);
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
@@ -1459,7 +1470,8 @@ class ApiController {
     return true
   }
 
-  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable) {
+  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
+                                  isInitialPresentation) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
 
@@ -1506,14 +1518,15 @@ class ApiController {
               uploadFailed,
               uploadFailReasons,
               isDownloadable,
-              isRemovable
+              isRemovable,
+              isInitialPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable) {
+  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable, isInitialPresentation) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1575,7 +1588,8 @@ class ApiController {
               uploadFailed,
               uploadFailReasons,
               isDownloadable,
-              isRemovable
+              isRemovable,
+              isInitialPresentation
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
@@ -1585,7 +1599,7 @@ class ApiController {
 
 
   def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
-                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable ) {
+                          authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isInitialPresentation ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
     UploadedPresentation uploadedPres = new UploadedPresentation(podId,
@@ -1596,7 +1610,9 @@ class ApiController {
             current,
             authzToken,
             uploadFailed,
-            uploadFailReasons)
+            uploadFailReasons,
+            isInitialPresentation
+    )
     uploadedPres.setUploadedFile(presFile);
     if (isRemovable != null) {
       uploadedPres.setRemovable(isRemovable);
