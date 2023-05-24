@@ -33,7 +33,12 @@ object GroupChatApp {
 
   def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
                           msg: GroupChatMessage): GroupChats = {
-    ChatMessageDAO.insert(meetingId, chat.id, msg)
+    if (msg.sender.id == SystemUser.ID) {
+      ChatMessageDAO.insertSystemMsg(meetingId, chat.id, msg.message, "default", Map(), msg.sender.name)
+    } else {
+      ChatMessageDAO.insert(meetingId, chat.id, msg)
+    }
+
     val c = chat.add(msg)
     chats.update(c)
   }
