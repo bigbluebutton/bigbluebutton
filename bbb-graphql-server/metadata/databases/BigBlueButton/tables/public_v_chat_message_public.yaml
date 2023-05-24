@@ -20,16 +20,18 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - createdTime
         - chatEmphasizedText
         - chatId
         - correlationId
+        - createdTime
+        - createdTimeAsDate
+        - message
         - messageId
+        - messageMetadata
+        - messageType
         - senderId
         - senderName
         - senderRole
-        - message
-        - createdTimeAsDate
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

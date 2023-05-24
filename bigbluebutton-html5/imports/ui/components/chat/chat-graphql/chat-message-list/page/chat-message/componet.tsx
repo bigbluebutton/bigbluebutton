@@ -38,11 +38,11 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
       {
         sameSender ? null : (
           <ChatAvatar
-              avatar={message.user.avatar}
-              color={message.user.color}
-              moderator={message.user.isModerator}
+              avatar={message.user?.avatar}
+              color={message.user?.color}
+              moderator={message.user?.isModerator}
             >
-              {message.user.name.toLowerCase().slice(0, 2) || "  "}
+              {message.user?.name.toLowerCase().slice(0, 2) || "  "}
             </ChatAvatar>
         )
       }
@@ -52,10 +52,10 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
           <ChatUserContent>
             <ChatUserName
             >
-              {message.user.name}
+              {message.user?.name}
             </ChatUserName>
               {
-                message.user.isOnline ? null : (
+                message.user?.isOnline ? null : (
                   <ChatUserOffline
                   >
                     {`(${intl.formatMessage(intlMessages.offline)})`}
@@ -71,7 +71,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
       }
         <ChatMessage
           sameSender={sameSender}
-          emphasizedMessage={message.user.isModerator}
+          emphasizedMessage={message.user?.isModerator}
         >
           {message.message}
         </ChatMessage>

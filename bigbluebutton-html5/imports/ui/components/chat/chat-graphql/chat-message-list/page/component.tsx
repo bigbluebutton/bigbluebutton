@@ -36,8 +36,8 @@ const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateS
 }
 
 
-const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage, page }) => {  
-  
+const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage, page }) => {
+
   return (
     <div id={`messagePage-${page}`}>
       {
@@ -68,7 +68,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
     : CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;
-  const defaultVariables = { offset: (page)*pageSize, limit: pageSize };  
+  const defaultVariables = { offset: (page)*pageSize, limit: pageSize };
   const variables = isPublicChat ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
   const  {
     data: chatMessageData,
@@ -89,9 +89,9 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   }
 
   if (messages.length > 0) {
-    setLastSender(page, messages[messages.length-1].user.userId);
+    setLastSender(page, messages[messages.length-1].user?.userId);
   }
-  
+
   return (
     <ChatListPage
       messages={messages}

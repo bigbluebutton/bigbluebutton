@@ -33,12 +33,12 @@ object JsonUtils {
       case d: Double    => JsNumber(d)
       case m: Map[_, _] => JsObject(m.asInstanceOf[Map[String, Any]].map { case (k, v) => k -> write(v) })
       case l: List[_]   => JsArray(l.map(write).toVector)
+      case a: Array[_]  => JsArray(a.map(write).toVector)
       case _            => throw new IllegalArgumentException(s"Unsupported type: ${x.getClass.getName}")
       //      case _            => JsNull
     }
   }
 
-  // Cria um JsonWriter implícito para o tipo Map[String, Any]
   implicit val mapFormat: JsonWriter[Map[String, Any]] = new JsonWriter[Map[String, Any]] {
     def write(m: Map[String, Any]): JsValue = {
       JsObject(m.map { case (k, v) => k -> AnyJsonWriter.write(v) })
