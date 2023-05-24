@@ -239,6 +239,8 @@ export default function Whiteboard(props) {
     };
   }, [tldrawAPI]);
 
+  /* needed to prevent an issue with presentation images not loading correctly in Firefox
+  more info: https://github.com/bigbluebutton/bigbluebutton/issues/17969#issuecomment-1561758200 */
   React.useEffect(() => {
     if (bgShape) {
       bgShape.parentElement.style.width = `${bgShape.parentElement.clientWidth + .1}px`;
