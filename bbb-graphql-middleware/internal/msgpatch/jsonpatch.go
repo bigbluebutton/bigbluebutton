@@ -11,6 +11,8 @@ import (
 )
 
 var cacheDir = os.TempDir() + "/graphql-middleware-cache/"
+var minLengthToPatch = 250    //250 chars
+var minShrinkToUsePatch = 0.5 //50% percent
 
 func getConnPath(bConn *common.BrowserConnection) string {
 	//Using SessionToken as path to reinforce security (once connectionId repeats on restart of middleware)
@@ -39,8 +41,10 @@ func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId
 
 func RemoveConnCacheDir(bConn *common.BrowserConnection) {
 	err := os.RemoveAll(getConnPath(bConn))
-	if err != nil && !os.IsNotExist(err) {
-		log.Errorf("Error while removing CLI patch cache directory:", err)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Errorf("Error while removing CLI patch cache directory:", err)
+		}
 		return
 	}
 
@@ -130,8 +134,8 @@ func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.Browser
 			*receivedMessage = nil
 		} else {
 			//Content was changed, creating json patch
-			if lastDataAsJsonString != "" &&
-				len(string(dataAsJsonString)) > 250 { //If data is small it's not worth creating the patch
+			//If data is small (< minLengthToPatch) it's not worth creating the patch
+			if lastDataAsJsonString != "" && len(string(dataAsJsonString)) > minLengthToPatch {
 				diffPatch, e := jsonpatch.CreatePatch([]byte(lastDataAsJsonString), []byte(dataAsJsonString))
 				if e != nil {
 					log.Errorf("Error creating JSON patch:%v", e)
@@ -143,8 +147,8 @@ func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.Browser
 					return
 				}
 
-				//Use patch if the length is 50% smaller than the original msg
-				if float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJsonString))) < 0.5 {
+				//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
+				if float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJsonString))) < minShrinkToUsePatch {
 					//Modify receivedMessage to include the Patch and remove the previous data
 					//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
 					receivedMessageMap["payload"] = map[string]interface{}{
@@ -158,10 +162,13 @@ func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.Browser
 			}
 
 			//Store current result to be used to create json patch in the future
-			errWritingOutput := ioutil.WriteFile(filePath, []byte(dataAsJsonString), 0644)
-			if errWritingOutput != nil {
-				log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
+			if lastDataAsJsonString != "" || len(string(dataAsJsonString)) > minLengthToPatch {
+				errWritingOutput := ioutil.WriteFile(filePath, []byte(dataAsJsonString), 0644)
+				if errWritingOutput != nil {
+					log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
+				}
 			}
+
 		}
 	}
 }

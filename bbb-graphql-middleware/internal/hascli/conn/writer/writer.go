@@ -61,11 +61,20 @@ RangeLoop:
 						}
 					}
 
+					//Identify if the client that requested this subscription expects to receive json-patch
+					//Client append `Patched_` to the query operationName to indicate that it supports
+					jsonPatchSupported := false
+					operationName, ok := payload["operationName"].(string)
+					if ok && strings.HasPrefix(operationName, "Patched_") {
+						jsonPatchSupported = true
+					}
+
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                        queryId,
 						Message:                   fromBrowserMessage,
 						LastSeenOnHasuraConnetion: hc.Id,
+						JsonPatchSupported:        jsonPatchSupported,
 						Type:                      messageType,
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
@@ -74,7 +83,7 @@ RangeLoop:
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
-					if browserConnection.JsonPatchSupported {
+					if browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported {
 						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
 					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()

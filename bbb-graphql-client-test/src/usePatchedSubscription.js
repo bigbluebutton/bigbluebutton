@@ -1,9 +1,17 @@
-import {useSubscription} from "@apollo/client";
+import {gql, useSubscription} from "@apollo/client";
 import {useEffect, useState} from "react";
 import {applyPatch} from "fast-json-patch";
 
 export default function usePatchedSubscription(subscriptionGQL, options) {
-    const { loading, error, data } = useSubscription(subscriptionGQL, options);
+    //Prepend `Patched_` to the query operationName to inform the middleware that this subscription support json patch
+    //It will also set {fetchPolicy: 'no-cache'} because the cache would not work properly when using json-patch
+    const newQueryString = subscriptionGQL.loc.source.body.replace(/subscription\s+(.*)\{/g, 'subscription Patched_$1 {');
+    const newSubscriptionGQL = gql`${newQueryString}`;
+
+    const { loading, error, data } = useSubscription(
+        newSubscriptionGQL,
+        {fetchPolicy: 'no-cache', ...options}
+    );
     const [currentData, setCurrentData] = useState([]);
 
     useEffect(() => {
