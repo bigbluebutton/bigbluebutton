@@ -717,7 +717,7 @@
     "app.audio.captions.button.transcriptionSettings": "Ajustes de transcripción",
     "app.audio.captions.speech.title": "Transcripción automática",
     "app.audio.captions.speech.disabled": "Desactivado",
-    "app.audio.captions.speech.unsupported": "Su navegador no es compatible con el reconocimiento de voz. Tu audio no se transcribirá",
+    "app.audio.captions.speech.unsupported": "Su navegador no es compatible con el reconocimiento de voz. Su audio no se transcribirá",
     "app.audio.captions.select.de-DE": "Alemán",
     "app.audio.captions.select.en-US": "Inglés",
     "app.audio.captions.select.es-ES": "Español",
