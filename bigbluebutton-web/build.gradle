@@ -95,7 +95,7 @@ dependencies {
   implementation "io.projectreactor:reactor-core:3.4.12"
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
-  implementation "org.json:json:20211205"
+  implementation "org.json:json:20230227"
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"

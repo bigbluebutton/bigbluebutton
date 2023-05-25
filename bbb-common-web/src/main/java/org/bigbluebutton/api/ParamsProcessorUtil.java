@@ -513,6 +513,16 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
 
+        // Check Disabled Features Exclude list -- passed as a CREATE parameter to cancel the disabling (typically from bbb-web's properties file)
+        ArrayList<String> listOfDisabledFeaturesExclude = new ArrayList<>();
+        if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES_EXCLUDE))) {
+            String disabledFeaturesExcludeParam = params.get(ApiParams.DISABLED_FEATURES_EXCLUDE);
+            listOfDisabledFeaturesExclude.addAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+            listOfDisabledFeaturesExclude.removeAll(Arrays.asList("", null));
+            listOfDisabledFeaturesExclude.replaceAll(String::trim);
+            listOfDisabledFeatures.removeAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+        }
+
         // Check if VirtualBackgrounds is disabled
         if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
             boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
