@@ -36,7 +36,7 @@ export default withTracker((props) => {
   })
     .fetch()
     .filter((u) => u.emoji === status && u.userId !== Auth.userID);
-  const clearUserStatus = (userId) => makeCall('setEmojiStatus', userId, 'none');
+  const clearUserStatus = (userId) => makeCall('setUserReaction', 'none', userId);
 
   return {
     clearUserStatus,
