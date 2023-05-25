@@ -14,14 +14,13 @@ var cacheDir = os.TempDir() + "/graphql-middleware-cache/"
 var minLengthToPatch = 250    //250 chars
 var minShrinkToUsePatch = 0.5 //50% percent
 
-func getConnPath(bConn *common.BrowserConnection) string {
-	//Using SessionToken as path to reinforce security (once connectionId repeats on restart of middleware)
-	return cacheDir + bConn.Id
+func getConnPath(connectionId string) string {
+	return cacheDir + connectionId
 }
 
 func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId string, createIfNotExists bool) (string, error) {
 	//Using SessionToken as path to reinforce security (once connectionId repeats on restart of middleware)
-	connectionPatchCachePath := getConnPath(bConn) + "/" + bConn.SessionToken + "/"
+	connectionPatchCachePath := getConnPath(bConn.Id) + "/" + bConn.SessionToken + "/"
 	subscriptionCacheDirPath := connectionPatchCachePath + subscriptionId + "/"
 	_, err := os.Stat(subscriptionCacheDirPath)
 	if err != nil {
@@ -39,8 +38,8 @@ func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId
 	return subscriptionCacheDirPath, nil
 }
 
-func RemoveConnCacheDir(bConn *common.BrowserConnection) {
-	err := os.RemoveAll(getConnPath(bConn))
+func RemoveConnCacheDir(connectionId string) {
+	err := os.RemoveAll(getConnPath(connectionId))
 	if err != nil {
 		if !os.IsNotExist(err) {
 			log.Errorf("Error while removing CLI patch cache directory:", err)
@@ -48,7 +47,7 @@ func RemoveConnCacheDir(bConn *common.BrowserConnection) {
 		return
 	}
 
-	log.Infof("Directory of patch caches removed successfully for client %s.", bConn.Id)
+	log.Infof("Directory of patch caches removed successfully for client %s.", connectionId)
 }
 
 func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscritionId string) {
@@ -67,17 +66,20 @@ func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscritio
 }
 
 func ClearAllCaches() {
-	filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			log.Errorf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
-			return err
-		}
+	info, err := os.Stat(cacheDir)
+	if err == nil && info.IsDir() {
+		filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Errorf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+				return err
+			}
 
-		if info.IsDir() && path != cacheDir {
-			os.RemoveAll(path)
-		}
-		return nil
-	})
+			if info.IsDir() && path != cacheDir {
+				os.RemoveAll(path)
+			}
+			return nil
+		})
+	}
 }
 
 func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.BrowserConnection) {

@@ -59,7 +59,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnectionsMutex.Unlock()
 
 	defer func() {
-		msgpatch.RemoveConnCacheDir(BrowserConnections[browserConnectionId])
+		msgpatch.RemoveConnCacheDir(browserConnectionId)
 		BrowserConnectionsMutex.Lock()
 		delete(BrowserConnections, browserConnectionId)
 		BrowserConnectionsMutex.Unlock()
