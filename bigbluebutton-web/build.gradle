@@ -55,11 +55,11 @@ repositories {
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   implementation "org.springframework:spring-core:5.3.21"
-  implementation "org.springframework:spring-context:5.3.21"
+  implementation "org.springframework:spring-context:5.3.27"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
-  implementation "org.grails:grails-core:5.2.4"
+  implementation "org.grails:grails-core:${grailsVersion}"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
