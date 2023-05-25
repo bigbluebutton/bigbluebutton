@@ -131,22 +131,11 @@ export default withTracker(() => {
   let groupChatMessageHandler = {};
 
   if (isChatEnabled() && ready) {
-    const chatsCount = GroupChat.find({
-      $or: [
-        {
-          meetingId,
-          access: PUBLIC_CHAT_TYPE,
-          chatId: { $ne: PUBLIC_GROUP_CHAT_ID },
-        },
-        { meetingId, users: { $all: [requesterUserId] } },
-      ],
-    }).count();
-
     const subHandler = {
       ...subscriptionErrorHandler,
     };
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', chatsCount, subHandler);
+    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', subHandler);
   }
 
   // TODO: Refactor all the late subscribers

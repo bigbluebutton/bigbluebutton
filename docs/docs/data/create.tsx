@@ -196,11 +196,18 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable public chat in the meeting. (added 2.2)</>)
   },
   {
-    "name": "lockSettingsDisableNote",
+    "name": "lockSettingsDisableNotes",
     "required": false,
     "type": "Boolean",
     "default": "false",
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)</>)
+  },
+  {
+    "name": "lockSettingsHideUserList",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. (added 2.2)</>)
   },
   {
     "name": "lockSettingsLockOnJoin",

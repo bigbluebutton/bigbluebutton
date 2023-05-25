@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 
 test -x /var/bigbluebutton || exit 0
 
@@ -44,6 +44,7 @@ find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -
 #
 kurento_dir=/var/kurento/
 mediasoup_dir=/var/mediasoup/
+bbb_webrtc_recorder_dir=/var/lib/bbb-webrtc-recorder/
 
 remove_stale_sfu_raw_files() {
   for app in recordings screenshare; do
@@ -57,6 +58,7 @@ remove_stale_sfu_raw_files() {
 
 remove_stale_sfu_raw_files "$kurento_dir"
 remove_stale_sfu_raw_files "$mediasoup_dir"
+remove_stale_sfu_raw_files "$bbb_webrtc_recorder_dir"
 
 #
 # Delete FreeSWITCH wav/opus recordings older than N days
@@ -92,9 +94,11 @@ remove_raw_of_recordings_without_marks
 #
 
 remove_raw_of_published_recordings(){
-    #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+    TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
-    TYPES="presentation"
+    if [ "$TYPES" == "" ]; then
+        TYPES="presentation"
+    fi
     cd /var/bigbluebutton/recording/raw/
     old_meetings=$(find . -name events.xml -mtime +$published_days | cut -d"/" -f2 )
     for meeting in $old_meetings

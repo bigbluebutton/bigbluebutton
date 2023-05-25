@@ -139,10 +139,10 @@ test.describe.parallel('CustomParameters', () => {
   })
 
   test.describe.parallel('Presentation', () => {
-    test('Hide Presentation', async ({ browser, context, page }) => {
+    test('Hide Presentation on join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentation) });
-      await customParam.hidePresentation();
+      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentationOnJoin) });
+      await customParam.hidePresentationOnJoin();
     });
 
     test('Force Restore Presentation On New Events', async ({ browser, context, page }) => {

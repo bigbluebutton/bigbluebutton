@@ -535,11 +535,18 @@ public class ParamsProcessorUtil {
             listOfDisabledFeatures.add("learningDashboard");
         }
 
-        int learningDashboardCleanupMins = 0;
-
         // Learning Dashboard not allowed for Breakout Rooms
-        if(!isBreakout) {
-            learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
+        if(isBreakout) {
+		listOfDisabledFeatures.add("learningDashboard");
+	}
+
+	//Set Learning Dashboard configs
+        String learningDashboardAccessToken = "";
+	int learningDashboardCleanupMins = 0;
+        if(listOfDisabledFeatures.contains("learningDashboard") == false) {
+            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+		
+	    learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
             if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
                 try {
                     learningDashboardCleanupMins = Integer.parseInt(params
@@ -550,12 +557,6 @@ public class ParamsProcessorUtil {
                             internalMeetingId);
                 }
             }
-        }
-
-        //Generate token to access Activity Report
-        String learningDashboardAccessToken = "";
-        if(listOfDisabledFeatures.contains("learningDashboard") == false) {
-            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
         Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;

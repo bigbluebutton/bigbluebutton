@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Aç (olabiliyorsa)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Dışarıdan bir görüntü paylaş",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Dışarından görüntü paylaşımını durdur",
-    "app.iOSWarning.label": "Lütfen iOS 12.2 ya da üzerindeki bir sürüm kullanın",
     "app.legacy.unsupportedBrowser": "Desteklenmeyen bir web tarayıcı kullanıyorsunuz. Lütfen tam destek almak için {0} ya da {1} kullanın.",
     "app.legacy.upgradeBrowser": "Desteklenen bir web tarayıcının eski bir sürümünü kullanıyor gibi görünüyorsunuz. Lütfen tam destek almak için web tarayıcınızı güncelleyin.",
     "app.legacy.criosBrowser": "Lütfen iOS üzerinde tam destek almak için Safari kullanın.",
