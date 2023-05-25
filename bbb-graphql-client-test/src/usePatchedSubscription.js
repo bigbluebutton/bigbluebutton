@@ -10,7 +10,7 @@ export default function usePatchedSubscription(subscriptionGQL, options) {
 
     const { loading, error, data } = useSubscription(
         newSubscriptionGQL,
-        {fetchPolicy: 'no-cache', ...options}
+        {...options, fetchPolicy: 'no-cache'}
     );
     const [currentData, setCurrentData] = useState([]);
 
