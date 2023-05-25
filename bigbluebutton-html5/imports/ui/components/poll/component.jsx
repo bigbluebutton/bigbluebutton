@@ -434,7 +434,7 @@ class Poll extends Component {
 
   handleAddOption() {
     const { optList } = this.state;
-    this.setState({ optList: [...optList, { val: '' }] });
+    this.setState({ optList: [...optList, { val: 'E' }] });
   }
 
   handleToggle() {
