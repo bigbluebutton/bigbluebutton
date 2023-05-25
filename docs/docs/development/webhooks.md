@@ -327,4 +327,4 @@ callbackURL=http://postcatcher.in/catchers/5527e67ba4c6dd0300000738
 
 ## Development
 
-See [Webhooks docs in GitHub](https://github.com/bigbluebutton/bigbluebutton/tree/v2.0.x-release/bbb-webhooks#development).
+See [Webhooks docs in GitHub](https://github.com/bigbluebutton/bbb-webhooks).

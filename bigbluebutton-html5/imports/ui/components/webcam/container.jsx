@@ -12,11 +12,13 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
+import { LAYOUT_TYPE } from '../layout/enums';
 
 const WebcamContainer = ({
   audioModalIsOpen,
   swapLayout,
   usersVideo,
+  layoutType,
 }) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -33,8 +35,10 @@ const WebcamContainer = ({
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
 
+  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+
   return !audioModalIsOpen
-    && usersVideo.length > 0
+    && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{
@@ -48,6 +52,7 @@ const WebcamContainer = ({
           isPresenter: currentUser.presenter,
           displayPresentation,
           isRTL,
+          isGridEnabled,
         }}
       />
     )

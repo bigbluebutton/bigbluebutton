@@ -7,10 +7,10 @@ import Presentations from '/imports/api/presentations';
 
 const EXPORTING_THRESHOLD_PER_SLIDE = 2500;
 
-export default async function exportPresentationToChat(presentationId) {
+export default async function exportPresentation(presentationId, type) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-  const EVENT_NAME = 'MakePresentationWithAnnotationDownloadReqMsg';
+  const EVENT_NAME = 'MakePresentationDownloadReqMsg';
 
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
@@ -22,6 +22,7 @@ export default async function exportPresentationToChat(presentationId) {
     const payload = {
       presId: presentationId,
       allPages: true,
+      typeOfExport: type,
       pages: [],
     };
 
@@ -30,7 +31,8 @@ export default async function exportPresentationToChat(presentationId) {
 
       const selector = { meetingId, id: presentationId };
       const cursor = Presentations.find(selector);
-      const numPages = await cursor.fetchAsync()[0]?.pages?.length ?? 1;
+      const pres = await Presentations.findOneAsync(selector);
+      const numPages = pres?.pages?.length ?? 1;
       const threshold = EXPORTING_THRESHOLD_PER_SLIDE * numPages;
 
       const observer = cursor.observe({
@@ -54,6 +56,6 @@ export default async function exportPresentationToChat(presentationId) {
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
-    Logger.error(`Exception while invoking method exportPresentationToChat ${err.stack}`);
+    Logger.error(`Exception while invoking method exportPresentation ${err.stack}`);
   }
 }

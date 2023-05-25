@@ -66,6 +66,11 @@ class TimeWindowChatItem extends PureComponent {
     };
   }
 
+  componentWillMount() {
+    ChatLogger.debug('TimeWindowChatItem::componentWillMount::props', { ...this.props });
+    ChatLogger.debug('TimeWindowChatItem::componentWillMount::state', { ...this.state });
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { height, forceCacheUpdate, index } = this.props;
     const elementHeight = this.itemRef ? this.itemRef.clientHeight : null;
@@ -79,11 +84,6 @@ class TimeWindowChatItem extends PureComponent {
 
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::props', { ...this.props }, { ...prevProps });
     ChatLogger.debug('TimeWindowChatItem::componentDidUpdate::state', { ...this.state }, { ...prevState });
-  }
-
-  componentWillMount() {
-    ChatLogger.debug('TimeWindowChatItem::componentWillMount::props', { ...this.props });
-    ChatLogger.debug('TimeWindowChatItem::componentWillMount::state', { ...this.state });
   }
 
   componentWillUnmount() {
@@ -322,8 +322,8 @@ class TimeWindowChatItem extends PureComponent {
               <Styled.PollIcon iconName="download" />
             </UserAvatar>
           </Styled.AvatarWrapper>
-          <Styled.Content 
-              data-test="downloadPresentationContainer">
+          <Styled.Content
+            data-test="downloadPresentationContainer">
             <Styled.Meta>
               <Styled.Time dateTime={dateTime} style={{ margin: 0 }}>
                 <FormattedTime value={dateTime} />
@@ -332,7 +332,7 @@ class TimeWindowChatItem extends PureComponent {
             <Styled.PresentationChatItem
               type="presentation"
               key={messages[0].id}
-              text={getExportedPresentationString(extra.fileURI, extra.filename, intl)}
+              text={getExportedPresentationString(extra.fileURI, extra.filename, intl, extra.typeOfExport)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
@@ -362,7 +362,7 @@ class TimeWindowChatItem extends PureComponent {
     const {
       systemMessage,
     } = this.props;
-    ChatLogger.debug('TimeWindowChatItem::render', {...this.props});
+    ChatLogger.debug('TimeWindowChatItem::render', { ...this.props });
     if (systemMessage) {
       return this.renderSystemMessage();
     }

@@ -121,7 +121,7 @@ class MobileAppModal extends Component {
               color="primary"
               disabled={url === ''}
               label={intl.formatMessage(intlMessages.openApp)}
-              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${meetingName}/${url}`, '_blank')}
+              onClick={() => window.open(`${BBB_TABLET_APP_CONFIG.iosAppUrlScheme}://${meetingName}/${encodeURIComponent(url)}`, '_blank')}
               role="button"
               size="lg"
             />
