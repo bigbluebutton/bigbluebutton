@@ -233,7 +233,7 @@ const WebcamComponent = ({
             }}
             style={{
               position: 'absolute',
-              zIndex: cameraDock.zIndex,
+              zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock.zIndex,
             }}
           >
             <Styled.Draggable
