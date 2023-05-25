@@ -7,7 +7,6 @@ import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/Butto
 import ReactionsPicker from '/imports/ui/components/emoji-picker/reactions-picker/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
-//import QuestionsService from '/imports/ui/components/questions/service';
 
 import Styled from '../styles';
 
@@ -94,18 +93,6 @@ const InteractionsButton = (props) => {
         );
       },
     });
-
-    //if (QuestionsService.isVisible()) {
-    //  dropdownActions.push({
-    //    key: 'writeQuestion',
-    //    dataTest: 'writeQuestion',
-    //    icon: 'interactions-question',
-    //    label: intl.formatMessage(intlMessages.writeQuestionLabel),
-    //    onClick: () => {
-    //      QuestionsService.toggleQuestionsPanel(sidebarContentPanel, layoutContextDispatch);
-    //    },
-    //  });
-    //}
 
     if (UserReactionService.isEnabled()) {
       dropdownActions.push({
