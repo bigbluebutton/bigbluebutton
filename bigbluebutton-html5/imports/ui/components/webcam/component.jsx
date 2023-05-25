@@ -158,8 +158,8 @@ const WebcamComponent = ({
 
   const mobileWidth = `${isDragging ? cameraSize.width : cameraDock.width}pt`;
   const mobileHeight = `${isDragging ? cameraSize.height : cameraDock.height}pt`;
-  const isDesktopWidth = isDragging || isCameraSidebar ? cameraSize.width : cameraDock.width;
-  const isDesktopHeight = isDragging || isCameraSidebar ? cameraSize.height : cameraDock.height;
+  const isDesktopWidth = isDragging ? cameraSize.width : cameraDock.width;
+  const isDesktopHeight = isDragging ? cameraSize.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
   return (
     <>
