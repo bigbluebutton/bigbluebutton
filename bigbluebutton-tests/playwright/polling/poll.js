@@ -33,7 +33,6 @@ class Polling extends MultiUsers {
   }
 
   async quickPoll() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await utilPresentation.uploadSinglePresentation(this.modPage, e.questionSlideFileName);
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step

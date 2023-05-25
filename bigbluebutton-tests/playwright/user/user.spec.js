@@ -71,14 +71,14 @@ test.describe.parallel('User', () => {
       await multiusers.demoteToViewer();
     });
 
-    test('Give and remove whiteboard access', async ({ browser, context, page }) => {
+    test('Give and remove whiteboard access @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page);
       await multiusers.initModPage2();
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 
-    test('Remove user', async ({ browser, context, page }) => {
+    test('Remove user @ci', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true);
@@ -95,7 +95,7 @@ test.describe.parallel('User', () => {
 
   test.describe.parallel('Manage', () => {
     test.describe.parallel('Guest policy', () => {
-      test.describe.parallel('ASK_MODERATOR', () => {
+      test.describe.parallel('ASK_MODERATOR @ci', () => {
         // https://docs.bigbluebutton.org/2.6/release-tests.html#ask-moderator
         test('Message to guest lobby', async ({ browser, context, page }) => {
           const guestPolicy = new GuestPolicy(browser, context);
@@ -119,7 +119,7 @@ test.describe.parallel('User', () => {
           await guestPolicy.rememberChoice();
         });
 
-        test.describe.parallel('Actions to specific pending user', () => {
+        test.describe.parallel('Actions to specific pending user @ci', () => {
           test('Message', async ({ browser, context, page }) => {
             const guestPolicy = new GuestPolicy(browser, context);
             await guestPolicy.initModPage(page);
@@ -146,7 +146,7 @@ test.describe.parallel('User', () => {
         await guestPolicy.alwaysAccept();
       });
       // https://docs.bigbluebutton.org/2.6/release-tests.html#always-deny
-      test('ALWAYS_DENY', async ({ browser, context, page }) => {
+      test('ALWAYS_DENY @ci', async ({ browser, context, page }) => {
         const guestPolicy = new GuestPolicy(browser, context);
         await guestPolicy.initModPage(page);
         await guestPolicy.alwaysDeny();
