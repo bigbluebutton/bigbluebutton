@@ -71,6 +71,7 @@ public class ApiParams {
     public static final String ROLE = "role";
     public static final String GROUPS = "groups";
     public static final String DISABLED_FEATURES = "disabledFeatures";
+    public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
