@@ -50,8 +50,8 @@ func RemoveConnCacheDir(connectionId string) {
 	log.Infof("Directory of patch caches removed successfully for client %s.", connectionId)
 }
 
-func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscritionId string) {
-	subsCacheDirPath, err := getSubscriptionCacheDirPath(bConn, subscritionId, false)
+func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscriptionId string) {
+	subsCacheDirPath, err := getSubscriptionCacheDirPath(bConn, subscriptionId, false)
 	if err == nil {
 		err = os.RemoveAll(subsCacheDirPath)
 		if err != nil {
@@ -61,7 +61,7 @@ func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscritio
 			return
 		}
 
-		log.Infof("Directory of patch caches removed successfully for client %s, subscription %s.", bConn.Id, subscritionId)
+		log.Infof("Directory of patch caches removed successfully for client %s, subscription %s.", bConn.Id, subscriptionId)
 	}
 }
 
