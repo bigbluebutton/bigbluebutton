@@ -40,7 +40,6 @@ class Caption
   end
 
   def apply_edit(i, j, timestamp, text)
-=begin 
     #compatibility code
     del_timestamp = nil
     if j > i and i < @timestamps.size
@@ -75,10 +74,11 @@ class Caption
     end
     @text[i...j] = text
     @timestamps[i...j] = [timestamp] * text.size
-=end
+=start
     #Simply add new timestamp elements
     @text[i...j] = text
     @timestamps += [timestamp] * (text.size + i - j) if text.size + i - j > 0
+=end
   end
 
   def apply_record_events(events)
@@ -180,7 +180,8 @@ class Caption
     locale = ICU::Locale.new(@locale)
     $logger.debug("Using locale #{locale.display_name(locale)} for word-wrapping")
 
-    break_iter = ICU::BreakIterator.new(:word, @locale)
+    breaker = /^ja/ =~ @locale ? :word : :line
+    break_iter = ICU::BreakIterator.new(breaker, @locale)
     break_iter.text = @text
 
     line = CaptionLine.new
@@ -261,6 +262,13 @@ class Caption
     end
   end
 
+  def norm_lines(lines, st, en)
+    interval = (lines[en].end_time - lines[st].start_time) / (en - st + 1)
+    (st...en).each do |k|
+      lines[k].end_time = lines[k+1].start_time = lines[k].start_time + interval
+    end
+  end
+
   def write_webvtt(f, sm)
     # Write magic
     f.write("WEBVTT\n\n".encode(Encoding::UTF_8))
@@ -282,10 +290,36 @@ class Caption
     lines.delete_if{|l| l.text.size == 0}
 
     #Grouping consecutive lines
-    group_lines(lines)
+    #group_lines(lines)
 
     #Smoothen timestamps within sliding frames
-    smoothen_timestamps(sm)
+    #smoothen_timestamps(sm)
+
+    # Normalise the jammed captions
+    jammedline_start = nil
+    lines.each_with_index do |l, i|
+      if l.start_time == l.end_time
+        if jammedline_start
+          if lines.size == i+1
+            # normalise jammed line [jammedline_start..i]
+            norm_lines(lines, jammedline_start, i)
+          else
+            # jammed line continues
+          end
+        else
+          # jammed line starts
+          jammedline_start = i>0 ? i-1 : 0
+        end
+      else
+        if jammedline_start
+          # normalise jammed line [jammedline_start..i]
+          norm_lines(lines, jammedline_start, i)
+          jammedline_start = nil
+        else
+          # healthy line
+        end
+      end
+    end
 
     i = 0
     while i < lines.size
