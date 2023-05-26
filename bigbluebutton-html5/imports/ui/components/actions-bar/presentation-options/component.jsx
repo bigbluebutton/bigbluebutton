@@ -39,6 +39,8 @@ const PresentationOptionsContainer = ({
   hasExternalVideo,
   hasScreenshare,
   hasPinnedSharedNotes,
+  hasGenericContent,
+  hasCameraAsContent,
 }) => {
   let buttonType = 'presentation';
   if (hasExternalVideo) {
@@ -46,10 +48,13 @@ const PresentationOptionsContainer = ({
     buttonType = 'external-video';
   } else if (hasScreenshare) {
     buttonType = 'desktop';
+  } else if (hasCameraAsContent) {
+    buttonType = 'video';
   }
 
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
-  || hasPresentation || hasPinnedSharedNotes;
+  || hasPresentation || hasPinnedSharedNotes
+  || hasGenericContent || hasCameraAsContent;
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}

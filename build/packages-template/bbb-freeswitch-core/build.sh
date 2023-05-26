@@ -31,7 +31,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git checkout v1.13.12
+git checkout v1.13.15
 ./bootstrap.sh
 ./configure
 

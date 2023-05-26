@@ -146,13 +146,14 @@ exports.userListContent = 'div[data-test="userListContent"]';
 exports.brandingAreaLogo = 'div[data-test="brandingArea"]';
 exports.toolbarToolsList = 'div[data-test="toolbarToolsList"]';
 exports.notificationBannerBar = 'div[data-test="notificationBannerBar"]';
+exports.reconnectingBar = '//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]';
 exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
-exports.userslist = 'div[data-test="userList"]';
+exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.liveTranscritpion = 'div[data-test="liveTranscription"]';
+exports.liveTranscription = 'div[data-test="liveTranscription"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 exports.propagateLayout = 'li[data-test="propagateLayout"]';
 exports.layoutModal = 'li[data-test="layoutModal"]';
@@ -170,8 +171,8 @@ exports.sharedNotesViewingMode = 'iframe[title="shared notes viewing mode"]';
 exports.currentSlideText = 'span[id="currentSlideText"]';
 exports.notesOptions = 'button[data-test="notesOptionsMenu"]';
 exports.showMoreSharedNotesButton = 'span[class="show-more-icon-btn"]'
-exports.exportSharedNotesButton = 'button[aria-label="Import/Export from/to different file formats"]';
-exports.exportPlainButton = 'span[id="exportplain"]';
+exports.exportSharedNotesButton = 'li[data-key="import_export"] button';
+exports.exportPlainButton = 'a[id="exportplaina"] span';
 exports.pinNotes = 'li[data-test="pinNotes"]';
 exports.unpinNotes = 'button[data-test="unpinNotes"]';
 exports.exportetherpad = 'span[id="exportetherpad"]';
@@ -240,8 +241,8 @@ exports.noPresentation = 'h4[data-test="noPresentation"]';
 exports.autoOptioningPollBtn = 'input[data-test="autoOptioningPollBtn"]';
 exports.currentPollQuestion = 'span[data-test="currentPollQuestion"]';
 exports.allowMultiple = 'div[data-test="allowMultiple"] input[type="checkbox"]';
-const pollAnswerOptionDesc = 'button[data-test="pollAnswerOption"]';
-exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=0`;
+const pollAnswerOptionDesc = 'div[data-test="optionsAnswers"]';
+exports.firstPollAnswerDescOption = `${pollAnswerOptionDesc} input:nth-child(1)`;
 exports.secondPollAnswerDescOption = `${pollAnswerOptionDesc}>>nth=1`;
 exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.numberVotes = 'div[data-test="numberOfVotes"]';
@@ -291,6 +292,7 @@ exports.downloadPresentationToast = 'div[data-test="downloadPresentationToast"]'
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
 exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
+exports.toolVisibility = 'li[data-test="toolVisibility"]';
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Hso8yLzkqj8&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
@@ -410,6 +412,11 @@ exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
 exports.inputBackgroundButton = 'button[data-test="inputBackgroundButton"]';
 exports.noneBackgroundButton = 'button[data-test="noneBackgroundButton"]';
+exports.dropAreaBottom = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
+exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
+exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
@@ -474,8 +481,11 @@ exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
 exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
+exports.smartLayout = 'button[data-test="smartLayout"]';
+exports.customLayout = 'button[data-test="customLayout"]';
+exports.pushLayoutToggle = 'input#TogglePush';
 exports.confirmButton = 'button[aria-label="Confirm"]';
-exports.cameraDock = 'video[data-test="videoContainer"]';
+exports.cameraDock = 'div#cameraDock';
 
 // Font size
 exports.increaseFontSize = 'button[data-test="increaseFontSize"]';

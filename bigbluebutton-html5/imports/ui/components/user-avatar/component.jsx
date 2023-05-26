@@ -73,6 +73,7 @@ const UserAvatar = ({
         isChrome={isChrome}
         isFirefox={isFirefox}
         isEdge={isEdge}
+        className={className}
         style={{
           backgroundColor: color,
           color, // We need the same color on both for the border

@@ -7,7 +7,7 @@ const DropAreaContainer = () => {
 
   return (
     Object.keys(dropZoneAreas).map((objectKey) => (
-      <DropArea key={objectKey} id={objectKey} style={dropZoneAreas[objectKey]} />
+      <DropArea dataTest={`dropArea-${objectKey}`} key={objectKey} id={objectKey} style={dropZoneAreas[objectKey]} />
     ))
   );
 };

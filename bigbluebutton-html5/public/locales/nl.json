@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Schakel uit (indien beschikbaar)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Deel een externe video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop met het delen van externe video",
-    "app.iOSWarning.label": "Upgrade naar iOS 12.2 of hoger",
     "app.legacy.unsupportedBrowser": "Het lijkt erop dat u een browser gebruikt die niet wordt ondersteund. Gebruik {0} of {1} voor volledige ondersteuning.",
     "app.legacy.upgradeBrowser": "Het lijkt erop dat u een oudere versie van een ondersteunde browser gebruikt. Upgrade uw browser voor volledige ondersteuning.",
     "app.legacy.criosBrowser": "Gebruik Safari op iOS voor volledige ondersteuning.",
