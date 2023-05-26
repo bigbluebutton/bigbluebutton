@@ -1,4 +1,5 @@
 import Presentations from '/imports/api/presentations';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
@@ -31,7 +32,8 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter()) && isVideoBroadcasting();
+  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter())
+    && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 
 function shouldShowExternalVideo() {
@@ -53,7 +55,6 @@ const setPresentationIsOpen = (layoutContextDispatch, value) => {
   });
 };
 
-
 const isThereWebcamOn = (meetingID) => {
   return VideoStreams.find({
     meetingId: meetingID
@@ -63,9 +64,8 @@ const isThereWebcamOn = (meetingID) => {
 const buildLayoutWhenPresentationAreaIsDisabled = (layoutContextDispatch) => {
   const isSharingVideo = getVideoUrl();
   const isSharedNotesPinned = NotesService.isSharedNotesPinned();
-  const hasScreenshare = isVideoBroadcasting();
+  const hasScreenshare = isScreenSharingEnabled();
   const isThereWebcam = isThereWebcamOn(Auth.meetingID);
-    
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;
@@ -84,7 +84,8 @@ export default {
   shouldShowScreenshare,
   shouldShowExternalVideo,
   shouldShowOverlay,
-  isVideoBroadcasting,
+  isScreenBroadcasting,
+  isCameraAsContentBroadcasting,
   setPresentationIsOpen,
   shouldShowSharedNotes,
 };

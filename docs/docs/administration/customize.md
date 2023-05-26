@@ -382,7 +382,7 @@ After you edit the configuration file, you must restart the recording processing
 
 #### Enable generating mp4 (H.264) video output
 
-By default, BigBlueButton generates recording videos as `.webm` files using the VP9 video codec. These are supported in most desktop web browsers, but might not work on iOS mobile devices. You can additionally enable the H.264 video codec in some recording formats:
+By default, BigBlueButton generates recording videos as `.webm` files using the VP9 video codec. These are supported in most desktop web browsers, but might not work on iOS mobile devices. You can additionally enable the H.264 video codec in some recording formats (Keep in mind that the following `.yml` files mentioned ahead only exist when the respective format package is installed):
 
 **`video`**
 
@@ -640,9 +640,9 @@ HERE
 
 Starting from version 2.4 BigBlueButton offers virtual background for webcams.
 To use your own background images copy them into the directory
-`/usr/share/meteor/bundle/programs/web.browser/app/resources/img/virtual-backgrounds`.
+`/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds`.
 For each image copy a thumbnail of the image of 50x50 pixels size into
-`/usr/share/meteor/bundle/programs/web.browser/app/resources/img/virtual-backgrounds/thumbnails`.
+`/usr/share/meteor/bundle/programs/web.browser/app/resources/images/virtual-backgrounds/thumbnails`.
 
 To generate thumbnails you can use the following shell snippet:
 
@@ -899,7 +899,7 @@ $ sudo bbb-conf --restart
 
 #### Change the default presentation
 
-When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users.
+When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users.
 
 Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
 
@@ -1176,7 +1176,7 @@ You can see the list of languages installed with BigBlueButton in the directory 
 
 #### Change favicon
 
-To change the favicon, overwrite the file `/var/www/bigbluebutton-default/favicon.ico`.
+To change the favicon, overwrite the file `/var/www/bigbluebutton-default/assets/favicon.ico`.
 
 You'll need to update file each time the `bbb-config` package updates.
 
@@ -1213,7 +1213,7 @@ lockSettingsDisableCam=true
 After restart, if you open the lock settings you'll see `Share webcam` lock enabled.
 
 <p align="center">
-  <img src="/images/html5-lock-webcam.png"/>
+  <img src="/img/html5-lock-webcam.png"/>
 </p>
 
 #### Change the default path for HTML5 client
@@ -1244,6 +1244,27 @@ Edit `systemd_start.sh` and `systemd_start_frontend.sh` files, located in `/usr/
 Finally, run the following command to reload configuration:
 
 `sudo service nginx reload && sudo bbb-conf --restart`
+
+#### Enable live captions
+
+BigBlueButton has the ability to use Chrome's built-in speech-to-text API to give users the option to have their audio live captioned for other users in the session.  When live captions are enabled on the server, a user can choose their language from the drop-down list when joining audio.
+
+<p align="center">
+  <img src="/img/26-auto-transcription.png"/>
+</p>
+
+These captions will automatically appear in the recordings.  To enable live captions, edit `/etc/bigbluebutton/bbb-html5.yml` and add the following
+
+```
+public:
+  app:
+    # You may have other setting itms here
+    audioCaptions:
+      enabled: true
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the options for live captions when joining audio.
+
 
 ### Configuration of global settings
 

@@ -93,7 +93,7 @@
     "wasm-check": "^2.0.3",
     "webrtc-adapter": "^8.1.1",
     "winston": "^3.7.2",
-    "yaml": "^1.7.2"
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
     "chai": "~4.2.0",

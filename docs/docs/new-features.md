@@ -3,8 +3,6 @@
 
 ## Overview
 
-This document gives you an overview of BigBlueButton 2.6.
-
 BigBlueButton 2.6 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -17,7 +15,7 @@ Here's a breakdown of what's new in 2.6.
 
 #### Dark theme
 
-BigBlueButton supports dark theme. To enable it just navigate to the Settings.
+BigBlueButton supports dark theme. To enable it just navigate to the Settings and enabled Dark mode.
 
 ![The toggle for dark theme is located in the main settings panel](/img/26-dark-theme-setting.png)
 
@@ -199,12 +197,15 @@ Reverting to the default recorder (Kurento) can be achieved by removing the `rec
 ### Upgraded components
 
 Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
-- Meteor 2.10.0
+- Meteor 2.12
 - Grails 5.2.4
 - Spring 2.7.1
 
 For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
 
+- [2.6.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.8)
+- [2.6.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.7)
+- [2.6.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.6)
 - [2.6.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.5)
 - [2.6.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.4)
 - [2.6.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.3)
