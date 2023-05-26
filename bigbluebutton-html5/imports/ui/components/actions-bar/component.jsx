@@ -39,6 +39,8 @@ class ActionsBar extends PureComponent {
       isSharingVideo,
       isSharedNotesPinned,
       hasScreenshare,
+      hasGenericContent,
+      hasCameraAsContent,
       stopExternalVideoShare,
       isCaptionsAvailable,
       isMeteorConnected,
@@ -84,6 +86,7 @@ class ActionsBar extends PureComponent {
             setPushLayout,
             presentationIsOpen,
             showPushLayout,
+            hasCameraAsContent,
           }}
           />
           {isCaptionsAvailable
@@ -133,6 +136,8 @@ class ActionsBar extends PureComponent {
               hasExternalVideo={isSharingVideo}
               hasScreenshare={hasScreenshare}
               hasPinnedSharedNotes={isSharedNotesPinned}
+              hasGenericContent={hasGenericContent}
+              hasCameraAsContent={hasCameraAsContent}
             />
             : null
           }

@@ -67,6 +67,7 @@ public:
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    enableCameraAsContent: false
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
@@ -390,6 +391,14 @@ public:
           width: 1280
           height: 720
           frameRate: 30
+      - id: fhd
+        name: Camera as content
+        hidden: true
+        default: false
+        bitrate: 1500
+        constraints:
+          width: 1920
+          height: 1080
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
