@@ -15,33 +15,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const GlobalStyle = createGlobalStyle`
-  // BBBMenu
-  @media ${smallOnly} {
-    .MuiPopover-root {
-      top: 0 !important;
-    }
-
-    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
-      top: 0 !important;
-      left: 0 !important;
-      bottom: 0 !important;
-      right: 0 !important;
-      max-width: none;
-    }
-  }
-
-  .MuiList-padding {
-    padding: 0 !important;
-  }
-
-  .MuiPaper-root {
-    background-color: ${dropdownBg};
-    border-radius: ${borderRadius};
-    border: 0;
-    z-index: 9999;
-    max-width: 22rem;
-  }
-
   // modal
   @keyframes fade-in {
     0% {

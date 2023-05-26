@@ -1,23 +1,23 @@
 import { colorText, colorSuccess } from '/imports/ui/stylesheets/styled-components/palette';
-import BaseCheckbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { withStyles } from '@material-ui/core/styles';
+import BaseCheckbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { styled } from '@mui/system';
 
-const Checkbox = withStyles({
-  checked: {
+const Checkbox = styled(BaseCheckbox)(() => ({
+  '&.Mui-checked': {
     color: `${colorSuccess} !important`,
   },
-})(BaseCheckbox);
+}));
 
-const Label = withStyles({
-  label: {
+const Label = styled(FormControlLabel)(() => ({
+  '& .MuiFormControlLabel-label': {
     fontFamily: 'inherit !important',
     color: `${colorText} !important`,
   },
-  disabled: {
+  '&.Mui-disabled': {
     cursor: 'not-allowed !important',
   },
-})(FormControlLabel);
+}));
 
 export default {
   Checkbox,

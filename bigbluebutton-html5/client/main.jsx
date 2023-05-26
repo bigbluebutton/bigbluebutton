@@ -19,7 +19,7 @@
 
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
@@ -45,7 +45,7 @@ import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
 const { disableWebsocketFallback } = Meteor.settings.public.app;
 
 if (disableWebsocketFallback) {
-  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; }
+  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
 
   Meteor.disconnect();
   Meteor.reconnect();
@@ -77,10 +77,12 @@ Meteor.startup(() => {
     }, message);
   });
 
+  const root = createRoot(document.getElementById('app'));
+
   // TODO make this a Promise
-  render(
+  root.render(
     <ContextProviders>
-      <React.Fragment>
+      <>
         <JoinHandler>
           <AuthenticatedHandler>
             <Subscriptions>
@@ -93,8 +95,7 @@ Meteor.startup(() => {
         <UsersAdapter />
         <ChatAdapter />
         <GroupChatAdapter />
-      </React.Fragment>
+      </>
     </ContextProviders>,
-    document.getElementById('app'),
   );
 });

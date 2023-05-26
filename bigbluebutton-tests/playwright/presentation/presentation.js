@@ -8,6 +8,8 @@ const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { waitAndClearDefaultPresentationNotification, waitAndClearNotification } = require('../notifications/util');
 
+const defaultZoomLevel = '100%';
+
 class Presentation extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
@@ -225,6 +227,64 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
     await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);
+  }
+
+  async hidePresentationToolbar() {
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.waitAndClick(e.toolVisibility);
+    await this.modPage.wasRemoved(e.wbToolbar);
+    await this.modPage.wasRemoved(e.wbStyles);
+    await this.modPage.wasRemoved(e.wbUndo);
+    await this.modPage.wasRemoved(e.wbRedo);
+  }
+
+  async zoom() {
+    await this.modPage.waitForSelector(e.resetZoomButton, ELEMENT_WAIT_LONGER_TIME);
+
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    const screenshotOptions = {
+      maxDiffPixelRatio: 0.05,
+    };
+
+    const zoomOutButtonLocator = this.modPage.getLocator(e.zoomOutButton);
+    await expect(zoomOutButtonLocator).toBeDisabled();
+    const resetZoomButtonLocator = this.modPage.getLocator(e.resetZoomButton);
+    await expect(resetZoomButtonLocator).toContainText(defaultZoomLevel);
+
+    //Zoom In 150%
+    await this.modPage.waitAndClick(e.zoomInButton);
+    await this.modPage.waitAndClick(e.zoomInButton);
+    await expect(zoomOutButtonLocator).toBeEnabled();
+    await expect(resetZoomButtonLocator).toContainText(/150%/);
+    await expect(wbBox).toHaveScreenshot('moderator1-zoom150.png', screenshotOptions);
+
+    //Zoom out 125%
+    await this.modPage.waitAndClick(e.zoomOutButton);
+    await expect(resetZoomButtonLocator).toContainText(/125%/);
+    await expect(wbBox).toHaveScreenshot('moderator1-zoom125.png', screenshotOptions);
+
+    //Reset Zoom 100%
+    await this.modPage.waitAndClick(e.resetZoomButton);
+    await expect(resetZoomButtonLocator).toContainText(/100%/);
+    await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png', screenshotOptions);
+  }
+
+  async selectSlide() {
+    await this.modPage.waitForSelector(e.skipSlide);
+
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    const screenshotOptions = {
+      maxDiffPixelRatio: 0.05,
+    };
+
+    await this.modPage.selectSlide('Slide 10');
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide10.png', screenshotOptions);
+
+    await this.modPage.selectSlide('Slide 5');
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide5.png', screenshotOptions);
+
+    await this.modPage.selectSlide('Slide 13');
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png', screenshotOptions);
   }
 }
 

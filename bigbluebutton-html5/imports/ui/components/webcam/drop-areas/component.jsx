@@ -9,10 +9,13 @@ const intlMessages = defineMessages({
   },
 });
 
-const DropArea = ({ id, style, intl }) => (
+const DropArea = ({
+  id, dataTest, style, intl,
+}) => (
   <>
     <Styled.DropZoneArea
       id={id}
+      data-test={dataTest}
       style={
         {
           ...style,

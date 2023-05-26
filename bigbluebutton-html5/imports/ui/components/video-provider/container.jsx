@@ -4,8 +4,8 @@ import VideoProvider from './component';
 import VideoService from './service';
 
 const VideoProviderContainer = ({ children, ...props }) => {
-  const { streams } = props;
-  return (!streams.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
+  const { streams, isGridEnabled } = props;
+  return (!streams.length && !isGridEnabled ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 };
 
 export default withTracker(({ swapLayout, ...rest }) => {

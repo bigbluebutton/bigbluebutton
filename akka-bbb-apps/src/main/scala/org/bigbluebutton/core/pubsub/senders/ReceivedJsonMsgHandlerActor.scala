@@ -254,6 +254,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+      case UserReactionTimeExpiredCmdMsg.NAME =>
+        routeGenericMsg[UserReactionTimeExpiredCmdMsg](envelope, jsonNode)
+      case ClearAllUsersEmojiCmdMsg.NAME =>
+        routeGenericMsg[ClearAllUsersEmojiCmdMsg](envelope, jsonNode)
       case ChangeUserRoleCmdMsg.NAME =>
         routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 
@@ -316,10 +320,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PdfConversionInvalidErrorSysPubMsg](envelope, jsonNode)
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
-      case MakePresentationWithAnnotationDownloadReqMsg.NAME =>
-        routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
-      case NewPresAnnFileAvailableMsg.NAME =>
-        routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
+      case MakePresentationDownloadReqMsg.NAME =>
+        routeGenericMsg[MakePresentationDownloadReqMsg](envelope, jsonNode)
+      case NewPresFileAvailableMsg.NAME =>
+        routeGenericMsg[NewPresFileAvailableMsg](envelope, jsonNode)
       case PresAnnStatusMsg.NAME =>
         routeGenericMsg[PresAnnStatusMsg](envelope, jsonNode)
 

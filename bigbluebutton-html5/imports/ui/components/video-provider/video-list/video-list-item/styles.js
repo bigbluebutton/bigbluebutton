@@ -133,6 +133,23 @@ const Video = styled.video`
   `}
 `;
 
+const VideoDisabled = styled.div`
+color: white;
+  width: 100%;
+  height: 20%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  border-radius: 10px;
+  z-index: 2;
+  top: 40%;
+  padding: 20px;
+  backdrop-filter: blur(10px); 
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}`;
+
 const TopBar = styled.div`
   position: absolute;
   display: flex;
@@ -161,4 +178,5 @@ export default {
   Video,
   TopBar,
   BottomBar,
+  VideoDisabled,
 };

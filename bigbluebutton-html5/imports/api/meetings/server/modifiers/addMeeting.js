@@ -15,6 +15,7 @@ import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
+import { addUserReactionsObserver } from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const addExternalVideo = async (meetingId) => {
@@ -267,6 +268,9 @@ export default async function addMeeting(meeting) {
       }
       if (newMeeting.meetingProp.disabledFeatures.indexOf('captions') === -1) {
         await initCaptions(meetingId);
+      }
+      if (newMeeting.meetingProp.disabledFeatures.indexOf('reactions') === -1) {
+        await addUserReactionsObserver(meetingId);
       }
     } else if (numberAffected) {
       Logger.info(`Upserted meeting id=${meetingId}`);

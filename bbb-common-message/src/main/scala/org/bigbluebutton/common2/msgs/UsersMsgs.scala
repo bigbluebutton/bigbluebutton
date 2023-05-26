@@ -201,6 +201,27 @@ case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiCha
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
 
 /**
+ * Sent from meteor about a user reaction's expiration.
+ */
+object UserReactionTimeExpiredCmdMsg { val NAME = "UserReactionTimeExpiredCmdMsg" }
+case class UserReactionTimeExpiredCmdMsg(header: BbbClientMsgHeader, body: UserReactionTimeExpiredCmdMsgBody) extends StandardMsg
+case class UserReactionTimeExpiredCmdMsgBody(userId: String)
+
+/**
+ * Sent from client about a mod clearing all users' emoji.
+ */
+object ClearAllUsersEmojiCmdMsg { val NAME = "ClearAllUsersEmojiCmdMsg" }
+case class ClearAllUsersEmojiCmdMsg(header: BbbClientMsgHeader, body: ClearAllUsersEmojiCmdMsgBody) extends StandardMsg
+case class ClearAllUsersEmojiCmdMsgBody(userId: String)
+
+/**
+ * Sent to all clients about clearing all users' emoji.
+ */
+object ClearedAllUsersEmojiEvtMsg { val NAME = "ClearedAllUsersEmojiEvtMsg" }
+case class ClearedAllUsersEmojiEvtMsg(header: BbbClientMsgHeader, body: ClearedAllUsersEmojiEvtMsgBody) extends StandardMsg
+case class ClearedAllUsersEmojiEvtMsgBody()
+
+/**
  * Sent from client about a user mobile flag.
  */
 object ChangeUserMobileFlagReqMsg { val NAME = "ChangeUserMobileFlagReqMsg" }
