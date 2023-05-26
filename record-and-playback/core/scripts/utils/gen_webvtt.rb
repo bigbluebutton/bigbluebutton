@@ -75,7 +75,7 @@ class Caption
     @text[i...j] = text
     @timestamps[i...j] = [timestamp] * text.size
 =start
-    #Alternative code; simply adding new elements without deleting overlapped lines
+    #Alternative code; simply adding new elements without deleting overlapped letters
     @text[i...j] = text
     @timestamps += [timestamp] * (text.size + i - j) if text.size + i - j > 0
 =end
