@@ -6,6 +6,7 @@ import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
 import CaptionsReaderMenuContainer from '/imports/ui/components/captions/reader-menu/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
+import InteractionsButtonContainer from '/imports/ui/components/actions-bar/interactions-button/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
@@ -21,10 +22,21 @@ class ActionsBar extends PureComponent {
     };
 
     this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
+    this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
   }
 
   setCaptionsReaderMenuModalIsOpen(value) {
     this.setState({ isCaptionsReaderMenuModalOpen: value })
+  }
+
+  renderRaiseHand() {
+    const { isInteractionsButtonEnabled, isRaiseHandButtonEnabled } = this.props;
+
+    return (<>
+      {isInteractionsButtonEnabled ? <InteractionsButtonContainer /> :
+       isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{setEmojiStatus, currentUser, intl}}/>
+       : null}
+    </>);
   }
 
   render() {
@@ -46,7 +58,7 @@ class ActionsBar extends PureComponent {
       isMeteorConnected,
       isPollingEnabled,
       isSelectRandomUserEnabled,
-      isRaiseHandButtonEnabled,
+      isRaiseHandButtonCentered,
       isThereCurrentPresentation,
       allowExternalVideo,
       setEmojiStatus,
@@ -125,6 +137,7 @@ class ActionsBar extends PureComponent {
             isMeteorConnected,
           }}
           />
+        {isRaiseHandButtonCentered && this.renderRaiseHand()}
         </Styled.Center>
         <Styled.Right>
           { shouldShowOptionsButton ?
@@ -141,16 +154,7 @@ class ActionsBar extends PureComponent {
             />
             : null
           }
-          {isRaiseHandButtonEnabled
-            ? (
-              <RaiseHandDropdownContainer {...{
-                setEmojiStatus,
-                currentUser,
-                intl,
-              }
-              }
-              />
-            ) : null}
+          {!isRaiseHandButtonCentered && this.renderRaiseHand()}
         </Styled.Right>
       </Styled.ActionsBar>
     );
