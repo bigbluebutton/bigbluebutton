@@ -212,6 +212,13 @@ const getCurrentWhiteboardId = () => {
   return currentSlide && currentSlide.id;
 };
 
+const hasAnnotations = (presentationId) => {
+  const ann = Annotations.findOne(
+    { whiteboardId: { $regex: `^${presentationId}` } },
+  );
+  return ann !== undefined;
+};
+
 const isMultiUserActive = (whiteboardId) => {
   const multiUser = getMultiUser(whiteboardId);
 
@@ -404,5 +411,6 @@ export {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  hasAnnotations,
   toggleToolsAnimations,
 };

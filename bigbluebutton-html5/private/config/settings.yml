@@ -67,6 +67,7 @@ public:
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    enableCameraAsContent: false
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
@@ -139,7 +140,10 @@ public:
     # If not set, default value is true.
     showAudioFilters: true
     raiseHandActionButton:
-      enabled: true
+      enabled: false
+      centered: true
+    interactionsButton:
+      enabled: false
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
@@ -390,6 +394,14 @@ public:
           width: 1280
           height: 720
           frameRate: 30
+      - id: fhd
+        name: Camera as content
+        hidden: true
+        default: false
+        bitrate: 1500
+        constraints:
+          width: 1920
+          height: 1080
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
@@ -551,6 +563,7 @@ public:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
       chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
+      chat_status_message: PUBLIC_CHAT_STATUS
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
@@ -560,6 +573,11 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+  userReaction:
+    enabled: true
+    expire: 60
+  userStatus:
+    enabled: false
   notes:
     enabled: true
     id: notes

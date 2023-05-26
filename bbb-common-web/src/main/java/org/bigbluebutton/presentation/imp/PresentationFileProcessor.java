@@ -3,10 +3,7 @@ package org.bigbluebutton.presentation.imp;
 import com.google.gson.Gson;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.presentation.*;
-import org.bigbluebutton.presentation.messages.DocPageConversionStarted;
-import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
-import org.bigbluebutton.presentation.messages.DocPageCountFailed;
-import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
+import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +73,7 @@ public class PresentationFileProcessor {
 
     private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
+            pres.generateFilenameConverted("pdf");
             determineNumberOfPages(pres);
             sendDocPageConversionStartedProgress(pres);
             PresentationConvertMessage msg = new PresentationConvertMessage(pres);

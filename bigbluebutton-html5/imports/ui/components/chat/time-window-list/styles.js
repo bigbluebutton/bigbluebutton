@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   smPaddingX,
   mdPaddingX,
@@ -6,6 +6,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import { ButtonElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { VirtualizedScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import MessageChatItem from '/imports/ui/components/chat/time-window-list/time-window-chat-item/message-chat-item/component';
 
 const UnreadButton = styled(ButtonElipsis)`
   flex-shrink: 0;
@@ -53,8 +54,89 @@ const MessageList = styled(VirtualizedScrollboxVertical)`
   }
 `;
 
+const Time = styled.time`
+`;
+
+const Wrapper = styled.div`
+`;
+
+const AvatarWrapper = styled.div`
+`;
+
+const Content = styled.div`
+`;
+
+const Meta = styled.div`
+`;
+
+const Name = styled.div`
+`;
+
+const Read = styled.div`
+`;
+
+const Messages = styled.div`
+`;
+
+const SystemMessageChatItem = styled(MessageChatItem)`
+  ${({ messageId }) => messageId ?
+    css`
+    `
+    :
+    css`
+    `
+  }
+`;
+
+const Item = styled.div`
+`;
+
+const OnlineIndicator = styled.div`
+  ${({ isOnline }) => isOnline ?
+    css`
+      color: red;
+    `
+    :
+    css`
+      color: blue;
+    `
+  }
+`;
+
+const ChatItem = styled.div`
+`;
+
+const Offline = styled.div`
+`;
+
+const PollIcon = styled.div`
+`;
+
+const PollMessageChatItem = styled.div`
+`;
+
+const StatusMessageChatItem = styled(MessageChatItem)`
+`;
+
 export default {
   UnreadButton,
   MessageListWrapper,
   MessageList,
+  Time,
+  Content,
+  Meta,
+  Wrapper,
+  AvatarWrapper,
+  Name,
+  Read,
+  Messages,
+  SystemMessageChatItem,
+  Item,
+  ChatItem,
+  OnlineIndicator,
+  Offline,
+  PollIcon,
+  PollMessageChatItem,
+  StatusMessageChatItem,
 };
+

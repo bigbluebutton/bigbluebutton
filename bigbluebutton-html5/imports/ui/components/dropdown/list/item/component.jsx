@@ -10,6 +10,7 @@ const propTypes = {
   description: PropTypes.string,
   accessKey: PropTypes.string,
   tabIndex: PropTypes.number,
+  disabled: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -18,6 +19,7 @@ const defaultProps = {
   description: '',
   tabIndex: 0,
   accessKey: null,
+  disabled: false,
 };
 
 const messages = defineMessages({
@@ -62,6 +64,7 @@ class DropdownListItem extends Component {
       className,
       style,
       intl,
+      disabled,
       'data-test': dataTest,
     } = this.props;
 
@@ -71,8 +74,8 @@ class DropdownListItem extends Component {
       <Styled.Item
         id={id}
         ref={injectRef}
-        onClick={onClick}
-        onKeyDown={onKeyDown}
+        onClick={disabled ? () => {} : onClick}
+        onKeyDown={disabled ? () => {} : onKeyDown}
         tabIndex={tabIndex}
         aria-labelledby={this.labelID}
         aria-describedby={this.descID}

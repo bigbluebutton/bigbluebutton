@@ -1213,7 +1213,7 @@ lockSettingsDisableCam=true
 After restart, if you open the lock settings you'll see `Share webcam` lock enabled.
 
 <p align="center">
-  <img src="/images/html5-lock-webcam.png"/>
+  <img src="/img/html5-lock-webcam.png"/>
 </p>
 
 #### Change the default path for HTML5 client
