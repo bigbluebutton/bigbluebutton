@@ -40,7 +40,7 @@ class Caption
   end
 
   def apply_edit(i, j, timestamp, text)
-    #compatibility code
+    #compatible code to the original script
     del_timestamp = nil
     if j > i and i < @timestamps.size
       if @_del_timestamps[i]
@@ -75,7 +75,7 @@ class Caption
     @text[i...j] = text
     @timestamps[i...j] = [timestamp] * text.size
 =start
-    #Simply add new timestamp elements
+    #Alternative code; simply adding new elements without deleting overlapped lines
     @text[i...j] = text
     @timestamps += [timestamp] * (text.size + i - j) if text.size + i - j > 0
 =end
@@ -239,6 +239,7 @@ class Caption
     lines
   end
 
+==begin
   def group_lines(lines)
     @group.push([lines[0]])
     lines[1..-1].each do |l|
@@ -261,6 +262,7 @@ class Caption
       end
     end
   end
+==end
 
   def norm_lines(lines, st, en)
     interval = (lines[en].end_time - lines[st].start_time) / (en - st + 1)
@@ -295,7 +297,8 @@ class Caption
     #Smoothen timestamps within sliding frames
     #smoothen_timestamps(sm)
 
-    # Normalise the jammed captions
+    # Normalise the jammed captions;
+    #  leaving the code redundant to better understand the logic
     jammedline_start = nil
     lines.each_with_index do |l, i|
       if l.start_time == l.end_time
@@ -312,7 +315,7 @@ class Caption
         end
       else
         if jammedline_start
-          # normalise jammed line [jammedline_start..i]
+          # jammed line ends, start normalisation [jammedline_start..i]
           norm_lines(lines, jammedline_start, i)
           jammedline_start = nil
         else
