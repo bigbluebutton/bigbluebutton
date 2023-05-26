@@ -434,7 +434,7 @@ class Poll extends Component {
 
   handleAddOption() {
     const { optList } = this.state;
-    this.setState({ optList: [...optList, { val: 'E' }] });
+    this.setState({ optList: [...optList, { val: '' }] });
   }
 
   handleToggle() {
@@ -537,11 +537,7 @@ class Poll extends Component {
             <Styled.PollOptionInput
               type="text"
               value={o.val}
-              placeholder={
-                `${i < MAX_CUSTOM_FIELDS && POLL_OPTIONS_PLACEHOLDERS[i] 
-                  ? intl.formatMessage(POLL_OPTIONS_PLACEHOLDERS[i].val)
-                  : intl.formatMessage(intlMessages.customPlaceholder)}`
-              }
+              placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
               data-test="pollOptionItem"
               onChange={(e) => this.handleInputChange(e, i)}
               maxLength={MAX_INPUT_CHARS}
