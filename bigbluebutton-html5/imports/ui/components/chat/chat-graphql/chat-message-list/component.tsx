@@ -10,7 +10,6 @@ import {
 import { layoutSelect } from "../../../layout/context";
 import ChatListPage from "./page/component";
 import { defineMessages, useIntl } from "react-intl";
-import ChatPopup from "./chat-popup/component";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -106,7 +105,6 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
   const pagesToLoad = (totalPages-firstPageToLoad) || 1;
   return (
     <MessageListWrapper>
-      <ChatPopup />
       <MessageList
         ref={messageListRef}
         onWheel={(e)=>{

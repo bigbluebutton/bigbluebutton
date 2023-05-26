@@ -15,7 +15,8 @@ import Auth from '/imports/ui/services/auth';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
 import { CLOSE_PRIVATE_CHAT_MUTATION } from '../user-list/user-list-content/user-messages/chat-list/queries';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import ChatPopup from './chat-graphql/chat-popup/component';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -132,6 +133,7 @@ const Chat = (props) => {
           />
         )}
       />
+      <ChatPopup />
       <TimeWindowList
         id={ELEMENT_ID}
         chatId={chatID}

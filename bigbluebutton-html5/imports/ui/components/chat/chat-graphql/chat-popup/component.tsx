@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PopupContainer } from './styles';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
 import { useQuery } from '@apollo/client';
@@ -13,9 +13,17 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
   welcomeMessage,
   welcomeMsgForModerators,
 }) => {
-  const [showWelcomeMessage, setShowWelcomeMessage] = React.useState(true);
-  const [showWelcomeMessageForModerators, setShowWelcomeMessageForModerators] = React.useState(true);
-  if (!welcomeMessage && !welcomeMsgForModerators) return null;
+  const [showWelcomeMessage, setShowWelcomeMessage] = React.useState(false);
+  const [showWelcomeMessageForModerators, setShowWelcomeMessageForModerators] = React.useState(false);
+  useEffect(() => {
+    if (welcomeMessage) {
+      setShowWelcomeMessage(true);
+    }
+    if (welcomeMsgForModerators) {
+      setShowWelcomeMessageForModerators(true);
+    }
+  }, []);
+  if (!showWelcomeMessage && !showWelcomeMessageForModerators) return null;
   return (
     <PopupContainer>
       {showWelcomeMessage && welcomeMessage && (

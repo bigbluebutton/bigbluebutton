@@ -1,5 +1,5 @@
 import React from 'react';
-import { PopupContentBox, PopupContentHeader, PopupContentBody } from './styles';
+import { PopupContentBox, PopupContentHeader, PopupContentBody, CloseButton } from './styles';
 import Button from '/imports/ui/components/common/button/component';
 interface PopupContentProps {
   message: string;
@@ -12,7 +12,7 @@ const PopupContent: React.FC<PopupContentProps> = ({ message, closePopup }) => {
   return (
     <PopupContentBox>
       <PopupContentHeader>
-        <Button
+        <CloseButton
           size="sm"
           icon="close"
           onClick={() => {

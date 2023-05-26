@@ -8,6 +8,7 @@ import {
   systemMessageBorderColor,
   systemMessageFontColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from '/imports/ui/components/common/button/component';
 
 export const PopupContentBox = styled.div`
   display: flex;
@@ -30,6 +31,11 @@ export const PopupContentBody = styled.div`
   color: ${systemMessageFontColor};
   font-weight: ${btnFontWeight};
   overflow-wrap: break-word;
+`;
+
+export const CloseButton = styled(Button)`
+  background-color: transparent;
+  padding: 0;
 `;
 
 
