@@ -11,15 +11,16 @@ import (
 )
 
 var cacheDir = os.TempDir() + "/graphql-middleware-cache/"
+var minLengthToPatch = 250    //250 chars
+var minShrinkToUsePatch = 0.5 //50% percent
 
-func getConnPath(bConn *common.BrowserConnection) string {
-	//Using SessionToken as path to reinforce security (once connectionId repeats on restart of middleware)
-	return cacheDir + bConn.Id
+func getConnPath(connectionId string) string {
+	return cacheDir + connectionId
 }
 
 func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId string, createIfNotExists bool) (string, error) {
 	//Using SessionToken as path to reinforce security (once connectionId repeats on restart of middleware)
-	connectionPatchCachePath := getConnPath(bConn) + "/" + bConn.SessionToken + "/"
+	connectionPatchCachePath := getConnPath(bConn.Id) + "/" + bConn.SessionToken + "/"
 	subscriptionCacheDirPath := connectionPatchCachePath + subscriptionId + "/"
 	_, err := os.Stat(subscriptionCacheDirPath)
 	if err != nil {
@@ -37,18 +38,20 @@ func getSubscriptionCacheDirPath(bConn *common.BrowserConnection, subscriptionId
 	return subscriptionCacheDirPath, nil
 }
 
-func RemoveConnCacheDir(bConn *common.BrowserConnection) {
-	err := os.RemoveAll(getConnPath(bConn))
-	if err != nil && !os.IsNotExist(err) {
-		log.Errorf("Error while removing CLI patch cache directory:", err)
+func RemoveConnCacheDir(connectionId string) {
+	err := os.RemoveAll(getConnPath(connectionId))
+	if err != nil {
+		if !os.IsNotExist(err) {
+			log.Errorf("Error while removing CLI patch cache directory:", err)
+		}
 		return
 	}
 
-	log.Infof("Directory of patch caches removed successfully for client %s.", bConn.Id)
+	log.Infof("Directory of patch caches removed successfully for client %s.", connectionId)
 }
 
-func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscritionId string) {
-	subsCacheDirPath, err := getSubscriptionCacheDirPath(bConn, subscritionId, false)
+func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscriptionId string) {
+	subsCacheDirPath, err := getSubscriptionCacheDirPath(bConn, subscriptionId, false)
 	if err == nil {
 		err = os.RemoveAll(subsCacheDirPath)
 		if err != nil {
@@ -58,22 +61,25 @@ func RemoveConnSubscriptionCacheFile(bConn *common.BrowserConnection, subscritio
 			return
 		}
 
-		log.Infof("Directory of patch caches removed successfully for client %s, subscription %s.", bConn.Id, subscritionId)
+		log.Infof("Directory of patch caches removed successfully for client %s, subscription %s.", bConn.Id, subscriptionId)
 	}
 }
 
 func ClearAllCaches() {
-	filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			log.Errorf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
-			return err
-		}
+	info, err := os.Stat(cacheDir)
+	if err == nil && info.IsDir() {
+		filepath.Walk(cacheDir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				log.Errorf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+				return err
+			}
 
-		if info.IsDir() && path != cacheDir {
-			os.RemoveAll(path)
-		}
-		return nil
-	})
+			if info.IsDir() && path != cacheDir {
+				os.RemoveAll(path)
+			}
+			return nil
+		})
+	}
 }
 
 func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.BrowserConnection) {
@@ -130,8 +136,8 @@ func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.Browser
 			*receivedMessage = nil
 		} else {
 			//Content was changed, creating json patch
-			if lastDataAsJsonString != "" &&
-				len(string(dataAsJsonString)) > 250 { //If data is small it's not worth creating the patch
+			//If data is small (< minLengthToPatch) it's not worth creating the patch
+			if lastDataAsJsonString != "" && len(string(dataAsJsonString)) > minLengthToPatch {
 				diffPatch, e := jsonpatch.CreatePatch([]byte(lastDataAsJsonString), []byte(dataAsJsonString))
 				if e != nil {
 					log.Errorf("Error creating JSON patch:%v", e)
@@ -143,8 +149,8 @@ func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.Browser
 					return
 				}
 
-				//Use patch if the length is 50% smaller than the original msg
-				if float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJsonString))) < 0.5 {
+				//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
+				if float64(len(string(jsonDiffPatch)))/float64(len(string(dataAsJsonString))) < minShrinkToUsePatch {
 					//Modify receivedMessage to include the Patch and remove the previous data
 					//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
 					receivedMessageMap["payload"] = map[string]interface{}{
@@ -158,10 +164,13 @@ func PatchMessage(receivedMessage *map[string]interface{}, bConn *common.Browser
 			}
 
 			//Store current result to be used to create json patch in the future
-			errWritingOutput := ioutil.WriteFile(filePath, []byte(dataAsJsonString), 0644)
-			if errWritingOutput != nil {
-				log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
+			if lastDataAsJsonString != "" || len(string(dataAsJsonString)) > minLengthToPatch {
+				errWritingOutput := ioutil.WriteFile(filePath, []byte(dataAsJsonString), 0644)
+				if errWritingOutput != nil {
+					log.Errorf("Error on trying to write cache of json diff:", errWritingOutput)
+				}
 			}
+
 		}
 	}
 }

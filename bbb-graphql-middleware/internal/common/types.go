@@ -21,6 +21,7 @@ type GraphQlSubscription struct {
 	Id                        string
 	Message                   interface{}
 	Type                      QueryType
+	JsonPatchSupported        bool   // indicate if client support Json Patch for this subscription
 	LastSeenOnHasuraConnetion string // id of the hasura connection that this query was active
 }
 
@@ -32,7 +33,6 @@ type BrowserConnection struct {
 	ActiveSubscriptionsMutex sync.Mutex                     // mutex to control the map usage
 	ConnectionInitMessage    interface{}                    // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection         *HasuraConnection              // associated hasura connection
-	JsonPatchSupported       bool                           // indicate if client support Json Patch
 	Disconnected             bool                           // indicate if the connection is gone
 }
 
