@@ -31,6 +31,7 @@ export const PopupContentBody = styled.div`
   color: ${systemMessageFontColor};
   font-weight: ${btnFontWeight};
   overflow-wrap: break-word;
+  word-break: break-word;
 `;
 
 export const CloseButton = styled(Button)`
