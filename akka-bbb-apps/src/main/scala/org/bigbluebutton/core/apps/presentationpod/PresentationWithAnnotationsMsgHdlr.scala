@@ -2,13 +2,16 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, CaptureSharedNotesReqInternalMsg }
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.apps.presentationpod.PresentationSender
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.models.{ PresentationPod, PresentationPage, PresentationInPod }
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
+
 import java.io.File
 
 trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
@@ -223,6 +226,14 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
   def handle(m: NewPresAnnFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received NewPresAnnFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
+
+    //TODO let frontend choose the name in favor of internationalization
+    val presentationDownloadInfo = Map(
+      "fileURI" -> m.body.fileURI,
+      "filename" -> "annotated_slides.pdf"
+    )
+    ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "presentation", presentationDownloadInfo, "")
+
     bus.outGW.send(buildBroadcastNewPresAnnFileAvailable(m, liveMeeting))
   }
 
