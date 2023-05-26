@@ -13,6 +13,8 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
+const CHAT_EXPORTED_PRESENTATION_MESSAGE = CHAT_CONFIG.system_messages_keys
+  .chat_exported_presentation;
 const CHAT_POLL_RESULTS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_poll_result;
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
@@ -53,7 +55,7 @@ export const ChatContext = createContext();
 const removedMessagesReadState = {};
 
 const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY) => {
-  
+
   const timeWindow = generateTimeWindow(msg.timestamp);
   const userId = msg.sender;
   const keyName = userId + '-' + timeWindow;
@@ -79,12 +81,12 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
         ],
       }
     };
-  
+
     return [tempGroupMessage, msg.sender, indexValue, msg.senderName];
   };
 
   let stateMessages = state[msg.chatId];
-  
+
   if (!stateMessages) {
     if (msg.chatId === getGroupChatId()) {
       state[msg.chatId] = {
@@ -92,7 +94,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
         chatIndexes: {},
         preJoinMessages: {},
         posJoinMessages: {},
-        synced:true,
+        synced: true,
         unreadTimeWindows: new Set(),
         unreadCount: 0,
       };
@@ -101,7 +103,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
         count: 0,
         lastSender: '',
         lastSenderName: '',
-        synced:true,
+        synced: true,
         chatIndexes: {},
         messageGroups: {},
         unreadTimeWindows: new Set(),
@@ -112,7 +114,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
 
     stateMessages = state[msg.chatId];
   }
-  
+
   const forPublicChat = msg.timestamp < getLoginTime() ? stateMessages.preJoinMessages : stateMessages.posJoinMessages;
   const forPrivateChat = stateMessages.messageGroups;
   const messageGroups = msg.chatId === getGroupChatId() ? forPublicChat : forPrivateChat;
@@ -129,7 +131,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
     stateMessages.chatIndexes[keyName] = newIndex;
     stateMessages.lastTimewindow = keyName + '-' + newIndex;
     ChatLogger.trace('ChatContext::formatMsg::msgBuilder::tempGroupMessage', tempGroupMessage);
-    
+
     const messageGroupsKeys = Object.keys(tempGroupMessage);
     messageGroupsKeys.forEach(key => {
       messageGroups[key] = tempGroupMessage[key];
@@ -137,11 +139,15 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
       message.messageType = msgType;
       const previousMessage = message.timestamp <= getLoginTime();
       const amIPresenter = UserService.isUserPresenter(Auth.userID);
-      const shouldAddPollResultMessage = message.id.includes(CHAT_POLL_RESULTS_MESSAGE) && !amIPresenter;
+      const shouldAddPresentationExportMessage = message.id
+        .includes(CHAT_EXPORTED_PRESENTATION_MESSAGE) && !amIPresenter;
+      const shouldAddPollResultMessage = message.id
+        .includes(CHAT_POLL_RESULTS_MESSAGE) && !amIPresenter;
       if (
         !previousMessage
         && message.sender !== Auth.userID
-        && (!message.id.startsWith(SYSTEM_CHAT_TYPE) || shouldAddPollResultMessage)
+        && (!message.id.startsWith(SYSTEM_CHAT_TYPE) || shouldAddPollResultMessage
+          || shouldAddPresentationExportMessage)
         && !message.read
       ) {
         stateMessages.unreadTimeWindows.add(key);
@@ -173,7 +179,7 @@ const generateStateWithNewMessage = (msg, state, msgType = MESSAGE_TYPES.HISTORY
   return state;
 }
 
-const reducer = (state, action) => {  
+const reducer = (state, action) => {
   switch (action.type) {
     case ACTIONS.TEST: {
       ChatLogger.debug(ACTIONS.TEST);
@@ -184,18 +190,18 @@ const reducer = (state, action) => {
     }
     case ACTIONS.ADDED: {
       ChatLogger.debug(ACTIONS.ADDED);
-      
+
       const batchMsgs = action.value;
       const closedChatsToOpen = new Set();
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
       const loginTime = getLoginTime();
-      const newState = batchMsgs.reduce((acc, i)=> {
+      const newState = batchMsgs.reduce((acc, i) => {
         const message = i;
         const chatId = message.chatId;
         if (
-            chatId !== PUBLIC_GROUP_CHAT_KEY 
-            && message.timestamp > loginTime
-            && currentClosedChats.includes(chatId) ){
+          chatId !== PUBLIC_GROUP_CHAT_KEY
+          && message.timestamp > loginTime
+          && currentClosedChats.includes(chatId)) {
           closedChatsToOpen.add(chatId)
         }
         return generateStateWithNewMessage(message, acc, action.messageType);
@@ -206,7 +212,7 @@ const reducer = (state, action) => {
         Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
       }
       // const newState = generateStateWithNewMessage(action.value, state);
-      return {...newState};
+      return { ...newState };
     }
     case ACTIONS.CHANGED: {
       return {
@@ -216,7 +222,7 @@ const reducer = (state, action) => {
     }
     case ACTIONS.REMOVED: {
       ChatLogger.debug(ACTIONS.REMOVED);
-      if (state[PUBLIC_GROUP_CHAT_KEY]){
+      if (state[PUBLIC_GROUP_CHAT_KEY]) {
         state[PUBLIC_GROUP_CHAT_KEY] = {
           count: 0,
           lastSender: '',
@@ -239,15 +245,15 @@ const reducer = (state, action) => {
       const selectedChatId = chatId === PUBLIC_CHAT_KEY ? PUBLIC_GROUP_CHAT_KEY : chatId;
       const chat = state[selectedChatId];
       if (!chat) return state;
-      ['posJoinMessages','preJoinMessages','messageGroups'].forEach( messageGroupName => {
+      ['posJoinMessages', 'preJoinMessages', 'messageGroups'].forEach(messageGroupName => {
         const messageGroup = chat[messageGroupName];
-        if (messageGroup){
+        if (messageGroup) {
           const timeWindowsids = Object.keys(messageGroup);
-          timeWindowsids.forEach( timeWindowId => {
+          timeWindowsids.forEach(timeWindowId => {
             const timeWindow = messageGroup[timeWindowId];
-            if(timeWindow) {
+            if (timeWindow) {
               if (!timeWindow.read) {
-                if (timeWindow.lastTimestamp <= timestamp){
+                if (timeWindow.lastTimestamp <= timestamp) {
                   newState[selectedChatId].unreadTimeWindows.delete(timeWindowId);
 
                   newState[selectedChatId][messageGroupName][timeWindowId] = {
@@ -255,7 +261,7 @@ const reducer = (state, action) => {
                     read: true,
                   };
 
-                  
+
                   newState[selectedChatId] = {
                     ...newState[selectedChatId],
                   };
@@ -278,7 +284,7 @@ const reducer = (state, action) => {
       const { chatId } = action;
       const newState = { ...state };
 
-      if (!newState[chatId]){
+      if (!newState[chatId]) {
         newState[chatId] = {
           count: 0,
           lastSender: '',
@@ -303,29 +309,29 @@ const reducer = (state, action) => {
       const newState = { ...state };
       const chatIds = Object.keys(newState);
       chatIds.forEach((chatId) => {
-        newState[chatId] = chatId === PUBLIC_GROUP_CHAT_KEY ? 
-        {
-          count: 0,
-          lastSender: '',
-          chatIndexes: {},
-          preJoinMessages: {},
-          posJoinMessages: {},
-          syncing: false,
-          syncedPercent: 0,
-          unreadTimeWindows: new Set(),
-          unreadCount: 0,
-        }
-        :  
-        {
-          count: 0,
-          lastSender: '',
-          chatIndexes: {},
-          messageGroups: {},
-          syncing: false,
-          syncedPercent: 0,
-          unreadTimeWindows: new Set(),
-          unreadCount: 0,
-        };
+        newState[chatId] = chatId === PUBLIC_GROUP_CHAT_KEY ?
+          {
+            count: 0,
+            lastSender: '',
+            chatIndexes: {},
+            preJoinMessages: {},
+            posJoinMessages: {},
+            syncing: false,
+            syncedPercent: 0,
+            unreadTimeWindows: new Set(),
+            unreadCount: 0,
+          }
+          :
+          {
+            count: 0,
+            lastSender: '',
+            chatIndexes: {},
+            messageGroups: {},
+            syncing: false,
+            syncedPercent: 0,
+            unreadTimeWindows: new Set(),
+            unreadCount: 0,
+          };
       });
       return newState;
     }
@@ -337,11 +343,11 @@ const reducer = (state, action) => {
       const chatIds = Object.keys(newState);
       chatIds.forEach((chatId) => {
         const chat = newState[chatId];
-        ['posJoinMessages','messageGroups'].forEach((group)=> {
+        ['posJoinMessages', 'messageGroups'].forEach((group) => {
           const messages = chat[group];
           if (messages) {
             const timeWindowIds = Object.keys(messages);
-            timeWindowIds.forEach((timeWindowId)=> {
+            timeWindowIds.forEach((timeWindowId) => {
               const timeWindow = messages[timeWindowId];
               if (timeWindow.messageType === MESSAGE_TYPES.STREAM) {
                 chat.unreadTimeWindows.delete(timeWindowId);

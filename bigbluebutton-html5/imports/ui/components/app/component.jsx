@@ -24,7 +24,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
-import NewWebcamContainer from '../webcam/container';
+import WebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
@@ -69,10 +69,6 @@ const intlMessages = defineMessages({
   actionsBarLabel: {
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
-  },
-  iOSWarning: {
-    id: 'app.iOSWarning.label',
-    description: 'message indicating to upgrade ios version',
   },
   clearedEmoji: {
     id: 'app.toast.clearedEmoji.label',
@@ -153,7 +149,6 @@ class App extends Component {
     const {
       notify,
       intl,
-      validIOSVersion,
       layoutContextDispatch,
       isRTL,
     } = this.props;
@@ -185,12 +180,6 @@ class App extends Component {
     }
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
-
-    if (!validIOSVersion()) {
-      notify(
-        intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
-      );
-    }
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
@@ -567,7 +556,7 @@ class App extends Component {
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
-          <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
+          <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
           {shouldShowPresentation ? <PresentationAreaContainer darkTheme={darkTheme} presentationIsOpen={presentationIsOpen} /> : null}
           {shouldShowScreenshare ? <ScreenshareContainer isLayoutSwapped={!presentationIsOpen} /> : null}
@@ -576,7 +565,7 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes 
+          {shouldShowSharedNotes
             ? (
               <NotesContainer
                 area="media"

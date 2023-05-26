@@ -530,50 +530,6 @@ const TableItemActions = styled.td`
   `}
 `;
 
-const DownloadButton = styled(Button)`
-  background: transparent;
-  background-color: transparent;
-  border: 2px solid ${colorBlueLight} !important;
-  border-radius: 4px;
-  color: ${colorBlueLight};
-  cursor: pointer;
-  display: inline-block;
-  font-size: 80%;
-
-  &:hover {
-    background-color: ${colorOffWhite} !important;
-    color: ${colorBlueLight} !important;
-    filter: none !important;
-  }
-
-  &:focus {
-    background-color: transparent !important;
-    color: ${colorBlueLight} !important;
-  }
-
-  &:hover:focus {
-    background-color: ${colorOffWhite} !important;
-    color: ${colorBlueLight} !important;
-  }
-
-  &:active:focus {
-    background-color: ${colorOffWhite} !important;
-    color: ${colorBlueLight} !important;
-    filter: brightness(85%) !important;
-  }
-
-  ${({ animations }) => animations && `
-    transition: all .25s;
-  `}
-
-  &[aria-disabled="true"] {
-    cursor: not-allowed;
-    opacity: .5;
-    box-shadow: none;
-    pointer-events: none;
-  }
-`;
-
 const ExtraHint = styled.div`
   margin-top: 1rem;
   font-weight: bold;
@@ -702,7 +658,6 @@ export default {
   StatusInfoSpan,
   PresentationItem,
   TableItemActions,
-  DownloadButton,
   ExtraHint,
   ExternalUpload,
   ExternalUploadTitle,

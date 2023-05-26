@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
 import Styled from '../styles';
@@ -77,7 +77,10 @@ class PanToolInjector extends React.Component {
       });
       const container = document.createElement('span');
       parentElement.appendChild(container);
-      ReactDOM.render(
+
+      const root = createRoot(container);
+
+      root.render(
         <Styled.PanTool
           key="bbb-panBtn"
           role="button"
@@ -107,8 +110,8 @@ class PanToolInjector extends React.Component {
             panSelected,
           }}
         />,
-        container,
       );
+
       const { lastChild } = parentElement;
       const secondChild = parentElement.children[1];
       parentElement.insertBefore(lastChild, secondChild);
