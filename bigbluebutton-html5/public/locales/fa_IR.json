@@ -25,7 +25,7 @@
     "app.chat.breakoutDurationUpdatedModerator": "زمان اتاق‌های جانبی اکنون {0} دقیقه است و آگاه‌سازی ارسال شده است.",
     "app.chat.emptyLogLabel": "سابقه گفتگو خالی است",
     "app.chat.clearPublicChatMessage": "سابقه گفتگوی عمومی توسط مدیر حذف گردید",
-    "app.chat.multi.typing": "چند کاربر در حال نوشتن هستند",
+    "app.chat.multi.typing": "چند کاربر درحال نوشتن هستند",
     "app.chat.one.typing": "{0} در حال نوشتن است",
     "app.chat.two.typing": "{0} و {1} در حال نوشتن هستند",
     "app.chat.copySuccess": "رونوشت گفتگو کپی شد",
