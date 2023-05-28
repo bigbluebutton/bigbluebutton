@@ -326,7 +326,7 @@
     "app.poll.clickHereToSelect": "برای انتخاب اینجا را کلیک کنید",
     "app.poll.question.label" : "سوالتان را بنویسید ...",
     "app.poll.optionalQuestion.label" : "سوالتان را بنویسید (اختیاری) ...",
-    "app.poll.userResponse.label" : "پاسخ تایپ‌شده",
+    "app.poll.userResponse.label" : "پاسخ نوشته‌شده",
     "app.poll.responseTypes.label" : "انواع پاسخ",
     "app.poll.optionDelete.label" : "حذف",
     "app.poll.responseChoices.label" : "انتخاب‌های پاسخ",
