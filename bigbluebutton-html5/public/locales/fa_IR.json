@@ -27,7 +27,7 @@
     "app.chat.clearPublicChatMessage": "سابقه گفتگوی عمومی توسط مدیر حذف گردید",
     "app.chat.multi.typing": "چند کاربر درحال نوشتن هستند",
     "app.chat.one.typing": "{0} درحال نوشتن است",
-    "app.chat.two.typing": "{0} و {1} در حال نوشتن هستند",
+    "app.chat.two.typing": "{0} و {1} درحال نوشتن هستند",
     "app.chat.copySuccess": "رونوشت گفتگو کپی شد",
     "app.chat.copyErr": "کپی رونوشت گفتگو با خطا مواجه شد",
     "app.emojiPicker.search": "جستجو",
