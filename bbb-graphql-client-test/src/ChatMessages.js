@@ -31,7 +31,6 @@ export default function ChatMessages({userId}) {
         correlationId
         createdTime
         createdTimeAsDate
-        meetingId
         message
         messageId
         senderId

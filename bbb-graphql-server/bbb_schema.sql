@@ -46,6 +46,7 @@ DROP TABLE IF EXISTS "user_voice";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user_customParameter";
+DROP TABLE IF EXISTS "user_localSettings";
 DROP TABLE IF EXISTS "user";
 
 DROP VIEW IF EXISTS "v_meeting_lockSettings";

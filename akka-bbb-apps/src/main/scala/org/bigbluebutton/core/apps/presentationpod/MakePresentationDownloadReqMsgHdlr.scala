@@ -231,7 +231,6 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   def handle(m: NewPresFileAvailableMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received NewPresFileAvailableMsg meetingId={} presId={} fileUrl={}", liveMeeting.props.meetingProp.intId, m.body.presId, m.body.fileURI)
 
-
     //TODO let frontend choose the name in favor of internationalization
     val presentationDownloadInfo = Map(
       "fileURI" -> m.body.fileURI,
