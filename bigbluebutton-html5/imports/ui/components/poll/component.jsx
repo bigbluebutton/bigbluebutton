@@ -223,13 +223,6 @@ const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
 const MAX_INPUT_CHARS = POLL_SETTINGS.maxTypedAnswerLength;
 const MIN_OPTIONS_LENGTH = 2;
 const QUESTION_MAX_INPUT_CHARS = 1200;
-const POLL_OPTIONS_PLACEHOLDERS = [
-  { val: intlMessages.a },
-  { val: intlMessages.b },
-  { val: intlMessages.c },
-  { val: intlMessages.d },
-  { val: intlMessages.e },
-];
 
 class Poll extends Component {
   constructor(props) {
