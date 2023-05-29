@@ -4,7 +4,6 @@ import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/Butto
 import VideoService from '../service';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
-import { validIOSVersion } from '/imports/ui/components/app/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from 'radash';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -93,6 +92,8 @@ const JoinVideoButton = ({
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
 
   useEffect(() => {
+    const isSelfViewDisabled = Settings.application.selfViewDisable;
+
     if (isVideoPreviewModalOpen && isSelfViewDisabled) {
       setWasSelfViewDisabled(true);
       const obj = {
@@ -104,10 +105,6 @@ const JoinVideoButton = ({
   }, [isVideoPreviewModalOpen]);
 
   const handleOnClick = debounce({ delay: JOIN_VIDEO_DELAY_MILLISECONDS }, () => {
-    if (!validIOSVersion()) {
-      return VideoService.notify(intl.formatMessage(intlMessages.iOSWarning));
-    }
-
     switch (status) {
       case 'videoConnecting':
         VideoService.stopVideo();
@@ -221,20 +218,22 @@ const JoinVideoButton = ({
           {...{
             callbackToClose: () => {
               if (wasSelfViewDisabled) {
-                const obj = {
-                  application:
-                    { ...Settings.application, selfViewDisable: true },
-                };
-                updateSettings(obj);
-                setWasSelfViewDisabled(false);
+                setTimeout(() => {
+                  const obj = {
+                    application:
+                      { ...Settings.application, selfViewDisable: true },
+                  };
+                  updateSettings(obj);
+                  setWasSelfViewDisabled(false);
+                }, 100);
               }
               setPropsToPassModal({});
               setForceOpen(false);
             },
             forceOpen,
-            priority: "low",
+            priority: 'low',
             setIsOpen: setVideoPreviewModalIsOpen,
-            isOpen: isVideoPreviewModalOpen
+            isOpen: isVideoPreviewModalOpen,
           }}
           {...propsToPassModal}
         />
