@@ -54,6 +54,9 @@ repositories {
 
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
+  runtimeOnly 'org.apache.tika:tika-core:2.8.0'
+  runtimeOnly 'org.apache.tika:tika-parsers-standard-package:2.8.0'
+
   implementation "org.springframework:spring-core:5.3.21"
   implementation "org.springframework:spring-context:5.3.27"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
