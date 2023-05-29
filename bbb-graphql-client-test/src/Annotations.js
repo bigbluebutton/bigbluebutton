@@ -9,7 +9,6 @@ export default function Annotations() {
             annotationId
             annotationInfo
             lastUpdatedAt
-            meetingId
             pageId
             presentationId
             userId

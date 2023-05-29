@@ -46,6 +46,7 @@ DROP TABLE IF EXISTS "user_voice";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user_customParameter";
+DROP TABLE IF EXISTS "user_localSettings";
 DROP TABLE IF EXISTS "user";
 
 DROP VIEW IF EXISTS "v_meeting_lockSettings";
@@ -493,6 +494,15 @@ create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("m
 --CASE WHEN "statusUpdatedAt" < current_timestamp - INTERVAL '20 seconds' THEN TRUE ELSE FALSE END AS "clientNotResponding"
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
+
+CREATE TABLE "user_localSettings"(
+	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
+	"settingsJson" jsonb
+);
+
+CREATE INDEX "idx_user_local_settings_meetingId" ON "user_localSettings"("meetingId");
+
 
 
 

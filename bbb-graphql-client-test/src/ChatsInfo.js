@@ -48,7 +48,6 @@ export default function ChatsInfo() {
     gql`subscription {
       chat(order_by: {public: desc}) {
         chatId
-        meetingId
         participant {
             name
             role
@@ -68,7 +67,6 @@ export default function ChatsInfo() {
         user_typing_public(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
             isCurrentlyTyping
-            meetingId
             typingAt
             userId
             user {
@@ -83,7 +81,6 @@ export default function ChatsInfo() {
         user_typing_private(where: {isCurrentlyTyping: {_eq: true}}) {
             chatId
             isCurrentlyTyping
-            meetingId
             typingAt
             userId
             user {
@@ -101,7 +98,6 @@ export default function ChatsInfo() {
           </tr>
         <tr>
             <th>Id</th>
-            <th>Meeting</th>
             <th>Participant</th>
             <th>Who's typing</th>
             <th>Total Mgs</th>
@@ -115,7 +111,6 @@ export default function ChatsInfo() {
           return (
               <tr key={curr.chatId}>
                   <td>{curr.chatId}</td>
-                  <td>{curr.meetingId}</td>
                   <td>{curr.participant?.name} {curr.participant?.role} {curr.participant?.color}  {curr.participant?.loggedOut === true ? ' (Offline)' : ''}</td>
                       {
                           curr.chatId === 'MAIN-PUBLIC-GROUP-CHAT' ?
