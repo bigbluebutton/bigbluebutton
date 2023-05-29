@@ -44,7 +44,7 @@ case class SetTrackReqMsgBody(track: String)
 /* Out Messages */
 object ActivateTimerRespMsg { val NAME = "ActivateTimerRespMsg" }
 case class ActivateTimerRespMsg(header: BbbCoreHeaderWithMeetingId, body: ActivateTimerRespMsgBody) extends BbbCoreMsg
-case class ActivateTimerRespMsgBody(userId: String)
+case class ActivateTimerRespMsgBody(userId: String, stopwatch: Boolean, running: Boolean, time: Int, accumulated: Int, track: String)
 
 object DeactivateTimerRespMsg { val NAME = "DeactivateTimerRespMsg" }
 case class DeactivateTimerRespMsg(header: BbbCoreHeaderWithMeetingId, body: DeactivateTimerRespMsgBody) extends BbbCoreMsg

@@ -10,14 +10,20 @@ trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
 
   def handle(msg: ActivateTimerReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.debug("Received ActivateTimerReqMsg {}", ActivateTimerReqMsg)
-    def broadcastEvent(): Unit = {
+    def broadcastEvent(
+        stopwatch:   Boolean,
+        running:     Boolean,
+        time:        Int,
+        accumulated: Int,
+        track:       String
+    ): Unit = {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
       val envelope = BbbCoreEnvelope(ActivateTimerRespMsg.NAME, routing)
       val header = BbbCoreHeaderWithMeetingId(
         ActivateTimerRespMsg.NAME,
         liveMeeting.props.meetingProp.intId
       )
-      val body = ActivateTimerRespMsgBody(msg.header.userId)
+      val body = ActivateTimerRespMsgBody(msg.header.userId, stopwatch, running, time, accumulated, track)
       val event = ActivateTimerRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -31,7 +37,7 @@ trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
     } else {
       TimerModel.reset(liveMeeting.timerModel, msg.body.stopwatch, msg.body.time, msg.body.accumulated, msg.body.timestamp, msg.body.track)
       TimerModel.setIsActive(liveMeeting.timerModel, true)
-      broadcastEvent()
+      broadcastEvent(msg.body.stopwatch, msg.body.running, msg.body.time, msg.body.accumulated, msg.body.track)
     }
   }
 }
