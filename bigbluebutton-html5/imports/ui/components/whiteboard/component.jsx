@@ -140,6 +140,16 @@ export default function Whiteboard(props) {
     }
   };
 
+  const setDockPosition = (setSetting) => {
+    if (hasWBAccess || isPresenter) {
+      if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
+        setSetting('dockPosition', 'bottom');
+      } else {
+        setSetting('dockPosition', isRTL ? 'left' : 'right');
+      }
+    }
+  }
+
   React.useEffect(() => {
     const toolbar = document.getElementById('TD-PrimaryTools');
     const handleClick = (evt) => {
@@ -522,6 +532,10 @@ export default function Whiteboard(props) {
   }, [isPanning]);
 
   React.useEffect(() => {
+    tldrawAPI && setDockPosition(tldrawAPI?.setSetting);
+  }, [height, width]);
+
+  React.useEffect(() => {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
 
@@ -605,6 +619,7 @@ export default function Whiteboard(props) {
   };
 
   const onMount = (app) => {
+    setDockPosition(app?.setSetting);
     const menu = document.getElementById('TD-Styles')?.parentElement;
     const canvas = document.getElementById('canvas');
     if (canvas) {
@@ -1009,14 +1024,6 @@ export default function Whiteboard(props) {
 
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
-
-  if (hasWBAccess || isPresenter) {
-    if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
-      tldrawAPI?.setSetting('dockPosition', 'bottom');
-    } else {
-      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-    }
-  }
 
   const menuOffsetValues = {
     true: {
