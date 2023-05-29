@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {
   colorWhite,
-  colorPrimary
+  colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
@@ -52,6 +52,9 @@ const Chat = styled.div`
 
   @media ${smallOnly} {
     transform: none !important;
+    &.no-padding {
+      padding: 0;
+    }
   }
 `;
 
