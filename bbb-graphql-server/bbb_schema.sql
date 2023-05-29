@@ -494,6 +494,15 @@ create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("m
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
 
+CREATE TABLE "user_localSettings"(
+	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
+	"settingsJson" jsonb
+);
+
+CREATE INDEX "idx_user_local_settings_meetingId" ON "user_localSettings"("meetingId");
+
+
 
 
 -- ===================== CHAT TABLES
