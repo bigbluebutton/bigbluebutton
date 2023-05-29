@@ -221,7 +221,7 @@ const Cursors = (props) => {
   React.useEffect(() => {
     const currentCursor = cursorWrapper?.current;
     currentCursor?.addEventListener('mouseenter', start);
-    currentCursor?.addEventListener('touchstart', start); 
+    currentCursor?.addEventListener('touchstart', start);
     currentCursor?.addEventListener('mouseleave', end);
     currentCursor?.addEventListener('mousedown', handleGrabbing);
     currentCursor?.addEventListener('mouseup', handleReleaseGrab);
@@ -231,7 +231,7 @@ const Cursors = (props) => {
 
     return () => {
       currentCursor?.removeEventListener('mouseenter', start);
-      currentCursor?.addEventListener('touchstart', start); 
+      currentCursor?.addEventListener('touchstart', start);
       currentCursor?.removeEventListener('mouseleave', end);
       currentCursor?.removeEventListener('mousedown', handleGrabbing);
       currentCursor?.removeEventListener('mouseup', handleReleaseGrab);
@@ -241,7 +241,8 @@ const Cursors = (props) => {
     };
   }, [cursorWrapper, whiteboardId, currentUser.presenter, whiteboardToolbarAutoHide]);
 
-  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] || 'none' : 'default';
+  let cursorType = multiUserAccess || currentUser?.presenter ? TOOL_CURSORS[currentTool] : 'default';
+
   if (isPanning) {
     if (panGrabbing) {
       cursorType = TOOL_CURSORS.grabbing;
@@ -250,7 +251,6 @@ const Cursors = (props) => {
     }
   }
   if (isMoving) cursorType = TOOL_CURSORS.moving;
-
   return (
     <span key={`cursor-wrapper-${whiteboardId}`} ref={cursorWrapper}>
       <div style={{ height: '100%', cursor: cursorType }}>

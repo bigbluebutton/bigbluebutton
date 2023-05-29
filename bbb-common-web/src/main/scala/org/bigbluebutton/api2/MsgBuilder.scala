@@ -41,7 +41,7 @@ object MsgBuilder {
     val body = RegisterUserReqMsgBody(meetingId = msg.meetingId, intUserId = msg.intUserId,
       name = msg.name, role = msg.role, extUserId = msg.extUserId, authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, guest = msg.guest, authed = msg.authed, guestStatus = msg.guestStatus,
-      excludeFromDashboard = msg.excludeFromDashboard)
+      excludeFromDashboard = msg.excludeFromDashboard, customParameters = msg.customParameters)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -148,7 +148,9 @@ object MsgBuilder {
 
     val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
-      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(), msg.removable.booleanValue())
+      current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
+      msg.removable.booleanValue(),
+      isInitialPresentation = msg.isInitialPresentation, msg.filenameConverted)
 
     val body = PresentationConversionCompletedSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentation)

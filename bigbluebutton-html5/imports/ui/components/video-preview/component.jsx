@@ -205,6 +205,10 @@ const intlMessages = defineMessages({
     id: 'app.videoPreview.wholeImageBrightnessDesc',
     description: 'Whole image brightness aria description',
   },
+  cameraAsContentSettingsTitle: {
+    id: 'app.videoPreview.cameraAsContentSettingsTitle',
+    description: 'Title for the video preview modal when sharing camera as content',
+  },
   sliderDesc: {
     id: 'app.videoPreview.sliderDesc',
     description: 'Brightness slider aria description',
@@ -426,7 +430,7 @@ class VideoPreview extends Component {
   handleVirtualBgSelected(type, name, customParams) {
     const { sharedDevices } = this.props;
     const { webcamDeviceId } = this.state;
-    const shared = sharedDevices.includes(webcamDeviceId);
+    const shared = this.isAlreadyShared(webcamDeviceId);
 
     if (type !== EFFECT_TYPES.NONE_TYPE || CAMERA_BRIGHTNESS_AVAILABLE) {
       return this.startVirtualBackground(this.currentVideoStream, type, name, customParams).then((switched) => {
@@ -479,6 +483,8 @@ class VideoPreview extends Component {
     const {
       resolve,
       startSharing,
+      cameraAsContent,
+      startSharingCameraAsContent,
     } = this.props;
     const {
       webcamDeviceId,
@@ -503,18 +509,28 @@ class VideoPreview extends Component {
 
     this.updateVirtualBackgroundInfo();
     this.cleanupStreamAndVideo();
+
     PreviewService.changeProfile(selectedProfile);
     PreviewService.changeWebcam(webcamDeviceId);
-    startSharing(webcamDeviceId);
+    if (cameraAsContent) {
+      startSharingCameraAsContent(webcamDeviceId);
+    } else {
+      startSharing(webcamDeviceId);
+    }
     if (resolve) resolve();
   }
 
   handleStopSharing() {
-    const { resolve, stopSharing } = this.props;
+    const { resolve, stopSharing, stopSharingCameraAsContent } = this.props;
     const { webcamDeviceId } = this.state;
-    PreviewService.deleteStream(webcamDeviceId);
-    stopSharing(webcamDeviceId);
-    this.cleanupStreamAndVideo();
+
+    if (this.isCameraAsContentDevice(webcamDeviceId)) {
+      stopSharingCameraAsContent();
+    } else {
+      PreviewService.deleteStream(webcamDeviceId);
+      stopSharing(webcamDeviceId);
+      this.cleanupStreamAndVideo();
+    }
     if (resolve) resolve();
   }
 
@@ -631,7 +647,8 @@ class VideoPreview extends Component {
   }
 
   getInitialCameraStream(deviceId) {
-    const defaultProfile = PreviewService.getDefaultProfile();
+    const { cameraAsContent } = this.props;
+    const defaultProfile = !cameraAsContent ? PreviewService.getDefaultProfile() : PreviewService.getCameraAsContentProfile();
 
     return this.getCameraStream(deviceId, defaultProfile).then(() => {
       this.updateDeviceId(deviceId);
@@ -706,11 +723,24 @@ class VideoPreview extends Component {
     return `${intl.formatMessage(intlMessages.cameraLabel)} ${index}`
   }
 
+  isAlreadyShared (webcamId) { 
+    const { sharedDevices, cameraAsContentDeviceId } = this.props;
+
+    return sharedDevices.includes(webcamId) || webcamId === cameraAsContentDeviceId;
+  }
+
+  isCameraAsContentDevice (deviceId) {
+    const { cameraAsContentDeviceId } = this.props;
+
+    return deviceId === cameraAsContentDeviceId;
+  }
+
   renderDeviceSelectors() {
     const {
       intl,
       sharedDevices,
       isVisualEffects,
+      cameraAsContent,
     } = this.props;
 
     const {
@@ -720,6 +750,7 @@ class VideoPreview extends Component {
     } = this.state;
 
     const shared = sharedDevices.includes(webcamDeviceId);
+    const shouldShowVirtualBackgrounds = isVirtualBackgroundsEnabled() && !cameraAsContent;
 
     if (isVisualEffects) {
       return (
@@ -731,70 +762,103 @@ class VideoPreview extends Component {
 
     return (
       <>
-        <Styled.Label htmlFor="setCam">
-          {intl.formatMessage(intlMessages.cameraLabel)}
-        </Styled.Label>
-        { availableWebcams && availableWebcams.length > 0
-          ? (
-            <Styled.Select
-              id="setCam"
-              value={webcamDeviceId || ''}
-              onChange={this.handleSelectWebcam}
-            >
-              {availableWebcams.map((webcam, index) => (
-                <option key={webcam.deviceId} value={webcam.deviceId}>
-                  {webcam.label || this.getFallbackLabel(webcam, index)}
-                </option>
-              ))}
-            </Styled.Select>
-          )
-          : (
-            <span>
-              {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
-            </span>
-          )
-        }
-        { shared
-          ? (
-            <Styled.Label>
-              {intl.formatMessage(intlMessages.sharedCameraLabel)}
-            </Styled.Label>
-          )
-          : (
-            <>
-              <Styled.Label htmlFor="setQuality">
-                {intl.formatMessage(intlMessages.qualityLabel)}
-              </Styled.Label>
-              {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
-                ? (
-                  <Styled.Select
-                    id="setQuality"
-                    value={selectedProfile || ''}
-                    onChange={this.handleSelectProfile}
-                  >
-                    {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
-                      const label = intlMessages[`${profile.id}`]
-                        ? intl.formatMessage(intlMessages[`${profile.id}`])
-                        : profile.name;
 
-                      return (
-                        <option key={profile.id} value={profile.id}>
-                          {`${label}`}
-                        </option>
-                      );
-                    })}
+      { cameraAsContent
+        ? (
+          <>
+            <Styled.Label htmlFor="setCam">
+              {intl.formatMessage(intlMessages.cameraLabel)}
+            </Styled.Label>
+            { availableWebcams && availableWebcams.length > 0
+              ? (
+                  <Styled.Select
+                    id="setCam"
+                    value={webcamDeviceId || ''}
+                    onChange={this.handleSelectWebcam}
+                  >
+                    {availableWebcams.map((webcam, index) => (
+                      <option key={webcam.deviceId} value={webcam.deviceId}>
+                        {webcam.label || this.getFallbackLabel(webcam, index)}
+                      </option>
+                    ))}
                   </Styled.Select>
                 )
                 : (
-                  <span>
-                    {intl.formatMessage(intlMessages.profileNotFoundLabel)}
-                  </span>
-                )
-              }
-            </>
-          )
-        }
-        {isVirtualBackgroundsEnabled() && this.renderVirtualBgSelector()}
+                    <span>
+                      {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+                    </span>
+                  )
+            }
+          </>
+        ) 
+        :
+          <>
+          <Styled.Label htmlFor="setCam">
+            {intl.formatMessage(intlMessages.cameraLabel)}
+          </Styled.Label>
+          { availableWebcams && availableWebcams.length > 0
+            ? (
+              <Styled.Select
+                id="setCam"
+                value={webcamDeviceId || ''}
+                onChange={this.handleSelectWebcam}
+              >
+                {availableWebcams.map((webcam, index) => (
+                  <option key={webcam.deviceId} value={webcam.deviceId}>
+                    {webcam.label || this.getFallbackLabel(webcam, index)}
+                  </option>
+                ))}
+              </Styled.Select>
+            )
+            : (
+              <span>
+                {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+              </span>
+            )
+          }
+          { shared
+            ? (
+              <Styled.Label>
+                {intl.formatMessage(intlMessages.sharedCameraLabel)}
+              </Styled.Label>
+            )
+            : (
+              <>
+                <Styled.Label htmlFor="setQuality">
+                  {intl.formatMessage(intlMessages.qualityLabel)}
+                </Styled.Label>
+                {PreviewService.PREVIEW_CAMERA_PROFILES.length > 0
+                  ? (
+                    <Styled.Select
+                      id="setQuality"
+                      value={selectedProfile || ''}
+                      onChange={this.handleSelectProfile}
+                    >
+                      {PreviewService.PREVIEW_CAMERA_PROFILES.map((profile) => {
+                        const label = intlMessages[`${profile.id}`]
+                          ? intl.formatMessage(intlMessages[`${profile.id}`])
+                          : profile.name;
+
+                        return (
+                          <option key={profile.id} value={profile.id}>
+                            {`${label}`}
+                          </option>
+                        );
+                      })}
+                    </Styled.Select>
+                  )
+                  : (
+                    <span>
+                      {intl.formatMessage(intlMessages.profileNotFoundLabel)}
+                    </span>
+                  )
+                }
+              </>
+            )
+          }
+          {shouldShowVirtualBackgrounds && this.renderVirtualBgSelector()}
+          </>
+      }
       </>
     );
   }
@@ -806,15 +870,24 @@ class VideoPreview extends Component {
   }
 
   renderBrightnessInput() {
+    const {
+      cameraAsContent,
+    } = this.props;
+    const {
+      webcamDeviceId,
+    } = this.state;
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     const { intl } = this.props;
     const { brightness, wholeImageBrightness, isStartSharingDisabled } = this.state;
+    const shared = this.isAlreadyShared(webcamDeviceId);
 
     const origin = brightness <= 100 ? 'left' : 'right';
     const offset = origin === 'left'
       ? (brightness * 100) / 200
       : ((200 - brightness) * 100) / 200;
+
+    if(cameraAsContent){ return null }
 
     return (
       <>
@@ -951,10 +1024,15 @@ class VideoPreview extends Component {
     }
   }
 
+  getModalTitle() {
+    const { intl, cameraAsContent } = this.props;
+    if (cameraAsContent) return intl.formatMessage(intlMessages.cameraAsContentSettingsTitle);
+    return intl.formatMessage(intlMessages.webcamSettingsTitle);
+  }
+
   renderModalContent() {
     const {
       intl,
-      sharedDevices,
       hasVideoStream,
       forceOpen,
       camCapReached,
@@ -971,7 +1049,7 @@ class VideoPreview extends Component {
     && !forceOpen
     && !(deviceError || previewError);
 
-    const shared = sharedDevices.includes(webcamDeviceId);
+    const shared = this.isAlreadyShared(webcamDeviceId);
 
     const { isIe } = browserInfo;
 

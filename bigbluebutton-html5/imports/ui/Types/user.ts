@@ -47,6 +47,7 @@ export interface User {
     extId: string;
     name: string;
     isModerator: boolean;
+    isOnline: boolean;
     role: string;
     color: string;
     avatar: string;

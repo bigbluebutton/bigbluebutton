@@ -1,17 +1,21 @@
 server {
-     listen   80;
-     listen [::]:80;
-     server_name  192.168.0.103;
+    listen   80;
+    listen [::]:80;
+    server_name  192.168.0.103;
 
-     access_log  /var/log/nginx/bigbluebutton.access.log;
+    access_log  /var/log/nginx/bigbluebutton.access.log;
 
-	# BigBlueButton assets and static content.
-        location / {
-          root   /var/www/bigbluebutton-default/assets;
-          index  index.html index.htm;
-	  expires 1m;
-        }
+    # This variable is used instead of $scheme by bigbluebutton nginx include
+    # files, so $scheme can be overridden in reverse-proxy configurations.
+    set $real_scheme $scheme;
 
-	# Include specific rules for record and playback
-        include /etc/bigbluebutton/nginx/*.nginx; # an overriding set of files, possibly present
+    # BigBlueButton assets and static content.
+    location / {
+      root   /var/www/bigbluebutton-default/assets;
+      index  index.html index.htm;
+      expires 1m;
+    }
+
+    # Include specific rules for record and playback
+    include /etc/bigbluebutton/nginx/*.nginx; # an overriding set of files, possibly present
 }

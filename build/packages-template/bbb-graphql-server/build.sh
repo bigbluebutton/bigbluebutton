@@ -16,7 +16,7 @@ rm -rf staging
 #
 # package
 
-git clone --branch v2.22.1 https://github.com/iMDT/hasura-graphql-engine.git #TODO
+git clone --branch v2.23.0 https://github.com/iMDT/hasura-graphql-engine.git #TODO
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
@@ -25,7 +25,7 @@ mkdir -p staging/usr/local/bin/hasura-graphql-engine
 cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 
 mkdir -p staging/etc/default/bbb-graphql-server
-cp ./hasura-config.env staging/etc/default/bbb-graphql-server
+cp -r hasura-config.env bbb_schema.sql metadata config.yaml staging/etc/default/bbb-graphql-server
 
 mkdir -p staging/lib/systemd/system/bbb-graphql-server.service  
 cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
@@ -33,12 +33,12 @@ cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.se
 mkdir -p staging/usr/share/bigbluebutton/nginx
 cp graphql.nginx staging/usr/share/bigbluebutton/nginx
 
+mkdir -p staging/usr/local/bin/hasura
 mkdir -p hasura-cli
 cd hasura-cli
 npm install --save-dev hasura-cli
 ls -l node_modules
-mkdir -p staging/usr/local/bin/hasura
-cp -r node_modules/hasura-cli/* staging/usr/local/bin/hasura
+cp -r node_modules/hasura-cli/* ../staging/usr/local/bin/hasura
 cd ..
 rm -rf hasura-cli
 

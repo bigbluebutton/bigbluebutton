@@ -608,18 +608,28 @@ class UserListItem extends PureComponent {
       voiceUser,
     } = this.props;
 
+    let userAvatarFiltered = user.avatar;
+
+    const getIconUser = () => {
+      if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+        return <Icon iconName={normalizeEmojiName(user.emoji)} />;
+      } if (user.reaction !== 'none') {
+        userAvatarFiltered = '';
+        return user.reaction;
+      } if (user.name) {
+        return user.name.toLowerCase().slice(0, 2);
+      } return '??';
+    };
+
     const { clientType } = user;
     const isVoiceOnly = clientType === 'dial-in-user';
 
-    const iconUser = user.emoji !== 'none'
-      ? (<Icon iconName={normalizeEmojiName(user.emoji)} />)
-      : user.name.toLowerCase().slice(0, 2);
-
+    const iconUser = getIconUser();
     const iconVoiceOnlyUser = (<Icon iconName="volume_level_2" />);
     const userIcon = isVoiceOnly ? iconVoiceOnlyUser : iconUser;
 
     return (
-      <UserAvatar
+      <Styled.UserAvatarComponent
         moderator={user.role === ROLE_MODERATOR}
         presenter={user.presenter}
         talking={voiceUser.isTalking}
@@ -630,14 +640,15 @@ class UserListItem extends PureComponent {
         color={user.color}
         whiteboardAccess={user.whiteboardAccess}
         emoji={user.emoji !== 'none'}
-        avatar={user.avatar}
+        hasReaction={user.reaction !== 'none'}
+        avatar={userAvatarFiltered}
       >
         {
           userInBreakout
             && !meetingIsBreakout
             ? breakoutSequence : userIcon
         }
-      </UserAvatar>
+      </Styled.UserAvatarComponent>
     );
   }
 

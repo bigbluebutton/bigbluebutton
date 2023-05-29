@@ -2,6 +2,7 @@ package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.core.db.{ PollDAO, PollResponseDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 
 import scala.collection.mutable.ArrayBuffer
@@ -19,6 +20,7 @@ object Polls {
       for {
         poll <- PollFactory.createPoll(stampedPollId, pollType, multiResponse, numRespondents, None, Some(questionText), secretPoll)
       } yield {
+        PollDAO.insert(lm.props.meetingProp.intId, userId, poll)
         lm.polls.save(poll)
         poll
       }
@@ -144,9 +146,11 @@ object Polls {
                                 lm: LiveMeeting): Option[(String, SimplePollResultOutVO)] = {
 
     for {
-      poll <- getSimplePollResult(pollId, lm.polls)
-      pvo <- handleRespondToPoll(poll, requesterId, pollId, questionId, answerIds, lm)
+      poll <- lm.polls.get(pollId)
+      simplePoll <- getSimplePollResult(pollId, lm.polls)
+      pvo <- handleRespondToPoll(simplePoll, requesterId, pollId, questionId, answerIds, lm)
     } yield {
+      PollResponseDAO.insert(poll, requesterId, answerIds)
       (pollId, pvo)
     }
 
@@ -158,6 +162,7 @@ object Polls {
       poll <- getSimplePollResult(pollId, lm.polls)
       pvo <- handleRespondToTypedPoll(poll, requesterId, pollId, questionId, answer, lm)
     } yield {
+      PollDAO.updateOptions(pvo)
       (pollId, pvo)
     }
   }
@@ -170,6 +175,7 @@ object Polls {
       for {
         poll <- PollFactory.createPoll(stampedPollId, pollType, multiResponse, numRespondents, Some(answers), Some(questionText), secretPoll)
       } yield {
+        PollDAO.insert(lm.props.meetingProp.intId, requesterId, poll)
         lm.polls.save(poll)
         poll
       }
@@ -331,6 +337,7 @@ object Polls {
   //
   def stopPoll(pollId: String, polls: Polls) {
     polls.get(pollId) foreach (p => p.stop())
+    PollDAO.updateEnded(pollId)
   }
 
   //  def hasPoll(pollId: String, model: PollModel): Boolean = {
@@ -400,6 +407,7 @@ object Polls {
         p.showResult
         polls.currentPoll = Some(p)
     }
+    PollDAO.updatePublished(pollId)
   }
 
   def respondToQuestion(pollId: String, questionID: Int, responseIDs: Seq[Int], responder: Responder, polls: Polls) {

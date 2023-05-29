@@ -1,0 +1,25 @@
+table:
+  name: v_meeting_breakoutPolicies
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting_breakoutPolicies
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - breakoutRooms
+        - captureNotes
+        - captureNotesFilename
+        - captureSlides
+        - captureSlidesFilename
+        - freeJoin
+        - parentId
+        - privateChatEnabled
+        - record
+        - sequence
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId

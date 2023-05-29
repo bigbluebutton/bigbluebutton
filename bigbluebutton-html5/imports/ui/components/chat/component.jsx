@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -14,6 +14,8 @@ import { UserSentMessageCollection } from './service';
 import Auth from '/imports/ui/services/auth';
 import browserInfo from '/imports/utils/browserInfo';
 import Header from '/imports/ui/components/common/control-header/component';
+import { CLOSE_PRIVATE_CHAT_MUTATION } from '../user-list/user-list-content/user-messages/chat-list/queries';
+import { useMutation, gql } from '@apollo/client';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -56,6 +58,17 @@ const Chat = (props) => {
     width,
   } = props;
 
+  const [updateVisible] = useMutation(CLOSE_PRIVATE_CHAT_MUTATION);
+
+  const handleClosePrivateChat = () => {
+    updateVisible(({
+        variables: {
+            chatId: chatID
+        },
+    }))
+    actions.handleClosePrivateChat(chatID);
+  };
+
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
   const { isChrome } = browserInfo;
 
@@ -97,7 +110,7 @@ const Chat = (props) => {
           icon: "close",
           label: intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
           onClick: () => {
-            actions.handleClosePrivateChat(chatID);
+            handleClosePrivateChat();
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,

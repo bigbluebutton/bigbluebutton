@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Acender (se está dispoñíbel)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Compartir un vídeo externo",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Deixar de compartir o vídeo externo",
-    "app.iOSWarning.label": "Actualice a iOS 12.2 ou superior",
     "app.legacy.unsupportedBrowser": "Parece que estás a usar un navegador que non é compatíbel. Utilice {0} ou {1} para obter unha compatibilidade completa.",
     "app.legacy.upgradeBrowser": "Parece que estás a usar unha versión antiga dun navegador compatíbel. Actualice o navegador para obter unha compatibilidade completa. ",
     "app.legacy.criosBrowser": "En iOS, use Safari para ter una compatibilidade completa.",

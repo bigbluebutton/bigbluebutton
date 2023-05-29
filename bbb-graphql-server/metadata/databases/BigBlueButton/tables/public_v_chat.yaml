@@ -21,7 +21,6 @@ select_permissions:
     permission:
       columns:
         - chatId
-        - meetingId
         - visible
         - participantId
         - public

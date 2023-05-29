@@ -1,5 +1,6 @@
 import {useSubscription, gql, useQuery, useMutation} from '@apollo/client';
  import React, { useState } from "react";
+import usePatchedSubscription from "./usePatchedSubscription";
 
 export default function ChatMessages({userId}) {
     const [updateLastSeen] = useMutation(gql`
@@ -22,9 +23,9 @@ export default function ChatMessages({userId}) {
         });
     };
 
-  const { loading, error, data } = useSubscription(
+  const { loading, error, data } = usePatchedSubscription(
     gql`subscription {
-      chat_message_private(order_by: [{senderName: asc}, {createdTime: asc}]) {
+      chat_message_private(limit: 20, order_by: [{createdTime: desc}, {senderName: asc}]) {
         chatEmphasizedText
         chatId
         correlationId
@@ -55,7 +56,7 @@ export default function ChatMessages({userId}) {
         </tr>
       </thead>
       <tbody>
-        {data.chat_message_private.map((curr) => {
+        {data.map((curr) => {
             console.log('message', curr);
           return (
               <tr key={curr.messageId}>

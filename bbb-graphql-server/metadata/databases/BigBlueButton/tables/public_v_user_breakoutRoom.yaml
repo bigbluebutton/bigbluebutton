@@ -13,7 +13,6 @@ select_permissions:
         - isDefaultName
         - currentlyInRoom
         - breakoutRoomId
-        - meetingId
         - shortName
         - userId
         - sequence

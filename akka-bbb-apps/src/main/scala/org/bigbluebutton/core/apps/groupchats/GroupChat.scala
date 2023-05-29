@@ -7,6 +7,10 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 
 object GroupChatApp {
+  def getGroupChatOfUsers(userId: String, participantIds: Vector[String], state: MeetingState2x): Option[GroupChat] = {
+    state.groupChats.findAllPrivateChatsForUser(userId)
+      .find(groupChat => participantIds.forall(groupChat.users.map(u => u.id).contains))
+  }
 
   val MAIN_PUBLIC_CHAT = "MAIN-PUBLIC-GROUP-CHAT"
 
@@ -29,7 +33,12 @@ object GroupChatApp {
 
   def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
                           msg: GroupChatMessage): GroupChats = {
-    ChatMessageDAO.insert(meetingId, chat.id, msg)
+    if (msg.sender.id == SystemUser.ID) {
+      ChatMessageDAO.insertSystemMsg(meetingId, chat.id, msg.message, "default", Map(), msg.sender.name)
+    } else {
+      ChatMessageDAO.insert(meetingId, chat.id, msg)
+    }
+
     val c = chat.add(msg)
     chats.update(c)
   }

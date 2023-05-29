@@ -17,6 +17,7 @@ import {
   colorGrayLighter,
   colorPrimary,
   colorText,
+  colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import MessageChatItem from './message-chat-item/component';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -36,6 +37,33 @@ const Messages = styled.div`
       margin-top: calc(${lineHeightComputed} / 4);
     }
   }
+`;
+
+const StatusMessageChatItem = styled(MessageChatItem)`
+  background: ${systemMessageBackgroundColor};
+  border: 1px solid ${systemMessageBorderColor};
+  border-radius: ${borderRadius};
+  font-weight: ${btnFontWeight};
+  padding: ${fontSizeBase};
+  color: ${systemMessageFontColor};
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow-wrap: break-word;
+  ${({ isSystemMsg }) => !isSystemMsg && `
+    flex: 1;
+    margin-top: calc(${lineHeightComputed} / 3);
+    margin-bottom: 0;
+    color: ${colorText};
+    word-wrap: break-word;
+    background: unset;
+    border: unset;
+    border-radius: unset;
+    font-weight: unset;
+    padding: unset;
+  `}
+  ${({ emphasizedMessage }) => emphasizedMessage && `
+    font-weight: bold;
+  `}
 `;
 
 const SystemMessageChatItem = styled(MessageChatItem)`
@@ -146,7 +174,6 @@ const Offline = styled.span`
   font-size: 90%;
   line-height: 1;
   align-self: center;
-  user-select: none;
 `;
 
 const Time = styled.time`
@@ -173,6 +200,12 @@ const ChatItem = styled(MessageChatItem)`
   margin-bottom: 0;
   color: ${colorText};
   word-wrap: break-word;
+
+  ${({ hasLink }) => hasLink && `
+    & > a {
+      color: ${colorPrimary};
+    }
+  `}
 
   ${({ emphasizedMessage }) => emphasizedMessage && `
     font-weight: bold;
@@ -224,6 +257,13 @@ const PresentationChatItem = styled(MessageChatItem)`
   word-wrap: break-word;
 `;
 
+const ReadIcon = styled(Icon)`
+  color: ${colorSuccess};
+  align-self: center;
+  margin-left: auto;
+  margin-right: .5rem;
+`;
+
 export default {
   Item,
   Messages,
@@ -240,4 +280,6 @@ export default {
   PollMessageChatItem,
   PresentationChatItem,
   PresentationWrapper,
+  StatusMessageChatItem,
+  ReadIcon,
 };

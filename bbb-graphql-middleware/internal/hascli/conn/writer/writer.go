@@ -1,6 +1,8 @@
 package writer
 
 import (
+	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
+	"strings"
 	"sync"
 
 	"github.com/iMDT/bbb-graphql-middleware/internal/common"
@@ -37,11 +39,43 @@ RangeLoop:
 				if fromBrowserMessageAsMap["type"] == "start" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
 
+					//Identify type based on query string
+					messageType := common.Query
+					payload := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+					query, ok := payload["query"].(string)
+					if ok {
+						if strings.HasPrefix(query, "subscription") {
+							messageType = common.Subscription
+
+							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
+								messageType = common.Streaming
+							}
+
+							if strings.Contains(query, "_aggregate") && strings.Contains(query, "aggregate {") {
+								messageType = common.SubscriptionAggregate
+							}
+						}
+
+						if strings.HasPrefix(query, "mutation") {
+							messageType = common.Mutation
+						}
+					}
+
+					//Identify if the client that requested this subscription expects to receive json-patch
+					//Client append `Patched_` to the query operationName to indicate that it supports
+					jsonPatchSupported := false
+					operationName, ok := payload["operationName"].(string)
+					if ok && strings.HasPrefix(operationName, "Patched_") {
+						jsonPatchSupported = true
+					}
+
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					browserConnection.ActiveSubscriptions[queryId] = common.GraphQlSubscription{
 						Id:                        queryId,
 						Message:                   fromBrowserMessage,
 						LastSeenOnHasuraConnetion: hc.Id,
+						JsonPatchSupported:        jsonPatchSupported,
+						Type:                      messageType,
 					}
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
@@ -49,6 +83,12 @@ RangeLoop:
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
+					browserConnection.ActiveSubscriptionsMutex.Lock()
+					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported
+					browserConnection.ActiveSubscriptionsMutex.Unlock()
+					if jsonPatchSupported {
+						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
+					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, queryId)
 					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)

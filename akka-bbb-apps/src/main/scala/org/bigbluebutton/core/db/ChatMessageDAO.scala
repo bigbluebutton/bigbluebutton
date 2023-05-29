@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
-import org.bigbluebutton.core.models.GroupChatMessage
+import org.bigbluebutton.core.models.{GroupChatFactory, GroupChatMessage}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
 case class ChatMessageDbModel(
     messageId:          String,
@@ -14,7 +14,9 @@ case class ChatMessageDbModel(
     createdTime:        Long,
     chatEmphasizedText: Boolean,
     message:            String,
-    senderId:           String,
+    messageType:        String,
+    messageMetadata:    String,
+    senderId:           Option[String],
     senderName:         String,
     senderRole:         String
 )
@@ -27,13 +29,15 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   val createdTime = column[Long]("createdTime")
   val chatEmphasizedText = column[Boolean]("chatEmphasizedText")
   val message = column[String]("message")
-  val senderId = column[String]("senderId")
+  val messageType = column[String]("messageType")
+  val messageMetadata = column[String]("messageMetadata")
+  val senderId = column[Option[String]]("senderId")
   val senderName = column[String]("senderName")
   val senderRole = column[String]("senderRole")
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
-  override def * = (messageId, chatId, meetingId, correlationId, createdTime, chatEmphasizedText, message, senderId, senderName, senderRole) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
+  override def * = (messageId, chatId, meetingId, correlationId, createdTime, chatEmphasizedText, message, messageType, messageMetadata, senderId, senderName, senderRole) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
 object ChatMessageDAO {
@@ -48,7 +52,9 @@ object ChatMessageDAO {
           createdTime = groupChatMessage.timestamp,
           chatEmphasizedText = groupChatMessage.chatEmphasizedText,
           message = groupChatMessage.message,
-          senderId = groupChatMessage.sender.id,
+          messageType = "default",
+          messageMetadata = "",
+          senderId = Some(groupChatMessage.sender.id),
           senderName = groupChatMessage.sender.name,
           senderRole = groupChatMessage.sender.role,
         )
@@ -63,4 +69,34 @@ object ChatMessageDAO {
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting ChatMessage: $e")
       }
   }
+
+  def insertSystemMsg(meetingId: String, chatId: String, message: String, messageType: String, messageMetadata: Map[String,Any], senderName: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[ChatMessageDbTableDef].insertOrUpdate(
+        ChatMessageDbModel(
+          messageId = GroupChatFactory.genId(),
+          chatId = chatId,
+          meetingId = meetingId,
+          correlationId = "",
+          createdTime = System.currentTimeMillis(),
+          chatEmphasizedText = false,
+          message = message,
+          messageType = messageType,
+          messageMetadata = JsonUtils.mapToJson(messageMetadata),
+          senderId = None,
+          senderName = senderName,
+          senderRole = ""
+        )
+      )
+    ).onComplete {
+      case Success(rowsAffected) => {
+        DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on ChatMessage(system) table!")
+
+        //Set chat visible for all participant users
+        ChatUserDAO.updateChatVisible(meetingId, chatId)
+      }
+      case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting ChatMessage(system): $e")
+    }
+  }
+
 }

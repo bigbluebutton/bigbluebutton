@@ -19,6 +19,18 @@ DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
 
+drop view if exists "v_poll_response";
+drop view if exists "v_poll_user";
+drop view if exists "v_poll_option";
+drop view if exists "v_poll";
+drop table if exists "poll_response";
+drop table if exists "poll_option";
+drop table if exists "poll";
+drop view if exists "v_external_video";
+drop table if exists "external_video";
+drop view if exists "v_screenshare";
+drop table if exists "screenshare";
+
 DROP VIEW IF EXISTS "v_user_camera";
 DROP VIEW IF EXISTS "v_user_voice";
 --DROP VIEW IF EXISTS "v_user_whiteboard";
@@ -26,16 +38,23 @@ DROP VIEW IF EXISTS "v_user_breakoutRoom";
 DROP VIEW IF EXISTS "v_user";
 DROP VIEW IF EXISTS "v_user_current";
 DROP VIEW IF EXISTS "v_user_ref";
+DROP VIEW IF EXISTS "v_user_customParameter";
+DROP VIEW IF EXISTS "v_user_welcomeMsgs";
 DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user_connectionStatus";
+DROP TABLE IF EXISTS "user_customParameter";
 DROP TABLE IF EXISTS "user";
 
 DROP VIEW IF EXISTS "v_meeting_lockSettings";
 DROP VIEW IF EXISTS "v_meeting_showUserlist";
 DROP VIEW IF EXISTS "v_meeting_usersPolicies";
+DROP VIEW IF EXISTS "v_meeting_breakoutPolicies";
+DROP VIEW IF EXISTS "v_meeting_recordingPolicies";
+DROP VIEW IF EXISTS "v_meeting_voiceSettings";
+DROP VIEW IF EXISTS "v_meeting_group";
 DROP TABLE IF EXISTS "meeting_breakout";
 DROP TABLE IF EXISTS "meeting_recording";
 DROP TABLE IF EXISTS "meeting_welcome";
@@ -47,15 +66,16 @@ DROP TABLE IF EXISTS "meeting_usersPolicies";
 DROP TABLE IF EXISTS "meeting_group";
 DROP TABLE IF EXISTS "meeting";
 
+
 DROP FUNCTION IF EXISTS "update_user_presenter_trigger_func";
 DROP FUNCTION IF EXISTS "update_pres_presentation_current_trigger_func";
 DROP FUNCTION IF EXISTS "update_pres_page_current_trigger_func";
 DROP FUNCTION IF EXISTS "pres_page_writers_update_delete_trigger_func";
 DROP FUNCTION IF EXISTS "update_user_hasDrawPermissionOnCurrentPage(varchar, varchar)";
 DROP FUNCTION IF EXISTS "update_user_emoji_time_trigger_func";
+DROP FUNCTION IF EXISTS "update_chatUser_clear_typingAt_trigger_func";
 
 -- ========== Meeting tables
-
 
 create table "meeting" (
 	"meetingId"	varchar(100) primary key,
@@ -88,6 +108,7 @@ create table "meeting_breakout" (
     "captureSlidesFilename" varchar(100)
 );
 create index "idx_meeting_breakout_meetingId" on "meeting_breakout"("meetingId");
+create view "v_meeting_breakoutPolicies" as select * from meeting_breakout;
 
 create table "meeting_recording" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -97,12 +118,13 @@ create table "meeting_recording" (
 	"keepEvents" boolean
 );
 create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId");
+create view "v_meeting_recordingPolicies" as select * from meeting_recording;
 
 create table "meeting_welcome" (
-	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
 	"welcomeMsgTemplate" text,
 	"welcomeMsg" text,
-	"modOnlyMessage" text
+	"welcomeMsgForModerators" text
 );
 create index "idx_meeting_welcome_meetingId" on "meeting_welcome"("meetingId");
 
@@ -114,6 +136,7 @@ create table "meeting_voice" (
 	"muteOnStart" boolean
 );
 create index "idx_meeting_voice_meetingId" on "meeting_voice"("meetingId");
+create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create table "meeting_usersPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -129,15 +152,21 @@ create table "meeting_usersPolicies" (
 );
 create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
-CREATE OR REPLACE VIEW "v_meeting_usersPolicies" AS SELECT * FROM "meeting_usersPolicies";
-
-create table "meeting_metadata"(
-	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-	"name" varchar(255),
-	"value" varchar(255),
-	CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
-);
-create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
+CREATE OR REPLACE VIEW "v_meeting_usersPolicies" AS
+SELECT "meeting_usersPolicies"."meetingId",
+    "meeting_usersPolicies"."maxUsers",
+    "meeting_usersPolicies"."maxUserConcurrentAccesses",
+    "meeting_usersPolicies"."webcamsOnlyForModerator",
+    "meeting_usersPolicies"."userCameraCap",
+    "meeting_usersPolicies"."guestPolicy",
+    "meeting_usersPolicies"."meetingLayout",
+    "meeting_usersPolicies"."allowModsToUnmuteUsers",
+    "meeting_usersPolicies"."allowModsToEjectCameras",
+    "meeting_usersPolicies"."authenticatedGuest",
+    "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
+    "meeting"."isBreakout" is false and "meeting_usersPolicies"."allowModsToUnmuteUsers" is true "moderatorsCanUnmuteAudio"
+   FROM "meeting_usersPolicies"
+   JOIN "meeting" using("meetingId");
 
 create table "meeting_lockSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -195,6 +224,7 @@ create table "meeting_group" (
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );
 create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
+create view "v_meeting_group" as select * from meeting_group;
 
 
 -- ========== User tables
@@ -366,6 +396,28 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
    FROM "user";
 
+create table "user_customParameter"(
+    "userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"parameter" varchar(255),
+	"value" varchar(255),
+	CONSTRAINT "user_customParameter_pkey" PRIMARY KEY ("userId","parameter")
+);
+
+CREATE VIEW "v_user_customParameter" AS
+SELECT u."meetingId", "user_customParameter".*
+FROM "user_customParameter"
+JOIN "user" u ON u."userId" = "user_customParameter"."userId";
+
+CREATE VIEW "v_user_welcomeMsgs" AS
+SELECT
+u."meetingId",
+u."userId",
+w."welcomeMsg",
+CASE WHEN u."role" = 'MODERATOR' THEN w."welcomeMsgForModerators" ELSE NULL END "welcomeMsgForModerators"
+FROM "user" u
+join meeting_welcome w USING("meetingId");
+
+
 CREATE TABLE "user_voice" (
 	"userId" varchar(50) PRIMARY KEY NOT NULL REFERENCES "user"("userId") ON DELETE	CASCADE,
 	"voiceUserId" varchar(100),
@@ -442,6 +494,8 @@ create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("m
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
 
+
+
 -- ===================== CHAT TABLES
 
 
@@ -464,25 +518,38 @@ CREATE TABLE "chat_user" (
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("chatId","meetingId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
-CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("chatId","meetingId") WHERE "visible" is true;
-CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("typingAt") WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
-CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("chatId", "typingAt") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+
+CREATE INDEX "idx_chat_user_chatId" ON "chat_user"("meetingId", "userId", "chatId") WHERE "visible" is true;
+
+CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "typingAt")
+        WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
+        AND "typingAt" is not null;
+
+CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+        WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+        AND "visible" is true;
+
+CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "typingAt")
+        WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+        AND "typingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
 SELECT "meetingId", "chatId", "userId", "typingAt",
 CASE WHEN "typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
-WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT';
+WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
+AND "typingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_private" AS
 SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."typingAt",
 CASE WHEN chat_with."typingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
 FROM chat_user
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
-									AND chat_with."chatId" = chat_user."chatId"
-									AND chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 									AND chat_with."userId" != chat_user."userId"
-WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+									AND chat_with."chatId" = chat_user."chatId"
+									AND chat_with."typingAt" is not null
+WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+AND chat_user."visible" is true;
 
 CREATE TABLE "chat_message" (
 	"messageId" varchar(100) PRIMARY KEY,
@@ -491,13 +558,28 @@ CREATE TABLE "chat_message" (
 	"correlationId" varchar(100),
 	"createdTime" bigint,
 	"chatEmphasizedText" boolean,
-	"message" TEXT,
+	"message" text,
+	"messageType" varchar(50),
+	"messageMetadata" text,
     "senderId" varchar(100),
     "senderName" varchar(255),
 	"senderRole" varchar(20),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
+
+CREATE OR REPLACE FUNCTION "update_chatUser_clear_typingAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE "chat_user"
+  SET "typingAt" = null
+  WHERE "chatId" = NEW."chatId" AND "meetingId" = NEW."meetingId" AND "userId" = NEW."senderId";
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_chatUser_clear_typingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+EXECUTE FUNCTION "update_chatUser_clear_typingAt_trigger_func"();
+
 
 CREATE OR REPLACE VIEW "v_chat" AS
 SELECT 	"user"."userId",
@@ -730,3 +812,127 @@ FROM pres_page_cursor c
 JOIN pres_page ON pres_page."pageId" = c."pageId"
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
+
+-------------------------------------------------------------------
+---- Polls
+
+CREATE TABLE "poll" (
+"pollId" varchar(100) PRIMARY KEY,
+"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+"ownerId" varchar(100) REFERENCES "user"("userId"),
+"questionText" TEXT,
+"type" varchar(30),
+"secret" boolean,
+"multipleResponses" boolean,
+"ended" boolean,
+"published" boolean,
+"publishedAt" timestamp
+);
+CREATE INDEX "idx_poll_meetingId" ON "poll"("meetingId");
+CREATE INDEX "idx_poll_meetingId_active" ON "poll"("meetingId") where ended is false;
+CREATE INDEX "idx_poll_meetingId_published" ON "poll"("meetingId") where published is true;
+
+CREATE TABLE "poll_option" (
+	"pollId" varchar(100) REFERENCES "poll"("pollId") ON DELETE CASCADE,
+	"optionId" integer,
+	"optionDesc" TEXT,
+	CONSTRAINT "poll_option_pkey" PRIMARY KEY ("pollId", "optionId")
+);
+CREATE INDEX "idx_poll_option_pollId" ON "poll_option"("pollId");
+
+CREATE TABLE "poll_response" (
+	"pollId" varchar(100),
+	"optionId" integer,
+	"userId" varchar(100) REFERENCES "user"("userId") ON DELETE CASCADE,
+	FOREIGN KEY ("pollId", "optionId") REFERENCES "poll_option"("pollId", "optionId") ON DELETE CASCADE
+);
+CREATE INDEX "idx_poll_response_pollId" ON "poll_response"("pollId");
+CREATE INDEX "idx_poll_response_userId" ON "poll_response"("userId");
+CREATE INDEX "idx_poll_response_pollId_userId" ON "poll_response"("pollId", "userId");
+
+CREATE OR REPLACE VIEW "v_poll_response" AS
+SELECT
+poll."meetingId",
+poll."pollId",
+poll."type",
+poll."questionText",
+poll."ownerId" AS "pollOwnerId",
+poll.published,
+o."optionId",
+o."optionDesc",
+count(r."optionId") AS "optionResponsesCount",
+sum(count(r."optionId")) OVER (partition by poll."pollId") "pollResponsesCount"
+FROM poll
+JOIN poll_option o ON o."pollId" = poll."pollId"
+LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND o."optionId" = r."optionId"
+GROUP BY poll."pollId", o."optionId", o."optionDesc"
+ORDER BY poll."pollId";
+
+CREATE VIEW "v_poll_user" AS
+SELECT
+poll."meetingId",
+poll."pollId",
+poll."type",
+poll."questionText",
+poll."ownerId" AS "pollOwnerId",
+u."userId",
+array_remove(array_agg(o."optionId"), NULL) AS "optionIds",
+array_remove(array_agg(o."optionDesc"), NULL) AS "optionDescIds",
+CASE WHEN count(o."optionId") > 0 THEN TRUE ELSE FALSE end responded
+FROM poll
+JOIN v_user u ON u."meetingId" = poll."meetingId" AND "isDialIn" IS FALSE AND presenter IS FALSE
+LEFT JOIN poll_response r ON r."pollId" = poll."pollId" AND r."userId" = u."userId"
+LEFT JOIN poll_option o ON o."pollId" = r."pollId" AND o."optionId" = r."optionId"
+GROUP BY poll."pollId", u."userId", u.name ;
+
+CREATE VIEW "v_poll" AS SELECT * FROM "poll";
+
+CREATE VIEW v_poll_option AS
+SELECT poll."meetingId", poll."pollId", o."optionId", o."optionDesc"
+FROM poll_option o
+JOIN poll using("pollId")
+WHERE poll."type" != 'R-';
+
+--------------------------------
+----External video
+
+create table "external_video"(
+"externalVideoId" varchar(100) primary key,
+"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+"externalVideoUrl" varchar(500),
+"startedAt" timestamp,
+"stoppedAt" timestamp,
+"lastEventAt" timestamp,
+"lastEventDesc" varchar(50),
+"playerRate" numeric,
+"playerTime" numeric,
+"playerState" integer
+);
+create index "external_video_meetingId_current" on "external_video"("meetingId") WHERE "stoppedAt" IS NULL;
+
+CREATE VIEW "v_external_video" AS
+SELECT * FROM "external_video"
+WHERE "stoppedAt" IS NULL;
+
+--------------------------------
+----Screenshare
+
+
+create table "screenshare"(
+"screenshareId" varchar(50) primary key,
+"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+"voiceConf" varchar(50),
+"screenshareConf" varchar(50),
+"stream" varchar(100),
+"vidWidth" integer,
+"vidHeight" integer,
+"startedAt" timestamp,
+"stoppedAt" timestamp,
+"hasAudio" boolean
+);
+create index "screenshare_meetingId" on "screenshare"("meetingId");
+create index "screenshare_meetingId_current" on "screenshare"("meetingId") WHERE "stoppedAt" IS NULL;
+
+CREATE VIEW "v_screenshare" AS
+SELECT * FROM "screenshare"
+WHERE "stoppedAt" IS NULL;

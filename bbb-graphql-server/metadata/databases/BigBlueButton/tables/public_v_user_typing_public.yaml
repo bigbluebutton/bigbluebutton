@@ -20,7 +20,6 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - meetingId
         - chatId
         - userId
         - typingAt

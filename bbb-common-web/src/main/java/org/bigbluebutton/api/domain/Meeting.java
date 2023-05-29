@@ -199,7 +199,7 @@ public class Meeting {
 	}
 
 	public Integer countUniqueExtIds() {
-		List<String> uniqueExtIds = new ArrayList<String>();
+		List<String> uniqueExtIds = new ArrayList<>();
 		for (User user : users.values()) {
 			if(!uniqueExtIds.contains(user.getExternalUserId())) {
 				uniqueExtIds.add(user.getExternalUserId());
@@ -809,8 +809,8 @@ public class Meeting {
     	this.meetingEndedCallbackURL = meetingEndedCallbackURL;
     }
 
-	public Map<String, Object> getUserCustomData(String userID){
-		return (Map<String, Object>) userCustomData.get(userID);
+	public Map<String, String> getUserCustomData(String userID){
+		return (Map<String, String>) userCustomData.get(userID);
 	}
 
 	public void userRegistered(RegisteredUser user) {
