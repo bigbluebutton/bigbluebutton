@@ -24,7 +24,7 @@ const intlMessages = defineMessages({
 const ENABLE_WEBCAM_BACKGROUND_UPLOAD = Meteor.settings.public.virtualBackgrounds.enableVirtualBackgroundUpload;
 
 const DragAndDrop = (props) => {
-  const { children, intl, readFile, onVirtualBgDrop: onAction } = props;
+  const { children, intl, readFile, onVirtualBgDrop: onAction, isStream } = props;
 
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
@@ -106,7 +106,7 @@ const DragAndDrop = (props) => {
   };
 
   const makeDragOperations = useCallback((userId) => {
-    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD) return {};
+    if (!userId || Auth.userID !== userId || !ENABLE_WEBCAM_BACKGROUND_UPLOAD || !isStream) return {};
 
     const startAndSaveVirtualBackground = (file) => handleStartAndSaveVirtualBackground(file);
 

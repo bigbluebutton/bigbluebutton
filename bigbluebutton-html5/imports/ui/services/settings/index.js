@@ -13,6 +13,7 @@ const SETTINGS = [
   'cc',
   'dataSaving',
   'animations',
+  'selfViewDisable',
 ];
 
 const CHANGED_SETTINGS = 'changed_settings';
@@ -59,7 +60,7 @@ class Settings {
   }
 
   loadChanged() {
-    const Storage = (APP_CONFIG.userSettingsStorage == 'local') ? LocalStorage : SessionStorage;
+    const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     const savedSettings = {};
 
     SETTINGS.forEach((s) => {
@@ -77,7 +78,7 @@ class Settings {
   }
 
   save(settings = CHANGED_SETTINGS) {
-    const Storage = (APP_CONFIG.userSettingsStorage == 'local') ? LocalStorage : SessionStorage;
+    const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
     if (settings === CHANGED_SETTINGS) {
       Object.keys(this).forEach((k) => {
         const values = this[k].value;

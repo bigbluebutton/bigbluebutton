@@ -4,6 +4,7 @@ import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
+import UserReaction from '/imports/api/user-reaction';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
@@ -11,6 +12,7 @@ import { makeCall } from '/imports/ui/services/api';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
@@ -26,6 +28,7 @@ const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -198,6 +201,26 @@ const addIsSharingWebcam = (users) => {
   });
 };
 
+const addUserReaction = (users) => {
+  const usersReactions = UserReaction.find({
+    meetingId: Auth.meetingID,
+  }).fetch();
+
+  return users.map((user) => {
+    let reaction = '';
+    const obj = usersReactions.find((us) => us.userId === user.userId);
+    if (obj !== undefined) {
+      ({ reaction } = obj);
+    }
+
+    return {
+      ...user,
+      reaction,
+    };
+  });
+};
+
+// TODO I think this method is no longer used, verify
 const getUsers = () => {
   let users = Users
     .find({
@@ -215,10 +238,10 @@ const getUsers = () => {
     }
   }
 
-  return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
+  return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
 };
 
-const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
+const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
   let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
@@ -234,11 +257,15 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
   return users.map((user) => {
     const isSharingWebcam = videoUsers?.includes(user.userId);
     const whiteboardAccess = whiteboardUsers?.includes(user.userId);
+    const reaction = reactionUsers?.includes(user.userId)
+      ? UserReactionService.getUserReaction(user.userId)
+      : 'none';
 
     return {
       ...user,
       isSharingWebcam,
       whiteboardAccess,
+      reaction,
     };
   }).sort(sortUsers);
 };
@@ -337,14 +364,14 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     } else if (b.unreadCounter > a.unreadCounter) {
       return 1;
     } else {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1;
-        }
-        if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1;
-        }
-      return 0;
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1;
       }
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1;
+      }
+      return 0;
+    }
   });
   return sortByChatIdAndUnread;
 };
@@ -453,7 +480,7 @@ const getAvailableActions = (
     && !isBreakoutRoom
     && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser;
+  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
@@ -489,12 +516,12 @@ const normalizeEmojiName = (emoji) => (
 const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
   return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-});
+    ? makeCall('setUserReaction', emoji)
+    : makeCall('setUserReaction', 'none');
+}, 250, { leading: false, trailing: true });
 
 const clearAllEmojiStatus = (users) => {
-  users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));
+  makeCall('clearAllUsersEmoji');
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
@@ -641,15 +668,15 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
-  const aUser = { name: a.firstName ? a.firstName : '' };
-  const bUser = { name: b.firstName ? b.firstName : '' };
+  const aUser = { sortName: a.firstName ? a.firstName : '' };
+  const bUser = { sortName: b.firstName ? b.firstName : '' };
 
   return sortUsersByName(aUser, bUser);
 };
 
 const sortUsersByLastName = (a, b) => {
-  const aUser = { name: a.lastName ? a.lastName : '' };
-  const bUser = { name: b.lastName ? b.lastName : '' };
+  const aUser = { sortName: a.lastName ? a.lastName : '' };
+  const bUser = { sortName: b.lastName ? b.lastName : '' };
 
   return sortUsersByName(aUser, bUser);
 };
