@@ -67,7 +67,7 @@ public:
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
-    enableCameraAsContent: false
+    enableCameraAsContent: true
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
