@@ -27,6 +27,8 @@ import static org.bigbluebutton.presentation.FileTypeConstants.*;
 import org.apache.tika.Tika;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLConnection;
@@ -100,8 +102,8 @@ public final class SupportedFileTypes {
 			return "";
 		}
 	
-		try {
-			return (new Tika()).detect(pres);
+		try (InputStream presStream = new FileInputStream(pres)) {
+			return (new Tika()).detect(presStream);
 		} catch (IOException e) {
 			log.error("Error while executing detectMimeType: {}", e);
 		}
