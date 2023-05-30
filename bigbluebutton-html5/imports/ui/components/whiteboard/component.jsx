@@ -21,11 +21,11 @@ import {
 } from './utils';
 
 const SMALL_HEIGHT = 435;
-const SMALLEST_HEIGHT = 363;
+const SMALLEST_DOCK_HEIGHT = 475;
 const SMALL_WIDTH = 800;
-const SMALLEST_WIDTH = 645;
+const SMALLEST_DOCK_WIDTH = 710;
 const TOOLBAR_SMALL = 28;
-const TOOLBAR_LARGE = 38;
+const TOOLBAR_LARGE = 32;
 
 export default function Whiteboard(props) {
   const {
@@ -1010,7 +1010,7 @@ export default function Whiteboard(props) {
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
 
   if (hasWBAccess || isPresenter) {
-    if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
+    if (((height < SMALLEST_DOCK_HEIGHT) || (width < SMALLEST_DOCK_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
     } else {
       tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
