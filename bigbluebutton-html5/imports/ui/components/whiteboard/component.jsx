@@ -956,7 +956,11 @@ export default function Whiteboard(props) {
 
   if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
-  if (backgroundShape?.src && backgroundShape?.complete && backgroundShape?.src !== bgShape?.src) {
+  if (backgroundShape?.src
+    && backgroundShape?.complete
+    && backgroundShape?.src !== bgShape?.src
+    && backgroundShape?.parentElement?.clientWidth > 0
+  ) {
     setBgShape(backgroundShape);
   }
   const editableWB = (
