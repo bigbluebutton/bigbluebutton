@@ -93,8 +93,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pageExtractor" ref="pageExtractor"/>
         <property name="documentConversionService" ref="documentConversionService"/>
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
-        <property name="presentationDownloadSupportedProtocols" value="${presentationDownloadSupportedProtocols}" />
-        <property name="presentationDownloadBlockedHosts" value="${presentationDownloadBlockedHosts}" />
+        <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
+        <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
     </bean>
 
     <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>

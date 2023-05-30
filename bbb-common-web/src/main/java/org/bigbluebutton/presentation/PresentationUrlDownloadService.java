@@ -40,8 +40,8 @@ public class PresentationUrlDownloadService {
     private String presentationBaseURL;
     private String presentationDir;
     private String BLANK_PRESENTATION;
-    private List<String> presentationDownloadSupportedProtocols;
-    private List<String> presentationDownloadBlockedHosts;
+    private List<String> insertDocumentSupportedProtocols;
+    private List<String> insertDocumentBlockedHosts;
 
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
 
@@ -229,8 +229,8 @@ public class PresentationUrlDownloadService {
             String protocol = url.getProtocol();
             String host = url.getHost();
 
-            if(presentationDownloadSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
-                if(presentationDownloadSupportedProtocols.size() == 1 && presentationDownloadSupportedProtocols.get(0).equalsIgnoreCase("*")) {
+            if(insertDocumentSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
+                if(insertDocumentSupportedProtocols.size() == 1 && insertDocumentSupportedProtocols.get(0).equalsIgnoreCase("all")) {
                     log.warn("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
                 } else {
                     log.error("Invalid protocol [{}]", protocol);
@@ -238,7 +238,7 @@ public class PresentationUrlDownloadService {
                 }
             }
 
-            if(presentationDownloadBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+            if(insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
                 log.error("Attempted to download from blocked host [{}]", host);
                 return false;
             }
@@ -251,7 +251,7 @@ public class PresentationUrlDownloadService {
             InetAddress[] addresses = InetAddress.getAllByName(url.getHost());
             InetAddressValidator validator = InetAddressValidator.getInstance();
 
-            boolean localhostBlocked = presentationDownloadBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
+            boolean localhostBlocked = insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
 
             for(InetAddress address: addresses) {
                 if(!validator.isValid(address.getHostAddress())) {
@@ -346,12 +346,12 @@ public class PresentationUrlDownloadService {
         this.BLANK_PRESENTATION = blankPresentation;
     }
 
-    public void setPresentationDownloadSupportedProtocols(String presentationDownloadSupportedProtocols) {
-        this.presentationDownloadSupportedProtocols = new ArrayList<>(Arrays.asList(presentationDownloadSupportedProtocols.split(",")));
+    public void setInsertDocumentSupportedProtocols(String insertDocumentSupportedProtocols) {
+        this.insertDocumentSupportedProtocols = new ArrayList<>(Arrays.asList(insertDocumentSupportedProtocols.split(",")));
     }
 
-    public void setPresentationDownloadBlockedHosts(String presentationDownloadBlockedHosts) {
-        this.presentationDownloadBlockedHosts = new ArrayList<>(Arrays.asList(presentationDownloadBlockedHosts.split(",")));
+    public void setInsertDocumentBlockedHosts(String insertDocumentBlockedHosts) {
+        this.insertDocumentBlockedHosts = new ArrayList<>(Arrays.asList(insertDocumentBlockedHosts.split(",")));
     }
 
 }
