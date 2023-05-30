@@ -956,10 +956,10 @@ export default function Whiteboard(props) {
 
   if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
-  if (backgroundShape?.src
-    && backgroundShape?.complete
-    && backgroundShape?.src !== bgShape?.src
-    && backgroundShape?.parentElement?.clientWidth > 0
+  if (backgroundShape?.src // if there is a background image
+    && backgroundShape?.complete // and it's fully downloaded
+    && backgroundShape?.src !== bgShape?.src // and if it's a different image
+    && backgroundShape?.parentElement?.clientWidth > 0 // and if the whiteboard area is visible
   ) {
     setBgShape(backgroundShape);
   }
