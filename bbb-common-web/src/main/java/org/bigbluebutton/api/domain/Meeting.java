@@ -70,6 +70,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
 	private Integer meetingCameraCap = 0;
@@ -148,6 +149,7 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
+        recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
         meetingCameraCap = builder.meetingCameraCap;
         userCameraCap = builder.userCameraCap;
@@ -321,7 +323,7 @@ public class Meeting {
 	public void setCaptureSlides(Boolean capture) {
 		this.captureSlides = captureSlides;
 	}
-	
+
 	public Boolean isCaptureNotes() {
         return captureNotes;
     }
@@ -580,6 +582,10 @@ public class Meeting {
 
 	public boolean getAllowStartStopRecording() {
 		return allowStartStopRecording;
+	}
+
+	public boolean getRecordFullDurationMedia() {
+		return recordFullDurationMedia;
 	}
 
     public boolean getWebcamsOnlyForModerator() {
@@ -862,6 +868,7 @@ public class Meeting {
     	private int maxUsers;
     	private boolean record;
     	private boolean autoStartRecording;
+    	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
         private boolean webcamsOnlyForModerator;
         private Integer meetingCameraCap;
@@ -937,6 +944,11 @@ public class Meeting {
     		this.allowStartStopRecording = allow;
     		return this;
     	}
+
+			public Builder withRecordFullDurationMedia(boolean recordFullDurationMedia) {
+				this.recordFullDurationMedia = recordFullDurationMedia;
+				return this;
+			}
 
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;

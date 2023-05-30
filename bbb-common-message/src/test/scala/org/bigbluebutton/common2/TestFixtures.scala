@@ -22,6 +22,7 @@ trait TestFixtures {
 
   val autoStartRecording = false
   val allowStartStopRecording = false
+  val recordFullDurationMedia = false
   val webcamsOnlyForModerator = false
   val meetingCameraCap = 0
   val userCameraCap = 0
@@ -61,7 +62,10 @@ trait TestFixtures {
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword,  learningDashboardAccessToken = learningDashboardAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
-    allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents)
+    allowStartStopRecording = allowStartStopRecording,
+    recordFullDurationMedia = recordFullDurationMedia,
+    keepEvents = keepEvents
+  )
   val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
     modOnlyMessage = modOnlyMessage)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
