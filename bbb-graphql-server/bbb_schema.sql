@@ -933,12 +933,14 @@ create table "screenshare"(
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "voiceConf" varchar(50),
 "screenshareConf" varchar(50),
+"contentType" varchar(50),
 "stream" varchar(100),
 "vidWidth" integer,
 "vidHeight" integer,
+"hasAudio" boolean,
 "startedAt" timestamp,
-"stoppedAt" timestamp,
-"hasAudio" boolean
+"stoppedAt" timestamp
+
 );
 create index "screenshare_meetingId" on "screenshare"("meetingId");
 create index "screenshare_meetingId_current" on "screenshare"("meetingId") WHERE "stoppedAt" IS NULL;
