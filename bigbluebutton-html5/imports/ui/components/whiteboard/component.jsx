@@ -242,7 +242,7 @@ export default function Whiteboard(props) {
   /* needed to prevent an issue with presentation images not loading correctly in Firefox
   more info: https://github.com/bigbluebutton/bigbluebutton/issues/17969#issuecomment-1561758200 */
   React.useEffect(() => {
-    if (bgShape) {
+    if (bgShape && bgShape.parentElement && bgShape.parentElement.clientWidth > 0) {
       bgShape.parentElement.style.width = `${bgShape.parentElement.clientWidth + .1}px`;
     }
   }, [bgShape]);
@@ -956,7 +956,11 @@ export default function Whiteboard(props) {
 
   if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
-  if (backgroundShape?.src && backgroundShape?.complete && backgroundShape?.src !== bgShape?.src) {
+  if (backgroundShape && backgroundShape.src // if there is a background image
+    && backgroundShape.complete // and it's fully downloaded
+    && backgroundShape.src !== bgShape?.src // and if it's a different image
+    && backgroundShape.parentElement?.clientWidth > 0 // and if the whiteboard area is visible
+  ) {
     setBgShape(backgroundShape);
   }
   const editableWB = (
