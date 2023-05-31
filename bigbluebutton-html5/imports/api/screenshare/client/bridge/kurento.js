@@ -2,7 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import BridgeService from './service';
 import ScreenshareBroker from '/imports/ui/services/bbb-webrtc-sfu/screenshare-broker';
-import { setIsSharing, screenShareEndAlert } from '/imports/ui/components/screenshare/service';
+import { setIsSharing, screenShareEndAlert, setOutputDeviceId } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from './errors';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
@@ -54,6 +54,7 @@ export default class KurentoScreenshareBridge {
     this.reconnectionTimeout;
     this.restartIntervalMs = BridgeService.BASE_MEDIA_TIMEOUT;
     this.startedOnce = false;
+    this.outputDeviceId = null;
   }
 
   get gdmStream() {
@@ -200,6 +201,11 @@ export default class KurentoScreenshareBridge {
 
     if (mediaElement && this.broker && this.broker.webRtcPeer) {
       const stream = this.broker.webRtcPeer.getRemoteStream();
+
+      if (this.hasAudio && this.outputDeviceId && typeof this.outputDeviceId === 'string') {
+        setOutputDeviceId(this.outputDeviceId);
+      }
+
       BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, !this.broker.hasAudio);
     }
 
@@ -245,14 +251,18 @@ export default class KurentoScreenshareBridge {
     return error;
   }
 
-  async view(hasAudio = false) {
-    this.hasAudio = hasAudio;
+  async view(options = {
+    hasAudio: false,
+    outputDeviceId: null,
+  }) {
+    this.hasAudio = options.hasAudio;
+    this.outputDeviceId = options.outputDeviceId;
     this.role = RECV_ROLE;
     const iceServers = await BridgeService.getIceServers(Auth.sessionToken);
-    const options = {
+    const brokerOptions = {
       iceServers,
       userName: Auth.fullname,
-      hasAudio,
+      hasAudio: options.hasAudio,
       offering: OFFERING,
       mediaServer: BridgeService.getMediaServerAdapter(),
       signalCandidates: SIGNAL_CANDIDATES,
@@ -267,7 +277,7 @@ export default class KurentoScreenshareBridge {
       Auth.userID,
       Auth.meetingID,
       this.role,
-      options,
+      brokerOptions,
     );
 
     this.broker.onstart = this.handleViewerStart.bind(this);
@@ -389,5 +399,7 @@ export default class KurentoScreenshareBridge {
       MediaStreamUtils.stopMediaStreamTracks(this.gdmStream);
       this.gdmStream = null;
     }
+
+    this.outputDeviceId = null;
   }
 }
