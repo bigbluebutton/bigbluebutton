@@ -91,6 +91,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean recordFullDurationMedia;
     private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
@@ -503,6 +504,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean _recordFullDurationMedia = recordFullDurationMedia;
+        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
+            try {
+                _recordFullDurationMedia = Boolean.parseBoolean(params
+                        .get(ApiParams.RECORD_FULL_DURATION_MEDIA));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [recordFullDurationMedia] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         // Check Disabled Features
         ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
@@ -555,7 +568,7 @@ public class ParamsProcessorUtil {
 	int learningDashboardCleanupMins = 0;
         if(listOfDisabledFeatures.contains("learningDashboard") == false) {
             learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
-		
+
 	    learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
             if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
                 try {
@@ -735,6 +748,7 @@ public class ParamsProcessorUtil {
                 .withDefaultAvatarURL(avatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
@@ -1224,6 +1238,10 @@ public class ParamsProcessorUtil {
 
     public void setAllowStartStopRecording(boolean allowStartStopRecording) {
         this.allowStartStopRecording = allowStartStopRecording;
+    }
+
+    public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
+        this.recordFullDurationMedia = recordFullDurationMedia;
     }
 
     public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {

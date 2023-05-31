@@ -377,6 +377,13 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>Message to be displayed in presentation uploader modal describing how to use an external application to upload presentation files. Only works if <code className="language-plaintext highlighter-rouge">presentationUploadExternalUrl</code> is also set. (added 2.6)</>)
+  },
+  {
+    "name": "recordFullDurationMedia",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Controls whether media (audio, cameras and screen sharing) should be captured on their full duration if the meeting's recorded property is true (<code className="language-plaintext highlighter-rouge">recorded=true</code>). Default is false: only captures media while recording is running in the meeting. (added 2.6.9)</>)
   }
 ]
 
