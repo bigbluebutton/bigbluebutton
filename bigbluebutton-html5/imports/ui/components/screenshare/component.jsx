@@ -319,7 +319,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <FullscreenButtonContainer
-        key={_.uniqueId('fullscreenButton-')}
+        key={uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(this.locales.label)}
         fullscreenRef={this.screenshareContainer}
         elementId={fullscreenElementId}
@@ -334,7 +334,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <AutoplayOverlay
-        key={_.uniqueId('screenshareAutoplayOverlay')}
+        key={uniqueId('screenshareAutoplayOverlay')}
         autoplayBlockedDesc={intl.formatMessage(this.locales.autoplayBlockedDesc)}
         autoplayAllowLabel={intl.formatMessage(this.locales.autoplayAllowLabel)}
         handleAllowAutoplay={this.handleAllowAutoplay}
