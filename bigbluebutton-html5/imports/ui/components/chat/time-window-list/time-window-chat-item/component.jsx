@@ -266,8 +266,13 @@ class TimeWindowChatItem extends PureComponent {
                   chatUserMessageItem={true}
                   handleReadMessage={(timestamp) => {
                     if (!read) {
-                      dispatchLastReadTimestampChanged(dispatch, chatId, timestamp);
-                      updateLastReadByPartnerTime(timestamp);
+                      dispatch({
+                        type: 'last_read_message_timestamp_changed',
+                        value: {
+                          chatId,
+                          timestamp,
+                        },
+                      });
                     }
                   }}
                   scrollArea={scrollArea}
