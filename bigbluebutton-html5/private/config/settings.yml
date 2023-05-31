@@ -143,7 +143,7 @@ public:
       enabled: false
       centered: true
     interactionsButton:
-      enabled: false
+      enabled: true
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
     # candidate-pairs to filter out local candidates in SIP.js's SDP.
