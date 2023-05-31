@@ -110,14 +110,19 @@ class ActionsDropdown extends PureComponent {
     this.state = {
       isExternalVideoModalOpen: false,
       isRandomUserSelectModalOpen: false,
-      isLayoutModalOpen: false, 
-    }
+      isLayoutModalOpen: false,
+    };
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
     this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
     this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
     this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
+    this.handleCreatePollThroughEvent = this.handleCreatePollThroughEvent.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener('CREATE_POLL', this.handleCreatePollThroughEvent);
   }
 
   componentDidUpdate(prevProps) {
@@ -126,6 +131,10 @@ class ActionsDropdown extends PureComponent {
     if (wasPresenter && !isPresenter) {
       this.setExternalVideoModalIsOpen(false);
     }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('CREATE_POLL', this.handleCreatePollThroughEvent);
   }
 
   handleExternalVideoClick() {
@@ -285,6 +294,25 @@ class ActionsDropdown extends PureComponent {
     return presentationItemElements;
   }
 
+  handleCreatePollThroughEvent() {
+    const {
+      layoutContextDispatch,
+    } = this.props;
+
+    if (Session.equals('pollInitiated', true)) {
+      Session.set('resetPollPanel', true);
+    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: true,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.POLL,
+    });
+    Session.set('forcePollOpen', true);
+  }
+
   setExternalVideoModalIsOpen(value) {
     this.setState({isExternalVideoModalOpen: value});
   }
@@ -318,8 +346,9 @@ class ActionsDropdown extends PureComponent {
       isSelectRandomUserEnabled,
     } = this.props;
 
-    const { isExternalVideoModalOpen, 
-            isRandomUserSelectModalOpen, isLayoutModalOpen } = this.state;
+    const {
+      isExternalVideoModalOpen, isRandomUserSelectModalOpen, isLayoutModalOpen,
+    } = this.state;
 
     const availableActions = this.getAvailableActions();
     const availablePresentations = this.makePresentationItems();

@@ -258,9 +258,12 @@ class Poll extends Component {
     this.displayToggleStatus = this.displayToggleStatus.bind(this);
     this.displayAutoOptionToggleStatus = this.displayAutoOptionToggleStatus.bind(this);
     this.setQuestionAndOptions = this.setQuestionAndOptions.bind(this);
+    this.handleCreatePollThroughEvent = this.handleCreatePollThroughEvent.bind(this);
   }
 
   componentDidMount() {
+    this.handleCreatePollThroughEvent();
+    document.addEventListener('CREATE_POLL', this.handleCreatePollThroughEvent);
     if (this.textarea.current) {
       this.textarea.current.focus();
     }
@@ -286,6 +289,7 @@ class Poll extends Component {
   }
 
   componentWillUnmount() {
+    document.removeEventListener('CREATE_POLL', this.handleCreatePollThroughEvent);
     Session.set('secretPoll', false);
   }
 
@@ -337,8 +341,35 @@ class Poll extends Component {
     });
   }
 
+  handleCreatePollThroughEvent() {
+    const { pollTypes } = this.props;
+    const quiz = Object.values(window.bbb_plugins)
+      .filter((p) => p.getWhiteboardToolbarButtons !== undefined)
+      .map((p) => {
+        const pluginInfo = p.getWhiteboardToolbarButtons();
+        const indexOfPollPlugin = pluginInfo.findIndex((plugin) => plugin.type === 'POLL_CREATOR');
+
+        if (indexOfPollPlugin !== -1) {
+          return pluginInfo[indexOfPollPlugin].pollInfoQuiz;
+        }
+        return null;
+      })[0];
+    if (quiz) {
+      const answers = [...quiz.wrong_answers];
+      answers.push(quiz.correct_answer);
+      const answersMapped = answers.map((answerString) => ({
+        val: answerString,
+      }));
+      this.setState({
+        question: quiz.question,
+        optList: answersMapped,
+        type: pollTypes.Letter,
+      });
+    }
+  }
+
   /**
-   * 
+   *
    * @param {Event} e
    * @returns {void}
    */
@@ -982,6 +1013,9 @@ class Poll extends Component {
       currentPoll,
       layoutContextDispatch,
     } = this.props;
+    const {
+      cleanPluginPollAction,
+    } = this.state;
 
     return (
       <div>
