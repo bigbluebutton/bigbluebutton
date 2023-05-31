@@ -53,10 +53,6 @@ const intlMessages = defineMessages({
     id: 'app.video.clientDisconnected',
     description: 'Meteor disconnected label',
   },
-  iOSWarning: {
-    id: 'app.iOSWarning.label',
-    description: 'message indicating to upgrade ios version',
-  },
 });
 
 const JOIN_VIDEO_DELAY_MILLISECONDS = 500;
