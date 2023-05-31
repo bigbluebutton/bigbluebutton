@@ -183,6 +183,7 @@ class Polling extends MultiUsers {
     await utilPresentation.uploadSinglePresentation(this.modPage, e.smartSlides1, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.currentUser);
 
+    // Type Response
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.hasElement(e.responsePollQuestion);
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
@@ -194,19 +195,47 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn);
 
+    // Multiple Choices
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
+    await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
+    await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.hasText(e.answer2, '1');
 
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // One option answer
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.userPage.waitAndClick(e.pollAnswerOptionE);
+    await this.modPage.hasText(e.answerE, '1');
+
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // Yes/No/Abstention
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.waitAndClick(e.yesNoOption);
+    await this.modPage.waitAndClick(e.yesNoAbstentionOption)
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.answer1, '1');
 
     await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn);
+
+    // True/False
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.waitAndClick(e.quickPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-
     await this.modPage.hasText(e.answer1, '1');
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+
     await this.modPage.hasElementDisabled(e.nextSlide);
 
     await this.modPage.waitAndClick(e.closePollingBtn);
