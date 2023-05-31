@@ -460,7 +460,7 @@ class ApplicationMenu extends BaseMenu {
             </Styled.Col>
             <Styled.Col>
               <Styled.FormElementRight>
-                {displaySettingsStatus(settings.disableCam)}
+                {displaySettingsStatus(settings.selfViewDisable)}
                 <Toggle
                   icons={false}
                   defaultChecked={settings.selfViewDisable}

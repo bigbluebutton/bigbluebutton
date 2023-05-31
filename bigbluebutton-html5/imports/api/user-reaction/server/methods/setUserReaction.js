@@ -4,7 +4,7 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function setEmojiStatus(userId, status) {
+export default function setUserReaction(emoji, userId = undefined) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -14,20 +14,19 @@ export default function setEmojiStatus(userId, status) {
 
     check(meetingId, String);
     check(requesterUserId, String);
-    check(userId, String);
-    check(status, String);
+    check(emoji, String);
 
     const payload = {
-      emoji: status,
-      userId,
+      emoji,
+      userId: userId ? userId : requesterUserId,
     };
 
     Logger.verbose('User emoji status updated', {
-      userId, status, requesterUserId, meetingId,
+      emoji, requesterUserId, meetingId,
     });
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
-    Logger.error(`Exception while invoking method setEmojiStatus ${err.stack}`);
+    Logger.error(`Exception while invoking method setUserReaction ${err.stack}`);
   }
 }

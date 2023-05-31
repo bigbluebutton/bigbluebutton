@@ -32,6 +32,9 @@ const intlMessages = defineMessages({
   disableLabel: {
     id: 'app.videoDock.webcamDisableLabel',
   },
+  enableLabel: {
+    id: 'app.videoDock.webcamEnableLabel',
+  },
   pinDesc: {
     id: 'app.videoDock.webcamPinDesc',
   },
@@ -60,7 +63,7 @@ const intlMessages = defineMessages({
 const UserActions = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, user, focused, onHandleMirror,
-    isVideoSqueezed, videoContainer, isRTL, isStream,
+    isVideoSqueezed, videoContainer, isRTL, isStream, isSelfViewDisabled,
   } = props;
 
   const intl = useIntl();
@@ -72,6 +75,7 @@ const UserActions = (props) => {
     const userId = user?.userId;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
+    const enableSelfCamIntlKey = !isSelfViewDisabled ? 'disable' : 'enable';
 
     const menuItems = [];
 
@@ -107,8 +111,8 @@ const UserActions = (props) => {
     if (userId === Auth.userID && isStream) {
       menuItems.push({
         key: `${cameraId}-disable`,
-        label: intl.formatMessage(intlMessages.disableLabel),
-        description: intl.formatMessage(intlMessages.disableDesc),
+        label: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
+        description: intl.formatMessage(intlMessages[`${enableSelfCamIntlKey}Label`]),
         onClick: () => toggleDisableCam(cameraId),
         dataTest: 'selfViewDisableBtn',
       });

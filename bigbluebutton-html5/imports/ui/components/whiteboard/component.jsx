@@ -102,6 +102,7 @@ export default function Whiteboard(props) {
   const [panSelected, setPanSelected] = React.useState(isPanning);
   const isMountedRef = React.useRef(true);
   const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState?.isToolLocked);
+  const [bgShape, setBgShape] = React.useState(null);
 
   // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
@@ -138,6 +139,16 @@ export default function Whiteboard(props) {
       panButton.classList.remove('select');
     }
   };
+
+  const setDockPosition = (setSetting) => {
+    if (hasWBAccess || isPresenter) {
+      if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
+        setSetting('dockPosition', 'bottom');
+      } else {
+        setSetting('dockPosition', isRTL ? 'left' : 'right');
+      }
+    }
+  }
 
   React.useEffect(() => {
     const toolbar = document.getElementById('TD-PrimaryTools');
@@ -238,6 +249,14 @@ export default function Whiteboard(props) {
       }
     };
   }, [tldrawAPI]);
+
+  /* needed to prevent an issue with presentation images not loading correctly in Firefox
+  more info: https://github.com/bigbluebutton/bigbluebutton/issues/17969#issuecomment-1561758200 */
+  React.useEffect(() => {
+    if (bgShape) {
+      bgShape.parentElement.style.width = `${bgShape.parentElement.clientWidth + .1}px`;
+    }
+  }, [bgShape]);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -513,6 +532,10 @@ export default function Whiteboard(props) {
   }, [isPanning]);
 
   React.useEffect(() => {
+    tldrawAPI && setDockPosition(tldrawAPI?.setSetting);
+  }, [height, width]);
+
+  React.useEffect(() => {
     tldrawAPI?.setSetting('language', language);
   }, [language]);
 
@@ -530,6 +553,7 @@ export default function Whiteboard(props) {
     if (currentZoom !== tldrawZoom) {
       setTldrawZoom(currentZoom);
     }
+    setBgShape(null);
   }, [presentationAreaHeight, presentationAreaWidth]);
 
   const fullscreenToggleHandler = () => {
@@ -595,6 +619,7 @@ export default function Whiteboard(props) {
   };
 
   const onMount = (app) => {
+    setDockPosition(app?.setSetting);
     const menu = document.getElementById('TD-Styles')?.parentElement;
     const canvas = document.getElementById('canvas');
     if (canvas) {
@@ -619,12 +644,15 @@ export default function Whiteboard(props) {
 
     app.setSetting('language', language);
     app?.setSetting('isDarkMode', false);
+
+    const textAlign = isRTL ? 'end' : 'start';
+
     app?.patchState(
       {
         appState: {
           currentStyle: {
-            textAlign: isRTL ? 'end' : 'start',
-            font: fontFamily,
+            textAlign: currentStyle?.textAlign || textAlign,
+            font: currentStyle?.font || fontFamily,
           },
         },
       },
@@ -940,9 +968,13 @@ export default function Whiteboard(props) {
 
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute('data-position');
+  const backgroundShape = document.getElementById('slide-background-shape_image');
 
   if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
+  if (backgroundShape?.src && backgroundShape?.complete && backgroundShape?.src !== bgShape?.src) {
+    setBgShape(backgroundShape);
+  }
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
@@ -992,14 +1024,6 @@ export default function Whiteboard(props) {
 
   const size = ((height < SMALL_HEIGHT) || (width < SMALL_WIDTH))
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
-
-  if (hasWBAccess || isPresenter) {
-    if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
-      tldrawAPI?.setSetting('dockPosition', 'bottom');
-    } else {
-      tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');
-    }
-  }
 
   const menuOffsetValues = {
     true: {
