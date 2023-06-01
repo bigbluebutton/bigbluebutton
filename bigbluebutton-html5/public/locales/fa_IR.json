@@ -714,7 +714,7 @@
     "app.audio.captions.button.stop": "توقف زیرنویس‌ها",
     "app.audio.captions.button.language": "زبان",
     "app.audio.captions.button.transcription": "ترانویسی",
-    "app.audio.captions.button.transcriptionSettings": "تنظیمات آوانویسی",
+    "app.audio.captions.button.transcriptionSettings": "تنظیمات ترانویسی",
     "app.audio.captions.speech.title": "آوانویسی خودکار",
     "app.audio.captions.speech.disabled": "غیرفعال شده",
     "app.audio.captions.speech.unsupported": "مرورگر شما از تشخیص گفتار پشتیبانی نمی‌کند. صدای شما آوانویسی نخواهد شد",
