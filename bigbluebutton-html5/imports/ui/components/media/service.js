@@ -9,7 +9,6 @@ import NotesService from '/imports/ui/components/notes/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import VideoStreams from '/imports/api/video-streams';
 import { isPresentationEnabled } from '/imports/ui/services/features';
-import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
 import Auth from '/imports/ui/services/auth/index';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
