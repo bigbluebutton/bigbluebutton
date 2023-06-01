@@ -1,10 +1,10 @@
 {
     "app.home.greeting": "ارائه شما به زودی آغاز خواهد شد...",
     "app.chat.submitLabel": "ارسال پیام",
-    "app.chat.loading": "پیام‌های گفتگوی بارگیری‌شده: {0}%",
+    "app.chat.loading": "پیام‌های گپ بارگیری‌شده: {0}%",
     "app.chat.errorMaxMessageLength": "پیام خیلی طولانی است، از حداکثر {0} کاراکتر بیشتر است",
     "app.chat.disconnected": "ارتباط شما قطع شده است، امکان ارسال پیام وجود ندارد",
-    "app.chat.locked": "گفنگو قفل شده است، امکان ارسال هیچ پیامی وجود ندارد",
+    "app.chat.locked": "گپ قفل شده است، امکان ارسال هیچ پیامی وجود ندارد",
     "app.chat.inputLabel": "ورودی پیام برای گفتگوی {0}",
     "app.chat.emojiButtonLabel": "انتخاب‌کننده شکلک",
     "app.chat.inputPlaceholder": "پیام {0}",
