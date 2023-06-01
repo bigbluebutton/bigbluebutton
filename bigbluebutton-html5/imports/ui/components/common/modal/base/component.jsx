@@ -31,6 +31,7 @@ const BaseModal = (props) => {
     onRequestClose={onRequestClose}
     className={className}
     overlayClassName={overlayClassName}
+    shouldReturnFocusAfterClose={false}
   >
     {children}
   </Styled.BaseModal>

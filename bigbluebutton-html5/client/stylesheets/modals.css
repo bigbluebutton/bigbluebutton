@@ -41,7 +41,7 @@
 
 /* Prevents that an element within app shows over a modal */
 #app {
-  position: relative;
+  position: inherit;
   z-index: 1000 !important;
 }
 

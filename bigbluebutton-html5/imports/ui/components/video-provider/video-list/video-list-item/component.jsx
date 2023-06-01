@@ -30,7 +30,7 @@ const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, dragging, draggingOver, isRTL, isStream,
+    makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable, 
   } = props;
 
   const intl = useIntl();
@@ -114,8 +114,8 @@ const VideoListItem = (props) => {
   }, []);
 
   useEffect(() => {
-    setIsSelfViewDisabled(Settings.application.selfViewDisable);
-  }, [Settings.application.selfViewDisable]);
+    setIsSelfViewDisabled(settingsSelfViewDisable);
+  }, [settingsSelfViewDisable]);
 
   const renderSqueezedButton = () => (
     <UserActions

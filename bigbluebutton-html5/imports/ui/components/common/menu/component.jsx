@@ -151,7 +151,7 @@ class BBBMenu extends React.Component {
     const { trigger, intl, customStyles, dataTest, opts, accessKey, open, renderOtherComponents } = this.props;
     const actionsItems = this.makeMenuItems();
 
-    let menuStyles = { zIndex: 9999 };
+    let menuStyles = { zIndex: 999 };
 
     if (customStyles) {
       menuStyles = { ...menuStyles, ...customStyles };
