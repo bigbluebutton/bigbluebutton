@@ -28,7 +28,7 @@
     "app.chat.multi.typing": "چند کاربر درحال نوشتن هستند",
     "app.chat.one.typing": "{0} درحال نوشتن است",
     "app.chat.two.typing": "{0} و {1} درحال نوشتن هستند",
-    "app.chat.copySuccess": "رونوشت از ترانوشت گفتگو انجام شد",
+    "app.chat.copySuccess": "رونوشت از ترانوشت گپ انجام شد",
     "app.chat.copyErr": "رونوشت از ترانوشت گفتگو با خطا مواجه شد",
     "app.emojiPicker.search": "جستجو",
     "app.emojiPicker.notFound": "هیچ شکلکی پیدا نشد",
