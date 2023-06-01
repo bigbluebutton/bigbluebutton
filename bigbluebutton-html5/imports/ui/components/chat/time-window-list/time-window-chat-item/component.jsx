@@ -4,12 +4,9 @@ import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import { Meteor } from 'meteor/meteor';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
-import deviceInfo from '/imports/utils/deviceInfo';
 import PollService from '/imports/ui/components/poll/service';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import Styled from './styles';
-import MessageChatItem from './message-chat-item/component';
-import Icon from '/imports/ui/components/common/icon/component';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -136,7 +133,6 @@ class TimeWindowChatItem extends PureComponent {
       chatAreaId,
       handleReadMessage,
       messageKey,
-      intl,
     } = this.props;
 
     if (messages && messages[0].id.includes(CHAT_POLL_RESULTS_MESSAGE)) {
@@ -154,7 +150,8 @@ class TimeWindowChatItem extends PureComponent {
     return (
       <Styled.Item
         key={`time-window-chat-item-${messageKey}`}
-        ref={element => this.itemRef = element} >
+        ref={(element) => this.itemRef = element}
+      >
         <Styled.Messages>
           {messages.map((message) => (
             message.text !== ''
@@ -165,7 +162,7 @@ class TimeWindowChatItem extends PureComponent {
                   key={message.id ? message.id : uniqueId('id-')}
                   text={this.getText(message, messageValues)}
                   time={message.time}
-                  isSystemMessage={message.id ? true : false}
+                  isSystemMessage={!!message.id}
                   systemMessageType={message.text === CHAT_CLEAR_MESSAGE ? 'chatClearMessageText' : 'chatWelcomeMessageText'}
                   chatAreaId={chatAreaId}
                   handleReadMessage={handleReadMessage}
@@ -191,7 +188,6 @@ class TimeWindowChatItem extends PureComponent {
       isFromMe,
       lastReadByPartnerMessageTime,
       isMessageReadFeedbackEnabled,
-      updateLastReadByPartnerTime,
       name,
       color,
       messageFromModerator,
@@ -203,7 +199,7 @@ class TimeWindowChatItem extends PureComponent {
     const dateTime = new Date(timestamp);
     const regEx = /<a[^>]+>/i;
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
-    const defaultAvatarString = name?.toLowerCase().slice(0, 2) || "  ";
+    const defaultAvatarString = name?.toLowerCase().slice(0, 2) || ' ';
     const shouldRenderPrivateMessageReadFeedback =
       isMessageReadFeedbackEnabled &&
       chatId !== CHAT_PUBLIC_ID &&
@@ -253,7 +249,7 @@ class TimeWindowChatItem extends PureComponent {
                 )}
             </Styled.Meta>
             <Styled.Messages>
-              {messages.map(message => (
+              {messages.map((message) => (
                 <Styled.ChatItem
                   hasLink={regEx.test(message.text)}
                   emphasizedMessage={emphasizedText}
@@ -303,11 +299,12 @@ class TimeWindowChatItem extends PureComponent {
       avatar,
       isOnline,
     } = this.props;
-    
+
     const dateTime = new Date(timestamp);
     ChatLogger.debug('TimeWindowChatItem::renderMessageItem', this.props);
     const defaultAvatarString = name?.toLowerCase().slice(0, 2) || '  ';
-    const emphasizedTextClass = messageFromModerator && CHAT_EMPHASIZE_TEXT && chatId === CHAT_PUBLIC_ID;
+    const emphasizedTextClass = messageFromModerator && CHAT_EMPHASIZE_TEXT
+      && chatId === CHAT_PUBLIC_ID;
 
     return messages ? (
       <Styled.Item key={`time-window-status-message${messageKey}`}>
@@ -422,9 +419,15 @@ class TimeWindowChatItem extends PureComponent {
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
-              handleReadMessage={(timestamp) => {
+              handleReadMessage={(time) => {
                 if (!read) {
-                  dispatchLastReadTimestampChanged(dispatch, chatId, timestamp);
+                  dispatch({
+                    type: 'last_read_message_timestamp_changed',
+                    value: {
+                      chatId,
+                      timestamp: time,
+                    },
+                  });
                 }
               }}
               scrollArea={scrollArea}
@@ -476,7 +479,8 @@ class TimeWindowChatItem extends PureComponent {
             <Styled.PresentationChatItem
               type="presentation"
               key={messages[0].id}
-              text={getExportedPresentationString(extra.fileURI, extra.filename, intl, extra.typeOfExport)}
+              text={getExportedPresentationString(extra.fileURI,
+                extra.filename, intl, extra.typeOfExport)}
               time={messages[0].time}
               chatAreaId={chatAreaId}
               lastReadMessageTime={lastReadMessageTime}
