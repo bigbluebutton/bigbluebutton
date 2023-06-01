@@ -713,7 +713,7 @@
     "app.audio.captions.button.start": "شروع زیرنویس‌ها",
     "app.audio.captions.button.stop": "توقف زیرنویس‌ها",
     "app.audio.captions.button.language": "زبان",
-    "app.audio.captions.button.transcription": "آوانویسی",
+    "app.audio.captions.button.transcription": "ترانویسی",
     "app.audio.captions.button.transcriptionSettings": "تنظیمات آوانویسی",
     "app.audio.captions.speech.title": "آوانویسی خودکار",
     "app.audio.captions.speech.disabled": "غیرفعال شده",
