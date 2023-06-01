@@ -1174,7 +1174,7 @@
     "app.legacy.criosBrowser": "در iOS برای پشتیبانی کامل لطفا از سافاری استفاده کنید.",
     "app.debugWindow.windowTitle": "عیب‌یابی",
     "app.debugWindow.form.userAgentLabel": "عامل کاربر",
-    "app.debugWindow.form.button.copy": "کپی",
+    "app.debugWindow.form.button.copy": "رونوشت",
     "app.debugWindow.form.enableAutoarrangeLayoutLabel": "فعال‌سازی چیدمان خودکار",
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(اگر ناحیه دوربین‌ها را بکشید یا تغییر اندازه دهید غیرفعال می‌شود)",
     "app.debugWindow.form.chatLoggerLabel": "آزمایش سطوح گفتگو گزارشات",
