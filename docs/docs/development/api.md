@@ -104,7 +104,7 @@ Updated in 2.6:
 
 Updated in 2.7:
 
-- **join** - **Added:** `redirectErrorUrl`
+- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
 
 ## API Data Types
 

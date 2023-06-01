@@ -157,7 +157,7 @@ const config = {
                         dropdownActiveClassDisabled: true,
                     },
                     {
-                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.6.x-release/docs',
+                        href: 'https://github.com/bigbluebutton/bigbluebutton/tree/v2.7.x-release/docs',
                         label: 'GitHub',
                         position: 'right',
                     },

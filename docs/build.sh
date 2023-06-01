@@ -6,7 +6,8 @@ set -eu
 BRANCHES=(
   v2.5.x-release
   v2.6.x-release
-  # v2.7.x-release
+  v2.7.x-release
+  # v2.8.x-release
 )
 REMOTE="origin"
 
@@ -20,6 +21,9 @@ for branch in "${BRANCHES[@]}"; do
     git checkout "$branch"
     if [ -f docusaurus.config.js ]; then
       version=${branch:1:3}
+      if [ version == "2.7" ]; then
+        version="2.7-dev"
+      fi
       echo "Adding documentation for ${version}"
       yarn docusaurus docs:version "${version}"
     else
