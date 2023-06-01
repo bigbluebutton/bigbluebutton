@@ -505,7 +505,7 @@ public class ParamsProcessorUtil {
         }
 
         boolean _recordFullDurationMedia = recordFullDurationMedia;
-        if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
+        if (!StringUtils.isEmpty(params.get(ApiParams.RECORD_FULL_DURATION_MEDIA))) {
             try {
                 _recordFullDurationMedia = Boolean.parseBoolean(params
                         .get(ApiParams.RECORD_FULL_DURATION_MEDIA));
