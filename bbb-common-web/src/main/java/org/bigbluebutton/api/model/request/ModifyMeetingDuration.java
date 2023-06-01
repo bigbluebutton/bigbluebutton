@@ -51,6 +51,14 @@ public class ModifyMeetingDuration extends RequestWithChecksum<ModifyMeetingDura
         this.secondsString = secondsString;
     }
 
+    public Integer getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(Integer seconds) {
+        this.seconds = seconds;
+    }
+
     @Override
     public void populateFromParamsMap(Map<String, String[]> params) {
         if(params.containsKey(Params.MEETING_ID.getValue())) setMeetingId(params.get(Params.MEETING_ID.getValue())[0]);

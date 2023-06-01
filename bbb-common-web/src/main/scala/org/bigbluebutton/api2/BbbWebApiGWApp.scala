@@ -8,7 +8,7 @@ import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
-import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
+import org.bigbluebutton.api2.meeting.{ModifyMeetingDurationMsg, OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.presentation.messages._
@@ -267,6 +267,12 @@ class BbbWebApiGWApp(
       guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard, customParameters = (customParameters).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
+    msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+  }
+
+  def modifyMeetingDuration(meetingId: String, seconds: Integer): Unit = {
+    val modifyMeetingDurationMsg = ModifyMeetingDurationMsg(meetingId = meetingId, seconds =  seconds)
+    val event = MsgBuilder.buildModifyMeetingDurationSysCmdMsg(modifyMeetingDurationMsg)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
   }
 

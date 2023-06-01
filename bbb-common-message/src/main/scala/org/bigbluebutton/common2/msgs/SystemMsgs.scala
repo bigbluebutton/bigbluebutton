@@ -30,6 +30,16 @@ case class EndMeetingSysCmdMsg(
 ) extends StandardMsg
 case class EndMeetingSysCmdMsgBody(meetingId: String)
 
+/**
+ * Sent by bbb-web
+ */
+object ModifyMeetingDurationSysCmdMsg { val NAME = "ModifyMeetingDurationSysCmdMsg" }
+case class ModifyMeetingDurationSysCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   ModifyMeetingDurationSysCmdMsgBody
+) extends StandardMsg
+case class ModifyMeetingDurationSysCmdMsgBody(meetingId: String, seconds: Int)
+
 object GetAllMeetingsReqMsg { val NAME = "GetAllMeetingsReqMsg" }
 case class GetAllMeetingsReqMsg(
     header: BbbCoreBaseHeader,

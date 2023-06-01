@@ -133,6 +133,11 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  public void modifyMeetingDuration(String meetingId, String seconds) {
+    int s = Integer.parseInt(seconds);
+    handle(new ModifyMeetingDuration(meetingId, s));
+  }
+
   public UserSession getUserSessionWithUserId(String userId) {
     for (UserSession userSession : sessions.values()) {
       if (userSession.internalUserId.equals(userId)) {
@@ -422,6 +427,10 @@ public class MeetingService implements MessageListener {
       message.internalUserId, message.fullname, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.guest,
             message.authed, message.guestStatus, message.excludeFromDashboard, message.customParameters);
+  }
+
+  private void processModifyMeetingDuration(ModifyMeetingDuration message) {
+    gw.modifyMeetingDuration(message.meetingId, message.seconds);
   }
 
     public Meeting getMeeting(String meetingId) {
@@ -1188,6 +1197,8 @@ public class MeetingService implements MessageListener {
           processUpdateRecordingStatus((UpdateRecordingStatus) message);
         } else if (message instanceof LearningDashboard) {
           processLearningDashboard((LearningDashboard) message);
+        } else if (message instanceof ModifyMeetingDuration) {
+          processModifyMeetingDuration((ModifyMeetingDuration) message);
         }
       }
     };

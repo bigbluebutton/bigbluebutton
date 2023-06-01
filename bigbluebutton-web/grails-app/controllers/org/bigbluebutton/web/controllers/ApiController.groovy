@@ -1362,6 +1362,8 @@ class ApiController {
       return
     }
 
+    meetingService.modifyMeetingDuration(params.meetingID, params.seconds)
+
     withFormat {
       xml {
         render(text: responseBuilder.buildModifyMeetingDurationResponse("Meeting duration modified", RESP_CODE_SUCCESS), contentType: "text/xml")
