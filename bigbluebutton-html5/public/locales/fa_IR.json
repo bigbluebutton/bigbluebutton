@@ -913,7 +913,7 @@
     "app.connection-status.description": "وضعیت اتصال کاربران را مشاهده کنید",
     "app.connection-status.empty": "درحال حاضر هیچ مشکلی در اتصال گزارش نشده است",
     "app.connection-status.more": "بیشتر",
-    "app.connection-status.copy": "رونویسی آمار",
+    "app.connection-status.copy": "رونوشت آمار",
     "app.connection-status.copied": "کپی شد!",
     "app.connection-status.jitter": "Jitter",
     "app.connection-status.label": "وضعیت اتصال",
