@@ -79,7 +79,10 @@ Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the follo
 - Spring 2.7.12
 - React 18
 
-For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
+For full details on what is new in BigBlueButton 2.7, see the release notes.
+
+
+Recent releases:
 
 ### Other notable changes
 
