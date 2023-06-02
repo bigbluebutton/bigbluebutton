@@ -71,6 +71,7 @@ public class ApiParams {
     public static final String ROLE = "role";
     public static final String GROUPS = "groups";
     public static final String DISABLED_FEATURES = "disabledFeatures";
+    public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
@@ -105,6 +106,8 @@ public class ApiParams {
     // students from running amok.
     public static final String END_WHEN_NO_MODERATOR = "endWhenNoModerator";
     public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
+
+    public static final String RECORD_FULL_DURATION_MEDIA = "recordFullDurationMedia";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");

@@ -93,6 +93,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pageExtractor" ref="pageExtractor"/>
         <property name="documentConversionService" ref="documentConversionService"/>
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
+        <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
+        <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
     </bean>
 
     <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
@@ -151,6 +153,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>

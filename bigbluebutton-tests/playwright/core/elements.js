@@ -256,6 +256,10 @@ exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
 exports.secondPollAnswerOptionBtn = `${pollAnswersOption}>>nth=1`;
 exports.firstCheckboxInput = `${pollAnswersOption}`;
 exports.closePollingBtn = 'button[data-test="closePolling"]';
+exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
+exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
+exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
+exports.answerE = 'div[data-test="numberOfVotes"]>>nth=4';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
@@ -348,6 +352,7 @@ exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
+exports.deniedMessageElement = 'p[class="error-message"]';
 exports.selectRandomUser = 'li[data-test="selectRandomUser"]';
 exports.noViewersSelectedMessage = 'div[data-test="noViewersSelectedMessage"]';
 exports.selectedUserName = 'div[data-test="selectedUserName"]';

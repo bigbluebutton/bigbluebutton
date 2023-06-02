@@ -19,12 +19,12 @@ test.describe.serial('Learning Dashboard', async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls', async ({ context }) => {
+  test('Polls @ci', async ({ context }) => {
     await learningDashboard.initUserPage(true, context);
     await learningDashboard.polls();
   });
 
-  test('Basic Infos', async () => {
+  test('Basic Infos @ci', async () => {
     await learningDashboard.basicInfos();
   });
 
@@ -32,7 +32,7 @@ test.describe.serial('Learning Dashboard', async () => {
     await learningDashboard.overview();
   });
 
-  test('Download Session Learning Dashboard', async ({ context }, testInfo) => {
+  test('Download Session Learning Dashboard @ci', async ({ context }, testInfo) => {
     await learningDashboard.downloadSessionLearningDashboard(testInfo);
   });  
 });
