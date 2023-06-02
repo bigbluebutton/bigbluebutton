@@ -93,7 +93,7 @@ const VideoListItem = (props) => {
         elem.play().catch((error) => {
           // NotAllowedError equals autoplay issues, fire autoplay handling event
           if (error.name === 'NotAllowedError') {
-            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
+            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaElement: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
         });

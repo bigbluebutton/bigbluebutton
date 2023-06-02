@@ -3,15 +3,16 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
@@ -24,6 +25,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
 import org.apache.http.nio.client.methods.ZeroCopyConsumer;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bigbluebutton.api.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,8 @@ public class PresentationUrlDownloadService {
     private String presentationBaseURL;
     private String presentationDir;
     private String BLANK_PRESENTATION;
+    private List<String> insertDocumentSupportedProtocols;
+    private List<String> insertDocumentBlockedHosts;
 
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
 
@@ -176,6 +180,8 @@ public class PresentationUrlDownloadService {
             return null;
         }
 
+        if(!isValidRedirectUrl(redirectUrl)) return null;
+
         URL presUrl;
         try {
             presUrl = new URL(redirectUrl);
@@ -213,6 +219,64 @@ public class PresentationUrlDownloadService {
             log.error("IOException for url=[{}] with meeting[{}]", redirectUrl, meetingId, e);
             return null;
         }
+    }
+
+    private boolean isValidRedirectUrl(String redirectUrl) {
+        URL url;
+
+        try {
+            url = new URL(redirectUrl);
+            String protocol = url.getProtocol();
+            String host = url.getHost();
+
+            if(insertDocumentSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
+                if(insertDocumentSupportedProtocols.size() == 1 && insertDocumentSupportedProtocols.get(0).equalsIgnoreCase("all")) {
+                    log.warn("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
+                } else {
+                    log.error("Invalid protocol [{}]", protocol);
+                    return false;
+                }
+            }
+
+            if(insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+                log.error("Attempted to download from blocked host [{}]", host);
+                return false;
+            }
+        } catch(MalformedURLException e) {
+            log.error("Malformed URL [{}]", redirectUrl);
+            return false;
+        }
+
+        try {
+            InetAddress[] addresses = InetAddress.getAllByName(url.getHost());
+            InetAddressValidator validator = InetAddressValidator.getInstance();
+
+            boolean localhostBlocked = insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
+
+            for(InetAddress address: addresses) {
+                if(!validator.isValid(address.getHostAddress())) {
+                    log.error("Invalid address [{}]", address.getHostAddress());
+                    return false;
+                }
+
+                if(localhostBlocked) {
+                    if(address.isAnyLocalAddress()) {
+                        log.error("Address [{}] is a local address", address.getHostAddress());
+                        return false;
+                    }
+
+                    if(address.isLoopbackAddress()) {
+                        log.error("Address [{}] is a loopback address", address.getHostAddress());
+                        return false;
+                    }
+                }
+            }
+        } catch(UnknownHostException e) {
+            log.error("Unknown host [{}]", url.getHost());
+            return false;
+        }
+
+        return true;
     }
 
     public boolean savePresentation(final String meetingId,
@@ -280,6 +344,14 @@ public class PresentationUrlDownloadService {
 
     public void setBlankPresentation(String blankPresentation) {
         this.BLANK_PRESENTATION = blankPresentation;
+    }
+
+    public void setInsertDocumentSupportedProtocols(String insertDocumentSupportedProtocols) {
+        this.insertDocumentSupportedProtocols = new ArrayList<>(Arrays.asList(insertDocumentSupportedProtocols.split(",")));
+    }
+
+    public void setInsertDocumentBlockedHosts(String insertDocumentBlockedHosts) {
+        this.insertDocumentBlockedHosts = new ArrayList<>(Arrays.asList(insertDocumentBlockedHosts.split(",")));
     }
 
 }
