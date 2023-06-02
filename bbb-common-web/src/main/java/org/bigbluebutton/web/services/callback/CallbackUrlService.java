@@ -150,55 +150,7 @@ public class CallbackUrlService {
 		receivedMessages.add(dc);
 	}
 
-	private String followRedirect(String redirectUrl, int redirectCount, String origUrl) {
-
-		if (redirectCount > MAX_REDIRECTS) {
-			log.error("Max redirect reached for callback url=[{}]", origUrl);
-			return null;
-		}
-
-		URL presUrl;
-		try {
-			presUrl = new URL(redirectUrl);
-		} catch (MalformedURLException e) {
-			log.error("Malformed callback url=[{}]", redirectUrl);
-			return null;
-		}
-
-		HttpURLConnection conn;
-		try {
-			conn = (HttpURLConnection) presUrl.openConnection();
-			conn.setReadTimeout(5000);
-			conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-			conn.addRequestProperty("User-Agent", "Mozilla");
-
-			// normally, 3xx is redirect
-			int status = conn.getResponseCode();
-			if (status != HttpURLConnection.HTTP_OK) {
-				if (status == HttpURLConnection.HTTP_MOVED_TEMP
-								|| status == HttpURLConnection.HTTP_MOVED_PERM
-								|| status == HttpURLConnection.HTTP_SEE_OTHER) {
-					String newUrl = conn.getHeaderField("Location");
-					return followRedirect(newUrl, redirectCount + 1, origUrl);
-				} else {
-					log.error("Invalid HTTP response=[{}] for callback url=[{}]", status, redirectUrl);
-					return null;
-				}
-			} else {
-				return redirectUrl;
-			}
-		} catch (IOException e) {
-			log.error("IOException for callback url=[{}]", redirectUrl);
-			return null;
-		}
-	}
-
 	private boolean fetchCallbackUrl(final String callbackUrl) {
-		// Do not handle redirects as we must expect that the passed
-		// in callback url on meeting create must be working.
-		//String finalUrl = followRedirect(callbackUrl, 0, callbackUrl);
-		//log.info("Calling callback url {}", finalUrl);
-		//if (finalUrl == null) return false;
 
 		boolean success = false;
 

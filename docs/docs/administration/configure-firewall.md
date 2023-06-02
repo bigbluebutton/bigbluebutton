@@ -9,7 +9,6 @@ keywords:
 - firewall
 ---
 
-This document covers firewall configuration for BigBlueButton 2.2.
 
 You should configure your firewall before [Installing BigBlueButton](/administration/install); otherwise, you may get errors during the installation and will be unable to test BigBlueButton after the installation completes.
 

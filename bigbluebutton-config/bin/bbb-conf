@@ -843,7 +843,7 @@ check_configuration() {
        echo
        echo "# Warning: Detected FreeSWITCH is using default stun.freeswitch.org server.  See"
        echo "#"
-       echo "#     https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-using-default-stun-server"
+       echo "#     https://docs.bigbluebutton.org/support/troubleshooting#freeswitch-using-default-stun-server"
        echo "#"
        echo
     fi
@@ -852,7 +852,7 @@ check_configuration() {
        echo
        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
        echo "#"
-       echo "#     https://docs.bigbluebutton.org/admin/customize.html#setup-a-firewall"
+       echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
        echo "#"
        echo
     fi
@@ -1123,7 +1123,7 @@ check_state() {
     if systemctl status freeswitch | grep -q SETSCHEDULER; then
         echo "# Error: FreeSWITCH failed to start with SETSCHEDULER error, see"
         echo "#"
-        echo "#   https://docs.bigbluebutton.org/2.2/troubleshooting.html#freeswitch-fails-to-start-with-a-setscheduler-error"
+        echo "#   https://docs.bigbluebutton.org/support/troubleshooting#freeswitch-fails-to-start-with-a-setscheduler-error"
         echo "#"
     fi
 
@@ -1132,7 +1132,7 @@ check_state() {
         echo "# Warning: found only $NCPU cores, whereas this server should have (at least) 4 CPU cores"
         echo "# to run BigBlueButton in production."
         echo "#"
-        echo "#   https://docs.bigbluebutton.org/install/install.html#minimum-server-requirements"
+        echo "#   https://docs.bigbluebutton.org/administration/install#minimum-server-requirements"
         echo "#"
     fi
 
@@ -1203,7 +1203,7 @@ check_state() {
       echo "#"
       echo "#   sudo systemctl set-environment LANG=en_US.UTF-8"
       echo "#"
-      echo "# See https://docs.bigbluebutton.org/2.2/install.html#pre-installation-checks"
+      echo "# See https://docs.bigbluebutton.org/administration/install#pre-installation-checks"
       echo "#"
     fi
 

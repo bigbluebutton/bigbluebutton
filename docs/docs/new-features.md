@@ -181,10 +181,11 @@ Allows for quicker, more efficient search and retrieval of recording data.
 Under the hood, BigBlueButton 2.6 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
 - Meteor 2.12
 - Grails 5.2.4
-- Spring 2.7.1
+- Spring 2.7.12
 
 For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
 
+- [2.6.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.9)
 - [2.6.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.8)
 - [2.6.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.7)
 - [2.6.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.6.6)

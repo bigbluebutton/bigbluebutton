@@ -223,7 +223,6 @@ class Presentation extends MultiUsers {
 
   async presentationSnapshot(testInfo) {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
     await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);
