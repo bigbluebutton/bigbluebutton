@@ -808,7 +808,7 @@ Its error message describes the issue.
 
 ### How do I change the Start/Stop recording marks?
 
-Note: In BigBlueButton 2.6.9 we [made a change](https://github.com/bigbluebutton/bigbluebutton/pull/18044) which ensures media files are not being saved to file unless the recording is actively being recorded. The instructions below only work up to BigBlueButton 2.6.8 or if you are overriding `recordFullDurationMedia=true` in `/etc/bigbluebutton/bbb-web.properties` in BigBlueButton 2.6.9+.
+Note: In BigBlueButton 2.6.9 we [made a change](https://github.com/bigbluebutton/bigbluebutton/pull/18044) which ensures that by default media files are not being saved to file unless the meeting is actively being recorded. If you are using BigBlueButton 2.6.9 or later, the instructions below will only work if you set `recordFullDurationMedia=true` in `/etc/bigbluebutton/bbb-web.properties`.
 
 In a scenario where a user forgot to press the Start/Stop recording button 30 minutes into a session, resulting in the playback missing that initial segment, its content can still be included by editing the intervals to be processed in the `events.xml` file.
 
