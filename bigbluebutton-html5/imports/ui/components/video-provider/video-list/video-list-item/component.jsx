@@ -224,6 +224,7 @@ const VideoListItem = (props) => {
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
+      isStream={isStream}
       {...{
         ...makeDragOperations(user?.userId),
         dragging,

@@ -5,6 +5,7 @@ import {
   colorWhite,
   webcamBackgroundColor,
   colorDanger,
+  webcamPlaceholderBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 
@@ -41,6 +42,10 @@ const Content = styled.div`
     pointer-events: none;
     border: 2px solid ${colorBlack};
     border-radius: 10px;
+
+    ${({ isStream }) => !isStream   && `
+      border: 2px solid ${webcamPlaceholderBorder};
+    `}
 
     ${({ talking }) => talking && `
       border: 2px solid ${colorPrimary};
