@@ -3,6 +3,7 @@ import { throttle } from '/imports/utils/throttle';
 import { makeCall } from '/imports/ui/services/api';
 import MessageForm from './component';
 import ChatService from '/imports/ui/components/chat/service';
+import ChatMessageFormContainer from '../chat-graphql/chat-message-form/component';
 import { layoutSelect } from '../../layout/context';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -37,4 +38,4 @@ const MessageFormContainer = (props) => {
   );
 };
 
-export default MessageFormContainer;
+export default ChatMessageFormContainer;

@@ -154,9 +154,7 @@ const Chat = (props) => {
         }}
       />
       <MessageFormContainer
-        {...{
-          title,
-        }}
+        title={title}
         chatId={chatID}
         chatTitle={title}
         chatAreaId={ELEMENT_ID}
