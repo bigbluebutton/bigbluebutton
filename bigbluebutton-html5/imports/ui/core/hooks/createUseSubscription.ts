@@ -10,7 +10,7 @@ export function createUseSubsciption<T>(
   query: DocumentNode | TypedQueryDocumentNode,
   usePatchedSubscription = false
 ) {
-  return function useGeneratedUseSubsctiontion(projectionFunction: Function): Array<Partial<T>> {
+  return function useGeneratedUseSubscription(projectionFunction: Function): Array<Partial<T>> {
   const client = useApolloClient();
   const [projectedData, setProjectedData] = useState<Array<T>>([]);
   const oldProjectionOfDataRef = useRef<Array<T>>([]);
