@@ -19,6 +19,7 @@ import CursorsStream from "./CursorsStream";
 import CursorsAll from "./CursorsAll";
 import TalkingStream from "./TalkingStream";
 import MyInfo from "./MyInfo";
+import UserLocalSettings from "./UserLocalSettings";
 
 
 function App() {
@@ -104,6 +105,8 @@ function App() {
             <MeetingInfo />
             <br />
             <MyInfo />
+            <br />
+            <UserLocalSettings userId={userId} />
             <br />
             <UserList userId={userId} />
             <br />

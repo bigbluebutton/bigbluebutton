@@ -642,11 +642,44 @@ ruby publish/presentation.rb -m <meeting-id>-presentation
 
 Notice we appended "presentation" to the meetingId, this will tell the script to publish using the "presentation" format.
 
+### Running record-and-playback as a service
+
 You can deploy your changes by running `deploy.sh` and restarting the recording-related services:
 ```
 systemctl restart bbb-rap-starter
 systemctl restart bbb-rap-resque-worker
 ```
+
+#### Deploying other formats
+
+When running `deploy.sh`, it will only set the presentation workflow by default. However it is possible to add other formats too such as video, screenshare, etc. In order to do that, you just have to change `deploy_format "presentation"` in the `deploy.sh` script, adding whatever formats you want, so, in case of `video` and `screenshare`, it would be:
+
+```bash
+deploy_format "presentation video screenshare"
+```
+
+Another adaptation to deploy other formats is to follow the steps in [additional recording formats](/administration/customize#install-additional-recording-processing-formats) to enable these new workflows you just set. For example, in your `bigbluebutton.yml`, you may have:
+
+```yml
+steps:
+  archive: 'sanity'
+  sanity: 'captions'
+  captions:
+    - 'process:presentation'
+    - 'process:video'
+  'process:presentation': 'publish:presentation'
+  'process:video': 'publish:video'
+```
+
+At last, if it is the first time you set one other recording format, you may have to reload nginx in addition to the other commands mentioned previously in this section, like so:
+
+```
+systemctl restart bbb-rap-starter
+systemctl restart bbb-rap-resque-worker
+systemctl reload nginx
+```
+
+If you are not changing the nginx files for each format, it is not mandatory to reload nginx every time you run `deploy.sh`.
 
 ### Troubleshooting
 

@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   colorBlueLight,
   colorText,
   colorGrayLighter,
+  colorGrayLight,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -68,6 +69,13 @@ const Input = styled(TextareaAutosize)`
     outline-style: dotted;
     outline-width: ${borderSize};
   }
+
+  ${({ emojiEnabled }) => emojiEnabled ?
+    css`
+      padding-left: calc(${smPaddingX} * 3);
+    `
+    : null
+  }
 `;
 
 const SendButton = styled(Button)`
@@ -84,8 +92,6 @@ const SendButton = styled(Button)`
     transform: scale(-1, 1);
   }
 `;
-
-const EmojiButtonWrapper = styled.div``;
 
 const EmojiButton = styled(Button)`
   margin:0 0 0 ${smPaddingX};
@@ -121,6 +127,19 @@ const EmojiPickerWrapper = styled.div`
 `;
 
 const EmojiPicker = styled(EmojiPickerComponent)``;
+
+const EmojiButtonWrapper = styled.div`
+  color: ${colorGrayLight};
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: ${fontSizeBase};
+  cursor: pointer;
+`;
 
 export default {
   Form,

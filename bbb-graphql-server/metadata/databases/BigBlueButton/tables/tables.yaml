@@ -1,6 +1,7 @@
 - "!include public_chat_user.yaml"
 - "!include public_meeting.yaml"
 - "!include public_user_connectionStatus.yaml"
+- "!include public_user_localSettings.yaml"
 - "!include public_v_chat.yaml"
 - "!include public_v_chat_message_private.yaml"
 - "!include public_v_chat_message_public.yaml"

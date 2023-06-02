@@ -27,7 +27,8 @@ trait SyncGetScreenshareInfoRespMsgHdlr {
       ScreenshareModel.getScreenshareVideoWidth(liveMeeting.screenshareModel),
       ScreenshareModel.getScreenshareVideoHeight(liveMeeting.screenshareModel),
       ScreenshareModel.getTimestamp(liveMeeting.screenshareModel),
-      ScreenshareModel.getHasAudio(liveMeeting.screenshareModel)
+      ScreenshareModel.getHasAudio(liveMeeting.screenshareModel),
+      ScreenshareModel.getContentType(liveMeeting.screenshareModel)
     )
     val event = SyncGetScreenshareInfoRespMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

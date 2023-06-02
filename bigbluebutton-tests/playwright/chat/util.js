@@ -1,4 +1,4 @@
-const { default: test } = require('@playwright/test');
+const { default: test, expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { getSettings } = require('../core/settings');
 
@@ -18,5 +18,11 @@ async function openPrivateChat(testPage) {
   await testPage.waitAndClick(e.startPrivateChat);
 }
 
+async function checkLastMessageSent(testPage, expectedMessage) {
+  const lastMessageSent = await testPage.getLocator(e.chatUserMessageText).last();
+  await expect(lastMessageSent).toHaveText(expectedMessage);
+}
+
 exports.openChat = openChat;
 exports.openPrivateChat = openPrivateChat;
+exports.checkLastMessageSent = checkLastMessageSent;

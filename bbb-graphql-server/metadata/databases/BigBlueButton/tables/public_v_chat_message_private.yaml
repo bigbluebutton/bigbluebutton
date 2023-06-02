@@ -27,6 +27,8 @@ select_permissions:
         - createdTimeAsDate
         - message
         - messageId
+        - messageMetadata
+        - messageType
         - senderId
         - senderName
         - senderRole

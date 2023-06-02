@@ -37,7 +37,7 @@ systemctl restart nginx
 #wget https://graphql-engine-cdn.hasura.io/server/latest/linux-amd64 -O /usr/local/bin/hasura-graphql-engine
 #chmod +x /usr/local/bin/hasura-graphql-engine
 
-git clone --branch v2.23.0 https://github.com/iMDT/hasura-graphql-engine.git
+git clone --branch v2.26.0 https://github.com/iMDT/hasura-graphql-engine.git
 cat hasura-graphql-engine/hasura-graphql.part-a* > hasura-graphql
 rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql

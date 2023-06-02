@@ -35,7 +35,7 @@ public:
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
-      enabled: false
+      enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
     lockOnJoin: true
@@ -67,6 +67,7 @@ public:
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    enableCameraAsContent: true
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
@@ -139,6 +140,13 @@ public:
     # If not set, default value is true.
     showAudioFilters: true
     raiseHandActionButton:
+      # Enables the old raiseHand icon
+      enabled: false
+      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
+      centered: true
+    interactionsButton:
+      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
+      # If both interactionsButton and raiseHandActionButton are enabled, interactionsButton takes precedence.
       enabled: true
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
@@ -390,6 +398,14 @@ public:
           width: 1280
           height: 720
           frameRate: 30
+      - id: fhd
+        name: Camera as content
+        hidden: true
+        default: false
+        bitrate: 1500
+        constraints:
+          width: 1920
+          height: 1080
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
@@ -537,6 +553,7 @@ public:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
       chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
+      chat_status_message: PUBLIC_CHAT_STATUS
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
@@ -546,6 +563,11 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+  userReaction:
+    enabled: true
+    expire: 60
+  userStatus:
+    enabled: false
   notes:
     enabled: true
     id: notes
@@ -567,7 +589,7 @@ public:
       #
       # Default bridge to be used by full audio mechanism.
       # This is the bridge's name as contained in 'bridges' array
-      defaultFullAudioBridge: sipjs
+      defaultFullAudioBridge: fullaudio
       #
       #
       # Server wide configuration to choose which bbb-webrtc-sfu
@@ -702,7 +724,7 @@ public:
   presentation:
     allowDownloadable: true
     panZoomThrottle: 32
-    restoreOnUpdate: false
+    restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
     # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
@@ -746,6 +768,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+      - extension: .webp
+        mime: image/webp
   selectRandomUser:
     enabled: true
     countdown: false

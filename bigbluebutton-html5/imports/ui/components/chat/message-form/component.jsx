@@ -3,8 +3,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { checkText } from 'smile2emoji';
 import deviceInfo from '/imports/utils/deviceInfo';
 import PropTypes from 'prop-types';
-import { throttle } from '/imports/utils/throttle';
-import TypingIndicatorContainer from './typing-indicator/container';
+import TypingIndicatorContainer from '/imports/ui/components/chat/chat-graphql/chat-typing-indicator/component';
+import Auth from '/imports/ui/services/auth';
 import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
 import { escapeHtml } from '/imports/utils/string-utils';
@@ -70,6 +70,8 @@ const messages = defineMessages({
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const AUTO_CONVERT_EMOJI = Meteor.settings.public.chat.autoConvertEmoji;
 const ENABLE_EMOJI_PICKER = Meteor.settings.public.chat.emojiPicker.enable;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const PUBLIC_CHAT_GROUP_KEY = CHAT_CONFIG.public_group_id;
 
 class MessageForm extends PureComponent {
   constructor(props) {
@@ -86,7 +88,7 @@ class MessageForm extends PureComponent {
     this.handleMessageKeyDown = this.handleMessageKeyDown.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setMessageHint = this.setMessageHint.bind(this);
-    this.handleUserTyping = throttle(this.handleUserTyping.bind(this), 2000, { trailing: false });
+    this.handleUserTyping = this.handleUserTyping.bind(this);
     this.typingIndicator = CHAT_CONFIG.typingIndicator.enabled;
   }
 
@@ -262,7 +264,7 @@ class MessageForm extends PureComponent {
     const callback = this.typingIndicator ? stopUserTyping : null;
 
     handleSendMessage(escapeHtml(msg));
-    this.setState({ message: '', hasErrors: false, showEmojiPicker: false }, callback);
+    this.setState({ message: '', error: '', hasErrors: false, showEmojiPicker: false }, callback);
   }
 
   handleEmojiSelect(emojiObject) {
@@ -371,7 +373,12 @@ class MessageForm extends PureComponent {
             data-test="sendMessageButton"
           />
         </Styled.Wrapper>
-        <TypingIndicatorContainer {...{ idChatOpen, error }} />
+        <TypingIndicatorContainer
+          {...{ idChatOpen, error }}
+          isPrivate={idChatOpen !== PUBLIC_CHAT_KEY}
+          isTypingTo={idChatOpen === PUBLIC_CHAT_KEY ? PUBLIC_CHAT_GROUP_KEY : idChatOpen}
+          userId={Auth.userID}
+        />
       </Styled.Form>
     );
   }

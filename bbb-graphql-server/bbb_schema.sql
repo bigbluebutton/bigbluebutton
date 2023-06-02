@@ -19,6 +19,18 @@ DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
 
+drop view if exists "v_poll_response";
+drop view if exists "v_poll_user";
+drop view if exists "v_poll_option";
+drop view if exists "v_poll";
+drop table if exists "poll_response";
+drop table if exists "poll_option";
+drop table if exists "poll";
+drop view if exists "v_external_video";
+drop table if exists "external_video";
+drop view if exists "v_screenshare";
+drop table if exists "screenshare";
+
 DROP VIEW IF EXISTS "v_user_camera";
 DROP VIEW IF EXISTS "v_user_voice";
 --DROP VIEW IF EXISTS "v_user_whiteboard";
@@ -34,6 +46,7 @@ DROP TABLE IF EXISTS "user_voice";
 DROP TABLE IF EXISTS "user_breakoutRoom";
 DROP TABLE IF EXISTS "user_connectionStatus";
 DROP TABLE IF EXISTS "user_customParameter";
+DROP TABLE IF EXISTS "user_localSettings";
 DROP TABLE IF EXISTS "user";
 
 DROP VIEW IF EXISTS "v_meeting_lockSettings";
@@ -53,18 +66,6 @@ DROP TABLE IF EXISTS "meeting_lockSettings";
 DROP TABLE IF EXISTS "meeting_usersPolicies";
 DROP TABLE IF EXISTS "meeting_group";
 DROP TABLE IF EXISTS "meeting";
-
-drop view if exists "v_poll_response";
-drop view if exists "v_poll_user";
-drop view if exists "v_poll_option";
-drop view if exists "v_poll";
-drop table if exists "poll_response";
-drop table if exists "poll_option";
-drop table if exists "poll";
-drop view if exists "v_external_video";
-drop table if exists "external_video";
-drop view if exists "v_screenshare";
-drop table if exists "screenshare";
 
 
 DROP FUNCTION IF EXISTS "update_user_presenter_trigger_func";
@@ -494,14 +495,16 @@ create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("m
 --FROM "user" u
 --LEFT JOIN "user_connectionStatus" uc ON uc."userId" = u."userId";
 
-create table "user_custom_parameter"(
-    "userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
-	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-	"parameter" varchar(255),
-	"value" varchar(255)
+CREATE TABLE "user_localSettings"(
+	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
+	"settingsJson" jsonb
 );
-create index "idx_user_custom_parameter_parameter" on "user_custom_parameter"("userId","parameter");
-create index "idx_user_custom_parameter_meetingId" on "user_custom_parameter"("meetingId");
+
+CREATE INDEX "idx_user_local_settings_meetingId" ON "user_localSettings"("meetingId");
+
+
+
 
 -- ===================== CHAT TABLES
 
@@ -565,7 +568,9 @@ CREATE TABLE "chat_message" (
 	"correlationId" varchar(100),
 	"createdTime" bigint,
 	"chatEmphasizedText" boolean,
-	"message" TEXT,
+	"message" text,
+	"messageType" varchar(50),
+	"messageMetadata" text,
     "senderId" varchar(100),
     "senderName" varchar(255),
 	"senderRole" varchar(20),
@@ -928,12 +933,14 @@ create table "screenshare"(
 "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 "voiceConf" varchar(50),
 "screenshareConf" varchar(50),
+"contentType" varchar(50),
 "stream" varchar(100),
 "vidWidth" integer,
 "vidHeight" integer,
+"hasAudio" boolean,
 "startedAt" timestamp,
-"stoppedAt" timestamp,
-"hasAudio" boolean
+"stoppedAt" timestamp
+
 );
 create index "screenshare_meetingId" on "screenshare"("meetingId");
 create index "screenshare_meetingId_current" on "screenshare"("meetingId") WHERE "stoppedAt" IS NULL;

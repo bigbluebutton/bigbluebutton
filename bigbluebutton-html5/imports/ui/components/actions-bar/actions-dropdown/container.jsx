@@ -28,6 +28,8 @@ const ActionsDropdownContainer = (props) => {
   );
 };
 
+const ENABLE_CAMERA_AS_CONTENT = Meteor.settings.public.app.enableCameraAsContent;
+
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
   return ({
@@ -35,5 +37,6 @@ export default withTracker(() => {
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
+    isCameraAsContentEnabled: ENABLE_CAMERA_AS_CONTENT,
   });
 })(ActionsDropdownContainer);

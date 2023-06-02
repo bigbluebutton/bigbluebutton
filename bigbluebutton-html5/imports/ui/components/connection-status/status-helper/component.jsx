@@ -81,7 +81,7 @@ class ConnectionStatusIcon extends PureComponent {
         <Styled.Label>
           {intl.formatMessage(intlMessages.label)}
         </Styled.Label>
-        {(level === 'critical' || level === 'danger') || true
+        {(level === 'critical' || level === 'danger') || isSettingsMenuModalOpen
           ? (
             <div>
               <Styled.Settings
@@ -94,7 +94,7 @@ class ConnectionStatusIcon extends PureComponent {
                 selectedTab={2} 
                 {...{
                   onRequestClose: () => this.setSettingsMenuModalIsOpen(false),
-                  priority: "low",
+                  priority: "medium",
                   setIsOpen: this.setSettingsMenuModalIsOpen,
                   isOpen: isSettingsMenuModalOpen,
                 }}
