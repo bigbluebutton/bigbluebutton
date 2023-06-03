@@ -637,12 +637,7 @@ class Presentation extends PureComponent {
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <defs>
-            <clipPath id="viewBox">
-              <rect x={viewBoxPosition.x} y={viewBoxPosition.y} width="100%" height="100%" fill="none" />
-            </clipPath>
-          </defs>
-          <g clipPath="url(#viewBox)">
+          <g>
             <Slide
               imageUri={imageUri}
               svgWidth={width}
