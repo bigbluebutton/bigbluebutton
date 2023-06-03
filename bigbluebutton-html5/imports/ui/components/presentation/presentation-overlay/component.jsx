@@ -5,6 +5,7 @@ import SlideCalcUtil, {
   HUNDRED_PERCENT, MAX_PERCENT, STEP,
 } from '/imports/utils/slideCalcUtils';
 import {Meteor} from "meteor/meteor";
+import browserInfo from '/imports/utils/browserInfo';
 // After lots of trial and error on why synching doesn't work properly, I found I had to
 // multiply the coordinates by 2. There's something I don't understand probably on the
 // canvas coordinate system. (ralam feb 22, 2012)
@@ -542,10 +543,12 @@ export default class PresentationOverlay extends Component {
       zIndex: MAX_Z_INDEX,
       cursor,
     };
+    
+    const { isChrome } = browserInfo;
 
     return (
       <foreignObject
-        clipPath="url(#viewBox)"
+        clipPath={ isChrome ? "" : "url(#viewBox)" }
         x="0"
         y="0"
         width={slideWidth}
