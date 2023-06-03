@@ -545,7 +545,6 @@ export default class PresentationOverlay extends Component {
 
     return (
       <foreignObject
-        clipPath="url(#viewBox)"
         x="0"
         y="0"
         width={slideWidth}
