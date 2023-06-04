@@ -774,7 +774,7 @@
     "app.guest.noModeratorResponse": "هیچ پاسخی از مدیر وجود ندارد",
     "app.guest.noSessionToken": "هیچ ژتون جلسه‌ای دریافت نشد.",
     "app.guest.windowTitle": "اتاق انتظار مهمان",
-    "app.guest.missingToken": "کلید ژتون جلسه مهمان وجود ندارد.",
+    "app.guest.missingToken": "کلید ژتون جلسهٔ مهمان وجود ندارد.",
     "app.guest.missingSession": "میهمان جلسه را از دست داد.",
     "app.guest.missingMeeting": "جلسه وجود ندارد.",
     "app.guest.meetingEnded": "جلسه به پایان رسید.",
