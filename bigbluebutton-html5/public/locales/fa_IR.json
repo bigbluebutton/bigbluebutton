@@ -668,7 +668,7 @@
     "app.audioModal.help.macNotAllowed": "به نظر می‌رسد تنظیمات مک‌بوک شما دسترسی به میکروفون را مسدود می‌کند. به این مسیر بروید و مطمئن شوید مرورگری که استفاده می‌کنید انتخاب شده است: System Preferences > Security & Privacy > Privacy > Microphone",
     "app.audioModal.audioDialTitle": "پیوستن با استفاده از تلفن همراه",
     "app.audioDial.audioDialDescription": "شماره‌گیری",
-    "app.audioDial.audioDialConfrenceText": "و شماره پین جلسه را وارد کنید:",
+    "app.audioDial.audioDialConfrenceText": "و شمارهٔ پین جلسه را وارد کنید:",
     "app.audioModal.autoplayBlockedDesc": "ما به مجوز شما جهت پخش صدا نیاز داریم.",
     "app.audioModal.playAudio": "پخش صدا",
     "app.audioModal.playAudio.arialabel" : "پخش صدا",
