@@ -1,5 +1,5 @@
 {
-    "app.home.greeting": "ارائه شما به زودی آغاز خواهد شد...",
+    "app.home.greeting": "ارائهٔ شما به زودی آغاز خواهد شد...",
     "app.chat.submitLabel": "ارسال پیام",
     "app.chat.loading": "پیام‌های گپ بارگیری‌شده: {0}%",
     "app.chat.errorMaxMessageLength": "پیام خیلی طولانی است، از حداکثر {0} کاراکتر بیشتر است",
