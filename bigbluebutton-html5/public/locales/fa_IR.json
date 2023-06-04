@@ -197,7 +197,7 @@
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "اتاق‌های جانبی تا {0} دقیقهٔ دیگر به پایان می‌رسد.",
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "جلسه جانبی تا یک دقیقهٔ دیگر به پایان می‌رسد.",
     "app.presentation.hide": "پنهان‌سازی ارائه",
-    "app.presentation.notificationLabel": "ارائه کنونی",
+    "app.presentation.notificationLabel": "ارائهٔ کنونی",
     "app.presentation.downloadLabel": "بارگیری",
     "app.presentation.slideContent": "محتوای اسلاید",
     "app.presentation.startSlideContent": "شروع محتوای اسلاید",
