@@ -648,7 +648,7 @@
     "app.audioModal.microphoneLabel": "میکروفون",
     "app.audioModal.listenOnlyLabel": "تنها شنونده",
     "app.audioModal.microphoneDesc": "پیوستن به جلسهٔ صوتی با میکروفن",
-    "app.audioModal.listenOnlyDesc": "پیوستن به جلسه صوتی به صورت شنونده",
+    "app.audioModal.listenOnlyDesc": "پیوستن به جلسهٔ صوتی به صورت شنونده",
     "app.audioModal.audioChoiceLabel": "چگونه می‌خواهید صدای خود را متصل کنید؟",
     "app.audioModal.iOSBrowser": "صدا/تصویر پشتیبانی نمی‌شود",
     "app.audioModal.iOSErrorDescription": "درحال حاضر صدا و تصویر در مرورگر کروم iOS پشتیبانی نمی‌شود.",
