@@ -454,7 +454,7 @@
     "app.submenu.application.darkThemeLabel": "حالت تیره",
     "app.submenu.application.fontSizeControlLabel": "اندازهٔ قلم",
     "app.submenu.application.increaseFontBtnLabel": "افزایش اندازهٔ متن برنامه",
-    "app.submenu.application.decreaseFontBtnLabel": "کاهش اندازه متن برنامه",
+    "app.submenu.application.decreaseFontBtnLabel": "کاهش اندازهٔ متن برنامه",
     "app.submenu.application.currentSize": "درحال حاضر {0}",
     "app.submenu.application.languageLabel": "زبان برنامه",
     "app.submenu.application.languageOptionLabel": "انتخاب زبان",
