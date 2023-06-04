@@ -638,9 +638,7 @@ class Presentation extends PureComponent {
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
-            <clipPath id="viewBox">
-              <rect x={viewBoxPosition.x} y={viewBoxPosition.y} width="100%" height="100%" fill="none" />
-            </clipPath>
+            <rect id="viewBox" x={viewBoxPosition.x} y={viewBoxPosition.y} width="100%" height="100%" fill="none" />
           </defs>
           <g clipPath="url(#viewBox)">
             <Slide
