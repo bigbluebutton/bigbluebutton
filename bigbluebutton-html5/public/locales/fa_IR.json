@@ -1041,7 +1041,7 @@
     "app.sfu.serverIceGatheringFailed2021": "سرور رسانه امکان جمع‌آوری داوطلبان اتصال را ندارد (خطای ICE ۲۰۲۱)",
     "app.sfu.serverIceGatheringFailed2022": "اتصال به سرور رسانه با خطا روبرو شد (خطای ۲۰۲۲)",
     "app.sfu.mediaGenericError2200": "سرور رسانه در پردازش درخواست‌ها با خطا مواجه شد (خطای ۲۲۰۰)",
-    "app.sfu.invalidSdp2202":"کارخواه یک درخواست رسانه‌ی نامعتبر تولید کرده است (خطای SDP ۲۲۰۲)",
+    "app.sfu.invalidSdp2202":"کارخواه یک درخواست رسانهٔ نامعتبر تولید کرده است (خطای SDP ۲۲۰۲)",
     "app.sfu.noAvailableCodec2203": "سرور نتوانست کدک مناسبی پیدا کند (خطای ۲۲۰۳)",
     "app.meeting.endNotification.ok.label": "تأیید",
     "app.whiteboard.annotations.poll": "نتایج نظرسنجی منتشر شد",
