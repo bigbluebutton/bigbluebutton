@@ -779,7 +779,7 @@
     "app.guest.missingMeeting": "جلسه وجود ندارد.",
     "app.guest.meetingEnded": "جلسه به پایان رسید.",
     "app.guest.guestWait": "لطفا منتظر بمانید تا یک مدیر شما را برای پیوستن به جلسه تایید کند.",
-    "app.guest.guestDeny": "درخواست ورود به جلسه مهمان، مورد پذیرش قرار نگرفت.",
+    "app.guest.guestDeny": "درخواست ورود به جلسهٔ مهمان، مورد پذیرش قرار نگرفت.",
     "app.guest.seatWait": "میهمان در انتظار اجازه ورود به اتاق است.",
     "app.guest.allow": "مهمان تأیید شد و به جلسه هدایت گردید.",
     "app.guest.firstPositionInWaitingQueue": "شما اولین نفر در صف هستید!",
