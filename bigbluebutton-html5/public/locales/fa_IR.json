@@ -126,7 +126,7 @@
     "app.userList.menu.webcamPin.label": "سنجاق‌کردن دوربین کاربر",
     "app.userList.menu.webcamUnpin.label": "برداشتن سنجاق دوربین کاربر",
     "app.userList.menu.giveWhiteboardAccess.label" : "دادن دسترسی تخته‌سفید",
-    "app.userList.menu.removeWhiteboardAccess.label": "حذف دسترسی تخته سفید",
+    "app.userList.menu.removeWhiteboardAccess.label": "حذف دسترسی تخته‌سفید",
     "app.userList.menu.ejectUserCameras.label": "بستن دوربین‌ها",
     "app.userList.userAriaLabel": "{0} {1} {2} وضعیت {3}",
     "app.userList.menu.promoteUser.label": "ارتقای نقش به مدیر",
