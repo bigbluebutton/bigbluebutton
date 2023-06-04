@@ -749,7 +749,7 @@
     "app.modal.randomUser.who": "چه کسی انتخاب خواهد شد..؟",
     "app.modal.randomUser.alone": "تنها یک کاربر هست",
     "app.modal.randomUser.reselect.label": "دوباره انتخاب کنید",
-    "app.modal.randomUser.ariaLabel.title": "پنجره کاربر انتخاب‌شده بصورت تصادفی",
+    "app.modal.randomUser.ariaLabel.title": "پنجرهٔ کاربر انتخاب‌شده بصورت تصادفی",
     "app.dropdown.close": "بستن",
     "app.dropdown.list.item.activeLabel": "فعال",
     "app.error.400": "درخواست اشتباه",
