@@ -968,7 +968,7 @@
     "app.videoPreview.webcamVirtualBackgroundLabel": "تنظیمات پس‌زمینهٔ مجازی",
     "app.videoPreview.webcamVirtualBackgroundDisabledLabel": "این دستگاه از پس‌زمینه‌های مجازی پشتیبانی نمی‌کند",
     "app.videoPreview.webcamNotFoundLabel": "دوربین یافت نشد",
-    "app.videoPreview.profileNotFoundLabel": "نمایه دوربین پشتیبانی نمی‌شود",
+    "app.videoPreview.profileNotFoundLabel": "نمایهٔ دوربین پشتیبانی نمی‌شود",
     "app.videoPreview.brightness": "روشنایی",
     "app.videoPreview.wholeImageBrightnessLabel": "کل تصویر",
     "app.videoPreview.wholeImageBrightnessDesc": "روشنایی را برای جریان تصویر و پس‌زمینه اعمال می‌کند",
