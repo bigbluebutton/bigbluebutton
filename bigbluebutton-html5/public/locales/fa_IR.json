@@ -741,7 +741,7 @@
     "app.modal.close": "بستن",
     "app.modal.close.description": "تغییر را نادیده می‌گیرد و پنجره را می‌بندد",
     "app.modal.confirm": "انجام شد",
-    "app.modal.newTab": "(زبانه جدید باز می‌کند)",
+    "app.modal.newTab": "(زبانهٔ جدید باز می‌کند)",
     "app.modal.confirm.description": "تغییرات را ذخیره می‌کند و پنجره را می‌بندد",
     "app.modal.randomUser.noViewers.description": "هیچ کاربری برای انتخاب بصورت تصادفی در دسترس نیست",
     "app.modal.randomUser.selected.description": "شما بصورت تصادفی انتخاب شده‌اید",
