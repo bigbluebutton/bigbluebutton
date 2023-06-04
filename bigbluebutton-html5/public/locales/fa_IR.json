@@ -93,7 +93,7 @@
     "app.notes.notesDropdown.pinNotes": "یادداشت‌ها را روی تخته‌سفید سنجاق کنید",
     "app.notes.notesDropdown.unpinNotes": "سنجاق یادداشت‌ها را بردارید",
     "app.notes.notesDropdown.notesOptions": "گزینه‌های یادداشت‌ها",
-    "app.pads.hint": "برای تمرکز روی نوارابزار برگه یادداشت، Esc را فشار دهید",
+    "app.pads.hint": "برای تمرکز روی نوارابزار برگهٔ یادداشت، Esc را فشار دهید",
     "app.user.activityCheck": "بررسی فعالیت کاربر",
     "app.user.activityCheck.label": "بررسی کنید آیا کاربر هنوز در جلسه ({0}) حضور دارد",
     "app.user.activityCheck.check": "بررسی",
