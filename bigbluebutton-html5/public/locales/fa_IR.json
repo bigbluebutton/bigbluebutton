@@ -675,7 +675,7 @@
     "app.audioDial.tipIndicator": "نکته",
     "app.audioDial.tipMessage": "برای قطع/وصل صدا کلید 0 را روی تلفن همراه خود شماره‌گیری کنید.",
     "app.audioModal.connecting": "درحال برقراری ارتباط صوتی",
-    "app.audioManager.joinedAudio": "شما به جلسه صوتی پیوسته‌اید",
+    "app.audioManager.joinedAudio": "شما به جلسهٔ صوتی پیوسته‌اید",
     "app.audioManager.joinedEcho": "شما به تست اکو پیوسته‌اید",
     "app.audioManager.leftAudio": "شما جلسه صوتی را ترک کرده‌اید",
     "app.audioManager.reconnectingAudio": "تلاش برای اتصال مجدد صدا",
