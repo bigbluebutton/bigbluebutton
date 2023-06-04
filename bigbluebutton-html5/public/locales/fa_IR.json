@@ -1101,7 +1101,7 @@
     "app.videoDock.webcamUnpinLabelDisabled": "فقط مدیران می‌توانند سنجاق کاربران را بردارند",
     "app.videoDock.webcamUnpinDesc": "سنجاق دوربین انتخاب‌شده را بردارید",
     "app.videoDock.autoplayBlockedDesc": "ما برای نمایش دوربین کاربران دیگر به شما، به اجازهٔ شما نیازمندیم.",
-    "app.videoDock.autoplayAllowLabel": "مشاهده دوربین‌ها",
+    "app.videoDock.autoplayAllowLabel": "مشاهدهٔ دوربین‌ها",
     "app.createBreakoutRoom.title": "اتاق‌های جانبی",
     "app.createBreakoutRoom.ariaTitle": "پنهان‌کردن اتاق‌های جانبی",
     "app.createBreakoutRoom.breakoutRoomLabel": "اتاق‌های جانبی {0}",
