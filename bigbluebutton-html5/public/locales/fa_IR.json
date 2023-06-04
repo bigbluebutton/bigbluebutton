@@ -696,7 +696,7 @@
     "app.audio.speakers": "بلندگوها",
     "app.audio.noDeviceFound": "وسیله‌ای پیدا نشد",
     "app.audio.audioSettings.titleLabel": "تنظیمات صوتی خود را انتخاب کنید",
-    "app.audio.audioSettings.descriptionLabel": "لطفا توجه کنید، یک پیام در مرورگر شما ظاهر می‌شود، که از شما می‌خواهد اجازه اشتراک میکروفن خود را بدهید.",
+    "app.audio.audioSettings.descriptionLabel": "لطفا توجه کنید، یک پیام در مرورگر شما نمایان می‌شود، که از شما می‌خواهد اجازه اشتراک میکروفن خود را بدهید.",
     "app.audio.audioSettings.microphoneSourceLabel": "منبع ورودی میکروفن",
     "app.audio.audioSettings.speakerSourceLabel": "منبع خروجی بلندگو",
     "app.audio.audioSettings.testSpeakerLabel": "بلندگوی خود را امتحان کنید",
