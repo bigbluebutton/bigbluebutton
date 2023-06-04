@@ -137,7 +137,7 @@
     "app.userList.menu.makePresenter.label": "تغییر نقش به ارائه‌دهنده",
     "app.userList.userOptions.manageUsersLabel": "مدیریت کاربران",
     "app.userList.userOptions.muteAllLabel": "بستن صدای همهٔ کاربران",
-    "app.userList.userOptions.muteAllDesc": "صدای همه کاربران حاضر در جلسه را می‌بندد",
+    "app.userList.userOptions.muteAllDesc": "صدای همهٔ کاربران حاضر در جلسه را می‌بندد",
     "app.userList.userOptions.clearAllLabel": "پاک‌کردن نماد همه وضعیت‌ها",
     "app.userList.userOptions.clearAllDesc": "همه نمادهای وضعیت را از کاربران پاک می‌کند",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "بستن صدای همه کاربران به جز ارائه‌دهنده",
