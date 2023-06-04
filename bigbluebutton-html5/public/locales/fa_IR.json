@@ -385,7 +385,7 @@
     "app.muteWarning.disableMessage": "هشدارهای بی‌صدابودن تا زمان فعال‌سازی صدا غیرفعال شدند",
     "app.muteWarning.tooltip": "برای بستن و غیرفعال‌کردن هشدار تا فعال‌سازی مجدد صدا، کلیک کنید",
     "app.navBar.settingsDropdown.optionsLabel": "گزینه‌ها",
-    "app.navBar.settingsDropdown.fullscreenLabel": "برنامه تمام‌صفحه",
+    "app.navBar.settingsDropdown.fullscreenLabel": "برنامهٔ تمام‌صفحه",
     "app.navBar.settingsDropdown.settingsLabel": "تنظیمات",
     "app.navBar.settingsDropdown.aboutLabel": "درباره",
     "app.navBar.settingsDropdown.leaveSessionLabel": "ترک جلسه",
