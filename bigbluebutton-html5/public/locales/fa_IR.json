@@ -1207,7 +1207,7 @@
     "playback.button.theme.aria": "تغییر پوسته",
     "playback.error.wrapper.aria": "ناحیهٔ خطا",
     "playback.loader.wrapper.aria": "ناحیهٔ بارکننده",
-    "playback.player.wrapper.aria": "محدوده پخش‌کننده",
+    "playback.player.wrapper.aria": "ناحیهٔ پخش‌کننده",
     "playback.player.about.modal.shortcuts.title": "میانبر‌ها",
     "playback.player.about.modal.shortcuts.alt": "Alt",
     "playback.player.about.modal.shortcuts.shift": "Shift",
