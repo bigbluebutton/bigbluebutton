@@ -677,7 +677,7 @@
     "app.audioModal.connecting": "درحال برقراری ارتباط صوتی",
     "app.audioManager.joinedAudio": "شما به جلسهٔ صوتی پیوسته‌اید",
     "app.audioManager.joinedEcho": "شما به تست اکو پیوسته‌اید",
-    "app.audioManager.leftAudio": "شما جلسه صوتی را ترک کرده‌اید",
+    "app.audioManager.leftAudio": "شما جلسهٔ صوتی را ترک کرده‌اید",
     "app.audioManager.reconnectingAudio": "تلاش برای اتصال مجدد صدا",
     "app.audioManager.genericError": "خطا: مشکلی پیش آمده است، لطفا مجدد سعی کنید.",
     "app.audioManager.connectionError": "خطا: خطای ارتباط",
