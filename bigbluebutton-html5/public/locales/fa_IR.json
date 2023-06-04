@@ -1007,7 +1007,7 @@
     "app.video.videoMenu": "منوی ویدیو",
     "app.video.videoMenuDisabled": "منوی ویدیوی دوربین در تنظیمات غیرفعال شده است",
     "app.video.videoMenuDesc": "بازکردن منوی کشویی ویدیو",
-    "app.video.pagination.prevPage": "مشاهده ویدیوهای قبلی",
+    "app.video.pagination.prevPage": "مشاهدهٔ ویدیوهای قبلی",
     "app.video.pagination.nextPage": "مشاهده ویدیوهای بعدی",
     "app.video.clientDisconnected": "دوربین به دلیل مشکلات اتصال نمی‌تواند به اشتراک گذاشته شود",
     "app.video.virtualBackground.none": "هیچ یک",
