@@ -284,7 +284,7 @@
     "app.presentationUploder.conversion.pageCountExceeded": "تعداد صفحات از حداکثر {0} بیشتر است",
     "app.presentationUploder.conversion.invalidMimeType": "قالب نامعتبر شناسایی شد (پسوند={0}، نوع محتوا={1})",
     "app.presentationUploder.conversion.conversionTimeout": "اسلاید {0} طی {1} تلاش قابل پردازش نیست.",
-    "app.presentationUploder.conversion.officeDocConversionInvalid": "خطا در پردازش پرونده اداری، لطفا به جای آن، یک پرونده PDF بارگذاری کنید.",
+    "app.presentationUploder.conversion.officeDocConversionInvalid": "خطا در پردازش پروندهٔ اداری، لطفا به جای آن، یک پروندهٔ PDF بارگذاری کنید.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "خطا در پردازش پرونده اداری، لطفا به جای آن، یک پرونده PDF بارگذاری کنید.",
     "app.presentationUploder.conversion.pdfHasBigPage": "ما نتوانستیم فایل PDF را تبدیل کنیم، لطفا آن را بهینه کنید. حداکثر اندازه صفحه {0}",
     "app.presentationUploder.conversion.timeout": "اوه، عملیات تبدیل خیلی طول کشید",
