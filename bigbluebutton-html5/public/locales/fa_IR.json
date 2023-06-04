@@ -400,7 +400,7 @@
     "app.navBar.settingsDropdown.helpLabel": "راهنما",
     "app.navBar.settingsDropdown.openAppLabel": "در برنامهٔ تبلت BigBlueButton باز کنید",
     "app.navBar.settingsDropdown.helpDesc": "کاربر را به آموزش‌های ویدیویی هدایت می‌کند (یک زبانهٔ جدید باز می‌کند)",
-    "app.navBar.settingsDropdown.endMeetingDesc": "جلسه کنونی را خاتمه می‌دهد",
+    "app.navBar.settingsDropdown.endMeetingDesc": "جلسهٔ کنونی را پایان می‌دهد",
     "app.navBar.settingsDropdown.endMeetingLabel": "اتمام جلسه",
     "app.navBar.userListToggleBtnLabel": "تغییر وضعیت نمایش فهرست کاربران",
     "app.navBar.toggleUserList.ariaLabel": "تغییر وضعیت نمایش کاربران و پیام ها",
