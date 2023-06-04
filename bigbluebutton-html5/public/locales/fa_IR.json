@@ -265,7 +265,7 @@
     "app.presentationUploder.browseImagesLabel": "یا تصاویر را مرور کنید/بگیرید",
     "app.presentationUploder.externalUploadTitle": "افزودن محتوا از برنامهٔ شخص ثالث",
     "app.presentationUploder.externalUploadLabel": "مرور پرونده‌ها",
-    "app.presentationUploder.fileToUpload": "آماده بارگذاری ...",
+    "app.presentationUploder.fileToUpload": "آمادهٔ بارگذاری ...",
     "app.presentationUploder.currentBadge": "کنونی",
     "app.presentationUploder.rejectedError": "پرونده(های) انتخاب‌شده رد شدند. لطفا نوع پرونده(ها) را بررسی کنید.",
     "app.presentationUploder.connectionClosedError": "به دلیل اتصال ضعیف قطع شد. لطفا دوباره تلاش کنید. ",
