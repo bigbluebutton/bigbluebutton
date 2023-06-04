@@ -1033,7 +1033,7 @@
     "app.fullscreenButton.label": "تغییر {0} به تمام‌صفحه",
     "app.fullscreenUndoButton.label": "حالت تمام‌صفحه {0} را واگرد کنید",
     "app.switchButton.expandLabel": "بزرگ‌کردن تصویر اشتراک‌گذاری صفحهٔ نمایش",
-    "app.switchButton.shrinkLabel": "کوچک‌کردن تصویر اشتراک‌گذاری صفحه نمایش",
+    "app.switchButton.shrinkLabel": "کوچک‌کردن تصویر اشتراک‌گذاری صفحهٔ نمایش",
     "app.sfu.mediaServerConnectionError2000": "امکان اتصال به سرور رسانه وجود ندارد (خطای ۲۰۰۰)",
     "app.sfu.mediaServerOffline2001": "سرور رسانه آفلاین است، لطفا بعدا تلاش کنید (خطای ۲۰۰۱)",
     "app.sfu.mediaServerNoResources2002": "سرور رسانه منابع آزاد ندارد (خطای ۲۰۰۲)",
