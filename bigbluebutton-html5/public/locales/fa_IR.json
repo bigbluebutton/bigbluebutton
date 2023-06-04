@@ -1124,7 +1124,7 @@
     "app.createBreakoutRoom.resetAssignments": "بازنشانی اختصاص‌شده‌ها",
     "app.createBreakoutRoom.resetAssignmentsDesc": "همهٔ کاربران اختصاص‌شده به اتاق را بازنشانی کنید",
     "app.createBreakoutRoom.endAllBreakouts": "پایان تمام اتاق‌های جانبی",
-    "app.createBreakoutRoom.chatTitleMsgAllRooms": "همه اتاق‌ها",
+    "app.createBreakoutRoom.chatTitleMsgAllRooms": "همهٔ اتاق‌ها",
     "app.createBreakoutRoom.msgToBreakoutsSent": "پیام به {0} اتاق جانبی ارسال شد",
     "app.createBreakoutRoom.roomName": "{0} (اتاق - {1})",
     "app.createBreakoutRoom.doneLabel": "انجام شد",
