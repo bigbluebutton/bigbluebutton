@@ -1009,7 +1009,7 @@
     "app.video.videoMenuDesc": "بازکردن منوی کشویی ویدیو",
     "app.video.pagination.prevPage": "مشاهدهٔ ویدیوهای قبلی",
     "app.video.pagination.nextPage": "مشاهدهٔ ویدیوهای بعدی",
-    "app.video.clientDisconnected": "دوربین به دلیل مشکلات اتصال نمی‌تواند به اشتراک گذاشته شود",
+    "app.video.clientDisconnected": "دوربین به دلیل مشکلات اتصال نمی‌تواند هم‌رسانی شود",
     "app.video.virtualBackground.none": "هیچ یک",
     "app.video.virtualBackground.blur": "مه‌آلود",
     "app.video.virtualBackground.home": "خانه",
