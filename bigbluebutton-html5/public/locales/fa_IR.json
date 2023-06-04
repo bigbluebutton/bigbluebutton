@@ -78,7 +78,7 @@
     "app.captions.speech.error": "به دلیل ناسازگاری مرورگر یا مدتی سکوت، تشخیص گفتار متوقف شد",
     "app.confirmation.skipConfirm": "دوباره نپرس",
     "app.confirmation.virtualBackground.title": "شروع پس‌زمینهٔ مجازی جدید",
-    "app.confirmation.virtualBackground.description": "{0} به عنوان پس‌زمینه مجازی اضافه خواهد شد. ادامه می‌دهید؟",
+    "app.confirmation.virtualBackground.description": "{0} به عنوان پس‌زمینهٔ مجازی اضافه خواهد شد. ادامه می‌دهید؟",
     "app.confirmationModal.yesLabel": "بله",
     "app.textInput.sendLabel": "ارسال",
     "app.title.defaultViewLabel": "نمای پیش‌فرض ارائه",
