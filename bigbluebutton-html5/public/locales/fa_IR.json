@@ -908,7 +908,7 @@
     "app.guest-policy.button.alwaysAccept": "همیشه بپذیر",
     "app.guest-policy.button.alwaysDeny": "همیشه رد کن",
     "app.guest-policy.policyBtnDesc": "سیاست پذیرش مهمان در جلسه را تنظیم می‌کند",
-    "app.connection-status.ariaTitle": "پنجره وضعیت اتصال",
+    "app.connection-status.ariaTitle": "پنجرهٔ وضعیت اتصال",
     "app.connection-status.title": "وضعیت اتصال",
     "app.connection-status.description": "وضعیت اتصال کاربران را مشاهده کنید",
     "app.connection-status.empty": "درحال حاضر هیچ مشکلی در اتصال گزارش نشده است",
