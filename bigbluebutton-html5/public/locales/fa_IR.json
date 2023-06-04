@@ -553,7 +553,7 @@
     "app.settings.dataSavingTab.label": "صرفه‌جویی در مصرف داده",
     "app.settings.dataSavingTab.webcam": "فعال‌سازی دوربین‌های دیگر شرکت‌کنندگان",
     "app.settings.dataSavingTab.screenShare": "فعال‌سازی اشتراک‌گذاری میزکار دیگر شرکت‌کنندگان",
-    "app.settings.dataSavingTab.description": "برای صرفه جویی در مصرف پهنای باند اینترنت، آنچه را که باید نمایش داده شود انتخاب کنید.",
+    "app.settings.dataSavingTab.description": "برای صرفه‌جویی در مصرف پهنای باند اینترنت، آنچه را که باید نمایش داده شود انتخاب کنید.",
     "app.settings.save-notification.label": "تنظیمات ذخیره شدند",
     "app.statusNotifier.lowerHands": "پایین آوردن دست‌ها",
     "app.statusNotifier.lowerHandDescOneUser": "پایین آوردن دست {0}",
