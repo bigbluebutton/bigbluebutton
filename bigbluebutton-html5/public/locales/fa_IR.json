@@ -303,7 +303,7 @@
     "app.presentationUploder.clearErrors": "پاک‌کردن خطاها",
     "app.presentationUploder.clearErrorsDesc": "بارگذاری‌های ناموفق ارائه را پاک می‌کند",
     "app.presentationUploder.uploadViewTitle": "بارگذاری ارائه ",
-    "app.poll.questionAndoptions.label" : "متن پرسش برای نمایش.\nالف. گزینه نظرسنجی *\nب. گزینه نظرسنجی (اختیاری)\nپ. گزینه نظرسنجی (اختیاری)\nت. گزینه نظرسنجی (اختیاری)\nث. گزینه نظرسنجی (اختیاری)",
+    "app.poll.questionAndoptions.label" : "متن پرسش برای نمایش.\nالف. گزینهٔ نظرسنجی *\nب. گزینهٔ نظرسنجی (اختیاری)\nپ. گزینهٔ نظرسنجی (اختیاری)\nت. گزینهٔ نظرسنجی (اختیاری)\nث. گزینهٔ نظرسنجی (اختیاری)",
     "app.poll.customInput.label": "ورودی سفارشی",
     "app.poll.customInputInstructions.label": "ورودی سفارشی فعال است - سوال نظرسنجی و گزینه(ها) را در قالب مشخص بنویسید یا یک پرونده متنی را با همان قالب بکشید و رها کنید.",
     "app.poll.maxOptionsWarning.label": "فقط ۵ گزینه اول می‌تواند مورد استفاده قرار گیرد!",
