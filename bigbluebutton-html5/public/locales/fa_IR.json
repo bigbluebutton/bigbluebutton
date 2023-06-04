@@ -365,7 +365,7 @@
     "app.poll.liveResult.usersTitle": "کاربران",
     "app.poll.liveResult.responsesTitle": "پاسخ",
     "app.poll.liveResult.secretLabel": "این یک نظرسنجی ناشناس است. پاسخ‌های هر فرد نمایش داده نمی‌شود.",
-    "app.poll.removePollOpt": "گزینه {0} نظرسنجی حذف شد",
+    "app.poll.removePollOpt": "گزینهٔ {0} نظرسنجی حذف شد",
     "app.poll.emptyPollOpt": "خالی",
     "app.polling.pollingTitle": "گزینه‌های نظرسنجی",
     "app.polling.pollQuestionTitle": "سوال نظرسنجی",
