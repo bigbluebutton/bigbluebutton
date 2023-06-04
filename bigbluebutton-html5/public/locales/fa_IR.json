@@ -252,7 +252,7 @@
     "app.presentationUploader.export": "ارسال به گپ",
     "app.presentationUploader.export.linkAvailable": "پیوند برای بارگیری‌کردن {0} در گپ عمومی موجود است.",
     "app.presentationUploader.export.notAccessibleWarning": "ممکن است با دسترسی‌پذیری سازگار نباشد",
-    "app.presentationUploader.currentPresentationLabel": "ارائه کنونی",
+    "app.presentationUploader.currentPresentationLabel": "ارائهٔ کنونی",
     "app.presentationUploder.extraHint": "*مهم*: هر فایل نباید از {0} مگابایت و {1} صفحه تجاوز کند. ",
     "app.presentationUploder.uploadLabel": "بارگذاری",
     "app.presentationUploder.confirmLabel": "تایید",
