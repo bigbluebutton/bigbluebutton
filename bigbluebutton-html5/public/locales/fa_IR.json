@@ -291,7 +291,7 @@
     "app.presentationUploder.conversion.pageCountFailed": "تعیین تعداد صفحات با خطا مواجه شد.",
     "app.presentationUploder.conversion.unsupportedDocument": "پسوند پرونده پشتیبانی نمی‌شود",
     "app.presentationUploder.removePresentationLabel": "حذف ارائه",
-    "app.presentationUploder.setAsCurrentPresentation": "انتخاب ارائه به عنوان ارائه کنونی",
+    "app.presentationUploder.setAsCurrentPresentation": "انتخاب ارائه به عنوان ارائهٔ کنونی",
     "app.presentationUploder.tableHeading.filename": "نام پرونده",
     "app.presentationUploder.tableHeading.options": "گزینه‌ها",
     "app.presentationUploder.tableHeading.status": "وضعیت",
