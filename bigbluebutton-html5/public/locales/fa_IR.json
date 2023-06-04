@@ -330,7 +330,7 @@
     "app.poll.responseTypes.label" : "انواع پاسخ",
     "app.poll.optionDelete.label" : "حذف",
     "app.poll.responseChoices.label" : "انتخاب‌های پاسخ",
-    "app.poll.typedResponse.desc" : "یک جعبه متن به کاربران برای پرکردن پاسخشان نمایش داده می شود.",
+    "app.poll.typedResponse.desc" : "یک جعبهٔ متن به کاربران برای پرکردن پاسخشان نمایش داده می شود.",
     "app.poll.addItem.label" : "افزودن مورد",
     "app.poll.start.label" : "شروع نظرسنجی",
     "app.poll.secretPoll.label" : "نظرسنجی ناشناس",
