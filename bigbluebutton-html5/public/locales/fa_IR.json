@@ -6,7 +6,7 @@
     "app.chat.disconnected": "ارتباط شما قطع شده است، امکان ارسال پیام وجود ندارد",
     "app.chat.locked": "گپ قفل شده است، امکان ارسال هیچ پیامی وجود ندارد",
     "app.chat.inputLabel": "ورودی پیام برای گپ {0}",
-    "app.chat.emojiButtonLabel": "انتخاب‌کننده شکلک",
+    "app.chat.emojiButtonLabel": "انتخاب‌کنندهٔ شکلک",
     "app.chat.inputPlaceholder": "پیام {0}",
     "app.chat.titlePublic": "گپ عمومی",
     "app.chat.titlePrivate": "گپ خصوصی با {0}",
