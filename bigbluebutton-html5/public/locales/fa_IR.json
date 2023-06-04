@@ -789,7 +789,7 @@
     "app.userList.guest.waitingUsers": "کاربران درحال انتظار",
     "app.userList.guest.waitingUsersTitle": "مدیرت کاربران",
     "app.userList.guest.optionTitle": "بررسی کاربران در انتظار تأیید",
-    "app.userList.guest.allowAllAuthenticated": "اجازه ورود به همه کاربران احراز هویت شده",
+    "app.userList.guest.allowAllAuthenticated": "اجازهٔ ورود به همه کاربران احراز هویت شده",
     "app.userList.guest.allowAllGuests": "اجازه ورود به همه مهمانان",
     "app.userList.guest.allowEveryone": "اجازه ورود به همه",
     "app.userList.guest.denyEveryone": "رد همه",
