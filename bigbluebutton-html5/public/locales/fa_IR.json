@@ -21,7 +21,7 @@
     "app.chat.label": "گپ",
     "app.chat.offline": "آفلاین",
     "app.chat.pollResult": "نتایج نظرسنجی",
-    "app.chat.breakoutDurationUpdated": "زمان جلسه جانبی اکنون {0} دقیقه است",
+    "app.chat.breakoutDurationUpdated": "زمان جلسهٔ جانبی اکنون {0} دقیقه است",
     "app.chat.breakoutDurationUpdatedModerator": "زمان اتاق‌های جانبی اکنون {0} دقیقه است و آگاه‌سازی ارسال شده است.",
     "app.chat.emptyLogLabel": "سابقه گپ خالی است",
     "app.chat.clearPublicChatMessage": "سابقه گپ عمومی توسط مدیر حذف گردید",
