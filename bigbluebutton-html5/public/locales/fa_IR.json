@@ -209,7 +209,7 @@
     "app.presentation.options.minimize": "کوچک‌کردن",
     "app.presentation.options.snapshot": "تصویر لحظه‌ای اسلاید کنونی",
     "app.presentation.options.downloading": "درحال بارگیری...",
-    "app.presentation.options.downloaded": "ارائه کنونی بارگیری شد",
+    "app.presentation.options.downloaded": "ارائهٔ کنونی بارگیری شد",
     "app.presentation.options.downloadFailed": "بارگیری ارائه کنونی امکان‌پذیر نیست",
     "app.presentation.presentationToolbar.noNextSlideDesc": "انتهای ارائه",
     "app.presentation.presentationToolbar.noPrevSlideDesc": "ابتدای ارائه",
