@@ -1170,7 +1170,7 @@
     "app.actionsBar.actionsDropdown.shareExternalVideo": "اشتراک یک ویدیوی خارجی",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "توقف اشتراک‌گذاری ویدیوی خارجی",
     "app.legacy.unsupportedBrowser": "به نظر می‌رسد شما از مرورگری استفاده می‌کنید که پشتیبانی نمی‌شود. لطفا برای پشتیبانی کامل از {0} یا {1} استفاده کنید.",
-    "app.legacy.upgradeBrowser": "به نظر می‌رسد شما از نسخه قدیمی یک مرورگر پشتیبانی‌شده استفاده می‌کنید. لطفا برای پشتیبانی کامل مرورگر خود را به‌روزرسانی کنید.",
+    "app.legacy.upgradeBrowser": "به نظر می‌رسد شما از نسخهٔ قدیمی یک مرورگر پشتیبانی‌شده استفاده می‌کنید. لطفا برای پشتیبانی کامل مرورگر خود را به‌روزرسانی کنید.",
     "app.legacy.criosBrowser": "در iOS برای پشتیبانی کامل لطفا از سافاری استفاده کنید.",
     "app.debugWindow.windowTitle": "عیب‌یابی",
     "app.debugWindow.form.userAgentLabel": "عامل کاربر",
