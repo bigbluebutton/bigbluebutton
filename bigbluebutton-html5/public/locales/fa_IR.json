@@ -377,7 +377,7 @@
     "app.polling.pollAnswerLabel": "پاسخ نظرسنجی {0}",
     "app.polling.pollAnswerDesc": "این گزینه را برای رأی دادن به {0} انتخاب کنید.",
     "app.failedMessage": "با عرض پوزش، اتصال به سرور دچار مشکل شد.",
-    "app.downloadPresentationButton.label": "بارگیری پرونده اصلی ارائه",
+    "app.downloadPresentationButton.label": "بارگیری پروندهٔ اصلی ارائه",
     "app.connectingMessage": "درحال اتصال ...",
     "app.waitingMessage": "اتصال قطع شد. تلاش مجدد برای اتصال در {0} ثانیه ...",
     "app.retryNow": "تلاش مجدد",
