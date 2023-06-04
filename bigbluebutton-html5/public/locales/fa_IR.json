@@ -1132,7 +1132,7 @@
     "app.createBreakoutRoom.minusRoomTime": "کاهش زمان اتاق جانبی به",
     "app.createBreakoutRoom.addRoomTime": "افزایش زمان اتاق جانبی به ",
     "app.createBreakoutRoom.addParticipantLabel": "+ افزودن شرکت کننده",
-    "app.createBreakoutRoom.freeJoin": "اجازه انتخاب اتاق جانبی به کاربران برای پیوستن",
+    "app.createBreakoutRoom.freeJoin": "اجازهٔ انتخاب اتاق جانبی به کاربران برای پیوستن",
     "app.createBreakoutRoom.captureNotes": "ثبت یادداشت‌های اشتراکی پس از پایان اتاق‌های جانبی",
     "app.createBreakoutRoom.captureSlides": "ثبت تخته‌سفید پس از پایان اتاق‌های جانبی",
     "app.createBreakoutRoom.leastOneWarnBreakout": "شما باید حداقل یک کاربر را در هر اتاق جانبی قرار دهید.",
