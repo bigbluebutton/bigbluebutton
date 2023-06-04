@@ -141,7 +141,7 @@
     "app.userList.userOptions.clearAllLabel": "پاک‌کردن نماد همهٔ وضعیت‌ها",
     "app.userList.userOptions.clearAllDesc": "همهٔ نمادهای وضعیت را از کاربران پاک می‌کند",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "بستن صدای همهٔ کاربران به جز ارائه‌دهنده",
-    "app.userList.userOptions.muteAllExceptPresenterDesc": "همه کاربران حاضر در جلسه به جز ارائه‌دهنده را بی‌صدا می‌کند",
+    "app.userList.userOptions.muteAllExceptPresenterDesc": "همهٔ کاربران حاضر در جلسه به جز ارائه‌دهنده را بی‌صدا می‌کند",
     "app.userList.userOptions.unmuteAllLabel": "خاموش‌کردن حالت بی‌صدای جلسه",
     "app.userList.userOptions.unmuteAllDesc": "صدای جلسه را باز می‌کند",
     "app.userList.userOptions.lockViewersLabel": "قفل‌کردن کاربران",
