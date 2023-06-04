@@ -184,7 +184,7 @@
     "app.screenshare.screenshareRetryError": "کد {0}: دوباره سعی کنید صفحهٔ نمایش را به اشتراک بگذارید. ",
     "app.screenshare.screenshareRetryOtherEnvError": "کد {0}: اشتراک‌گذاری صفحهٔ نمایش امکان‌پذیر نیست. با مرورگر یا وسیله دیگری امتحان کنید.",
     "app.screenshare.screenshareUnsupportedEnv": "کد {0}: مرورگر پشتیبانی نمی‌شود. با مرورگر یا وسیلهٔ دیگری امتحان کنید.",
-    "app.screenshare.screensharePermissionError": "کد {0}: باید اجازه گرفتن تصویر از صفحه داده شود.",
+    "app.screenshare.screensharePermissionError": "کد {0}: باید اجازهٔ گرفتن تصویر از صفحه داده شود.",
     "app.meeting.ended": "جلسه پایان یافت",
     "app.meeting.meetingTimeRemaining": "زمان باقی مانده از جلسه: {0}",
     "app.meeting.meetingTimeHasEnded": "زمان به پایان رسید. جلسه به زودی بسته خواهد شد",
