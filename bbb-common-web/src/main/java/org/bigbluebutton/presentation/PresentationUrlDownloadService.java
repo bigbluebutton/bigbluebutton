@@ -40,6 +40,7 @@ public class PresentationUrlDownloadService {
     private String presentationBaseURL;
     private String presentationDir;
     private String BLANK_PRESENTATION;
+    private String defaultUploadedPresentation;
     private List<String> insertDocumentSupportedProtocols;
     private List<String> insertDocumentBlockedHosts;
 
@@ -223,6 +224,7 @@ public class PresentationUrlDownloadService {
 
     private boolean isValidRedirectUrl(String redirectUrl) {
         log.info("Validating redirect URL [{}]", redirectUrl);
+        log.info("Default presentation URL [{}]", defaultUploadedPresentation);
         URL url;
 
         try {
@@ -260,7 +262,7 @@ public class PresentationUrlDownloadService {
                     return false;
                 }
 
-                if(localhostBlocked && !url.getFile().equalsIgnoreCase("/default.pdf")) {
+                if(localhostBlocked && !redirectUrl.equalsIgnoreCase(defaultUploadedPresentation)) {
                     if(address.isAnyLocalAddress()) {
                         log.error("Address [{}] is a local address", address.getHostAddress());
                         return false;
@@ -345,6 +347,10 @@ public class PresentationUrlDownloadService {
 
     public void setBlankPresentation(String blankPresentation) {
         this.BLANK_PRESENTATION = blankPresentation;
+    }
+
+    public void setDefaultUploadedPresentation(String defaultUploadedPresentation) {
+        this.defaultUploadedPresentation = defaultUploadedPresentation;
     }
 
     public void setInsertDocumentSupportedProtocols(String insertDocumentSupportedProtocols) {
