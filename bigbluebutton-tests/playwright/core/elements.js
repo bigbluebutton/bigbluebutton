@@ -279,7 +279,7 @@ exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
 exports.whiteboard = 'svg[data-test="whiteboard"]';
 exports.toolsButton = 'button[data-test="toolsBtn"]';
 exports.rectangle = 'button[data-test="rectangleTool"]';
-exports.drawnRectangle = 'svg g[clip-path] > g:nth-child(2) rect[data-test="drawnRectangle"]';
+exports.drawnRectangle = 'svg g[data-test="viewBox"] > g:nth-child(2) rect[data-test="drawnRectangle"]';
 exports.whiteboardViewBox = 'svg g[data-test="viewBox"]';
 exports.changeWhiteboardAccess = 'li[data-test="changeWhiteboardAccess"]';
 exports.pencil = 'button[data-test="pencilTool"]';
