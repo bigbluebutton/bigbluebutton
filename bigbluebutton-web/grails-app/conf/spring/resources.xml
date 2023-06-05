@@ -93,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pageExtractor" ref="pageExtractor"/>
         <property name="documentConversionService" ref="documentConversionService"/>
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
         <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
         <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
     </bean>
