@@ -224,7 +224,6 @@ public class PresentationUrlDownloadService {
 
     private boolean isValidRedirectUrl(String redirectUrl) {
         log.info("Validating redirect URL [{}]", redirectUrl);
-        log.info("Default presentation URL [{}]", defaultUploadedPresentation);
         URL url;
 
         try {
