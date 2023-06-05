@@ -22,7 +22,7 @@ test.describe.parallel('Shared Notes', () => {
     await sharedNotes.formatTextInSharedNotes();
   });
 
-  test('Export shared notes', async ({ context }, testInfo) => {
+  test('Export shared notes @ci', async ({}, testInfo) => {
     await sharedNotes.exportSharedNotes(testInfo);
   });
 

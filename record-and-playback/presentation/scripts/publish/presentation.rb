@@ -1038,7 +1038,7 @@ def process_presentation(package_dir)
       if cursor_x < 0 || cursor_y < 0
         cursor_visible = false
       end
-      if cursor_x >= 100 || cursor_y >= 100 && !tldraw
+      if (cursor_x >= 100 || cursor_y >= 100) && !tldraw
         cursor_visible = false
       end
 
