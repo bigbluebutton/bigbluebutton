@@ -637,7 +637,7 @@ class Presentation extends PureComponent {
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g>
+          <g data-test="viewBox">
             <Slide
               imageUri={imageUri}
               svgWidth={width}
