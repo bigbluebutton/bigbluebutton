@@ -222,6 +222,7 @@ public class PresentationUrlDownloadService {
     }
 
     private boolean isValidRedirectUrl(String redirectUrl) {
+        log.info("Validating redirect URL [{}]", redirectUrl);
         URL url;
 
         try {
@@ -259,7 +260,7 @@ public class PresentationUrlDownloadService {
                     return false;
                 }
 
-                if(localhostBlocked) {
+                if(localhostBlocked && !url.getFile().equalsIgnoreCase("/default.pdf")) {
                     if(address.isAnyLocalAddress()) {
                         log.error("Address [{}] is a local address", address.getHostAddress());
                         return false;
