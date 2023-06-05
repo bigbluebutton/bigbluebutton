@@ -20,7 +20,7 @@ test.describe.serial('Polling', () => {
     await polling.pollAnonymous();
   });
 
-  test('Create quick poll - from the slide', async () => {
+  test('Create quick poll - from the slide @ci', async () => {
     await polling.quickPoll();
   });
 
@@ -40,11 +40,11 @@ test.describe.serial('Polling', () => {
     await polling.notAbleStartNewPollWithoutPresentation();
   });
 
-  test('Custom input', async () => {
+  test('Custom input @ci', async () => {
     await polling.customInput();
   });
 
-  test('Allow multiple choices', async () => {
+  test('Allow multiple choices @ci', async () => {
     await polling.allowMultipleChoices();
   });
 

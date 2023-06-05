@@ -347,6 +347,12 @@ const createEndpointTableData = [
     "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li></ul></>)
   },
   {
+    "name": "disabledFeaturesExclude",
+    "required": false,
+    "type": "String",
+    "description": (<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you disabled a list of features on a per-server basis but want to allow one of two of these features for a specific meeting. (added 2.6.9)<br /><br />The available options to exclude are exactly the same as for <code className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
+  },
+  {
     "name": "preUploadedPresentationOverrideDefault",
     "required": false,
     "type": "Boolean",
@@ -371,6 +377,13 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>Message to be displayed in presentation uploader modal describing how to use an external application to upload presentation files. Only works if <code className="language-plaintext highlighter-rouge">presentationUploadExternalUrl</code> is also set. (added 2.6)</>)
+  },
+  {
+    "name": "recordFullDurationMedia",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Controls whether media (audio, cameras and screen sharing) should be captured on their full duration if the meeting's recorded property is true (<code className="language-plaintext highlighter-rouge">recorded=true</code>). Default is false: only captures media while recording is running in the meeting. (added 2.6.9)</>)
   }
 ]
 
