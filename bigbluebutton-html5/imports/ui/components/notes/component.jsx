@@ -65,11 +65,6 @@ const Notes = ({
   shouldShowSharedNotesOnPresentationArea,
 }) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
-  const [isNotesOpen, setNotesOpen] = useState(false);
-
-  const handleToggleNotes = () => {
-    setNotesOpen((prevState) => !prevState);
-  };
 
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
@@ -177,13 +172,11 @@ const Notes = ({
       data-test="notes"
       isChrome={isChrome}
       style={style}
-      className={isNotesOpen ? '' : 'no-padding'}
     >
       {!isOnMediaArea ? (
         <Header
           leftButtonProps={{
             onClick: () => {
-              handleToggleNotes;
               layoutContextDispatch({
                 type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
                 value: false,

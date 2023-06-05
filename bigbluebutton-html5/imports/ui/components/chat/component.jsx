@@ -56,12 +56,6 @@ const Chat = (props) => {
     width,
   } = props;
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
-
-  const handleToggleMenu = () => {
-    setMenuOpen((prevState) => !prevState);
-  };
-
   const userSentMessage = UserSentMessageCollection.findOne({ userId: Auth.userID, sent: true });
   const { isChrome } = browserInfo;
 
@@ -73,7 +67,6 @@ const Chat = (props) => {
     <Styled.Chat
       isChrome={isChrome}
       data-test={isPublicChat ? 'publicChat' : 'privateChat'}
-      className={isMenuOpen ? '' : 'no-padding'}
     >
       <Header
         data-test="chatTitle"
@@ -83,7 +76,6 @@ const Chat = (props) => {
           'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
           label: title,
           onClick: () => {
-            handleToggleMenu;
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,

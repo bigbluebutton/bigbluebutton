@@ -56,17 +56,11 @@ const SidebarContent = (props) => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
-  const [isPollOpen, setPollOpen] = useState(false);
-
-  const handleTogglePoll = () => {
-    setPollOpen((prevState) => !prevState);
-  };
 
   useEffect(() => {
     if (!isResizing) {
       setResizableWidth(width);
       setResizableHeight(height);
-      handleTogglePoll;
     }
   }, [width, height]);
 

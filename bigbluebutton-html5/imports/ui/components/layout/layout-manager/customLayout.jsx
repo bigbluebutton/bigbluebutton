@@ -145,7 +145,7 @@ const CustomLayout = (props) => {
             sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
           },
           sidebarContent: {
-            isOpen: false,
+            isOpen: true,
             sidebarContentPanel: sidebarContentInput.sidebarContentPanel,
           },
           sidebarContentHorizontalResizer: {
