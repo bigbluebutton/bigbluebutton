@@ -686,6 +686,7 @@ class Presentation extends PureComponent {
       layoutContextDispatch,
       presentationIsOpen,
       darkTheme,
+      isViewersAnnotationsLocked,
     } = this.props;
 
     const {
@@ -805,6 +806,7 @@ class Presentation extends PureComponent {
                   presentationId={currentPresentation?.id}
                   darkTheme={darkTheme}
                   isToolbarVisible={isToolbarVisible}
+                  isViewersAnnotationsLocked={isViewersAnnotationsLocked}
                 />
                 {isFullscreen && <PollingContainer />}
               </div>
