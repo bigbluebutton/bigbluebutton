@@ -141,8 +141,8 @@ const Notes = ({
           value: Session.get('presentationLastState'),
         });
       };
-    }else{
-      if(shouldShowSharedNotesOnPresentationArea) {
+    }
+    if(shouldShowSharedNotesOnPresentationArea) {
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: true,
@@ -152,7 +152,7 @@ const Notes = ({
           value: true,
         });
       }
-    }
+      return null;
   }, []);
 
   const renderHeaderOnMedia = () => {
