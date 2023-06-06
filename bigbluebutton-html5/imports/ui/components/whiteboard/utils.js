@@ -101,7 +101,7 @@ const sendShapeChanges = (
   intl,
   redo = false,
 ) => {
-  const isModerator = currentUser?.role === ROLE_MODERATOR;
+  let isModerator = currentUser?.role === ROLE_MODERATOR;
 
   const invalidChange = Object.keys(changedShapes)
     .find((id) => !hasShapeAccess(id));
@@ -177,6 +177,10 @@ const sendShapeChanges = (
         }
         if (!shapes[id] || (shapes[id] && !shapes[id].userId)) {
           modShape.userId = currentUser?.userId;
+        }
+        // do not change moderator status for existing shapes
+        if (shapes[id]) {
+          isModerator = shapes[id].isModerator;
         }
         persistShape(modShape, whiteboardId, isModerator);
       }
