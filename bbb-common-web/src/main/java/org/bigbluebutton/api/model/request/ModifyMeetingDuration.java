@@ -1,12 +1,11 @@
 package org.bigbluebutton.api.model.request;
 
-import org.bigbluebutton.api.model.constraint.IsIntegralConstraint;
-import org.bigbluebutton.api.model.constraint.MeetingExistsConstraint;
-import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
+import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
 
 import java.util.Map;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Max;
 
 public class ModifyMeetingDuration extends RequestWithChecksum<ModifyMeetingDuration.Params> {
 
@@ -26,6 +25,8 @@ public class ModifyMeetingDuration extends RequestWithChecksum<ModifyMeetingDura
     private String meetingId;
 
     @IsIntegralConstraint
+    @NotEmpty(key = "missingParamSeconds", message = "You must provide the number of seconds the meeting duration should be modified by")
+    @NotNull(key = "missingParamSeconds", message = "You must provide the number of seconds the meeting duration should be modified by")
     @Min(value = -300, message = "Minimum value for seconds is -300")
     @Max(value = 300, message = "Maximum value for seconds is 300")
     private String secondsString;

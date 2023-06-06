@@ -352,6 +352,12 @@ class MeetingActor(
     }
   }
 
+  private def updateMeetingDuration(meetingId: String, seconds: Int): Unit = {
+    log.info("Duration of meeting {} modified by {} seconds from API.", meetingId, seconds)
+    val tracker = state.expiryTracker.modifyMeetingDuration(seconds)
+    state = state.update(tracker)
+  }
+
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
     msg.core match {
       case m: ClientToServerLatencyTracerMsg => handleClientToServerLatencyTracerMsg(m)
@@ -363,10 +369,12 @@ class MeetingActor(
   private def handleMessageThatAffectsInactivity(msg: BbbCommonEnvCoreMsg): Unit = {
 
     msg.core match {
-      case m: EndMeetingSysCmdMsg     => handleEndMeeting(m, state)
+      case m: EndMeetingSysCmdMsg            => handleEndMeeting(m, state)
+
+      case m: ModifyMeetingDurationSysCmdMsg => updateMeetingDuration(m.body.meetingId, m.body.seconds)
 
       // Users
-      case m: ValidateAuthTokenReqMsg => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
+      case m: ValidateAuthTokenReqMsg        => state = usersApp.handleValidateAuthTokenReqMsg(m, state)
       case m: UserJoinMeetingReqMsg =>
         state = handleUserJoinMeetingReqMsg(m, state)
         updateModeratorsPresence()
