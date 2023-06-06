@@ -14,7 +14,7 @@ We have tools to make it easy for you, a system administrator, to install BigBlu
 
 We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 20.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.3 or 2.4, we recommend setting up a clean server for BigBlueButton 2.5 on Ubuntu 20.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
-A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v2/install)).
+A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
 
 ## Minimum server requirements
 
@@ -145,7 +145,7 @@ The above link gives detailed information on using the script. As an example, th
 wget -qO- https://ubuntu.bigbluebutton.org/bbb-install-2.5.sh | bash -s -- -v focal-250 -s bbb.example.com -e notice@example.com  -a -w
 ```
 
-Note: You can install [Greenlight](https://docs.bigbluebutton.org/greenlight/gl-overview.html) on the same server by also passing the `-g` option to `bbb-install-2.5.sh`.
+Note: You can install [Greenlight](/greenlight/v3/install#overview) on the same server by also passing the `-g` option to `bbb-install-2.5.sh`.
 
 After the `bbb-install-2.5.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 

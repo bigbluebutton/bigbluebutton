@@ -448,7 +448,7 @@ Since BigBlueButton is controlled by its [API](/development/api), there isn't an
 
 The most common way to use BigBlueButton is to use an existing application that has a plugin. See [list of integrations](https://bigbluebutton.org/integrations/).
 
-BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/v2/overview).
+BigBlueButton also comes with an easy-to-use front-end called [Greenlight](/greenlight/v3/install).
 
 
 ### Where do I schedule a meeting in BigBlueButton?
@@ -528,7 +528,7 @@ Absolutely. To see an example of this, check out [GreenLight on our pool of demo
 
 If you are using Sakai, Moodle, Drupal, Joomla, Wordpress or other systems that already have a [BigBlueButton integration](https://bigbluebutton.org/support), then installing the integration provides the easiest way to enable your users to access BigBlueButton sessions.
 
-Alternatively, you can set up [Greenlight](/greenlight/v2/overview) to be able to easily manage classrooms.
+Alternatively, you can set up [Greenlight](/greenlight/v3/install) to be able to easily manage classrooms.
 
 #### How do I integrate BigBlueButton with my own server
 

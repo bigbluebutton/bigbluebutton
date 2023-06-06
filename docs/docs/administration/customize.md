@@ -959,9 +959,9 @@ Change this page to create your own landing page (and keep a back-up copy of it 
 
 BigBlueButton comes with Greenlight, a front-end application written in Ruby on Rails that makes it easy for users to create meetings, invite others, start meetings, and manage recordings.
 
-![greenlight-start](/img/greenlight/v2/room.png)
+![greenlight-start](/img/greenlight/v3/room.png)
 
-For more information see [Installing Greenlight](/greenlight/v2/install).
+For more information see [Installing Greenlight](/greenlight/v3/install).
 
 ### Networking
 

@@ -248,7 +248,7 @@ Below is an overview of the different components in a production set-up. When de
 
 ## (Optional) Install bbb-demo
 
-Note that at this point we recommend installing and using [GreenLight](/greenlight/v2/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
+Note that at this point we recommend installing and using [GreenLight](/greenlight/v3/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
 
 If you want to test the installation or to easily start/join meetings while you are developing, you can alternatively install `bbb-demos`:
 
