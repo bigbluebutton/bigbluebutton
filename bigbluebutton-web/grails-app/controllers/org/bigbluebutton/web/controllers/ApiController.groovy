@@ -128,6 +128,11 @@ class ApiController {
       return
     }
 
+    if(params.isBreakout && !params.parentIdMeetingId) {
+      invalid("parentMeetingIdMissing", "No parent meeting ID was provided for the breakout room")
+      return
+    }
+
     // Ensure unique TelVoice. Uniqueness is not guaranteed by paramsProcessorUtil.
     if (!params.voiceBridge) {
       // Try up to 10 times. We should find a valid telVoice quickly unless
