@@ -82,7 +82,6 @@ class UserMessages extends PureComponent {
           <ChatListItemContainer
             compact={compact}
             chat={chat}
-            tabIndex={-1}
           />
         </Styled.ListTransition>
       </CSSTransition>
@@ -121,10 +120,10 @@ class UserMessages extends PureComponent {
         </Styled.Container>
         <Styled.ScrollableList
           role="tabpanel"
-          tabIndex={0}
+          tabIndex={-1}
           ref={(ref) => { this._msgsList = ref; }}
         >
-          <Styled.List aria-live="polite">
+          <Styled.List>
             <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
               {this.getActiveChats()}
             </TransitionGroup>

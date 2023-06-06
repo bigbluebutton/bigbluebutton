@@ -1,7 +1,13 @@
 import Logger from '/imports/startup/server/logger';
 import AuthTokenValidation from '/imports/api/auth-token-validation';
 
-export default function upsertValidationState(meetingId, userId, validationStatus, connectionId, reason = null) {
+export default async function upsertValidationState(
+  meetingId,
+  userId,
+  validationStatus,
+  connectionId,
+  reason = null,
+) {
   const selector = {
     meetingId, userId, connectionId,
   };
@@ -17,8 +23,9 @@ export default function upsertValidationState(meetingId, userId, validationStatu
   };
 
   try {
-    AuthTokenValidation.remove({ meetingId, userId, connectionId: { $ne: connectionId } });
-    const { numberAffected } = AuthTokenValidation.upsert(selector, modifier);
+    await AuthTokenValidation
+      .removeAsync({ meetingId, userId, connectionId: { $ne: connectionId } });
+    const { numberAffected } = AuthTokenValidation.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.info(`Upserted ${JSON.stringify(selector)} ${validationStatus} in AuthTokenValidation`);

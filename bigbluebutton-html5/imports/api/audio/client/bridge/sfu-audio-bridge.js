@@ -21,6 +21,7 @@ const SFU_URL = Meteor.settings.public.kurento.wsUrl;
 const DEFAULT_LISTENONLY_MEDIA_SERVER = Meteor.settings.public.kurento.listenOnlyMediaServer;
 const SIGNAL_CANDIDATES = Meteor.settings.public.kurento.signalCandidates;
 const TRACE_LOGS = Meteor.settings.public.kurento.traceLogs;
+const GATHERING_TIMEOUT = Meteor.settings.public.kurento.gatheringTimeout;
 const MEDIA = Meteor.settings.public.media;
 const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
@@ -265,6 +266,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
           traceLogs: TRACE_LOGS,
           networkPriority: NETWORK_PRIORITY,
           mediaStreamFactory: this.mediaStreamFactory,
+          gatheringTimeout: GATHERING_TIMEOUT,
         };
 
         this.broker = new AudioBroker(
@@ -352,6 +354,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
               iceServers,
               offering: LISTEN_ONLY_OFFERING,
               traceLogs: TRACE_LOGS,
+              gatheringTimeout: GATHERING_TIMEOUT,
             };
 
             this.broker = new AudioBroker(

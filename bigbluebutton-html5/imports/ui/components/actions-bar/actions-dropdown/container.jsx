@@ -5,7 +5,6 @@ import PresentationUploaderService from '/imports/ui/components/presentation/pre
 import PresentationPodService from '/imports/ui/components/presentation-pod/service';
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
 
 const ActionsDropdownContainer = (props) => {
@@ -29,7 +28,7 @@ const ActionsDropdownContainer = (props) => {
   );
 };
 
-const LAYOUT_CONFIG = Meteor.settings.public.layout;
+const ENABLE_CAMERA_AS_CONTENT = Meteor.settings.public.app.enableCameraAsContent;
 
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
@@ -38,6 +37,6 @@ export default withTracker(() => {
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
-    hidePresentation: getFromUserSettings('bbb_hide_presentation', LAYOUT_CONFIG.hidePresentation),
+    isCameraAsContentEnabled: ENABLE_CAMERA_AS_CONTENT,
   });
 })(ActionsDropdownContainer);

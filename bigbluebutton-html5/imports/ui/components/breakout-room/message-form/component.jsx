@@ -153,7 +153,7 @@ class MessageForm extends PureComponent {
     }
 
     handleSendMessage(escapeHtml(msg));
-    this.setState({ message: '', hasErrors: false });
+    this.setState({ message: '', error: '', hasErrors: false });
   }
 
   setMessageHint() {

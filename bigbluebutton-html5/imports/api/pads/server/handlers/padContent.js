@@ -1,6 +1,6 @@
 import contentPad from '/imports/api/pads/server/modifiers/contentPad';
 
-export default function padContent({ header, body }) {
+export default async function padContent({ header, body }) {
   const {
     meetingId,
   } = header;
@@ -12,5 +12,5 @@ export default function padContent({ header, body }) {
     text,
   } = body;
 
-  contentPad(meetingId, externalId, start, end, text);
+  await contentPad(meetingId, externalId, start, end, text);
 }

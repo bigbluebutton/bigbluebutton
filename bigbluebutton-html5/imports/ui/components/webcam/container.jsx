@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
-import breakoutService from '/imports/ui/components/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { UsersContext } from '../components-data/users-context/context';
 import {
@@ -14,11 +12,13 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
+import { LAYOUT_TYPE } from '../layout/enums';
 
 const WebcamContainer = ({
   audioModalIsOpen,
   swapLayout,
   usersVideo,
+  layoutType,
 }) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -35,8 +35,10 @@ const WebcamContainer = ({
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
 
+  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+
   return !audioModalIsOpen
-    && usersVideo.length > 0
+    && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{
@@ -50,45 +52,19 @@ const WebcamContainer = ({
           isPresenter: currentUser.presenter,
           displayPresentation,
           isRTL,
+          isGridEnabled,
         }}
       />
     )
     : null;
 };
 
-let userWasInBreakout = false;
-
-export default withModalMounter(withTracker((props) => {
+export default withTracker((props) => {
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
     isMeteorConnected: Meteor.status().connected,
   };
-
-  const userIsInBreakout = breakoutService.getBreakoutUserIsIn(Auth.userID);
-  let deviceIds = Session.get('deviceIds');
-
-  if (!userIsInBreakout && userWasInBreakout && deviceIds && deviceIds !== '') {
-    /* used when re-sharing cameras after leaving a breakout room.
-    it is needed in cases where the user has more than one active camera
-    so we only share the second camera after the first
-    has finished loading (can't share more than one at the same time) */
-    const canConnect = Session.get('canConnect');
-
-    deviceIds = deviceIds.split(',');
-
-    if (canConnect) {
-      const deviceId = deviceIds.shift();
-
-      Session.set('canConnect', false);
-      Session.set('WebcamDeviceId', deviceId);
-      Session.set('deviceIds', deviceIds.join(','));
-
-      VideoService.joinVideo(deviceId);
-    }
-  } else {
-    userWasInBreakout = userIsInBreakout;
-  }
 
   const { streams: usersVideo } = VideoService.getVideoStreams();
   data.usersVideo = usersVideo;
@@ -100,4 +76,4 @@ export default withModalMounter(withTracker((props) => {
   }
 
   return data;
-})(WebcamContainer));
+})(WebcamContainer);

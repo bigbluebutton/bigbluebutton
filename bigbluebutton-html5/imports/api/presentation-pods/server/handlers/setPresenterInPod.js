@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import setPresenterInPod from '../modifiers/setPresenterInPod';
 
-export default function handleSetPresenterInPod({ body }, meetingId) {
+export default async function handleSetPresenterInPod({ body }, meetingId) {
   check(body, Object);
 
   const { podId, nextPresenterId } = body;
@@ -9,5 +9,5 @@ export default function handleSetPresenterInPod({ body }, meetingId) {
   check(podId, String);
   check(nextPresenterId, String);
 
-  setPresenterInPod(meetingId, podId, nextPresenterId);
+  await setPresenterInPod(meetingId, podId, nextPresenterId);
 }

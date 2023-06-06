@@ -75,6 +75,7 @@ const NavBarContainer = ({ children, ...props }) => {
         layoutContextDispatch,
         isExpanded,
         activeChats,
+        currentUserId: Auth.userID,
         ...rest,
       }}
       style={{ ...navBar }}
@@ -114,6 +115,7 @@ export default withTracker(() => {
   }
 
   return {
+    isPinned: NotesService.isSharedNotesPinned(),
     currentUserId: Auth.userID,
     meetingId,
     presentationTitle: meetingTitle,

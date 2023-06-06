@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
@@ -18,6 +18,8 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
+
+    val userColor = ColorPicker.nextColor(liveMeeting.props.meetingProp.intId)
 
     def notifyModeratorsOfGuestWaiting(guest: GuestWaiting, users: Users2x, meetingId: String): Unit = {
       val moderators = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE)
@@ -32,7 +34,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(msg.body.intId, msg.body.voiceUserId,
-        msg.body.callerIdName, Roles.VIEWER_ROLE, "",
+        msg.body.callerIdName, Roles.VIEWER_ROLE, "", userColor,
         "", true, true, GuestStatus.WAIT, true, false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser)
     }
@@ -48,9 +50,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         guestStatus = GuestStatus.WAIT,
         emoji = "none",
         pin = false,
+        mobile = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
+        color = userColor,
         clientType = "",
         pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)
@@ -60,7 +64,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
 
     def registerUserAsGuest() = {
       if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
-        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", true, System.currentTimeMillis())
+        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", userColor, true, System.currentTimeMillis())
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
         notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
 
@@ -84,6 +88,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         msg.body.callingWith,
         msg.body.callerIdName,
         msg.body.callerIdNum,
+        userColor,
         msg.body.muted,
         msg.body.talking,
         "freeswitch"

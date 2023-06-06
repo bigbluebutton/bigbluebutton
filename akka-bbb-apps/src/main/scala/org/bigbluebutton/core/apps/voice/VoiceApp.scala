@@ -7,12 +7,14 @@ import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
+import org.bigbluebutton.core.util.ColorPicker
+import org.bigbluebutton.core.util.TimeUtil
+
 
 object VoiceApp extends SystemConfiguration {
-
   def genRecordPath(
       recordDir:       String,
       meetingId:       String,
@@ -34,18 +36,7 @@ object VoiceApp extends SystemConfiguration {
     }
   }
 
-  def startRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter, stream: String): Unit = {
-    MeetingStatus2x.voiceRecordingStart(liveMeeting.status, stream)
-    val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
-      liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf,
-      stream
-    )
-    outGW.send(event)
-  }
-
   def stopRecordingVoiceConference(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
-
     val recStreams = MeetingStatus2x.getVoiceRecordingStreams(liveMeeting.status)
 
     recStreams foreach { rs =>
@@ -55,6 +46,27 @@ object VoiceApp extends SystemConfiguration {
       )
       outGW.send(event)
     }
+  }
+
+  def startRecordingVoiceConference(
+      liveMeeting:          LiveMeeting,
+      outGW:                OutMsgRouter
+  ): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    val now = TimeUtil.timeNowInMs()
+    val recordFile = genRecordPath(
+      voiceConfRecordPath,
+      meetingId,
+      now,
+      voiceConfRecordCodec
+    )
+    MeetingStatus2x.voiceRecordingStart(liveMeeting.status, recordFile)
+    val event = MsgBuilder.buildStartRecordingVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      recordFile
+    )
+    outGW.send(event)
   }
 
   def broadcastUserMutedVoiceEvtMsg(
@@ -164,6 +176,7 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callingWith,
                 cvu.callerIdName,
                 cvu.callerIdNum,
+                ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
                 cvu.muted,
                 cvu.talking,
                 cvu.calledInto
@@ -213,6 +226,7 @@ object VoiceApp extends SystemConfiguration {
       callingWith:  String,
       callerIdName: String,
       callerIdNum:  String,
+      color:        String,
       muted:        Boolean,
       talking:      Boolean,
       callingInto:  String
@@ -240,6 +254,7 @@ object VoiceApp extends SystemConfiguration {
         voiceUserState.voiceUserId,
         voiceUserState.callerName,
         voiceUserState.callerNum,
+        voiceUserState.color,
         voiceUserState.muted,
         voiceUserState.talking,
         voiceUserState.callingWith,
@@ -267,6 +282,7 @@ object VoiceApp extends SystemConfiguration {
       callingWith,
       callerIdName,
       callerIdNum,
+      color,
       muted,
       talking,
       listenOnly = isListenOnly,

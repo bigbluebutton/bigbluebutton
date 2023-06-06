@@ -21,7 +21,7 @@ class MobileDevices extends MultiUsers {
     await this.userPage.wasRemoved(e.whiteboard);
   }
 
-  async userlistNotAppearOnMobile() {
+  async userListNotAppearOnMobile() {
     await this.modPage.wasRemoved(e.userListItem);
     await this.userPage.wasRemoved(e.userListItem);
   }

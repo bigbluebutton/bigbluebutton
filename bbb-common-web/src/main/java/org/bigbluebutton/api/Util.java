@@ -119,14 +119,10 @@ public final class Util {
 		boolean downloadable
 	) throws IOException {
 		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId);
-		if (downloadable) {
-			if (downloadMarker != null && ! downloadMarker.exists()) {
-				downloadMarker.createNewFile();
-			}
-		} else {
-			if (downloadMarker != null && downloadMarker.exists()) {
-				downloadMarker.delete();
-			}
+		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
+			downloadMarker.createNewFile();
+		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
+			downloadMarker.delete();
 		}
 	}
 }

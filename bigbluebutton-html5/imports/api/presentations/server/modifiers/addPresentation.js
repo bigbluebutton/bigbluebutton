@@ -23,11 +23,11 @@ const addSlides = (meetingId, podId, presentationId, slides) => {
 
     Object.assign(slide, { content });
 
-    addSlide(meetingId, podId, presentationId, slide);
+    await addSlide(meetingId, podId, presentationId, slide);
   });
 };
 
-export default function addPresentation(meetingId, podId, presentation) {
+export default async function addPresentation(meetingId, podId, presentation) {
   check(meetingId, String);
   check(podId, String);
   check(presentation, {
@@ -51,6 +51,8 @@ export default function addPresentation(meetingId, podId, presentation) {
     ],
     downloadable: Boolean,
     removable: Boolean,
+    isInitialPresentation: Boolean,
+    filenameConverted: String,
   });
 
   const selector = {
@@ -70,9 +72,9 @@ export default function addPresentation(meetingId, podId, presentation) {
   };
 
   try {
-    const { insertedId } = Presentations.upsert(selector, modifier);
+    await Presentations.upsertAsync(selector, modifier);
 
-    addSlides(meetingId, podId, presentation.id, presentation.pages);
+    await addSlides(meetingId, podId, presentation.id, presentation.pages);
 
     if (presentation.current) {
       setCurrentPresentation(meetingId, podId, presentation.id);
@@ -80,7 +82,6 @@ export default function addPresentation(meetingId, podId, presentation) {
     } else {
       Logger.info(`Upserted presentation id=${presentation.id} meeting=${meetingId}`);
     }
-
   } catch (err) {
     Logger.error(`Adding presentation to collection: ${err}`);
   }

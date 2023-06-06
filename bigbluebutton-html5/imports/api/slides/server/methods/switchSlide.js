@@ -6,7 +6,8 @@ import RedisPubSub from '/imports/startup/server/redis';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function switchSlide(slideNumber, podId) { // TODO-- send presentationId and SlideId
+export default async function switchSlide(slideNumber, podId) {
+  // TODO-- send presentationId and SlideId
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'SetCurrentPagePubMsg';
@@ -25,13 +26,13 @@ export default function switchSlide(slideNumber, podId) { // TODO-- send present
       current: true,
     };
 
-    const Presentation = Presentations.findOne(selector);
+    const Presentation = await Presentations.findOneAsync(selector);
 
     if (!Presentation) {
       throw new Meteor.Error('presentation-not-found', 'You need a presentation to be able to switch slides');
     }
 
-    const Slide = Slides.findOne({
+    const Slide = await Slides.findOneAsync({
       meetingId,
       podId,
       presentationId: Presentation.id,

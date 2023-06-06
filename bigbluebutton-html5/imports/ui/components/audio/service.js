@@ -1,6 +1,7 @@
 import Users from '/imports/api/users';
 import Auth from '/imports/ui/services/auth';
-import { debounce, throttle } from 'lodash';
+import { throttle } from '/imports/utils/throttle';
+import { debounce } from 'radash';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Meetings from '/imports/api/meetings';
 import { makeCall } from '/imports/ui/services/api';
@@ -122,7 +123,7 @@ export default {
   joinListenOnly: () => AudioManager.joinListenOnly(),
   joinMicrophone: () => AudioManager.joinMicrophone(),
   joinEchoTest: () => AudioManager.joinEchoTest(),
-  toggleMuteMicrophone: debounce(toggleMuteMicrophone, 500, { leading: true, trailing: false }),
+  toggleMuteMicrophone: debounce({ delay: 500 }, toggleMuteMicrophone),
   changeInputDevice: (inputDeviceId) => AudioManager.changeInputDevice(inputDeviceId),
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
@@ -140,7 +141,7 @@ export default {
   isEchoTest: () => AudioManager.isEchoTest,
   error: () => AudioManager.error,
   isUserModerator: () => Users.findOne({ userId: Auth.userID },
-    { fields: { role: 1 } }).role === ROLE_MODERATOR,
+    { fields: { role: 1 } })?.role === ROLE_MODERATOR,
   isVoiceUser,
   autoplayBlocked: () => AudioManager.autoplayBlocked,
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),

@@ -8,6 +8,11 @@ if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
   ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
 fi
 
+# This config file was renamed, remove from old path if exists
+if [ -f /etc/nginx/conf.d/html5-conn-limit.conf ]; then
+  rm -r /etc/nginx/conf.d/html5-conn-limit.conf
+fi
+
 cd /usr/share/meteor
 
 # meteor code should be owned by root, config file by meteor user

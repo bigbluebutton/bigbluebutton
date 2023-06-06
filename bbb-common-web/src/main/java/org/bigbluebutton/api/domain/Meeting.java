@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -44,6 +45,8 @@ public class Meeting {
 	private Boolean freeJoin = false;
 	private Boolean captureSlides = false;
 	private Boolean captureNotes = false;
+	private String captureSlidesFilename = "bbb-none";
+	private String captureNotesFilename = "bbb-none";
   	private Integer duration = 0;
 	private long createdTime = 0;
 	private long startTime = 0;
@@ -68,6 +71,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
 	private Integer meetingCameraCap = 0;
@@ -97,8 +101,8 @@ public class Meeting {
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
-	private String uploadExternalDescription;
-	private String uploadExternalUrl;
+	private String presentationUploadExternalDescription;
+	private String presentationUploadExternalUrl;
 
 	private Integer meetingExpireIfNoUserJoinedInMinutes = 5;
 	private Integer meetingExpireWhenLastUserLeftInMinutes = 1;
@@ -123,8 +127,8 @@ public class Meeting {
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
-		uploadExternalDescription = builder.uploadExternalDescription;
-		uploadExternalUrl = builder.uploadExternalUrl;
+		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
+		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
 		if (builder.viewerPass == null){
 			viewerPass = "";
 		} else {
@@ -146,6 +150,7 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
+        recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
         meetingCameraCap = builder.meetingCameraCap;
         userCameraCap = builder.userCameraCap;
@@ -195,12 +200,16 @@ public class Meeting {
 		return users.isEmpty() ? Collections.<User>emptySet() : Collections.unmodifiableCollection(users.values());
 	}
 
+	public Collection<User> getOnlineUsers() {
+    	return users.isEmpty() ? Collections.emptySet() : users.values().stream().filter(user -> !user.hasLeft()).collect(Collectors.toSet());
+	}
+
 	public ConcurrentMap<String, User> getUsersMap() {
 	    return users;
 	}
 
 	public Integer countUniqueExtIds() {
-		List<String> uniqueExtIds = new ArrayList<String>();
+		List<String> uniqueExtIds = new ArrayList<>();
 		for (User user : users.values()) {
 			if(!uniqueExtIds.contains(user.getExternalUserId())) {
 				uniqueExtIds.add(user.getExternalUserId());
@@ -319,13 +328,21 @@ public class Meeting {
 	public void setCaptureSlides(Boolean capture) {
 		this.captureSlides = captureSlides;
 	}
-	
+
 	public Boolean isCaptureNotes() {
         return captureNotes;
     }
 
 	public void setCaptureNotes(Boolean capture) {
 		this.captureNotes = captureNotes;
+	}
+
+	public void setCaptureNotesFilename(String filename) {
+		this.captureNotesFilename = filename;
+	}
+
+	public void setCaptureSlidesFilename(String filename) {
+		this.captureSlidesFilename = filename;
 	}
 
 	public Integer getDuration() {
@@ -424,11 +441,11 @@ public class Meeting {
 		return notifyRecordingIsOn;
 	}
 
-	public String getUploadExternalDescription() {
-		return uploadExternalDescription;
+	public String getPresentationUploadExternalDescription() {
+		return presentationUploadExternalDescription;
 	}
-	public String getUploadExternalUrl() {
-		return uploadExternalUrl;
+	public String getPresentationUploadExternalUrl() {
+		return presentationUploadExternalUrl;
 	}
 
   public String getWelcomeMessageTemplate() {
@@ -570,6 +587,10 @@ public class Meeting {
 
 	public boolean getAllowStartStopRecording() {
 		return allowStartStopRecording;
+	}
+
+	public boolean getRecordFullDurationMedia() {
+		return recordFullDurationMedia;
 	}
 
     public boolean getWebcamsOnlyForModerator() {
@@ -852,6 +873,7 @@ public class Meeting {
     	private int maxUsers;
     	private boolean record;
     	private boolean autoStartRecording;
+    	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
         private boolean webcamsOnlyForModerator;
         private Integer meetingCameraCap;
@@ -863,8 +885,8 @@ public class Meeting {
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
 		private Boolean notifyRecordingIsOn;
-		private String uploadExternalDescription;
-		private String uploadExternalUrl;
+		private String presentationUploadExternalDescription;
+		private String presentationUploadExternalUrl;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -927,6 +949,11 @@ public class Meeting {
     		this.allowStartStopRecording = allow;
     		return this;
     	}
+
+			public Builder withRecordFullDurationMedia(boolean recordFullDurationMedia) {
+				this.recordFullDurationMedia = recordFullDurationMedia;
+				return this;
+			}
 
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
@@ -993,13 +1020,13 @@ public class Meeting {
 	    	return this;
 	    }
 
-    	public Builder withUploadExternalDescription(String d) {
-	    	this.uploadExternalDescription = d;
+    	public Builder withPresentationUploadExternalDescription(String d) {
+	    	this.presentationUploadExternalDescription = d;
 	    	return this;
 	    }
 
-			public Builder withUploadExternalUrl(String u) {
-	    	this.uploadExternalUrl = u;
+			public Builder withPresentationUploadExternalUrl(String u) {
+	    	this.presentationUploadExternalUrl = u;
 	    	return this;
 	    }
 

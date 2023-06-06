@@ -19,8 +19,8 @@ trait UserConnectedToGlobalAudioMsgHdlr {
       val header = BbbClientMsgHeader(UserJoinedVoiceConfToClientEvtMsg.NAME, props.meetingProp.intId, vu.intId)
 
       val body = UserJoinedVoiceConfToClientEvtMsgBody(voiceConf = msg.header.voiceConf, intId = vu.intId, voiceUserId = vu.intId,
-        callingWith = vu.callingWith, callerName = vu.callerName,
-        callerNum = vu.callerNum, muted = true, talking = false, listenOnly = true)
+        callingWith = vu.callingWith, callerName = vu.callerName, callerNum = vu.callerNum, color = vu.color,
+        muted = true, talking = false, listenOnly = true)
       val event = UserJoinedVoiceConfToClientEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       outGW.send(msgEvent)
@@ -36,6 +36,7 @@ trait UserConnectedToGlobalAudioMsgHdlr {
         callingWith = "flash",
         callerName = user.name,
         callerNum = user.name,
+        color = user.color,
         muted = true,
         talking = false,
         listenOnly = true,

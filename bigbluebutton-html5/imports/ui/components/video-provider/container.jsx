@@ -4,8 +4,8 @@ import VideoProvider from './component';
 import VideoService from './service';
 
 const VideoProviderContainer = ({ children, ...props }) => {
-  const { streams } = props;
-  return (!streams.length ? null : <VideoProvider {...props}>{children}</VideoProvider>);
+  const { streams, isGridEnabled } = props;
+  return (!streams.length && !isGridEnabled ? null : <VideoProvider {...props}>{children}</VideoProvider>);
 };
 
 export default withTracker(({ swapLayout, ...rest }) => {
@@ -25,6 +25,7 @@ export default withTracker(({ swapLayout, ...rest }) => {
     totalNumberOfStreams,
     isUserLocked: VideoService.isUserLocked(),
     currentVideoPageIndex: VideoService.getCurrentVideoPageIndex(),
+    isMeteorConnected: Meteor.status().connected,
     ...rest,
   };
 })(VideoProviderContainer);

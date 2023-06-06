@@ -120,7 +120,9 @@ class BbbWebApiGWApp(
   def createMeeting(meetingId: String, extMeetingId: String, parentMeetingId: String, meetingName: String,
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
-                    allowStartStopRecording: java.lang.Boolean, webcamsOnlyForModerator: java.lang.Boolean,
+                    allowStartStopRecording: java.lang.Boolean,
+                    recordFullDurationMedia: java.lang.Boolean,
+                    webcamsOnlyForModerator: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
                     userCameraCap:    java.lang.Integer,
                     maxPinnedCameras: java.lang.Integer,
@@ -150,8 +152,8 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
-                    uploadExternalDescription:              String,
-                    uploadExternalUrl:                      String): Unit = {
+                    presentationUploadExternalDescription:  String,
+                    presentationUploadExternalUrl:          String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -164,8 +166,8 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
-      uploadExternalDescription,
-      uploadExternalUrl
+      presentationUploadExternalDescription,
+      presentationUploadExternalUrl
     )
 
     val durationProps = DurationProps(
@@ -182,7 +184,9 @@ class BbbWebApiGWApp(
 
     val password = PasswordProp(moderatorPass = moderatorPass, viewerPass = viewerPass, learningDashboardAccessToken = learningDashboardAccessToken)
     val recordProp = RecordProp(record = recorded.booleanValue(), autoStartRecording = autoStartRecording.booleanValue(),
-      allowStartStopRecording = allowStartStopRecording.booleanValue(), keepEvents = keepEvents.booleanValue())
+      allowStartStopRecording = allowStartStopRecording.booleanValue(),
+      recordFullDurationMedia = recordFullDurationMedia.booleanValue(),
+      keepEvents = keepEvents.booleanValue())
 
     val breakoutProps = BreakoutProps(
       parentId = parentMeetingId,
@@ -193,6 +197,8 @@ class BbbWebApiGWApp(
       privateChatEnabled = breakoutParams.privateChatEnabled.booleanValue(),
       captureNotes = breakoutParams.captureNotes.booleanValue(),
       captureSlides = breakoutParams.captureSlides.booleanValue(),
+      captureNotesFilename = breakoutParams.captureNotesFilename,
+      captureSlidesFilename = breakoutParams.captureSlidesFilename,
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,
@@ -216,7 +222,6 @@ class BbbWebApiGWApp(
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
       disableNotes = lockSettingsParams.disableNotes.booleanValue(),
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
-      lockedLayout = lockSettingsParams.lockedLayout.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
       hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),

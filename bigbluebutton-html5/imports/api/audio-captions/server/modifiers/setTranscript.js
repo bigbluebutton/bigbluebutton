@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import AudioCaptions from '/imports/api/audio-captions';
 import Logger from '/imports/startup/server/logger';
 
-export default function setTranscript(meetingId, transcriptId, transcript) {
+export default async function setTranscript(meetingId, transcriptId, transcript) {
   try {
     check(meetingId, String);
     check(transcriptId, String);
@@ -17,7 +17,7 @@ export default function setTranscript(meetingId, transcriptId, transcript) {
       },
     };
 
-    const numberAffected = AudioCaptions.upsert(selector, modifier);
+    const numberAffected = await AudioCaptions.upsertAsync(selector, modifier);
 
     if (numberAffected) {
       Logger.debug(`Set transcriptId=${transcriptId} transcript=${transcript} meeting=${meetingId}`);

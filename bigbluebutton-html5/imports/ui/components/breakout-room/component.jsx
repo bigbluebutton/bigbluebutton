@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import Service from './service';
-import BreakoutRoomContainer from './breakout-remaining-time/container';
+import MeetingRemainingTime from '../notifications-bar/meeting-remaining-time/container';
 import MessageFormContainer from './message-form/container';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -160,7 +159,9 @@ class BreakoutRoom extends PureComponent {
 
         Session.set('lastBreakoutIdOpened', requestedBreakoutId);
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
-        _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
+        setTimeout(() => {
+          this.setState({ generated: true, waiting: false });
+        }, 1000);
       }
     }
 
@@ -430,7 +431,7 @@ class BreakoutRoom extends PureComponent {
 
     const { animations } = Settings.application;
     const roomItems = breakoutRooms.map((breakout) => (
-      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`} >
+      <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutId}`}>
         <Styled.Content key={`breakoutRoomList-${breakout.breakoutId}`}>
           <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
             {breakout.isDefaultName
@@ -495,7 +496,7 @@ class BreakoutRoom extends PureComponent {
         ref={(ref) => this.durationContainerRef = ref}
       >
         <Styled.Duration>
-          <BreakoutRoomContainer
+          <MeetingRemainingTime
             messageDuration={intlMessages.breakoutDuration}
             breakoutRoom={breakoutRooms[0]}
             fromBreakoutPanel

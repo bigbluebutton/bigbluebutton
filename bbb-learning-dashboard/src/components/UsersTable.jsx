@@ -165,7 +165,7 @@ class UsersTable extends React.Component {
     return (
       <table className="w-full">
         <thead>
-          <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-100">
+          <tr className="text-xs font-semibold tracking-wide text-left text-gray-700 uppercase border-b bg-gray-100">
             <th
               className={`px-3.5 2xl:px-4 py-3 col-text-left ${tab === 'overview' ? 'cursor-pointer' : ''}`}
               onClick={() => { if (tab === 'overview') this.toggleOrder('userOrder'); }}
@@ -233,7 +233,7 @@ class UsersTable extends React.Component {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
                   <tr key={user} className="text-gray-700">
-                    <td className={`flex items-center px-4 py-3 col-text-left text-sm ${opacity}`}>
+                    <td className={`flex items-center px-4 py-3 col-text-left text-sm ${opacity}`} data-test="userLabelDashboard">
                       <div className="inline-block relative w-8 h-8 rounded-full">
                         <UserAvatar user={user} />
                         <div
@@ -253,7 +253,7 @@ class UsersTable extends React.Component {
                         </button>
                         { Object.values(user.intIds || {}).map((intId, index) => (
                           <>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                            <p className="text-xs text-gray-700 dark:text-gray-400">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-4 w-4 inline"
@@ -279,7 +279,7 @@ class UsersTable extends React.Component {
                             </p>
                             { intId.leftOn > 0
                               ? (
-                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                <p className="text-xs text-gray-700 dark:text-gray-400">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="h-4 w-4 inline"
@@ -315,7 +315,7 @@ class UsersTable extends React.Component {
                         )) }
                       </div>
                     </td>
-                    <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`}>
+                    <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`} data-test="userOnlineTimeDashboard">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4 inline"
@@ -360,7 +360,7 @@ class UsersTable extends React.Component {
                         }())
                       }
                     </td>
-                    <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`}>
+                    <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`} data-test="userTotalTalkTimeDashboard">
                       { user.talk.totalTime > 0
                         ? (
                           <span className="text-center">
@@ -383,7 +383,7 @@ class UsersTable extends React.Component {
                           </span>
                         ) : null }
                     </td>
-                    <td className={`px-4 py-3 text-sm text-center ${opacity}`}>
+                    <td className={`px-4 py-3 text-sm text-center ${opacity}`} data-test="userWebcamTimeDashboard">
                       { getSumOfTime(user.webcams) > 0
                         ? (
                           <span className="text-center">
@@ -406,7 +406,7 @@ class UsersTable extends React.Component {
                           </span>
                         ) : null }
                     </td>
-                    <td className={`px-4 py-3 text-sm text-center ${opacity}`}>
+                    <td className={`px-4 py-3 text-sm text-center ${opacity}`} data-test="userTotalMessagesDashboard">
                       { user.totalOfMessages > 0
                         ? (
                           <span>
@@ -429,7 +429,7 @@ class UsersTable extends React.Component {
                           </span>
                         ) : null }
                     </td>
-                    <td className={`px-4 py-3 text-sm col-text-left ${opacity}`}>
+                    <td className={`px-4 py-3 text-sm col-text-left ${opacity}`} data-test="userTotalEmojisDashboard">
                       {
                         Object.keys(usersEmojisSummary[user.userKey] || {}).map((emoji) => (
                           <div className="text-xs whitespace-nowrap">
@@ -445,7 +445,7 @@ class UsersTable extends React.Component {
                         ))
                       }
                     </td>
-                    <td className={`px-4 py-3 text-sm text-center ${opacity}`}>
+                    <td className={`px-4 py-3 text-sm text-center ${opacity}`} data-test="userRaiseHandDashboard">
                       { user.emojis.filter((emoji) => emoji.name === 'raiseHand').length > 0
                         ? (
                           <span>
@@ -470,7 +470,7 @@ class UsersTable extends React.Component {
                     </td>
                     {
                       !user.isModerator ? (
-                        <td className={`px-4 py-3 text-sm text-center items ${opacity}`}>
+                        <td className={`px-4 py-3 text-sm text-center items ${opacity}`} data-test="userActivityScoreDashboard">
                           <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
                             <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#A7F3D0' : '#e4e4e7'} />
                             <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#6EE7B7' : '#e4e4e7'} />
@@ -490,7 +490,7 @@ class UsersTable extends React.Component {
                         </td>
                       )
                     }
-                    <td className="px-3.5 2xl:px-4 py-3 text-xs text-center">
+                    <td className="px-3.5 2xl:px-4 py-3 text-xs text-center" data-test="userStatusDashboard">
                       {
                         Object.values(user.intIds)[Object.values(user.intIds).length - 1].leftOn > 0
                           ? (

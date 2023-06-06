@@ -14,7 +14,8 @@ import ExternalVideoService from '/imports/ui/components/external-video-player/s
 import CaptionsService from '/imports/ui/components/captions/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isVideoBroadcasting } from '/imports/ui/components/screenshare/service';
-import { isExternalVideoEnabled, isPollingEnabled } from '/imports/ui/services/features';
+import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
+import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 
 import MediaService from '../media/service';
 
@@ -45,9 +46,14 @@ const ActionsBarContainer = (props) => {
   );
 };
 
-const PRESENTATION_DISABLED = Meteor.settings.public.layout.hidePresentation;
 const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabled;
 const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
+const RAISE_HAND_BUTTON_CENTERED = Meteor.settings.public.app.raiseHandActionButton.centered;
+
+const isInteractionsButtonEnabled = () => {
+  const INTERACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.interactionsButton.enabled;
+  return getFromUserSettings('enable-interactions-button', INTERACTIONS_BUTTON_ENABLED);
+};
 
 export default withTracker(() => ({
   amIModerator: Service.amIModerator(),
@@ -58,13 +64,16 @@ export default withTracker(() => ({
   currentSlidHasContent: PresentationService.currentSlidHasContent(),
   parseCurrentSlideContent: PresentationService.parseCurrentSlideContent,
   isSharingVideo: Service.isSharingVideo(),
-  hasScreenshare: isVideoBroadcasting(),
+  isSharedNotesPinned: Service.isSharedNotesPinned(),
+  hasScreenshare: isScreenBroadcasting(),
+  hasCameraAsContent: isCameraAsContentBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
   isMeteorConnected: Meteor.status().connected,
-  isPollingEnabled: isPollingEnabled(),
-  isPresentationDisabled: PRESENTATION_DISABLED,
+  isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
+  isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
+  isInteractionsButtonEnabled: isInteractionsButtonEnabled(),
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),

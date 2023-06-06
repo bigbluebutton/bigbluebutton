@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import addPresentation from '../modifiers/addPresentation';
 
-export default function handlePresentationAdded({ body }, meetingId) {
+export default async function handlePresentationAdded({ body }, meetingId) {
   check(body, Object);
 
   const { presentation, podId } = body;
@@ -10,5 +10,5 @@ export default function handlePresentationAdded({ body }, meetingId) {
   check(podId, String);
   check(presentation, Object);
 
-  addPresentation(meetingId, podId, presentation);
+  await addPresentation(meetingId, podId, presentation);
 }

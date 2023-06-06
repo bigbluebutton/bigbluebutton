@@ -43,7 +43,8 @@ cp bin/bbb-conf bin/bbb-record staging/usr/bin
 chmod +x staging/usr/bin/bbb-conf
 
 mkdir -p staging/etc/bigbluebutton/bbb-conf
-cp bin/apply-lib.sh staging/etc/bigbluebutton/bbb-conf
+mkdir -p staging/usr/lib/bbb-conf
+cp bin/apply-lib.sh staging/usr/lib/bbb-conf
 
 mkdir -p staging/etc/cron.daily
 cp cron.daily/* staging/etc/cron.daily

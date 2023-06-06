@@ -2,7 +2,7 @@ import Breakouts from '/imports/api/breakouts';
 import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 
-export default function userBreakoutChanged({ body }) {
+export default async function userBreakoutChanged({ body }) {
   check(body, Object);
 
   const {
@@ -49,11 +49,11 @@ export default function userBreakoutChanged({ body }) {
     let numberAffectedRows = 0;
 
     if (oldBreakoutSelector.breakoutId !== '') {
-      numberAffectedRows += Breakouts.update(oldBreakoutSelector, oldModifier);
+      numberAffectedRows += await Breakouts.updateAsync(oldBreakoutSelector, oldModifier);
     }
 
     if (newBreakoutSelector.breakoutId !== '') {
-      numberAffectedRows += Breakouts.update(newBreakoutSelector, newModifier);
+      numberAffectedRows += await Breakouts.updateAsync(newBreakoutSelector, newModifier);
     }
 
     if (numberAffectedRows > 0) {

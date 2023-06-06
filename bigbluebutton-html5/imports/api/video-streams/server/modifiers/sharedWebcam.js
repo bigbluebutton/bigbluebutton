@@ -7,21 +7,22 @@ import {
 } from '/imports/api/video-streams/server/helpers';
 import VoiceUsers from '/imports/api/voice-users/';
 import Users from '/imports/api/users/';
+import { lowercaseTrim } from '/imports/utils/string-utils';
 
 const BASE_FLOOR_TIME = "0";
 
-export default function sharedWebcam(meetingId, userId, stream) {
+export default async function sharedWebcam(meetingId, userId, stream) {
   check(meetingId, String);
   check(userId, String);
   check(stream, String);
 
   const deviceId = getDeviceId(stream);
-  const name = getUserName(userId, meetingId);
-  const vu = VoiceUsers.findOne(
+  const name = await getUserName(userId, meetingId);
+  const vu = await VoiceUsers.findOneAsync(
     { meetingId, intId: userId },
     { fields: { floor: 1, lastFloorTime: 1 }}
   ) || {};
-  const u = Users.findOne(
+  const u = await Users.findOneAsync(
     { meetingId, intId: userId },
     { fields: { pin: 1 } },
   ) || {};
@@ -40,6 +41,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
     $set: {
       stream,
       name,
+      sortName: lowercaseTrim(name),
       lastFloorTime,
       floor,
       pin,
@@ -47,7 +49,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
   };
 
   try {
-    const { insertedId } = VideoStreams.upsert(selector, modifier);
+    const { insertedId } = await VideoStreams.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Updated stream=${stream} meeting=${meetingId}`);
@@ -57,7 +59,7 @@ export default function sharedWebcam(meetingId, userId, stream) {
   }
 }
 
-export function addWebcamSync(meetingId, videoStream) {
+export async function addWebcamSync(meetingId, videoStream) {
   check(videoStream, {
     userId: String,
     stream: String,
@@ -90,7 +92,7 @@ export function addWebcamSync(meetingId, videoStream) {
   };
 
   try {
-    const { insertedId } = VideoStreams.upsert(selector, modifier);
+    const { insertedId } = await VideoStreams.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Synced stream=${stream} meeting=${meetingId}`);

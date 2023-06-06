@@ -16,8 +16,8 @@ if (Meteor.isServer) {
   // 6. meetingId, whiteboardId, userId     ( 1 )
   // These 2 indexes seem to cover all of the cases
 
-  Annotations._ensureIndex({ id: 1 });
-  Annotations._ensureIndex({ meetingId: 1, whiteboardId: 1, userId: 1 });
+  Annotations.createIndexAsync({ id: 1 });
+  Annotations.createIndexAsync({ meetingId: 1, whiteboardId: 1, userId: 1 });
 }
 
 export default Annotations;

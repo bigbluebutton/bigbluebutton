@@ -5,7 +5,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
 
 const Content = styled.div`
@@ -17,7 +17,7 @@ const Content = styled.div`
   min-height: 30rem;
 `;
 
-const LayoutModal = styled(Modal)`
+const LayoutModal = styled(ModalSimple)`
   padding: 1rem;
   min-height: 44rem;
 

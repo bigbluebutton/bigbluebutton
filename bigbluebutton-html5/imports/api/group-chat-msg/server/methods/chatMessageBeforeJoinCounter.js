@@ -9,7 +9,7 @@ import Logger from '/imports/startup/server/logger';
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 
-export default function chatMessageBeforeJoinCounter() {
+export default async function chatMessageBeforeJoinCounter() {
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
@@ -23,7 +23,7 @@ export default function chatMessageBeforeJoinCounter() {
       ],
     }).fetch();
 
-    const User = Users.findOne({ userId: requesterUserId, meetingId });
+    const User = await Users.findOneAsync({ userId: requesterUserId, meetingId });
 
     const chatIdWithCounter = groupChats.map((groupChat) => {
       const msgCount = GroupChatMsg.find({
@@ -40,4 +40,6 @@ export default function chatMessageBeforeJoinCounter() {
   } catch (err) {
     Logger.error(`Exception while invoking method chatMessageBeforeJoinCounter ${err.stack}`);
   }
+  //True returned because the function requires a return.
+  return true;
 }

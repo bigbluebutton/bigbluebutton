@@ -1,9 +1,10 @@
 import { check } from 'meteor/check';
 import resizeSlide from '../modifiers/resizeSlide';
 
-export default function handleSlideResize({ body }, meetingId) {
+export default async function handleSlideResize({ body }, meetingId) {
   check(meetingId, String);
   check(body, Object);
 
-  return resizeSlide(meetingId, body);
+  const result = await resizeSlide(meetingId, body);
+  return result;
 }

@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
   display: flex;
@@ -75,9 +77,62 @@ const Right = styled.div`
   }
 `;
 
+const RaiseHandButton = styled(Button)`
+${({ ghost }) => ghost && `
+  & > span {
+    box-shadow: none;
+    background-color: transparent !important;
+    border-color: ${colorWhite} !important;
+  }
+   `}
+`;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  > * {
+    margin: 8px;
+  }
+`;
+
+const InteractionsDropdown = styled.div`
+  position: relative;
+`;
+
+const Wrapper = styled.div`
+  .emoji-mart-bar {
+    display: none;
+  }
+  .emoji-mart-search {
+    display: none;
+  }
+  .emoji-mart-category[aria-label="Frequently Used"] {
+    display: none;
+  }
+  .emoji-mart-category-label{
+    display: none;
+  }
+  .emoji-mart{
+    border: none;
+  }
+  @media(min-width: 600px) {
+    .emoji-mart-scroll{
+      overflow:hidden;
+      padding: 0;
+      height: 270px;
+      width: 280px;
+    }
+  }
+`;
+
 export default {
   ActionsBar,
   Left,
   Center,
   Right,
+  RaiseHandButton,
+  ButtonContainer,
+  InteractionsDropdown,
+  Wrapper,
 };

@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import { PadsUpdates } from '/imports/api/pads';
 import Logger from '/imports/startup/server/logger';
 
-export default function tailPad(meetingId, externalId, tail) {
+export default async function tailPad(meetingId, externalId, tail) {
   try {
     check(meetingId, String);
     check(externalId, String);
@@ -19,7 +19,7 @@ export default function tailPad(meetingId, externalId, tail) {
       },
     };
 
-    PadsUpdates.upsert(selector, modifier);
+    await PadsUpdates.upsertAsync(selector, modifier);
     Logger.debug(`Added pad tail external=${externalId} meeting=${meetingId}`);
   } catch (err) {
     Logger.error(`Adding pad tail to the collection: ${err}`);

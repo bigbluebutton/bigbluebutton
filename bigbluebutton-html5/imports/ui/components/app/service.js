@@ -3,6 +3,9 @@ import Meetings from '/imports/api/meetings';
 import Settings from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth/index';
 import deviceInfo from '/imports/utils/deviceInfo';
+import Styled from './styles';
+import DarkReader from 'darkreader';
+import logger from '/imports/startup/client/logger';
 
 const getFontSize = () => {
   const applicationSettings = Settings.application;
@@ -17,18 +20,33 @@ function meetingIsBreakout() {
   return (meeting && meeting.meetingProp.isBreakout);
 }
 
-const validIOSVersion = () => {
-  const { isIos, isIosVersionSupported } = deviceInfo;
-
-  if (isIos) {
-    return isIosVersionSupported();
+const setDarkTheme = (value) => {
+  if (value && !DarkReader.isEnabled()) {
+      DarkReader.enable(
+        { brightness: 100, contrast: 90 },
+        { invert: [Styled.DtfInvert], ignoreInlineStyle: [Styled.DtfCss], ignoreImageAnalysis: [Styled.DtfImages] },
+      )
+      logger.info({
+        logCode: 'dark_mode',
+      }, 'Dark mode is on.');
   }
-  return true;
-};
+
+  if (!value && DarkReader.isEnabled()){
+    DarkReader.disable();
+    logger.info({
+      logCode: 'dark_mode',
+    }, 'Dark mode is off.');
+  }
+}
+
+const isDarkThemeEnabled = () => {
+  return DarkReader.isEnabled()
+}
 
 export {
   getFontSize,
   meetingIsBreakout,
   getBreakoutRooms,
-  validIOSVersion,
+  setDarkTheme,
+  isDarkThemeEnabled,
 };

@@ -4,7 +4,7 @@ import { defineMessages, injectIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import BreakoutRemainingTime from '/imports/ui/components/breakout-room/breakout-remaining-time/container';
+import MeetingRemainingTime from '../../../notifications-bar/meeting-remaining-time/container';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -53,7 +53,12 @@ const BreakoutRoomItem = ({
               onClick={toggleBreakoutPanel}
               data-test="breakoutRoomsItem"
               aria-label={intl.formatMessage(intlMessages.breakoutTitle)}
-              onKeyPress={() => {}}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  toggleBreakoutPanel();
+                }
+              }}
             >
               <Icon iconName="rooms" />
               <div aria-hidden>
@@ -61,7 +66,7 @@ const BreakoutRoomItem = ({
                   {intl.formatMessage(intlMessages.breakoutTitle)}
                 </Styled.BreakoutTitle>
                 <Styled.BreakoutDuration>
-                  <BreakoutRemainingTime
+                  <MeetingRemainingTime
                     messageDuration={intlMessages.breakoutTimeRemaining}
                     breakoutRoom={breakoutRoom}
                   />

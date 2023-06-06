@@ -3,7 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { check } from 'meteor/check';
 import clearAnnotations from '/imports/api/annotations/server/modifiers/clearAnnotations';
 
-export default function clearSlidesPresentation(meetingId, presentationId) {
+export default async function clearSlidesPresentation(meetingId, presentationId) {
   check(meetingId, String);
   check(presentationId, String);
 
@@ -12,15 +12,15 @@ export default function clearSlidesPresentation(meetingId, presentationId) {
     presentationId,
   };
 
-  const whiteboardIds = Slides.find(selector, { fields: { id: 1 } }).map(row => row.id);
+  const whiteboardIds = await Slides.find(selector, { fields: { id: 1 } }).mapAsync(row => row.id);
 
   try {
-    SlidePositions.remove(selector);
+    await SlidePositions.removeAsync(selector);
 
-    const numberAffected = Slides.remove(selector);
+    const numberAffected = await Slides.removeAsync(selector);
 
     if (numberAffected) {
-      whiteboardIds.forEach(whiteboardId => clearAnnotations(meetingId, whiteboardId));
+      whiteboardIds.forEach(async (whiteboardId) => clearAnnotations(meetingId, whiteboardId));
 
       Logger.info(`Removed Slides where presentationId=${presentationId}`);
     }

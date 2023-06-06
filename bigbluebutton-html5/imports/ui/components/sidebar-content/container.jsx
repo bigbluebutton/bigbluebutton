@@ -13,8 +13,6 @@ const SidebarContentContainer = () => {
   const { users } = usingUsersContext;
   const amIPresenter = users[Auth.meetingID][Auth.userID].presenter;
 
-  if (sidebarContentOutput.display === false) return null;
-
   return (
     <SidebarContent
       {...sidebarContentOutput}

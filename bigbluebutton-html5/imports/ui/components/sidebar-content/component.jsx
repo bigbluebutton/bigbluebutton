@@ -48,6 +48,7 @@ const SidebarContent = (props) => {
     contextDispatch,
     sidebarContentPanel,
     amIPresenter,
+    isSharedNotesPinned,
   } = props;
 
   const [resizableWidth, setResizableWidth] = useState(width);
@@ -134,16 +135,22 @@ const SidebarContent = (props) => {
       <ErrorBoundary
         Fallback={FallbackView}
       >
-        <ChatContainer width={width}/>
+        <ChatContainer width={width} />
       </ErrorBoundary>
       )}
-      {sidebarContentPanel === PANELS.SHARED_NOTES && <NotesContainer />}
+      {!isSharedNotesPinned && (
+        <NotesContainer
+          isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+        />
+      )}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
-      <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
-        <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
-      </Styled.Poll>
+      {sidebarContentPanel === PANELS.POLL && (
+        <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
+          <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
+        </Styled.Poll>
+      )}
     </Resizable>
   );
 };

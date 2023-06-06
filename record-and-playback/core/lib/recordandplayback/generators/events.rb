@@ -330,7 +330,7 @@ module BigBlueButton
                 end
               elsif is_in_forbidden_period && event.at_xpath('value').text == "VIEWER"
                 filename_to_add = BigBlueButton::Events.extract_filename_from_userId(userId, active_videos)
-                if filename != ""
+                if filename_to_add != ""
                   active_videos.delete(filename_to_add)
                   inactive_videos << filename_to_add
 
@@ -356,8 +356,14 @@ module BigBlueButton
             webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(event.at_xpath('webcamsOnlyForModerator').text)
 
           when "WebcamsOnlyForModeratorEvent"
+            webcamsOnlyElement = event.at_xpath("webcamsOnlyForModerator")
+            # Handle typo in some BigBlueButton versions
+            webcamsOnlyElement = event.at_xpath("webacmsOnlyForModerator") if webcamsOnlyElement.nil?
+
+            webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(webcamsOnlyElement.text)
+
             # Change active and inactive videos.
-            BigBlueButton::Events.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, BigBlueButton::Events.to_boolean(event.at_xpath("webcamsOnlyForModerator").text))
+            BigBlueButton::Events.process_webcamsOnlyForModerator(list_user_info, active_videos, inactive_videos, webcamsOnlyForModerator)
             
             edl_entry = {
               :timestamp => timestamp,
@@ -371,8 +377,6 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
-            
-            webcamsOnlyForModerator = BigBlueButton::Events.to_boolean(event.at_xpath('webcamsOnlyForModerator').text)
           end
         end
       end
@@ -740,8 +744,6 @@ module BigBlueButton
     #   sender: The display name of the sender
     #   message: The chat message, with link cleanup already applied
     #   date: The real time of when the message was sent (if available) as a DateTime
-    #   text_color: The RGB color value of the chat message text as an integer (old BBB versions only)
-    #   avatar_color: The color of the user's avatar (initials) box (newer BBB versions only)
     def self.get_chat_events(events, start_time, end_time, bbb_props = {})
       BigBlueButton.logger.info('Getting chat events')
 
@@ -776,6 +778,7 @@ module BigBlueButton
 
           date = event.at_xpath('./date')&.content
           date = DateTime.iso8601(date) unless date.nil?
+          sender = event.at_xpath('./sender')&.content
           sender_id = event.at_xpath('./senderId')&.content
           senderRole = event.at_xpath('./senderRole')&.content
           chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
@@ -784,7 +787,7 @@ module BigBlueButton
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
-            sender: user_map.fetch(sender_id),
+            sender: sender_id.nil? ? sender : user_map.fetch(sender_id),
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
             message: linkify(event.at_xpath('./message').content.strip),
@@ -936,6 +939,7 @@ module BigBlueButton
     # Check whether any webcams were shared during the recording
     # This can be used to e.g. skip webcam processing or change the layout
     # of the final recording
+    # TODO: check only within recording start/stop markers?
     def self.have_webcam_events(events_xml)
       BigBlueButton.logger.debug("Checking if webcams were used...")
       webcam_events = events_xml.xpath('/recording/event[@eventname="StartWebcamShareEvent" or @eventname="StartWebRTCShareEvent"]')
@@ -948,9 +952,27 @@ module BigBlueButton
       end
     end
 
+    # Check whether any desktop sharing was performed during the recording
+    # This can be used to e.g. skip deskshare processing or change the layout
+    # of the final recording
+    # TODO: check only within recording start/stop markers?
+    def self.have_deskshare_events(events_xml)
+      BigBlueButton.logger.debug('Checking if desktop sharing was used...')
+      deskshare_events = events_xml.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and @eventname="StartWebRTCDesktopShareEvent")]')
+      if deskshare_events.length > 0
+        BigBlueButton.logger.debug('Deskshare events seen in recording')
+        true
+      else
+        BigBlueButton.logger.debug('No deskshare events were seen in recording')
+        false
+      end
+    end
+
     # Check whether any of the presentation features were used in the recording
     # This can be used to e.g. skip presentation processing or change the
     # layout of the final recording.
+    # This should include things done before recording is started, since they
+    # might be visible during the recording.
     def self.have_presentation_events(events_xml)
       BigBlueButton.logger.debug("Checking if presentation area was used...")
       pres_events = events_xml.xpath('/recording/event[@module="PRESENTATION" or @module="WHITEBOARD"]')

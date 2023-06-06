@@ -21,7 +21,7 @@ trait HandlerHelpers extends SystemConfiguration {
       regUser:     RegisteredUser
   ): Unit = {
     if (!regUser.joined) {
-      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser)
+      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
     }
   }
 
@@ -63,9 +63,11 @@ trait HandlerHelpers extends SystemConfiguration {
         guestStatus = regUser.guestStatus,
         emoji = "none",
         pin = false,
+        mobile = false,
         presenter = false,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
+        color = regUser.color,
         clientType = clientType,
         pickExempted = false,
         userLeftFlag = UserLeftFlag(false, 0)

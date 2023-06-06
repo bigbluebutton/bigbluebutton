@@ -7,7 +7,7 @@ object Dependencies {
 
   object Versions {
     // Scala
-    val scala = "2.13.4"
+    val scala = "2.13.9"
     val junit = "4.12"
     val junitInterface = "0.11"
     val scalactic = "3.0.8"
@@ -15,7 +15,7 @@ object Dependencies {
     // Libraries
     val akkaVersion = "2.6.17"
     val gson = "2.8.9"
-    val jackson = "2.13.0"
+    val jackson = "2.13.5"
     val sl4j = "1.7.32"
     val pool = "2.11.1"
     val codec = "1.15"

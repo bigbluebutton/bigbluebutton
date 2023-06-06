@@ -1,0 +1,24 @@
+.apiParams th {
+	white-space: nowrap;
+}
+
+.apiParams td {
+	padding: 1em 5px;
+	vertical-align: top;
+}
+
+.apiDeprecated {
+	text-decoration: line-through;
+}
+
+.apiRequired {
+	font-size: 0.7em;
+	font-style: italic;
+	margin: 0;
+}
+
+.apiDefault {
+	font-style: italic;
+	margin-top: 20px;
+	margin-bottom: 0;
+}

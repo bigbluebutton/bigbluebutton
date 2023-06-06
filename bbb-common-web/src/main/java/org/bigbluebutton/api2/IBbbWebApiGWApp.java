@@ -18,7 +18,9 @@ public interface IBbbWebApiGWApp {
   void createMeeting(String meetingID, String externalMeetingID,
                      String parentMeetingID, String meetingName, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
-                     Boolean allowStartStopRecording, Boolean webcamsOnlyForModerator,
+                     Boolean allowStartStopRecording,
+                     Boolean recordFullDurationMedia,
+                     Boolean webcamsOnlyForModerator,
                      Integer meetingCameraCap,
                      Integer userCameraCap,
                      Integer maxPinnedCameras,
@@ -43,8 +45,8 @@ public interface IBbbWebApiGWApp {
                      ArrayList<Group> groups,
                      ArrayList<String> disabledFeatures,
                      Boolean notifyRecordingIsOn,
-                     String uploadExternalDescription,
-                     String uploadExternalUrl);
+                     String presentationUploadExternalDescription,
+                     String presentationUploadExternalUrl);
 
   void registerUser(String meetingID, String internalUserId, String fullname, String role,
                     String externUserID, String authToken, String avatarURL,

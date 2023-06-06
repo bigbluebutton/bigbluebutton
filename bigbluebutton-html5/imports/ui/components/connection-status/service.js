@@ -3,8 +3,6 @@ import ConnectionStatus from '/imports/api/connection-status';
 import Users from '/imports/api/users';
 import UsersPersistentData from '/imports/api/users-persistent-data';
 import Auth from '/imports/ui/services/auth';
-import Settings from '/imports/ui/services/settings';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import { notify } from '/imports/ui/services/notification';
 import { makeCall } from '/imports/ui/services/api';
@@ -28,9 +26,9 @@ const intlMessages = defineMessages({
   },
 });
 
-let stats = -1;
+let lastLevel = -1;
 let lastRtt = null;
-const statsDep = new Tracker.Dependency();
+const levelDep = new Tracker.Dependency();
 
 let statsTimeout = null;
 
@@ -42,22 +40,16 @@ const getHelp = () => {
 };
 
 const getStats = () => {
-  statsDep.depend();
-  return STATS.level[stats];
+  levelDep.depend();
+  return STATS.level[lastLevel];
 };
 
 const setStats = (level = -1, type = 'recovery', value = {}) => {
-  if (stats !== level) {
-    stats = level;
-    statsDep.changed();
-    addConnectionStatus(level, type, value);
+  if (lastLevel !== level) {
+    lastLevel = level;
+    levelDep.changed();
   }
-};
-
-const handleStats = (level, type, value) => {
-  if (level > stats) {
-    setStats(level, type, value);
-  }
+  addConnectionStatus(level, type, value);
 };
 
 const handleAudioStatsEvent = (event) => {
@@ -69,7 +61,7 @@ const handleAudioStatsEvent = (event) => {
     for (let i = STATS.level.length - 1; i >= 0; i--) {
       if (loss >= STATS.loss[i] || jitter >= STATS.jitter[i]) {
         active = true;
-        handleStats(i, 'audio', { loss, jitter });
+        setStats(i, 'audio', { loss, jitter });
         break;
       }
     }
@@ -83,14 +75,17 @@ const handleSocketStatsEvent = (event) => {
   if (detail) {
     const { rtt } = detail;
     let active = false;
+    let level = -1;
     // From higher to lower
     for (let i = STATS.level.length - 1; i >= 0; i--) {
       if (rtt >= STATS.rtt[i]) {
         active = true;
-        handleStats(i, 'socket', { rtt });
+        level = i;
         break;
       }
     }
+
+    setStats(level, 'socket', { rtt });
 
     if (active) startStatsTimeout();
   }
@@ -100,7 +95,7 @@ const startStatsTimeout = () => {
   if (statsTimeout !== null) clearTimeout(statsTimeout);
 
   statsTimeout = setTimeout(() => {
-    setStats();
+    setStats(-1, 'recovery', {});
   }, STATS.timeout);
 };
 
@@ -108,16 +103,34 @@ const addConnectionStatus = (level, type, value) => {
   const status = level !== -1 ? STATS.level[level] : 'normal';
 
   makeCall('addConnectionStatus', status, type, value);
-}
+};
+
+let rttCalcStartedAt = 0;
 
 const fetchRoundTripTime = () => {
+  // if client didn't receive response from last "voidConnection"
+  // calculate the rtt from last call time and notify user of connection loss
+  if (rttCalcStartedAt !== 0) {
+    const tf = Date.now();
+    const rtt = tf - rttCalcStartedAt;
+
+    if (rtt > STATS.rtt[STATS.rtt.length - 1]) {
+      const event = new CustomEvent('socketstats', { detail: { rtt } });
+      window.dispatchEvent(event);
+    }
+  }
+
   const t0 = Date.now();
+  rttCalcStartedAt = t0;
+
   makeCall('voidConnection', lastRtt).then(() => {
     const tf = Date.now();
     const rtt = tf - t0;
     const event = new CustomEvent('socketstats', { detail: { rtt } });
     window.dispatchEvent(event);
     lastRtt = rtt;
+
+    rttCalcStartedAt = 0;
   });
 };
 
@@ -136,67 +149,32 @@ const sortOffline = (a, b) => {
   if (!a.offline && b.offline) return -1;
 };
 
-const getMyConnectionStatus = () => {
-  const myConnectionStatus = ConnectionStatus.findOne(
-    {
-      meetingId: Auth.meetingID,
-      userId: Auth.userID,
-    },
-    {
-      fields:
-      {
-        level: 1,
-        timestamp: 1,
-      },
-    },
-  );
+const getConnectionStatus = () => {
+  const selector = {
+    meetingId: Auth.meetingID,
+    $or: [
+      { status: { $exists: true } },
+      { clientNotResponding: true },
+    ],
+  };
 
-  const me = Users.findOne(
-    {
-      meetingId: Auth.meetingID,
-      userId: Auth.userID,
-    },
-    {
-      fields:
-      {
-        avatar: 1,
-        color: 1,
-      },
-    },
-  );
-
-  if (myConnectionStatus) {
-    return [{
-      name: Auth.fullname,
-      avatar: me.avatar,
-      offline: false,
-      you: true,
-      moderator: false,
-      color: me.color,
-      level: myConnectionStatus.level,
-      timestamp: myConnectionStatus.timestamp,
-    }];
+  if (!isModerator()) {
+    selector.userId = Auth.userID;
   }
 
-  return [];
-};
-
-const getConnectionStatus = () => {
-  if (!isModerator()) return getMyConnectionStatus();
-
-  const connectionStatus = ConnectionStatus.find(
-    { meetingId: Auth.meetingID },
-  ).fetch().map((status) => {
+  const connectionStatus = ConnectionStatus.find(selector).fetch().map((userStatus) => {
     const {
       userId,
-      level,
-      timestamp,
-    } = status;
+      status,
+      statusUpdatedAt,
+      clientNotResponding,
+    } = userStatus;
 
     return {
       userId,
-      level,
-      timestamp,
+      status,
+      statusUpdatedAt,
+      clientNotResponding,
     };
   });
 
@@ -223,19 +201,23 @@ const getConnectionStatus = () => {
       loggedOut,
     } = user;
 
-    const status = connectionStatus.find(status => status.userId === userId);
+    const userStatus = connectionStatus.find((userConnStatus) => userConnStatus.userId === userId);
 
-    if (status) {
-      result.push({
-        name,
-        avatar,
-        offline: loggedOut,
-        you: Auth.userID === userId,
-        moderator: role === ROLE_MODERATOR,
-        color,
-        level: status.level,
-        timestamp: status.timestamp,
-      });
+    if (userStatus) {
+      if (userStatus.status || (!loggedOut && userStatus.clientNotResponding)) {
+        result.push({
+          userId,
+          name,
+          avatar,
+          offline: loggedOut,
+          notResponding: userStatus.clientNotResponding,
+          you: Auth.userID === userId,
+          moderator: role === ROLE_MODERATOR,
+          color,
+          status: userStatus.clientNotResponding ? 'critical' : userStatus.status,
+          timestamp: userStatus.statusUpdatedAt,
+        });
+      }
     }
 
     return result;
@@ -280,14 +262,6 @@ if (STATS.enabled) {
   window.addEventListener('audiostats', handleAudioStatsEvent);
   window.addEventListener('socketstats', handleSocketStatsEvent);
 }
-
-const updateDataSavingSettings = (dataSaving, intl) => {
-  if (!_.isEqual(Settings.dataSaving, dataSaving)) {
-    Settings.dataSaving = dataSaving;
-    Settings.save();
-    if (intl) notify(intl.formatMessage(intlMessages.saved), 'info', 'settings');
-  }
-};
 
 const getNotified = () => {
   const notified = Session.get('connectionStatusNotified');
@@ -580,7 +554,6 @@ export default {
   notification,
   startRoundTripTime,
   stopRoundTripTime,
-  updateDataSavingSettings,
   getNetworkData,
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,

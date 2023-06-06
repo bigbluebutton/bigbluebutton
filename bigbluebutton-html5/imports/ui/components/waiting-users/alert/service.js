@@ -1,5 +1,5 @@
 import React from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { notify } from '/imports/ui/services/notification';
 import Settings from '/imports/ui/services/settings';
 import Styled from './styles';
@@ -16,7 +16,7 @@ function ringGuestWaitingBell() {
   }
 }
 
-const ringGuestWaitingBellThrottled = _.throttle(
+const ringGuestWaitingBellThrottled = throttle(
   ringGuestWaitingBell,
   GUEST_WAITING_BELL_THROTTLE_TIME,
   { leading: true, trailing: false },

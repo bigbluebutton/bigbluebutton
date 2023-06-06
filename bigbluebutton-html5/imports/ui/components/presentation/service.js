@@ -17,13 +17,7 @@ const downloadPresentationUri = (podId) => {
     return null;
   }
 
-  const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
-
-  const APP = Meteor.settings.public.app;
-  const uri = `${APP.bbbWebBase}/presentation/download/`
-    + `${currentPresentation.meetingId}/${currentPresentation.id}`
-    + `?presFilename=${encodeURIComponent(presentationFileName)}`;
-
+  const { originalFileURI: uri } = currentPresentation;
   return uri;
 };
 
@@ -56,6 +50,8 @@ const getCurrentSlide = (podId) => {
   });
 };
 
+const getSlidesLength = (podId) => getCurrentPresentation(podId)?.pages?.length || 0;
+
 const getSlidePosition = (podId, presentationId, slideId) => SlidePositions.findOne({
   podId,
   presentationId,
@@ -73,6 +69,12 @@ const currentSlidHasContent = () => {
   return !!content.length;
 };
 
+// Utility function to escape special characters for regex
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Function to create a regex pattern
+const createPattern = (values) => new RegExp(`.*(${escapeRegExp(values[0])}\\/${escapeRegExp(values[1])}|${escapeRegExp(values[1])}\\/${escapeRegExp(values[0])}).*`, 'gmi');
+
 const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue, falseValue) => {
   const { pollTypes } = PollService;
   const currentSlide = getCurrentSlide('DEFAULT_PRESENTATION_POD');
@@ -83,18 +85,33 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /.*?\?$/gm;
+  const questionRegex = /^[\s\S]+\?\s*$/gm;
   const question = safeMatch(questionRegex, content, '');
+
+  if (question?.length > 0) {
+    question[0] = question[0]?.replace(/\n/g, ' ');
+    const urlRegex = /\bhttps?:\/\/\S+\b/g;
+    const hasUrl = safeMatch(urlRegex, question[0], '');
+    if (hasUrl.length > 0) question.pop();
+  }
 
   const doubleQuestionRegex = /\?{2}/gm;
   const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
-  const yesNoPatt = /.*(yes\/no|no\/yes).*/gm;
+  const yesNoPatt = createPattern([yesValue, noValue]);
   const hasYN = safeMatch(yesNoPatt, content, false);
 
-  const pollRegex = /[1-9A-Ia-i][.)].*/g;
+  const trueFalsePatt = createPattern([trueValue, falseValue]);
+  const hasTF = safeMatch(trueFalsePatt, content, false);
+
+  const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
   const optionsWithLabels = [];
+
+  if (hasYN) {
+    optionsPoll = ['yes', 'no'];
+  }
+
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
       const MAX_CHAR_LIMIT = 30;
@@ -158,7 +175,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     }
   });
 
-  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN) {
+  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN && !hasTF) {
     quickPollOptions.push({
       type: 'R-',
       poll: {
@@ -208,4 +225,5 @@ export default {
   currentSlidHasContent,
   parseCurrentSlideContent,
   getCurrentPresentation,
+  getSlidesLength,
 };

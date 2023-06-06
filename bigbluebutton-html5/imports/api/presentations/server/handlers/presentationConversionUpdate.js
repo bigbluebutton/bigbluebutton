@@ -14,6 +14,7 @@ const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 const FILE_TOO_LARGE_KEY = 'FILE_TOO_LARGE';
 const CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
 const IVALID_MIME_TYPE_KEY = "IVALID_MIME_TYPE";
+const NO_CONTENT = '204';
 // const GENERATING_THUMBNAIL_KEY = 'GENERATING_THUMBNAIL';
 // const GENERATED_THUMBNAIL_KEY = 'GENERATED_THUMBNAIL';
 // const GENERATING_TEXTFILES_KEY = 'GENERATING_TEXTFILES';
@@ -22,7 +23,7 @@ const IVALID_MIME_TYPE_KEY = "IVALID_MIME_TYPE";
 // const GENERATED_SVGIMAGES_KEY = 'GENERATED_SVGIMAGES';
 // const CONVERSION_COMPLETED_KEY = 'CONVERSION_COMPLETED';
 
-export default function handlePresentationConversionUpdate({ body }, meetingId) {
+export default async function handlePresentationConversionUpdate({ body }, meetingId) {
   check(body, Object);
 
   const {
@@ -31,7 +32,7 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
 
   check(meetingId, String);
   check(presentationId, Match.Maybe(String));
-  check(podId, String);
+  check(podId, Match.Maybe(String));
   check(status, String);
   check(temporaryPresentationId, Match.Maybe(String));
 
@@ -76,6 +77,13 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
       statusModifier['conversion.numPages'] = body.numberOfPages;
       break;
 
+    case NO_CONTENT:
+      statusModifier['conversion.done'] = false;
+      statusModifier['conversion.error'] = true;
+      statusModifier.id = presentationId;
+      statusModifier.name = presentationName;
+      break;
+
     default:
       break;
   }
@@ -97,25 +105,27 @@ export default function handlePresentationConversionUpdate({ body }, meetingId) 
     };
   }
 
-
   try {
-    const isPresentationPersisted = Presentations.find(selector).fetch().some((item) => {
-      if (item.temporaryPresentationId && temporaryPresentationId){
+    const presentations = await Presentations.find(selector).fetchAsync();
+    const isPresentationPersisted = await Promise.all(presentations.map(async (item) => {
+      if (item.temporaryPresentationId && temporaryPresentationId) {
         return item.temporaryPresentationId === temporaryPresentationId;
-      } else{
+      } else {
         return item.id === presentationId;
-      } 
-    });
+      }
+    }));
+    const isPersisted = isPresentationPersisted.some((item) => item === true);
+    
     let insertedID;
-    if (!isPresentationPersisted) {
-      const { insertedId } = Presentations.upsert(selector, modifier);
+    if (!isPersisted) {
+      const { insertedId } = await Presentations.upsertAsync(selector, modifier);
       insertedID = insertedId;
     } else {
       selector['conversion.error'] = false;
-      const { insertedId } = Presentations.update(selector, modifier);
+      const { insertedId } = await Presentations.updateAsync(selector, modifier);
       insertedID = insertedId;
     }
-
+  
     if (insertedID) {
       Logger.info(`Updated presentation conversion status=${status} id=${presentationId} meeting=${meetingId}`);
     } else {

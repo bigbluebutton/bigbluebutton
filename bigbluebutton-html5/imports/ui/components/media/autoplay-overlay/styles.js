@@ -13,7 +13,7 @@ const AutoplayOverlay = styled.div`
   font-size: ${fontSizeLarge};
   border-radius: 5px;
   position: absolute;
-  z-index: 9999;
+  z-index: 999;
   text-align: center;
 `;
 

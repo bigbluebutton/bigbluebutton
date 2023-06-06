@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
 trait RegisterUserReqMsgHdlr {
@@ -56,7 +57,7 @@ trait RegisterUserReqMsgHdlr {
 
     val regUser = RegisteredUsers.create(msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.role, msg.body.authToken,
-      msg.body.avatarURL, msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, false)
+      msg.body.avatarURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, false)
 
     checkUserConcurrentAccesses(regUser)
 
@@ -89,7 +90,7 @@ trait RegisterUserReqMsgHdlr {
         val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
       case GuestStatus.WAIT =>
-        val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.authed, regUser.registeredOn)
+        val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.color, regUser.authed, regUser.registeredOn)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
         val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(

@@ -40,8 +40,9 @@ function publishCurrentUser(...args) {
 
 Meteor.publish('current-user', publishCurrentUser);
 
-function users() {
-  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+async function users() {
+  const tokenValidation = await AuthTokenValidation
+    .findOneAsync({ connectionId: this.connection.id });
 
   if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
     Logger.warn(`Publishing Users was requested by unauth connection ${this.connection.id}`);
@@ -63,15 +64,16 @@ function users() {
     left: false,
   };
 
-  const User = Users.findOne({ userId, meetingId }, { fields: { role: 1 } });
+  const User = await Users.findOneAsync({ userId, meetingId }, { fields: { role: 1 } });
   if (!!User && User.role === ROLE_MODERATOR) {
     selector.$or.push({
       'breakoutProps.isBreakoutUser': true,
       'breakoutProps.parentId': meetingId,
     });
     // Monitor this publication and stop it when user is not a moderator anymore
-    const comparisonFunc = () => {
-      const user = Users.findOne({ userId, meetingId }, { fields: { role: 1, userId: 1 } });
+    const comparisonFunc = async () => {
+      const user = await Users.findOneAsync({ userId, meetingId },
+        { fields: { role: 1, userId: 1 } });
       const condition = user.role === ROLE_MODERATOR;
       if (!condition) {
         Logger.info(`conditions aren't filled anymore in publication ${this._name}: 

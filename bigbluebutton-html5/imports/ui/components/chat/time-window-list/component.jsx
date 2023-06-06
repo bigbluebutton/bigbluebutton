@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { findDOMNode } from 'react-dom';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { debounce } from 'radash';
 import { AutoSizer,CellMeasurer, CellMeasurerCache } from 'react-virtualized';
 import Styled from './styles';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -37,6 +37,22 @@ const intlMessages = defineMessages({
     description: 'aria-label used when chat log is empty',
   },
 });
+
+const updateChatSemantics = () => {
+  setTimeout(() => {
+    const msgListItem = document.querySelector('span[data-test="msgListItem"]');
+    if (msgListItem) {
+      const virtualizedGridInnerScrollContainer = msgListItem.parentElement;
+      const virtualizedGrid = virtualizedGridInnerScrollContainer.parentElement;
+      virtualizedGridInnerScrollContainer.setAttribute('role', 'list');
+      virtualizedGridInnerScrollContainer.setAttribute('tabIndex', 0);
+      virtualizedGrid.removeAttribute('tabIndex');
+      virtualizedGrid.removeAttribute('aria-label');
+      virtualizedGrid.removeAttribute('aria-readonly');
+    }
+  }, 300);
+}
+
 class TimeWindowList extends PureComponent {
   constructor(props) {
     super(props);
@@ -53,7 +69,7 @@ class TimeWindowList extends PureComponent {
       },
     });
     this.userScrolledBack = false;
-    this.handleScrollUpdate = _.debounce(this.handleScrollUpdate.bind(this), 150);
+    this.handleScrollUpdate = debounce({ delay: 150 }, this.handleScrollUpdate.bind(this));
     this.rowRender = this.rowRender.bind(this);
     this.forceCacheUpdate = this.forceCacheUpdate.bind(this);
     this.systemMessagesResized = {};
@@ -82,6 +98,8 @@ class TimeWindowList extends PureComponent {
     this.setState({
       scrollPosition: scrollProps,
     });
+
+    updateChatSemantics();
   }
 
   componentDidUpdate(prevProps) {
@@ -158,6 +176,8 @@ class TimeWindowList extends PureComponent {
     ) {
       this.listRef.forceUpdateGrid();
     }
+
+    updateChatSemantics();
   }
 
   handleScrollUpdate(position, target) {
@@ -219,6 +239,8 @@ class TimeWindowList extends PureComponent {
         <span
           style={style}
           key={`span-${key}-${index}`}
+          role="listitem"
+          data-test="msgListItem"
         >
           <TimeWindowChatItem
             key={key}
@@ -307,7 +329,6 @@ class TimeWindowList extends PureComponent {
           }}
           key="chat-list"
           data-test="chatMessages"
-          aria-live="polite"
           ref={node => this.messageListWrapper = node}
           onCopy={(e) => { e.stopPropagation(); }}
         >

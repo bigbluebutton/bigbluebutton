@@ -55,7 +55,11 @@ const WaitingUsers = ({
             data-test="waitingUsersBtn"
             tabIndex={0}
             onClick={toggleWaitingPanel}
-            onKeyPress={() => { }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                toggleWaitingPanel();
+              }
+            }}
           >
             <Icon iconName="user" />
             <span>{intl.formatMessage(intlMessages.title)}</span>

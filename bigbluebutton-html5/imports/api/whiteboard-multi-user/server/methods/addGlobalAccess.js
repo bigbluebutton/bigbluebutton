@@ -5,7 +5,7 @@ import { getUsers } from '/imports/api/whiteboard-multi-user/server/helpers';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 import Logger from '/imports/startup/server/logger';
 
-export default function addGlobalAccess(whiteboardId) {
+export default async function addGlobalAccess(whiteboardId) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -18,7 +18,7 @@ export default function addGlobalAccess(whiteboardId) {
     check(meetingId, String);
     check(requesterUserId, String);
 
-    const multiUser = getUsers(meetingId);
+    const multiUser = await getUsers(meetingId);
 
     const payload = {
       multiUser,

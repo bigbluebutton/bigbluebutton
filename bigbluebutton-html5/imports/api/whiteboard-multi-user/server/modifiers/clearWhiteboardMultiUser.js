@@ -1,10 +1,10 @@
 import Logger from '/imports/startup/server/logger';
 import WhiteboardMultiUser from '/imports/api/whiteboard-multi-user';
 
-export default function clearWhiteboardMultiUser(meetingId) {
+export default async function clearWhiteboardMultiUser(meetingId) {
   if (meetingId) {
     try {
-      const numberAffected = WhiteboardMultiUser.remove({ meetingId });
+      const numberAffected = WhiteboardMultiUser.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared WhiteboardMultiUser (${meetingId})`);
@@ -14,7 +14,7 @@ export default function clearWhiteboardMultiUser(meetingId) {
     }
   } else {
     try {
-      const numberAffected = WhiteboardMultiUser.remove({});
+      const numberAffected = await WhiteboardMultiUser.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared WhiteboardMultiUser (all)');

@@ -4,14 +4,15 @@ import VoiceUsers from '/imports/api/voice-users';
 import GroupChat from '/imports/api/group-chat';
 import Breakouts from '/imports/api/breakouts';
 import Meetings from '/imports/api/meetings';
+import UserReaction from '/imports/api/user-reaction';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import { makeCall } from '/imports/ui/services/api';
-import _ from 'lodash';
 import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import logger from '/imports/startup/client/logger';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import { Session } from 'meteor/session';
@@ -19,12 +20,15 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
+import { indexOf, without } from '/imports/utils/array-utils';
+import { isEmpty, throttle } from 'radash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
+const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
 
 const DIAL_IN_CLIENT_TYPE = 'dial-in-user';
 
@@ -60,8 +64,8 @@ const sortUsersByUserId = (a, b) => {
 };
 
 const sortUsersByName = (a, b) => {
-  const aName = a.name ? a.name.toLowerCase() : '';
-  const bName = b.name ? b.name.toLowerCase() : '';
+  const aName = a.sortName || '';
+  const bName = b.sortName || '';
 
   // Extending for sorting strings with non-ASCII characters
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#sorting_non-ascii_characters
@@ -197,6 +201,26 @@ const addIsSharingWebcam = (users) => {
   });
 };
 
+const addUserReaction = (users) => {
+  const usersReactions = UserReaction.find({
+    meetingId: Auth.meetingID,
+  }).fetch();
+
+  return users.map((user) => {
+    let reaction = '';
+    const obj = usersReactions.find((us) => us.userId === user.userId);
+    if (obj !== undefined) {
+      ({ reaction } = obj);
+    }
+
+    return {
+      ...user,
+      reaction,
+    };
+  });
+};
+
+// TODO I think this method is no longer used, verify
 const getUsers = () => {
   let users = Users
     .find({
@@ -214,10 +238,10 @@ const getUsers = () => {
     }
   }
 
-  return addIsSharingWebcam(addWhiteboardAccess(users)).sort(sortUsers);
+  return addIsSharingWebcam(addUserReaction(addWhiteboardAccess(users))).sort(sortUsers);
 };
 
-const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
+const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) => {
   let users = contextUsers.filter((user) => user.loggedOut === false && user.left === false);
 
   const currentUser = Users.findOne({ userId: Auth.userID }, { fields: { role: 1, locked: 1 } });
@@ -233,11 +257,15 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers) => {
   return users.map((user) => {
     const isSharingWebcam = videoUsers?.includes(user.userId);
     const whiteboardAccess = whiteboardUsers?.includes(user.userId);
+    const reaction = reactionUsers?.includes(user.userId)
+      ? UserReactionService.getUserReaction(user.userId)
+      : 'none';
 
     return {
       ...user,
       isSharingWebcam,
       whiteboardAccess,
+      reaction,
     };
   }).sort(sortUsers);
 };
@@ -250,7 +278,7 @@ const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID }
 const isMe = (userId) => userId === Auth.userID;
 
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
-  if (_.isEmpty(groupChats) && _.isEmpty(users)) return [];
+  if (isEmpty(groupChats) && isEmpty(users)) return [];
 
   const chatIds = Object.keys(groupChats);
   const lastTimeWindows = chatIds.reduce((acc, chatId) => {
@@ -322,8 +350,30 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  return chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
     && chat.shouldDisplayInChatList);
+  const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
+    if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
+      return -1;
+    }
+    if (b.chatId === PUBLIC_CHAT_ID) {
+      return 0;
+    }
+    if (a.unreadCounter > b.unreadCounter) {
+      return -1;
+    } else if (b.unreadCounter > a.unreadCounter) {
+      return 1;
+    } else {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1;
+      }
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1;
+      }
+      return 0;
+    }
+  });
+  return sortByChatIdAndUnread;
 };
 
 const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
@@ -430,7 +480,7 @@ const getAvailableActions = (
     && !isBreakoutRoom
     && !(isSubjectUserGuest && usersProp.authenticatedGuest);
 
-  const allowedToChangeStatus = amISubjectUser;
+  const allowedToChangeStatus = amISubjectUser && USER_STATUS_ENABLED;
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
@@ -463,15 +513,15 @@ const normalizeEmojiName = (emoji) => (
   emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
 );
 
-const setEmojiStatus = _.debounce((userId, emoji) => {
+const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
   return statusAvailable
-    ? makeCall('setEmojiStatus', Auth.userID, emoji)
-    : makeCall('setEmojiStatus', userId, 'none');
-}, 1000, { leading: true, trailing: false });
+    ? makeCall('setUserReaction', emoji)
+    : makeCall('setUserReaction', 'none');
+}, 250, { leading: false, trailing: true });
 
 const clearAllEmojiStatus = (users) => {
-  users.forEach((user) => makeCall('setEmojiStatus', user.userId, 'none'));
+  makeCall('clearAllUsersEmoji');
 };
 
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
@@ -562,7 +612,6 @@ const roving = (...args) => {
 
   if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
     Session.set('dropdownOpen', false);
-    document.activeElement.blur();
     changeState(null);
   }
 
@@ -598,14 +647,14 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
     makeCall('createGroupChat', receiver);
   } else {
     const startedChats = Session.get(STARTED_CHAT_LIST_KEY) || [];
-    if (_.indexOf(startedChats, chat.chatId) < 0) {
+    if (indexOf(startedChats, chat.chatId) < 0) {
       startedChats.push(chat.chatId);
       Session.set(STARTED_CHAT_LIST_KEY, startedChats);
     }
 
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-    if (_.indexOf(currentClosedChats, chat.chatId) > -1) {
-      Storage.setItem(CLOSED_CHAT_LIST_KEY, _.without(currentClosedChats, chat.chatId));
+    if (indexOf(currentClosedChats, chat.chatId) > -1) {
+      Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chat.chatId));
     }
   }
 };
@@ -619,15 +668,15 @@ const requestUserInformation = (userId) => {
 };
 
 const sortUsersByFirstName = (a, b) => {
-  const aUser = { name: a.firstName ? a.firstName : '' };
-  const bUser = { name: b.firstName ? b.firstName : '' };
+  const aUser = { sortName: a.firstName ? a.firstName : '' };
+  const bUser = { sortName: b.firstName ? b.firstName : '' };
 
   return sortUsersByName(aUser, bUser);
 };
 
 const sortUsersByLastName = (a, b) => {
-  const aUser = { name: a.lastName ? a.lastName : '' };
-  const bUser = { name: b.lastName ? b.lastName : '' };
+  const aUser = { sortName: a.lastName ? a.lastName : '' };
+  const bUser = { sortName: b.lastName ? b.lastName : '' };
 
   return sortUsersByName(aUser, bUser);
 };

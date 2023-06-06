@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import setPresentationDownloadable from '../modifiers/setPresentationDownloadable';
 
-export default function handlePresentationDownloadableSet({ body }, meetingId) {
+export default async function handlePresentationDownloadableSet({ body }, meetingId) {
   check(body, Object);
 
   const { presentationId, podId, downloadable } = body;
@@ -11,5 +11,6 @@ export default function handlePresentationDownloadableSet({ body }, meetingId) {
   check(podId, String);
   check(downloadable, Boolean);
 
-  return setPresentationDownloadable(meetingId, podId, presentationId, downloadable);
+  const result = await setPresentationDownloadable(meetingId, podId, presentationId, downloadable);
+  return result;
 }

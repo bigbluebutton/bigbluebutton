@@ -1,10 +1,13 @@
 import PresentationUploadToken from '/imports/api/presentation-upload-token';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearPresentationUploadToken(meetingId, podId) {
+export default async function clearPresentationUploadToken(
+  meetingId,
+  podId,
+) {
   if (meetingId && podId) {
     try {
-      const numberAffected = PresentationUploadToken.remove({ meetingId, podId });
+      const numberAffected = await PresentationUploadToken.removeAsync({ meetingId, podId });
 
       if (numberAffected) {
         Logger.info(`Cleared Presentations Upload Token (${meetingId}, ${podId})`);
@@ -18,7 +21,7 @@ export default function clearPresentationUploadToken(meetingId, podId) {
 
   if (meetingId) {
     try {
-      const numberAffected = PresentationUploadToken.remove({ meetingId });
+      const numberAffected = await PresentationUploadToken.removeAsync({ meetingId });
 
       if (numberAffected) {
         Logger.info(`Cleared Presentations Upload Token (${meetingId})`);
@@ -29,7 +32,7 @@ export default function clearPresentationUploadToken(meetingId, podId) {
   } else {
     try {
       // clearing presentations for the whole server
-      const numberAffected = PresentationUploadToken.remove({});
+      const numberAffected = await PresentationUploadToken.removeAsync({});
 
       if (numberAffected) {
         Logger.info('Cleared Presentations Upload Token (all)');

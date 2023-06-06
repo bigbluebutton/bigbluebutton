@@ -54,6 +54,7 @@ class Polling extends Component {
       checkedAnswers: [],
     };
 
+    this.pollingContainer = null;
     this.play = this.play.bind(this);
     this.handleUpdateResponseInput = this.handleUpdateResponseInput.bind(this);
     this.renderButtonAnswers = this.renderButtonAnswers.bind(this);
@@ -65,6 +66,7 @@ class Polling extends Component {
 
   componentDidMount() {
     this.play();
+    this.pollingContainer && this.pollingContainer?.focus();
   }
 
   play() {
@@ -148,7 +150,7 @@ class Polling extends Component {
                   {answers.map((pollAnswer) => {
                     const formattedMessageIndex = pollAnswer?.key?.toLowerCase();
                     let label = pollAnswer.key;
-                    if (defaultPoll && pollAnswerIds[formattedMessageIndex]) {
+                    if ((defaultPoll || pollType.includes('CUSTOM')) && pollAnswerIds[formattedMessageIndex]) {
                       label = intl.formatMessage(pollAnswerIds[formattedMessageIndex]);
                     }
 
@@ -302,7 +304,9 @@ class Polling extends Component {
         <Styled.PollingContainer
           autoWidth={stackOptions}
           data-test="pollingContainer"
-          role="alert"
+          role="complementary"
+          ref={el => this.pollingContainer = el}
+          tabIndex={-1}
         >
           {
             question.length > 0 && (

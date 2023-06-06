@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import Styled from '../base/styles';
+import Styled from '../base/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 import {

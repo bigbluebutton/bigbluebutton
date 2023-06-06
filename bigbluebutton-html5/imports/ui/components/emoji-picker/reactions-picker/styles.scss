@@ -1,0 +1,27 @@
+.dropdownContent {
+  section[class^="emoji-mart-search"] {
+    display: none !important;
+  }
+  section[class^="emoji-mart emoji-mart-light"] {
+    display: unset;
+    border: unset;
+  }
+  div[class^="emoji-mart-bar"] {
+    display: none !important;
+  }
+  section[aria-label^="Frequently Used"] {
+    display: none !important;
+  }
+  div[class^="emoji-mart-category-label"] {
+    display: none !important;
+  }
+  div[class^="emoji-mart-scroll"] {
+    overflow-y: unset;
+    height: unset;
+  }
+  ul[class^="emoji-mart-category-list"] {
+    span {
+      cursor: pointer !important;
+    }
+  }
+}

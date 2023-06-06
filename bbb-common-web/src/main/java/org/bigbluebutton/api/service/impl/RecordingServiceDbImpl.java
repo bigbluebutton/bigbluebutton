@@ -30,6 +30,7 @@ public class RecordingServiceDbImpl implements RecordingService {
     private RecordingMetadataReaderHelper recordingServiceHelper;
     private String recordStatusDir;
     private String captionsDir;
+    private Boolean allowFetchAllRecordings;
     private String presentationBaseDir;
     private String defaultServerUrl;
     private String defaultTextTrackUrl;
@@ -72,65 +73,87 @@ public class RecordingServiceDbImpl implements RecordingService {
     }
 
     @Override
-    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, Pageable pageable) {
+    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, int offset, Pageable pageable) {
+        // If no IDs or limit were provided return no recordings instead of every recording
+        if((idList == null || idList.isEmpty()) && pageable == null && !allowFetchAllRecordings) return xmlService.noRecordings();
+
         logger.info("Retrieving all recordings");
-        Set<Recording> recordings = new HashSet<>();
-        recordings.addAll(dataStore.findAll(Recording.class));
+        Set<Recording> recordings = new HashSet<>(dataStore.findAll(Recording.class));
+        logger.info("{} recordings found", recordings.size());
 
-        Set<Recording> recordingsById = new HashSet<>();
-        for(String id: idList) {
-            List<Recording> r = dataStore.findRecordingsByMeetingId(id);
+        if(idList != null && !idList.isEmpty()) {
+            Set<Recording> recordingsById = new HashSet<>();
 
-            if(r == null || r.size() == 0) {
-                Recording recording = dataStore.findRecordingByRecordId(id);
-                if(recording != null) {
-                    r = new ArrayList<>();
-                    r.add(recording);
+            for(String id: idList) {
+                logger.info("Finding recordings using meeting ID with value {}", id);
+                List<Recording> recordingsByMeetingId = dataStore.findRecordingsByMeetingId(id);
+
+                if(recordingsByMeetingId == null || recordingsByMeetingId.isEmpty()) {
+                    logger.info("Finding recordings using recording ID with value {}", id);
+                    Recording recording = dataStore.findRecordingByRecordId(id);
+                    if(recording != null) {
+                        logger.info("Recording found");
+                        recordingsById.add(recording);
+                    }
+                } else {
+                    logger.info("{} recordings found", recordingsByMeetingId.size());
+                    recordingsById.addAll(recordingsByMeetingId);
                 }
             }
 
-            if(r != null) recordingsById.addAll(r);
-        }
-
-        logger.info("Filtering recordings by meeting ID");
-        if(recordingsById.size() > 0) {
+            logger.info("Filtering recordings by ID");
             recordings.retainAll(recordingsById);
-        }
-        logger.info("{} recordings remaining", recordings.size());
-
-        Set<Recording> recordingsByState = new HashSet<>();
-        for(String state: states) {
-            List<Recording> r = dataStore.findRecordingsByState(state);
-            if(r != null) recordingsByState.addAll(r);
+            logger.info("{} recordings remain", recordings.size());
         }
 
-        logger.info("Filtering recordings by state");
-        if(recordingsByState.size() > 0) {
+        if(states != null && !states.isEmpty()) {
+            Set<Recording> recordingsByState = new HashSet<>();
+
+            for(String state: states) {
+                logger.info("Finding recordings by state {}", state);
+                List<Recording> r = dataStore.findRecordingsByState(state);
+                if(state != null && !state.isEmpty()) {
+                    logger.info("{} recordings found", r.size());
+                    recordingsByState.addAll(r);
+                }
+            }
+
+            logger.info("Filtering recordings by state");
             recordings.retainAll(recordingsByState);
-        }
-        logger.info("{} recordings remaining", recordings.size());
-
-        List<Metadata> metadata = new ArrayList<>();
-        for(Map.Entry<String, String> metadataFilter: metadataFilters.entrySet()) {
-            List<Metadata> m = dataStore.findMetadataByFilter(metadataFilter.getKey(), metadataFilter.getValue());
-            if(m != null) metadata.addAll(m);
+            logger.info("{} recordings remain", recordings.size());
         }
 
-        Set<Recording> recordingsByMetadata = new HashSet<>();
-        for(Metadata m: metadata) {
-            recordingsByMetadata.add(m.getRecording());
-        }
+        if(metadataFilters != null && !metadataFilters.isEmpty()) {
+            List<Metadata> metadata = new ArrayList<>();
 
-        logger.info("Filtering recordings by metadata");
-        if(recordingsByMetadata.size() > 0) {
+            for(Map.Entry<String, String> filter: metadataFilters.entrySet()) {
+                logger.info("Finding metadata using filter {} {}", filter.getKey(), filter.getValue());
+                List<Metadata> metadataByFilter = dataStore.findMetadataByFilter(filter.getKey(), filter.getValue());
+                if(metadataByFilter != null) {
+                    logger.info("{} metadata found", metadataByFilter.size());
+                    metadata.addAll(metadataByFilter);
+                }
+            }
+
+            Set<Recording> recordingsByMetadata = new HashSet<>();
+            for(Metadata m: metadata) recordingsByMetadata.add(m.getRecording());
+
+            logger.info("Filtering recordings by metadata");
             recordings.retainAll(recordingsByMetadata);
+            logger.info("{} recordings remain", recordings.size());
         }
-        logger.info("{} recordings remaining", recordings.size());
 
-        Page<Recording> recordingsPage = listToPage(new ArrayList<>(recordings), pageable);
+        // If no/invalid pagination parameters were given do not paginate the response
+        if(pageable == null) {
+            String recordingsXml = xmlService.recordingsToXml(recordings);
+            return xmlService.constructResponseFromRecordingsXml(recordingsXml);
+        }
+
+        Page<Recording> recordingsPage = listToPage(new ArrayList<>(recordings), offset, pageable);
         String recordingsXml = xmlService.recordingsToXml(recordingsPage.getContent());
         String response = xmlService.constructResponseFromRecordingsXml(recordingsXml);
-        return xmlService.constructPaginatedResponse(recordingsPage, response);
+
+        return xmlService.constructPaginatedResponse(recordingsPage, offset, response);
     }
 
     @Override
@@ -238,6 +261,10 @@ public class RecordingServiceDbImpl implements RecordingService {
 
     public void setCaptionsDir(String dir) {
         captionsDir = dir;
+    }
+
+    public void setAllowFetchAllRecordings(Boolean allowFetchAllRecordings) {
+        this.allowFetchAllRecordings = allowFetchAllRecordings;
     }
 
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {

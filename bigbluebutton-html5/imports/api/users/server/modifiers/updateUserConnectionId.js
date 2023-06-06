@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function updateUserConnectionId(meetingId, userId, connectionId) {
+export default async function updateUserConnectionId(meetingId, userId, connectionId) {
   check(meetingId, String);
   check(userId, String);
   check(connectionId, String);
@@ -16,11 +16,11 @@ export default function updateUserConnectionId(meetingId, userId, connectionId) 
     },
   };
 
-  const User = Users.findOne(selector);
+  const User = await Users.findOneAsync(selector);
 
   if (User) {
     try {
-      const updated = Users.update(selector, modifier);
+      const updated = await Users.updateAsync(selector, modifier);
 
       if (updated) {
         Logger.info(`Updated connection user=${userId} connectionid=${connectionId} meeting=${meetingId}`);

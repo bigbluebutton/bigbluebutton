@@ -62,6 +62,7 @@ public class RecordingServiceFileImpl implements RecordingService {
     private XmlService xmlService;
     private String recordStatusDir;
     private String captionsDir;
+    private Boolean allowFetchAllRecordings;
     private String presentationBaseDir;
     private String defaultServerUrl;
     private String defaultTextTrackUrl;
@@ -201,12 +202,19 @@ public class RecordingServiceFileImpl implements RecordingService {
         return recordingServiceHelper.putRecordingTextTrack(track);
     }
 
-    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, Pageable pageable) {
+    public String getRecordings2x(List<String> idList, List<String> states, Map<String, String> metadataFilters, int offset, Pageable pageable) {
+        // If no IDs or limit were provided return no recordings instead of every recording
+        if(idList.isEmpty() && pageable == null && !allowFetchAllRecordings) return xmlService.noRecordings();
+
         List<RecordingMetadata> recsList = getRecordingsMetadata(idList, states);
         ArrayList<RecordingMetadata> recs = filterRecordingsByMetadata(recsList, metadataFilters);
-        Page<RecordingMetadata> recordingsPage = listToPage(recs, pageable);
-        String response = recordingServiceHelper.getRecordings2x(recs);
-        return xmlService.constructPaginatedResponse(recordingsPage, response);
+
+        // If no/invalid pagination parameters were given do not paginate the response
+        if(pageable == null) return recordingServiceHelper.getRecordings2x(recs);
+
+        Page<RecordingMetadata> recordingsPage = listToPage(recs, offset, pageable);
+        String response = recordingServiceHelper.getRecordings2x(new ArrayList<RecordingMetadata>(recordingsPage.getContent()));
+        return xmlService.constructPaginatedResponse(recordingsPage, offset, response);
     }
 
     private RecordingMetadata getRecordingMetadata(File dir) {
@@ -426,6 +434,8 @@ public class RecordingServiceFileImpl implements RecordingService {
     public void setCaptionsDir(String dir) {
         captionsDir = dir;
     }
+
+    public void setAllowFetchAllRecordings(Boolean allowFetchAllRecordings) { this.allowFetchAllRecordings = allowFetchAllRecordings; }
 
     public void setRecordingServiceHelper(RecordingMetadataReaderHelper r) {
         recordingServiceHelper = r;

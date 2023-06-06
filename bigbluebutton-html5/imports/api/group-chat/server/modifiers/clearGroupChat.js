@@ -2,10 +2,10 @@ import GroupChat from '/imports/api/group-chat';
 import Logger from '/imports/startup/server/logger';
 import clearGroupChatMsg from '/imports/api/group-chat-msg/server/modifiers/clearGroupChatMsg';
 
-export default function clearGroupChat(meetingId) {
+export default async function clearGroupChat(meetingId) {
   try {
-    clearGroupChatMsg(meetingId);
-    const numberAffected = GroupChat.remove({ meetingId });
+    await clearGroupChatMsg(meetingId);
+    const numberAffected = await GroupChat.removeAsync({ meetingId });
 
     if (numberAffected) {
       Logger.info(`Cleared GroupChat (${meetingId})`);

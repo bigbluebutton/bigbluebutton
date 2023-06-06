@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import userInactivityInspect from '../modifiers/userInactivityInspect';
 
-export default function handleUserInactivityInspect({ header, body }, meetingId) {
+export default async function handleUserInactivityInspect({ header, body }, meetingId) {
   const { userId } = header;
   const { responseDelay } = body;
 
@@ -9,6 +9,5 @@ export default function handleUserInactivityInspect({ header, body }, meetingId)
   check(responseDelay, Match.Integer);
   check(meetingId, String);
 
-
-  userInactivityInspect(userId, responseDelay);
+  await userInactivityInspect(userId, responseDelay);
 }

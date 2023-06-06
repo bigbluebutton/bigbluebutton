@@ -30,11 +30,12 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2022 BigBlueButton Inc.'
+    copyright: '©2023 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
+    delayForUnmountOfSharedNote: 120000
     bbbTabletApp:
-      enabled: false
+      enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
     lockOnJoin: true
@@ -50,7 +51,7 @@ public:
     # If you run a cluster setup with a load balancer which hides the individual
     # nodes, then this should be set to https://bbb-host/learning-analytics-dashboard
     learningDashboardBase: '/learning-analytics-dashboard'
-    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/admin/customize.html#examples
+    # Use https URL of CSS file. Example: https://docs.bigbluebutton.org/administration/customize
     customStyleUrl: null
     darkTheme:
       enabled: true
@@ -62,9 +63,11 @@ public:
     allowUserLookup: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    guestPolicyExtraAllowOptions: true
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    enableCameraAsContent: true
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
@@ -121,6 +124,9 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      allowUserChooseRoomByDefault: false
+      captureWhiteboardByDefault: false
+      captureSharedNotesByDefault: false
       breakoutRoomLimit: 16
       sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
@@ -134,6 +140,13 @@ public:
     # If not set, default value is true.
     showAudioFilters: true
     raiseHandActionButton:
+      # Enables the old raiseHand icon
+      enabled: false
+      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
+      centered: true
+    interactionsButton:
+      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
+      # If both interactionsButton and raiseHandActionButton are enabled, interactionsButton takes precedence.
       enabled: true
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
@@ -152,13 +165,14 @@ public:
     enableCopyNetworkStatsButton: true
     # where should client settings be stored? if you run a single BBB server or
     # a cluster with a reverse proxy in front of it, you may set this to 'local'
-    # See https://docs.bigbluebutton.org/admin/clusterproxy.html
+    # See See https://docs.bigbluebutton.org/administration/cluster-proxy
     # allowed values:
     # 'session' -> settings are stored in browser sessionStorage
     # 'local' -> settings are stored in browser localStorage
     userSettingsStorage: session
     defaultSettings:
       application:
+        selectedLayout: 'custom'
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -171,6 +185,7 @@ public:
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
         paginationEnabled: true
+        whiteboardToolbarAutoHide: false
         darkTheme: false
         # fallbackLocale: if the locale the client is loaded in does not have a
         # translation a string, it will use the translation from the locale
@@ -259,16 +274,23 @@ public:
     enabled: true
   kurento:
     wsUrl: HOST
-    # Valid for video-provider. Time (ms) before its WS connection times out
-    # and tries to reconnect.
-    wsConnectionTimeout: 4000
+    cameraWsOptions:
+      # Valid for video-provider. Time (ms) before its WS connection times out
+      # and tries to reconnect.
+      wsConnectionTimeout: 4000
+      # maxRetries: max reconnection retries
+      maxRetries: 7
+      # debug: console trace logging for video-provider's ws
+      debug: false
+      heartbeat:
+        interval: 15000
+        delay: 3000
+        reconnectOnFailure: true
     # Time in milis to wait for the browser to return a gUM call (used in video-preview)
     gUMTimeout: 20000
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
     # Enable this if you want to use Kurento as the media server.
     signalCandidates: false
-    # Forces relay usage only on Firefox. Applies to listen only, webcams and screenshare.
-    forceRelayOnFirefox: false
     # traceLogs: <Boolean> - enable trace logs in SFU peers
     traceLogs: false
     cameraTimeouts:
@@ -292,11 +314,13 @@ public:
       bitrate: 1500
       mediaTimeouts:
         maxConnectionAttempts: 2
-        # Base screen media timeout (send|recv)
-        baseTimeout: 30000
-        # Max timeout: used as the max camera subscribe reconnection timeout. Each
+        # Base screen media timeout (send|recv) - first connections
+        baseTimeout: 20000
+        # Base screen media timeout (send|recv) - re-connections
+        baseReconnectionTimeout: 8000
+        # Max timeout: used as the max camera subscribe connection timeout. Each
         # subscribe reattempt increases the reconnection timer up to this
-        maxTimeout: 60000
+        maxTimeout: 25000
         timeoutIncreaseFactor: 1.5
       constraints:
         video:
@@ -374,6 +398,14 @@ public:
           width: 1280
           height: 720
           frameRate: 30
+      - id: fhd
+        name: Camera as content
+        hidden: true
+        default: false
+        bitrate: 1500
+        constraints:
+          width: 1920
+          height: 1080
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
@@ -521,6 +553,7 @@ public:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
       chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
+      chat_status_message: PUBLIC_CHAT_STATUS
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
@@ -530,12 +563,17 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+  userReaction:
+    enabled: true
+    expire: 60
+  userStatus:
+    enabled: false
   notes:
     enabled: true
     id: notes
     pinnable: true
   layout:
-    hidePresentation: false
+    hidePresentationOnJoin: false
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
@@ -551,7 +589,7 @@ public:
       #
       # Default bridge to be used by full audio mechanism.
       # This is the bridge's name as contained in 'bridges' array
-      defaultFullAudioBridge: sipjs
+      defaultFullAudioBridge: fullaudio
       #
       #
       # Server wide configuration to choose which bbb-webrtc-sfu
@@ -587,6 +625,9 @@ public:
     # Forces relay usage on all browsers, environments and media modules.
     # If true, supersedes public.kurento.forceRelayOnFirefox
     forceRelay: false
+    # Firefox has a buggy ICE implementation. With mediasoup this leads to
+    # connection problems unless all traffic is relayed through a turn server.
+    forceRelayOnFirefox: true
     mediaTag: '#remote-media'
     callTransferTimeout: 5000
     callHangupTimeout: 2000
@@ -641,6 +682,11 @@ public:
       enabled: true
       initialHearingState: true
       useRtcLoopbackInChromium: true
+      # delay: delay (seconds) to be added to the audio feedback return
+      delay:
+        enabled: true
+        delayTime: 0.5
+        maxDelayTime: 2
     # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
     showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
@@ -678,8 +724,7 @@ public:
   presentation:
     allowDownloadable: true
     panZoomThrottle: 32
-    restoreOnUpdate: false
-    oldMinimizeButton: false
+    restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'
     fileUploadConstraintsHint: false
     # mirroredFromBBBCore are values controlled in bbb-web properties file. We include a copy here for notification purposes
@@ -723,6 +768,8 @@ public:
         mime: image/jpeg
       - extension: .png
         mime: image/png
+      - extension: .webp
+        mime: image/webp
   selectRandomUser:
     enabled: true
     countdown: false
@@ -738,11 +785,18 @@ public:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
     maxStickyNoteLength: 1000
+    # limit number of annotations per slide
+    maxNumberOfAnnotations: 300
     annotations:
       status:
         start: DRAW_START
         update: DRAW_UPDATE
         end: DRAW_END
+    styles:
+      text:
+        # Initial font family.
+        # family: mono|sans|script|serif
+        family: script
     toolbar:
       multiUserPenOnly: false
       colors:

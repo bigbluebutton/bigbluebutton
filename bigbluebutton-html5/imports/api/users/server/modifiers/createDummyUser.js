@@ -3,12 +3,12 @@ import { check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import Users from '/imports/api/users';
 
-export default function createDummyUser(meetingId, userId, authToken) {
+export default async function createDummyUser(meetingId, userId, authToken) {
   check(meetingId, String);
   check(userId, String);
   check(authToken, String);
 
-  const User = Users.findOne({ meetingId, userId });
+  const User = await Users.findOneAsync({ meetingId, userId });
   if (User) {
     throw new Meteor.Error('existing-user', 'Tried to create a dummy user for an existing user');
   }
@@ -23,7 +23,7 @@ export default function createDummyUser(meetingId, userId, authToken) {
   };
 
   try {
-    const insertedId = Users.insert(doc);
+    const insertedId = await Users.insertAsync(doc);
 
     if (insertedId) {
       Logger.info(`Created dummy user id=${userId} token=${authToken} meeting=${meetingId}`);

@@ -43,7 +43,7 @@ public class PostChecksumValidator implements ConstraintValidator<PostChecksumCo
         String data = checksum.getApiCall() + queryStringWithoutChecksum + securitySalt;
         String createdCheckSum = DigestUtils.sha1Hex(data);
 
-        if (createdCheckSum == null || !createdCheckSum.equals(providedChecksum)) {
+        if (createdCheckSum == null || !createdCheckSum.equalsIgnoreCase(providedChecksum)) {
             log.info("checksumError: failed checksum. our checksum: [{}], client: [{}]", createdCheckSum, providedChecksum);
             return false;
         }

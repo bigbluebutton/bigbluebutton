@@ -375,7 +375,7 @@ const PollsTable = (props) => {
         sx={{
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: 'rgb(243 244 246/var(--tw-bg-opacity))',
-            color: 'rgb(107 114 128/1)',
+            color: 'rgb(55 65 81/1)',
             textTransform: 'uppercase',
             letterSpacing: '.025em',
             minHeight: '40.5px !important',

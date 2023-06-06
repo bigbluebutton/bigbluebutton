@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
@@ -8,6 +8,8 @@ import {
   PANELS,
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
+import { defaultsDeep } from '/imports/utils/array-utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -33,6 +35,10 @@ const PresentationFocusLayout = (props) => {
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const screenShareInput = layoutSelectInput((i) => i.screenShare);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
+
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -42,7 +48,7 @@ const PresentationFocusLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
   useEffect(() => {
@@ -73,7 +79,7 @@ const PresentationFocusLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
             sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
@@ -110,7 +116,7 @@ const PresentationFocusLayout = (props) => {
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
@@ -147,7 +153,14 @@ const PresentationFocusLayout = (props) => {
   };
 
   const calculatesSidebarContentHeight = () => {
-    const { isOpen } = presentationInput;
+    const { isOpen, slidesLength } = presentationInput;
+    const { hasExternalVideo } = externalVideoInput;
+    const { hasScreenShare } = screenShareInput;
+    const { isPinned: isSharedNotesPinned } = sharedNotesInput;
+
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+
     const {
       navBarHeight,
       sidebarContentMinHeight,
@@ -160,7 +173,7 @@ const PresentationFocusLayout = (props) => {
         height = windowHeight() - navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
-      } else if (cameraDockInput.numCameras > 0 && isOpen) {
+      } else if (cameraDockInput.numCameras > 0 && isOpen && !isGeneralMediaOff) {
         if (sidebarContentInput.height === 0) {
           height = (windowHeight() * 0.75) - bannerAreaHeight();
         } else {
@@ -221,13 +234,15 @@ const PresentationFocusLayout = (props) => {
           max((windowHeight() - sidebarContentHeight), cameraDockMinHeight),
           (windowHeight() - cameraDockMinHeight),
         );
+        const bannerAreaDiff = windowHeight() - sidebarContentHeight - cameraDockHeight - bannerAreaHeight();
+        cameraDockHeight += bannerAreaDiff;
       } else {
         cameraDockHeight = min(
           max(cameraDockInput.height, cameraDockMinHeight),
           (windowHeight() - cameraDockMinHeight),
         );
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

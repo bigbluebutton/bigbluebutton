@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import { debounce } from 'radash';
 import fastdom from 'fastdom';
 import { injectIntl } from 'react-intl';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
@@ -41,7 +41,7 @@ class MessageChatItem extends PureComponent {
 
     this.ticking = false;
 
-    this.handleMessageInViewport = _.debounce(this.handleMessageInViewport.bind(this), 50);
+    this.handleMessageInViewport = debounce({ delay: 50 }, this.handleMessageInViewport.bind(this));
   }
 
   componentDidMount() {

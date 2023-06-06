@@ -177,7 +177,7 @@ const Toast = styled.div`
 `;
 
 const ToastifyContainer = styled(Toastify)`
-  z-index: 9998;
+  z-index: 998;
   position: fixed;
   min-width: 20rem !important;
   max-width: 23rem !important;

@@ -44,9 +44,10 @@ fi
 
 HOST=$(cat $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties $tmpfile $BBB_WEB_ETC_CONFIG | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}' | tail -n 1)
 
-HTML5_CONFIG=/usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
-BBB_WEB_CONFIG=$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
-
+HTML5_CONFIG=/etc/bigbluebutton/bbb-html5.yml
+if [ ! -f "${HTML5_CONFIG}" ]; then
+  touch $HTML5_CONFIG
+fi
 
 #
 # Enable Looging of the HTML5 client for debugging
@@ -109,6 +110,28 @@ enableUFWRules() {
   ufw allow OpenSSH
   ufw allow "Nginx Full"
   ufw allow 16384:32768/udp
+
+   # Check if haproxy is running on this server and, if so, open port 3478 on ufw
+
+  if systemctl is-enabled haproxy> /dev/null 2>&1; then
+    if systemctl -q is-active haproxy; then
+      echo "  - Local haproxy detected and running -- opening port 3478"
+      ufw allow 3478
+      # echo "  - Forcing FireFox to use turn server"
+      # yq w -i $HTML5_CONFIG public.kurento.forceRelayOnFirefox true
+    else
+      if grep -q 3478 /etc/ufw/user.rules; then
+        echo "  - Local haproxy not running -- closing port 3478"
+        ufw delete allow 3478
+      fi
+    fi
+  else
+    if grep -q 3478 /etc/ufw/user.rules; then
+      echo "  - Local haproxy not running -- closing port 3478"
+      ufw delete allow 3478
+    fi
+  fi
+
   ufw --force enable
 }
 
@@ -246,9 +269,9 @@ notCalled() {
 # apply-config.sh.
 #
 # By creating apply-config.sh manually, it will not be overwritten by any package updates.  You can call functions in this
-# library for commong BigBlueButton configuration tasks.
+# library for common BigBlueButton configuration tasks.
 
-## Start Copying HEre
+## Start Copying Here
   cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
 #!/bin/bash
 

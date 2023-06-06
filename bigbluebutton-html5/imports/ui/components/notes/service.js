@@ -34,28 +34,13 @@ const hasPermission = () => {
   return true;
 };
 
-const getLastRev = () => {
-  const lastRev = Session.get('notesLastRev');
-  if (!lastRev) return -1;
+const getLastRev = () => (Session.get('notesLastRev') || 0);
 
-  return lastRev;
-};
+const getRev = () => PadsService.getRev(NOTES_CONFIG.id);
 
-const setLastRev = () => {
-  const rev = PadsService.getRev(NOTES_CONFIG.id);
-  const lastRev = getLastRev();
+const markNotesAsRead = () => Session.set('notesLastRev', getRev());
 
-  if (rev !== 0 && rev > lastRev) {
-    Session.set('notesLastRev', rev);
-  }
-};
-
-const hasUnreadNotes = () => {
-  const rev = PadsService.getRev(NOTES_CONFIG.id);
-  const lastRev = getLastRev();
-
-  return rev !== 0 && rev > lastRev;
-};
+const hasUnreadNotes = () => (getRev() > getLastRev());
 
 const isEnabled = () => isSharedNotesEnabled();
 
@@ -87,8 +72,7 @@ export default {
   toggleNotesPanel,
   hasPermission,
   isEnabled,
-  setLastRev,
-  getLastRev,
+  markNotesAsRead,
   hasUnreadNotes,
   isSharedNotesPinned,
   pinSharedNotes,

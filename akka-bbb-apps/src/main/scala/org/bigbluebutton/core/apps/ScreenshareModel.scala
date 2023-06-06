@@ -91,6 +91,14 @@ object ScreenshareModel {
   def getHasAudio(status: ScreenshareModel): Boolean = {
     status.hasAudio
   }
+
+  def setContentType(status: ScreenshareModel, contentType: String): Unit = {
+    status.contentType = contentType
+  }
+
+  def getContentType(status: ScreenshareModel): String = {
+    status.contentType
+  }
 }
 
 class ScreenshareModel {
@@ -103,4 +111,5 @@ class ScreenshareModel {
   private var screenshareConf: String = ""
   private var timestamp: String = ""
   private var hasAudio = false
+  private var contentType = "camera"
 }

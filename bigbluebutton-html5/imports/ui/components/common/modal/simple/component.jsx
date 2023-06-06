@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { withModalState } from '../base/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -114,4 +113,4 @@ class ModalSimple extends Component {
 ModalSimple.propTypes = propTypes;
 ModalSimple.defaultProps = defaultProps;
 
-export default withModalState(injectIntl(ModalSimple));
+export default injectIntl(ModalSimple);

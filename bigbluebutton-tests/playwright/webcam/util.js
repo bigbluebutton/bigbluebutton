@@ -1,6 +1,8 @@
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
-const { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { expect } = require('@playwright/test');
+const { resolve } = require('path');
 
 // loop 5 times, every LOOP_INTERVAL milliseconds, and check that all
 // videos displayed are changing by comparing a hash of their
@@ -43,4 +45,26 @@ async function webcamContentCheck(test) {
   return check === true;
 }
 
+async function checkVideoUploadData(testPage, previousValue, timeout = ELEMENT_WAIT_TIME) {
+  const locator = testPage.getLocator(e.videoUploadRateData);
+  await expect(locator).not.toHaveText('0k ↑', { timeout });
+  const currentValue = await Number((await locator.textContent()).split('k')[0]);
+  await expect(currentValue).toBeGreaterThan(previousValue);
+  return currentValue;
+}
+
+async function uploadBackgroundVideoImage(testPage) {
+  const [fileChooser] = await Promise.all([
+    testPage.page.waitForEvent('filechooser'),
+    testPage.waitAndClick(e.inputBackgroundButton),
+  ]);
+  await fileChooser.setFiles(resolve(__dirname, '../core/media/simpsons-background.png'));
+  const uploadedBackgroundLocator = testPage.getLocator(e.selectCustomBackground);
+  await expect(uploadedBackgroundLocator).toHaveScreenshot('custom-background-item.png', {
+    maxDiffPixelRatio: 0.1,
+  });
+}
+
 exports.webcamContentCheck = webcamContentCheck;
+exports.checkVideoUploadData = checkVideoUploadData;
+exports.uploadBackgroundVideoImage = uploadBackgroundVideoImage;

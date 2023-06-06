@@ -1,7 +1,7 @@
 import ConnectionStatus from '/imports/api/connection-status';
 import Logger from '/imports/startup/server/logger';
 
-export default function clearConnectionStatus(meetingId) {
+export default async function clearConnectionStatus(meetingId) {
   const selector = {};
 
   if (meetingId) {
@@ -9,7 +9,7 @@ export default function clearConnectionStatus(meetingId) {
   }
 
   try {
-    const numberAffected = ConnectionStatus.remove(selector);
+    const numberAffected = await ConnectionStatus.removeAsync(selector);
 
     if (numberAffected) {
       if (meetingId) {

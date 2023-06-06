@@ -49,8 +49,26 @@ class PresentationController {
       def originalContentLengthString = request.getHeader("x-original-content-length")
 
       def originalContentLength = 0
-      if (originalContentLengthString.isNumber()) {
+      // x-original-content-length may be missing (for example in CORS OPTION requests)
+      if (null != originalContentLengthString && originalContentLengthString.isNumber()) {
         originalContentLength = originalContentLengthString as int
+      }
+      if (request.getHeader("x-original-method") == 'OPTIONS') {
+        if (meetingService.authzTokenIsValid(presentationToken)) {
+          log.debug "OPTIONS SUCCESS \n"
+          response.setStatus(200)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-success';
+          return;
+        } else {
+          log.debug "OPTIONS FAIL\n"
+          response.setStatus(403)
+          response.addHeader("Cache-Control", "no-cache")
+          response.contentType = 'plain/text'
+          response.outputStream << 'upload-fail';
+          return;
+        }
       }
 
       if (null != presentationToken
@@ -105,6 +123,14 @@ class PresentationController {
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'plain/text'
       response.outputStream << 'no-meeting';
+      return
+    }
+
+    if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+      response.outputStream << 'presentation in disabled features'
       return
     }
 
@@ -312,6 +338,7 @@ class PresentationController {
     def presId = params.presId
     def presFilename = params.presFilename
     def meetingId = params.meetingId
+    def filename = params.filename
 
     log.debug "Controller: Download request for $presFilename"
 
@@ -322,7 +349,7 @@ class PresentationController {
         log.debug "Controller: Sending pdf reply for $presFilename"
 
         def bytes = pres.readBytes()
-        def responseName = pres.getName();
+        def responseName = filename;
         def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 

@@ -27,8 +27,14 @@ async function checkIsPresenter(test) {
   }, [e.currentUser, e.userAvatar])
 }
 
+async function checkMutedUsers(test) {
+  await test.wasRemoved(e.muteMicButton);
+  await test.hasElement(e.unmuteMicButton);
+}
+
 exports.setStatus = setStatus;
 exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;
 exports.checkIsPresenter = checkIsPresenter;
+exports.checkMutedUsers = checkMutedUsers;

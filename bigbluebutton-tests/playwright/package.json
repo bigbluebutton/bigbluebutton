@@ -1,6 +1,7 @@
 {
   "scripts": {
     "test": "npx playwright test",
+    "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e '/^BBB_URL/s/$/api/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test $@; }; fn",
     "test:filter": "npx playwright test -g",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug -g",
@@ -8,10 +9,13 @@
     "test-firefox-ci": "export CI='true' && npx playwright test --project=firefox --grep @ci"
   },
   "dependencies": {
-    "@playwright/test": "^1.25.0",
-    "playwright": "^1.19.2",
-    "axios": "^0.26.1",
+    "@playwright/test": "^1.28.1",
+    "axios": "^1.2.0",
+    "chalk": "^4.1.2",
+    "deep-equal": "^2.2.0",
     "dotenv": "^16.0.0",
-    "sha1": "^1.1.1"
+    "playwright": "^1.28.1",
+    "sha1": "^1.1.1",
+    "xml2js": "^0.4.23"
   }
 }

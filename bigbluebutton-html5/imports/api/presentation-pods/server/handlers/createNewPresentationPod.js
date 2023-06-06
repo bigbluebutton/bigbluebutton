@@ -1,7 +1,7 @@
 import { check } from 'meteor/check';
 import addPresentationPod from '../modifiers/addPresentationPod';
 
-export default function handleCreateNewPresentationPod({ body }, meetingId) {
+export default async function handleCreateNewPresentationPod({ body }, meetingId) {
   check(body, {
     currentPresenterId: String,
     podId: String,
@@ -15,5 +15,5 @@ export default function handleCreateNewPresentationPod({ body }, meetingId) {
     podId,
   };
 
-  addPresentationPod(meetingId, pod);
+  await addPresentationPod(meetingId, pod);
 }

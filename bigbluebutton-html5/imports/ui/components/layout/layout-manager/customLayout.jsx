@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
+import { defaultsDeep } from '/imports/utils/array-utils';
+import { isPresentationEnabled } from '/imports/ui/services/features';
+import Draggable from 'react-draggable';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -30,6 +33,10 @@ const CustomLayout = (props) => {
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
+  const screenShareInput = layoutSelectInput((i) => i.screenShare);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
+
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
@@ -42,7 +49,7 @@ const CustomLayout = (props) => {
   const prevDeviceType = usePrevious(deviceType);
   const prevIsResizing = usePrevious(isResizing);
 
-  const throttledCalculatesLayout = _.throttle(() => calculatesLayout(),
+  const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
   useEffect(() => {
@@ -133,7 +140,7 @@ const CustomLayout = (props) => {
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: false,
             sidebarNavPanel: sidebarNavigationInput.sidebarNavPanel,
@@ -163,6 +170,9 @@ const CustomLayout = (props) => {
             width: input.screenShare.width,
             height: input.screenShare.height,
           },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
+          },
         }, INITIAL_INPUT_STATE),
       });
     } else {
@@ -170,7 +180,7 @@ const CustomLayout = (props) => {
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
-        value: _.defaultsDeep({
+        value: defaultsDeep({
           sidebarNavigation: {
             isOpen: input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
           },
@@ -199,6 +209,9 @@ const CustomLayout = (props) => {
             width: input.screenShare.width,
             height: input.screenShare.height,
           },
+          sharedNotes: {
+            isPinned: sharedNotesInput.isPinned,
+          },
         }, INITIAL_INPUT_STATE),
       });
     }
@@ -207,14 +220,21 @@ const CustomLayout = (props) => {
   };
 
   const calculatesSidebarContentHeight = (cameraDockHeight) => {
-    const { isOpen } = presentationInput;
+    const { isOpen, slidesLength } = presentationInput;
+    const { hasExternalVideo } = externalVideoInput;
+    const { hasScreenShare } = screenShareInput;
+    const { isPinned: isSharedNotesPinned } = sharedNotesInput;
+
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
       if (isMobile) {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else if (cameraDockInput.numCameras > 0
         && cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
-        && isOpen) {
+        && isOpen && !isGeneralMediaOff) {
         sidebarContentHeight = windowHeight() - cameraDockHeight;
       } else {
         sidebarContentHeight = windowHeight();
@@ -361,7 +381,7 @@ const CustomLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = windowHeight() - cameraDockHeight;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
@@ -375,7 +395,11 @@ const CustomLayout = (props) => {
   };
 
   const calculatesMediaBounds = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
-    const { isOpen } = presentationInput;
+    const { isOpen, slidesLength } = presentationInput;
+    const { hasExternalVideo } = externalVideoInput;
+    const { hasScreenShare } = screenShareInput;
+    const { isPinned: isSharedNotesPinned } = sharedNotesInput;
+
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const mediaAreaHeight = windowHeight()
       - (DEFAULT_VALUES.navBarHeight + actionBarHeight + bannerAreaHeight());
@@ -384,7 +408,10 @@ const CustomLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
     const { navBarHeight, camerasMargin } = DEFAULT_VALUES;
 
-    if (!isOpen) {
+    const hasPresentation = isPresentationEnabled() && slidesLength !== 0
+    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo && !hasScreenShare && !isSharedNotesPinned;
+
+    if (!isOpen || isGeneralMediaOff) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
       mediaBounds.top = 0;
@@ -626,7 +653,7 @@ const CustomLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet,
+        isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
         resizableEdge: {
           top: (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM)
             || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM

@@ -3,7 +3,7 @@ import { Match, check } from 'meteor/check';
 import Logger from '/imports/startup/server/logger';
 import GroupChat from '/imports/api/group-chat';
 
-export default function addGroupChat(meetingId, chat) {
+export default async function addGroupChat(meetingId, chat) {
   check(meetingId, String);
   check(chat, {
     id: Match.Maybe(String),
@@ -34,7 +34,7 @@ export default function addGroupChat(meetingId, chat) {
   };
 
   try {
-    const { insertedId } = GroupChat.upsert(selector, modifier);
+    const { insertedId } = await GroupChat.upsertAsync(selector, modifier);
 
     if (insertedId) {
       Logger.info(`Added group-chat chatId=${chatDocument.chatId} meetingId=${meetingId}`);

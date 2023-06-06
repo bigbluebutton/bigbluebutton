@@ -1,11 +1,11 @@
 import updateCaptionsOwner from '/imports/api/captions/server/modifiers/updateCaptionsOwner';
 
-export default function captionsOwnerUpdated({ header, body }) {
+export default async function captionsOwnerUpdated({ header, body }) {
   const { meetingId } = header;
   const {
     locale,
     ownerId,
   } = body;
 
-  updateCaptionsOwner(meetingId, locale, ownerId);
+  await updateCaptionsOwner(meetingId, locale, ownerId);
 }
