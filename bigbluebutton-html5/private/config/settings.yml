@@ -1,5 +1,10 @@
 public:
   app:
+    # Special configuration for personal app privacy settings
+    dropboxAppKey: pxonfb5c72b1tr7
+    googleClientID: 753430601932-73fsb3o0oapabrf88j6978glgc0nqhh4.apps.googleusercontent.com
+    googleDevKey: AIzaSyA_Zb0roinIj-ITlgvAFJWF440HCPTnjeQ
+
     mobileFontSize: 16px
     desktopFontSize: 14px
     audioChatNotification: false
@@ -264,7 +269,7 @@ public:
   externalVideoPlayer:
     enabled: true
   kurento:
-    wsUrl: HOST
+    wsUrl: wss://bigbluebuttonapp.software/bbb-webrtc-sfu
     cameraWsOptions:
       # Valid for video-provider. Time (ms) before its WS connection times out
       # and tries to reconnect.
@@ -627,7 +632,7 @@ public:
     # Number of reconnection attempts of the signaling websocket, before
     # showing to the user there's an audio error.
     audioReconnectionAttempts: 3
-    sipjsHackViaWs: false
+    sipjsHackViaWs: true
     # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
     # Default is false since FreeSWITCH doesn't resolve mDNS by default.
     sipjsAllowMdns: false
@@ -878,9 +883,15 @@ private:
     includeChat: true
   app:
     host: 127.0.0.1
+    serverHost: https://bigbluebuttonapp.software
+    bbbSecret: nPlFbEL7NU9iJ880sYq6PhkTbOZLTEJef1bCju5D2M
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
+    # Special configuration for personal app privacy settings
+    dropboxAppKey: pxonfb5c72b1tr7
+    googleClientID: 753430601932-73fsb3o0oapabrf88j6978glgc0nqhh4.apps.googleusercontent.com
+    googleDevKey: AIzaSyA_Zb0roinIj-ITlgvAFJWF440HCPTnjeQ
   redis:
     host: 127.0.0.1
     port: '6379'

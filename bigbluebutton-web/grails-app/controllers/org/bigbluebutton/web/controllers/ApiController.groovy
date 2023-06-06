@@ -44,6 +44,23 @@ import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.json.JSONArray
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.nio.client.methods.HttpAsyncMethods;
+import org.apache.http.nio.client.methods.ZeroCopyConsumer;
+import org.bigbluebutton.api.Util;
+
 import javax.servlet.ServletRequest
 
 class ApiController {
@@ -154,8 +171,12 @@ class ApiController {
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
+      // TODO: allow choose documents instead of upload all
+      String requestBodyTemp = getRequestBody()
+      uploadDocumentsFromLibrary(newMeeting.getInternalId(), requestBodyTemp);
+
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(newMeeting, false);  //
+      uploadDocuments(newMeeting, false, requestBodyTemp);  //
       respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
@@ -1111,9 +1132,10 @@ class ApiController {
     }
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    String requestBodyTemp = getRequestBody();
 
     if (meeting != null){
-      if (uploadDocuments(meeting, true)) {
+      if (uploadDocuments(meeting, true, requestBodyTemp)) {
         withFormat {
           xml {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
@@ -1138,6 +1160,357 @@ class ApiController {
         }
       }
     }
+  }
+
+  /*************************************************
+   * CUSTOM API: INSERT DOCUMENT TO COMMON LIBRARY
+   *************************************************/
+
+  def insertDocumentToCommonLibrary = {
+    String API_CALL = 'insertDocumentToCommonLibrary'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    // Map.Entry<String, String> validationResponse = validateRequest(
+    //         ValidationService.ApiCall.INSERT_DOCUMENT,
+    //         request.getParameterMap(),
+    //         request.getQueryString()
+    // )
+
+    // if(!(validationResponse == null)) {
+    //   invalid(validationResponse.getKey(), validationResponse.getValue())
+    //   return
+    // }
+
+    // Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    String requestBodyTemp = getRequestBody();
+
+    def presInfo = uploadDocumentsToLibrary(requestBodyTemp);
+    if (presInfo) {
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            message "Presentation is being uploaded"
+            data presInfo
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    }
+  }
+
+  def uploadDocumentsToLibrary(requestBody) {
+    //sanitizeInput
+    params.each {
+      key, value -> params[key] = sanitizeInput(value)
+    }
+
+    def res = []
+    Boolean preUploadedPresentationOverrideDefault = true
+
+    Boolean isDefaultPresentationUsed = false;
+    // String requestBody = request.inputStream == null ? null : request.inputStream.text;
+    // requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+    Boolean isDefaultPresentationCurrent = false;
+    def listOfPresentation = []
+    def presentationListHasCurrent = false
+
+    // This part of the code is responsible for organize the presentations in a certain order
+    // It selects the one that has the current=true, and put it in the 0th place.
+    // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
+    if (requestBody == null) {
+      listOfPresentation << [name: "default", current: true];
+    } else {
+      def xml = new XmlSlurper().parseText(requestBody);
+      Boolean hasCurrent = false;
+      xml.children().each { module ->
+        log.debug("module config found: [${module.@name}]");
+
+        if ("presentation".equals(module.@name.toString())) {
+          for (document in module.children()) {
+            if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
+                    document.@current.toString()) && !hasCurrent) {
+              listOfPresentation.add(0, document)
+              hasCurrent = true;
+            } else {
+              listOfPresentation << document
+            }
+          }
+        }
+      }
+      presentationListHasCurrent = hasCurrent;
+    }
+
+    listOfPresentation.eachWithIndex { document, index ->
+      def Boolean isCurrent = false;
+      def Boolean isRemovable = true;
+      def Boolean isDownloadable = false;
+      def Boolean isInitialPresentation = false;
+
+      // Extracting all properties inside the xml
+      if (!StringUtils.isEmpty(document.@removable.toString())) {
+        isRemovable = java.lang.Boolean.parseBoolean(document.@removable.toString());
+      }
+      if (!StringUtils.isEmpty(document.@downloadable.toString())) {
+        isDownloadable = java.lang.Boolean.parseBoolean(document.@downloadable.toString());
+      }
+      // The array has already been processed to let the first be the current. (This way it is
+      // ensured that only one document is current)
+      if (index == 0) {
+        if (presentationListHasCurrent) {
+          isCurrent = true
+        }
+      }
+
+      // Verifying whether the document is a base64 encoded or a url to download.
+      if (!StringUtils.isEmpty(document.@url.toString())) {
+        def fileName;
+        Map<String, Object> presInfo = new HashMap<String, Object>();
+        if (!StringUtils.isEmpty(document.@filename.toString())) {
+          log.debug("user provided filename: [${document.@filename}]");
+          fileName = document.@filename.toString();
+        }
+        presInfo = downloadAndProcessDocumentForLibrary(document.@url.toString(), isCurrent /* default presentation */,
+                fileName, isDownloadable, isRemovable, isInitialPresentation);
+        if (presInfo != null) res << presInfo;
+      }
+      // else if (!StringUtils.isEmpty(document.@name.toString())) {
+      //   def b64 = new Base64()
+      //   def decodedBytes = b64.decode(document.text().getBytes())
+      //   processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+      //           conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isInitialPresentation);
+      // }
+      else {
+        log.debug("presentation module config found, but it did not contain url or name attributes");
+      }
+    }
+
+    return res;
+  }
+
+  protected static final String LIBRARY_DIR = '/var/bigbluebutton/presentation_library';
+
+  def downloadAndProcessDocumentForLibrary(address, current, fileName, isDownloadable, isRemovable, isInitialPresentation) {
+    log.debug("ApiController#downloadAndProcessDocumentForLibrary(${address}, ${fileName})");
+    String presOrigFilename;
+    if (StringUtils.isEmpty(fileName)) {
+      try {
+        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        log.error "Couldn't decode the uploaded file name.", e
+        invalid("fileNameError", "Cannot decode the uploaded file name")
+        return;
+      }
+    } else {
+      presOrigFilename = fileName;
+    }
+
+    def uploadFailed = false
+    def uploadFailReasons = new ArrayList<String>()
+
+    // Gets the name minus the path from a full fileName.
+    // a/b/c.txt --> c.txt
+    def presFilename =  FilenameUtils.getName(presOrigFilename)
+    def filenameExt = FilenameUtils.getExtension(presOrigFilename)
+    def pres = null
+    def presId
+
+    if (presFilename == "" || filenameExt == "") {
+      log.debug("presentation is null by default")
+      return
+    }
+    String presentationDir = presentationService.getPresentationDir()
+    presId = Util.generatePresentationId(presFilename)
+    File uploadDir = new File(LIBRARY_DIR) // Util.createPresentationDir(, presentationDir, presId)
+    if (!uploadDir.exists()) {
+      uploadDir.mkdirs();
+    }
+
+    def newFilename = Util.createNewFilename(presId, filenameExt)
+    def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
+
+    // presDownloadService.savePresentation(meetingId, newFilePath, address)
+    if(savePresentationToLibrary(newFilePath, address)) pres = new File(newFilePath)
+    else {
+      log.error("Failed to download presentation=[${address}], fileName=[${fileName}]")
+      uploadFailReasons.add("failed_to_download_file")
+      uploadFailed = true
+    }
+
+    if (SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)) {
+      // Hardcode pre-uploaded presentation to the default presentation window
+      // processUploadedFile(
+      //         "DEFAULT_PRESENTATION_POD",
+      //         meetingId,
+      //         presId,
+      //         presFilename,
+      //         pres,
+      //         current,
+      //         "preupload-download-authz-token",
+      //         uploadFailed,
+      //         uploadFailReasons,
+      //         isDownloadable,
+      //         isRemovable
+      // )
+      Map<String, Object> presInfo = new HashMap<String, Object>();
+      presInfo.put("presId", presId);
+      presInfo.put("filename", presFilename);
+      presInfo.put("uploadUrl", address);
+      return presInfo;
+    } else {
+      org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
+      log.error("Document [${address}] sent is not supported as a presentation")
+      return null;
+    }
+  }
+
+  def getRequestBody() {
+    String requestBody = request.inputStream == null ? null : request.inputStream.text;
+    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+    return requestBody;
+  }
+
+  def uploadDocumentsFromLibrary(meetingId, requestBody) {
+    def documents = []
+
+    // This part of the code is responsible for organize the presentations in a certain order
+    // It selects the one that has the current=true, and put it in the 0th place.
+    // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
+    if (requestBody != null ) {
+      def xml = new XmlSlurper().parseText(requestBody);
+      xml.children().each { module ->
+        log.debug("module config found: [${module.@name}]");
+
+        if ("library-document".equals(module.@name.toString())) {
+          for (document in module.children()) {
+            documents << document
+          }
+        }
+      }
+    }
+
+    File libDir = new File(LIBRARY_DIR)
+    if (!libDir.exists()) libDir.mkdirs();
+
+    documents.each{ docs ->
+      def presId = docs.@presId.toString()
+      def presFilename = docs.@filename.toString()
+      
+      // File temp = new File(presFilename);
+      // TODO: parse from presFilename
+      def filenameExt = "pdf";
+      def presFile = new File(libDir.absolutePath + File.separatorChar + presId + "." + filenameExt)
+      log.info("================= presId=${presId}, presFilename=${presFilename}, exists=${presFile.exists()}");
+
+      if (presFile.exists() && filenameExt != null && SupportedFileTypes.isPresentationMimeTypeValid(presFile, filenameExt)) {
+        // Hardcode pre-uploaded presentation to the default presentation window
+        processUploadedFile(
+          "DEFAULT_PRESENTATION_POD",
+          meetingId,
+          presId,
+          presFilename,
+          presFile,
+          false, // current
+          "preupload-download-authz-token",
+          false, // uploadFailed
+          [], // uploadFailReasons
+          true, // isDownloadable
+          true // isRemovable
+        )
+      } else {
+        // org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(presFile)
+        log.error("Document [${presFile}] sent is not supported as a presentation")
+      }
+    }
+  }
+
+  protected static final int MAX_REDIRECTS = 5;
+
+  def followRedirect(String redirectUrl, int redirectCount, String origUrl) {
+    if (redirectCount > MAX_REDIRECTS) {
+      log.error("Max redirect reached with url=[{}]", origUrl);
+      return null;
+    }
+
+    def presUrl = null;
+    try {
+      presUrl = new URL(redirectUrl);
+    } catch (MalformedURLException e) {
+      log.error("Malformed url=[{}]", redirectUrl, e);
+      return null;
+    }
+
+    HttpURLConnection conn;
+    try {
+      conn = (HttpURLConnection) presUrl.openConnection();
+      conn.setReadTimeout(60000);
+      conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+      conn.addRequestProperty("User-Agent", "Mozilla");
+
+      // normally, 3xx is redirect
+      int status = conn.getResponseCode();
+      if (status != HttpURLConnection.HTTP_OK) {
+        if (status == HttpURLConnection.HTTP_MOVED_TEMP
+              || status == HttpURLConnection.HTTP_MOVED_PERM
+              || status == HttpURLConnection.HTTP_SEE_OTHER) {
+          String newUrl = conn.getHeaderField("Location");
+          return followRedirect(newUrl, redirectCount + 1, origUrl);
+        } else {
+          log.error("Invalid HTTP response=[{}] for url=[{}]", status, redirectUrl);
+          return null;
+        }
+      } else {
+        return redirectUrl;
+      }
+    } catch (IOException e) {
+      log.error("IOException for url=[{}]", redirectUrl, e);
+      return null;
+    }
+  }
+
+  def savePresentationToLibrary(newFilePath, address) {
+    String finalUrl = followRedirect(address, 0, address);
+
+    if (finalUrl == null) return false;
+
+    boolean success = false;
+
+    CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+    try {
+      httpclient.start();
+      File download = new File(newFilePath);
+      ZeroCopyConsumer<File> consumer = new ZeroCopyConsumer<File>(download) {
+        @Override
+        protected File process(
+                final HttpResponse response,
+                final File file,
+                final ContentType contentType) throws Exception {
+          if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+              throw new ClientProtocolException("Upload failed: " + response.getStatusLine());
+          }
+          return file;
+        }
+
+      };
+      Future<File> future = httpclient.execute(HttpAsyncMethods.createGet(finalUrl), consumer, null);
+      File result = future.get();
+      success = result.exists();
+    } catch (java.lang.InterruptedException ex) {
+        log.error("InterruptedException while saving presentation", ex);
+    } catch (java.util.concurrent.ExecutionException ex) {
+        log.error("ExecutionException while saving presentation", ex);
+    } catch (java.io.FileNotFoundException ex) {
+        log.error("FileNotFoundException while saving presentation", ex);
+    } finally {
+      try {
+          httpclient.close();
+      } catch (java.io.IOException ex) {
+          log.error("IOException while saving presentation", ex);
+      }
+    }
+
+    return success;
   }
 
   def getJoinUrl = {
@@ -1351,7 +1724,85 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(conf, isFromInsertAPI) {
+  /***********************************************
+   * CUSTOM API: LEARNING DASHBOARD DATA FROM MEETING ID
+   ***********************************************/
+  def learningDashboardFromMeetingId = {
+    String API_CALL = 'learningDashboardFromMeetingId'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+    String respMessage = ""
+    boolean reject = false
+    Meeting meeting
+
+    // Map.Entry<String, String> validationResponse = validateRequest(
+    //     ValidationService.ApiCall.LEARNING_DASHBOARD,
+    //     request.getParameterMap(),
+    //     request.getQueryString(),
+    // )
+
+    String meetingId = params.meeting;
+    String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
+
+    //Validate Meeting
+    if(reject == false) {
+      meeting = meetingService.getMeeting(meetingId)
+      boolean isRunning = meeting != null && meeting.isRunning();
+      if(!isRunning) {
+        reject = true
+        respMessage = "Meeting not found"
+      } else if (meeting.getDisabledFeatures().contains("learningDashboard") == true) {
+        reject = true
+        respMessage = "Learning Dashboard disabled for this meeting"
+      }
+    }
+
+    //Validate File
+    File jsonDataFile
+    if(reject == false) {
+      String meetingLearningDashboardPath = learningDashboardFilesDir + File.separatorChar + meetingId;
+      File meetingLearningDashboardDir = new File(meetingLearningDashboardPath);
+      String[] ss = meetingLearningDashboardDir.list();
+      File baseDir = new File(ss[0], meetingLearningDashboardDir);
+      if (!baseDir.exists()) baseDir.mkdirs();
+
+      jsonDataFile = new File(baseDir.getAbsolutePath() + File.separatorChar + "learning_dashboard_data.json");
+      // JSONObject resJsonData = new JsonSlurper().parseText(jsonDataFile.getText())
+      if (!jsonDataFile.exists()) {
+        reject = true
+        respMessage = "Learning Dashboard data not found"
+      }
+    }
+
+    if (reject) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_FAILED
+            message respMessage
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    } else {
+      response.addHeader("Cache-Control", "no-cache")
+
+      withFormat {
+        json {
+          def builder = new JsonBuilder()
+          builder.response {
+            returncode RESP_CODE_SUCCESS
+            data jsonDataFile.getText()
+          }
+          render(contentType: "application/json", text: builder.toPrettyString())
+        }
+      }
+    }
+  }
+
+  def uploadDocuments(conf, isFromInsertAPI, requestBody) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
@@ -1371,8 +1822,8 @@ class ApiController {
     }
 
     Boolean isDefaultPresentationUsed = false;
-    String requestBody = request.inputStream == null ? null : request.inputStream.text;
-    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+    // String requestBody = request.inputStream == null ? null : request.inputStream.text;
+    // requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
     Boolean isDefaultPresentationCurrent = false;
     def listOfPresentation = []
     def presentationListHasCurrent = false

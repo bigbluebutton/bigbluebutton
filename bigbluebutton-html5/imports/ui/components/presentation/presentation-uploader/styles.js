@@ -386,7 +386,7 @@ const UploaderModal = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1300;
+  z-index: 99;
 `;
 
 const ModalInner = styled.div`

@@ -4,6 +4,7 @@ import setPresentationRenderedInToast from './methods/setPresentationRenderedInT
 import setPresentation from './methods/setPresentation';
 import setPresentationDownloadable from './methods/setPresentationDownloadable';
 import exportPresentationToChat from './methods/exportPresentationToChat';
+import insertDocumentWithURL from './methods/insertDocumentWithURL';
 
 Meteor.methods({
   removePresentation,
@@ -11,4 +12,5 @@ Meteor.methods({
   setPresentationDownloadable,
   exportPresentationToChat,
   setPresentationRenderedInToast,
+  insertDocumentWithURL,
 });

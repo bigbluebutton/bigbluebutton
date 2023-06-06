@@ -5,8 +5,8 @@ import Logger from '/imports/startup/server/logger';
 
 const CAPTIONS_CONFIG = Meteor.settings.public.captions;
 const BASENAME = Meteor.settings.public.app.basename;
-const HOST = Meteor.settings.private.app.host;
-const LOCALES = Meteor.settings.private.app.localesUrl;
+const HOST = Meteor.settings.public.app.host;
+const LOCALES = Meteor.settings.public.app.localesUrl;
 const LOCALES_URL = `http://${HOST}:${process.env.PORT}${BASENAME}${LOCALES}`;
 
 const init = (meetingId) => {
