@@ -56,7 +56,7 @@ class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.denyEveryone);
 
     await this.initUserPage(false);
-    await this.userPage.hasElement(e.welcomeMessage);
+    await this.userPage.hasElement(e.deniedMessageElement);
   }
 
   async messageToSpecificUser() {
@@ -107,7 +107,7 @@ class GuestPolicy extends MultiUsers {
     await setGuestPolicyOption(this.modPage, e.alwaysDeny);
     await sleep(1500);
     await this.initUserPage(false);
-    await this.userPage.hasElement(e.welcomeMessage);
+    await this.userPage.hasElement(e.deniedMessageElement);
   }
 }
 

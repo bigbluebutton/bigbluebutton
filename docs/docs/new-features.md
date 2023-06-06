@@ -37,7 +37,14 @@ You can re-enable viewing your own webcam at any point.
 
 #### Restore downloading of original presentation
 
-In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you will be able to do both!
+In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire presentation. In BigBlueButton 2.6 we replaced this option with the capability to download the presentation with all the annotations embedded in it. As of BigBlueButton 2.7 you are be able to do both!
+
+![You can enable original presentation downloading from the upload dialog](/img/27-enable-download-orig-presentation.png)
+
+The download button is the same as in BigBlueButton 2.5!
+
+![Once downloading is enabled, everyone in the room can use it](/img/27-download-orig-presentation.png)
+
 
 ### Engagement
 
@@ -79,7 +86,10 @@ Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the follo
 - Spring 2.7.12
 - React 18
 
-For full details on what is new in BigBlueButton 2.6, see the release notes. Recent releases:
+For full details on what is new in BigBlueButton 2.7, see the release notes.
+
+
+Recent releases:
 
 ### Other notable changes
 

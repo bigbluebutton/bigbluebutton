@@ -55,16 +55,16 @@ repositories {
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.0.0"
   implementation "org.springframework:spring-core:5.3.21"
-  implementation "org.springframework:spring-context:5.3.21"
+  implementation "org.springframework:spring-context:5.3.27"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
-  implementation "org.grails:grails-core:5.2.4"
+  implementation "org.grails:grails-core:${grailsVersion}"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
   implementation "org.grails:grails-web-boot:5.2.5"
-  implementation "org.springframework:spring-webmvc:5.3.26"
+  implementation "org.springframework:spring-webmvc:5.3.27"
 
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest:5.2.5"
@@ -95,7 +95,7 @@ dependencies {
   implementation "io.projectreactor:reactor-core:3.4.12"
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
-  implementation "org.json:json:20211205"
+  implementation "org.json:json:20230227"
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"

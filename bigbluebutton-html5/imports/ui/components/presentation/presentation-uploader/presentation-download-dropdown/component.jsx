@@ -135,11 +135,14 @@ class PresentationDownloadDropdown extends PureComponent {
       disabled,
     } = this.props;
 
+    const customStyles = { zIndex: 9999 };
+
     return (
       <PresentationDownloadDropdownWrapper
         disabled={disabled}
       >
         <BBBMenu
+          customStyles={customStyles}
           trigger={
             (
               <Trigger
