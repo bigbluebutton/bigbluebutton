@@ -96,7 +96,7 @@ Updated in 2.5:
 
 Updated in 2.6:
 
-- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`; Added `liveTranscription` and `presentation` as options for `disabledFeatures=`.
+- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); Added `liveTranscription` and `presentation` as options for `disabledFeatures=`.
 
 - **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
 
@@ -104,7 +104,7 @@ Updated in 2.6:
 
 Updated in 2.7:
 
-- **join** - **Added:** `redirectErrorUrl`
+- **join** - **Added:** `redirectErrorUrl`, `userdata-bbb_fullaudio_bridge`
 
 ## API Data Types
 

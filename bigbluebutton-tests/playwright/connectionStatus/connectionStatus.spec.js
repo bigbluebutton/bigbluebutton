@@ -20,7 +20,7 @@ test.describe.parallel('Connection Status', () => {
     await connectionStatus.reportUserInConnectionIssues();
   });
 
-  test('Go to settings modal', async ({ browser, context, page }) => {
+  test('Redirect to data saving settings when a bad connection is detected @ci', async ({ browser, context, page }) => {
     const connectionStatus = new ConnectionStatus(browser, context);
     await connectionStatus.initModPage(page);
     await connectionStatus.linkToSettingsTest();

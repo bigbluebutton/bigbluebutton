@@ -30,7 +30,7 @@ const VideoListItem = (props) => {
   const {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount, onVirtualBgDrop,
-    makeDragOperations, dragging, draggingOver, isRTL, isStream,
+    makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable, 
   } = props;
 
   const intl = useIntl();
@@ -93,7 +93,7 @@ const VideoListItem = (props) => {
         elem.play().catch((error) => {
           // NotAllowedError equals autoplay issues, fire autoplay handling event
           if (error.name === 'NotAllowedError') {
-            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaTag: elem } });
+            const tagFailedEvent = new CustomEvent('videoPlayFailed', { detail: { mediaElement: elem } });
             window.dispatchEvent(tagFailedEvent);
           }
         });
@@ -114,8 +114,8 @@ const VideoListItem = (props) => {
   }, []);
 
   useEffect(() => {
-    setIsSelfViewDisabled(Settings.application.selfViewDisable);
-  }, [Settings.application.selfViewDisable]);
+    setIsSelfViewDisabled(settingsSelfViewDisable);
+  }, [settingsSelfViewDisable]);
 
   const renderSqueezedButton = () => (
     <UserActions
@@ -224,6 +224,7 @@ const VideoListItem = (props) => {
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
+      isStream={isStream}
       {...{
         ...makeDragOperations(user?.userId),
         dragging,

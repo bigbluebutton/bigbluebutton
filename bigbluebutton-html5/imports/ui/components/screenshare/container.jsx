@@ -13,6 +13,7 @@ import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import AudioService from '/imports/ui/components/audio/service';
 import { shouldEnableVolumeControl } from './service';
 import MediaService from '/imports/ui/components/media/service';
 import { defineMessages } from 'react-intl';
@@ -151,5 +152,6 @@ export default withTracker(() => {
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
+    outputDeviceId: AudioService.outputDeviceId(),
   };
 })(ScreenshareContainer);

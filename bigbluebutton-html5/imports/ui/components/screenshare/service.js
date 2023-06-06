@@ -118,7 +118,7 @@ const isScreenGloballyBroadcasting = () => {
 const isCameraAsContentGloballyBroadcasting = () => {
   const cameraAsContentEntry = Screenshare.findOne({ meetingId: Auth.meetingID, "screenshare.contentType": CONTENT_TYPE_CAMERA },
     { fields: { 'screenshare.stream': 1 } });
-  
+
   return (!cameraAsContentEntry ? false : !!cameraAsContentEntry.screenshare.stream);
 }
 
@@ -169,7 +169,7 @@ const screenshareHasAudio = () => {
 const getBroadcastContentType = () => {
   const screenshareEntry = Screenshare.findOne({meetindId: Auth.meedingID},
     { fields: { 'screenshare.contentType': 1} });
-  
+
   if (!screenshareEntry) {
     // defaults to contentType: "camera"
     return CONTENT_TYPE_CAMERA;
@@ -220,12 +220,43 @@ const attachLocalPreviewStream = (mediaElement) => {
     // Always muted, presenter preview.
     BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
   }
-}
+};
 
-const screenshareHasStarted = (isPresenter) => {
+const setOutputDeviceId = (outputDeviceId) => {
+  const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+  const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
+  const srcStream = screenShareElement?.srcObject;
+
+  if (typeof outputDeviceId === 'string'
+    && sinkIdSupported
+    && screenShareElement.sinkId !== outputDeviceId
+    && srcStream
+    && srcStream.getAudioTracks().length > 0) {
+    try {
+      screenShareElement.setSinkId(outputDeviceId);
+      logger.debug({
+        logCode: 'screenshare_output_device_change',
+        extraInfo: {
+          newDeviceId: outputDeviceId,
+        },
+      }, `Screenshare output device changed: to ${outputDeviceId || 'default'}`);
+    } catch (error) {
+      logger.error({
+        logCode: 'screenshare_output_device_change_failure',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          newDeviceId: outputDeviceId,
+        },
+      }, `Error changing screenshare output device - {${error.name}: ${error.message}}`);
+    }
+  }
+};
+
+const screenshareHasStarted = (isPresenter, options = {}) => {
   // Presenter's screen preview is local, so skip
   if (!isPresenter) {
-    viewScreenshare();
+    viewScreenshare({ outputDeviceId: options.outputDeviceId });
   }
 };
 
@@ -275,17 +306,18 @@ const shareScreen = async (isPresenter, onFail, options = {}) => {
   }
 };
 
-const viewScreenshare = () => {
+const viewScreenshare = (options = {}) => {
   const hasAudio = screenshareHasAudio();
-  KurentoBridge.view(hasAudio).catch((error) => {
-    logger.error({
-      logCode: 'screenshare_view_failed',
-      extraInfo: {
-        errorName: error.name,
-        errorMessage: error.message,
-      },
-    }, `Screenshare viewer failure`);
-  });
+  KurentoBridge.view({ hasAudio, outputDeviceId: options.outputDeviceId })
+    .catch((error) => {
+      logger.error({
+        logCode: 'screenshare_view_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, 'Screenshare viewer failure');
+    });
 };
 
 const screenShareEndAlert = () => AudioService
@@ -370,4 +402,5 @@ export {
   shouldEnableVolumeControl,
   setCameraAsContentDeviceId,
   getCameraAsContentDeviceId,
+  setOutputDeviceId,
 };

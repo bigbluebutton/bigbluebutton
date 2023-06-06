@@ -13,6 +13,7 @@ import AudioErrors from './error-codes';
 import { Meteor } from 'meteor/meteor';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   DEFAULT_INPUT_DEVICE_ID,
   reloadAudioElement,
@@ -181,9 +182,9 @@ class AudioManager {
     if (MEDIA.audio) {
       const { bridges, defaultFullAudioBridge, defaultListenOnlyBridge } = MEDIA.audio;
 
-      const _fullAudioBridge = getFromMeetingSettings(
-        'fullaudio-bridge',
-        defaultFullAudioBridge
+      const _fullAudioBridge = getFromUserSettings(
+        'bbb_fullaudio_bridge',
+        getFromMeetingSettings('fullaudio-bridge', defaultFullAudioBridge),
       );
 
       this.bridges = {};

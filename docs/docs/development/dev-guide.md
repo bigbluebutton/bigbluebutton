@@ -9,13 +9,13 @@ keywords:
 - developer
 ---
 
-Welcome to the BigBlueButton Developer's Guide for BigBlueButton 2.6.
+Welcome to the BigBlueButton Developer's Guide for BigBlueButton 2.7.
 
-This document gives you an overview of how to set up a development environment for BigBlueButton 2.6.
+This document gives you an overview of how to set up a development environment for BigBlueButton 2.7.
 
 ## Before you begin
 
-You first need to set up a BigBlueButton 2.6 server. See the instructions at [Install BigBlueButton 2.6](/administration/install).
+You first need to set up a BigBlueButton 2.7 server. See the instructions at [Install BigBlueButton 2.7](/administration/install).
 
 ## Overview
 
@@ -32,7 +32,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - kurento-media-server -- WebRTC media server for sending/receiving/recording video (webcam and screen share)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
 
-This document describes how to set up a development environment using an existing BigBlueButton 2.6 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source, compile the source, and replace the corresponding components on the server (such as updating the BigBlueButton client).
+This document describes how to set up a development environment using an existing BigBlueButton 2.7 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source, compile the source, and replace the corresponding components on the server (such as updating the BigBlueButton client).
 
 The instructions in this guide are step-by-step so you can understand each step needed to modify a component. If you encounter problems or errors at any section, don't ignore the errors. Stop and double-check that you have done the step correctly. If you are unable to determine the cause of the error, do the following
 
@@ -180,20 +180,20 @@ After cloning, you'll have the following directory (make sure the `bigbluebutton
 /home/bigbluebutton/dev/bigbluebutton
 ```
 
-Confirm that you are working on the `v2.6.x-release` branch.
+Confirm that you are working on the `v2.7.x-release` branch.
 
 ```bash
 cd /home/bigbluebutton/dev/bigbluebutton
 git status
 ```
 
-BigBlueButton 2.6 source code lives on branch `v2.6.x-release`. This is where any patches to 2.6 will be merged. If you are looking to customize your BigBlueButton 2.6 clone to fit your needs, this is the branch to use.
+BigBlueButton 2.7 source code lives on branch `v2.7.x-release`. This is where any patches to 2.7 will be merged. If you are looking to customize your BigBlueButton 2.7 clone to fit your needs, this is the branch to use.
 
-For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v2.6.x-release`.
+For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v2.7.x-release`.
 
 ```
-On branch v2.6.x-release
-Your branch is up-to-date with 'origin/v2.6.x-release'.
+On branch v2.7.x-release
+Your branch is up-to-date with 'origin/v2.7.x-release'.
 nothing to commit, working directory clean
 ```
 
@@ -215,10 +215,10 @@ After, we need to fetch the most up to date version of the remote repository.
 git fetch upstream
 ```
 
-You are now ready to create a new branch to start your work and base the `v2.6.x-release` release branch
+You are now ready to create a new branch to start your work and base the `v2.7.x-release` release branch
 
 ```bash
-git checkout -b my-changes-branch upstream/v2.6.x-release
+git checkout -b my-changes-branch upstream/v2.7.x-release
 ```
 
 "checkout" switches branches
@@ -227,7 +227,7 @@ git checkout -b my-changes-branch upstream/v2.6.x-release
 
 "my-changes-branch" will be the name of the new branch
 
-"upstream/v2.6.x-release" is where you want to start your new branch
+"upstream/v2.7.x-release" is where you want to start your new branch
 
 You should now confirm that you are in the correct branch.
 
@@ -252,7 +252,7 @@ Below is an overview of the different components in a production set-up. When de
 
 ### (Optional) Install Greenlight
 
-Note that at this point we recommend installing and using [Greenlight](/greenlight/v2/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
+Note that at this point we recommend installing and using [Greenlight](/greenlight/v3/install) or using API-MATE (link can be found when you run `$ bbb-conf --salt`).
 
 You can access https://BBB_DOMAIN , and you will be able to join meetings.
 
@@ -324,7 +324,7 @@ $ NODE_ENV=production npm start
 
 In certain cases when making changes that span multiple BigBlueButton components you would want to ensure that the changes work well with the multiple different `NodeJS` processes.
 
-You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v2.6.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode, requiring the `poolhtml5servers` NGINX rule). Make sure to read through the script to understand what it does prior to using it.
+You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode, requiring the `poolhtml5servers` NGINX rule). Make sure to read through the script to understand what it does prior to using it.
 
 ### Switch NGINX to redirect requests to Meteor
 

@@ -24,6 +24,7 @@ import { Meeting } from '/imports/ui/Types/meeting';
 import  { debounce } from 'radash';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
+import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
 
 const cache = new CellMeasurerCache({
   keyMapper: () => 1,
@@ -37,12 +38,12 @@ interface UserListParticipantsProps {
   setOffset: (offset: number) => void;
   setLimit: (limit: number) => void,
   meeting: Meeting;
-  currentUser: User;
+  currentUser: Partial<User>;
   count: number;
 }
 interface RowRendererProps extends ListProps {
   users: Array<User>;
-  currentUser: User;
+  currentUser: Partial<User>;
   meeting: Meeting;
   offset: number;
 }
@@ -138,20 +139,20 @@ const UserListParticipantsContainer: React.FC = () => {
   const meeting = meetingArray && meetingArray[0];
 
   const {
-    loading: currentUserLoading,
-    error: currentUserError,
-    data: currentUserData,
-  } = useSubscription(CURRENT_USER_SUBSCRIPTION);
-
-  const { user_current: currentUserArr } = (currentUserData || {});
-  const currentUser = currentUserArr && currentUserArr[0];
-
-  const {
     loading: countLoading,
     error: countError,
     data: countData,
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
   const count = countData?.user_aggregate?.aggregate?.count || 0;
+
+  const currentUser = useCurrentUser((currentUser: Partial<User>)=>{
+    return {
+      isModerator: currentUser.isModerator,
+      userId: currentUser.userId,
+      presenter: currentUser.presenter,
+    } as Partial<User>;
+  });
+
   return <>
     <UsersTitle count={count} />
     <UserListParticipants

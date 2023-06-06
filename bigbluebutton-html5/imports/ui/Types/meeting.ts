@@ -11,6 +11,13 @@ export interface LockSettings {
   webcamsOnlyForModerator: boolean;
 }
 
+export interface WelcomeSettings {
+  welcomeMsg: string;
+  modOnlyMessage: string;
+  welcomeMsgTemplate: string;
+  meetingId: string;
+}
+
 export interface UsersPolicies {
   allowModsToEjectCameras: boolean;
   allowModsToUnmuteUsers: boolean;

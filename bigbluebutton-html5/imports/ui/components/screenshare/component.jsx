@@ -15,6 +15,7 @@ import {
   isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
+  setOutputDeviceId,
   getMediaElement,
   getMediaElementDimensions,
   attachLocalPreviewStream,
@@ -68,6 +69,7 @@ class ScreenshareComponent extends React.Component {
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.handleOnMuted = this.handleOnMuted.bind(this);
+    this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.debouncedDispatchScreenShareSize = debounce(
       { delay: SCREEN_SIZE_DISPATCH_INTERVAL },
       this.dispatchScreenShareSize,
@@ -89,9 +91,10 @@ class ScreenshareComponent extends React.Component {
       intl,
       isPresenter,
       startPreviewSizeBig,
+      outputDeviceId,
     } = this.props;
 
-    screenshareHasStarted(isPresenter);
+    screenshareHasStarted(isPresenter, { outputDeviceId });
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Stream health state tracker to propagate UI changes on reconnections
@@ -117,9 +120,13 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isPresenter } = this.props;
+    const { isPresenter, outputDeviceId } = this.props;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
+    }
+
+    if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
+      setOutputDeviceId(outputDeviceId);
     }
   }
 
@@ -318,7 +325,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <FullscreenButtonContainer
-        key={_.uniqueId('fullscreenButton-')}
+        key={uniqueId('fullscreenButton-')}
         elementName={intl.formatMessage(this.locales.label)}
         fullscreenRef={this.screenshareContainer}
         elementId={fullscreenElementId}
@@ -333,7 +340,7 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <AutoplayOverlay
-        key={_.uniqueId('screenshareAutoplayOverlay')}
+        key={uniqueId('screenshareAutoplayOverlay')}
         autoplayBlockedDesc={intl.formatMessage(this.locales.autoplayBlockedDesc)}
         autoplayAllowLabel={intl.formatMessage(this.locales.autoplayAllowLabel)}
         handleAllowAutoplay={this.handleAllowAutoplay}
@@ -560,4 +567,5 @@ ScreenshareComponent.propTypes = {
   isPresenter: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   enableVolumeControl: PropTypes.bool.isRequired,
+  outputDeviceId: PropTypes.string,
 };
