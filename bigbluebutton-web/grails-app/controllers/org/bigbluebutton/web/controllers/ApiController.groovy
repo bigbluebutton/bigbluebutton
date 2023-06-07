@@ -1363,11 +1363,20 @@ class ApiController {
       return
     }
 
-    meetingService.modifyMeetingDuration(params.meetingID, params.seconds)
+    Meeting meeting = meetingService.getMeeting(params.meetingID)
+    String response = ""
+    if(meeting != null) {
+      if(meeting.getDuration() == 0) {
+        response = "The specified meeting has no duration to be modified"
+      } else {
+        meetingService.modifyMeetingDuration(params.meetingID, params.seconds)
+        response = "Meeting duration modified"
+      }
+    }
 
     withFormat {
       xml {
-        render(text: responseBuilder.buildModifyMeetingDurationResponse("Meeting duration modified", RESP_CODE_SUCCESS), contentType: "text/xml")
+        render(text: responseBuilder.buildModifyMeetingDurationResponse(response, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
   }
