@@ -27,9 +27,6 @@ const Poll = styled.div`
     height: auto;
     top: ${navbarHeight};
     overflow: auto;
-     &.no-padding {
-      padding: 0;
-    }
   }
 
   @media ${mediumUp} {
