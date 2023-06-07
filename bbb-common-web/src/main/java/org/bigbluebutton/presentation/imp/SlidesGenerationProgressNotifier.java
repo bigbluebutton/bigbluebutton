@@ -58,7 +58,7 @@ public class SlidesGenerationProgressNotifier {
             pres.getTemporaryPresentationId(),
             pres.getName(),
             pres.getAuthzToken(),
-            "IVALID_MIME_TYPE",
+            "INVALID_MIME_TYPE",
             fileMime,
             fileExtension
     );
