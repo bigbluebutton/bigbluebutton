@@ -899,7 +899,7 @@ $ sudo bbb-conf --restart
 
 #### Change the default presentation
 
-When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users.
+When a new meeting starts, BigBlueButton displays a default presentation. The file for the default presentation is located in `/var/www/bigbluebutton-default/assets/default.pdf`. You can replace the contents of this file with your presentation. Whenever a meeting is created, BigBlueButton will automatically load, convert, and display this presentation for all users. Note that this file may be overwritten when the BigBlueBUtton is upgraded. 
 
 Alternatively, you can change the global default by adding an overwriting rule in `/etc/bigbluebutton/bbb-web.properties` specifying the URL for `beans.presentationService.defaultUploadedPresentation`.
 
@@ -908,7 +908,9 @@ Alternatively, you can change the global default by adding an overwriting rule i
 beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/default.pdf
 ```
 
-You'll need to restart BigBlueButton after the change with `sudo bbb-conf --restart`.
+Please name the file "default.pdf" if you do not want BigBlueButton to generate thumbnails, which will be used in some frontend apps, from this file.
+
+You'll need to restart BigBlueButton after the change with `sudo bbb-conf --restart`. 
 
 If you want to specify the default presentation for a given meeting, you can also pass a URL to the presentation as part of the [create](/development/api#pre-upload-slides) meeting API call.
 
