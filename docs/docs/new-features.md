@@ -245,6 +245,9 @@ We used to keep the default presentation (`default.pdf` on a stock installation)
 In BigBlueButton 2.6 we added a directory `assets` so now the full path is `/var/www/bigbluebutton-default/assets/default.pdf`.
 In case you are overriding the file/filename, please pass `beans.presentationService.defaultUploadedPresentation=${bigbluebutton.web.serverURL}/assets/file.pdf` in `/etc/bigbluebutton/bbb-web.properties`
 
+#### Limiting the whiteboard annotations to 300 per slide (configurable)
+
+We introduced this configuration as a safeguard against people deliberately trying to deteriorate others' experience. In some cases the default limit could be reached in normal use of the whiteboard (small letter handwriting while zoomed in, etc). We have exposed this value in the configurations file for bbb-html5. You can find more info in the [customization presentation section](https://docs.bigbluebutton.org/administration/customize#change-the-limit-of-300-annotations-per-page) .
 
 ### Development
 
