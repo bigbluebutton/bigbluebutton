@@ -203,6 +203,16 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(endedEvnt)
   }
 
+  def buildMeetingDurationModifiedEvtMsg(outGW: OutMsgRouter, meetingId: String, duration: Long): Unit = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(MeetingDurationModifiedEvtMsg.NAME, routing)
+    val body = MeetingDurationModifiedEvtMsgBody(meetingId, duration)
+    val header = BbbCoreBaseHeader(MeetingDurationModifiedEvtMsg.NAME)
+    val event = MeetingDurationModifiedEvtMsg(header, body)
+    val msg = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msg)
+  }
+
   def destroyMeeting(eventBus: InternalEventBus, meetingId: String): Unit = {
     eventBus.publish(BigBlueButtonEvent(meetingManagerChannel, new DestroyMeetingInternalMsg(meetingId)))
   }

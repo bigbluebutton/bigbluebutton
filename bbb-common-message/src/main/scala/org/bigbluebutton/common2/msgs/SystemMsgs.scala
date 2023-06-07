@@ -94,6 +94,16 @@ case class MeetingEndedEvtMsg(
 case class MeetingEndedEvtMsgBody(meetingId: String)
 
 /**
+ * Sent from akka-apps to bbb-web to inform about modification of meeting duration
+ */
+object MeetingDurationModifiedEvtMsg { val NAME = "MeetingDurationModifiedEvtMsg" }
+case class MeetingDurationModifiedEvtMsg(
+    header: BbbCoreBaseHeader,
+    body:   MeetingDurationModifiedEvtMsgBody
+) extends BbbCoreMsg
+case class MeetingDurationModifiedEvtMsgBody(meetingId: String, duration: Long)
+
+/**
  * Sent from akka-apps to clients to inform them of end of meeting
  */
 object MeetingEndingEvtMsg { val NAME = "MeetingEndingEvtMsg" }

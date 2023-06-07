@@ -64,6 +64,8 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[MeetingEndedEvtMsg](envelope, jsonNode)
       case MeetingDestroyedEvtMsg.NAME =>
         route[MeetingDestroyedEvtMsg](envelope, jsonNode)
+      case MeetingDurationModifiedEvtMsg.NAME =>
+        route[MeetingDurationModifiedEvtMsg](envelope, jsonNode)
       case CheckAlivePongSysMsg.NAME =>
         route[CheckAlivePongSysMsg](envelope, jsonNode)
       case UserEmojiChangedEvtMsg.NAME =>

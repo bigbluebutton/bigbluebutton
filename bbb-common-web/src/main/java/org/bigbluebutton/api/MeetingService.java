@@ -908,6 +908,13 @@ public class MeetingService implements MessageListener {
     }
   }
 
+  private void meetingDurationModified(MeetingDurationModified message) {
+    Meeting m = getMeeting(message.meetingId);
+    if(m != null) {
+      m.setDuration(message.duration);
+    }
+  }
+
   private void processMeetingEndedCallback(MeetingEndedEvent event) {
     try {
       callbackUrlService.handleMessage(event);
@@ -1150,6 +1157,8 @@ public class MeetingService implements MessageListener {
           meetingDestroyed((MeetingDestroyed) message);
         } else if (message instanceof MeetingEnded) {
           meetingEnded((MeetingEnded) message);
+        } else if (message instanceof MeetingDurationModified) {
+          meetingDurationModified((MeetingDurationModified) message);
         } else if (message instanceof UserJoined) {
           userJoined((UserJoined) message);
         } else if (message instanceof UserLeft) {

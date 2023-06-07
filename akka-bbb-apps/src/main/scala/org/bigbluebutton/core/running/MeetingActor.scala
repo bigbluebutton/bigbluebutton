@@ -356,6 +356,7 @@ class MeetingActor(
     log.info("Duration of meeting {} modified by {} seconds from API.", meetingId, seconds)
     val tracker = state.expiryTracker.modifyMeetingDuration(seconds)
     state = state.update(tracker)
+    buildMeetingDurationModifiedEvtMsg(outGW, meetingId, state.expiryTracker.durationInMs)
   }
 
   private def handleBbbCommonEnvCoreMsg(msg: BbbCommonEnvCoreMsg): Unit = {
