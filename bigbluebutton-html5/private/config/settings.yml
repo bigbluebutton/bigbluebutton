@@ -723,7 +723,7 @@ public:
     help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
-    allowSnapshot: true
+    allowSnapshotOfCurrentSlide: true
     panZoomThrottle: 32
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'

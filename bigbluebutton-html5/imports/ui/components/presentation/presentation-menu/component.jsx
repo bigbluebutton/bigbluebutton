@@ -91,7 +91,7 @@ const propTypes = {
 };
 
 const defaultProps = {
-  allowSnapshot: PropTypes.bool.isRequired,
+  allowSnapshotOfCurrentSlide: PropTypes.bool.isRequired,
   isIphone: false,
   isFullscreen: false,
   isRTL: false,
@@ -123,6 +123,7 @@ const PresentationMenu = (props) => {
     isRTL,
     isToolbarVisible,
     setIsToolbarVisible,
+    allowSnapshotOfCurrentSlide,
   } = props;
 
   const [state, setState] = useState({
@@ -173,7 +174,6 @@ const PresentationMenu = (props) => {
 
   function getAvailableOptions() {
     const menuItems = [];
-    const { allowSnapshot } = this.props;
 
     if (!isIphone) {
       menuItems.push(
@@ -201,7 +201,7 @@ const PresentationMenu = (props) => {
 
     const { isSafari } = browserInfo;
 
-    if (!isSafari && allowSnapshot) {
+    if (!isSafari && allowSnapshotOfCurrentSlide) {
       menuItems.push(
         {
           key: 'list-item-screenshot',
