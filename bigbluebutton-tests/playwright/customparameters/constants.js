@@ -57,6 +57,24 @@ exports.layouts = 'disabledFeatures=layouts';
 exports.presentation = 'disabledFeatures=presentation';
 exports.customVirtualBackground = 'disabledFeatures=customVirtualBackgrounds';
 
+// Disabled Features Exclude
+exports.breakoutRoomsExclude = 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms';
+exports.liveTranscriptionExclude = 'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription';
+exports.captionsExclude = 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions';
+exports.chatExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat';
+exports.externalVideosExclude = 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos';
+exports.layoutsExclude = 'disabledFeatures=presentation,chat,layouts&disabledFeaturesExclude=layouts';
+exports.learningDashboardExclude = 'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard';
+exports.pollsExclude = 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls';
+exports.screenshareExclude = 'disabledFeatures=presentation,chat,screenshare&disabledFeaturesExclude=screenshare';
+exports.sharedNotesExclude = 'disabledFeatures=presentation,chat,sharedNotes&disabledFeaturesExclude=sharedNotes';
+exports.virtualBackgroundsExclude = 'disabledFeatures=presentation,chat,virtualBackgrounds&disabledFeaturesExclude=virtualBackgrounds';
+exports.downloadPresentationWithAnnotationsExclude = 'disabledFeatures=chat,downloadPresentationWithAnnotations&disabledFeaturesExclude=downloadPresentationWithAnnotations';
+exports.importPresentationWithAnnotationsFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importPresentationWithAnnotationsFromBreakoutRooms&disabledFeaturesExclude=importPresentationWithAnnotationsFromBreakoutRooms';
+exports.importSharedNotesFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms';
+exports.presentationExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation';
+exports.customVirtualBackgroundExclude = 'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground';
+
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';
 exports.initialShortcuts = [{

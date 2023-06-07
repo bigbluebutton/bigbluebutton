@@ -153,7 +153,7 @@ exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.liveTranscription = 'div[data-test="liveTranscription"]';
+exports.liveTranscription = 'div[data-test="speechRecognition"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 exports.propagateLayout = 'li[data-test="propagateLayout"]';
 exports.layoutModal = 'li[data-test="layoutModal"]';
