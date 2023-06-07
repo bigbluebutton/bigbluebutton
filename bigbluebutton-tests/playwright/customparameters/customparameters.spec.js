@@ -2,7 +2,6 @@ const { test } = require('@playwright/test');
 const { CustomParameters } = require('./customparameters');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
-const { fullName } = require('../core/parameters');
 
 test.describe.parallel('CustomParameters', () => {
   test('Show Public Chat On Login', async ({ browser, context, page }) => {
