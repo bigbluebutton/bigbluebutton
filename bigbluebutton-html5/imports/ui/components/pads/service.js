@@ -9,7 +9,7 @@ import {
 } from '/imports/ui/components/external-video-player/service';
 import {
   screenshareHasEnded,
-  isVideoBroadcasting,
+  isScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 
 const PADS_CONFIG = Meteor.settings.public.pads;
@@ -123,16 +123,13 @@ const pinPad = (externalId, pinned) => {
     if (getVideoUrl()) stopWatching();
 
     // Stop screen sharing if it's running.
-    if (isVideoBroadcasting()) screenshareHasEnded();
+    if (isScreenBroadcasting()) screenshareHasEnded();
   }
 
   makeCall('pinPad', externalId, pinned);
 };
 
-const throttledPinPad = throttle(pinPad, 1000, {
-  leading: true,
-  trailing: false,
-});
+const throttledPinPad = throttle(pinPad, 1000);
 
 export default {
   getPadId,

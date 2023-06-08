@@ -17,8 +17,6 @@ const InteractionsButton = (props) => {
     away,
     raiseHand,
     intl,
-    sidebarContentPanel,
-    layoutContextDispatch,
     isMobile,
     isRTL,
   } = props;
@@ -77,8 +75,7 @@ const InteractionsButton = (props) => {
       dataTest: 'interactionsLabel',
       label: intl.formatMessage(intlMessages.interactionsLabel),
       disabled: true,
-      onClick: () => {
-      },
+      onClick: () => {},
     });
 
     dropdownActions.push({
@@ -100,16 +97,18 @@ const InteractionsButton = (props) => {
         icon: 'happy',
         label: intl.formatMessage(intlMessages.addReactionLabel),
         onClick: () => {
-          setDropdownList([{
-            key: 'back',
-            dataTest: 'back',
-            icon: 'left_arrow',
-            label: intl.formatMessage(intlMessages.backLabel),
-            onClick: () => {
-              setShowEmojiPicker(false);
-              setDropdownList(dropdownActions);
+          setDropdownList([
+            {
+              key: 'back',
+              dataTest: 'back',
+              icon: 'left_arrow',
+              label: intl.formatMessage(intlMessages.backLabel),
+              onClick: () => {
+                setShowEmojiPicker(false);
+                setDropdownList(dropdownActions);
+              },
             },
-          }]);
+          ]);
           setShowEmojiPicker(true);
         },
       });
@@ -121,8 +120,7 @@ const InteractionsButton = (props) => {
       label: intl.formatMessage(intlMessages.statusLabel),
       disabled: true,
       dividerTop: true,
-      onClick: () => {
-      },
+      onClick: () => {},
     });
 
     return dropdownActions;
@@ -143,10 +141,7 @@ const InteractionsButton = (props) => {
 
   const renderEmojiPicker = () => (
     <Styled.Wrapper>
-      <ReactionsPicker
-        {...props}
-        onEmojiSelect={handleReactionSelect}
-      />
+      <ReactionsPicker {...props} onEmojiSelect={handleReactionSelect} />
     </Styled.Wrapper>
   );
 
@@ -217,15 +212,15 @@ const InteractionsButton = (props) => {
             circle
             size="lg"
           />
-          {!isMobile
-          && (
-          <ButtonEmoji
-            data-test="interactions-advanced-button"
-            emoji="device_list_selector"
-            label={intl.formatMessage(intlMessages.interactionsAdvancedButton)}
-            hideLabel
-            tabIndex={0}
-          />
+          {!isMobile && (
+            <ButtonEmoji
+              data-test="interactions-advanced-button"
+              emoji="device_list_selector"
+              label={intl.formatMessage(intlMessages.interactionsAdvancedButton)}
+              hideLabel
+              tabIndex={0}
+              rotate
+            />
           )}
         </Styled.InteractionsDropdown>
       )}
