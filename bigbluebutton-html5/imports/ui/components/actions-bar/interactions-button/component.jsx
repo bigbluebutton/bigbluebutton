@@ -14,6 +14,8 @@ const InteractionsButton = (props) => {
   const {
     userId,
     emoji,
+    away,
+    raiseHand,
     intl,
     sidebarContentPanel,
     layoutContextDispatch,
@@ -83,14 +85,11 @@ const InteractionsButton = (props) => {
       key: 'raise-hand',
       dataTest: 'raise-hand',
       icon: 'hand',
-      label: emoji === 'raiseHand'
+      label: raiseHand
         ? intl.formatMessage(intlMessages.notRaiseHandLabel)
         : intl.formatMessage(intlMessages.raiseHandLabel),
       onClick: () => {
-        UserListService.setEmojiStatus(
-          userId,
-          emoji === 'raiseHand' ? 'none' : 'raiseHand',
-        );
+        UserListService.setUserRaiseHand(userId, !raiseHand);
       },
     });
 
@@ -152,17 +151,11 @@ const InteractionsButton = (props) => {
   );
 
   const handlePresent = () => {
-    UserListService.setEmojiStatus(
-      userId,
-      'none',
-    );
+    UserListService.setUserAway(userId, false);
   };
 
   const handleAFK = () => {
-    UserListService.setEmojiStatus(
-      userId,
-      'away',
-    );
+    UserListService.setUserAway(userId, true);
   };
 
   const buttonStatus = () => (
@@ -172,18 +165,18 @@ const InteractionsButton = (props) => {
         onClick={() => handlePresent()}
         id="btn"
         icon="user"
-        disabled={emoji !== 'away'}
+        disabled={!away}
         size="md"
-        color={emoji !== 'away' ? 'primary' : 'default'}
+        color={!away ? 'primary' : 'default'}
       />
       <Button
         label={intl.formatMessage(intlMessages.awayLabel)}
         onClick={() => handleAFK()}
         id="btn"
         icon="clear_status"
-        disabled={emoji === 'away'}
+        disabled={away}
         size="md"
-        color={emoji === 'away' ? 'primary' : 'default'}
+        color={away ? 'primary' : 'default'}
       />
     </Styled.ButtonContainer>
   );
@@ -193,7 +186,7 @@ const InteractionsButton = (props) => {
       return intl.formatMessage(intlMessages.interactionsAdvancedButton);
     }
 
-    return emoji === 'raiseHand'
+    return raiseHand
       ? intl.formatMessage(intlMessages.notRaiseHandLabel)
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
@@ -204,10 +197,7 @@ const InteractionsButton = (props) => {
     }
 
     event.stopPropagation();
-    UserListService.setEmojiStatus(
-      userId,
-      emoji === 'raiseHand' ? 'none' : 'raiseHand',
-    );
+    UserListService.setUserRaiseHand(userId, !raiseHand);
   };
 
   return (
@@ -216,13 +206,13 @@ const InteractionsButton = (props) => {
         <Styled.InteractionsDropdown>
           <Styled.RaiseHandButton
             data-test="InteractionsButton"
-            icon='hand'
+            icon="hand"
             label={handleButtonLabel()}
             description="Interactions"
-            ghost={emoji !== 'raiseHand'}
+            ghost={!raiseHand}
             onKeyPress={() => {}}
             onClick={handleInteractionsButtonClick}
-            color={emoji === 'raiseHand' ? 'primary' : 'default'}
+            color={raiseHand ? 'primary' : 'default'}
             hideLabel
             circle
             size="lg"

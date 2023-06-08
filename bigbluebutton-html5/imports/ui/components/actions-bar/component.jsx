@@ -30,11 +30,13 @@ class ActionsBar extends PureComponent {
   }
 
   renderRaiseHand() {
-    const { isInteractionsButtonEnabled, isRaiseHandButtonEnabled } = this.props;
+    const {
+      isInteractionsButtonEnabled, isRaiseHandButtonEnabled, setEmojiStatus, currentUser, intl,
+    } = this.props;
 
     return (<>
-      {isInteractionsButtonEnabled ? <InteractionsButtonContainer /> :
-       isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{setEmojiStatus, currentUser, intl}}/>
+      {isInteractionsButtonEnabled ? <InteractionsButtonContainer />
+        : isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ setEmojiStatus, currentUser, intl }} />
        : null}
     </>);
   }
@@ -104,7 +106,7 @@ class ActionsBar extends PureComponent {
           {isCaptionsAvailable
             ? (
               <>
-                <CaptionsButtonContainer {...{ intl, 
+                <CaptionsButtonContainer {...{ intl,
                   setIsOpen: this.setCaptionsReaderMenuModalIsOpen,}} />
                 {
                   isCaptionsReaderMenuModalOpen ? <CaptionsReaderMenuContainer

@@ -1,32 +1,31 @@
-import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
-import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
+import RedisPubSub from '/imports/startup/server/redis';
 
-export default function setUserReaction(reactionEmoji, userId = undefined) {
+export default async function changeAway(away) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-    const EVENT_NAME = 'ChangeUserReactionEmojiReqMsg';
+    const EVENT_NAME = 'ChangeUserAwayReqMsg';
 
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(meetingId, String);
     check(requesterUserId, String);
-    check(reactionEmoji, String);
+    check(away, Boolean);
 
     const payload = {
-      reactionEmoji,
-      userId: userId || requesterUserId,
+      userId: requesterUserId,
+      away,
     };
 
-    Logger.verbose('User reactionEmoji status updated', {
-      reactionEmoji, requesterUserId, meetingId,
+    Logger.verbose('Updated away status for user', {
+      meetingId, requesterUserId, away,
     });
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
   } catch (err) {
-    Logger.error(`Exception while invoking method setUserReaction ${err.stack}`);
+    Logger.error(`Exception while invoking method changeAway ${err.stack}`);
   }
 }

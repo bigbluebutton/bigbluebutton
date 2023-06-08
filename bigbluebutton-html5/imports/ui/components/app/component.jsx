@@ -17,7 +17,7 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import StatusNotifier from '/imports/ui/components/status-notifier/container';
+import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -507,7 +507,7 @@ class App extends Component {
   setAudioModalIsOpen(value) {
     this.setState({isAudioModalOpen: value});
   }
-  
+
   setVideoPreviewModalIsOpen(value) {
     this.setState({isVideoPreviewModalOpen: value});
   }
@@ -592,14 +592,14 @@ class App extends Component {
                 pushAlertEnabled={pushAlertEnabled}
               />
             )}
-          <StatusNotifier status="raiseHand" />
+          <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
           <PadsSessionsContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer 
+          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer
             {...{
               onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
               priority: "low",

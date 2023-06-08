@@ -29,6 +29,7 @@ const getUserReaction = (userId) => {
       fields:
         {
           reaction: 1,
+          creationDate: 1,
         },
     },
   );
@@ -36,10 +37,11 @@ const getUserReaction = (userId) => {
   if (!reaction) {
     return {
       reaction: 'none',
+      reactionTime: 0,
     };
   }
 
-  return reaction.reaction;
+  return { reaction: reaction.reaction, reactionTime: reaction.creationDate.getTime() };
 };
 
 export default {

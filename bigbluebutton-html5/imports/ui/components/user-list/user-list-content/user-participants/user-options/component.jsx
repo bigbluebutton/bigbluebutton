@@ -21,7 +21,6 @@ const propTypes = {
   toggleMuteAllUsers: PropTypes.func.isRequired,
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
-  users: PropTypes.arrayOf(Object).isRequired,
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
@@ -326,7 +325,7 @@ class UserOptions extends PureComponent {
   }
 
   renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? <Component 
+    return isOpen ? <Component
       {...{
         ...otherOptions,
         onRequestClose: () => setIsOpen(false),
@@ -342,7 +341,7 @@ class UserOptions extends PureComponent {
       isCreateBreakoutRoomModalOpen: value,
     })
   }
-  
+
   setGuestPolicyModalIsOpen(value) {
     this.setState({
       isGuestPolicyModalOpen: value,
@@ -352,7 +351,7 @@ class UserOptions extends PureComponent {
   setWriterMenuModalIsOpen(value) {
     this.setState({isWriterMenuModalOpen: value});
   }
-  
+
   setLockViewersModalIsOpen(value) {
     this.setState({isLockViewersModalOpen: value});
   }
@@ -390,13 +389,13 @@ class UserOptions extends PureComponent {
             transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
           }}
         />
-        {this.renderModal(isCreateBreakoutRoomModalOpen, this.setCreateBreakoutRoomModalIsOpen, "medium", 
+        {this.renderModal(isCreateBreakoutRoomModalOpen, this.setCreateBreakoutRoomModalIsOpen, "medium",
           CreateBreakoutRoomContainer, {isBreakoutRecordable, isInvitation})}
-        {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low", 
+        {this.renderModal(isGuestPolicyModalOpen, this.setGuestPolicyModalIsOpen, "low",
           GuestPolicyContainer)}
-        {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "low", 
+        {this.renderModal(isWriterMenuModalOpen, this.setWriterMenuModalIsOpen, "low",
           WriterMenuContainer)}
-        {this.renderModal(isLockViewersModalOpen, this.setLockViewersModalIsOpen, "low", 
+        {this.renderModal(isLockViewersModalOpen, this.setLockViewersModalIsOpen, "low",
           LockViewersContainer)}
       </>
     );

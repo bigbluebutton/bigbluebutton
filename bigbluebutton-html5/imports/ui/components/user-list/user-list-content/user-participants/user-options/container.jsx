@@ -28,26 +28,25 @@ const meetingMuteDisabledLog = () => logger.info({
 
 const UserOptionsContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
-  return ( 
+  return (
     <UserOptions
       {...props}
       {...{
-        isRTL
+        isRTL,
       }}
     />
-  )
+  );
 };
 
 export default injectIntl(withTracker((props) => {
   const {
-    users,
     clearAllEmojiStatus,
     intl,
     isMeetingMuteOnStart,
   } = props;
 
   const toggleStatus = () => {
-    clearAllEmojiStatus(users);
+    clearAllEmojiStatus();
 
     notify(
       intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status',

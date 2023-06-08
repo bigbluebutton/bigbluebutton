@@ -611,7 +611,11 @@ class UserListItem extends PureComponent {
     let userAvatarFiltered = user.avatar;
 
     const getIconUser = () => {
-      if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+      if (user.raiseHand === true) {
+        return <Icon iconName={normalizeEmojiName('raiseHand')} />;
+      } if (user.away === true) {
+        return <Icon iconName={normalizeEmojiName('away')} />;
+      } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;
       } if (user.reaction !== 'none') {
         userAvatarFiltered = '';
@@ -864,7 +868,7 @@ class UserListItem extends PureComponent {
           checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
           confirmParam={user.userId}
           onConfirm={removeUser}
-          confirmButtonDataTest="removeUserConfirmation" 
+          confirmButtonDataTest="removeUserConfirmation"
           {...{
             onRequestClose: () => this.setConfirmationModalIsOpen(false),
             priority: "low",

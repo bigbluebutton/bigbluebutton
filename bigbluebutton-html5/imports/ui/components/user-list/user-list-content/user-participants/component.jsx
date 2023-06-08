@@ -213,7 +213,6 @@ class UserParticipants extends Component {
                 {currentUser?.role === ROLE_MODERATOR
                   ? (
                     <UserOptionsContainer {...{
-                      users,
                       clearAllEmojiStatus,
                       meetingIsBreakout,
                       isMeetingMuteOnStart,
