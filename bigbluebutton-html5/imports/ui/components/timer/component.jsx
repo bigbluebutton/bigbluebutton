@@ -72,6 +72,20 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  timer: PropTypes.shape({
+    stopwatch: PropTypes.bool,
+    running: PropTypes.bool,
+    time: PropTypes.string,
+    accumulated: PropTypes.number,
+    timestamp: PropTypes.number,
+  }).isRequired,
+  layoutContextDispatch: PropTypes.shape().isRequired,
+  timeOffset: PropTypes.number.isRequired,
+  isRTL: PropTypes.bool.isRequired,
+  isActive: PropTypes.bool.isRequired,
+  isModerator: PropTypes.bool.isRequired,
+  currentTrack: PropTypes.string.isRequired,
+  isResizing: PropTypes.bool.isRequired,
 };
 
 class Timer extends Component {

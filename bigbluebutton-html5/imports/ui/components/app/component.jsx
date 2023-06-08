@@ -212,7 +212,8 @@ class App extends Component {
 
     if (this.isTimerEnabled) {
       TimerService.fetchTimeOffset();
-      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset, TimerService.OFFSET_INTERVAL);
+      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
+        TimerService.OFFSET_INTERVAL);
     }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');

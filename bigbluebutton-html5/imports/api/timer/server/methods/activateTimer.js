@@ -8,7 +8,7 @@ export default function activateTimer() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'ActivateTimerReqMsg';
-  
+
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
     check(meetingId, String);

@@ -17,11 +17,6 @@ const MILLI_IN_SECOND = 1000;
 
 const MAX_HOURS = 23;
 
-const MAX_TIME = 999
-  + (59 * MILLI_IN_SECOND)
-  + (59 * MILLI_IN_MINUTE)
-  + (MAX_HOURS * MILLI_IN_HOUR);
-
 const TRACKS = [
   'noTrack',
   'track1',
@@ -29,11 +24,24 @@ const TRACKS = [
   'track3',
 ];
 
+const isMusicEnabled = () => TIMER_CONFIG.music.enabled;
+
+const getCurrentTrack = () => {
+  const timer = Timer.findOne(
+    { meetingId: Auth.meetingID },
+    { fields: { track: 1 } },
+  );
+
+  if (timer) return isMusicEnabled() && timer.track;
+
+  return false;
+};
+
+const isEnabled = () => TIMER_CONFIG.enabled;
+
 const getMaxHours = () => MAX_HOURS;
 
 const isAlarmEnabled = () => isEnabled() && TIMER_CONFIG.alarm;
-
-const isMusicEnabled = () => TIMER_CONFIG.music.enabled;
 
 const isMusicActive = () => getCurrentTrack() !== TRACKS[0];
 
@@ -50,19 +58,6 @@ const isActive = () => {
   if (timer) return timer.active;
   return false;
 };
-
-const getCurrentTrack = () => {
-  const timer = Timer.findOne(
-    { meetingId: Auth.meetingID },
-    { fields: { track: 1 } },
-  );
-
-  if (timer) return isMusicEnabled() && timer.track;
-
-  return false;
-};
-
-const isEnabled = () => TIMER_CONFIG.enabled;
 
 const getDefaultTime = () => TIMER_CONFIG.time * MILLI_IN_MINUTE;
 
@@ -111,13 +106,13 @@ const setTrack = (track) => {
 const fetchTimeOffset = () => {
   const t0 = Date.now();
 
-  makeCall('getServerTime').then(result => {
-    if (result == 0) return;
+  makeCall('getServerTime').then((result) => {
+    if (result === 0) return;
     const t3 = Date.now();
 
     const ts = result;
     const rtt = t3 - t0;
-    const timeOffset = Math.round(ts - rtt/2 - t0);
+    const timeOffset = Math.round(ts - rtt / 2 - t0);
 
     Session.set('timeOffset', timeOffset);
   });
@@ -153,7 +148,8 @@ const getStopwatch = () => {
 const getTimer = () => {
   const timer = Timer.findOne(
     { meetingId: Auth.meetingID },
-    { fields:
+    {
+      fields:
       {
         stopwatch: 1,
         running: 1,
@@ -179,7 +175,7 @@ const getTimer = () => {
       time,
       accumulated,
       timestamp,
-    }
+    };
   }
 
   return {
@@ -188,20 +184,19 @@ const getTimer = () => {
     time: getDefaultTime(),
     accumulated: 0,
     timestamp: 0,
-  }
+  };
 };
 
-const getTimeAsString = (time, stopwatch) => {
-  let milliseconds = time;
+const getTimeAsString = (time) => {
+  const milliseconds = time;
 
-  let hours = Math.floor(milliseconds / MILLI_IN_HOUR);
+  const hours = Math.floor(milliseconds / MILLI_IN_HOUR);
   const mHours = hours * MILLI_IN_HOUR;
 
-  let minutes = Math.floor((milliseconds - mHours) / MILLI_IN_MINUTE);
+  const minutes = Math.floor((milliseconds - mHours) / MILLI_IN_MINUTE);
   const mMinutes = minutes * MILLI_IN_MINUTE;
 
-  let seconds = Math.floor((milliseconds - mHours - mMinutes) / MILLI_IN_SECOND);
-  const mSeconds = seconds * MILLI_IN_SECOND;
+  const seconds = Math.floor((milliseconds - mHours - mMinutes) / MILLI_IN_SECOND);
 
   let timeAsString = '';
 
@@ -225,8 +220,6 @@ const getTimeAsString = (time, stopwatch) => {
 
   return timeAsString;
 };
-
-const isPanelOpen = () => Session.get('openPanel') === 'timer';
 
 const closePanel = (layoutContextDispatch) => {
   layoutContextDispatch({
@@ -252,15 +245,13 @@ const togglePanel = (sidebarContentPanel, layoutContextDispatch) => {
   });
 };
 
-const isModerator = () => {
-  return Users.findOne(
-    { userId: Auth.userID },
-    { fields: { role: 1 } },
-  ).role === ROLE_MODERATOR;
-};
+const isModerator = () => Users.findOne(
+  { userId: Auth.userID },
+  { fields: { role: 1 } },
+).role === ROLE_MODERATOR;
 
 const setHours = (hours, time) => {
-  if (!isNaN(hours) && hours >= 0 && hours <= MAX_HOURS) {
+  if (!Number.isNaN(hours) && hours >= 0 && hours <= MAX_HOURS) {
     const currentHours = Math.floor(time / MILLI_IN_HOUR);
 
     const diff = (hours - currentHours) * MILLI_IN_HOUR;
@@ -271,7 +262,7 @@ const setHours = (hours, time) => {
 };
 
 const setMinutes = (minutes, time) => {
-  if (!isNaN(minutes) && minutes >= 0 && minutes <= 59) {
+  if (!Number.isNaN(minutes) && minutes >= 0 && minutes <= 59) {
     const currentHours = Math.floor(time / MILLI_IN_HOUR);
     const mHours = currentHours * MILLI_IN_HOUR;
 
@@ -285,7 +276,7 @@ const setMinutes = (minutes, time) => {
 };
 
 const setSeconds = (seconds, time) => {
-  if (!isNaN(seconds) && seconds >= 0 && seconds <= 59) {
+  if (!Number.isNaN(seconds) && seconds >= 0 && seconds <= 59) {
     const currentHours = Math.floor(time / MILLI_IN_HOUR);
     const mHours = currentHours * MILLI_IN_HOUR;
 

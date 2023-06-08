@@ -6,35 +6,29 @@ import { TRACKS, getInitialState } from '/imports/api/timer/server/helpers';
 import { sysStopTimer } from '../methods/stopTimer';
 import { sysEndTimer } from '../methods/endTimer';
 
-const getActivateModifier = () => {
-  return {
-    $set: {
-      active: true,
-      ...getInitialState(),
-      ended: 0,
-    },
-  };
-};
+const getActivateModifier = () => ({
+  $set: {
+    active: true,
+    ...getInitialState(),
+    ended: 0,
+  },
+});
 
-const getDeactivateModifier = () => {
-  return {
-    $set: {
-      active: false,
-      running: false,
-      ended: 0,
-    },
-  };
-};
+const getDeactivateModifier = () => ({
+  $set: {
+    active: false,
+    running: false,
+    ended: 0,
+  },
+});
 
-const getResetModifier = () => {
-  return {
-    $set: {
-      accumulated: 0,
-      timestamp: Date.now(),
-      ended: 0,
-    },
-  };
-};
+const getResetModifier = () => ({
+  $set: {
+    accumulated: 0,
+    timestamp: Date.now(),
+    ended: 0,
+  },
+});
 
 const handleTimerEndedNotifications = (fields, meetingId, handle) => {
   const meetingUsers = Users.find({ meetingId }).count();
@@ -65,78 +59,66 @@ const setTimerEndObserver = (meetingId) => {
   }
 };
 
-const getStartModifier = () => {
-  return {
-    $set: {
-      running: true,
-      timestamp: Date.now(),
-      ended: 0,
-    },
-  };
-};
+const getStartModifier = () => ({
+  $set: {
+    running: true,
+    timestamp: Date.now(),
+    ended: 0,
+  },
+});
 
-const getStopModifier = (accumulated) => {
-  return {
-    $set: {
-      running: false,
-      accumulated,
-      timestamp: 0,
-      ended: 0,
-    },
-  };
-};
+const getStopModifier = (accumulated) => ({
+  $set: {
+    running: false,
+    accumulated,
+    timestamp: 0,
+    ended: 0,
+  },
+});
 
-const getSwitchModifier = (stopwatch) => {
-  return {
-    $set: {
-      stopwatch,
-      running: false,
-      accumulated: 0,
-      timestamp: 0,
-      track: TRACKS[0],
-      ended: 0,
-    },
-  };
-};
+const getSwitchModifier = (stopwatch) => ({
+  $set: {
+    stopwatch,
+    running: false,
+    accumulated: 0,
+    timestamp: 0,
+    track: TRACKS[0],
+    ended: 0,
+  },
+});
 
-const getSetModifier = (time) => {
-  return {
-    $set: {
-      running: false,
-      accumulated: 0,
-      timestamp: 0,
-      time,
-    },
-  };
-};
+const getSetModifier = (time) => ({
+  $set: {
+    running: false,
+    accumulated: 0,
+    timestamp: 0,
+    time,
+  },
+});
 
-const getTrackModifier = (track) => {
-  return {
-    $set: {
-      track,
-    },
-  };
-};
+const getTrackModifier = (track) => ({
+  $set: {
+    track,
+  },
+});
 
-const getEndedModifier = () => {
-  return {
-    $inc: {
-      ended: 1,
-    },
-  };
-};
+const getEndedModifier = () => ({
+  $inc: {
+    ended: 1,
+  },
+});
 
 const logTimer = (meetingId, requesterUserId, action, stopwatch, time, track) => {
   if (action === 'switch') {
     Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} stopwatch=${stopwatch} `);
   } else if (action === 'set' && time !== 0) {
     Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} ${time}ms`);
-  } else if (action == 'track') {
+  } else if (action === 'track') {
     Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action} changed to ${track}`);
   } else {
     Logger.info(`Timer: meetingId=${meetingId} requesterUserId=${requesterUserId} action=${action}`);
   }
-}
+};
 
 export default function updateTimer({
   action,
@@ -161,7 +143,7 @@ export default function updateTimer({
 
   let modifier;
 
-  switch(action) {
+  switch (action) {
     case 'activate':
       modifier = getActivateModifier();
       break;
@@ -200,7 +182,6 @@ export default function updateTimer({
     if (numberAffected) {
       logTimer(meetingId, requesterUserId, action, stopwatch, time, track);
     }
-    
   } catch (err) {
     Logger.error(`Updating timer: ${err}`);
   }

@@ -9,14 +9,12 @@ import { fontSizeBase, fontSizeXS } from '/imports/ui/stylesheets/styled-compone
 
 const colorTimerRunning = `${colorSuccess}`;
 const colorTimerStopped = `${colorDanger}`;
-const timerMarginSM = `.5rem`;
-const timerPaddingXSM = `.13rem`;
-const timerPaddingSM = `.25rem`;
-const timerPaddingLg = `.75rem`;
-const timerPaddingXL = `1.62rem`;
-const timerMaxWidth = `10rem`;
-const timerFontWeight = `400`;
-const timerBorderRadius = `2rem`;
+const timerMarginSM = '.5rem';
+const timerPaddingSM = '.25rem';
+const timerPaddingXL = '1.62rem';
+const timerMaxWidth = '10rem';
+const timerFontWeight = '400';
+const timerBorderRadius = '2rem';
 
 const TimerWrapper = styled.div`
   overflow: hidden;

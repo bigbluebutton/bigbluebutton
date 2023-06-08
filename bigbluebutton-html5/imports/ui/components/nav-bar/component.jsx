@@ -260,4 +260,3 @@ class NavBar extends Component {
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
 export default withShortcutHelper(injectIntl(NavBar), 'toggleUserList');
-

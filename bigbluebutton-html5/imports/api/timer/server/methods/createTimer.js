@@ -1,5 +1,4 @@
 import { check } from 'meteor/check';
-import Timer from '/imports/api/timer';
 import { getInitialState, isEnabled } from '/imports/api/timer/server/helpers';
 import addTimer from '/imports/api/timer/server/modifiers/addTimer';
 import RedisPubSub from '/imports/startup/server/redis';
@@ -18,7 +17,7 @@ export default function createTimer(meetingId) {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'CreateTimerPubMsg';
-  
+
   try {
     addTimer(meetingId);
     const payload = getInitialState();

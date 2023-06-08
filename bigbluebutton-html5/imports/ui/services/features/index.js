@@ -80,6 +80,6 @@ export function isReactionsEnabled() {
   return getDisabledFeatures().indexOf('reactions') === -1;
 }
 
-export function disabledFeaturesTimer() {
+export function isTimerFeatureEnabled() {
   return getDisabledFeatures().indexOf('timer') === -1;
 }

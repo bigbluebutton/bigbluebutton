@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import TimerService from '/imports/ui/components/timer/service';
 import logger from '/imports/startup/client/logger';
+import PropTypes from 'prop-types';
 import Styled from './styles';
 
 const CDN = Meteor.settings.public.app.cdn;
@@ -9,6 +10,26 @@ const BASENAME = Meteor.settings.public.app.basename;
 const HOST = CDN + BASENAME;
 const trackName = Meteor.settings.public.timer.music;
 const TAB_TIMER_INDICATOR = Meteor.settings.public.timer.tabIndicator;
+
+const propTypes = {
+  intl: PropTypes.shape({
+    formatMessage: PropTypes.func.isRequired,
+  }).isRequired,
+  timer: PropTypes.shape({
+    stopwatch: PropTypes.bool,
+    running: PropTypes.bool,
+    time: PropTypes.string,
+    accumulated: PropTypes.number,
+    timestamp: PropTypes.number,
+  }).isRequired,
+  isTimerActive: PropTypes.bool.isRequired,
+  isMusicActive: PropTypes.bool.isRequired,
+  sidebarNavigationIsOpen: PropTypes.bool.isRequired,
+  sidebarContentIsOpen: PropTypes.bool.isRequired,
+  timeOffset: PropTypes.number.isRequired,
+  isModerator: PropTypes.bool.isRequired,
+  currentTrack: PropTypes.string.isRequired,
+};
 
 class Indicator extends Component {
   constructor(props) {
@@ -64,17 +85,42 @@ class Indicator extends Component {
     this.stopMusic();
   }
 
-  updateInterval(prevTimer, timer) {
-    const { running } = timer;
-    const { running: prevRunning } = prevTimer;
+  getTime() {
+    const {
+      timer,
+      timeOffset,
+    } = this.props;
 
-    if (!prevRunning && running) {
-      this.interval = setInterval(this.updateTime, TimerService.getInterval());
+    const {
+      stopwatch,
+      running,
+      time,
+      accumulated,
+      timestamp,
+    } = timer;
+
+    const elapsedTime = TimerService.getElapsedTime(running, timestamp, timeOffset, accumulated);
+
+    let updatedTime;
+    if (stopwatch) {
+      updatedTime = elapsedTime;
+    } else {
+      updatedTime = Math.max(time - elapsedTime, 0);
     }
 
-    if (prevRunning && !running) {
-      clearInterval(this.interval);
+    if (this.shouldNotifyTimerEnded(updatedTime)) {
+      TimerService.timerEnded();
     }
+
+    if (this.shouldStopMusic(updatedTime)) {
+      this.stopMusic();
+    }
+
+    if (this.soundAlarm(updatedTime)) {
+      this.play();
+    }
+
+    return TimerService.getTimeAsString(updatedTime, stopwatch);
   }
 
   setUpMusic() {
@@ -95,6 +141,19 @@ class Indicator extends Component {
       this.music.src = `${HOST}/resources/sounds/${trackName[currentTrack]}.mp3`;
     }
     this.music.track = currentTrack;
+  }
+
+  updateInterval(prevTimer, timer) {
+    const { running } = timer;
+    const { running: prevRunning } = prevTimer;
+
+    if (!prevRunning && running) {
+      this.interval = setInterval(this.updateTime, TimerService.getInterval());
+    }
+
+    if (prevRunning && !running) {
+      clearInterval(this.interval);
+    }
   }
 
   updateAlarmTrigger(prevTimer, timer) {
@@ -246,7 +305,7 @@ class Indicator extends Component {
       && (!isMusicActive || stopwatch || reachedZeroOrStopped || !isTimerActive || trackChanged);
   }
 
-  shoulNotifyTimerEnded(time) {
+  shouldNotifyTimerEnded(time) {
     const { timer } = this.props;
     const {
       running,
@@ -262,44 +321,6 @@ class Indicator extends Component {
       return true;
     }
     return false;
-  }
-
-  getTime() {
-    const {
-      timer,
-      timeOffset,
-    } = this.props;
-
-    const {
-      stopwatch,
-      running,
-      time,
-      accumulated,
-      timestamp,
-    } = timer;
-
-    const elapsedTime = TimerService.getElapsedTime(running, timestamp, timeOffset, accumulated);
-
-    let updatedTime;
-    if (stopwatch) {
-      updatedTime = elapsedTime;
-    } else {
-      updatedTime = Math.max(time - elapsedTime, 0);
-    }
-
-    if (this.shoulNotifyTimerEnded(updatedTime)) {
-      TimerService.timerEnded();
-    }
-
-    if (this.shouldStopMusic(updatedTime)) {
-      this.stopMusic();
-    }
-
-    if (this.soundAlarm(updatedTime)) {
-      this.play();
-    }
-
-    return TimerService.getTimeAsString(updatedTime, stopwatch);
   }
 
   updateTime() {
@@ -375,5 +396,7 @@ class Indicator extends Component {
     );
   }
 }
+
+Indicator.propTypes = propTypes;
 
 export default Indicator;

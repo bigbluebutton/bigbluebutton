@@ -63,8 +63,6 @@ class ActionsBar extends PureComponent {
       isRaiseHandButtonCentered,
       isThereCurrentPresentation,
       allowExternalVideo,
-      setEmojiStatus,
-      currentUser,
       layoutContextDispatch,
       actionsBarStyle,
       setMeetingLayout,

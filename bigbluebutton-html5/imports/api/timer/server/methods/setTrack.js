@@ -17,7 +17,7 @@ export default function setTrack(track) {
 
     if (isTrackValid(track)) {
       const payload = {
-        track
+        track,
       };
 
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

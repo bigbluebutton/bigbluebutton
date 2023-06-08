@@ -11,8 +11,11 @@ import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
-import { disabledFeaturesTimer } from '/imports/ui/services/features';
-import { isPresentationEnabled, isLayoutsEnabled } from '/imports/ui/services/features';
+import {
+  isPresentationEnabled,
+  isLayoutsEnabled,
+  isTimerFeatureEnabled,
+} from '/imports/ui/services/features';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 
@@ -144,6 +147,7 @@ class ActionsDropdown extends PureComponent {
     this.setCameraAsContentModalIsOpen = this.setCameraAsContentModalIsOpen.bind(this);
     this.setPropsToPassModal = this.setPropsToPassModal.bind(this);
     this.setForceOpen = this.setForceOpen.bind(this);
+    this.handleTimerClick = this.handleTimerClick.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -156,6 +160,15 @@ class ActionsDropdown extends PureComponent {
 
   handleExternalVideoClick() {
     this.setExternalVideoModalIsOpen(true);
+  }
+
+  handleTimerClick() {
+    const { isTimerActive } = this.props;
+    if (!isTimerActive) {
+      TimerService.activateTimer();
+    } else {
+      TimerService.deactivateTimer();
+    }
   }
 
   getAvailableActions() {
@@ -256,14 +269,14 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
-    if (amIModerator && isTimerEnabled && disabledFeaturesTimer()) {
+    if (amIModerator && isTimerEnabled && isTimerFeatureEnabled()) {
       actions.push({
-        icon: "time",
+        icon: 'time',
         label: isTimerActive ? intl.formatMessage(intlMessages.deactivateTimerLabel)
           : intl.formatMessage(intlMessages.activateTimerLabel),
         key: this.timerId,
-        onClick: () => this.handleTimerClick(!isTimerActive),
-      })       
+        onClick: () => this.handleTimerClick(),
+      });
     }
 
     if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
@@ -303,14 +316,6 @@ class ActionsDropdown extends PureComponent {
     }
 
     return actions;
-  }
-
-  handleTimerClick(activate) {
-    if (activate) {
-      TimerService.activateTimer();
-    } else {
-      TimerService.deactivateTimer();
-    }
   }
 
   makePresentationItems() {
@@ -378,15 +383,6 @@ class ActionsDropdown extends PureComponent {
         isOpen
       }}
     /> : null
-  }
-
-  handleTimerClick(activate) {
-    const { mountModal, layoutContextDispatch } = this.props;
-    if (activate) {
-      TimerService.activateTimer(layoutContextDispatch);
-    } else {
-      TimerService.deactivateTimer();
-    }
   }
 
   render() {

@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import Timer from  '/imports/api/timer';
+import Timer from '/imports/api/timer';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 
@@ -14,7 +14,8 @@ export default function stopTimer(meetingId) {
     const now = Date.now();
     const timer = Timer.findOne(
       { meetingId },
-      { fields:
+      {
+        fields:
         {
           stopwatch: 1,
           time: 1,
@@ -32,12 +33,12 @@ export default function stopTimer(meetingId) {
       const accumulated = timer.accumulated + (now - timestamp);
 
       const payload = {
-        accumulated
+        accumulated,
       };
 
       RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, USER_ID, payload);
     } else {
-      Logger.warn(`Could not stop timer for meeting=${meetingId}`);
+      Logger.warn(`Could not stop timer for meeting=${meetingId}, timer not found`);
     }
   } catch (err) {
     Logger.error(`Stopping timer: ${err}`);

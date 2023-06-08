@@ -13,7 +13,7 @@ const TimerContainer = ({ children, ...props }) => {
       {children}
     </Timer>
   );
-}
+};
 
 export default withTracker(() => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';

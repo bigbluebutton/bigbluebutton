@@ -38,9 +38,11 @@ class UserContent extends PureComponent {
         {isChatEnabled() ? <UserMessagesContainer /> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
-        { isTimerActive && <TimerContainer
-          isModerator={currentUser?.role === ROLE_MODERATOR}
-        /> }
+        { isTimerActive && (
+          <TimerContainer
+            isModerator={currentUser?.role === ROLE_MODERATOR}
+          />
+        ) }
         {showWaitingRoom && currentUser.role === ROLE_MODERATOR
           ? (
             <WaitingUsersContainer {...{ pendingUsers }} />

@@ -27,7 +27,7 @@ export function sysEndTimer(meetingId) {
     check(meetingId, String);
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, USER_ID, {});
-  } catch {
+  } catch (err) {
     Logger.error(`Ending timer: ${err}`);
   }
 }

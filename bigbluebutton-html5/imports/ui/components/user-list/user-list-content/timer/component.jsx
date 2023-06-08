@@ -10,6 +10,10 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  stopwatch: PropTypes.bool.isRequired,
+  sidebarContentPanel: PropTypes.shape().isRequired,
+  layoutContextDispatch: PropTypes.shape().isRequired,
+  isModerator: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({

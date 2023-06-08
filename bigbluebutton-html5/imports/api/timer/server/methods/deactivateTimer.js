@@ -7,7 +7,7 @@ export default function deactivateTimer() {
   const REDIS_CONFIG = Meteor.settings.private.redis;
   const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
   const EVENT_NAME = 'DeactivateTimerReqMsg';
-  
+
   try {
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
     check(meetingId, String);

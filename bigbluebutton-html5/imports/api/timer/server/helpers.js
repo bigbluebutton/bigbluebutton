@@ -26,7 +26,7 @@ const getInitialState = () => {
     accumulated: 0,
     timestamp: 0,
     track: TRACKS[0],
-  }
+  };
 };
 
 const isTrackValid = (track) => TRACKS.includes(track);

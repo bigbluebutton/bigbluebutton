@@ -39,8 +39,8 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel, chatModel, externalVideoModel,
-    layouts, pads, registeredUsers, polls2x, wbModel, presModel, captionModel,
+  private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
+    chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel, captionModel,
     webcams, voiceUsers, users2x, guestsWaiting)
 
   GuestsWaiting.setGuestPolicy(
