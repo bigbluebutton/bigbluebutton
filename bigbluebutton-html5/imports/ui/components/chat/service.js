@@ -332,7 +332,7 @@ const getExportedPresentationString = (fileURI, filename, intl) => {
   const warningIcon = `<i class="icon-bbb-warning"></i>`;
   const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
   const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
-  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${fileURI} type="application/pdf" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
+  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${fileURI} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
   const name = `<span>${filename}</span>`;
   return `${name}</br>${link}`;
 };
