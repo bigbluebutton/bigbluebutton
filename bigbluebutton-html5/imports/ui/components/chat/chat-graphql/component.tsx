@@ -16,8 +16,10 @@ const Chat: React.FC<ChatProps> = () => {
   return (
     <Styled.Chat>
       <ChatHeader />
-      <ChatPopupContainer />
-      <ChatMessageListContainer />
+      <>
+        <ChatPopupContainer />
+        <ChatMessageListContainer />
+      </>
       <ChatMessageFormContainer />
       <ChatTypingIndicatorContainer />
     </Styled.Chat>

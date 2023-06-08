@@ -9,9 +9,9 @@ import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scr
 import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
 
 export const MessageListWrapper = styled.div`
+  height: 100%;
   display: flex;
   flex-flow: column;
-  flex-grow: 1;
   flex-shrink: 1;
   position: relative;
   overflow-x: hidden;
@@ -22,7 +22,7 @@ export const MessageListWrapper = styled.div`
   margin-right: calc(-1 * ${mdPaddingY});
   padding-bottom: ${mdPaddingX};
   z-index: 2;
-  [dir="rtl"] & {
+  [dir='rtl'] & {
     padding-right: ${mdPaddingX};
     margin-right: calc(-1 * ${mdPaddingX});
     padding-left: ${mdPaddingY};
@@ -36,27 +36,26 @@ export const MessageList = styled(ScrollboxVertical)`
   margin: 0 auto 0 0;
   right: 0 ${mdPaddingX} 0 0;
   padding-top: 0;
-  width: 100%;
   outline-style: none;
   overflow-x: hidden;
 
-  [dir="rtl"] & {
+  [dir='rtl'] & {
     margin: 0 0 0 auto;
     padding: 0 0 0 ${mdPaddingX};
   }
-  display:block;
+  display: block;
 `;
 
 export const ButtonLoadMore = styled.button`
   width: 100%;
   min-height: 1.5rem;
-  margin-bottom: .75rem;
+  margin-bottom: 0.75rem;
   background-color: transparent;
   border-radius: ${borderRadius};
-  border: 1px ridge ${colorGrayDark}
+  border: 1px ridge ${colorGrayDark};
 `;
 
 export default {
   MessageListWrapper,
   MessageList,
-}
+};
