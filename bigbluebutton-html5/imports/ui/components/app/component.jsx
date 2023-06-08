@@ -49,6 +49,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
+import TimerService from '/imports/ui/components/timer/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -135,6 +136,9 @@ class App extends Component {
       isVideoPreviewModalOpen: false,
     };
 
+    this.isTimerEnabled = TimerService.isEnabled();
+    this.timeOffsetInterval = null;
+
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
@@ -205,6 +209,12 @@ class App extends Component {
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
+
+    if (this.isTimerEnabled) {
+      TimerService.fetchTimeOffset();
+      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
+        TimerService.OFFSET_INTERVAL);
+    }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -284,6 +294,10 @@ class App extends Component {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
     ConnectionStatusService.stopRoundTripTime();
+
+    if (this.timeOffsetInterval) {
+      clearInterval(this.timeOffsetInterval);
+    }
   }
 
   handleWindowResize() {

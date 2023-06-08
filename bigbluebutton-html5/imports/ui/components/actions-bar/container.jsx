@@ -12,6 +12,7 @@ import Service from './service';
 import UserListService from '/imports/ui/components/user-list/service';
 import ExternalVideoService from '/imports/ui/components/external-video-player/service';
 import CaptionsService from '/imports/ui/components/captions/service';
+import TimerService from '/imports/ui/components/timer/service';
 import { layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { isExternalVideoEnabled, isPollingEnabled, isPresentationEnabled } from '/imports/ui/services/features';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
@@ -67,6 +68,8 @@ export default withTracker(() => ({
   hasScreenshare: isScreenBroadcasting(),
   hasCameraAsContent: isCameraAsContentBroadcasting(),
   isCaptionsAvailable: CaptionsService.isCaptionsAvailable(),
+  isTimerActive: TimerService.isActive(),
+  isTimerEnabled: TimerService.isEnabled(),
   isMeteorConnected: Meteor.status().connected,
   isPollingEnabled: isPollingEnabled() && isPresentationEnabled(),
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
