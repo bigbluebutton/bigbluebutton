@@ -9,6 +9,7 @@ import { uid } from 'radash';
 import Button from '/imports/ui/components/common/button/component';
 import { clearPublicChatHistory, generateExportedMessages } from './services'
 import { getDateString } from '/imports/utils/string-utils';
+import Events from '/imports/ui/core/events/events';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
@@ -38,12 +39,16 @@ const intlMessages = defineMessages({
     id: 'app.chat.dropdown.options',
     description: 'Chat Options',
   },
+  restore: {
+    id: 'app.chat.dropdown.restore',
+    description: 'Restore button label',
+  },
 });
 
 export const ChatActions: React.FC = () => {
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const uniqueIdsRef = useRef<string[]>([uid(1), uid(2), uid(3)]);
+  const uniqueIdsRef = useRef<string[]>([uid(1), uid(2), uid(3), uid(4)]);
   const downloadOrCopyRef = useRef<'download' | 'copy' | null>(null);
   const [userIsModerator, setUserIsmoderator] = useState<boolean>(false);
   const [meetingIsBreakout, setMeetingIsBreakout] = useState<boolean>(false);
@@ -95,44 +100,55 @@ export const ChatActions: React.FC = () => {
     }
   }, [dataPermissions]);
 
-    const actions = useMemo(()=>{
-        const dropdownActions = [
-          {
-            key: uniqueIdsRef.current[0],
-            enable: ENABLE_SAVE_AND_COPY_PUBLIC_CHAT,
-            icon: 'download',
-            dataTest: 'chatSave',
-            label: intl.formatMessage(intlMessages.save),
-            onClick: () => {
-              getChatMessageHistory();
-              downloadOrCopyRef.current = 'download';
-            },
-          },
-          {
-            key: uniqueIdsRef.current[1],
-            enable: ENABLE_SAVE_AND_COPY_PUBLIC_CHAT,
-            icon: 'copy',
-            id: 'clipboardButton',
-            dataTest: 'chatCopy',
-            label: intl.formatMessage(intlMessages.copy),
-            onClick: () => {
-              getChatMessageHistory();
-              downloadOrCopyRef.current = 'copy';
-            },
-          },
-          {
-            key: uniqueIdsRef.current[2],
-            enable: userIsModerator && !meetingIsBreakout,
-            icon: 'download',
-            dataTest: 'chatClear',
-            label: intl.formatMessage(intlMessages.clear),
-            onClick: () => clearPublicChatHistory(),
-          },
-        ];
-        return dropdownActions.filter((action) => action.enable);
-    },[userIsModerator, meetingIsBreakout]);
-    if (errorHistory) return <p>Error loading chat history: {JSON.stringify(errorHistory)}</p>;
-    if (errorPermissions) return <p>Error loading permissions: {JSON.stringify(errorPermissions)}</p>;
+  const actions = useMemo(() => {
+    const dropdownActions = [
+      {
+        key: uniqueIdsRef.current[0],
+        enable: ENABLE_SAVE_AND_COPY_PUBLIC_CHAT,
+        icon: 'download',
+        dataTest: 'chatSave',
+        label: intl.formatMessage(intlMessages.save),
+        onClick: () => {
+          getChatMessageHistory();
+          downloadOrCopyRef.current = 'download';
+        },
+      },
+      {
+        key: uniqueIdsRef.current[1],
+        enable: ENABLE_SAVE_AND_COPY_PUBLIC_CHAT,
+        icon: 'copy',
+        id: 'clipboardButton',
+        dataTest: 'chatCopy',
+        label: intl.formatMessage(intlMessages.copy),
+        onClick: () => {
+          getChatMessageHistory();
+          downloadOrCopyRef.current = 'copy';
+        },
+      },
+      {
+        key: uniqueIdsRef.current[2],
+        enable: userIsModerator && !meetingIsBreakout,
+        icon: 'download',
+        dataTest: 'chatClear',
+        label: intl.formatMessage(intlMessages.clear),
+        onClick: () => clearPublicChatHistory(),
+      },
+      {
+        key: uniqueIdsRef.current[4],
+        enable: true,
+        icon: 'about',
+        dataTest: 'restoreWelcomeMessages',
+        label: intl.formatMessage(intlMessages.restore),
+        onClick: () => {
+          const restoreWelcomeMessagesEvent = new CustomEvent(Events.RESTORE_WELCOME_MESSAGES);
+          window.dispatchEvent(restoreWelcomeMessagesEvent);
+        },
+      },
+    ];
+    return dropdownActions.filter((action) => action.enable);
+  }, [userIsModerator, meetingIsBreakout]);
+  if (errorHistory) return <p>Error loading chat history: {JSON.stringify(errorHistory)}</p>;
+  if (errorPermissions) return <p>Error loading permissions: {JSON.stringify(errorPermissions)}</p>;
   return (
     <BBBMenu
       trigger={
@@ -150,15 +166,15 @@ export const ChatActions: React.FC = () => {
       }
       opts={{
         id: 'chat-options-dropdown-menu',
-      keepMounted: true,
-      transitionDuration: 0,
-      elevation: 3,
-      getContentAnchorEl: null,
-      fullwidth: 'true',
-      anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-      transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-    }}
-     actions={actions} 
+        keepMounted: true,
+        transitionDuration: 0,
+        elevation: 3,
+        getContentAnchorEl: null,
+        fullwidth: 'true',
+        anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+        transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+      }}
+      actions={actions}
     />
   );
 }

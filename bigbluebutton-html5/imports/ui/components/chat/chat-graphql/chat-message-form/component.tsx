@@ -7,22 +7,27 @@ import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
 import { escapeHtml } from '/imports/utils/string-utils';
 import { checkText } from 'smile2emoji';
-import TypingIndicatorContainer from '/imports/ui/components/chat/message-form/typing-indicator/container';
+import TypingIndicatorContainer from './chat-typing-indicator/component';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
+import useChat from '/imports/ui/core/hooks/useChat';
 import {
   handleSendMessage,
   startUserTyping,
   stopUserTyping,
 } from './service';
+import { Chat } from '/imports/ui/Types/chat';
+import { Layout } from '../../../layout/layoutTypes';
+import { Meeting } from '/imports/ui/Types/meeting';
+import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
+import { useApolloClient } from '@apollo/client';
+import Events from '/imports/ui/core/events/events';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
   maxMessageLength: number,
   idChatOpen: string,
-  chatAreaId: string,
   chatId: string,
-  chatTitle: string,
   connected: boolean,
   disabled: boolean,
   locked: boolean,
@@ -69,6 +74,18 @@ const messages = defineMessages({
     id: 'app.chat.severalPeople',
     description: 'displayed when 4 or more users are typing',
   },
+  titlePublic: {
+    id: 'app.chat.titlePublic',
+    description: 'Public chat title',
+  },
+  titlePrivate: {
+    id: 'app.chat.titlePrivate',
+    description: 'Private chat title',
+  },
+  partnerDisconnected: {
+    id: 'app.chat.partnerDisconnected',
+    description: 'System chat message when the private chat partnet disconnect from the meeting',
+  },
 });
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -78,7 +95,6 @@ const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   handleClickOutside,
-  chatTitle,
   title,
   disabled,
   idChatOpen,
@@ -98,11 +114,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const textAreaRef = useRef();
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
-
   const messageRef = useRef();
   messageRef.current = message;
-
-  const updateUnreadMessages = (chatId, message) => {
+  const updateUnreadMessages = (chatId: string, message: string) => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
     const unsentMessages = JSON.parse(storedData);
     unsentMessages[chatId] = message;
@@ -118,14 +132,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     return () => {
       const unsentMessage = messageRef.current;
       updateUnreadMessages(chatId, unsentMessage);
-      }
+    }
   }, []);
 
   useEffect(() => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
     const unsentMessages = JSON.parse(storedData);
 
-    if(prevChatId) {
+    if (prevChatId) {
       updateUnreadMessages(prevChatId, message);
     }
 
@@ -178,17 +192,19 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     updateUnreadMessages(chatId, '');
     setHasErrors(false);
     setShowEmojiPicker(false);
-    if(ENABLE_TYPING_INDICATOR) stopUserTyping();
+    if (ENABLE_TYPING_INDICATOR) stopUserTyping();
+    const sentMessageEvent = new CustomEvent(Events.SENT_MESSAGE);
+    window.dispatchEvent(sentMessageEvent);
   }
 
-  const handleEmojiSelect = (emojiObject: { native: string} ) => {
+  const handleEmojiSelect = (emojiObject: { native: string }) => {
     const txtArea = textAreaRef?.current?.textarea;
     const cursor = txtArea.selectionStart;
-    
+
     setMessage(
       message.slice(0, cursor)
-        + emojiObject.native
-        + message.slice(cursor)
+      + emojiObject.native
+      + message.slice(cursor)
     );
 
     const newCursor = cursor + emojiObject.native.length;
@@ -224,7 +240,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }
 
   const throttledHandleUserTyping = throttle(() => handleUserTyping(),
-  2000, { trailing: false });
+    2000, { trailing: false });
 
   const handleMessageKeyDown = (e: React.FormEvent<HTMLInputElement>) => {
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard
@@ -262,7 +278,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             id="message-input"
             ref={textAreaRef}
             placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
-            aria-label={intl.formatMessage(messages.inputLabel, { 0: chatTitle })}
+            aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
             aria-invalid={hasErrors ? 'true' : 'false'}
             autoCorrect="off"
             autoComplete="off"
@@ -302,7 +318,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             data-test="sendMessageButton"
           />
         </Styled.Wrapper>
-        <TypingIndicatorContainer {...{ idChatOpen, error }} />
+        {
+          error && (
+            <Styled.Error>
+              {error}
+            </Styled.Error>
+          )
+        }
+
       </Styled.Form>
     );
   }
@@ -317,17 +340,46 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 };
 
 const ChatMessageFormContainer: React.FC = ({
-  chatAreaId,
-  chatId,
-  chatTitle,
-  connected,
-  disabled,
-  partnerIsLoggedOut,
-  title,
-  locked,
+  // connected, move to network status
 }) => {
+  const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
-  const idChatOpen = layoutSelect((i) => i.idChatOpen);
+  const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
+
+  const chat = useChat((c: Partial<Chat>) => {
+    const participant = c?.participant ? {
+      participant: {
+        name: c?.participant?.name,
+        isModerator: c?.participant?.isModerator,
+        isOnline: c?.participant?.isOnline,
+      }
+    } : {};
+
+    return {
+      ...participant,
+      chatId: c?.chatId,
+      public: c?.public,
+    };
+  }, idChatOpen) as Partial<Chat>;
+
+  const title = chat?.participant?.name
+    ? intl.formatMessage(messages.titlePrivate, { 0: chat?.participant?.name })
+    : intl.formatMessage(messages.titlePublic);
+
+
+  const meeting = useMeeting((m) => {
+    return {
+      lockSettings: {
+        hasActiveLockSetting: m?.lockSettings?.hasActiveLockSetting,
+        disablePublicChat: m?.lockSettings?.disablePublicChat,
+        disablePrivateChat: m?.lockSettings?.disablePrivateChat,
+      }
+    };
+  });
+
+  const locked = chat?.public
+    ? meeting?.lockSettings?.disablePublicChat
+    : meeting?.lockSettings?.disablePrivateChat;
 
   const handleClickOutside = () => {
     if (showEmojiPicker) {
@@ -341,14 +393,12 @@ const ChatMessageFormContainer: React.FC = ({
       maxMessageLength: CHAT_CONFIG.max_message_length,
       idChatOpen,
       handleClickOutside,
-      chatAreaId,
-      chatId,
-      chatTitle,
-      connected,
-      disabled,
-      partnerIsLoggedOut,
+      chatId: idChatOpen,
+      connected: true, //TODO: monitoring network status
+      disabled: locked ?? false,
       title,
-      locked,
+      partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
+      locked: locked ?? false,
     }}
   />;
 };

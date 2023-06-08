@@ -18,12 +18,13 @@ const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',
-  'voiceUsers', 'whiteboard-multi-user', 'screenshare', 'group-chat',
+  'voiceUsers', 'whiteboard-multi-user', 'screenshare',
   'presentation-pods', 'users-settings', 'guestUser', 'users-infos', 'meeting-time-remaining',
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
   'pads', 'pads-sessions', 'pads-updates', 'notifications', 'audio-captions',
   'layout-meetings', 'user-reaction',
+  // 'group-chat'
 ];
 const {
   localBreakoutsSync,
@@ -130,13 +131,13 @@ export default withTracker(() => {
   const ready = subscriptionsHandlers.every(handler => handler.ready());
   let groupChatMessageHandler = {};
 
-  if (isChatEnabled() && ready) {
-    const subHandler = {
-      ...subscriptionErrorHandler,
-    };
+  // if (isChatEnabled() && ready) {
+  //   const subHandler = {
+  //     ...subscriptionErrorHandler,
+  //   };
 
-    groupChatMessageHandler = Meteor.subscribe('group-chat-msg', subHandler);
-  }
+  //   groupChatMessageHandler = Meteor.subscribe('group-chat-msg', subHandler);
+  // }
 
   // TODO: Refactor all the late subscribers
   let usersPersistentDataHandler = {};

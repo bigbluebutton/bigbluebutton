@@ -4,6 +4,8 @@ import {
   colorText,
   colorGrayLighter,
   colorPrimary,
+  colorDanger,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -22,7 +24,6 @@ const Form = styled.form`
   align-self: flex-end;
   width: 100%;
   position: relative;
-  margin-bottom: calc(-1 * ${smPaddingX});
   margin-top: .2rem;
 `;
 
@@ -120,6 +121,19 @@ const EmojiPickerWrapper = styled.div`
   }
 `;
 
+
+const Error = styled.div`
+  color: ${colorDanger};
+  font-size: calc(${fontSizeBase} * .75);
+  color: ${colorGrayDark};
+  text-align: left;
+  padding: ${borderSize} 0;
+  word-break: break-word;
+  position: relative;
+  margin-right: 0.05rem;
+  margin-left: 0.05rem;
+`;
+
 const EmojiPicker = styled(EmojiPickerComponent)``;
 
 export default {
@@ -131,4 +145,5 @@ export default {
   EmojiButtonWrapper,
   EmojiPicker,
   EmojiPickerWrapper,
+  Error,
 };

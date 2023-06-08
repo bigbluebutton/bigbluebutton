@@ -10,6 +10,7 @@ import {
 import { layoutSelect } from "../../../layout/context";
 import ChatListPage from "./page/component";
 import { defineMessages, useIntl } from "react-intl";
+import Events from "/imports/ui/core/events/events";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -36,7 +37,7 @@ const isMap = (map: any): map is Map<number, string> => {
   return map instanceof Map;
 }
 
-const scrollObserver = new ResizeObserver((entries)=>{
+const scrollObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     const el = entry.target;
     if (isElement(el) && isElement(el.parentElement){
@@ -45,8 +46,8 @@ const scrollObserver = new ResizeObserver((entries)=>{
   }
 });
 
-const setLastSender = (lastSenderPerPage: Map<number, string>,) =>{
-  
+const setLastSender = (lastSenderPerPage: Map<number, string>,) => {
+
   return (page: number, sender: string) => {
     if (isMap(lastSenderPerPage)) {
       lastSenderPerPage.set(page, sender);
@@ -54,7 +55,7 @@ const setLastSender = (lastSenderPerPage: Map<number, string>,) =>{
   }
 }
 
-const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
+const ChatMessageList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>();
   const contentRef = React.useRef<HTMLDivElement>();
@@ -73,7 +74,7 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
     } else {
       if (isElement(contentRef.current)) {
         if (userLoadedBackUntilPage === null) {
-          setUserLoadedBackUntilPage(Math.max(totalPages-2, 0));
+          setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
         }
         scrollObserver.unobserve(contentRef.current as HTMLDivElement);
       }
@@ -81,7 +82,24 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
   }
 
   useEffect(() => {
-    if (followingTail){
+    const setScrollToTailEventHandler = () => {
+      if (scrollObserver && contentRef.current) {
+        scrollObserver.observe(contentRef.current as HTMLDivElement);
+        if (isElement(messageListRef.current)) {
+          messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+        }
+      }
+
+    };
+    window.addEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
+
+    return () => {
+      window.removeEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (followingTail) {
       setUserLoadedBackUntilPage(null);
     }
   }, [followingTail]);
@@ -95,36 +113,36 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
 
-    return ()=>{
+    return () => {
       toggleFollowingTail(false);
     }
   }, [contentRef]);
 
   const firstPageToLoad = userLoadedBackUntilPage !== null
-    ? userLoadedBackUntilPage : Math.max(totalPages-2, 0);
-  const pagesToLoad = (totalPages-firstPageToLoad) || 1;
+    ? userLoadedBackUntilPage : Math.max(totalPages - 2, 0);
+  const pagesToLoad = (totalPages - firstPageToLoad) || 1;
   return (
     <MessageListWrapper>
       <MessageList
         ref={messageListRef}
-        onWheel={(e)=>{
+        onWheel={(e) => {
           const el = messageListRef.current as HTMLDivElement;
           if (e.deltaY < 0 && el.scrollTop) {
             if (isElement(contentRef.current)) {
               toggleFollowingTail(false)
             }
           } else if (e.deltaY > 0) {
-            if (Math.abs(el.scrollHeight-el.clientHeight-el.scrollTop) === 0) {
+            if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
               if (isElement(contentRef.current)) {
                 toggleFollowingTail(true)
               }
             }
           }
         }}
-        onMouseUp={(e)=>{
+        onMouseUp={(e) => {
           const el = messageListRef.current as HTMLDivElement;
 
-          if (Math.abs(el.scrollHeight-el.clientHeight-el.scrollTop) === 0) {
+          if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
             if (isElement(contentRef.current)) {
               toggleFollowingTail(true)
             }
@@ -137,27 +155,25 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
       >
         <span>
           {
-            (userLoadedBackUntilPage) 
-            ? (
-              <ButtonLoadMore
-            onClick={()=>{
-              if (followingTail){
-                toggleFollowingTail(false);
-              }
-              setUserLoadedBackUntilPage(userLoadedBackUntilPage-1);
-              }
-            }
-          >
-            {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
-          </ButtonLoadMore>
-            ): null
+            (userLoadedBackUntilPage)
+              ? (
+                <ButtonLoadMore
+                  onClick={() => {
+                    if (followingTail) {
+                      toggleFollowingTail(false);
+                    }
+                    setUserLoadedBackUntilPage(userLoadedBackUntilPage - 1);
+                  }
+                  }
+                >
+                  {intl.formatMessage(intlMessages.loadMoreButtonLabel)}
+                </ButtonLoadMore>
+              ) : null
           }
         </span>
         <div id="contentRef" ref={contentRef}>
           {
-            Array.from({length: pagesToLoad }, (v, k) => k+(firstPageToLoad)).map((page) => { 
-              console.log('page', page);
-                          
+            Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
               return (
                 <ChatListPage
                   key={`page-${page}`}
@@ -177,7 +193,7 @@ const ChatList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
   );
 }
 
-const ChatListContainer: React.FC = ({}) => {
+const ChatMessageListContainer: React.FC = ({ }) => {
   const idChatOpen = layoutSelect((i) => i.idChatOpen);
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
@@ -194,11 +210,11 @@ const ChatListContainer: React.FC = ({}) => {
   const totalMessages = currentChat?.totalMessages || 0;
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
-    <ChatList
+    <ChatMessageList
       totalPages={totalPages}
       chatId={chatId}
     />
   );
 }
 
-export default ChatListContainer;
+export default ChatMessageListContainer;
