@@ -238,6 +238,7 @@ const QuickPollDropdown = (props) => {
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => null}
         size="lg"
+        data-test="yesNoQuickPoll"
       />
     );
 

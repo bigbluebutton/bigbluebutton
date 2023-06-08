@@ -23,6 +23,7 @@ object Dependencies {
     // Office and document conversion
     val apachePoi = "5.1.0"
     val nuProcess = "2.0.6"
+    val tika = "2.8.0"
 
     // Server
     val servlet = "4.0.1"
@@ -56,6 +57,7 @@ object Dependencies {
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
+    val tika = "org.apache.tika" % "tika-core" % Versions.tika
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
@@ -93,6 +95,7 @@ object Dependencies {
     Compile.apacheHttpAsync,
     Compile.poiXml,
     Compile.nuProcess,
+    Compile.tika,
     Compile.servletApi,
     Compile.apacheLang,
     Compile.apacheIo,

@@ -65,7 +65,6 @@ const Notes = ({
   shouldShowSharedNotesOnPresentationArea,
 }) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
-
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
   const style = isOnMediaArea ? {
@@ -74,9 +73,9 @@ const Notes = ({
   } : {};
 
   const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
-    || (!isToSharedNotesBeShow
-      && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
-    || shouldShowSharedNotesOnPresentationArea;
+                   || (!isToSharedNotesBeShow
+                    && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
+                    || shouldShowSharedNotesOnPresentationArea;
 
   if (isHidden && !isOnMediaArea) {
     style.padding = 0;
@@ -90,7 +89,7 @@ const Notes = ({
       timoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
       }, (sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
-        || shouldShowSharedNotesOnPresentationArea)
+      || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
     return () => clearTimeout(timoutRef);
@@ -116,6 +115,7 @@ const Notes = ({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
+
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
           value: PANELS.NONE,
@@ -141,14 +141,18 @@ const Notes = ({
           value: Session.get('presentationLastState'),
         });
       };
-    } else {
-      if (shouldShowSharedNotesOnPresentationArea) {
+    }
+    if(shouldShowSharedNotesOnPresentationArea) {
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: true,
         });
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+          value: true,
+        });
       }
-    }
+      return null;
   }, []);
 
   const renderHeaderOnMedia = () => {
@@ -168,11 +172,7 @@ const Notes = ({
   };
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
-    <Styled.Notes
-      data-test="notes"
-      isChrome={isChrome}
-      style={style}
-    >
+    <Styled.Notes data-test="notes" isChrome={isChrome} style={style}>
       {!isOnMediaArea ? (
         <Header
           leftButtonProps={{

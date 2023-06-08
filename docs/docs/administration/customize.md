@@ -978,6 +978,22 @@ Then copy the font (.ttf) to `/usr/share/fonts/`
 
 That's all! The font will be available on next presentations.
 
+
+#### Change the limit of 300 annotations per page
+
+In BigBlueButton 2.6 we introduced a cap for how many annotations can be added to a single whiteboard (slide). The default value is set to 300. The reason for this cap is that when a large number of annotations was added, it was often times done in the case of multi user whiteboard being enabled and a student trying to be funny. This had a negative effect on other participants in the session, specifically on limited CPU devices. In almost all cases we observed during the testing phase of BigBlueButton 2.6 this cap was sufficient for the normal run of classes. In very rare instances normal use of the whiteboard led to hitting the cap.
+
+In order to change the value (on per-server basis) to, say, 500 annotations in your deployment, add the following to `/etc/bigbluebutton/bbb-html5.yml`
+
+```
+public:
+  whiteboard:
+    maxNumberOfAnnotations: 500
+```
+
+and restart BigBlueButton via `sudo bbb-conf --restart`
+
+
 ### Frontends
 
 #### Remove the API demos
@@ -1004,7 +1020,7 @@ BigBlueButton comes with Greenlight, a front-end application written in Ruby on 
 
 ![greenlight-start](/img/greenlight/v2/room.png)
 
-For more information see [Installing Greenlight](/greenlight/v2/install).
+For more information see [Installing Greenlight](/greenlight/v3/install).
 
 ### Networking
 
@@ -1324,6 +1340,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 | `allowRequestsWithoutSession`            | Allow requests without JSESSIONID to be handled                                               | true/false                                                   | false                          |
 | `supportedChecksumAlgorithms`            | List of supported hash algorithms for validating checksums                                    | sha1, sha256, sha384, sha512                                 | sha1, sha256, sha384, sha512   |
 | `allowRevealOfBBBVersion`                | Allow endpoint with current BigBlueButton version                                             | true/false                                                   | false                          |
+| `recordFullDurationMedia`                | Controls whether media should be captured on their full duration if the meeting's recorded property is true | true/false | false            |
 
 - _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
 

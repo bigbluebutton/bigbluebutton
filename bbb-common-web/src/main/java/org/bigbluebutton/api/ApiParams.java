@@ -107,6 +107,8 @@ public class ApiParams {
     public static final String END_WHEN_NO_MODERATOR = "endWhenNoModerator";
     public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
 
+    public static final String RECORD_FULL_DURATION_MEDIA = "recordFullDurationMedia";
+
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instanciation is forbidden.");
     }
