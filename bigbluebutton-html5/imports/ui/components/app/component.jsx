@@ -86,6 +86,14 @@ const intlMessages = defineMessages({
     id: 'app.toast.setEmoji.lowerHand',
     description: 'toast message for lowered hand notification',
   },
+  away: {
+    id: 'app.toast.setEmoji.away',
+    description: 'toast message for set away notification',
+  },
+  notAway: {
+    id: 'app.toast.setEmoji.notAway',
+    description: 'toast message for remove away notification',
+  },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
     description: 'message used when meeting has been muted',
@@ -213,6 +221,8 @@ class App extends Component {
     const {
       notify,
       currentUserEmoji,
+      currentUserAway,
+      currentUserRaiseHand,
       intl,
       deviceType,
       mountRandomUserModal,
@@ -227,30 +237,42 @@ class App extends Component {
 
     if (mountRandomUserModal) this.setRandomUserSelectModalIsOpen(true);
 
-    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
+    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status
+        && currentUserEmoji.status !== 'raiseHand'
+        && currentUserEmoji.status !== 'away'
+    ) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
         || currentUserEmoji.status;
 
-      const raisedHand = currentUserEmoji.status === 'raiseHand';
-
-      let statusLabel = '';
       if (currentUserEmoji.status === 'none') {
-        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
-          ? intl.formatMessage(intlMessages.loweredHand)
-          : intl.formatMessage(intlMessages.clearedEmoji);
+        notify(
+          intl.formatMessage(intlMessages.clearedEmoji),
+          'info',
+          'clear_status',
+        );
       } else {
-        statusLabel = raisedHand
-          ? intl.formatMessage(intlMessages.raisedHand)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+        notify(
+          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+          'info',
+          'user',
+        );
       }
+    }
 
-      notify(
-        statusLabel,
-        'info',
-        currentUserEmoji.status === 'none'
-          ? 'clear_status'
-          : 'user',
-      );
+    if (prevProps.currentUserAway !== currentUserAway) {
+      if (currentUserAway === true) {
+        notify(intl.formatMessage(intlMessages.away), 'info', 'user');
+      } else {
+        notify(intl.formatMessage(intlMessages.notAway), 'info', 'clear_status');
+      }
+    }
+
+    if (prevProps.currentUserRaiseHand !== currentUserRaiseHand) {
+      if (currentUserRaiseHand === true) {
+        notify(intl.formatMessage(intlMessages.raisedHand), 'info', 'user');
+      } else {
+        notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
+      }
     }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
