@@ -15,15 +15,11 @@ export function makeCall(name, ...args) {
 
   // const { credentials } = Auth;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     if (Meteor.status().connected) {
-      Meteor.call(name, ...args, (error, result) => {
-        if (error) {
-          reject(error);
-        }
-
-        resolve(result);
-      });
+      const result = await Meteor.callAsync(name, ...args);
+      // all tested cases it returnd 0, empty array or undefined
+      resolve(result);
     } else {
       const failureString = `Call to ${name} failed because Meteor is not connected`;
       // We don't want to send a log message if the call that failed was a log message.
