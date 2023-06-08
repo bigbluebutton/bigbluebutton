@@ -224,7 +224,8 @@ class BbbWebApiGWApp(
       hideUserList = lockSettingsParams.hideUserList.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
-      hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue()
+      hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
+      hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue()
     )
 
     val systemProps = SystemProps(

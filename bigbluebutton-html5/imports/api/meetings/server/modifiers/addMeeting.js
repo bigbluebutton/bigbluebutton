@@ -148,6 +148,7 @@ export default async function addMeeting(meeting) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       hideViewersCursor: Boolean,
+      hideViewersAnnotation: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,
