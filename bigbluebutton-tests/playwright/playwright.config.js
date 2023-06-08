@@ -31,7 +31,10 @@ const config = {
     toMatchSnapshot: {
       maxDiffPixelRatio: 0.05,
     },
-  }
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05,
+    },
+  },
 };
 
 if (CI) config.retries = 1;
