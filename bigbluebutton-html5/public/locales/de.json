@@ -386,7 +386,7 @@
     "app.muteWarning.tooltip": "Klicken, um den Hinweis bis zur nächsten Aufhebung der Stummschaltung zu schließen",
     "app.navBar.settingsDropdown.optionsLabel": "Optionen",
     "app.navBar.settingsDropdown.fullscreenLabel": "Vollbild-Anwendung",
-    "app.navBar.settingsDropdown.settingsLabel": "Einstellungen öffnen",
+    "app.navBar.settingsDropdown.settingsLabel": "Einstellungen",
     "app.navBar.settingsDropdown.aboutLabel": "Versionsinfo",
     "app.navBar.settingsDropdown.leaveSessionLabel": "Konferenz verlassen",
     "app.navBar.settingsDropdown.exitFullscreenLabel": "Vollbild beenden",
