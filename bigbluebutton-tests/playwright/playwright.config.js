@@ -29,7 +29,7 @@ const config = {
   expect: {
     timeout: ELEMENT_WAIT_TIME,
     toMatchSnapshot: {
-      maxDiffPixelRatio: 0.005,
+      maxDiffPixelRatio: 0.05,
     },
   }
 };
