@@ -209,7 +209,7 @@ test.describe.parallel('CustomParameters', () => {
     });
   });
 
-  test.describe.parallel.only('Disabled Features @ci', () => {
+  test.describe.parallel('Disabled Features @ci', () => {
     test.describe.serial(() => {
       test('Breakout rooms', async ({ browser, context, page}) => {
         const customParam = new CustomParameters(browser, context);
