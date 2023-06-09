@@ -530,7 +530,7 @@ public:
     lines: 2
     time: 5000
   timer:
-    enabled: false
+    enabled: true
     alarm: true
     music:
       enabled: false
