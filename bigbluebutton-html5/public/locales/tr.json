@@ -285,7 +285,7 @@
     "app.presentationUploder.conversion.invalidMimeType": "Geçersiz biçim algılandı (uzantı={0}, içerik türü={1})",
     "app.presentationUploder.conversion.conversionTimeout": "{0}. slayt {1} denemede işlenemedi.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Office belgesi işlenemedi. Lütfen PDF olarak yükleyin.",
-    "app.presentationUploder.conversion.officeDocConversionFailed": "Ofis belgesi işlenemedi. Lütfen PDF olarak yükleyin.",
+    "app.presentationUploder.conversion.officeDocConversionFailed": "Office belgesi işlenemedi. Lütfen PDF olarak yükleyin.",
     "app.presentationUploder.conversion.pdfHasBigPage": "PDF dosyasını dönüştürülemedi. Lütfen iyileştirmeyi deneyin. En fazla sayfa boyutu {0}",
     "app.presentationUploder.conversion.timeout": "Sorun var, dönüştürme çok uzun sürdü",
     "app.presentationUploder.conversion.pageCountFailed": "Sayfa sayısı belirlenemedi.",
