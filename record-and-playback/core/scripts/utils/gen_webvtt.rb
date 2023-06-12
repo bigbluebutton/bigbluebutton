@@ -74,7 +74,7 @@ class Caption
     end
     @text[i...j] = text
     @timestamps[i...j] = [timestamp] * text.size
-=start
+=begin
     #Alternative code; simply adding new elements without deleting overlapped letters
     @text[i...j] = text
     @timestamps += [timestamp] * (text.size + i - j) if text.size + i - j > 0
@@ -239,7 +239,7 @@ class Caption
     lines
   end
 
-==begin
+=begin
   def group_lines(lines)
     @group.push([lines[0]])
     lines[1..-1].each do |l|
@@ -262,7 +262,7 @@ class Caption
       end
     end
   end
-==end
+=end
 
   def norm_lines(lines, st, en)
     interval = (lines[en].end_time - lines[st].start_time) / (en - st + 1)
