@@ -130,9 +130,12 @@ export default class CursorListener extends Component {
   }
 
   clearTouchEvents() {
+    const { drawSettings } = this.props;
     this.removeTouchListeners();
     this.touchStarted = false;
-    this.checkCursor(-1, -1);
+    if (drawSettings.tool !== 'hand') {
+      this.checkCursor(-1, -1);
+    }
   }
 
   handleTouchStart(event) {
