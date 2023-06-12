@@ -240,6 +240,7 @@ export default class WhiteboardOverlay extends Component {
       clearPreview,
       addAnnotationToDiscardedList,
       undoAnnotation,
+      drawSettings,
       updateCursor,
     } = this.props;
 
@@ -265,6 +266,7 @@ export default class WhiteboardOverlay extends Component {
       <CursorListener
         whiteboardId={whiteboardId}
         actions={actions}
+        drawSettings={drawSettings}
         updateCursor={updateCursor}
       >
         {this.renderDrawListener(actions)}
