@@ -677,7 +677,7 @@ public:
         end: DRAW_END
     toolbar:
       multiUserPenOnly: false
-      defaultMultiUserTool: 'hand'
+      defaultMultiUserTool: 'pencil'
       colors:
         - label: black
           value: '#000000'
