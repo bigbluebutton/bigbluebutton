@@ -94,8 +94,9 @@ export default withTracker(({
   podId,
   presentationId,
   darkTheme,
+  isViewersAnnotationsLocked,
 }) => {
-  const shapes = getShapes(whiteboardId, curPageId, intl);
+  const shapes = getShapes(whiteboardId, curPageId, intl, isViewersAnnotationsLocked);
   const curPres = getCurrentPres();
   const { isIphone } = deviceInfo;
 

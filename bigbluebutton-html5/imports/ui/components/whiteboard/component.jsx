@@ -75,6 +75,7 @@ export default function Whiteboard(props) {
     sidebarNavigationWidth,
     animations,
     isToolbarVisible,
+    isModerator,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -369,7 +370,7 @@ export default function Whiteboard(props) {
                 slidePosition.height - shapeBounds.height,
               ];
               editedShape.size = [shapeBounds.width, shapeBounds.height];
-              if (isPresenter) persistShape(editedShape, whiteboardId);
+              if (isPresenter) persistShape(editedShape, whiteboardId, isModerator);
             }
           } catch (error) {
             logger.error({
@@ -836,7 +837,7 @@ export default function Whiteboard(props) {
           e?.cancelSession?.();
         } else {
           patchedShape.userId = currentUser?.userId;
-          persistShape(patchedShape, whiteboardId);
+          persistShape(patchedShape, whiteboardId, isModerator);
         }
       } else {
         const diff = {
@@ -844,7 +845,7 @@ export default function Whiteboard(props) {
           point: patchedShape.point,
           text: patchedShape.text,
         };
-        persistShape(diff, whiteboardId);
+        persistShape(diff, whiteboardId, isModerator);
       }
     }
 
@@ -949,7 +950,7 @@ export default function Whiteboard(props) {
             const shapeBounds = app.getShapeBounds(id);
             const editedShape = shape;
             editedShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(editedShape, newWhiteboardId);
+            persistShape(editedShape, newWhiteboardId, isModerator);
           });
       }
       if (isPresenter) {
