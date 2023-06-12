@@ -131,13 +131,13 @@ const SidebarContent = (props) => {
       }}
     >
       {sidebarContentPanel === PANELS.CHAT
-      && (
-      <ErrorBoundary
-        Fallback={FallbackView}
-      >
-        <ChatContainer width={width} />
-      </ErrorBoundary>
-      )}
+        && (
+          <ErrorBoundary
+            Fallback={FallbackView}
+          >
+            <ChatContainer width={width} />
+          </ErrorBoundary>
+        )}
       {!isSharedNotesPinned && (
         <NotesContainer
           isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
@@ -147,7 +147,10 @@ const SidebarContent = (props) => {
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
       {sidebarContentPanel === PANELS.POLL && (
-        <Styled.Poll style={{ minWidth, top: '0', display: pollDisplay }} id="pollPanel">
+        <Styled.Poll
+          style={{ minWidth, top: '0', display: pollDisplay }}
+          id="pollPanel"
+        >
           <PollContainer smallSidebar={smallSidebar} amIPresenter={amIPresenter} />
         </Styled.Poll>
       )}
