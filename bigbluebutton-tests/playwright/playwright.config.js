@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { chromiumConfig, firefoxConfig, webkitConfig } = require('./core/browsersConfig');
+const { ELEMENT_WAIT_TIME } = require('./core/constants');
 
 const CI = process.env.CI === 'true';
 const DEBUG_MODE = process.env.DEBUG_MODE === 'true';
@@ -25,6 +26,15 @@ const config = {
     firefoxConfig,
     webkitConfig,
   ],
+  expect: {
+    timeout: ELEMENT_WAIT_TIME,
+    toMatchSnapshot: {
+      maxDiffPixelRatio: 0.05,
+    },
+    toHaveScreenshot: {
+      maxDiffPixelRatio: 0.05,
+    },
+  },
 };
 
 if (CI) config.retries = 1;
