@@ -13,6 +13,7 @@ const TOOLBAR_CONFIG = Meteor.settings.public.whiteboard.toolbar;
 const ANNOTATION_COLORS = TOOLBAR_CONFIG.colors;
 const THICKNESS_RADIUSES = TOOLBAR_CONFIG.thickness;
 const FONT_SIZES = TOOLBAR_CONFIG.font_sizes;
+const DEFAULT_MULTIUSER_TOOL = TOOLBAR_CONFIG.defaultMultiUserTool;
 
 const intlMessages = defineMessages({
   toolbarTools: {
@@ -88,7 +89,7 @@ class WhiteboardToolbar extends Component {
       value: 'hand',
     };
 
-    if (multiUser && !isPresenter) {
+    if (multiUser && !isPresenter && DEFAULT_MULTIUSER_TOOL !== 'hand') {
       annotationSelected = {
         icon: 'pen_tool',
         value: 'pencil',
@@ -161,7 +162,7 @@ class WhiteboardToolbar extends Component {
     // if there are saved drawSettings in the session storage
     // - retrieve them and update toolbar values
     if (drawSettings) {
-      if (multiUser && !isPresenter) {
+      if (multiUser && !isPresenter && DEFAULT_MULTIUSER_TOOL !== 'hand') {
         drawSettings.whiteboardAnnotationTool = 'pencil';
         this.handleAnnotationChange({ icon: 'pen_tool', value: 'pencil' });
       }
