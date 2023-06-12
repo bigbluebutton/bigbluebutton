@@ -162,7 +162,7 @@ trait PresentationWithAnnotationsMsgHdlr extends RightsManagementTrait {
 
         PresentationSender.broadcastSetPresentationDownloadableEvtMsg(bus, meetingId, "DEFAULT_PRESENTATION_POD", "not-used", presId, true, filename)
 
-        val fileURI = List("bigbluebutton", "presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}").mkString(File.separator, File.separator, "")
+        val fileURI = List("presentation", "download", meetingId, s"${presId}?presFilename=${presId}.${presFilenameExt}").mkString(File.separator, File.separator, "")
         val event = buildNewPresAnnFileAvailable(fileURI, presId)
 
         handle(event, liveMeeting, bus)
