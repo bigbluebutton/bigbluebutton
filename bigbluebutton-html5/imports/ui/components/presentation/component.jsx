@@ -282,7 +282,8 @@ class Presentation extends PureComponent {
       if (presentationChanged) {
         this.setState({
           presentationId: currentPresentationId,
-          hadPresentation: true
+          hadPresentation: true,
+          fitToWidth: false,
         });
       }
 
