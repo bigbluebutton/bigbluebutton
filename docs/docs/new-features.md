@@ -85,6 +85,7 @@ Reverting to the default recorder (Kurento) can be achieved by removing the `rec
 Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
 - Spring 2.7.12
 - React 18
+- NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
 
 For full details on what is new in BigBlueButton 2.7, see the release notes.
 
