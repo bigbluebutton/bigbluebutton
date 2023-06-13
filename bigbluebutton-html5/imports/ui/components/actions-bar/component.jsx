@@ -23,6 +23,7 @@ class ActionsBar extends PureComponent {
 
     this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
     this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
+    this.actionsBarRef = React.createRef();
   }
 
   setCaptionsReaderMenuModalIsOpen(value) {
@@ -33,7 +34,7 @@ class ActionsBar extends PureComponent {
     const { isInteractionsButtonEnabled, isRaiseHandButtonEnabled } = this.props;
 
     return (<>
-      {isInteractionsButtonEnabled ? <InteractionsButtonContainer /> :
+      {isInteractionsButtonEnabled ? <InteractionsButtonContainer actionsBarRef={this.actionsBarRef} /> :
        isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{setEmojiStatus, currentUser, intl}}/>
        : null}
     </>);
@@ -76,6 +77,7 @@ class ActionsBar extends PureComponent {
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar
+        ref={this.actionsBarRef}
         style={
           {
             height: actionsBarStyle.innerHeight,

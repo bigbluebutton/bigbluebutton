@@ -148,9 +148,10 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest, opts, accessKey, open, renderOtherComponents } = this.props;
+    const { trigger, intl, customStyles, dataTest, opts, accessKey, open, renderOtherComponents, customAnchorEl, hasRoundedCorners } = this.props;
     const actionsItems = this.makeMenuItems();
 
+    const roundedCornersStyles = { borderRadius: '1.8rem' };
     let menuStyles = { zIndex: 999 };
 
     if (customStyles) {
@@ -184,12 +185,13 @@ class BBBMenu extends React.Component {
         <Menu
           {...opts}
           {...this.optsToMerge}
-          anchorEl={anchorEl}
+          anchorEl={customAnchorEl ? customAnchorEl : anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
           style={menuStyles}
           data-test={dataTest}
           onKeyDownCapture={this.handleKeyDown}
+          PaperProps={{ style: hasRoundedCorners ? roundedCornersStyles : {} }}
         >
           {actionsItems}
           {renderOtherComponents}

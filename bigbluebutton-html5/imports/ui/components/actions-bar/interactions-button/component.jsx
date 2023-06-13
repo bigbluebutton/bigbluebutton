@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Button from '/imports/ui/components/common/button/component';
-import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
-import ReactionsPicker from '/imports/ui/components/emoji-picker/reactions-picker/component';
+import ReactionsBar from '/imports/ui/components/emoji-picker/reactions-bar/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
 
@@ -12,21 +11,12 @@ import Styled from '../styles';
 
 const InteractionsButton = (props) => {
   const {
-    userId, emoji, intl, isMobile, isRTL,
+    userId, emoji, intl, actionsBarRef,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [dropdownList, setDropdownList] = useState([]);
 
   const intlMessages = defineMessages({
-    raiseHandLabel: {
-      id: 'app.actionsBar.interactions.raiseHand',
-      description: 'raise Hand Label',
-    },
-    notRaiseHandLabel: {
-      id: 'app.actionsBar.interactions.lowHand',
-      description: 'not Raise Hand Label',
-    },
     writeQuestionLabel: {
       id: 'app.actionsBar.interactions.writeQuestion',
       description: 'writeQuestion Label',
@@ -61,82 +51,17 @@ const InteractionsButton = (props) => {
     },
   });
 
-  const handleSetDropdownList = () => {
-    const dropdownActions = [];
-
-    dropdownActions.push({
-      key: 'interactions-label',
-      dataTest: 'interactionsLabel',
-      label: intl.formatMessage(intlMessages.interactionsLabel),
-      disabled: true,
-      onClick: () => {},
-    });
-
-    dropdownActions.push({
-      key: 'raise-hand',
-      dataTest: 'raise-hand',
-      icon: 'hand',
-      label:
-        emoji === 'raiseHand'
-          ? intl.formatMessage(intlMessages.notRaiseHandLabel)
-          : intl.formatMessage(intlMessages.raiseHandLabel),
-      onClick: () => {
-        UserListService.setEmojiStatus(userId, emoji === 'raiseHand' ? 'none' : 'raiseHand');
-      },
-    });
-
-    if (UserReactionService.isEnabled()) {
-      dropdownActions.push({
-        key: 'setstatus',
-        dataTest: 'setstatus',
-        icon: 'happy',
-        label: intl.formatMessage(intlMessages.addReactionLabel),
-        onClick: () => {
-          setDropdownList([
-            {
-              key: 'back',
-              dataTest: 'back',
-              icon: 'left_arrow',
-              label: intl.formatMessage(intlMessages.backLabel),
-              onClick: () => {
-                setShowEmojiPicker(false);
-                setDropdownList(dropdownActions);
-              },
-            },
-          ]);
-          setShowEmojiPicker(true);
-        },
-      });
-    }
-
-    dropdownActions.push({
-      key: 'StatusLabel',
-      dataTest: 'StatusLabel',
-      label: intl.formatMessage(intlMessages.statusLabel),
-      disabled: true,
-      dividerTop: true,
-      onClick: () => {},
-    });
-
-    return dropdownActions;
-  };
-
-  useEffect(() => {
-    setDropdownList(handleSetDropdownList);
-  }, [emoji]);
-
   const handleClose = () => {
     setShowEmojiPicker(false);
-    setDropdownList(handleSetDropdownList);
   };
 
-  const handleReactionSelect = (emojiObject) => {
-    UserReactionService.setUserReaction(emojiObject.native);
+  const handleReactionSelect = (reaction) => {
+    UserReactionService.setUserReaction(reaction);
   };
 
-  const renderEmojiPicker = () => (
+  const renderReactionsBar = () => (
     <Styled.Wrapper>
-      <ReactionsPicker {...props} onEmojiSelect={handleReactionSelect} />
+      <ReactionsBar {...props} onReactionSelect={handleReactionSelect} />
     </Styled.Wrapper>
   );
 
@@ -170,25 +95,8 @@ const InteractionsButton = (props) => {
       />
     </Styled.ButtonContainer>
   );
-
-  const handleButtonLabel = () => {
-    if (isMobile) {
-      return intl.formatMessage(intlMessages.interactionsAdvancedButton);
-    }
-
-    return emoji === 'raiseHand'
-      ? intl.formatMessage(intlMessages.notRaiseHandLabel)
-      : intl.formatMessage(intlMessages.raiseHandLabel);
-  };
-
-  const handleInteractionsButtonClick = (event) => {
-    if (isMobile) {
-      return;
-    }
-
-    event.stopPropagation();
-    UserListService.setEmojiStatus(userId, emoji === 'raiseHand' ? 'none' : 'raiseHand');
-  };
+  
+  const customStyles = { top: '-1rem', borderRadius: '1.7rem' };
 
   return (
     <BBBMenu
@@ -197,39 +105,31 @@ const InteractionsButton = (props) => {
           <Styled.RaiseHandButton
             data-test="InteractionsButton"
             icon="hand"
-            label={handleButtonLabel()}
+            label={intl.formatMessage(intlMessages.interactionsLabel)}
             description="Interactions"
-            ghost={emoji !== 'raiseHand'}
+            ghost={!showEmojiPicker}
             onKeyPress={() => {}}
-            onClick={handleInteractionsButtonClick}
-            color={emoji === 'raiseHand' ? 'primary' : 'default'}
+            onClick={() => setShowEmojiPicker(true)}
+            color={showEmojiPicker ? 'primary' : 'default'}
             hideLabel
             circle
             size="lg"
           />
-          {!isMobile && (
-            <ButtonEmoji
-              data-test="interactions-advanced-button"
-              emoji="device_list_selector"
-              label={intl.formatMessage(intlMessages.interactionsAdvancedButton)}
-              hideLabel
-              tabIndex={0}
-              rotate
-            />
-          )}
         </Styled.InteractionsDropdown>
       )}
-      actions={dropdownList}
-      renderOtherComponents={showEmojiPicker ? renderEmojiPicker() : buttonStatus()}
+      renderOtherComponents={showEmojiPicker ? renderReactionsBar() : buttonStatus()}
       onCloseCallback={() => handleClose()}
+      customAnchorEl={actionsBarRef.current}
+      customStyles={customStyles}
+      hasRoundedCorners={true}
       opts={{
-        id: 'default-dropdown-menu',
+        id: 'reactions-dropdown-menu',
         keepMounted: true,
         transitionDuration: 0,
         elevation: 3,
         getContentAnchorEl: null,
-        anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
-        transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+        anchorOrigin: { vertical: 'top', horizontal: 'center' },
+        transformOrigin: { vertical: 'bottom', horizontal: 'center' },
       }}
     />
   );
@@ -243,7 +143,6 @@ const propTypes = {
   emoji: PropTypes.string.isRequired,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
-  isMobile: PropTypes.bool.isRequired,
 };
 
 InteractionsButton.propTypes = propTypes;
