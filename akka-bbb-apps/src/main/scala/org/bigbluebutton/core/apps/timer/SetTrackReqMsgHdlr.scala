@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.timer
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ TimerModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, TimerModel }
+import org.bigbluebutton.core.db.TimerDAO
 
 trait SetTrackReqMsgHdlr extends RightsManagementTrait {
   this: TimerApp2x =>
@@ -32,6 +33,7 @@ trait SetTrackReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       TimerModel.setTrack(liveMeeting.timerModel, msg.body.track)
+      TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
       broadcastEvent(msg.body.track)
     }
   }

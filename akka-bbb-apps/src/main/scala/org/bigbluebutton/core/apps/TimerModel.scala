@@ -14,12 +14,9 @@ object TimerModel {
     model.track = track
   }
 
-  def reset(model: TimerModel, stopwatch: Boolean, time: Int, accumulated: Int, startedAt: Long, track: String) : Unit = {
-    model.stopwatch = stopwatch
-    model.time = time
-    model.accumulated = accumulated
-    model.startedAt = startedAt
-    model.track = track
+  def reset(model: TimerModel) : Unit = {
+    model.accumulated = 0
+    model.startedAt = 0
     model.endedAt = 0
   }
 

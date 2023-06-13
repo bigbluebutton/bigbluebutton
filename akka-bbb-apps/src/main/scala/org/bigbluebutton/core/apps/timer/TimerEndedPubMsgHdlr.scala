@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.timer
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ TimerModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ RightsManagementTrait, TimerModel }
+import org.bigbluebutton.core.db.TimerDAO
 
 trait TimerEndedPubMsgHdlr extends RightsManagementTrait {
   this: TimerApp2x =>
@@ -24,6 +25,7 @@ trait TimerEndedPubMsgHdlr extends RightsManagementTrait {
     }
 
     TimerModel.setEndedAt(liveMeeting.timerModel, System.currentTimeMillis())
+    TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
     broadcastEvent()
   }
 }

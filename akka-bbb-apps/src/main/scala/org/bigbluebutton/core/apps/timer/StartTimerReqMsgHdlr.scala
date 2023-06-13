@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.timer
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.apps.{ TimerModel, PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, TimerModel }
+import org.bigbluebutton.core.db.TimerDAO
 
 trait StartTimerReqMsgHdlr extends RightsManagementTrait {
   this: TimerApp2x =>
@@ -31,6 +32,7 @@ trait StartTimerReqMsgHdlr extends RightsManagementTrait {
     } else {
       TimerModel.setStartedAt(liveMeeting.timerModel, System.currentTimeMillis())
       TimerModel.setRunning(liveMeeting.timerModel, true)
+      TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
       broadcastEvent()
     }
   }
