@@ -1004,7 +1004,7 @@ BigBlueButton comes with Greenlight, a front-end application written in Ruby on 
 
 ![greenlight-start](/img/greenlight/v2/room.png)
 
-For more information see [Installing Greenlight](/greenlight/v2/install).
+For more information see [Installing Greenlight](/greenlight/v3/install).
 
 ### Networking
 

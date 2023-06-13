@@ -47,6 +47,15 @@ object_relationships:
         remote_table:
           name: v_screenshare
           schema: public
+  - name: timer
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_timer
+          schema: public
   - name: usersPolicies
     using:
       manual_configuration:

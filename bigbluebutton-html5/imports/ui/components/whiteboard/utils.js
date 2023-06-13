@@ -8,6 +8,7 @@ import {
 } from './service';
 
 const WHITEBOARD_CONFIG = Meteor.settings.public.whiteboard;
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const usePrevious = (value) => {
   const ref = React.useRef();
@@ -100,6 +101,8 @@ const sendShapeChanges = (
   intl,
   redo = false,
 ) => {
+  let isModerator = currentUser?.role === ROLE_MODERATOR;
+
   const invalidChange = Object.keys(changedShapes)
     .find((id) => !hasShapeAccess(id));
 
@@ -154,7 +157,7 @@ const sendShapeChanges = (
               if (shapes[b.fromId] && !isEqual(boundShape, shapes[b.fromId])) {
                 const shapeBounds = app.getShapeBounds(b.fromId);
                 boundShape.size = [shapeBounds.width, shapeBounds.height];
-                persistShape(boundShape, whiteboardId);
+                persistShape(boundShape, whiteboardId, isModerator);
               }
             }
           });
@@ -175,7 +178,11 @@ const sendShapeChanges = (
         if (!shapes[id] || (shapes[id] && !shapes[id].userId)) {
           modShape.userId = currentUser?.userId;
         }
-        persistShape(modShape, whiteboardId);
+        // do not change moderator status for existing shapes
+        if (shapes[id]) {
+          isModerator = shapes[id].isModerator;
+        }
+        persistShape(modShape, whiteboardId, isModerator);
       }
     });
 

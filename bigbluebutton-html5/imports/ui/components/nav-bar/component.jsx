@@ -9,6 +9,7 @@ import ConnectionStatusButton from '/imports/ui/components/connection-status/but
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import SettingsDropdownContainer from './settings-dropdown/container';
+import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/container';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { PANELS, ACTIONS } from '../layout/enums';
@@ -249,6 +250,7 @@ class NavBar extends Component {
         </Styled.Top>
         <Styled.Bottom>
           <TalkingIndicatorContainer amIModerator={amIModerator} />
+          <TimerIndicatorContainer />
         </Styled.Bottom>
       </Styled.Navbar>
     );
@@ -258,4 +260,3 @@ class NavBar extends Component {
 NavBar.propTypes = propTypes;
 NavBar.defaultProps = defaultProps;
 export default withShortcutHelper(injectIntl(NavBar), 'toggleUserList');
-

@@ -529,6 +529,20 @@ public:
       size: 24px
     lines: 2
     time: 5000
+  timer:
+    enabled: true
+    alarm: true
+    music:
+      enabled: false
+      volume: 0.4
+      track1: "RelaxingMusic"
+      track2: "CalmMusic"
+      track3: "aristocratDrums"
+    interval:
+      clock: 100
+      offset: 60000
+    time: 5
+    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
@@ -723,6 +737,7 @@ public:
     help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
+    allowSnapshotOfCurrentSlide: true
     panZoomThrottle: 32
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'

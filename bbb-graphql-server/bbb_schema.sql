@@ -28,6 +28,8 @@ drop table if exists "poll_option";
 drop table if exists "poll";
 drop view if exists "v_external_video";
 drop table if exists "external_video";
+drop view if exists "v_timer";
+drop table if exists "timer";
 drop view if exists "v_screenshare";
 drop table if exists "screenshare";
 
@@ -948,3 +950,21 @@ create index "screenshare_meetingId_current" on "screenshare"("meetingId") WHERE
 CREATE VIEW "v_screenshare" AS
 SELECT * FROM "screenshare"
 WHERE "stoppedAt" IS NULL;
+
+--------------------------------
+----Timer
+
+CREATE TABLE "timer" (
+	"meetingId" varchar(100) PRIMARY KEY REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"stopwatch" boolean,
+	"running" boolean,
+	"active" boolean,
+	"time" bigint,
+	"accumulated" bigint,
+	"startedAt" bigint,
+	"endedAt" bigint,
+	"songTrack" varchar(50)
+);
+
+CREATE VIEW "v_timer" AS
+SELECT * FROM "timer";

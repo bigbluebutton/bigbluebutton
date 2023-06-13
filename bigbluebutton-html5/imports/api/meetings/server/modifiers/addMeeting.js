@@ -11,6 +11,7 @@ import Meetings, {
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
 import { initPads } from '/imports/api/pads/server/helpers';
+import createTimer from '/imports/api/timer/server/methods/createTimer';
 import { initCaptions } from '/imports/api/captions/server/helpers';
 import { addAnnotationsStreamer } from '/imports/api/annotations/server/streamer';
 import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
@@ -148,6 +149,7 @@ export default async function addMeeting(meeting) {
       lockOnJoin: Boolean,
       lockOnJoinConfigurable: Boolean,
       hideViewersCursor: Boolean,
+      hideViewersAnnotation: Boolean,
     },
     systemProps: {
       html5InstanceId: Number,
@@ -263,6 +265,8 @@ export default async function addMeeting(meeting) {
 
     if (insertedId) {
       Logger.info(`Added meeting id=${meetingId}`);
+      // Init Timer collection
+      createTimer(meetingId);
       if (newMeeting.meetingProp.disabledFeatures.indexOf('sharedNotes') === -1) {
         initPads(meetingId);
       }
