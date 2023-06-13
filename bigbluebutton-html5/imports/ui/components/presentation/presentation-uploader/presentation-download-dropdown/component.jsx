@@ -91,43 +91,33 @@ class PresentationDownloadDropdown extends PureComponent {
     };
 
     if (!isDownloadable) {
+      this.menuItems.push({
+        key: this.actionsKey[0],
+        dataTest: 'enableOriginalPresentationDownload',
+        label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
+        onClick: () => toggleDownloadOriginalPresentation(true),
+      });
       if (hasAnnotations) {
-        this.menuItems.push(
-          {
-            key: this.actionsKey[0],
-            dataTest: 'enableOriginalPresentationDownload',
-            label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
-            onClick: () => toggleDownloadOriginalPresentation(true),
+        this.menuItems.push({
+          key: this.actionsKey[1],
+          id: 'sendAnnotatedDocument',
+          dataTest: 'sendAnnotatedDocument',
+          label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
+          onClick: () => {
+            closeModal();
+            handleDownloadingOfPresentation('Annotated');
           },
-          {
-            key: this.actionsKey[1],
-            id: 'sendAnnotatedDocument',
-            dataTest: 'sendAnnotatedDocument',
-            label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-            onClick: () => {
-              closeModal();
-              handleDownloadingOfPresentation('Annotated');
-            },
-          },
-        );
+        });
       } else {
-        this.menuItems.push(
-          {
-            key: this.actionsKey[0],
-            dataTest: 'enableOriginalPresentationDownload',
-            label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
-            onClick: () => toggleDownloadOriginalPresentation(true),
+        this.menuItems.push({
+          key: this.actionsKey[1],
+          dataTest: 'sendAnnotatedDocument',
+          label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
+          onClick: () => {
+            closeModal();
+            handleDownloadingOfPresentation('Original');
           },
-          {
-            key: this.actionsKey[1],
-            dataTest: 'sendAnnotatedDocument',
-            label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-            onClick: () => {
-              closeModal();
-              handleDownloadingOfPresentation('Original');
-            },
-          },
-        );
+        });
       }
     } else {
       this.menuItems.push({
