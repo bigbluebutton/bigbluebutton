@@ -85,5 +85,5 @@ export function isReactionsEnabled() {
 }
 
 export function isTimerFeatureEnabled() {
-  return getDisabledFeatures().indexOf('timer') === -1;
+  return getDisabledFeatures().indexOf('timer') === -1 && Meteor.settings.public.timer;
 }
