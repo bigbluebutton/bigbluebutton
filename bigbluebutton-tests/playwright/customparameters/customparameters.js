@@ -240,9 +240,9 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.createBreakoutRooms);
   }
 
-  async liveTranscription() {
+  async speechRecognition() {
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.liveTranscription);
+    await this.modPage.wasRemoved(e.speechRecognition);
   }
 
   async captions() {
@@ -324,11 +324,11 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.createBreakoutRooms);
   }
 
-  async liveTranscriptionExclude() {
+  async speechRecognitionExclude() {
     const { speechRecognitionEnabled } = getSettings();
     test.fail(!speechRecognitionEnabled, 'Live Transcription is disabled');
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.liveTranscription);
+    await this.modPage.hasElement(e.speechRecognition);
   }
 
   async captionsExclude() {

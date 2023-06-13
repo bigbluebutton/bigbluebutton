@@ -40,26 +40,26 @@ exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
 exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
 
 // Disabled Features
-exports.breakoutRooms = 'disabledFeatures=breakoutRooms';
-exports.liveTranscription = 'disabledFeatures=liveTranscription';
-exports.captions = 'disabledFeatures=captions';
-exports.chat = 'disabledFeatures=chat';
-exports.externalVideos = 'disabledFeatures=externalVideos';
-exports.learningDashboard = 'disabledFeatures=learningDashboard';
-exports.polls = 'disabledFeatures=polls';
-exports.screenshare = 'disabledFeatures=screenshare';
-exports.sharedNotes = 'disabledFeatures=sharedNotes';
-exports.virtualBackgrounds = 'disabledFeatures=virtualBackgrounds';
-exports.downloadPresentationWithAnnotations = 'disabledFeatures=downloadPresentationWithAnnotations';
-exports.importPresentationWithAnnotationsFromBreakoutRooms = 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms';
-exports.importSharedNotesFromBreakoutRooms = 'disabledFeatures=importSharedNotesFromBreakoutRooms';
-exports.layouts = 'disabledFeatures=layouts';
-exports.presentation = 'disabledFeatures=presentation';
-exports.customVirtualBackground = 'disabledFeatures=customVirtualBackgrounds';
+exports.breakoutRoomsDisabled = 'disabledFeatures=breakoutRooms';
+exports.speechRecognitionDisabled = 'disabledFeatures=liveTranscription';
+exports.captionsDisabled = 'disabledFeatures=captions';
+exports.chatDisabled = 'disabledFeatures=chat';
+exports.externalVideosDisabled = 'disabledFeatures=externalVideos';
+exports.learningDashboardDisabled = 'disabledFeatures=learningDashboard';
+exports.pollsDisabled = 'disabledFeatures=polls';
+exports.screenshareDisabled = 'disabledFeatures=screenshare';
+exports.sharedNotesDisabled = 'disabledFeatures=sharedNotes';
+exports.virtualBackgroundsDisabled = 'disabledFeatures=virtualBackgrounds';
+exports.downloadPresentationWithAnnotationsDisabled = 'disabledFeatures=downloadPresentationWithAnnotations';
+exports.importPresentationWithAnnotationsFromBreakoutRoomsDisabled = 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms';
+exports.importSharedNotesFromBreakoutRoomsDisabled = 'disabledFeatures=importSharedNotesFromBreakoutRooms';
+exports.layoutsDisabled = 'disabledFeatures=layouts';
+exports.presentationDisabled = 'disabledFeatures=presentation';
+exports.customVirtualBackgroundDisabled = 'disabledFeatures=customVirtualBackgrounds';
 
 // Disabled Features Exclude
 exports.breakoutRoomsExclude = 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms';
-exports.liveTranscriptionExclude = 'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription';
+exports.speechRecognitionExclude = 'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription';
 exports.captionsExclude = 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions';
 exports.chatExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat';
 exports.externalVideosExclude = 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos';
