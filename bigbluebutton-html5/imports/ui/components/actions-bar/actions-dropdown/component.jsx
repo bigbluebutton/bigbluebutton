@@ -297,7 +297,6 @@ class ActionsDropdown extends PureComponent {
     }
 
     if (isCameraAsContentEnabled && amIPresenter && !isMobile) {
-      console.log(isCameraAsContentEnabled);
       actions.push({
         icon: hasCameraAsContent ? 'video_off' : 'video',
         label: hasCameraAsContent
