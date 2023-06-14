@@ -340,25 +340,29 @@ class ActionsDropdown extends PureComponent {
           },
         };
       });
-
     return presentationItemElements;
   }
 
   setExternalVideoModalIsOpen(value) {
     this.setState({ isExternalVideoModalOpen: value });
   }
+
   setRandomUserSelectModalIsOpen(value) {
     this.setState({ isRandomUserSelectModalOpen: value });
   }
+
   setLayoutModalIsOpen(value) {
     this.setState({ isLayoutModalOpen: value });
   }
+
   setCameraAsContentModalIsOpen(value) {
     this.setState({ isCameraAsContentModalOpen: value });
   }
+
   setPropsToPassModal(value) {
     this.setState({ propsToPassModal: value });
   }
+
   setForceOpen(value) {
     this.setState({ forceOpen: value });
   }
@@ -398,10 +402,9 @@ class ActionsDropdown extends PureComponent {
 
     const availableActions = this.getAvailableActions();
     const availablePresentations = this.makePresentationItems();
-    const children =
-      availablePresentations.length > 1 && amIPresenter
-        ? availablePresentations.concat(availableActions)
-        : availableActions;
+    const children = availablePresentations.length > 1 && amIPresenter
+      ? availablePresentations.concat(availableActions)
+      : availableActions;
 
     const customStyles = { top: '-1rem' };
 
@@ -444,21 +447,21 @@ class ActionsDropdown extends PureComponent {
           isExternalVideoModalOpen,
           this.setExternalVideoModalIsOpen,
           'low',
-          ExternalVideoModal
+          ExternalVideoModal,
         )}
         {amIPresenter && isSelectRandomUserEnabled
           ? this.renderModal(
-              isRandomUserSelectModalOpen,
-              this.setRandomUserSelectModalIsOpen,
-              'low',
-              RandomUserSelectContainer
-            )
+            isRandomUserSelectModalOpen,
+            this.setRandomUserSelectModalIsOpen,
+            'low',
+            RandomUserSelectContainer,
+          )
           : null}
         {this.renderModal(
           isLayoutModalOpen,
           this.setLayoutModalIsOpen,
           'low',
-          LayoutModalContainer
+          LayoutModalContainer,
         )}
         {this.renderModal(
           isCameraAsContentModalOpen,
