@@ -98,11 +98,7 @@ Recent releases:
 
 #### Renaming (bigbluebutton/bbb-install)bbb-install-2.7.sh from master branch to bbb-install.sh on branch v2.7.x-release
 
-If you are using bbb-install to configure your servers, be aware that in BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
-
-#### Limiting the whiteboard annotations to 300 per slide (configurable)
-
-We introduced this configuration as a safeguard against people deliberately trying to deteriorate others' experience. In some cases the default limit could be reached in normal use of the whiteboard (small letter handwriting while zoomed in, etc). We have exposed this value in the configurations file for bbb-html5. You can find more info in the [customization presentation section](https://docs.bigbluebutton.org/administration/customize#change-the-limit-of-300-annotations-per-page) .
+If you are using bbb-install to configure your servers, be aware that starting with BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
 
 ### Development
 
