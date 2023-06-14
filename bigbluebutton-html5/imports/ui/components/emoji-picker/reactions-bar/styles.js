@@ -55,6 +55,21 @@ const RaiseHandButtonWrapper = styled(ButtonWrapper)`
   `}
 `
 
+const ToggleButtonWrapper = styled(ButtonWrapper)`
+  width: auto;
+  padding: 1rem 0.5rem;
+  cursor: inherit;
+
+  & > div {
+    margin-right: 0.5rem;
+    filter: grayscale(100%);
+  }
+
+  &:hover {
+    background-color: transparent !important;
+  }
+`
+
 const Separator = styled.div`
   height: 2.5rem;
   width: 0;
@@ -67,5 +82,6 @@ export default {
   Wrapper,
   ButtonWrapper,
   RaiseHandButtonWrapper,
+  ToggleButtonWrapper,
   Separator,
 };

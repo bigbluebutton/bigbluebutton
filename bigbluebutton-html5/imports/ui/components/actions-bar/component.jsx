@@ -34,9 +34,13 @@ class ActionsBar extends PureComponent {
     const { isInteractionsButtonEnabled, isRaiseHandButtonEnabled } = this.props;
 
     return (<>
-      {isInteractionsButtonEnabled ? <InteractionsButtonContainer actionsBarRef={this.actionsBarRef} /> :
-       isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{setEmojiStatus, currentUser, intl}}/>
-       : null}
+      {isInteractionsButtonEnabled ?
+        <>
+          <Styled.Separator />
+          <InteractionsButtonContainer actionsBarRef={this.actionsBarRef} />
+        </> :
+        isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ setEmojiStatus, currentUser, intl }} />
+          : null}
     </>);
   }
 

@@ -5,6 +5,7 @@ import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
 import Styled from './styles';
 import UserListService from '/imports/ui/components/user-list/service';
+import Toggle from '/imports/ui/components/common/switch/component';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -21,6 +22,14 @@ const intlMessages = defineMessages({
   notRaiseHandLabel: {
     id: 'app.actionsBar.interactions.lowHand',
     description: 'not Raise Hand Label',
+  },
+  presentLabel: {
+    id: 'app.actionsBar.interactions.present',
+    description: 'present Label',
+  },
+  awayLabel: {
+    id: 'app.actionsBar.interactions.away',
+    description: 'away Label',
   },
 });
 
@@ -69,6 +78,17 @@ const ReactionsPicker = (props) => {
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
 
+  const handleToggleAFK = () => {
+    const value = emoji === 'away' ? 'none' : 'away';
+    UserListService.setEmojiStatus(userId, value);
+  };
+
+  const ToggleAFKLabel = () => {
+    return emoji === 'away'
+      ? intl.formatMessage(intlMessages.awayLabel)
+      : intl.formatMessage(intlMessages.presentLabel);
+  };
+
   return (
     <Styled.Wrapper>
       {reactions.map(({ id, native }) => (
@@ -76,6 +96,19 @@ const ReactionsPicker = (props) => {
           <Emoji key={id} emoji={{ id }} size={30} onClick={() => onReactionSelect(native)} />
         </Styled.ButtonWrapper>
       ))}
+      <Styled.Separator />
+      <Styled.ToggleButtonWrapper>
+        <Toggle
+          icons={false}
+          defaultChecked={emoji === 'away'}
+          onChange={() => {
+            handleToggleAFK();
+          }}
+          ariaLabel={ToggleAFKLabel()}
+          showToggleLabel={false}
+        />
+        {ToggleAFKLabel()}
+      </Styled.ToggleButtonWrapper>
       <Styled.Separator />
       <Styled.RaiseHandButtonWrapper onClick={() => handleRaiseHandButtonClick()} active={emoji === 'raiseHand'}>
         <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />
