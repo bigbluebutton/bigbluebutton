@@ -389,11 +389,11 @@ class ApplicationMenu extends BaseMenu {
         </Styled.Col>
         <Styled.Col>
           <Styled.FormElementRight>
-            {displaySettingsStatus(settings.wakeLockEnabled)}
+            {displaySettingsStatus(settings.wakeLock)}
             <Toggle
               icons={false}
-              defaultChecked={settings.wakeLockEnabled}
-              onChange={() => this.handleToggle('wakeLockEnabled')}
+              defaultChecked={settings.wakeLock}
+              onChange={() => this.handleToggle('wakeLock')}
               ariaLabel={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
               showToggleLabel={showToggleLabel}
             />

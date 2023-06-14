@@ -45,7 +45,7 @@ WakeLockContainer.propTypes = propTypes;
 WakeLockContainer.defaultProps = defaultProps;
 
 export default withTracker(() => {
-  const wakeLockSettings = Settings.application.wakeLockEnabled;
+  const wakeLockSettings = Settings.application.wakeLock;
   return {
     request: Service.request,
     release: Service.release,
