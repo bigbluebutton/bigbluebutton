@@ -9,13 +9,13 @@
     "test-firefox-ci": "export CI='true' && npx playwright test --project=firefox --grep @ci"
   },
   "dependencies": {
-    "@playwright/test": "^1.28.1",
-    "axios": "^1.2.0",
+    "@playwright/test": "^1.35.0",
+    "axios": "^1.4.0",
     "chalk": "^4.1.2",
-    "deep-equal": "^2.2.0",
-    "dotenv": "^16.0.0",
-    "playwright": "^1.28.1",
+    "deep-equal": "^2.2.1",
+    "dotenv": "^16.1.4",
+    "playwright": "^1.35.0",
     "sha1": "^1.1.1",
-    "xml2js": "^0.4.23"
+    "xml2js": "^0.6.0"
   }
 }
