@@ -98,6 +98,7 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [currentStyle, setCurrentStyle] = React.useState({});
+  const [currentCameraPoint, setCurrentCameraPoint] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
@@ -750,6 +751,9 @@ export default function Whiteboard(props) {
 
     if (reason && isPresenter && slidePosition && (reason.includes('zoomed') || reason.includes('panned'))) {
       const camera = tldrawAPI?.getPageState()?.camera;
+      if (currentCameraPoint[curPageId] && !isPanning) {
+        camera.point = currentCameraPoint[curPageId];
+      }
 
       // limit bounds
       if (tldrawAPI?.viewport.maxX > slidePosition.width) {
@@ -764,12 +768,11 @@ export default function Whiteboard(props) {
       if (camera.point[1] > 0 || tldrawAPI?.viewport.minY < 0) {
         camera.point[1] = 0;
       }
+
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-
-      tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round(((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100) / 100;
       if (zoom !== zoomToolbar) {
@@ -789,13 +792,20 @@ export default function Whiteboard(props) {
         viewedRegionH = HUNDRED_PERCENT;
       }
 
+      if (e?.currentPageId == curPageId) {
+        setCurrentCameraPoint({
+          ...currentCameraPoint,
+          [e?.currentPageId]: camera?.point,
+        })
+      }
+
       zoomSlide(
         parseInt(curPageId, 10),
         podId,
         viewedRegionW,
         viewedRegionH,
-        camera.point[0],
-        camera.point[1],
+        currentCameraPoint[curPageId] ? currentCameraPoint[curPageId][0] : camera.point[0],
+        currentCameraPoint[curPageId] ? currentCameraPoint[curPageId][1] : camera.point[1],
       );
     }
     // don't allow non-presenters to pan&zoom
@@ -932,6 +942,13 @@ export default function Whiteboard(props) {
 
     if (command?.id?.includes('style')) {
       setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
+    }
+
+    if (command && command?.id?.includes('change_page')) {
+      const camera = tldrawAPI?.getPageState()?.camera;
+      if (currentCameraPoint[app?.currentPageId]) {
+        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera.zoom);
+      }
     }
 
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;

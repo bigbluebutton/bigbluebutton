@@ -13,9 +13,6 @@ class RedoDrawing extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbArrowShape);
 
@@ -27,10 +24,10 @@ class RedoDrawing extends MultiUsers {
     await this.modPage.waitAndClick(e.wbUndo);
     await this.modPage.waitAndClick(e.wbRedo);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-redo-drawing.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-redo-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-redo-drawing.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-redo-drawing.png');
   }
 }
 

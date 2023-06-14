@@ -60,9 +60,7 @@ async function uploadBackgroundVideoImage(testPage) {
   ]);
   await fileChooser.setFiles(resolve(__dirname, '../core/media/simpsons-background.png'));
   const uploadedBackgroundLocator = testPage.getLocator(e.selectCustomBackground);
-  await expect(uploadedBackgroundLocator).toHaveScreenshot('custom-background-item.png', {
-    maxDiffPixelRatio: 0.1,
-  });
+  await expect(uploadedBackgroundLocator).toHaveScreenshot('custom-background-item.png');
 }
 
 exports.webcamContentCheck = webcamContentCheck;

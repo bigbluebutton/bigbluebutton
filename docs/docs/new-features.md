@@ -98,8 +98,7 @@ Recent releases:
 
 #### Renaming (bigbluebutton/bbb-install)bbb-install-2.7.sh from master branch to bbb-install.sh on branch v2.7.x-release
 
-If you are using bbb-install to configure your servers, be aware that in BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
-
+If you are using bbb-install to configure your servers, be aware that starting with BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
 
 ### Development
 

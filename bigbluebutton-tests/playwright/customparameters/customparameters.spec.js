@@ -210,100 +210,212 @@ test.describe.parallel('CustomParameters', () => {
   });
 
   test.describe.parallel('Disabled Features @ci', () => {
-    test('Breakout Rooms', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.breakoutRooms });
-      await customParam.breakoutRooms();
+    test.describe.serial(() => {
+      test('Breakout rooms', async ({ browser, context, page}) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.breakoutRoomsDisabled });
+        await customParam.breakoutRooms();
+      });
+      test('Breakout rooms (exclude)', async ({ browser, context, page}) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.breakoutRoomsExclude });
+        await customParam.breakoutRoomsExclude();
+      });
     });
 
-    test('Live Transcription', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, false, { customParameter: c.liveTranscription });
-      await customParam.liveTranscription();
+    test.describe.serial(() => {
+      test('Speech Recognition', async ({ browser, context, page}) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, false, { customParameter: c.speechRecognitionDisabled });
+        await customParam.speechRecognition();
+      });
+      test('Speech Recognition (exclude)', async ({ browser, context, page}) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, false, { customParameter: c.speechRecognitionExclude });
+        await customParam.speechRecognitionExclude();
+      });
     });
 
-    test('Captions', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.captions });
-      await customParam.captions();
+    test.describe.serial(() => {
+      test('Captions', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.captionsDisabled });
+        await customParam.captions();
+      });
+      test('Captions (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.captionsExclude });
+        await customParam.captionsExclude();
+      });
     });
 
-    test('Chat', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.chat });
-      await customParam.chat();
+    test.describe.serial(() => {
+      test('Chat', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.chatDisabled });
+        await customParam.chat();
+      });
+      test('Chat (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.chatExclude });
+        await customParam.chatExclude();
+      });
     });
 
-    test('External Videos', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.externalVideos });
-      await customParam.externalVideos();
+    test.describe.serial(() => {
+      test('External Videos', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.externalVideosDisabled });
+        await customParam.externalVideos();
+      });
+      test('External Videos (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.externalVideosExclude });
+        await customParam.externalVideosExclude();
+      });
     });
 
-    test('Layouts', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.layouts });
-      await customParam.layouts();
+    test.describe.serial(() => {
+      test('Layouts', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.layoutsDisabled });
+        await customParam.layouts();
+      });
+      test('Layouts (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.layoutsExclude });
+        await customParam.layoutsExclude();
+      });
     });
 
-    test('Learning Dashboard', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.learningDashboard });
-      await customParam.learningDashboard();
+    test.describe.serial(() => {
+      test('Learning Dashboard', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.learningDashboardDisabled });
+        await customParam.learningDashboard();
+      });
+      test('Learning Dashboard (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.learningDashboardExclude });
+        await customParam.learningDashboardExclude();
+      });
     });
 
-    test('Polls', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.polls });
-      await customParam.polls();
+    test.describe.serial(() => {
+      test('Polls', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.pollsDisabled });
+        await customParam.polls();
+      });
+      test('Polls (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.pollsExclude });
+        await customParam.pollsExclude();
+      });
     });
 
-    test('Screenshare', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.screenshare });
-      await customParam.screenshare();
+    test.describe.serial(() => {
+      test('Screenshare', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.screenshareDisabled });
+        await customParam.screenshare();
+      });
+      test('Screenshare (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.screenshareExclude });
+        await customParam.screenshareExclude();
+      });
     });
 
-    test('Shared Notes', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.sharedNotes });
-      await customParam.sharedNotes();
+    test.describe.serial(() => {
+      test('Shared Notes', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.sharedNotesDisabled });
+        await customParam.sharedNotes();
+      });
+      test('Shared Notes (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.sharedNotesExclude });
+        await customParam.sharedNotesExclude();
+      });
     });
 
-    test('Virtual Backgrounds', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.virtualBackgrounds });
-      await customParam.virtualBackgrounds();
+    test.describe.serial(() => {
+      test('Virtual Background', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.virtualBackgroundsDisabled });
+        await customParam.virtualBackgrounds();
+      });
+      test('Virtual Background (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.virtualBackgroundsExclude });
+        await customParam.virtualBackgroundsExclude();
+      });
     });
 
-    test('Download Presentation With Annotations', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.downloadPresentationWithAnnotations });
-      await customParam.downloadPresentationWithAnnotations();
+    test.describe.serial(() => {
+      test('Download Presentation With Annotations', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.downloadPresentationWithAnnotationsDisabled });
+        await customParam.downloadPresentationWithAnnotations();
+      });
+      test('Download Presentation With Annotations (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.downloadPresentationWithAnnotationsExclude });
+        await customParam.downloadPresentationWithAnnotationsExclude();
+      });
     });
 
-    test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.importPresentationWithAnnotationsFromBreakoutRooms });
-      await customParam.importPresentationWithAnnotationsFromBreakoutRooms();
+    test.describe.serial(() => {
+      test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.importPresentationWithAnnotationsFromBreakoutRoomsDisabled });
+        await customParam.importPresentationWithAnnotationsFromBreakoutRooms();
+      });
+      test('Import Presentation With Annotations From Breakout Rooms (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.importPresentationWithAnnotationsFromBreakoutRoomsExclude });
+        await customParam.importPresentationWithAnnotationsFromBreakoutRoomsExclude();
+      });
     });
 
-    test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRooms });
-      await customParam.importSharedNotesFromBreakoutRooms();
+    test.describe.serial(() => {
+      test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRoomsDisabled });
+        await customParam.importSharedNotesFromBreakoutRooms();
+      });
+      test('Import Shared Notes From Breakout Rooms (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.importSharedNotesFromBreakoutRoomsExclude });
+        await customParam.importSharedNotesFromBreakoutRoomsExclude();
+      });
     });
 
-    test('Presentation', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.presentation });
-      await customParam.presentation();
+    test.describe.serial(() => {
+      test('Presentation', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.presentationDisabled });
+        await customParam.presentation();
+      });
+      test('Presentation (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.presentationExclude });
+        await customParam.presentationExclude();
+      });
     });
 
-    test('Custom Virtual Background', async ({ browser, context, page }) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: c.customVirtualBackground });
-      await customParam.customVirtualBackground();
+    test.describe.serial(() => {
+      test('Custom Virtual Background', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.customVirtualBackgroundDisabled });
+        await customParam.customVirtualBackground();
+      });
+      test('Custom Virtual Background (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.customVirtualBackgroundExclude });
+        await customParam.customVirtualBackgroundExclude();
+      });
     });
   });
 });
