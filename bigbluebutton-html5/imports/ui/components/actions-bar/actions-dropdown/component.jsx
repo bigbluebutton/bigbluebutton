@@ -32,6 +32,7 @@ const propTypes = {
   setPushLayout: PropTypes.func.isRequired,
   showPushLayout: PropTypes.bool.isRequired,
   isTimerFeatureEnabled: PropTypes.bool.isRequired,
+  isCameraAsContentEnabled: PropTypes.bool.isRequired,
 };
 
 const defaultProps = {
