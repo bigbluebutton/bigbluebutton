@@ -81,7 +81,7 @@ class WakeLock extends Component {
     this.notification = notify(toastContent, 'default', 'lock', toastProps, null, true);
   }
 
-  getToast(id, title, button1, button2) {
+  getToast(id, title, acceptButton, declineButton) {
     const { intl } = this.props;
 
     return (
@@ -90,8 +90,8 @@ class WakeLock extends Component {
           { intl.formatMessage(intlMessages[title]) }
         </Styled.Title>
         <Styled.ToastButtons>
-          { button1 }
-          { button2 }
+          { acceptButton }
+          { declineButton }
         </Styled.ToastButtons>
       </div>
     );
