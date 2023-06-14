@@ -3,6 +3,7 @@ const sha1 = require('sha1');
 const axios = require('axios');
 const { test, expect } = require('@playwright/test');
 const xml2js = require('xml2js');
+const { runScript } = require('./util');
 
 const parameters = require('./parameters');
 
@@ -60,6 +61,13 @@ function getJoinURL(meetingID, params, moderator, customParameter) {
   return `${params.server}/join?${query}&checksum=${checksum}`;
 }
 
+async function checkRootPermission() {
+  const checkSudo = await runScript('timeout -k 1 1 sudo id', {
+    handleOutput: (output) => output ? true : false
+  })
+  await expect(checkSudo, 'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)').toBeTruthy();
+}
+
 function linkIssue(issueNumber) {
   test.info().annotations.push({
     type: 'Issue/PR',
@@ -80,5 +88,6 @@ exports.createMeetingUrl = createMeetingUrl;
 exports.createMeetingPromise = createMeetingPromise;
 exports.createMeeting = createMeeting;
 exports.getJoinURL = getJoinURL;
+exports.checkRootPermission = checkRootPermission;
 exports.linkIssue = linkIssue;
 exports.sleep = sleep;
