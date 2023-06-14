@@ -65,12 +65,12 @@ class WakeLock extends Component {
         type="button"
         onClick={async () => {
           closeNotification();
-          const success = await request();
-          if (success) {
+          const error = await request();
+          if (!error) {
             Settings.application.wakeLockEnabled = true;
             Settings.save();
           }
-          this.feedbackToast(success);
+          this.feedbackToast(error);
         }}
       >
         { intl.formatMessage(intlMessages.wakeLockOfferAcceptButton) }
@@ -97,26 +97,26 @@ class WakeLock extends Component {
     );
   }
 
-  feedbackToast(success) {
+  feedbackToast(error) {
     const feedbackToastProps = {
       closeOnClick: true,
       autoClose: true,
       closeButton: false,
     };
 
-    const feedbackToast = this.getToast(success ? 'wakeLockSuccess' : 'wakeLockFailed',
-      success ? 'wakeLockAcquireSuccess' : 'wakeLockAcquireFailed', null, null);
+    const feedbackToast = this.getToast(error ? 'wakeLockFailed' : 'wakeLockSuccess',
+      error ? 'wakeLockAcquireFailed' : 'wakeLockAcquireSuccess', null, null);
     setTimeout(() => {
-      notify(feedbackToast, success ? 'success' : 'error', 'lock', feedbackToastProps, null, true);
+      notify(feedbackToast, error ? 'error' : 'success', 'lock', feedbackToastProps, null, true);
     }, 800);
   }
 
   render() {
     const { wakeLockSettings, request, release } = this.props;
     if (wakeLockSettings) {
-      request().then((success) => {
-        if (!success) {
-          this.feedbackToast(success);
+      request().then((error) => {
+        if (error) {
+          this.feedbackToast(error);
           Settings.application.wakeLockEnabled = false;
           Settings.save();
         }

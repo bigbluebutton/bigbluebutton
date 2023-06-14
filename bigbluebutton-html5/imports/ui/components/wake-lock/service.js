@@ -38,7 +38,7 @@ class WakeLock {
       logger.warn({
         logCode: 'wake_lock_request_error',
       }, 'Wake lock API not supported');
-      return false;
+      return true;
     }
 
     try {
@@ -54,9 +54,9 @@ class WakeLock {
           errorMessage: err.message,
         },
       }, 'Error requesting wake lock.');
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 
   release() {
