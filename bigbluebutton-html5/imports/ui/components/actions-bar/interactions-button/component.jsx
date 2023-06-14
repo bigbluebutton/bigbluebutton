@@ -2,52 +2,22 @@ import React, { useState } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import Button from '/imports/ui/components/common/button/component';
 import ReactionsBar from '/imports/ui/components/emoji-picker/reactions-bar/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
-import UserListService from '/imports/ui/components/user-list/service';
 
 import Styled from '../styles';
 
 const InteractionsButton = (props) => {
   const {
-    userId, emoji, intl, actionsBarRef,
+    intl, actionsBarRef,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const intlMessages = defineMessages({
-    writeQuestionLabel: {
-      id: 'app.actionsBar.interactions.writeQuestion',
-      description: 'writeQuestion Label',
-    },
-    addReactionLabel: {
-      id: 'app.actionsBar.interactions.addReaction',
-      description: 'addReaction Label',
-    },
     interactionsLabel: {
       id: 'app.actionsBar.interactions.interactions',
       description: 'interactions Label',
-    },
-    interactionsAdvancedButton: {
-      id: 'app.actionsBar.interactions.interactionsAdvancedButton',
-      description: 'interactions Label',
-    },
-    presentLabel: {
-      id: 'app.actionsBar.interactions.present',
-      description: 'present Label',
-    },
-    awayLabel: {
-      id: 'app.actionsBar.interactions.away',
-      description: 'away Label',
-    },
-    statusLabel: {
-      id: 'app.actionsBar.interactions.status',
-      description: 'status Label',
-    },
-    backLabel: {
-      id: 'app.actionsBar.interactions.back',
-      description: 'back Label',
     },
   });
 
@@ -65,37 +35,6 @@ const InteractionsButton = (props) => {
     </Styled.Wrapper>
   );
 
-  const handlePresent = () => {
-    UserListService.setEmojiStatus(userId, 'none');
-  };
-
-  const handleAFK = () => {
-    UserListService.setEmojiStatus(userId, 'away');
-  };
-
-  const buttonStatus = () => (
-    <Styled.ButtonContainer>
-      <Button
-        label={intl.formatMessage(intlMessages.presentLabel)}
-        onClick={() => handlePresent()}
-        id="btn"
-        icon="user"
-        disabled={emoji !== 'away'}
-        size="md"
-        color={emoji !== 'away' ? 'primary' : 'default'}
-      />
-      <Button
-        label={intl.formatMessage(intlMessages.awayLabel)}
-        onClick={() => handleAFK()}
-        id="btn"
-        icon="clear_status"
-        disabled={emoji === 'away'}
-        size="md"
-        color={emoji === 'away' ? 'primary' : 'default'}
-      />
-    </Styled.ButtonContainer>
-  );
-  
   const customStyles = { top: '-1rem', borderRadius: '1.7rem' };
 
   return (
@@ -117,11 +56,11 @@ const InteractionsButton = (props) => {
           />
         </Styled.InteractionsDropdown>
       )}
-      renderOtherComponents={showEmojiPicker ? renderReactionsBar() : buttonStatus()}
+      renderOtherComponents={showEmojiPicker ? renderReactionsBar() : null}
       onCloseCallback={() => handleClose()}
       customAnchorEl={actionsBarRef.current}
       customStyles={customStyles}
-      hasRoundedCorners={true}
+      hasRoundedCorners
       opts={{
         id: 'reactions-dropdown-menu',
         keepMounted: true,
