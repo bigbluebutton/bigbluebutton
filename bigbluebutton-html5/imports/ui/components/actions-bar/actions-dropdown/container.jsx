@@ -6,6 +6,7 @@ import PresentationPodService from '/imports/ui/components/presentation-pod/serv
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
+import { isCameraAsContentEnabled } from '/imports/ui/services/features';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -16,27 +17,26 @@ const ActionsDropdownContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
 
   return (
-    <ActionsDropdown {...{
-      layoutContextDispatch,
-      sidebarContent,
-      sidebarNavigation,
-      isMobile,
-      isRTL,
-      ...props,
-    }}
+    <ActionsDropdown
+      {...{
+        layoutContextDispatch,
+        sidebarContent,
+        sidebarNavigation,
+        isMobile,
+        isRTL,
+        ...props,
+      }}
     />
   );
 };
 
-const ENABLE_CAMERA_AS_CONTENT = Meteor.settings.public.app.enableCameraAsContent;
-
 export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
-  return ({
+  return {
     presentations,
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
-    isCameraAsContentEnabled: ENABLE_CAMERA_AS_CONTENT,
-  });
+    isCameraAsContentEnabled: isCameraAsContentEnabled(),
+  };
 })(ActionsDropdownContainer);
