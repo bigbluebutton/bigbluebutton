@@ -23,7 +23,14 @@ trait TimerEndedPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    TimerModel.setEndedAt(liveMeeting.timerModel, System.currentTimeMillis())
-    broadcastEvent()
+    val isTimerFeatureEnabled: Boolean = !liveMeeting.props.meetingProp.disabledFeatures.contains("timer")
+
+    if (!isTimerFeatureEnabled) {
+      log.error("Timer feature is disabled for meeting {}, meetingId={}", liveMeeting.props.meetingProp.name,
+        liveMeeting.props.meetingProp.intId)
+    } else {
+      TimerModel.setEndedAt(liveMeeting.timerModel, System.currentTimeMillis())
+      broadcastEvent()
+    }
   }
 }
