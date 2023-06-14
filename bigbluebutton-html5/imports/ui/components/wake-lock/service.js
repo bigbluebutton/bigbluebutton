@@ -67,7 +67,7 @@ class WakeLock {
 const wakeLock = new WakeLock();
 
 export default {
-  isEnabled: () => WakeLock.isEnabled(),
+  isEnabled: () => wakeLock.isEnabled(),
   isSupported: () => wakeLock.isSupported(),
   isActive: () => wakeLock.isActive(),
   request: () => wakeLock.request(),
