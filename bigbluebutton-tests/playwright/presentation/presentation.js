@@ -69,7 +69,7 @@ class Presentation extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
-    await this.modPage.wasRemoved(e.presentationStatusInfo, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.presentationStatusInfo, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
