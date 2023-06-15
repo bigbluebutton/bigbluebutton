@@ -121,7 +121,7 @@ It includes all you need to be able to run a local BigBlueButton development env
 First, you need to install the core development tools.
 
 ```bash
-sudo apt-get install git-core openjdk-11-jdk-headless
+sudo apt-get install git-core openjdk-17-jdk-headless
 ```
 
 With the JDK installed, you need to set the JAVA_HOME variable. Edit `~/.profile` (here we are using vim to edit the file)
