@@ -25,14 +25,23 @@ trait SetTrackReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
-      permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "You need to be the presenter or moderator to set track"
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    val isTimerFeatureEnabled: Boolean = !liveMeeting.props.meetingProp.disabledFeatures.contains("timer")
+
+    if (!isTimerFeatureEnabled) {
+      log.error(
+        "Timer feature is disabled for meeting {}, meetingId={}",
+        liveMeeting.props.meetingProp.name, liveMeeting.props.meetingProp.intId
+      )
     } else {
-      TimerModel.setTrack(liveMeeting.timerModel, msg.body.track)
-      broadcastEvent(msg.body.track)
+      if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
+        permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+        val meetingId = liveMeeting.props.meetingProp.intId
+        val reason = "You need to be the presenter or moderator to set track"
+        PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+      } else {
+        TimerModel.setTrack(liveMeeting.timerModel, msg.body.track)
+        broadcastEvent(msg.body.track)
+      }
     }
   }
 }
