@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '/imports/ui/components/common/control-header/component';
-import { useQuery } from '@apollo/client';
-import { GET_CHAT_DATA, GetChatDataResponse } from './queries';
+import { useMutation, useQuery } from '@apollo/client';
+import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from './queries';
 import { defineMessages, useIntl } from 'react-intl';
 import { closePrivateChat } from './services';
 import { layoutSelect, layoutDispatch } from '../../../layout/context';
@@ -41,6 +41,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title }) 
   const CLOSE_CHAT_AK = useShortcutHelp('closeprivatechat');
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
+  const [updateVisible] = useMutation(CLOSE_PRIVATE_CHAT_MUTATION);
   return (
     <Header
       data-test="chatTitle"
@@ -71,6 +72,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ chatId, isPublicChat, title }) 
         icon: 'close',
         label: intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
         onClick: () => {
+          updateVisible({ variables: { chatId } });
           closePrivateChat(chatId);
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

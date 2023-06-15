@@ -345,7 +345,6 @@ const ChatMessageFormContainer: React.FC = ({
   const intl = useIntl();
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
-
   const chat = useChat((c: Partial<Chat>) => {
     const participant = c?.participant ? {
       participant: {
@@ -397,6 +396,7 @@ const ChatMessageFormContainer: React.FC = ({
       connected: true, //TODO: monitoring network status
       disabled: locked ?? false,
       title,
+      // if participant is not defined, it means that the chat is public
       partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
       locked: locked ?? false,
     }}

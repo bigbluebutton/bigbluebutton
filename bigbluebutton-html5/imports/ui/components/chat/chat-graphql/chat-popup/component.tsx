@@ -4,6 +4,9 @@ import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
 import { useQuery } from '@apollo/client';
 import PopupContent from './popup-content/component';
 import Events from '/imports/ui/core/events/events';
+import { layoutSelect } from '../../../layout/context';
+import { Layout } from '../../../layout/layoutTypes';
+import { is } from 'ramda';
 
 interface ChatPopupProps {
   welcomeMessage?: string | null;
@@ -12,35 +15,38 @@ interface ChatPopupProps {
 
 const WELCOME_MSG_KEY = 'welcomeMsg';
 const WELCOME_MSG_FOR_MODERATORS_KEY = 'welcomeMsgForModerators';
+const CHAT_CONFIG = Meteor.settings.public.chat;
+const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
+const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 
 const setWelcomeMsgsOnSession = (key: string, value: boolean) => {
+  console.log('setWelcomeMsgsOnSession', key, value);
   sessionStorage.setItem(key, String(value));
 };
 
-const isBoolean = (v: any): v is boolean => {
-  return v === 'true' || v === 'false';
+const isBoolean = (v: any): boolean => {
+  if (v === 'true') {
+    return true;
+  } else if (v === 'false') {
+    return false;
+  }
+  // if v is not difined it shouldn't be considered on comparation, so it returns true
+  return true;
 }
-
-
 
 const ChatPopup: React.FC<ChatPopupProps> = ({
   welcomeMessage,
   welcomeMsgForModerators,
 }) => {
 
-  const [showWelcomeMessage, setShowWelcomeMessage] = React.useState(false);
-  const [showWelcomeMessageForModerators, setShowWelcomeMessageForModerators] = React.useState(false);
+  const [showWelcomeMessage, setShowWelcomeMessage] = React.useState(
+    welcomeMessage && isBoolean(sessionStorage.getItem(WELCOME_MSG_KEY))
+  );
+  const [showWelcomeMessageForModerators, setShowWelcomeMessageForModerators] = React.useState(
+    welcomeMsgForModerators && isBoolean(sessionStorage.getItem(WELCOME_MSG_FOR_MODERATORS_KEY))
+  );
   useEffect(() => {
-    if (welcomeMessage && !isBoolean(sessionStorage.getItem(WELCOME_MSG_KEY))) {
-      setShowWelcomeMessage(true);
-      setWelcomeMsgsOnSession(WELCOME_MSG_KEY, true);
-    }
-    if (welcomeMsgForModerators && !isBoolean(sessionStorage.getItem(WELCOME_MSG_FOR_MODERATORS_KEY))) {
-      setShowWelcomeMessageForModerators(true);
-      setWelcomeMsgsOnSession(WELCOME_MSG_FOR_MODERATORS_KEY, true);
-    }
-
     const eventCallback = () => {
       if (welcomeMessage) {
         setShowWelcomeMessage(true);
@@ -52,28 +58,35 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
       }
     };
     window.addEventListener(Events.RESTORE_WELCOME_MESSAGES, eventCallback);
+
+    return () => {
+      removeEventListener(Events.RESTORE_WELCOME_MESSAGES, eventCallback);
+    }
   }, []);
   if (!showWelcomeMessage && !showWelcomeMessageForModerators) return null;
   return (
     <PopupContainer>
-      {showWelcomeMessage && welcomeMessage && (
-        <PopupContent
-          message={welcomeMessage}
-          closePopup={() => {
-            setShowWelcomeMessage(false);
-            setWelcomeMsgsOnSession(WELCOME_MSG_KEY, false);
-          }}
-        />
-      )}
-      {showWelcomeMessageForModerators && welcomeMsgForModerators && (
-        <PopupContent
-          message={welcomeMsgForModerators}
-          closePopup={() => {
-            setShowWelcomeMessageForModerators(false);
-            setWelcomeMsgsOnSession(WELCOME_MSG_FOR_MODERATORS_KEY, false);
-          }}
-        />
-      )}
+      <div style={{ overflowY: 'auto' }}>
+        {showWelcomeMessage && welcomeMessage && (
+          <PopupContent
+            message={welcomeMessage}
+            closePopup={() => {
+              setShowWelcomeMessage(false);
+              setWelcomeMsgsOnSession(WELCOME_MSG_KEY, false);
+            }}
+          />
+        )}
+        {showWelcomeMessageForModerators && welcomeMsgForModerators && (
+          <PopupContent
+            message={welcomeMsgForModerators}
+            closePopup={() => {
+              setShowWelcomeMessageForModerators(false);
+              setWelcomeMsgsOnSession(WELCOME_MSG_FOR_MODERATORS_KEY, false);
+            }}
+          />
+        )}
+      </div>
+
     </PopupContainer>
   );
 };
@@ -84,6 +97,9 @@ const ChatPopupContainer: React.FC = () => {
     loading: welcomeLoading,
     error: welcomeError,
   } = useQuery<WelcomeMsgsResponse>(GET_WELCOME_MESSAGE);
+  const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  if (idChatOpen !== PUBLIC_GROUP_CHAT_KEY) return null;
+
   if (welcomeLoading) return null;
   if (welcomeError) return <div>{JSON.stringify(welcomeError)}</div>;
   if (!welcomeData) return null;

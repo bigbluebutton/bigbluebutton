@@ -6,8 +6,8 @@ import { Meteor } from 'meteor/meteor'
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { Chat } from './chatTypes';
 import { UseShortcutHelp, useShortcutHelp } from '/imports/ui/components/shortcut-help/useShortcutHelp'
+import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({
   titlePublic: {
@@ -25,7 +25,7 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListItemProps {
-  chat: Chat,
+  chat: Partial<Chat>,
 }
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -108,10 +108,9 @@ const ChatListItem = (props: ChatListItemProps) => {
     ? intl.formatMessage(intlMessages.titlePublic)
     : chat.participant.name;
 
-  const arialabel = `${localizedChatName} ${
-    countUnreadMessages > 1
-      ? intl.formatMessage(intlMessages.unreadPlural, { 0: countUnreadMessages })
-      : intl.formatMessage(intlMessages.unreadSingular)}`;
+  const arialabel = `${localizedChatName} ${countUnreadMessages > 1
+    ? intl.formatMessage(intlMessages.unreadPlural, { 0: countUnreadMessages })
+    : intl.formatMessage(intlMessages.unreadSingular)}`;
 
   return (
     <Styled.ChatListItem

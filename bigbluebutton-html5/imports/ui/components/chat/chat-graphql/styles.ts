@@ -1,8 +1,5 @@
 import styled from 'styled-components';
-import {
-  colorWhite,
-  colorPrimary
-} from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -33,7 +30,7 @@ export const Chat = styled.div`
       filter: brightness(85%);
       text-decoration: underline;
     }
-    &:hover:focus{
+    &:hover:focus {
       filter: brightness(90%);
       text-decoration: underline;
     }
@@ -46,7 +43,9 @@ export const Chat = styled.div`
     text-decoration-line: none;
   }
 
-  ${({ isChrome }) => isChrome && `
+  ${({ isChrome }) =>
+    isChrome &&
+    `
     transform: translateZ(0);
   `}
 
@@ -55,4 +54,9 @@ export const Chat = styled.div`
   }
 `;
 
-export default { Chat };
+const ChatMessages = styled.div`
+  height: 100%;
+  display: contents;
+`;
+
+export default { Chat, ChatMessages };

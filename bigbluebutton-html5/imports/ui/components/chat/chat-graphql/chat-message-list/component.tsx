@@ -88,6 +88,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({ totalPages, chatId }) => {
         if (isElement(messageListRef.current)) {
           messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
         }
+        setFollowingTail(true);
       }
 
     };

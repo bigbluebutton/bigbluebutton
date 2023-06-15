@@ -1,26 +1,28 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
-export const CHATS_SUBSCRIPTION = gql`subscription {
-  chat (order_by: [
-      {public: desc}, 
-      {totalUnread: desc}, 
-      {participant: {
-        name: asc,
-        userId: asc,
-      }}, 
-  ]) {
+export const CHATS_SUBSCRIPTION = gql`
+  subscription {
+    chat(
+      order_by: [
+        { public: desc }
+        { totalUnread: desc }
+        { participant: { name: asc, userId: asc } }
+      ]
+    ) {
       chatId
       participant {
-          name
-          role
-          color
-          loggedOut
-          avatar
-          isOnline
-          isModerator
+        userId
+        name
+        role
+        color
+        loggedOut
+        avatar
+        isOnline
+        isModerator
       }
       totalMessages
       totalUnread
       public
+    }
   }
-}`;
+`;
