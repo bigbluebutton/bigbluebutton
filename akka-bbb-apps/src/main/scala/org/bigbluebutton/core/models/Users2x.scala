@@ -383,7 +383,7 @@ case class UserState(
     lastInactivityInspect: Long         = 0,
     clientType:            String,
     pickExempted:          Boolean,
-    userLeftFlag:          UserLeftFlag
+    userLeftFlag:          UserLeftFlag,
     speechLocale:          String       = ""
 )
 
