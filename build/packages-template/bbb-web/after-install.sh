@@ -68,7 +68,7 @@ bbb_config() {
 
   java -version
 
-  update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+  # update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
 
   # Restart bbb-web to deploy new 
   startService bbb-web.service || echo "bbb-web.service could not be registered or started"
