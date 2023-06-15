@@ -2,12 +2,20 @@ const { default: test, expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { getSettings } = require('../core/settings');
 
-async function openChat(testPage) {
+async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
   test.fail(!chatEnabled, 'Chat is disabled');
 
   await testPage.waitForSelector(e.chatBox);
   await testPage.waitForSelector(e.chatMessages);
+  try {
+    await testPage.waitForSelector(e.chatWelcomeMessageText);
+  } catch {
+    await testPage.waitAndClick(e.chatMessages);
+    await testPage.down('Home');
+    await testPage.waitForSelector(e.chatWelcomeMessageText);
+    await testPage.down('End');
+  }
 }
 
 async function openPrivateChat(testPage) {
@@ -23,6 +31,6 @@ async function checkLastMessageSent(testPage, expectedMessage) {
   await expect(lastMessageSent).toHaveText(expectedMessage);
 }
 
-exports.openChat = openChat;
+exports.openPublicChat = openPublicChat;
 exports.openPrivateChat = openPrivateChat;
 exports.checkLastMessageSent = checkLastMessageSent;

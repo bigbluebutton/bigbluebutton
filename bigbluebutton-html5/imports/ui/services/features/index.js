@@ -94,3 +94,10 @@ export function isCameraAsContentEnabled() {
     Meteor.settings.public.app.enableCameraAsContent
   );
 }
+
+export function isCameraAsContentEnabled() {
+  return (
+    getDisabledFeatures().indexOf('cameraAsContent') === -1 &&
+    Meteor.settings.public.app.enableCameraAsContent
+  );
+}

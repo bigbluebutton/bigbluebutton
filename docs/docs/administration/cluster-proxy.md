@@ -179,6 +179,12 @@ Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 }
 ```
 
+Adjust the CORS settings in `/etc/default/bbb-web`:
+
+```shell
+JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.org,https://https://bbb-01.example.com"
+```
+
 
 Restart BigBlueButton:
 

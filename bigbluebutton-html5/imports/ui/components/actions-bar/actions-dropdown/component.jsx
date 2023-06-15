@@ -304,9 +304,9 @@ class ActionsDropdown extends PureComponent {
         onClick: hasCameraAsContent
           ? screenshareHasEnded
           : () => {
-            screenshareHasEnded();
-            this.setCameraAsContentModalIsOpen(true);
-          },
+              screenshareHasEnded();
+              this.setCameraAsContentModalIsOpen(true);
+            },
       });
     }
 
@@ -362,7 +362,6 @@ class ActionsDropdown extends PureComponent {
   setPropsToPassModal(value) {
     this.setState({ propsToPassModal: value });
   }
-
   setForceOpen(value) {
     this.setState({ forceOpen: value });
   }
