@@ -11,7 +11,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:11",
+    "-release:17",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(

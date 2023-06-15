@@ -66,7 +66,9 @@ bbb_config() {
   touch /var/log/bigbluebutton/bbb-web.log
   chown bigbluebutton:bigbluebutton /var/log/bigbluebutton/bbb-web.log
 
-  update-java-alternatives -s java-1.11.0-openjdk-amd64
+  java -version
+
+  # update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
 
   # Restart bbb-web to deploy new 
   startService bbb-web.service || echo "bbb-web.service could not be registered or started"
