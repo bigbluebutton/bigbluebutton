@@ -25,23 +25,16 @@ trait StopTimerReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    val isTimerFeatureEnabled: Boolean = !liveMeeting.props.meetingProp.disabledFeatures.contains("timer")
-
-    if (!isTimerFeatureEnabled) {
-      log.error("Timer feature is disabled for meeting {}, meetingId={}", liveMeeting.props.meetingProp.name,
-        liveMeeting.props.meetingProp.intId)
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
+      permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
+      msg.header.userId != "nodeJSapp") {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "You need to be the presenter or moderator to stop timer"
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
-        permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
-        msg.header.userId != "nodeJSapp") {
-        val meetingId = liveMeeting.props.meetingProp.intId
-        val reason = "You need to be the presenter or moderator to stop timer"
-        PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-      } else {
-        TimerModel.setAccumulated(liveMeeting.timerModel, msg.body.accumulated)
-        TimerModel.setRunning(liveMeeting.timerModel, false)
-        broadcastEvent(msg.body.accumulated)
-      }
+      TimerModel.setAccumulated(liveMeeting.timerModel, msg.body.accumulated)
+      TimerModel.setRunning(liveMeeting.timerModel, false)
+      broadcastEvent(msg.body.accumulated)
     }
   }
 }
