@@ -2,13 +2,14 @@ import Presentations from '/imports/api/presentations';
 import { isScreenBroadcasting, isCameraAsContentBroadcasting } from '/imports/ui/components/screenshare/service';
 import Settings from '/imports/ui/services/settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { isExternalVideoEnabled, isScreenSharingEnabled } from '/imports/ui/services/features';
+import {
+  isExternalVideoEnabled, isScreenSharingEnabled, isCameraAsContentEnabled, isPresentationEnabled,
+} from '/imports/ui/services/features';
 import { ACTIONS } from '../layout/enums';
 import UserService from '/imports/ui/components/user-list/service';
 import NotesService from '/imports/ui/components/notes/service';
 import { getVideoUrl } from '/imports/ui/components/external-video-player/service';
 import VideoStreams from '/imports/api/video-streams';
-import { isPresentationEnabled } from '/imports/ui/services/features';
 import Auth from '/imports/ui/services/auth/index';
 
 const LAYOUT_CONFIG = Meteor.settings.public.layout;
@@ -31,7 +32,8 @@ function shouldShowWhiteboard() {
 
 function shouldShowScreenshare() {
   const { viewScreenshare } = Settings.dataSaving;
-  return isScreenSharingEnabled() && (viewScreenshare || UserService.isUserPresenter())
+  return (isScreenSharingEnabled() || isCameraAsContentEnabled())
+    && (viewScreenshare || UserService.isUserPresenter())
     && (isScreenBroadcasting() || isCameraAsContentBroadcasting());
 }
 

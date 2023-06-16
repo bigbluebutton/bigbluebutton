@@ -37,6 +37,9 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         "Camera as a content is disabled for meeting {}, meetingID = {}",
         liveMeeting.props.meetingProp.name, liveMeeting.props.meetingProp.intId
       )
+    } else if (msg.body.contentType == "screenshare" && liveMeeting.props.meetingProp.disabledFeatures.contains("screenshare")) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      log.error("Screen sharing is disabled for this meeting, meetingID = {}", meetingId)
     } else {
       // only valid if not broadcasting yet
       if (!ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
