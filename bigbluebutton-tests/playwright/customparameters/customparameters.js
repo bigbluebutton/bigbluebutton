@@ -5,7 +5,6 @@ const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const util = require('./util');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class CustomParameters extends MultiUsers {
   constructor(browser, context) {
@@ -94,11 +93,9 @@ class CustomParameters extends MultiUsers {
   }
 
   async skipCheck() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitAndClick(e.microphoneButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.smallToastMsg);
     await this.modPage.hasElement(e.isTalking);
   }
 

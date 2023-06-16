@@ -21,13 +21,13 @@ test.describe.serial('Audio', () => {
     await audio.joinMicrophone();
   });
 
+  test('Change audio input and keep it connected', async () => {
+    await audio.changeAudioInput();
+  });
+
   // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
   test('Mute yourself by clicking the mute button', async () => {
     await audio.muteYourselfByButton();
-  });
-
-  test('Change audio input and keep it connected', async () => {
-    await audio.changeAudioInput();
   });
 
   // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources
