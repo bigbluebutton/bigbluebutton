@@ -15,9 +15,9 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.disableOriginalPresentationDownload',
     description: 'Send original presentation to chat',
   },
-  sendAnnotatedDocument: {
-    id: 'app.presentationUploader.exportAnnotatedPresentation',
-    description: 'Send presentation to chat with annotations label',
+  sendCurrentStateDocument: {
+    id: 'app.presentationUploader.exportCurrentStatePresentation',
+    description: 'Send presentation to chat in the current state label',
   },
   copySuccess: {
     id: 'app.chat.copySuccess',
@@ -53,7 +53,6 @@ const propTypes = {
     uploadTimestamp: PropTypes.number.isRequired,
   }).isRequired,
   closeModal: PropTypes.func.isRequired,
-  hasAnnotations: PropTypes.bool.isRequired,
   isRTL: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
 };
@@ -77,7 +76,6 @@ class PresentationDownloadDropdown extends PureComponent {
       isDownloadable,
       item,
       closeModal,
-      hasAnnotations,
     } = this.props;
 
     this.menuItems = [];
@@ -97,28 +95,16 @@ class PresentationDownloadDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
         onClick: () => toggleDownloadOriginalPresentation(true),
       });
-      if (hasAnnotations) {
-        this.menuItems.push({
-          key: this.actionsKey[1],
-          id: 'sendAnnotatedDocument',
-          dataTest: 'sendAnnotatedDocument',
-          label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-          onClick: () => {
-            closeModal();
-            handleDownloadingOfPresentation('Annotated');
-          },
-        });
-      } else {
-        this.menuItems.push({
-          key: this.actionsKey[1],
-          dataTest: 'sendAnnotatedDocument',
-          label: intl.formatMessage(intlMessages.sendAnnotatedDocument),
-          onClick: () => {
-            closeModal();
-            handleDownloadingOfPresentation('Original');
-          },
-        });
-      }
+      this.menuItems.push({
+        key: this.actionsKey[1],
+        id: 'sendCurrentStateDocument',
+        dataTest: 'sendCurrentStateDocument',
+        label: intl.formatMessage(intlMessages.sendCurrentStateDocument),
+        onClick: () => {
+          closeModal();
+          handleDownloadingOfPresentation('Annotated');
+        },
+      });
     } else {
       this.menuItems.push({
         key: this.actionsKey[0],
