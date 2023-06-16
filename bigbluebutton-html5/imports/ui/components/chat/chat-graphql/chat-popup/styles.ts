@@ -5,3 +5,8 @@ export const PopupContainer = styled.div`
   display: contents;
   max-height: 80%;
 `;
+
+export const PopupContents = styled(ScrollboxVertical)`
+  height: 100%;
+  overflow: auto;
+`;

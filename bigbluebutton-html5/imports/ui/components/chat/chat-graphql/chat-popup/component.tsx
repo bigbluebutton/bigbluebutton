@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import { PopupContainer } from './styles';
+import { PopupContainer, PopupContents } from './styles';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
 import { useQuery } from '@apollo/client';
 import PopupContent from './popup-content/component';
 import Events from '/imports/ui/core/events/events';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
-import { is } from 'ramda';
 
 interface ChatPopupProps {
   welcomeMessage?: string | null;
@@ -21,7 +20,6 @@ const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
 
 const setWelcomeMsgsOnSession = (key: string, value: boolean) => {
-  console.log('setWelcomeMsgsOnSession', key, value);
   sessionStorage.setItem(key, String(value));
 };
 
@@ -66,7 +64,7 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
   if (!showWelcomeMessage && !showWelcomeMessageForModerators) return null;
   return (
     <PopupContainer>
-      <div style={{ overflowY: 'auto' }}>
+      <PopupContents>
         {showWelcomeMessage && welcomeMessage && (
           <PopupContent
             message={welcomeMessage}
@@ -85,7 +83,7 @@ const ChatPopup: React.FC<ChatPopupProps> = ({
             }}
           />
         )}
-      </div>
+      </PopupContents>
 
     </PopupContainer>
   );

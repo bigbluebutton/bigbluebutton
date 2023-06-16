@@ -19,6 +19,7 @@ interface ChatListPageContainerProps {
   setLastSender: Function;
   lastSenderPreviousPage: string | undefined;
   chatId: string;
+  markMessageAsSeen: Function;
 }
 
 interface ChatListPageProps {
@@ -42,7 +43,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviou
     <div id={`messagePage-${page}`}>
       {
         messages.map((message, index, Array) => {
-          const previousMessage = Array[index-1];
+          const previousMessage = Array[index - 1];
           return (
             <ChatMessage
               key={message.createdTime}
@@ -63,14 +64,15 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   setLastSender,
   lastSenderPreviousPage,
   chatId,
+  markMessageAsSeen,
 }) => {
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
     ? CHAT_MESSAGE_PUBLIC_SUBSCRIPTION
     : CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;
-  const defaultVariables = { offset: (page)*pageSize, limit: pageSize };
+  const defaultVariables = { offset: (page) * pageSize, limit: pageSize };
   const variables = isPublicChat ? defaultVariables : { ...defaultVariables, requestedChatId: chatId };
-  const  {
+  const {
     data: chatMessageData,
     loading: chatMessageLoading,
     error: chatMessageError,
@@ -89,7 +91,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   }
 
   if (messages.length > 0) {
-    setLastSender(page, messages[messages.length-1].user?.userId);
+    setLastSender(page, messages[messages.length - 1].user?.userId);
+    markMessageAsSeen(messages[messages.length - 1], page);
   }
 
   return (
