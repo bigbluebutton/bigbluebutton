@@ -839,6 +839,16 @@ module BigBlueButton
         s = { :timestamp => event['timestamp'].to_i }
         external_videos_events << s
       end
+      events_xml.xpath("recording/event[@eventname='UpdateExternalVideoRecordEvent']").each do |event|
+        s = {
+          :timestamp => event['timestamp'].to_i,
+          :rate => event.at_xpath("rate").text.to_f,
+          :state => event.at_xpath("state").text.to_i,
+          :status => event.at_xpath("status").text,
+          :time => event.at_xpath("time").text.to_f,
+        }
+        external_videos_events << s
+      end
       external_videos_events.sort_by {|a| a[:timestamp]}
     end
 
@@ -861,10 +871,15 @@ module BigBlueButton
     def self.get_start_and_stop_external_video_events(events_xml)
       BigBlueButton.logger.info "Getting start and stop externalvideo events"
       external_video_events = BigBlueButton::Events.get_external_video_events(events_xml)
-      if external_video_events.size.odd?
+      n_start_and_stop_events = 0
+      external_video_events.each do |e|
+        n_start_and_stop_events += 1 unless e[:status]
+      end
+      if n_start_and_stop_events.odd?
         # user did not click to stop external video before ending meeting
         external_video_events << { :timestamp => BigBlueButton::Events.last_event_timestamp(events_xml) }
       end
+      #BigBlueButton.logger.info "get_start_and_stop_external_video_events: #{external_video_events.sort_by {|a| a[:timestamp]}}"
       external_video_events.sort_by {|a| a[:timestamp]}
     end
 
@@ -883,19 +898,31 @@ module BigBlueButton
       matched_rec_events
     end
 
-    # Match external video start and stop events
-    def self.match_start_and_stop_external_video_events(external_video_events)
+    # Match external video start, update, and stop events
+    def self.match_all_external_video_events(external_video_events)
       BigBlueButton.logger.info ("Matching external video events")
       matched_external_video_events = []
-      external_video_events.each_with_index do |evt,i|
-        if i.even?
+      external_video_events.each do |evt|
+        if evt[:status]
+          matched_external_video_events[-1][:updates] << {
+            :timestamp => evt[:timestamp],
+            :rate => evt[:rate],
+            :state => evt[:state],
+            :status => evt[:status],
+            :time => evt[:time]
+          }
+        elsif evt[:external_video_url]
           matched_external_video_events << {
             :start_timestamp => evt[:timestamp],
-            :stop_timestamp => external_video_events[i + 1][:timestamp],
             :external_video_url => evt[:external_video_url],
+            :updates => []
           }
+        else
+          e = matched_external_video_events[-1]
+          e[:stop_timestamp] = evt[:timestamp]
         end
       end
+      #BigBlueButton.logger.info (match_all_external_video_events: "#{matched_external_video_events}")
       matched_external_video_events
     end
 
