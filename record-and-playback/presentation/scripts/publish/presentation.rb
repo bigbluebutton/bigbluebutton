@@ -1121,7 +1121,7 @@ def process_external_video_events(_events, package_dir)
   BigBlueButton.logger.info('Processing external video events')
 
   # Retrieve external video events
-  external_video_events = BigBlueButton::Events.match_start_and_stop_external_video_events(
+  external_video_events = BigBlueButton::Events.match_all_external_video_events(
     BigBlueButton::Events.get_start_and_stop_external_video_events(@doc)
   )
 
@@ -1147,6 +1147,54 @@ def process_external_video_events(_events, package_dir)
   end
 
   generate_json_file(package_dir, 'external_videos.json', external_videos)
+  
+  # Generate external_videos.xml for playback video within a presentation
+  # See: https://github.com/bigbluebutton/bbb-playback/pull/127
+  # You need to directly modify the script /usr/local/bigbluebutton/core/scripts/publish/presentation.rb
+  external_videos_play = []
+  @rec_events.each do |re|
+    external_video_events.each do |event|
+      start_timestamp = (translate_timestamp(event[:start_timestamp]) / 1000).to_i
+      stop_timestamp = (translate_timestamp(event[:stop_timestamp]) / 1000).to_i
+      # do not add same external_video twice
+      next if external_videos_play.find { |ev| ev[:start_timestamp] == start_timestamp }
+
+      re_start_timestamp = re[:start_timestamp]
+      re_stop_timestamp = re[:stop_timestamp]
+      next unless ((start_timestamp >= re_start_timestamp) && (start_timestamp <= re_stop_timestamp)) ||
+                  ((start_timestamp < re_start_timestamp || stop_timestamp > re_end_timestamp) && (re_stop_timestamp >= re_start_timestamp))
+
+      updates = []
+      event[:updates].each do |update|
+        update[:timestamp] = (translate_timestamp(update[:timestamp]) / 1000).to_i
+        update[:type] = update[:status]
+        update.delete(:status)
+        update[:playing] = update[:state] == 0 ? false : true
+        update.delete(:state)
+        updates << update
+      end
+
+      external_videos_play << {
+        start_timestamp: start_timestamp,
+        stop_timestamp: stop_timestamp,
+        url: event[:external_video_url],
+        updates: updates
+      }
+    end
+  end
+
+  xml_object = Nokogiri::XML::Builder.new do |xml|
+    xml.recording(:id => "external_videos_events") do
+      external_videos_play.each do |video|
+        xml.video(:start_timestamp => video[:start_timestamp], :stop_timestamp => video[:stop_timestamp], :url => video[:url]) do
+          video[:updates].each do |update|
+            xml.event(update)
+          end
+        end
+      end
+    end
+  end
+  File.open("#{package_dir}/external_videos.xml", 'w') { |f| f.puts(Nokogiri::XML(xml_object.to_xml, nil, 'utf-8').to_xml) }
 end
 
 def generate_done_or_fail_file(success)
