@@ -10,7 +10,6 @@ class LiveCaptions extends PureComponent {
 
     this.state = { clear: true };
     this.timer = null;
-    this.settings = Service.getCaptionsSettings();
   }
 
   componentDidUpdate(prevProps) {
@@ -47,7 +46,7 @@ class LiveCaptions extends PureComponent {
       fontSize,
       fontColor,
       backgroundColor,
-    } = this.settings;
+    } = this.props.settings;
 
     const captionStyles = {
       whiteSpace: 'pre-wrap',
