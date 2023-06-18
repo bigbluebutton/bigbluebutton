@@ -7,4 +7,5 @@ const Container = (props) => <LiveCaptions {...props} />;
 
 export default withTracker(() => ({
   data: Service.getCaptionsData(),
+  settings: Service.getCaptionsSettings(),
 }))(Container);
