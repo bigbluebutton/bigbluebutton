@@ -65,36 +65,7 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 };
 
 const ChatListContainer: React.FC = () => {
-    const chats: Partial<Chat>[] | null = useChat((chat) => { return chat; });
-    const [pendingChats, setPendingChats] = usePendingChats();
-    const layoutContextDispatch = layoutDispatch();
-    if (!chats) return null;
-    if (pendingChats.length > 0) {
-        const notPendingAnymore = chats.filter((chat) => {
-            if (chat.participant) {
-                return pendingChats.includes(chat.participant.userId);
-            }
-            return false;
-        }).map((chat) => {
-            return {
-                chatId: chat.chatId,
-                participant: chat.participant?.userId,
-            }
-        });
-        if (notPendingAnymore.length > 0) {
-            const newPendingChats = pendingChats.filter((pendingChat) => {
-                return !notPendingAnymore.some((chat) => chat.participant === pendingChat);
-            });
-            setPendingChats(newPendingChats);
-            notPendingAnymore.forEach((chat) => {
-                layoutContextDispatch({
-                    type: ACTIONS.SET_ID_CHAT_OPEN,
-                    value: chat.chatId,
-                });
-            });
-        }
-    }
-
+    const chats = useChat((chat) => { return chat; }) as Partial<Chat>[];
     return (
         <ChatList chats={chats} />
     );

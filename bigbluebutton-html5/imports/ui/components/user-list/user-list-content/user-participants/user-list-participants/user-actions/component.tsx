@@ -22,7 +22,7 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { setPendingChats } from '/imports/ui/core/local-states/usePendingChats';
+import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 
 interface UserActionsProps {
   user: User;
@@ -194,7 +194,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'activeChat',
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
-        setPendingChats((prev) => [...prev, user.userId])
+        setPendingChat(user.userId);
         setSelected(false);
         sendCreatePrivateChat(user);
         layoutContextDispatch({
