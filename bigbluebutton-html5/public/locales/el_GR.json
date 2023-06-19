@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Ενεργοποίηση (εάν είναι διαθέσιμο)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Διαμοιρασμός εξωτερικού βίντεο",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Τερματισμός διαμοιρασμού εξωτερικού βίντεο",
-    "app.iOSWarning.label": "Παρακαλούμε αναβαθμίστε σε iOS 12.2 ή νεότερο.",
     "app.legacy.unsupportedBrowser": "Ο περιηγητής σας δεν υποστηρίζεται. Παρακαλούμε χρησιμοποιήστε {0} ή {1} για πλήρη συμβατότητα.",
     "app.legacy.upgradeBrowser": "Φαίνεται πως χρησιμοποιείτε μια παλαιότερη έκδοση ενός υποστηριζόμενου περιηγητή. Παρακαλούμε αναβαθμίστε τον περιηγητή σας για πλήρη υποστήριξη.",
     "app.legacy.criosBrowser": "Στο iOS παρακαλούμε χρησιμοποιήστε το Safari για πλήρη υποστήριξη.",

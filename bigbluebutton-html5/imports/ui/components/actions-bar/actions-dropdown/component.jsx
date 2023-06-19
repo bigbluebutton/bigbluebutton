@@ -7,11 +7,17 @@ import RandomUserSelectContainer from '/imports/ui/components/common/modal/rando
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
+import TimerService from '/imports/ui/components/timer/service';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
-import { isPresentationEnabled } from '/imports/ui/services/features';
-import {isLayoutsEnabled} from '/imports/ui/services/features';
+import {
+  isPresentationEnabled,
+  isLayoutsEnabled,
+  isTimerFeatureEnabled,
+} from '/imports/ui/services/features';
+import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
+import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 
 const propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
@@ -21,6 +27,8 @@ const propTypes = {
   amIModerator: PropTypes.bool.isRequired,
   shortcuts: PropTypes.string,
   handleTakePresenter: PropTypes.func.isRequired,
+  isTimerActive: PropTypes.bool.isRequired,
+  isTimerEnabled: PropTypes.bool.isRequired,
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
@@ -38,6 +46,14 @@ const intlMessages = defineMessages({
   actionsLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
+  },
+  activateTimerLabel: {
+    id: 'app.actionsBar.actionsDropdown.activateTimerLabel',
+    description: 'Activate timer label',
+  },
+  deactivateTimerLabel: {
+    id: 'app.actionsBar.actionsDropdown.deactivateTimerLabel',
+    description: 'Deactivate timer label',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
@@ -95,6 +111,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
   },
+  shareCameraAsContent: {
+    id: 'app.actionsBar.actionsDropdown.shareCameraAsContent',
+    description: 'Label for share camera as content',
+  },
+  unshareCameraAsContent: {
+    id: 'app.actionsBar.actionsDropdown.unshareCameraAsContent',
+    description: 'Label for unshare camera as content',
+  },
 });
 
 const handlePresentationClick = () => Session.set('showUploadPresentationView', true);
@@ -106,11 +130,13 @@ class ActionsDropdown extends PureComponent {
     this.presentationItemId = uniqueId('action-item-');
     this.pollId = uniqueId('action-item-');
     this.takePresenterId = uniqueId('action-item-');
+    this.timerId = uniqueId('action-item-');
     this.selectUserRandId = uniqueId('action-item-');
     this.state = {
       isExternalVideoModalOpen: false,
       isRandomUserSelectModalOpen: false,
       isLayoutModalOpen: false,
+      isCameraAsContentModalOpen: false,
     };
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
@@ -118,6 +144,10 @@ class ActionsDropdown extends PureComponent {
     this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
     this.setRandomUserSelectModalIsOpen = this.setRandomUserSelectModalIsOpen.bind(this);
     this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
+    this.setCameraAsContentModalIsOpen = this.setCameraAsContentModalIsOpen.bind(this);
+    this.setPropsToPassModal = this.setPropsToPassModal.bind(this);
+    this.setForceOpen = this.setForceOpen.bind(this);
+    this.handleTimerClick = this.handleTimerClick.bind(this);
     this.handleCreatePollThroughEvent = this.handleCreatePollThroughEvent.bind(this);
   }
 
@@ -141,6 +171,15 @@ class ActionsDropdown extends PureComponent {
     this.setExternalVideoModalIsOpen(true);
   }
 
+  handleTimerClick() {
+    const { isTimerActive } = this.props;
+    if (!isTimerActive) {
+      TimerService.activateTimer();
+    } else {
+      TimerService.deactivateTimer();
+    }
+  }
+
   getAvailableActions() {
     const {
       intl,
@@ -151,11 +190,16 @@ class ActionsDropdown extends PureComponent {
       isPollingEnabled,
       isSelectRandomUserEnabled,
       stopExternalVideoShare,
+      isTimerActive,
+      isTimerEnabled,
       layoutContextDispatch,
       setMeetingLayout,
       setPushLayout,
       showPushLayout,
       amIModerator,
+      isMobile,
+      hasCameraAsContent,
+      isCameraAsContentEnabled,
     } = this.props;
 
     const {
@@ -234,6 +278,16 @@ class ActionsDropdown extends PureComponent {
       })
     }
 
+    if (amIModerator && isTimerEnabled && isTimerFeatureEnabled()) {
+      actions.push({
+        icon: 'time',
+        label: isTimerActive ? intl.formatMessage(intlMessages.deactivateTimerLabel)
+          : intl.formatMessage(intlMessages.activateTimerLabel),
+        key: this.timerId,
+        onClick: () => this.handleTimerClick(),
+      });
+    }
+
     if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
       actions.push({
         icon: 'send',
@@ -253,7 +307,23 @@ class ActionsDropdown extends PureComponent {
         dataTest: 'layoutModal',
       });
     }
-    
+
+    if (isCameraAsContentEnabled && amIPresenter && !isMobile) {
+      actions.push({
+        icon: hasCameraAsContent ? 'video_off' : 'video',
+        label: hasCameraAsContent
+          ? intl.formatMessage(intlMessages.unshareCameraAsContent)
+          : intl.formatMessage(intlMessages.shareCameraAsContent),
+        key: 'camera as content',
+        onClick: hasCameraAsContent
+          ? screenshareHasEnded
+          : () => {
+            screenshareHasEnded();
+            this.setCameraAsContentModalIsOpen(true);
+          },
+      });
+    }
+
     return actions;
   }
 
@@ -322,6 +392,15 @@ class ActionsDropdown extends PureComponent {
   setLayoutModalIsOpen(value) {
     this.setState({isLayoutModalOpen: value});
   }
+  setCameraAsContentModalIsOpen(value) {
+    this.setState({isCameraAsContentModalOpen: value});
+  }
+  setPropsToPassModal(value) {
+    this.setState({propsToPassModal: value});
+  }
+  setForceOpen(value){
+    this.setState({forceOpen: value});
+  }
 
   renderModal(isOpen, setIsOpen, priority, Component) {
     return isOpen ? <Component 
@@ -344,10 +423,14 @@ class ActionsDropdown extends PureComponent {
       isMobile,
       isRTL,
       isSelectRandomUserEnabled,
+      propsToPassModal,
     } = this.props;
 
     const {
-      isExternalVideoModalOpen, isRandomUserSelectModalOpen, isLayoutModalOpen,
+      isExternalVideoModalOpen,
+      isRandomUserSelectModalOpen,
+      isLayoutModalOpen,
+      isCameraAsContentModalOpen,
     } = this.state;
 
     const availableActions = this.getAvailableActions();
@@ -387,7 +470,7 @@ class ActionsDropdown extends PureComponent {
             keepMounted: true,
             transitionDuration: 0,
             elevation: 3,
-            getContentAnchorEl: null,
+            getcontentanchorel: null,
             fullwidth: "true",
             anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
             transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
@@ -397,8 +480,25 @@ class ActionsDropdown extends PureComponent {
           ExternalVideoModal)}
         {(amIPresenter && isSelectRandomUserEnabled) ? this.renderModal(isRandomUserSelectModalOpen, this.setRandomUserSelectModalIsOpen, 
           "low", RandomUserSelectContainer) : null }
-        {this.renderModal(isLayoutModalOpen, this.setLayoutModalIsOpen, 
+        {this.renderModal(isLayoutModalOpen, this.setLayoutModalIsOpen,
           "low", LayoutModalContainer)}
+        {this.renderModal(isCameraAsContentModalOpen, this.setCameraAsContentModalIsOpen,
+          'low', () => (
+            <VideoPreviewContainer
+              cameraAsContent
+              amIPresenter
+              {...{
+                callbackToClose: () => {
+                  this.setPropsToPassModal({});
+                  this.setForceOpen(false);
+                },
+                priority: 'low',
+                setIsOpen: this.setCameraAsContentModalIsOpen,
+                isOpen: isCameraAsContentModalOpen,
+              }}
+              {...propsToPassModal}
+            />
+          ))}
       </>
     );
   }

@@ -50,7 +50,8 @@ const WhiteboardContainer = (props) => {
   const hasShapeAccess = (id) => {
     const owner = shapes[id]?.userId;
     const isBackgroundShape = id?.includes('slide-background');
-    const hasAccess = !isBackgroundShape
+    const isPollsResult = shapes[id]?.name?.includes('poll-result');
+    const hasAccess = !isBackgroundShape && !isPollsResult || isPresenter
       && ((owner && owner === currentUser?.userId) || !owner || isPresenter || isModerator);
     return hasAccess;
   };
@@ -93,8 +94,9 @@ export default withTracker(({
   podId,
   presentationId,
   darkTheme,
+  isViewersAnnotationsLocked,
 }) => {
-  const shapes = getShapes(whiteboardId, curPageId, intl);
+  const shapes = getShapes(whiteboardId, curPageId, intl, isViewersAnnotationsLocked);
   const curPres = getCurrentPres();
   const { isIphone } = deviceInfo;
 

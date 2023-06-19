@@ -27,8 +27,7 @@ export default withTracker(({ idChatOpen }) => {
   };
 
   if (idChatOpen !== PUBLIC_CHAT_KEY) {
-    selector.isTypingTo = Auth.userID;
-    selector.userId = idChatOpen;
+    selector.isTypingTo = idChatOpen;
   }
 
   const currentUser = Users.findOne({

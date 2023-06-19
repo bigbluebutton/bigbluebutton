@@ -91,6 +91,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean recordFullDurationMedia;
     private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
@@ -125,6 +126,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
+        private boolean defaultLockSettingsHideViewersAnnotation;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -373,6 +375,12 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersCursor = Boolean.parseBoolean(lockSettingsHideViewersCursorParam);
 			}
 
+            Boolean lockSettingsHideViewersAnnotation = defaultLockSettingsHideViewersAnnotation;
+			String lockSettingsHideViewersAnnotationParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION);
+			if (!StringUtils.isEmpty(lockSettingsHideViewersAnnotationParam)) {
+                lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -381,7 +389,8 @@ public class ParamsProcessorUtil {
 							lockSettingsHideUserList,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
-                            lockSettingsHideViewersCursor);
+                            lockSettingsHideViewersCursor,
+                            lockSettingsHideViewersAnnotation);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -503,6 +512,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean _recordFullDurationMedia = recordFullDurationMedia;
+        if (!StringUtils.isEmpty(params.get(ApiParams.RECORD_FULL_DURATION_MEDIA))) {
+            try {
+                _recordFullDurationMedia = Boolean.parseBoolean(params
+                        .get(ApiParams.RECORD_FULL_DURATION_MEDIA));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [recordFullDurationMedia] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         // Check Disabled Features
         ArrayList<String> listOfDisabledFeatures=new ArrayList(Arrays.asList(defaultDisabledFeatures.split(",")));
         if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES))) {
@@ -512,6 +533,16 @@ public class ParamsProcessorUtil {
         listOfDisabledFeatures.removeAll(Arrays.asList("", null));
         listOfDisabledFeatures.replaceAll(String::trim);
         listOfDisabledFeatures = new ArrayList<>(new HashSet<>(listOfDisabledFeatures));
+
+        // Check Disabled Features Exclude list -- passed as a CREATE parameter to cancel the disabling (typically from bbb-web's properties file)
+        ArrayList<String> listOfDisabledFeaturesExclude = new ArrayList<>();
+        if (!StringUtils.isEmpty(params.get(ApiParams.DISABLED_FEATURES_EXCLUDE))) {
+            String disabledFeaturesExcludeParam = params.get(ApiParams.DISABLED_FEATURES_EXCLUDE);
+            listOfDisabledFeaturesExclude.addAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+            listOfDisabledFeaturesExclude.removeAll(Arrays.asList("", null));
+            listOfDisabledFeaturesExclude.replaceAll(String::trim);
+            listOfDisabledFeatures.removeAll(Arrays.asList(disabledFeaturesExcludeParam.split(",")));
+        }
 
         // Check if VirtualBackgrounds is disabled
         if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
@@ -535,11 +566,18 @@ public class ParamsProcessorUtil {
             listOfDisabledFeatures.add("learningDashboard");
         }
 
-        int learningDashboardCleanupMins = 0;
-
         // Learning Dashboard not allowed for Breakout Rooms
-        if(!isBreakout) {
-            learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
+        if(isBreakout) {
+		listOfDisabledFeatures.add("learningDashboard");
+	}
+
+	//Set Learning Dashboard configs
+        String learningDashboardAccessToken = "";
+	int learningDashboardCleanupMins = 0;
+        if(listOfDisabledFeatures.contains("learningDashboard") == false) {
+            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
+
+	    learningDashboardCleanupMins = learningDashboardCleanupDelayInMinutes;
             if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES))) {
                 try {
                     learningDashboardCleanupMins = Integer.parseInt(params
@@ -550,12 +588,6 @@ public class ParamsProcessorUtil {
                             internalMeetingId);
                 }
             }
-        }
-
-        //Generate token to access Activity Report
-        String learningDashboardAccessToken = "";
-        if(listOfDisabledFeatures.contains("learningDashboard") == false) {
-            learningDashboardAccessToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase();
         }
 
         Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
@@ -724,6 +756,7 @@ public class ParamsProcessorUtil {
                 .withDefaultAvatarURL(avatarURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
@@ -1215,6 +1248,10 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
+    public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
+        this.recordFullDurationMedia = recordFullDurationMedia;
+    }
+
     public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
         this.learningDashboardEnabled = learningDashboardEnabled;
     }
@@ -1432,6 +1469,10 @@ public class ParamsProcessorUtil {
 
 	public void setLockSettingsHideViewersCursor(Boolean lockSettingsHideViewersCursor) {
 		this.defaultLockSettingsHideViewersCursor = lockSettingsHideViewersCursor;
+	}
+
+    public void setLockSettingsHideViewersAnnotation(Boolean lockSettingsHideViewersAnnotation) {
+		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

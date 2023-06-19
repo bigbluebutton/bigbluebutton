@@ -74,6 +74,7 @@ export default lockContextContainer(
     const numPages = PresentationService.getSlidesLength(podId);
     const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
+    const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
 
     let slidePosition;
     if (currentSlide) {
@@ -116,7 +117,7 @@ export default lockContextContainer(
         });
       }
     }
-
+    const currentPresentation = PresentationService.getCurrentPresentation(podId);
     return {
       currentSlide,
       slidePosition,
@@ -127,7 +128,8 @@ export default lockContextContainer(
         ) && presentationIsOpen,
       presentationIsDownloadable,
       mountPresentation: !!currentSlide,
-      currentPresentation: PresentationService.getCurrentPresentation(podId),
+      currentPresentation,
+      currentPresentationId: currentPresentation?.id,
       numPages,
       notify,
       zoomSlide: PresentationToolbarService.zoomSlide,
@@ -146,6 +148,7 @@ export default lockContextContainer(
       multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
       isViewersCursorLocked,
       setPresentationIsOpen: MediaService.setPresentationIsOpen,
+      isViewersAnnotationsLocked,
     };
   })(PresentationContainer),
 );

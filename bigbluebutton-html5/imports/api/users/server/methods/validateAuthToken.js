@@ -12,11 +12,11 @@ async function validateAuthToken(meetingId, requesterUserId, requesterToken, ext
   const userValidation = await new Promise(async (res, rej) => {
     const observeFunc = (obj) => {
       if (obj.validationStatus === ValidationStates.VALIDATED) {
-        clearTimeout(setTimeoutRef);
+        Meteor.clearTimeout(setTimeoutRef);
         return res(obj);
       }
       if (obj.validationStatus === ValidationStates.INVALID) {
-        clearTimeout(setTimeoutRef);
+        Meteor.clearTimeout(setTimeoutRef);
         return res(obj);
       }
     };
@@ -27,7 +27,7 @@ async function validateAuthToken(meetingId, requesterUserId, requesterToken, ext
       changed: observeFunc,
     });
 
-    setTimeoutRef = setTimeout(() => {
+    setTimeoutRef = Meteor.setTimeout(() => {
       authTokenValidationObserver.stop();
       rej();
     }, AUTH_TIMEOUT);
@@ -68,7 +68,7 @@ async function validateAuthToken(meetingId, requesterUserId, requesterToken, ext
       const errMsg = `Exception while invoking method validateAuthToken ${err}`;
       Logger.error(errMsg);
       rej(errMsg);
-      clearTimeout(setTimeoutRef);
+      Meteor.clearTimeout(setTimeoutRef);
       authTokenValidationObserver.stop();
     }
   });

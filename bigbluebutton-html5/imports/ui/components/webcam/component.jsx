@@ -18,6 +18,7 @@ const WebcamComponent = ({
   displayPresentation,
   cameraOptimalGridSize: cameraSize,
   isRTL,
+  isGridEnabled,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -154,7 +155,13 @@ const WebcamComponent = ({
   if (isRTL) {
     draggableOffset.left = draggableOffset.left * -1;
   }
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
+  const mobileWidth = `${isDragging ? cameraSize.width : cameraDock.width}pt`;
+  const mobileHeight = `${isDragging ? cameraSize.height : cameraDock.height}pt`;
+  const isDesktopWidth = isDragging ? cameraSize.width : cameraDock.width;
+  const isDesktopHeight = isDragging ? cameraSize.height : cameraDock.height;
+  const camOpacity = isDragging ? 0.5 : undefined;
   return (
     <>
       {isDragging ? <DropAreaContainer /> : null}
@@ -216,7 +223,8 @@ const WebcamComponent = ({
             }}
             enable={{
               top: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.top,
-              bottom: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.bottom,
+              bottom: !isFullscreen && !isDragging && !swapLayout
+              && cameraDock.resizableEdge.bottom,
               left: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.left,
               right: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.right,
               topLeft: false,
@@ -226,7 +234,7 @@ const WebcamComponent = ({
             }}
             style={{
               position: 'absolute',
-              zIndex: cameraDock.zIndex,
+              zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock.zIndex,
             }}
           >
             <Styled.Draggable
@@ -236,10 +244,10 @@ const WebcamComponent = ({
               role="region"
               draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
               style={{
-                width: `${isDragging ? cameraSize.width : cameraDock.width}pt`,
-                height: `${isDragging ? cameraSize.height : cameraDock.height}pt`,
-                opacity: isDragging ? 0.5 : undefined,
-                background: isCameraSidebar ? colorContentBackground : null,
+                width: isIphone ? mobileWidth : isDesktopWidth,
+                height: isIphone ? mobileHeight : isDesktopHeight,
+                opacity: camOpacity,
+                background: null,
               }}
             >
               <VideoProviderContainer
@@ -248,6 +256,7 @@ const WebcamComponent = ({
                   cameraDock,
                   focusedId,
                   handleVideoFocus,
+                  isGridEnabled,
                 }}
               />
             </Styled.Draggable>

@@ -95,12 +95,13 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock, streams, focusedId } = this.props;
+    const { layoutType, cameraDock, streams, focusedId, isGridEnabled, users } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
       streams: prevStreams,
+      users: prevUsers,
       focusedId: prevFocusedId,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
@@ -111,6 +112,7 @@ class VideoList extends Component {
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
+      || (isGridEnabled && users?.length !== prevUsers?.length)
       || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
@@ -177,8 +179,15 @@ class VideoList extends Component {
       streams,
       cameraDock,
       layoutContextDispatch,
+      isGridEnabled,
+      users,
     } = this.props;
     let numItems = streams.length;
+
+    if (isGridEnabled) {
+      numItems += users.length;
+    }
+
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
@@ -298,10 +307,37 @@ class VideoList extends Component {
       swapLayout,
       handleVideoFocus,
       focusedId,
+      users,
     } = this.props;
     const numOfStreams = streams.length;
 
-    return streams.map((vs) => {
+    const userItems = users ? users.map((user) => {
+      const { userId, name } = user;
+
+      return (
+        <Styled.VideoListItem
+          key={userId}
+          focused={false}
+          data-test="webcamVideoItem"
+        >
+          <VideoListItemContainer
+            numOfStreams={numOfStreams}
+            cameraId={userId}
+            userId={userId}
+            name={name}
+            focused={false}
+            isStream={false}
+            onVideoItemMount={() => {
+              this.handleCanvasResize();
+            }}
+            onVideoItemUnmount={onVideoItemUnmount}
+            swapLayout={swapLayout}
+          />
+        </Styled.VideoListItem>
+      );
+    }) : null;
+
+    const videoItems = streams.map((vs) => {
       const { stream, userId, name } = vs;
       const isFocused = focusedId === stream && numOfStreams > 2;
 
@@ -317,6 +353,7 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             focused={isFocused}
+            isStream={true}
             onHandleVideoFocus={handleVideoFocus}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
@@ -329,6 +366,8 @@ class VideoList extends Component {
         </Styled.VideoListItem>
       );
     });
+
+    return videoItems.concat(userItems);
   }
 
   render() {
@@ -336,6 +375,7 @@ class VideoList extends Component {
       streams,
       intl,
       cameraDock,
+      isGridEnabled,
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
@@ -352,7 +392,7 @@ class VideoList extends Component {
       >
         {this.renderPreviousPageButton()}
 
-        {!streams.length ? null : (
+        {!streams.length && !isGridEnabled ? null : (
           <Styled.VideoList
             ref={(ref) => {
               this.grid = ref;

@@ -89,7 +89,7 @@ const TldrawGlobalStyle = createGlobalStyle`
       }
     }
   `}
-  ${({ isPresenter }) => (!isPresenter) && `
+  ${({ isPresenter, hasWBAccess }) => (!isPresenter && !hasWBAccess) && `
     #presentationInnerWrapper div{
       cursor: default !important;
     }

@@ -176,7 +176,7 @@ const VideoFocusLayout = (props) => {
         height = windowHeight() - DEFAULT_VALUES.navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
-      } else if (cameraDockInput.numCameras > 0 && isOpen && !isGeneralMediaOff) {
+      } else if (isOpen && !isGeneralMediaOff) {
         if (sidebarContentInput.height > 0 && sidebarContentInput.height < windowHeight()) {
           height = sidebarContentInput.height - bannerAreaHeight();
         } else {
@@ -254,7 +254,6 @@ const VideoFocusLayout = (props) => {
   ) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
-    const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     if (fullscreenElement === 'Presentation' || fullscreenElement === 'Screenshare' || fullscreenElement === 'ExternalVideo') {
       mediaBounds.width = windowWidth();
@@ -271,7 +270,7 @@ const VideoFocusLayout = (props) => {
       mediaBounds.left = mediaAreaBounds.left;
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
-    } else if (cameraDockInput.numCameras > 0 && presentationInput.isOpen) {
+    } else if (presentationInput.isOpen) {
       mediaBounds.height = windowHeight() - sidebarContentHeight - bannerAreaHeight();
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
@@ -283,13 +282,6 @@ const VideoFocusLayout = (props) => {
       mediaBounds.height = 0;
       mediaBounds.top = 0;
       mediaBounds.left = 0;
-    } else {
-      mediaBounds.height = mediaAreaBounds.height;
-      mediaBounds.width = mediaAreaBounds.width;
-      mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
-      mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
-      mediaBounds.right = isRTL ? sidebarSize : null;
-      mediaBounds.zIndex = 1;
     }
 
     return mediaBounds;
@@ -329,7 +321,6 @@ const VideoFocusLayout = (props) => {
       sidebarContentWidth.width,
       sidebarContentHeight.height,
     );
-    const isBottomResizable = cameraDockInput.numCameras > 0;
 
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
@@ -420,7 +411,7 @@ const VideoFocusLayout = (props) => {
       value: {
         top: false,
         right: !isRTL,
-        bottom: isBottomResizable,
+        bottom: true,
         left: isRTL,
       },
     });
@@ -436,7 +427,7 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
-        display: cameraDockInput.numCameras > 0,
+        display: true,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,

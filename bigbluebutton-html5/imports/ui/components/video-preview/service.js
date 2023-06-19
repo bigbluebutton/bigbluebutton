@@ -14,12 +14,18 @@ const GUM_RETRY_DELAY = 200;
 const CAMERA_PROFILES = Meteor.settings.public.kurento.cameraProfiles || [];
 // Filtered, without hidden profiles
 const PREVIEW_CAMERA_PROFILES = CAMERA_PROFILES.filter(p => !p.hidden);
+const CAMERA_AS_CONTENT_PROFILE_ID = 'fhd';
 
 const getDefaultProfile = () => {
   return CAMERA_PROFILES.find(profile => profile.id === BBBStorage.getItem('WebcamProfileId'))
     || CAMERA_PROFILES.find(profile => profile.id === VideoService.getUserParameterProfile())
     || CAMERA_PROFILES.find(profile => profile.default)
     || CAMERA_PROFILES[0];
+}
+
+const getCameraAsContentProfile = () => {
+  return CAMERA_PROFILES.find(profile => profile.id == CAMERA_AS_CONTENT_PROFILE_ID)
+    || CAMERA_PROFILES.find(profile => profile.default)
 }
 
 const getCameraProfile = (id) => {
@@ -236,6 +242,7 @@ export default {
   deleteStream,
   digestVideoDevices,
   getDefaultProfile,
+  getCameraAsContentProfile,
   getCameraProfile,
   doGUM,
   terminateCameraStream,

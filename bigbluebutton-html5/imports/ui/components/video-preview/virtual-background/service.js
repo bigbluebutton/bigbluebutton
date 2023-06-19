@@ -1,6 +1,6 @@
 import logger from '/imports/startup/client/logger';
 
-const MIME_TYPES_ALLOWED = ['image/png', 'image/jpeg'];
+const MIME_TYPES_ALLOWED = ['image/png', 'image/jpeg', 'image/webp'];
 const MAX_FILE_SIZE = 5000; // KBytes
 
 const withObjectStore = ({

@@ -252,6 +252,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
       case ChangeUserEmojiCmdMsg.NAME =>
         routeGenericMsg[ChangeUserEmojiCmdMsg](envelope, jsonNode)
+      case UserReactionTimeExpiredCmdMsg.NAME =>
+        routeGenericMsg[UserReactionTimeExpiredCmdMsg](envelope, jsonNode)
+      case ClearAllUsersEmojiCmdMsg.NAME =>
+        routeGenericMsg[ClearAllUsersEmojiCmdMsg](envelope, jsonNode)
       case ChangeUserRoleCmdMsg.NAME =>
         routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 
@@ -314,10 +318,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PdfConversionInvalidErrorSysPubMsg](envelope, jsonNode)
       case AssignPresenterReqMsg.NAME =>
         routeGenericMsg[AssignPresenterReqMsg](envelope, jsonNode)
-      case MakePresentationWithAnnotationDownloadReqMsg.NAME =>
-        routeGenericMsg[MakePresentationWithAnnotationDownloadReqMsg](envelope, jsonNode)
-      case NewPresAnnFileAvailableMsg.NAME =>
-        routeGenericMsg[NewPresAnnFileAvailableMsg](envelope, jsonNode)
+      case MakePresentationDownloadReqMsg.NAME =>
+        routeGenericMsg[MakePresentationDownloadReqMsg](envelope, jsonNode)
+      case NewPresFileAvailableMsg.NAME =>
+        routeGenericMsg[NewPresFileAvailableMsg](envelope, jsonNode)
       case PresAnnStatusMsg.NAME =>
         routeGenericMsg[PresAnnStatusMsg](envelope, jsonNode)
 
@@ -404,6 +408,29 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UpdateExternalVideoPubMsg](envelope, jsonNode)
       case StopExternalVideoPubMsg.NAME =>
         routeGenericMsg[StopExternalVideoPubMsg](envelope, jsonNode)
+
+      // Timer
+      case CreateTimerPubMsg.NAME =>
+        routeGenericMsg[CreateTimerPubMsg](envelope, jsonNode)
+      case ActivateTimerReqMsg.NAME =>
+        routeGenericMsg[ActivateTimerReqMsg](envelope, jsonNode)
+      case DeactivateTimerReqMsg.NAME =>
+        routeGenericMsg[DeactivateTimerReqMsg](envelope, jsonNode)
+      case StartTimerReqMsg.NAME =>
+        routeGenericMsg[StartTimerReqMsg](envelope, jsonNode)
+      case StopTimerReqMsg.NAME =>
+        routeGenericMsg[StopTimerReqMsg](envelope, jsonNode)
+      case SwitchTimerReqMsg.NAME =>
+        routeGenericMsg[SwitchTimerReqMsg](envelope, jsonNode)
+      case SetTimerReqMsg.NAME =>
+        routeGenericMsg[SetTimerReqMsg](envelope, jsonNode)
+      case ResetTimerReqMsg.NAME =>
+        routeGenericMsg[ResetTimerReqMsg](envelope, jsonNode)
+      case SetTrackReqMsg.NAME =>
+        routeGenericMsg[SetTrackReqMsg](envelope, jsonNode)
+      case TimerEndedPubMsg.NAME =>
+        routeGenericMsg[TimerEndedPubMsg](envelope, jsonNode)
+
       case _ =>
         log.error("Cannot route envelope name " + envelope.name)
       // do nothing

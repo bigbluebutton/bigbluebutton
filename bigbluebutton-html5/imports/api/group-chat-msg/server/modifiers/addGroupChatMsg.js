@@ -3,6 +3,7 @@ import Logger from '/imports/startup/server/logger';
 import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import { BREAK_LINE } from '/imports/utils/lineEndings';
 import changeHasMessages from '/imports/api/users-persistent-data/server/modifiers/changeHasMessages';
+import GroupChat from '/imports/api/group-chat';
 
 export function parseMessage(message) {
   let parsedMessage = message || '';
@@ -34,6 +35,8 @@ export default async function addGroupChatMsg(meetingId, chatId, msg) {
     ...restMsg
   } = msg;
 
+  const groupChat = GroupChat.findOne({ meetingId, chatId });
+
   const msgDocument = {
     ...restMsg,
     sender: sender.id,
@@ -41,6 +44,7 @@ export default async function addGroupChatMsg(meetingId, chatId, msg) {
     senderRole: sender.role,
     meetingId,
     chatId,
+    participants: [...groupChat.users],
     message: parseMessage(msg.message),
   };
 

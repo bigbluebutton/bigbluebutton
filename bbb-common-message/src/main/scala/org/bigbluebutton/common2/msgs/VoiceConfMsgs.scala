@@ -17,7 +17,7 @@ case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(
   extends VoiceStandardMsg
 case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
-                                                              timestamp: String, hasAudio: Boolean)
+                                                              timestamp: String, hasAudio: Boolean, contentType: String)
 
 /**
  * Sent to clients to notify them of an RTMP stream starting.
@@ -30,7 +30,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsg(
   extends BbbCoreMsg
 case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
-                                                     timestamp: String, hasAudio: Boolean)
+                                                     timestamp: String, hasAudio: Boolean, contentType: String)
 
 /**
  * Sync screenshare state with bbb-html5
@@ -48,7 +48,8 @@ case class SyncGetScreenshareInfoRespMsgBody(
     vidWidth:        Int,
     vidHeight:       Int,
     timestamp:       String,
-    hasAudio:        Boolean
+    hasAudio:        Boolean,
+    contentType:     String
 )
 
 /**

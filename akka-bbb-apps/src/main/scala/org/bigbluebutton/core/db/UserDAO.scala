@@ -97,6 +97,7 @@ object UserDAO {
           ChatUserDAO.insertUserPublicChat(meetingId, regUser.id)
           UserConnectionStatusdDAO.insert(meetingId, regUser.id)
           UserCustomParameterDAO.insert(regUser.id, regUser.customParameters)
+          UserLocalSettingsDAO.insert(regUser.id, meetingId)
         }
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user: $e")
       }

@@ -7,6 +7,9 @@ import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
 import {Meteor} from "meteor/meteor";
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import UserAvatar from '../user-avatar/component';
+
+const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
 const messages = defineMessages({
   lowerHandsLabel: {
@@ -140,6 +143,8 @@ class StatusNotifier extends Component {
           onClick={() => clearUserStatus(u.userId)}
           onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
           data-test="avatarsWrapperAvatar"
+          moderator={u.role === ROLE_MODERATOR}
+          avatar={u.avatar}
         >
           {u.name.slice(0, 2)}
         </Styled.Avatar>

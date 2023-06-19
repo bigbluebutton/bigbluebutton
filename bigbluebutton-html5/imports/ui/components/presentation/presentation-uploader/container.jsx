@@ -9,6 +9,7 @@ import PresentationUploader from './component';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import Auth from '/imports/ui/services/auth';
 import { isDownloadPresentationWithAnnotationsEnabled, isPresentationEnabled } from '/imports/ui/services/features';
+import { hasAnnotations } from '/imports/ui/components/whiteboard/service';
 
 const PRESENTATION_CONFIG = Meteor.settings.public.presentation;
 
@@ -26,17 +27,19 @@ const PresentationUploaderContainer = (props) => {
 };
 
 export default withTracker(() => {
-  const currentPresentations = Service.getPresentations();
+  const presentations = Service.getPresentations();
+  const currentPresentation = presentations.find((p) => p.isCurrent)?.id || '';
   const {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
-    exportPresentationToChat,
+    exportPresentation,
   } = Service;
   const isOpen = isPresentationEnabled() && (Session.get('showUploadPresentationView') || false);
 
   return {
-    presentations: currentPresentations,
+    presentations,
+    currentPresentation,
     fileUploadConstraintsHint: PRESENTATION_CONFIG.fileUploadConstraintsHint,
     fileSizeMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadSizeMax,
     filePagesMax: PRESENTATION_CONFIG.mirroredFromBBBCore.uploadPagesMax,
@@ -49,10 +52,11 @@ export default withTracker(() => {
     dispatchDisableDownloadable,
     dispatchEnableDownloadable,
     dispatchTogglePresentationDownloadable,
-    exportPresentationToChat,
+    exportPresentation,
     isOpen,
     selectedToBeNextCurrent: Session.get('selectedToBeNextCurrent') || null,
     externalUploadData: Service.getExternalUploadData(),
     handleFiledrop: Service.handleFiledrop,
+    hasAnnotations,
   };
 })(PresentationUploaderContainer);

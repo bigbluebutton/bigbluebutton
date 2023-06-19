@@ -20,7 +20,6 @@ const GlobalStyle = createGlobalStyle`
     .MuiPopover-root {
       top: 0 !important;
     }
-
     .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
       top: 0 !important;
       left: 0 !important;
@@ -29,16 +28,14 @@ const GlobalStyle = createGlobalStyle`
       max-width: none;
     }
   }
-
   .MuiList-padding {
     padding: 0 !important;
   }
-
   .MuiPaper-root {
     background-color: ${dropdownBg};
     border-radius: ${borderRadius};
     border: 0;
-    z-index: 9999;
+    z-index: 999;
     max-width: 22rem;
   }
 
@@ -138,7 +135,7 @@ const GlobalStyle = createGlobalStyle`
     right: auto;
     width: 0;
     height: 5px;
-    z-index: 9999;
+    z-index: 999;
     animation: track-progress linear 1;
     background-color: ${colorGrayLighter};
     border-radius: ${borderRadius};

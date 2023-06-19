@@ -293,6 +293,10 @@ class Page {
     await expect(locator).toContainText(text, { timeout });
   }
 
+  async haveTitle(title) {
+    await expect(this.page).toHaveTitle(title);
+  }
+
   async press(key) {
     await this.page.keyboard.press(key);
   }
@@ -310,7 +314,15 @@ class Page {
   }
 
   async dragDropSelector(selector, position) {
-    await this.page.locator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
+    await this.getLocator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async dragAndDropWebcams(position) {
+    await this.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
+    await this.page.mouse.down();
+    await this.getLocator(e.whiteboard).hover({ timeout: 5000 });   // action for dispatching isDragging event
+    await this.getLocator(position).hover({ timeout: 5000 });
+    await this.page.mouse.up();
   }
 
   async checkElementCount(selector, count) {
@@ -344,6 +356,10 @@ class Page {
 
   async reloadPage() {
     await this.page.reload();
+  }
+
+  async selectSlide(slideOption, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.locator(e.skipSlide).selectOption({ label: slideOption }, { timeout });
   }
 }
 

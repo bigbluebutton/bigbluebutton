@@ -51,6 +51,8 @@ export default async function addPresentation(meetingId, podId, presentation) {
     ],
     downloadable: Boolean,
     removable: Boolean,
+    isInitialPresentation: Boolean,
+    filenameConverted: String,
   });
 
   const selector = {
@@ -70,7 +72,7 @@ export default async function addPresentation(meetingId, podId, presentation) {
   };
 
   try {
-    const { insertedId } = await Presentations.upsertAsync(selector, modifier);
+    await Presentations.upsertAsync(selector, modifier);
 
     await addSlides(meetingId, podId, presentation.id, presentation.pages);
 

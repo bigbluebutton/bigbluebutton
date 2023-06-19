@@ -8,7 +8,6 @@ export default function CursorsAll() {
       pres_page_cursor(where: {isCurrentPage: {_eq: true}}) {
             isCurrentPage
             lastUpdatedAt
-            meetingId
             pageId
             presentationId
             userId

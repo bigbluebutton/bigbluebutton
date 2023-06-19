@@ -2,48 +2,43 @@ const { test } = require('@playwright/test');
 const { SharedNotes } = require('./sharednotes');
 
 test.describe.parallel('Shared Notes', () => {
-  test('Open Shared notes @ci', async ({ browser, page, context }) => {
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initModPage(page);
+  const sharedNotes = new SharedNotes();
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await sharedNotes.initModPage(page, true);
+    await sharedNotes.initUserPage1(true);
+  });
+  test('Open shared notes @ci', async () => {
     await sharedNotes.openSharedNotes();
   });
-  test('Type in shared notes', async ({ browser, page, context }) => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#using-shared-notes-panel
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initModPage(page);
+
+  test('Type in shared notes', async () => {
     await sharedNotes.typeInSharedNotes();
   });
-  test('Formate text in shared notes', async ({ browser, page, context }) => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#using-shared-notes-formatting-tools
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initModPage(page);
+
+  test('Formate text in shared notes', async () => {
     await sharedNotes.formatTextInSharedNotes();
   });
-  test('Export shared notes', async ({ browser, page, context }, testInfo) => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#exporting-shared-notes
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initModPage(page);
+
+  test('Export shared notes @ci', async ({}, testInfo) => {
     await sharedNotes.exportSharedNotes(testInfo);
   });
-  test('Convert notes to whiteboard', async ({ browser, page, context }) => {
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initPages(page);
+
+  test('Convert notes to whiteboard', async () => {
     await sharedNotes.convertNotesToWhiteboard();
   });
-  test('Multi users edit', async ({ browser, page, context }) => {
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initPages(page);
+
+  test('Multiusers edit', async () => {
     await sharedNotes.editSharedNotesWithMoreThanOneUSer();
   });
-  test('See notes without edit permission', async ({ browser, page, context }) => {
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initPages(page);
+
+  test('See notes without edit permission', async () => {
     await sharedNotes.seeNotesWithoutEditPermission();
   });
-  test('Pin notes onto whiteboard', async ({ browser, page, context }) => {
-    const sharedNotes = new SharedNotes(browser, context);
-    await sharedNotes.initModPage(page);
-    await sharedNotes.initUserPage1();
+
+  test('Pin notes onto whiteboard', async () => {
     await sharedNotes.pinNotesOntoWhiteboard();
   });
 });

@@ -48,7 +48,7 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.shortcuts();
   });
 
-  test('Custom Styles: CSS code', async ({ browser, context, page }) => {
+  test('Custom Styles: CSS code @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.customStyle) });
     await customParam.customStyle();
@@ -67,7 +67,7 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.autoSwapLayout();
   });
 
-  test('Hide Actions Bar', async ({ browser, context, page }) => {
+  test('Hide Actions Bar @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: c.hideActionsBar });
     await customParam.hideActionsBarTest();
@@ -79,7 +79,7 @@ test.describe.parallel('CustomParameters', () => {
     await customParam.overrideDefaultLocaleTest();
   });
 
-  test('Hide NavBar', async ({ browser, context, page }) => {
+  test('Hide NavBar @ci', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { customParameter: c.hideNavBar });
     await customParam.hideNavBarTest();
@@ -92,19 +92,19 @@ test.describe.parallel('CustomParameters', () => {
   });
 
   test.describe.parallel('Audio', () => {
-    test('Auto join', async ({ browser, context, page }) => {
+    test('Auto join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { customParameter: c.autoJoin });
       await customParam.autoJoin();
     });
 
-    test('Disable Listen Only Mode', async ({ browser, context, page }) => {
+    test('Disable Listen Only Mode @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, false, { customParameter: c.listenOnlyMode });
       await customParam.listenOnlyMode();
     });
 
-    test('Force Listen Only', async ({ browser, context, page }) => {
+    test('Force Listen Only @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initUserPage(false, context, { useModMeetingId: false, customParameter: c.forceListenOnly });
       await customParam.forceListenOnly(page);
@@ -124,13 +124,13 @@ test.describe.parallel('CustomParameters', () => {
   });
 
   test.describe.parallel('Banner', () => {
-    test('Banner Text', async ({ browser, context, page }) => {
+    test('Banner Text @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.bannerText) });
       await customParam.bannerText();
     });
 
-    test('Banner Color', async ({ browser, context, page }) => {
+    test('Banner Color @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       const colorToRGB = hexToRgb(c.color);
       await customParam.initModPage(page, true, { customParameter: `${c.bannerColor}&${encodeCustomParams(c.bannerText)}` });
@@ -139,13 +139,13 @@ test.describe.parallel('CustomParameters', () => {
   })
 
   test.describe.parallel('Presentation', () => {
-    test('Hide Presentation', async ({ browser, context, page }) => {
+    test('Hide Presentation on join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentation) });
-      await customParam.hidePresentation();
+      await customParam.initModPage(page, true, { customParameter: encodeCustomParams(c.hidePresentationOnJoin) });
+      await customParam.hidePresentationOnJoin();
     });
 
-    test('Force Restore Presentation On New Events', async ({ browser, context, page }) => {
+    test('Force Restore Presentation On New Events @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       const customParameter = c.forceRestorePresentationOnNewEvents;
       await customParam.initModPage(page, true, { customParameter });
@@ -161,7 +161,7 @@ test.describe.parallel('CustomParameters', () => {
   });
 
   test.describe.parallel('Webcam', () => {
-    test('Disable Webcam Sharing', async ({ browser, context, page }) => {
+    test('Disable Webcam Sharing @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.enableVideo });
       await customParam.enableVideo();
@@ -173,13 +173,13 @@ test.describe.parallel('CustomParameters', () => {
       await customParam.skipVideoPreview();
     });
 
-    test('Skip Video Preview on First Join', async ({ browser, context, page }) => {
+    test('Skip Video Preview on First Join @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.skipVideoPreviewOnFirstJoin });
       await customParam.skipVideoPreviewOnFirstJoin();
     });
 
-    test('Mirror Own Webcam', async ({ browser, context, page }) => {
+    test('Mirror Own Webcam @ci', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.mirrorOwnWebcam });
       await customParam.mirrorOwnWebcam();
@@ -209,7 +209,7 @@ test.describe.parallel('CustomParameters', () => {
     });
   });
 
-  test.describe.parallel('Disabled Features', () => {
+  test.describe.parallel('Disabled Features @ci', () => {
     test('Breakout Rooms', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { customParameter: c.breakoutRooms });

@@ -7,6 +7,7 @@ import ChatService from '/imports/ui/components/chat/service';
 import Auth from '/imports/ui/services/auth';
 import useContextUsers from '/imports/ui/components/components-data/users-context/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import Meetings from '/imports/api/meetings';
 import UserListParticipants from './user-list-participants/component';
@@ -23,12 +24,12 @@ const UserParticipantsContainer = (props) => {
     requestUserInformation,
   } = UserListService;
 
-  const { videoUsers, whiteboardUsers } = props;
+  const { videoUsers, whiteboardUsers, reactionUsers } = props;
   const { users: contextUsers, isReady } = useContextUsers();
 
   const currentUser = contextUsers && isReady ? contextUsers[Auth.meetingID][Auth.userID] : null;
   const usersArray = contextUsers && isReady ? Object.values(contextUsers[Auth.meetingID]) : null;
-  const users = contextUsers && isReady ? formatUsers(usersArray, videoUsers, whiteboardUsers) : [];
+  const users = contextUsers && isReady ? formatUsers(usersArray, videoUsers, whiteboardUsers, reactionUsers) : [];
 
   return (
     <UserParticipants {
@@ -70,6 +71,7 @@ const Container = withTracker(() => {
     meetingIsBreakout: meetingIsBreakout(),
     videoUsers: VideoService.getUsersIdFromVideoStreams(),
     whiteboardUsers,
+    reactionUsers: UserReactionService.getUsersIdFromUserReaction(),
     isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
     lockSettingsProps: currentMeeting && currentMeeting.lockSettingsProps,
   });

@@ -32,7 +32,6 @@ export const MessageListWrapper = styled.div`
 
 export const MessageList = styled(ScrollboxVertical)`
   flex-flow: column;
-  flex-grow: 1;
   flex-shrink: 1;
   margin: 0 auto 0 0;
   right: 0 ${mdPaddingX} 0 0;

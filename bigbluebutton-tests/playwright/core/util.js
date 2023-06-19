@@ -1,4 +1,5 @@
 const { expect } = require("@playwright/test");
+const { exec } = require('child_process');
 
 // Common
 function checkElement([element, index = 0]) {
@@ -40,8 +41,17 @@ function constructClipObj(wbBox) {
   };
 }
 
+async function runScript(script, { handleError, handleOutput, timeout }) {
+  return new Promise((res, rej) => {
+    return exec(script, { timeout }, (err, stdout, stderr) => {
+      res(handleError ? handleError(stderr) : handleOutput ? handleOutput(stdout) : null)
+    })
+  })
+}
+
 exports.checkElement = checkElement;
 exports.checkElementLengthEqualTo = checkElementLengthEqualTo;
 exports.getElementLength = getElementLength;
 exports.checkTextContent = checkTextContent;
 exports.constructClipObj = constructClipObj;
+exports.runScript = runScript;

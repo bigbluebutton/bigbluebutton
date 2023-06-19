@@ -24,7 +24,7 @@ import UploaderContainer from '/imports/ui/components/presentation/presentation-
 import CaptionsSpeechContainer from '/imports/ui/components/captions/speech/container';
 import RandomUserSelectContainer from '/imports/ui/components/common/modal/random-user/container';
 import ScreenReaderAlertContainer from '../screenreader-alert/container';
-import NewWebcamContainer from '../webcam/container';
+import WebcamContainer from '../webcam/container';
 import PresentationAreaContainer from '../presentation/presentation-area/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoContainer from '../external-video-player/container';
@@ -50,6 +50,7 @@ import AudioService from '/imports/ui/components/audio/service';
 import NotesContainer from '/imports/ui/components/notes/container';
 import DEFAULT_VALUES from '../layout/defaultValues';
 import AppService from '/imports/ui/components/app/service';
+import TimerService from '/imports/ui/components/timer/service';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const APP_CONFIG = Meteor.settings.public.app;
@@ -71,10 +72,6 @@ const intlMessages = defineMessages({
   actionsBarLabel: {
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
-  },
-  iOSWarning: {
-    id: 'app.iOSWarning.label',
-    description: 'message indicating to upgrade ios version',
   },
   clearedEmoji: {
     id: 'app.toast.clearedEmoji.label',
@@ -141,6 +138,9 @@ class App extends Component {
       isVideoPreviewModalOpen: false,
     };
 
+    this.isTimerEnabled = TimerService.isEnabled();
+    this.timeOffsetInterval = null;
+
     this.handleWindowResize = throttle(this.handleWindowResize).bind(this);
     this.shouldAriaHide = this.shouldAriaHide.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
@@ -155,7 +155,6 @@ class App extends Component {
     const {
       notify,
       intl,
-      validIOSVersion,
       layoutContextDispatch,
       isRTL,
     } = this.props;
@@ -188,12 +187,6 @@ class App extends Component {
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
 
-    if (!validIOSVersion()) {
-      notify(
-        intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
-      );
-    }
-
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
     window.addEventListener('localeChanged', () => {
@@ -218,6 +211,12 @@ class App extends Component {
     if (deviceInfo.isMobile) makeCall('setMobileUser');
 
     ConnectionStatusService.startRoundTripTime();
+
+    if (this.isTimerEnabled) {
+      TimerService.fetchTimeOffset();
+      this.timeOffsetInterval = setInterval(TimerService.fetchTimeOffset,
+        TimerService.OFFSET_INTERVAL);
+    }
 
     logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
   }
@@ -297,6 +296,10 @@ class App extends Component {
     window.removeEventListener('resize', this.handleWindowResize, false);
     window.onbeforeunload = null;
     ConnectionStatusService.stopRoundTripTime();
+
+    if (this.timeOffsetInterval) {
+      clearInterval(this.timeOffsetInterval);
+    }
   }
 
   handleWindowResize() {
@@ -578,7 +581,7 @@ class App extends Component {
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={shouldShowSharedNotes} />
           <NavBarContainer main="new" />
-          <NewWebcamContainer isLayoutSwapped={!presentationIsOpen} />
+          <WebcamContainer isLayoutSwapped={!presentationIsOpen} layoutType={selectedLayout} />
           <Styled.TextMeasure id="text-measure" />
           {
             shouldShowPresentation && (allPluginsLoaded || !PLUGINS)
@@ -595,7 +598,7 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes 
+          {shouldShowSharedNotes
             ? (
               <NotesContainer
                 area="media"

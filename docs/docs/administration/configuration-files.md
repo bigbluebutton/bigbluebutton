@@ -10,6 +10,7 @@ keywords:
 
 ## Overview
 
+
 This document gives an overview of the BigBlueButton configuration files.
 
 We recommend you make changes only to the override files (`/etc/bigbluebutton`) so that when you update to a newer version of BigBlueButton your configuration changes are not overwritten by the new packages.
@@ -185,7 +186,8 @@ Here's a sample log entry
 
 Located in `/etc/nginx/sites-enabled/bigbluebutton`
 
-This configures nginx to use `/var/www/bigbluebutton-default` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/config/bigbluebutton.nginx))
+This configures nginx to use `/var/www/bigbluebutton-default/assets` as the default site. ([src](https://github.com/bigbluebutton/bigbluebutton/blob/develop/build/packages-template/bbb-html5/bigbluebutton.nginx))
+
 
 ### Log files
 

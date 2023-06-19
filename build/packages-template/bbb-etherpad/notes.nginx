@@ -15,7 +15,7 @@ location /pad/p/ {
 
     proxy_set_header X-Real-IP $remote_addr;  # http://wiki.nginx.org/HttpProxyModule
     proxy_set_header X-Forwarded-For $remote_addr; # EP logs to show the actual remote IP
-    proxy_set_header X-Forwarded-Proto $scheme; # for EP to set secure cookie flag when https is used
+    proxy_set_header X-Forwarded-Proto $real_scheme; # for EP to set secure cookie flag when https is used
     proxy_http_version 1.1;
 
     auth_request /bigbluebutton/connection/checkAuthorization;
@@ -57,7 +57,7 @@ location /pad/socket.io {
     proxy_buffering off;
     proxy_set_header X-Real-IP $remote_addr;  # http://wiki.nginx.org/HttpProxyModule
     proxy_set_header X-Forwarded-For $remote_addr; # EP logs to show the actual remote IP
-    proxy_set_header X-Forwarded-Proto $scheme; # for EP to set secure cookie flag when https is used
+    proxy_set_header X-Forwarded-Proto $real_scheme; # for EP to set secure cookie flag when https is used
     proxy_set_header Host $host;  # pass the host header
     proxy_http_version 1.1;  # recommended with keepalive connections
     # WebSocket proxying - from http://nginx.org/en/docs/http/websocket.html

@@ -121,6 +121,8 @@ public final class Util {
 		File downloadMarker = Util.getPresFileDownloadMarker(presFileDir, presId);
 		if (downloadable && downloadMarker != null && ! downloadMarker.exists()) {
 			downloadMarker.createNewFile();
+		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
+			downloadMarker.delete();
 		}
 	}
 }

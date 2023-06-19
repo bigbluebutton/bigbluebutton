@@ -20,6 +20,7 @@ import clearVoiceUsers from '/imports/api/voice-users/server/modifiers/clearVoic
 import clearUserInfo from '/imports/api/users-infos/server/modifiers/clearUserInfo';
 import clearConnectionStatus from '/imports/api/connection-status/server/modifiers/clearConnectionStatus';
 import clearScreenshare from '/imports/api/screenshare/server/modifiers/clearScreenshare';
+import clearTimer from '/imports/api/timer/server/modifiers/clearTimer';
 import clearAudioCaptions from '/imports/api/audio-captions/server/modifiers/clearAudioCaptions';
 import clearMeetingTimeRemaining from '/imports/api/meetings/server/modifiers/clearMeetingTimeRemaining';
 import clearLocalSettings from '/imports/api/local-settings/server/modifiers/clearLocalSettings';
@@ -29,6 +30,7 @@ import clearVoiceCallStates from '/imports/api/voice-call-states/server/modifier
 import clearVideoStreams from '/imports/api/video-streams/server/modifiers/clearVideoStreams';
 import clearAuthTokenValidation from '/imports/api/auth-token-validation/server/modifiers/clearAuthTokenValidation';
 import clearUsersPersistentData from '/imports/api/users-persistent-data/server/modifiers/clearUsersPersistentData';
+import clearReactions from '/imports/api/user-reaction/server/modifiers/clearReactions';
 
 import clearWhiteboardMultiUser from '/imports/api/whiteboard-multi-user/server/modifiers/clearWhiteboardMultiUser';
 import Metrics from '/imports/startup/server/metrics';
@@ -56,6 +58,7 @@ export default async function meetingHasEnded(meetingId) {
     clearVoiceUsers(meetingId),
     clearUserInfo(meetingId),
     clearConnectionStatus(meetingId),
+    clearTimer(meetingId),
     clearAudioCaptions(meetingId),
     clearLocalSettings(meetingId),
     clearMeetingTimeRemaining(meetingId),
@@ -67,6 +70,7 @@ export default async function meetingHasEnded(meetingId) {
     clearWhiteboardMultiUser(meetingId),
     clearScreenshare(meetingId),
     clearUsersPersistentData(meetingId),
+    clearReactions(meetingId),
   ]);
   await Metrics.removeMeeting(meetingId);
   return Logger.info(`Cleared Meetings with id ${meetingId}`);

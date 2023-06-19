@@ -51,6 +51,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.export.notAccessibleWarning',
     description: 'used for indicating that a link may be not accessible',
   },
+  original: {
+    id: 'app.presentationUploader.export.originalLabel',
+    description: 'Label to identify original presentation exported',
+  },
+  annotated: {
+    id: 'app.presentationUploader.export.withAnnotationsLabel',
+    description: 'Label to identify annotated presentation exported',
+  },
 });
 
 const setUserSentMessage = (bool) => {
@@ -328,12 +336,13 @@ const removePackagedClassAttribute = (classnames, attribute) => {
   });
 };
 
-const getExportedPresentationString = (fileURI, filename, intl) => {
-  const warningIcon = `<i class="icon-bbb-warning"></i>`;
+const getExportedPresentationString = (fileURI, filename, intl, typeOfExport) => {
+  const intlTypeOfExport = typeOfExport === 'Original' ? intlMessages.original : intlMessages.annotated;
+  const warningIcon = '<i class="icon-bbb-warning"></i>';
   const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
   const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
   const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${fileURI} type="application/pdf" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
-  const name = `<span>${filename}</span>`;
+  const name = `<span>${filename} (${intl.formatMessage(intlTypeOfExport)})</span>`;
   return `${name}</br>${link}`;
 };
 

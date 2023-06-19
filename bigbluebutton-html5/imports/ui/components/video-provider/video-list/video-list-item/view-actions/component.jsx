@@ -6,7 +6,7 @@ import Styled from './styles';
 
 const ViewActions = (props) => {
   const {
-    name, cameraId, videoContainer, isFullscreenContext, layoutContextDispatch,
+    name, cameraId, videoContainer, isFullscreenContext, layoutContextDispatch, isStream,
   } = props;
 
   const ALLOW_FULLSCREEN = Meteor.settings.public.app.allowFullscreen;
@@ -24,7 +24,7 @@ const ViewActions = (props) => {
     }
   }, []);
 
-  if (!ALLOW_FULLSCREEN) return null;
+  if (!ALLOW_FULLSCREEN || !isStream) return null;
 
   return (
     <Styled.FullscreenWrapper>

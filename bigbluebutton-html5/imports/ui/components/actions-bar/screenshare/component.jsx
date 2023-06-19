@@ -22,7 +22,7 @@ const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   enabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  isVideoBroadcasting: PropTypes.bool.isRequired,
+  isScreenBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
@@ -114,7 +114,7 @@ const getErrorLocale = (errorCode) => {
 const ScreenshareButton = ({
   intl,
   enabled,
-  isVideoBroadcasting,
+  isScreenBroadcasting,
   amIPresenter,
   isMeteorConnected,
 }) => {
@@ -155,34 +155,35 @@ const ScreenshareButton = ({
 
   const screenshareLabel = intlMessages.desktopShareLabel;
 
-  const vLabel = isVideoBroadcasting
+  const vLabel = isScreenBroadcasting
     ? intlMessages.stopDesktopShareLabel : screenshareLabel;
 
-  const vDescr = isVideoBroadcasting
+  const vDescr = isScreenBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
+  const amIBroadcasting = isScreenBroadcasting && amIPresenter;
 
   const shouldAllowScreensharing = enabled
     && ( !isMobile || isTabletApp)
     && amIPresenter;
 
-  const dataTest = isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+  const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
 
   return <>
     {
       shouldAllowScreensharing
       ? (
         <Button
-          disabled={(!isMeteorConnected && !isVideoBroadcasting)}
-          icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
+          disabled={(!isMeteorConnected && !isScreenBroadcasting)}
+          icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
           data-test={dataTest}
           label={intl.formatMessage(vLabel)}
           description={intl.formatMessage(vDescr)}
-          color={isVideoBroadcasting ? 'primary' : 'default'}
-          ghost={!isVideoBroadcasting}
+          color={amIBroadcasting ? 'primary' : 'default'}
+          ghost={!amIBroadcasting}
           hideLabel
           circle
           size="lg"
-          onClick={isVideoBroadcasting
+          onClick={amIBroadcasting
             ? screenshareHasEnded
             : () => {
               if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
@@ -191,7 +192,7 @@ const ScreenshareButton = ({
                 shareScreen(amIPresenter, handleFailure);
               }
             }}
-          id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
+          id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
         />
       ) : null
     }

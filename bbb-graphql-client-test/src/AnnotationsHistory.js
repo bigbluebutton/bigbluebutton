@@ -7,7 +7,6 @@ export default function AnnotationsHistory() {
           pres_annotation_history_curr_stream(batch_size: 10, cursor: {initial_value: {sequence: 0}}) {
             annotationId
             annotationInfo
-            meetingId
             pageId
             presentationId
             sequence

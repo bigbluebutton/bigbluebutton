@@ -22,7 +22,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
-    await this.modPage.wasRemoved(e.userslist);
+    await this.modPage.wasRemoved(e.usersList);
   }
 
   async clientTitle() {
@@ -127,10 +127,9 @@ class CustomParameters extends MultiUsers {
     await expect(notificationBarColor).toBe(colorToRGB);
   }
 
-  async hidePresentation() {
+  async hidePresentationOnJoin() {
     await this.modPage.waitForSelector(e.actions);
-    const checkPresentationButton = await this.modPage.checkElement(e.restorePresentation);
-    await expect(checkPresentationButton).toBeTruthy();
+    await this.modPage.hasElement(e.restorePresentation);
     await this.modPage.wasRemoved(e.presentationPlaceholder);
   }
 
@@ -242,7 +241,7 @@ class CustomParameters extends MultiUsers {
 
   async liveTranscription() {
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.liveTranscritpion);
+    await this.modPage.wasRemoved(e.liveTranscription);
   }
 
   async captions() {

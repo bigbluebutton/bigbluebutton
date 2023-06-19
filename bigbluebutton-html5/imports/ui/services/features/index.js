@@ -64,6 +64,10 @@ export function isDownloadPresentationWithAnnotationsEnabled() {
   return getDisabledFeatures().indexOf('downloadPresentationWithAnnotations') === -1 && Meteor.settings.public.presentation.allowDownloadable;
 }
 
+export function isSnapshotOfCurrentSlideEnabled() {
+  return getDisabledFeatures().indexOf('snapshotOfCurrentSlide') === -1 && Meteor.settings.public.presentation.allowSnapshotOfCurrentSlide;
+}
+
 export function isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() {
   return getDisabledFeatures().indexOf('importPresentationWithAnnotationsFromBreakoutRooms') === -1;
 }
@@ -74,4 +78,12 @@ export function isImportSharedNotesFromBreakoutRoomsEnabled() {
 
 export function isPresentationEnabled() {
   return getDisabledFeatures().indexOf('presentation') === -1;
+}
+
+export function isReactionsEnabled() {
+  return getDisabledFeatures().indexOf('reactions') === -1;
+}
+
+export function isTimerFeatureEnabled() {
+  return getDisabledFeatures().indexOf('timer') === -1;
 }

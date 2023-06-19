@@ -2,13 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import { defineMessages, injectIntl } from "react-intl";
 
-import Menu from "@material-ui/core/Menu";
-import { Divider } from "@material-ui/core";
+import Menu from "@mui/material/Menu";
+import { Divider } from "@mui/material";
 import Icon from "/imports/ui/components/common/icon/component";
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import KEY_CODES from '/imports/utils/keyCodes';
-
-import { ENTER } from "/imports/utils/keyCodes";
 
 import Styled from './styles';
 
@@ -102,7 +100,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji, intl } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled, description, selected } = a;
+      const { dataTest, label, onClick, key, disabled, accessKey, description, selected } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -131,7 +129,7 @@ class BBBMenu extends React.Component {
           style={customStyles}
           onClick={(event) => {
             onClick();
-            const close = !key.includes('setstatus') && !key.includes('back');
+            const close = !key?.includes('setstatus') && !key?.includes('back');
             // prevent menu close for sub menu actions
             if (close) this.handleClose(event);
             event.stopPropagation();
@@ -150,10 +148,10 @@ class BBBMenu extends React.Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { trigger, intl, customStyles, dataTest, opts, accessKey } = this.props;
+    const { trigger, intl, customStyles, dataTest, opts, accessKey, open, renderOtherComponents } = this.props;
     const actionsItems = this.makeMenuItems();
 
-    let menuStyles = { zIndex: 9999 };
+    let menuStyles = { zIndex: 999 };
 
     if (customStyles) {
       menuStyles = { ...menuStyles, ...customStyles };
@@ -172,11 +170,13 @@ class BBBMenu extends React.Component {
           }}
           onKeyPress={(e) => {
             e.persist();
-            if (e.which !== ENTER) return null;
+            if (e.which !== KEY_CODES.ENTER) return null;
             this.handleClick(e);
           }}
           accessKey={accessKey}
           ref={(ref) => this.anchorElRef = ref}
+          role="button"
+          tabIndex={-1}
         >
           {trigger}
         </div>
@@ -192,6 +192,7 @@ class BBBMenu extends React.Component {
           onKeyDownCapture={this.handleKeyDown}
         >
           {actionsItems}
+          {renderOtherComponents}
           {anchorEl && window.innerWidth < SMALL_VIEWPORT_BREAKPOINT &&
             <Styled.CloseButton
               label={intl.formatMessage(intlMessages.close)}
@@ -206,8 +207,6 @@ class BBBMenu extends React.Component {
   }
 }
 
-export default injectIntl(BBBMenu);
-
 BBBMenu.defaultProps = {
   opts: {
     id: "default-dropdown-menu",
@@ -215,12 +214,13 @@ BBBMenu.defaultProps = {
     keepMounted: true,
     transitionDuration: 0,
     elevation: 3,
-    getContentAnchorEl: null,
+    getcontentanchorel: null,
     fullwidth: "true",
     anchorOrigin: { vertical: 'top', horizontal: 'right' },
     transformorigin: { vertical: 'top', horizontal: 'right' },
   },
   onCloseCallback: () => { },
+  dataTest: '',
 };
 
 BBBMenu.propTypes = {
@@ -245,4 +245,10 @@ BBBMenu.propTypes = {
 
   onCloseCallback: PropTypes.func,
   dataTest: PropTypes.string,
+  open: PropTypes.bool,
+  customStyles: PropTypes.object,
+  opts: PropTypes.object,
+  accessKey: PropTypes.string,
 };
+
+export default injectIntl(BBBMenu);

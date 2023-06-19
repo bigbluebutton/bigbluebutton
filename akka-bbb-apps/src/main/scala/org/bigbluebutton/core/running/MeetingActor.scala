@@ -19,6 +19,7 @@ import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
 import org.bigbluebutton.core.apps.pads.PadsApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
+import org.bigbluebutton.core.apps.timer.TimerApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.webcam.WebcamApp2x
@@ -137,6 +138,7 @@ class MeetingActor(
   val pollApp = new PollApp2x
   val webcamApp2x = new WebcamApp2x
   val wbApp = new WhiteboardApp2x
+  val timerApp2x = new TimerApp2x
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -301,7 +303,8 @@ class MeetingActor(
       hideUserList = lockSettingsProp.hideUserList,
       lockOnJoin = lockSettingsProp.lockOnJoin,
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
-      hideViewersCursor = lockSettingsProp.hideViewersCursor
+      hideViewersCursor = lockSettingsProp.hideViewersCursor,
+      hideViewersAnnotation = lockSettingsProp.hideViewersAnnotation
     )
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
@@ -385,11 +388,13 @@ class MeetingActor(
       case m: RecordAndClearPreviousMarkersCmdMsg =>
         state = usersApp.handleRecordAndClearPreviousMarkersCmdMsg(m, state)
         updateUserLastActivity(m.body.setBy)
-      case m: GetRecordingStatusReqMsg   => usersApp.handleGetRecordingStatusReqMsg(m)
-      case m: ChangeUserEmojiCmdMsg      => handleChangeUserEmojiCmdMsg(m)
-      case m: SelectRandomViewerReqMsg   => usersApp.handleSelectRandomViewerReqMsg(m)
-      case m: ChangeUserPinStateReqMsg   => usersApp.handleChangeUserPinStateReqMsg(m)
-      case m: ChangeUserMobileFlagReqMsg => usersApp.handleChangeUserMobileFlagReqMsg(m)
+      case m: GetRecordingStatusReqMsg      => usersApp.handleGetRecordingStatusReqMsg(m)
+      case m: ChangeUserEmojiCmdMsg         => handleChangeUserEmojiCmdMsg(m)
+      case m: UserReactionTimeExpiredCmdMsg => handleUserReactionTimeExpiredCmdMsg(m)
+      case m: ClearAllUsersEmojiCmdMsg      => handleClearAllUsersEmojiCmdMsg(m)
+      case m: SelectRandomViewerReqMsg      => usersApp.handleSelectRandomViewerReqMsg(m)
+      case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
+      case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -506,8 +511,8 @@ class MeetingActor(
       // Presentation
       case m: PreuploadedPresentationsSysPubMsg              => presentationApp2x.handle(m, liveMeeting, msgBus)
       case m: AssignPresenterReqMsg                          => state = handlePresenterChange(m, state)
-      case m: MakePresentationWithAnnotationDownloadReqMsg   => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: NewPresAnnFileAvailableMsg                     => presentationPodsApp.handle(m, liveMeeting, msgBus)
+      case m: MakePresentationDownloadReqMsg                 => presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: NewPresFileAvailableMsg                        => presentationPodsApp.handle(m, liveMeeting, msgBus)
       case m: PresAnnStatusMsg                               => presentationPodsApp.handle(m, liveMeeting, msgBus)
       case m: PadCapturePubMsg                               => presentationPodsApp.handle(m, liveMeeting, msgBus)
 
@@ -596,6 +601,18 @@ class MeetingActor(
       case m: StartExternalVideoPubMsg            => externalVideoApp2x.handle(m, liveMeeting, msgBus)
       case m: UpdateExternalVideoPubMsg           => externalVideoApp2x.handle(m, liveMeeting, msgBus)
       case m: StopExternalVideoPubMsg             => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+
+      //Timer
+      case m: CreateTimerPubMsg                   => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: ActivateTimerReqMsg                 => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: DeactivateTimerReqMsg               => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: StartTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: StopTimerReqMsg                     => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: SwitchTimerReqMsg                   => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetTimerReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: ResetTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetTrackReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: TimerEndedPubMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
 
       case m: ValidateConnAuthTokenSysMsg         => handleValidateConnAuthTokenSysMsg(m)
 
@@ -780,6 +797,7 @@ class MeetingActor(
     val elapsedInMin = TimeUtil.millisToMinutes(elapsedInMs)
 
     if (props.recordProp.record &&
+      (MeetingStatus2x.isRecording(liveMeeting.status) || props.recordProp.recordFullDurationMedia) &&
       recordingChapterBreakLengthInMinutes > 0 &&
       elapsedInMin > recordingChapterBreakLengthInMinutes) {
       lastRecBreakSentOn = now
@@ -787,15 +805,7 @@ class MeetingActor(
       outGW.send(event)
 
       VoiceApp.stopRecordingVoiceConference(liveMeeting, outGW)
-
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val recordFile = VoiceApp.genRecordPath(
-        voiceConfRecordPath,
-        meetingId,
-        now,
-        voiceConfRecordCodec
-      )
-      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
+      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW)
     }
   }
 
@@ -870,8 +880,11 @@ class MeetingActor(
     leftUsers foreach { leftUser =>
       for {
         u <- Users2x.remove(liveMeeting.users2x, leftUser.intId)
+        ru <- RegisteredUsers.findWithUserId(leftUser.intId, liveMeeting.registeredUsers)
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+        RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
 
         captionApp2x.handleUserLeavingMsg(leftUser.intId, liveMeeting, msgBus)
 
@@ -1000,17 +1013,15 @@ class MeetingActor(
       // Remove recording streams that have stopped so we should only have
       // one active recording stream.
 
-      // Let us start recording.
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val recordFile = VoiceApp.genRecordPath(
-        voiceConfRecordPath,
-        meetingId,
-        TimeUtil.timeNowInMs(),
-        voiceConfRecordCodec
-      )
-      log.info("Forcing START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
+      // If the meeting is being actively recorded or recordFullDurationMedia is true
+      // then we should start recording.
+      if (MeetingStatus2x.isRecording(liveMeeting.status) ||
+        liveMeeting.props.recordProp.recordFullDurationMedia) {
+        val meetingId = liveMeeting.props.meetingProp.intId
+        log.info("Forcing START RECORDING voice conf. meetingId=" + meetingId + " voice conf=" + liveMeeting.props.voiceProp.voiceConf)
 
-      VoiceApp.startRecordingVoiceConference(liveMeeting, outGW, recordFile)
+        VoiceApp.startRecordingVoiceConference(liveMeeting, outGW)
+      }
     }
   }
 

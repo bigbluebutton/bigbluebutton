@@ -1060,7 +1060,7 @@ class VideoProvider extends Component {
       const { bbbVideoStream } = peer;
       const video = this.getVideoElement(stream);
 
-      if (peer && video && peer.attached && video.srcObject) {
+      if (peer && video && video.srcObject) {
         bbbVideoStream.startVirtualBackground(type, name, { file: data })
           .then(resolve)
           .catch(reject);
@@ -1249,6 +1249,7 @@ class VideoProvider extends Component {
       cameraDockBounds,
       focusedId,
       handleVideoFocus,
+      isGridEnabled,
     } = this.props;
 
     return (
@@ -1260,6 +1261,7 @@ class VideoProvider extends Component {
           cameraDockBounds,
           focusedId,
           handleVideoFocus,
+          isGridEnabled,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

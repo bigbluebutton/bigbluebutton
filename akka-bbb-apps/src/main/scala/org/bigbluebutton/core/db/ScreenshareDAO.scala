@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.ScreenshareModel
-import org.bigbluebutton.core.apps.ScreenshareModel.{ getHasAudio, getRTMPBroadcastingUrl, getScreenshareConf, getScreenshareVideoHeight, getScreenshareVideoWidth, getVoiceConf }
+import org.bigbluebutton.core.apps.ScreenshareModel.{ getContentType, getHasAudio, getRTMPBroadcastingUrl, getScreenshareConf, getScreenshareVideoHeight, getScreenshareVideoWidth, getVoiceConf }
 import org.bigbluebutton.core.util.RandomStringGenerator
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
@@ -14,12 +14,13 @@ case class ScreenshareDbModel(
     meetingId:       String,
     voiceConf:       String,
     screenshareConf: String,
+    contentType:     String,
     stream:          String,
     vidWidth:        Int,
     vidHeight:       Int,
+    hasAudio:        Boolean,
     startedAt:       java.sql.Timestamp         = new java.sql.Timestamp(System.currentTimeMillis()),
-    stoppedAt:       Option[java.sql.Timestamp],
-    hasAudio:        Boolean
+    stoppedAt:       Option[java.sql.Timestamp]
 )
 
 class ScreenshareDbTableDef(tag: Tag) extends Table[ScreenshareDbModel](tag, "screenshare") {
@@ -27,13 +28,14 @@ class ScreenshareDbTableDef(tag: Tag) extends Table[ScreenshareDbModel](tag, "sc
   val meetingId = column[String]("meetingId")
   val voiceConf = column[String]("voiceConf")
   val screenshareConf = column[String]("screenshareConf")
+  val contentType = column[String]("contentType")
   val stream = column[String]("stream")
   val vidWidth = column[Int]("vidWidth")
   val vidHeight = column[Int]("vidHeight")
+  val hasAudio = column[Boolean]("hasAudio")
   val startedAt = column[java.sql.Timestamp]("startedAt")
   val stoppedAt = column[Option[java.sql.Timestamp]]("stoppedAt")
-  val hasAudio = column[Boolean]("hasAudio")
-  override def * : ProvenShape[ScreenshareDbModel] = (screenshareId, meetingId, voiceConf, screenshareConf, stream, vidWidth, vidHeight, startedAt, stoppedAt, hasAudio) <> (ScreenshareDbModel.tupled, ScreenshareDbModel.unapply)
+  override def * : ProvenShape[ScreenshareDbModel] = (screenshareId, meetingId, voiceConf, screenshareConf, contentType, stream, vidWidth, vidHeight, hasAudio, startedAt, stoppedAt) <> (ScreenshareDbModel.tupled, ScreenshareDbModel.unapply)
 }
 
 object ScreenshareDAO {
@@ -45,12 +47,13 @@ object ScreenshareDAO {
           meetingId = meetingId,
           voiceConf = getVoiceConf(screenshareModel),
           screenshareConf = getScreenshareConf(screenshareModel),
+          contentType = getContentType(screenshareModel),
           stream = getRTMPBroadcastingUrl(screenshareModel),
           vidWidth = getScreenshareVideoWidth(screenshareModel),
           vidHeight = getScreenshareVideoHeight(screenshareModel),
+          hasAudio = getHasAudio(screenshareModel),
           startedAt = new java.sql.Timestamp(System.currentTimeMillis()),
-          stoppedAt = None,
-          hasAudio = getHasAudio(screenshareModel)
+          stoppedAt = None
         )
       )
     ).onComplete {

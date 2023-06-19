@@ -584,7 +584,7 @@ You'll always get the best results with PDF.
 
 When you upload a PowerPoint document, BigBlueButton will convert it to PDF (using LibreOffice) and then finally to scalable vector graphics (SVG) for display within the client.
 
-The conversion to PDF will remove any animations (visual or audio), links, and embedded content. At the end of the conversion, you'll see the final slide within BigBlueButton.
+The conversion to PDF will remove any animations (visual or audio), links, and embedded content. At the end of the conversion, you'll see the final slide within BigBlueButton. Splitting the animated slide into multiple slides with intermediate animation steps using plugins such as [PPspliT](https://github.com/maxonthegit/PPspliT) would be a good option. Alternatively, you can share the screen showing a PowerPoint presentation; BBB can share not only the animation and video, but also the audio for most of the compatible browsers.
 
 As the presenter, if you want to share a YouTube or Vimeo video, use the built-in `Share an external video` feature (Select the '+' button to see this option).
 

@@ -28,7 +28,6 @@ const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 import {
   getFontSize,
   getBreakoutRooms,
-  validIOSVersion,
 } from './service';
 
 import App from './component';
@@ -94,7 +93,7 @@ const AppContainer = (props) => {
   const { focusedId } = cameraDock;
 
   if(
-    layoutContextDispatch 
+    layoutContextDispatch
     &&  (typeof meetingLayout != "undefined")
     && (layoutType.current != meetingLayout)
     ) {
@@ -142,7 +141,7 @@ const AppContainer = (props) => {
 
   useEffect(() => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)});
-  
+
   return currentUserId
     ? (
       <App
@@ -286,7 +285,6 @@ export default withTracker(() => {
     customStyleUrl,
     UserInfo,
     notify,
-    validIOSVersion,
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     currentUserEmoji: currentUserEmoji(currentUser),

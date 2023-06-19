@@ -81,17 +81,6 @@ class MultiUsers {
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
-  async muteAnotherUser() {
-    await this.userPage.joinMicrophone();
-    await this.modPage.hasElement(e.joinAudio);
-    await this.modPage.waitAndClick(e.isTalking);
-    await this.userPage.hasElement(e.unmuteMicButton);
-    await this.modPage.hasElement(e.wasTalking);
-    await this.userPage.hasElement(e.wasTalking);
-    await this.userPage.wasRemoved(e.talkingIndicator, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.talkingIndicator);
-  }
-
   async userPresence() {
     await this.modPage.checkElementCount(e.currentUser, 1);
     await this.modPage.checkElementCount(e.userListItem, 1);

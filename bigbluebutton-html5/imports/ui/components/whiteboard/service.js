@@ -89,8 +89,11 @@ export function initAnnotationsStreamListener() {
 
     annotationsStreamListener.on('removed', handleRemovedAnnotation);
 
-    annotationsStreamListener.on('added', ({ annotations }) => {
-      annotations.forEach(async (annotation) => handleAddedAnnotation(annotation));
+    annotationsStreamListener.on('added', async ({ annotations }) => {
+      await Promise.all(annotations.map(async (annotation) => {
+        const addedHandeler = await handleAddedAnnotation(annotation);
+        return addedHandeler;
+      }));
     });
   });
 }
@@ -209,6 +212,13 @@ const getCurrentWhiteboardId = () => {
   return currentSlide && currentSlide.id;
 };
 
+const hasAnnotations = (presentationId) => {
+  const ann = Annotations.findOne(
+    { whiteboardId: { $regex: `^${presentationId}` } },
+  );
+  return ann !== undefined;
+};
+
 const isMultiUserActive = (whiteboardId) => {
   const multiUser = getMultiUser(whiteboardId);
 
@@ -249,10 +259,10 @@ const changeWhiteboardAccess = (userId, access) => {
   }
 };
 
-const persistShape = (shape, whiteboardId) => {
+const persistShape = (shape, whiteboardId, isModerator) => {
   const annotation = {
     id: shape.id,
-    annotationInfo: shape,
+    annotationInfo: { ...shape, isModerator },
     wbId: whiteboardId,
     userId: Auth.userID,
   };
@@ -266,11 +276,18 @@ const changeCurrentSlide = (s) => {
   makeCall('changeCurrentSlide', s);
 };
 
-const getShapes = (whiteboardId, curPageId, intl) => {
+const getShapes = (whiteboardId, curPageId, intl, isLocked) => {
+  const unlockedSelector = { whiteboardId };
+  const lockedSelector = {
+    whiteboardId,
+    $or: [
+      { 'annotationInfo.isModerator': true },
+      { 'annotationInfo.userId': Auth.userID },
+    ],
+  };
+
   const annotations = Annotations.find(
-    {
-      whiteboardId,
-    },
+    isLocked ? lockedSelector : unlockedSelector,
     {
       fields: { annotationInfo: 1, userId: 1 },
     },
@@ -401,5 +418,6 @@ export {
   changeCurrentSlide,
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
+  hasAnnotations,
   toggleToolsAnimations,
 };

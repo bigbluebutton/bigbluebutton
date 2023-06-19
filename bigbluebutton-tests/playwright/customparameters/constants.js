@@ -20,7 +20,7 @@ const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
 exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';
-exports.hidePresentation = 'userdata-bbb_hide_presentation=true';
+exports.hidePresentationOnJoin = 'userdata-bbb_hide_presentation_on_join="true"';
 exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';
 exports.outsideToggleRecording = 'userdata-bbb_outside_toggle_recording=true';
 exports.showPublicChatOnLogin = 'userdata-bbb_show_public_chat_on_login=false';

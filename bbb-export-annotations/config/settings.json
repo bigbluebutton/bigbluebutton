@@ -25,7 +25,7 @@
     "notifier": {
       "pod_id": "DEFAULT_PRESENTATION_POD",
       "is_downloadable": "false",
-      "msgName": "NewPresAnnFileAvailableMsg"
+      "msgName": "NewPresFileAvailableMsg"
     },
     "bbbWebAPI": "http://127.0.0.1:8090",
     "bbbWebPublicAPI": "/bigbluebutton/",

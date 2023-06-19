@@ -53,7 +53,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 				}
 
 				//Apply msg patch when it supports it
-				if hc.Browserconn.JsonPatchSupported &&
+				if subscription.JsonPatchSupported &&
 					messageType == "data" &&
 					subscription.Type == common.Subscription {
 					msgpatch.PatchMessage(&messageAsMap, hc.Browserconn)

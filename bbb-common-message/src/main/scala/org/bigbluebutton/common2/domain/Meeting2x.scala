@@ -34,7 +34,7 @@ case class BreakoutProps(
 
 case class PasswordProp(moderatorPass: String, viewerPass: String, learningDashboardAccessToken: String)
 
-case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, keepEvents: Boolean)
+case class RecordProp(record: Boolean, autoStartRecording: Boolean, allowStartStopRecording: Boolean, recordFullDurationMedia: Boolean, keepEvents: Boolean)
 
 case class WelcomeProp(welcomeMsgTemplate: String, welcomeMsg: String, modOnlyMessage: String)
 
@@ -63,7 +63,8 @@ case class LockSettingsProps(
     hideUserList:           Boolean,
     lockOnJoin:             Boolean,
     lockOnJoinConfigurable: Boolean,
-    hideViewersCursor:      Boolean
+    hideViewersCursor:      Boolean,
+    hideViewersAnnotation:  Boolean
 )
 
 case class SystemProps(

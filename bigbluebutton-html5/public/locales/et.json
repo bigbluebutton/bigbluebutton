@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Lülita sisse (kui saadaval)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Jaga välist videot",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Lõpeta välise video jagamine",
-    "app.iOSWarning.label": "Palun uuenda iOS versiooniks 12.2 või hilisemaks",
     "app.legacy.unsupportedBrowser": "Paistab, et kasutad veebilehitsejat, mida ei toetata. Täielikuks toetuseks kasuta palun brauserit {0} või {1}.",
     "app.legacy.upgradeBrowser": "Paistab, et kasutad toetatud veebilehitseja vanemat versiooni. Täielikuks toetuseks uuenda palun oma veebilehitsejat.",
     "app.legacy.criosBrowser": "Täielikuks toetuseks kasuta palun iOSis Safarit.",
