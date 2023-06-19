@@ -10,6 +10,8 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '../../layout/enums';
+import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -311,39 +313,22 @@ class VideoList extends Component {
     } = this.props;
     const numOfStreams = streams.length;
 
-    const userItems = users ? users.map((user) => {
-      const { userId, name } = user;
+    let videoItems = streams;
+
+    if (users) {
+      videoItems = sortVideoStreams(videoItems.concat(users), DEFAULT_SORTING);
+    }
+
+    return videoItems.map((item) => {
+      const { userId, name } = item;
+      const isStream = !!item.stream;
+      const stream = isStream ? item.stream : null;
+      const key = isStream ? stream : userId;
+      const isFocused = isStream && focusedId === stream && numOfStreams > 2;
 
       return (
         <Styled.VideoListItem
-          key={userId}
-          focused={false}
-          data-test="webcamVideoItem"
-        >
-          <VideoListItemContainer
-            numOfStreams={numOfStreams}
-            cameraId={userId}
-            userId={userId}
-            name={name}
-            focused={false}
-            isStream={false}
-            onVideoItemMount={() => {
-              this.handleCanvasResize();
-            }}
-            onVideoItemUnmount={onVideoItemUnmount}
-            swapLayout={swapLayout}
-          />
-        </Styled.VideoListItem>
-      );
-    }) : null;
-
-    const videoItems = streams.map((vs) => {
-      const { stream, userId, name } = vs;
-      const isFocused = focusedId === stream && numOfStreams > 2;
-
-      return (
-        <Styled.VideoListItem
-          key={stream}
+          key={key}
           focused={isFocused}
           data-test="webcamVideoItem"
         >
@@ -353,21 +338,19 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             focused={isFocused}
-            isStream={true}
-            onHandleVideoFocus={handleVideoFocus}
+            isStream={isStream}
+            onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
-              onVideoItemMount(stream, videoRef);
+              if (isStream) onVideoItemMount(stream, videoRef);
             }}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
-            onVirtualBgDrop={(type, name, data) => onVirtualBgDrop(stream, type, name, data)}
+            onVirtualBgDrop={(type, name, data) => isStream ? onVirtualBgDrop(stream, type, name, data) : null}
           />
         </Styled.VideoListItem>
       );
     });
-
-    return videoItems.concat(userItems);
   }
 
   render() {
