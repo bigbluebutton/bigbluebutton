@@ -11,6 +11,7 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '../../layout/enums';
 import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+
 const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const propTypes = {
@@ -346,7 +347,7 @@ class VideoList extends Component {
             }}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
-            onVirtualBgDrop={(type, name, data) => isStream ? onVirtualBgDrop(stream, type, name, data) : null}
+            onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}
           />
         </Styled.VideoListItem>
       );
