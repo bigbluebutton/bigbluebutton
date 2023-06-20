@@ -544,11 +544,11 @@ export default class PresentationOverlay extends Component {
       cursor,
     };
     
-    const { isChrome } = browserInfo;
+    const { isChrome, isEdge } = browserInfo;
 
     return (
       <foreignObject
-        clipPath={ isChrome ? "" : "url(#viewBox)" }
+        clipPath={ isChrome || isEdge ? "" : "url(#viewBox)" }
         x="0"
         y="0"
         width={slideWidth}
