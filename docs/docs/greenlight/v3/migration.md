@@ -41,15 +41,22 @@ Before the migration process, make sure that the Greenlight v3 server is running
 
 ### Configuring the Environment
 
-In Greenlight v2 **.env** file, add the following variables:
+In Greenlight v2 **.env** file, add the following variables (typically /root/greenlight/.env):
 - **V3_ENDPOINT**, which points to your Greenlight v3 URL.
-- **V3_SECRET_KEY_BASE**, a copy from Greenlight v3 SECRET_KEY_BASE. It is needed for the encryption process.
+- **V3_SECRET_KEY_BASE**, a copy from Greenlight v3 SECRET_KEY_BASE (typically in /root/greenlight-v3/.env). It is needed for the encryption process.
 
 ![env_migration_endpoints.png](/img/greenlight/v3/migration/env_migration_endpoints.png)
 
 ### The rake migration task file
 
 **If your Greenlight v2 deployment is up to date with the official latest release, you can skip to [Migration Steps](#migration-steps).**
+
+**Updating to the latest version of Greenlight v2 is recommended before migrating.** To do so, please run the following commands from your Greenlight directory (typically /root/greenlight):
+```
+sudo docker-compose down
+sudo docker pull bigbluebutton/greenlight:v2
+sudo docker-compose up -d
+```
 
 Else, you will need to to load the rake migration task file into your directory.
 
