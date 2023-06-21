@@ -89,14 +89,14 @@ object MeetingDAO {
       }
   }
 
-  def delete(meetingIg: String) = {
+  def delete(meetingId: String) = {
     DatabaseConnection.db.run(
       TableQuery[MeetingDbTableDef]
-        .filter(_.meetingId === meetingIg)
+        .filter(_.meetingId === meetingId)
         .delete
     ).onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Meeting ${meetingIg} deleted")
-        case Failure(e)            => DatabaseConnection.logger.debug(s"Error deleting meeting ${meetingIg}: $e")
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"Meeting ${meetingId} deleted")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error deleting meeting ${meetingId}: $e")
       }
   }
 

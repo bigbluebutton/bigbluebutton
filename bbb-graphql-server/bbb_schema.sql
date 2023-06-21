@@ -9,6 +9,12 @@ DROP TABLE IF EXISTS "pres_page_writers";
 DROP TABLE IF EXISTS "pres_page";
 DROP TABLE IF EXISTS "pres_presentation";
 
+DROP VIEW IF EXISTS "v_breakoutRoom_participant";
+DROP VIEW IF EXISTS "v_breakoutRoom_assignedUser";
+DROP VIEW IF EXISTS "v_breakoutRoom";
+DROP TABLE IF EXISTS "breakoutRoom_user";
+DROP TABLE IF EXISTS "breakoutRoom";
+
 DROP VIEW IF EXISTS "v_chat";
 DROP VIEW IF EXISTS "v_chat_message_public";
 DROP VIEW IF EXISTS "v_chat_message_private";
@@ -19,19 +25,19 @@ DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
 
-drop view if exists "v_poll_response";
-drop view if exists "v_poll_user";
-drop view if exists "v_poll_option";
-drop view if exists "v_poll";
-drop table if exists "poll_response";
-drop table if exists "poll_option";
-drop table if exists "poll";
-drop view if exists "v_external_video";
-drop table if exists "external_video";
-drop view if exists "v_timer";
-drop table if exists "timer";
-drop view if exists "v_screenshare";
-drop table if exists "screenshare";
+DROP VIEW IF EXISTS "v_poll_response";
+DROP VIEW IF EXISTS "v_poll_user";
+DROP VIEW IF EXISTS "v_poll_option";
+DROP VIEW IF EXISTS "v_poll";
+DROP TABLE IF EXISTS "poll_response";
+DROP TABLE IF EXISTS "poll_option";
+DROP TABLE IF EXISTS "poll";
+DROP VIEW IF EXISTS "v_external_video";
+DROP TABLE IF EXISTS "external_video";
+DROP VIEW IF EXISTS "v_timer";
+DROP TABLE IF EXISTS "timer";
+DROP VIEW IF EXISTS "v_screenshare";
+DROP TABLE IF EXISTS "screenshare";
 
 DROP VIEW IF EXISTS "v_user_camera";
 DROP VIEW IF EXISTS "v_user_voice";
@@ -968,3 +974,59 @@ CREATE TABLE "timer" (
 
 CREATE VIEW "v_timer" AS
 SELECT * FROM "timer";
+
+------------------------------------
+----breakoutRoom
+
+CREATE TABLE public."breakoutRoom" (
+	"breakoutRoomId" varchar(100) NOT NULL PRIMARY KEY,
+	"parentMeetingId" varchar(100) NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"externalId" varchar(100) NULL,
+	"sequence" numeric NULL,
+	"name" varchar(100) NULL,
+	"shortName" varchar(100) NULL,
+	"isDefaultName" bool NULL,
+	public bool NULL,
+	"startedAt" timestamp NULL,
+	"endedAt" timestamp NULL,
+	"durationInSeconds" int4 NULL,
+	"captureNotes" bool NULL,
+	"captureSlides" bool NULL
+);
+
+CREATE TABLE public."breakoutRoom_user" (
+	"breakoutRoomId" varchar(100) NOT NULL REFERENCES "breakoutRoom"("breakoutRoomId") ON DELETE CASCADE,
+	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
+	"insertedAt" timestamp NULL,
+	"redirectToHtml5JoinURL" varchar(1000) NULL,
+	"joinedAt" timestamp NULL,
+	"inviteDismissedAt" timestamp NULL,
+	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "userId")
+);
+
+CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
+CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeetingId", "externalId");
+
+CREATE VIEW "v_breakoutRoom" AS
+SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."public", b."sequence", b."name", b."isDefaultName", b."shortName", b."startedAt", b."endedAt", b."durationInSeconds",
+CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
+bu."redirectToHtml5JoinURL",
+ub."isOnline"
+FROM "breakoutRoom_user" bu
+JOIN "breakoutRoom" b USING ("breakoutRoomId")
+JOIN "user" u ON u."userId" = bu."userId"
+LEFT JOIN "v_user" ub ON ub."meetingId" = b."parentMeetingId" and ub."extId" = u."extId" || '-' || b."sequence";
+
+CREATE VIEW "v_breakoutRoom_assignedUser" AS
+SELECT "parentMeetingId", "breakoutRoomId", "userId"
+FROM "v_breakoutRoom"
+WHERE "v_breakoutRoom"."public" IS FALSE;
+
+CREATE VIEW "v_breakoutRoom_participant" AS
+SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."userId"
+FROM v_user "user"
+JOIN "meeting" m using("meetingId")
+JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
+JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId"
+WHERE "user"."isOnline" IS TRUE;
+

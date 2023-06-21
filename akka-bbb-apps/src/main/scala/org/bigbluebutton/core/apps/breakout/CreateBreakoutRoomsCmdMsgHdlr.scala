@@ -1,10 +1,11 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
+import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.db.BreakoutRoomDAO
+import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
 import org.bigbluebutton.core.models.PresentationInPod
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
@@ -85,6 +86,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     }
 
     val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms)
+    BreakoutRoomDAO.insert(breakoutModel, liveMeeting)
     state.update(Some(breakoutModel))
   }
 

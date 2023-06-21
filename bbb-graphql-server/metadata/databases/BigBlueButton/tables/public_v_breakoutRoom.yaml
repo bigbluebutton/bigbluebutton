@@ -1,0 +1,38 @@
+table:
+  name: v_breakoutRoom
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: breakoutRoom
+  custom_root_fields: {}
+object_relationships:
+  - name: participants
+    using:
+      manual_configuration:
+        column_mapping:
+          breakoutRoomId: breakoutRoomId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_participant
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - breakoutRoomId
+        - durationInSeconds
+        - endedAt
+        - isDefaultName
+        - isOnline
+        - name
+        - public
+        - redirectToHtml5JoinURL
+        - sequence
+        - shortName
+        - startedAt
+        - willEndAt
+      filter:
+        userId:
+          _eq: X-Hasura-UserId
+      allow_aggregations: true
