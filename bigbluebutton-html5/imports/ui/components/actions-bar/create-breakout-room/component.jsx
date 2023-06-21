@@ -442,6 +442,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRooms,
       durationTime,
       durationIsValid,
+      includeMods,
     } = this.state;
 
     if ((durationTime || 0) < MIN_BREAKOUT_TIME) {
@@ -484,7 +485,7 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
     }));
 
-    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides);
+    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides, includeMods);
     Session.set('isUserListOpen', true);
   }
 
