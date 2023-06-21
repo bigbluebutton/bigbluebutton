@@ -150,7 +150,6 @@ class UserOptions extends PureComponent {
     }
 
     this.handleCreateBreakoutRoomClick = this.handleCreateBreakoutRoomClick.bind(this);
-    this.handleCaptionsClick = this.handleCaptionsClick.bind(this);
     this.onCreateBreakouts = this.onCreateBreakouts.bind(this);
     this.onInvitationUsers = this.onInvitationUsers.bind(this);
     this.renderMenuItems = this.renderMenuItems.bind(this);
@@ -192,11 +191,6 @@ class UserOptions extends PureComponent {
   handleCreateBreakoutRoomClick(isInvitation) {
     this.setState({isInvitation})
     return this.setCreateBreakoutRoomModalIsOpen(true);
-  }
-
-  handleCaptionsClick() {
-    const { mountModal } = this.props;
-    mountModal(<CaptionsWriterMenu />);
   }
 
   renderMenuItems() {
@@ -303,7 +297,8 @@ class UserOptions extends PureComponent {
           label: intl.formatMessage(intlMessages.captionsLabel),
           description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
-          onClick: this.handleCaptionsClick,
+          onClick: this.setWriterMenuModalIsOpen(true), // here I should change the state to true and remove the handle click altogether
+          // onClick: this.handleCaptionsClick, // here I should change the state to true and remove the handle click altogether
           dataTest: 'writeClosedCaptions',
         });
       }
