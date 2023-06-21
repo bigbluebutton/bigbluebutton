@@ -790,6 +790,7 @@ export default function Whiteboard(props) {
       if (!fitToWidth && camera.zoom === zoomFitSlide) {
         viewedRegionW = HUNDRED_PERCENT;
         viewedRegionH = HUNDRED_PERCENT;
+        camera.point = [0,0];
       }
 
       if (e?.currentPageId == curPageId) {
