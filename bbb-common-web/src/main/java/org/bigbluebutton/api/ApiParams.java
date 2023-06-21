@@ -77,6 +77,7 @@ public class ApiParams {
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
     public static final String PRESENTATION_UPLOAD_EXTERNAL_URL = "presentationUploadExternalUrl";
 
+    public static final String BREAKOUT_ROOMS_INCLUDE_MODS  = "breakoutRoomsIncludeMods";
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES = "breakoutRoomsCaptureSlides";
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES  = "breakoutRoomsCaptureNotes";
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME = "breakoutRoomsCaptureSlidesFilename";

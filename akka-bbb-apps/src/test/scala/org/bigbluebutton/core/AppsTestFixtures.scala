@@ -52,7 +52,7 @@ trait AppsTestFixtures {
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, 
                                     freeJoin = false, captureNotes = false, captureSlides = false,
                                     breakoutRooms = Vector(), captureNotesFilename = captureNotesFilename,
-                                    captureSlidesFilename = captureSlidesFilename)
+                                    captureSlidesFilename = captureSlidesFilename, includeMods = false)
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,

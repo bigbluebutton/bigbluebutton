@@ -199,6 +199,7 @@ class BbbWebApiGWApp(
       captureSlides = breakoutParams.captureSlides.booleanValue(),
       captureNotesFilename = breakoutParams.captureNotesFilename,
       captureSlidesFilename = breakoutParams.captureSlidesFilename,
+      includeMods = breakoutParams.includeMods.booleanValue(),
     )
 
     val welcomeProp = WelcomeProp(welcomeMsgTemplate = welcomeMsgTemplate, welcomeMsg = welcomeMsg,

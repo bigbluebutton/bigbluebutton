@@ -45,6 +45,7 @@ public class Meeting {
 	private Boolean freeJoin = false;
 	private Boolean captureSlides = false;
 	private Boolean captureNotes = false;
+	private Boolean includeMods = false;
 	private String captureSlidesFilename = "bbb-none";
 	private String captureNotesFilename = "bbb-none";
   	private Integer duration = 0;
@@ -327,6 +328,14 @@ public class Meeting {
 
 	public void setCaptureSlides(Boolean capture) {
 		this.captureSlides = captureSlides;
+	}
+
+	public Boolean isIncludeMods() {
+        return includeMods;
+    }
+
+	public void setIncludeMods(Boolean include) {
+		this.includeMods = include;
 	}
 
 	public Boolean isCaptureNotes() {

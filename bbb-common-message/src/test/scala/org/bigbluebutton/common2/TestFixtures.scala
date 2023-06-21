@@ -55,7 +55,7 @@ trait TestFixtures {
   val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, freeJoin = false, captureNotes = false,
                                     captureSlides = false, breakoutRooms = Vector(),
                                     endWhenNoModerator = endWhenNoModerator, endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes,
-                                    captureNotesFilename = captureNotesFilename, captureSlidesFilename = captureSlidesFilename)
+                                    captureNotesFilename = captureNotesFilename, captureSlidesFilename = captureSlidesFilename, includeMods = false)
 
   val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,

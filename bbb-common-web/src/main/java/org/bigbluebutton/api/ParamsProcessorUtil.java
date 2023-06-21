@@ -113,6 +113,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
         private boolean defaultBreakoutRoomsCaptureNotes = false;
+        private boolean defaultBreakoutRoomsIncludeMods = false;
         private String  defaultBreakoutRoomsCaptureSlidesFilename = CONF_NAME;
         private String  defaultBreakoutRoomsCaptureNotesFilename = CONF_NAME;
 		private boolean defaultbreakoutRoomsPrivateChatEnabled;
@@ -286,6 +287,12 @@ public class ParamsProcessorUtil {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
 			}
 
+            Boolean breakoutRoomsIncludeMods = defaultBreakoutRoomsIncludeMods;
+            String breakoutRoomsIncludeModsParam = params.get(ApiParams.BREAKOUT_ROOMS_INCLUDE_MODS);
+            if (!StringUtils.isEmpty(breakoutRoomsIncludeModsParam)) {
+				breakoutRoomsIncludeMods = Boolean.parseBoolean(breakoutRoomsIncludeModsParam);
+			}
+
             Boolean breakoutRoomsCaptureSlides = defaultBreakoutRoomsCaptureSlides;
             String breakoutRoomsCaptureParam = params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES);
             if (!StringUtils.isEmpty(breakoutRoomsCaptureParam)) {
@@ -310,7 +317,7 @@ public class ParamsProcessorUtil {
                 breakoutRoomsCaptureSlidesFilename = breakoutRoomsCaptureSlidesFilenameParam;
             }
 
-			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides, breakoutRoomsCaptureNotesFilename, breakoutRoomsCaptureSlidesFilename);
+			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides, breakoutRoomsCaptureNotesFilename, breakoutRoomsCaptureSlidesFilename, breakoutRoomsIncludeMods);
 		}
 
 		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
@@ -806,6 +813,7 @@ public class ParamsProcessorUtil {
         if (isBreakout) {
             meeting.setSequence(Integer.parseInt(params.get(ApiParams.SEQUENCE)));
             meeting.setFreeJoin(Boolean.parseBoolean(params.get(ApiParams.FREE_JOIN)));
+            meeting.setIncludeMods(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_INCLUDE_MODS)));
             meeting.setCaptureSlides(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES)));
             meeting.setCaptureNotes(Boolean.parseBoolean(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES)));
             meeting.setCaptureNotesFilename(params.get(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME));
