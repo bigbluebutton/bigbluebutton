@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import ActionsBarService from '/imports/ui/components/actions-bar/service';
 import BreakoutRoomService from '/imports/ui/components/breakout-room/service';
 import CreateBreakoutRoomModal from './component';
-import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, sendInvitationToIncludedModerators } from '/imports/ui/services/features';
 
 const METEOR_SETTINGS_APP = Meteor.settings.public.app;
 
@@ -13,16 +13,19 @@ const CreateBreakoutRoomContainer = (props) => {
                                     && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const captureSharedNotesByDefault = METEOR_SETTINGS_APP.breakouts.captureSharedNotesByDefault
                                     && isImportSharedNotesFromBreakoutRoomsEnabled();
+  const includeModsByDefault = METEOR_SETTINGS_APP.breakouts.sendInvitationToIncludedModerators
+    && sendInvitationToIncludedModerators();
   const { amIModerator } = props;
   return (
     amIModerator
     && (
-      <CreateBreakoutRoomModal 
-        {...props}  
+      <CreateBreakoutRoomModal
+        {...props}
         {...{
           allowUserChooseRoomByDefault,
           captureWhiteboardByDefault,
           captureSharedNotesByDefault,
+          includeModsByDefault,
         }}
       />
     )

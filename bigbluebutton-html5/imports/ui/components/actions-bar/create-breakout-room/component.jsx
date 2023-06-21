@@ -9,7 +9,7 @@ import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/comp
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
-import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, sendInvitationToIncludedModerators } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -172,7 +172,11 @@ const intlMessages = defineMessages({
   movedUserLabel: {
     id: 'app.createBreakoutRoom.movedUserLabel',
     description: 'screen reader alert when users are moved to rooms',
-  }
+  },
+  includeMods: {
+    id: 'app.createBreakoutRoom.includeModsInBreakouts',
+    description: 'Include moderators on breakouts invitation',
+  },
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -230,6 +234,7 @@ class BreakoutRoom extends PureComponent {
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
     this.setCaptureNotes = this.setCaptureNotes.bind(this);
+    this.setIncludeMods = this.setIncludeMods.bind(this);
     this.setCaptureSlides = this.setCaptureSlides.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
@@ -252,6 +257,7 @@ class BreakoutRoom extends PureComponent {
       roomNameEmptyIsValid: true,
       record: false,
       captureNotes: false,
+      includeMods: false,
       captureSlides: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
@@ -267,7 +273,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
       allowUserChooseRoomByDefault, captureSharedNotesByDefault,
-      captureWhiteboardByDefault,
+      captureWhiteboardByDefault, includeModsByDefault,
     } = this.props;
     setPresentationVisibility('none');
     this.setRoomUsers();
@@ -298,6 +304,7 @@ class BreakoutRoom extends PureComponent {
       freeJoin: allowUserChooseRoomByDefault,
       captureSlides: captureWhiteboardByDefault,
       captureNotes: captureSharedNotesByDefault,
+      includeMods: includeModsByDefault,
     });
 
     const lastBreakouts = getLastBreakouts();
@@ -619,6 +626,10 @@ class BreakoutRoom extends PureComponent {
     this.setState({ captureNotes: e.target.checked });
   }
 
+  setIncludeMods(e) {
+    this.setState({ includeMods: e.target.checked });
+  }
+
   setCaptureSlides(e) {
     this.setState({ captureSlides: e.target.checked });
   }
@@ -661,10 +672,10 @@ class BreakoutRoom extends PureComponent {
       ? intl.formatMessage(intlMessages.captureSlidesType)
       : intl.formatMessage(intlMessages.captureNotesType);
 
-    const fileName = `${this.getRoomName(position,true)}_${captureType}`.replace(/ /g, '_');
+    const fileName = `${this.getRoomName(position, true)}_${captureType}`.replace(/ /g, '_');
 
     const fileNameDuplicatedCount = presentations.filter((pres) => pres.filename?.startsWith(fileName)
-            || pres.name?.startsWith(fileName)).length;
+      || pres.name?.startsWith(fileName)).length;
 
     return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
   }
@@ -1072,6 +1083,7 @@ class BreakoutRoom extends PureComponent {
       record,
       captureNotes,
       captureSlides,
+      includeMods,
     } = this.state;
     return (
       <Styled.CheckBoxesContainer key="breakout-checkboxes">
@@ -1133,6 +1145,22 @@ class BreakoutRoom extends PureComponent {
             </Styled.FreeJoinLabel>
           ) : null
         }
+        {
+          sendInvitationToIncludedModerators() ? (
+            <Styled.FreeJoinLabel htmlFor="sendInvitationToIncludedModeratorsCheckbox" key="send-invitation-to-included-moderators-breakouts">
+              <Styled.FreeJoinCheckbox
+                id="sendInvitationToIncludedModeratorsCheckbox"
+                type="checkbox"
+                onChange={this.setIncludeMods}
+                checked={includeMods}
+                aria-label={intl.formatMessage(intlMessages.includeMods)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.includeMods)}
+              </span>
+            </Styled.FreeJoinLabel>
+          ) : null
+        }
       </Styled.CheckBoxesContainer>
     );
   }
@@ -1175,7 +1203,7 @@ class BreakoutRoom extends PureComponent {
             <span>{user.userName}</span>
             <i>{(isMe(user.userId)) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}</i>
           </span>
-          { room !== user.from ? (
+          {room !== user.from ? (
             <span
               className="close"
               role="button"
@@ -1184,7 +1212,7 @@ class BreakoutRoom extends PureComponent {
             >
               <Icon iconName="close" />
             </span>
-          ) : null }
+          ) : null}
         </Styled.RoomUserItem>
       ));
   }
@@ -1307,9 +1335,9 @@ class BreakoutRoom extends PureComponent {
     const { intl, isUpdate } = this.props;
     return (
       <Styled.SubTitle>
-        { isUpdate
+        {isUpdate
           ? intl.formatMessage(intlMessages.breakoutRoomUpdateDesc)
-          : intl.formatMessage(intlMessages.breakoutRoomDesc) }
+          : intl.formatMessage(intlMessages.breakoutRoomDesc)}
       </Styled.SubTitle>
     );
   }
