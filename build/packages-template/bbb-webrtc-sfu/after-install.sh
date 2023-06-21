@@ -45,7 +45,7 @@ case "$1" in
     yq w -i $TARGET recordWebcams true
 
 
-    echo "Resetting mcs-address from localhost to 127.0.0.1'
+    echo "Resetting mcs-address from localhost to 127.0.0.1"
     yq w -i $TARGET mcs-address 127.0.0.1
     
     if id bigbluebutton > /dev/null 2>&1 ; then
