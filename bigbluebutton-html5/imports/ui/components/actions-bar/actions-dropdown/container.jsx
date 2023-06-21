@@ -6,7 +6,7 @@ import PresentationPodService from '/imports/ui/components/presentation-pod/serv
 import ActionsDropdown from './component';
 import { layoutSelectInput, layoutDispatch, layoutSelect } from '../../layout/context';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
-import { isCameraAsContentEnabled } from '/imports/ui/services/features';
+import { isCameraAsContentEnabled, isTimerFeatureEnabled } from '/imports/ui/services/features';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -34,6 +34,7 @@ export default withTracker(() => {
   const presentations = Presentations.find({ 'conversion.done': true }).fetch();
   return {
     presentations,
+    isTimerFeatureEnabled: isTimerFeatureEnabled(),
     isDropdownOpen: Session.get('dropdownOpen'),
     setPresentation: PresentationUploaderService.setPresentation,
     podIds: PresentationPodService.getPresentationPodIds(),
