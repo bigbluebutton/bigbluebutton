@@ -12,11 +12,8 @@ trait UserReactionTimeExpiredCmdMsgHdlr extends RightsManagementTrait {
 
   def handleUserReactionTimeExpiredCmdMsg(msg: UserReactionTimeExpiredCmdMsg) {
     val isNodeUser = msg.header.userId.equals("nodeJSapp")
-
-    val currentEmojiState = Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId).get.emoji
-
-    if (isNodeUser && (!currentEmojiState.equals("raiseHand") && !currentEmojiState.equals("away") && !currentEmojiState.equals("notAway"))) {
-      Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "none")
+    if (isNodeUser) {
+      Users2x.setReactionEmoji(liveMeeting.users2x, msg.body.userId, "none")
     }
   }
 }

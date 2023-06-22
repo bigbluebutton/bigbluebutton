@@ -3,19 +3,7 @@ import UserReactions from '/imports/api/user-reaction';
 import Logger from '/imports/startup/server/logger';
 
 const expireSeconds = Meteor.settings.public.userReaction.expire;
-const expireMilliseconds = expireSeconds * 1000
-
-const addUserReactionsObserver = (meetingId) => {
-  const meetingUserReactions = UserReactions.find({ meetingId });
-  return meetingUserReactions.observe({
-    removed(document) {
-      const isExpirationTriggeredRemoval = (Date.now() - Date.parse(document.creationDate)) >= expireMilliseconds
-      if (isExpirationTriggeredRemoval) {
-        notifyExpiredReaction(meetingId, document.userId);
-      }
-    }
-  })
-}
+const expireMilliseconds = expireSeconds * 1000;
 
 const notifyExpiredReaction = (meetingId, userId) => {
   try {
@@ -40,8 +28,18 @@ const notifyExpiredReaction = (meetingId, userId) => {
   } catch (err) {
     Logger.error(`Exception while invoking method resetUserReaction ${err.stack}`);
   }
-}
-
-export {
-  addUserReactionsObserver,
 };
+
+const addUserReactionsObserver = (meetingId) => {
+  const meetingUserReactions = UserReactions.find({ meetingId });
+  return meetingUserReactions.observe({
+    removed(document) {
+      const isExpirationTriggeredRemoval = (Date.now() - Date.parse(document.creationDate)) >= expireMilliseconds;
+      if (isExpirationTriggeredRemoval) {
+        notifyExpiredReaction(meetingId, document.userId);
+      }
+    },
+  });
+};
+
+export default addUserReactionsObserver;

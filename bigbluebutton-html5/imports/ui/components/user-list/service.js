@@ -72,20 +72,25 @@ const sortUsersByName = (a, b) => {
   return aName.localeCompare(bName);
 };
 
-const sortUsersByEmoji = (a, b) => {
-  if (a.emoji && b.emoji && (a.emoji !== 'none' && b.emoji !== 'none')) {
-    if (a.emojiTime < b.emojiTime) {
-      return -1;
-    } if (a.emojiTime > b.emojiTime) {
-      return 1;
-    }
-  } if (a.emoji && a.emoji !== 'none') {
+const sortByPropTime = (propName, propTimeName, nullValue, a, b) => {
+  const aObjTime = a[propName] && a[propName] !== nullValue && a[propTimeName]
+    ? a[propTimeName] : Number.MAX_SAFE_INTEGER;
+
+  const bObjTime = b[propName] && b[propName] !== nullValue && b[propTimeName]
+    ? b[propTimeName] : Number.MAX_SAFE_INTEGER;
+
+  if (aObjTime < bObjTime) {
     return -1;
-  } if (b.emoji && b.emoji !== 'none') {
+  } if (aObjTime > bObjTime) {
     return 1;
   }
   return 0;
 };
+
+const sortUsersByEmoji = (a, b) => sortByPropTime('emoji', 'emojiTime', 'none', a, b);
+const sortUsersByAway = (a, b) => sortByPropTime('away', 'awayTime', false, a, b);
+const sortUsersByRaiseHand = (a, b) => sortByPropTime('raiseHand', 'raiseHandTime', false, a, b);
+const sortUsersByReaction = (a, b) => sortByPropTime('reaction', 'reactionTime', 'none', a, b);
 
 const sortUsersByModerator = (a, b) => {
   if (a.role === ROLE_MODERATOR && b.role === ROLE_MODERATOR) {
@@ -124,30 +129,15 @@ const sortUsersByCurrent = (a, b) => {
 
 const sortUsers = (a, b) => {
   let sort = sortUsersByCurrent(a, b);
-
-  if (sort === 0) {
-    sort = sortUsersByModerator(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortUsersByEmoji(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortUsersByPhoneUser(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortByWhiteboardAccess(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortUsersByName(a, b);
-  }
-
-  if (sort === 0) {
-    sort = sortUsersByUserId(a, b);
-  }
+  if (sort === 0) sort = sortUsersByModerator(a, b);
+  if (sort === 0) sort = sortUsersByRaiseHand(a, b);
+  if (sort === 0) sort = sortUsersByAway(a, b);
+  if (sort === 0) sort = sortUsersByReaction(a, b);
+  if (sort === 0) sort = sortUsersByEmoji(a, b);
+  if (sort === 0) sort = sortUsersByPhoneUser(a, b);
+  if (sort === 0) sort = sortByWhiteboardAccess(a, b);
+  if (sort === 0) sort = sortUsersByName(a, b);
+  if (sort === 0) sort = sortUsersByUserId(a, b);
 
   return sort;
 };
@@ -259,13 +249,13 @@ const formatUsers = (contextUsers, videoUsers, whiteboardUsers, reactionUsers) =
     const whiteboardAccess = whiteboardUsers?.includes(user.userId);
     const reaction = reactionUsers?.includes(user.userId)
       ? UserReactionService.getUserReaction(user.userId)
-      : 'none';
+      : { reaction: 'none', reactionTime: 0 };
 
     return {
       ...user,
       isSharingWebcam,
       whiteboardAccess,
-      reaction,
+      ...reaction,
     };
   }).sort(sortUsers);
 };
@@ -517,11 +507,19 @@ const normalizeEmojiName = (emoji) => (
 const setEmojiStatus = throttle({ interval: 1000 }, (userId, emoji) => {
   const statusAvailable = (Object.keys(EMOJI_STATUSES).includes(emoji));
   return statusAvailable
-    ? makeCall('setUserReaction', emoji)
-    : makeCall('setUserReaction', 'none');
+    ? makeCall('setEmojiStatus', Auth.userID, emoji)
+    : makeCall('setEmojiStatus', userId, 'none');
+});
+
+const setUserAway = throttle({ interval: 1000 }, (userId, away) => {
+  return makeCall('changeAway', away);
 }, 250, { leading: false, trailing: true });
 
-const clearAllEmojiStatus = (users) => {
+const setUserRaiseHand = throttle({ interval: 1000 }, (userId, raiseHand) => {
+  return makeCall('changeRaiseHand', raiseHand);
+}, 250, { leading: false, trailing: true });
+
+const clearAllEmojiStatus = () => {
   makeCall('clearAllUsersEmoji');
 };
 
@@ -785,6 +783,8 @@ export default {
   sortUsersByName,
   sortUsers,
   setEmojiStatus,
+  setUserAway,
+  setUserRaiseHand,
   clearAllEmojiStatus,
   assignPresenter,
   removeUser,

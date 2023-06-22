@@ -160,6 +160,9 @@ class UsersApp(
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr
+  with ChangeUserReactionEmojiReqMsgHdlr
+  with ChangeUserRaiseHandReqMsgHdlr
+  with ChangeUserAwayReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr
   with MuteUserCmdMsgHdlr {
