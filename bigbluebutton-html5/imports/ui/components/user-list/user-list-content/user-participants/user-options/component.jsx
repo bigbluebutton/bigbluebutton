@@ -127,6 +127,8 @@ const intlMessages = defineMessages({
   }
 });
 
+const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
+
 class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
@@ -267,17 +269,20 @@ class UserOptions extends PureComponent {
           onClick: this.onSaveUserNames,
           icon: 'download',
           dataTest: 'downloadUserNamesList',
+          divider: !USER_STATUS_ENABLED,
         });
       }
 
-      this.menuItems.push({
-        key: this.clearStatusId,
-        label: intl.formatMessage(intlMessages.clearAllLabel),
-        description: intl.formatMessage(intlMessages.clearAllDesc),
-        onClick: toggleStatus,
-        icon: 'clear_status',
-        divider: true,
-      });
+      if (USER_STATUS_ENABLED) {
+        this.menuItems.push({
+          key: this.clearStatusId,
+          label: intl.formatMessage(intlMessages.clearAllLabel),
+          description: intl.formatMessage(intlMessages.clearAllDesc),
+          onClick: toggleStatus,
+          icon: 'clear_status',
+          divider: true,
+        });
+      }
 
       if (canCreateBreakout) {
         this.menuItems.push({
