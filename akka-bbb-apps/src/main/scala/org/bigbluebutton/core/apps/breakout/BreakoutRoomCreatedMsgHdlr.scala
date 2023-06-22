@@ -35,12 +35,12 @@ trait BreakoutRoomCreatedMsgHdlr {
     }
   }
 
-  def buildBreakoutRoomsListEvtMsg(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean): BbbCommonEnvCoreMsg = {
+  def buildBreakoutRoomsListEvtMsg(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean, sendInviteToModerators: Boolean): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(BreakoutRoomsListEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(BreakoutRoomsListEvtMsg.NAME, meetingId, "not-used")
 
-    val body = BreakoutRoomsListEvtMsgBody(meetingId, rooms, roomsReady)
+    val body = BreakoutRoomsListEvtMsgBody(meetingId, rooms, roomsReady, sendInviteToModerators)
     val event = BreakoutRoomsListEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -52,12 +52,12 @@ trait BreakoutRoomCreatedMsgHdlr {
         (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, user, r.externalId, r.sequence.toString())
       } yield (user -> redirectToHtml5JoinURL)
 
-      new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.shortName, r.isDefaultName, r.freeJoin, html5JoinUrls.toMap, r.captureNotes, r.captureSlides, r.includeMods)
+      new BreakoutRoomInfo(r.name, r.externalId, r.id, r.sequence, r.shortName, r.isDefaultName, r.freeJoin, html5JoinUrls.toMap, r.captureNotes, r.captureSlides)
     }
 
     log.info("Sending breakout rooms list to {} with containing {} room(s)", liveMeeting.props.meetingProp.intId, breakoutRooms.length)
 
-    val msgEvent = buildBreakoutRoomsListEvtMsg(liveMeeting.props.meetingProp.intId, breakoutRooms, true)
+    val msgEvent = buildBreakoutRoomsListEvtMsg(liveMeeting.props.meetingProp.intId, breakoutRooms, true, breakoutModel.sendInviteToModerators)
     outGW.send(msgEvent)
 
     breakoutModel
@@ -79,7 +79,7 @@ trait BreakoutRoomCreatedMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    val breakoutInfo = BreakoutRoomInfo(room.name, room.externalId, room.id, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, Map(), room.captureNotes, room.captureSlides, room.includeMods)
+    val breakoutInfo = BreakoutRoomInfo(room.name, room.externalId, room.id, room.sequence, room.shortName, room.isDefaultName, room.freeJoin, Map(), room.captureNotes, room.captureSlides)
     val event = build(liveMeeting.props.meetingProp.intId, breakoutInfo)
     outGW.send(event)
 
