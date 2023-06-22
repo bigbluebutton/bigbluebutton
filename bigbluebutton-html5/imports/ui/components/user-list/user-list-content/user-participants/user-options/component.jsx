@@ -297,8 +297,7 @@ class UserOptions extends PureComponent {
           label: intl.formatMessage(intlMessages.captionsLabel),
           description: intl.formatMessage(intlMessages.captionsDesc),
           key: this.captionsId,
-          onClick: this.setWriterMenuModalIsOpen(true), // here I should change the state to true and remove the handle click altogether
-          // onClick: this.handleCaptionsClick, // here I should change the state to true and remove the handle click altogether
+          onClick: () => { this.setWriterMenuModalIsOpen(true); },
           dataTest: 'writeClosedCaptions',
         });
       }
