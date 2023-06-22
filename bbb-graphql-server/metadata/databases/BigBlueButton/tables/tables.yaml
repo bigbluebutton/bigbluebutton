@@ -22,6 +22,7 @@
 - "!include public_v_pres_page_cursor.yaml"
 - "!include public_v_pres_page_writers.yaml"
 - "!include public_v_screenshare.yaml"
+- "!include public_v_timer.yaml"
 - "!include public_v_user.yaml"
 - "!include public_v_user_breakoutRoom.yaml"
 - "!include public_v_user_camera.yaml"

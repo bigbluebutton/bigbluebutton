@@ -74,6 +74,7 @@ export default lockContextContainer(
     const numPages = PresentationService.getSlidesLength(podId);
     const presentationIsDownloadable = PresentationService.isPresentationDownloadable(podId);
     const isViewersCursorLocked = userLocks?.hideViewersCursor;
+    const isViewersAnnotationsLocked = userLocks?.hideViewersAnnotation;
 
     let slidePosition;
     if (currentSlide) {
@@ -147,6 +148,7 @@ export default lockContextContainer(
       multiUserSize: WhiteboardService.getMultiUserSize(currentSlide?.id),
       isViewersCursorLocked,
       setPresentationIsOpen: MediaService.setPresentationIsOpen,
+      isViewersAnnotationsLocked,
     };
   })(PresentationContainer),
 );

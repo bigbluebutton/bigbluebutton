@@ -142,7 +142,7 @@ const config = {
                     {
                         type: 'doc',
                         position: 'left',
-                        docId: 'greenlight/v2/overview',
+                        docId: 'greenlight/v3/install',
                         label: 'Greenlight',
                     },
                     {

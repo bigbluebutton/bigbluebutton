@@ -1004,7 +1004,7 @@ BigBlueButton comes with Greenlight, a front-end application written in Ruby on 
 
 ![greenlight-start](/img/greenlight/v2/room.png)
 
-For more information see [Installing Greenlight](/greenlight/v2/install).
+For more information see [Installing Greenlight](/greenlight/v3/install).
 
 ### Networking
 
@@ -1176,9 +1176,22 @@ You can see the list of languages installed with BigBlueButton in the directory 
 
 #### Change favicon
 
+First method:
+
 To change the favicon, overwrite the file `/var/www/bigbluebutton-default/assets/favicon.ico`.
 
 You'll need to update file each time the `bbb-config` package updates.
+
+Second method:
+
+Create a custom directory under `/var/www/bigbluebutton-default/` like `/var/www/bigbluebutton-default/site` and copy your favicon.ico into this directory. Add a new file `favicon.nginx` to `/etc/bigbluebutton/nginx` and add the following lines:
+
+```
+location = /favicon.ico {
+    alias /var/www/bigbluebutton-default/site/favicon.ico;
+```
+
+After a restart of nginx, your customized favicon.ico will be delivered. This change will affect BigBlueButton and Greenlight and will persist during updates.
 
 #### Change title in the HTML5 client
 
@@ -1324,6 +1337,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 | `allowRequestsWithoutSession`            | Allow requests without JSESSIONID to be handled                                               | true/false                                                   | false                          |
 | `supportedChecksumAlgorithms`            | List of supported hash algorithms for validating checksums                                    | sha1, sha256, sha384, sha512                                 | sha1, sha256, sha384, sha512   |
 | `allowRevealOfBBBVersion`                | Allow endpoint with current BigBlueButton version                                             | true/false                                                   | false                          |
+| `recordFullDurationMedia`                | Controls whether media should be captured on their full duration if the meeting's recorded property is true | true/false | false            |
 
 - _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
 

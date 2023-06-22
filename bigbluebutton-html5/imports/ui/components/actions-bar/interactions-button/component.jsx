@@ -12,13 +12,7 @@ import Styled from '../styles';
 
 const InteractionsButton = (props) => {
   const {
-    userId,
-    emoji,
-    intl,
-    sidebarContentPanel,
-    layoutContextDispatch,
-    isMobile,
-    isRTL,
+    userId, emoji, intl, isMobile, isRTL,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -75,22 +69,19 @@ const InteractionsButton = (props) => {
       dataTest: 'interactionsLabel',
       label: intl.formatMessage(intlMessages.interactionsLabel),
       disabled: true,
-      onClick: () => {
-      },
+      onClick: () => {},
     });
 
     dropdownActions.push({
       key: 'raise-hand',
       dataTest: 'raise-hand',
       icon: 'hand',
-      label: emoji === 'raiseHand'
-        ? intl.formatMessage(intlMessages.notRaiseHandLabel)
-        : intl.formatMessage(intlMessages.raiseHandLabel),
+      label:
+        emoji === 'raiseHand'
+          ? intl.formatMessage(intlMessages.notRaiseHandLabel)
+          : intl.formatMessage(intlMessages.raiseHandLabel),
       onClick: () => {
-        UserListService.setEmojiStatus(
-          userId,
-          emoji === 'raiseHand' ? 'none' : 'raiseHand',
-        );
+        UserListService.setEmojiStatus(userId, emoji === 'raiseHand' ? 'none' : 'raiseHand');
       },
     });
 
@@ -101,16 +92,18 @@ const InteractionsButton = (props) => {
         icon: 'happy',
         label: intl.formatMessage(intlMessages.addReactionLabel),
         onClick: () => {
-          setDropdownList([{
-            key: 'back',
-            dataTest: 'back',
-            icon: 'left_arrow',
-            label: intl.formatMessage(intlMessages.backLabel),
-            onClick: () => {
-              setShowEmojiPicker(false);
-              setDropdownList(dropdownActions);
+          setDropdownList([
+            {
+              key: 'back',
+              dataTest: 'back',
+              icon: 'left_arrow',
+              label: intl.formatMessage(intlMessages.backLabel),
+              onClick: () => {
+                setShowEmojiPicker(false);
+                setDropdownList(dropdownActions);
+              },
             },
-          }]);
+          ]);
           setShowEmojiPicker(true);
         },
       });
@@ -122,8 +115,7 @@ const InteractionsButton = (props) => {
       label: intl.formatMessage(intlMessages.statusLabel),
       disabled: true,
       dividerTop: true,
-      onClick: () => {
-      },
+      onClick: () => {},
     });
 
     return dropdownActions;
@@ -144,25 +136,16 @@ const InteractionsButton = (props) => {
 
   const renderEmojiPicker = () => (
     <Styled.Wrapper>
-      <ReactionsPicker
-        {...props}
-        onEmojiSelect={handleReactionSelect}
-      />
+      <ReactionsPicker {...props} onEmojiSelect={handleReactionSelect} />
     </Styled.Wrapper>
   );
 
   const handlePresent = () => {
-    UserListService.setEmojiStatus(
-      userId,
-      'none',
-    );
+    UserListService.setEmojiStatus(userId, 'none');
   };
 
   const handleAFK = () => {
-    UserListService.setEmojiStatus(
-      userId,
-      'away',
-    );
+    UserListService.setEmojiStatus(userId, 'away');
   };
 
   const buttonStatus = () => (
@@ -204,10 +187,7 @@ const InteractionsButton = (props) => {
     }
 
     event.stopPropagation();
-    UserListService.setEmojiStatus(
-      userId,
-      emoji === 'raiseHand' ? 'none' : 'raiseHand',
-    );
+    UserListService.setEmojiStatus(userId, emoji === 'raiseHand' ? 'none' : 'raiseHand');
   };
 
   return (
@@ -216,7 +196,7 @@ const InteractionsButton = (props) => {
         <Styled.InteractionsDropdown>
           <Styled.RaiseHandButton
             data-test="InteractionsButton"
-            icon='hand'
+            icon="hand"
             label={handleButtonLabel()}
             description="Interactions"
             ghost={emoji !== 'raiseHand'}
@@ -227,15 +207,15 @@ const InteractionsButton = (props) => {
             circle
             size="lg"
           />
-          {!isMobile
-          && (
-          <ButtonEmoji
-            data-test="interactions-advanced-button"
-            emoji="device_list_selector"
-            label={intl.formatMessage(intlMessages.interactionsAdvancedButton)}
-            hideLabel
-            tabIndex={0}
-          />
+          {!isMobile && (
+            <ButtonEmoji
+              data-test="interactions-advanced-button"
+              emoji="device_list_selector"
+              label={intl.formatMessage(intlMessages.interactionsAdvancedButton)}
+              hideLabel
+              tabIndex={0}
+              rotate
+            />
           )}
         </Styled.InteractionsDropdown>
       )}

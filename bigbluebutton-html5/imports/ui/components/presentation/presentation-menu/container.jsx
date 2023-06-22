@@ -8,6 +8,7 @@ import Meetings from '/imports/api/meetings';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import UserService from '/imports/ui/components/user-list/service';
+import { isSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
@@ -41,6 +42,7 @@ export default withTracker((props) => {
 
   return {
     ...props,
+    allowSnapshotOfCurrentSlide: isSnapshotOfCurrentSlideEnabled(),
     handleToggleFullscreen,
     isIphone,
     isDropdownOpen: Session.get('dropdownOpen'),

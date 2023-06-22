@@ -1,8 +1,6 @@
 const { test } = require('@playwright/test');
 const { linkIssue } = require('../core/helpers');
-const { chat } = require('../customparameters/constants');
 const { Chat } = require('./chat');
-const { PrivateChat } = require('./privateChat');
 
 test.describe.serial('Chat', () => {
   const chat = new Chat();
@@ -24,7 +22,7 @@ test.describe.serial('Chat', () => {
     await chat.sendPrivateMessage();
   });
 
-  test('Clear chat', async () => {
+  test('Clear chat @ci', async () => {
     await chat.clearChat();
   });
 
@@ -32,16 +30,16 @@ test.describe.serial('Chat', () => {
     await chat.copyChat(context);
   });
 
-  test('Save chat', async ({ context }, testInfo) => {
+  test('Save chat @ci', async ({ context }, testInfo) => {
     await chat.saveChat(testInfo);
   });
   
-  test.skip('Verify character limit', async () => {
+  test('Verify character limit', async () => {
     await chat.characterLimit();
   });
   
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
-  test('Not able to send an empty message', async () => {
+  test('Not able to send an empty message @ci', async () => {
     await chat.emptyMessage();
   });
 
@@ -50,7 +48,7 @@ test.describe.serial('Chat', () => {
     await chat.copyPastePublicMessage();
   })
 
-  test('Send emoji on public chat', async () => {
+  test('Send emoji on public chat @ci', async () => {
     await chat.sendEmoji();
   });
 
@@ -63,7 +61,7 @@ test.describe.serial('Chat', () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji', async () => {
+  test('Save chat with emoji @ci', async () => {
     await chat.emojiSaveChat();
   });
 
