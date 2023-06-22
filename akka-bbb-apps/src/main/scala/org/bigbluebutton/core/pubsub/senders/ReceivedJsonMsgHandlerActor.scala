@@ -111,6 +111,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[ChangeUserPinStateReqMsg](envelope, jsonNode)
       case ChangeUserMobileFlagReqMsg.NAME =>
         routeGenericMsg[ChangeUserMobileFlagReqMsg](envelope, jsonNode)
+      case SetUserSpeechLocaleReqMsg.NAME =>
+        routeGenericMsg[SetUserSpeechLocaleReqMsg](envelope, jsonNode)
       case SelectRandomViewerReqMsg.NAME =>
         routeGenericMsg[SelectRandomViewerReqMsg](envelope, jsonNode)
 

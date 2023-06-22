@@ -51,6 +51,7 @@ get_external_dependencies:
       - freeswitch
       - bbb-pads
       - bbb-playback
+      - bbb-transcription-controller
     expire_in: 1h 30min
 
 # template job for build step
@@ -175,6 +176,11 @@ bbb-webrtc-recorder-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-webrtc-recorder
+
+bbb-transcription-controller-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-transcription-controller
 
 bigbluebutton-build:
   extends: .build_job
