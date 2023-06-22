@@ -19,7 +19,6 @@ public class CreateBreakoutRoom implements IMessage {
     public final Integer sourcePresentationSlide;
     public final Boolean record;
     public final Boolean privateChatEnabled;
-    public final Boolean includeMods; // Include moderators in breakout room invitation
     public final Boolean captureNotes; // Upload shared notes to main room after breakout room end
     public final Boolean captureSlides; // Upload annotated breakout slides to main room after breakout room end
     public final String captureNotesFilename;
@@ -44,8 +43,7 @@ public class CreateBreakoutRoom implements IMessage {
                                                             Boolean captureNotes,
                                                             Boolean captureSlides,
                                                             String captureNotesFilename,
-                                                            String captureSlidesFilename,
-                                                            Boolean includeMods) {
+                                                            String captureSlidesFilename) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -66,6 +64,5 @@ public class CreateBreakoutRoom implements IMessage {
         this.captureSlides = captureSlides;
         this.captureNotesFilename = captureNotesFilename;
         this.captureSlidesFilename = captureSlidesFilename;
-        this.includeMods = includeMods;
     }
 }
