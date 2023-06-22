@@ -435,6 +435,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'unmute',
+        dataTest: 'unmuteUser'
       },
       {
         allowed: allowedToChangeWhiteboardAccess
@@ -545,6 +546,7 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'video_off',
+        dataTest: 'ejectCamera'
       },
     ];
 

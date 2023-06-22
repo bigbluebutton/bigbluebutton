@@ -369,6 +369,8 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
+exports.unmuteUser = 'li[data-test="unmuteUser"]';
+exports.ejectCamera = 'li[data-test="ejectCamera"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
