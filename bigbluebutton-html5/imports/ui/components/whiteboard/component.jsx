@@ -734,7 +734,8 @@ export default function Whiteboard(props) {
 
     if (reason && isPresenter && slidePosition && (reason.includes('zoomed') || reason.includes('panned'))) {
       const camera = tldrawAPI?.getPageState()?.camera;
-      if (currentCameraPoint[curPageId] && !isPanning) {
+      const isForcePanning = tldrawAPI?.isForcePanning;
+      if (currentCameraPoint[curPageId] && !isPanning && !isForcePanning) {
         camera.point = currentCameraPoint[curPageId];
       }
 
