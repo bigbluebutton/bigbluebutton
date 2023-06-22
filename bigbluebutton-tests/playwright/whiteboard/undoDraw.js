@@ -13,9 +13,6 @@ class UndoDrawing extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbArrowShape);
 
@@ -26,10 +23,10 @@ class UndoDrawing extends MultiUsers {
 
     await this.modPage.waitAndClick(e.wbUndo);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-undo-drawing.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-undo-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-undo-drawing.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-undo-drawing.png');
   }
 }
 

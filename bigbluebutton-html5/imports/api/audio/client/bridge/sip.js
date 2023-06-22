@@ -12,6 +12,7 @@ import {
   filterValidIceCandidates,
   analyzeSdp,
   logSelectedCandidate,
+  forceDisableStereo,
 } from '/imports/utils/sdpUtils';
 import { Tracker } from 'meteor/tracker';
 import VoiceCallStates from '/imports/api/voice-call-states';
@@ -25,6 +26,7 @@ import {
   filterSupportedConstraints,
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
+import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 
 const MEDIA = Meteor.settings.public.media;
 const MEDIA_TAG = MEDIA.mediaTag;
@@ -708,11 +710,24 @@ class SIPSession {
       const target = SIP.UserAgent.makeURI(`sip:${callExtension}@${hostname}`);
 
       const matchConstraints = getAudioConstraints({ deviceId: this.inputDeviceId });
+      const sessionDescriptionHandlerModifiers = [];
       const iceModifiers = [
         filterValidIceCandidates.bind(this, this.validIceCandidates),
       ];
 
       if (!SIPJS_ALLOW_MDNS) iceModifiers.push(stripMDnsCandidates);
+
+      // The current Vosk provider does not support stereo when transcribing
+      // microphone streams, so we need to make sure it is forcefully disabled
+      // via SDP munging. Having it disabled on server side FS _does not suffice_
+      // because the stereo parameter is client-mandated (ie replicated in the
+      // answer)
+      if (SpeechService.stereoUnsupported()) {
+        logger.debug({
+          logCode: 'sipjs_transcription_disable_stereo',
+        }, 'Transcription provider does not support stereo, forcing stereo=0');
+        sessionDescriptionHandlerModifiers.push(forceDisableStereo);
+      }
 
       const inviterOptions = {
         sessionDescriptionHandlerOptions: {
@@ -724,6 +739,7 @@ class SIPSession {
           },
           iceGatheringTimeout: ICE_GATHERING_TIMEOUT,
         },
+        sessionDescriptionHandlerModifiers,
         sessionDescriptionHandlerModifiersPostICEGathering: iceModifiers,
         delegate: {
           onSessionDescriptionHandler:

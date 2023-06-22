@@ -12,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: gitlab.senfcall.de:5050/senfcall-public/docker-bbb-build:v2023-04-18
+  image: bigbluebutton/bbb-build:bbb27-2023-06-13-java17
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of
@@ -51,6 +51,7 @@ get_external_dependencies:
       - freeswitch
       - bbb-pads
       - bbb-playback
+      - bbb-transcription-controller
     expire_in: 1h 30min
 
 # template job for build step
@@ -175,6 +176,11 @@ bbb-webrtc-recorder-build:
   extends: .build_job
   script:
     - build/setup-inside-docker.sh bbb-webrtc-recorder
+
+bbb-transcription-controller-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-transcription-controller
 
 bigbluebutton-build:
   extends: .build_job

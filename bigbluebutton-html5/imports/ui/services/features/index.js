@@ -83,3 +83,14 @@ export function isPresentationEnabled() {
 export function isReactionsEnabled() {
   return getDisabledFeatures().indexOf('reactions') === -1;
 }
+
+export function isTimerFeatureEnabled() {
+  return getDisabledFeatures().indexOf('timer') === -1 && Meteor.settings.public.timer.enabled;
+}
+
+export function isCameraAsContentEnabled() {
+  return (
+    getDisabledFeatures().indexOf('cameraAsContent') === -1 &&
+    Meteor.settings.public.app.enableCameraAsContent
+  );
+}

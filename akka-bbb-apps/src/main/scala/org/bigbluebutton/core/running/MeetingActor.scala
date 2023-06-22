@@ -19,6 +19,7 @@ import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
 import org.bigbluebutton.core.apps.pads.PadsApp2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.apps.audiocaptions.AudioCaptionsApp2x
+import org.bigbluebutton.core.apps.timer.TimerApp2x
 import org.bigbluebutton.core.apps.presentation.PresentationApp2x
 import org.bigbluebutton.core.apps.users.UsersApp2x
 import org.bigbluebutton.core.apps.webcam.WebcamApp2x
@@ -136,6 +137,7 @@ class MeetingActor(
   val pollApp = new PollApp2x
   val webcamApp2x = new WebcamApp2x
   val wbApp = new WhiteboardApp2x
+  val timerApp2x = new TimerApp2x
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -300,7 +302,8 @@ class MeetingActor(
       hideUserList = lockSettingsProp.hideUserList,
       lockOnJoin = lockSettingsProp.lockOnJoin,
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
-      hideViewersCursor = lockSettingsProp.hideViewersCursor
+      hideViewersCursor = lockSettingsProp.hideViewersCursor,
+      hideViewersAnnotation = lockSettingsProp.hideViewersAnnotation
     )
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
@@ -394,6 +397,7 @@ class MeetingActor(
       case m: SelectRandomViewerReqMsg      => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)
+      case m: SetUserSpeechLocaleReqMsg     => usersApp.handleSetUserSpeechLocaleReqMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -600,6 +604,18 @@ class MeetingActor(
       case m: StartExternalVideoPubMsg            => externalVideoApp2x.handle(m, liveMeeting, msgBus)
       case m: UpdateExternalVideoPubMsg           => externalVideoApp2x.handle(m, liveMeeting, msgBus)
       case m: StopExternalVideoPubMsg             => externalVideoApp2x.handle(m, liveMeeting, msgBus)
+
+      //Timer
+      case m: CreateTimerPubMsg                   => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: ActivateTimerReqMsg                 => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: DeactivateTimerReqMsg               => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: StartTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: StopTimerReqMsg                     => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: SwitchTimerReqMsg                   => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetTimerReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: ResetTimerReqMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetTrackReqMsg                      => timerApp2x.handle(m, liveMeeting, msgBus)
+      case m: TimerEndedPubMsg                    => timerApp2x.handle(m, liveMeeting, msgBus)
 
       case m: ValidateConnAuthTokenSysMsg         => handleValidateConnAuthTokenSysMsg(m)
 

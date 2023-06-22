@@ -89,12 +89,14 @@ public:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
+      # provider: [webspeech, vosk, whisper, deepspeech]
+      provider: webspeech
       language:
         available:
         # - de-DE
           - en-US
           - es-ES
-        # - fr-FR
+          - fr-FR
         # - hi-ID
         # - it-IT
         # - ja-JP
@@ -529,6 +531,20 @@ public:
       size: 24px
     lines: 2
     time: 5000
+  timer:
+    enabled: true
+    alarm: true
+    music:
+      enabled: false
+      volume: 0.4
+      track1: "RelaxingMusic"
+      track2: "CalmMusic"
+      track3: "aristocratDrums"
+    interval:
+      clock: 100
+      offset: 60000
+    time: 5
+    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
@@ -785,6 +801,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300

@@ -75,6 +75,7 @@ export default function Whiteboard(props) {
     sidebarNavigationWidth,
     animations,
     isToolbarVisible,
+    isModerator,
   } = props;
   const { pages, pageStates } = initDefaultPages(curPres?.pages.length || 1);
   const rDocument = React.useRef({
@@ -97,6 +98,7 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [currentStyle, setCurrentStyle] = React.useState({});
+  const [currentCameraPoint, setCurrentCameraPoint] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
@@ -369,7 +371,7 @@ export default function Whiteboard(props) {
                 slidePosition.height - shapeBounds.height,
               ];
               editedShape.size = [shapeBounds.width, shapeBounds.height];
-              if (isPresenter) persistShape(editedShape, whiteboardId);
+              if (isPresenter) persistShape(editedShape, whiteboardId, isModerator);
             }
           } catch (error) {
             logger.error({
@@ -749,6 +751,9 @@ export default function Whiteboard(props) {
 
     if (reason && isPresenter && slidePosition && (reason.includes('zoomed') || reason.includes('panned'))) {
       const camera = tldrawAPI?.getPageState()?.camera;
+      if (currentCameraPoint[curPageId] && !isPanning) {
+        camera.point = currentCameraPoint[curPageId];
+      }
 
       // limit bounds
       if (tldrawAPI?.viewport.maxX > slidePosition.width) {
@@ -763,12 +768,11 @@ export default function Whiteboard(props) {
       if (camera.point[1] > 0 || tldrawAPI?.viewport.minY < 0) {
         camera.point[1] = 0;
       }
+
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-
-      tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round(((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100) / 100;
       if (zoom !== zoomToolbar) {
@@ -786,6 +790,14 @@ export default function Whiteboard(props) {
       if (!fitToWidth && camera.zoom === zoomFitSlide) {
         viewedRegionW = HUNDRED_PERCENT;
         viewedRegionH = HUNDRED_PERCENT;
+        camera.point = [0,0];
+      }
+
+      if (e?.currentPageId == curPageId) {
+        setCurrentCameraPoint({
+          ...currentCameraPoint,
+          [e?.currentPageId]: camera?.point,
+        })
       }
 
       zoomSlide(
@@ -793,8 +805,8 @@ export default function Whiteboard(props) {
         podId,
         viewedRegionW,
         viewedRegionH,
-        camera.point[0],
-        camera.point[1],
+        currentCameraPoint[curPageId] ? currentCameraPoint[curPageId][0] : camera.point[0],
+        currentCameraPoint[curPageId] ? currentCameraPoint[curPageId][1] : camera.point[1],
       );
     }
     // don't allow non-presenters to pan&zoom
@@ -836,7 +848,7 @@ export default function Whiteboard(props) {
           e?.cancelSession?.();
         } else {
           patchedShape.userId = currentUser?.userId;
-          persistShape(patchedShape, whiteboardId);
+          persistShape(patchedShape, whiteboardId, isModerator);
         }
       } else {
         const diff = {
@@ -844,7 +856,7 @@ export default function Whiteboard(props) {
           point: patchedShape.point,
           text: patchedShape.text,
         };
-        persistShape(diff, whiteboardId);
+        persistShape(diff, whiteboardId, isModerator);
       }
     }
 
@@ -933,6 +945,13 @@ export default function Whiteboard(props) {
       setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
     }
 
+    if (command && command?.id?.includes('change_page')) {
+      const camera = tldrawAPI?.getPageState()?.camera;
+      if (currentCameraPoint[app?.currentPageId]) {
+        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera.zoom);
+      }
+    }
+
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -949,7 +968,7 @@ export default function Whiteboard(props) {
             const shapeBounds = app.getShapeBounds(id);
             const editedShape = shape;
             editedShape.size = [shapeBounds.width, shapeBounds.height];
-            persistShape(editedShape, newWhiteboardId);
+            persistShape(editedShape, newWhiteboardId, isModerator);
           });
       }
       if (isPresenter) {
