@@ -31,7 +31,9 @@ class ActionsBar extends PureComponent {
   }
 
   renderRaiseHand() {
-    const { isInteractionsButtonEnabled, isRaiseHandButtonEnabled } = this.props;
+    const {
+      isInteractionsButtonEnabled, isRaiseHandButtonEnabled, setEmojiStatus, currentUser, intl,
+    } = this.props;
 
     return (<>
       {isInteractionsButtonEnabled ?
@@ -112,7 +114,7 @@ class ActionsBar extends PureComponent {
           {isCaptionsAvailable
             ? (
               <>
-                <CaptionsButtonContainer {...{ intl, 
+                <CaptionsButtonContainer {...{ intl,
                   setIsOpen: this.setCaptionsReaderMenuModalIsOpen,}} />
                 {
                   isCaptionsReaderMenuModalOpen ? <CaptionsReaderMenuContainer

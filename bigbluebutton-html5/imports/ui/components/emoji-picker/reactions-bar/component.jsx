@@ -65,26 +65,26 @@ const ReactionsPicker = (props) => {
     intl,
     onReactionSelect,
     userId,
-    emoji,
+    raiseHand,
+    away,
   } = props;
 
   const handleRaiseHandButtonClick = () => {
-    UserListService.setEmojiStatus(userId, emoji === 'raiseHand' ? 'none' : 'raiseHand');
+    UserListService.setUserRaiseHand(userId, !raiseHand);
   };
 
   const RaiseHandButtonLabel = () => {
-    return emoji === 'raiseHand'
+    return raiseHand
       ? intl.formatMessage(intlMessages.notRaiseHandLabel)
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
 
   const handleToggleAFK = () => {
-    const value = emoji === 'away' ? 'none' : 'away';
-    UserListService.setEmojiStatus(userId, value);
+    UserListService.setUserAway(userId, !away);
   };
 
   const ToggleAFKLabel = () => {
-    return emoji === 'away'
+    return away
       ? intl.formatMessage(intlMessages.awayLabel)
       : intl.formatMessage(intlMessages.presentLabel);
   };
@@ -100,7 +100,7 @@ const ReactionsPicker = (props) => {
       <Styled.ToggleButtonWrapper>
         <Toggle
           icons={false}
-          defaultChecked={emoji === 'away'}
+          defaultChecked={away}
           onChange={() => {
             handleToggleAFK();
           }}
@@ -110,7 +110,7 @@ const ReactionsPicker = (props) => {
         {ToggleAFKLabel()}
       </Styled.ToggleButtonWrapper>
       <Styled.Separator />
-      <Styled.RaiseHandButtonWrapper onClick={() => handleRaiseHandButtonClick()} active={emoji === 'raiseHand'}>
+      <Styled.RaiseHandButtonWrapper onClick={() => handleRaiseHandButtonClick()} active={raiseHand}>
         <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />
         {RaiseHandButtonLabel()}
       </Styled.RaiseHandButtonWrapper>

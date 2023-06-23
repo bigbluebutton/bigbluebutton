@@ -149,6 +149,7 @@ class UsersApp(
   with GetUsersMeetingReqMsgHdlr
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
+  with SetUserSpeechLocaleMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
@@ -159,6 +160,9 @@ class UsersApp(
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr
+  with ChangeUserReactionEmojiReqMsgHdlr
+  with ChangeUserRaiseHandReqMsgHdlr
+  with ChangeUserAwayReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr
   with MuteUserCmdMsgHdlr {

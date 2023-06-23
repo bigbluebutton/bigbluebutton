@@ -89,20 +89,23 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:       String,
-    extId:       String,
-    name:        String,
-    role:        String,
-    guest:       Boolean,
-    authed:      Boolean,
-    guestStatus: String,
-    emoji:       String,
-    pin:         Boolean,
-    presenter:   Boolean,
-    locked:      Boolean,
-    avatar:      String,
-    color:       String,
-    clientType:  String
+    intId:         String,
+    extId:         String,
+    name:          String,
+    role:          String,
+    guest:         Boolean,
+    authed:        Boolean,
+    guestStatus:   String,
+    emoji:         String,
+    reactionEmoji: String,
+    raiseHand:     Boolean,
+    away:          Boolean,
+    pin:           Boolean,
+    presenter:     Boolean,
+    locked:        Boolean,
+    avatar:        String,
+    color:         String,
+    clientType:    String
 )
 
 /**
@@ -204,6 +207,48 @@ case class ChangeUserEmojiCmdMsgBody(userId: String, emoji: String)
 object UserEmojiChangedEvtMsg { val NAME = "UserEmojiChangedEvtMsg" }
 case class UserEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserEmojiChangedEvtMsgBody) extends BbbCoreMsg
 case class UserEmojiChangedEvtMsgBody(userId: String, emoji: String)
+
+/**
+ * Sent from client about a user changing RaiseHand.
+ */
+object ChangeUserRaiseHandReqMsg { val NAME = "ChangeUserRaiseHandReqMsg" }
+case class ChangeUserRaiseHandReqMsg(header: BbbClientMsgHeader, body: ChangeUserRaiseHandReqMsgBody) extends StandardMsg
+case class ChangeUserRaiseHandReqMsgBody(userId: String, raiseHand: Boolean)
+
+/**
+ * Sent to all clients about a user changing RaiseHand.
+ */
+object UserRaiseHandChangedEvtMsg { val NAME = "UserRaiseHandChangedEvtMsg" }
+case class UserRaiseHandChangedEvtMsg(header: BbbClientMsgHeader, body: UserRaiseHandChangedEvtMsgBody) extends BbbCoreMsg
+case class UserRaiseHandChangedEvtMsgBody(userId: String, raiseHand: Boolean)
+
+/**
+ * Sent from client about a user changing Away.
+ */
+object ChangeUserAwayReqMsg { val NAME = "ChangeUserAwayReqMsg" }
+case class ChangeUserAwayReqMsg(header: BbbClientMsgHeader, body: ChangeUserAwayReqMsgBody) extends StandardMsg
+case class ChangeUserAwayReqMsgBody(userId: String, away: Boolean)
+
+/**
+ * Sent to all clients about a user changing Away.
+ */
+object UserAwayChangedEvtMsg { val NAME = "UserAwayChangedEvtMsg" }
+case class UserAwayChangedEvtMsg(header: BbbClientMsgHeader, body: UserAwayChangedEvtMsgBody) extends BbbCoreMsg
+case class UserAwayChangedEvtMsgBody(userId: String, away: Boolean)
+
+/**
+ * Sent from client about a user changing ReactionEmoji.
+ */
+object ChangeUserReactionEmojiReqMsg { val NAME = "ChangeUserReactionEmojiReqMsg" }
+case class ChangeUserReactionEmojiReqMsg(header: BbbClientMsgHeader, body: ChangeUserReactionEmojiReqMsgBody) extends StandardMsg
+case class ChangeUserReactionEmojiReqMsgBody(userId: String, reactionEmoji: String)
+
+/**
+ * Sent to all clients about a user changing ReactionEmoji.
+ */
+object UserReactionEmojiChangedEvtMsg { val NAME = "UserReactionEmojiChangedEvtMsg" }
+case class UserReactionEmojiChangedEvtMsg(header: BbbClientMsgHeader, body: UserReactionEmojiChangedEvtMsgBody) extends BbbCoreMsg
+case class UserReactionEmojiChangedEvtMsgBody(userId: String, reactionEmoji: String)
 
 /**
  * Sent from meteor about a user reaction's expiration.
@@ -464,3 +509,11 @@ case class SelectRandomViewerReqMsgBody(requestedBy: String)
 object SelectRandomViewerRespMsg { val NAME = "SelectRandomViewerRespMsg" }
 case class SelectRandomViewerRespMsg(header: BbbClientMsgHeader, body: SelectRandomViewerRespMsgBody) extends StandardMsg
 case class SelectRandomViewerRespMsgBody(requestedBy: String, userIds: Vector[String], choice: String)
+
+object SetUserSpeechLocaleReqMsg { val NAME = "SetUserSpeechLocaleReqMsg" }
+case class SetUserSpeechLocaleReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechLocaleReqMsgBody) extends StandardMsg
+case class SetUserSpeechLocaleReqMsgBody(locale: String, provider: String)
+
+object UserSpeechLocaleChangedEvtMsg { val NAME = "UserSpeechLocaleChangedEvtMsg" }
+case class UserSpeechLocaleChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechLocaleChangedEvtMsgBody) extends BbbCoreMsg
+case class UserSpeechLocaleChangedEvtMsgBody(locale: String, provider: String)

@@ -9,7 +9,8 @@ import Styled from '../styles';
 
 const InteractionsButton = (props) => {
   const {
-    intl, actionsBarRef,
+    intl,
+    actionsBarRef,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);

@@ -30,14 +30,14 @@ test.describe.serial('Chat', () => {
     await chat.copyChat(context);
   });
 
-  test('Save chat @ci', async ({ context }, testInfo) => {
+  test('Save chat @ci', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
-  
+
   test('Verify character limit', async () => {
     await chat.characterLimit();
   });
-  
+
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
   test('Not able to send an empty message @ci', async () => {
     await chat.emptyMessage();

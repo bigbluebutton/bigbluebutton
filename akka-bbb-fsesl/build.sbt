@@ -18,7 +18,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-target:11",
+    "-release:17",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -77,4 +77,4 @@ daemonGroup in Linux := group
 
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=/etc/bigbluebutton/bbb-fsesl-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java11-runtime-headless", "bash", "bbb-freeswitch-core")
+debianPackageDependencies in Debian ++= Seq("java17-runtime-headless", "bash", "bbb-freeswitch-core")
