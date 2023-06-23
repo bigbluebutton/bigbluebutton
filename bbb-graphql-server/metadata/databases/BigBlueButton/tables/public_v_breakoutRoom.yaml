@@ -6,7 +6,16 @@ configuration:
   custom_column_names: {}
   custom_name: breakoutRoom
   custom_root_fields: {}
-object_relationships:
+array_relationships:
+  - name: assignedUsers
+    using:
+      manual_configuration:
+        column_mapping:
+          breakoutRoomId: breakoutRoomId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_assignedUser
+          schema: public
   - name: participants
     using:
       manual_configuration:
@@ -20,14 +29,16 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
+        - assignedAt
         - breakoutRoomId
+        - currentIsOnline
+        - currentJoined
+        - currentRegisteredOn
         - durationInSeconds
         - endedAt
+        - freeJoin
         - isDefaultName
-        - isOnline
         - name
-        - public
-        - redirectToHtml5JoinURL
         - sequence
         - shortName
         - startedAt

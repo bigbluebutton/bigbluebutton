@@ -13,34 +13,25 @@ import scala.util.{Failure, Success}
 
 case class BreakoutRoomUserDbModel(
       breakoutRoomId:     String,
-      userId:    String,
-      redirectToHtml5JoinURL:    String,
-      insertedAt:          Option[java.sql.Timestamp],
-      joinedAt:          Option[java.sql.Timestamp],
-      inviteDismissedAt:          Option[java.sql.Timestamp],
+      userId:             String,
+      assignedAt:         Option[java.sql.Timestamp],
 )
 
 class BreakoutRoomUserDbTableDef(tag: Tag) extends Table[BreakoutRoomUserDbModel](tag, None, "breakoutRoom_user") {
   val breakoutRoomId = column[String]("breakoutRoomId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
-  val redirectToHtml5JoinURL = column[String]("redirectToHtml5JoinURL")
-  val insertedAt = column[Option[java.sql.Timestamp]]("insertedAt")
-  val joinedAt = column[Option[java.sql.Timestamp]]("joinedAt")
-  val inviteDismissedAt = column[Option[java.sql.Timestamp]]("inviteDismissedAt")
-  override def * = (breakoutRoomId, userId, redirectToHtml5JoinURL, insertedAt, joinedAt, inviteDismissedAt) <> (BreakoutRoomUserDbModel.tupled, BreakoutRoomUserDbModel.unapply)
+  val assignedAt = column[Option[java.sql.Timestamp]]("assignedAt")
+  override def * = (breakoutRoomId, userId, assignedAt) <> (BreakoutRoomUserDbModel.tupled, BreakoutRoomUserDbModel.unapply)
 }
 
 object BreakoutRoomUserDAO {
 
-  def prepareInsert(breakoutRoomId: String, userId: String, redirectToHtml5JoinURL: String) = {
+  def prepareInsert(breakoutRoomId: String, userId: String) = {
     TableQuery[BreakoutRoomUserDbTableDef].insertOrUpdate(
       BreakoutRoomUserDbModel(
         breakoutRoomId = breakoutRoomId,
         userId = userId,
-        redirectToHtml5JoinURL = redirectToHtml5JoinURL,
-        insertedAt = Some(new java.sql.Timestamp(System.currentTimeMillis())),
-        joinedAt = None,
-        inviteDismissedAt = None
+        assignedAt = Some(new java.sql.Timestamp(System.currentTimeMillis())),
       )
     )
   }
@@ -52,10 +43,10 @@ object BreakoutRoomUserDAO {
       .delete
   }
 
-  def updateRoomChanged(userId: String, fromBreakoutRoomId: String, toBreakoutRoomId: String, redirectToHtml5JoinURL: String) = {
+  def updateRoomChanged(userId: String, fromBreakoutRoomId: String, toBreakoutRoomId: String) = {
     DatabaseConnection.db.run(DBIO.seq(
       BreakoutRoomUserDAO.prepareDelete(fromBreakoutRoomId, userId),
-      BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomId, userId, redirectToHtml5JoinURL)
+      BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomId, userId)
     ).transactionally)
       .onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) changed on breakoutRoom_user table!")
@@ -73,24 +64,22 @@ object BreakoutRoomUserDAO {
       }
   }
 
-  def insertBreakoutRooms(userId: String, breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
-    //Insert users
-    DatabaseConnection.db.run(DBIO.sequence(
-      for {
-        (_, room) <- breakout.rooms
-        ru <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
-        if room.freeJoin || ru.role == Roles.MODERATOR_ROLE || room.assignedUsers.contains(ru.id)
-        //TODO add users who joined after
-        (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, ru.id, room.externalId, room.sequence.toString())
-      } yield {
-        BreakoutRoomUserDAO.prepareInsert(room.id, ru.id, redirectToHtml5JoinURL)
-      }
-    ).transactionally)
-      .onComplete {
-        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on breakoutRoom_user table!")
-        case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting breakoutRoom_user: $e")
-      }
-  }
+//  def insertBreakoutRooms(userId: String, breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
+//    //Insert users
+//    DatabaseConnection.db.run(DBIO.sequence(
+//      for {
+//        (_, room) <- breakout.rooms
+//        ru <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
+//        if room.freeJoin || ru.role == Roles.MODERATOR_ROLE || room.assignedUsers.contains(ru.id)
+//      } yield {
+//        BreakoutRoomUserDAO.prepareInsert(room.id, ru.id)
+//      }
+//    ).transactionally)
+//      .onComplete {
+//        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) inserted on breakoutRoom_user table!")
+//        case Failure(e) => DatabaseConnection.logger.debug(s"Error inserting breakoutRoom_user: $e")
+//      }
+//  }
 
 //  def updateUserJoined(userId: String, breakoutRoomId: String) = {
 //    DatabaseConnection.db.run(

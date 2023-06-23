@@ -98,7 +98,6 @@ object UserDAO {
           UserConnectionStatusdDAO.insert(meetingId, regUser.id)
           UserCustomParameterDAO.insert(regUser.id, regUser.customParameters)
           UserLocalSettingsDAO.insert(regUser.id, meetingId)
-          BreakoutRoomUserDAO.insert(meetingId, regUser.id)
         }
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error inserting user: $e")
       }

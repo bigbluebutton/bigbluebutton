@@ -17,16 +17,11 @@ import org.bigbluebutton.core.util.TimeUtil
 trait HandlerHelpers extends SystemConfiguration {
 
   def trackUserJoin(
-      outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,
       regUser:     RegisteredUser,
-      state:       MeetingState2x
   ): Unit = {
     if (!regUser.joined) {
       RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
-      state.breakout match {
-        case Some(breakout) => BreakoutRoomUserDAO.insertBreakoutRooms(regUser.id, breakout, liveMeeting)
-      }
     }
 
   }
@@ -51,7 +46,7 @@ trait HandlerHelpers extends SystemConfiguration {
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      trackUserJoin(outGW, liveMeeting, regUser, state)
+      trackUserJoin(liveMeeting, regUser)
 
       // Flag that an authed user had joined the meeting in case
       // we need to end meeting when all authed users have left.

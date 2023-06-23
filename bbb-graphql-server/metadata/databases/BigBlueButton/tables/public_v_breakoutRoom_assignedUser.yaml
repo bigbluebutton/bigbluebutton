@@ -20,9 +20,13 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - breakoutRoomId
         - userId
       filter:
-        parentMeetingId:
-          _eq: X-Hasura-ModeratorInMeeting
+        _or:
+          - parentMeetingId:
+              _eq: X-Hasura-ModeratorInMeeting
+          - userId:
+              _eq: X-Hasura-UserId
       allow_aggregations: true
+      query_root_fields: []
+      subscription_root_fields: []

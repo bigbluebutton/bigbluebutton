@@ -1,11 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.BreakoutModel
-import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.domain.BreakoutRoom2x
-import org.bigbluebutton.core.models.Roles
-import org.bigbluebutton.core.models.Users2x.findAll
-import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
 import scala.util.{Failure, Success}
@@ -20,7 +16,7 @@ case class BreakoutRoomDbModel(
           name:               String,
           shortName:          String,
           isDefaultName:      Boolean,
-          public:             Boolean,
+          freeJoin:             Boolean,
 //        startedOn:          Long,
           startedAt:          Option[java.sql.Timestamp],
           endedAt:            Option[java.sql.Timestamp],
@@ -37,18 +33,18 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
   val name = column[String]("name")
   val shortName = column[String]("shortName")
   val isDefaultName = column[Boolean]("isDefaultName")
-  val public = column[Boolean]("public")
+  val freeJoin = column[Boolean]("freeJoin")
   val startedAt = column[Option[java.sql.Timestamp]]("startedAt")
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val durationInSeconds = column[Int]("durationInSeconds")
   val captureNotes = column[Boolean]("captureNotes")
   val captureSlides = column[Boolean]("captureSlides")
-  override def * = (breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, public, startedAt, endedAt, durationInSeconds, captureNotes, captureSlides) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
+  override def * = (breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, freeJoin, startedAt, endedAt, durationInSeconds, captureNotes, captureSlides) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
 }
 
 object BreakoutRoomDAO {
 
-  def insert(breakout: BreakoutModel, liveMeeting: LiveMeeting) = {
+  def insert(breakout: BreakoutModel) = {
     DatabaseConnection.db.run(DBIO.sequence(
       for {
         (_, room) <- breakout.rooms
@@ -64,12 +60,9 @@ object BreakoutRoomDAO {
           DatabaseConnection.db.run(DBIO.sequence(
             for {
               (_, room) <- breakout.rooms
-              user <- findAll(liveMeeting.users2x)
-              if room.freeJoin || user.role == Roles.MODERATOR_ROLE || room.assignedUsers.contains(user.intId)
-              //TODO add users who joined after
-              (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, user.intId, room.externalId, room.sequence.toString())
+              userId <- room.assignedUsers
             } yield {
-              BreakoutRoomUserDAO.prepareInsert(room.id, user.intId, redirectToHtml5JoinURL)
+              BreakoutRoomUserDAO.prepareInsert(room.id, userId)
             }
           ).transactionally)
             .onComplete {
@@ -100,7 +93,7 @@ object BreakoutRoomDAO {
         name = room.name,
         shortName = room.shortName,
         isDefaultName = room.isDefaultName,
-        public = room.freeJoin,
+        freeJoin = room.freeJoin,
         startedAt = None,
         endedAt = None,
         durationInSeconds = durationInSeconds,
@@ -127,7 +120,7 @@ object BreakoutRoomDAO {
 //          name = room.name,
 //          shortName = room.shortName,
 //          isDefaultName = room.isDefaultName,
-//          public = room.freeJoin,
+//          freeJoin = room.freeJoin,
 //          startedOn = room.startedOn.getOrElse(0),
 //          durationInSeconds = 0,
 //          captureNotes = room.captureNotes,
