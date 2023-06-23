@@ -80,10 +80,6 @@ export function isPresentationEnabled() {
   return getDisabledFeatures().indexOf('presentation') === -1;
 }
 
-export function sendInvitationToIncludedModerators() {
-  return getDisabledFeatures().indexOf('sendInvitationToIncludedModerators') === -1;
-}
-
 export function isReactionsEnabled() {
   return getDisabledFeatures().indexOf('reactions') === -1;
 }
