@@ -734,12 +734,16 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   end
 end
 
+# Changes must be directly applied to /usr/local/bigbluebutton/core/scripts/publish/presentation.rb
 def events_get_image_info(slide)
   slide_deskshare = slide[:deskshare]
+  slide_external_videos = slide[:external_videos]
   slide_presentation = slide[:presentation]
 
   if slide_deskshare
     slide[:src] = 'presentation/deskshare.png'
+  elsif slide_external_videos
+    slide[:src] = 'presentation/externalVideos.png'
   elsif slide_presentation == ''
     slide[:src] = 'presentation/logo.png'
   else
@@ -754,7 +758,7 @@ def events_get_image_info(slide)
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
     command = \
-      if slide_deskshare
+      if slide_deskshare || slide_external_videos
         ['convert', '-size',
          "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
       else
@@ -845,6 +849,15 @@ def process_presentation(package_dir)
         slide_changed = true
       end
 
+    when 'StartExternalVideoRecordEvent'
+      external_videos = slide_changed = true if @presentation_props['include_external_videos']
+
+    when 'StopExternalVideoRecordEvent'
+      if @presentation_props['include_external_videos']
+        external_videos = false
+        slide_changed = true
+      end
+
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
 
@@ -882,7 +895,8 @@ def process_presentation(package_dir)
       if slide &&
          (slide[:presentation] == current_presentation) &&
          (slide[:slide] == current_slide) &&
-         (slide[:deskshare] == deskshare)
+         (slide[:deskshare] == deskshare) &&
+         (slide[:external_videos] == external_videos)
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
       else
         if slide
@@ -896,6 +910,7 @@ def process_presentation(package_dir)
           slide: current_slide,
           in: timestamp,
           deskshare: deskshare,
+          external_videos: external_videos,
         }
         events_get_image_info(slide)
         slides << slide
