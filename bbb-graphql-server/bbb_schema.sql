@@ -9,6 +9,12 @@ DROP TABLE IF EXISTS "pres_page_writers";
 DROP TABLE IF EXISTS "pres_page";
 DROP TABLE IF EXISTS "pres_presentation";
 
+DROP VIEW IF EXISTS "v_breakoutRoom_participant";
+DROP VIEW IF EXISTS "v_breakoutRoom_assignedUser";
+DROP VIEW IF EXISTS "v_breakoutRoom";
+DROP TABLE IF EXISTS "breakoutRoom_user";
+DROP TABLE IF EXISTS "breakoutRoom";
+
 DROP VIEW IF EXISTS "v_chat";
 DROP VIEW IF EXISTS "v_chat_message_public";
 DROP VIEW IF EXISTS "v_chat_message_private";
@@ -19,19 +25,19 @@ DROP TABLE IF EXISTS "chat_user";
 DROP TABLE IF EXISTS "chat_message";
 DROP TABLE IF EXISTS "chat";
 
-drop view if exists "v_poll_response";
-drop view if exists "v_poll_user";
-drop view if exists "v_poll_option";
-drop view if exists "v_poll";
-drop table if exists "poll_response";
-drop table if exists "poll_option";
-drop table if exists "poll";
-drop view if exists "v_external_video";
-drop table if exists "external_video";
-drop view if exists "v_timer";
-drop table if exists "timer";
-drop view if exists "v_screenshare";
-drop table if exists "screenshare";
+DROP VIEW IF EXISTS "v_poll_response";
+DROP VIEW IF EXISTS "v_poll_user";
+DROP VIEW IF EXISTS "v_poll_option";
+DROP VIEW IF EXISTS "v_poll";
+DROP TABLE IF EXISTS "poll_response";
+DROP TABLE IF EXISTS "poll_option";
+DROP TABLE IF EXISTS "poll";
+DROP VIEW IF EXISTS "v_external_video";
+DROP TABLE IF EXISTS "external_video";
+DROP VIEW IF EXISTS "v_timer";
+DROP TABLE IF EXISTS "timer";
+DROP VIEW IF EXISTS "v_screenshare";
+DROP TABLE IF EXISTS "screenshare";
 
 DROP VIEW IF EXISTS "v_user_camera";
 DROP VIEW IF EXISTS "v_user_voice";
@@ -96,6 +102,7 @@ create table "meeting" (
 	"createdTime" bigint,
 	"duration" integer
 );
+create index "idx_meeting_extId" on "meeting"("extId");
 
 create table "meeting_breakout" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -263,6 +270,7 @@ CREATE TABLE "user" (
 	"hasDrawPermissionOnCurrentPage" bool default FALSE
 );
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
+CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
@@ -968,3 +976,61 @@ CREATE TABLE "timer" (
 
 CREATE VIEW "v_timer" AS
 SELECT * FROM "timer";
+
+------------------------------------
+----breakoutRoom
+
+
+CREATE TABLE public."breakoutRoom" (
+	"breakoutRoomId" varchar(100) NOT NULL PRIMARY KEY,
+	"parentMeetingId" varchar(100) NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"externalId" varchar(100) NULL,
+	"sequence" numeric NULL,
+	"name" varchar(100) NULL,
+	"shortName" varchar(100) NULL,
+	"isDefaultName" bool NULL,
+	"freeJoin" bool NULL,
+	"startedAt" timestamp NULL,
+	"endedAt" timestamp NULL,
+	"durationInSeconds" int4 NULL,
+	"captureNotes" bool NULL,
+	"captureSlides" bool NULL
+);
+
+CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeetingId", "externalId");
+
+CREATE TABLE public."breakoutRoom_user" (
+	"breakoutRoomId" varchar(100) NOT NULL REFERENCES "breakoutRoom"("breakoutRoomId") ON DELETE CASCADE,
+	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
+	"assignedAt" timestamp NULL,
+	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "userId")
+);
+
+CREATE OR REPLACE VIEW "v_breakoutRoom" AS
+SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
+        b."shortName", b."startedAt", b."endedAt", b."durationInSeconds",
+CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
+bu."assignedAt", ub."isOnline" AS "currentIsOnline", ub."registeredOn" AS "currentRegisteredOn", ub."joined" AS "currentJoined"
+FROM "user" u
+JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
+LEFT JOIN "breakoutRoom_user" bu ON bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
+LEFT JOIN "meeting" mb ON mb."extId" = b."externalId"
+LEFT JOIN "v_user" ub ON ub."meetingId" = mb."meetingId" and ub."extId" = u."extId" || '-' || b."sequence"
+WHERE (bu."assignedAt" IS NOT NULL
+		OR b."freeJoin" IS TRUE
+		OR u."role" = 'MODERATOR')
+AND b."endedAt" IS NULL;
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
+SELECT "parentMeetingId", "breakoutRoomId", "userId"
+FROM "v_breakoutRoom"
+WHERE "assignedAt" IS NOT NULL;
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_participant" AS
+SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."userId"
+FROM v_user "user"
+JOIN "meeting" m using("meetingId")
+JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
+JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
+
+

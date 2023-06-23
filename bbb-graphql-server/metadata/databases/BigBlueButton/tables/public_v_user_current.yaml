@@ -7,6 +7,15 @@ configuration:
   custom_name: user_current
   custom_root_fields: {}
 object_relationships:
+  - name: breakoutRooms
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: parentMeetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom
+          schema: public
   - name: connectionStatus
     using:
       manual_configuration:
