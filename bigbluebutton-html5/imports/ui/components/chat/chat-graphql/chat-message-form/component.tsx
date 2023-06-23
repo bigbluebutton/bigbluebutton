@@ -7,7 +7,6 @@ import ClickOutside from '/imports/ui/components/click-outside/component';
 import Styled from './styles';
 import { escapeHtml } from '/imports/utils/string-utils';
 import { checkText } from 'smile2emoji';
-import TypingIndicatorContainer from './chat-typing-indicator/component';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { usePreviousValue } from '/imports/ui/components/utils/hooks';
 import useChat from '/imports/ui/core/hooks/useChat';
@@ -18,10 +17,9 @@ import {
 } from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
-import { Meeting } from '/imports/ui/Types/meeting';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
-import { useApolloClient } from '@apollo/client';
 import Events from '/imports/ui/core/events/events';
+import ChatOfflineIndicator from './chat-offline-indicator/component';
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -385,6 +383,10 @@ const ChatMessageFormContainer: React.FC = ({
       setShowEmojiPicker(false);
     }
   };
+
+  if (chat?.participant && !chat.participant.isOnline) {
+    return <ChatOfflineIndicator participantName={chat.participant.name} />;
+  }
 
   return <ChatMessageForm
     {...{

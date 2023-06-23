@@ -80,7 +80,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const markMessageAsSeen = useCallback((message: Message, page) => {
     if (
-      (message.user.userId !== currentUserId)
+      (message.user?.userId !== currentUserId)
       && (page + 1) === totalPages
       && totalUnread > 0
     ) {
@@ -93,6 +93,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       })
     }
   }, [totalPages, currentUserId, totalUnread]);
+
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
     if (toggle) {

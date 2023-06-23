@@ -54,9 +54,11 @@ export const Chat = styled.div`
   }
 `;
 
-const ChatMessages = styled.div`
+const ChatContent = styled.div`
   height: 100%;
   display: contents;
 `;
 
-export default { Chat, ChatMessages };
+const ChatMessages = styled.div``;
+
+export default { Chat, ChatMessages, ChatContent };

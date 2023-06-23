@@ -21,10 +21,10 @@ const Chat: React.FC<ChatProps> = () => {
   return (
     <Styled.Chat>
       <ChatHeader />
-      <Styled.ChatMessages>
+      <Styled.ChatContent>
         <ChatPopupContainer />
         <ChatMessageListContainer />
-      </Styled.ChatMessages>
+      </Styled.ChatContent>
       <ChatMessageFormContainer />
       <ChatTypingIndicatorContainer />
     </Styled.Chat>

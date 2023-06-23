@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSubscription } from "@apollo/client";
 import { Meteor } from 'meteor/meteor';
 import {
@@ -26,6 +26,7 @@ interface ChatListPageProps {
   messages: Array<Message>;
   lastSenderPreviousPage: string | undefined;
   page: number;
+  markMessageAsSeen: Function;
 }
 
 const verifyIfIsPublicChat = (message: unknown): message is ChatMessagePublicSubscriptionResponse => {
@@ -36,11 +37,35 @@ const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateS
   return (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 }
 
-
-const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage, page }) => {
+function isInViewport(el: HTMLDivElement) {
+  const rect = el.getBoundingClientRect();
 
   return (
-    <div id={`messagePage-${page}`}>
+    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.bottom >= 0
+  );
+}
+const markOnScrollEnd = (messages: Array<Message>, page: number, markMessageAsSeen: Function) => {
+  markMessageAsSeen(messages[messages.length - 1], page);
+}
+const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage, page, markMessageAsSeen }) => {
+  const pageRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (pageRef.current) {
+      if (isInViewport(pageRef.current)) {
+        markMessageAsSeen(messages[messages.length - 1], page);
+      } else {
+        // first parent is the resize observer, the second is the scroll container
+        const scrollContainer = pageRef.current?.parentNode?.parentNode;
+        if (scrollContainer) {
+          scrollContainer.addEventListener('scrollend', markOnScrollEnd.bind(null, messages, page, markMessageAsSeen));
+        }
+      }
+
+    }
+  }, [pageRef, messages.length]);
+  return (
+    <div key={`messagePage-${page}`} id={`${page}`} ref={pageRef}>
       {
         messages.map((message, index, Array) => {
           const previousMessage = Array[index - 1];
@@ -92,7 +117,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
 
   if (messages.length > 0) {
     setLastSender(page, messages[messages.length - 1].user?.userId);
-    markMessageAsSeen(messages[messages.length - 1], page);
+
   }
 
   return (
@@ -100,6 +125,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       messages={messages}
       lastSenderPreviousPage={lastSenderPreviousPage}
       page={page}
+      markMessageAsSeen={markMessageAsSeen}
     />
   );
 }

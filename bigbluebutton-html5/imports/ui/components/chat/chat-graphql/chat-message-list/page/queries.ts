@@ -21,11 +21,13 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         isModerator
         color
       }
+      messageType
       chatId
       message
       messageId
       createdTime
       createdTimeAsDate
+      messageMetadata
     }
   }
 `;
@@ -48,9 +50,11 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       }
       chatId
       message
+      messageType
       messageId
       createdTime
       createdTimeAsDate
+      messageMetadata
     }
   }
 `;
