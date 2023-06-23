@@ -5,7 +5,6 @@ import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
 import Styled from './styles';
 import UserListService from '/imports/ui/components/user-list/service';
-import Toggle from '/imports/ui/components/common/switch/component';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -22,14 +21,6 @@ const intlMessages = defineMessages({
   notRaiseHandLabel: {
     id: 'app.actionsBar.interactions.lowHand',
     description: 'not Raise Hand Label',
-  },
-  presentLabel: {
-    id: 'app.actionsBar.interactions.present',
-    description: 'present Label',
-  },
-  awayLabel: {
-    id: 'app.actionsBar.interactions.away',
-    description: 'away Label',
   },
 });
 
@@ -66,7 +57,6 @@ const ReactionsPicker = (props) => {
     onReactionSelect,
     userId,
     raiseHand,
-    away,
   } = props;
 
   const handleRaiseHandButtonClick = () => {
@@ -79,16 +69,6 @@ const ReactionsPicker = (props) => {
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
 
-  const handleToggleAFK = () => {
-    UserListService.setUserAway(userId, !away);
-  };
-
-  const ToggleAFKLabel = () => {
-    return away
-      ? intl.formatMessage(intlMessages.awayLabel)
-      : intl.formatMessage(intlMessages.presentLabel);
-  };
-
   return (
     <Styled.Wrapper>
       {reactions.map(({ id, native }) => (
@@ -96,19 +76,6 @@ const ReactionsPicker = (props) => {
           <Emoji key={id} emoji={{ id }} size={30} onClick={() => onReactionSelect(native)} />
         </Styled.ButtonWrapper>
       ))}
-      <Styled.Separator />
-      <Styled.ToggleButtonWrapper>
-        <Toggle
-          icons={false}
-          defaultChecked={away}
-          onChange={() => {
-            handleToggleAFK();
-          }}
-          ariaLabel={ToggleAFKLabel()}
-          showToggleLabel={false}
-        />
-        {ToggleAFKLabel()}
-      </Styled.ToggleButtonWrapper>
       <Styled.Separator />
       <Styled.RaiseHandButtonWrapper onClick={() => handleRaiseHandButtonClick()} active={raiseHand}>
         <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />

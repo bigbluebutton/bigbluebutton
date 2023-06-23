@@ -23,7 +23,6 @@ export default injectIntl(withTracker(() => {
   return {
     userId: currentUser.userId,
     emoji: currentUser.emoji,
-    away: currentUser.away,
     raiseHand: currentUser.raiseHand,
   };
 })(InteractionsButtonContainer));

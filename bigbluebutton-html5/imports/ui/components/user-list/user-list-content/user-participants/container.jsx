@@ -15,6 +15,7 @@ const UserParticipantsContainer = (props) => {
   const {
     formatUsers,
     setEmojiStatus,
+    setUserAway,
     clearAllEmojiStatus,
     roving,
     requestUserInformation,
@@ -33,6 +34,7 @@ const UserParticipantsContainer = (props) => {
       currentUser,
       users,
       setEmojiStatus,
+      setUserAway,
       clearAllEmojiStatus,
       roving,
       requestUserInformation,
