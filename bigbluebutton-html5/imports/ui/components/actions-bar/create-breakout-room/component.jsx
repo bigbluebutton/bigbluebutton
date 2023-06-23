@@ -1147,7 +1147,6 @@ class BreakoutRoom extends PureComponent {
           ) : null
         }
         {
-          sendInvitationToIncludedModerators() ? (
             <Styled.FreeJoinLabel htmlFor="sendInvitationToIncludedModeratorsCheckbox" key="send-invitation-to-included-moderators-breakouts">
               <Styled.FreeJoinCheckbox
                 id="sendInvitationToIncludedModeratorsCheckbox"
@@ -1160,7 +1159,6 @@ class BreakoutRoom extends PureComponent {
                 {intl.formatMessage(intlMessages.includeMods)}
               </span>
             </Styled.FreeJoinLabel>
-          ) : null
         }
       </Styled.CheckBoxesContainer>
     );
