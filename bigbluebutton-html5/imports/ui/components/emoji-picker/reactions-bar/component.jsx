@@ -35,8 +35,8 @@ const intlMessages = defineMessages({
 
 const reactions = [
   {
-    id: 'slightly_smiling_face',
-    native: '🙂',
+    id: 'smiley',
+    native: '😃',
   },
   {
     id: 'neutral_face',
