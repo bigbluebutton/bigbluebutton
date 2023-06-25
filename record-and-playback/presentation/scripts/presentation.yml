@@ -13,6 +13,7 @@ include_deskshare: true
 
 # generate thumbnails from most viewed slides
 heuristic_thumbnails: false
+number_thumbnails: 3
 
 # For PRODUCTION
 publish_dir: /var/bigbluebutton/published/presentation
