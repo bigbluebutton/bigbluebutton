@@ -110,7 +110,7 @@ module BigBlueButton
     end
 
     # Get from events the presentation that will be used for preview.
-    def self.get_presentation_for_preview(process_dir, heuristic_thumbnails)
+    def self.get_presentation_for_preview(process_dir, heuristic_thumbnails, number_thumbnails)
       events_xml = "#{process_dir}/events.xml"
       BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
       presentation = []
@@ -145,14 +145,15 @@ module BigBlueButton
       end
 
       slide_time = slide_time.sort_by{|_, v| -v} if heuristic_thumbnails
+      BigBlueButton.logger.info("Thumbnail candidates: #{slide_time}")
       slide_time.each do |st|
-        break if presentation.size > 2
+        break if presentation.size >= number_thumbnails
         p, s = st[0].split(':')
         presentation_filename = presentation_filenames[p]
         next if presentation_filename == "default.pdf"
         textfiles_dir = "#{process_dir}/presentation/#{p}/textfiles"
         text_from_slide = self.get_text_from_slide(textfiles_dir, s) if File.file?("#{textfiles_dir}/slide-#{s}.txt")
-        presentation.push({:id => p, :filename => presentation_filename, :i => s, :alt => text_from_slide == nil ? '' : text_from_slide})
+        presentation.push({ :id => p, :filename => presentation_filename, :i => s, :alt => text_from_slide == nil ? '' : text_from_slide, :duration => st[1] })
       end
       presentation
     end
