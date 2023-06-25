@@ -1388,7 +1388,7 @@ begin
         ## Remove empty playback
         metadata.search('recording/playback').each(&:remove)
         ## Add the actual playback
-        presentation = BigBlueButton::Presentation.get_presentation_for_preview(@process_dir.to_s, @presentation_props['heuristic_thumbnails'])
+        presentation = BigBlueButton::Presentation.get_presentation_for_preview(@process_dir.to_s, @presentation_props['heuristic_thumbnails'], @presentation_props['number_thumbnails'])
         Nokogiri::XML::Builder.with(metadata.at('recording')) do |xml|
           xml.playback do
             xml.format('presentation')
@@ -1400,7 +1400,7 @@ begin
                 xml.preview do
                   xml.images do
                     presentation.each do |p|
-                      attributes = { width: '176', height: '136', alt: p[:alt]&.to_s || '' }
+                      attributes = { width: '176', height: '136', alt: p[:alt]&.to_s || '', duration: p[:duration]/1000 }
                       xml.image(attributes) do
                         xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{p[:id]}/thumbnails/thumb-#{p[:i]}.png")
                       end
