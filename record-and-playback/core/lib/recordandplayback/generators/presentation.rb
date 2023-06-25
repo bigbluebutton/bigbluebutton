@@ -147,7 +147,7 @@ module BigBlueButton
       slide_time = slide_time.sort_by{|_, v| -v} if heuristic_thumbnails
       slide_time.each do |st|
         break if presentation.size > 2
-        p,s = st[0].split(':')
+        p, s = st[0].split(':')
         presentation_filename = presentation_filenames[p]
         next if presentation_filename == "default.pdf"
         textfiles_dir = "#{process_dir}/presentation/#{p}/textfiles"
