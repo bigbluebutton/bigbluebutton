@@ -110,35 +110,49 @@ module BigBlueButton
     end
 
     # Get from events the presentation that will be used for preview.
-    def self.get_presentation_for_preview(process_dir)
+    def self.get_presentation_for_preview(process_dir, heuristic_thumbnails)
       events_xml = "#{process_dir}/events.xml"
       BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
-      presentation = {}
+      presentation = []
       doc = Nokogiri::XML(File.open(events_xml))
       presentation_filenames = {}
       doc.xpath("//event[@eventname='ConversionCompletedEvent']").each do |conversion_event|
         presentation_filenames[conversion_event.xpath("presentationName").text] = conversion_event.xpath("originalFilename").text
       end
-      doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
-        # Extract presentation data from events
-        presentation_id = presentation_event.xpath("presentationName").text
-        presentation_filename = presentation_filenames[presentation_id]
-        # Set textfile directory
-        textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
-        # Set presentation hashmap to be returned
-        unless presentation_filename == "default.pdf"
-          presentation[:id] = presentation_id
-          presentation[:filename] = presentation_filename
-          presentation[:slides] = {}
-          for i in 1..3
-            if File.file?("#{textfiles_dir}/slide-#{i}.txt")
-              text_from_slide = self.get_text_from_slide(textfiles_dir, i)
-              presentation[:slides][i] = { :alt => text_from_slide == nil ? '' : text_from_slide }
-            end
+      slide_events = doc.xpath("//event[@eventname='GotoSlideEvent']").sort{|x,y| x.attributes["timestamp"].value.to_i <=> y.attributes["timestamp"].value.to_i}
+      slide_time = {}
+      current_slide = nil
+      current_ts = nil
+      slide_events.each_with_index do |e, i|
+        if i > 0
+          time_shown = e.attributes["timestamp"].value.to_i - current_ts
+          if slide_time[current_slide] 
+            slide_time[current_slide] += time_shown
+          else
+            slide_time[current_slide] = time_shown
           end
-          # Break because something else than default.pdf was found
-          break
         end
+        current_slide = e.at('presentationName').text + ":" + e.at('slide').text
+        current_ts = e.attributes["timestamp"].value.to_i
+      end
+      if current_ts
+        time_shown = doc.xpath('//event[last()]')[0].attributes['timestamp'].value.to_i - current_ts
+        if slide_time[current_slide]
+          slide_time[current_slide] += time_shown
+        else
+          slide_time[current_slide] = time_shown
+        end
+      end
+
+      slide_time = slide_time.sort_by{|_, v| -v} if heuristic_thumbnails
+      slide_time.each do |st|
+        break if presentation.size > 2
+        p,s = st[0].split(':')
+        presentation_filename = presentation_filenames[p]
+        next if presentation_filename == "default.pdf"
+        textfiles_dir = "#{process_dir}/presentation/#{p}/textfiles"
+        text_from_slide = self.get_text_from_slide(textfiles_dir, s) if File.file?("#{textfiles_dir}/slide-#{s}.txt")
+        presentation.push({:id => p, :filename => presentation_filename, :i => s, :alt => text_from_slide == nil ? '' : text_from_slide})
       end
       presentation
     end
