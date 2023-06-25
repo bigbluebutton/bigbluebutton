@@ -12,7 +12,7 @@ audio_offset: 0
 include_deskshare: true
 
 # generate thumbnails from most viewed slides
-heuristic_thumbnails : true
+heuristic_thumbnails : false
 
 # For PRODUCTION
 publish_dir: /var/bigbluebutton/published/presentation
