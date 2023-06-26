@@ -840,7 +840,6 @@ module BigBlueButton
         external_videos_events << s
       end
       # See: https://github.com/bigbluebutton/bbb-playback/pull/127
-      # You need to directly modify the script /usr/local/bigbluebutton/core/lib/recordandplayback/generators/events.rb
       events_xml.xpath("recording/event[@eventname='UpdateExternalVideoRecordEvent']").each do |event|
         s = {
           :timestamp => event['timestamp'].to_i,
