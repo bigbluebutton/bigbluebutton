@@ -23,6 +23,16 @@
 require 'rubygems'
 require 'nokogiri'
 
+class Range
+  def intersection(other)
+    raise ArgumentError, 'value must be a Range' unless other.kind_of?(Range)
+    new_min = self.cover?(other.min) ? other.min : other.cover?(min) ? min : nil
+    new_max = self.cover?(other.max) ? other.max : other.cover?(max) ? max : nil
+    new_min && new_max ? new_min..new_max : nil
+  end
+  alias_method :&, :intersection
+end
+
 module BigBlueButton
   class Presentation
     # Get the presentations.
@@ -119,36 +129,67 @@ module BigBlueButton
       doc.xpath("//event[@eventname='ConversionCompletedEvent']").each do |conversion_event|
         presentation_filenames[conversion_event.xpath("presentationName").text] = conversion_event.xpath("originalFilename").text
       end
-      slide_events = doc.xpath("//event[@eventname='GotoSlideEvent']").sort{|x,y| x.attributes["timestamp"].value.to_i <=> y.attributes["timestamp"].value.to_i}
+      sesseion_end = doc.xpath('//event[last()]')[0].attributes['timestamp'].value.to_i
+      slide_events = doc.xpath("//event[@eventname='GotoSlideEvent']")
       slide_time = {}
       current_slide = nil
       current_ts = nil
       slide_events.each_with_index do |e, i|
         if i > 0
-          time_shown = e.attributes["timestamp"].value.to_i - current_ts
-          if slide_time[current_slide] 
-            slide_time[current_slide] += time_shown
+          time_shown = current_ts..e.attributes["timestamp"].value.to_i
+          if slide_time[current_slide]
+            slide_time[current_slide].push(time_shown)
           else
-            slide_time[current_slide] = time_shown
+            slide_time[current_slide] = [time_shown]
           end
         end
-        current_slide = e.at('presentationName').text + ":" + e.at('slide').text
+        current_slide = e.at('id').text
         current_ts = e.attributes["timestamp"].value.to_i
       end
       if current_ts
-        time_shown = doc.xpath('//event[last()]')[0].attributes['timestamp'].value.to_i - current_ts
+        time_shown = current_ts..sesseion_end
         if slide_time[current_slide]
-          slide_time[current_slide] += time_shown
+          slide_time[current_slide].push(time_shown)
         else
-          slide_time[current_slide] = time_shown
+          slide_time[current_slide] = [time_shown]
         end
       end
+      #BigBlueButton.logger.info("slide_time: #{slide_time}")
 
-      slide_time = slide_time.sort_by{|_, v| -v} if heuristic_thumbnails
-      BigBlueButton.logger.info("Thumbnail candidates: #{slide_time}")
-      slide_time.each do |st|
+      record_time = []
+      record_events = doc.xpath("//event[@eventname='RecordStatusEvent']")
+      record_events.each_with_index do |e, i|
+        if i.odd?
+          record_time.push(record_events[i-1].attributes["timestamp"].value.to_i..e.attributes["timestamp"].value.to_i)
+        end
+      end
+      if record_events.size.odd?
+        record_time.push(record_events[-1].attributes["timestamp"].value.to_i..sesseion_end)
+      end
+      #BigBlueButton.logger.info("record_time: #{record_time}")
+
+      # Intersect with the recorded periods
+      slide_time_recorded = {}
+      slide_time.each do |id, periods|
+        periods.each do |period|
+          record_time.each do |record|
+            intersected_period = period.intersection(record)
+            if slide_time_recorded[id]
+              slide_time_recorded[id].push(intersected_period)
+            else
+              slide_time_recorded[id] = [intersected_period]
+            end
+          end
+        end
+        slide_time_recorded[id].compact! if slide_time_recorded[id]
+      end
+      #BigBlueButton.logger.info("slide_time_recorded: #{slide_time_recorded}")
+
+      slide_time_sort = slide_time_recorded.map{|k, v| [k, v.inject(0){|s, n| s += n.size}] }.sort_by{|_, v| -v} if heuristic_thumbnails
+      BigBlueButton.logger.info("Thumbnail candidates: #{slide_time_sort}")
+      slide_time_sort.each do |st|
         break if presentation.size >= number_thumbnails
-        p, s = st[0].split(':')
+        p, s = st[0].split('/')
         presentation_filename = presentation_filenames[p]
         next if presentation_filename == "default.pdf"
         textfiles_dir = "#{process_dir}/presentation/#{p}/textfiles"
