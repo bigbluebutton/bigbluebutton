@@ -1164,7 +1164,6 @@ def process_external_video_events(_events, package_dir)
   
   # Generate external_videos.xml for playback video within a presentation
   # See: https://github.com/bigbluebutton/bbb-playback/pull/127
-  # You need to directly modify the script /usr/local/bigbluebutton/core/scripts/publish/presentation.rb
   external_videos_play = []
   @rec_events.each do |re|
     external_video_events.each do |event|
