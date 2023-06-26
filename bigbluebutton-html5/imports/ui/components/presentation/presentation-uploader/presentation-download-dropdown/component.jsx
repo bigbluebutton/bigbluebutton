@@ -95,16 +95,6 @@ class PresentationDownloadDropdown extends PureComponent {
         label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload),
         onClick: () => toggleDownloadOriginalPresentation(true),
       });
-      this.menuItems.push({
-        key: this.actionsKey[1],
-        id: 'sendCurrentStateDocument',
-        dataTest: 'sendCurrentStateDocument',
-        label: intl.formatMessage(intlMessages.sendCurrentStateDocument),
-        onClick: () => {
-          closeModal();
-          handleDownloadingOfPresentation('Annotated');
-        },
-      });
     } else {
       this.menuItems.push({
         key: this.actionsKey[0],
@@ -113,6 +103,16 @@ class PresentationDownloadDropdown extends PureComponent {
         onClick: () => toggleDownloadOriginalPresentation(false),
       });
     }
+    this.menuItems.push({
+      key: this.actionsKey[1],
+      id: 'sendCurrentStateDocument',
+      dataTest: 'sendCurrentStateDocument',
+      label: intl.formatMessage(intlMessages.sendCurrentStateDocument),
+      onClick: () => {
+        closeModal();
+        handleDownloadingOfPresentation('Annotated');
+      },
+    });
     return this.menuItems;
   }
 
