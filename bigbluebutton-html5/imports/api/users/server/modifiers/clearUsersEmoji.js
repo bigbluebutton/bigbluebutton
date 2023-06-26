@@ -12,7 +12,11 @@ export default function clearUsersEmoji(meetingId) {
     const numberAffected = Users.update(selector, {
       $set: {
         emojiTime: (new Date()).getTime(),
-        emoji: "none", 
+        emoji: 'none',
+        awayTime: 0,
+        away: false,
+        raiseHandTime: 0,
+        raiseHand: false,
       },
     }, { multi: true });
 

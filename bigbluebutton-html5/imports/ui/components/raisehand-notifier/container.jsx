@@ -5,7 +5,7 @@ import Users from '/imports/api/users';
 import Settings from '/imports/ui/services/settings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { makeCall } from '/imports/ui/services/api';
-import StatusNotifier from './component';
+import RaiseHandNotifier from './component';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 
@@ -16,7 +16,7 @@ const StatusNotifierContainer = (props) => {
   const isViewer = currentUser.role === ROLE_VIEWER;
   const isPresenter = currentUser.presenter;
   return (
-    <StatusNotifier {...{
+    <RaiseHandNotifier {...{
       ...props,
       isViewer,
       isPresenter,
@@ -25,23 +25,23 @@ const StatusNotifierContainer = (props) => {
   );
 };
 
-export default withTracker((props) => {
+export default withTracker(() => {
   const AppSettings = Settings.application;
-  const { status } = props;
-  const emojiUsers = Users.find({ meetingId: Auth.meetingID, emoji: status }, {
+  const raiseHandUsers = Users.find({
+    meetingId: Auth.meetingID,
+    raiseHand: true,
+    userId: { $ne: Auth.userID },
+  }, {
     fields: {
-      emojiTime: 1, emoji: 1, userId: 1, name: 1, color: 1, role: 1, avatar: 1,
+      raiseHandTime: 1, raiseHand: 1, userId: 1, name: 1, color: 1, role: 1, avatar: 1,
     },
-    sort: { emojiTime: 1 },
-  })
-    .fetch()
-    .filter((u) => u.emoji === status && u.userId !== Auth.userID);
-  const clearUserStatus = (userId) => makeCall('setUserReaction', 'none', userId);
+    sort: { raiseHandTime: 1 },
+  }).fetch();
+  const lowerUserHands = (userId) => makeCall('changeRaiseHand', false, userId);
 
   return {
-    clearUserStatus,
-    emojiUsers,
-    status,
+    lowerUserHands,
+    raiseHandUsers,
     raiseHandAudioAlert: AppSettings.raiseHandAudioAlerts,
     raiseHandPushAlert: AppSettings.raiseHandPushAlerts,
   };
