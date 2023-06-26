@@ -80,7 +80,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const markMessageAsSeen = useCallback((message: Message, page) => {
     if (
-      (message.user?.userId !== currentUserId)
+      message &&
+      (message?.user?.userId !== currentUserId)
       && (page + 1) === totalPages
       && totalUnread > 0
     ) {
