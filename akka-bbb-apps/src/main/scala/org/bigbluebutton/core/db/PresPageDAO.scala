@@ -11,6 +11,7 @@ case class PresPageDbModel(
     presentationId: String,
     num:            Int,
     urls:           String,
+    slideRevealed:  Boolean,
     current:        Boolean,
     xOffset:        Double,
     yOffset:        Double,
@@ -23,13 +24,14 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val presentationId = column[String]("presentationId")
   val num = column[Int]("num")
   val urls = column[String]("urls")
+  val slideRevealed = column[Boolean]("slideRevealed")
   val current = column[Boolean]("current")
   val xOffset = column[Double]("xOffset")
   val yOffset = column[Double]("yOffset")
   val widthRatio = column[Double]("widthRatio")
   val heightRatio = column[Double]("heightRatio")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, num, urls, current, xOffset, yOffset, widthRatio, heightRatio) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
@@ -37,7 +39,8 @@ object PresPageDAO {
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
     DatabaseConnection.db.run(
       sqlu"""UPDATE pres_page SET
-                "current" = (case when "pageId" = ${pageId} then true else false end)
+                "current" = (case when "pageId" = ${pageId} then true else false end),
+                "slideRevealed" = (case when "pageId" = ${pageId} then true else "slideRevealed" end)
                 WHERE "presentationId" = ${presentation.id}"""
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated current on PresPage table")
