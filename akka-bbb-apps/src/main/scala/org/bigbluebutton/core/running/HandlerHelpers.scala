@@ -7,8 +7,8 @@ import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.UserBreakoutRoomDAO
-import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, UserBreakoutRoomDAO }
+import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
@@ -17,13 +17,13 @@ import org.bigbluebutton.core.util.TimeUtil
 trait HandlerHelpers extends SystemConfiguration {
 
   def trackUserJoin(
-      outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,
-      regUser:     RegisteredUser
+      regUser:     RegisteredUser,
   ): Unit = {
     if (!regUser.joined) {
       RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
     }
+
   }
 
   def sendUserLeftFlagUpdatedEvtMsg(
@@ -46,7 +46,7 @@ trait HandlerHelpers extends SystemConfiguration {
     val nu = for {
       regUser <- RegisteredUsers.findWithToken(authToken, liveMeeting.registeredUsers)
     } yield {
-      trackUserJoin(outGW, liveMeeting, regUser)
+      trackUserJoin(liveMeeting, regUser)
 
       // Flag that an authed user had joined the meeting in case
       // we need to end meeting when all authed users have left.
