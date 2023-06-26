@@ -4,25 +4,25 @@ import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
 import { extractCredentials } from '/imports/api/common/server/helpers';
 
-export default function setUserReaction(emoji, userId = undefined) {
+export default function setUserReaction(reactionEmoji, userId = undefined) {
   try {
     const REDIS_CONFIG = Meteor.settings.private.redis;
     const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
-    const EVENT_NAME = 'ChangeUserEmojiCmdMsg';
+    const EVENT_NAME = 'ChangeUserReactionEmojiReqMsg';
 
     const { meetingId, requesterUserId } = extractCredentials(this.userId);
 
     check(meetingId, String);
     check(requesterUserId, String);
-    check(emoji, String);
+    check(reactionEmoji, String);
 
     const payload = {
-      emoji,
-      userId: userId ? userId : requesterUserId,
+      reactionEmoji,
+      userId: userId || requesterUserId,
     };
 
-    Logger.verbose('User emoji status updated', {
-      emoji, requesterUserId, meetingId,
+    Logger.verbose('User reactionEmoji status updated', {
+      reactionEmoji, requesterUserId, meetingId,
     });
 
     RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);

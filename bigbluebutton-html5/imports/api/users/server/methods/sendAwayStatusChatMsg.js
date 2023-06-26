@@ -5,13 +5,12 @@ import Users from '/imports/api/users';
 import addSystemMsg from '/imports/api/group-chat-msg/server/modifiers/addSystemMsg';
 
 const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
-
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const CHAT_USER_STATUS_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_status_message;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
-export default function sendStatusChatMsg(meetingId, userId, emoji) {
+export default function sendAwayStatusChatMsg(meetingId, userId, newAwayStatus) {
   const user = Users.findOne(
     { meetingId, userId },
     {
@@ -19,7 +18,7 @@ export default function sendStatusChatMsg(meetingId, userId, emoji) {
         name: 1,
         role: 1,
         locked: 1,
-        emoji: 1,
+        away: 1,
       },
     },
   );
@@ -44,9 +43,9 @@ export default function sendStatusChatMsg(meetingId, userId, emoji) {
 
   // Send message if previous emoji or actual emoji is 'away'
   let status;
-  if (user.emoji === 'away') {
+  if (user.away && !newAwayStatus) {
     status = 'notAway';
-  } else if (emoji === 'away') {
+  } else if (!user.away && newAwayStatus) {
     status = 'away';
   } else {
     return null;

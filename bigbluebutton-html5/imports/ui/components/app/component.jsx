@@ -17,7 +17,7 @@ import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import ChatAlertContainer from '../chat/alert/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import StatusNotifier from '/imports/ui/components/status-notifier/container';
+import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/captions/speech/container';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -86,6 +86,14 @@ const intlMessages = defineMessages({
   loweredHand: {
     id: 'app.toast.setEmoji.lowerHand',
     description: 'toast message for lowered hand notification',
+  },
+  away: {
+    id: 'app.toast.setEmoji.away',
+    description: 'toast message for set away notification',
+  },
+  notAway: {
+    id: 'app.toast.setEmoji.notAway',
+    description: 'toast message for remove away notification',
   },
   meetingMuteOn: {
     id: 'app.toast.meetingMuteOn.label',
@@ -223,6 +231,8 @@ class App extends Component {
     const {
       notify,
       currentUserEmoji,
+      currentUserAway,
+      currentUserRaiseHand,
       intl,
       deviceType,
       mountRandomUserModal,
@@ -237,30 +247,42 @@ class App extends Component {
 
     if (mountRandomUserModal) this.setRandomUserSelectModalIsOpen(true);
 
-    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status) {
+    if (prevProps.currentUserEmoji.status !== currentUserEmoji.status
+        && currentUserEmoji.status !== 'raiseHand'
+        && currentUserEmoji.status !== 'away'
+    ) {
       const formattedEmojiStatus = intl.formatMessage({ id: `app.actionsBar.emojiMenu.${currentUserEmoji.status}Label` })
         || currentUserEmoji.status;
 
-      const raisedHand = currentUserEmoji.status === 'raiseHand';
-
-      let statusLabel = '';
       if (currentUserEmoji.status === 'none') {
-        statusLabel = prevProps.currentUserEmoji.status === 'raiseHand'
-          ? intl.formatMessage(intlMessages.loweredHand)
-          : intl.formatMessage(intlMessages.clearedEmoji);
+        notify(
+          intl.formatMessage(intlMessages.clearedEmoji),
+          'info',
+          'clear_status',
+        );
       } else {
-        statusLabel = raisedHand
-          ? intl.formatMessage(intlMessages.raisedHand)
-          : intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus }));
+        notify(
+          intl.formatMessage(intlMessages.setEmoji, ({ 0: formattedEmojiStatus })),
+          'info',
+          'user',
+        );
       }
+    }
 
-      notify(
-        statusLabel,
-        'info',
-        currentUserEmoji.status === 'none'
-          ? 'clear_status'
-          : 'user',
-      );
+    if (prevProps.currentUserAway !== currentUserAway) {
+      if (currentUserAway === true) {
+        notify(intl.formatMessage(intlMessages.away), 'info', 'user');
+      } else {
+        notify(intl.formatMessage(intlMessages.notAway), 'info', 'clear_status');
+      }
+    }
+
+    if (prevProps.currentUserRaiseHand !== currentUserRaiseHand) {
+      if (currentUserRaiseHand === true) {
+        notify(intl.formatMessage(intlMessages.raisedHand), 'info', 'user');
+      } else {
+        notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
+      }
     }
 
     if (deviceType === null || prevProps.deviceType !== deviceType) this.throttledDeviceType();
@@ -521,7 +543,7 @@ class App extends Component {
   setAudioModalIsOpen(value) {
     this.setState({isAudioModalOpen: value});
   }
-  
+
   setVideoPreviewModalIsOpen(value) {
     this.setState({isVideoPreviewModalOpen: value});
   }
@@ -606,14 +628,14 @@ class App extends Component {
                 pushAlertEnabled={pushAlertEnabled}
               />
             )}
-          <StatusNotifier status="raiseHand" />
+          <RaiseHandNotifier />
           <ManyWebcamsNotifier />
           <PollingContainer />
           <PadsSessionsContainer />
           {this.renderActionsBar()}
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
-          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer 
+          {isRandomUserSelectModalOpen ? <RandomUserSelectContainer
             {...{
               onRequestClose: () => this.setRandomUserSelectModalIsOpen(false),
               priority: "low",

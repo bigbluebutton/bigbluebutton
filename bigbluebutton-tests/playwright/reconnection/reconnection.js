@@ -48,13 +48,6 @@ class Reconnection extends MultiUsers {
     await this.modPage.hasElement(e.muteMicButton);
     await this.modPage.hasElement(e.isTalking);
   }
-
-  async checkRootPermission() {
-    const checkSudo = await runScript('timeout -k 1 1 sudo id', {
-      handleOutput: (output) => output ? true : false
-    })
-    await expect(checkSudo, 'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)').toBeTruthy();
-  }
 }
 
 exports.Reconnection = Reconnection;

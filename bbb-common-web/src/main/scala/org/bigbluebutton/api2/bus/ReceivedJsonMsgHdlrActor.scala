@@ -88,6 +88,8 @@ class ReceivedJsonMsgHdlrActor(val msgFromAkkaAppsEventBus: MsgFromAkkaAppsEvent
         route[UserRoleChangedEvtMsg](envelope, jsonNode)
       case UserLockedInMeetingEvtMsg.NAME =>
         route[UserLockedInMeetingEvtMsg](envelope, jsonNode)
+      case UserSpeechLocaleChangedEvtMsg.NAME =>
+        route[UserSpeechLocaleChangedEvtMsg](envelope, jsonNode)
       case CreateBreakoutRoomSysCmdMsg.NAME =>
         route[CreateBreakoutRoomSysCmdMsg](envelope, jsonNode)
       case PresentationUploadTokenSysPubMsg.NAME =>

@@ -1,6 +1,6 @@
 const { test, devices } = require('@playwright/test');
 const { ScreenShare, MultiUserScreenShare } = require('../screenshare/screenshare');
-const { sleep } = require('../core/helpers');
+const { sleep, checkRootPermission } = require('../core/helpers');
 const e = require('../core/elements');
 const { getCurrentTCPSessions, killTCPSessions } = require('./util');
 const notificationsUtil = require('../notifications/util');
@@ -9,6 +9,7 @@ const deepEqual = require('deep-equal');
 test.describe.parallel('Connection failure', () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#sharing-screen-in-full-screen-mode-automated
   test('Screen sharer', async ({ browser, browserName, page }) => {
+    await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
               "Screenshare tests not able in Firefox browser without desktop");
     const screenshare = new ScreenShare(browser, page);
@@ -26,6 +27,7 @@ test.describe.parallel('Connection failure', () => {
   });
 
   test('Screen share viewer', async ({ browser, browserName, page, context }) => {
+    await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox' && process.env.DISPLAY === undefined,
               "Screenshare tests not able in Firefox browser without desktop");
     const screenshare = new MultiUserScreenShare(browser, context);

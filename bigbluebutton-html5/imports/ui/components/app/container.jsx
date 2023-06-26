@@ -226,7 +226,7 @@ export default withTracker(() => {
     {
       fields:
       {
-        approved: 1, emoji: 1, userId: 1, presenter: 1, role: 1,
+        approved: 1, emoji: 1, raiseHand: 1, away: 1, userId: 1, presenter: 1, role: 1,
       },
     },
   );
@@ -288,6 +288,8 @@ export default withTracker(() => {
     isPhone: deviceInfo.isPhone,
     isRTL: document.documentElement.getAttribute('dir') === 'rtl',
     currentUserEmoji: currentUserEmoji(currentUser),
+    currentUserAway: currentUser.away,
+    currentUserRaiseHand: currentUser.raiseHand,
     randomlySelectedUser,
     currentUserId: currentUser?.userId,
     isPresenter,
