@@ -2,6 +2,10 @@ DROP VIEW IF EXISTS "v_pres_annotation_curr";
 DROP VIEW IF EXISTS "v_pres_annotation_history_curr";
 DROP VIEW IF EXISTS "v_pres_page_cursor";
 DROP VIEW IF EXISTS "v_pres_page_writers";
+DROP VIEW IF EXISTS "v_pres_page_curr";
+DROP VIEW IF EXISTS "v_pres_page";
+DROP VIEW IF EXISTS "v_pres_presentation";
+
 DROP TABLE IF EXISTS "pres_annotation_history";
 DROP TABLE IF EXISTS "pres_annotation";
 DROP TABLE IF EXISTS "pres_page_cursor";
@@ -648,12 +652,22 @@ CREATE TABLE "pres_presentation" (
 	"removable" boolean
 );
 CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
+CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
+
+CREATE OR REPLACE VIEW public.v_pres_presentation AS
+SELECT pres_presentation."meetingId",
+	pres_presentation."presentationId",
+	pres_presentation."current",
+	pres_presentation."downloadable",
+	pres_presentation."removable"
+   FROM pres_presentation;
 
 CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
 	"num" integer,
 	"urls" TEXT,
+	"slideRevealed" boolean default false,
 	"current" boolean,
 	"xOffset" NUMERIC,
 	"yOffset" NUMERIC,
@@ -661,6 +675,40 @@ CREATE TABLE "pres_page" (
 	"heightRatio" NUMERIC
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
+CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
+
+CREATE OR REPLACE VIEW public.v_pres_page AS
+SELECT pres_presentation."meetingId",
+	pres_page."presentationId",
+	pres_page."pageId",
+    pres_page.num,
+    pres_page.urls,
+    pres_page."slideRevealed",
+    CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
+    pres_page."xOffset",
+    pres_page."yOffset" ,
+    pres_page."widthRatio",
+    pres_page."heightRatio"
+FROM pres_page
+JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
+
+CREATE OR REPLACE VIEW public.v_pres_page_curr AS
+SELECT pres_presentation."meetingId",
+	pres_page."presentationId",
+	pres_page."pageId",
+	pres_presentation."downloadable",
+    pres_presentation."removable",
+    pres_page.num,
+    pres_page.urls,
+    pres_page."slideRevealed",
+    CASE WHEN pres_presentation."current" IS TRUE AND pres_page."current" IS TRUE THEN true ELSE false END AS "isCurrentPage",
+    pres_page."xOffset",
+    pres_page."yOffset" ,
+    pres_page."widthRatio",
+    pres_page."heightRatio"
+FROM pres_presentation
+JOIN pres_page ON pres_presentation."presentationId" = pres_page."presentationId" AND pres_page."current" IS TRUE
+and pres_presentation."current" IS TRUE;
 
 CREATE TABLE "pres_annotation" (
 	"annotationId" varchar(100) PRIMARY KEY,
