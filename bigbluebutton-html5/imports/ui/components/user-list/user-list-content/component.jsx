@@ -10,6 +10,7 @@ import WaitingUsersContainer from './waiting-users/container';
 import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
 import { isChatEnabled } from '/imports/ui/services/features';
+import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
 
 const propTypes = {
   currentUser: PropTypes.shape({}).isRequired,
@@ -30,26 +31,22 @@ class UserContent extends PureComponent {
       compact,
     } = this.props;
 
-    const showWaitingRoom = (ALWAYS_SHOW_WAITING_ROOM && isWaitingRoomEnabled)
-      || pendingUsers.length > 0;
+    const showWaitingRoom =
+      (ALWAYS_SHOW_WAITING_ROOM && isWaitingRoomEnabled) || pendingUsers.length > 0;
 
     return (
       <Styled.Content data-test="userListContent">
         {isChatEnabled() ? <ChatList /> : null}
         {currentUser.role === ROLE_MODERATOR ? <UserCaptionsContainer /> : null}
         <UserNotesContainer />
-        { isTimerActive && (
-          <TimerContainer
-            isModerator={currentUser?.role === ROLE_MODERATOR}
-          />
-        ) }
-        {showWaitingRoom && currentUser.role === ROLE_MODERATOR
-          ? (
-            <WaitingUsersContainer {...{ pendingUsers }} />
-          ) : null}
+        {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
+        {showWaitingRoom && currentUser.role === ROLE_MODERATOR ? (
+          <WaitingUsersContainer {...{ pendingUsers }} />
+        ) : null}
         <UserPollsContainer isPresenter={currentUser.presenter} />
         <BreakoutRoomContainer />
-        <UserParticipantsContainer compact={compact}/>
+        <UserTitleContainer />
+        <UserParticipantsContainer compact={compact} />
       </Styled.Content>
     );
   }
