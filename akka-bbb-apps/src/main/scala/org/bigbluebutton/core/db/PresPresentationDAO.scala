@@ -51,7 +51,7 @@ object PresPresentationDAO {
                   pageId = page._2.id,
                   presentationId = presentation.id,
                   num = page._2.num,
-                  urls = page._2.urls.toJson.asJsObject.prettyPrint,
+                  urls = page._2.urls.toJson.asJsObject.compactPrint,
                   slideRevealed = page._2.current,
                   current = page._2.current,
                   xOffset = page._2.xOffset,
