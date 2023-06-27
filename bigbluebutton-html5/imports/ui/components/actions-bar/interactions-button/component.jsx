@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ReactionsBar from '/imports/ui/components/emoji-picker/reactions-bar/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
+import UserListService from '/imports/ui/components/user-list/service';
 
 import Styled from '../styles';
 
@@ -11,6 +12,8 @@ const InteractionsButton = (props) => {
   const {
     intl,
     actionsBarRef,
+    userId,
+    raiseHand,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -24,15 +27,24 @@ const InteractionsButton = (props) => {
 
   const handleClose = () => {
     setShowEmojiPicker(false);
+    setTimeout(() => {
+      document.activeElement.blur();
+    }, 0);
   };
 
   const handleReactionSelect = (reaction) => {
     UserReactionService.setUserReaction(reaction);
+    handleClose();
+  };
+
+  const handleRaiseHandButtonClick = () => {
+    UserListService.setUserRaiseHand(userId, !raiseHand);
+    handleClose();
   };
 
   const renderReactionsBar = () => (
     <Styled.Wrapper>
-      <ReactionsBar {...props} onReactionSelect={handleReactionSelect} />
+      <ReactionsBar {...props} onReactionSelect={handleReactionSelect} onRaiseHand={handleRaiseHandButtonClick} />
     </Styled.Wrapper>
   );
 
@@ -61,6 +73,7 @@ const InteractionsButton = (props) => {
       onCloseCallback={() => handleClose()}
       customAnchorEl={actionsBarRef.current}
       customStyles={customStyles}
+      open={showEmojiPicker}
       hasRoundedCorners
       opts={{
         id: 'reactions-dropdown-menu',

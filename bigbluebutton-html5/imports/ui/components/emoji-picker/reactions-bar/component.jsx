@@ -4,7 +4,6 @@ import { injectIntl, defineMessages } from 'react-intl';
 import { Emoji } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
 import Styled from './styles';
-import UserListService from '/imports/ui/components/user-list/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -55,13 +54,9 @@ const ReactionsPicker = (props) => {
   const {
     intl,
     onReactionSelect,
-    userId,
+    onRaiseHand,
     raiseHand,
   } = props;
-
-  const handleRaiseHandButtonClick = () => {
-    UserListService.setUserRaiseHand(userId, !raiseHand);
-  };
 
   const RaiseHandButtonLabel = () => {
     return raiseHand
@@ -77,7 +72,7 @@ const ReactionsPicker = (props) => {
         </Styled.ButtonWrapper>
       ))}
       <Styled.Separator />
-      <Styled.RaiseHandButtonWrapper onClick={() => handleRaiseHandButtonClick()} active={raiseHand}>
+      <Styled.RaiseHandButtonWrapper onClick={() => onRaiseHand()} active={raiseHand}>
         <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />
         {RaiseHandButtonLabel()}
       </Styled.RaiseHandButtonWrapper>
