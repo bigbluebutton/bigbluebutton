@@ -14,6 +14,7 @@ const InteractionsButton = (props) => {
     actionsBarRef,
     userId,
     raiseHand,
+    isMobile,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -71,10 +72,11 @@ const InteractionsButton = (props) => {
       )}
       renderOtherComponents={showEmojiPicker ? renderReactionsBar() : null}
       onCloseCallback={() => handleClose()}
-      customAnchorEl={actionsBarRef.current}
+      customAnchorEl={!isMobile ? actionsBarRef.current : null}
       customStyles={customStyles}
       open={showEmojiPicker}
       hasRoundedCorners
+      overrideMobileStyles
       opts={{
         id: 'reactions-dropdown-menu',
         keepMounted: true,

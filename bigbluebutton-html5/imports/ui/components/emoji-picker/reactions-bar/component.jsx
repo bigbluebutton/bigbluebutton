@@ -56,22 +56,25 @@ const ReactionsPicker = (props) => {
     onReactionSelect,
     onRaiseHand,
     raiseHand,
+    isMobile,
   } = props;
 
   const RaiseHandButtonLabel = () => {
+    if (isMobile) return null;
+
     return raiseHand
       ? intl.formatMessage(intlMessages.notRaiseHandLabel)
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
 
   return (
-    <Styled.Wrapper>
+    <Styled.Wrapper isMobile={isMobile}>
       {reactions.map(({ id, native }) => (
         <Styled.ButtonWrapper>
           <Emoji key={id} emoji={{ id }} size={30} onClick={() => onReactionSelect(native)} />
         </Styled.ButtonWrapper>
       ))}
-      <Styled.Separator />
+      <Styled.Separator isMobile={isMobile} />
       <Styled.RaiseHandButtonWrapper onClick={() => onRaiseHand()} active={raiseHand}>
         <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />
         {RaiseHandButtonLabel()}

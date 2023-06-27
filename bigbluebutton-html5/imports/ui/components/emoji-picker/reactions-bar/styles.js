@@ -10,6 +10,12 @@ import {
 const Wrapper = styled.div`
   display: flex;
   padding: .5rem;
+
+  ${({ isMobile }) => isMobile && `
+    flex-direction: column;
+    align-items: center;
+    padding: .5rem 0;
+ `}
 `;
 
 const ButtonWrapper = styled.div`
@@ -61,6 +67,10 @@ const Separator = styled.div`
   border: 1px solid ${colorGrayLightest};
   align-self: center;
   opacity: .75;
+
+  ${({ isMobile }) => isMobile && `
+    display: none;
+ `}
 `;
 
 export default {
