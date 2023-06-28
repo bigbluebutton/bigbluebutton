@@ -46,7 +46,7 @@ class Rating extends Component {
         <fieldset>
           <Styled.Legend>{intl.formatMessage(intlMessages.legendTitle)}</Styled.Legend>
           {
-            range(num)
+            range(0, num)
               .map(i => [
                 (
                   <input
