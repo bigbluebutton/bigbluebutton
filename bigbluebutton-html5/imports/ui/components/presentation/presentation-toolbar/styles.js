@@ -194,16 +194,16 @@ const FitToWidthButton = styled(Button)`
   box-shadow: none !important;
   border: 0;
 
+  ${({ fitToWidth }) => fitToWidth && `
+    & > span {
+      border: solid ${borderSizeLarge} ${colorGrayDark};
+    }
+  `}
+
   &:focus {
     background-color: ${colorOffWhite};
     border: 0;
   }
-
-  ${({ panning }) => panning && `
-    > span {
-      background-color: #DCE4EC;
-    }
-  `}
 `;
 
 const MultiUserTool = styled.span`

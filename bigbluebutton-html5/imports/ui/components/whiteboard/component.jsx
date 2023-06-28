@@ -21,11 +21,11 @@ import {
 } from './utils';
 
 const SMALL_HEIGHT = 435;
-const SMALLEST_HEIGHT = 363;
+const SMALLEST_DOCK_HEIGHT = 475;
 const SMALL_WIDTH = 800;
-const SMALLEST_WIDTH = 645;
+const SMALLEST_DOCK_WIDTH = 710;
 const TOOLBAR_SMALL = 28;
-const TOOLBAR_LARGE = 38;
+const TOOLBAR_LARGE = 32;
 
 export default function Whiteboard(props) {
   const {
@@ -96,11 +96,13 @@ export default function Whiteboard(props) {
   const language = mapLanguage(Settings?.application?.locale?.toLowerCase() || 'en');
   const [currentTool, setCurrentTool] = React.useState(null);
   const [currentStyle, setCurrentStyle] = React.useState({});
+  const [currentCameraPoint, setCurrentCameraPoint] = React.useState({});
   const [isMoving, setIsMoving] = React.useState(false);
   const [isPanning, setIsPanning] = React.useState(shortcutPanning);
   const [panSelected, setPanSelected] = React.useState(isPanning);
   const isMountedRef = React.useRef(true);
   const [isToolLocked, setIsToolLocked] = React.useState(tldrawAPI?.appState?.isToolLocked);
+  const [bgShape, setBgShape] = React.useState(null);
 
   // eslint-disable-next-line arrow-body-style
   React.useEffect(() => {
@@ -237,6 +239,14 @@ export default function Whiteboard(props) {
       }
     };
   }, [tldrawAPI]);
+
+  /* needed to prevent an issue with presentation images not loading correctly in Firefox
+  more info: https://github.com/bigbluebutton/bigbluebutton/issues/17969#issuecomment-1561758200 */
+  React.useEffect(() => {
+    if (bgShape && bgShape.parentElement && bgShape.parentElement.clientWidth > 0) {
+      bgShape.parentElement.style.width = `${bgShape.parentElement.clientWidth + .1}px`;
+    }
+  }, [bgShape]);
 
   const doc = React.useMemo(() => {
     const currentDoc = rDocument.current;
@@ -529,6 +539,7 @@ export default function Whiteboard(props) {
     if (currentZoom !== tldrawZoom) {
       setTldrawZoom(currentZoom);
     }
+    setBgShape(null);
   }, [presentationAreaHeight, presentationAreaWidth]);
 
   const fullscreenToggleHandler = () => {
@@ -618,12 +629,15 @@ export default function Whiteboard(props) {
 
     app.setSetting('language', language);
     app?.setSetting('isDarkMode', false);
+
+    const textAlign = isRTL ? 'end' : 'start';
+
     app?.patchState(
       {
         appState: {
           currentStyle: {
-            textAlign: isRTL ? 'end' : 'start',
-            font: fontFamily,
+            textAlign: currentStyle?.textAlign || textAlign,
+            font: currentStyle?.font || fontFamily,
           },
         },
       },
@@ -720,6 +734,10 @@ export default function Whiteboard(props) {
 
     if (reason && isPresenter && slidePosition && (reason.includes('zoomed') || reason.includes('panned'))) {
       const camera = tldrawAPI?.getPageState()?.camera;
+      const isForcePanning = tldrawAPI?.isForcePanning;
+      if (currentCameraPoint[curPageId] && !isPanning && !isForcePanning) {
+        camera.point = currentCameraPoint[curPageId];
+      }
 
       // limit bounds
       if (tldrawAPI?.viewport.maxX > slidePosition.width) {
@@ -734,12 +752,11 @@ export default function Whiteboard(props) {
       if (camera.point[1] > 0 || tldrawAPI?.viewport.minY < 0) {
         camera.point[1] = 0;
       }
+
       const zoomFitSlide = calculateZoom(slidePosition.width, slidePosition.height);
       if (camera.zoom < zoomFitSlide) {
         camera.zoom = zoomFitSlide;
       }
-
-      tldrawAPI?.setCamera([camera.point[0], camera.point[1]], camera.zoom);
 
       const zoomToolbar = Math.round(((HUNDRED_PERCENT * camera.zoom) / zoomFitSlide) * 100) / 100;
       if (zoom !== zoomToolbar) {
@@ -759,13 +776,20 @@ export default function Whiteboard(props) {
         viewedRegionH = HUNDRED_PERCENT;
       }
 
+      if (e?.currentPageId == curPageId) {
+        setCurrentCameraPoint({
+          ...currentCameraPoint,
+          [e?.currentPageId]: camera?.point,
+        })
+      }
+
       zoomSlide(
         parseInt(curPageId, 10),
         podId,
         viewedRegionW,
         viewedRegionH,
-        camera.point[0],
-        camera.point[1],
+        currentCameraPoint[curPageId] ? currentCameraPoint[curPageId][0] : camera.point[0],
+        currentCameraPoint[curPageId] ? currentCameraPoint[curPageId][1] : camera.point[1],
       );
     }
     // don't allow non-presenters to pan&zoom
@@ -904,6 +928,13 @@ export default function Whiteboard(props) {
       setCurrentStyle({ ...currentStyle, ...command?.after?.appState?.currentStyle });
     }
 
+    if (command && command?.id?.includes('change_page')) {
+      const camera = tldrawAPI?.getPageState()?.camera;
+      if (currentCameraPoint[app?.currentPageId]) {
+        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera.zoom);
+      }
+    }
+
     const changedShapes = command.after?.document?.pages[app.currentPageId]?.shapes;
     if (!isMounting && app.currentPageId !== curPageId) {
       // can happen then the "move to page action" is called, or using undo after changing a page
@@ -939,9 +970,17 @@ export default function Whiteboard(props) {
 
   const webcams = document.getElementById('cameraDock');
   const dockPos = webcams?.getAttribute('data-position');
+  const backgroundShape = document.getElementById('slide-background-shape_image');
 
   if (currentTool && !isPanning && !tldrawAPI?.isForcePanning) tldrawAPI?.selectTool(currentTool);
 
+  if (backgroundShape && backgroundShape.src // if there is a background image
+    && backgroundShape.complete // and it's fully downloaded
+    && backgroundShape.src !== bgShape?.src // and if it's a different image
+    && backgroundShape.parentElement?.clientWidth > 0 // and if the whiteboard area is visible
+  ) {
+    setBgShape(backgroundShape);
+  }
   const editableWB = (
     <Styled.EditableWBWrapper onKeyDown={handleOnKeyDown}>
       <Tldraw
@@ -993,7 +1032,7 @@ export default function Whiteboard(props) {
     ? TOOLBAR_SMALL : TOOLBAR_LARGE;
 
   if (hasWBAccess || isPresenter) {
-    if (((height < SMALLEST_HEIGHT) || (width < SMALLEST_WIDTH))) {
+    if (((height < SMALLEST_DOCK_HEIGHT) || (width < SMALLEST_DOCK_WIDTH))) {
       tldrawAPI?.setSetting('dockPosition', 'bottom');
     } else {
       tldrawAPI?.setSetting('dockPosition', isRTL ? 'left' : 'right');

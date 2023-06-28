@@ -18,6 +18,7 @@ import { colorContentBackground } from '/imports/ui/stylesheets/styled-component
 import browserInfo from '/imports/utils/browserInfo';
 import { addNewAlert } from '../screenreader-alert/service';
 import { clearCursors } from '/imports/ui/components/whiteboard/cursors/service';
+import { debounce } from 'radash';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -77,19 +78,20 @@ class Presentation extends PureComponent {
       isPanning: false,
       tldrawIsMounting: true,
       isToolbarVisible: true,
+      hadPresentation: false,
     };
 
     this.currentPresentationToastId = null;
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.setFitToWidth = this.setFitToWidth.bind(this);
-    this.zoomChanger = this.zoomChanger.bind(this);
+    this.zoomChanger = debounce({ delay: 200 }, this.zoomChanger.bind(this));
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
     this.panAndZoomChanger = this.panAndZoomChanger.bind(this);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
-    this.handleResize = this.handleResize.bind(this);
+    this.handleResize = debounce({ delay: 200 }, this.handleResize.bind(this));
     this.setTldrawAPI = this.setTldrawAPI.bind(this);
     this.setIsPanning = this.setIsPanning.bind(this);
     this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
@@ -136,8 +138,14 @@ class Presentation extends PureComponent {
     window.addEventListener('resize', this.onResize, false);
 
     const {
-      currentSlide, slidePosition, numPages, layoutContextDispatch,
+      currentSlide, slidePosition, numPages, layoutContextDispatch, currentPresentationId,
     } = this.props;
+
+    if (currentPresentationId) {
+      this.setState({
+        hadPresentation: true
+      });
+    }
 
     if (currentSlide) {
       layoutContextDispatch({
@@ -178,7 +186,7 @@ class Presentation extends PureComponent {
     } = this.props;
 
     const {
-      presentationWidth, presentationHeight, zoom, isPanning, fitToWidth, presentationId,
+      presentationWidth, presentationHeight, zoom, isPanning, fitToWidth, presentationId, hadPresentation,
     } = this.state;
     const {
       numCameras: prevNumCameras,
@@ -258,20 +266,25 @@ class Presentation extends PureComponent {
         });
       }
       const presentationChanged = presentationId !== currentPresentationId;
-      if (presentationChanged) {
-        this.setState({
-          presentationId: currentPresentationId,
-        });
-      }
+
+      const isInitialPresentation = currentPresentation.isInitialPresentation;
+
       if (!presentationIsOpen && restoreOnUpdate && (currentSlide || presentationChanged)) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition
           .viewBoxHeight !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
-        if (slideChanged || positionChanged || pollPublished || presentationChanged) {
+        if (slideChanged || positionChanged || pollPublished || (presentationChanged && (hadPresentation || !isInitialPresentation))) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
         }
+      }
+
+      if (presentationChanged) {
+        this.setState({
+          presentationId: currentPresentationId,
+          hadPresentation: true
+        });
       }
 
       if ((presentationBounds !== prevPresentationBounds)

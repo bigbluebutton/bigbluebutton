@@ -71,10 +71,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.label',
     description: 'Aria-label for ActionsBar Section',
   },
-  iOSWarning: {
-    id: 'app.iOSWarning.label',
-    description: 'message indicating to upgrade ios version',
-  },
   clearedEmoji: {
     id: 'app.toast.clearedEmoji.label',
     description: 'message for cleared emoji status',
@@ -148,7 +144,6 @@ class App extends Component {
     const {
       notify,
       intl,
-      validIOSVersion,
       layoutContextDispatch,
       isRTL,
     } = this.props;
@@ -180,12 +175,6 @@ class App extends Component {
     }
 
     body.classList.add(`os-${osName.split(' ').shift().toLowerCase()}`);
-
-    if (!validIOSVersion()) {
-      notify(
-        intl.formatMessage(intlMessages.iOSWarning), 'error', 'warning',
-      );
-    }
 
     this.handleWindowResize();
     window.addEventListener('resize', this.handleWindowResize, false);
@@ -558,7 +547,7 @@ class App extends Component {
               ? <ExternalVideoContainer isLayoutSwapped={!presentationIsOpen} isPresenter={isPresenter} />
               : null
           }
-          {shouldShowSharedNotes 
+          {shouldShowSharedNotes
             ? (
               <NotesContainer
                 area="media"

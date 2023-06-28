@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Meteor } from 'meteor/meteor';
+
+const { pointerDiameter } = Meteor.settings.public.whiteboard;
 
 const Cursor = (props) => {
   const {
@@ -28,10 +31,10 @@ const Cursor = (props) => {
         style={{
           zIndex: z,
           position: 'absolute',
-          left: (_x || x) - 2.5,
-          top: (_y || y) - 2.5,
-          width: 5,
-          height: 5,
+          left: (_x || x) - pointerDiameter/2,
+          top: (_y || y) - pointerDiameter/2,
+          width: pointerDiameter,
+          height: pointerDiameter,
           borderRadius: '50%',
           background: `${color}`,
           pointerEvents: 'none',

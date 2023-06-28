@@ -13,9 +13,6 @@ class DeleteDrawing extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbArrowShape);
 
@@ -26,10 +23,10 @@ class DeleteDrawing extends MultiUsers {
 
     await this.modPage.waitAndClick(e.wbDelete);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-delete-drawing.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-delete-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-delete-drawing.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-delete-drawing.png');
   }
 }
 

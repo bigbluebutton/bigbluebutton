@@ -108,7 +108,7 @@ const observePresentationConversion = (
         if (doc.temporaryPresentationId !== temporaryPresentationId && doc.id !== tokenId) return;
 
         if (doc.conversion.status === 'FILE_TOO_LARGE' || doc.conversion.status === 'UNSUPPORTED_DOCUMENT'
-          || doc.conversion.status === 'CONVERSION_TIMEOUT' || doc.conversion.status === 'IVALID_MIME_TYPE') {
+          || doc.conversion.status === 'CONVERSION_TIMEOUT' || doc.conversion.status === 'INVALID_MIME_TYPE') {
           Presentations.update(
             { id: tokenId }, { $set: { temporaryPresentationId, renderedInToast: false } },
           );
@@ -384,7 +384,7 @@ const exportPresentationToChat = (presentationId, observer) => {
     const cursor = Presentations.find({ id: presentationId });
 
     const checkStatus = (exportation) => {
-      const shouldStop = lastStatus.status === 'RUNNING' && exportation.status === 'EXPORTED';
+      const shouldStop = ['RUNNING', 'PROCESSING'].includes(lastStatus.status) && exportation.status === 'EXPORTED';
 
       if (shouldStop) {
         observer(exportation, true);

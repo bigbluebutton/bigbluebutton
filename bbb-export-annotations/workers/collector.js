@@ -89,17 +89,19 @@ async function collectAnnotationsFromRedis() {
       await client.publish(config.redis.channels.publish, statusUpdate.build(pageNumber));
     }
   } else {
+    const imageName = 'slide1';
+
     if (fs.existsSync(`${presFile}.png`)) {
-      // PNG file available
-      fs.copyFileSync(`${presFile}.png`, path.join(dropbox, 'slide1.png'));
+      fs.copyFileSync(`${presFile}.png`, path.join(dropbox, `${imageName}.png`));
     } else if (fs.existsSync(`${presFile}.jpeg`)) {
-      // JPEG file available
-      fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, 'slide1.jpeg'));
-      await client.publish(config.redis.channels.publish, statusUpdate.build());
+      fs.copyFileSync(`${presFile}.jpeg`, path.join(dropbox, `${imageName}.jpeg`));
+    } else if (fs.existsSync(`${presFile}.jpg`)) {
+      // JPG file available: copy changing extension to JPEG
+      fs.copyFileSync(`${presFile}.jpg`, path.join(dropbox, `${imageName}.jpeg`));
     } else {
       await client.publish(config.redis.channels.publish, statusUpdate.build());
       client.disconnect();
-      return logger.error(`No PDF, PNG or JPEG file available for job ${jobId}`);
+      return logger.error(`No PDF, PNG, JPG or JPEG file available for job ${jobId}`);
     }
 
     await client.publish(config.redis.channels.publish, statusUpdate.build());

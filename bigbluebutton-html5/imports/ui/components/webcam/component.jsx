@@ -222,7 +222,8 @@ const WebcamComponent = ({
             }}
             enable={{
               top: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.top,
-              bottom: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.bottom,
+              bottom: !isFullscreen && !isDragging && !swapLayout
+              && cameraDock.resizableEdge.bottom,
               left: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.left,
               right: !isFullscreen && !isDragging && !swapLayout && cameraDock.resizableEdge.right,
               topLeft: false,
@@ -232,7 +233,7 @@ const WebcamComponent = ({
             }}
             style={{
               position: 'absolute',
-              zIndex: isCameraSidebar ? 0 : cameraDock.zIndex,
+              zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock.zIndex,
             }}
           >
             <Styled.Draggable
@@ -245,7 +246,7 @@ const WebcamComponent = ({
                 width: isIphone ? mobileWidth : isDesktopWidth,
                 height: isIphone ? mobileHeight : isDesktopHeight,
                 opacity: camOpacity,
-                background: isCameraSidebar ? colorContentBackground : null,
+                background: null,
               }}
             >
               <VideoProviderContainer

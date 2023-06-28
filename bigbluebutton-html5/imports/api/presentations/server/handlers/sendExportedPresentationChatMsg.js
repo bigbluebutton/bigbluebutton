@@ -7,7 +7,8 @@ export default async function sendExportedPresentationChatMsg(meetingId, present
   const CHAT_CONFIG = Meteor.settings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const PUBLIC_CHAT_SYSTEM_ID = CHAT_CONFIG.system_userid;
-  const CHAT_EXPORTED_PRESENTATION_MESSAGE = CHAT_CONFIG.system_messages_keys.chat_exported_presentation;
+  const CHAT_EXPORTED_PRESENTATION_MESSAGE = CHAT_CONFIG.system_messages_keys
+    .chat_exported_presentation;
   const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
 
   const pres = await Presentations.findOneAsync({ meetingId, id: presentationId });

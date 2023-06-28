@@ -38,7 +38,10 @@ export default async function handleValidateAuthToken({ body }, meetingId) {
   check(reasonCode, String);
 
   const pendingAuths = pendingAuthenticationsStore.take(meetingId, userId, authToken);
-  Logger.info(`PendingAuths length [${pendingAuths.length}]`);
+  const printablePendingAuthStore = pendingAuths.map((a) => {
+    return { meetingId: a.meetingId, userId: a.userId, authToken: a.authToken }
+  })
+  Logger.info(`PendingAuths length [${pendingAuths.length}]: ${JSON.stringify(printablePendingAuthStore)}`);
   if (pendingAuths.length === 0) return;
 
   if (!valid) {
@@ -58,6 +61,7 @@ export default async function handleValidateAuthToken({ body }, meetingId) {
 
           // Schedule socket disconnection for this user
           // giving some time for client receiving the reason of disconnection
+          Logger.info(`Scheduling socket disconnection for user ${userId} ${connectionId} due to invalid auth token`);
           new Promise((resolve) => {
             Meteor.setTimeout(() => {
               methodInvocationObject.connection.close();

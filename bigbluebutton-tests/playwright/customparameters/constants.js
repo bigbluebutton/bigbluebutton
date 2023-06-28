@@ -20,7 +20,7 @@ const cssCode = `${e.presentationTitle}{display: none;}`;
 exports.customStyle = `userdata-bbb_custom_style=${cssCode}`;
 exports.customStyleUrl = 'userdata-bbb_custom_style_url=https://develop.bigbluebutton.org/css-test-file.css';
 exports.autoSwapLayout = 'userdata-bbb_auto_swap_layout=true';
-exports.hidePresentation = 'userdata-bbb_hide_presentation=true';
+exports.hidePresentationOnJoin = 'userdata-bbb_hide_presentation_on_join="true"';
 exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';
 exports.outsideToggleRecording = 'userdata-bbb_outside_toggle_recording=true';
 exports.showPublicChatOnLogin = 'userdata-bbb_show_public_chat_on_login=false';
@@ -40,22 +40,40 @@ exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
 exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
 
 // Disabled Features
-exports.breakoutRooms = 'disabledFeatures=breakoutRooms';
-exports.liveTranscription = 'disabledFeatures=liveTranscription';
-exports.captions = 'disabledFeatures=captions';
-exports.chat = 'disabledFeatures=chat';
-exports.externalVideos = 'disabledFeatures=externalVideos';
-exports.learningDashboard = 'disabledFeatures=learningDashboard';
-exports.polls = 'disabledFeatures=polls';
-exports.screenshare = 'disabledFeatures=screenshare';
-exports.sharedNotes = 'disabledFeatures=sharedNotes';
-exports.virtualBackgrounds = 'disabledFeatures=virtualBackgrounds';
-exports.downloadPresentationWithAnnotations = 'disabledFeatures=downloadPresentationWithAnnotations';
-exports.importPresentationWithAnnotationsFromBreakoutRooms = 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms';
-exports.importSharedNotesFromBreakoutRooms = 'disabledFeatures=importSharedNotesFromBreakoutRooms';
-exports.layouts = 'disabledFeatures=layouts';
-exports.presentation = 'disabledFeatures=presentation';
-exports.customVirtualBackground = 'disabledFeatures=customVirtualBackgrounds';
+exports.breakoutRoomsDisabled = 'disabledFeatures=breakoutRooms';
+exports.speechRecognitionDisabled = 'disabledFeatures=liveTranscription';
+exports.captionsDisabled = 'disabledFeatures=captions';
+exports.chatDisabled = 'disabledFeatures=chat';
+exports.externalVideosDisabled = 'disabledFeatures=externalVideos';
+exports.learningDashboardDisabled = 'disabledFeatures=learningDashboard';
+exports.pollsDisabled = 'disabledFeatures=polls';
+exports.screenshareDisabled = 'disabledFeatures=screenshare';
+exports.sharedNotesDisabled = 'disabledFeatures=sharedNotes';
+exports.virtualBackgroundsDisabled = 'disabledFeatures=virtualBackgrounds';
+exports.downloadPresentationWithAnnotationsDisabled = 'disabledFeatures=downloadPresentationWithAnnotations';
+exports.importPresentationWithAnnotationsFromBreakoutRoomsDisabled = 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms';
+exports.importSharedNotesFromBreakoutRoomsDisabled = 'disabledFeatures=importSharedNotesFromBreakoutRooms';
+exports.layoutsDisabled = 'disabledFeatures=layouts';
+exports.presentationDisabled = 'disabledFeatures=presentation';
+exports.customVirtualBackgroundDisabled = 'disabledFeatures=customVirtualBackgrounds';
+
+// Disabled Features Exclude
+exports.breakoutRoomsExclude = 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms';
+exports.speechRecognitionExclude = 'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription';
+exports.captionsExclude = 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions';
+exports.chatExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat';
+exports.externalVideosExclude = 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos';
+exports.layoutsExclude = 'disabledFeatures=presentation,chat,layouts&disabledFeaturesExclude=layouts';
+exports.learningDashboardExclude = 'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard';
+exports.pollsExclude = 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls';
+exports.screenshareExclude = 'disabledFeatures=presentation,chat,screenshare&disabledFeaturesExclude=screenshare';
+exports.sharedNotesExclude = 'disabledFeatures=presentation,chat,sharedNotes&disabledFeaturesExclude=sharedNotes';
+exports.virtualBackgroundsExclude = 'disabledFeatures=presentation,chat,virtualBackgrounds&disabledFeaturesExclude=virtualBackgrounds';
+exports.downloadPresentationWithAnnotationsExclude = 'disabledFeatures=chat,downloadPresentationWithAnnotations&disabledFeaturesExclude=downloadPresentationWithAnnotations';
+exports.importPresentationWithAnnotationsFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importPresentationWithAnnotationsFromBreakoutRooms&disabledFeaturesExclude=importPresentationWithAnnotationsFromBreakoutRooms';
+exports.importSharedNotesFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms';
+exports.presentationExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation';
+exports.customVirtualBackgroundExclude = 'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';

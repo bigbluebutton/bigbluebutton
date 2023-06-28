@@ -642,11 +642,44 @@ ruby publish/presentation.rb -m <meeting-id>-presentation
 
 Notice we appended "presentation" to the meetingId, this will tell the script to publish using the "presentation" format.
 
+### Running record-and-playback as a service
+
 You can deploy your changes by running `deploy.sh` and restarting the recording-related services:
 ```
 systemctl restart bbb-rap-starter
 systemctl restart bbb-rap-resque-worker
 ```
+
+#### Deploying other formats
+
+When running `deploy.sh`, it will only set the presentation workflow by default. However it is possible to add other formats too such as video, screenshare, etc. In order to do that, you just have to change `deploy_format "presentation"` in the `deploy.sh` script, adding whatever formats you want, so, in case of `video` and `screenshare`, it would be:
+
+```bash
+deploy_format "presentation video screenshare"
+```
+
+Another adaptation to deploy other formats is to follow the steps in [additional recording formats](/administration/customize#install-additional-recording-processing-formats) to enable these new workflows you just set. For example, in your `bigbluebutton.yml`, you may have:
+
+```yml
+steps:
+  archive: 'sanity'
+  sanity: 'captions'
+  captions:
+    - 'process:presentation'
+    - 'process:video'
+  'process:presentation': 'publish:presentation'
+  'process:video': 'publish:video'
+```
+
+At last, if it is the first time you set one other recording format, you may have to reload nginx in addition to the other commands mentioned previously in this section, like so:
+
+```
+systemctl restart bbb-rap-starter
+systemctl restart bbb-rap-resque-worker
+systemctl reload nginx
+```
+
+If you are not changing the nginx files for each format, it is not mandatory to reload nginx every time you run `deploy.sh`.
 
 ### Troubleshooting
 
@@ -774,6 +807,8 @@ Its error message describes the issue.
 ## FAQs
 
 ### How do I change the Start/Stop recording marks?
+
+Note: In BigBlueButton 2.6.9 we [made a change](https://github.com/bigbluebutton/bigbluebutton/pull/18044) which ensures that by default media files are not being saved to file unless the meeting is actively being recorded. If you are using BigBlueButton 2.6.9 or later, the instructions below will only work if you set `recordFullDurationMedia=true` in `/etc/bigbluebutton/bbb-web.properties`.
 
 In a scenario where a user forgot to press the Start/Stop recording button 30 minutes into a session, resulting in the playback missing that initial segment, its content can still be included by editing the intervals to be processed in the `events.xml` file.
 

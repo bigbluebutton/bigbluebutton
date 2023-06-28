@@ -30,7 +30,7 @@
   <maxUsers>${meeting.getMaxUsers()?c}</maxUsers>
   <moderatorCount>${meeting.getNumModerators()?c}</moderatorCount>
   <attendees>
-  <#list meeting.getUsers() as att>
+  <#list meeting.getOnlineUsers() as att>
     <attendee>
         <userID>${att.getExternalUserId()}</userID>
         <fullName>${att.getFullname()}</fullName>

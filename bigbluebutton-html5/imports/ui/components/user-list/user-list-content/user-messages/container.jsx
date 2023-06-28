@@ -7,8 +7,10 @@ import Service from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import { withTracker } from 'meteor/react-meteor-data';
 import Storage from '/imports/ui/services/storage/session';
+import { Session } from 'meteor/session';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
+const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const UserMessagesContainer = () => {
   const usingChatContext = useContext(ChatContext);
@@ -28,5 +30,6 @@ export default withTracker(() => {
   // We need to rerender this component whenever this
   // Storage variable changes.
   Storage.getItem(CLOSED_CHAT_LIST_KEY);
+  Session.get(STARTED_CHAT_LIST_KEY);
   return {};
 })(UserMessagesContainer);

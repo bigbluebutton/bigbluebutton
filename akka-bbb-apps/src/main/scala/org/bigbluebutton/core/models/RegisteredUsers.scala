@@ -146,8 +146,8 @@ object RegisteredUsers {
     u
   }
 
-  def updateUserJoin(users: RegisteredUsers, user: RegisteredUser): RegisteredUser = {
-    val u = user.copy(joined = true)
+  def updateUserJoin(users: RegisteredUsers, user: RegisteredUser, joined: Boolean): RegisteredUser = {
+    val u = user.copy(joined = joined)
     users.save(u)
     u
   }

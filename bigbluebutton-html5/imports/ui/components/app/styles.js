@@ -8,6 +8,8 @@ const CaptionsWrapper = styled.div`
   bottom: 100px;
   left: 20%;
   z-index: 5;
+  pointer-events: none;
+  user-select:none;
 `;
 
 const ActionsBar = styled.section`

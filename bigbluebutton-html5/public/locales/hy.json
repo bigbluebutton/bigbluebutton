@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Միացնել (եթե հասանելի է)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Արտաքին աղբյուրից տեսանյութի ցուցադրում",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Դադարեցնել արտաքին աղբյուրից տեսանյութի ցուցադրումը",
-    "app.iOSWarning.label": "Խնդրում ենք թարմացնել Ձեր օպերացիոն համակարգը iOS 12.2 կամ ավելի թարմ տարբերակի",
     "app.legacy.unsupportedBrowser": "Հավանաբար օգտագործում եք բրաուզեր, որը համատեղելի չէ համակարգի հետ Խնդրում ենք օգտագործել {0} կամ {1}",
     "app.legacy.upgradeBrowser": "Հավանաբար օգտագործում եք բրաուզերի ավելի հին տարբերակը Համակարգի հետ համատեղելիության համար խնդրում ենք թարմացնել բրաուզերը",
     "app.legacy.criosBrowser": "iOS համակարգում լիարժեք աշխատելու համար խնդրում ենք օգտագործել Safari",

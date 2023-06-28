@@ -20,15 +20,6 @@ function meetingIsBreakout() {
   return (meeting && meeting.meetingProp.isBreakout);
 }
 
-const validIOSVersion = () => {
-  const { isIos, isIosVersionSupported } = deviceInfo;
-
-  if (isIos) {
-    return isIosVersionSupported();
-  }
-  return true;
-};
-
 const setDarkTheme = (value) => {
   if (value && !DarkReader.isEnabled()) {
       DarkReader.enable(
@@ -56,7 +47,6 @@ export {
   getFontSize,
   meetingIsBreakout,
   getBreakoutRooms,
-  validIOSVersion,
   setDarkTheme,
   isDarkThemeEnabled,
 };

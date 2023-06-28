@@ -1,7 +1,8 @@
 package org.bigbluebutton.common2.domain
 
 case class PresentationVO(id: String, temporaryPresentationId: String, name: String, current: Boolean = false,
-                          pages: Vector[PageVO], downloadable: Boolean, removable: Boolean)
+                          pages: Vector[PageVO], downloadable: Boolean, removable: Boolean,
+                          isInitialPresentation: Boolean)
 
 case class PageVO(id: String, num: Int, thumbUri: String = "",
                   txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0,

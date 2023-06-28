@@ -1169,7 +1169,6 @@
     "app.externalVideo.subtitlesOff": "Sätt på ( om tillgängligt)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Dela en extern video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Sluta dela extern video",
-    "app.iOSWarning.label": "Vänligen uppgradera till iOS 12.2 eller senare",
     "app.legacy.unsupportedBrowser": "Det verkar som om du använder en webbläsare som inte stöds. Använd antingen {0} eller {1} för fullt stöd.",
     "app.legacy.upgradeBrowser": "Det verkar som om du använder en äldre version av en webbläsare som stöds. Uppgradera din webbläsare för fullständigt stöd.",
     "app.legacy.criosBrowser": "På iOS använd Safari för fullständigt stöd.",

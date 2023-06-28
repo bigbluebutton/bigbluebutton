@@ -69,9 +69,7 @@ class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.webcamContainer);
     const webcamVideoLocator = await this.getLocator(e.webcamContainer);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png', {
-      maxDiffPixelRatio: 0.1,
-    });
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
   }
 
   async webcamFullscreen() {
@@ -101,9 +99,7 @@ class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.webcamContainer);
     const webcamVideoLocator = await this.getLocator(e.webcamContainer);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png', {
-      maxDiffPixelRatio: 0.1,
-    });
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
 
     // Remove
     await this.waitAndClick(e.videoDropdownMenu);

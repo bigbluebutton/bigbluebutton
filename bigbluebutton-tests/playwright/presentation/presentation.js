@@ -223,7 +223,6 @@ class Presentation extends MultiUsers {
 
   async presentationSnapshot(testInfo) {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await waitAndClearNotification(this.modPage);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
     await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);
@@ -242,9 +241,6 @@ class Presentation extends MultiUsers {
     await this.modPage.waitForSelector(e.resetZoomButton, ELEMENT_WAIT_LONGER_TIME);
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     const zoomOutButtonLocator = this.modPage.getLocator(e.zoomOutButton);
     await expect(zoomOutButtonLocator).toBeDisabled();
@@ -256,35 +252,32 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.zoomInButton);
     await expect(zoomOutButtonLocator).toBeEnabled();
     await expect(resetZoomButtonLocator).toContainText(/150%/);
-    await expect(wbBox).toHaveScreenshot('moderator1-zoom150.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-zoom150.png');
 
     //Zoom out 125%
     await this.modPage.waitAndClick(e.zoomOutButton);
     await expect(resetZoomButtonLocator).toContainText(/125%/);
-    await expect(wbBox).toHaveScreenshot('moderator1-zoom125.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-zoom125.png');
 
     //Reset Zoom 100%
     await this.modPage.waitAndClick(e.resetZoomButton);
     await expect(resetZoomButtonLocator).toContainText(/100%/);
-    await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png');
   }
 
   async selectSlide() {
     await this.modPage.waitForSelector(e.skipSlide);
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.selectSlide('Slide 10');
-    await expect(wbBox).toHaveScreenshot('moderator1-select-slide10.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide10.png');
 
     await this.modPage.selectSlide('Slide 5');
-    await expect(wbBox).toHaveScreenshot('moderator1-select-slide5.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide5.png');
 
     await this.modPage.selectSlide('Slide 13');
-    await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png', screenshotOptions);
+    await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png');
   }
 }
 

@@ -127,10 +127,9 @@ class CustomParameters extends MultiUsers {
     await expect(notificationBarColor).toBe(colorToRGB);
   }
 
-  async hidePresentation() {
+  async hidePresentationOnJoin() {
     await this.modPage.waitForSelector(e.actions);
-    const checkPresentationButton = await this.modPage.checkElement(e.restorePresentation);
-    await expect(checkPresentationButton).toBeTruthy();
+    await this.modPage.hasElement(e.restorePresentation);
     await this.modPage.wasRemoved(e.presentationPlaceholder);
   }
 
@@ -240,9 +239,9 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.createBreakoutRooms);
   }
 
-  async liveTranscription() {
+  async speechRecognition() {
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.liveTranscription);
+    await this.modPage.wasRemoved(e.speechRecognition);
   }
 
   async captions() {
@@ -316,6 +315,92 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick (e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.wasRemoved(e.inputBackgroundButton);
+  }
+
+  // Disabled Features Exclude
+  async breakoutRoomsExclude() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.hasElement(e.createBreakoutRooms);
+  }
+
+  async speechRecognitionExclude() {
+    const { speechRecognitionEnabled } = getSettings();
+    test.fail(!speechRecognitionEnabled, 'Live Transcription is disabled');
+    await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.speechRecognition);
+  }
+
+  async captionsExclude() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.hasElement(e.writeClosedCaptions);
+  }
+
+  async chatExclude() {
+    await this.modPage.hasElement(e.publicChat);
+  }
+
+  async externalVideosExclude() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.shareExternalVideoBtn);
+  }
+
+  async layoutsExclude() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.propagateLayout);
+    await this.modPage.hasElement(e.layoutModal);
+  }
+
+  async learningDashboardExclude() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.hasElement(e.learningDashboard);
+  }
+
+  async pollsExclude() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.polling);
+  }
+
+  async screenshareExclude() {
+    await this.modPage.hasElement(e.startScreenSharing);
+  }
+
+  async sharedNotesExclude() {
+    await this.modPage.hasElement(e.sharedNotes);
+  }
+
+  async virtualBackgroundsExclude() {
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(e.virtualBackgrounds);
+  }
+
+  async downloadPresentationWithAnnotationsExclude() {
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(e.exportPresentationToPublicChat);
+  }
+
+  async importPresentationWithAnnotationsFromBreakoutRoomsExclude() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.hasElement(e.captureBreakoutWhiteboard);
+  }
+
+  async importSharedNotesFromBreakoutRoomsExclude() {
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.hasElement(e.captureBreakoutSharedNotes);
+  }
+
+  async presentationExclude() {
+    await this.modPage.hasElement(e.whiteboard);
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.hasElement(e.restorePresentation);
+  }
+
+  async customVirtualBackgroundExclude() {
+    await this.modPage.waitAndClick (e.joinVideo);
+    await this.modPage.waitForSelector(e.webcamSettingsModal);
+    await this.modPage.hasElement(e.inputBackgroundButton);
   }
 }
 

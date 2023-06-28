@@ -18,7 +18,7 @@ test.describe.parallel('Notifications', () => {
     await notifications.audioNotification();
   });
 
-  test('User join notification', async ({ browser, context, page }) => {
+  test('User join notification @ci', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.getUserJoinPopupResponse();
@@ -31,7 +31,7 @@ test.describe.parallel('Notifications', () => {
   });
 
   test.describe.parallel('Chat', () => {
-    test('Public Chat notification', async ({ browser, context, page }) => {
+    test('Public Chat notification @ci', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page, true);
       await chatNotifications.publicChatNotification();
