@@ -6,7 +6,6 @@ import Styled from './styles';
 import ChatMessageListContainer from './chat-message-list/component';
 import ChatMessageFormContainer from './chat-message-form/component';
 import ChatTypingIndicatorContainer from './chat-typing-indicator/component';
-import ChatPopupContainer from './chat-popup/component';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import { CircularProgress } from "@mui/material";
 import usePendingChat from '/imports/ui/core/local-states/usePendingChat';
@@ -21,10 +20,7 @@ const Chat: React.FC<ChatProps> = () => {
   return (
     <Styled.Chat>
       <ChatHeader />
-      <Styled.ChatContent>
-        <ChatPopupContainer />
-        <ChatMessageListContainer />
-      </Styled.ChatContent>
+      <ChatMessageListContainer />
       <ChatMessageFormContainer />
       <ChatTypingIndicatorContainer />
     </Styled.Chat>

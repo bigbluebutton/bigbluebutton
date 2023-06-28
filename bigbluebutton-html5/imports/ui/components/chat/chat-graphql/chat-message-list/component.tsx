@@ -16,6 +16,7 @@ import { Chat } from "/imports/ui/Types/chat";
 import { Message } from "/imports/ui/Types/message";
 import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
 import { User } from "/imports/ui/Types/user";
+import ChatPopupContainer from "../chat-popup/component";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -190,6 +191,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           }
         </span>
         <div id="contentRef" ref={contentRef}>
+          <ChatPopupContainer />
           {
             Array.from({ length: pagesToLoad }, (v, k) => k + (firstPageToLoad)).map((page) => {
               return (
