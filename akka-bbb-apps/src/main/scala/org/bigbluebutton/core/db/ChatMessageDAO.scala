@@ -99,4 +99,16 @@ object ChatMessageDAO {
     }
   }
 
+  def deleteAllFromChat(meetingId: String, chatId: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[ChatMessageDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .delete
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) deleted from ChatMessage meetingId=${meetingId} chatId=${chatId}")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error deleting from ChatMessage meetingId=${meetingId} chatId=${chatId}: $e")
+    }
+  }
+
 }
