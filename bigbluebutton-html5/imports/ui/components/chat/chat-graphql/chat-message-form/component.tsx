@@ -212,7 +212,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const handleMessageChange = (e: React.FormEvent<HTMLInputElement>) => {
     let newMessage = null;
     let newError = null;
-
+    console.log('handleMessageChange', e)
     if (AUTO_CONVERT_EMOJI) {
       newMessage = checkText(e.target.value);
     } else {
@@ -229,16 +229,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     setMessage(newMessage);
     setError(newError);
-    throttledHandleUserTyping(newError);
+    handleUserTyping(newError)
   }
 
   const handleUserTyping = (error?: boolean) => {
     if (error || !ENABLE_TYPING_INDICATOR) return;
     startUserTyping(chatId);
   }
-
-  const throttledHandleUserTyping = throttle(() => handleUserTyping(),
-    2000, { trailing: false });
 
   const handleMessageKeyDown = (e: React.FormEvent<HTMLInputElement>) => {
     // TODO Prevent send message pressing enter on mobile and/or virtual keyboard

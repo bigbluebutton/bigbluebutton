@@ -21,6 +21,7 @@ const enum MessageType {
   TEXT = 'default',
   POLL = 'poll',
   PRESENTATION = 'presentation',
+  CHAT_CLEAR = 'publicChatHistoryCleared'
 }
 
 const intlMessages = defineMessages({
@@ -32,6 +33,14 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
   },
+  systemLabel: {
+    id: 'app.toast.chat.system',
+    description: 'presentation area element label',
+  },
+  chatClear: {
+    id: 'app.chat.clearPublicChatMessage',
+    description: 'message of when clear the public chat',
+  },
 });
 
 const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, lastSenderPreviousPage }) => {
@@ -39,6 +48,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
   if (!message) return null;
   const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
+  console.log('message', message);
   const messageContent: {
     name: string,
     color: string,
@@ -62,6 +72,18 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
           isModerator: true,
           component: (
             <ChatMessagePresentationContent metadata={message.messageMetadata} />
+          ),
+        };
+      case MessageType.CHAT_CLEAR:
+        return {
+          name: intl.formatMessage(intlMessages.systemLabel),
+          color: '#0F70D7',
+          isModerator: true,
+          component: (
+            <ChatMessageTextContent
+              emphasizedMessage={true}
+              text={intl.formatMessage(intlMessages.chatClear)}
+            />
           ),
         };
       case MessageType.TEXT:
