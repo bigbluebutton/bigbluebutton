@@ -20,12 +20,12 @@ const GlobalStyle = createGlobalStyle`
     .MuiPopover-root {
       top: 0 !important;
     }
-    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper {
+    .MuiPaper-root-mobile {
       top: 0 !important;
       left: 0 !important;
       bottom: 0 !important;
       right: 0 !important;
-      max-width: none;
+      max-width: none !important;
     }
   }
   .MuiList-padding {
