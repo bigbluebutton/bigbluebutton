@@ -49,7 +49,7 @@ DROP VIEW IF EXISTS "v_user_voice";
 DROP VIEW IF EXISTS "v_user_breakoutRoom";
 DROP VIEW IF EXISTS "v_user";
 DROP VIEW IF EXISTS "v_user_current";
-DROP VIEW IF EXISTS "v_user_current_guestStatus";
+DROP VIEW IF EXISTS "v_user_guest";
 DROP VIEW IF EXISTS "v_user_ref";
 DROP VIEW IF EXISTS "v_user_customParameter";
 DROP VIEW IF EXISTS "v_user_welcomeMsgs";
@@ -105,8 +105,7 @@ create table "meeting" (
 	"learningDashboardAccessToken" varchar(100),
 	"html5InstanceId" varchar(100),
 	"createdTime" bigint,
-	"duration" integer,
-	"guestLobbyMessage" text
+	"duration" integer
 );
 create index "idx_meeting_extId" on "meeting"("extId");
 
@@ -176,6 +175,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."webcamsOnlyForModerator",
     "meeting_usersPolicies"."userCameraCap",
     "meeting_usersPolicies"."guestPolicy",
+    "meeting_usersPolicies"."guestLobbyMessage",
     "meeting_usersPolicies"."meetingLayout",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
@@ -413,7 +413,6 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
    FROM "user";
 
---CREATE OR REPLACE VIEW "v_user_guestStatus" AS
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
