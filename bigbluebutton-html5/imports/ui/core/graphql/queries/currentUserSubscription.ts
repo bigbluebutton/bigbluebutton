@@ -17,10 +17,14 @@ subscription userCurrentSubscription {
     value
   }
   disconnected
+  away
+  raiseHand
   emoji
   extId
   guest
-  guestStatus
+  guestStatus {
+    guestStatus
+  }
   hasDrawPermissionOnCurrentPage
   isDialIn
   isModerator

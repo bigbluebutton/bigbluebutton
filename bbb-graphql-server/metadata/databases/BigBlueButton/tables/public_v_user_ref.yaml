@@ -12,9 +12,11 @@ select_permissions:
       columns:
         - authed
         - avatar
+        - away
         - banned
         - clientType
         - color
+        - disconnected
         - emoji
         - extId
         - guest
@@ -24,13 +26,13 @@ select_permissions:
         - isModerator
         - isOnline
         - joined
-        - disconnected
         - locked
         - loggedOut
         - mobile
         - name
         - pinned
         - presenter
+        - raiseHand
         - registeredOn
         - role
         - userId

@@ -15,6 +15,7 @@ case class MeetingUsersPoliciesDbModel(
                                 webcamsOnlyForModerator: Boolean,
                                 userCameraCap: Int,
                                 guestPolicy: String,
+                                guestLobbyMessage: Option[String],
                                 meetingLayout: String,
                                 allowModsToUnmuteUsers: Boolean,
                                 allowModsToEjectCameras: Boolean,
@@ -28,6 +29,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
   val webcamsOnlyForModerator = column[Boolean]("webcamsOnlyForModerator")
   val userCameraCap = column[Int]("userCameraCap")
   val guestPolicy = column[String]("guestPolicy")
+  val guestLobbyMessage = column[Option[String]]("guestLobbyMessage")
   val meetingLayout = column[String]("meetingLayout")
   val allowModsToUnmuteUsers = column[Boolean]("allowModsToUnmuteUsers")
   val allowModsToEjectCameras = column[Boolean]("allowModsToEjectCameras")
@@ -35,7 +37,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
 
 //  val fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
+  override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses, webcamsOnlyForModerator, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout, allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
 }
 
 object MeetingUsersPoliciesDAO {
@@ -49,6 +51,7 @@ object MeetingUsersPoliciesDAO {
           webcamsOnlyForModerator = usersProp.webcamsOnlyForModerator,
           userCameraCap = usersProp.userCameraCap,
           guestPolicy = usersProp.guestPolicy,
+          guestLobbyMessage = None,
           meetingLayout = usersProp.meetingLayout,
           allowModsToUnmuteUsers = usersProp.allowModsToUnmuteUsers,
           allowModsToEjectCameras = usersProp.allowModsToEjectCameras,
@@ -74,4 +77,22 @@ object MeetingUsersPoliciesDAO {
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating meeting_usersPolicies: $e")
     }
   }
+
+  def updateGuestLobbyMessage(meetingId: String, guestLobbyMessage: String) = {
+    DatabaseConnection.db.run(
+      TableQuery[MeetingUsersPoliciesDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(u => u.guestLobbyMessage)
+        .update(
+          guestLobbyMessage match {
+            case "" => None
+            case m => Some(m)
+          }
+        )
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on meeting_usersPolicies table!")
+      case Failure(e) => DatabaseConnection.logger.error(s"Error updating meeting_usersPolicies: $e")
+    }
+  }
+
 }
