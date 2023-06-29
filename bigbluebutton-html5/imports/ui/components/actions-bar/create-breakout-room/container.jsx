@@ -13,16 +13,19 @@ const CreateBreakoutRoomContainer = (props) => {
                                     && isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const captureSharedNotesByDefault = METEOR_SETTINGS_APP.breakouts.captureSharedNotesByDefault
                                     && isImportSharedNotesFromBreakoutRoomsEnabled();
+  const inviteModsByDefault = METEOR_SETTINGS_APP.breakouts.sendInvitationToAssignedModeratorsByDefault;
+
   const { amIModerator } = props;
   return (
     amIModerator
     && (
-      <CreateBreakoutRoomModal 
-        {...props}  
+      <CreateBreakoutRoomModal
+        {...props}
         {...{
           allowUserChooseRoomByDefault,
           captureWhiteboardByDefault,
           captureSharedNotesByDefault,
+          inviteModsByDefault,
         }}
       />
     )

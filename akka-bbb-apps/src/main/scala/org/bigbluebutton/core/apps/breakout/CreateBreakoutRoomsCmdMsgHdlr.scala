@@ -85,7 +85,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       outGW.send(event)
     }
 
-    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms)
+    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms, msg.body.sendInviteToModerators)
     BreakoutRoomDAO.insert(breakoutModel)
     state.update(Some(breakoutModel))
   }
