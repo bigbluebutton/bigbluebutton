@@ -9,20 +9,21 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 case class BreakoutRoomDbModel(
-          breakoutRoomId:     String,
-          parentMeetingId:    String,
-          externalId:         String,
-          sequence:           Int,
-          name:               String,
-          shortName:          String,
-          isDefaultName:      Boolean,
-          freeJoin:             Boolean,
-//        startedOn:          Long,
-          startedAt:          Option[java.sql.Timestamp],
-          endedAt:            Option[java.sql.Timestamp],
-          durationInSeconds:  Int,
-          captureNotes:       Boolean,
-          captureSlides:      Boolean,
+          breakoutRoomId:               String,
+          parentMeetingId:              String,
+          externalId:                   String,
+          sequence:                     Int,
+          name:                         String,
+          shortName:                    String,
+          isDefaultName:                Boolean,
+          freeJoin:                     Boolean,
+//        startedOn:                    Long,
+          startedAt:                    Option[java.sql.Timestamp],
+          endedAt:                      Option[java.sql.Timestamp],
+          durationInSeconds:            Int,
+          sendInvitationToModerators:   Boolean,
+          captureNotes:                 Boolean,
+          captureSlides:                Boolean,
 )
 
 class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, None, "breakoutRoom") {
@@ -37,9 +38,10 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
   val startedAt = column[Option[java.sql.Timestamp]]("startedAt")
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val durationInSeconds = column[Int]("durationInSeconds")
+  val sendInvitationToModerators = column[Boolean]("sendInvitationToModerators")
   val captureNotes = column[Boolean]("captureNotes")
   val captureSlides = column[Boolean]("captureSlides")
-  override def * = (breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, freeJoin, startedAt, endedAt, durationInSeconds, captureNotes, captureSlides) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
+  override def * = (breakoutRoomId, parentMeetingId, externalId, sequence, name, shortName, isDefaultName, freeJoin, startedAt, endedAt, durationInSeconds, sendInvitationToModerators, captureNotes, captureSlides) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
 }
 
 object BreakoutRoomDAO {
@@ -49,7 +51,7 @@ object BreakoutRoomDAO {
       for {
         (_, room) <- breakout.rooms
       } yield {
-        prepareInsertOrUpdate(room, breakout.durationInSeconds)
+        prepareInsertOrUpdate(room, breakout.durationInSeconds, breakout.sendInviteToModerators)
       }
     ).transactionally)
       .onComplete {
@@ -83,7 +85,7 @@ object BreakoutRoomDAO {
 //    }
 //  }
 
-  def prepareInsertOrUpdate(room: BreakoutRoom2x, durationInSeconds: Int) = {
+  def prepareInsertOrUpdate(room: BreakoutRoom2x, durationInSeconds: Int, sendInvitationToModerators: Boolean) = {
     TableQuery[BreakoutRoomDbTableDef].insertOrUpdate(
       BreakoutRoomDbModel(
         breakoutRoomId = room.id,
@@ -97,6 +99,7 @@ object BreakoutRoomDAO {
         startedAt = None,
         endedAt = None,
         durationInSeconds = durationInSeconds,
+        sendInvitationToModerators = sendInvitationToModerators,
         captureNotes = room.captureNotes,
         captureSlides = room.captureSlides,
       )

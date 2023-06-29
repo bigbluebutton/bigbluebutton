@@ -248,20 +248,20 @@ create view "v_meeting_group" as select * from meeting_group;
 
 CREATE TABLE "user" (
 	"userId" varchar(50) NOT NULL PRIMARY KEY,
-	"extId" varchar(50) NULL,
-	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
-	"name" varchar(255) NULL,
-	"role" varchar(20) NULL,
-	"avatar" varchar(500) NULL,
-	"color" varchar(7) NULL,
-    "authed" bool NULL,
-    "joined" bool NULL,
-    "banned" bool NULL,
-    "loggedOut" bool NULL,  -- when user clicked Leave meeting button
-    "guest" bool NULL, --used for dialIn
+	"extId" varchar(50),
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+	"name" varchar(255),
+	"role" varchar(20),
+	"avatar" varchar(500),
+	"color" varchar(7),
+    "authed" bool,
+    "joined" bool,
+    "banned" bool,
+    "loggedOut" bool,  -- when user clicked Leave meeting button
+    "guest" bool, --used for dialIn
     "guestStatus" varchar(50),
-    "registeredOn" bigint NULL,
-    "excludeFromDashboard" bool NULL,
+    "registeredOn" bigint,
+    "excludeFromDashboard" bool,
     --columns of user state bellow
     "raiseHand" bool default false,
     "raiseHandTime" timestamp,
@@ -269,19 +269,19 @@ CREATE TABLE "user" (
     "awayTime" timestamp,
 	"emoji" varchar,
 	"emojiTime" timestamp,
-	"guestStatusSetByModerator" varchar(50) NULL references "user"("userId") ON DELETE SET NULL,
+	"guestStatusSetByModerator" varchar(50) references "user"("userId") ON DELETE SET NULL,
 	"guestLobbyMessage" text,
-	"mobile" bool NULL,
+	"mobile" bool,
 	"clientType" varchar(50),
-	"disconnected" bool NULL, -- this is the old leftFlag (that was renamed), set when the user just closed the client
-	"expired" bool NULL, -- when it is been some time the user is disconnected
-	"ejected" bool null,
+	"disconnected" bool, -- this is the old leftFlag (that was renamed), set when the user just closed the client
+	"expired" bool, -- when it is been some time the user is disconnected
+	"ejected" bool,
 	"ejectReason" varchar(255),
 	"ejectReasonCode" varchar(50),
-	"ejectedByModerator" varchar(50) NULL references "user"("userId") ON DELETE SET NULL,
-	"presenter" bool NULL,
-	"pinned" bool NULL,
-	"locked" bool NULL,
+	"ejectedByModerator" varchar(50) references "user"("userId") ON DELETE SET NULL,
+	"presenter" bool,
+	"pinned" bool,
+	"locked" bool,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE
 );
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
@@ -492,17 +492,17 @@ CREATE TABLE "user_voice" (
 	"callerName" varchar(100),
 	"callerNum" varchar(100),
 	"callingWith" varchar(100),
-	"joined" boolean NULL,
-	"listenOnly" boolean NULL,
-	"muted" boolean NULL,
-	"spoke" boolean NULL,
-	"talking" boolean NULL,
-	"floor" boolean NULL,
+	"joined" boolean,
+	"listenOnly" boolean,
+	"muted" boolean,
+	"spoke" boolean,
+	"talking" boolean,
+	"floor" boolean,
 	"lastFloorTime" varchar(25),
 	"voiceConf" varchar(100),
 	"color" varchar(7),
-	"endTime" bigint NULL,
-	"startTime" bigint NULL
+	"endTime" bigint,
+	"startTime" bigint
 );
 --CREATE INDEX "idx_user_voice_userId" ON "user_voice"("userId");
 ALTER TABLE "user_voice" ADD COLUMN "hideTalkingIndicatorAt" timestamp GENERATED ALWAYS AS (to_timestamp((COALESCE("endTime","startTime") + 6000) / 1000)) STORED;
@@ -564,7 +564,7 @@ create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("m
 
 CREATE TABLE "user_localSettings"(
 	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
-	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
 	"settingsJson" jsonb
 );
 
@@ -1082,34 +1082,35 @@ SELECT * FROM "timer";
 ----breakoutRoom
 
 
-CREATE TABLE public."breakoutRoom" (
+CREATE TABLE "breakoutRoom" (
 	"breakoutRoomId" varchar(100) NOT NULL PRIMARY KEY,
-	"parentMeetingId" varchar(100) NULL REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-	"externalId" varchar(100) NULL,
-	"sequence" numeric NULL,
-	"name" varchar(100) NULL,
-	"shortName" varchar(100) NULL,
-	"isDefaultName" bool NULL,
-	"freeJoin" bool NULL,
-	"startedAt" timestamp NULL,
-	"endedAt" timestamp NULL,
-	"durationInSeconds" int4 NULL,
-	"captureNotes" bool NULL,
-	"captureSlides" bool NULL
+	"parentMeetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+	"externalId" varchar(100),
+	"sequence" numeric,
+	"name" varchar(100),
+	"shortName" varchar(100),
+	"isDefaultName" bool,
+	"freeJoin" bool,
+	"startedAt" timestamp,
+	"endedAt" timestamp,
+	"durationInSeconds" int4,
+	"sendInvitationToModerators" bool,
+	"captureNotes" bool,
+	"captureSlides" bool
 );
 
 CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeetingId", "externalId");
 
-CREATE TABLE public."breakoutRoom_user" (
+CREATE TABLE "breakoutRoom_user" (
 	"breakoutRoomId" varchar(100) NOT NULL REFERENCES "breakoutRoom"("breakoutRoomId") ON DELETE CASCADE,
 	"userId" varchar(50) NOT NULL REFERENCES "user"("userId") ON DELETE CASCADE,
-	"assignedAt" timestamp NULL,
+	"assignedAt" timestamp,
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "userId")
 );
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
 SELECT u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin", b."sequence", b."name", b."isDefaultName",
-        b."shortName", b."startedAt", b."endedAt", b."durationInSeconds",
+        b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
 CASE WHEN b."durationInSeconds" = 0 THEN NULL ELSE b."startedAt" + b."durationInSeconds" * '1 second'::INTERVAL END AS "willEndAt",
 bu."assignedAt", ub."isOnline" AS "currentIsOnline", ub."registeredOn" AS "currentRegisteredOn", ub."joined" AS "currentJoined"
 FROM "user" u

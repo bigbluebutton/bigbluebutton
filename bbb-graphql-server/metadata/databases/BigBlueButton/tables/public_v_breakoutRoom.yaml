@@ -39,6 +39,7 @@ select_permissions:
         - freeJoin
         - isDefaultName
         - name
+        - sendInvitationToModerators
         - sequence
         - shortName
         - startedAt
