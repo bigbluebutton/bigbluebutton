@@ -10,6 +10,7 @@ import CollectionEventsBroker from '/imports/ui/services/LiveDataEventBroker/Liv
 let prevUserData = {};
 let currentUserData = {};
 let messageQueue = [];
+let referenceIds = {};
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -18,8 +19,6 @@ const ITENS_PER_PAGE = CHAT_CONFIG.itemsPerPage;
 const TIME_BETWEEN_FETCHS = CHAT_CONFIG.timeBetweenFetchs;
 const EVENT_NAME = 'bbb-group-chat-messages-subscription-has-stoppped';
 const EVENT_NAME_SUBSCRIPTION_READY = 'bbb-group-chat-messages-subscriptions-ready';
-
-const referenceIds = {};
 
 const getMessagesBeforeJoinCounter = async () => {
   const counter = await makeCall('chatMessageBeforeJoinCounter');
@@ -43,7 +42,7 @@ const startSyncMessagesbeforeJoin = async (dispatch) => {
     const messagesFromPage = await makeCall(
       'fetchMessagePerPage',
       chatWithLessPages.chatId,
-      chatWithLessPages.syncedPages
+      chatWithLessPages.syncedPages,
     );
 
     if (messagesFromPage.length) {
@@ -108,6 +107,7 @@ const Adapter = () => {
     if (users[Auth.meetingID] && users[Auth.meetingID][Auth.userID]) {
       if (currentUserData?.role !== users[Auth.meetingID][Auth.userID]?.role) {
         prevUserData = currentUserData;
+        referenceIds = {};
       }
       currentUserData = users[Auth.meetingID][Auth.userID];
     }
@@ -130,7 +130,7 @@ const Adapter = () => {
         });
       },
       1000,
-      { trailing: true, leading: true }
+      { trailing: true, leading: true },
     );
 
     const insertToContext = (fields) => {
