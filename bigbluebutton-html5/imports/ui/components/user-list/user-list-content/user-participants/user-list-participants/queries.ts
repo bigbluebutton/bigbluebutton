@@ -3,6 +3,8 @@ export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: 
   user(limit:$limit, offset: $offset, 
                 order_by: [
                   {role: asc},
+                  {raiseHandTime: asc_nulls_last},
+                  {awayTime: asc_nulls_last},
                   {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},
@@ -16,6 +18,8 @@ export const USERS_SUBSCRIPTION = gql`subscription Users($offset: Int!, $limit: 
     role
     color
     avatar
+    away
+    raiseHand
     emoji
     avatar
     presenter

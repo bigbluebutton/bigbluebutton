@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.UserDAO
+import org.bigbluebutton.core.db.{ UserDAO, UserStateDAO }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -22,7 +22,7 @@ object Users2x {
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)
-    UserDAO.update(user)
+    UserStateDAO.update(user)
     Some(user)
   }
 
@@ -37,7 +37,7 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -48,8 +48,8 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
       users.save(newUser)
-      UserDAO.update(newUser)
-      UserDAO.updateExpired(u.intId, false)
+      UserStateDAO.update(newUser)
+      UserStateDAO.updateExpired(u.intId, false)
       newUser
     }
   }
@@ -116,7 +116,7 @@ object Users2x {
   def setMobile(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.mobile).setTo(true)
     users.save(newUserState)
-    UserDAO.update((newUserState))
+    UserStateDAO.update((newUserState))
     newUserState
   }
 
@@ -125,7 +125,7 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      //      UserDAO.delete(intId)
+      //      UserDAO.delete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }
@@ -136,7 +136,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -147,7 +147,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -179,7 +179,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.pin).setTo(pin)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -191,7 +191,7 @@ object Users2x {
       val newUser = u.modify(_.emoji).setTo(emoji)
 
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -233,7 +233,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }

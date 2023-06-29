@@ -49,6 +49,7 @@ DROP VIEW IF EXISTS "v_user_voice";
 DROP VIEW IF EXISTS "v_user_breakoutRoom";
 DROP VIEW IF EXISTS "v_user";
 DROP VIEW IF EXISTS "v_user_current";
+DROP VIEW IF EXISTS "v_user_guest";
 DROP VIEW IF EXISTS "v_user_ref";
 DROP VIEW IF EXISTS "v_user_customParameter";
 DROP VIEW IF EXISTS "v_user_welcomeMsgs";
@@ -159,6 +160,7 @@ create table "meeting_usersPolicies" (
     "webcamsOnlyForModerator"  boolean,
     "userCameraCap"            integer,
     "guestPolicy"              varchar(100),
+    "guestLobbyMessage"        text,
     "meetingLayout"            varchar(100),
     "allowModsToUnmuteUsers"   boolean,
     "allowModsToEjectCameras"  boolean,
@@ -173,6 +175,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."webcamsOnlyForModerator",
     "meeting_usersPolicies"."userCameraCap",
     "meeting_usersPolicies"."guestPolicy",
+    "meeting_usersPolicies"."guestLobbyMessage",
     "meeting_usersPolicies"."meetingLayout",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."allowModsToEjectCameras",
@@ -243,31 +246,39 @@ create view "v_meeting_group" as select * from meeting_group;
 
 -- ========== User tables
 
-
 CREATE TABLE "user" (
 	"userId" varchar(50) NOT NULL PRIMARY KEY,
 	"extId" varchar(50) NULL,
 	"meetingId" varchar(100) NULL references "meeting"("meetingId") ON DELETE CASCADE,
 	"name" varchar(255) NULL,
+	"role" varchar(20) NULL,
 	"avatar" varchar(500) NULL,
 	"color" varchar(7) NULL,
+    "authed" bool NULL,
+    "joined" bool NULL,
+    "banned" bool NULL,
+    "loggedOut" bool NULL,  -- when user clicked Leave meeting button
+    "guest" bool NULL, --used for dialIn
+    "guestStatus" varchar(50),
+    "registeredOn" bigint NULL,
+    "excludeFromDashboard" bool NULL,
+    --columns of user state bellow
+    "raiseHand" bool default false,
+    "raiseHandTime" timestamp,
+    "away" bool default false,
+    "awayTime" timestamp,
 	"emoji" varchar,
 	"emojiTime" timestamp,
-	"guest" bool NULL,
-	"guestStatus" varchar(50),
+	"guestStatusSetByModerator" varchar(50) NULL references "user"("userId") ON DELETE SET NULL,
+	"guestLobbyMessage" text,
 	"mobile" bool NULL,
 	"clientType" varchar(50),
---	"excludeFromDashboard" bool NULL,
-	"role" varchar(20) NULL,
-	"authed" bool NULL,
-	"joined" bool NULL,
 	"disconnected" bool NULL, -- this is the old leftFlag (that was renamed), set when the user just closed the client
 	"expired" bool NULL, -- when it is been some time the user is disconnected
---	"ejected" bool null,
---	"ejectReason" varchar(255),
-	"banned" bool NULL,
-	"loggedOut" bool NULL,  -- when user clicked Leave meeting button
-	"registeredOn" bigint NULL,
+	"ejected" bool null,
+	"ejectReason" varchar(255),
+	"ejectReasonCode" varchar(50),
+	"ejectedByModerator" varchar(50) NULL references "user"("userId") ON DELETE SET NULL,
 	"presenter" bool NULL,
 	"pinned" bool NULL,
 	"locked" bool NULL,
@@ -276,6 +287,7 @@ CREATE TABLE "user" (
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
+
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -283,12 +295,18 @@ COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds 
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
---Virtual columns isDialIn, isModerator and isOnline
-ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS (CASE WHEN "clientType" = 'dial-in-user' THEN true ELSE false END) STORED;
+--Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
+ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
+ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
+ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
+ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
+
+CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
+
 --ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
 
--- user (on update emoji, set new emojiTime)
+-- user (on update emoji, raiseHand or away: set new time)
 CREATE OR REPLACE FUNCTION update_user_emoji_time_trigger_func()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -297,6 +315,20 @@ BEGIN
             NEW."emojiTime" := NULL;
         ELSE
             NEW."emojiTime" := NOW();
+        END IF;
+    END IF;
+    IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
+        IF NEW."raiseHand" is false THEN
+            NEW."raiseHandTime" := NULL;
+        ELSE
+            NEW."raiseHandTime" := NOW();
+        END IF;
+    END IF;
+    IF NEW."away" IS DISTINCT FROM OLD."away" THEN
+        IF NEW."away" is false THEN
+            NEW."awayTime" := NULL;
+        ELSE
+            NEW."awayTime" := NOW();
         END IF;
     END IF;
     RETURN NEW;
@@ -314,6 +346,10 @@ AS SELECT "user"."userId",
     "user"."name",
     "user"."avatar",
     "user"."color",
+    "user"."away",
+    "user"."awayTime",
+    "user"."raiseHand",
+    "user"."raiseHandTime",
     "user"."emoji",
     "user"."emojiTime",
     "user"."guest",
@@ -358,9 +394,11 @@ AS SELECT "user"."userId",
     "user"."name",
     "user"."avatar",
     "user"."color",
+    "user"."away",
+    "user"."raiseHand",
     "user"."emoji",
     "user"."guest",
-    "user"."guestStatus",
+--    "user"."guestStatus",
     "user"."mobile",
     "user"."clientType",
     "user"."isDialIn",
@@ -369,6 +407,9 @@ AS SELECT "user"."userId",
     "user"."joined",
     "user"."disconnected",
     "user"."expired",
+    "user"."ejected",
+    "user"."ejectReason",
+    "user"."ejectReasonCode",
     "user"."banned",
     "user"."loggedOut",
     "user"."registeredOn",
@@ -378,6 +419,16 @@ AS SELECT "user"."userId",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
    FROM "user";
+
+CREATE OR REPLACE VIEW "v_user_guest" AS
+SELECT u."meetingId", u."userId",
+u."guestStatus",
+u."isWaiting",
+u."isAllowed",
+u."isDenied",
+COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
+FROM "user" u
+JOIN "meeting_usersPolicies" mup using("meetingId");
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -389,6 +440,8 @@ AS SELECT "user"."userId",
     "user"."name",
     "user"."avatar",
     "user"."color",
+    "user"."away",
+    "user"."raiseHand",
     "user"."emoji",
     "user"."guest",
     "user"."guestStatus",
