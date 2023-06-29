@@ -287,6 +287,7 @@ CREATE TABLE "user" (
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
 
+
 --hasDrawPermissionOnCurrentPage is necessary to improve the performance of the order by of userlist
 COMMENT ON COLUMN "user"."hasDrawPermissionOnCurrentPage" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -294,8 +295,14 @@ COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds 
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
 
---Virtual columns isDialIn, isModerator and isOnline
-ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS (CASE WHEN "clientType" = 'dial-in-user' THEN true ELSE false END) STORED;
+--Virtual columns isDialIn, isModerator, isOnline, isWaiting, isAllowed, isDenied
+ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientType" = 'dial-in-user') STORED;
+ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
+ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
+ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
+
+CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
+
 --ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 --ALTER TABLE "user" ADD COLUMN "isOnline" boolean GENERATED ALWAYS AS (CASE WHEN "joined" IS true AND "loggedOut" IS false THEN true ELSE false END) STORED;
 
@@ -416,9 +423,9 @@ AS SELECT "user"."userId",
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",
 u."guestStatus",
-u."guestStatus" = 'WAIT' AS "isWaiting",
-u."guestStatus" = 'ALLOW' AS "isAllowed",
-u."guestStatus" = 'DENY' AS "isDenied",
+u."isWaiting",
+u."isAllowed",
+u."isDenied",
 COALESCE(u."guestLobbyMessage",mup."guestLobbyMessage") AS "guestLobbyMessage"
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId");
