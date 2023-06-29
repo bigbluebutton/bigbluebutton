@@ -148,14 +148,6 @@ const amIModerator = () => {
   return User.role === ROLE_MODERATOR;
 };
 
-const checkInviteModerators = () => {
-  const BREAKOUTS_CONFIG = Meteor.settings.public.app.breakouts;
-
-  return !(
-    amIModerator() && !BREAKOUTS_CONFIG.sendInvitationToIncludedModerators
-  );
-};
-
 const getBreakoutByUserId = (userId) =>
   Breakouts.find(
     { [`url_${userId}`]: { $exists: true } },
@@ -250,6 +242,5 @@ export default {
   getBreakoutUserWasIn,
   sortUsersByName: UserListService.sortUsersByName,
   isUserInBreakoutRoom,
-  checkInviteModerators,
   setCapturedContentUploading,
 };

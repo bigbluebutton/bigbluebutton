@@ -9,7 +9,7 @@ import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/comp
 import SortList from './sort-user-list/component';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
-import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, sendInvitationToIncludedModerators } from '/imports/ui/services/features';
+import { isImportSharedNotesFromBreakoutRoomsEnabled, isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import { addNewAlert } from '/imports/ui/components/screenreader-alert/service';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -173,9 +173,9 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.movedUserLabel',
     description: 'screen reader alert when users are moved to rooms',
   },
-  includeMods: {
-    id: 'app.createBreakoutRoom.includeModsInBreakouts',
-    description: 'Include moderators on breakouts invitation',
+  sendInvitationToMods: {
+    id: 'app.createBreakoutRoom.sendInvitationToMods',
+    description: 'label for checkbox send invitation to moderators',
   },
 });
 
@@ -234,7 +234,7 @@ class BreakoutRoom extends PureComponent {
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
     this.setCaptureNotes = this.setCaptureNotes.bind(this);
-    this.setIncludeMods = this.setIncludeMods.bind(this);
+    this.setInviteMods = this.setInviteMods.bind(this);
     this.setCaptureSlides = this.setCaptureSlides.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
@@ -257,7 +257,7 @@ class BreakoutRoom extends PureComponent {
       roomNameEmptyIsValid: true,
       record: false,
       captureNotes: false,
-      includeMods: false,
+      inviteMods: false,
       captureSlides: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
@@ -273,7 +273,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
       allowUserChooseRoomByDefault, captureSharedNotesByDefault,
-      captureWhiteboardByDefault, includeModsByDefault,
+      captureWhiteboardByDefault, inviteModsByDefault,
     } = this.props;
     setPresentationVisibility('none');
     this.setRoomUsers();
@@ -304,7 +304,7 @@ class BreakoutRoom extends PureComponent {
       freeJoin: allowUserChooseRoomByDefault,
       captureSlides: captureWhiteboardByDefault,
       captureNotes: captureSharedNotesByDefault,
-      includeMods: includeModsByDefault,
+      inviteMods: inviteModsByDefault,
     });
 
     const lastBreakouts = getLastBreakouts();
@@ -442,7 +442,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRooms,
       durationTime,
       durationIsValid,
-      includeMods,
+      inviteMods,
     } = this.state;
 
     if ((durationTime || 0) < MIN_BREAKOUT_TIME) {
@@ -485,7 +485,7 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
     }));
 
-    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides, includeMods);
+    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides, inviteMods);
     Session.set('isUserListOpen', true);
   }
 
@@ -627,8 +627,8 @@ class BreakoutRoom extends PureComponent {
     this.setState({ captureNotes: e.target.checked });
   }
 
-  setIncludeMods(e) {
-    this.setState({ includeMods: e.target.checked });
+  setInviteMods(e) {
+    this.setState({ inviteMods: e.target.checked });
   }
 
   setCaptureSlides(e) {
@@ -1084,7 +1084,7 @@ class BreakoutRoom extends PureComponent {
       record,
       captureNotes,
       captureSlides,
-      includeMods,
+      inviteMods,
     } = this.state;
     return (
       <Styled.CheckBoxesContainer key="breakout-checkboxes">
@@ -1147,16 +1147,16 @@ class BreakoutRoom extends PureComponent {
           ) : null
         }
         {
-            <Styled.FreeJoinLabel htmlFor="sendInvitationToIncludedModeratorsCheckbox" key="send-invitation-to-included-moderators-breakouts">
+            <Styled.FreeJoinLabel htmlFor="sendInvitationToAssignedModeratorsCheckbox" key="send-invitation-to-assigned-moderators-breakouts">
               <Styled.FreeJoinCheckbox
-                id="sendInvitationToIncludedModeratorsCheckbox"
+                id="sendInvitationToAssignedModeratorsCheckbox"
                 type="checkbox"
-                onChange={this.setIncludeMods}
-                checked={includeMods}
-                aria-label={intl.formatMessage(intlMessages.includeMods)}
+                onChange={this.setInviteMods}
+                checked={inviteMods}
+                aria-label={intl.formatMessage(intlMessages.sendInvitationToMods)}
               />
               <span aria-hidden>
-                {intl.formatMessage(intlMessages.includeMods)}
+                {intl.formatMessage(intlMessages.sendInvitationToMods)}
               </span>
             </Styled.FreeJoinLabel>
         }

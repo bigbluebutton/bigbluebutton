@@ -127,8 +127,8 @@ public:
       allowUserChooseRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
+      sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
-      sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     showAllAvailableLocales: true
