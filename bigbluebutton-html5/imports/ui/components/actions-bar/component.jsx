@@ -23,6 +23,7 @@ class ActionsBar extends PureComponent {
 
     this.setCaptionsReaderMenuModalIsOpen = this.setCaptionsReaderMenuModalIsOpen.bind(this);
     this.setRenderRaiseHand = this.renderRaiseHand.bind(this);
+    this.actionsBarRef = React.createRef();
   }
 
   setCaptionsReaderMenuModalIsOpen(value) {
@@ -35,9 +36,13 @@ class ActionsBar extends PureComponent {
     } = this.props;
 
     return (<>
-      {isInteractionsButtonEnabled ? <InteractionsButtonContainer />
-        : isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ setEmojiStatus, currentUser, intl }} />
-       : null}
+      {isInteractionsButtonEnabled ?
+        <>
+          <Styled.Separator />
+          <InteractionsButtonContainer actionsBarRef={this.actionsBarRef} />
+        </> :
+        isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ setEmojiStatus, currentUser, intl }} />
+          : null}
     </>);
   }
 
@@ -78,6 +83,7 @@ class ActionsBar extends PureComponent {
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
     return (
       <Styled.ActionsBar
+        ref={this.actionsBarRef}
         style={
           {
             height: actionsBarStyle.innerHeight,

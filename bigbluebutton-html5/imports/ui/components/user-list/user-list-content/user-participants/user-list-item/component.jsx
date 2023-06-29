@@ -151,6 +151,14 @@ const messages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
   },
+  awayLabel: {
+    id: 'app.userList.menu.away',
+    description: 'Text for identifying away user',
+  },
+  notAwayLabel: {
+    id: 'app.userList.menu.notAway',
+    description: 'Text for identifying not away user',
+  },
 });
 
 const propTypes = {
@@ -280,6 +288,7 @@ class UserListItem extends PureComponent {
       getGroupChatPrivate,
       getEmojiList,
       setEmojiStatus,
+      setUserAway,
       assignPresenter,
       removeUser,
       toggleVoice,
@@ -322,6 +331,7 @@ class UserListItem extends PureComponent {
       allowedToChangeUserLockStatus,
       allowedToChangeWhiteboardAccess,
       allowedToEjectCameras,
+      allowedToSetAway,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -537,6 +547,17 @@ class UserListItem extends PureComponent {
           this.handleClose();
         },
         icon: 'video_off',
+      },
+      {
+        allowed: allowedToSetAway
+          && isMeteorConnected,
+        key: 'setAway',
+        label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
+        onClick: () => {
+          this.onActionsHide(setUserAway(user.userId, !user.away));
+          this.handleClose();
+        },
+        icon: 'time',
       },
     ];
 

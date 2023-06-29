@@ -484,6 +484,8 @@ const getAvailableActions = (
     && !amISubjectUser
     && usersProp.allowModsToEjectCameras;
 
+  const allowedToSetAway = amISubjectUser && !USER_STATUS_ENABLED;
+
   return {
     allowedToChatPrivately,
     allowedToMuteAudio,
@@ -497,6 +499,7 @@ const getAvailableActions = (
     allowedToChangeUserLockStatus,
     allowedToChangeWhiteboardAccess,
     allowedToEjectCameras,
+    allowedToSetAway,
   };
 };
 

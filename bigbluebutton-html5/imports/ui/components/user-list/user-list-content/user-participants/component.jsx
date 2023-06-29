@@ -124,6 +124,7 @@ class UserParticipants extends Component {
     const {
       compact,
       setEmojiStatus,
+      setUserAway,
       users,
       requestUserInformation,
       currentUser,
@@ -152,6 +153,7 @@ class UserParticipants extends Component {
             {...{
               compact,
               setEmojiStatus,
+              setUserAway,
               requestUserInformation,
               currentUser,
               meetingIsBreakout,

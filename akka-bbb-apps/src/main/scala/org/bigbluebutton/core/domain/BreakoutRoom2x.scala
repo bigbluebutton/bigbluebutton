@@ -18,7 +18,7 @@ case class BreakoutRoom2x(
     captureNotes:          Boolean,
     captureSlides:         Boolean,
     captureNotesFilename:  String,
-    captureSlidesFilename: String
+    captureSlidesFilename: String,
 ) {
 
 }
