@@ -70,7 +70,6 @@ export const ChatActions: React.FC = () => {
 
   useEffect(() => {
     if (dataHistory) {
-      console.log('dataHistory', dataHistory);
       const exportedString = generateExportedMessages(
         dataHistory.chat_message_public,
         dataHistory.user_welcomeMsgs[0],

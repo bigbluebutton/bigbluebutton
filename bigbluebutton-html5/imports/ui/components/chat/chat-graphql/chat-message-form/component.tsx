@@ -212,7 +212,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const handleMessageChange = (e: React.FormEvent<HTMLInputElement>) => {
     let newMessage = null;
     let newError = null;
-    console.log('handleMessageChange', e)
     if (AUTO_CONVERT_EMOJI) {
       newMessage = checkText(e.target.value);
     } else {

@@ -17,6 +17,7 @@ import { Message } from "/imports/ui/Types/message";
 import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
 import { User } from "/imports/ui/Types/user";
 import ChatPopupContainer from "../chat-popup/component";
+import { type } from "types-ramda";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -32,11 +33,11 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListProps {
-  totalPages: number;
+  totalPages?: number;
   chatId: string;
   currentUserId: string;
   setMessageAsSeenMutation: Function;
-  totalUnread: number;
+  totalUnread?: number;
 }
 const isElement = (el: any): el is HTMLElement => {
   return el instanceof HTMLElement;
@@ -49,8 +50,8 @@ const isMap = (map: any): map is Map<number, string> => {
 const scrollObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     const el = entry.target;
-    if (isElement(el) && isElement(el.parentElement){
-      el.parentElement.scrollTop = el.parentElement.scrollHeight;
+    if (isElement(el) && isElement(el.parentElement)) {
+      el.parentElement.scrollTop = el.parentElement.scrollHeight + el.clientHeight;
     }
   }
 });
@@ -67,9 +68,7 @@ const setLastSender = (lastSenderPerPage: Map<number, string>,) => {
 const ChatMessageList: React.FC<ChatListProps> = ({
   totalPages,
   chatId,
-  currentUserId,
   setMessageAsSeenMutation,
-  totalUnread,
 }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>();
@@ -79,14 +78,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = React.useState<number | null>(null);
   const [followingTail, setFollowingTail] = React.useState(true);
 
-  const markMessageAsSeen = useCallback((message: Message, page) => {
-    if (
-      message &&
-      (message?.user?.userId !== currentUserId)
-      && (page + 1) === totalPages
-      && totalUnread > 0
-    ) {
-
+  const markMessageAsSeen = useCallback((message: Message) => {
+    if (message) {
       setMessageAsSeenMutation({
         variables: {
           chatId: message.chatId,
@@ -94,7 +87,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         },
       })
     }
-  }, [totalPages, currentUserId, totalUnread]);
+  }, []);
 
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
@@ -117,7 +110,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       if (scrollObserver && contentRef.current) {
         scrollObserver.observe(contentRef.current as HTMLDivElement);
         if (isElement(messageListRef.current)) {
-          messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+          messageListRef.current.scrollTop = messageListRef.current.scrollHeight + messageListRef.current.clientHeight;
         }
         setFollowingTail(true);
       }

@@ -51,6 +51,7 @@ export const handleSendMessage = (message: string, idChatOpen: string) => {
 export const startUserTyping = throttle(
   (chatId: string) => makeCall('startUserTyping', chatId),
   START_TYPING_THROTTLE_INTERVAL,
+  { leading: true, trailing: false }
 );
 export const stopUserTyping = () => makeCall('stopUserTyping');
 

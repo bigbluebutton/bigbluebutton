@@ -48,7 +48,6 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
   if (!message) return null;
   const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
-  console.log('message', message);
   const messageContent: {
     name: string,
     color: string,
