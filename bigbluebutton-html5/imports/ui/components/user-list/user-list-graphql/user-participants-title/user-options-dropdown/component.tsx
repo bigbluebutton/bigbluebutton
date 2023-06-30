@@ -306,6 +306,9 @@ const UserTitleOptionsContainer: React.FC = () => {
       isModerator: user?.isModerator,
     }
   });
+  // in case of current user isn't load yet
+  if (!currentUser?.isModerator ?? true) return null;
+
   return (
     <UserTitleOptions
       isRTL={isRTL}
