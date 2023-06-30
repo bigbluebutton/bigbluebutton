@@ -18,8 +18,15 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async speechRecognition() {
+    const { speechRecognitionEnabled } = getSettings();
+
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.wasRemoved(e.speechRecognition);
+
+    if(speechRecognitionEnabled) {
+      await this.modPage.wasRemoved(e.speechRecognition);
+    } else {
+      await this.modPage.wasRemoved(e.speechRecognitionUnsupported);
+    }
   }
 
   async captions() {
@@ -103,9 +110,14 @@ class DisabledFeatures extends MultiUsers {
 
   async speechRecognitionExclude() {
     const { speechRecognitionEnabled } = getSettings();
-    test.fail(!speechRecognitionEnabled, 'Live Transcription is disabled');
+
     await this.modPage.waitForSelector(e.audioModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.speechRecognition);
+
+    if(speechRecognitionEnabled) {
+      await this.modPage.wasRemoved(e.speechRecognition);
+    } else {
+      await this.modPage.wasRemoved(e.speechRecognitionUnsupported);
+    }
   }
 
   async captionsExclude() {

@@ -47,6 +47,8 @@ exports.wasTalking = 'button[data-test="wasTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
 exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
 exports.muteMicButton = 'button[data-test="muteMicButton"]';
+exports.speechRecognition = 'select[id="speechSelect"]';
+exports.speechRecognitionUnsupported = 'div[data-test="speechRecognitionUnsupported"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -153,7 +155,6 @@ exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.speechRecognition = 'div[data-test="speechRecognition"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 exports.propagateLayout = 'li[data-test="propagateLayout"]';
 exports.layoutModal = 'li[data-test="layoutModal"]';
