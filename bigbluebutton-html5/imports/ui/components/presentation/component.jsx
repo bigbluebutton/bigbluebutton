@@ -739,6 +739,9 @@ class Presentation extends PureComponent {
     ${currentSlide.content}
     ${intl.formatMessage(intlMessages.slideContentEnd)}` : intl.formatMessage(intlMessages.noSlideContent);
 
+    const isVideoFocus = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+    const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
+
     return (
       <>
         <Styled.PresentationContainer
@@ -753,9 +756,9 @@ class Presentation extends PureComponent {
             height: presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
-            zIndex: fullscreenContext ? presentationBounds.zIndex : undefined,
+            zIndex: !isVideoFocus ? presentationZIndex : 0,
             background:
-              layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0 && !fullscreenContext
+              layoutType === isVideoFocus && !fullscreenContext
                 ? colorContentBackground
                 : null,
           }}

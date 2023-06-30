@@ -667,6 +667,7 @@ SELECT 	"user"."userId",
 		chat_with."userId" AS "participantId",
 		count(DISTINCT cm."messageId") "totalMessages",
 		sum(CASE WHEN cm."senderId" != "user"."userId" and cm."createdTime" > coalesce(cu."lastSeenAt",0) THEN 1 ELSE 0 end) "totalUnread",
+		cu."lastSeenAt",
 		CASE WHEN chat."access" = 'PUBLIC_ACCESS' THEN true ELSE false end public
 FROM "user"
 LEFT JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
@@ -676,7 +677,7 @@ JOIN "chat" ON "user"."meetingId" = chat."meetingId" AND cu."chatId" = chat."cha
 LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND chat_with."chatId" = chat."chatId" AND chat."chatId" != 'MAIN-PUBLIC-GROUP-CHAT' AND chat_with."userId" != cu."userId"
 LEFT JOIN chat_message cm ON cm."meetingId" = chat."meetingId" AND cm."chatId" = chat."chatId"
 WHERE cu."visible" is true
-GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", chat_with."userId";
+GROUP BY "user"."userId", chat."meetingId", chat."chatId", cu."visible", cu."lastSeenAt", chat_with."userId";
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
 SELECT cm.*,
