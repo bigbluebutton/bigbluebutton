@@ -1297,7 +1297,7 @@
     "app.learningDashboard.statusTimelineTable.thumbnail": "프레젠테이션 썸네일",
     "app.learningDashboard.statusTimelineTable.presentation": "프레젠테이션",
     "app.learningDashboard.statusTimelineTable.pageNumber": "페이지",
-    "app.learningDashboard.statusTimelineTable.setAt": "설정",
+    "app.learningDashboard.statusTimelineTable.setAt": "로(에) 설정",
     "app.learningDashboard.errors.invalidToken": "유효하지 않은 세션 토큰",
     "app.learningDashboard.errors.dataUnavailable": "데이터가 더 이상 가용하지 않습니다",
     "mobileApp.portals.list.empty.addFirstPortal.label": "위 버튼을 사용해 첫 번째 포털을 추가",
