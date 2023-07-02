@@ -445,7 +445,7 @@
     "app.actionsBar.actionsDropdown.restorePresentationDesc": "축소된 프레젠테이션을 복원하는 버튼",
     "app.actionsBar.actionsDropdown.minimizePresentationLabel": "프레젠테이션 최소화",
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "프레젠테이션 최소화 버튼",
-    "app.actionsBar.actionsDropdown.layoutModal": "레이아웃 설정 방식",
+    "app.actionsBar.actionsDropdown.layoutModal": "레이아웃 설정",
     "app.screenshare.screenShareLabel" : "화면 공유",
     "app.submenu.application.applicationSectionTitle": "신청",
     "app.submenu.application.animationsLabel": "애니메이션",
