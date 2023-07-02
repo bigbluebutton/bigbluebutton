@@ -588,7 +588,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "새로운 발표자로 자신을 임명",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "사용자 임의 선택",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "참여자 중에 임의로 한명을 선택합니다.",
-    "app.actionsBar.actionsDropdown.propagateLayoutLabel": "현 레이아웃 일괄 적용",
+    "app.actionsBar.actionsDropdown.propagateLayoutLabel": "현재 레이아웃 실시간 동기화",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "상태 설정",
     "app.actionsBar.emojiMenu.awayLabel": "부재중",
     "app.actionsBar.emojiMenu.awayDesc": "부재중으로 상태 변경",
