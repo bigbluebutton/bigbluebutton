@@ -381,6 +381,8 @@ exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
 exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
+exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
+exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
 
 // Closed Captions
 exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';

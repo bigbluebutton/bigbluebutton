@@ -158,63 +158,68 @@ test.describe.parallel('User', () => {
       test('Lock Share webcam', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.lockShareWebcam();
+        await lockViewers.lockShareWebcam(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-webcams
       test('Lock See other viewers webcams', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.lockSeeOtherViewersWebcams();
+        await lockViewers.lockSeeOtherViewersWebcams(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#microphone
       test('Lock Share microphone', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.lockShareMicrophone();
+        await lockViewers.lockShareMicrophone(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#public-chat
       test('Lock Send public chat messages', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.lockSendPublicChatMessages();
+        await lockViewers.lockSendPublicChatMessages(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#private-chat
       test('Lock Send private chat messages', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.lockSendPrivateChatMessages();
+        await lockViewers.lockSendPrivateChatMessages(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#shared-notes-1
-      test('Lock Edit Shared Notes', async ({ browser, context, page }) => {
+      test.only('Lock Edit Shared Notes', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.lockEditSharedNotes();
+        await lockViewers.lockEditSharedNotes(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#see-other-viewers-in-the-users-list
       test('Lock See other viewers in the Users list', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.lockSeeOtherViewersUserList();
+        await lockViewers.lockSeeOtherViewersUserList(context);
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#unlock-a-specific-user
       test('Unlock a user', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
-        await lockViewers.initUserPage2();
-        await lockViewers.unlockUser();
+        await lockViewers.unlockUser(context);
+      });
+
+      test.only('Lock see other viewers annotations', async ({ browser, context, page }) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page);
+        await lockViewers.lockSeeOtherViewersAnnotations(context);
+      });
+
+      test.only('Lock see other viewers cursor', async ({ browser, context, page }) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initPages(page);
+        await lockViewers.lockSeeOtherViewersCursor(context);
       });
     });
 
