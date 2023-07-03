@@ -1,0 +1,44 @@
+import { gql } from '@apollo/client';
+import { UserVoice } from '/imports/ui/Types/userVoice';
+
+interface IsBreakoutData {
+  meetingId: string;
+  isBreakout: boolean;
+}
+
+export interface TalkingIndicatorSubscriptionData {
+  user_voice: Array<Partial<UserVoice>>;
+}
+
+export interface IsBreakoutSubscriptionData {
+  meeting: Array<IsBreakoutData>;
+}
+
+export const TALKING_INDICATOR_SUBSCRIPTION = gql`
+  subscription TalkingIndicatorSubscription($limit: Int!) {
+    user_voice(where: { joined: { _eq: true }, spoke: { _eq: true } }, limit: $limit) {
+      callerName
+      spoke
+      talking
+      floor
+      color
+      startTime
+      muted
+      userId
+      user {
+        color
+        name
+      }
+    }
+  }
+`;
+
+// TODO: rework when useMeeting hook be avaible
+export const MEETING_ISBREAKOUT_SUBSCRIPTION = gql`
+  subscription getIsBreakout {
+    meeting {
+      meetingId
+      isBreakout
+    }
+  }
+`;
