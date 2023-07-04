@@ -305,7 +305,7 @@
     "app.presentationUploder.uploadViewTitle": "上傳簡報",
     "app.poll.questionAndoptions.label" : "顯示的問題文字。\nA. 調查選項 *\nB. 調查選項（可選）\nC. 調查選項（可選）\nD. 調查選項（可選）\nE. 調查選項（可選）",
     "app.poll.customInput.label": "自定義輸入",
-    "app.poll.customInputInstructions.label": "啟用自定義輸入 - 以指定的格式編寫問題和選項或將文本文件以相同格式拖放到此處。",
+    "app.poll.customInputInstructions.label": "啟用自定義輸入 - 以指定的格式編寫問題和選項(s)或將文本文件以相同格式拖放到此處。",
     "app.poll.maxOptionsWarning.label": "僅能使用前 5 個選項！",
     "app.poll.pollPaneTitle": "投票",
     "app.poll.enableMultipleResponseLabel": "允許每個受訪者選擇多個答案？",
