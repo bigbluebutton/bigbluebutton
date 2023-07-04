@@ -32,6 +32,7 @@
 - "!include public_v_user.yaml"
 - "!include public_v_user_breakoutRoom.yaml"
 - "!include public_v_user_camera.yaml"
+- "!include public_v_user_connectionStatusReport.yaml"
 - "!include public_v_user_current.yaml"
 - "!include public_v_user_customParameter.yaml"
 - "!include public_v_user_guest.yaml"
