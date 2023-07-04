@@ -263,7 +263,7 @@
     "app.presentationUploder.dropzoneImagesLabel": "將圖像拖到此處上傳",
     "app.presentationUploder.browseFilesLabel": "或瀏覽文件",
     "app.presentationUploder.browseImagesLabel": "或瀏覽/捕獲圖像",
-    "app.presentationUploder.externalUploadTitle": "從第三方應用添加內容",
+    "app.presentationUploder.externalUploadTitle": "從第3方應用添加內容",
     "app.presentationUploder.externalUploadLabel": "瀏覽文件",
     "app.presentationUploder.fileToUpload": "待上傳...",
     "app.presentationUploder.currentBadge": "目前",
