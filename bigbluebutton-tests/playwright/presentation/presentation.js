@@ -111,17 +111,47 @@ class Presentation extends MultiUsers {
     await expect(Number(width2) > Number(width1)).toBeTruthy();
   }
 
-  async downloadPresentation(testInfo) {
+  async enableAndDisablePresentationDownload(testInfo) {
+    const { presentationDownloadable } = getSettings();
+    test.fail(!presentationDownloadable, 'Presentation download is disable');
+
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    // enable original presentation download
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
+    await this.userPage.hasElement(e.smallToastMsg);
+    await this.userPage.hasElement(e.presentationDownloadBtn);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage.hasElement(e.presentationDownloadBtn);
+    /**
+     * the following steps throwing "Error: ENOENT: no such file or directory" at the end of execution
+     * due to somehow it's trying to take the screenshot of the tab that opened for the file download
+     */
+    //! await this.modPage.handleDownload(this.modPage.getLocator(e.presentationDownloadBtn), testInfo);
+    //! await this.userPage.handleDownload(this.userPage.getLocator(e.presentationDownloadBtn), testInfo);
+    // disable original presentation download
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.waitAndClick(e.disableOriginalPresentationDownloadBtn);
+    await this.modPage.hasElement(e.whiteboard);
+    await this.modPage.wasRemoved(e.presentationDownloadBtn);
+    await this.userPage.wasRemoved(e.presentationDownloadBtn);
+  }
+
+  async sendPresentationToDownload(testInfo) {
     const { presentationDownloadable } = getSettings();
     test.fail(!presentationDownloadable, 'Presentation download is disable');
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.waitAndClick(e.exportPresentationToPublicChat);
-    await this.userPage.hasElement(e.smallToastMsg);
-    await this.userPage.hasElement(e.toastDownload);
-    await this.userPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
+    await this.modPage.hasElement(e.downloadPresentationToast);
+    await this.modPage.hasElement(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
     const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
     await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
