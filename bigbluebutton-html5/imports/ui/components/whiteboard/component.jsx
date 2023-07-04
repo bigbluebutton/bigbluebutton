@@ -528,9 +528,9 @@ export default function Whiteboard(props) {
   // Reset zoom to default when current presentation changes.
   React.useEffect(() => {
     if (isPresenter && slidePosition && tldrawAPI) {
-      tldrawAPI.zoomTo(0);
+      tldrawAPI?.zoomTo(0);
       setHistory(null);
-      tldrawAPI.resetHistory();
+      tldrawAPI?.resetHistory();
     }
   }, [curPres?.id]);
 
@@ -930,8 +930,8 @@ export default function Whiteboard(props) {
 
     if (command && command?.id?.includes('change_page')) {
       const camera = tldrawAPI?.getPageState()?.camera;
-      if (currentCameraPoint[app?.currentPageId]) {
-        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera.zoom);
+      if (currentCameraPoint[app?.currentPageId] && camera) {
+        tldrawAPI?.setCamera([currentCameraPoint[app?.currentPageId][0], currentCameraPoint[app?.currentPageId][1]], camera?.zoom);
       }
     }
 
