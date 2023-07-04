@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -93,7 +93,6 @@ const LayoutModalComponent = (props) => {
       application:
       { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
     };
-
     updateSettings(obj, intlMessages.layoutToastLabel);
     closeModal();
   };
@@ -137,7 +136,12 @@ const LayoutModalComponent = (props) => {
                   alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`}
                 />
                 )}
-              onClick={() => handleSwitchLayout(layout)}
+              onClick={() => {
+                handleSwitchLayout(layout);
+                if (layout === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layout) {
+                  document.getElementById('layout')?.setAttribute('data-cam-position', CAMERADOCK_POSITION.CONTENT_TOP);
+                }
+              }}
               active={(layout === selectedLayout).toString()}
               aria-describedby="layout-btn-desc"
               data-test={`${layout}Layout`}
