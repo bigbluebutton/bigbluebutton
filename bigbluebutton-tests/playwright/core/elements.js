@@ -383,6 +383,7 @@ exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
 exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
 exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
+exports.cursor = 'div[data-test="cursor"]';
 
 // Closed Captions
 exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';

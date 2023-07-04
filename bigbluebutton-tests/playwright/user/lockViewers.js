@@ -16,18 +16,16 @@ class LockViewers extends MultiUsers {
     await this.modPage.shareWebcam();
     await this.modPage.hasElement(e.webcamVideoItem);
     await this.userPage.hasElement(e.webcamVideoItem);
-    //await this.userPage2.hasElement(e.webcamVideoItem);
     await this.userPage.shareWebcam();
+
     await this.modPage.hasNElements(e.webcamVideoItem, 2);
     await this.userPage.hasNElements(e.webcamVideoItem, 2);
-    //await this.userPage2.hasNElements(e.webcamVideoItem, 2);
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await waitAndClearNotification(this.modPage);
-    //await this.modPage.wasNthElementRemoved(e.webcamVideoItem, 1);
     await this.userPage.checkElementCount(e.webcamContainer, 1);
-    //await this.userPage2.wasNthElementRemoved(e.webcamVideoItem, 2);
+    
     await this.initUserPage2(true, context);
     await this.userPage2.hasElementDisabled(e.joinVideo);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
@@ -159,7 +157,6 @@ class LockViewers extends MultiUsers {
     await this.userPage2.checkElementCount(e.userListItem, 1);
     await sleep(1000);
     expect(await this.userPage.getLocator(e.userListItem).count()).toBe(1);
-    //await this.userPage2.hasText(e.userListItem, this.modPage.username);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
@@ -219,21 +216,16 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.hideViewersCursor);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    const screenshotOptions = {
-      maxDiffPixels: 1000,
-    };
+    await this.modPage.checkElementCount(e.cursor, 1);
 
     await this.initUserPage2(true, context);
-    const userWbLocator = this.userPage2.getLocator(e.whiteboard);
-    const wbBox = await userWbLocator.boundingBox();
-    await this.userPage2.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await expect(userWbLocator).toHaveScreenshot('viewer2-no-cursor.png', screenshotOptions);
+    await this.userPage2.checkElementCount(e.cursor, 0);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
-    const userWbLocatorArrow = this.userPage2.getLocator(e.whiteboard);
-    await expect(userWbLocatorArrow).toHaveScreenshot('viewer2-cursor.png', screenshotOptions);
+    await drawArrow(this.userPage);
+    await this.userPage2.checkElementCount(e.cursor, 1);
   }
 }
 

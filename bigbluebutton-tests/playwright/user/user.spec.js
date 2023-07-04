@@ -190,7 +190,7 @@ test.describe.parallel('User', () => {
       });
 
       // https://docs.bigbluebutton.org/2.6/release-tests.html#shared-notes-1
-      test.only('Lock Edit Shared Notes', async ({ browser, context, page }) => {
+      test('Lock Edit Shared Notes', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockEditSharedNotes(context);
@@ -210,13 +210,13 @@ test.describe.parallel('User', () => {
         await lockViewers.unlockUser(context);
       });
 
-      test.only('Lock see other viewers annotations', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations(context);
       });
 
-      test.only('Lock see other viewers cursor', async ({ browser, context, page }) => {
+      test('Lock see other viewers cursor', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor(context);
