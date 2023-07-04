@@ -1164,7 +1164,7 @@
     "app.externalVideo.autoPlayWarning": "播放影片以啟用媒體同步",
     "app.externalVideo.refreshLabel": "重新整理影片播放器",
     "app.externalVideo.fullscreenLabel": "影片播放器",
-    "app.externalVideo.noteLabel": "注意：分享的外部影片將不會出現在錄製中。支援 YouTube、Vimeo、Instructure Media、Twitch、Dailymotion 和媒體檔案URLs (例如：https://example.com/xy.mp4)。",
+    "app.externalVideo.noteLabel": "注意：分享的外部影片將不會出現在錄製中。支援 YouTube、Vimeo、Instructure Media、Twitch、Dailymotion 和媒體檔案URLs ( e.g. https://example.com/xy.mp4 )。",
     "app.externalVideo.subtitlesOn": "關閉字幕",
     "app.externalVideo.subtitlesOff": "開啟字幕（如果有提供）",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "分享外部影片",
