@@ -119,6 +119,8 @@ const VideoContainer = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
+
+  ${({ $selfViewDisabled }) => $selfViewDisabled && 'display: none'}
 `;
 
 const Video = styled.video`
