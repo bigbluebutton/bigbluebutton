@@ -296,7 +296,7 @@
     "app.presentationUploder.tableHeading.options": "選項",
     "app.presentationUploder.tableHeading.status": "狀態",
     "app.presentationUploder.uploading": "正在上傳 {0} {1}",
-    "app.presentationUploder.uploadStatus": "已完成 {0} 個文件的上傳（共 {1} 個）",
+    "app.presentationUploder.uploadStatus": "已完成 {0} 個文件的上傳，共 {1} 個",
     "app.presentationUploder.completed": "已完成 {0} 個文件的上傳",
     "app.presentationUploder.item" : "項目",
     "app.presentationUploder.itemPlural" : "項目",
