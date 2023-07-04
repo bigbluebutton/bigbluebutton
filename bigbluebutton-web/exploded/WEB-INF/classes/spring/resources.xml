@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+
+    <bean id="characterEncodingFilter" class="org.springframework.web.filter.CharacterEncodingFilter">
+        <property name="encoding">
+            <value>utf-8</value>
+        </property>
+    </bean>
+
+    <bean id="waitingGuestCleanupTimerTask" class="org.bigbluebutton.web.services.WaitingGuestCleanupTimerTask"/>
+    <bean id="userCleanupTimerTask" class="org.bigbluebutton.web.services.UserCleanupTimerTask"/>
+    <bean id="enteredUserCleanupTimerTask" class="org.bigbluebutton.web.services.EnteredUserCleanupTimerTask"/>
+
+    <bean id="keepAliveService" class="org.bigbluebutton.web.services.KeepAliveService"
+          init-method="start" destroy-method="stop">
+        <property name="runEvery" value="${checkBBBServerEvery}"/>
+        <property name="gw" ref="bbbWebApiGWApp"/>
+    </bean>
+
+    <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
+        <property name="redisStorageService" ref="redisStorageService"/>
+        <property name="learningDashboardService" ref="learningDashboardService"/>
+        <property name="recordingService" ref="recordingService"/>
+        <property name="presDownloadService" ref="presDownloadService"/>
+        <property name="paramsProcessorUtil" ref="paramsProcessorUtil"/>
+        <property name="stunTurnService" ref="stunTurnService"/>
+        <property name="waitingGuestCleanupTimerTask" ref="waitingGuestCleanupTimerTask"/>
+        <property name="userCleanupTimerTask" ref="userCleanupTimerTask"/>
+        <property name="enteredUserCleanupTimerTask" ref="enteredUserCleanupTimerTask"/>
+        <property name="gw" ref="bbbWebApiGWApp"/>
+        <property name="callbackUrlService" ref="callbackUrlService"/>
+        <property name="usersTimeout" value="${usersTimeout}"/>
+        <property name="waitingGuestUsersTimeout" value="${waitingGuestUsersTimeout}"/>
+        <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+    </bean>
+
+    <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
+        <constructor-arg index="0" ref="redisMessageHandler"/>
+    </bean>
+
+    <bean id="callbackUrlService" class="org.bigbluebutton.web.services.callback.CallbackUrlService"
+          init-method="start" destroy-method="stop">
+    </bean>
+
+    <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">
+        <constructor-arg index="0" ref="oldMessageReceivedGW"/>
+        <constructor-arg index="1" value="${redisHost}"/>
+        <constructor-arg index="2" value="${redisPort}"/>
+        <constructor-arg index="3" value="${redisPassword}"/>
+        <constructor-arg index="4" value="${redisKeyExpiry}"/>
+    </bean>
+
+    <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
+        <property name="recordingServiceGW" ref="recordingServiceGW"/>
+    </bean>
+
+    <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
+        <constructor-arg index="0" ref="bbbWebApiGWApp"/>
+    </bean>
+
+    <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
+          destroy-method="stop">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="presentationBaseURL" value="${presentationBaseURL}"/>
+        <property name="pageExtractor" ref="pageExtractor"/>
+        <property name="documentConversionService" ref="documentConversionService"/>
+        <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
+        <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
+        <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
+    </bean>
+
+    <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
+
+    <bean id="recordingService" class="org.bigbluebutton.api.service.impl.RecordingServiceFileImpl">
+        <property name="recordingStatusDir" value="${recordStatusDir}"/>
+        <property name="publishedDir" value="${publishedDir}"/>
+        <property name="unpublishedDir" value="${unpublishedDir}"/>
+        <property name="captionsDir" value="${captionsDir}"/>
+        <property name="allowFetchAllRecordings" value="${allowFetchAllRecordings}"/>
+        <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
+        <property name="xmlService" ref="xmlService" />
+        <property name="presentationBaseDir" value="${presentationDir}"/>
+        <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
+        <property name="defaultTextTrackUrl" value="${defaultTextTrackUrl}"/>
+    </bean>
+
+    <bean id="learningDashboardService" class="org.bigbluebutton.api.LearningDashboardService">
+        <property name="learningDashboardFilesDir" value="${learningDashboardFilesDir}"/>
+    </bean>
+
+    <bean id="html5LoadBalancingService" class="org.bigbluebutton.api.HTML5LoadBalancingService" init-method="init" />
+
+    <bean id="configServiceHelper" class="org.bigbluebutton.api.ClientConfigServiceHelperImp"/>
+
+    <bean id="configService" class="org.bigbluebutton.api.ClientConfigService" init-method="init">
+        <property name="configDir" value="${configDir}"/>
+        <property name="clientConfigServiceHelper" ref="configServiceHelper"/>
+    </bean>
+
+    <bean id="validationService" class="org.bigbluebutton.api.service.ValidationService">
+        <property name="securitySalt" value="${securitySalt}"/>
+        <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
+        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
+    </bean>
+
+    <bean id="serviceUtils" class="org.bigbluebutton.api.service.ServiceUtils">
+        <property name="meetingService" ref="meetingService" />
+        <property name="validationService" ref="validationService" />
+    </bean>
+
+    <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
+        <property name="apiVersion" value="${apiVersion}"/>
+        <property name="serviceEnabled" value="${serviceEnabled}"/>
+        <property name="securitySalt" value="${securitySalt}"/>
+        <property name="supportedChecksumAlgorithms" value="${supportedChecksumAlgorithms}"/>
+        <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
+        <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
+        <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
+        <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
+        <property name="testVoiceBridge" value="${testVoiceBridge}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
+        <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}"/>
+        <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
+        <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
+        <property name="defaultHTML5ClientUrl" value="${defaultHTML5ClientUrl}"/>
+        <property name="useDefaultLogo" value="${useDefaultLogo}"/>
+        <property name="defaultLogoURL" value="${defaultLogoURL}"/>
+        <property name="defaultGuestWaitURL" value="${defaultGuestWaitURL}"/>
+        <property name="allowRequestsWithoutSession" value="${allowRequestsWithoutSession}"/>
+        <property name="defaultHttpSessionTimeout" value="${defaultHttpSessionTimeout}"/>
+        <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
+        <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
+        <property name="autoStartRecording" value="${autoStartRecording}"/>
+        <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
+        <property name="learningDashboardEnabled" value="${learningDashboardEnabled}"/>
+        <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
+        <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
+        <property name="defaultMeetingCameraCap" value="${meetingCameraCap}"/>
+        <property name="defaultUserCameraCap" value="${userCameraCap}"/>
+        <property name="defaultMaxPinnedCameras" value="${maxPinnedCameras}"/>
+        <property name="useDefaultAvatar" value="${useDefaultAvatar}"/>
+        <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+        <property name="defaultGuestPolicy" value="${defaultGuestPolicy}"/>
+        <property name="authenticatedGuest" value="${authenticatedGuest}"/>
+        <property name="defaultMeetingLayout" value="${defaultMeetingLayout}"/>
+        <property name="meetingExpireIfNoUserJoinedInMinutes" value="${meetingExpireIfNoUserJoinedInMinutes}"/>
+        <property name="meetingExpireWhenLastUserLeftInMinutes" value="${meetingExpireWhenLastUserLeftInMinutes}"/>
+        <property name="userInactivityInspectTimerInMinutes" value="${userInactivityInspectTimerInMinutes}"/>
+        <property name="userInactivityThresholdInMinutes" value="${userInactivityThresholdInMinutes}"/>
+        <property name="userActivitySignResponseDelayInMinutes" value="${userActivitySignResponseDelayInMinutes}"/>
+        <property name="maxPresentationFileUpload" value="${maxFileSizeUpload}"/>
+        <property name="clientLogoutTimerInMinutes" value="${clientLogoutTimerInMinutes}"/>
+        <property name="muteOnStart" value="${muteOnStart}"/>
+        <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
+        <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
+        <property name="breakoutRoomsEnabled" value="${breakoutRoomsEnabled}"/>
+        <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
+        <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
+        <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
+        <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
+        <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
+        <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
+        <property name="lockSettingsDisableNotes" value="${lockSettingsDisableNotes}"/>
+        <property name="lockSettingsHideUserList" value="${lockSettingsHideUserList}"/>
+        <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
+        <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
+        <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
+        <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
+        <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
+        <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>
+        <property name="endWhenNoModeratorDelayInMinutes" value="${endWhenNoModeratorDelayInMinutes}"/>
+        <property name="disabledFeatures" value="${disabledFeatures}"/>
+        <property name="notifyRecordingIsOn" value="${notifyRecordingIsOn}"/>
+        <property name="defaultKeepEvents" value="${defaultKeepEvents}"/>
+        <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
+    </bean>
+
+    <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="testConferenceMock" value="${testConferenceMock}"/>
+        <property name="testRoomMock" value="${beans.presentationService.testRoomMock}"/>
+        <property name="testPresentationName" value="${beans.presentationService.testPresentationName}"/>
+        <property name="testUploadedPresentation" value="${beans.presentationService.testUploadedPresentation}"/>
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
+        <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
+        <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
+    </bean>
+
+    <import resource="doc-conversion.xml"/>
+    <import resource="bbb-redis-messaging.xml"/>
+    <!-- moved the following import statement for turn-stun-servers.xml to resources.groovy to be able to use overlay config for turn/stun servers -->
+    <!--	 <import resource="turn-stun-servers.xml"/>-->
+</beans>

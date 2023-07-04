@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"webjars-requirejs.js",
+"lineCount":2,
+"mappings":"A;AAAA,IAAIA,QAAUA,OAAVA,EAAqB,CAACC,IAAK,CAACC,SAAU,aAAX,CAAN,CAIzBC,UAAA,CAAUC,MAAV,CAAiB,CACbC,MAAO,CAAE,OAAUC,OAAA,CAAQC,IAAR,CAAa,QAAb,CAAuB,QAAvB,CAAZ,CADM,CAEbC,KAAM,CAAE,OAAU,CAAE,QAAW,GAAb,CAAZ,CAFO,CAAjB;",
+"sources":["webjars-requirejs.unminified.js"],
+"names":["process","env","NODE_ENV","requirejs","config","paths","webjars","path","shim"]
+}

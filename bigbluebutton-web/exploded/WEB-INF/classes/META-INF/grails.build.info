@@ -1,0 +1,6 @@
+#Tue, 04 Jul 2023 16:13:54 +0000
+
+info.app.version=0.10.0
+info.app.name=bigbluebutton
+grails.env=production
+info.app.grailsVersion=5.3.2

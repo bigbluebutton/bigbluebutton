@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"application.js",
+"lineCount":2,
+"mappings":"A;AAAA,IAAIA,QAAUA,OAAVA,EAAqB,CAACC,IAAK,CAACC,SAAU,aAAX,CAAN;",
+"sources":["application.unminified.js"],
+"names":["process","env","NODE_ENV"]
+}

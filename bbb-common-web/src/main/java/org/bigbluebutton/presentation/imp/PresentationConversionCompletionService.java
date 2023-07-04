@@ -68,6 +68,7 @@ public class PresentationConversionCompletionService {
         logData.put("presId", p.pres.getId());
         logData.put("filename", p.pres.getName());
         logData.put("current", p.pres.isCurrent());
+        logData.put("pageURL", p.pres.getBaseUrl());
         logData.put("logCode", "presentation_conversion_end");
         logData.put("message", "End presentation conversion.");
 

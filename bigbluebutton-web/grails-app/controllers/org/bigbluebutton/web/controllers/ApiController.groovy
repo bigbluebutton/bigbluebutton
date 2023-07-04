@@ -1322,7 +1322,7 @@ class ApiController {
     }
     String presentationDir = presentationService.getPresentationDir()
     presId = Util.generatePresentationId(presFilename)
-    File uploadDir = new File(LIBRARY_DIR) // Util.createPresentationDir(, presentationDir, presId)
+    File uploadDir = new File(LIBRARY_DIR + File.separatorChar + presId) // Util.createPresentationDir(, presentationDir, presId)
     if (!uploadDir.exists()) {
       uploadDir.mkdirs();
     }
@@ -1400,8 +1400,8 @@ class ApiController {
       // File temp = new File(presFilename);
       // TODO: parse from presFilename
       def filenameExt = "pdf";
-      def presFile = new File(libDir.absolutePath + File.separatorChar + presId + "." + filenameExt)
-      log.info("================= presId=${presId}, presFilename=${presFilename}, exists=${presFile.exists()}");
+      def presFile = new File(libDir.absolutePath + File.separatorChar + presId + File.separatorChar + presId + "." + filenameExt)
+      log.info("================= presId=${presId}, presFilename=${presFilename}, exists=${presFile.exists()}, meetingId=${meetingId}");
 
       if (presFile.exists() && filenameExt != null && SupportedFileTypes.isPresentationMimeTypeValid(presFile, filenameExt)) {
         // Hardcode pre-uploaded presentation to the default presentation window
@@ -1416,7 +1416,8 @@ class ApiController {
           false, // uploadFailed
           [], // uploadFailReasons
           true, // isDownloadable
-          true // isRemovable
+          true, // isRemovable
+          false // isInitialPresentation
         )
       } else {
         // org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(presFile)

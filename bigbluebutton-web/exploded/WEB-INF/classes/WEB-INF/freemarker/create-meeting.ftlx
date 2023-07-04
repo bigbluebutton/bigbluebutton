@@ -1,0 +1,25 @@
+<#ftl output_format="XML" auto_esc=true>
+<#compress>
+<response>
+    <#-- Where code is a 'SUCCESS' String -->
+    <returncode>${returnCode}</returncode>
+    <meetingID>${meeting.getExternalId()}</meetingID> <#-- Yielded -->
+    <internalMeetingID>${meeting.getInternalId()}</internalMeetingID> <#-- Yielded -->
+    <parentMeetingID>${meeting.getParentMeetingId()}</parentMeetingID> <#-- Yielded -->
+    <#if meeting.getViewerPassword()?? && meeting.getViewerPassword()!="" >
+            <attendeePW>${meeting.getViewerPassword()}</attendeePW>
+    </#if>
+    <#if meeting.getModeratorPassword()?? && meeting.getModeratorPassword()!="">
+            <moderatorPW>${meeting.getModeratorPassword()}</moderatorPW>
+    </#if>
+    <createTime>${meeting.getCreateTime()?c}</createTime>
+    <voiceBridge>${meeting.getTelVoice()}</voiceBridge> <#-- Yielded -->
+    <dialNumber>${meeting.getDialNumber()}</dialNumber> <#-- Yielded -->
+    <createDate>${createdOn}</createDate>
+    <hasUserJoined>${meeting.hasUserJoined()?c}</hasUserJoined>
+    <duration>${meeting.getDuration()?c}</duration>
+    <hasBeenForciblyEnded>${meeting.isForciblyEnded()?c}</hasBeenForciblyEnded>
+    <messageKey>${msgKey!}</messageKey>
+    <message>${msg!}</message>
+</response>
+</#compress>

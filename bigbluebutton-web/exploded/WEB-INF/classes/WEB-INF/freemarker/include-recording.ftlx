@@ -1,0 +1,78 @@
+<#ftl output_format="XML" auto_esc=true>
+<recordID>${r.getId()}</recordID>
+
+<#if r.getMeeting()??>
+    <meetingID>${r.getMeeting().getExternalId()}</meetingID>
+    <internalMeetingID>${r.getMeeting().getId()}</internalMeetingID>
+    <name>${r.getMeeting().getName()}</name>
+    <isBreakout>${r.getMeeting().isBreakout()?c}</isBreakout>
+<#else>
+    <meetingID>${r.getMeetingId()}</meetingID>
+    <name>${r.getMeetingName()}</name>
+    <isBreakout>${r.isBreakout()?c}</isBreakout>
+</#if>
+
+<published>${r.getPublished()?string}</published>
+<state>${r.getState()?string}</state>
+<startTime><#if r.getStartTime()?? && r.getStartTime() != "">${r.getStartTime()}</#if></startTime>
+<endTime><#if r.getEndTime()?? && r.getEndTime() != "">${r.getEndTime()}</#if></endTime>
+<participants><#if r.getParticipants()??>${r.getParticipants()}</#if></participants>
+
+<#if r.getBreakout()??>
+    <#assign breakout = r.getBreakout()>
+    <breakout>
+        <parentId>${breakout.getParentMeetingId()}</parentId>
+        <sequence>${breakout.getSequence()?c}</sequence>
+        <freeJoin>${breakout.isFreeJoin()?c}</freeJoin>
+    </breakout>
+</#if>
+
+<#if r.getBreakoutRooms()??>
+    <#list r.getBreakoutRooms()>
+        <breakoutRooms>
+            <#items as broom>
+                <breakoutRoom>${broom.getValue()}</breakoutRoom>
+            </#items>
+        </breakoutRooms>
+    </#list>
+</#if>
+
+<#assign m = r.getMeta().get()>
+<metadata>
+    <#list m?keys as prop>
+        <${(prop)}>${((m[prop]))!""}</${(prop)}>
+    </#list>
+</metadata>
+
+<#assign pb = r.getPlayback()>
+<playback>
+    <format>
+        <type>${pb.getFormat()}</type>
+        <url>${pb.getLink()}</url>
+        <processingTime>${pb.getProcessingTime()?c}</processingTime>
+        <#if pb.getDuration() == 0>
+            <length>${r.calculateDuration()?c}</length>
+        <#else>
+            <length>${pb.calculateDuration()?c}</length>
+        </#if>
+
+        <#if pb.getExtensions()??>
+            <#if pb.getExtensions().getPreview()??>
+                <#assign prev = pb.getExtensions().getPreview()>
+                <preview>
+                    <#if prev.getImages()??>
+                        <#list prev.getImages()>
+                            <images>
+                                <#items as image>
+                                    <#if image??>
+                                        <image width="${image.getWidth()}" height="${image.getHeight()}" alt="${image.getAlt()}">${image.getValue()!"Link not found."}</image>
+                                    </#if>
+                                </#items>
+                            </images>
+                        </#list>
+                    </#if>
+                </preview>
+            </#if>
+        </#if>
+    </format>
+</playback>

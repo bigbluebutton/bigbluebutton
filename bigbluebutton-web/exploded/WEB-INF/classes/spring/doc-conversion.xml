@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:bigbluebutton.properties</value>
+                <value>file:/etc/bigbluebutton/bbb-web.properties</value>
+            </list>
+        </property>
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+    </bean>
+
+    <bean id="documentConversionService" class="org.bigbluebutton.presentation.DocumentConversionServiceImp">
+        <property name="bbbWebApiGWApp" ref="bbbWebApiGWApp"/>
+        <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
+        <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+    </bean>
+
+    <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
+        <property name="presCheckExec" value="${presCheckExec}"/>
+    </bean>
+
+    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
+        <property name="officeDocumentValidator" ref="officeDocumentValidator"/>
+        <property name="skipOfficePrecheck" value="${skipOfficePrecheck}"/>
+        <property name="presOfficeConversionExec" value="${presOfficeConversionExec:/usr/share/bbb-libreoffice-conversion/convert.sh}"/>
+        <property name="presOfficeConversionTimeout" value="${officeToPdfConversionTimeout}"/>
+        <property name="presOfficeConversionMaxConcurrents" value="${officeToPdfMaxConcurrentConversions}"/>
+    </bean>
+
+    <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
+
+    <bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter"/>
+
+    <bean id="imageResizer" class="org.bigbluebutton.presentation.imp.ImageResizerImp"/>
+
+    <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
+        <property name="pageCounter" ref="pageCounter"/>
+        <property name="maxNumPages" value="${maxNumPages}"/>
+    </bean>
+
+    <bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
+        <property name="imageMagickDir" value="${imageMagickDir}"/>
+        <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+    </bean>
+
+    <bean id="pngCreator" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
+        <property name="blankPng" value="${BLANK_PNG}"/>
+        <property name="slideWidth" value="${pngSlideWidth}"/>
+    </bean>
+
+    <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
+
+    <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
+    	<property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="imageTagThreshold" value="${imageTagThreshold}"/>
+        <property name="pathsThreshold" value="${placementsThreshold}"/>
+        <property name="blankSvg" value="${BLANK_SVG}"/>
+        <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
+        <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
+        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
+        <property name="svgResolutionPpi" value="${svgPresentationResolutionPpi}"/>
+        <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
+        <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
+    </bean>
+
+    <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
+
+    <bean id="pdfSlidesGenerationService"
+          class="org.bigbluebutton.presentation.imp.PdfSlidesGenerationService">
+        <constructor-arg index="0" value="${numConversionThreads}"/>
+        <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
+    </bean>
+
+    <bean id="presentationFileProcessor"
+          class="org.bigbluebutton.presentation.imp.PresentationFileProcessor">
+        <constructor-arg index="0" value="${numFileProcessorThreads}"/>
+        <property name="thumbnailCreator" ref="thumbCreator"/>
+        <property name="pngCreator" ref="pngCreator"/>
+        <property name="textFileCreator" ref="textFileCreator"/>
+        <property name="svgImageCreator" ref="svgImageCreator"/>
+        <property name="pageExtractor" ref="pageExtractor"/>
+        <property name="maxConversionTime" value="${maxConversionTime}"/>
+        <property name="bigPdfSize" value="${bigPdfSize}"/>
+        <property name="maxBigPdfPageSize" value="${maxBigPdfPageSize}"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="generatePngs" value="${generatePngs}"/>
+        <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
+        <property name="imageSlidesGenerationService" ref="imageSlidesGenerationService"/>
+        <property name="counterService" ref="pageCounterService"/>
+        <property name="pdfSlidesGenerationService" ref="pdfSlidesGenerationService"/>
+    </bean>
+
+    <bean id="imageSlidesGenerationService"
+          class="org.bigbluebutton.presentation.imp.ImageSlidesGenerationService">
+        <property name="svgImageCreator" ref="svgImageCreator"/>
+        <property name="thumbnailCreator" ref="thumbCreator"/>
+        <property name="pngCreator" ref="pngCreator"/>
+        <property name="textFileCreator" ref="textFileCreator"/>
+        <property name="maxConversionTime" value="${maxConversionTime}"/>
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="imageResizer" ref="imageResizer"/>
+        <property name="maxImageWidth" value="${maxImageWidth}"/>
+        <property name="maxImageHeight" value="${maxImageHeight}"/>
+        <property name="generatePngs" value="${generatePngs}"/>
+    </bean>
+
+    <bean id="slidesGenerationProgressNotifier"
+          class="org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier">
+        <property name="messagingService" ref="bbbWebApiGWApp"/>
+        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
+        <property name="generatedSlidesInfoHelper" ref="generatedSlidesInfoHelper"/>
+    </bean>
+
+    <bean id="presentationConversionCompletionService"
+          class="org.bigbluebutton.presentation.imp.PresentationConversionCompletionService"
+          init-method="start" destroy-method="stop">
+        <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+    </bean>
+
+</beans>
