@@ -413,7 +413,7 @@
     "app.leaveConfirmation.confirmLabel": "離開",
     "app.leaveConfirmation.confirmDesc": "登出會議",
     "app.endMeeting.title": "結束 {0}",
-    "app.endMeeting.description": "此操作將結束 {0} 個活動用戶的會議。您確定要結束此會議嗎？",
+    "app.endMeeting.description": "此操作將結束 {0} 個活動用戶(s)的會議。您確定要結束此會議嗎？",
     "app.endMeeting.noUserDescription": "您確定要結束此會議嗎？",
     "app.endMeeting.contentWarning": "此會話的聊天消息、共享筆記、白板內容和共享文件將不再直接訪問",
     "app.endMeeting.yesLabel": "結束所有用戶的會議",
