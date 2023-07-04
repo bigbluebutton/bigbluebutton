@@ -57,7 +57,9 @@ DROP TABLE IF EXISTS "user_camera";
 DROP TABLE IF EXISTS "user_voice";
 --DROP TABLE IF EXISTS "user_whiteboard";
 DROP TABLE IF EXISTS "user_breakoutRoom";
+DROP VIEW IF EXISTS "v_user_connectionStatusReport";
 DROP TABLE IF EXISTS "user_connectionStatus";
+DROP TABLE IF EXISTS "user_connectionStatusMetrics";
 DROP TABLE IF EXISTS "user_customParameter";
 DROP TABLE IF EXISTS "user_localSettings";
 DROP TABLE IF EXISTS "user";
@@ -88,6 +90,7 @@ DROP FUNCTION IF EXISTS "pres_page_writers_update_delete_trigger_func";
 DROP FUNCTION IF EXISTS "update_user_hasDrawPermissionOnCurrentPage(varchar, varchar)";
 DROP FUNCTION IF EXISTS "update_user_emoji_time_trigger_func";
 DROP FUNCTION IF EXISTS "update_chatUser_clear_typingAt_trigger_func";
+DROP FUNCTION IF EXISTS "update_user_connectionStatus_trigger_func";
 
 -- ========== Meeting tables
 
@@ -550,11 +553,123 @@ JOIN "user" u ON u."userId" = "user_breakoutRoom"."userId";
 CREATE TABLE "user_connectionStatus" (
 	"userId" varchar(50) PRIMARY KEY REFERENCES "user"("userId") ON DELETE CASCADE,
 	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-	"status" varchar(15),
-	"statusUpdatedAt" timestamp,
-	"connectionAliveAt" timestamp
+	"connectionAliveAt" timestamp,
+	"userClientResponseAt" timestamp,
+	"rttInMs" numeric,
+	"status" varchar(25),
+	"statusUpdatedAt" timestamp
 );
 create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("meetingId");
+
+--CREATE TABLE "user_connectionStatusHistory" (
+--	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+--	"rttInMs" numeric,
+--	"status" varchar(25),
+--	"statusUpdatedAt" timestamp
+--);
+--CREATE TABLE "user_connectionStatusHistory" (
+--	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+--	"status" varchar(25),
+--	"totalOfOccurrences" integer,
+--	"higherRttInMs" numeric,
+--	"statusInsertedAt" timestamp,
+--	"statusUpdatedAt" timestamp,
+--	CONSTRAINT "user_connectionStatusHistory_pkey" PRIMARY KEY ("userId","status")
+--);
+
+CREATE TABLE "user_connectionStatusMetrics" (
+	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+	"status" varchar(25),
+	"occurrencesCount" integer,
+	"firstOccurrenceAt" timestamp,
+	"lastOccurrenceAt" timestamp,
+	"lowestRttInMs" numeric,
+	"highestRttInMs" numeric,
+	"lastRttInMs" numeric,
+	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("userId","status")
+);
+
+create index "idx_user_connectionStatusMetrics_userId" on "user_connectionStatusMetrics"("userId");
+
+--This function populate rtt, status and the table user_connectionStatusMetrics
+CREATE OR REPLACE FUNCTION "update_user_connectionStatus_trigger_func"() RETURNS TRIGGER AS $$
+DECLARE
+    "newRttInMs" numeric;
+    "newStatus" varchar(25);
+BEGIN
+	IF NEW."connectionAliveAt" IS NULL OR NEW."userClientResponseAt" IS NULL THEN
+		RETURN NEW;
+	END IF;
+	"newRttInMs" := (EXTRACT(EPOCH FROM (NEW."userClientResponseAt" - NEW."connectionAliveAt")) * 1000);
+	"newStatus" := CASE WHEN COALESCE("newRttInMs",0) > 2000 THEN 'critical'
+	   					WHEN COALESCE("newRttInMs",0) > 1000 THEN 'danger'
+	   					WHEN COALESCE("newRttInMs",0) > 500 THEN 'warning'
+	   					ELSE 'normal' END;
+    --Update table user_connectionStatusMetrics
+    WITH upsert AS (UPDATE "user_connectionStatusMetrics" SET
+    "occurrencesCount" = "user_connectionStatusMetrics"."occurrencesCount" + 1,
+    "highestRttInMs" = GREATEST("user_connectionStatusMetrics"."highestRttInMs","newRttInMs"),
+    "lowestRttInMs" = LEAST("user_connectionStatusMetrics"."lowestRttInMs","newRttInMs"),
+    "lastRttInMs" = "newRttInMs",
+    "lastOccurrenceAt" = current_timestamp
+    WHERE "userId"=NEW."userId" AND "status"= "newStatus" RETURNING *)
+    INSERT INTO "user_connectionStatusMetrics"("userId","status","occurrencesCount", "highestRttInMs", "lowestRttInMs", "lastRttInMs", "firstOccurrenceAt")
+    SELECT NEW."userId", "newStatus", 1, "newRttInMs", "newRttInMs", "newRttInMs", current_timestamp
+    WHERE NOT EXISTS (SELECT * FROM upsert);
+    --Update rttInMs, status, statusUpdatedAt in user_connectionStatus
+    UPDATE "user_connectionStatus"
+    SET "rttInMs" = "newRttInMs",
+    "status" = "newStatus",
+	"statusUpdatedAt" = now()
+   	WHERE "userId" = NEW."userId";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_connectionStatus_trigger" AFTER UPDATE OF "userClientResponseAt" ON "user_connectionStatus"
+    FOR EACH ROW EXECUTE FUNCTION "update_user_connectionStatus_trigger_func"();
+
+--This function clear userClientResponseAt and rttInMs when connectionAliveAt is updated
+CREATE OR REPLACE FUNCTION "update_user_connectionStatus_connectionAliveAt_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW."connectionAliveAt" <> OLD."connectionAliveAt" THEN
+    	NEW."userClientResponseAt" := NULL;
+    	NEW."rttInMs" := NULL;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_connectionStatus_connectionAliveAt_trigger" BEFORE UPDATE OF "connectionAliveAt" ON "user_connectionStatus"
+    FOR EACH ROW EXECUTE FUNCTION "update_user_connectionStatus_connectionAliveAt_trigger_func"();
+
+
+CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
+SELECT u."meetingId", u."userId",
+max(cs."connectionAliveAt") AS "connectionAliveAt",
+max(cs."status") AS "currentStatus",
+--COALESCE(max(cs."rttInMs"),(EXTRACT(EPOCH FROM (current_timestamp - max(cs."connectionAliveAt"))) * 1000)) AS "rttInMs",
+CASE WHEN max(cs."connectionAliveAt") < current_timestamp - INTERVAL '10 seconds' THEN TRUE ELSE FALSE END AS "clientNotResponding",
+(array_agg(csm."status" ORDER BY csm."lastOccurrenceAt" DESC))[1] as "lastUnstableStatus",
+max(csm."lastOccurrenceAt") AS "lastUnstableStatusAt"
+FROM "user" u
+JOIN "user_connectionStatus" cs ON cs."userId" = u."userId"
+LEFT JOIN "user_connectionStatusMetrics" csm ON csm."userId" = u."userId" AND csm."status" != 'normal'
+GROUP BY u."meetingId", u."userId";
+
+CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("userId") WHERE "status" != 'normal';
+
+
+--ALTER TABLE "user_connectionStatus" ADD COLUMN "rttInMs" NUMERIC GENERATED ALWAYS AS
+--(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
+--ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
+--END) STORED;
+--
+--ALTER TABLE "user_connectionStatus" ADD COLUMN "last" NUMERIC GENERATED ALWAYS AS
+--(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
+--ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
+--END) STORED;
+
 
 --CREATE OR REPLACE VIEW "v_user_connectionStatus" AS
 --SELECT u."meetingId", u."userId", uc.status, uc."statusUpdatedAt", uc."connectionAliveAt",

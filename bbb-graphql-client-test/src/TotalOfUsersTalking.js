@@ -4,7 +4,7 @@ import React, { useState } from "react";
 export default function TotalOfUsersTalking() {
   const { loading, error, data } = useSubscription(
       gql`subscription {
-      user(where: {voices: {talking: {_eq: true}}}) {
+      user(where: {voice: {talking: {_eq: true}}}) {
         userId
       }
     }`
