@@ -3,12 +3,13 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.db.MeetingLockSettingsDAO
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.Permissions
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -40,7 +41,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         val oldPermissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
-        MeetingStatus2x.setPermissions(liveMeeting.props.meetingProp.intId, liveMeeting.status, settings)
+        MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+        MeetingLockSettingsDAO.update(liveMeeting.props.meetingProp.intId, settings)
 
         // Dial-in
         def buildLockMessage(meetingId: String, userId: String, lockedBy: String, locked: Boolean): BbbCommonEnvCoreMsg = {

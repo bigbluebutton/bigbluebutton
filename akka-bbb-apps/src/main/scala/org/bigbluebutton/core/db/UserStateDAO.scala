@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{RegisteredUser, UserState}
+import org.bigbluebutton.core.models.{UserState}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -94,7 +94,13 @@ object UserStateDAO {
       TableQuery[UserStateDbTableDef]
         .filter(_.userId === intId)
         .map(u => (u.guestStatus, u.guestStatusSetByModerator))
-        .update((guestStatus, Some(guestStatusSetByModerator)))
+        .update((guestStatus,
+          guestStatusSetByModerator match {
+            case "SYSTEM" => None
+            case moderatorUserId : String => Some(moderatorUserId)
+            case _ => None
+          }
+        ))
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated guestStatus on user table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating guestStatus user: $e")
