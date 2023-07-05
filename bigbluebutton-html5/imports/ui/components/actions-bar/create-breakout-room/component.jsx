@@ -177,6 +177,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.manageRoomsLabel',
     description: 'Label for manage rooms',
   },
+  sendInvitationToMods: {
+    id: 'app.createBreakoutRoom.sendInvitationToMods',
+    description: 'label for checkbox send invitation to moderators',
+  },
 });
 
 const BREAKOUT_LIM = Meteor.settings.public.app.breakouts.breakoutRoomLimit;
@@ -203,7 +207,7 @@ const setPresentationVisibility = (state) => {
   if (presentationInnerWrapper) {
     presentationInnerWrapper.style.display = state;
   }
-}
+};
 
 class BreakoutRoom extends PureComponent {
   constructor(props) {
@@ -234,6 +238,7 @@ class BreakoutRoom extends PureComponent {
     this.setInvitationConfig = this.setInvitationConfig.bind(this);
     this.setRecord = this.setRecord.bind(this);
     this.setCaptureNotes = this.setCaptureNotes.bind(this);
+    this.setInviteMods = this.setInviteMods.bind(this);
     this.setCaptureSlides = this.setCaptureSlides.bind(this);
     this.blurDurationTime = this.blurDurationTime.bind(this);
     this.removeRoomUsers = this.removeRoomUsers.bind(this);
@@ -250,12 +255,13 @@ class BreakoutRoom extends PureComponent {
       roomNamesChanged: [],
       roomSelected: 0,
       preventClosing: true,
-      leastOneUserIsValid: true,
+      leastOneUserIsValid: null,
       numberOfRoomsIsValid: true,
       roomNameDuplicatedIsValid: true,
       roomNameEmptyIsValid: true,
       record: false,
       captureNotes: false,
+      inviteMods: false,
       captureSlides: false,
       durationIsValid: true,
       breakoutJoinedUsers: null,
@@ -271,7 +277,7 @@ class BreakoutRoom extends PureComponent {
     const {
       breakoutJoinedUsers, getLastBreakouts, groups, isUpdate,
       allowUserChooseRoomByDefault, captureSharedNotesByDefault,
-      captureWhiteboardByDefault,
+      captureWhiteboardByDefault, inviteModsByDefault,
     } = this.props;
     setPresentationVisibility('none');
     this.setRoomUsers();
@@ -302,6 +308,7 @@ class BreakoutRoom extends PureComponent {
       freeJoin: allowUserChooseRoomByDefault,
       captureSlides: captureWhiteboardByDefault,
       captureNotes: captureSharedNotesByDefault,
+      inviteMods: inviteModsByDefault,
     });
 
     const lastBreakouts = getLastBreakouts();
@@ -439,6 +446,7 @@ class BreakoutRoom extends PureComponent {
       numberOfRooms,
       durationTime,
       durationIsValid,
+      inviteMods,
     } = this.state;
 
     if ((durationTime || 0) < MIN_BREAKOUT_TIME) {
@@ -481,7 +489,7 @@ class BreakoutRoom extends PureComponent {
       sequence: seq,
     }));
 
-    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides);
+    createBreakoutRoom(rooms, durationTime, record, captureNotes, captureSlides, inviteMods);
     Session.set('isUserListOpen', true);
   }
 
@@ -552,6 +560,7 @@ class BreakoutRoom extends PureComponent {
 
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
+    this.setState({ hasUsersAssign: false });
     const { users } = this.state;
     // We only want to assign viewers so filter out the moderators. We also want to get
     // all users each run so that clicking the button again will reshuffle
@@ -572,6 +581,7 @@ class BreakoutRoom extends PureComponent {
 
   onAssignReset() {
     const { users } = this.state;
+    this.setState({ hasUsersAssign: true });
 
     users.forEach((u) => {
       if (u.room !== null && u.room > 0) {
@@ -621,6 +631,10 @@ class BreakoutRoom extends PureComponent {
 
   setCaptureNotes(e) {
     this.setState({ captureNotes: e.target.checked });
+  }
+
+  setInviteMods(e) {
+    this.setState({ inviteMods: e.target.checked });
   }
 
   setCaptureSlides(e) {
@@ -960,6 +974,7 @@ class BreakoutRoom extends PureComponent {
       record,
       captureNotes,
       captureSlides,
+      inviteMods,
     } = this.state;
     if (isUpdate) return null;
 
@@ -1066,6 +1081,18 @@ class BreakoutRoom extends PureComponent {
                 </Styled.FreeJoinLabel>
               ) : null
             }
+            <Styled.FreeJoinLabel htmlFor="sendInvitationToAssignedModeratorsCheckbox" key="send-invitation-to-assigned-moderators-breakouts">
+              <Styled.FreeJoinCheckbox
+                id="sendInvitationToAssignedModeratorsCheckbox"
+                type="checkbox"
+                onChange={this.setInviteMods}
+                checked={inviteMods}
+                aria-label={intl.formatMessage(intlMessages.sendInvitationToMods)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.sendInvitationToMods)}
+              </span>
+            </Styled.FreeJoinLabel>
           </Styled.CheckBoxesContainer>
         </Styled.BreakoutSettings>
         <Styled.SpanWarn valid={numberOfRoomsIsValid}>
@@ -1104,21 +1131,35 @@ class BreakoutRoom extends PureComponent {
     if (isUpdate) return null;
     const {
       numberOfRoomsIsValid,
+      leastOneUserIsValid,
     } = this.state;
+
     return (
       <Styled.AssignBtnsContainer>
         <Styled.LabelText bold aria-hidden>
           {intl.formatMessage(intlMessages.manageRooms)}
         </Styled.LabelText>
-        <Styled.AssignBtns
-          data-test="resetAssignments"
-          label={intl.formatMessage(intlMessages.resetAssignments)}
-          aria-describedby="resetAssignmentsDesc"
-          onClick={this.onAssignReset}
-          size="sm"
-          color="default"
-          disabled={!numberOfRoomsIsValid}
-        />
+        {leastOneUserIsValid ? (
+          <Styled.AssignBtns
+            data-test="resetAssignments"
+            label={intl.formatMessage(intlMessages.resetAssignments)}
+            aria-describedby="resetAssignmentsDesc"
+            onClick={this.onAssignReset}
+            size="sm"
+            color="default"
+            disabled={!numberOfRoomsIsValid}
+          />
+        ) : (
+          <Styled.AssignBtns
+            random
+            data-test="randomlyAssign"
+            label={intl.formatMessage(intlMessages.randomlyAssign)}
+            aria-describedby="randomlyAssignDesc"
+            onClick={this.onAssignRandomly}
+            size="sm"
+            color="default"
+          />
+        )}
       </Styled.AssignBtnsContainer>
     );
   }

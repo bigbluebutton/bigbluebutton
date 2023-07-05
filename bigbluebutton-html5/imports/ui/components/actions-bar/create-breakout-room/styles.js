@@ -41,7 +41,7 @@ const ContentContainer = styled.div`
 const Alert = styled.div`
   grid-area: sidebar;
   margin-bottom: 2.5rem;
-  ${({ valid }) => !valid && `
+  ${({ valid }) => valid === false && `
     position: relative;
 
     & > * {
@@ -127,7 +127,7 @@ const BreakoutSettings = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr; 
   grid-template-rows: 1fr;
-  grid-gap: 6rem;
+  grid-gap: 4rem;
 
   @media ${smallOnly} {
     grid-template-columns: 1fr ;
@@ -228,6 +228,10 @@ const AssignBtns = styled(Button)`
   font-size: ${fontSizeSmall};
   white-space: nowrap;
   margin-bottom: 0.5rem;
+
+  ${({ random }) => random && `
+  color: ${colorPrimary};
+  `}
 `;
 
 const CheckBoxesContainer = styled(FlexRow)`
