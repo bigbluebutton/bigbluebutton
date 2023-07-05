@@ -161,9 +161,9 @@ class ActionsDropdown extends PureComponent {
   }
 
   handleTimerClick() {
-    const { isTimerActive } = this.props;
+    const { isTimerActive, layoutContextDispatch } = this.props;
     if (!isTimerActive) {
-      TimerService.activateTimer();
+      TimerService.activateTimer(layoutContextDispatch);
     } else {
       TimerService.deactivateTimer();
     }
