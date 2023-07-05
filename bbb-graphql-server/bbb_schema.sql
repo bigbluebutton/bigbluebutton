@@ -285,6 +285,7 @@ CREATE TABLE "user" (
 	"presenter" bool,
 	"pinned" bool,
 	"locked" bool,
+	"speechLocale" varchar(255),
 	"hasDrawPermissionOnCurrentPage" bool default FALSE
 );
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
@@ -371,6 +372,7 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
+    "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
@@ -419,6 +421,7 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
+    "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
    FROM "user";
@@ -462,6 +465,7 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."locked",
+    "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
@@ -503,7 +507,6 @@ CREATE TABLE "user_voice" (
 	"floor" boolean,
 	"lastFloorTime" varchar(25),
 	"voiceConf" varchar(100),
-	"color" varchar(7),
 	"endTime" bigint,
 	"startTime" bigint
 );
