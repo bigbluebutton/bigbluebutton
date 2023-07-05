@@ -503,7 +503,6 @@ CREATE TABLE "user_voice" (
 	"floor" boolean,
 	"lastFloorTime" varchar(25),
 	"voiceConf" varchar(100),
-	"color" varchar(7),
 	"endTime" bigint,
 	"startTime" bigint
 );
