@@ -232,8 +232,18 @@ const PresentationMenu = (props) => {
             AppService.setDarkTheme(false);
 
             try {
-              const { copySvg, getShapes, currentPageId } = tldrawAPI;
-              const svgString = await copySvg(getShapes(currentPageId).map((shape) => shape.id));
+              const { copySvg, getShape, getShapes, currentPageId } = tldrawAPI;
+
+              // filter shapes that are inside the slide
+              const backgroundShape = getShape('slide-background-shape');
+              const shapes = getShapes(currentPageId)
+                .filter((shape) =>
+                  shape.point[0] <= backgroundShape.size[0] &&
+                  shape.point[1] <= backgroundShape.size[1] &&
+                  shape.point[0] >= 0 &&
+                  shape.point[1] >= 0
+                );
+              const svgString = await copySvg(shapes.map((shape) => shape.id));
               const container = document.createElement('div');
               container.innerHTML = svgString;
               const svgElem = container.firstChild;
