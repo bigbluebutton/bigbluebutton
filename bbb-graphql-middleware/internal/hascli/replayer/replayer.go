@@ -8,12 +8,12 @@ import (
 func ReplaySubscriptionStartMessages(hc *common.HasuraConnection, fromBrowserChannel chan interface{}) {
 	log := log.WithField("_routine", "ReplaySubscriptionStartMessages").WithField("browserConnectionId", hc.Browserconn.Id).WithField("hasuraConnectionId", hc.Id)
 
-	hc.Browserconn.ActiveSubscriptionsMutex.Lock()
+	hc.Browserconn.ActiveSubscriptionsMutex.RLock()
 	for _, subscription := range hc.Browserconn.ActiveSubscriptions {
 		if subscription.LastSeenOnHasuraConnetion != hc.Id {
 			log.Tracef("replaying subscription start: %v", subscription.Message)
 			fromBrowserChannel <- subscription.Message
 		}
 	}
-	hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+	hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
 }
