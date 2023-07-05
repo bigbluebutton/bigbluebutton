@@ -58,7 +58,7 @@ const Cursor = (props) => {
             backgroundColor: color,
             border: `1px solid ${color}`,
           }}
-          data-test="cursor"
+          data-test="whiteboardCursorIndicator"
         >
           {name}
         </div>

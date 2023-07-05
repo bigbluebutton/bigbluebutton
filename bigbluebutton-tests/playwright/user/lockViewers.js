@@ -12,7 +12,7 @@ class LockViewers extends MultiUsers {
     super(browser, page);
   }
 
-  async lockShareWebcam(context) {
+  async lockShareWebcam() {
     await this.modPage.shareWebcam();
     await this.modPage.hasElement(e.webcamVideoItem);
     await this.userPage.hasElement(e.webcamVideoItem);
@@ -26,22 +26,20 @@ class LockViewers extends MultiUsers {
     await waitAndClearNotification(this.modPage);
     await this.userPage.checkElementCount(e.webcamContainer, 1);
     
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.joinVideo);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
     await this.modPage.checkElementCount(e.webcamContainer, 2);
-    //await this.userPage2.waitForSelector(e.dropdownWebcamButton);
-    //await this.userPage2.hasText(e.dropdownWebcamButton, this.modPage.username);
     await this.userPage.hasElementDisabled(e.joinVideo);
   }
 
-  async lockSeeOtherViewersWebcams(context) {
+  async lockSeeOtherViewersWebcams() {
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
-    //await this.userPage2.shareWebcam();
+    
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockSeeOtherViewersWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
@@ -49,11 +47,10 @@ class LockViewers extends MultiUsers {
     const videoContainersCount = [
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
-      //await this.userPage2.getSelectorCount(e.webcamVideoItem),
     ];
     expect(videoContainersCount).toStrictEqual([2, 2]);
 
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
 
     await this.userPage2.shareWebcam();
 
@@ -65,7 +62,7 @@ class LockViewers extends MultiUsers {
     await this.userPage2.checkElementCount(e.webcamContainer, 3);
   }
 
-  async lockShareMicrophone(context) {
+  async lockShareMicrophone() {
     await this.userPage.waitAndClick(e.joinAudio);
     await this.userPage.joinMicrophone();
     await openLockViewers(this.modPage);
@@ -73,7 +70,7 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.userPage.wasRemoved(e.isTalking);
     await this.userPage.waitForSelector(e.unmuteMicButton);
-    await this.initUserPage2(false, context);
+    await this.initUserPage2(false);
     await this.userPage2.hasElement(e.leaveListenOnly, ELEMENT_WAIT_LONGER_TIME);
 
     
@@ -85,13 +82,13 @@ class LockViewers extends MultiUsers {
     await this.userPage2.hasElement(e.isTalking);
   }
 
-  async lockSendPublicChatMessages(context) {
+  async lockSendPublicChatMessages() {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPublicChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.userPage.hasElementDisabled(e.chatBox);
     await this.userPage.hasElementDisabled(e.sendButton);
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.chatBox);
     await this.userPage2.hasElementDisabled(e.sendButton);
     await this.modPage.type(e.chatBox, e.message);
@@ -104,7 +101,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.checkElementCount(e.chatUserMessageText, 2);
   }
 
-  async lockSendPrivateChatMessages(context) {
+  async lockSendPrivateChatMessages() {
     const lastUserItemLocator = this.userPage.getLocatorByIndex(e.userListItem, -1);
     await this.userPage.clickOnLocator(lastUserItemLocator);
     const startPrivateChatButton = this.userPage.getLocatorByIndex(e.startPrivateChat, -1);
@@ -112,7 +109,7 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPrivateChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     
@@ -126,7 +123,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.hasElementDisabled(e.sendButton);
   }
 
-  async lockEditSharedNotes(context) {
+  async lockEditSharedNotes() {
     await this.userPage.waitAndClick(e.sharedNotes);
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
@@ -137,23 +134,22 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
     await this.userPage2.waitAndClick(e.sharedNotes);
     await this.userPage2.wasRemoved(e.etherpadFrame);
 
     await this.userPage.waitAndClick(e.sharedNotes);
-    // tries to type, but the element is not editable
     await this.userPage.wasRemoved(e.etherpadFrame);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
   }
 
-  async lockSeeOtherViewersUserList(context) {
+  async lockSeeOtherViewersUserList() {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
     await this.userPage2.checkElementCount(e.userListItem, 1);
     await sleep(1000);
     expect(await this.userPage.getLocator(e.userListItem).count()).toBe(1);
@@ -163,24 +159,7 @@ class LockViewers extends MultiUsers {
     await this.userPage2.checkElementCount(e.userListItem, 2);
   }
 
-  async unlockUser(context) {
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.lockShareWebcam);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    await this.userPage.hasElementDisabled(e.joinVideo);
-
-    await this.initUserPage2(true, context)
-    await this.userPage2.hasElementDisabled(e.joinVideo);
-
-    const lastUserItemLocator = this.modPage.getLocatorByIndex(e.userListItem, -1);
-    await this.modPage.clickOnLocator(lastUserItemLocator);
-    const unlockUserButton = this.modPage.getLocatorByIndex(e.unlockUserButton, -1);
-    await this.modPage.clickOnLocator(unlockUserButton);
-    await this.userPage.hasElementDisabled(e.joinVideo);
-    await this.userPage2.hasElementEnabled(e.joinVideo);
-  }
-
-  async lockSeeOtherViewersAnnotations(context) {
+  async lockSeeOtherViewersAnnotations() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.waitForSelector(e.whiteboard);
@@ -194,7 +173,7 @@ class LockViewers extends MultiUsers {
       maxDiffPixels: 1000,
     };
 
-    await this.initUserPage2(true, context);
+    await this.initUserPage2(true);
     const userWbLocator = this.userPage2.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer2-no-arrow.png', screenshotOptions);
 
@@ -205,7 +184,7 @@ class LockViewers extends MultiUsers {
     await expect(userWbLocatorArrow).toHaveScreenshot('viewer2-arrow.png', screenshotOptions);
   }
 
-  async lockSeeOtherViewersCursor(context) {
+  async lockSeeOtherViewersCursor() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
 
@@ -216,16 +195,16 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.hideViewersCursor);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
-    await this.modPage.checkElementCount(e.cursor, 1);
+    await this.modPage.checkElementCount(e.whiteboardCursorIndicator, 1);
 
-    await this.initUserPage2(true, context);
-    await this.userPage2.checkElementCount(e.cursor, 0);
+    await this.initUserPage2(true);
+    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 0);
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
     await drawArrow(this.userPage);
-    await this.userPage2.checkElementCount(e.cursor, 1);
+    await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 1);
   }
 }
 
