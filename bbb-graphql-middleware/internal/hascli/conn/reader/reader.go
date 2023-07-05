@@ -47,9 +47,9 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 
 				//When Hasura send msg type "complete", this query is finished
 				if messageType == "complete" {
-					hc.Browserconn.ActiveSubscriptionsMutex.RLock()
+					hc.Browserconn.ActiveSubscriptionsMutex.Lock()
 					delete(hc.Browserconn.ActiveSubscriptions, queryId)
-					hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
+					hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
 					log.Infof("Subscription with Id %s finished by Hasura.", queryId)
 				}
 
