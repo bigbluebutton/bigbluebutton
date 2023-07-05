@@ -13,7 +13,6 @@ const UserAvatarVideo = (props) => {
     presenter, clientType,
   } = user;
 
-  const muted = voiceUser?.muted || false;
   const talking = voiceUser?.talking || false;
 
   const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
@@ -41,7 +40,6 @@ const UserAvatarVideo = (props) => {
       avatar={avatar}
       unhealthyStream={unhealthyStream}
       talking={talking}
-      muted={muted}
     >
       {handleUserIcon()}
     </Styled.UserAvatarStyled>

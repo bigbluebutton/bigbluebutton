@@ -35,12 +35,12 @@ trait BreakoutRoomCreatedMsgHdlr {
     }
   }
 
-  def buildBreakoutRoomsListEvtMsg(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean): BbbCommonEnvCoreMsg = {
+  def buildBreakoutRoomsListEvtMsg(meetingId: String, rooms: Vector[BreakoutRoomInfo], roomsReady: Boolean, sendInviteToModerators: Boolean): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, "not-used")
     val envelope = BbbCoreEnvelope(BreakoutRoomsListEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(BreakoutRoomsListEvtMsg.NAME, meetingId, "not-used")
 
-    val body = BreakoutRoomsListEvtMsgBody(meetingId, rooms, roomsReady)
+    val body = BreakoutRoomsListEvtMsgBody(meetingId, rooms, roomsReady, sendInviteToModerators)
     val event = BreakoutRoomsListEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -57,7 +57,7 @@ trait BreakoutRoomCreatedMsgHdlr {
 
     log.info("Sending breakout rooms list to {} with containing {} room(s)", liveMeeting.props.meetingProp.intId, breakoutRooms.length)
 
-    val msgEvent = buildBreakoutRoomsListEvtMsg(liveMeeting.props.meetingProp.intId, breakoutRooms, true)
+    val msgEvent = buildBreakoutRoomsListEvtMsg(liveMeeting.props.meetingProp.intId, breakoutRooms, true, breakoutModel.sendInviteToModerators)
     outGW.send(msgEvent)
 
     breakoutModel
