@@ -85,6 +85,7 @@ class ConnectionController {
               "X-Hasura-Locked" u.locked ? "true" : "false"
               "X-Hasura-LockedInMeeting" u.locked ? userSession.meetingID : ""
               "X-Hasura-ModeratorInMeeting" u.isModerator() ? userSession.meetingID : ""
+              "X-Hasura-PresenterInMeeting" u.isPresenter() ? userSession.meetingID : ""
               "X-Hasura-UserId" userSession.internalUserId
               "X-Hasura-MeetingId" userSession.meetingID
             }

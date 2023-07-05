@@ -12,8 +12,8 @@ const PAGE_COUNT_EXCEEDED_KEY = 'PAGE_COUNT_EXCEEDED';
 const PDF_HAS_BIG_PAGE_KEY = 'PDF_HAS_BIG_PAGE';
 const GENERATED_SLIDE_KEY = 'GENERATED_SLIDE';
 const FILE_TOO_LARGE_KEY = 'FILE_TOO_LARGE';
-const CONVERSION_TIMEOUT_KEY = "CONVERSION_TIMEOUT";
-const IVALID_MIME_TYPE_KEY = "IVALID_MIME_TYPE";
+const CONVERSION_TIMEOUT_KEY = 'CONVERSION_TIMEOUT';
+const INVALID_MIME_TYPE_KEY = 'INVALID_MIME_TYPE';
 const NO_CONTENT = '204';
 // const GENERATING_THUMBNAIL_KEY = 'GENERATING_THUMBNAIL';
 // const GENERATED_THUMBNAIL_KEY = 'GENERATED_THUMBNAIL';
@@ -52,7 +52,7 @@ export default async function handlePresentationConversionUpdate({ body }, meeti
       statusModifier['conversion.maxFileSize'] = body.maxFileSize;
     case UNSUPPORTED_DOCUMENT_KEY:
     case OFFICE_DOC_CONVERSION_FAILED_KEY:
-    case IVALID_MIME_TYPE_KEY:
+    case INVALID_MIME_TYPE_KEY:
       statusModifier['conversion.error'] = true;
       statusModifier['conversion.fileMime'] = body.fileMime;
       statusModifier['conversion.fileExtension'] = body.fileExtension;

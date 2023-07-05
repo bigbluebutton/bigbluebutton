@@ -10,6 +10,7 @@ import CollectionEventsBroker from '/imports/ui/services/LiveDataEventBroker/Liv
 let prevUserData = {};
 let currentUserData = {};
 let messageQueue = [];
+let referenceIds = {};
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const SYSTEM_CHAT_TYPE = CHAT_CONFIG.type_system;
@@ -26,8 +27,11 @@ const getMessagesBeforeJoinCounter = async () => {
 
 const startSyncMessagesbeforeJoin = async (dispatch) => {
   const chatsMessagesCount = await getMessagesBeforeJoinCounter();
-  const pagesPerChat = chatsMessagesCount
-    .map((chat) => ({ ...chat, pages: Math.ceil(chat.count / ITENS_PER_PAGE), syncedPages: 0 }));
+  const pagesPerChat = chatsMessagesCount.map((chat) => ({
+    ...chat,
+    pages: Math.ceil(chat.count / ITENS_PER_PAGE),
+    syncedPages: 0,
+  }));
 
   const syncRoutine = async (chatsToSync) => {
     if (!chatsToSync.length) return;
@@ -35,7 +39,11 @@ const startSyncMessagesbeforeJoin = async (dispatch) => {
     const pagesToFetch = [...chatsToSync].sort((a, b) => a.pages - b.pages);
     const chatWithLessPages = pagesToFetch[0];
     chatWithLessPages.syncedPages += 1;
-    const messagesFromPage = await makeCall('fetchMessagePerPage', chatWithLessPages.chatId, chatWithLessPages.syncedPages);
+    const messagesFromPage = await makeCall(
+      'fetchMessagePerPage',
+      chatWithLessPages.chatId,
+      chatWithLessPages.syncedPages,
+    );
 
     if (messagesFromPage.length) {
       dispatch({
@@ -99,6 +107,7 @@ const Adapter = () => {
     if (users[Auth.meetingID] && users[Auth.meetingID][Auth.userID]) {
       if (currentUserData?.role !== users[Auth.meetingID][Auth.userID]?.role) {
         prevUserData = currentUserData;
+        referenceIds = {};
       }
       currentUserData = users[Auth.meetingID][Auth.userID];
     }
@@ -110,15 +119,19 @@ const Adapter = () => {
     dispatch({
       type: ACTIONS.CLEAR_ALL,
     });
-    const throttledDispatch = throttle(() => {
-      const dispatchedMessageQueue = [...messageQueue];
-      messageQueue = [];
-      dispatch({
-        type: ACTIONS.ADDED,
-        value: dispatchedMessageQueue,
-        messageType: MESSAGE_TYPES.STREAM,
-      });
-    }, 1000, { trailing: true, leading: true });
+    const throttledDispatch = throttle(
+      () => {
+        const dispatchedMessageQueue = [...messageQueue];
+        messageQueue = [];
+        dispatch({
+          type: ACTIONS.ADDED,
+          value: dispatchedMessageQueue,
+          messageType: MESSAGE_TYPES.STREAM,
+        });
+      },
+      1000,
+      { trailing: true, leading: true },
+    );
 
     const insertToContext = (fields) => {
       if (fields.id === `${SYSTEM_CHAT_TYPE}-${CHAT_CLEAR_MESSAGE}`) {
@@ -127,7 +140,9 @@ const Adapter = () => {
           type: ACTIONS.REMOVED,
         });
       }
+      if (referenceIds[fields.referenceId]) return;
 
+      referenceIds[fields.referenceId] = true;
       messageQueue.push(fields);
       throttledDispatch();
     };

@@ -15,10 +15,10 @@ case class ChatMessageDbModel(
     chatEmphasizedText: Boolean,
     message:            String,
     messageType:        String,
-    messageMetadata:    String,
+    messageMetadata:    Option[String],
     senderId:           Option[String],
     senderName:         String,
-    senderRole:         String
+    senderRole:         Option[String]
 )
 
 class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, None, "chat_message") {
@@ -30,10 +30,10 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   val chatEmphasizedText = column[Boolean]("chatEmphasizedText")
   val message = column[String]("message")
   val messageType = column[String]("messageType")
-  val messageMetadata = column[String]("messageMetadata")
+  val messageMetadata = column[Option[String]]("messageMetadata")
   val senderId = column[Option[String]]("senderId")
   val senderName = column[String]("senderName")
-  val senderRole = column[String]("senderRole")
+  val senderRole = column[Option[String]]("senderRole")
   //  val chat = foreignKey("chat_message_chat_fk", (chatId, meetingId), ChatTable.chats)(c => (c.chatId, c.meetingId), onDelete = ForeignKeyAction.Cascade)
   //  val sender = foreignKey("chat_message_sender_fk", senderId, UserTable.users)(_.userId, onDelete = ForeignKeyAction.SetNull)
 
@@ -53,10 +53,10 @@ object ChatMessageDAO {
           chatEmphasizedText = groupChatMessage.chatEmphasizedText,
           message = groupChatMessage.message,
           messageType = "default",
-          messageMetadata = "",
+          messageMetadata = None,
           senderId = Some(groupChatMessage.sender.id),
           senderName = groupChatMessage.sender.name,
-          senderRole = groupChatMessage.sender.role,
+          senderRole = Some(groupChatMessage.sender.role),
         )
       )
     ).onComplete {
@@ -82,10 +82,10 @@ object ChatMessageDAO {
           chatEmphasizedText = false,
           message = message,
           messageType = messageType,
-          messageMetadata = JsonUtils.mapToJson(messageMetadata),
+          messageMetadata = Some(JsonUtils.mapToJson(messageMetadata)),
           senderId = None,
           senderName = senderName,
-          senderRole = ""
+          senderRole = None
         )
       )
     ).onComplete {

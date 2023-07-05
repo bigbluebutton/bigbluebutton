@@ -64,7 +64,9 @@ class GuestsWaiting {
   def getGuestPolicy(): GuestPolicy = guestPolicy
   def setGuestPolicy(policy: GuestPolicy) = guestPolicy = policy
 
-  def setGuestLobbyMessage(message: String) = guestLobbyMessage = message
+  def setGuestLobbyMessage(message: String) = {
+    guestLobbyMessage = message
+  }
 
   def setPrivateGuestLobbyMessage(intId: String, message: String): Unit = {
     guestsWithPrivateGuestLobbyMessages.put(intId, message);

@@ -151,6 +151,14 @@ const messages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
   },
+  awayLabel: {
+    id: 'app.userList.menu.away',
+    description: 'Text for identifying away user',
+  },
+  notAwayLabel: {
+    id: 'app.userList.menu.notAway',
+    description: 'Text for identifying not away user',
+  },
 });
 
 const propTypes = {
@@ -280,6 +288,7 @@ class UserListItem extends PureComponent {
       getGroupChatPrivate,
       getEmojiList,
       setEmojiStatus,
+      setUserAway,
       assignPresenter,
       removeUser,
       toggleVoice,
@@ -322,6 +331,7 @@ class UserListItem extends PureComponent {
       allowedToChangeUserLockStatus,
       allowedToChangeWhiteboardAccess,
       allowedToEjectCameras,
+      allowedToSetAway,
     } = actionPermissions;
 
     const { disablePrivateChat } = lockSettingsProps;
@@ -538,6 +548,17 @@ class UserListItem extends PureComponent {
         },
         icon: 'video_off',
       },
+      {
+        allowed: allowedToSetAway
+          && isMeteorConnected,
+        key: 'setAway',
+        label: intl.formatMessage(user.away ? messages.notAwayLabel : messages.awayLabel),
+        onClick: () => {
+          this.onActionsHide(setUserAway(user.userId, !user.away));
+          this.handleClose();
+        },
+        icon: 'time',
+      },
     ];
 
     const statuses = Object.keys(getEmojiList);
@@ -611,7 +632,11 @@ class UserListItem extends PureComponent {
     let userAvatarFiltered = user.avatar;
 
     const getIconUser = () => {
-      if (user.emoji !== 'none' && user.emoji !== 'notAway') {
+      if (user.raiseHand === true) {
+        return <Icon iconName={normalizeEmojiName('raiseHand')} />;
+      } if (user.away === true) {
+        return <Icon iconName={normalizeEmojiName('away')} />;
+      } if (user.emoji !== 'none' && user.emoji !== 'notAway') {
         return <Icon iconName={normalizeEmojiName(user.emoji)} />;
       } if (user.reaction !== 'none') {
         userAvatarFiltered = '';
@@ -864,7 +889,7 @@ class UserListItem extends PureComponent {
           checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
           confirmParam={user.userId}
           onConfirm={removeUser}
-          confirmButtonDataTest="removeUserConfirmation" 
+          confirmButtonDataTest="removeUserConfirmation"
           {...{
             onRequestClose: () => this.setConfirmationModalIsOpen(false),
             priority: "low",

@@ -84,9 +84,7 @@ class ModalSimple extends Component {
         className={className}
         onRequestClose={handleRequestClose}
         contentLabel={title || contentLabel}
-        data={{
-          test: dataTest ?? null,
-        }}
+        dataTest={dataTest}
         {...otherProps}
       >
         <Styled.Header

@@ -13,6 +13,8 @@ import { unique } from 'radash';
 const THROTTLE_TIMEOUT = 1000;
 
 const CONFIG = Meteor.settings.public.app.audioCaptions;
+const ENABLED = CONFIG.enabled;
+const PROVIDER = CONFIG.provider;
 const LANGUAGES = CONFIG.language.available;
 const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
@@ -32,15 +34,17 @@ const setSpeechVoices = () => {
 setSpeechVoices();
 
 const getSpeechVoices = () => {
-  const voices = Session.get('speechVoices') || [];
+  if (!isWebSpeechApi()) return LANGUAGES;
 
+  const voices = Session.get('speechVoices') || [];
   return voices.filter((v) => LANGUAGES.includes(v));
 };
 
 const setSpeechLocale = (value) => {
   const voices = getSpeechVoices();
+
   if (voices.includes(value) || value === '') {
-    makeCall('setSpeechLocale', value);
+    makeCall('setSpeechLocale', value, CONFIG.provider);
   } else {
     logger.error({
       logCode: 'captions_speech_locale',
@@ -51,7 +55,7 @@ const setSpeechLocale = (value) => {
 const useFixedLocale = () => isEnabled() && CONFIG.language.forceLocale;
 
 const initSpeechRecognition = () => {
-  if (!isEnabled()) return null;
+  if (!isEnabled() || !isWebSpeechApi()) return null;
   if (hasSpeechRecognitionSupport()) {
     // Effectivate getVoices
     setSpeechVoices();
@@ -77,7 +81,7 @@ const initSpeechRecognition = () => {
 
 let prevId = '';
 let prevTranscript = '';
-const updateTranscript = (id, transcript, locale) => {
+const updateTranscript = (id, transcript, locale, isFinal) => {
   // If it's a new sentence
   if (id !== prevId) {
     prevId = id;
@@ -98,7 +102,7 @@ const updateTranscript = (id, transcript, locale) => {
   // Stores current transcript as previous
   prevTranscript = transcript;
 
-  makeCall('updateTranscript', id, start, end, text, transcript, locale);
+  makeCall('updateTranscript', id, start, end, text, transcript, locale, isFinal);
 };
 
 const throttledTranscriptUpdate = throttle(updateTranscript, THROTTLE_TIMEOUT, {
@@ -107,12 +111,12 @@ const throttledTranscriptUpdate = throttle(updateTranscript, THROTTLE_TIMEOUT, {
 });
 
 const updateInterimTranscript = (id, transcript, locale) => {
-  throttledTranscriptUpdate(id, transcript, locale);
+  throttledTranscriptUpdate(id, transcript, locale, false);
 };
 
 const updateFinalTranscript = (id, transcript, locale) => {
   throttledTranscriptUpdate.cancel();
-  updateTranscript(id, transcript, locale);
+  updateTranscript(id, transcript, locale, true);
 };
 
 const getSpeechLocale = (userId = Auth.userID) => {
@@ -129,7 +133,15 @@ const isLocaleValid = (locale) => LANGUAGES.includes(locale);
 
 const isEnabled = () => isLiveTranscriptionEnabled();
 
-const isActive = () => isEnabled() && hasSpeechRecognitionSupport() && hasSpeechLocale();
+const isWebSpeechApi = () => PROVIDER === 'webspeech';
+
+const isVosk = () => PROVIDER === 'vosk';
+
+const isWhispering = () => PROVIDER === 'whisper';
+
+const isDeepSpeech = () => PROVIDER === 'deepSpeech'
+
+const isActive = () => isEnabled() && ((isWebSpeechApi() && hasSpeechLocale()) || isVosk() || isWhispering() || isDeepSpeech());
 
 const getStatus = () => {
   const active = isActive();
@@ -156,6 +168,8 @@ const getLocale = () => {
   return locale;
 };
 
+const stereoUnsupported = () => isActive() && isVosk() && !!getSpeechLocale();
+
 export default {
   LANGUAGES,
   hasSpeechRecognitionSupport,
@@ -172,4 +186,5 @@ export default {
   getStatus,
   generateId,
   useFixedLocale,
+  stereoUnsupported,
 };

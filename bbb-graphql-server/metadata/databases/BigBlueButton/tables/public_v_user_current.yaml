@@ -7,6 +7,15 @@ configuration:
   custom_name: user_current
   custom_root_fields: {}
 object_relationships:
+  - name: breakoutRooms
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: parentMeetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom
+          schema: public
   - name: connectionStatus
     using:
       manual_configuration:
@@ -24,6 +33,15 @@ object_relationships:
         insertion_order: null
         remote_table:
           name: v_user_customParameter
+          schema: public
+  - name: guestStatus
+    using:
+      manual_configuration:
+        column_mapping:
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_guest
           schema: public
   - name: lastBreakoutRoom
     using:
@@ -96,26 +114,32 @@ select_permissions:
       columns:
         - authed
         - avatar
+        - away
         - banned
         - clientType
         - color
+        - disconnected
+        - ejectReason
+        - ejectReasonCode
+        - ejected
         - emoji
+        - expired
         - extId
         - guest
-        - guestStatus
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
         - joined
-        - disconnected
         - locked
         - loggedOut
         - mobile
         - name
         - pinned
         - presenter
+        - raiseHand
         - registeredOn
         - role
+        - speechLocale
         - userId
       filter:
         _and:

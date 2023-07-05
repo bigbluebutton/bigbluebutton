@@ -52,7 +52,14 @@ export default {
   amIModerator,
   isMe,
   currentUser: () => Users.findOne({ meetingId: Auth.meetingID, userId: Auth.userID },
-    { fields: { userId: 1, emoji: 1 } }),
+    {
+      fields: {
+        userId: 1,
+        emoji: 1,
+        away: 1,
+        raiseHand: 1,
+      },
+    }),
   meetingName: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'meetingProp.name': 1 } }).meetingProp.name,
   users: () => Users.find({
@@ -64,7 +71,7 @@ export default {
   isBreakoutRecordable: () => Meetings.findOne({ meetingId: Auth.meetingID },
     { fields: { 'breakoutProps.record': 1 } }).breakoutProps.record,
   toggleRecording: () => makeCall('toggleRecording'),
-  createBreakoutRoom: (rooms, durationInMinutes, record = false, captureNotes = false, captureSlides = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record, captureNotes, captureSlides),
+  createBreakoutRoom: (rooms, durationInMinutes, record = false, captureNotes = false, captureSlides = false, sendInviteToModerators = false) => makeCall('createBreakoutRoom', rooms, durationInMinutes, record, captureNotes, captureSlides, sendInviteToModerators),
   sendInvitation: (breakoutId, userId) => makeCall('requestJoinURL', { breakoutId, userId }),
   breakoutJoinedUsers: () => Breakouts.find({
     joinedUsers: { $exists: true },

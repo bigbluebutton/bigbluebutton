@@ -5,9 +5,8 @@ import { toast } from 'react-toastify';
 import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
-import {Meteor} from "meteor/meteor";
+import { Meteor } from 'meteor/meteor';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import UserAvatar from '../user-avatar/component';
 
 const ROLE_MODERATOR = Meteor.settings.public.user.role_moderator;
 
@@ -40,7 +39,7 @@ const messages = defineMessages({
 
 const MAX_AVATAR_COUNT = 3;
 
-class StatusNotifier extends Component {
+class RaiseHandNotifier extends Component {
   constructor(props) {
     super(props);
 
@@ -55,7 +54,7 @@ class StatusNotifier extends Component {
 
   componentDidUpdate(prevProps) {
     const {
-      emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer, isPresenter,
+      raiseHandUsers, raiseHandAudioAlert, raiseHandPushAlert, isViewer, isPresenter,
     } = this.props;
 
     if (isViewer && !isPresenter) {
@@ -63,44 +62,38 @@ class StatusNotifier extends Component {
       return false;
     }
 
-    switch (status) {
-      case 'raiseHand':
-        if (emojiUsers.length === 0) {
-          return this.statusNotifierId ? toast.dismiss(this.statusNotifierId) : null;
-        }
+    if (raiseHandUsers.length === 0) {
+      return this.statusNotifierId ? toast.dismiss(this.statusNotifierId) : null;
+    }
 
-        if (raiseHandAudioAlert && emojiUsers.length > prevProps.emojiUsers.length) {
-          this.audio.play();
-        }
+    if (raiseHandAudioAlert && raiseHandUsers.length > prevProps.raiseHandUsers.length) {
+      this.audio.play();
+    }
 
-        if (raiseHandPushAlert) {
-          if (this.statusNotifierId) {
-            return toast.update(this.statusNotifierId, {
-              render: this.renderRaisedHands(),
-            });
-          }
+    if (raiseHandPushAlert) {
+      if (this.statusNotifierId) {
+        return toast.update(this.statusNotifierId, {
+          render: this.renderRaisedHands(),
+        });
+      }
 
-          this.statusNotifierId = toast(this.renderRaisedHands(), {
-            onClose: () => { this.statusNotifierId = null; },
-            autoClose: false,
-            closeOnClick: false,
-            closeButton: false,
-            className: "raiseHandToast",
-          });
-        }
-        break;
-      default:
-        break;
+      this.statusNotifierId = toast(this.renderRaisedHands(), {
+        onClose: () => { this.statusNotifierId = null; },
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'raiseHandToast',
+      });
     }
 
     return true;
   }
 
   getRaisedHandNames() {
-    const { emojiUsers, intl } = this.props;
-    if (emojiUsers.length === 0) return '';
+    const { raiseHandUsers, intl } = this.props;
+    if (raiseHandUsers.length === 0) return '';
 
-    const _names = emojiUsers.map(u => u.name);
+    const _names = raiseHandUsers.map((u) => u.name);
     const { length } = _names;
     const and = intl.formatMessage(messages.and);
     let formattedNames = '';
@@ -122,26 +115,27 @@ class StatusNotifier extends Component {
         break;
     }
 
-    const raisedHandMessageString
-        = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
+    const raisedHandMessageString = length === 1
+      ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
     return intl.formatMessage(raisedHandMessageString, { 0: formattedNames });
   }
 
   raisedHandAvatars() {
-    const { emojiUsers, clearUserStatus, intl } = this.props;
-    let users = emojiUsers;
-    if (emojiUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
+    const { raiseHandUsers, clearUserStatus, intl } = this.props;
+    let users = raiseHandUsers;
+    if (raiseHandUsers.length > MAX_AVATAR_COUNT) users = users.slice(0, MAX_AVATAR_COUNT);
 
-    const avatars = users.map(u => (
+    const avatars = users.map((u) => (
       <TooltipContainer
         key={`statusToastAvatar-${u.userId}`}
-        title={intl.formatMessage(messages.lowerHandDescOneUser, { 0: u.name })}>
+        title={intl.formatMessage(messages.lowerHandDescOneUser, { 0: u.name })}
+      >
         <Styled.Avatar
           role="button"
           tabIndex={0}
           style={{ backgroundColor: `${u.color}` }}
           onClick={() => clearUserStatus(u.userId)}
-          onKeyDown={e => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
+          onKeyDown={(e) => (e.keyCode === ENTER ? clearUserStatus(u.userId) : null)}
           data-test="avatarsWrapperAvatar"
           moderator={u.role === ROLE_MODERATOR}
           avatar={u.avatar}
@@ -151,10 +145,10 @@ class StatusNotifier extends Component {
       </TooltipContainer>
     ));
 
-    if (emojiUsers.length > MAX_AVATAR_COUNT) {
+    if (raiseHandUsers.length > MAX_AVATAR_COUNT) {
       avatars.push(
-        <Styled.AvatarsExtra key={`statusToastAvatar-${emojiUsers.length}`}>
-          {emojiUsers.length}
+        <Styled.AvatarsExtra key={`statusToastAvatar-${raiseHandUsers.length}`}>
+          {raiseHandUsers.length}
         </Styled.AvatarsExtra>,
       );
     }
@@ -163,7 +157,7 @@ class StatusNotifier extends Component {
   }
 
   renderRaisedHands() {
-    const { emojiUsers, intl, clearUserStatus } = this.props;
+    const { raiseHandUsers, intl, lowerUserHands } = this.props;
     const formattedRaisedHands = this.getRaisedHandNames();
     return (
       <div>
@@ -185,7 +179,7 @@ class StatusNotifier extends Component {
           color="default"
           size="md"
           onClick={() => {
-            emojiUsers.map(u => clearUserStatus(u.userId));
+            raiseHandUsers.map((u) => lowerUserHands(u.userId));
           }}
           data-test="raiseHandRejection"
         />
@@ -196,15 +190,14 @@ class StatusNotifier extends Component {
   render() { return null; }
 }
 
-export default injectIntl(StatusNotifier);
+export default injectIntl(RaiseHandNotifier);
 
-StatusNotifier.propTypes = {
+RaiseHandNotifier.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  clearUserStatus: PropTypes.func.isRequired,
-  emojiUsers: PropTypes.instanceOf(Array).isRequired,
-  status: PropTypes.string.isRequired,
+  lowerUserHands: PropTypes.func.isRequired,
+  raiseHandUsers: PropTypes.instanceOf(Array).isRequired,
   raiseHandAudioAlert: PropTypes.bool.isRequired,
   raiseHandPushAlert: PropTypes.bool.isRequired,
 };

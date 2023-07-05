@@ -58,11 +58,11 @@ class BreakoutRoomInvitation extends Component {
     } = this.state;
 
     const hasBreakoutsAvailable = breakouts.length > 0;
+    const isModerator = BreakoutService.amIModerator();
 
     if (hasBreakoutsAvailable
-      && !breakoutRoomsUserIsIn
-      && BreakoutService.checkInviteModerators()) {
-      const freeJoinRooms = breakouts.filter((breakout) => breakout.freeJoin);
+      && !breakoutRoomsUserIsIn) {
+      const freeJoinRooms = breakouts.filter((breakout) => (breakout.freeJoin));
 
       if (lastBreakoutReceived) {
         const lastBreakoutIdOpened = Session.get('lastBreakoutIdOpened');
@@ -76,14 +76,14 @@ class BreakoutRoomInvitation extends Component {
             && lastBreakoutReceived.breakoutId !== lastBreakoutIdOpened
           && lastBreakoutReceived.breakoutUrlData.insertedTime > (new Date().getTime()) - 15000)
         ) {
-          this.inviteUserToBreakout(lastBreakoutReceived);
+          if (!isModerator || lastBreakoutReceived.sendInviteToModerators) this.inviteUserToBreakout(lastBreakoutReceived);
         }
       } else if (freeJoinRooms.length > 0 && !didSendBreakoutInvite) {
         const maxSeq = Math.max(...freeJoinRooms.map(((room) => room.sequence)));
         // Check if received all rooms and Pick a room randomly
         if (maxSeq === freeJoinRooms.length) {
           const randomRoom = freeJoinRooms[Math.floor(Math.random() * freeJoinRooms.length)];
-          this.inviteUserToBreakout(randomRoom);
+          if (!isModerator || randomRoom.sendInviteToModerators) this.inviteUserToBreakout(randomRoom);
           this.setState({ didSendBreakoutInvite: true });
         }
       }

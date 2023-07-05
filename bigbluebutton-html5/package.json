@@ -65,7 +65,7 @@
     "prom-client": "^13.2.0",
     "prop-types": "^15.8.1",
     "queue": "^6.0.2",
-    "radash": "^10.7.0",
+    "radash": "^10.8.1",
     "ramda": "^0.29.0",
     "re-resizable": "^4.11.0",
     "react": "^18.2.0",

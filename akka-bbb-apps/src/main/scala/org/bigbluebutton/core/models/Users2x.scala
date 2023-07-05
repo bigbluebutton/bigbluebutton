@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.UserDAO
+import org.bigbluebutton.core.db.{ UserDAO, UserStateDAO }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -22,7 +22,7 @@ object Users2x {
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
     users.save(user)
-    UserDAO.update(user)
+    UserStateDAO.update(user)
     Some(user)
   }
 
@@ -37,7 +37,7 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(true, System.currentTimeMillis()))
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -48,8 +48,8 @@ object Users2x {
     } yield {
       val newUser = u.copy(userLeftFlag = UserLeftFlag(false, 0))
       users.save(newUser)
-      UserDAO.update(newUser)
-      UserDAO.updateExpired(u.intId, false)
+      UserStateDAO.update(newUser)
+      UserStateDAO.updateExpired(u.intId, false)
       newUser
     }
   }
@@ -116,7 +116,7 @@ object Users2x {
   def setMobile(users: Users2x, u: UserState): UserState = {
     val newUserState = modify(u)(_.mobile).setTo(true)
     users.save(newUserState)
-    UserDAO.update((newUserState))
+    UserStateDAO.update((newUserState))
     newUserState
   }
 
@@ -125,7 +125,7 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      //      UserDAO.delete(intId)
+      //      UserDAO.delete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }
@@ -136,7 +136,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -147,7 +147,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -179,7 +179,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.pin).setTo(pin)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -189,9 +189,41 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.emoji).setTo(emoji)
+
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
+    }
+  }
+  def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.reactionEmoji).setTo(reactionEmoji)
+        .modify(_.reactionChangedOn).setTo(System.currentTimeMillis())
+
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserRaiseHand(users: Users2x, intId: String, raiseHand: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = u.modify(_.away).setTo(raiseHand)
+      users.save(newUserState)
+      newUserState
+    }
+  }
+
+  def setUserAway(users: Users2x, intId: String, away: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUserState = u.modify(_.away).setTo(away)
+      users.save(newUserState)
+      newUserState
     }
   }
 
@@ -201,7 +233,7 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
-      UserDAO.update(newUser)
+      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -211,6 +243,17 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.pickExempted).setTo(exempted)
+      users.save(newUser)
+      newUser
+    }
+  }
+
+  def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.speechLocale).setTo(locale)
+      UserStateDAO.update(newUser)
       users.save(newUser)
       newUser
     }
@@ -377,6 +420,10 @@ case class UserState(
     authed:                Boolean,
     guestStatus:           String,
     emoji:                 String,
+    reactionEmoji:         String,
+    reactionChangedOn:     Long         = 0,
+    raiseHand:             Boolean,
+    away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
@@ -386,7 +433,8 @@ case class UserState(
     lastInactivityInspect: Long         = 0,
     clientType:            String,
     pickExempted:          Boolean,
-    userLeftFlag:          UserLeftFlag
+    userLeftFlag:          UserLeftFlag,
+    speechLocale:          String       = ""
 )
 
 case class UserIdAndName(id: String, name: String)

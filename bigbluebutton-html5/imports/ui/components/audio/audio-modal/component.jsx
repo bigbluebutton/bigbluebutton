@@ -600,7 +600,7 @@ class AudioModal extends Component {
     const { content } = this.state;
 
     return (
-      <span>
+      <>
         {showPermissionsOvelay ? <PermissionsOverlay closeModal={closeModal} /> : null}
         <Styled.AudioModal
           modalName="AUDIO"
@@ -638,7 +638,7 @@ class AudioModal extends Component {
             {this.renderContent()}
           </Styled.Content>
         </Styled.AudioModal>
-      </span>
+      </>
     );
   }
 }

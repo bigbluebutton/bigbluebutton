@@ -27,7 +27,8 @@ object BreakoutModel {
 case class BreakoutModel(
     startedOn:         Option[Long],
     durationInSeconds: Int,
-    rooms:             Map[String, BreakoutRoom2x]
+    rooms:             Map[String, BreakoutRoom2x],
+    sendInviteToModerators: Boolean,
 ) {
 
   def find(id: String): Option[BreakoutRoom2x] = {
