@@ -123,6 +123,7 @@ select_permissions:
         - ejectReasonCode
         - ejected
         - emoji
+        - expired
         - extId
         - guest
         - hasDrawPermissionOnCurrentPage
@@ -138,6 +139,7 @@ select_permissions:
         - raiseHand
         - registeredOn
         - role
+        - speechLocale
         - userId
       filter:
         _and:

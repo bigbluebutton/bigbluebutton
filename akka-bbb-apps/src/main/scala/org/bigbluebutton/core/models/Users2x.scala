@@ -253,6 +253,7 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.speechLocale).setTo(locale)
+      UserStateDAO.update(newUser)
       users.save(newUser)
       newUser
     }

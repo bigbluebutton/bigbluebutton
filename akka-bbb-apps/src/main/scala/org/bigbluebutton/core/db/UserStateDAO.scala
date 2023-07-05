@@ -25,11 +25,12 @@ case class UserStateDbModel(
     presenter: Boolean = false,
     pinned: Boolean = false,
     locked: Boolean = false,
+    speechLocale: String,
 )
 
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
-    userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,expired,ejected,ejectReason,ejectReasonCode,ejectedByModerator,presenter,pinned,locked) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
+    userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,expired,ejected,ejectReason,ejectReasonCode,ejectedByModerator,presenter,pinned,locked,speechLocale) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val emoji = column[String]("emoji")
   val away = column[Boolean]("away")
@@ -48,6 +49,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val presenter = column[Boolean]("presenter")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
+  val speechLocale = column[String]("speechLocale")
 }
 
 object UserStateDAO {
@@ -55,8 +57,8 @@ object UserStateDAO {
     DatabaseConnection.db.run(
       TableQuery[UserStateDbTableDef]
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.pinned, u.locked, u.emoji, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
-        .update((userState.presenter, userState.pin, userState.locked, userState.emoji, userState.away, userState.raiseHand, userState.mobile, userState.clientType, userState.userLeftFlag.left))
+        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.emoji, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
+        .update((userState.presenter, userState.pin, userState.locked, userState.speechLocale, userState.emoji, userState.away, userState.raiseHand, userState.mobile, userState.clientType, userState.userLeftFlag.left))
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated on user table!")
       case Failure(e) => DatabaseConnection.logger.error(s"Error updating user: $e")
