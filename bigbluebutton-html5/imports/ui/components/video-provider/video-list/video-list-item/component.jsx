@@ -1,6 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import React, { useEffect, useRef, useState } from 'react';
-import { injectIntl, useIntl } from 'react-intl';
+import { injectIntl, defineMessages, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserActions from '/imports/ui/components/video-provider/video-list/video-list-item/user-actions/component';
 import UserStatus from '/imports/ui/components/video-provider/video-list/video-list-item/user-status/component';
@@ -18,6 +18,12 @@ import Styled from './styles';
 import { withDragAndDrop } from './drag-and-drop/component';
 import Auth from '/imports/ui/services/auth';
 
+const intlMessages = defineMessages({
+  disableDesc: {
+    id: 'app.videoDock.webcamDisableDesc',
+  },
+});
+
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
 
 const VideoListItem = (props) => {
@@ -26,6 +32,8 @@ const VideoListItem = (props) => {
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
   } = props;
+
+  const intl = useIntl();
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
@@ -224,9 +232,12 @@ const VideoListItem = (props) => {
       }}
     >
 
-      <Styled.VideoContainer
-        $selfViewDisabled={isSelfViewDisabled}
-      >
+      <Styled.VideoContainer>
+        {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
+          <Styled.VideoDisabled>
+            {intl.formatMessage(intlMessages.disableDesc)}
+          </Styled.VideoDisabled>
+        )}
         <Styled.Video
           mirrored={isMirrored}
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
@@ -255,9 +266,9 @@ export default withDragAndDrop(injectIntl(VideoListItem));
 
 VideoListItem.defaultProps = {
   numOfStreams: 0,
-  onVideoItemMount: () => {},
-  onVideoItemUnmount: () => {},
-  onVirtualBgDrop: () => {},
+  onVideoItemMount: () => { },
+  onVideoItemUnmount: () => { },
+  onVirtualBgDrop: () => { },
 };
 
 VideoListItem.propTypes = {
