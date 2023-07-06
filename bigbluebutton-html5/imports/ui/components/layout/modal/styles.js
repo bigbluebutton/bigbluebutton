@@ -88,6 +88,27 @@ const LayoutBtn = styled(Button)`
       border: ${colorPrimary} solid 4px;
       border-radius: 5px;
     }
+
+    &:before {
+      font-family: 'bbb-icons';
+      color: ${colorWhite};
+      position: fixed;
+      content: "\\e946";
+      background-color: ${colorPrimary};
+      margin-left: 13.1rem;
+      padding: 0.3rem 0.2rem 0 0.6rem;
+      border-radius: 0 0 0 .3rem;
+
+      [dir="rtl"] & {
+        left: auto;
+        margin-right: 13.1rem;
+        margin-left: unset;
+        padding: 0.3rem 0.6rem 0 0.2rem;
+        border-radius: 0 0 .3rem 0;
+      }
+      width: 1.8rem;
+      height: 1.8rem;
+    }
   `};
 `;
 
