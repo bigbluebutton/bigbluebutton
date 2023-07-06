@@ -65,10 +65,10 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     return talkingUsers.map((user, index) => {
       const {
         talking,
-        color,
         floor,
         muted,
         userId,
+        user: { color, speechLocale },
         // transcribing,
       } = user;
       const name = user.user?.name;
@@ -85,13 +85,13 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           talking={talking}
           floor={floor}
         >
-          {/* {transcribing && (
+          {speechLocale && (
             <Styled.CCIcon
               iconName={muted ? 'closed_caption_stop' : 'closed_caption'}
               muted={muted}
               talking={talking}
             />
-          )} */}
+          )}
           <Styled.TalkingIndicatorButton
             $spoke={!talking || undefined}
             $muted={muted}

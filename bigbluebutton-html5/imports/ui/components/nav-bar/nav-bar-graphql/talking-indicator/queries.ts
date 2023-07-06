@@ -21,13 +21,13 @@ export const TALKING_INDICATOR_SUBSCRIPTION = gql`
       spoke
       talking
       floor
-      color
       startTime
       muted
       userId
       user {
         color
         name
+        speechLocale
       }
     }
   }
