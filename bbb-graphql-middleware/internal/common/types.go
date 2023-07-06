@@ -30,7 +30,7 @@ type BrowserConnection struct {
 	SessionToken             string                         // session token of this connection
 	Context                  context.Context                // browser connection context
 	ActiveSubscriptions      map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
-	ActiveSubscriptionsMutex sync.Mutex                     // mutex to control the map usage
+	ActiveSubscriptionsMutex sync.RWMutex                   // mutex to control the map usage
 	ConnectionInitMessage    interface{}                    // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection         *HasuraConnection              // associated hasura connection
 	Disconnected             bool                           // indicate if the connection is gone

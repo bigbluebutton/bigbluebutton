@@ -50,7 +50,7 @@ func BrowserConnectionInvalidator() {
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
 			log.Infof("Received invalidate request for sessionToken %v", sessionTokenToInvalidate)
 
-			websrv.BrowserConnectionsMutex.Lock()
+			websrv.BrowserConnectionsMutex.RLock()
 			for _, browserConnection := range websrv.BrowserConnections {
 				if browserConnection.SessionToken == sessionTokenToInvalidate {
 					if browserConnection.HasuraConnection != nil {
@@ -60,7 +60,7 @@ func BrowserConnectionInvalidator() {
 					}
 				}
 			}
-			websrv.BrowserConnectionsMutex.Unlock()
+			websrv.BrowserConnectionsMutex.RUnlock()
 		}
 	}
 }

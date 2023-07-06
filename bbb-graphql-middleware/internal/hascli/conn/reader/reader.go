@@ -30,15 +30,16 @@ func HasuraConnectionReader(hc *common.HasuraConnection, fromHasuraToBrowserChan
 		log.Tracef("received from hasura: %v", message)
 
 		var messageAsMap = message.(map[string]interface{})
+
 		if messageAsMap != nil {
 			var messageType = messageAsMap["type"]
 			var queryId, _ = messageAsMap["id"].(string)
 
 			//Check if subscription is still active!
 			if queryId != "" {
-				hc.Browserconn.ActiveSubscriptionsMutex.Lock()
+				hc.Browserconn.ActiveSubscriptionsMutex.RLock()
 				subscription, ok := hc.Browserconn.ActiveSubscriptions[queryId]
-				hc.Browserconn.ActiveSubscriptionsMutex.Unlock()
+				hc.Browserconn.ActiveSubscriptionsMutex.RUnlock()
 				if !ok {
 					log.Debugf("Subscription with Id %s doesn't exist anymore, skiping response.", queryId)
 					return
