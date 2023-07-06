@@ -40,7 +40,7 @@ trait SelectRandomViewerReqMsgHdlr extends RightsManagementTrait {
       val pickedUser = if (usersPicked.size == 0) "" else usersPicked(randNum.nextInt(usersPicked.size)).intId
 
       if (reduceDuplicatedPick) {
-        if (usersPicked.size == 1) {
+        if (usersPicked.size <= 1) {
           // Initialise the exemption
           val usersToUnexempt = Users2x.findAll(liveMeeting.users2x)
           usersToUnexempt foreach { u =>
