@@ -1,4 +1,4 @@
-import React, { Ref, useEffect, useMemo } from "react";
+import React, { Ref, useCallback, useEffect, useMemo, useRef } from "react";
 import { Message } from '/imports/ui/Types/message';
 import {
   ChatWrapper,
@@ -15,6 +15,8 @@ interface ChatMessageProps {
   message: Message;
   previousMessage?: Message;
   lastSenderPreviousPage?: string | null;
+  scrollRef: React.RefObject<HTMLDivElement>;
+  markMessageAsSeen: Function;
 }
 
 const enum MessageType {
@@ -43,9 +45,50 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, lastSenderPreviousPage }) => {
+function isInViewport(el: HTMLDivElement) {
+  const rect = el.getBoundingClientRect();
+
+  return (
+    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.bottom >= 0
+  );
+}
+
+const ChatMesssage: React.FC<ChatMessageProps> = ({
+  message,
+  previousMessage,
+  lastSenderPreviousPage,
+  scrollRef,
+  markMessageAsSeen,
+}) => {
   const intl = useIntl();
+  const messageRef = useRef<HTMLDivElement>(null);
+  const markMessageAsSeenOnScrollEnd = useCallback((message, messageRef) => {
+    if (isInViewport(messageRef.current)) {
+      markMessageAsSeen(message);
+    }
+  }, []);
+
+  useEffect(() => {
+    // I use a function here to remove the event listener using the same reference 
+    const callbackFunction = () => {
+      markMessageAsSeenOnScrollEnd(message, messageRef);
+    }
+    if (message && scrollRef.current && messageRef.current) {
+      if (isInViewport(messageRef.current)) {
+        markMessageAsSeen(message);
+      } else {
+        scrollRef.current.addEventListener('scrollend', callbackFunction);
+      }
+    }
+    return () => {
+      scrollRef?.current
+        ?.removeEventListener('scrollend', callbackFunction);
+    }
+  }, [message, messageRef]);
+
   if (!message) return null;
+
   const sameSender = (previousMessage?.user?.userId || lastSenderPreviousPage) === message?.user?.userId;
   const dateTime = new Date(message?.createdTime);
   const messageContent: {
@@ -103,6 +146,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({ message, previousMessage, la
   return (
     <ChatWrapper
       sameSender={sameSender}
+      ref={messageRef}
     >
       <ChatMessageHeader
         sameSender={message?.user ? sameSender : false}

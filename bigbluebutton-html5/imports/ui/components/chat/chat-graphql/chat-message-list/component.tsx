@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Meteor } from "meteor/meteor";
-import { useMutation } from "@apollo/client";
+import { makeVar, useMutation } from "@apollo/client";
 import { LAST_SEEN_MUTATION } from "./queries";
 import {
   ButtonLoadMore,
@@ -17,7 +17,6 @@ import { Message } from "/imports/ui/Types/message";
 import { useCurrentUser } from "/imports/ui/core/hooks/useCurrentUser";
 import { User } from "/imports/ui/Types/user";
 import ChatPopupContainer from "../chat-popup/component";
-import { type } from "types-ramda";
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -33,11 +32,12 @@ const intlMessages = defineMessages({
 });
 
 interface ChatListProps {
-  totalPages?: number;
+  totalPages: number;
   chatId: string;
   currentUserId: string;
   setMessageAsSeenMutation: Function;
   totalUnread?: number;
+  lastSeenAt: number;
 }
 const isElement = (el: any): el is HTMLElement => {
   return el instanceof HTMLElement;
@@ -65,29 +65,68 @@ const setLastSender = (lastSenderPerPage: Map<number, string>,) => {
   }
 }
 
+const lastSeenQueue = makeVar<{ [key: string]: Set<number> }>({});
+const setter = makeVar<{ [key: string]: Function }>({});
+const lastSeenAtVar = makeVar<{ [key: string]: number }>({});
+const chatIdVar = makeVar<string>('');
+
+const dispatchLastSeen = () => setTimeout(() => {
+  const lastSeenQueueValue = lastSeenQueue();
+  if (lastSeenQueueValue[chatIdVar()]) {
+
+    const lastTimeQueue = Array.from(lastSeenQueueValue[chatIdVar()])
+    const lastSeenTime = Math.max(...lastTimeQueue);
+    const lastSeenAtVarValue = lastSeenAtVar();
+    if (lastSeenTime > (lastSeenAtVarValue[chatIdVar()] ?? 0)) {
+      lastSeenAtVar({ ...lastSeenAtVar(), [chatIdVar()]: lastSeenTime });
+      setter()[chatIdVar()](lastSeenTime);
+    }
+  }
+}, 500);
+
 const ChatMessageList: React.FC<ChatListProps> = ({
   totalPages,
   chatId,
   setMessageAsSeenMutation,
+  lastSeenAt,
 }) => {
   const intl = useIntl();
   const messageListRef = React.useRef<HTMLDivElement>();
   const contentRef = React.useRef<HTMLDivElement>();
   // I used a ref here because I don't want to re-render the component when the last sender changes
   const lastSenderPerPage = React.useRef<Map<number, string>>(new Map());
-  const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = React.useState<number | null>(null);
+  const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
+  const [lastMessageCreatedTime, setLastMessageCreatedTime] = useState<number>(0);
   const [followingTail, setFollowingTail] = React.useState(true);
+  useEffect(() => {
+    setter({
+      ...setter(),
+      [chatId]: setLastMessageCreatedTime,
+    });
+    chatIdVar(chatId);
+  }, [chatId]);
+  useEffect(() => {
+    setMessageAsSeenMutation({
+      variables: {
+        chatId: chatId,
+        lastSeenAt: lastMessageCreatedTime,
+      },
+    });
+  }, [lastMessageCreatedTime]);
 
   const markMessageAsSeen = useCallback((message: Message) => {
-    if (message) {
-      setMessageAsSeenMutation({
-        variables: {
-          chatId: message.chatId,
-          lastSeenAt: message.createdTime,
-        },
-      })
+    if (message.createdTime > (lastMessageCreatedTime ?? 0)) {
+      dispatchLastSeen();
+      const lastSeenQueueValue = lastSeenQueue();
+      if (lastSeenQueueValue[chatId]) {
+        lastSeenQueueValue[chatId].add(message.createdTime);
+        lastSeenQueue(lastSeenQueueValue)
+      } else {
+        lastSeenQueueValue[chatId] = new Set([message.createdTime]);
+        lastSeenQueue(lastSeenQueueValue)
+      }
     }
-  }, []);
+  }, [lastMessageCreatedTime]);
 
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
@@ -197,6 +236,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                   lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page) : undefined}
                   chatId={chatId}
                   markMessageAsSeen={markMessageAsSeen}
+                  scrollRef={messageListRef}
+                  lastSeenAt={lastSeenAt}
                 />
               )
             })
@@ -216,6 +257,7 @@ const ChatMessageListContainer: React.FC = ({ }) => {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
+      lastSeenAt: chat.lastSeenAt,
     }
   }, chatId) as Partial<Chat>;
   const currentUser = useCurrentUser((user: Partial<User>) => {
@@ -229,6 +271,7 @@ const ChatMessageListContainer: React.FC = ({ }) => {
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList
+      lastSeenAt={currentChat?.lastSeenAt || 0}
       totalPages={totalPages}
       chatId={chatId}
       currentUserId={currentUser?.userId ?? ''}

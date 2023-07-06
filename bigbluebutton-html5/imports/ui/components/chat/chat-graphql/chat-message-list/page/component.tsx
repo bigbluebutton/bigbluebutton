@@ -20,6 +20,7 @@ interface ChatListPageContainerProps {
   lastSenderPreviousPage: string | undefined;
   chatId: string;
   markMessageAsSeen: Function;
+  scrollRef: React.RefObject<HTMLDivElement>;
 }
 
 interface ChatListPageProps {
@@ -27,6 +28,7 @@ interface ChatListPageProps {
   lastSenderPreviousPage: string | undefined;
   page: number;
   markMessageAsSeen: Function;
+  scrollRef: React.RefObject<HTMLDivElement>;
 }
 
 const verifyIfIsPublicChat = (message: unknown): message is ChatMessagePublicSubscriptionResponse => {
@@ -37,35 +39,16 @@ const verifyIfIsPrivateChat = (message: unknown): message is ChatMessagePrivateS
   return (message as ChatMessagePrivateSubscriptionResponse).chat_message_private !== undefined;
 }
 
-function isInViewport(el: HTMLDivElement) {
-  const rect = el.getBoundingClientRect();
+const ChatListPage: React.FC<ChatListPageProps> = ({
+  messages,
+  lastSenderPreviousPage,
+  page,
+  markMessageAsSeen,
+  scrollRef,
 
+}) => {
   return (
-    rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
-    rect.bottom >= 0
-  );
-}
-const markOnScrollEnd = (messages: Array<Message>, page: number, markMessageAsSeen: Function) => {
-  markMessageAsSeen(messages[messages.length - 1], page);
-}
-const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviousPage, page, markMessageAsSeen }) => {
-  const pageRef = React.useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (pageRef.current) {
-      if (isInViewport(pageRef.current)) {
-        markMessageAsSeen(messages[messages.length - 1], page);
-      } else {
-        // first parent is the resize observer, the second is the scroll container
-        const scrollContainer = pageRef.current?.parentNode?.parentNode;
-        if (scrollContainer) {
-          scrollContainer.addEventListener('scrollend', markOnScrollEnd.bind(null, messages, page, markMessageAsSeen));
-        }
-      }
-
-    }
-  }, [pageRef, messages.length]);
-  return (
-    <div key={`messagePage-${page}`} id={`${page}`} ref={pageRef}>
+    <div key={`messagePage-${page}`} id={`${page}`} >
       {
         messages.map((message, index, Array) => {
           const previousMessage = Array[index - 1];
@@ -75,6 +58,8 @@ const ChatListPage: React.FC<ChatListPageProps> = ({ messages, lastSenderPreviou
               message={message}
               previousMessage={previousMessage}
               lastSenderPreviousPage={!previousMessage ? lastSenderPreviousPage : null}
+              scrollRef={scrollRef}
+              markMessageAsSeen={markMessageAsSeen}
             />
           )
         })
@@ -90,6 +75,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   lastSenderPreviousPage,
   chatId,
   markMessageAsSeen,
+  scrollRef,
 }) => {
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_KEY;
   const chatQuery = isPublicChat
@@ -126,6 +112,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       lastSenderPreviousPage={lastSenderPreviousPage}
       page={page}
       markMessageAsSeen={markMessageAsSeen}
+      scrollRef={scrollRef}
     />
   );
 }

@@ -9,16 +9,14 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
-const START_TYPING_THROTTLE_INTERVAL = 2000;
+const START_TYPING_THROTTLE_INTERVAL = 1000;
 
 // session for closed chat list
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 
 export const sendGroupMessage = (message: string, idChatOpen: string) => {
   const { userID: senderUserId } = Auth;
-  const chatID = idChatOpen === PUBLIC_CHAT_ID
-    ? PUBLIC_GROUP_CHAT_ID
-    : idChatOpen;
+  const chatID = idChatOpen === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : idChatOpen;
 
   const receiverId = { id: chatID };
 
@@ -43,13 +41,14 @@ export const sendGroupMessage = (message: string, idChatOpen: string) => {
   return makeCall('sendGroupChatMsg', chatID, payload);
 };
 
-
 export const handleSendMessage = (message: string, idChatOpen: string) => {
   return sendGroupMessage(message, idChatOpen);
 };
 
 export const startUserTyping = throttle(
-  (chatId: string) => makeCall('startUserTyping', chatId),
+  (chatId: string) => {
+    makeCall('startUserTyping', chatId);
+  },
   START_TYPING_THROTTLE_INTERVAL,
   { leading: true, trailing: false }
 );

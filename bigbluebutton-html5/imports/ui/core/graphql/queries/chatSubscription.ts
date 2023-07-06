@@ -23,6 +23,7 @@ export const CHATS_SUBSCRIPTION = gql`
       totalMessages
       totalUnread
       public
+      lastSeenAt
     }
   }
 `;
