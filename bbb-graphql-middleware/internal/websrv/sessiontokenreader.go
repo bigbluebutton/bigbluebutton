@@ -12,7 +12,7 @@ func SessionTokenReader(connectionId string, browserConnectionContext context.Co
 	defer wg.Done()
 	defer log.Info("finished")
 
-	BrowserConnectionsMutex.Lock()
+	BrowserConnectionsMutex.RLock()
 	browserConnection := BrowserConnections[connectionId]
 	BrowserConnectionsMutex.Unlock()
 
