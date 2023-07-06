@@ -60,7 +60,7 @@ func BrowserConnectionInvalidator() {
 					}
 				}
 			}
-			websrv.BrowserConnectionsMutex.Unlock()
+			websrv.BrowserConnectionsMutex.RUnlock()
 		}
 	}
 }

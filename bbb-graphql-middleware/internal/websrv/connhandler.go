@@ -87,7 +87,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					log.Printf("creating hasura client")
 					BrowserConnectionsMutex.RLock()
 					thisBrowserConnection := BrowserConnections[browserConnectionId]
-					BrowserConnectionsMutex.Unlock()
+					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
 						hascli.HasuraClient(thisBrowserConnection, r.Cookies(), fromBrowserChannel1, toBrowserChannel)
 					}

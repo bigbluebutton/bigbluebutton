@@ -14,7 +14,7 @@ func SessionTokenReader(connectionId string, browserConnectionContext context.Co
 
 	BrowserConnectionsMutex.RLock()
 	browserConnection := BrowserConnections[connectionId]
-	BrowserConnectionsMutex.Unlock()
+	BrowserConnectionsMutex.RUnlock()
 
 	// Intercept the fromBrowserMessage channel to get the sessionToken
 	for fromBrowserMessage := range fromBrowser {
