@@ -11,6 +11,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
 import { shouldEnableVolumeControl } from './service';
 import MediaService from '/imports/ui/components/media/service';
+import NotesService from '/imports/ui/components/notes/service';
 
 const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
@@ -53,5 +54,7 @@ export default withTracker(() => {
     toggleSwapLayout: MediaService.toggleSwapLayout,
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
+    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
+    pinSharedNotes: NotesService.pinSharedNotes,
   };
 })(ScreenshareContainer);

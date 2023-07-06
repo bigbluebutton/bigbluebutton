@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import { Session } from 'meteor/session';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
@@ -117,6 +118,7 @@ class ScreenshareComponent extends React.Component {
       layoutContextDispatch,
       intl,
       isPresenter,
+      isSharedNotesPinned,
     } = this.props;
 
     screenshareHasStarted(isPresenter);
@@ -140,6 +142,7 @@ class ScreenshareComponent extends React.Component {
         value: true,
       });
     }
+    Session.set('pinnedNotesLastState', isSharedNotesPinned);
   }
 
   componentDidUpdate(prevProps) {
@@ -155,6 +158,7 @@ class ScreenshareComponent extends React.Component {
       fullscreenContext,
       layoutContextDispatch,
       toggleSwapLayout,
+      pinSharedNotes,
     } = this.props;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
@@ -186,6 +190,8 @@ class ScreenshareComponent extends React.Component {
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: Session.get('presentationLastState'),
     });
+
+    pinSharedNotes(Session.get('pinnedNotesLastState'));
   }
 
   clearMediaFlowingMonitor() {
