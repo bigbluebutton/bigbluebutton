@@ -10,6 +10,7 @@ import Button from '/imports/ui/components/common/button/component';
 import { clearPublicChatHistory, generateExportedMessages } from './services'
 import { getDateString } from '/imports/utils/string-utils';
 import Events from '/imports/ui/core/events/events';
+import { isEmpty } from 'ramda';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const ENABLE_SAVE_AND_COPY_PUBLIC_CHAT = CHAT_CONFIG.enableSaveAndCopyPublicChat;
@@ -39,8 +40,8 @@ const intlMessages = defineMessages({
     id: 'app.chat.dropdown.options',
     description: 'Chat Options',
   },
-  restore: {
-    id: 'app.chat.dropdown.restore',
+  showWelcomeMessage: {
+    id: 'app.chat.dropdown.showWelcomeMessage',
     description: 'Restore button label',
   },
 });
@@ -52,6 +53,7 @@ export const ChatActions: React.FC = () => {
   const downloadOrCopyRef = useRef<'download' | 'copy' | null>(null);
   const [userIsModerator, setUserIsmoderator] = useState<boolean>(false);
   const [meetingIsBreakout, setMeetingIsBreakout] = useState<boolean>(false);
+  const [showShowWelcomeMessages, setShowShowWelcomeMessages] = useState<boolean>(false);
   const [
     getChatMessageHistory,
     {
@@ -96,6 +98,9 @@ export const ChatActions: React.FC = () => {
     if (dataPermissions) {
       setUserIsmoderator(dataPermissions.user_current[0].isModerator);
       setMeetingIsBreakout(dataPermissions.meeting[0].isBreakout);
+      if (!isEmpty(dataPermissions.user_welcomeMsgs[0].welcomeMsg)) {
+        setShowShowWelcomeMessages(true);
+      }
     }
   }, [dataPermissions]);
 
@@ -134,10 +139,10 @@ export const ChatActions: React.FC = () => {
       },
       {
         key: uniqueIdsRef.current[4],
-        enable: true,
+        enable: showShowWelcomeMessages,
         icon: 'about',
         dataTest: 'restoreWelcomeMessages',
-        label: intl.formatMessage(intlMessages.restore),
+        label: intl.formatMessage(intlMessages.showWelcomeMessage),
         onClick: () => {
           const restoreWelcomeMessagesEvent = new CustomEvent(Events.RESTORE_WELCOME_MESSAGES);
           window.dispatchEvent(restoreWelcomeMessagesEvent);

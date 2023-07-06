@@ -10,8 +10,9 @@ export type getChatMessageHistory = {
 };
 
 export type getPermissions = {
-  user_current: Array<User>,
-  meeting: Array<{isBreakout: boolean}>
+  user_current: Array<User>;
+  meeting: Array<{ isBreakout: boolean }>;
+  user_welcomeMsgs: Array<{ welcomeMsg: string; welcomeMsgForModerators: string | null }>;
 };
 
 export const GET_CHAT_MESSAGE_HISTORY  = gql`
@@ -37,13 +38,17 @@ query getChatMessageHistory {
 `;
 
 export const GET_PERMISSIONS = gql`
-query getPermissions {
-  user_current {
-    isModerator
+  query getPermissions {
+    user_current {
+      isModerator
+    }
+    meeting {
+      isBreakout
+      name
+    }
+    user_welcomeMsgs {
+      welcomeMsg
+      welcomeMsgForModerators
+    }
   }
-  meeting {
-    isBreakout
-    name
-  }
-}
 `;
