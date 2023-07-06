@@ -64,7 +64,7 @@ const LayoutBtn = styled(Button)`
   align-items: center;
   flex-direction: column;
   padding: 0 !important;
-  margin: 0.5rem 1rem 1rem 1rem;
+  margin: 1rem 1rem 0.5rem 1rem;
   width: fit-content;
 
   @media ${smallOnly} {

@@ -129,7 +129,6 @@ const LayoutModalComponent = (props) => {
       {Object.values(LAYOUT_TYPE)
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
-            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
             <Styled.LayoutBtn
               label=""
               customIcon={(
@@ -143,6 +142,7 @@ const LayoutModalComponent = (props) => {
               aria-describedby="layout-btn-desc"
               data-test={`${layout}Layout`}
             />
+            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
           </Styled.ButtonLayoutContainer>
         ))}
     </Styled.ButtonsContainer>
