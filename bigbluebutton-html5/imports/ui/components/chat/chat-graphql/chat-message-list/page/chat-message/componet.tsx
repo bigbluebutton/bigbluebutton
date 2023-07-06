@@ -64,7 +64,7 @@ const ChatMesssage: React.FC<ChatMessageProps> = ({
   const intl = useIntl();
   const messageRef = useRef<HTMLDivElement>(null);
   const markMessageAsSeenOnScrollEnd = useCallback((message, messageRef) => {
-    if (isInViewport(messageRef.current)) {
+    if (messageRef.current && isInViewport(messageRef.current)) {
       markMessageAsSeen(message);
     }
   }, []);

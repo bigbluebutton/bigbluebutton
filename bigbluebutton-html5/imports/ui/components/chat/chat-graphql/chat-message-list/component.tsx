@@ -46,12 +46,18 @@ const isElement = (el: any): el is HTMLElement => {
 const isMap = (map: any): map is Map<number, string> => {
   return map instanceof Map;
 }
+let elHeight = 0;
 
 const scrollObserver = new ResizeObserver((entries) => {
   for (const entry of entries) {
     const el = entry.target;
     if (isElement(el) && isElement(el.parentElement)) {
-      el.parentElement.scrollTop = el.parentElement.scrollHeight + el.clientHeight;
+      if (el.offsetHeight > elHeight) {
+        elHeight = el.offsetHeight;
+        el.parentElement.scrollTop = el.parentElement.scrollHeight + el.parentElement.clientHeight;
+      } else {
+        elHeight = 0;
+      }
     }
   }
 });
@@ -128,11 +134,24 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   }, [lastMessageCreatedTime]);
 
+  const setScrollToTailEventHandler = useCallback((el: HTMLDivElement) => {
+    if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
+      if (isElement(contentRef.current)) {
+        toggleFollowingTail(true)
+      }
+    } else {
+      if (isElement(contentRef.current)) {
+        toggleFollowingTail(false)
+      }
+    }
+  }, []);
+
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
     if (toggle) {
       if (isElement(contentRef.current)) {
         scrollObserver.observe(contentRef.current as HTMLDivElement);
+        setFollowingTail(true);
       }
     } else {
       if (isElement(contentRef.current)) {
@@ -140,6 +159,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           setUserLoadedBackUntilPage(Math.max(totalPages - 2, 0));
         }
         scrollObserver.unobserve(contentRef.current as HTMLDivElement);
+        setFollowingTail(false);
       }
     }
   }
@@ -160,7 +180,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     return () => {
       window.removeEventListener(Events.SENT_MESSAGE, setScrollToTailEventHandler);
     }
-  }, []);
+  }, [contentRef.current]);
 
   useEffect(() => {
     if (followingTail) {
@@ -189,20 +209,21 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     <MessageListWrapper>
       <MessageList
         ref={messageListRef}
-        onScroll={(e) => {
-          const el = messageListRef.current as HTMLDivElement;
-
-          if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
-            if (isElement(contentRef.current)) {
-              toggleFollowingTail(true)
-            }
-          } else {
+        onWheel={(e) => {
+          if (e.deltaY < 0) {
             if (isElement(contentRef.current)) {
               toggleFollowingTail(false)
             }
+          } else if (e.deltaY > 0) {
+            setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
           }
-        }
-        }
+        }}
+        onMouseUp={(e) => {
+          setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
+        }}
+        onTouchEnd={(e) => {
+          setScrollToTailEventHandler(messageListRef.current as HTMLDivElement);
+        }}
       >
         <span>
           {
