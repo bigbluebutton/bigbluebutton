@@ -1,10 +1,10 @@
 table:
-  name: v_user_voice
+  name: v_user_connectionStatusReport
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user_voice
+  custom_name: user_connectionStatusReport
   custom_root_fields: {}
 object_relationships:
   - name: user
@@ -20,23 +20,15 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - callerName
-        - callerNum
-        - callingWith
-        - endTime
-        - floor
-        - joined
-        - lastFloorTime
-        - lastSpeakChangedAt
-        - listenOnly
-        - muted
-        - showTalkingIndicator
-        - spoke
-        - startTime
-        - talking
+        - clientNotResponding
+        - connectionAliveAt
+        - currentStatus
+        - lastUnstableStatus
+        - lastUnstableStatusAt
         - userId
-        - voiceConf
-        - voiceUserId
       filter:
-        meetingId:
-          _eq: X-Hasura-MeetingId
+        _or:
+          - userId:
+              _eq: X-Hasura-UserId
+          - meetingId:
+              _eq: X-Hasura-ModeratorInMeeting

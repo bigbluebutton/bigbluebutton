@@ -287,7 +287,8 @@ class CustomParameters extends MultiUsers {
   async downloadPresentationWithAnnotations() {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.wasRemoved(e.exportPresentationToPublicChat);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
   }
 
   async importPresentationWithAnnotationsFromBreakoutRooms() {
@@ -373,7 +374,8 @@ class CustomParameters extends MultiUsers {
   async downloadPresentationWithAnnotationsExclude() {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.hasElement(e.exportPresentationToPublicChat);
+    await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
+    await this.modPage.hasElement(e.sendPresentationInCurrentStateBtn);
   }
 
   async importPresentationWithAnnotationsFromBreakoutRoomsExclude() {

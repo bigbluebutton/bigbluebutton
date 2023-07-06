@@ -18,6 +18,7 @@ select_permissions:
         - color
         - disconnected
         - emoji
+        - expired
         - extId
         - guest
         - guestStatus
@@ -35,6 +36,7 @@ select_permissions:
         - raiseHand
         - registeredOn
         - role
+        - speechLocale
         - userId
       filter:
         meetingId:

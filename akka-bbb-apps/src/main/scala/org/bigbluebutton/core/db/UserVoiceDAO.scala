@@ -20,7 +20,6 @@ case class UserVoiceDbModel(
     floor:              Boolean,
     lastFloorTime:      String,
     voiceConf:          String,
-    color:              String,
     startTime:          Option[Long],
     endTime:            Option[Long],
 )
@@ -28,7 +27,7 @@ case class UserVoiceDbModel(
 class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "user_voice") {
   override def * = (
     userId, voiceUserId, callerName, callerNum, callingWith, joined, listenOnly,
-    muted, spoke, talking, floor, lastFloorTime, voiceConf, color, startTime, endTime
+    muted, spoke, talking, floor, lastFloorTime, voiceConf, startTime, endTime
   ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
   val userId = column[String]("userId", O.PrimaryKey)
   val voiceUserId = column[String]("voiceUserId")
@@ -43,7 +42,6 @@ class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "
   val floor = column[Boolean]("floor")
   val lastFloorTime = column[String]("lastFloorTime")
   val voiceConf = column[String]("voiceConf")
-  val color = column[String]("color")
   val startTime = column[Option[Long]]("startTime")
   val endTime = column[Option[Long]]("endTime")
 }
@@ -67,7 +65,6 @@ object UserVoiceDAO {
           floor = voiceUserState.floor,
           lastFloorTime = voiceUserState.lastFloorTime,
           voiceConf = "",
-          color = "",
           startTime = None,
           endTime = None
         )

@@ -1,5 +1,5 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser, UserState}
+import org.bigbluebutton.core.models.{RegisteredUser}
 import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
