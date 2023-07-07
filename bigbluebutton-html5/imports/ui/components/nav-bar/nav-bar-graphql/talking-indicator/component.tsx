@@ -65,12 +65,12 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     return talkingUsers.map((user, index) => {
       const {
         talking,
-        floor,
         muted,
         userId,
         user: { color, speechLocale },
         // transcribing,
       } = user;
+
       const name = user.user?.name;
       const ariaLabel = intl.formatMessage(talking
         ? intlMessages.isTalking : intlMessages.wasTalking, {
@@ -81,9 +81,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       return (
         <Styled.TalkingIndicatorWrapper
           key={uniqueId(`${name}-`)}
-          muted={muted}
           talking={talking}
-          floor={floor}
         >
           {speechLocale && (
             <Styled.CCIcon
