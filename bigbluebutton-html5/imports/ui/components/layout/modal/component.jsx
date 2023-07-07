@@ -47,10 +47,6 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.modal.layoutToastLabel',
       description: 'Layout toast label',
     },
-    keepPushingLayoutLabel: {
-      id: 'app.layout.modal.keepPushingLayoutLabel',
-      description: 'Keep push layout Label',
-    },
     customLayout: {
       id: 'app.layout.style.custom',
       description: 'label for custom layout style',
