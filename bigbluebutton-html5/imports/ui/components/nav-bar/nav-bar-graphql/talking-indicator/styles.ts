@@ -130,7 +130,8 @@ const TalkingIndicatorWrapper = styled.div`
   display: flex;
   margin: 0 ${borderRadius};
   opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`) || '1;'};
-  background: ${({ muted, talking, floor }) => ((muted || !talking || !floor) && `${colorBackground};`) || `${colorSuccess}`};
+  background: ${({ muted, talking, floor }) =>
+    talking ? `${colorSuccess}` : `${colorBackground};`};
 `;
 
 const Hidden = styled.div`
