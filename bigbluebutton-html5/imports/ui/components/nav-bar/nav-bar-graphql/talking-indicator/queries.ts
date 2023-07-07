@@ -16,7 +16,11 @@ export interface IsBreakoutSubscriptionData {
 
 export const TALKING_INDICATOR_SUBSCRIPTION = gql`
   subscription TalkingIndicatorSubscription($limit: Int!) {
-    user_voice(where: { joined: { _eq: true }, spoke: { _eq: true } }, limit: $limit) {
+    user_voice(
+      where: { showTalkingIndicator: { _eq: true } }
+      order_by: [{ startTime: desc_nulls_last }, { endTime: desc_nulls_last }]
+      limit: $limit
+    ) {
       callerName
       spoke
       talking
