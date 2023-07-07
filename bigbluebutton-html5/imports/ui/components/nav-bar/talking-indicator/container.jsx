@@ -9,6 +9,7 @@ import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { layoutSelectInput, layoutDispatch } from '../../layout/context';
 import SpeechService from '/imports/ui/components/audio/captions/speech/service';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import TalkingIndicatorContainerGraphql from '../nav-bar-graphql/talking-indicator/component';
 
 const APP_CONFIG = Meteor.settings.public.app;
 const { enableTalkingIndicator } = APP_CONFIG;
@@ -40,34 +41,34 @@ const TalkingIndicatorContainer = (props) => {
   );
 };
 
-export default withTracker(() => {
+withTracker(() => {
   const talkers = {};
   const meetingId = Auth.meetingID;
-  const usersTalking = VoiceUsers.find({ meetingId, joined: true, spoke: true }, {
-    fields: {
-      callerName: 1,
-      talking: 1,
-      floor: 1,
-      color: 1,
-      startTime: 1,
-      muted: 1,
-      intId: 1,
-    },
-    sort: {
-      startTime: 1,
-    },
-    limit: TALKING_INDICATORS_MAX + 1,
-  }).fetch();
+  const usersTalking = VoiceUsers.find(
+    { meetingId, joined: true, spoke: true },
+    {
+      fields: {
+        callerName: 1,
+        talking: 1,
+        floor: 1,
+        color: 1,
+        startTime: 1,
+        muted: 1,
+        intId: 1,
+      },
+      sort: {
+        startTime: 1,
+      },
+      limit: TALKING_INDICATORS_MAX + 1,
+    }
+  ).fetch();
 
   if (usersTalking) {
-    const maxNumberVoiceUsersNotification = usersTalking.length < TALKING_INDICATORS_MAX
-      ? usersTalking.length
-      : TALKING_INDICATORS_MAX;
+    const maxNumberVoiceUsersNotification =
+      usersTalking.length < TALKING_INDICATORS_MAX ? usersTalking.length : TALKING_INDICATORS_MAX;
 
     for (let i = 0; i < maxNumberVoiceUsersNotification; i += 1) {
-      const {
-        callerName, talking, floor, color, muted, intId,
-      } = usersTalking[i];
+      const { callerName, talking, floor, color, muted, intId } = usersTalking[i];
 
       talkers[`${intId}`] = {
         color,
@@ -81,11 +82,14 @@ export default withTracker(() => {
   }
 
   const muteUser = debounce({ delay: TALKING_INDICATOR_MUTE_INTERVAL }, (id) => {
-    const user = VoiceUsers.findOne({ meetingId, intId: id }, {
-      fields: {
-        muted: 1,
-      },
-    });
+    const user = VoiceUsers.findOne(
+      { meetingId, intId: id },
+      {
+        fields: {
+          muted: 1,
+        },
+      }
+    );
     if (user.muted) return;
     makeCall('toggleVoice', id);
   });
@@ -97,3 +101,5 @@ export default withTracker(() => {
     moreThanMaxIndicators: usersTalking.length > TALKING_INDICATORS_MAX,
   };
 })(TalkingIndicatorContainer);
+
+export default TalkingIndicatorContainerGraphql;
