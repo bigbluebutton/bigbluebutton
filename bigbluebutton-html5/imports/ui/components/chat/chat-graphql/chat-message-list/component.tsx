@@ -77,6 +77,7 @@ const lastSeenAtVar = makeVar<{ [key: string]: number }>({});
 const chatIdVar = makeVar<string>('');
 
 const dispatchLastSeen = () => setTimeout(() => {
+
   const lastSeenQueueValue = lastSeenQueue();
   if (lastSeenQueueValue[chatIdVar()]) {
 
@@ -110,6 +111,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       [chatId]: setLastMessageCreatedTime,
     });
     chatIdVar(chatId);
+    setLastMessageCreatedTime(0);
   }, [chatId]);
   useEffect(() => {
     setMessageAsSeenMutation({
@@ -132,7 +134,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         lastSeenQueue(lastSeenQueueValue)
       }
     }
-  }, [lastMessageCreatedTime]);
+  }, [lastMessageCreatedTime, chatId]);
 
   const setScrollToTailEventHandler = (el: HTMLDivElement) => {
     if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
