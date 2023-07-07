@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User } from '/imports/ui/Types/user';
-import {LockSettings, UsersPolicies} from '/imports/ui/Types/meeting';
+import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { generateActionsPermissions, isVoiceOnlyUser } from './service';
 import { useIntl, defineMessages } from 'react-intl';
 import {
@@ -22,6 +22,7 @@ import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
+import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 
 interface UserActionsProps {
   user: User;
@@ -131,7 +132,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     usersPolicies,
     isBreakout
   );
-
   const {
     allowedToChangeStatus,
     allowedToChatPrivately,
@@ -151,7 +151,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const {
     disablePrivateChat,
   } = lockSettings;
-  
+
   const userLocked = user.locked
     && lockSettings.hasActiveLockSetting
     && user.isModerator;
@@ -183,17 +183,18 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: isChatEnabled()
         && (
           currentUser.isModerator ? allowedToChatPrivately
-          : allowedToChatPrivately && (
-            !(currentUser.locked && disablePrivateChat)
-            // TODO: Add check for hasPrivateChat between users
-            || user.isModerator
-          )
+            : allowedToChatPrivately && (
+              !(currentUser.locked && disablePrivateChat)
+              // TODO: Add check for hasPrivateChat between users
+              || user.isModerator
+            )
         )
         && !isVoiceOnlyUser(user.userId)
         && !isBreakout,
       key: 'activeChat',
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
+        setPendingChat(user.userId);
         setSelected(false);
         sendCreatePrivateChat(user);
         layoutContextDispatch({
@@ -206,7 +207,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         });
         layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: user.userId,
+          value: '',
         });
       },
       icon: 'chat',
@@ -366,53 +367,53 @@ const UserActions: React.FC<UserActionsProps> = ({
     })),
   ];
 
-  const actions = showNestedOptions 
+  const actions = showNestedOptions
     ? nestedOptions.filter(key => key.allowed)
     : dropdownOptions.filter(key => key.allowed);
   if (!actions.length) return children;
   return <div>
-  <BBBMenu
-  trigger={
-    (
-      <div
-        isActionsOpen={selected}
-        selected={selected === true}
-        tabIndex={-1}
-        onClick={() => setSelected(true)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            setSelected(true);
-          }
-        }}
-        role="button"
-      >
-        {children}
-      </div>
-    )
-  }
-  actions={actions}
-  selectedEmoji={user.emoji}
-  onCloseCallback={() =>{
-    setSelected(false);
-    setShowNestedOptions(false);
-  }}
-  open={selected}
-/>
-{isConfirmationModalOpen ? <ConfirmationModal
-  intl={intl}
-  titleMessageId="app.userList.menu.removeConfirmation.label"
-  titleMessageExtra={user.name}
-  checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
-  confirmParam={user.userId}
-  onConfirm={removeUser}
-  confirmButtonDataTest="removeUserConfirmation"
-  {...{
-    onRequestClose: () => setIsConfirmationModalOpen(false),
-    priority: "low",
-    setIsOpen: setIsConfirmationModalOpen,
-    isOpen: isConfirmationModalOpen
-  }}
-/> : null}
+    <BBBMenu
+      trigger={
+        (
+          <div
+            isActionsOpen={selected}
+            selected={selected === true}
+            tabIndex={-1}
+            onClick={() => setSelected(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                setSelected(true);
+              }
+            }}
+            role="button"
+          >
+            {children}
+          </div>
+        )
+      }
+      actions={actions}
+      selectedEmoji={user.emoji}
+      onCloseCallback={() => {
+        setSelected(false);
+        setShowNestedOptions(false);
+      }}
+      open={selected}
+    />
+    {isConfirmationModalOpen ? <ConfirmationModal
+      intl={intl}
+      titleMessageId="app.userList.menu.removeConfirmation.label"
+      titleMessageExtra={user.name}
+      checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
+      confirmParam={user.userId}
+      onConfirm={removeUser}
+      confirmButtonDataTest="removeUserConfirmation"
+      {...{
+        onRequestClose: () => setIsConfirmationModalOpen(false),
+        priority: "low",
+        setIsOpen: setIsConfirmationModalOpen,
+        isOpen: isConfirmationModalOpen
+      }}
+    /> : null}
   </div>;
 };
 

@@ -1,28 +1,35 @@
 export function throttle(func, delay, options = {}) {
+  let lastInvocation = 0;
+  let isWaiting = false;
   let timeoutId;
-  let lastExecTime = 0;
-  let leadingExec = true;
 
-  const { leading = true, trailing = true } = options;
+  const leading = options.leading !== undefined ? options.leading : true;
+  const trailing = options.trailing !== undefined ? options.trailing : true;
 
-  return function () {
-    const context = this;
-    const args = arguments;
-    const elapsed = Date.now() - lastExecTime;
+  return function throttled(...args) {
+    const invokeFunction = () => {
+      lastInvocation = Date.now();
+      isWaiting = false;
+      func.apply(this, args);
+    };
 
-    function execute() {
-      func.apply(context, args);
-      lastExecTime = Date.now();
+    if (!isWaiting) {
+      if (leading) {
+        invokeFunction();
+      } else {
+        isWaiting = true;
+      }
+
+      const currentTime = Date.now();
+      const timeSinceLastInvocation = currentTime - lastInvocation;
+
+      if (timeSinceLastInvocation >= delay) {
+        clearTimeout(timeoutId);
+        invokeFunction();
+      } else if (trailing) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(invokeFunction, delay - timeSinceLastInvocation);
+      }
     }
-
-    if (leadingExec && leading) {
-      execute();
-      leadingExec = false;
-    } else if (!timeoutId && trailing) {
-      timeoutId = setTimeout(function () {
-        execute();
-        timeoutId = null;
-      }, delay - elapsed);
-    }
-  }
+  };
 }
