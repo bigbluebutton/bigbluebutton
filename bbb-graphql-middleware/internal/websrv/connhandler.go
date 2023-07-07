@@ -22,7 +22,7 @@ var bufferSize = 100
 
 // active browser connections
 var BrowserConnections = make(map[string]*common.BrowserConnection)
-var BrowserConnectionsMutex = &sync.Mutex{}
+var BrowserConnectionsMutex = &sync.RWMutex{}
 
 // Handle client connection
 // This is the connection that comes from browser
@@ -85,9 +85,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 			default:
 				{
 					log.Printf("creating hasura client")
-					BrowserConnectionsMutex.Lock()
+					BrowserConnectionsMutex.RLock()
 					thisBrowserConnection := BrowserConnections[browserConnectionId]
-					BrowserConnectionsMutex.Unlock()
+					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
 						hascli.HasuraClient(thisBrowserConnection, r.Cookies(), fromBrowserChannel1, toBrowserChannel)
 					}

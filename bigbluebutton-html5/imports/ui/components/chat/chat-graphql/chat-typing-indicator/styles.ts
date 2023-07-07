@@ -38,31 +38,14 @@ const TypingIndicator = styled.span`
 `;
 
 const TypingIndicatorWrapper = styled.div`
-  ${({ error }) => error && `
-    color: ${colorDanger};
     font-size: calc(${fontSizeBase} * .75);
     color: ${colorGrayDark};
     text-align: left;
+    vertical-align: top;
     padding: ${borderSize} 0;
-    position: relative;
     height: .93rem;
     max-height: .93rem;
-  `}
-
-  ${({ info }) => info && `
-    font-size: calc(${fontSizeBase} * .75);
-    color: ${colorGrayDark};
-    text-align: left;
-    padding: ${borderSize} 0;
-    position: relative;
-    height: .93rem;
-    max-height: .93rem;
-  `}
-
-  ${({ spacer }) => spacer && `
-    height: .93rem;
-    max-height: .93rem;
-  `}
+    margin-bottom: .25rem;
 `;
 
 export default {
