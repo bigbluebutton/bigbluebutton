@@ -27,15 +27,17 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.emojiMenu.noneLabel',
     description: 'label for status clearing',
   },
+  raiseHandLabel: {
+    id: 'app.actionsBar.emojiMenu.raiseHandLabel',
+    description: 'label for raise hand status',
+  },
+  lowerHandLabel: {
+    id: 'app.actionsBar.emojiMenu.lowerHandLabel',
+    description: 'label for lower hand',
+  },
 });
 
 class RaiseHandDropdown extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isHandRaised: false,
-    };
-  }
 
   getAvailableActions() {
     const {
@@ -43,7 +45,6 @@ class RaiseHandDropdown extends PureComponent {
       getEmojiList,
       setEmojiStatus,
       intl,
-      currentUser,
     } = this.props;
 
     const actions = [];
@@ -54,11 +55,6 @@ class RaiseHandDropdown extends PureComponent {
         key: s,
         label: intl.formatMessage({ id: `app.actionsBar.emojiMenu.${s}Label` }),
         onClick: () => {
-          if (currentUser.emoji === 'raiseHand') {
-            this.setState({
-              isHandRaised: true,
-            });
-          }
           setEmojiStatus(userId, s);
         },
         icon: getEmojiList[s],
@@ -75,26 +71,24 @@ class RaiseHandDropdown extends PureComponent {
       shortcuts,
     } = this.props;
 
-    const {
-      isHandRaised,
-    } = this.state;
-
-    const label = currentUser.emoji !== 'raiseHand' && currentUser.emoji !== 'none'
-      ? intlMessages.clearStatusLabel
-      : {id: `app.actionsBar.emojiMenu.${
-        currentUser.emoji === 'raiseHand'
-          ? 'lowerHandLabel'
-          : 'raiseHandLabel'
-      }`,
-      };
+    let btnLabel;
+    let btnEmoji;
+    if (currentUser.emoji === 'none') {
+      btnEmoji = 'raiseHand';
+      btnLabel = intlMessages.raiseHandLabel;
+    } else if (currentUser.emoji === 'raiseHand') {
+      btnEmoji = 'none';
+      btnLabel = intlMessages.lowerHandLabel;
+    } else {
+      btnEmoji = 'none';
+      btnLabel = intlMessages.clearStatusLabel;
+    }
 
     return (
       <Button
         icon={EMOJI_STATUSES[currentUser.emoji === 'none'
           ? 'raiseHand' : currentUser.emoji]}
-        label={intl.formatMessage(
-          label,
-        )}
+        label={intl.formatMessage(btnLabel)}
         accessKey={shortcuts.raisehand}
         color={currentUser.emoji !== 'none' ? 'primary' : 'default'}
         data-test={currentUser.emoji === 'raiseHand' ? 'lowerHandLabel' : 'raiseHandLabel'}
@@ -105,21 +99,7 @@ class RaiseHandDropdown extends PureComponent {
         size="lg"
         onClick={(e) => {
           e.stopPropagation();
-          if (currentUser.emoji !== 'none'
-          && currentUser.emoji !== 'raiseHand') {
-            setEmojiStatus(
-              currentUser.userId,
-              isHandRaised ? 'raiseHand' : 'none',
-            );
-          } else {
-            this.setState({
-              isHandRaised: false,
-            });
-            setEmojiStatus(
-              currentUser.userId,
-              currentUser.emoji === 'raiseHand' ? 'none' : 'raiseHand',
-            );
-          }
+          setEmojiStatus(currentUser.userId, btnEmoji);
         }}
       />
     );

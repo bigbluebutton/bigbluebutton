@@ -2,6 +2,8 @@ package org.bigbluebutton.core.db
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import PostgresProfile.api._
+import org.bigbluebutton.core.apps.groupchats.GroupChatApp
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{ Failure, Success }
 
@@ -80,6 +82,7 @@ object MeetingDAO {
           MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
           MeetingRecordingDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
           MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
+          ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
           MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
           MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
           MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)

@@ -29,11 +29,6 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-process.on('uncaughtException', (err) => {
-  Logger.error(`uncaughtException: ${err}`);
-  process.exit(1);
-});
-
 const formatMemoryUsage = (data) => `${Math.round(data / 1024 / 1024 * 100) / 100} MB`
 
 const serverHealth = () => {

@@ -93,7 +93,25 @@ const setTimer = (time) => makeCall('setTimer', time);
 
 const resetTimer = () => makeCall('resetTimer');
 
-const activateTimer = () => makeCall('activateTimer');
+const activateTimer = (layoutContextDispatch) => {
+    makeCall('activateTimer');
+    //Set an observer to switch to timer tab as soon as the timer is activated
+    const handle =Timer.find({ meetingId: Auth.meetingID }).observeChanges({
+      changed(id, timer) {
+        if (timer.active === true) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.TIMER,
+          });
+        }
+        handle.stop();
+      }
+    });
+  };
 
 const deactivateTimer = () => makeCall('deactivateTimer');
 

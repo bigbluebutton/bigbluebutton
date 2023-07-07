@@ -13,9 +13,6 @@ class ChangeStyles extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbEllipseShape);
@@ -29,10 +26,10 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.waitAndClick(e.wbColorRed);
     await this.modPage.waitAndClick(e.wbStyles);
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-change-color.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-change-color.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-change-color.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-change-color.png');
   }
 
   async fillDrawing() {
@@ -40,9 +37,6 @@ class ChangeStyles extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbEllipseShape);
@@ -56,10 +50,10 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.waitAndClick(e.wbFillDrawing);
     await this.modPage.press('Escape');
 
-    await expect(modWbLocator).toHaveScreenshot('moderator-fill-drawing.png', screenshotOptions);
+    await expect(modWbLocator).toHaveScreenshot('moderator-fill-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-fill-drawing.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-fill-drawing.png');
   }
 
   async dashDrawing() {
@@ -67,9 +61,6 @@ class ChangeStyles extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbEllipseShape);
@@ -83,10 +74,10 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.waitAndClick(e.wbDashDotted);
     await this.modPage.waitAndClick(e.wbStyles);
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png', screenshotOptions);
+    await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-dash-drawing.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-dash-drawing.png');
   }
 
   async sizeDrawing() {
@@ -94,9 +85,6 @@ class ChangeStyles extends MultiUsers {
 
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
-    const screenshotOptions = {
-      maxDiffPixelRatio: 0.05,
-    };
 
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbEllipseShape);
@@ -110,10 +98,10 @@ class ChangeStyles extends MultiUsers {
     await this.modPage.waitAndClick(e.wbSizeLarge);
     await this.modPage.waitAndClick(e.wbStyles);
 
-    await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png', screenshotOptions);
+    await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
-    await expect(userWbLocator).toHaveScreenshot('viewer-size-drawing.png', screenshotOptions);
+    await expect(userWbLocator).toHaveScreenshot('viewer-size-drawing.png');
   }
 }
 

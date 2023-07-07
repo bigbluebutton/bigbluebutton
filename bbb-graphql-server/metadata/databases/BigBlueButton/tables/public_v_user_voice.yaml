@@ -23,7 +23,6 @@ select_permissions:
         - callerName
         - callerNum
         - callingWith
-        - color
         - endTime
         - floor
         - joined

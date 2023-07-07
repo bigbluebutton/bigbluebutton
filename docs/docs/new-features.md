@@ -85,20 +85,26 @@ Reverting to the default recorder (Kurento) can be achieved by removing the `rec
 Under the hood, BigBlueButton 2.7 installs on Ubuntu 20.04 64-bit, and the following key components have been upgraded
 - Spring 2.7.12
 - React 18
+- NodeJS 18 (up from 16) for `bbb-pads`, `bbb-export-annotations`, `bbb-webrtc-sfu`, `bbb-etherpad`, `bbb-webhooks`
+- Java 17 (up from 11) for `bbb-common-message`, `bbb-common-web`, `bigbluebutton-web`, `akka-bbb-apps`, `bbb-fsesl-client`, and `akka-bbb-fsesl`
+- Grails 5.3.2
+- GORM 7.3.1
+- Groovy 3.0.11
 
 For full details on what is new in BigBlueButton 2.7, see the release notes.
 
 
 Recent releases:
 
+- [2.7.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.3)
+- [2.7.0-alpha.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.2)
 - [2.7.0-alpha.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v2.7.0-alpha.1)
 
 ### Other notable changes
 
 #### Renaming (bigbluebutton/bbb-install)bbb-install-2.7.sh from master branch to bbb-install.sh on branch v2.7.x-release
 
-If you are using bbb-install to configure your servers, be aware that in BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
-
+If you are using bbb-install to configure your servers, be aware that starting with BigBlueButton 2.6's version of bbb-install by default we install a local TURN server. For more information: https://github.com/bigbluebutton/bbb-install/pull/579 and https://docs.bigbluebutton.org/administration/turn-server
 
 ### Development
 

@@ -83,9 +83,9 @@ RangeLoop:
 
 				if fromBrowserMessageAsMap["type"] == "stop" {
 					var queryId = fromBrowserMessageAsMap["id"].(string)
-					browserConnection.ActiveSubscriptionsMutex.Lock()
+					browserConnection.ActiveSubscriptionsMutex.RLock()
 					jsonPatchSupported := browserConnection.ActiveSubscriptions[queryId].JsonPatchSupported
-					browserConnection.ActiveSubscriptionsMutex.Unlock()
+					browserConnection.ActiveSubscriptionsMutex.RUnlock()
 					if jsonPatchSupported {
 						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection, queryId)
 					}

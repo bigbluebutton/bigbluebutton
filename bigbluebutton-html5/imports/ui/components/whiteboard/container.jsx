@@ -57,7 +57,7 @@ const WhiteboardContainer = (props) => {
   };
   // set shapes as locked for those who aren't allowed to edit it
   Object.entries(shapes).forEach(([shapeId, shape]) => {
-    if (!shape.isLocked && !hasShapeAccess(shapeId)) {
+    if (!shape.isLocked && !hasShapeAccess(shapeId) && !shape.name?.includes('poll-result')) {
       const modShape = shape;
       modShape.isLocked = true;
     }

@@ -55,8 +55,7 @@ export default async function changeLockSettings(meetingId, payload) {
   };
 
   try {
-    const { numberAffected } = Meetings.upsertAsync(selector, modifier);
-
+    const { numberAffected } = await Meetings.upsertAsync(selector, modifier);
     if (numberAffected) {
       Logger.info(`Changed meeting={${meetingId}} updated lock settings`);
     } else {

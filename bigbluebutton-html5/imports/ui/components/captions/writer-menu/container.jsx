@@ -19,6 +19,7 @@ const WriterMenuContainer = (props) => {
   return amIModerator && <WriterMenu {...{ layoutContextDispatch, ...props }} />;
 };
 
-export default withTracker(() => ({
+export default withTracker(({ setIsOpen }) => ({
+  closeModal: () => setIsOpen(false),
   availableLocales: Service.getAvailableLocales(),
 }))(WriterMenuContainer);
