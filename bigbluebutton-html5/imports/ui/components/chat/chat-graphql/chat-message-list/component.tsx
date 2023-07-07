@@ -253,8 +253,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                   page={page}
                   pageSize={PAGE_SIZE}
                   setLastSender={setLastSender(lastSenderPerPage.current)}
-                  // avoid the first page to have a lastSenderPreviousPage, because it doesn't exist
-                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page) : undefined}
+                  lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
                   chatId={chatId}
                   markMessageAsSeen={markMessageAsSeen}
                   scrollRef={messageListRef}
