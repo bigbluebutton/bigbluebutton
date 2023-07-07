@@ -134,7 +134,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   }, [lastMessageCreatedTime]);
 
-  const setScrollToTailEventHandler = useCallback((el: HTMLDivElement) => {
+  const setScrollToTailEventHandler = (el: HTMLDivElement) => {
     if (Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) === 0) {
       if (isElement(contentRef.current)) {
         toggleFollowingTail(true)
@@ -144,7 +144,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         toggleFollowingTail(false)
       }
     }
-  }, []);
+  };
 
   const toggleFollowingTail = (toggle: boolean) => {
     setFollowingTail(toggle);
@@ -162,7 +162,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         setFollowingTail(false);
       }
     }
-  }
+  };
 
   useEffect(() => {
     const setScrollToTailEventHandler = () => {
@@ -211,7 +211,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         ref={messageListRef}
         onWheel={(e) => {
           if (e.deltaY < 0) {
-            if (isElement(contentRef.current)) {
+            if (isElement(contentRef.current) && followingTail) {
               toggleFollowingTail(false)
             }
           } else if (e.deltaY > 0) {
