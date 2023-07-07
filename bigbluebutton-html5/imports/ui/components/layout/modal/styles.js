@@ -14,16 +14,13 @@ const Content = styled.div`
   flex-direction: column;
   padding: .5rem 0 .5rem 0;
   overflow: hidden;
-  min-height: 30rem;
 `;
 
 const LayoutModal = styled(ModalSimple)`
   padding: 1rem;
-  min-height: 44rem;
 
   @media ${smallOnly} {
     height: unset;
-    min-height: 22.5rem;
   }
 
    ${({ isPhone }) => isPhone && `
@@ -108,6 +105,20 @@ const LayoutBtn = styled(Button)`
       }
       width: 1.8rem;
       height: 1.8rem;
+
+      @media ${smallOnly} {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.6rem;
+        margin-left: 4.5rem;
+        padding: 0.2rem 0.2rem 0 0.3rem;
+
+        [dir="rtl"] & {
+          margin-right: 4.5rem;
+          margin-left: unset;
+          padding: 0.2rem 0.3rem 0 0.2rem;
+        }
+      }
     }
   `};
 `;
