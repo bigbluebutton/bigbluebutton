@@ -19,6 +19,9 @@ const createUuid = () => {
 }
 
 const PluginEngineContainer = (props: PluginEngineProps) => {
+  // If there is no plugin to load, the engine simply returns null
+  if (!PLUGINS) return null;
+
   const { onReady } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();

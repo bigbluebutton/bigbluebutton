@@ -155,8 +155,8 @@ class PresentationToolbar extends PureComponent {
         case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_BUTTON:
           returnComponent = (
             <Button
-              style={{ marginLeft: '2px' }}
               key={ppb.name}
+              style={{ marginLeft: '2px' }}
               label={ppb.label}
               onClick={ppb.onClick}
             />
@@ -164,7 +164,9 @@ class PresentationToolbar extends PureComponent {
           break;
         case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_LOADING:
           returnComponent = (
-            <Spinner />
+            <Spinner
+              key={ppb.name}
+            />
           );
           break;
         default:

@@ -30,7 +30,7 @@ const PluginsLoaderComponent = (props: PluginLoaderComponentProps) => {
             logger.info(`Error when loading plugin ${plugin.name}, error: ${err}`);
         };
         script.src = plugin.url;
-        script.setAttribute('elementId', div.id);
+        script.setAttribute('uuid', div.id);
         script.setAttribute('pluginName', plugin.name);
         document.head.appendChild(script);
     }, [plugin, containerRef])

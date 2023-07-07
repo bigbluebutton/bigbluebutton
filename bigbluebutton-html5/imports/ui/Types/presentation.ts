@@ -19,12 +19,3 @@ export interface PresentationInfo {
     presentationId: string,
     removable: boolean,
 }
-
-export interface PresentationPluginProjection {
-    isCurrentPage: boolean,
-    num: number,
-    pageId: number,
-    presentationId: string,
-    slideRevealed: boolean,
-    urls: string,
-}

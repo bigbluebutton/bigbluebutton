@@ -272,9 +272,9 @@ public:
     # string will be returned.
     fallbackOnEmptyLocaleString: true
     disableWebsocketFallback: true
-  plugins:
-    - name: myCustomWhiteboardToolbarButton
-      url: https://bbb27.bbbvm.imdt.com.br/plugins/WhiteboardToolbarButton.js
+  # plugins:
+  #   - name: SampleWhiteboardToolbarPlugin
+  #     url: https://<your-Host>/plugins/WhiteboardToolbarButton.js
   externalVideoPlayer:
     enabled: true
   kurento:

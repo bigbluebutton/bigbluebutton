@@ -146,11 +146,6 @@ class ActionsDropdown extends PureComponent {
     this.setPropsToPassModal = this.setPropsToPassModal.bind(this);
     this.setForceOpen = this.setForceOpen.bind(this);
     this.handleTimerClick = this.handleTimerClick.bind(this);
-    this.handleCreatePollThroughEvent = this.handleCreatePollThroughEvent.bind(this);
-  }
-
-  componentDidMount() {
-    document.addEventListener('CREATE_POLL', this.handleCreatePollThroughEvent);
   }
 
   componentDidUpdate(prevProps) {
@@ -159,10 +154,6 @@ class ActionsDropdown extends PureComponent {
     if (wasPresenter && !isPresenter) {
       this.setExternalVideoModalIsOpen(false);
     }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('CREATE_POLL', this.handleCreatePollThroughEvent);
   }
 
   handleExternalVideoClick() {
@@ -350,25 +341,6 @@ class ActionsDropdown extends PureComponent {
         };
       });
     return presentationItemElements;
-  }
-
-  handleCreatePollThroughEvent() {
-    const {
-      layoutContextDispatch,
-    } = this.props;
-
-    if (Session.equals('pollInitiated', true)) {
-      Session.set('resetPollPanel', true);
-    }
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: true,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.POLL,
-    });
-    Session.set('forcePollOpen', true);
   }
 
   setExternalVideoModalIsOpen(value) {
