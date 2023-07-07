@@ -37,7 +37,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
-import PluginsLoader from '../plugins-loader/container';
+import PluginEngineContainer from '../plugins-engine/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
@@ -558,7 +558,7 @@ class App extends Component {
     } = this.state;
     return (
       <>
-        <PluginsLoader onReady={() => {
+        <PluginEngineContainer onReady={() => {
           this.setState({ allPluginsLoaded: true });
         }}
         />

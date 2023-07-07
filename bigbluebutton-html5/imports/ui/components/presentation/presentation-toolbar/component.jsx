@@ -9,11 +9,13 @@ import {
   MAX_PERCENT,
   STEP,
 } from '/imports/utils/slideCalcUtils';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import Spinner from '/imports/ui/components/common/spinner/component';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -105,17 +107,6 @@ class PresentationToolbar extends PureComponent {
   }
 
   componentDidMount() {
-    let pluginProvidedButtons = [];
-    Object.keys(window.bbb_plugins).forEach((pluginName) => {
-      const plugin = window.bbb_plugins[pluginName];
-      if (plugin.getWhiteboardToolbarButtons) {
-        const buttons = plugin.getWhiteboardToolbarButtons();
-        pluginProvidedButtons = [...pluginProvidedButtons, ...buttons];
-      }
-    });
-    this.setState({
-      pluginProvidedButtons,
-    });
     document.addEventListener('keydown', this.switchSlide);
   }
 
@@ -147,6 +138,40 @@ class PresentationToolbar extends PureComponent {
       return removeWhiteboardGlobalAccess(whiteboardId);
     }
     return addWhiteboardGlobalAccess(whiteboardId);
+  }
+
+  handleRenderToolbarPluginItems() {
+    let pluginProvidedButtons = [];
+    if (this.props) {
+      const {
+        whiteboardPluginProvidedItems: ppb,
+      } = this.props;
+      pluginProvidedButtons = ppb;
+    }
+
+    return pluginProvidedButtons?.map((ppb) => {
+      let returnComponent;
+      switch (ppb.type) {
+        case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_BUTTON:
+          returnComponent = (
+            <Button
+              style={{ marginLeft: '2px' }}
+              key={ppb.name}
+              label={ppb.label}
+              onClick={ppb.onClick}
+            />
+          );
+          break;
+        case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_LOADING:
+          returnComponent = (
+            <Spinner />
+          );
+          break;
+        default:
+          returnComponent = null;
+      }
+      return returnComponent;
+    });
   }
 
   fullscreenToggleHandler() {
@@ -283,14 +308,6 @@ class PresentationToolbar extends PureComponent {
       multiUser,
     } = this.props;
 
-    let pluginProvidedButtons = [];
-    if (this.state) {
-      const {
-        pluginProvidedButtons: ppb,
-      } = this.state;
-      pluginProvidedButtons = ppb;
-    }
-
     const { isMobile } = deviceInfo;
 
     const startOfSlides = !(currentSlideNum > 1);
@@ -312,13 +329,7 @@ class PresentationToolbar extends PureComponent {
       >
         {this.renderAriaDescs()}
         <div style={{ display: 'flex' }}>
-          {pluginProvidedButtons?.map((ppb) => (
-            <Button
-              key={ppb.name}
-              label={ppb.label}
-              onClick={ppb.onClick}
-            />
-          ))}
+          {this.handleRenderToolbarPluginItems()}
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{

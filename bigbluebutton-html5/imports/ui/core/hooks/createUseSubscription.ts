@@ -6,7 +6,7 @@ import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { useApolloClient } from "@apollo/client";
 import R from 'ramda';
 
-export function createUseSubsciption<T>(
+export function createUseSubscription<T>(
   query: DocumentNode | TypedQueryDocumentNode,
   usePatchedSubscription = false
 ) {
