@@ -63,6 +63,7 @@ class PresentationService {
 	def listPresentations = {conf, room ->
 		def presentationsList = []
 		def directory = roomDirectory(conf, room)
+		
 		log.debug "directory ${directory.absolutePath}"
 		if( directory.exists() ){
 			directory.eachFile(){ file->
@@ -97,51 +98,83 @@ class PresentationService {
 	}
 
 	def showSvgImage(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
+		// new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
+		// log.debug "subpathshow ${File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg"}"
+		def subpath = "/" + presentationName + "/" + "svgs" + "/" + "slide${id}.svg"
+		log.debug "subpath ${subpath}"
+		slideDirectory(conf, room, subpath)
 	}
 
 	def showThumbnail = {conf, room, presentationName, thumb ->
-		def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
-		log.debug "showing $thumbFile"
+		// def thumbFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+		// 		"thumbnails" + File.separatorChar + "thumb-${thumb}.png"
 
-		new File(thumbFile)
+		def subpath = "/" + presentationName + "/" + "thumbnails" + "/" + "thumb-${thumb}.png"
+		def thumbFile = slideDirectory(conf, room, subpath)
+		// log.debug "showing $thumbFile"
+
+		thumbFile
 	}
 
 	def showPng = {conf, room, presentationName, page ->
-		def pngFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"pngs" + File.separatorChar + "slide-${page}.png"
-		log.debug "showing $pngFile"
+		// def pngFile = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+		// 		"pngs" + File.separatorChar + "slide-${page}.png"
+		def subpath = "/" + presentationName + "/" + "pngs" + "/" + "slide-${page}.png"
+		slideDirectory(conf, room, subpath)
+		// log.debug "showing $pngFile"
 
-		new File(pngFile)
+		// new File(pngFile)
 	}
 
 	def showTextfile = {conf, room, presentationName, textfile ->
-		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
-				"textfiles" + File.separatorChar + "slide-${textfile}.txt"
-		log.debug "showing $txt"
-
-		new File(txt)
+		// def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+		// 		"textfiles" + File.separatorChar + "slide-${textfile}.txt"
+		// log.debug "showing $txt"
+		def subpath = "/" + presentationName + "/" + "textfiles" + "/" + "slide-${textfile}.txt"
+		// new File(txt)
+		slideDirectory(conf, room, subpath)
 	}
 
 	def numberOfThumbnails = {conf, room, name ->
-		def thumbDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "thumbnails")
+		// def thumbDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "thumbnails")
+		def subpath = "/" + name + "/" + "thumbnails"
+		def thumbDir = slideDirectory(conf, room, subpath)
 		thumbDir.listFiles().length
 	}
 
 	def numberOfSvgs = {conf, room, name ->
-		def SvgsDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "svgs")
+		// def SvgsDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "svgs")
+		def subpath = "/" + name + "/" + "svgs"
+		def SvgsDir = slideDirectory(conf, room, subpath)
 		SvgsDir.listFiles().length
 	}
 
 	def numberOfTextfiles = {conf, room, name ->
-		log.debug roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles"
-		def textfilesDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles")
+		// log.debug roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles"
+		// def textfilesDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles")
+		def subpath = "/" + name + "/" + "textfiles"
+		def textfilesDir = slideDirectory(conf, room, subpath)
 		textfilesDir.listFiles().length
 	}
 
 	def roomDirectory = {conf, room ->
-		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+		def roomDir = new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)
+		roomDir
+	}
+
+	def libraryDirectory = {conf, room ->
+		def libraryDir = new File(presentationDir + File.separatorChar + "presentation_library")
+		log.debug "libraryDir ${libraryDir.absolutePath}"
+		libraryDir
+	}
+
+	def slideDirectory = {conf, room, subPath ->
+		log.debug "subPath ${subPath}"
+		File roomFile = new File(roomDirectory(conf, room).absolutePath + subPath)
+		File libraryFile = new File(libraryDirectory(conf, room).absolutePath + subPath)
+
+		if (roomFile.exists()) return roomFile
+		return libraryFile
 	}
 
 	def testConversionProcess() {
