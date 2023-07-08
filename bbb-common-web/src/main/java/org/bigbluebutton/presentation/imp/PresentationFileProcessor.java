@@ -6,6 +6,7 @@ import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.messages.DocPageConversionStarted;
 import org.bigbluebutton.presentation.messages.DocPageCountExceeded;
 import org.bigbluebutton.presentation.messages.DocPageCountFailed;
+import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,38 @@ public class PresentationFileProcessor {
     }
 
     private void processUploadedPresentation(UploadedPresentation pres) {
+        determineNumberOfPages(pres);
+        log.info("Pres {}", pres);
+
+        String presId = pres.getId();
+        String meetingId = pres.getMeetingId();
+        int pageNumber = pres.getNumberOfPages();
+
+        log.info("PresInfo: {}", presId + "/" + meetingId + "/");
+        log.info("PresInfoPageNumber: {}", pageNumber);
+
+        File libraryFileDir = new File(pres.getUploadedFile().getParent() + "/svgs");
+        
+        log.info(libraryFileDir.getAbsolutePath());
+
+        if (libraryFileDir.exists()) {
+            pres.setIsExisted(true);
+
+            // PresentationConvertMessage convertMsg = new PresentationConvertMessage(pres);
+
+            // PageConvertProgressMessage msg = new PageConvertProgressMessage(
+            //     pageNumber,
+            //     presId,
+            //     meetingId,
+            //     new ArrayList<>());
+
+            // presentationConversionCompletionService.handle(convertMsg);
+            // presentationConversionCompletionService.handle(msg);
+
+            // // log.info("PresInfo Converted Library Pres {}", msg);
+            // return;
+        }
+
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             determineNumberOfPages(pres);
             sendDocPageConversionStartedProgress(pres);

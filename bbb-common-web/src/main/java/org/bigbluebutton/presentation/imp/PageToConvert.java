@@ -71,23 +71,25 @@ public class PageToConvert {
 
   public PageToConvert convert() {
 
-    /* adding accessibility */
-    createThumbnails(pres, page, pageFile);
+    if (!pres.getIsExisted()) {
+      /* adding accessibility */
+      createThumbnails(pres, page, pageFile);
 
-    createTextFiles(pres, page);
+      createTextFiles(pres, page);
 
-    // only create SVG images if the configuration requires it
-    if (svgImagesRequired) {
-      try{
-        createSvgImages(pres, page);
-      } catch (TimeoutException e) {
-        messageErrorInConversion = e.getMessage();
+      // only create SVG images if the configuration requires it
+      if (svgImagesRequired) {
+        try{
+          createSvgImages(pres, page);
+        } catch (TimeoutException e) {
+          messageErrorInConversion = e.getMessage();
+        }
       }
-    }
 
-    // only create PNG images if the configuration requires it
-    if (generatePngs) {
-      createPngImages(pres, page, pageFile);
+      // only create PNG images if the configuration requires it
+      if (generatePngs) {
+        createPngImages(pres, page, pageFile);
+      }
     }
 
     return this;

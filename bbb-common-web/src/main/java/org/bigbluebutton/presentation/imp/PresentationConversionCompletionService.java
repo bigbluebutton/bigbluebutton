@@ -46,6 +46,13 @@ public class PresentationConversionCompletionService {
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
 
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
+
+            // if (p.pres.getIsExisted()) {
+            //     p.incrementPagesCompleted();
+            //     p.setPagesCompleted(p.pres.getNumberOfPages());
+            //     notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
+            //     handleEndProcessing(p);
+            // }
             if (p != null) {
                 p.incrementPagesCompleted();
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);

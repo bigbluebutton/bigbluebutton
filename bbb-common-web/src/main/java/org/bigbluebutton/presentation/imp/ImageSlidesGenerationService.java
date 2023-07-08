@@ -59,22 +59,24 @@ public class ImageSlidesGenerationService {
 	public void generateSlides(UploadedPresentation pres) {
 
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-			/* adding accessibility */
-			createTextFiles(pres, page);
-			createThumbnails(pres, page);
+			if (!pres.getIsExisted()) {
+				/* adding accessibility */
+				createTextFiles(pres, page);
+				createThumbnails(pres, page);
 
-			if (svgImagesRequired) {
-				try {
-					createSvgImages(pres, page);
-				} catch (TimeoutException e) {
-					log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
-					notifier.sendUploadFileTimedout(pres, page);
-					break;
+				if (svgImagesRequired) {
+					try {
+						createSvgImages(pres, page);
+					} catch (TimeoutException e) {
+						log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
+						notifier.sendUploadFileTimedout(pres, page);
+						break;
+					}
 				}
-			}
 
-			if (generatePngs) {
-				createPngImages(pres, page);
+				if (generatePngs) {
+					createPngImages(pres, page);
+				}
 			}
 
 			notifier.sendConversionUpdateMessage(page, pres, page);
@@ -98,6 +100,11 @@ public class ImageSlidesGenerationService {
 	}
 	
 	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
+		if (pres.getIsExisted()) {
+			notifier.sendCreatingSvgImagesUpdateMessage(pres);
+			return;
+		}
+
 		log.debug("Creating SVG images.");
 
 		try {

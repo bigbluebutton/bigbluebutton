@@ -40,6 +40,7 @@ public final class UploadedPresentation {
   private boolean current = false;
   private String authzToken;
   private boolean conversionStarted = false;
+  private boolean isExisted = false;
 
   private boolean isInitialPresentation;
 
@@ -66,6 +67,7 @@ public final class UploadedPresentation {
     this.uploadFailed = uploadFailed;
     this.uploadFailReason = uploadFailReason;
     this.isInitialPresentation = isInitialPresentation;
+    this.isExisted = false;
   }
 
   public UploadedPresentation(String podId,
@@ -211,5 +213,13 @@ public final class UploadedPresentation {
 
   public boolean getIsInitialPresentation() {
     return isInitialPresentation;
+  }
+
+  public boolean getIsExisted() {
+    return this.isExisted;
+  }
+
+  public void setIsExisted(boolean isExisted) {
+    this.isExisted = isExisted;
   }
 }

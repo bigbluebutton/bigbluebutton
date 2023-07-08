@@ -18,6 +18,10 @@ public class PresentationToConvert {
         return pagesCompleted;
     }
 
+    public void setPagesCompleted(int pagesCompleted) {
+        this.pagesCompleted = pagesCompleted;
+    }
+
     public void incrementPagesCompleted() {
         pagesCompleted++;
     }
