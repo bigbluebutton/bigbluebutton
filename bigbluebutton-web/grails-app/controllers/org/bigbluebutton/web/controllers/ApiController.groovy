@@ -1399,7 +1399,7 @@ class ApiController {
       
       // File temp = new File(presFilename);
       // TODO: parse from presFilename
-      def filenameExt = "pdf";
+      def filenameExt = FilenameUtils.getExtension(presFilename)
       def presFile = new File(libDir.absolutePath + File.separatorChar + presId + File.separatorChar + presId + "." + filenameExt)
       log.info("================= presId=${presId}, presFilename=${presFilename}, exists=${presFile.exists()}, meetingId=${meetingId}");
 

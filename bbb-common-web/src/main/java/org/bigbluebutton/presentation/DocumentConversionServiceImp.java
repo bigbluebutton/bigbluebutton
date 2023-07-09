@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation;
 
+import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +57,19 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   }
 
   public void processDocumentStart(UploadedPresentation pres) {
+    File libraryFileDir = new File(pres.getUploadedFile().getParent() + "/svgs");
+        
+    if (libraryFileDir.exists()) {
+        pres.setIsExisted(true);
+        File presentationFile = pres.getUploadedFile();
+        String filenameWithoutExt = presentationFile.getAbsolutePath().substring(0, presentationFile.getAbsolutePath().lastIndexOf('.'));
+        File convertedFile = new File(filenameWithoutExt + ".pdf");
+        String extension = FilenameUtils.getExtension(convertedFile.getName());
+        log.info("ext={}", extension);
+        pres.setUploadedFile(convertedFile);
+        pres.setFileType(extension);
+    }
+
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
