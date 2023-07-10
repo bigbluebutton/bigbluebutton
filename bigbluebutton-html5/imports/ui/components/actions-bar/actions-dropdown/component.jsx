@@ -101,10 +101,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.selectRandUserDesc',
     description: 'Description for select random user option',
   },
-  propagateLayoutLabel: {
-    id: 'app.actionsBar.actionsDropdown.propagateLayoutLabel',
-    description: 'Label for propagate layout button',
-  },
   layoutModal: {
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
@@ -274,19 +270,9 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (amIPresenter && showPushLayout && isLayoutsEnabled()) {
-      actions.push({
-        icon: 'send',
-        label: intl.formatMessage(intlMessages.propagateLayoutLabel),
-        key: 'propagate layout',
-        onClick: amIPresenter ? setMeetingLayout : setPushLayout,
-        dataTest: 'propagateLayout',
-      });
-    }
-
     if (isLayoutsEnabled()) {
       actions.push({
-        icon: 'send',
+        icon: 'manage_layout',
         label: intl.formatMessage(intlMessages.layoutModal),
         key: 'layoutModal',
         onClick: () => this.setLayoutModalIsOpen(true),
