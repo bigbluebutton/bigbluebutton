@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.chat
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ ChatModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.ChatMessageDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, LogHelper }
 import org.bigbluebutton.core.domain.MeetingState2x
 
@@ -31,6 +32,8 @@ trait ClearPublicChatHistoryPubMsgHdlr extends LogHelper with RightsManagementTr
       val newState = for {
         gc <- state.groupChats.find(msg.body.chatId)
       } yield {
+        ChatMessageDAO.deleteAllFromChat(liveMeeting.props.meetingProp.intId, msg.body.chatId)
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, "", "publicChatHistoryCleared", Map(), "")
         broadcastEvent(msg)
         val newGc = gc.clearMessages()
         val gcs = state.groupChats.update(newGc)

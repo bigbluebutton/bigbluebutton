@@ -8,7 +8,6 @@ export const IS_TYPING_PUBLIC_SUBSCRIPTION = gql`subscription IsTyping($chatId: 
         chatId: {_eq: $chatId}
       }
     ) {
-    meetingId
     chatId
     userId
     typingAt
@@ -27,7 +26,6 @@ export const IS_TYPING_PRIVATE_SUBSCRIPTION = gql`subscription IsTyping($chatId:
         chatId: {_eq: $chatId}
       }
     ) {
-    meetingId
     chatId
     userId
     typingAt

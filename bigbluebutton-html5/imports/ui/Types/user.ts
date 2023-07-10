@@ -43,23 +43,24 @@ export interface Voice {
 }
 
 export interface User {
-    userId: string;
-    extId: string;
-    name: string;
-    isModerator: boolean;
-    isOnline: boolean;
-    role: string;
-    color: string;
-    avatar: string;
-    emoji: string;
-    presenter?: boolean;
-    pinned?: boolean;
-    guest?: boolean;
-    mobile?: boolean;
-    whiteboardAccess?: boolean;
-    voice?: Voice;
-    locked: boolean;
-    lastBreakoutRoom?: LastBreakoutRoom;
-    cameras: Array<Cameras>;
-    presPagesWritable: Array<PresPagesWritable>;
+  userId: string;
+  extId: string;
+  name: string;
+  isModerator: boolean;
+  isOnline: boolean;
+  role: string;
+  color: string;
+  avatar: string;
+  emoji: string;
+  presenter?: boolean;
+  pinned?: boolean;
+  guest?: boolean;
+  mobile?: boolean;
+  whiteboardAccess?: boolean;
+  voice?: Voice;
+  locked: boolean;
+  lastBreakoutRoom?: LastBreakoutRoom;
+  cameras: Array<Cameras>;
+  presPagesWritable: Array<PresPagesWritable>;
+  speechLocale: string;
 }
