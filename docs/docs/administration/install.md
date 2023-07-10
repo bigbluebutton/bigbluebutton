@@ -387,7 +387,7 @@ Choose this method if you are already comfortable with a lot of the technical kn
 
 Note: These examples are _not_ maintained or developed by the official BigBlueButton developers. These are entirely community-sourced, use at your own discretion.
 
-These first two install BigBlueButton on your server in a consistent fashion. You can specify variables, such as whether to install Greenlight too, what ports to use for TURN, and others. Functionally quite similar to bbb-install.sh but highly automated.
+The first install BigBlueButton on your server in a consistent fashion. You can specify variables, such as what ports to use for TURN, and others. Functionally quite similar to bbb-install.sh but highly automated.
 
 - [General Ansible role for BigBlueButton](https://github.com/ebbba-org/ansible-role-bigbluebutton)
 
