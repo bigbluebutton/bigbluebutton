@@ -389,14 +389,10 @@ Note: These examples are _not_ maintained or developed by the official BigBlueBu
 
 These first two install BigBlueButton on your server in a consistent fashion. You can specify variables, such as whether to install Greenlight too, what ports to use for TURN, and others. Functionally quite similar to bbb-install.sh but highly automated.
 
-- [General Ansible role for BigBlueButton](https://github.com/n0emis/ansible-role-bigbluebutton)
-- [Alternative Ansible role for BigBlueButton](https://github.com/juanluisbaptiste/ansible-bigbluebutton)
+- [General Ansible role for BigBlueButton](https://github.com/ebbba-org/ansible-role-bigbluebutton)
 
 Large scale deployments must include several other components in addition to the core BigBlueButton packages. These include Scalelite, Greenlight, a database, backups, nginx configurations, and more.
 
-- [Full out-of-the-box setup with wiki, chat, backups](https://github.com/stadtulm/a13-ansible)
-- [Full out-of-the-box setup with frontend on one machine](https://github.com/srcf/timeout)
-- [Full setup for a university](https://github.com/unistra/bigbluebutton/)
 - [Full HA setup with PeerTube, Conferences Streaming, EFK, Prometheus, backups](https://github.com/Worteks/bbb-ansible)
 
 ## Customizations
