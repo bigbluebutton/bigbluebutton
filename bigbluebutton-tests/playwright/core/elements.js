@@ -155,7 +155,6 @@ exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.speechRecognition = 'div[data-test="speechRecognition"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
-exports.propagateLayout = 'li[data-test="propagateLayout"]';
 exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
@@ -489,8 +488,8 @@ exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
 exports.smartLayout = 'button[data-test="smartLayout"]';
 exports.customLayout = 'button[data-test="customLayout"]';
-exports.pushLayoutToggle = 'input#TogglePush';
-exports.confirmButton = 'button[aria-label="Confirm"]';
+exports.updateLayoutBtn = 'button[data-test="updateLayoutBtn"]';
+exports.updateEveryoneLayoutBtn = 'button[data-test="updateEveryoneLayoutBtn"]';
 exports.cameraDock = 'div#cameraDock';
 
 // Font size

@@ -257,7 +257,6 @@ class CustomParameters extends MultiUsers {
 
   async layouts() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.wasRemoved(e.propagateLayout);
     await this.modPage.wasRemoved(e.layoutModal);
   }
 
@@ -344,7 +343,6 @@ class CustomParameters extends MultiUsers {
 
   async layoutsExclude() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.hasElement(e.propagateLayout);
     await this.modPage.hasElement(e.layoutModal);
   }
 

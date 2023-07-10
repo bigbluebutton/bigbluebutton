@@ -98,6 +98,7 @@ const LayoutModalComponent = (props) => {
           label={intl.formatMessage(intlMessages.updateAll)}
           onClick={() => handleUpdateLayout(true)}
           color="secondary"
+          data-test="updateEveryoneLayoutBtn"
         />
       );
     }
@@ -153,6 +154,7 @@ const LayoutModalComponent = (props) => {
           color="primary"
           label={intl.formatMessage(intlMessages.update)}
           onClick={() => handleUpdateLayout(false)}
+          data-test="updateLayoutBtn"
         />
       </Styled.ButtonBottomContainer>
       <div style={{ display: 'none' }} id="layout-btn-desc">{intl.formatMessage(intlMessages.layoutBtnDesc)}</div>
