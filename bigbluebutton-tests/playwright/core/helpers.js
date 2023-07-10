@@ -4,6 +4,7 @@ const axios = require('axios');
 const { test, expect } = require('@playwright/test');
 const xml2js = require('xml2js');
 const { runScript } = require('./util');
+const { env } = require('node:process');
 
 const parameters = require('./parameters');
 
@@ -26,36 +27,49 @@ function apiCall(name, callParams) {
   return axios.get(url, { adapter: 'http' }).then(response => xml2js.parseStringPromise(response.data));
 }
 
-function createMeetingUrl(params, customParameter, customMeetingId) {
+function createMeetingUrl(params, createParameter, customMeetingId) {
   const meetingID = (customMeetingId) ? customMeetingId : `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
   const baseQuery = `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`
     + `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
-  const query = customParameter !== undefined ? `${baseQuery}&${customParameter}` : baseQuery;
+  const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${params.secret}`;
   const checksum = sha1(apiCall);
   const url = `${params.server}/create?${query}&checksum=${checksum}`;
   return url;
 }
 
-function createMeetingPromise(params, customParameter, customMeetingId) {
-  const url = createMeetingUrl(params, customParameter, customMeetingId);
+function createMeetingPromise(params, createParameter, customMeetingId) {
+  const url = createMeetingUrl(params, createParameter, customMeetingId);
   return axios.get(url, { adapter: 'http' });
 }
 
-async function createMeeting(params, customParameter) {
-  const promise = createMeetingPromise(params, customParameter);
+async function createMeeting(params, createParameter, page) {
+  const promise = createMeetingPromise(params, createParameter);
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
+
+  if (env.CONSOLE !== undefined) {
+    const CONSOLE_strings = env.CONSOLE.split(',').map(opt => opt.trim().toLowerCase());
+    const CONSOLE_options = {
+      colorize: CONSOLE_strings.includes('color') || CONSOLE_strings.includes('colour'),
+      drop_references: CONSOLE_strings.includes('norefs'),
+      drop_timestamps: CONSOLE_strings.includes('nots'),
+      line_label: CONSOLE_strings.includes('label') ? this.username + " " : undefined,
+      noClientLogger: CONSOLE_strings.includes('nocl') || CONSOLE_strings.includes('noclientlogger'),
+    };
+    page.on('console', async (msg) => console.log(await console_format(msg, CONSOLE_options)));
+  }
+
   return xmlResponse.response.meetingID[0];
 }
 
-function getJoinURL(meetingID, params, moderator, customParameter) {
+function getJoinURL(meetingID, params, moderator, joinParameter) {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
   const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}`;
-  const query = customParameter !== undefined ? `${baseQuery}&${customParameter}` : baseQuery;
+  const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
   const checksum = sha1(apiCall);
   return `${params.server}/join?${query}&checksum=${checksum}`;

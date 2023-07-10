@@ -98,26 +98,14 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, customParameter, customMeetingId } = initOptions || {};
+    const { fullName, meetingId, createParameter, joinParameter, customMeetingId } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
     this.username = this.initParameters.fullName;
 
-    if (env.CONSOLE !== undefined) {
-      const CONSOLE_strings = env.CONSOLE.split(',').map(opt => opt.trim().toLowerCase());
-      const CONSOLE_options = {
-        colorize: CONSOLE_strings.includes('color') || CONSOLE_strings.includes('colour'),
-        drop_references: CONSOLE_strings.includes('norefs'),
-        drop_timestamps: CONSOLE_strings.includes('nots'),
-        line_label: CONSOLE_strings.includes('label') ? this.username + " " : undefined,
-        noClientLogger: CONSOLE_strings.includes('nocl') || CONSOLE_strings.includes('noclientlogger'),
-      };
-      this.page.on('console', async (msg) => console.log(await console_format(msg, CONSOLE_options)));
-    }
-
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, customParameter, customMeetingId);
-    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, customParameter);
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId, this.page);
+    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
