@@ -282,9 +282,9 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploader.currentPresentationLabel',
     description: 'current presentation label',
   },
-  downloadLabel: {
-    id: 'app.presentation.downloadLabel',
-    description: 'download label',
+  actionsLabel: {
+    id: 'app.presentation.actionsLabel',
+    description: 'actions label',
   },
   sending: {
     id: 'app.presentationUploader.sending',
@@ -847,7 +847,7 @@ class PresentationUploader extends Component {
             <Styled.Head>
               <th colSpan={4}>{intl.formatMessage(intlMessages.currentLabel)}</th>
               {
-                allowDownloadable ? <th>{intl.formatMessage(intlMessages.downloadLabel)}</th> : null
+                allowDownloadable ? <th>{intl.formatMessage(intlMessages.actionsLabel)}</th> : null
               }
             </Styled.Head>
           </thead>
