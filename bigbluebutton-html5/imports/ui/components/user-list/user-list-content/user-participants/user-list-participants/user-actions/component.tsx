@@ -154,7 +154,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const userLocked = user.locked
     && lockSettings.hasActiveLockSetting
-    && user.isModerator;
+    && !user.isModerator;
 
   const dropdownOptions = [
     {
