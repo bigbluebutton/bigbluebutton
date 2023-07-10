@@ -328,6 +328,11 @@ class BreakoutRoom extends PureComponent {
       }
     }
 
+    const unassignedUsers = document.getElementById('breakoutBox-0');
+    if (unassignedUsers) {
+      unassignedUsers.addEventListener('keydown', this.handleMoveEvent, true);
+    }
+
     const { numberOfRooms } = this.state;
     const { users } = this.props;
     const { users: prevUsers } = prevProps;
@@ -352,6 +357,10 @@ class BreakoutRoom extends PureComponent {
         roomList.removeEventListener('keydown', this.handleMoveEvent, true);
       }
     }
+    const unassignedUsers = document.getElementById('breakoutBox-0');
+    if (unassignedUsers) {
+      unassignedUsers.removeEventListener('keydown', this.handleMoveEvent, true);
+    }
   }
 
   handleShiftUser(activeListSibling) {
@@ -363,6 +372,12 @@ class BreakoutRoom extends PureComponent {
         if (`roomUserItem-${u.userId}` === document.activeElement.id) {
           users[index].room = text.substr(text.length - 1).includes(')') ? 0 : parseInt(roomNumber, 10);
           this.changeUserRoom(u.userId, users[index].room);
+        }
+      });
+    } else {
+      users.forEach((u, index) => {
+        if (`roomUserItem-${u.userId}` === document.activeElement.id) {
+          this.changeUserRoom(u.userId, 0);
         }
       });
     }
