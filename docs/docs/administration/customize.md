@@ -802,7 +802,7 @@ To create the dialplan, use the XML below and save it to `/opt/freeswitch/conf/d
    <action application="start_dtmf" />
    <action application="answer"/>
    <action application="sleep" data="1000"/>
-   <action application="play_and_get_digits" data="5 7 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+   <action application="play_and_get_digits" data="9 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
 
    <!-- Uncomment the following block if you want to mask the phone number in the list of participants. -->
    <!-- Instead of `01711233121` it will then show `xxx-xxx-3121`. -->
@@ -825,7 +825,7 @@ To create the dialplan, use the XML below and save it to `/opt/freeswitch/conf/d
  <condition field="${pin}" expression="^\d{5}$">
    <action application="answer"/>
    <action application="sleep" data="1000"/>
-   <action application="play_and_get_digits" data="5 7 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+   <action application="play_and_get_digits" data="9 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
    <action application="transfer" data="SEND_TO_CONFERENCE XML public"/>
  </condition>
 </extension>
