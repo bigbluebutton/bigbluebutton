@@ -1,4 +1,4 @@
-export interface LockSettings {  
+export interface LockSettings {
   disableCam: boolean;
   disableMic: boolean;
   disableNotes: boolean;
@@ -31,6 +31,28 @@ export interface UsersPolicies {
   webcamsOnlyForModerator: boolean;
 }
 
+export interface VoiceSettings {
+  dialNumber: string;
+  meetingId: string;
+  muteOnStart: boolean;
+  telVoice: string;
+  voiceConf: string;
+}
+
+export interface BreakoutPolicies {
+  breakoutRooms: Array<unknown>;
+  captureNotes: string;
+  captureNotesFilename: string;
+  captureSlides: string;
+  captureSlidesFilename: string;
+  freeJoin: boolean;
+  meetingId: string;
+  parentId: string;
+  privateChatEnabled: boolean;
+  record: boolean;
+  sequence: number;
+}
+
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -48,4 +70,6 @@ export interface Meeting {
   presentationUploadExternalUrl: string;
   usersPolicies: UsersPolicies;
   lockSettings: LockSettings;
+  voiceSettings: VoiceSettings;
+  breakoutPolicies: BreakoutPolicies;
 }

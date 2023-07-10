@@ -21,7 +21,7 @@ import {
 } from './queries';
 import { User } from '/imports/ui/Types/user';
 import { Meeting } from '/imports/ui/Types/meeting';
-import  { debounce } from 'radash';
+import { debounce } from 'radash';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
@@ -48,7 +48,7 @@ interface RowRendererProps extends ListProps {
   offset: number;
 }
 
-const rowRenderer: React.FC<RowRendererProps>  = (users, currentUser, offset, meeting, { index, key, parent, style }) => {
+const rowRenderer: React.FC<RowRendererProps> = (users, currentUser, offset, meeting, { index, key, parent, style }) => {
   const user = users && users[index - offset];
   return <div
     key={key}
@@ -85,7 +85,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 }) => {
   const [previousUsersData, setPreviousUsersData] = React.useState(users);
   useEffect(() => {
-    if (users?.length){
+    if (users?.length) {
       setPreviousUsersData(users);
     }
   }, [users]);
@@ -94,24 +94,24 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       {
         <AutoSizer>
           {({ width, height }) => {
-                return (
-                  <Styled.VirtualizedList
-                  rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting)}
-                  noRowRenderer={() => <div>no users</div>}
-                  rowCount={count}
-                  height={height - 1}
-                  width={width - 1}
-                  onRowsRendered={debounce({delay: 500}, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
-                    setOffset(overscanStartIndex);
-                    const limit = (overscanStopIndex - overscanStartIndex) + 1;
-                    setLimit(limit < 50 ? 50 : limit);
-                  })}
-                  overscanRowCount={10}
-                  rowHeight={50}
-                  tabIndex={0}
-                  />
-                );
-              }}
+            return (
+              <Styled.VirtualizedList
+                rowRenderer={rowRenderer.bind(null, (users || previousUsersData), currentUser, offset, meeting)}
+                noRowRenderer={() => <div>no users</div>}
+                rowCount={count}
+                height={height - 1}
+                width={width - 1}
+                onRowsRendered={debounce({ delay: 500 }, ({ startIndex, stopIndex, overscanStartIndex, overscanStopIndex }) => {
+                  setOffset(overscanStartIndex);
+                  const limit = (overscanStopIndex - overscanStartIndex) + 1;
+                  setLimit(limit < 50 ? 50 : limit);
+                })}
+                overscanRowCount={10}
+                rowHeight={50}
+                tabIndex={0}
+              />
+            );
+          }}
         </AutoSizer>
       }
     </Styled.UserListColumn>
@@ -123,7 +123,7 @@ const UserListParticipantsContainer: React.FC = () => {
   const [limit, setLimit] = React.useState(0);
 
   const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
-    variables:{
+    variables: {
       offset,
       limit,
     },
@@ -145,7 +145,7 @@ const UserListParticipantsContainer: React.FC = () => {
   } = useSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION)
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
-  const currentUser = useCurrentUser((currentUser: Partial<User>)=>{
+  const currentUser = useCurrentUser((currentUser: Partial<User>) => {
     return {
       isModerator: currentUser.isModerator,
       userId: currentUser.userId,
@@ -154,15 +154,14 @@ const UserListParticipantsContainer: React.FC = () => {
   });
 
   return <>
-    <UsersTitle count={count} />
     <UserListParticipants
-    users={users}
-    offset={offset}
-    setOffset={setOffset}
-    setLimit={setLimit}
-    meeting={meeting}
-    currentUser={currentUser}
-    count={count}
+      users={users}
+      offset={offset}
+      setOffset={setOffset}
+      setLimit={setLimit}
+      meeting={meeting}
+      currentUser={currentUser}
+      count={count}
     />
   </>
 };
