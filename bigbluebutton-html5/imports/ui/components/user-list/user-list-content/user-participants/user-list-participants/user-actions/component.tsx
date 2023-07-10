@@ -120,8 +120,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   isBreakout,
   children,
 }) => {
-  console.log('user', user);
-
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
