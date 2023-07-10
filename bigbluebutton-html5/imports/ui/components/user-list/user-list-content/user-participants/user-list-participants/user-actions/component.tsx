@@ -120,6 +120,8 @@ const UserActions: React.FC<UserActionsProps> = ({
   isBreakout,
   children,
 }) => {
+  console.log('user', user);
+
   const intl = useIntl();
   const [showNestedOptions, setShowNestedOptions] = useState(false);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
@@ -154,7 +156,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
   const userLocked = user.locked
     && lockSettings.hasActiveLockSetting
-    && user.isModerator;
+    && !user.isModerator;
 
   const dropdownOptions = [
     {
