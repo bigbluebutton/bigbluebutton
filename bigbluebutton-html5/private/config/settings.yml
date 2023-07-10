@@ -274,7 +274,7 @@ public:
     disableWebsocketFallback: true
   # plugins:
   #   - name: SampleWhiteboardToolbarPlugin
-  #     url: https://<your-Host>/plugins/WhiteboardToolbarButton.js
+  #     url: https://<your-Host>/plugins/SampleWhiteboardToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
   kurento:
