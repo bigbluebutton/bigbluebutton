@@ -173,6 +173,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.movedUserLabel',
     description: 'screen reader alert when users are moved to rooms',
   },
+  manageRooms: {
+    id: 'app.createBreakoutRoom.manageRoomsLabel',
+    description: 'Label for manage rooms',
+  },
   sendInvitationToMods: {
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
@@ -203,7 +207,7 @@ const setPresentationVisibility = (state) => {
   if (presentationInnerWrapper) {
     presentationInnerWrapper.style.display = state;
   }
-}
+};
 
 class BreakoutRoom extends PureComponent {
   constructor(props) {
@@ -223,7 +227,7 @@ class BreakoutRoom extends PureComponent {
     this.renderUserItemByRoom = this.renderUserItemByRoom.bind(this);
     this.renderRoomsGrid = this.renderRoomsGrid.bind(this);
     this.renderBreakoutForm = this.renderBreakoutForm.bind(this);
-    this.renderCheckboxes = this.renderCheckboxes.bind(this);
+    this.renderCheckboxes = this.renderUnassingUsers.bind(this);
     this.renderRoomSortList = this.renderRoomSortList.bind(this);
     this.renderDesktop = this.renderDesktop.bind(this);
     this.renderMobile = this.renderMobile.bind(this);
@@ -251,7 +255,7 @@ class BreakoutRoom extends PureComponent {
       roomNamesChanged: [],
       roomSelected: 0,
       preventClosing: true,
-      leastOneUserIsValid: true,
+      leastOneUserIsValid: null,
       numberOfRoomsIsValid: true,
       roomNameDuplicatedIsValid: true,
       roomNameEmptyIsValid: true,
@@ -324,6 +328,11 @@ class BreakoutRoom extends PureComponent {
       }
     }
 
+    const unassignedUsers = document.getElementById('breakoutBox-0');
+    if (unassignedUsers) {
+      unassignedUsers.addEventListener('keydown', this.handleMoveEvent, true);
+    }
+
     const { numberOfRooms } = this.state;
     const { users } = this.props;
     const { users: prevUsers } = prevProps;
@@ -348,6 +357,10 @@ class BreakoutRoom extends PureComponent {
         roomList.removeEventListener('keydown', this.handleMoveEvent, true);
       }
     }
+    const unassignedUsers = document.getElementById('breakoutBox-0');
+    if (unassignedUsers) {
+      unassignedUsers.removeEventListener('keydown', this.handleMoveEvent, true);
+    }
   }
 
   handleShiftUser(activeListSibling) {
@@ -359,6 +372,12 @@ class BreakoutRoom extends PureComponent {
         if (`roomUserItem-${u.userId}` === document.activeElement.id) {
           users[index].room = text.substr(text.length - 1).includes(')') ? 0 : parseInt(roomNumber, 10);
           this.changeUserRoom(u.userId, users[index].room);
+        }
+      });
+    } else {
+      users.forEach((u, index) => {
+        if (`roomUserItem-${u.userId}` === document.activeElement.id) {
+          this.changeUserRoom(u.userId, 0);
         }
       });
     }
@@ -556,6 +575,7 @@ class BreakoutRoom extends PureComponent {
 
   onAssignRandomly() {
     const { numberOfRooms } = this.state;
+    this.setState({ hasUsersAssign: false });
     const { users } = this.state;
     // We only want to assign viewers so filter out the moderators. We also want to get
     // all users each run so that clicking the button again will reshuffle
@@ -576,6 +596,7 @@ class BreakoutRoom extends PureComponent {
 
   onAssignReset() {
     const { users } = this.state;
+    this.setState({ hasUsersAssign: true });
 
     users.forEach((u) => {
       if (u.room !== null && u.room > 0) {
@@ -841,6 +862,43 @@ class BreakoutRoom extends PureComponent {
     });
   }
 
+  renderContent() {
+    const { intl } = this.props;
+    const {
+      leastOneUserIsValid,
+      allowDrop,
+    } = this.state;
+    const drop = (room) => (ev) => {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData('text');
+      this.changeUserRoom(data, room);
+      this.setState({ selectedId: '' });
+    };
+
+    return (
+      <Styled.ContentContainer>
+        <Styled.Alert valid={leastOneUserIsValid} role="alert">
+          <Styled.FreeJoinLabel>
+            <Styled.BreakoutNameInput
+              type="text"
+              readOnly
+              value={
+                intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })
+              }
+            />
+          </Styled.FreeJoinLabel>
+          <Styled.BreakoutBox hundred id="breakoutBox-0" onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
+            {this.renderUserItemByRoom(0)}
+          </Styled.BreakoutBox>
+          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={leastOneUserIsValid}>
+            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
+          </Styled.SpanWarn>
+        </Styled.Alert>
+        {this.renderRoomsGrid()}
+      </Styled.ContentContainer>
+    );
+  }
+
   renderRoomsGrid() {
     const { intl, isUpdate } = this.props;
     const {
@@ -876,23 +934,6 @@ class BreakoutRoom extends PureComponent {
 
     return (
       <Styled.BoxContainer key="rooms-grid-" ref={(r) => { this.listOfUsers = r; }} data-test="roomGrid">
-        <Styled.Alert valid={leastOneUserIsValid} role="alert">
-          <Styled.FreeJoinLabel>
-            <Styled.BreakoutNameInput
-              type="text"
-              readOnly
-              value={
-                intl.formatMessage(intlMessages.notAssigned, { 0: this.getUserByRoom(0).length })
-              }
-            />
-          </Styled.FreeJoinLabel>
-          <Styled.BreakoutBox id="breakoutBox-0" onDrop={drop(0)} onDragOver={allowDrop} tabIndex={0}>
-            {this.renderUserItemByRoom(0)}
-          </Styled.BreakoutBox>
-          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={leastOneUserIsValid}>
-            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
-          </Styled.SpanWarn>
-        </Styled.Alert>
         {
           range(1, rooms + 1).map((value) => (
             <div key={`room-${value}`}>
@@ -937,12 +978,18 @@ class BreakoutRoom extends PureComponent {
     const {
       intl,
       isUpdate,
+      isBreakoutRecordable,
     } = this.props;
     const {
       numberOfRooms,
       durationTime,
       numberOfRoomsIsValid,
       durationIsValid,
+      freeJoin,
+      record,
+      captureNotes,
+      captureSlides,
+      inviteMods,
     } = this.state;
     if (isUpdate) return null;
 
@@ -980,42 +1027,6 @@ class BreakoutRoom extends PureComponent {
                 aria-label={intl.formatMessage(intlMessages.duration)}
                 data-test="durationTime"
               />
-              <Styled.HoldButtonWrapper
-                key="decrease-breakout-time"
-                exec={this.decreaseDurationTime}
-                minBound={MIN_BREAKOUT_ROOMS}
-                value={durationTime}
-              >
-                <Button
-                  label={intl.formatMessage(intlMessages.minusRoomTime)}
-                  aria-label={
-                    `${intl.formatMessage(intlMessages.minusRoomTime)} ${intl.formatMessage(intlMessages.roomTime, { 0: durationTime - 1 })}`
-                  }
-                  icon="substract"
-                  onClick={() => { }}
-                  hideLabel
-                  circle
-                  size="sm"
-                  data-test="decreaseBreakoutTime"
-                />
-              </Styled.HoldButtonWrapper>
-              <Styled.HoldButtonWrapper
-                key="increase-breakout-time"
-                exec={this.increaseDurationTime}
-              >
-                <Button
-                  label={intl.formatMessage(intlMessages.addRoomTime)}
-                  aria-label={
-                    `${intl.formatMessage(intlMessages.addRoomTime)} ${intl.formatMessage(intlMessages.roomTime, { 0: durationTime + 1 })}`
-                  }
-                  icon="add"
-                  onClick={() => { }}
-                  hideLabel
-                  circle
-                  size="sm"
-                  data-test="increaseBreakoutTime"
-                />
-              </Styled.HoldButtonWrapper>
             </Styled.DurationArea>
             <Styled.SpanWarn valid={durationIsValid}>
               {
@@ -1026,26 +1037,78 @@ class BreakoutRoom extends PureComponent {
               }
             </Styled.SpanWarn>
           </Styled.DurationLabel>
-          <Styled.AssignBtnsContainer>
-            <Styled.AssignBtns
-              data-test="randomlyAssign"
-              label={intl.formatMessage(intlMessages.randomlyAssign)}
-              aria-describedby="randomlyAssignDesc"
-              onClick={this.onAssignRandomly}
-              size="sm"
-              color="default"
-              disabled={!numberOfRoomsIsValid}
-            />
-            <Styled.AssignBtns
-              data-test="resetAssignments"
-              label={intl.formatMessage(intlMessages.resetAssignments)}
-              aria-describedby="resetAssignmentsDesc"
-              onClick={this.onAssignReset}
-              size="sm"
-              color="default"
-              disabled={!numberOfRoomsIsValid}
-            />
-          </Styled.AssignBtnsContainer>
+          <Styled.CheckBoxesContainer key="breakout-checkboxes">
+            <Styled.FreeJoinLabel htmlFor="freeJoinCheckbox" key="free-join-breakouts">
+              <Styled.FreeJoinCheckbox
+                type="checkbox"
+                id="freeJoinCheckbox"
+                onChange={this.setFreeJoin}
+                checked={freeJoin}
+                aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
+              />
+              <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
+            </Styled.FreeJoinLabel>
+            {
+              isBreakoutRecordable ? (
+                <Styled.FreeJoinLabel htmlFor="recordBreakoutCheckbox" key="record-breakouts">
+                  <Styled.FreeJoinCheckbox
+                    id="recordBreakoutCheckbox"
+                    type="checkbox"
+                    onChange={this.setRecord}
+                    checked={record}
+                    aria-label={intl.formatMessage(intlMessages.record)}
+                  />
+                  <span aria-hidden>
+                    {intl.formatMessage(intlMessages.record)}
+                  </span>
+                </Styled.FreeJoinLabel>
+              ) : null
+            }
+            {
+              isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() ? (
+                <Styled.FreeJoinLabel htmlFor="captureSlidesBreakoutCheckbox" key="capture-slides-breakouts">
+                  <Styled.FreeJoinCheckbox
+                    id="captureSlidesBreakoutCheckbox"
+                    type="checkbox"
+                    onChange={this.setCaptureSlides}
+                    checked={captureSlides}
+                    aria-label={intl.formatMessage(intlMessages.captureSlidesLabel)}
+                  />
+                  <span aria-hidden>
+                    {intl.formatMessage(intlMessages.captureSlidesLabel)}
+                  </span>
+                </Styled.FreeJoinLabel>
+              ) : null
+            }
+            {
+              isImportSharedNotesFromBreakoutRoomsEnabled() ? (
+                <Styled.FreeJoinLabel htmlFor="captureNotesBreakoutCheckbox" key="capture-notes-breakouts">
+                  <Styled.FreeJoinCheckbox
+                    id="captureNotesBreakoutCheckbox"
+                    type="checkbox"
+                    onChange={this.setCaptureNotes}
+                    checked={captureNotes}
+                    aria-label={intl.formatMessage(intlMessages.captureNotesLabel)}
+                  />
+                  <span aria-hidden>
+                    {intl.formatMessage(intlMessages.captureNotesLabel)}
+                  </span>
+                </Styled.FreeJoinLabel>
+              ) : null
+            }
+            <Styled.FreeJoinLabel htmlFor="sendInvitationToAssignedModeratorsCheckbox" key="send-invitation-to-assigned-moderators-breakouts">
+              <Styled.FreeJoinCheckbox
+                id="sendInvitationToAssignedModeratorsCheckbox"
+                type="checkbox"
+                onChange={this.setInviteMods}
+                checked={inviteMods}
+                aria-label={intl.formatMessage(intlMessages.sendInvitationToMods)}
+              />
+              <span aria-hidden>
+                {intl.formatMessage(intlMessages.sendInvitationToMods)}
+              </span>
+            </Styled.FreeJoinLabel>
+          </Styled.CheckBoxesContainer>
         </Styled.BreakoutSettings>
         <Styled.SpanWarn valid={numberOfRoomsIsValid}>
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
@@ -1053,6 +1116,7 @@ class BreakoutRoom extends PureComponent {
         <span aria-hidden id="randomlyAssignDesc" className="sr-only">
           {intl.formatMessage(intlMessages.randomlyAssignDesc)}
         </span>
+        <Styled.Separator />
       </React.Fragment>
     );
   }
@@ -1074,93 +1138,44 @@ class BreakoutRoom extends PureComponent {
     );
   }
 
-  renderCheckboxes() {
+  renderUnassingUsers() {
     const {
-      intl, isUpdate, isBreakoutRecordable,
+      intl,
+      isUpdate,
     } = this.props;
     if (isUpdate) return null;
     const {
-      freeJoin,
-      record,
-      captureNotes,
-      captureSlides,
-      inviteMods,
+      numberOfRoomsIsValid,
+      leastOneUserIsValid,
     } = this.state;
+
     return (
-      <Styled.CheckBoxesContainer key="breakout-checkboxes">
-        <Styled.FreeJoinLabel htmlFor="freeJoinCheckbox" key="free-join-breakouts">
-          <Styled.FreeJoinCheckbox
-            type="checkbox"
-            id="freeJoinCheckbox"
-            onChange={this.setFreeJoin}
-            checked={freeJoin}
-            aria-label={intl.formatMessage(intlMessages.freeJoinLabel)}
+      <Styled.AssignBtnsContainer>
+        <Styled.LabelText bold aria-hidden>
+          {intl.formatMessage(intlMessages.manageRooms)}
+        </Styled.LabelText>
+        {leastOneUserIsValid ? (
+          <Styled.AssignBtns
+            data-test="resetAssignments"
+            label={intl.formatMessage(intlMessages.resetAssignments)}
+            aria-describedby="resetAssignmentsDesc"
+            onClick={this.onAssignReset}
+            size="sm"
+            color="default"
+            disabled={!numberOfRoomsIsValid}
           />
-          <span aria-hidden>{intl.formatMessage(intlMessages.freeJoinLabel)}</span>
-        </Styled.FreeJoinLabel>
-        {
-          isBreakoutRecordable ? (
-            <Styled.FreeJoinLabel htmlFor="recordBreakoutCheckbox" key="record-breakouts">
-              <Styled.FreeJoinCheckbox
-                id="recordBreakoutCheckbox"
-                type="checkbox"
-                onChange={this.setRecord}
-                checked={record}
-                aria-label={intl.formatMessage(intlMessages.record)}
-              />
-              <span aria-hidden>
-                {intl.formatMessage(intlMessages.record)}
-              </span>
-            </Styled.FreeJoinLabel>
-          ) : null
-        }
-        {
-          isImportPresentationWithAnnotationsFromBreakoutRoomsEnabled() ? (
-            <Styled.FreeJoinLabel htmlFor="captureSlidesBreakoutCheckbox" key="capture-slides-breakouts">
-              <Styled.FreeJoinCheckbox
-                id="captureSlidesBreakoutCheckbox"
-                type="checkbox"
-                onChange={this.setCaptureSlides}
-                checked={captureSlides}
-                aria-label={intl.formatMessage(intlMessages.captureSlidesLabel)}
-              />
-              <span aria-hidden>
-                {intl.formatMessage(intlMessages.captureSlidesLabel)}
-              </span>
-            </Styled.FreeJoinLabel>
-          ) : null
-        }
-        {
-          isImportSharedNotesFromBreakoutRoomsEnabled() ? (
-            <Styled.FreeJoinLabel htmlFor="captureNotesBreakoutCheckbox" key="capture-notes-breakouts">
-              <Styled.FreeJoinCheckbox
-                id="captureNotesBreakoutCheckbox"
-                type="checkbox"
-                onChange={this.setCaptureNotes}
-                checked={captureNotes}
-                aria-label={intl.formatMessage(intlMessages.captureNotesLabel)}
-              />
-              <span aria-hidden>
-                {intl.formatMessage(intlMessages.captureNotesLabel)}
-              </span>
-            </Styled.FreeJoinLabel>
-          ) : null
-        }
-        {
-            <Styled.FreeJoinLabel htmlFor="sendInvitationToAssignedModeratorsCheckbox" key="send-invitation-to-assigned-moderators-breakouts">
-              <Styled.FreeJoinCheckbox
-                id="sendInvitationToAssignedModeratorsCheckbox"
-                type="checkbox"
-                onChange={this.setInviteMods}
-                checked={inviteMods}
-                aria-label={intl.formatMessage(intlMessages.sendInvitationToMods)}
-              />
-              <span aria-hidden>
-                {intl.formatMessage(intlMessages.sendInvitationToMods)}
-              </span>
-            </Styled.FreeJoinLabel>
-        }
-      </Styled.CheckBoxesContainer>
+        ) : (
+          <Styled.AssignBtns
+            random
+            data-test="randomlyAssign"
+            label={intl.formatMessage(intlMessages.randomlyAssign)}
+            aria-describedby="randomlyAssignDesc"
+            onClick={this.onAssignRandomly}
+            size="sm"
+            color="default"
+          />
+        )}
+      </Styled.AssignBtnsContainer>
     );
   }
 
@@ -1288,8 +1303,8 @@ class BreakoutRoom extends PureComponent {
   renderDesktop() {
     return [
       this.renderBreakoutForm(),
-      this.renderCheckboxes(),
-      this.renderRoomsGrid(),
+      this.renderUnassingUsers(),
+      this.renderContent(),
     ];
   }
 
@@ -1313,7 +1328,7 @@ class BreakoutRoom extends PureComponent {
     return [
       this.renderErrorMessages(),
       this.renderBreakoutForm(),
-      this.renderCheckboxes(),
+      this.renderUnassingUsers(),
       this.renderButtonSetLevel(2, intl.formatMessage(intlMessages.nextLabel)),
     ];
   }
