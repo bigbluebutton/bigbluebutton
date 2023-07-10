@@ -3,12 +3,13 @@ package org.bigbluebutton.core.apps.users
 import akka.actor.ActorContext
 import akka.event.Logging
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ ExternalVideoModel }
+import org.bigbluebutton.core.apps.ExternalVideoModel
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.db.UserStateDAO
 
 object UsersApp {
   def broadcastAddUserToPresenterGroup(meetingId: String, userId: String, requesterId: String,
@@ -40,8 +41,8 @@ object UsersApp {
     for {
       u <- RegisteredUsers.findWithUserId(guest.guest, liveMeeting.registeredUsers)
     } yield {
-
       RegisteredUsers.setWaitingForApproval(liveMeeting.registeredUsers, u, guest.status)
+      UserStateDAO.updateGuestStatus(guest.guest, guest.status, approvedBy)
       // send message to user that he has been approved
 
       val event = MsgBuilder.buildGuestApprovedEvtMsg(
@@ -124,6 +125,7 @@ object UsersApp {
         // println(s"ejectUserFromMeeting will cause a automaticallyAssignPresenter for user=${user}")
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
+      UserStateDAO.updateEjected(userId, reason, reasonCode, ejectedBy)
     }
 
     for {
@@ -149,6 +151,7 @@ class UsersApp(
   with GetUsersMeetingReqMsgHdlr
   with RegisterUserReqMsgHdlr
   with ChangeUserRoleCmdMsgHdlr
+  with SetUserSpeechLocaleMsgHdlr
   with SyncGetUsersMeetingRespMsgHdlr
   with LogoutAndEndMeetingCmdMsgHdlr
   with SetRecordingStatusCmdMsgHdlr
@@ -159,6 +162,9 @@ class UsersApp(
   with AssignPresenterReqMsgHdlr
   with ChangeUserPinStateReqMsgHdlr
   with ChangeUserMobileFlagReqMsgHdlr
+  with ChangeUserReactionEmojiReqMsgHdlr
+  with ChangeUserRaiseHandReqMsgHdlr
+  with ChangeUserAwayReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr
   with EjectUserFromMeetingSysMsgHdlr
   with MuteUserCmdMsgHdlr {

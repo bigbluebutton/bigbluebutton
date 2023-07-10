@@ -17,8 +17,10 @@ select_permissions:
       columns:
         - connectionAliveAt
         - meetingId
+        - rttInMs
         - status
         - statusUpdatedAt
+        - userClientResponseAt
         - userId
       filter:
         _and:
@@ -31,8 +33,7 @@ update_permissions:
     permission:
       columns:
         - connectionAliveAt
-        - status
-        - statusUpdatedAt
+        - userClientResponseAt
       filter:
         _and:
           - meetingId:

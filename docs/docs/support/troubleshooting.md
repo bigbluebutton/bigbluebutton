@@ -783,28 +783,6 @@ To reconfigure the BigBlueButton to use the correct IP address or hostname, see 
 
 ## bbb-web
 
-### 404 Error when loading the client
-
-BigBlueButton 2.2 requires Java 8 as the default Java. Recently, some Ubuntu 16.04 distributions have switched the default version of Java to Java 9 (or later).
-
-Use `java -version` to check that the default version of `1.8.0`.
-
-```bash
-~/dev$ java -version
-openjdk version "1.8.0_242"
-OpenJDK Runtime Environment (build 1.8.0_242-8u242-b08-0ubuntu3~16.04-b08)
-OpenJDK 64-Bit Server VM (build 25.242-b08, mixed mode)
-```
-
-If not, do the following
-
-```bash
-sudo apt-get install openjdk-8-jre
-update-alternatives --config java  # Choose java-8 as default
-```
-
-Run `java -version` and confirm it now shows the default as `1.8.0`, and then restart BigBlueButton with `sudo bbb-conf --restart`
-
 ### Blank presentation area on create or upload
 
 If you join a meeting and the default presentation is not visible or your uploaded presentation doesn't display, then this is most likely due to a permissions error. To solve this, ensure that `/var/bigbluebutton/` is owned by `bigbluebutton` rather than `root` or any other account. See [this issue](https://github.com/bigbluebutton/bigbluebutton/issues/9867) for more explanation.

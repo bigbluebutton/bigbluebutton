@@ -20,6 +20,8 @@ import CursorsAll from "./CursorsAll";
 import TalkingStream from "./TalkingStream";
 import MyInfo from "./MyInfo";
 import UserLocalSettings from "./UserLocalSettings";
+import UserConnectionStatus from "./UserConnectionStatus";
+import UserConnectionStatusReport from "./UserConnectionStatusReport";
 
 
 function App() {
@@ -105,6 +107,10 @@ function App() {
             <MeetingInfo />
             <br />
             <MyInfo />
+            <br />
+            <UserConnectionStatus />
+            <br />
+            <UserConnectionStatusReport />
             <br />
             <UserLocalSettings userId={userId} />
             <br />

@@ -1,0 +1,50 @@
+table:
+  name: v_breakoutRoom
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: breakoutRoom
+  custom_root_fields: {}
+array_relationships:
+  - name: assignedUsers
+    using:
+      manual_configuration:
+        column_mapping:
+          breakoutRoomId: breakoutRoomId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_assignedUser
+          schema: public
+  - name: participants
+    using:
+      manual_configuration:
+        column_mapping:
+          breakoutRoomId: breakoutRoomId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_participant
+          schema: public
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - assignedAt
+        - breakoutRoomId
+        - currentIsOnline
+        - currentJoined
+        - currentRegisteredOn
+        - durationInSeconds
+        - endedAt
+        - freeJoin
+        - isDefaultName
+        - name
+        - sendInvitationToModerators
+        - sequence
+        - shortName
+        - startedAt
+        - willEndAt
+      filter:
+        userId:
+          _eq: X-Hasura-UserId
+      allow_aggregations: true

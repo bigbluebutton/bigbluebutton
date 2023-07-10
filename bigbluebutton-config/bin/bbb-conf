@@ -476,11 +476,15 @@ display_bigbluebutton_status () {
         units="$units bbb-rap-starter"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-transcription-controller.service ]; then
+        units="$units bbb-transcription-controller"
+    fi
+
     if systemctl list-units --full -all | grep -q $TOMCAT_USER.service; then
       TOMCAT_SERVICE=$TOMCAT_USER
     fi
 
-    line='——————————————————————►'
+    line='—————————————————————————————►'
     for unit in $units; do
         status=$(systemctl is-active "$unit")
         if [ "$status" = "active" ]; then
@@ -1706,7 +1710,9 @@ if [ -n "$HOST" ]; then
 
     sudo yq e -i ".freeswitch.esl_password = \"$ESL_PASSWORD\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
     sudo xmlstarlet edit --inplace --update 'configuration/settings//param[@name="password"]/@value' --value $ESL_PASSWORD /opt/freeswitch/etc/freeswitch/autoload_configs/event_socket.conf.xml
-
+    if [ -f /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml ]; then
+        sudo yq w -i /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml freeswitch.esl_password "$ESL_PASSWORD"
+    fi
 
     echo "Restarting BigBlueButton $BIGBLUEBUTTON_RELEASE ..."
     stop_bigbluebutton

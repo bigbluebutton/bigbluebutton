@@ -1,23 +1,12 @@
 import { gql } from '@apollo/client';
-import { Chat } from '/imports/ui/Types/chat';
 
-export interface ChatSubscriptionResponse {
-  chat: Array<Chat>;
-}
-
-export const CHAT_SUBSCRIPTION = gql`
-subscription {
-  chat {
-        chatId
-        participant {
-            name
-            role
-            color
-            loggedOut
-        }
-        totalMessages
-        totalUnread
-        public
-      }
-}
-`
+export const LAST_SEEN_MUTATION = gql`
+  mutation UpdateChatUser($chatId: String, $lastSeenAt: bigint) {
+    update_chat_user(
+      where: { chatId: { _eq: $chatId }, lastSeenAt: { _lt: $lastSeenAt } }
+      _set: { lastSeenAt: $lastSeenAt }
+    ) {
+      affected_rows
+    }
+  }
+`;

@@ -1,4 +1,4 @@
-import { throttle } from '/imports/utils/throttle';
+import { throttle } from 'radash';
 import Pads, { PadsSessions, PadsUpdates } from '/imports/api/pads';
 import { makeCall } from '/imports/ui/services/api';
 import Auth from '/imports/ui/services/auth';
@@ -48,17 +48,14 @@ const hasPad = (externalId) => {
 
 const createSession = (externalId) => makeCall('createSession', externalId);
 
-const throttledCreateSession = throttle(createSession, THROTTLE_TIMEOUT, {
-  leading: true,
-  trailing: false,
-});
+const throttledCreateSession = throttle({ interval: THROTTLE_TIMEOUT }, createSession);
 
 const buildPadURL = (padId) => {
   if (padId) {
     const padsSessions = PadsSessions.findOne({});
     if (padsSessions && padsSessions.sessions) {
       const params = getParams();
-      const sessionIds = padsSessions.sessions.map(session => Object.values(session)).join(',');
+      const sessionIds = padsSessions.sessions.map((session) => Object.values(session)).join(',');
       const url = Auth.authenticateURL(`${PADS_CONFIG.url}/auth_session?padName=${padId}&sessionID=${sessionIds}&${params}`);
       return url;
     }

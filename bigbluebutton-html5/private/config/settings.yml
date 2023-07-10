@@ -89,12 +89,14 @@ public:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
+      # provider: [webspeech, vosk, whisper, deepspeech]
+      provider: webspeech
       language:
         available:
         # - de-DE
           - en-US
           - es-ES
-        # - fr-FR
+          - fr-FR
         # - hi-ID
         # - it-IT
         # - ja-JP
@@ -127,8 +129,8 @@ public:
       allowUserChooseRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
+      sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
-      sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     showAllAvailableLocales: true
@@ -799,6 +801,7 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300

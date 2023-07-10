@@ -63,7 +63,7 @@ const TalkingIndicatorButton = styled(Button)`
       font-size: ${fontSizeXS};
     }
 
-    [dir="rtl"]  & {
+    [dir='rtl'] & {
       margin-left: ${talkerMarginSm};
     }
   }
@@ -84,7 +84,7 @@ const TalkingIndicatorButton = styled(Button)`
       font-size: ${fontSizeXS};
     }
 
-    [dir="rtl"]  & {
+    [dir='rtl'] & {
       right: calc(${talkerMarginSm} * -1);
     }
   }
@@ -93,7 +93,8 @@ const TalkingIndicatorButton = styled(Button)`
     opacity: 1;
   }
 
-  ${({ $spoke }) => $spoke && `
+  ${({ $spoke }) => $spoke
+    && `
     opacity: ${spokeOpacity};
 
     [dir="rtl"]  & {
@@ -101,7 +102,8 @@ const TalkingIndicatorButton = styled(Button)`
     }
   `}
 
-  ${({ $muted }) => $muted && `
+  ${({ $muted }) => $muted
+    && `
     cursor: default;
 
     i {
@@ -109,7 +111,8 @@ const TalkingIndicatorButton = styled(Button)`
     }
   `}
 
-  ${({ $isViewer }) => $isViewer && `
+  ${({ $isViewer }) => $isViewer
+    && `
     cursor: default;
   `}
 `;
@@ -118,19 +121,16 @@ const CCIcon = styled(Icon)`
   align-self: center;
   color: ${colorWhite};
   margin: 0 ${borderRadius};
-  font-size: calc(${fontSizeSmall} * .85);
-  opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`)
-    || '1;'};
+  font-size: calc(${fontSizeSmall} * 0.85);
+  opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`) || '1;'};
 `;
 
 const TalkingIndicatorWrapper = styled.div`
   border-radius: ${talkerBorderRadius} ${talkerBorderRadius};
   display: flex;
   margin: 0 ${borderRadius};
-  opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`)
-    || '1;'};
-  background: ${({ muted, talking, floor }) => ((muted || !talking || !floor) && `${colorBackground};`)
-    || `${colorSuccess}`}
+  opacity: ${({ muted, talking }) => ((muted || !talking) && `${spokeOpacity};`) || '1;'};
+  background: ${({ muted, talking, floor }) => ((muted || !talking || !floor) && `${colorBackground};`) || `${colorSuccess}`};
 `;
 
 const Hidden = styled.div`
@@ -141,7 +141,6 @@ const IsTalkingWrapper = styled.div`
   display: flex;
   flex-direction: row;
   position: relative;
-  margin-top: ${talkerMarginSm};
   overflow: hidden;
 `;
 

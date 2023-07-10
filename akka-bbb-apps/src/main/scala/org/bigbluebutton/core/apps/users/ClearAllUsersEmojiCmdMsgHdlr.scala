@@ -22,9 +22,10 @@ trait ClearAllUsersEmojiCmdMsgHdlr extends RightsManagementTrait {
     if (isUserModerator) {
       for {
         user <- Users2x.findAll(liveMeeting.users2x)
-        if user.emoji.equals("raiseHand") || user.emoji.equals("away") || user.emoji.equals("notAway")
       } yield {
         Users2x.setEmojiStatus(liveMeeting.users2x, user.intId, "none")
+        Users2x.setUserAway(liveMeeting.users2x, user.intId, false)
+        Users2x.setUserRaiseHand(liveMeeting.users2x, user.intId, false)
       }
       sendClearedAllUsersEmojiEvtMsg(outGW, liveMeeting.props.meetingProp.intId, msg.header.userId)
     } else {

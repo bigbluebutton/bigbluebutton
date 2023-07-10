@@ -5,8 +5,8 @@ import handleUserTyping from './handlers/userTyping';
 import handleSyncGroupChatMsg from './handlers/syncGroupsChat';
 import { processForHTML5ServerOnly } from '/imports/api/common/server/helpers';
 
-RedisPubSub.on('GetGroupChatMsgsRespMsg', processForHTML5ServerOnly(handleSyncGroupChatMsg));
-RedisPubSub.on('GroupChatMessageBroadcastEvtMsg', handleGroupChatMsgBroadcast);
-RedisPubSub.on('ClearPublicChatHistoryEvtMsg', handleClearPublicGroupChat);
-RedisPubSub.on('SyncGetGroupChatMsgsRespMsg', handleSyncGroupChatMsg);
-RedisPubSub.on('UserTypingEvtMsg', handleUserTyping);
+// RedisPubSub.on('GetGroupChatMsgsRespMsg', processForHTML5ServerOnly(handleSyncGroupChatMsg));
+// RedisPubSub.on('GroupChatMessageBroadcastEvtMsg', handleGroupChatMsgBroadcast);
+// RedisPubSub.on('ClearPublicChatHistoryEvtMsg', handleClearPublicGroupChat);
+// RedisPubSub.on('SyncGetGroupChatMsgsRespMsg', handleSyncGroupChatMsg);
+// RedisPubSub.on('UserTypingEvtMsg', handleUserTyping);
