@@ -232,12 +232,9 @@ const VideoListItem = (props) => {
       }}
     >
 
-      <Styled.VideoContainer>
-        {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
-          <Styled.VideoDisabled>
-            {intl.formatMessage(intlMessages.disableDesc)}
-          </Styled.VideoDisabled>
-        )}
+      <Styled.VideoContainer
+        $selfViewDisabled={isSelfViewDisabled && user.userId === Auth.userID}
+      >
         <Styled.Video
           mirrored={isMirrored}
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
@@ -249,6 +246,12 @@ const VideoListItem = (props) => {
         />
       </Styled.VideoContainer>
 
+      {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
+        <Styled.VideoDisabled>
+          {intl.formatMessage(intlMessages.disableDesc)}
+        </Styled.VideoDisabled>
+      )}
+
       {/* eslint-disable-next-line no-nested-ternary */}
 
       {(videoIsReady || isSelfViewDisabled) && (
@@ -257,7 +260,7 @@ const VideoListItem = (props) => {
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
-      {isSelfViewDisabled && renderWebcamConnecting()}
+      {isSelfViewDisabled && user.userId === Auth.userID && renderWebcamConnecting()}
     </Styled.Content>
   );
 };
