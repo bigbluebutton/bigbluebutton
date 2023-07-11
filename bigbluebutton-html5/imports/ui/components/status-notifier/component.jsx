@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import Icon from '/imports/ui/components/common/icon/component';
 import { ENTER } from '/imports/utils/keyCodes';
 import Styled from './styles';
-import {Meteor} from "meteor/meteor";
+import { Meteor } from "meteor/meteor";
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const messages = defineMessages({
@@ -53,9 +53,10 @@ class StatusNotifier extends Component {
   componentDidUpdate(prevProps) {
     const {
       emojiUsers, raiseHandAudioAlert, raiseHandPushAlert, status, isViewer, isPresenter,
+      isModerator,
     } = this.props;
 
-    if (isViewer && !isPresenter) {
+    if ((isViewer || isModerator) && !isPresenter) {
       if (this.statusNotifierId) toast.dismiss(this.statusNotifierId);
       return false;
     }
@@ -120,7 +121,7 @@ class StatusNotifier extends Component {
     }
 
     const raisedHandMessageString
-        = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
+      = length === 1 ? messages.raisedHandDescOneUser : messages.raisedHandDesc;
     return intl.formatMessage(raisedHandMessageString, { 0: formattedNames });
   }
 
