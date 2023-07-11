@@ -101,15 +101,13 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     //testing no user assigned
-    await this.modPage.waitAndClick(e.modalConfirmButton);
-    await this.modPage.hasElement(e.warningNoUserAssigned);
-
-    //await this.modPage.hasElementDisabled(e.modalConfirmButton);
     const modalConfirmButton = this.modPage.getLocator(e.modalConfirmButton);
     await expect(modalConfirmButton, 'Getting error when trying to create a breakout room without designating any user.').toBeDisabled();
+    await this.modPage.hasElement(e.warningNoUserAssigned);
 
     await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
+    await this.modPage.wasRemoved(e.warningNoUserAssigned);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
