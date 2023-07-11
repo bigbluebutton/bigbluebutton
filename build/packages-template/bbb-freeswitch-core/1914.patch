@@ -309,8 +309,7 @@ index e8a3d30da1a..63fbfc75d76 100644
 -					}
 -				}
 -				
--				
--				if (ice->ice_params && ice->ice_params->cands[ice->ice_params->chosen[ice->proto]][ice->proto].cand_type &&
+-				if (ice->ice_params->cands[ice->ice_params->chosen[ice->proto]][ice->proto].cand_type &&
 -					!strcasecmp(ice->ice_params->cands[ice->ice_params->chosen[ice->proto]][ice->proto].cand_type, "relay")) {
 -					do_adj++;
 -				}
