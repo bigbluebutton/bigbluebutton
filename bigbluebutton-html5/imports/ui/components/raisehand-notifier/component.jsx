@@ -57,7 +57,7 @@ class RaiseHandNotifier extends Component {
       raiseHandUsers, raiseHandAudioAlert, raiseHandPushAlert, isViewer, isPresenter,
     } = this.props;
 
-    if (isViewer && !isPresenter) {
+    if ((isViewer || ROLE_MODERATOR) && !isPresenter) {
       if (this.statusNotifierId) toast.dismiss(this.statusNotifierId);
       return false;
     }
