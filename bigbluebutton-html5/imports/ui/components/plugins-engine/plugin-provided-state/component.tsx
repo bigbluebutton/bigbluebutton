@@ -6,6 +6,11 @@ import { ProvidedPlugins } from '../../components-data/plugin-context/types';
 
 const pluginsProvidedState: PluginProvidedStateStaticData = {};
 
+function mapItemWithId<T extends PluginSdk.PluginItem>(item: T, index: number) {
+    item.setItemId(`${index}`);
+    return item;
+}
+
 const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
     const { 
         uuid, 
@@ -27,14 +32,14 @@ const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
         const pluginsProvidedStateForContext: ProvidedPlugins = {} as ProvidedPlugins;
         pluginsProvidedStateForContext.whiteboardToolbarItems = ([] as PluginSdk.WhiteboardToolbarItem[]).concat(
             ...Object.values(pluginsProvidedState).map((pps: PluginObjects) => {
-                console.log
                 return pps.whiteboardToolbarItems}));
         setProvidedPlugins( {...pluginsProvidedStateForContext} );
 
     }, [whiteboardToolbarItems]);
 
     pluginApi.setWhiteboardToolbarItems = (item) => {
-        return setWhiteboardToolbarItems(item)
+        const mappedItem = item.map(mapItemWithId)
+        return setWhiteboardToolbarItems(mappedItem)
     };
     return null;
 }

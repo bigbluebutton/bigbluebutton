@@ -151,21 +151,24 @@ class PresentationToolbar extends PureComponent {
 
     return pluginProvidedButtons?.map((ppb) => {
       let returnComponent;
+      const ppbId = ppb.id;
+
       switch (ppb.type) {
         case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_BUTTON:
           returnComponent = (
             <Button
-              key={ppb.name}
+              key={ppbId}
               style={{ marginLeft: '2px' }}
               label={ppb.label}
               onClick={ppb.onClick}
+              tooltipLabel={ppb.tooltip}
             />
           );
           break;
-        case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_LOADING:
+        case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_SPINNER:
           returnComponent = (
             <Spinner
-              key={ppb.name}
+              key={ppbId}
             />
           );
           break;
