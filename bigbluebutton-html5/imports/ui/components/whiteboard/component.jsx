@@ -26,6 +26,7 @@ const SMALL_WIDTH = 800;
 const SMALLEST_DOCK_WIDTH = 710;
 const TOOLBAR_SMALL = 28;
 const TOOLBAR_LARGE = 32;
+const MOUNTED_RESIZE_DELAY = 1500;
 
 export default function Whiteboard(props) {
   const {
@@ -666,7 +667,11 @@ export default function Whiteboard(props) {
       );
       setIsMounting(true);
     }
-      
+
+    // needed to ensure the correct calculations for cursors on mount.
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, MOUNTED_RESIZE_DELAY);
   };
 
   const onPatch = (e, t, reason) => {
