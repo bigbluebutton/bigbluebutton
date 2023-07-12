@@ -8,7 +8,6 @@ import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
 import ChatLogger from '/imports/ui/components/chat/chat-logger/ChatLogger';
 import UserService from '/imports/ui/components/user-list/service';
-import { _ } from 'lodash';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -195,21 +194,21 @@ const reducer = (state, action) => {
       const batchMsgs = action.value;
       const closedChatsToOpen = new Set();
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-      const loginTime = getLoginTime();
       const newState = batchMsgs.reduce((acc, i) => {
         const message = i;
         const chatId = message.chatId;
+        const chatClosedTimestamp = currentClosedChats.find(closedChat => closedChat.chatId === chatId)?.timestamp;
         if (
           chatId !== PUBLIC_GROUP_CHAT_KEY
-          && message.timestamp > loginTime
-          && currentClosedChats.includes(chatId)) {
+          && chatClosedTimestamp
+          && message.timestamp > chatClosedTimestamp ) {
           closedChatsToOpen.add(chatId)
         }
         return generateStateWithNewMessage(message, acc, action.messageType);
       }, state);
 
       if (closedChatsToOpen.size) {
-        const closedChats = currentClosedChats.filter(chatId => !closedChatsToOpen.has(chatId));
+        const closedChats = currentClosedChats.filter(closedChat => !closedChatsToOpen.has(closedChat.chatId));
         Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
       }
       // const newState = generateStateWithNewMessage(action.value, state);
