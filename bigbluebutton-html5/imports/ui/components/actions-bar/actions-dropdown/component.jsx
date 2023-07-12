@@ -307,6 +307,7 @@ class ActionsDropdown extends PureComponent {
               screenshareHasEnded();
               this.setCameraAsContentModalIsOpen(true);
             },
+        dataTest: 'shareCameraAsContent',
       });
     }
 
