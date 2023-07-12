@@ -154,7 +154,7 @@ class PresentationToolbar extends PureComponent {
       const ppbId = ppb.id;
 
       switch (ppb.type) {
-        case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_BUTTON:
+        case PluginSdk.WhiteboardToolbarItemType.BUTTON:
           returnComponent = (
             <Button
               key={ppbId}
@@ -165,7 +165,7 @@ class PresentationToolbar extends PureComponent {
             />
           );
           break;
-        case PluginSdk.PresentationType.PRESENTATION_TOOLBAR_SPINNER:
+        case PluginSdk.WhiteboardToolbarItemType.SPINNER:
           returnComponent = (
             <Spinner
               key={ppbId}

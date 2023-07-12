@@ -6,7 +6,7 @@ import { ProvidedPlugins } from '../../components-data/plugin-context/types';
 
 const pluginsProvidedState: PluginProvidedStateStaticData = {};
 
-function mapItemWithId<T extends PluginSdk.PluginItem>(item: T, index: number) {
+function mapItemWithId<T extends PluginSdk.PluginProvidedUiItemDescriptor>(item: T, index: number) {
     item.setItemId(`${index}`);
     return item;
 }
