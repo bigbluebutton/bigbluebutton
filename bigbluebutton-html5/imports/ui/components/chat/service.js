@@ -9,7 +9,6 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { meetingIsBreakout } from '/imports/ui/components/app/service';
 import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
-import { indexOf, without } from '/imports/utils/array-utils';
 
 const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -172,6 +171,11 @@ const isChatLocked = (receiverID) => {
   return false;
 };
 
+const isChatClosed = (chatId) => {
+  const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
+  return !!currentClosedChats.find(closedChat => closedChat.chatId === chatId);
+};
+
 const lastReadMessageTime = (receiverID) => {
   const isPublic = receiverID === PUBLIC_CHAT_ID;
   const chatType = isPublic ? PUBLIC_GROUP_CHAT_ID : receiverID;
@@ -218,8 +222,9 @@ const sendGroupMessage = (message, idChatOpen) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
 
   // Remove the chat that user send messages from the session.
-  if (indexOf(currentClosedChats, receiverId.id) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, receiverId.id));
+  if (isChatClosed(receiverId.id)) {
+    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== receiverId.id);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
   }
 
   return makeCall('sendGroupChatMsg', destinationChatId, payload);
@@ -248,8 +253,8 @@ const clearPublicChatHistory = () => (makeCall('clearPublicChatHistory'));
 const closePrivateChat = (chatId) => {
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
 
-  if (indexOf(currentClosedChats, chatId) < 0) {
-    currentClosedChats.push(chatId);
+  if (!isChatClosed(chatId)) {
+    currentClosedChats.push({ chatId, timestamp: Date.now() });
 
     Storage.setItem(CLOSED_CHAT_LIST_KEY, currentClosedChats);
   }
@@ -259,8 +264,10 @@ const closePrivateChat = (chatId) => {
 const removeFromClosedChatsSession = (idChatOpen) => {
   const chatID = idChatOpen;
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-  if (indexOf(currentClosedChats, chatID) > -1) {
-    Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatID));
+
+  if (isChatClosed(chatID)) {
+    const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chatID);
+    Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
   }
 };
 
@@ -359,6 +366,7 @@ export default {
   getScrollPosition,
   lastReadMessageTime,
   isChatLocked,
+  isChatClosed,
   updateScrollPosition,
   updateUnreadMessage,
   sendGroupMessage,
