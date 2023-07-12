@@ -3,7 +3,7 @@ const { Notifications } = require('./notifications');
 const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
 const { RecordingNotifications } = require('./recordingNotifications');
-const c = require('../customparameters/constants');
+const c = require('../parameters/constants');
 
 test.describe.parallel('Notifications', () => {
   test('Save settings notification @ci', async ({ browser, context, page }) => {

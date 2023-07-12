@@ -11,6 +11,7 @@ import { defineMessages } from 'react-intl';
 import PollService from '/imports/ui/components/poll/service';
 import { indexOf, without } from '/imports/utils/array-utils';
 
+const APP = Meteor.settings.public.app;
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const GROUPING_MESSAGES_WINDOW = CHAT_CONFIG.grouping_messages_window;
 const CHAT_EMPHASIZE_TEXT = CHAT_CONFIG.moderatorChatEmphasized;
@@ -338,10 +339,11 @@ const removePackagedClassAttribute = (classnames, attribute) => {
 
 const getExportedPresentationString = (fileURI, filename, intl, typeOfExport) => {
   const intlTypeOfExport = typeOfExport === 'Original' ? intlMessages.original : intlMessages.currentState;
+  const href = `${APP.bbbWebBase}/${fileURI}`;
   const warningIcon = '<i class="icon-bbb-warning"></i>';
   const label = `<span>${intl.formatMessage(intlMessages.download)}</span>`;
   const notAccessibleWarning = `<span title="${intl.formatMessage(intlMessages.notAccessibleWarning)}">${warningIcon}</span>`;
-  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${fileURI} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
+  const link = `<a aria-label="${intl.formatMessage(intlMessages.notAccessibleWarning)}" href=${href} type="application/pdf" target="_blank" rel="noopener, noreferrer" download>${label}&nbsp;${notAccessibleWarning}</a>`;
   const name = `<span>${filename} (${intl.formatMessage(intlTypeOfExport)})</span>`;
   return `${name}</br>${link}`;
 };

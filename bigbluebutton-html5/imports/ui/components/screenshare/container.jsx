@@ -87,6 +87,7 @@ const cameraAsContentIntlMessages = defineMessages({
     description: 'toast to show when camera as content has ended by changing data savings option',
   },
 });
+import NotesService from '/imports/ui/components/notes/service';
 
 const ScreenshareContainer = (props) => {
   const screenShare = layoutSelectOutput((i) => i.screenShare);
@@ -153,5 +154,7 @@ export default withTracker(() => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     enableVolumeControl: shouldEnableVolumeControl(),
     outputDeviceId: AudioService.outputDeviceId(),
+    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
+    pinSharedNotes: NotesService.pinSharedNotes,
   };
 })(ScreenshareContainer);
