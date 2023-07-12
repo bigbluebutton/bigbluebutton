@@ -318,12 +318,14 @@ class CustomParameters extends MultiUsers {
   async slideSnapshot() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationFullscreen);
     await this.modPage.wasRemoved(e.presentationSnapshot);
   }
 
   async cameraAsContent() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.managePresentations);
     await this.modPage.wasRemoved(e.shareCameraAsContent);
   }
 
