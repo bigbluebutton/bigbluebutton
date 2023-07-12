@@ -73,6 +73,8 @@ exports.importSharedNotesFromBreakoutRoomsDisabled = 'disabledFeatures=importSha
 exports.layoutsDisabled = 'disabledFeatures=layouts';
 exports.presentationDisabled = 'disabledFeatures=presentation';
 exports.customVirtualBackgroundDisabled = 'disabledFeatures=customVirtualBackgrounds';
+exports.slideSnapshotDisabled = 'disabledFeatures=snapshotOfCurrentSlide';
+exports.cameraAsContent = 'disabledFeatures=cameraAsContent';
 
 // Disabled Features Exclude
 exports.breakoutRoomsExclude = 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms';
@@ -91,6 +93,8 @@ exports.importPresentationWithAnnotationsFromBreakoutRoomsExclude = 'disabledFea
 exports.importSharedNotesFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms';
 exports.presentationExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation';
 exports.customVirtualBackgroundExclude = 'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground';
+exports.slideSnapshotExclude = 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide';
+exports.cameraAsContentExclude = 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';
