@@ -417,5 +417,31 @@ test.describe.parallel('CustomParameters', () => {
         await customParam.customVirtualBackgroundExclude();
       });
     });
+
+    test.describe.serial(() => {
+      test('Slide Snapshot', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.slideSnapshotDisabled });
+        await customParam.slideSnapshot();
+      });
+      test('Slide Snapshot (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.slideSnapshotExclude });
+        await customParam.slideSnapshotExclude();
+      });
+    });
+
+    test.describe.serial(() => {
+      test('Camera As Content', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.cameraAsContent });
+        await customParam.cameraAsContent();
+      });
+      test('Camera As Content (exclude)', async ({ browser, context, page }) => {
+        const customParam = new CustomParameters(browser, context);
+        await customParam.initModPage(page, true, { customParameter: c.cameraAsContentExclude });
+        await customParam.cameraAsContentExclude();
+      });
+    });
   });
 });
