@@ -41,7 +41,9 @@ public class ValidationService {
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
         GET_JOIN_URL("getJoinUrl", RequestType.GET),
-        INSERT_DOCUMENT("insertDocument", RequestType.GET);
+        INSERT_DOCUMENT("insertDocument", RequestType.GET),
+        INSERT_DOCUMENT_TO_COMMON_LIBRARY("insertDocumentToCommonLibrary", RequestType.GET),
+        LEARNING_DASHBOARD_FROM_MEETING_ID("learningDashboardFromMeetingId", RequestType.GET);
 
         private final String name;
         private final RequestType requestType;
@@ -140,6 +142,12 @@ public class ValidationService {
                         break;
                     case GET_JOIN_URL:
                         request = new GetJoinUrl();
+                        break;
+                    case INSERT_DOCUMENT_TO_COMMON_LIBRARY:
+                        request = new InsertDocumentToCommonLibrary(checksum);
+                        break;
+                    case LEARNING_DASHBOARD_FROM_MEETING_ID:
+                        request = new LearningDashboardFromMeetingId(checksum);
                         break;
                 }
         }

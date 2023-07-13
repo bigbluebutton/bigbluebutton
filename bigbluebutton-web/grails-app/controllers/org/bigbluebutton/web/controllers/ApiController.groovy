@@ -1170,16 +1170,16 @@ class ApiController {
     String API_CALL = 'insertDocumentToCommonLibrary'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
-    // Map.Entry<String, String> validationResponse = validateRequest(
-    //         ValidationService.ApiCall.INSERT_DOCUMENT,
-    //         request.getParameterMap(),
-    //         request.getQueryString()
-    // )
+    Map.Entry<String, String> validationResponse = validateRequest(
+            ValidationService.ApiCall.INSERT_DOCUMENT_TO_COMMON_LIBRARY,
+            request.getParameterMap(),
+            request.getQueryString()
+    )
 
-    // if(!(validationResponse == null)) {
-    //   invalid(validationResponse.getKey(), validationResponse.getValue())
-    //   return
-    // }
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
 
     // Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     String requestBodyTemp = getRequestBody();
@@ -1736,18 +1736,24 @@ class ApiController {
     boolean reject = false
     Meeting meeting
 
-    // Map.Entry<String, String> validationResponse = validateRequest(
-    //     ValidationService.ApiCall.LEARNING_DASHBOARD,
-    //     request.getParameterMap(),
-    //     request.getQueryString(),
-    // )
+    Map.Entry<String, String> validationResponse = validateRequest(
+        ValidationService.ApiCall.LEARNING_DASHBOARD_FROM_MEETING_ID,
+        request.getParameterMap(),
+        request.getQueryString(),
+    )
 
-    String meetingId = params.meeting;
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue())
+      return
+    }
+
+    String meetingId = params.meetingID;
+    String userId = params.userID;
     String learningDashboardFilesDir = "/var/bigbluebutton/learning-dashboard";
 
     //Validate Meeting
     if(reject == false) {
-      meeting = meetingService.getMeeting(meetingId)
+      meeting = meetingService.getMeeting(meetingId);
       boolean isRunning = meeting != null && meeting.isRunning();
       if(!isRunning) {
         reject = true
@@ -1755,6 +1761,12 @@ class ApiController {
       } else if (meeting.getDisabledFeatures().contains("learningDashboard") == true) {
         reject = true
         respMessage = "Learning Dashboard disabled for this meeting"
+      }
+
+      boolean isModerator = meeting.isModeratorWithExtId(userId);
+      if(!isModerator) {
+        reject = true
+        respMessage = "You are not a moderator of this meeting"
       }
     }
 

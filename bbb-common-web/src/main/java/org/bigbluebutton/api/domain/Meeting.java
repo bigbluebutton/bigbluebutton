@@ -230,6 +230,16 @@ public class Meeting {
 		return usersWithExtId;
 	}
 
+	public boolean isModeratorWithExtId(String externalUserId) {
+		for (User user : users.values()) {
+			if(user.getExternalUserId().equals(externalUserId) && user.isModerator()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void guestIsWaiting(String userId) {
 		RegisteredUser ruser = registeredUsers.get(userId);
 		if (ruser != null) {
