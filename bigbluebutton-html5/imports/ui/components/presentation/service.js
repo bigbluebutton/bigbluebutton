@@ -5,6 +5,7 @@ import { safeMatch } from '/imports/utils/string-utils';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
+const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
 
 const getCurrentPresentation = (podId) => Presentations.findOne({
   podId,
@@ -120,7 +121,6 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
 
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
-      const MAX_CHAR_LIMIT = 30;
       const formattedOpt = opt.substring(0, MAX_CHAR_LIMIT);
       optionsWithLabels.push(formattedOpt);
       return `\r${opt[0]}.`;
