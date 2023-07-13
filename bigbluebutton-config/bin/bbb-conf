@@ -68,9 +68,18 @@
 #   2020-06-23 JFS  Remove defaultGuestPolicy warning for HTML5 client
 #   2020-10-22 AGG  Removing Flash/Red5 related code (yay!)
 #   2021-07-16 JFS  Add defaultMeetingLayout information
+#   2023-07-13  LK  Check for necessary permissions
 
 #set -x
 #set -e
+
+# The user should have read access to /etc/bigbluebutton/bbb-web.properties
+# Otherwise the script will fail later or report weird results
+if ! head -n0 /etc/bigbluebutton/bbb-web.properties &> /dev/null
+then
+    echo Insufficient permissions to run this tool
+    exit 1
+fi
 
 PATH=$PATH:/sbin
 
