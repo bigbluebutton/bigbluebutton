@@ -6,8 +6,17 @@ import {
   mdPaddingY,
   pollHeaderOffset,
   toastContentWidth,
+  borderRadius,
 } from '../../stylesheets/styled-components/general';
-import { colorGrayDark, colorGrayLightest, colorWhite } from '../../stylesheets/styled-components/palette';
+import {
+  colorGrayDark,
+  colorGrayLighter,
+  colorGrayLightest,
+  colorGray,
+  colorBlueLight,
+  colorWhite,
+  colorPrimary,
+} from '../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -199,12 +208,39 @@ const TimerControls = styled.div`
   width: 100%;
   justify-content: center;
   margin-top: 4rem;
-  height: 3rem;
 `;
 
 const TimerControlButton = styled(Button)`
   width: 6rem;
   margin: 0 1rem;
+`;
+
+const TimerInput = styled.input`
+  flex: 1;
+  border: 1px solid ${colorGrayLighter};
+  width: 50%;
+  text-align: center;
+  padding: .25rem;
+  border-radius: ${borderRadius};
+  background-clip: padding-box;
+  outline: none;
+
+  &::placeholder {
+    color: ${colorGray};
+    opacity: 1;
+  }
+
+  &:focus {
+    border-radius: ${borderSize};
+    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+  }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: rgba(167,179,189,0.25);
+  }
 `;
 
 export default {
@@ -226,4 +262,5 @@ export default {
   TimerTrackItem,
   TimerControls,
   TimerControlButton,
+  TimerInput,
 };
