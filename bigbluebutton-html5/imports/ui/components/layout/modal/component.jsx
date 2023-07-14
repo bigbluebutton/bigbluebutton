@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Toggle from '/imports/ui/components/common/switch/component';
 import Button from '/imports/ui/components/common/button/component';
 import Styled from './styles';
 
@@ -14,7 +13,6 @@ const LayoutModalComponent = (props) => {
     setIsOpen,
     isModerator,
     isPresenter,
-    showToggleLabel,
     application,
     updateSettings,
     onRequestClose,
@@ -22,8 +20,6 @@ const LayoutModalComponent = (props) => {
   } = props;
 
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
-  // eslint-disable-next-line react/prop-types
-  const [isKeepPushingLayout, setIsKeepPushingLayout] = useState(application.pushLayout);
 
   const BASE_NAME = Meteor.settings.public.app.basename;
 
@@ -35,13 +31,13 @@ const LayoutModalComponent = (props) => {
       id: 'app.layout.modal.title',
       description: 'Modal title',
     },
-    confirm: {
-      id: 'app.layout.modal.confirm',
+    update: {
+      id: 'app.layout.modal.update',
       description: 'Modal confirm button',
     },
-    cancel: {
-      id: 'app.layout.modal.cancel',
-      description: 'Modal cancel button',
+    updateAll: {
+      id: 'app.layout.modal.updateAll',
+      description: 'Modal updateAll button',
     },
     layoutLabel: {
       id: 'app.layout.modal.layoutLabel',
@@ -50,10 +46,6 @@ const LayoutModalComponent = (props) => {
     layoutToastLabel: {
       id: 'app.layout.modal.layoutToastLabel',
       description: 'Layout toast label',
-    },
-    keepPushingLayoutLabel: {
-      id: 'app.layout.modal.keepPushingLayoutLabel',
-      description: 'Keep push layout Label',
     },
     customLayout: {
       id: 'app.layout.style.custom',
@@ -85,16 +77,11 @@ const LayoutModalComponent = (props) => {
     setSelectedLayout(e);
   };
 
-  const handleKeepPushingLayout = () => {
-    setIsKeepPushingLayout((newValue) => !newValue);
-  };
-
-  const handleCloseModal = () => {
+  const handleUpdateLayout = (updateAll) => {
     const obj = {
       application:
-      { ...application, selectedLayout, pushLayout: isKeepPushingLayout },
+      { ...application, selectedLayout, pushLayout: updateAll },
     };
-
     updateSettings(obj, intlMessages.layoutToastLabel);
     setIsOpen(false);
   };
@@ -106,19 +93,12 @@ const LayoutModalComponent = (props) => {
 
     if (isKeepPushingLayoutEnabled) {
       return (
-        <Styled.PushContainer>
-          <Styled.LabelPushLayout>
-            {intl.formatMessage(intlMessages.keepPushingLayoutLabel)}
-          </Styled.LabelPushLayout>
-          <Toggle
-            id="TogglePush"
-            icons={false}
-            defaultChecked={isKeepPushingLayout}
-            onChange={handleKeepPushingLayout}
-            ariaLabel="push"
-            showToggleLabel={showToggleLabel}
-          />
-        </Styled.PushContainer>
+        <Styled.BottomButton
+          label={intl.formatMessage(intlMessages.updateAll)}
+          onClick={() => handleUpdateLayout(true)}
+          color="secondary"
+          data-test="updateEveryoneLayoutBtn"
+        />
       );
     }
     return null;
@@ -129,7 +109,6 @@ const LayoutModalComponent = (props) => {
       {Object.values(LAYOUT_TYPE)
         .map((layout) => (
           <Styled.ButtonLayoutContainer key={layout}>
-            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
             <Styled.LayoutBtn
               label=""
               customIcon={(
@@ -138,11 +117,17 @@ const LayoutModalComponent = (props) => {
                   alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`}
                 />
                 )}
-              onClick={() => handleSwitchLayout(layout)}
+              onClick={() => {
+                handleSwitchLayout(layout);
+                if (layout === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layout) {
+                  document.getElementById('layout')?.setAttribute('data-cam-position', CAMERADOCK_POSITION.CONTENT_TOP);
+                }
+              }}
               active={(layout === selectedLayout).toString()}
               aria-describedby="layout-btn-desc"
               data-test={`${layout}Layout`}
             />
+            <Styled.LabelLayoutNames aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}</Styled.LabelLayoutNames>
           </Styled.ButtonLayoutContainer>
         ))}
     </Styled.ButtonsContainer>
@@ -165,19 +150,15 @@ const LayoutModalComponent = (props) => {
       <Styled.Content>
         <Styled.BodyContainer>
           {renderLayoutButtons()}
-          {renderPushLayoutsOptions()}
         </Styled.BodyContainer>
       </Styled.Content>
       <Styled.ButtonBottomContainer>
-        <Styled.BottomButton
-          label={intl.formatMessage(intlMessages.cancel)}
-          onClick={() => setIsOpen(false)}
-          color="secondary"
-        />
+        {renderPushLayoutsOptions()}
         <Button
           color="primary"
-          label={intl.formatMessage(intlMessages.confirm)}
-          onClick={handleCloseModal}
+          label={intl.formatMessage(intlMessages.update)}
+          onClick={() => handleUpdateLayout(false)}
+          data-test="updateLayoutBtn"
         />
       </Styled.ButtonBottomContainer>
       <div style={{ display: 'none' }} id="layout-btn-desc">{intl.formatMessage(intlMessages.layoutBtnDesc)}</div>

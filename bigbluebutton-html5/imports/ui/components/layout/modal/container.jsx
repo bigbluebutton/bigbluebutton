@@ -9,10 +9,10 @@ import {
 } from '/imports/ui/components/settings/service';
 
 const LayoutModalContainer = (props) => {
-  const { intl, setIsOpen,onRequestClose, isOpen, isModerator, isPresenter, showToggleLabel,
+  const { intl, setIsOpen,onRequestClose, isOpen, isModerator, isPresenter,
           application, updateSettings, } = props;
   return <LayoutModalComponent {...{ 
-      intl, setIsOpen, isModerator, isPresenter, showToggleLabel,
+      intl, setIsOpen, isModerator, isPresenter,
       application, updateSettings, onRequestClose, isOpen,
    }} />};
 
@@ -21,5 +21,4 @@ export default withTracker(({ amIModerator }) => ({
   updateSettings,
   isPresenter: isPresenter(),
   isModerator: amIModerator,
-  showToggleLabel: false,
 }))(LayoutModalContainer);

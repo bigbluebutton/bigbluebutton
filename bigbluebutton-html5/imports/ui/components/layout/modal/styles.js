@@ -14,16 +14,13 @@ const Content = styled.div`
   flex-direction: column;
   padding: .5rem 0 .5rem 0;
   overflow: hidden;
-  min-height: 30rem;
 `;
 
 const LayoutModal = styled(ModalSimple)`
   padding: 1rem;
-  min-height: 44rem;
 
   @media ${smallOnly} {
     height: unset;
-    min-height: 22.5rem;
   }
 
    ${({ isPhone }) => isPhone && `
@@ -64,7 +61,7 @@ const LayoutBtn = styled(Button)`
   align-items: center;
   flex-direction: column;
   padding: 0 !important;
-  margin: 0.5rem 1rem 1rem 1rem;
+  margin: 1rem 1rem 0.5rem 1rem;
   width: fit-content;
 
   @media ${smallOnly} {
@@ -87,6 +84,41 @@ const LayoutBtn = styled(Button)`
     @media ${smallOnly} {
       border: ${colorPrimary} solid 4px;
       border-radius: 5px;
+    }
+
+    &:before {
+      font-family: 'bbb-icons';
+      color: ${colorWhite};
+      position: fixed;
+      content: "\\e946";
+      background-color: ${colorPrimary};
+      margin-left: 13.1rem;
+      padding: 0.3rem 0.2rem 0 0.6rem;
+      border-radius: 0 0 0 .3rem;
+
+      [dir="rtl"] & {
+        left: auto;
+        margin-right: 13.1rem;
+        margin-left: unset;
+        padding: 0.3rem 0.6rem 0 0.2rem;
+        border-radius: 0 0 .3rem 0;
+      }
+      width: 1.8rem;
+      height: 1.8rem;
+
+      @media ${smallOnly} {
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.6rem;
+        margin-left: 4.5rem;
+        padding: 0.2rem 0.2rem 0 0.3rem;
+
+        [dir="rtl"] & {
+          margin-right: 4.5rem;
+          margin-left: unset;
+          padding: 0.2rem 0.3rem 0 0.2rem;
+        }
+      }
     }
   `};
 `;

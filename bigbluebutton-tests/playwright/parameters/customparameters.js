@@ -257,7 +257,6 @@ class CustomParameters extends MultiUsers {
 
   async layouts() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.wasRemoved(e.propagateLayout);
     await this.modPage.wasRemoved(e.layoutModal);
   }
 
@@ -310,9 +309,23 @@ class CustomParameters extends MultiUsers {
   }
 
   async customVirtualBackground() {
-    await this.modPage.waitAndClick (e.joinVideo);
+    await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.wasRemoved(e.inputBackgroundButton);
+  }
+
+  async slideSnapshot() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationFullscreen);
+    await this.modPage.wasRemoved(e.presentationSnapshot);
+  }
+
+  async cameraAsContent() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.managePresentations);
+    await this.modPage.wasRemoved(e.shareCameraAsContent);
   }
 
   // Disabled Features Exclude
@@ -344,7 +357,6 @@ class CustomParameters extends MultiUsers {
 
   async layoutsExclude() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.hasElement(e.propagateLayout);
     await this.modPage.hasElement(e.layoutModal);
   }
 
@@ -400,6 +412,18 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick (e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.hasElement(e.inputBackgroundButton);
+  }
+
+  async slideSnapshotExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationSnapshot);
+  }
+
+  async cameraAsContentExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.shareCameraAsContent);
   }
 }
 

@@ -30,7 +30,6 @@ export default withTracker(() => {
   const raiseHandUsers = Users.find({
     meetingId: Auth.meetingID,
     raiseHand: true,
-    userId: { $ne: Auth.userID },
   }, {
     fields: {
       raiseHandTime: 1, raiseHand: 1, userId: 1, name: 1, color: 1, role: 1, avatar: 1,
