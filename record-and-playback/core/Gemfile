@@ -33,7 +33,7 @@ gem 'redis', '~> 4.1'
 gem 'rubyzip', '~> 2.0'
 gem 'optimist'
 gem 'resque', '~> 2.5', '>= 2.5.0'
-gem 'bbbevents', '~> 1.2'
+gem 'bbbevents', '~> 2.0', '>= 2.0.0'
 gem 'rake', '>= 12.3', '<14'
 gem 'tzinfo', '>= 1.2.10'
 

@@ -91,6 +91,7 @@ const WebcamConnecting = styled.div`
   min-width: 100%;
   border-radius: 10px;
   background-color: ${webcamBackgroundColor};
+  scale: 1.5;
   z-index: 0;
 
   &::after {
@@ -119,6 +120,8 @@ const VideoContainer = styled.div`
   justify-content: center;
   width: 100%;
   height: 100%;
+
+  ${({ $selfViewDisabled }) => $selfViewDisabled && 'display: none'}
 `;
 
 const Video = styled.video`
@@ -150,6 +153,9 @@ color: white;
   border-radius: 10px;
   z-index: 2;
   top: 40%;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
   padding: 20px;
   backdrop-filter: blur(10px); 
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);

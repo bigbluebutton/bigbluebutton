@@ -18,12 +18,6 @@ case "$1" in
     yq e -i  '.server.port = 3005' $TARGET
     yq e -i  '.hooks.getRaw = false' $TARGET
 
-    cd /usr/local/bigbluebutton/bbb-webhooks
-    mkdir -p node_modules
-
-    npm config set unsafe-perm true
-    npm rebuild || true
-
     mkdir -p /var/log/bbb-webhooks/
     touch /var/log/bbb-webhooks/bbb-webhooks.log
     chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webhooks /var/log/bbb-webhooks/

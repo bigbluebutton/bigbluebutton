@@ -1,6 +1,6 @@
 const { test } = require('@playwright/test');
 const { LearningDashboard } = require('./learningdashboard');
-const c = require('../customparameters/constants');
+const c = require('../parameters/constants');
 
 test.describe.serial('Learning Dashboard', async () => {
   const learningDashboard = new LearningDashboard();

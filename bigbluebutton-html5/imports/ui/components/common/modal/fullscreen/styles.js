@@ -22,12 +22,12 @@ const FullscreenModal = styled(Styled.BaseModal)`
   outline-style: solid;
   display: flex;
   flex-direction: column;
+  height: 100%;
   align-self: flex-start;
   padding: calc(${lineHeightComputed} / 2) ${lineHeightComputed};
 
   @media ${smallOnly} {
     width: 100%;
-    height: 100%;
   }
 `;
 

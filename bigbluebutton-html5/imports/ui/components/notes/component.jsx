@@ -141,14 +141,17 @@ const Notes = ({
           value: Session.get('presentationLastState'),
         });
       };
-    } else {
-      if (shouldShowSharedNotesOnPresentationArea) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_NOTES_IS_PINNED,
-          value: true,
-        });
-      }
+    } if (shouldShowSharedNotesOnPresentationArea) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_NOTES_IS_PINNED,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
     }
+    return null;
   }, []);
 
   const renderHeaderOnMedia = () => {

@@ -1,5 +1,5 @@
 const { test } = require('@playwright/test');
-const { encodeCustomParams } = require('../customparameters/util');
+const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 
 const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
