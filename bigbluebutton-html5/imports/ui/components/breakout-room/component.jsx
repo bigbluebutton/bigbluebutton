@@ -556,7 +556,7 @@ class BreakoutRoom extends PureComponent {
       isRTL,
     } = this.props;
     return (
-      <Styled.Panel ref={(n) => this.panel = n}>
+      <Styled.Panel ref={(n) => this.panel = n} onCopy={(e) => { e.stopPropagation(); }}>
         <Header
           leftButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),

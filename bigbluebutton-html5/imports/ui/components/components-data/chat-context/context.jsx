@@ -194,21 +194,21 @@ const reducer = (state, action) => {
       const batchMsgs = action.value;
       const closedChatsToOpen = new Set();
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-      const loginTime = getLoginTime();
       const newState = batchMsgs.reduce((acc, i) => {
         const message = i;
         const chatId = message.chatId;
+        const chatClosedTimestamp = currentClosedChats.find(closedChat => closedChat.chatId === chatId)?.timestamp;
         if (
           chatId !== PUBLIC_GROUP_CHAT_KEY
-          && message.timestamp > loginTime
-          && currentClosedChats.includes(chatId)) {
+          && chatClosedTimestamp
+          && message.timestamp > chatClosedTimestamp ) {
           closedChatsToOpen.add(chatId)
         }
         return generateStateWithNewMessage(message, acc, action.messageType);
       }, state);
 
       if (closedChatsToOpen.size) {
-        const closedChats = currentClosedChats.filter(chatId => !closedChatsToOpen.has(chatId));
+        const closedChats = currentClosedChats.filter(closedChat => !closedChatsToOpen.has(closedChat.chatId));
         Storage.setItem(CLOSED_CHAT_LIST_KEY, closedChats);
       }
       // const newState = generateStateWithNewMessage(action.value, state);

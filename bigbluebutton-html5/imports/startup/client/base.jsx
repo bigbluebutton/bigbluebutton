@@ -388,7 +388,11 @@ export default withTracker(() => {
   const connectionIdUpdateTime = User?.connectionIdUpdateTime;
   
   if (ejected) {
-    BBBStorage.setItem(USER_WAS_EJECTED, ejected);
+    // use the connectionID to block users, so we can detect if the user was
+    // blocked by the current connection. This is the case when a a user is
+    // ejected from a meeting but not permanently ejected. Permanent ejects are
+    // managed by the server, not by the client.
+    BBBStorage.setItem(USER_WAS_EJECTED, connectionID);
   }
 
   if (currentConnectionId && currentConnectionId !== connectionID && connectionIdUpdateTime > connectionAuthTime) {
@@ -402,7 +406,7 @@ export default withTracker(() => {
   const { streams: usersVideo } = VideoService.getVideoStreams();
 
   return {
-    userWasEjected: BBBStorage.getItem(USER_WAS_EJECTED),
+    userWasEjected: (BBBStorage.getItem(USER_WAS_EJECTED) == connectionID),
     approved,
     ejected,
     ejectedReason,
