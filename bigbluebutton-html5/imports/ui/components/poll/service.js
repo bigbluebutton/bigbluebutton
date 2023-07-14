@@ -80,15 +80,39 @@ const intlMessages = defineMessages({
   },
 });
 
+const checkPollAnswersMatchFormat = (listOfAnswers, formattedLabels) => listOfAnswers.reduce(
+  (acc, answer) => acc && (formattedLabels.includes(answer.key[0].toLowerCase())
+    || formattedLabels.includes(answer.key[0].toUpperCase())), true,
+);
+
+const getFormattedAnswerValue = (answerText) => {
+  // Remove the Letter from the beginning and the following sign, if any, like so:
+  // "A- the answer is" -> Remove "A-" -> "the answer is"
+  const listOfForbiddenSignsToStart = ['.', ':', '-'];
+  const newText = answerText.slice(1).trim();
+  if (listOfForbiddenSignsToStart.includes(newText[0])) {
+    return newText.slice(1).trim();
+  }
+  return newText;
+};
+
+const getAlphabetList = () => Array.from(Array(26))
+  .map((e, i) => i + 65).map((x) => String.fromCharCode(x));
+
 const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
 
+  const alphabetLabels = getAlphabetList();
+  const isPollAnswerMatchFormat = !isDefaultPoll
+    ? checkPollAnswersMatchFormat(answers, alphabetLabels)
+    : false;
+
   answers.map((item) => {
     responded += item.numVotes;
     return item;
-  }).forEach((item) => {
+  }).forEach((item, index) => {
     const numResponded = responded === numRespondents ? numRespondents : responded;
     const pct = Math.round((item.numVotes / numResponded) * 100);
     const pctBars = '|'.repeat((pct * MAX_POLL_RESULT_BARS) / 100);
@@ -99,8 +123,15 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
         : item.key;
       resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
-      resultString += `${item.id + 1}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
-      optionsString += `${item.id + 1}: ${item.key}\n`;
+      if (isPollAnswerMatchFormat) {
+        resultString += `${alphabetLabels[index]}`;
+        const formattedAnswerValue = getFormattedAnswerValue(item.key);
+        optionsString += `${alphabetLabels[index]}: ${formattedAnswerValue}\n`;
+      } else {
+        resultString += `${item.id + 1}`;
+        optionsString += `${item.id + 1}: ${item.key}\n`;
+      }
+      resultString += `: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     }
   });
 
