@@ -134,7 +134,7 @@ const intlMessages = defineMessages({
 });
 
 const propTypes = {
-  closeModal: PropTypes.func.isRequired,
+  setModalIsOpen: PropTypes.func.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
@@ -402,7 +402,7 @@ class ConnectionStatusComponent extends PureComponent {
       videoDownloadLabel,
     } = this;
 
-    const { intl, closeModal } = this.props;
+    const { intl, setModalIsOpen } = this.props;
 
     const { networkData } = this.state;
 
@@ -441,7 +441,7 @@ class ConnectionStatusComponent extends PureComponent {
       >
         <Styled.HelperWrapper>
           <Styled.Helper>
-            <ConnectionStatusHelper closeModal={() => closeModal()} />
+            <ConnectionStatusHelper closeModal={() => setModalIsOpen(false)} />
           </Styled.Helper>
         </Styled.HelperWrapper>
         <Styled.NetworkDataContent>
@@ -517,16 +517,20 @@ class ConnectionStatusComponent extends PureComponent {
 
   render() {
     const {
-      closeModal,
+      setModalIsOpen,
       intl,
+      isModalOpen,
     } = this.props;
 
     const { selectedTab } = this.state;
 
     return (
       <Styled.ConnectionStatusModal
-        onRequestClose={() => closeModal()}
+        priority="low"
+        onRequestClose={() => setModalIsOpen(false)}
+        setIsOpen={setModalIsOpen}
         hideBorder
+        isOpen={isModalOpen}
         contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
         data-test="connectionStatusModal"
       >

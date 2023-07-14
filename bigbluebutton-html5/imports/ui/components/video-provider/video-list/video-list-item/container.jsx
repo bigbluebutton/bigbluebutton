@@ -5,6 +5,7 @@ import VoiceUsers from '/imports/api/voice-users/';
 import Users from '/imports/api/users/';
 import VideoListItem from './component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import Settings from '/imports/ui/services/settings';
 
 const VideoListItemContainer = (props) => {
   const { cameraId, user } = props;
@@ -35,6 +36,7 @@ export default withTracker((props) => {
   } = props;
 
   return {
+    settingsSelfViewDisable: Settings.application.selfViewDisable,
     voiceUser: VoiceUsers.findOne({ intId: userId },
       {
         fields: {

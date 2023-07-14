@@ -13,7 +13,7 @@ import {
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
-import Modal from '/imports/ui/components/common/modal/simple/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
 const UrlError = styled.div`
@@ -25,7 +25,7 @@ const UrlError = styled.div`
   `}
 `;
 
-const ExternalVideoModal = styled(Modal)`
+const ExternalVideoModal = styled(ModalSimple)`
   padding: 1rem;
   min-height: 23rem;
 `;

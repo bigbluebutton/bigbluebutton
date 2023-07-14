@@ -17,13 +17,7 @@ const downloadPresentationUri = (podId) => {
     return null;
   }
 
-  const presentationFileName = `${currentPresentation.id}.${currentPresentation.name.split('.').pop()}`;
-
-  const APP = Meteor.settings.public.app;
-  const uri = `${APP.bbbWebBase}/presentation/download/`
-    + `${currentPresentation.meetingId}/${currentPresentation.id}`
-    + `?presFilename=${encodeURIComponent(presentationFileName)}`;
-
+  const { originalFileURI: uri } = currentPresentation;
   return uri;
 };
 

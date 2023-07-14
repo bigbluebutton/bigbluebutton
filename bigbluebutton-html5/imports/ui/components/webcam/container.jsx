@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import { withTracker } from 'meteor/react-meteor-data';
 import MediaService from '/imports/ui/components/media/service';
 import Auth from '/imports/ui/services/auth';
@@ -13,11 +12,13 @@ import {
   layoutDispatch,
 } from '../layout/context';
 import WebcamComponent from '/imports/ui/components/webcam/component';
+import { LAYOUT_TYPE } from '../layout/enums';
 
 const WebcamContainer = ({
   audioModalIsOpen,
   swapLayout,
   usersVideo,
+  layoutType,
 }) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -34,8 +35,10 @@ const WebcamContainer = ({
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
 
+  const isGridEnabled = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
+
   return !audioModalIsOpen
-    && usersVideo.length > 0
+    && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{
@@ -49,13 +52,14 @@ const WebcamContainer = ({
           isPresenter: currentUser.presenter,
           displayPresentation,
           isRTL,
+          isGridEnabled,
         }}
       />
     )
     : null;
 };
 
-export default withModalMounter(withTracker((props) => {
+export default withTracker((props) => {
   const { current_presentation: hasPresentation } = MediaService.getPresentationInfo();
   const data = {
     audioModalIsOpen: Session.get('audioModalIsOpen'),
@@ -72,4 +76,4 @@ export default withModalMounter(withTracker((props) => {
   }
 
   return data;
-})(WebcamContainer));
+})(WebcamContainer);

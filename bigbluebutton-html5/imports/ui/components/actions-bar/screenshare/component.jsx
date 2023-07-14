@@ -1,11 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
-import { withModalMounter } from '/imports/ui/components/common/modal/service';
 import Styled from './styles';
 import ScreenshareBridgeService from '/imports/api/screenshare/client/bridge/service';
 import {
@@ -14,6 +13,7 @@ import {
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
+import { parsePayloads } from 'sdp-transform';
 
 const { isMobile } = deviceInfo;
 const { isSafari, isTabletApp } = browserInfo;
@@ -22,7 +22,7 @@ const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   enabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool.isRequired,
-  isVideoBroadcasting: PropTypes.bool.isRequired,
+  isScreenBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool.isRequired,
 };
@@ -114,11 +114,9 @@ const getErrorLocale = (errorCode) => {
 const ScreenshareButton = ({
   intl,
   enabled,
-  isVideoBroadcasting,
+  isScreenBroadcasting,
   amIPresenter,
   isMeteorConnected,
-  screenshareDataSavingSetting,
-  mountModal,
 }) => {
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
@@ -141,59 +139,75 @@ const ScreenshareButton = ({
     screenshareHasEnded();
   };
 
-  const renderScreenshareUnavailableModal = () => mountModal(
+  const [isScreenshareUnavailableModalOpen, setScreenshareUnavailableModalIsOpen] = useState(false);
+
+  const RenderScreenshareUnavailableModal = (otherProps) =>
     <Styled.ScreenShareModal
-      onRequestClose={() => mountModal(null)}
       hideBorder
       contentLabel={intl.formatMessage(intlMessages.screenShareUnavailable)}
+      {...otherProps}
     >
       <Styled.Title>
         {intl.formatMessage(intlMessages.screenShareUnavailable)}
       </Styled.Title>
       <p>{intl.formatMessage(intlMessages.screenShareNotSupported)}</p>
-    </Styled.ScreenShareModal>,
-  );
+    </Styled.ScreenShareModal>;
 
   const screenshareLabel = intlMessages.desktopShareLabel;
 
-  const vLabel = isVideoBroadcasting
+  const vLabel = isScreenBroadcasting
     ? intlMessages.stopDesktopShareLabel : screenshareLabel;
 
-  const vDescr = isVideoBroadcasting
+  const vDescr = isScreenBroadcasting
     ? intlMessages.stopDesktopShareDesc : intlMessages.desktopShareDesc;
+  const amIBroadcasting = isScreenBroadcasting && amIPresenter;
 
   const shouldAllowScreensharing = enabled
     && ( !isMobile || isTabletApp)
     && amIPresenter;
 
-  const dataTest = isVideoBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+  const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
 
-  return shouldAllowScreensharing
-    ? (
-      <Button
-        disabled={(!isMeteorConnected && !isVideoBroadcasting)}
-        icon={isVideoBroadcasting ? 'desktop' : 'desktop_off'}
-        data-test={dataTest}
-        label={intl.formatMessage(vLabel)}
-        description={intl.formatMessage(vDescr)}
-        color={isVideoBroadcasting ? 'primary' : 'default'}
-        ghost={!isVideoBroadcasting}
-        hideLabel
-        circle
-        size="lg"
-        onClick={isVideoBroadcasting
-          ? screenshareHasEnded
-          : () => {
-            if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
-              renderScreenshareUnavailableModal();
-            } else {
-              shareScreen(amIPresenter, handleFailure);
-            }
-          }}
-        id={isVideoBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
-      />
-    ) : null;
+  return <>
+    {
+      shouldAllowScreensharing
+      ? (
+        <Button
+          disabled={(!isMeteorConnected && !isScreenBroadcasting)}
+          icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
+          data-test={dataTest}
+          label={intl.formatMessage(vLabel)}
+          description={intl.formatMessage(vDescr)}
+          color={amIBroadcasting ? 'primary' : 'default'}
+          ghost={!amIBroadcasting}
+          hideLabel
+          circle
+          size="lg"
+          onClick={amIBroadcasting
+            ? screenshareHasEnded
+            : () => {
+              if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
+                setScreenshareUnavailableModalIsOpen(true);
+              } else {
+                shareScreen(amIPresenter, handleFailure);
+              }
+            }}
+          id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
+        />
+      ) : null
+    }
+    {
+      isScreenshareUnavailableModalOpen ? <RenderScreenshareUnavailableModal 
+        {...{
+          onRequestClose: () => setScreenshareUnavailableModalIsOpen(false),
+          priority: "low",
+          setIsOpen: setScreenshareUnavailableModalIsOpen,
+          isOpen: isScreenshareUnavailableModalOpen,
+        }}
+      /> : null
+    }
+    </>
 };
 
 ScreenshareButton.propTypes = propTypes;
-export default withModalMounter(injectIntl(memo(ScreenshareButton)));
+export default injectIntl(memo(ScreenshareButton));

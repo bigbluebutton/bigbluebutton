@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import _ from 'lodash';
 import Dropdown from '/imports/ui/components/dropdown/component';
 import Styled from './styles';
 import { PANELS, ACTIONS } from '../../layout/enums';
+import { uniqueId } from '/imports/utils/string-utils';
 
 const POLL_SETTINGS = Meteor.settings.public.poll;
 const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
@@ -101,7 +101,7 @@ const QuickPollDropdown = (props) => {
         return (
           <Dropdown.DropdownListItem
             label={intl.formatMessage(intlMessages.typedRespLabel)}
-            key={_.uniqueId('quick-poll-item')}
+            key={uniqueId('quick-poll-item')}
             onClick={() => {
               if (activePoll) {
                 stopPoll();
@@ -137,7 +137,7 @@ const QuickPollDropdown = (props) => {
       itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
 
       const numChars = {
-        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
+        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G'
       };
       itemLabel = itemLabel.split('').map((c) => {
         if (numChars[c]) return numChars[c];
@@ -147,7 +147,7 @@ const QuickPollDropdown = (props) => {
       return (
         <Dropdown.DropdownListItem
           label={itemLabel}
-          key={_.uniqueId('quick-poll-item')}
+          key={uniqueId('quick-poll-item')}
           onClick={() => {
             if (activePoll) {
               stopPoll();

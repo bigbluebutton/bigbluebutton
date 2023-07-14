@@ -21,6 +21,7 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 import java.util.ArrayList;
+import org.apache.commons.io.FilenameUtils;
 
 public final class UploadedPresentation {
   private final String podId;
@@ -34,6 +35,7 @@ public final class UploadedPresentation {
   private String fileType = "unknown";
   private int numberOfPages = 0;
   private String conversionStatus;
+  private String filenameConverted;
   private final String baseUrl;
   private boolean isDownloadable = false;
   private boolean isRemovable = true;
@@ -211,5 +213,28 @@ public final class UploadedPresentation {
 
   public boolean getIsInitialPresentation() {
     return isInitialPresentation;
+  }
+
+  public String getFilenameConverted() {
+    if (filenameConverted != null) {
+      return filenameConverted;
+    } else {
+      return "";
+    }
+  }
+
+  public void generateFilenameConverted(String newExtension) {
+    String nameWithoutExtension = FilenameUtils.removeExtension(name);
+    this.filenameConverted = nameWithoutExtension.concat("." + newExtension);
+  }
+
+  public void deleteOriginalFile() {
+    String pathToFileWithoutExtension = FilenameUtils.removeExtension(uploadedFile.getPath());
+    String newExtension = FilenameUtils.getExtension(uploadedFile.getPath());
+    String originalExtension = FilenameUtils.getExtension(name);
+    if (!originalExtension.equals("pdf") && newExtension.equals("pdf")) {
+      File originalFile = new File(pathToFileWithoutExtension + "." + originalExtension);
+      originalFile.delete();
+    }
   }
 }

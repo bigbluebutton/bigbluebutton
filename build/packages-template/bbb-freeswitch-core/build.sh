@@ -73,30 +73,50 @@ cd ..
 
 ldconfig
 
+# libwebsockets start
+# mod_audio_fork needs it (used in built-in speech transcription)
+if [ ! -d libwebsockets ]; then
+  git clone https://github.com/warmcat/libwebsockets.git
+fi
+cd libwebsockets/
+git checkout v3.2.3
+
+mkdir -p build
+cd build
+
+cmake ..
+make -j $(nproc)
+make install
+cd ../../
+
+ldconfig
+# libwebsockets end
+
+# mod_audio_fork start
+# copy mod_audio_fork into place (used in built-in speech transcription)
+if [ ! -d drachtio-freeswitch-modules ]; then
+  git clone https://github.com/drachtio/drachtio-freeswitch-modules.git
+fi
+
+cd drachtio-freeswitch-modules
+git checkout 4198b1c114268829627069afeea7eb40c86a81af
+cp -r modules/mod_audio_fork $BUILDDIR/freeswitch/src/mod/applications/mod_audio_fork
+cd ..
+# mod_audio_fork end
+
 # we already cloned the FS repo in freeswitch.placeholder.sh and selected tag/branch
 
 cd $BUILDDIR/freeswitch
 
 patch -p0 < $BUILDDIR/floor.patch
 patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch for https://github.com/signalwire/freeswitch/pull/1531
+# Enables mod_audio_fork in the build process  (used in built-in speech transcription)
+patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
 
-# Patch: https://github.com/signalwire/freeswitch/pull/1914
-#   There are some long-standing issues with the way FreeSWITCH changes
-#   candidate pairs based on connectivity checks. That generally manifests
-#   as: 1) an asymmetric start time between inbound and outbound audio (eg
-#   inbound audio takes 20 seconds to come in while outbound works right out
-#   of the bat 2) wrong pairs being picked initially and FS taking longer
-#   than ideal to find a new one 3) 1006s 4) ...
-#
-#   This ports signalwire/freeswitch/pull/1914 in an attempt to mitigate
-#   the aforementioned issues. The PR description explains the rationale
-#   rather well and seems sound.
-patch -p1 < $BUILDDIR/1914.patch
-
-./bootstrap.sh
+./bootstrap.sh 
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
-    --without-python --without-erlang --without-java \
+    --without-python --without-erlang --without-java --with-lws=yes \
     --prefix=/opt/freeswitch
 
 # Overrides for generating debug version

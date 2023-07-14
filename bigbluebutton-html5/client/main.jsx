@@ -45,7 +45,7 @@ import('/imports/api/audio/client/bridge/bridge-whitelist').catch(() => {
 const { disableWebsocketFallback } = Meteor.settings.public.app;
 
 if (disableWebsocketFallback) {
-  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; }
+  Meteor.connection._stream._sockjsProtocolsWhitelist = function () { return ['websocket']; };
 
   Meteor.disconnect();
   Meteor.reconnect();
@@ -80,7 +80,7 @@ Meteor.startup(() => {
   // TODO make this a Promise
   render(
     <ContextProviders>
-      <React.Fragment>
+      <>
         <JoinHandler>
           <AuthenticatedHandler>
             <Subscriptions>
@@ -93,7 +93,7 @@ Meteor.startup(() => {
         <UsersAdapter />
         <ChatAdapter />
         <GroupChatAdapter />
-      </React.Fragment>
+      </>
     </ContextProviders>,
     document.getElementById('app'),
   );

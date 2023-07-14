@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
+import { throttle } from '/imports/utils/throttle';
+import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import AutoplayOverlay from '../../media/autoplay-overlay/component';
@@ -9,6 +10,9 @@ import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { ACTIONS } from '../../layout/enums';
+import { sortVideoStreams } from '/imports/ui/components/video-provider/stream-sorting';
+
+const { defaultSorting: DEFAULT_SORTING } = Meteor.settings.public.kurento.cameraSortingModes;
 
 const propTypes = {
   streams: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -76,7 +80,7 @@ class VideoList extends Component {
     this.grid = null;
     this.canvas = null;
     this.failedMediaElements = [];
-    this.handleCanvasResize = _.throttle(this.handleCanvasResize.bind(this), 66,
+    this.handleCanvasResize = throttle(this.handleCanvasResize.bind(this), 66,
       {
         leading: true,
         trailing: true,
@@ -94,12 +98,13 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock, streams, focusedId } = this.props;
+    const { layoutType, cameraDock, streams, focusedId, isGridEnabled, users } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
       streams: prevStreams,
+      users: prevUsers,
       focusedId: prevFocusedId,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
@@ -110,6 +115,7 @@ class VideoList extends Component {
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
+      || (isGridEnabled && users?.length !== prevUsers?.length)
       || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
@@ -176,8 +182,15 @@ class VideoList extends Component {
       streams,
       cameraDock,
       layoutContextDispatch,
+      isGridEnabled,
+      users,
     } = this.props;
     let numItems = streams.length;
+
+    if (isGridEnabled) {
+      numItems += users.length;
+    }
+
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
     }
@@ -194,7 +207,7 @@ class VideoList extends Component {
     if (hasFocusedItem) {
       numItems += 3;
     }
-    const optimalGrid = _.range(1, numItems + 1)
+    const optimalGrid = range(1, numItems + 1)
       .reduce((currentGrid, col) => {
         const testGrid = findOptimalGrid(
           canvasWidth, canvasHeight, gridGutter,
@@ -297,16 +310,26 @@ class VideoList extends Component {
       swapLayout,
       handleVideoFocus,
       focusedId,
+      users,
     } = this.props;
     const numOfStreams = streams.length;
 
-    return streams.map((vs) => {
-      const { stream, userId, name } = vs;
-      const isFocused = focusedId === stream && numOfStreams > 2;
+    let videoItems = streams;
+
+    if (users) {
+      videoItems = sortVideoStreams(videoItems.concat(users), DEFAULT_SORTING);
+    }
+
+    return videoItems.map((item) => {
+      const { userId, name } = item;
+      const isStream = !!item.stream;
+      const stream = isStream ? item.stream : null;
+      const key = isStream ? stream : userId;
+      const isFocused = isStream && focusedId === stream && numOfStreams > 2;
 
       return (
         <Styled.VideoListItem
-          key={stream}
+          key={key}
           focused={isFocused}
           data-test="webcamVideoItem"
         >
@@ -316,14 +339,15 @@ class VideoList extends Component {
             userId={userId}
             name={name}
             focused={isFocused}
-            onHandleVideoFocus={handleVideoFocus}
+            isStream={isStream}
+            onHandleVideoFocus={isStream ? handleVideoFocus : null}
             onVideoItemMount={(videoRef) => {
               this.handleCanvasResize();
-              onVideoItemMount(stream, videoRef);
+              if (isStream) onVideoItemMount(stream, videoRef);
             }}
             onVideoItemUnmount={onVideoItemUnmount}
             swapLayout={swapLayout}
-            onVirtualBgDrop={(type, name, data) => onVirtualBgDrop(stream, type, name, data)}
+            onVirtualBgDrop={(type, name, data) => { return isStream ? onVirtualBgDrop(stream, type, name, data) : null; }}
           />
         </Styled.VideoListItem>
       );
@@ -335,6 +359,7 @@ class VideoList extends Component {
       streams,
       intl,
       cameraDock,
+      isGridEnabled,
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
@@ -351,7 +376,7 @@ class VideoList extends Component {
       >
         {this.renderPreviousPageButton()}
 
-        {!streams.length ? null : (
+        {!streams.length && !isGridEnabled ? null : (
           <Styled.VideoList
             ref={(ref) => {
               this.grid = ref;

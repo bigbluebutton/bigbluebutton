@@ -69,6 +69,7 @@ public:
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
+    enableCameraAsContent: true
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
@@ -90,6 +91,8 @@ public:
       enabled: false
       # mobile: <Boolean> - controls speech transcription availability on mobile
       mobile: false
+      # provider: [webspeech, vosk, whisper, deepspeech]
+      provider: webspeech
       language:
         available:
         # - de-DE
@@ -128,8 +131,8 @@ public:
       allowUserChooseRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
+      sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
-      sendInvitationToIncludedModerators: false
     # https://github.com/bigbluebutton/bigbluebutton/pull/10826
     customHeartbeat: false
     showAllAvailableLocales: true
@@ -141,6 +144,13 @@ public:
     # If not set, default value is true.
     showAudioFilters: true
     raiseHandActionButton:
+      # Enables the old raiseHand icon
+      enabled: false
+      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
+      centered: true
+    interactionsButton:
+      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
+      # If both interactionsButton and raiseHandActionButton are enabled, interactionsButton takes precedence.
       enabled: true
     # If enabled, before joining microphone the client will perform a trickle
     # ICE against Kurento and use the information about successfull
@@ -166,6 +176,7 @@ public:
     userSettingsStorage: session
     defaultSettings:
       application:
+        selectedLayout: 'custom'
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -392,6 +403,14 @@ public:
           width: 1280
           height: 720
           frameRate: 30
+      - id: fhd
+        name: Camera as content
+        hidden: true
+        default: false
+        bitrate: 1500
+        constraints:
+          width: 1920
+          height: 1080
     enableScreensharing: true
     enableVideo: true
     enableVideoMenu: true
@@ -515,6 +534,20 @@ public:
       size: 24px
     lines: 2
     time: 5000
+  timer:
+    enabled: true
+    alarm: true
+    music:
+      enabled: false
+      volume: 0.4
+      track1: "RelaxingMusic"
+      track2: "CalmMusic"
+      track3: "aristocratDrums"
+    interval:
+      clock: 100
+      offset: 60000
+    time: 5
+    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
@@ -539,6 +572,7 @@ public:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
       chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
+      chat_status_message: PUBLIC_CHAT_STATUS
     typingIndicator:
       enabled: true
     moderatorChatEmphasized: true
@@ -548,6 +582,11 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+  userReaction:
+    enabled: true
+    expire: 60
+  userStatus:
+    enabled: false
   notes:
     enabled: true
     id: notes
@@ -569,7 +608,7 @@ public:
       #
       # Default bridge to be used by full audio mechanism.
       # This is the bridge's name as contained in 'bridges' array
-      defaultFullAudioBridge: sipjs
+      defaultFullAudioBridge: fullaudio
       #
       #
       # Server wide configuration to choose which bbb-webrtc-sfu
@@ -703,6 +742,7 @@ public:
     help: STATS_HELP_URL
   presentation:
     allowDownloadable: true
+    allowSnapshotOfCurrentSlide: true
     panZoomThrottle: 32
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'

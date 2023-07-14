@@ -7,6 +7,7 @@ import ChatService from '/imports/ui/components/chat/service';
 import Auth from '/imports/ui/services/auth';
 import useContextUsers from '/imports/ui/components/components-data/users-context/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import WhiteboardService from '/imports/ui/components/whiteboard/service';
 import Meetings from '/imports/api/meetings';
 
@@ -14,17 +15,18 @@ const UserParticipantsContainer = (props) => {
   const {
     formatUsers,
     setEmojiStatus,
+    setUserAway,
     clearAllEmojiStatus,
     roving,
     requestUserInformation,
   } = UserListService;
 
-  const { videoUsers, whiteboardUsers } = props;
+  const { videoUsers, whiteboardUsers, reactionUsers } = props;
   const { users: contextUsers, isReady } = useContextUsers();
 
   const currentUser = contextUsers && isReady ? contextUsers[Auth.meetingID][Auth.userID] : null;
   const usersArray = contextUsers && isReady ? Object.values(contextUsers[Auth.meetingID]) : null;
-  const users = contextUsers && isReady ? formatUsers(usersArray, videoUsers, whiteboardUsers) : [];
+  const users = contextUsers && isReady ? formatUsers(usersArray, videoUsers, whiteboardUsers, reactionUsers) : [];
 
   return (
     <UserParticipants {
@@ -32,6 +34,7 @@ const UserParticipantsContainer = (props) => {
       currentUser,
       users,
       setEmojiStatus,
+      setUserAway,
       clearAllEmojiStatus,
       roving,
       requestUserInformation,
@@ -66,6 +69,7 @@ export default withTracker(() => {
     meetingIsBreakout: meetingIsBreakout(),
     videoUsers: VideoService.getUsersIdFromVideoStreams(),
     whiteboardUsers,
+    reactionUsers: UserReactionService.getUsersIdFromUserReaction(),
     isThisMeetingLocked: UserListService.isMeetingLocked(Auth.meetingID),
     lockSettingsProps: currentMeeting && currentMeeting.lockSettingsProps,
   });

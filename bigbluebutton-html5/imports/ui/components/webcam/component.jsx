@@ -18,6 +18,7 @@ const WebcamComponent = ({
   displayPresentation,
   cameraOptimalGridSize: cameraSize,
   isRTL,
+  isGridEnabled,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -255,6 +256,7 @@ const WebcamComponent = ({
                   cameraDock,
                   focusedId,
                   handleVideoFocus,
+                  isGridEnabled,
                 }}
               />
             </Styled.Draggable>

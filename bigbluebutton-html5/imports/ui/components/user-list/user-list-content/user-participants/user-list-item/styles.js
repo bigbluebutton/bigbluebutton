@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import userAvatar from '/imports/ui/components/user-avatar/component';
 
 import {
   lgPaddingY,
@@ -107,6 +108,13 @@ const UserAvatar = styled.div`
   flex: 0 0 2.25rem;
 `;
 
+const UserAvatarComponent = styled(userAvatar)`
+${({ hasReaction, emoji }) => hasReaction && !emoji && `
+  transition: all .5s ease;
+  font-size: 1.2rem;
+`}
+`;
+
 const NoActionsListItem = styled.div`
   margin-left: 0.5rem;
   padding: .45rem;
@@ -177,4 +185,5 @@ export default {
   UserNameMain,
   UserNameSub,
   SkeletonWrapper,
+  UserAvatarComponent,
 };

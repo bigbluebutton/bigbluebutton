@@ -1,5 +1,5 @@
 const { test } = require('@playwright/test');
-const { encodeCustomParams } = require('../customparameters/util');
+const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 
 const customStyleAvoidUploadingNotifications = encodeCustomParams(`userdata-bbb_custom_style=.presentationUploaderToast{display: none;}`);
@@ -80,10 +80,16 @@ test.describe.parallel('Presentation', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#enabling-and-disabling-presentation-download-automated
-    test('Send presentation to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
+    test('Enable and disable original presentation download @ci', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
-      await presentation.downloadPresentation(testInfo);
+      await presentation.enableAndDisablePresentationDownload(testInfo);
+    });
+
+    test('Send presentation in the current state (with annotations) to chat for downloading @ci', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page);
+      await presentation.sendPresentationToDownload(testInfo);
     });
 
     test('Remove all presentation @ci', async ({ browser, context, page }) => {

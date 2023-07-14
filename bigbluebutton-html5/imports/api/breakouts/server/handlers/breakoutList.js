@@ -11,6 +11,7 @@ export default async function handleBreakoutRoomsList({ body }, meetingId) {
   const {
     meetingId: parentMeetingId,
     rooms,
+    sendInviteToModerators,
   } = body;
 
   // set firstly the last seq, then client will know when receive all
@@ -39,6 +40,7 @@ export default async function handleBreakoutRoomsList({ body }, meetingId) {
         joinedUsers: [],
         timeRemaining: DEFAULT_TIME_REMAINING,
         parentMeetingId,
+        sendInviteToModerators,
         ...flat(breakoutWithoutUrls),
         ...urls,
       },

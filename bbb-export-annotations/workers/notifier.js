@@ -5,7 +5,7 @@ const FormData = require('form-data');
 const redis = require('redis');
 const axios = require('axios').default;
 const path = require('path');
-const {NewPresAnnFileAvailableMsg} = require('../lib/utils/message-builder');
+const {NewPresFileAvailableMsg} = require('../lib/utils/message-builder');
 
 const {workerData} = require('worker_threads');
 const [jobType, jobId, filename] = [workerData.jobType, workerData.jobId, workerData.filename];
@@ -28,11 +28,11 @@ async function notifyMeetingActor() {
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const link = config.bbbWebPublicAPI + path.join('presentation',
+  const link = path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
       exportJob.presId, 'pdf', jobId, filename);
 
-  const notification = new NewPresAnnFileAvailableMsg(exportJob, link);
+  const notification = new NewPresFileAvailableMsg(exportJob, link);
 
   logger.info(`Annotated PDF available at ${link}`);
   await client.publish(config.redis.channels.publish, notification.build());

@@ -62,6 +62,12 @@ const joinEndpointTableData = [
     "description": (<>The default behaviour of the JOIN API is to redirect the browser to the HTML5 client when the JOIN call succeeds. There have been requests if it’s possible to embed the HTML5 client in a “container” page and that the client starts as a hidden DIV tag which becomes visible on the successful JOIN. Setting this variable to FALSE will not redirect the browser but returns an XML instead whether the JOIN call has succeeded or not. The third party app is responsible for displaying the client to the user.</>)
   },
   {
+    "name": "errorRedirectUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>A custom URL to redirect users to when an error occurs while joining. By default users are redirected to the meeting's default logout URL.</>)
+  },
+  {
     "name": "joinViaHtml5",
     "required": false,
     "type": "String",

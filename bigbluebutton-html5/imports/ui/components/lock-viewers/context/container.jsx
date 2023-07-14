@@ -24,6 +24,7 @@ const lockContextContainer = (component) => withTracker(() => {
   lockSetting.userLocks.userPrivateChat = userIsLocked && lockSettings.disablePrivateChat;
   lockSetting.userLocks.userPublicChat = userIsLocked && lockSettings.disablePublicChat;
   lockSetting.userLocks.hideViewersCursor = userIsLocked && lockSettings.hideViewersCursor;
+  lockSetting.userLocks.hideViewersAnnotation = userIsLocked && lockSettings.hideViewersAnnotation;
 
   return lockSetting;
 })(withLockContext(component));

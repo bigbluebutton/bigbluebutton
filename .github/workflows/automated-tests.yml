@@ -43,6 +43,8 @@ jobs:
       - run: ./build/setup.sh bbb-record-core
       - run: ./build/setup.sh bbb-web
       - run: ./build/setup.sh bbb-webrtc-sfu
+      - run: ./build/setup.sh bbb-webrtc-recorder
+      - run: ./build/setup.sh bbb-transcription-controller
       - run: ./build/setup.sh bigbluebutton
       - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
@@ -120,8 +122,8 @@ jobs:
       - name: Install BBB
         run: |
             sudo sh -c '
-            cd /root/ && wget -q https://ubuntu.bigbluebutton.org/bbb-install-2.6.sh -O bbb-install.sh
-            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-26-dev -s bbb-ci.test -j -d /certs/
+            cd /root/ && wget -q https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
+            cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-27-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
@@ -182,6 +184,7 @@ jobs:
           cp /etc/bigbluebutton/bigbluebutton-release configs/bigbluebutton-release
           cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
           cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml configs/bbb-webrtc-sfu-default.yml
+          cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml configs/bbb-webrtc-recorder-default.yml
           cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
           cp /etc/hosts /configs/hosts
           chmod a+r -R configs

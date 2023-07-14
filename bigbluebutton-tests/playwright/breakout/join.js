@@ -164,7 +164,7 @@ class Join extends Create {
     const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(shareNotesPDF).toHaveText(/Notes/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 8);
+    await this.modPage.checkElementCount(e.actionsItem, 10);
     await shareNotesPDF.click();
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
@@ -203,7 +203,7 @@ class Join extends Create {
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 8);
+    await this.modPage.checkElementCount(e.actionsItem, 10);
     await whiteboardPDF.click();
     await this.modPage.waitAndClick('i[type="info"]');
     await this.modPage.waitAndClick(e.currentPresentationToast);

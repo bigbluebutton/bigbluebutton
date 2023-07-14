@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import _ from 'lodash';
 import { Session } from 'meteor/session';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
@@ -160,7 +159,9 @@ class BreakoutRoom extends PureComponent {
 
         Session.set('lastBreakoutIdOpened', requestedBreakoutId);
         window.open(breakoutUrlData.redirectToHtml5JoinURL, '_blank');
-        _.delay(() => this.setState({ generated: true, waiting: false }), 1000);
+        setTimeout(() => {
+          this.setState({ generated: true, waiting: false });
+        }, 1000);
       }
     }
 
@@ -555,7 +556,7 @@ class BreakoutRoom extends PureComponent {
       isRTL,
     } = this.props;
     return (
-      <Styled.Panel ref={(n) => this.panel = n}>
+      <Styled.Panel ref={(n) => this.panel = n} onCopy={(e) => { e.stopPropagation(); }}>
         <Header
           leftButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.breakoutAriaTitle),
