@@ -1340,19 +1340,20 @@ class ApiController {
 
     if (SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)) {
       // Hardcode pre-uploaded presentation to the default presentation window
-      // processUploadedFile(
-      //         "DEFAULT_PRESENTATION_POD",
-      //         meetingId,
-      //         presId,
-      //         presFilename,
-      //         pres,
-      //         current,
-      //         "preupload-download-authz-token",
-      //         uploadFailed,
-      //         uploadFailReasons,
-      //         isDownloadable,
-      //         isRemovable
-      // )
+      processUploadedFile(
+              "DEFAULT_PRESENTATION_POD",
+              "",
+              presId,
+              presFilename,
+              pres,
+              false,
+              "preupload-download-authz-token",
+              false, // uploadFailed
+              [], // uploadFailReasons
+              true, // isDownloadable
+              true, // isRemovable
+              false // isInitialPresentation
+      )
       Map<String, Object> presInfo = new HashMap<String, Object>();
       presInfo.put("presId", presId);
       presInfo.put("filename", presFilename);
