@@ -102,6 +102,11 @@ bbb-html5-build:
   script:
     - build/setup-inside-docker.sh bbb-html5
 
+bbb-graphql-middleware-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-graphql-middleware
+
 bbb-graphql-server-build:
   extends: .build_job
   script:

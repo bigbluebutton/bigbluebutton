@@ -5,9 +5,9 @@ case "$1" in
 
    ;;
    purge)
-     rm -rf /usr/local/bin/hasura
-     rm -rf /usr/local/bin/hasura-graphql-engine
-     rm -rf /etc/default/bbb-graphql-server
+     # remove
+     rm -rf /usr/local/bin/bbb-graphql-middleware
+     rm -rf /etc/default/bbb-graphql-middleware
    ;;
    upgrade)
    ;;
@@ -15,4 +15,3 @@ case "$1" in
       echo "postinst called with unknown argument $1" >&2
    ;;
 esac
-

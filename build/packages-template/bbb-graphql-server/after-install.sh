@@ -14,15 +14,14 @@ case "$1" in
   sudo -u postgres psql -c "create database hasura_app"
   echo "Postgresql configured"
 
+  systemctl daemon-reload
+  startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
+
   # Apply BBB metadata in Hasura
   cd /etc/default/bbb-graphql-server
   /usr/local/bin/hasura/hasura metadata apply
   cd ..
   rm -rf /etc/default/bbb-graphql-server/metadata
-
-  systemctl enable bbb-graphql-server.service
-  systemctl daemon-reload
-  startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
   ;;
 
   abort-upgrade|abort-remove|abort-deconfigure)
