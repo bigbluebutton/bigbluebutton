@@ -563,7 +563,7 @@ class ConnectionStatusComponent extends PureComponent {
               </div>
             </Styled.ConnectionTabPanel>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
-                <ul>{this.renderConnections()}</ul>
+              <ul>{this.renderConnections()}</ul>
             </Styled.ConnectionTabPanel>
             {Service.isModerator()
               && (
