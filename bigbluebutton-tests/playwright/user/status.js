@@ -12,7 +12,7 @@ class Status extends Page {
 
   async changeUserStatus() {
     const { userStatusEnabled } = getSettings();
-    test.fail(!userStatusEnabled, 'Shared notes is disabled');
+    test.fail(!userStatusEnabled, 'User status is disabled');
 
     await waitAndClearDefaultPresentationNotification(this);
     await setStatus(this, e.applaud);
