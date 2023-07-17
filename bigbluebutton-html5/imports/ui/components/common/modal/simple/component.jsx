@@ -115,7 +115,7 @@ class ModalSimple extends Component {
         }}
         {...otherProps}
       >
-        <FocusTrap active={modalisOpen}>
+        <FocusTrap active={modalisOpen} focusTrapOptions={{ initialFocus: false }}>
           <div ref={this.modalRef}>
             <Styled.Header
               hideBorder={hideBorder}
