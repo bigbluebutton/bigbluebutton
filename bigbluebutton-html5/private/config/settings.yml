@@ -572,6 +572,7 @@ public:
       chat_status_message: PUBLIC_CHAT_STATUS
     typingIndicator:
       enabled: true
+      showNames: true
     moderatorChatEmphasized: true
     autoConvertEmoji: true
     emojiPicker:
