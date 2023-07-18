@@ -26,7 +26,7 @@ go version
 CGO_ENABLED=0 go build -o bbb-graphql-middleware cmd/bbb-graphql-middleware/main.go
 echo "Build of bbb-graphql-middleware finished"
 
-mv bbb-graphql-middleware staging/usr/local/bin/bbb-graphql-middleware
+cp bbb-graphql-middleware staging/usr/local/bin/bbb-graphql-middleware
 
 # Create service bbb-graphql-middleware
 cp ./bbb-graphql-middleware-config.env staging/etc/default/bbb-graphql-middleware
@@ -34,11 +34,6 @@ cp ./bbb-graphql-middleware.service staging/lib/systemd/system/bbb-graphql-middl
 
 # Set nginx location
 cp ./graphql.nginx staging/usr/share/bigbluebutton/nginx
-
-cp ./bbb-webrtc-recorder staging/usr/bin
-cp ./env staging/etc/default/bbb-webrtc-recorder
-cp ./config/bbb-webrtc-recorder.yml staging/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
-cp bbb-webrtc-recorder.service staging/usr/lib/systemd/system
 
 . ./opts-$DISTRO.sh
 
