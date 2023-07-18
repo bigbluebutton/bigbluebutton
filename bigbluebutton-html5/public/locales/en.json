@@ -634,7 +634,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assign yourself as the new presenter",
     "app.actionsBar.actionsDropdown.selectRandUserLabel": "Select random user",
     "app.actionsBar.actionsDropdown.selectRandUserDesc": "Chooses a user from available viewers at random",
-    "app.actionsBar.reactions.reactionsButtonLabel": "Reactions",
+    "app.actionsBar.reactions.reactionsButtonLabel": "Reactions bar",
     "app.actionsBar.reactions.raiseHand": "Raise your hand",
     "app.actionsBar.reactions.lowHand": "Lower your hand",
     "app.actionsBar.emojiMenu.statusTriggerLabel": "Set status",
