@@ -70,11 +70,11 @@ class ConnectionController {
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
-      User u = meetingService.getMeeting(userSession.meetingID).getUserById(userSession.internalUserId)
-
       response.addHeader("Cache-Control", "no-cache")
 
       if (userSession != null && !isSessionTokenInvalid) {
+        User u = meetingService.getMeeting(userSession.meetingID).getUserById(userSession.internalUserId)
+
         response.setStatus(200)
         withFormat {
           json {
