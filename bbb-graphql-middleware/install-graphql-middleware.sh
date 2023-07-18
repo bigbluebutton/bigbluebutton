@@ -11,7 +11,7 @@ sudo apt install golang -y
 go version
 
 # Build Graphql Middleware
-./build.sh
+./local-build.sh
 mv bbb-graphql-middleware /usr/local/bin/bbb-graphql-middleware
 
 # Create service bbb-graphql-middleware
