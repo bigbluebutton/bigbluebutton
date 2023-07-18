@@ -84,7 +84,7 @@ git checkout v3.2.3
 mkdir -p build
 cd build
 
-cmake ..
+cmake .. -DCMAKE_C_FLAGS="-Wno-error" -DCMAKE_CXX_FLAGS="-Wno-error"
 make -j $(nproc)
 make install
 cd ../../
