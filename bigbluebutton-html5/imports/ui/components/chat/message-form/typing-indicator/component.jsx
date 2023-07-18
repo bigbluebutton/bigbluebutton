@@ -15,6 +15,10 @@ const messages = defineMessages({
     id: 'app.chat.multi.typing',
     description: 'displayed when 4 or more users are typing',
   },
+  someoneTyping: {
+    id: 'app.chat.someone.typing',
+    description: 'label used when one user is typing with disabled name',
+  },
 });
 
 class TypingIndicator extends PureComponent {
@@ -26,62 +30,85 @@ class TypingIndicator extends PureComponent {
 
   renderTypingElement() {
     const {
-      typingUsers, indicatorEnabled, intl,
+      typingUsers, indicatorEnabled, indicatorShowNames, intl,
     } = this.props;
 
     if (!indicatorEnabled || !typingUsers) return null;
 
     const { length } = typingUsers;
-    const isSingleTyper = length === 1;
-    const isCoupleTyper = length === 2;
-    const isMultiTypers = length > 2;
 
     let element = null;
 
-    if (isSingleTyper) {
-      const { name } = typingUsers[0];
-      element = (
-        <FormattedMessage
-          id="app.chat.one.typing"
-          description="label used when one user is typing"
-          values={{
-            0: <Styled.SingleTyper>
-              {`${name}`}
-&nbsp;
-            </Styled.SingleTyper>,
-          }}
-        />
-      );
-    }
+    if (indicatorShowNames) {
+      const isSingleTyper = length === 1;
+      const isCoupleTyper = length === 2;
+      const isMultiTypers = length > 2;
 
-    if (isCoupleTyper) {
-      const { name } = typingUsers[0];
-      const { name: name2 } = typingUsers[1];
-      element = (
-        <FormattedMessage
-          id="app.chat.two.typing"
-          description="label used when two users are typing"
-          values={{
-            0: <Styled.CoupleTyper>
-              {`${name}`}
+      if (isSingleTyper) {
+        const { name } = typingUsers[0];
+        element = (
+          <FormattedMessage
+            id="app.chat.one.typing"
+            description="label used when one user is typing"
+            values={{
+              0: <Styled.SingleTyper>
+                {`${name}`}
 &nbsp;
-            </Styled.CoupleTyper>,
-            1: <Styled.CoupleTyper>
-&nbsp;
-              {`${name2}`}
-&nbsp;
-            </Styled.CoupleTyper>,
-          }}
-        />
-      );
-    }
+              </Styled.SingleTyper>,
+            }}
+          />
+        );
+      }
 
-    if (isMultiTypers) {
-      element = (
-        <span>
-          {`${intl.formatMessage(messages.severalPeople)}`}
-        </span>
-      );
+      if (isCoupleTyper) {
+        const {name} = typingUsers[0];
+        const {name: name2} = typingUsers[1];
+        element = (
+          <FormattedMessage
+            id="app.chat.two.typing"
+            description="label used when two users are typing"
+            values={{
+              0: <Styled.CoupleTyper>
+                {`${name}`}
+&nbsp;
+              </Styled.CoupleTyper>,
+              1: <Styled.CoupleTyper>
+&nbsp;
+                {`${name2}`}
+&nbsp;
+              </Styled.CoupleTyper>,
+            }}
+          />
+        );
+      }
+
+      if (isMultiTypers) {
+        element = (
+          <span>
+            {`${intl.formatMessage(messages.severalPeople)}`}
+          </span>
+        );
+      }
+    } else {
+      // Show no names in typing indicator
+      const isSingleTyper = length === 1;
+      const isMultiTypers = length > 1;
+
+      if (isSingleTyper) {
+        element = (
+          <span>
+            {`${intl.formatMessage(messages.someoneTyping)}`}
+          </span>
+        );
+      }
+
+      if (isMultiTypers) {
+        element = (
+          <span>
+            {`${intl.formatMessage(messages.severalPeople)}`}
+          </span>
+        );
+      }
     }
 
     return element;

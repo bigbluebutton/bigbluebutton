@@ -7,7 +7,12 @@ fi;
 cd "$(dirname "$0")"
 
 #Install Go
-sudo apt install golang -y
+#sudo apt install golang -y
+wget --no-verbose https://dl.google.com/go/go1.20.5.linux-amd64.tar.gz \
+&& tar -xzf go1.20.5.linux-amd64.tar.gz \
+&& ln -s ${PWD}/go/bin/go /usr/bin/go \
+&& rm go1.20.5.linux-amd64.tar.gz
+
 go version
 
 # Build Graphql Middleware
