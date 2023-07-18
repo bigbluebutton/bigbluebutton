@@ -50,9 +50,9 @@ const SELECT_RANDOM_USER_ENABLED = Meteor.settings.public.selectRandomUser.enabl
 const RAISE_HAND_BUTTON_ENABLED = Meteor.settings.public.app.raiseHandActionButton.enabled;
 const RAISE_HAND_BUTTON_CENTERED = Meteor.settings.public.app.raiseHandActionButton.centered;
 
-const isInteractionsButtonEnabled = () => {
-  const INTERACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.interactionsButton.enabled;
-  return getFromUserSettings('enable-interactions-button', INTERACTIONS_BUTTON_ENABLED);
+const isReactionsButtonEnabled = () => {
+  const REACTIONS_BUTTON_ENABLED = Meteor.settings.public.app.reactionsButton.enabled;
+  return getFromUserSettings('enable-reactions-button', REACTIONS_BUTTON_ENABLED);
 };
 
 export default withTracker(() => ({
@@ -75,7 +75,7 @@ export default withTracker(() => ({
   isSelectRandomUserEnabled: SELECT_RANDOM_USER_ENABLED,
   isRaiseHandButtonEnabled: RAISE_HAND_BUTTON_ENABLED,
   isRaiseHandButtonCentered: RAISE_HAND_BUTTON_CENTERED,
-  isInteractionsButtonEnabled: isInteractionsButtonEnabled(),
+  isReactionsButtonEnabled: isReactionsButtonEnabled(),
   isThereCurrentPresentation: Presentations.findOne({ meetingId: Auth.meetingID, current: true },
     { fields: {} }),
   allowExternalVideo: isExternalVideoEnabled(),
