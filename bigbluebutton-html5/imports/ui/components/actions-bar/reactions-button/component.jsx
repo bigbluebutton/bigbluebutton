@@ -8,7 +8,7 @@ import UserListService from '/imports/ui/components/user-list/service';
 
 import Styled from '../styles';
 
-const InteractionsButton = (props) => {
+const ReactionsButton = (props) => {
   const {
     intl,
     actionsBarRef,
@@ -20,9 +20,9 @@ const InteractionsButton = (props) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const intlMessages = defineMessages({
-    interactionsLabel: {
-      id: 'app.actionsBar.interactions.interactions',
-      description: 'interactions Label',
+    reactionsLabel: {
+      id: 'app.actionsBar.reactions.reactionsButtonLabel',
+      description: 'reactions Label',
     },
   });
 
@@ -54,12 +54,12 @@ const InteractionsButton = (props) => {
   return (
     <BBBMenu
       trigger={(
-        <Styled.InteractionsDropdown>
+        <Styled.ReactionsDropdown>
           <Styled.RaiseHandButton
-            data-test="InteractionsButton"
+            data-test="ReactionsButton"
             icon="hand"
-            label={intl.formatMessage(intlMessages.interactionsLabel)}
-            description="Interactions"
+            label={intl.formatMessage(intlMessages.reactionsLabel)}
+            description="Reactions"
             ghost={!showEmojiPicker}
             onKeyPress={() => {}}
             onClick={() => setShowEmojiPicker(true)}
@@ -68,7 +68,7 @@ const InteractionsButton = (props) => {
             circle
             size="lg"
           />
-        </Styled.InteractionsDropdown>
+        </Styled.ReactionsDropdown>
       )}
       renderOtherComponents={showEmojiPicker ? renderReactionsBar() : null}
       onCloseCallback={() => handleClose()}
@@ -100,6 +100,6 @@ const propTypes = {
   layoutContextDispatch: PropTypes.func.isRequired,
 };
 
-InteractionsButton.propTypes = propTypes;
+ReactionsButton.propTypes = propTypes;
 
-export default InteractionsButton;
+export default ReactionsButton;

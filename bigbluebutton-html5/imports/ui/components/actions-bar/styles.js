@@ -96,7 +96,7 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const InteractionsDropdown = styled.div`
+const ReactionsDropdown = styled.div`
   position: relative;
 `;
 
@@ -141,7 +141,7 @@ export default {
   Right,
   RaiseHandButton,
   ButtonContainer,
-  InteractionsDropdown,
+  ReactionsDropdown,
   Wrapper,
   Separator,
 };

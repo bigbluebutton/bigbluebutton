@@ -6,7 +6,7 @@ import ActionsDropdown from './actions-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/captions/button/container';
 import CaptionsReaderMenuContainer from '/imports/ui/components/captions/reader-menu/container';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
-import InteractionsButtonContainer from '/imports/ui/components/actions-bar/interactions-button/container';
+import ReactionsButtonContainer from './reactions-button/container';
 import AudioControlsContainer from '../audio/audio-controls/container';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
@@ -32,14 +32,14 @@ class ActionsBar extends PureComponent {
 
   renderRaiseHand() {
     const {
-      isInteractionsButtonEnabled, isRaiseHandButtonEnabled, setEmojiStatus, currentUser, intl,
+      isReactionsButtonEnabled, isRaiseHandButtonEnabled, setEmojiStatus, currentUser, intl,
     } = this.props;
 
     return (<>
-      {isInteractionsButtonEnabled ?
+      {isReactionsButtonEnabled ?
         <>
           <Styled.Separator />
-          <InteractionsButtonContainer actionsBarRef={this.actionsBarRef} />
+          <ReactionsButtonContainer actionsBarRef={this.actionsBarRef} />
         </> :
         isRaiseHandButtonEnabled ? <RaiseHandDropdownContainer {...{ setEmojiStatus, currentUser, intl }} />
           : null}
