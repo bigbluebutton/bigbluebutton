@@ -18,7 +18,7 @@ const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
     if (!pluginsProvidedState[uuid]) {
         pluginsProvidedState[uuid] = {} as PluginObjects;
     } 
-    const pluginApi = PluginSdk.getPluginApi(uuid);
+    const pluginApi: PluginSdk.SettersForExtensibleUIs = PluginSdk.getPluginApi(uuid);
 
     const [whiteboardToolbarItems, setWhiteboardToolbarItems] = useState<PluginSdk.WhiteboardToolbarItem[]>([]);
 
