@@ -117,7 +117,7 @@ patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java --with-lws=yes \
-    --prefix=/opt/freeswitch
+    --prefix=/opt/freeswitch CFLAGS="-Wno-error" CXXFLAGS="-Wno-error"
 
 # Overrides for generating debug version
 #   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"
