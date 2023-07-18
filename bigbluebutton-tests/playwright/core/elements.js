@@ -337,7 +337,7 @@ exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
 exports.copyStats = 'span[data-test="copyStats"]';
 exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
-exports.connectionStatusItemEmpty = 'div[data-test="connectionStatusItemEmpty"]';
+exports.connectionStatusItemEmpty = 'li[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'li[id="react-tabs-2"]';
 exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
 exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
