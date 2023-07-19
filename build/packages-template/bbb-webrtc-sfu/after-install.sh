@@ -10,25 +10,25 @@ case "$1" in
     cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.example.yml $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
-      yq w -i $TARGET kurento[0].ip  "$IP"
+      yq e -i ".kurento[0].ip = \"$IP\"" $TARGET
 
       # https://github.com/bigbluebutton/bbb-webrtc-sfu/pull/37
       # yq w -i $TARGET kurento[0].url "ws://$SERVER_URL:8888/kurento"
 
       # Set mediasoup IPs
-      yq w -i $TARGET mediasoup.webrtc.listenIps[0].announcedIp "$IP"
-      yq w -i $TARGET mediasoup.plainRtp.listenIp.announcedIp "$IP"
+      yq e -i ".mediasoup.webrtc.listenIps[0].announcedIp = \"$IP\"" $TARGET
+      yq e -i ".mediasoup.plainRtp.listenIp.announcedIp = \"$IP\"" $TARGET
 
       FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
       if [ "$FREESWITCH_IP" != "" ]; then
-        yq w -i $TARGET freeswitch.ip $FREESWITCH_IP
-        yq w -i $TARGET freeswitch.sip_ip $FREESWITCH_IP
+        yq e -i ".freeswitch.ip = \"$FREESWITCH_IP\"" $TARGET
+        yq e -i ".freeswitch.sip_ip = \"$IP\"" $TARGET
       else
         # Looks like the FreeSWITCH package is being installed, let's fall back to the default value
-        yq w -i $TARGET freeswitch.ip $IP
-	if [ "$DISTRIB_CODENAME" == "focal" ]; then
-          yq w -i $TARGET freeswitch.sip_ip $IP
-	fi
+        yq e -i ".freeswitch.ip = \"$IP\"" $TARGET
+        if [ "$DISTRIB_CODENAME" == "focal" ]; then
+          yq e -i ".freeswitch.sip_ip = \"$IP\"" $TARGET
+        fi
       fi
  
     cd /usr/local/bigbluebutton/bbb-webrtc-sfu
@@ -42,11 +42,11 @@ case "$1" in
     mkdir -p /var/log/bbb-webrtc-sfu/
     touch /var/log/bbb-webrtc-sfu/bbb-webrtc-sfu.log
 
-    yq w -i $TARGET recordWebcams true
+    yq e -i '.recordWebcams = true' $TARGET
 
 
     echo "Resetting mcs-address from localhost to 127.0.0.1"
-    yq w -i $TARGET mcs-address 127.0.0.1
+    yq e -i '.mcs-address = 127.0.0.1' $TARGET
     
     if id bigbluebutton > /dev/null 2>&1 ; then
       chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu /var/log/bbb-webrtc-sfu/
