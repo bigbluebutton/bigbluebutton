@@ -44,7 +44,7 @@ rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
 mv hasura-graphql /usr/local/bin/hasura-graphql-engine
 
-apt-get install -y gnupg2 curl apt-transport-https ca-certificates libkrb5-3 libpq5 libnuma1 unixodbc-dev libmariadb-dev-compat mariadb-client-10.3
+apt-get install -y gnupg2 curl apt-transport-https ca-certificates libkrb5-3 libpq5 libnuma1 unixodbc-dev
 cp ./hasura-config.env /etc/default/bbb-graphql-server
 #Enable Console --Desenv only!!
 sudo sed -i 's/HASURA_GRAPHQL_ENABLE_CONSOLE=false/HASURA_GRAPHQL_ENABLE_CONSOLE=true/' /etc/default/bbb-graphql-server
