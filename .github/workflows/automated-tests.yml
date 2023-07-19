@@ -120,6 +120,8 @@ jobs:
         run: |
             sudo sh -c '
             apt --purge -y remove apache2-bin
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
             '
       - name: Install BBB
         run: |
