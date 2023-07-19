@@ -8,7 +8,7 @@ case "$1" in
   sudo -u postgres psql -c "alter user postgres password 'bbb_graphql'"
   sudo -u postgres psql -c "drop database if exists bbb_graphql"
   sudo -u postgres psql -c "create database bbb_graphql"
-  sudo -u postgres psql -U postgres -d bbb_graphql -a -f /etc/default/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
+  sudo -u postgres psql -U postgres -d bbb_graphql -a -f /usr/share/bbb-graphql-server/bbb_schema.sql --set ON_ERROR_STOP=on
   sudo -u postgres psql -c "drop database if exists hasura_app"
 
   sudo -u postgres psql -c "create database hasura_app"
@@ -18,10 +18,10 @@ case "$1" in
   startService bbb-graphql-server || echo "bbb-graphql-server service could not be registered or started"
 
   # Apply BBB metadata in Hasura
-  cd /etc/default/bbb-graphql-server
+  cd /usr/share/bbb-graphql-server
   /usr/local/bin/hasura/hasura metadata apply
   cd ..
-  rm -rf /etc/default/bbb-graphql-server/metadata
+  rm -rf /usr/share/bbb-graphql-server/metadata
   ;;
 
   abort-upgrade|abort-remove|abort-deconfigure)

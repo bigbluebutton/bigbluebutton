@@ -7,7 +7,7 @@ case "$1" in
    purge)
      rm -rf /usr/local/bin/hasura
      rm -rf /usr/local/bin/hasura-graphql-engine
-     rm -rf /etc/default/bbb-graphql-server
+     rm -rf /usr/share/bbb-graphql-server
    ;;
    upgrade)
    ;;

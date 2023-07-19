@@ -17,7 +17,7 @@ rm -rf staging
 # package
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin/hasura-graphql-engine /etc/default/bbb-graphql-server /lib/systemd/system /usr/local/bin/hasura"
+DIRS="/usr/local/bin/hasura-graphql-engine /etc/default /usr/share/bbb-graphql-server /lib/systemd/system /usr/local/bin/hasura"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
@@ -28,7 +28,8 @@ rm -rf hasura-graphql-engine/
 chmod +x hasura-graphql
 cp -r hasura-graphql staging/usr/local/bin/hasura-graphql-engine
 
-cp -r hasura-config.env bbb_schema.sql metadata config.yaml staging/etc/default/bbb-graphql-server
+cp -r hasura-config.env staging/etc/default/bbb-graphql-server
+cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 
 cp ./bbb-graphql-server.service staging/lib/systemd/system/bbb-graphql-server.service
 

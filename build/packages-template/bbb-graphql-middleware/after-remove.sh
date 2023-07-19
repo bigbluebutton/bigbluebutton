@@ -7,7 +7,7 @@ case "$1" in
    purge)
      # remove
      rm -rf /usr/local/bin/bbb-graphql-middleware
-     rm -rf /etc/default/bbb-graphql-middleware
+     rm -rf /usr/share/bbb-graphql-middleware
    ;;
    upgrade)
    ;;
