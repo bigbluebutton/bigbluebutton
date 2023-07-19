@@ -19,6 +19,8 @@ exports.logout = 'li[data-test="logout"]';
 exports.rating = 'div[data-test="rating"]';
 exports.errorScreenMessage = 'h1[data-test="errorScreenMessage"]';
 exports.errorMessageLabel = 'span[id="error-message"]';
+exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
+
 // Accesskey
 exports.chatButtonKey = 'div[accesskey="P"]';
 exports.userListButton = 'button[accesskey="U"]';
@@ -47,6 +49,8 @@ exports.wasTalking = 'button[data-test="wasTalking"]';
 exports.talkingIndicator = 'div[data-test="talkingIndicator"]';
 exports.unmuteMicButton = 'button[data-test="unmuteMicButton"]';
 exports.muteMicButton = 'button[data-test="muteMicButton"]';
+exports.speechRecognition = 'select[id="speechSelect"]';
+exports.speechRecognitionUnsupported = 'div[data-test="speechRecognitionUnsupported"]';
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
@@ -153,7 +157,6 @@ exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
-exports.speechRecognition = 'div[data-test="speechRecognition"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
 exports.layoutModal = 'li[data-test="layoutModal"]';
 
@@ -369,6 +372,8 @@ exports.removeUserConfirmationBtn = 'button[data-test="removeUserConfirmation"]'
 exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'h1[data-test="meetingEndedModalTitle"]';
+exports.unmuteUser = 'li[data-test="unmuteUser"]';
+exports.ejectCamera = 'li[data-test="ejectCamera"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -381,6 +386,9 @@ exports.lockPublicChat = 'input[data-test="lockPublicChat"]';
 exports.lockPrivateChat = 'input[data-test="lockPrivateChat"]';
 exports.lockEditSharedNotes = 'input[data-test="lockEditSharedNotes"]';
 exports.lockUserList = 'input[data-test="lockUserList"]';
+exports.hideViewersAnnotation = 'input[data-test="hideViewersAnnotation"]';
+exports.hideViewersCursor = 'input[data-test="hideViewersCursor"]';
+exports.whiteboardCursorIndicator = 'div[data-test="whiteboardCursorIndicator"]';
 
 // Closed Captions
 exports.writeClosedCaptions = 'li[data-test="writeClosedCaptions"]';

@@ -14,11 +14,11 @@ const propTypes = {
 
 const intlMessages = defineMessages({
   raiseHandLabel: {
-    id: 'app.actionsBar.interactions.raiseHand',
+    id: 'app.actionsBar.reactions.raiseHand',
     description: 'raise Hand Label',
   },
   notRaiseHandLabel: {
-    id: 'app.actionsBar.interactions.lowHand',
+    id: 'app.actionsBar.reactions.lowHand',
     description: 'not Raise Hand Label',
   },
 });

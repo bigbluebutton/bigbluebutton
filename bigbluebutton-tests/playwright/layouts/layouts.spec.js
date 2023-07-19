@@ -1,5 +1,5 @@
 const { test } = require('@playwright/test');
-const { encodeCustomParams } = require('../customparameters/util');
+const { encodeCustomParams } = require('../parameters/util');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const { Layouts } = require('./layouts');
 

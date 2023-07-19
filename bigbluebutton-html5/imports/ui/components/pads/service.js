@@ -126,7 +126,7 @@ const pinPad = (externalId, pinned) => {
   makeCall('pinPad', externalId, pinned);
 };
 
-const throttledPinPad = throttle(pinPad, 1000);
+const throttledPinPad = throttle({ interval: 1000 }, pinPad);
 
 export default {
   getPadId,

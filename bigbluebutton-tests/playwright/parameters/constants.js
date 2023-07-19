@@ -1,5 +1,26 @@
 const e = require('../core/elements');
 
+// Create Parameters
+exports.bannerText = 'bannerText=some text';
+const color = 'FFFF00'
+exports.color = color;
+exports.bannerColor = `bannerColor=%23${color}`;
+exports.maxParticipants = 'maxParticipants=2';
+exports.duration = 'duration=2';
+const messageModerator = 'Test';
+exports.messageModerator = messageModerator;
+exports.moderatorOnlyMessage = `moderatorOnlyMessage=${messageModerator}`;
+exports.webcamsOnlyForModerator = 'webcamsOnlyForModerator=true';
+exports.muteOnStart = 'muteOnStart=true';
+exports.allowModsToUnmuteUsers = 'allowModsToUnmuteUsers=true';
+exports.lockSettingsDisableCam = 'lockSettingsDisableCam=true';
+exports.lockSettingsDisableMic = 'lockSettingsDisableMic=true';
+exports.lockSettingsDisablePublicChat = 'lockSettingsDisablePublicChat=true';
+exports.lockSettingsHideUserList = 'lockSettingsHideUserList=true';
+exports.allowModsToEjectCameras = 'allowModsToEjectCameras=true';
+exports.notifyRecordingIsOn = 'notifyRecordingIsOn=true&notifyRecordingIsOn=true';
+
+// Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';
 exports.listenOnlyMode = 'userdata-bbb_listen_only_mode=false';
 exports.forceListenOnly = 'userdata-bbb_force_listen_only=true';
@@ -25,10 +46,6 @@ exports.outsideToggleSelfVoice = 'userdata-bbb_outside_toggle_self_voice=true';
 exports.outsideToggleRecording = 'userdata-bbb_outside_toggle_recording=true';
 exports.showPublicChatOnLogin = 'userdata-bbb_show_public_chat_on_login=false';
 exports.forceRestorePresentationOnNewEvents = 'userdata-bbb_force_restore_presentation_on_new_events=true';
-exports.bannerText = 'bannerText=some text';
-const color = 'FFFF00'
-exports.color = color;
-exports.bannerColor = `bannerColor=%23${color}`;
 exports.recordMeeting = 'record=true';
 exports.skipVideoPreview = 'userdata-bbb_skip_video_preview=true';
 exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_join=true';
@@ -56,6 +73,8 @@ exports.importSharedNotesFromBreakoutRoomsDisabled = 'disabledFeatures=importSha
 exports.layoutsDisabled = 'disabledFeatures=layouts';
 exports.presentationDisabled = 'disabledFeatures=presentation';
 exports.customVirtualBackgroundDisabled = 'disabledFeatures=customVirtualBackgrounds';
+exports.slideSnapshotDisabled = 'disabledFeatures=snapshotOfCurrentSlide';
+exports.cameraAsContent = 'disabledFeatures=cameraAsContent';
 
 // Disabled Features Exclude
 exports.breakoutRoomsExclude = 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms';
@@ -74,6 +93,8 @@ exports.importPresentationWithAnnotationsFromBreakoutRoomsExclude = 'disabledFea
 exports.importSharedNotesFromBreakoutRoomsExclude = 'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms';
 exports.presentationExclude = 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation';
 exports.customVirtualBackgroundExclude = 'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground';
+exports.slideSnapshotExclude = 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide';
+exports.cameraAsContentExclude = 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent';
 
 // Shortcuts
 exports.shortcuts = 'userdata-bbb_shortcuts=[$]';
