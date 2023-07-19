@@ -28,7 +28,7 @@ async function notifyMeetingActor() {
   await client.connect();
   client.on('error', (err) => logger.info('Redis Client Error', err));
 
-  const link = config.bbbWebPublicAPI + path.join('presentation',
+  const link = path.join('presentation',
       exportJob.parentMeetingId, exportJob.parentMeetingId,
       exportJob.presId, 'pdf', jobId, filename);
 

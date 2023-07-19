@@ -10,6 +10,7 @@ const CHAT_CONFIG = Meteor.settings.public.chat;
 const USER_CONFIG = Meteor.settings.public.user;
 const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
+const TYPING_SHOW_NAMES = CHAT_CONFIG.typingIndicator.showNames;
 
 const TypingIndicatorContainer = props => <TypingIndicator {...props} />;
 
@@ -48,5 +49,6 @@ export default withTracker(({ idChatOpen }) => {
   return {
     typingUsers,
     indicatorEnabled: TYPING_INDICATOR_ENABLED,
+    indicatorShowNames: TYPING_SHOW_NAMES,
   };
 })(TypingIndicatorContainer);

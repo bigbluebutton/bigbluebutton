@@ -20,8 +20,9 @@ import Settings from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import { FormattedMessage } from 'react-intl';
 import { getDateString } from '/imports/utils/string-utils';
-import { indexOf, without } from '/imports/utils/array-utils';
+import { indexOf } from '/imports/utils/array-utils';
 import { isEmpty, throttle } from 'radash';
+import ChatService from '/imports/ui/components/chat/service';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
 const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -340,7 +341,7 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.includes(chat.chatId)
+  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.find(closedChat => closedChat.chatId === chat.chatId)
     && chat.shouldDisplayInChatList);
   const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
     if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
@@ -655,8 +656,10 @@ const getGroupChatPrivate = (senderUserId, receiver) => {
     }
 
     const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
-    if (indexOf(currentClosedChats, chat.chatId) > -1) {
-      Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chat.chatId));
+
+    if (ChatService.isChatClosed(chat.chatId)) {
+      const closedChats = currentClosedChats.filter(closedChat => closedChat.chatId !== chat.chatId);
+      Storage.setItem(CLOSED_CHAT_LIST_KEY,closedChats);
     }
   }
 };
