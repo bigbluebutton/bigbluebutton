@@ -17,7 +17,7 @@ rm -rf staging
 # package
 
 # Create directories for fpm to process
-DIRS="/usr/local/bin/hasura-graphql-engine /etc/default /usr/share/bbb-graphql-server /lib/systemd/system /usr/local/bin/hasura"
+DIRS="/usr/local/bin /etc/default /usr/share/bbb-graphql-server /lib/systemd/system /usr/local/bin/hasura"
 for dir in $DIRS; do
   mkdir -p staging$dir
 done
