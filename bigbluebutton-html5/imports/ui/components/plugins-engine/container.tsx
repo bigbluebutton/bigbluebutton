@@ -6,17 +6,9 @@ import PluginsEngineComponent from './component';
 import { PluginConfigSetting, PluginEngineProps, UniquePluginConfigSetting } from './types';
 import PluginsLoaderComponent from './plugin-loader/component';
 import PluginProvidedStateComponent from './plugin-provided-state/component';
+import * as uuid from 'uuid';
 
 const PLUGINS = Meteor.settings.public.plugins;
-
-const createUuid = () => {
-  const UUID = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-      const r = Math.floor(Math.random() * 16);
-      const v = c === "x" ? r : (r % 4) + 8;
-      return v.toString(16);
-  });
-  return UUID;
-}
 
 const PluginEngineContainer = (props: PluginEngineProps) => {
   // If there is no plugin to load, the engine simply returns null
@@ -30,7 +22,7 @@ const PluginEngineContainer = (props: PluginEngineProps) => {
   const pluginsFromConfigMapped: UniquePluginConfigSetting[] = useMemo<UniquePluginConfigSetting[]>(() => PLUGINS.map((p: PluginConfigSetting) => {
     return {
       ...p,
-      uuid: createUuid(),
+      uuid: uuid.v4(),
     } as UniquePluginConfigSetting
   }), [ PLUGINS ]);
 
