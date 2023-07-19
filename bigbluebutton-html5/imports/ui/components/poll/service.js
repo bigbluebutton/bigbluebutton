@@ -80,33 +80,56 @@ const intlMessages = defineMessages({
   },
 });
 
-const checkPollAnswersMatchFormat = (listOfAnswers, formattedLabels) => listOfAnswers.reduce(
-  (acc, answer) => acc && (formattedLabels.includes(answer.key[0].toLowerCase())
-    || formattedLabels.includes(answer.key[0].toUpperCase())), true,
+const getUsedLabels = (listOfAnswers, possibleLabels) => listOfAnswers.map(
+  (answer) => {
+    if (answer.key.length >= 2) {
+      const formattedLabel = answer.key.slice(0, 2).toUpperCase();
+      if (possibleLabels.includes(formattedLabel)) {
+        return formattedLabel;
+      }
+    }
+    return undefined;
+  },
 );
 
 const getFormattedAnswerValue = (answerText) => {
-  // Remove the Letter from the beginning and the following sign, if any, like so:
-  // "A- the answer is" -> Remove "A-" -> "the answer is"
-  const listOfForbiddenSignsToStart = ['.', ':', '-'];
-  const newText = answerText.slice(1).trim();
-  if (listOfForbiddenSignsToStart.includes(newText[0])) {
-    return newText.slice(1).trim();
-  }
+  // In generatePossibleLabels there is a check to see if the
+  // answer's length is greater than 2
+  const newText = answerText.slice(2).trim();
   return newText;
 };
 
-const getAlphabetList = () => Array.from(Array(26))
+const generateAlphabetList = () => Array.from(Array(26))
   .map((e, i) => i + 65).map((x) => String.fromCharCode(x));
+
+const generatePossibleLabels = (alphabetCharacters) => {
+  // Remove the Letter from the beginning and the following sign, if any, like so:
+  // "A- the answer is" -> Remove "A-" -> "the answer is"
+  const listOfForbiddenSignsToStart = ['.', ':', '-'];
+
+  const possibleLabels = [];
+  for (let i = 0; i < alphabetCharacters.length; i += 1) {
+    for (let j = 0; j < listOfForbiddenSignsToStart.length; j += 1) {
+      possibleLabels.push(alphabetCharacters[i] + listOfForbiddenSignsToStart[j]);
+    }
+  }
+  return possibleLabels;
+};
 
 const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
   let responded = 0;
   let resultString = '';
   let optionsString = '';
 
-  const alphabetLabels = getAlphabetList();
+  const alphabetCharacters = generateAlphabetList();
+  const possibleLabels = generatePossibleLabels(alphabetCharacters);
+
+  // We need to guarantee that the labels are in the correct order, and that all options have label
+  const pollAnswerMatchLabeledFormat = getUsedLabels(answers, possibleLabels);
   const isPollAnswerMatchFormat = !isDefaultPoll
-    ? checkPollAnswersMatchFormat(answers, alphabetLabels)
+    ? pollAnswerMatchLabeledFormat.reduce(
+      (acc, label, index) => acc && !!label && label[0] === alphabetCharacters[index][0], true,
+    )
     : false;
 
   answers.map((item) => {
@@ -124,9 +147,9 @@ const getPollResultsText = (isDefaultPoll, answers, numRespondents, intl) => {
       resultString += `${translatedKey}: ${item.numVotes || 0} |${pctBars} ${pctFotmatted}\n`;
     } else {
       if (isPollAnswerMatchFormat) {
-        resultString += `${alphabetLabels[index]}`;
+        resultString += `${pollAnswerMatchLabeledFormat[index][0]}`;
         const formattedAnswerValue = getFormattedAnswerValue(item.key);
-        optionsString += `${alphabetLabels[index]}: ${formattedAnswerValue}\n`;
+        optionsString += `${pollAnswerMatchLabeledFormat[index][0]}: ${formattedAnswerValue}\n`;
       } else {
         resultString += `${item.id + 1}`;
         optionsString += `${item.id + 1}: ${item.key}\n`;
