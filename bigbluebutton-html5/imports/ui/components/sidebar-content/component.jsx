@@ -65,9 +65,6 @@ const SidebarContent = (props) => {
     }
   }, [width, height]);
 
-  useEffect(() => {
-  }, [resizeStartWidth, resizeStartHeight]);
-
   const setSidebarContentSize = (dWidth, dHeight) => {
     const newWidth = resizeStartWidth + dWidth;
     const newHeight = resizeStartHeight + dHeight;
