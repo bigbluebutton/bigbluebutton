@@ -10,15 +10,15 @@ import scala.util.{ Failure, Success }
 case class MeetingWelcomeDbModel(
     meetingId:               String,
     welcomeMsgTemplate:      String,
-    welcomeMsg:              String,
-    welcomeMsgForModerators: String
+    welcomeMsg:              Option[String],
+    welcomeMsgForModerators: Option[String]
 )
 
 class MeetingWelcomeDbTableDef(tag: Tag) extends Table[MeetingWelcomeDbModel](tag, "meeting_welcome") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val welcomeMsgTemplate = column[String]("welcomeMsgTemplate")
-  val welcomeMsg = column[String]("welcomeMsg")
-  val welcomeMsgForModerators = column[String]("welcomeMsgForModerators")
+  val welcomeMsg = column[Option[String]]("welcomeMsg")
+  val welcomeMsgForModerators = column[Option[String]]("welcomeMsgForModerators")
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
@@ -32,8 +32,14 @@ object MeetingWelcomeDAO {
         MeetingWelcomeDbModel(
           meetingId = meetingId,
           welcomeMsgTemplate = welcomeProp.welcomeMsgTemplate,
-          welcomeMsg = welcomeProp.welcomeMsg,
-          welcomeMsgForModerators = welcomeProp.modOnlyMessage
+          welcomeMsg = welcomeProp.welcomeMsg match {
+            case "" => None
+            case m  => Some(m)
+          },
+          welcomeMsgForModerators = welcomeProp.modOnlyMessage match {
+            case "" => None
+            case m  => Some(m)
+          }
         )
       )
     ).onComplete {
