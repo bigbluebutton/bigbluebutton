@@ -54,19 +54,23 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.waitAndClick(e.randomlyAssign);
 
+    const createButtonLocator = this.modPage.getLocator(e.modalConfirmButton);
+
     //test minimum 5 minutes
     await this.modPage.getLocator(e.durationTime).press('Backspace');
     await this.modPage.getLocator(e.durationTime).press('Backspace');
     await this.modPage.type(e.durationTime, '5');
-    await this.modPage.waitAndClick(e.decreaseBreakoutTime);
-    await this.modPage.hasValue(e.durationTime, '5');
+    await expect(createButtonLocator).toBeEnabled();
 
-    await this.modPage.getLocator(e.durationTime).press('Backspace');
-    await this.modPage.type(e.durationTime, '15');
-    await this.modPage.waitAndClick(e.increaseBreakoutTime);
+    await this.modPage.page.fill(e.durationTime, '4');
+    await expect(createButtonLocator).toBeDisabled();
+    await this.modPage.hasElement(e.minimumDurationWarnBreakout);
+
+    // await this.modPage.getLocator(e.durationTime).press('Backspace');
+    await this.modPage.page.fill(e.durationTime, '15');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.breakoutRemainingTime, /15:[0-5][0-9]/, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(e.breakoutRemainingTime, /14:[0-5][0-9]/, ELEMENT_WAIT_LONGER_TIME);
   }
 
   async changeRoomsName() {
@@ -107,6 +111,7 @@ class Create extends MultiUsers {
 
     await this.modPage.dragDropSelector(e.userTest, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/);
+    await expect(modalConfirmButton).toBeEnabled();
     await this.modPage.wasRemoved(e.warningNoUserAssigned);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalConfirmButton);
