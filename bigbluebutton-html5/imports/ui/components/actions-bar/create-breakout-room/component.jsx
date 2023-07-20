@@ -1149,8 +1149,6 @@ class BreakoutRoom extends PureComponent {
       leastOneUserIsValid,
     } = this.state;
 
-    console.log({leastOneUserIsValid})
-
     return (
       <Styled.AssignBtnsContainer>
         <Styled.LabelText bold aria-hidden>
