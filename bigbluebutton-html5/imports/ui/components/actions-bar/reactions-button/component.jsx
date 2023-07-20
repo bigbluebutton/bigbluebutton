@@ -82,7 +82,7 @@ const ReactionsButton = (props) => {
         keepMounted: true,
         transitionDuration: 0,
         elevation: 3,
-        getContentAnchorEl: null,
+        getcontentanchorel: null,
         anchorOrigin: { vertical: 'top', horizontal: 'center' },
         transformOrigin: { vertical: 'bottom', horizontal: 'center' },
       }}

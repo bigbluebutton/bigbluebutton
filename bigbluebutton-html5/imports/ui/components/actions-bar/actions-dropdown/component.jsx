@@ -403,7 +403,7 @@ class ActionsDropdown extends PureComponent {
         <BBBMenu
           customStyles={!isMobile ? customStyles : null}
           accessKey={OPEN_ACTIONS_AK}
-          trigger={
+          trigger={(
             <Styled.HideDropdownButton
               open={isDropdownOpen}
               hideLabel
@@ -416,7 +416,7 @@ class ActionsDropdown extends PureComponent {
               circle
               onClick={() => null}
             />
-          }
+          )}
           actions={children}
           opts={{
             id: 'actions-dropdown-menu',

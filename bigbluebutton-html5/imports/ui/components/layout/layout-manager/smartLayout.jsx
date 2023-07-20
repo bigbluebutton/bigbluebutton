@@ -59,7 +59,7 @@ const SmartLayout = (props) => {
   }, []);
 
   useEffect(() => {
-    if (deviceType === null) return;
+    if (deviceType === null) return () => null;
 
     if (deviceType !== prevDeviceType) {
       // reset layout if deviceType changed

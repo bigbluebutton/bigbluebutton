@@ -19,7 +19,7 @@ const BaseModal = (props) => {
   }, []);
   useEffect(() => {
     // Only add event listener if name is specified
-    if (!modalName) return;
+    if (!modalName) return () => null;
 
     const closeEventName = `CLOSE_MODAL_${modalName.toUpperCase()}`;
 
@@ -28,7 +28,7 @@ const BaseModal = (props) => {
 
     // Remove listener on unmount
     return () => {
-        document.removeEventListener(closeEventName, closeEventHandler);
+      document.removeEventListener(closeEventName, closeEventHandler);
     };
   }, []);
   const priorityValue = priority || 'low';

@@ -13,8 +13,6 @@ import SubscriptionRegistry, { subscriptionReactivity } from '../../services/sub
 import { isChatEnabled } from '/imports/ui/services/features';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
-const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-const PUBLIC_CHAT_TYPE = CHAT_CONFIG.type_public;
 const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
 const SUBSCRIPTIONS = [
   'users', 'meetings', 'polls', 'presentations', 'slides', 'slide-positions', 'captions',

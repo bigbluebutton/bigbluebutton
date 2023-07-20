@@ -114,7 +114,7 @@ const Adapter = () => {
   }, [usingUsersContext]);
 
   useEffect(() => {
-    if (!Meteor.status().connected) return;
+    if (!Meteor.status().connected) return () => null;
     setSync(false);
     dispatch({
       type: ACTIONS.CLEAR_ALL,

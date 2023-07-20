@@ -92,14 +92,16 @@ const AppContainer = (props) => {
 
   const { focusedId } = cameraDock;
 
-  if(
-    layoutContextDispatch
-    &&  (typeof meetingLayout != "undefined")
-    && (layoutType.current != meetingLayout)
+  useEffect(() => {
+    if (
+      layoutContextDispatch
+      && (typeof meetingLayout !== 'undefined')
+      && (layoutType.current !== meetingLayout)
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
-  }
+    }
+  }, [meetingLayout, layoutContextDispatch, layoutType]);
 
   const horizontalPosition = cameraDock.position === 'contentLeft' || cameraDock.position === 'contentRight';
   // this is not exactly right yet
@@ -140,7 +142,8 @@ const AppContainer = (props) => {
   };
 
   useEffect(() => {
-    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)});
+    MediaService.buildLayoutWhenPresentationAreaIsDisabled(layoutContextDispatch)
+  });
 
   return currentUserId
     ? (
