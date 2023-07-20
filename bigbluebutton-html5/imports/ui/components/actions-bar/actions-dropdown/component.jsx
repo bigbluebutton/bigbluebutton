@@ -45,13 +45,13 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
   },
-  activateTimerLabel: {
-    id: 'app.actionsBar.actionsDropdown.activateTimerLabel',
-    description: 'Activate timer label',
+  activateTimerStopwatchLabel: {
+    id: 'app.actionsBar.actionsDropdown.activateTimerStopwatchLabel',
+    description: 'Activate timer/stopwatch label',
   },
-  deactivateTimerLabel: {
-    id: 'app.actionsBar.actionsDropdown.deactivateTimerLabel',
-    description: 'Deactivate timer label',
+  deactivateTimerStopwatchLabel: {
+    id: 'app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel',
+    description: 'Deactivate timer/stopwatch label',
   },
   presentationLabel: {
     id: 'app.actionsBar.actionsDropdown.presentationLabel',
@@ -263,8 +263,8 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: 'time',
         label: isTimerActive
-          ? intl.formatMessage(intlMessages.deactivateTimerLabel)
-          : intl.formatMessage(intlMessages.activateTimerLabel),
+          ? intl.formatMessage(intlMessages.deactivateTimerStopwatchLabel)
+          : intl.formatMessage(intlMessages.activateTimerStopwatchLabel),
         key: this.timerId,
         onClick: () => this.handleTimerClick(),
       });
