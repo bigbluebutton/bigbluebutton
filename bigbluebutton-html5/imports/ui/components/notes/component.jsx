@@ -151,7 +151,6 @@ const Notes = ({
         value: true,
       });
     }
-    return null;
   }, []);
 
   const renderHeaderOnMedia = () => {

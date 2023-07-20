@@ -68,16 +68,21 @@ const ReactionsPicker = (props) => {
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
 
+  const emojiProps = {
+    native: true,
+    size: '1.5rem',
+  };
+
   return (
     <Styled.Wrapper isMobile={isMobile}>
       {reactions.map(({ id, native }) => (
         <Styled.ButtonWrapper active={currentUserReaction === native}>
-          <Emoji key={id} emoji={{ id }} size={30} onClick={() => onReactionSelect(native)} />
+          <Emoji key={id} emoji={{ id }} onClick={() => onReactionSelect(native)} {...emojiProps} />
         </Styled.ButtonWrapper>
       ))}
       <Styled.Separator isMobile={isMobile} />
       <Styled.RaiseHandButtonWrapper onClick={() => onRaiseHand()} active={raiseHand}>
-        <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />
+        <Emoji key='hand' emoji={{ id: 'hand' }} {...emojiProps} />
         {RaiseHandButtonLabel()}
       </Styled.RaiseHandButtonWrapper>
     </Styled.Wrapper>
