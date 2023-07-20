@@ -1028,7 +1028,7 @@ class BreakoutRoom extends PureComponent {
                 data-test="durationTime"
               />
             </Styled.DurationArea>
-            <Styled.SpanWarn valid={durationIsValid}>
+            <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
               {
                 intl.formatMessage(
                   intlMessages.minimumDurationWarnBreakout,
@@ -1148,6 +1148,8 @@ class BreakoutRoom extends PureComponent {
       numberOfRoomsIsValid,
       leastOneUserIsValid,
     } = this.state;
+
+    console.log({leastOneUserIsValid})
 
     return (
       <Styled.AssignBtnsContainer>
