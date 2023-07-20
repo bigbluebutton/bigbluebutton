@@ -46,7 +46,7 @@ case "$1" in
 
 
     echo "Resetting mcs-address from localhost to 127.0.0.1"
-    yq e -i '.mcs-address = 127.0.0.1' $TARGET
+    yq e -i '.mcs-address = "127.0.0.1"' $TARGET
     
     if id bigbluebutton > /dev/null 2>&1 ; then
       chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu /var/log/bbb-webrtc-sfu/
