@@ -15,6 +15,7 @@ const ReactionsButton = (props) => {
     userId,
     raiseHand,
     isMobile,
+    currentUserReaction,
   } = props;
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -34,13 +35,12 @@ const ReactionsButton = (props) => {
   };
 
   const handleReactionSelect = (reaction) => {
-    UserReactionService.setUserReaction(reaction);
-    handleClose();
+    const newReaction = currentUserReaction === reaction ? 'none' : reaction;
+    UserReactionService.setUserReaction(newReaction);
   };
 
   const handleRaiseHandButtonClick = () => {
     UserListService.setUserRaiseHand(userId, !raiseHand);
-    handleClose();
   };
 
   const renderReactionsBar = () => (

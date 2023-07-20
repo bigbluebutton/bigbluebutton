@@ -57,6 +57,7 @@ const ReactionsPicker = (props) => {
     onRaiseHand,
     raiseHand,
     isMobile,
+    currentUserReaction,
   } = props;
 
   const RaiseHandButtonLabel = () => {
@@ -75,7 +76,7 @@ const ReactionsPicker = (props) => {
   return (
     <Styled.Wrapper isMobile={isMobile}>
       {reactions.map(({ id, native }) => (
-        <Styled.ButtonWrapper>
+        <Styled.ButtonWrapper active={currentUserReaction === native}>
           <Emoji key={id} emoji={{ id }} onClick={() => onReactionSelect(native)} {...emojiProps} />
         </Styled.ButtonWrapper>
       ))}

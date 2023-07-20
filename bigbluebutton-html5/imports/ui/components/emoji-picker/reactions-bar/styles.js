@@ -41,6 +41,18 @@ const ButtonWrapper = styled.div`
     height: 1.8rem !important;
     width: 1.8rem !important;
   }
+
+  ${({ active }) => active && `
+    color: ${btnPrimaryColor};
+    background-color: ${btnPrimaryBg};
+    border: none;
+
+    &:hover{
+      filter: brightness(90%);
+      color: ${btnPrimaryColor};
+      background-color: ${btnPrimaryHoverBg} !important;
+    }
+  `}
 `;
 
 const RaiseHandButtonWrapper = styled(ButtonWrapper)`

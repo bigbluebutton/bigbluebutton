@@ -4,6 +4,7 @@ import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout
 import { injectIntl } from 'react-intl';
 import ReactionsButton from './component';
 import actionsBarService from '../service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
 const ReactionsButtonContainer = ({ ...props }) => {
@@ -24,10 +25,12 @@ const ReactionsButtonContainer = ({ ...props }) => {
 
 export default injectIntl(withTracker(() => {
   const currentUser = actionsBarService.currentUser();
+  const currentUserReaction = UserReactionService.getUserReaction(currentUser.userId);
 
   return {
     userId: currentUser.userId,
     emoji: currentUser.emoji,
+    currentUserReaction: currentUserReaction.reaction,
     raiseHand: currentUser.raiseHand,
   };
 })(ReactionsButtonContainer));
