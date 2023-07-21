@@ -191,26 +191,38 @@ class SharedNotes extends MultiUsers {
     await this.userPage.wasRemoved(e.hideNotesLabel);
   }
 
-  async pinNotesOntoWhiteboard() {
+  async pinAndUnpinNotesOntoWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
     test.fail(!sharedNotesEnabled, 'Shared notes is disabled');
 
     await this.userPage.waitAndClick(e.minimizePresentation);
     await this.userPage.hasElement(e.restorePresentation);
-
     await startSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes);
 
     await this.userPage.hasElement(e.minimizePresentation);
-
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
     const notesLocatorUser = getNotesLocator(this.userPage);
-
     await expect(notesLocator).toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser).toContainText(/Hello/);
+
+    // unpin notes
+    await this.modPage.waitAndClick(e.unpinNotes);
+    await this.modPage.hasElement(e.whiteboard);
+    await this.userPage.hasElement(e.whiteboard);
+    await startSharedNotes(this.modPage);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.hasElement(e.unpinNotes);
+    // make viewer as presenter and unpin pinned notes
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.waitAndClick(e.unpinNotes);
+    await this.userPage.hasElement(e.whiteboard);
+    await this.modPage.hasElement(e.whiteboard);
   }
 
   async editMessage() {
