@@ -40,6 +40,8 @@ async function generateSettingsData(page) {
       webcamSharingEnabled: settingsData.kurento.enableVideo,
       skipVideoPreview: settingsData.kurento.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento.skipVideoPreviewOnFirstJoin,
+      // User
+      userStatusEnabled: settingsData.userStatus.enabled,
     }
 
     return settings;

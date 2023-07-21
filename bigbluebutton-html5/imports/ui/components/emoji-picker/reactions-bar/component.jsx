@@ -14,11 +14,11 @@ const propTypes = {
 
 const intlMessages = defineMessages({
   raiseHandLabel: {
-    id: 'app.actionsBar.interactions.raiseHand',
+    id: 'app.actionsBar.reactions.raiseHand',
     description: 'raise Hand Label',
   },
   notRaiseHandLabel: {
-    id: 'app.actionsBar.interactions.lowHand',
+    id: 'app.actionsBar.reactions.lowHand',
     description: 'not Raise Hand Label',
   },
 });
@@ -57,6 +57,7 @@ const ReactionsPicker = (props) => {
     onRaiseHand,
     raiseHand,
     isMobile,
+    currentUserReaction,
   } = props;
 
   const RaiseHandButtonLabel = () => {
@@ -67,16 +68,21 @@ const ReactionsPicker = (props) => {
       : intl.formatMessage(intlMessages.raiseHandLabel);
   };
 
+  const emojiProps = {
+    native: true,
+    size: '1.5rem',
+  };
+
   return (
     <Styled.Wrapper isMobile={isMobile}>
       {reactions.map(({ id, native }) => (
-        <Styled.ButtonWrapper>
-          <Emoji key={id} emoji={{ id }} size={30} onClick={() => onReactionSelect(native)} />
+        <Styled.ButtonWrapper active={currentUserReaction === native}>
+          <Emoji key={id} emoji={{ id }} onClick={() => onReactionSelect(native)} {...emojiProps} />
         </Styled.ButtonWrapper>
       ))}
       <Styled.Separator isMobile={isMobile} />
       <Styled.RaiseHandButtonWrapper onClick={() => onRaiseHand()} active={raiseHand}>
-        <Emoji key='hand' emoji={{ id: 'hand' }} size={30} />
+        <Emoji key='hand' emoji={{ id: 'hand' }} {...emojiProps} />
         {RaiseHandButtonLabel()}
       </Styled.RaiseHandButtonWrapper>
     </Styled.Wrapper>

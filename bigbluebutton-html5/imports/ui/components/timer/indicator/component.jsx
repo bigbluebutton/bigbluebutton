@@ -12,13 +12,10 @@ const trackName = Meteor.settings.public.timer.music;
 const TAB_TIMER_INDICATOR = Meteor.settings.public.timer.tabIndicator;
 
 const propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
   timer: PropTypes.shape({
     stopwatch: PropTypes.bool,
     running: PropTypes.bool,
-    time: PropTypes.string,
+    time: PropTypes.number,
     accumulated: PropTypes.number,
     timestamp: PropTypes.number,
   }).isRequired,
@@ -28,7 +25,7 @@ const propTypes = {
   sidebarContentIsOpen: PropTypes.bool.isRequired,
   timeOffset: PropTypes.number.isRequired,
   isModerator: PropTypes.bool.isRequired,
-  currentTrack: PropTypes.string.isRequired,
+  currentTrack: PropTypes.bool.isRequired,
 };
 
 class Indicator extends Component {

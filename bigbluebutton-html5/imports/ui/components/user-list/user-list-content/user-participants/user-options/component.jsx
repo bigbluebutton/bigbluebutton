@@ -21,6 +21,7 @@ const propTypes = {
   toggleMuteAllUsers: PropTypes.func.isRequired,
   toggleMuteAllUsersExceptPresenter: PropTypes.func.isRequired,
   toggleStatus: PropTypes.func.isRequired,
+  toggleReactions: PropTypes.func.isRequired,
   guestPolicy: PropTypes.string.isRequired,
   meetingIsBreakout: PropTypes.bool.isRequired,
   hasBreakoutRoom: PropTypes.bool.isRequired,
@@ -40,6 +41,14 @@ const intlMessages = defineMessages({
   clearAllDesc: {
     id: 'app.userList.userOptions.clearAllDesc',
     description: 'Clear all description',
+  },
+  clearAllReactionsLabel: {
+    id: 'app.userList.userOptions.clearAllReactionsLabel',
+    description: 'Clear all reactions label',
+  },
+  clearAllReactionsDesc: {
+    id: 'app.userList.userOptions.clearAllReactionsDesc',
+    description: 'Clear all reactions description',
   },
   muteAllLabel: {
     id: 'app.userList.userOptions.muteAllLabel',
@@ -128,12 +137,14 @@ const intlMessages = defineMessages({
 });
 
 const USER_STATUS_ENABLED = Meteor.settings.public.userStatus.enabled;
+const USER_REACTION_ENABLED = Meteor.settings.public.userReaction.enabled;
 
 class UserOptions extends PureComponent {
   constructor(props) {
     super(props);
 
     this.clearStatusId = uniqueId('list-item-');
+    this.clearReactionId = uniqueId('list-item-');
     this.muteId = uniqueId('list-item-');
     this.muteAllId = uniqueId('list-item-');
     this.lockId = uniqueId('list-item-');
@@ -199,6 +210,7 @@ class UserOptions extends PureComponent {
       intl,
       isMeetingMuted,
       toggleStatus,
+      toggleReactions,
       toggleMuteAllUsers,
       toggleMuteAllUsersExceptPresenter,
       meetingIsBreakout,
@@ -279,6 +291,17 @@ class UserOptions extends PureComponent {
           label: intl.formatMessage(intlMessages.clearAllLabel),
           description: intl.formatMessage(intlMessages.clearAllDesc),
           onClick: toggleStatus,
+          icon: 'clear_status',
+          divider: true,
+        });
+      }
+
+      if (USER_REACTION_ENABLED) {
+        this.menuItems.push({
+          key: this.clearReactionId,
+          label: intl.formatMessage(intlMessages.clearAllReactionsLabel),
+          description: intl.formatMessage(intlMessages.clearAllReactionsDesc),
+          onClick: toggleReactions,
           icon: 'clear_status',
           divider: true,
         });

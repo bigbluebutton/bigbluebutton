@@ -1,7 +1,9 @@
+const { default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const { setStatus } = require('./util');
 const { waitAndClearNotification, waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const e = require('../core/elements');
+const { getSettings } = require('../core/settings');
 
 class Status extends Page {
   constructor(browser, page) {
@@ -9,6 +11,9 @@ class Status extends Page {
   }
 
   async changeUserStatus() {
+    const { userStatusEnabled } = getSettings();
+    test.fail(!userStatusEnabled, 'User status is disabled');
+
     await waitAndClearDefaultPresentationNotification(this);
     await setStatus(this, e.applaud);
     await this.waitForSelector(e.smallToastMsg);

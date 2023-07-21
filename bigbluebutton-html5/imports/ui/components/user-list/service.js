@@ -527,6 +527,10 @@ const clearAllEmojiStatus = () => {
   makeCall('clearAllUsersEmoji');
 };
 
+const clearAllReactions = () => {
+  makeCall('clearAllUsersReaction');
+};
+
 const assignPresenter = (userId) => { makeCall('assignPresenter', userId); };
 
 const removeUser = (userId, banUser) => {
@@ -792,6 +796,7 @@ export default {
   setUserAway,
   setUserRaiseHand,
   clearAllEmojiStatus,
+  clearAllReactions,
   assignPresenter,
   removeUser,
   toggleVoice,

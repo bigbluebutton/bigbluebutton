@@ -21,6 +21,7 @@ const UserParticipantsContainer = (props) => {
     setEmojiStatus,
     setUserAway,
     clearAllEmojiStatus,
+    clearAllReactions,
     roving,
     requestUserInformation,
   } = UserListService;
@@ -40,6 +41,7 @@ const UserParticipantsContainer = (props) => {
       setEmojiStatus,
       setUserAway,
       clearAllEmojiStatus,
+      clearAllReactions,
       roving,
       requestUserInformation,
       isReady,

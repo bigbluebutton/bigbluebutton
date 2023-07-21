@@ -100,7 +100,7 @@ class BBBMenu extends React.Component {
     const { actions, selectedEmoji, intl } = this.props;
 
     return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled, accessKey, description, selected } = a;
+      const { dataTest, label, onClick, key, disabled, description, selected } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -143,7 +143,7 @@ class BBBMenu extends React.Component {
         </Styled.BBBMenuItem>,
         a.divider && <Divider disabled />
       ];
-    });
+    }) ?? [];
   }
 
   render() {
@@ -247,18 +247,7 @@ BBBMenu.propTypes = {
 
   trigger: PropTypes.element.isRequired,
 
-  actions: PropTypes.arrayOf(PropTypes.shape({
-    key: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    onClick: PropTypes.func,
-    icon: PropTypes.string,
-    iconRight: PropTypes.string,
-    disabled: PropTypes.bool,
-    divider: PropTypes.bool,
-    dividerTop: PropTypes.bool,
-    accessKey: PropTypes.string,
-    dataTest: PropTypes.string,
-  })).isRequired,
+  actions: PropTypes.array.isRequired,
 
   onCloseCallback: PropTypes.func,
   dataTest: PropTypes.string,

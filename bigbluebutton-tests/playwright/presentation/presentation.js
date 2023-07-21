@@ -69,7 +69,7 @@ class Presentation extends MultiUsers {
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
-    await this.modPage.hasElement(e.presentationStatusInfo, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.smallToastMsg);
     await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.wasRemoved(e.presentationStatusInfo);
     await this.userPage.wasRemoved(e.smallToastMsg);
@@ -151,8 +151,8 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
-    await this.modPage.hasElement(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-    await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasElement(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.hasElement(e.downloadPresentation);
     const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
     await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
   }
@@ -171,7 +171,6 @@ class Presentation extends MultiUsers {
   }
 
   async uploadAndRemoveAllPresentations() {
-    await waitAndClearDefaultPresentationNotification(this.modPage);
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);

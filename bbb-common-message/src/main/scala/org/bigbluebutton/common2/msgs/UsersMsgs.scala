@@ -273,6 +273,20 @@ case class ClearedAllUsersEmojiEvtMsg(header: BbbClientMsgHeader, body: ClearedA
 case class ClearedAllUsersEmojiEvtMsgBody()
 
 /**
+ * Sent from client about a mod clearing all users' Reaction.
+ */
+object ClearAllUsersReactionCmdMsg { val NAME = "ClearAllUsersReactionCmdMsg" }
+case class ClearAllUsersReactionCmdMsg(header: BbbClientMsgHeader, body: ClearAllUsersReactionCmdMsgBody) extends StandardMsg
+case class ClearAllUsersReactionCmdMsgBody(userId: String)
+
+/**
+ * Sent to all clients about clearing all users' Reaction.
+ */
+object ClearedAllUsersReactionEvtMsg { val NAME = "ClearedAllUsersReactionEvtMsg" }
+case class ClearedAllUsersReactionEvtMsg(header: BbbClientMsgHeader, body: ClearedAllUsersReactionEvtMsgBody) extends StandardMsg
+case class ClearedAllUsersReactionEvtMsgBody()
+
+/**
  * Sent from client about a user mobile flag.
  */
 object ChangeUserMobileFlagReqMsg { val NAME = "ChangeUserMobileFlagReqMsg" }
