@@ -17,6 +17,7 @@ const UserParticipantsContainer = (props) => {
     setEmojiStatus,
     setUserAway,
     clearAllEmojiStatus,
+    clearAllReactions,
     roving,
     requestUserInformation,
   } = UserListService;
@@ -36,6 +37,7 @@ const UserParticipantsContainer = (props) => {
       setEmojiStatus,
       setUserAway,
       clearAllEmojiStatus,
+      clearAllReactions,
       roving,
       requestUserInformation,
       isReady,
@@ -63,7 +65,7 @@ export default withTracker(() => {
     const { muteOnStart } = voiceProp;
     return muteOnStart;
   };
-  
+
   return ({
     isMeetingMuteOnStart: isMeetingMuteOnStart(),
     meetingIsBreakout: meetingIsBreakout(),
