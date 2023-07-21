@@ -204,7 +204,7 @@ class StatusTable extends React.Component {
         <tbody className="bg-white divide-y whitespace-nowrap">
           { hasSlides ? (
             <tr className="bg-inherit">
-              <td className={`bg-inherit z-30 sticky ${isRTL ? 'right-0' : 'left-0'}`} />
+              <th className={`bg-inherit z-30 sticky ${isRTL ? 'right-0' : 'left-0'}`} scope="row" aria-label={intl.formatMessage(intlMessages.thumbnail)} />
               { periods.map((period) => {
                 const { slide, start, end } = period;
                 const padding = isRTL ? 'paddingLeft' : 'paddingRight';
@@ -260,7 +260,14 @@ class StatusTable extends React.Component {
               })
               .map((user) => (
                 <tr className="text-gray-700 bg-inherit">
-                  <td className={`z-30 px-4 py-3 bg-inherit sticky ${isRTL ? 'right-0' : 'left-0'}`}>
+                  <th
+                    className={`z-30 px-4 py-3 bg-inherit sticky ${isRTL ? 'right-0' : 'left-0'}`}
+                    scope="row"
+                    aria-label={intl.formatMessage({
+                      id: 'app.learningDashboard.user',
+                      defaultMessage: 'User',
+                    })}
+                  >
                     <div className="flex items-center text-sm">
                       <div className="relative hidden w-8 h-8 rounded-full md:block">
                         <UserAvatar user={user} />
@@ -270,7 +277,7 @@ class StatusTable extends React.Component {
                         <p className="font-semibold truncate xl:max-w-sm max-w-xs">{user.name}</p>
                       </div>
                     </div>
-                  </td>
+                  </th>
                   { periods.map((period) => {
                     const boundaryLeft = period.start;
                     const boundaryRight = period.end;

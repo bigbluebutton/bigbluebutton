@@ -128,7 +128,18 @@ export default {
   changeInputStream: (newInputStream) => { AudioManager.inputStream = newInputStream; },
   liveChangeInputDevice: (inputDeviceId) => AudioManager.liveChangeInputDevice(inputDeviceId),
   changeOutputDevice: (outputDeviceId, isLive) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
-  isConnected: () => AudioManager.isConnected,
+  isConnectedToBreakout: () => {
+    const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
+    if (transferStatus.status
+      === AudioManager.BREAKOUT_AUDIO_TRANSFER_STATES.CONNECTED) return true;
+    return false;
+  },
+  isConnected: () => {
+    const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
+    if (!!transferStatus.breakoutMeetingId
+      && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
+    return AudioManager.isConnected;
+  },
   isTalking: () => AudioManager.isTalking,
   isHangingUp: () => AudioManager.isHangingUp,
   isUsingAudio: () => AudioManager.isUsingAudio(),

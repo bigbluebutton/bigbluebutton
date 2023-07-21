@@ -567,12 +567,12 @@ class ConnectionStatusComponent extends PureComponent {
               </div>
             </Styled.ConnectionTabPanel>
             <Styled.ConnectionTabPanel selectedClassName="is-selected">
-                <div>{this.renderConnections()}</div>
+              <ul>{this.renderConnections()}</ul>
             </Styled.ConnectionTabPanel>
             {Service.isModerator()
               && (
                 <Styled.ConnectionTabPanel selectedClassName="is-selected">
-                  <div>{this.renderConnections()}</div>
+                  <ul>{this.renderConnections()}</ul>
                 </Styled.ConnectionTabPanel>
               )
             }

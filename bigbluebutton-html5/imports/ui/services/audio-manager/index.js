@@ -830,6 +830,8 @@ class AudioManager {
 
     if (typeof breakoutMeetingId === 'string') {
       currentStatus.breakoutMeetingId = breakoutMeetingId;
+    } else {
+      currentStatus.breakoutMeetingId = null;
     }
 
     if (typeof status === 'string') {
