@@ -84,7 +84,7 @@ git checkout v3.2.3
 mkdir -p build
 cd build
 
-cmake ..
+cmake .. -DCMAKE_C_FLAGS="-Wno-error" -DCMAKE_CXX_FLAGS="-Wno-error"
 make -j $(nproc)
 make install
 cd ../../
@@ -117,7 +117,7 @@ patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \
     --without-python --without-erlang --without-java --with-lws=yes \
-    --prefix=/opt/freeswitch
+    --prefix=/opt/freeswitch CFLAGS="-Wno-error" CXXFLAGS="-Wno-error"
 
 # Overrides for generating debug version
 #   --prefix=/opt/freeswitch CFLAGS="-Wno-error -Og -ggdb" CXXFLAGS="-Wno-error -Og -ggdb"

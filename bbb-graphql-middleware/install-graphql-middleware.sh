@@ -17,7 +17,7 @@ wget --no-verbose https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
 go version
 
 # Build Graphql Middleware
-./build.sh
+./local-build.sh
 mv bbb-graphql-middleware /usr/local/bin/bbb-graphql-middleware
 
 # Create service bbb-graphql-middleware

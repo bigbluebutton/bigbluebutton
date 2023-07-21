@@ -28,6 +28,7 @@ jobs:
       - run: ./build/setup.sh bbb-freeswitch-core
       - run: ./build/setup.sh bbb-freeswitch-sounds
       - run: ./build/setup.sh bbb-fsesl-akka
+      - run: ./build/setup.sh bbb-graphql-middleware
       - run: ./build/setup.sh bbb-graphql-server
       - run: ./build/setup.sh bbb-html5-nodejs
       - run: ./build/setup.sh bbb-html5
@@ -119,11 +120,13 @@ jobs:
         run: |
             sudo sh -c '
             apt --purge -y remove apache2-bin
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
             '
       - name: Install BBB
         run: |
             sudo sh -c '
-            cd /root/ && wget -q https://ubuntu.bigbluebutton.org/bbb-install-2.8.sh -O bbb-install.sh
+            cd /root/ && wget -q https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.8.x-release/bbb-install.sh -O bbb-install.sh
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v jammy-28-develop -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
