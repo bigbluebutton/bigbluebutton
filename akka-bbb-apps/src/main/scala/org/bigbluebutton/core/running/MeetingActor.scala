@@ -394,6 +394,7 @@ class MeetingActor(
       case m: ChangeUserAwayReqMsg          => usersApp.handleChangeUserAwayReqMsg(m)
       case m: UserReactionTimeExpiredCmdMsg => handleUserReactionTimeExpiredCmdMsg(m)
       case m: ClearAllUsersEmojiCmdMsg      => handleClearAllUsersEmojiCmdMsg(m)
+      case m: ClearAllUsersReactionCmdMsg   => handleClearAllUsersReactionCmdMsg(m)
       case m: SelectRandomViewerReqMsg      => usersApp.handleSelectRandomViewerReqMsg(m)
       case m: ChangeUserPinStateReqMsg      => usersApp.handleChangeUserPinStateReqMsg(m)
       case m: ChangeUserMobileFlagReqMsg    => usersApp.handleChangeUserMobileFlagReqMsg(m)

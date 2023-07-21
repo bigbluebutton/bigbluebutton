@@ -75,6 +75,10 @@ const intlMessages = defineMessages({
     id: 'app.toast.clearedEmoji.label',
     description: 'message for cleared emoji status',
   },
+  clearedReaction: {
+    id: 'app.toast.clearedReactions.label',
+    description: 'message for cleared reactions',
+  },
   setEmoji: {
     id: 'app.toast.setEmoji.label',
     description: 'message when a user emoji has been set',
