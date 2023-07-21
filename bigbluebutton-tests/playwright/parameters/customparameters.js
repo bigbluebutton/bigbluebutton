@@ -130,8 +130,8 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.presentationPlaceholder);
   }
 
-  async forceRestorePresentationOnNewEvents(customParameter) {
-    await this.initUserPage(true, this.context, { useModMeetingId: true, customParameter });
+  async forceRestorePresentationOnNewEvents(joinParameter) {
+    await this.initUserPage(true, this.context, { useModMeetingId: true, joinParameter });
     const { presentationHidden, pollEnabled } = getSettings();
     if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     const zoomInCase = await util.zoomIn(this.modPage);
@@ -145,8 +145,8 @@ class CustomParameters extends MultiUsers {
     await this.userPage.checkElement(e.restorePresentation);
   }
 
-  async forceRestorePresentationOnNewPollResult(customParameter) {
-    await this.initUserPage(true, this.context, { useModMeetingId: true, customParameter })
+  async forceRestorePresentationOnNewPollResult(joinParameter) {
+    await this.initUserPage(true, this.context, { useModMeetingId: true, joinParameter })
     const { presentationHidden,pollEnabled } = getSettings();
     if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
     if (pollEnabled) await util.poll(this.modPage, this.userPage);

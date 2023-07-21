@@ -70,7 +70,7 @@ class LocalesDropdown extends PureComponent {
           });
 
           return (
-            <option key={localeItem.locale} value={localeItem.locale}>
+            <option key={localeItem.locale} value={localeItem.locale} lang={localeItem.locale}>
               {localeItem.name}{localizedName && ` - ${localizedName}`}
             </option>
           );
