@@ -19,6 +19,8 @@ Here's a breakdown of what's new in 2.7.
 
 We have enhanced the layout which is focused on webcams by providing a visual representation of each participant. This way whether a webcam was shared or not, you can more easily be aware of who is speaking, who is present etc.
 
+![Grid Layout](/img/27-grid-layout.png)
+
 #### Camera as content
 
 In hybrid learning (and not only) there is a frequently a need for displaying a physical whiteboard or draw the attention of students to a specific physical area. We now support using a webcam as the main content to occupy the presentation area.
@@ -41,16 +43,36 @@ In BigBlueButton 2.4 and 2.5 we supported optional downloading of the entire pre
 
 ![You can enable original presentation downloading from the upload dialog](/img/27-enable-download-orig-presentation.png)
 
-The download button is the same as in BigBlueButton 2.5!
+The download button is overlayed on top of the presentation.
 
 ![Once downloading is enabled, everyone in the room can use it](/img/27-download-orig-presentation.png)
+
+#### Timer and stopwatch
+
+We have added the long requested option to display a count down (timer) or a count up (stopwatch) in the session. They are displayed to all participants and there is an audio notification when the timer elapses.
+
+![The timer can be activated from the plus button menu](/img/27-activate-timer.png)
+
+Setting up a timer for four minutes.
+
+![Setting up a 4 minutes timer](/img/27-timer-4mins-start.png)
+
+Everyone sees the timer as it counts down.
+
+![Everyone seeing 4 minutes timer](/img/27-timer-4mins.png)
 
 
 ### Engagement
 
-#### Reaction Bar
+#### Reactions Bar
 
-The Reaction Bar aims to make it much easier for students to respond with emojis to the teacher. The emoji is displayed in the user avatar area for 1 minute (configurable). 
+The Reactions Bar aims to make it much easier for students to respond with emojis to the teacher. The emoji is displayed in the user avatar area for 1 minute (configurable). The bar remains visible once activated, and the emoji selected remains visible until it times out or is unselected. Modifying the configuration options (settings.yml) an additional set of emojis can be displayed, or the Reactions Bar can be substituted with the Status selecter we used in BigBlueButton 2.6 and prior.
+
+![Reactions Bar remains visible once activated](/img/27-reactions-bar.png)
+
+Others see your reactions in the participants list.
+
+![Others see your reactions in the participants list](/img/27-reactions-thumbs-up.png)
 
 <!-- ### Analytics -->
 
