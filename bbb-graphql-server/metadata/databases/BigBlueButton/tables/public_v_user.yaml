@@ -85,6 +85,7 @@ select_permissions:
         - isDialIn
         - isModerator
         - isOnline
+        - isRunningEchoTest
         - joined
         - locked
         - loggedOut

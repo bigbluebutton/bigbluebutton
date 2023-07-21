@@ -286,7 +286,8 @@ CREATE TABLE "user" (
 	"pinned" bool,
 	"locked" bool,
 	"speechLocale" varchar(255),
-	"hasDrawPermissionOnCurrentPage" bool default FALSE
+	"hasDrawPermissionOnCurrentPage" bool default FALSE,
+	"echoTestRunningAt" timestamp
 );
 CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
 CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
@@ -373,6 +374,7 @@ AS SELECT "user"."userId",
     "user"."pinned",
     "user"."locked",
     "user"."speechLocale",
+    CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     CASE WHEN "user"."joined" IS true AND "user"."expired" IS false AND "user"."loggedOut" IS false THEN true ELSE false END "isOnline"
@@ -423,6 +425,8 @@ AS SELECT "user"."userId",
     "user"."locked",
     "user"."speechLocale",
     "user"."hasDrawPermissionOnCurrentPage",
+    "user"."echoTestRunningAt",
+    CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator"
    FROM "user";
 
