@@ -2,11 +2,12 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { injectIntl } from 'react-intl';
-import InteractionsButton from './component';
+import ReactionsButton from './component';
 import actionsBarService from '../service';
+import UserReactionService from '/imports/ui/components/user-reaction/service';
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 
-const InteractionsButtonContainer = ({ ...props }) => {
+const ReactionsButtonContainer = ({ ...props }) => {
   const layoutContextDispatch = layoutDispatch();
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
@@ -15,7 +16,7 @@ const InteractionsButtonContainer = ({ ...props }) => {
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
 
   return (
-    <InteractionsButton {...{
+    <ReactionsButton {...{
       layoutContextDispatch, sidebarContentPanel, isMobile, ...props,
     }}
     />
@@ -24,11 +25,13 @@ const InteractionsButtonContainer = ({ ...props }) => {
 
 export default injectIntl(withTracker(() => {
   const currentUser = actionsBarService.currentUser();
+  const currentUserReaction = UserReactionService.getUserReaction(currentUser.userId);
 
   return {
     userId: currentUser.userId,
     emoji: currentUser.emoji,
+    currentUserReaction: currentUserReaction.reaction,
     raiseHand: currentUser.raiseHand,
   };
-})(InteractionsButtonContainer));
+})(ReactionsButtonContainer));
 

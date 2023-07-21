@@ -139,7 +139,7 @@ class PresentationDownloadDropdown extends PureComponent {
             keepMounted: true,
             transitionDuration: 0,
             elevation: 2,
-            getContentAnchorEl: null,
+            getcontentanchorel: null,
             fullwidth: 'true',
             anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
             transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },

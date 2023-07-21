@@ -264,6 +264,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[UserReactionTimeExpiredCmdMsg](envelope, jsonNode)
       case ClearAllUsersEmojiCmdMsg.NAME =>
         routeGenericMsg[ClearAllUsersEmojiCmdMsg](envelope, jsonNode)
+      case ClearAllUsersReactionCmdMsg.NAME =>
+        routeGenericMsg[ClearAllUsersReactionCmdMsg](envelope, jsonNode)
       case ChangeUserRoleCmdMsg.NAME =>
         routeGenericMsg[ChangeUserRoleCmdMsg](envelope, jsonNode)
 
