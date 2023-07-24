@@ -325,14 +325,14 @@ test.describe.parallel('Create Parameters', () => {
 
     test.describe.serial(() => {
       test('Camera As Content', async ({ browser, context, page }) => {
-        const customParam = new DisabledFeatures(browser, context);
-        await customParam.initModPage(page, true, { customParameter: c.cameraAsContent });
-        await customParam.cameraAsContent();
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, true, { customParameter: c.cameraAsContent });
+        await disabledFeatures.cameraAsContent();
       });
       test('Camera As Content (exclude)', async ({ browser, context, page }) => {
-        const customParam = new DisabledFeatures(browser, context);
-        await customParam.initModPage(page, true, { customParameter: c.cameraAsContentExclude });
-        await customParam.cameraAsContentExclude();
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, true, { customParameter: c.cameraAsContentExclude });
+        await disabledFeatures.cameraAsContentExclude();
       });
     });
   });
