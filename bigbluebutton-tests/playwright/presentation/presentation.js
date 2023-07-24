@@ -104,11 +104,21 @@ class Presentation extends MultiUsers {
   async fitToWidthTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     const width1 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
+    // check if its off
+    const fitToWidthButtonLocator = this.modPage.getLocator(`${e.fitToWidthButton} > span>>nth=0`);
+    const fitToWidthBorderColorOff = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    await expect(fitToWidthBorderColorOff).toBe('rgba(0, 0, 0, 0)');
+
     await this.modPage.waitAndClick(e.fitToWidthButton);
+    await sleep(500);
+
+    //check if its on
+    const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    await expect(fitToWidthBorderColorOn).toBe('rgb(6, 23, 42)');
+
     const width2 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
-    await expect(Number(width2) > Number(width1)).toBeTruthy();
+    await expect(Number(width2)).toBeGreaterThan(Number(width1));
   }
 
   async enableAndDisablePresentationDownload(testInfo) {
