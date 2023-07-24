@@ -81,8 +81,8 @@ const ReactionsPicker = (props) => {
         </Styled.ButtonWrapper>
       ))}
       <Styled.Separator isMobile={isMobile} />
-      <Styled.RaiseHandButtonWrapper onClick={() => onRaiseHand()} active={raiseHand}>
-        <Emoji key='hand' emoji={{ id: 'hand' }} {...emojiProps} />
+      <Styled.RaiseHandButtonWrapper data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'} onClick={() => onRaiseHand()} active={raiseHand}>
+        <Emoji key="hand" emoji={{ id: 'hand' }} {...emojiProps} />
         {RaiseHandButtonLabel()}
       </Styled.RaiseHandButtonWrapper>
     </Styled.Wrapper>
