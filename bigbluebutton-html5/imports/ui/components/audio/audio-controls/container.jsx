@@ -13,6 +13,7 @@ import {
   setUserSelectedListenOnly,
 } from '../audio-modal/service';
 import { layoutSelect } from '/imports/ui/components/layout/context';
+import AudioControlsContainerGraphql from '../audio-graphql/audio-controls/component';
 
 import Service from '../service';
 import AppService from '/imports/ui/components/app/service';
@@ -21,9 +22,7 @@ const ROLE_VIEWER = Meteor.settings.public.user.role_viewer;
 const APP_CONFIG = Meteor.settings.public.app;
 
 const AudioControlsContainer = (props) => {
-  const {
-    users, lockSettings, userLocks, children, ...newProps
-  } = props;
+  const { users, lockSettings, userLocks, children, ...newProps } = props;
   const isRTL = layoutSelect((i) => i.isRTL);
   return <AudioControls {...{ ...newProps, isRTL }} />;
 };
@@ -36,16 +35,22 @@ const handleLeaveAudio = () => {
     setUserSelectedListenOnly(false);
   }
 
-  const skipOnFistJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
+  const skipOnFistJoin = getFromUserSettings(
+    'bbb_skip_check_audio_on_first_join',
+    APP_CONFIG.skipCheckOnJoin
+  );
   if (skipOnFistJoin && !Storage.getItem('getEchoTest')) {
     Storage.setItem('getEchoTest', true);
   }
 
   Service.forceExitAudio();
-  logger.info({
-    logCode: 'audiocontrols_leave_audio',
-    extraInfo: { logType: 'user_action' },
-  }, 'audio connection closed by user');
+  logger.info(
+    {
+      logCode: 'audiocontrols_leave_audio',
+      extraInfo: { logType: 'user_action' },
+    },
+    'audio connection closed by user'
+  );
 };
 
 const {
@@ -61,7 +66,7 @@ const {
   joinListenOnly,
 } = Service;
 
-export default withUsersConsumer(
+withUsersConsumer(
   lockContextContainer(
     withTracker(({ userLocks, users }) => {
       const currentUser = users[Auth.meetingID][Auth.userID];
@@ -76,7 +81,7 @@ export default withUsersConsumer(
         Service.recoverMicState();
       }
 
-      return ({
+      return {
         showMute: isConnected() && !isListenOnly() && !isEchoTest() && !userLocks.userMic,
         muted: isConnected() && !isListenOnly() && isMuted(),
         inAudio: isConnected() && !isEchoTest(),
@@ -91,7 +96,9 @@ export default withUsersConsumer(
         isViewer,
         isPresenter,
         isConnected,
-      });
-    })(AudioControlsContainer),
-  ),
+      };
+    })(AudioControlsContainer)
+  )
 );
+
+export default AudioControlsContainerGraphql;

@@ -6,7 +6,7 @@ import { Meteor } from 'meteor/meteor'
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
-import { UseShortcutHelp, useShortcutHelp } from '/imports/ui/components/shortcut-help/useShortcutHelp'
+import { UseShortcutHelp, useShortcutHelp } from '../../../../../../core/hooks/useShortcutHelp'
 import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({
