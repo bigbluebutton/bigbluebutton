@@ -64,8 +64,7 @@ exports.allowChoiceRoom = 'input[id="freeJoinCheckbox"]';
 exports.labelGeneratingURL = 'span[data-test="labelGeneratingURL"]';
 exports.endBreakoutRoomsButton = 'button[data-test="endBreakoutRoomsButton"]';
 exports.durationTime = 'input[data-test="durationTime"]';
-exports.decreaseBreakoutTime = 'button[data-test="decreaseBreakoutTime"]';
-exports.increaseBreakoutTime = 'button[data-test="increaseBreakoutTime"]';
+exports.minimumDurationWarnBreakout = 'span[data-test="minimumDurationWarnBreakout"]';
 exports.selectNumberOfRooms = 'select[id="numberOfRooms"]';
 exports.roomGrid = 'div[data-test="roomGrid"] >> input';
 exports.breakoutBox0 = 'div[id="breakoutBox-0"]';
@@ -182,6 +181,7 @@ exports.exporthtml = 'span[id="exporthtml"]';
 
 // Notifications
 exports.smallToastMsg = 'div[data-test="toastSmallMsg"]';
+exports.closeToastBtn = 'i[data-test="closeToastBtn"]';
 const currentPresentationToast = 'div[data-test="currentPresentationToast"]';
 exports.currentPresentationToast = currentPresentationToast
 exports.notificationsTab = 'span[id="notificationTab"]';
