@@ -51,7 +51,7 @@ const propTypes = {
 
 const defaultProps = {
   shortcuts: '',
-  tabIndex: 0,
+  tabIndex: -1,
 };
 
 const ChatListItem = (props) => {
