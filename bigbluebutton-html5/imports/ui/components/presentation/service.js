@@ -92,7 +92,7 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /^[\s\S]+\?\s*$/gm;
+  const questionRegex = /(?:^|\n)([A-Z][^\n?]*\?)/gm;
   const question = safeMatch(questionRegex, content, '');
 
   if (question?.length > 0) {
