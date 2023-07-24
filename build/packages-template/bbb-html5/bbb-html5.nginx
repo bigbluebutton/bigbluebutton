@@ -1,3 +1,14 @@
+gzip on;
+gzip_types 
+  application/javascript
+  application/wasm
+  application/x-javascript
+  image/svg+xml
+  text/css
+  text/javascript
+  text/json
+  text/plain;
+
 location @html5client {
   # proxy_pass http://127.0.0.1:4100; # use for development
   proxy_pass http://poolhtml5servers; # use for production
