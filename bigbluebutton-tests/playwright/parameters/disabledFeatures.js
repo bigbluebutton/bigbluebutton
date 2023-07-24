@@ -1,11 +1,7 @@
-const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
-const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
-const util = require('./util');
+const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 
 class DisabledFeatures extends MultiUsers {
   constructor(browser, context) {
@@ -102,6 +98,20 @@ class DisabledFeatures extends MultiUsers {
     await this.modPage.wasRemoved(e.inputBackgroundButton);
   }
 
+  async slideSnapshot() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationFullscreen);
+    await this.modPage.wasRemoved(e.presentationSnapshot);
+  }
+
+  async cameraAsContent() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.managePresentations);
+    await this.modPage.wasRemoved(e.shareCameraAsContent);
+  }
+
   // Disabled Features Exclude
   async breakoutRoomsExclude() {
     await this.modPage.waitAndClick(e.manageUsers);
@@ -191,6 +201,18 @@ class DisabledFeatures extends MultiUsers {
     await this.modPage.waitAndClick (e.joinVideo);
     await this.modPage.waitForSelector(e.webcamSettingsModal);
     await this.modPage.hasElement(e.inputBackgroundButton);
+  }
+
+  async slideSnapshotExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.whiteboardOptionsButton);
+    await this.modPage.hasElement(e.presentationSnapshot);
+  }
+
+  async cameraAsContentExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.hasElement(e.shareCameraAsContent);
   }
 }
 
