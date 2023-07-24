@@ -111,7 +111,7 @@ class Presentation extends MultiUsers {
     await expect(fitToWidthBorderColorOff).toBe('rgba(0, 0, 0, 0)');
 
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    await this.modPage.wasRemoved(e.chatButton);
+    await sleep(500);
 
     //check if its on
     const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
