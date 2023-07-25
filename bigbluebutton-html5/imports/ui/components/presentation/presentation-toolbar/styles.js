@@ -76,6 +76,11 @@ const QuickPollButton = styled(QuickPollDropdownContainer)`
   }
 `;
 
+const QuickPollButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const PresentationSlideControls = styled.div`
   justify-content: center;
   padding-left: ${whiteboardToolbarPadding};
@@ -276,6 +281,7 @@ const WBAccessButton = styled(Button)`
 export default {
   PresentationToolbarWrapper,
   QuickPollButton,
+  QuickPollButtonWrapper,
   PresentationSlideControls,
   PrevSlideButton,
   NextSlideButton,
