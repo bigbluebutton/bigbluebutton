@@ -224,6 +224,7 @@ const QuickPollDropdown = (props) => {
       }}
       size="lg"
       data-test="quickPollBtn"
+      color="primary"
     />
   );
 
