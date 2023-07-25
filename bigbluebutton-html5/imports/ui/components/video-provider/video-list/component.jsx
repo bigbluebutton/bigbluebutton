@@ -98,24 +98,20 @@ class VideoList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { layoutType, cameraDock, streams, focusedId, isGridEnabled, users } = this.props;
+    const { layoutType, cameraDock, streams, focusedId } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
       streams: prevStreams,
-      users: prevUsers,
       focusedId: prevFocusedId,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
-
-    const focusedStream = streams.filter(s => s.stream === focusedId);
 
     if (layoutType !== prevLayoutType
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
-      || (isGridEnabled && users?.length !== prevUsers?.length)
       || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
     }
@@ -182,14 +178,8 @@ class VideoList extends Component {
       streams,
       cameraDock,
       layoutContextDispatch,
-      isGridEnabled,
-      users,
     } = this.props;
     let numItems = streams.length;
-
-    if (isGridEnabled) {
-      numItems += users.length;
-    }
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -310,15 +300,10 @@ class VideoList extends Component {
       swapLayout,
       handleVideoFocus,
       focusedId,
-      users,
     } = this.props;
     const numOfStreams = streams.length;
 
     let videoItems = streams;
-
-    if (users) {
-      videoItems = sortVideoStreams(videoItems.concat(users), DEFAULT_SORTING);
-    }
 
     return videoItems.map((item) => {
       const { userId, name } = item;
