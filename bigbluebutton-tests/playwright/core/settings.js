@@ -9,7 +9,7 @@ async function generateSettingsData(page) {
     });
 
     settings = {
-      raiseHandButton: settingsData.app.raiseHandActionButton.enabled,
+      reactionsButton: settingsData.app.reactionsButton.enabled,
       sharedNotesEnabled: settingsData.notes.enabled,
       // Audio
       autoJoinAudioModal: settingsData.app.autoJoin,

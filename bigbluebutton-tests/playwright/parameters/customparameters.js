@@ -214,7 +214,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.joinVideo);
     await this.modPage.wasRemoved(e.startScreenSharing);
     await this.modPage.wasRemoved(e.minimizePresentation);
-    await this.modPage.wasRemoved(e.raiseHandBtn);
+    await this.modPage.wasRemoved(e.reactionsButton);
   }
 
   async overrideDefaultLocaleTest() {
