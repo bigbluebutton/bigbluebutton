@@ -313,12 +313,12 @@ test.describe.parallel('Create Parameters', () => {
     test.describe.serial(() => {
       test('Slide Snapshot', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { customParameter: c.slideSnapshotDisabled });
+        await disabledFeatures.initModPage(page, true, { createParameter: c.slideSnapshotDisabled });
         await disabledFeatures.slideSnapshot();
       });
       test('Slide Snapshot (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { customParameter: c.slideSnapshotExclude });
+        await disabledFeatures.initModPage(page, true, { createParameter: c.slideSnapshotExclude });
         await disabledFeatures.slideSnapshotExclude();
       });
     });
@@ -326,12 +326,12 @@ test.describe.parallel('Create Parameters', () => {
     test.describe.serial(() => {
       test('Camera As Content', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { customParameter: c.cameraAsContent });
+        await disabledFeatures.initModPage(page, true, { createParameter: c.cameraAsContent });
         await disabledFeatures.cameraAsContent();
       });
       test('Camera As Content (exclude)', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { customParameter: c.cameraAsContentExclude });
+        await disabledFeatures.initModPage(page, true, { createParameter: c.cameraAsContentExclude });
         await disabledFeatures.cameraAsContentExclude();
       });
     });

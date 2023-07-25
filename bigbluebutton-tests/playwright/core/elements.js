@@ -158,7 +158,6 @@ exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.learningDashboard = 'li[data-test="learningDashboard"]';
-exports.layoutModal = 'li[data-test="layoutModal"]';
 
 // Notes
 exports.sharedNotes = 'div[data-test="sharedNotes"]';
@@ -491,7 +490,7 @@ exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
 // Layout management
-exports.layoutSettingsModalButton = 'li[data-test="layoutModal"]';
+exports.manageLayoutBtn = 'li[data-test="manageLayoutBtn"]';
 exports.focusOnPresentation = 'button[data-test="presentationFocusLayout"]';
 exports.focusOnVideo = 'button[data-test="videoFocusLayout"]';
 exports.smartLayout = 'button[data-test="smartLayout"]';

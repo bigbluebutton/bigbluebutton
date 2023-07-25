@@ -41,8 +41,7 @@ class DisabledFeatures extends MultiUsers {
 
   async layouts() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.wasRemoved(e.propagateLayout);
-    await this.modPage.wasRemoved(e.layoutModal);
+    await this.modPage.wasRemoved(e.manageLayoutBtn);
   }
 
   async learningDashboard() {
@@ -147,8 +146,7 @@ class DisabledFeatures extends MultiUsers {
 
   async layoutsExclude() {
     await this.modPage.waitAndClick(e.actions);
-    await this.modPage.hasElement(e.propagateLayout);
-    await this.modPage.hasElement(e.layoutModal);
+    await this.modPage.hasElement(e.manageLayoutBtn);
   }
 
   async learningDashboardExclude() {
@@ -175,6 +173,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async downloadPresentationWithAnnotationsExclude() {
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
