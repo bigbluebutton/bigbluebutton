@@ -58,7 +58,7 @@ jobs:
       #     sudo sh -c '
       #     echo "Faking a package build (to speed up installation test)"
       #     cd /
-      #     wget -q "http://ci.bbbvm.imdt.com.br/artifacts.tar"
+      #     wget -q "http://ci.bbb.imdt.dev/artifacts.tar"
       #     tar xf artifacts.tar
       #     '
       - name: Generate CA
@@ -108,7 +108,7 @@ jobs:
         run: |
             sudo sh -c '
             apt install -yq dpkg-dev
-            cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
+            cd /root && wget -q http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
             cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
             cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
             cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
