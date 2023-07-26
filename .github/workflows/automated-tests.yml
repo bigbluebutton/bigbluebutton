@@ -106,14 +106,12 @@ jobs:
           '
       - name: Setup local repository
         run: |
-            sudo sh -c '
-            set -e
-            apt install -yq dpkg-dev
-            cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
-            cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
-            cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
-            cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-            echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
+            sudo apt install -yq dpkg-dev
+            sudo cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
+            sudo cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
+            sudo cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
+            sudo cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+            sudo echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
             '
       - name: Prepare for install
         run: |
