@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.db
 
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
+
 import org.bigbluebutton.core.models.PresentationInPod
 import slick.jdbc.PostgresProfile.api._
 
@@ -54,7 +56,18 @@ object PresPageDAO {
       }
   }
 
-  def resizeAndMovePage(presentation: PresentationInPod) = {
-
+  def resizeAndMovePage(presentation: PresentationPage, presentationId: String) = {
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE pres_page SET
+            "xOffset" = ${presentation.xOffset},
+            "yOffset" = ${presentation.yOffset},
+            "num" = ${presentation.num},
+            "widthRatio" = ${presentation.widthRatio},
+            "heightRatio" = ${presentation.heightRatio}
+            WHERE "presentationId" = ${presentationId}"""
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated size on PresPage table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating size on PresPage: $e")
+      }
   }
 }
