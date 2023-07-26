@@ -67,7 +67,7 @@ class WakeLock extends Component {
           closeNotification();
           const error = await request();
           if (!error) {
-            Settings.application.wakeLockEnabled = true;
+            Settings.application.wakeLock = true;
             Settings.save();
           }
           this.feedbackToast(error);
@@ -117,7 +117,7 @@ class WakeLock extends Component {
       request().then((error) => {
         if (error) {
           this.feedbackToast(error);
-          Settings.application.wakeLockEnabled = false;
+          Settings.application.wakeLock = false;
           Settings.save();
         }
       });
