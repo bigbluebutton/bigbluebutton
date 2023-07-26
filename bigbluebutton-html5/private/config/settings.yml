@@ -478,12 +478,12 @@ public:
         viewer: 2
       # video page sizes for DESKTOP endpoints in GRID mode
       desktopGridPageSizes:
-        moderator: 49
-        viewer: 49
+        moderator: 48
+        viewer: 48
       # video page sizes for MOBILE endpoints in GRID mode
       mobileGridPageSizes:
-        moderator: 27
-        viewer: 27
+        moderator: 14
+        viewer: 14
     paginationThresholds:
       enabled: false
       thresholds:
