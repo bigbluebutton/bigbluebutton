@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import RedisPubSub from '/imports/startup/server/redis';
 import Logger from '/imports/startup/server/logger';
-import { extractCredentials } from '/imports/api/common/server/helpers';
+import { extractCredentials, parseMessage } from '/imports/api/common/server/helpers';
 
 const REDIS_CONFIG = Meteor.settings.private.redis;
 const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
@@ -16,8 +16,7 @@ export default function setGuestLobbyMessage(message) {
 
     check(meetingId, String);
     check(requesterUserId, String);
-
-    const payload = { message };
+    const payload = { message: parseMessage(message) };
 
     Logger.info(`User=${requesterUserId} set guest lobby message to ${message}`);
 
