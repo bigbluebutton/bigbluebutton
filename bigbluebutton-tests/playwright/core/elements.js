@@ -339,7 +339,7 @@ exports.dataSavingScreenshare = 'input[data-test="dataSavingScreenshare"]';
 exports.screenshareLocked = 'button[data-test="screenshareLocked"]';
 exports.connectionStatusItemEmpty = 'li[data-test="connectionStatusItemEmpty"]';
 exports.connectionStatusTab2 = 'li[id="react-tabs-2"]';
-exports.connectionStatusItemUser = 'div[data-test="connectionStatusItemUser"]';
+exports.connectionStatusItemUser = 'li[data-test="connectionStatusItemUser"]';
 exports.connectionStatusLinkToSettings = `${networkDataContainer} span[role="button"]`;
 exports.dataSavingWebcams = 'input[data-test="dataSavingWebcams"]';
 exports.connectionStatusOfflineUser = 'div[data-test="offlineUser"]';
