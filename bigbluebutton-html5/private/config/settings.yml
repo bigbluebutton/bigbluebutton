@@ -639,6 +639,9 @@ public:
           path: 'bridge/sip'
         - name: fullaudio
           path: 'bridge/sfu-audio-bridge'
+      # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
+      # fails with error code 1007.
+      retryThroughRelay: false
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
