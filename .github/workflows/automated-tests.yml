@@ -61,6 +61,7 @@ jobs:
       #     cd /
       #     wget -nv "http://ci.bbb.imdt.dev/artifacts.tar"
       #     tar xf artifacts.tar
+      #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
       - name: Generate CA
         run: |
@@ -193,9 +194,10 @@ jobs:
           cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml configs/bbb-webrtc-recorder-default.yml
           cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
           cp /etc/hosts /configs/hosts
-          chmod a+r -R configs
+          mv configs /home/runner/work/bigbluebutton/bigbluebutton/configs
+          chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
-          ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' ./bbb-logs.tar.gz
+          ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
           EOF
       - if: failure()
         uses: actions/upload-artifact@v3
