@@ -195,7 +195,7 @@ jobs:
           cp /etc/hosts /configs/hosts
           chmod a+r -R configs
           bbb-conf --zip
-          cp $(ls -t /root/*.tar.gz | head -1) ./bbb-logs.tar.gz
+          ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' ./bbb-logs.tar.gz
           EOF
       - if: failure()
         uses: actions/upload-artifact@v3
