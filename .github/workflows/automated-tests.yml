@@ -108,10 +108,10 @@ jobs:
         shell: bash
         run: |
             sudo apt install -yq dpkg-dev
-            sudo cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
+            cd /root && sudo wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
             sudo cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
-            sudo cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
-            sudo cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
+            cd /artifacts && sudo tar xf /root/cache-3rd-part-packages.tar
+            cd /artifacts && sudo dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
             sudo echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
             '
       - name: Prepare for install
