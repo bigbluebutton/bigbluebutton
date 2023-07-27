@@ -88,7 +88,7 @@ jobs:
           cd /root/bbb-ci-ssl/
           echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
           openssl genrsa -out bbb-ci.test.key 2048
-          rm bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
+          rm -f bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
           cat > bbb-ci.test.ext << EOF
           authorityKeyIdentifier=keyid,issuer
           basicConstraints=CA:FALSE
