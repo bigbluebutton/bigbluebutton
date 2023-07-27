@@ -548,10 +548,48 @@ class AudioManager {
       );
     }
 
+    try {
+      this.inputStream = this.bridge ? this.bridge.inputStream : null;
+      // Enforce correct output device on audio join
+      this.changeOutputDevice(this.outputDeviceId, true);
+      storeAudioOutputDeviceId(this.outputDeviceId);
+      // Extract the deviceId again from the stream to guarantee consistency
+      // between stream DID vs chosen DID. That's necessary in scenarios where,
+      // eg, there's no default/pre-set deviceId ('') and the browser's
+      // default device has been altered by the user (browser default != system's
+      // default).
+      if (this.inputStream) {
+        const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.inputStream, 'audio');
+        if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+          this.changeInputDevice(extractedDeviceId);
+        }
+      }
+      // Audio joined successfully - add device IDs to session storage so they
+      // can be re-used on refreshes/other sessions
+      storeAudioInputDeviceId(this.inputDeviceId);
+    } catch (error) {
+      logger.warn({
+        logCode: 'audiomanager_device_enforce_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+          inputDeviceId: this.inputDeviceId,
+          outputDeviceId: this.outputDeviceId,
+        },
+      }, `Failed to enforce input/output devices: ${error.message}`);
+    }
+
     if (!this.isEchoTest) {
       this.notify(this.intl.formatMessage(this.messages.info.JOINED_AUDIO));
-      logger.info({ logCode: 'audio_joined' }, 'Audio Joined');
-      this.inputStream = this.bridge ? this.bridge.inputStream : null;
+      logger.info({
+        logCode: 'audio_joined',
+        extraInfo: {
+          secondsToActivateAudio,
+          inputDeviceId: this.inputDeviceId,
+          outputDeviceId: this.outputDeviceId,
+          isListenOnly: this.isListenOnly,
+        },
+      }, 'Audio Joined');
       if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
@@ -559,25 +597,6 @@ class AudioManager {
       });
     }
     Session.set('audioModalIsOpen', false);
-
-    // Enforce correct output device on audio join
-    this.changeOutputDevice(this.outputDeviceId, true);
-    storeAudioOutputDeviceId(this.outputDeviceId);
-
-    // Extract the deviceId again from the stream to guarantee consistency
-    // between stream DID vs chosen DID. That's necessary in scenarios where,
-    // eg, there's no default/pre-set deviceId ('') and the browser's
-    // default device has been altered by the user (browser default != system's
-    // default).
-    if (this.inputStream) {
-      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.inputStream, 'audio');
-      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
-        this.changeInputDevice(extractedDeviceId);
-      }
-    }
-    // Audio joined successfully - add device IDs to session storage so they
-    // can be re-used on refreshes/other sessions
-    storeAudioInputDeviceId(this.inputDeviceId);
   }
 
   onTransferStart() {
@@ -648,6 +667,9 @@ class AudioManager {
               errorCode: error,
               cause: bridgeError,
               bridge,
+              inputDeviceId: this.inputDeviceId,
+              outputDeviceId: this.outputDeviceId,
+              isListenOnly: this.isListenOnly,
             },
           },
           `Audio error - errorCode=${error}, cause=${bridgeError}`
