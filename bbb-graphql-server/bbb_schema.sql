@@ -842,6 +842,7 @@ CREATE TABLE "pres_page" (
 	"pageId" varchar(100) PRIMARY KEY,
 	"presentationId" varchar(100) REFERENCES "pres_presentation"("presentationId") ON DELETE CASCADE,
     "podId" varchar(100),
+    "slideId" varchar(100),
 	"num" integer,
 	"urls" TEXT,
 	"slideRevealed" boolean default false,
@@ -851,7 +852,9 @@ CREATE TABLE "pres_page" (
 	"widthRatio" NUMERIC,
 	"heightRatio" NUMERIC,
     "width" NUMERIC,
-    "height" NUMERIC
+    "height" NUMERIC,
+    "viewBoxWidth" NUMERIC,
+    "viewBoxHeight" NUMERIC
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;

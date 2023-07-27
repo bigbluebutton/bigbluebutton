@@ -40,6 +40,11 @@ case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMo
 case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
                                        yOffset: Double, widthRatio: Double, heightRatio: Double, slideNumber: Int)
 
+object AddSlidePositionsPubMsg { val NAME = "AddSlidePositionsPubMsg" }
+case class AddSlidePositionsPubMsg(header: BbbClientMsgHeader, body: AddSlidePositionsPubMsgBody) extends StandardMsg
+case class AddSlidePositionsPubMsgBody(podId: String, presentationId: String, slideId: String, width: Double, 
+                                       height: Double, viewBoxWidth: Double, viewBoxHeight: Double)
+
 object SetCurrentPresentationPubMsg { val NAME = "SetCurrentPresentationPubMsg" }
 case class SetCurrentPresentationPubMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationPubMsgBody) extends StandardMsg
 case class SetCurrentPresentationPubMsgBody(podId: String, presentationId: String)

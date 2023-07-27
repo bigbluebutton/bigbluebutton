@@ -51,6 +51,7 @@ object PresPresentationDAO {
                   pageId = page._2.id,
                   presentationId = presentation.id,
                   podId = podId,
+                  slideId = "",
                   num = page._2.num,
                   urls = page._2.urls.toJson.asJsObject.compactPrint,
                   slideRevealed = page._2.current,
@@ -60,7 +61,9 @@ object PresPresentationDAO {
                   widthRatio = page._2.widthRatio,
                   heightRatio = page._2.heightRatio,
                   width = 1,
-                  height = 1
+                  height = 1,
+                  viewBoxWidth = 1,
+                  viewBoxHeight = 1
                 )
               )
             }

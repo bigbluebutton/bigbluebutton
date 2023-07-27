@@ -12,6 +12,7 @@ case class PresPageDbModel(
     pageId:         String,
     presentationId: String,
     podId:          String,
+    slideId:        String,
     num:            Int,
     urls:           String,
     slideRevealed:  Boolean,
@@ -21,13 +22,16 @@ case class PresPageDbModel(
     widthRatio:     Double,
     heightRatio:    Double,
     width:          Double,
-    height:         Double
+    height:         Double,
+    viewBoxWidth:   Double,
+    viewBoxHeight:  Double
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
   val pageId = column[String]("pageId", O.PrimaryKey)
   val presentationId = column[String]("presentationId")
   val podId = column[String]("podId")
+  val slideId = column[String]("slideId")
   val num = column[Int]("num")
   val urls = column[String]("urls")
   val slideRevealed = column[Boolean]("slideRevealed")
@@ -38,8 +42,10 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val heightRatio = column[Double]("heightRatio")
   val width = column[Double]("width")
   val height = column[Double]("height")
+  val viewBoxWidth = column[Double]("viewBoxWidth")
+  val viewBoxHeight = column[Double]("viewBoxHeight")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, podId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, podId, slideId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
@@ -64,10 +70,24 @@ object PresPageDAO {
             "num" = ${presentation.num},
             "widthRatio" = ${presentation.widthRatio},
             "heightRatio" = ${presentation.heightRatio}
-            WHERE "presentationId" = ${presentationId}"""
+            WHERE "presentationId" = $presentationId"""
     ).onComplete {
         case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated size on PresPage table")
         case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating size on PresPage: $e")
+      }
+  }
+
+  def updateSlidePosition(presentationId: String, width: Double, height: Double, viewBoxWidth: Double, viewBoxHeight: Double) = {
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE pres_page SET
+             "width" = $width,
+             "height" = $height,
+             "viewBoxWidth" = $viewBoxWidth,
+             "viewBoxHeight" = $viewBoxHeight
+             WHERE "presentationId" = $presentationId"""
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated slide position on PresPage table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating slide position on PresPage: $e")
       }
   }
 }
