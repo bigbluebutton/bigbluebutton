@@ -53,7 +53,7 @@ const reducer = (state, action) => {
 
         return newState;
       }
-      return state;    
+      return state;
     }
 
     // USER PERSISTENT DATA
@@ -64,10 +64,9 @@ const reducer = (state, action) => {
           const newState = { ...state };
           newState[user.meetingId][user.userId] = {
             ...state[user.meetingId][user.userId],
-            loggedOut: false,
           };
-  
-          return newState;  
+
+          return newState;
         }
         return state;
       }
