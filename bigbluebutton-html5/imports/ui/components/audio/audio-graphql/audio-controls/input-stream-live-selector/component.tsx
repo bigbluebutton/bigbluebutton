@@ -246,7 +246,7 @@ const InputStreamLiveSelectorContainer: React.FC = () => {
   return <InputStreamLiveSelector
     isPresenter={currentUser?.presenter ?? false}
     isModerator={currentUser?.isModerator ?? false}
-    isAudioLocked={(currentUser?.locked && currentMeeting?.lockSettings?.disableMic) ?? false}
+    isAudioLocked={(!currentUser?.isModerator && currentUser?.locked && currentMeeting?.lockSettings?.disableMic) ?? false}
     listenOnly={currentUser?.voice?.listenOnly ?? false}
     muted={currentUser?.voice?.muted ?? false}
     talking={currentUser?.voice?.talking ?? false}

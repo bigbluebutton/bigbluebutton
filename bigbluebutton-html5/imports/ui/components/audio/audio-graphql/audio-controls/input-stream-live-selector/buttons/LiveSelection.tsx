@@ -234,7 +234,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
             />
           </>
         )}
-        actions={isAudioLocked ? dropdownListComplete : []}
+        actions={!isAudioLocked ? dropdownListComplete : [leaveAudioOption]}
         opts={{
           id: 'audio-selector-dropdown-menu',
           keepMounted: true,
