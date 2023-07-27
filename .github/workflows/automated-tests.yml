@@ -72,7 +72,6 @@ jobs:
           openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
           openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
           EOF
-          '
       - name: Trust CA
         run: |
           sudo -i <<EOF
@@ -82,7 +81,6 @@ jobs:
           sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           sudo update-ca-certificates
           EOF
-          '
       - name: Generate certificate
         run: |
           sudo sh -c '
@@ -120,7 +118,6 @@ jobs:
             cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
             echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
             EOF
-            '
       - name: Prepare for install
         run: |
             sudo sh -c '
