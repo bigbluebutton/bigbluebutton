@@ -108,6 +108,7 @@ jobs:
         shell: bash
         run: |
             sudo -i <<EOF
+            set -e
             apt install -yq dpkg-dev
             cd /root && wget -q http://ci.bbbvm.imdt.com.br/cache-3rd-part-packages.tar
             cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
