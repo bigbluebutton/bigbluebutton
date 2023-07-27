@@ -134,7 +134,6 @@ jobs:
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
             bbb-conf --restart
             EOF
-            '
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: |
@@ -197,7 +196,6 @@ jobs:
           bbb-conf --zip
           cp $(ls -t /root/*.tar.gz | head -1) ./bbb-logs.tar.gz
           EOF
-          '
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
