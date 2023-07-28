@@ -189,6 +189,7 @@ class BigBlueButtonActor(
       MeetingDAO.delete(msg.meetingId)
       //      Removing the meeting is enough, all other tables has "ON DELETE CASCADE"
       //      UserDAO.deleteAllFromMeeting(msg.meetingId)
+      //      MeetingRecordingDAO.updateStopped(msg.meetingId, "")
 
       //Remove ColorPicker idx of the meeting
       ColorPicker.reset(m.props.meetingProp.intId)

@@ -28,6 +28,10 @@ class MeetingRecordingDbTableDef(tag: Tag) extends Table[MeetingRecordingDbModel
 
 object MeetingRecordingDAO {
   def insertRecording(meetingId: String, startedBy: String) = {
+
+    //Stop any previous recoding for this meeting before starting a new one
+    updateStopped(meetingId, startedBy)
+
     DatabaseConnection.db.run(
       TableQuery[MeetingRecordingDbTableDef].forceInsert(
         MeetingRecordingDbModel(
