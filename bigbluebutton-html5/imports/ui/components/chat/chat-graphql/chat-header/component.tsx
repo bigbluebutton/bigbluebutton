@@ -5,7 +5,7 @@ import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from 
 import { defineMessages, useIntl } from 'react-intl';
 import { closePrivateChat } from './services';
 import { layoutSelect, layoutDispatch } from '../../../layout/context';
-import { useShortcutHelp } from '../../../shortcut-help/useShortcutHelp';
+import { useShortcutHelp } from '../../../../core/hooks/useShortcutHelp';
 import { Layout } from '../../../layout/layoutTypes';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import { ChatActions } from './chat-actions/component';
