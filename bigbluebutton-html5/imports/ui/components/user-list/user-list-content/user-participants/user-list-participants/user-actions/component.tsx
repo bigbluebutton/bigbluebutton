@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { generateActionsPermissions, isVoiceOnlyUser } from './service';
@@ -23,6 +23,8 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 interface UserActionsProps {
   user: User;
@@ -32,6 +34,16 @@ interface UserActionsProps {
   isBreakout: boolean;
   children: React.ReactNode;
 };
+
+interface DropdownItem {
+  key: string,
+  label: string,
+  icon: string,
+  tooltip: string,
+  allowed: boolean | undefined,
+  iconRight: string | undefined,
+  onClick: undefined | Function,
+}
 
 const messages = defineMessages({
   statusTriggerLabel: {
@@ -125,6 +137,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [selected, setSelected] = useState(false);
   const layoutContextDispatch = layoutDispatch();
+  const { providedPlugins } = useContext(PluginsContext);
   const actionsnPermitions = generateActionsPermissions(
     user,
     currentUser,
@@ -342,6 +355,33 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
     },
+    ...providedPlugins.userListDropdownItems.filter((item) => {
+      if (user.userId === item.userId) return true;
+      else return false;
+    }).map((userListDropdownItemWrapper) => {
+      const userListDropdownItem = userListDropdownItemWrapper.userListDropdownItem;
+      let returnValue: DropdownItem = {
+        key: userListDropdownItem.id,
+        label: userListDropdownItem.label,
+        tooltip: userListDropdownItem.tooltip,
+        icon: userListDropdownItem.icon,
+        allowed: userListDropdownItem.allowed,
+        iconRight: undefined,
+        onClick: undefined,
+      };
+      switch (userListDropdownItem.type) {
+        case PluginSdk.UserListDropdownItemType.BUTTON:
+          const dropdownButton = userListDropdownItem as PluginSdk.UserListDropdownButton;
+          returnValue.onClick = dropdownButton.onClick;
+          break;
+        case PluginSdk.UserListDropdownItemType.DROPDOWN:
+          const dropdownDropdown = userListDropdownItem as PluginSdk.UserListDropdownDropdown;
+          returnValue.onClick = dropdownDropdown.onClick;
+          returnValue.iconRight = 'right_arrow';
+          break;
+      };
+      return returnValue;
+    }),
   ];
 
   const nestedOptions = [

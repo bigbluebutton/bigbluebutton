@@ -34,6 +34,7 @@ export interface UniquePluginConfigSetting {
 
 export interface PluginObjects {
     whiteboardToolbarItems: PluginSdk.WhiteboardToolbarItem[]
+    userListDropdownItems: PluginSdk.UserListDropdownItemWrapper[]
 }
 
 export type PluginProvidedStateStaticData = {

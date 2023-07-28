@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { useSubscription } from '@apollo/client';
 import {
   AutoSizer,
@@ -25,6 +25,7 @@ import { debounce } from 'radash';
 
 import { ListProps } from 'react-virtualized/dist/es/List';
 import { useCurrentUser } from '../../../../../core/hooks/useCurrentUser';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 const cache = new CellMeasurerCache({
   keyMapper: () => 1,
@@ -121,6 +122,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 const UserListParticipantsContainer: React.FC = () => {
   const [offset, setOffset] = React.useState(0);
   const [limit, setLimit] = React.useState(0);
+  const { setUserListLoadedInformation } = useContext(PluginsContext);
 
   const { loading: usersLoading, error: usersError, data: usersData } = useSubscription(USERS_SUBSCRIPTION, {
     variables: {
@@ -153,6 +155,12 @@ const UserListParticipantsContainer: React.FC = () => {
     } as Partial<User>;
   });
 
+  useEffect(() => {
+    setUserListLoadedInformation({
+      offset,
+      limit,
+    })
+  }, [offset, limit])
   return <>
     <UserListParticipants
       users={users}

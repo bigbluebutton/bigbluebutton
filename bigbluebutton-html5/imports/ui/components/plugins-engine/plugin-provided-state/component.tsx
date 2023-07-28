@@ -21,25 +21,39 @@ const PluginProvidedStateComponent = (props: PluginProvidedStateProps) => {
     const pluginApi: PluginSdk.PluginApi = PluginSdk.getPluginApi(uuid);
 
     const [whiteboardToolbarItems, setWhiteboardToolbarItems] = useState<PluginSdk.WhiteboardToolbarItem[]>([]);
+    const [userListDropdownItems, setUserListDropdownItems] = useState<PluginSdk.UserListDropdownItemWrapper[]>([]);
 
     const { setProvidedPlugins } = useContext(PluginsContext);
 
     useEffect(() => {
         // Change this plugin provided toolbar items
         pluginsProvidedState[uuid].whiteboardToolbarItems = whiteboardToolbarItems;
+        pluginsProvidedState[uuid].userListDropdownItems = userListDropdownItems;
 
         // Update context with computed aggregated list of all plugin provided toolbar items
         const pluginsProvidedStateForContext: ProvidedPlugins = {} as ProvidedPlugins;
         pluginsProvidedStateForContext.whiteboardToolbarItems = ([] as PluginSdk.WhiteboardToolbarItem[]).concat(
             ...Object.values(pluginsProvidedState).map((pps: PluginObjects) => {
                 return pps.whiteboardToolbarItems}));
+        pluginsProvidedStateForContext.userListDropdownItems = ([] as PluginSdk.UserListDropdownItemWrapper[]).concat(
+            ...Object.values(pluginsProvidedState).map((pps: PluginObjects) => {
+                return pps.userListDropdownItems}));
         setProvidedPlugins( {...pluginsProvidedStateForContext} );
 
-    }, [whiteboardToolbarItems]);
+    }, [whiteboardToolbarItems, userListDropdownItems]);
 
     pluginApi.setWhiteboardToolbarItems = (item) => {
         const mappedItem = item.map(mapItemWithId)
         return setWhiteboardToolbarItems(mappedItem)
+    };
+    pluginApi.setUserListDropdownItems = (item) => {
+        const mappedItem = item.map((item, index) => {
+            return {
+                userId: item.userId,
+                userListDropdownItem: mapItemWithId(item.userListDropdownItem, index),
+            } as PluginSdk.UserListDropdownItemWrapper;
+        })
+        return setUserListDropdownItems(mappedItem)
     };
     return null;
 }
