@@ -69,9 +69,11 @@ DROP VIEW IF EXISTS "v_meeting_showUserlist";
 DROP VIEW IF EXISTS "v_meeting_usersPolicies";
 DROP VIEW IF EXISTS "v_meeting_breakoutPolicies";
 DROP VIEW IF EXISTS "v_meeting_recordingPolicies";
+DROP VIEW IF EXISTS "v_meeting_recording";
 DROP VIEW IF EXISTS "v_meeting_voiceSettings";
 DROP VIEW IF EXISTS "v_meeting_group";
 DROP TABLE IF EXISTS "meeting_breakout";
+DROP TABLE IF EXISTS "meeting_recordingPolicies";
 DROP TABLE IF EXISTS "meeting_recording";
 DROP TABLE IF EXISTS "meeting_welcome";
 DROP TABLE IF EXISTS "meeting_voice";
@@ -128,15 +130,49 @@ create table "meeting_breakout" (
 create index "idx_meeting_breakout_meetingId" on "meeting_breakout"("meetingId");
 create view "v_meeting_breakoutPolicies" as select * from meeting_breakout;
 
-create table "meeting_recording" (
+create table "meeting_recordingPolicies" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
 	"record" boolean,
 	"autoStartRecording" boolean,
 	"allowStartStopRecording" boolean,
-	"keepEvents" boolean
+	"keepEvents" boolean,
+    "startedAt" timestamp,
+    "startedBy" varchar(50),
+    "stoppedAt" timestamp,
+    "stoppedBy" varchar(50)
+);
+create view "v_meeting_recordingPolicies" as select * from "meeting_recordingPolicies";
+
+create table "meeting_recording" (
+	"meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
+    "startedAt" timestamp,
+    "startedBy" varchar(50),
+    "stoppedAt" timestamp,
+    "stoppedBy" varchar(50),
+    CONSTRAINT "meeting_recording_pkey" PRIMARY KEY ("meetingId","startedAt")
 );
 create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId");
-create view "v_meeting_recordingPolicies" as select * from meeting_recording;
+
+ALTER TABLE "meeting_recording" ADD COLUMN "recordedTimeInSeconds" integer GENERATED ALWAYS AS
+(CASE WHEN "startedAt" IS NULL OR "stoppedAt" IS NULL THEN 0 ELSE EXTRACT(EPOCH FROM ("stoppedAt" - "startedAt")) END) STORED;
+
+CREATE VIEW v_meeting_recording AS
+SELECT r.*,
+CASE
+    WHEN "startedAt" IS NULL THEN false
+    WHEN "stoppedAt" IS NULL THEN true
+    ELSE "startedAt" > "stoppedAt"
+END AS "isRecording"
+FROM (
+	select "meetingId",
+	(array_agg("startedAt" ORDER BY "startedAt" DESC))[1] as "startedAt",
+	(array_agg("startedBy" ORDER BY "startedAt" DESC))[1] as "startedBy",
+	(array_agg("stoppedAt" ORDER BY "startedAt" DESC))[1] as "stoppedAt",
+	(array_agg("stoppedBy" ORDER BY "startedAt" DESC))[1] as "stoppedBy",
+	sum("recordedTimeInSeconds") "previousRecordedTimeInSeconds"
+	from "meeting_recording"
+	GROUP BY "meetingId"
+) r;
 
 create table "meeting_welcome" (
 	"meetingId" varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,

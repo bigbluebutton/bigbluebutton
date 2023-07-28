@@ -8,8 +8,9 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.api.SendRecordingTimerInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.apps.voice.VoiceApp
+import org.bigbluebutton.core.db.MeetingRecordingDAO
 
 trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -50,6 +51,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
           outGW.send(notifyEvent)
 
           MeetingStatus2x.recordingStarted(liveMeeting.status)
+          MeetingRecordingDAO.insertRecording(liveMeeting.props.meetingProp.intId, msg.body.setBy)
 
           // If meeting is not set to record full duration media, then we need to
           // start recording media here. Audio/FS recording is triggered here;
@@ -75,6 +77,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
           outGW.send(notifyEvent)
 
           MeetingStatus2x.recordingStopped(liveMeeting.status)
+          MeetingRecordingDAO.updateStopped(liveMeeting.props.meetingProp.intId, msg.body.setBy)
 
           // If meeting is not set to record full duration media, then we need to stop recording
           if (!liveMeeting.props.recordProp.recordFullDurationMedia) {
