@@ -92,8 +92,34 @@ const parseCurrentSlideContent = (yesValue, noValue, abstentionValue, trueValue,
     content,
   } = currentSlide;
 
-  const questionRegex = /^[\s\S]+\?\s*$/gm;
-  const question = safeMatch(questionRegex, content, '');
+  let lines = content.split('\n');
+  let questions = [];
+  let questionLines = [];
+
+  for (let line of lines) {
+    let startsWithCapital = /^[A-Z]/.test(line);
+    let isEndOfQuestion = /\?$/.test(line);
+
+    if (startsWithCapital) {
+      if (questionLines.length > 0) {
+        questions.push(questionLines.join(' '));
+      }
+      questionLines = [];
+    }
+
+    questionLines.push(line.trim());
+
+    if (isEndOfQuestion) {
+      questions.push(questionLines.join(' '));
+      questionLines = [];
+    }
+  }
+
+  if (questionLines.length > 0) {
+    questions.push(questionLines.join(' '));
+  }
+
+  const question = questions.filter(q => /^[A-Z].*\?$/.test(q?.trim()));
 
   if (question?.length > 0) {
     question[0] = question[0]?.replace(/\n/g, ' ');

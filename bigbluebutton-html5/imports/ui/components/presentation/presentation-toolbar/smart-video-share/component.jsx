@@ -12,25 +12,32 @@ const intlMessages = defineMessages({
   },
 });
 
+const createAction = (url) => {
+  const hasHttps = url?.startsWith("https://");
+  const finalUrl = hasHttps ? url : `https://${url}`;
+  const label = hasHttps ? url?.replace("https://", "") : url;
+
+  if (isUrlValid(finalUrl)) {
+    return {
+      label,
+      onClick: () => startWatching(finalUrl),
+    };
+  }
+};
+
 export const SmartMediaShare = (props) => {
   const {
     currentSlide, intl, isMobile, isRTL,
   } = props;
-  const linkPatt = /(https?:\/\/.*[ ]$)/g;
+  const linkPatt = /(https?:\/\/.*?)(?=\s|$)/g;
   const externalLinks = safeMatch(linkPatt, currentSlide?.content?.replace(/[\r\n]/g, '  '), false);
   if (!externalLinks) return null;
 
-  const lnkParts = externalLinks[0]?.split('  ')?.filter(s => !s?.includes(' ')).join('');
   const actions = [];
-  
-  const splitLink = lnkParts?.split('https://');
-  splitLink.forEach((l) => {
-    if (isUrlValid(`https://${l}`)) {
-      actions.push({
-        label: l,
-        onClick: () => startWatching(`https://${l}`),
-      });
-    }
+
+  externalLinks?.forEach((l) => {
+    const action = createAction(l);
+    if (action) actions.push(action);
   });
 
   if (actions?.length === 0) return null;
