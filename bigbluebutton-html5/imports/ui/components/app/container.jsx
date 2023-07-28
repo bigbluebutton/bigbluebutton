@@ -69,6 +69,7 @@ const AppContainer = (props) => {
     meetingLayoutCameraPosition,
     meetingLayoutFocusedCamera,
     meetingLayoutVideoRate,
+    isSharedNotesPinned,
     ...otherProps
   } = props;
 
@@ -97,6 +98,7 @@ const AppContainer = (props) => {
       layoutContextDispatch
       && (typeof meetingLayout !== 'undefined')
       && (layoutType.current !== meetingLayout)
+      && isSharedNotesPinned
     ) {
       layoutType.current = meetingLayout;
       MediaService.setPresentationIsOpen(layoutContextDispatch, true);
@@ -322,5 +324,6 @@ export default withTracker(() => {
     hidePresentationOnJoin: getFromUserSettings('bbb_hide_presentation_on_join', LAYOUT_CONFIG.hidePresentationOnJoin),
     hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false),
     ignorePollNotifications: Session.get('ignorePollNotifications'),
+    isSharedNotesPinned: MediaService.shouldShowSharedNotes(),
   };
 })(AppContainer);
