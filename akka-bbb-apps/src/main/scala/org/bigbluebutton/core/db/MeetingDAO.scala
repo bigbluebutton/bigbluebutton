@@ -80,7 +80,7 @@ object MeetingDAO {
           MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
           MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
           MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
-          MeetingRecordingDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
+          MeetingRecordingPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
           MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
           ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
           MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
