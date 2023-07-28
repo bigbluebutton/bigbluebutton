@@ -11,13 +11,19 @@ select_permissions:
     permission:
       columns:
         - downloadable
+        - height
         - heightRatio
         - isCurrentPage
         - num
         - pageId
+        - podId
         - removable
+        - slideId
         - slideRevealed
         - urls
+        - viewBoxHeight
+        - viewBoxWidth
+        - width
         - widthRatio
         - xOffset
         - yOffset

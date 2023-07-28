@@ -7,14 +7,13 @@ import org.bigbluebutton.core.db.PresPageDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
-trait AddSlidePositionsPubMsgHdlr extends RightsManagementTrait {
-
+trait SlideResizedPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
-  def handle(msg: AddSlidePositionsPubMsg, state: MeetingState2x,
+  def handle(msg: SlideResizedPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus) = {
-    PresPageDAO.addSlidePosition(msg.body.presentationId, msg.body.slideId, msg.body.width, msg.body.height,
-      msg.body.viewBoxWidth, msg.body.viewBoxHeight)
+    PresPageDAO.updateSlidePosition(msg.body.presentationId, msg.body.width, msg.body.height,
+      msg.body.x, msg.body.y, msg.body.viewBoxHeight, msg.body.viewBoxWidth)
     state
   }
 }

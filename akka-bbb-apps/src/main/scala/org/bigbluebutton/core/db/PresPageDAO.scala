@@ -67,7 +67,6 @@ object PresPageDAO {
       sqlu"""UPDATE pres_page SET
             "xOffset" = ${presentation.xOffset},
             "yOffset" = ${presentation.yOffset},
-            "num" = ${presentation.num},
             "widthRatio" = ${presentation.widthRatio},
             "heightRatio" = ${presentation.heightRatio}
             WHERE "presentationId" = $presentationId"""
@@ -77,11 +76,30 @@ object PresPageDAO {
       }
   }
 
-  def updateSlidePosition(presentationId: String, width: Double, height: Double, viewBoxWidth: Double, viewBoxHeight: Double) = {
+  def addSlidePosition(presentationId: String, slideId: String, width: Double, height: Double,
+                       viewBoxWidth: Double, viewBoxHeight: Double) = {
+    DatabaseConnection.db.run(
+      sqlu"""UPDATE pres_page SET
+             "slideId" = $slideId,
+             "width" = $width,
+             "height" = $height,
+             "viewBoxWidth" = $viewBoxWidth,
+             "viewBoxHeight" = $viewBoxHeight
+             WHERE "presentationId" = $presentationId"""
+    ).onComplete {
+        case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) added slide position on PresPage table")
+        case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating slide position on PresPage: $e")
+      }
+  }
+
+  def updateSlidePosition(presentationId: String, width: Double, height: Double, x: Double, y: Double,
+                          viewBoxWidth: Double, viewBoxHeight: Double) = {
     DatabaseConnection.db.run(
       sqlu"""UPDATE pres_page SET
              "width" = $width,
              "height" = $height,
+             "xOffset" = $x,
+             "yOffset" = $y,
              "viewBoxWidth" = $viewBoxWidth,
              "viewBoxHeight" = $viewBoxHeight
              WHERE "presentationId" = $presentationId"""

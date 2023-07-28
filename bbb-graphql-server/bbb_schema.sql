@@ -863,6 +863,8 @@ CREATE OR REPLACE VIEW public.v_pres_page AS
 SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
+    pres_page."podId",
+    pres_page."slideId",
     pres_page.num,
     pres_page.urls,
     pres_page."slideRevealed",
@@ -870,7 +872,11 @@ SELECT pres_presentation."meetingId",
     pres_page."xOffset",
     pres_page."yOffset" ,
     pres_page."widthRatio",
-    pres_page."heightRatio"
+    pres_page."heightRatio",
+    pres_page."width",
+    pres_page."height",
+    preS_page."viewBoxWidth",
+    pres_page."viewBoxHeight"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -878,6 +884,8 @@ CREATE OR REPLACE VIEW public.v_pres_page_curr AS
 SELECT pres_presentation."meetingId",
 	pres_page."presentationId",
 	pres_page."pageId",
+    pres_page."podId",
+    pres_page."slideId",
 	pres_presentation."downloadable",
     pres_presentation."removable",
     pres_page.num,
@@ -887,7 +895,11 @@ SELECT pres_presentation."meetingId",
     pres_page."xOffset",
     pres_page."yOffset" ,
     pres_page."widthRatio",
-    pres_page."heightRatio"
+    pres_page."heightRatio",
+    pres_page."width",
+    pres_page."height",
+    pres_page."viewBoxWidth",
+    pres_page."viewBoxHeight"
 FROM pres_presentation
 JOIN pres_page ON pres_presentation."presentationId" = pres_page."presentationId" AND pres_page."current" IS TRUE
 and pres_presentation."current" IS TRUE;
