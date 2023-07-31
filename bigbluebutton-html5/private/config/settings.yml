@@ -656,7 +656,7 @@ public:
     callHangupTimeout: 2000
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
-    listenOnlyCallTimeout: 25000
+    listenOnlyCallTimeout: 15000
     # Experimental. True is the canonical behavior. Flip to false to reverse
     # the negotiation flow for LO subscribers.
     listenOnlyOffering: false
