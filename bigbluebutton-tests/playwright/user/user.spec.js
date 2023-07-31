@@ -10,7 +10,7 @@ const iPhone11 = devices['iPhone 11'];
 test.describe.parallel('User', () => {
   test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/2.6/release-tests.html#set-status--raise-hand-automated
-    test('Raise and lower Hand Toast', async ({ browser, context, page }) => {
+    test('Raise and lower Hand', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
       await multiusers.raiseAndLowerHand();

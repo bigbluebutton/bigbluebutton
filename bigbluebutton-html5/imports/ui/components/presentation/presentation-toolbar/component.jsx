@@ -291,7 +291,7 @@ class PresentationToolbar extends PureComponent {
         id="presentationToolbarWrapper"
       >
         {this.renderAriaDescs()}
-        <div style={{ display: 'flex' }}>
+        <Styled.QuickPollButtonWrapper>
           {isPollingEnabled ? (
             <Styled.QuickPollButton
               {...{
@@ -306,7 +306,7 @@ class PresentationToolbar extends PureComponent {
           ) : null}
 
           <SmartMediaShareContainer {...{ intl, currentSlide }} />
-        </div>
+        </Styled.QuickPollButtonWrapper>
         <Styled.PresentationSlideControls>
           <Styled.PrevSlideButton
             role="button"

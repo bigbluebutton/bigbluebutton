@@ -104,11 +104,21 @@ class Presentation extends MultiUsers {
   async fitToWidthTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     const width1 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
+    // check if its off
+    const fitToWidthButtonLocator = this.modPage.getLocator(`${e.fitToWidthButton} > span>>nth=0`);
+    const fitToWidthBorderColorOff = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    await expect(fitToWidthBorderColorOff).toBe('rgba(0, 0, 0, 0)');
+
     await this.modPage.waitAndClick(e.fitToWidthButton);
+    await sleep(500);
+
+    //check if its on
+    const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    await expect(fitToWidthBorderColorOn).toBe('rgb(6, 23, 42)');
+
     const width2 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
-    await expect(Number(width2) > Number(width1)).toBeTruthy();
+    await expect(Number(width2)).toBeGreaterThan(Number(width1));
   }
 
   async enableAndDisablePresentationDownload(testInfo) {
@@ -278,8 +288,9 @@ class Presentation extends MultiUsers {
 
     //Zoom In 150%
     await this.modPage.waitAndClick(e.zoomInButton);
-    await this.modPage.waitAndClick(e.zoomInButton);
     await expect(zoomOutButtonLocator).toBeEnabled();
+    await expect(resetZoomButtonLocator).toContainText(/125%/);
+    await this.modPage.waitAndClick(e.zoomInButton);
     await expect(resetZoomButtonLocator).toContainText(/150%/);
     await expect(wbBox).toHaveScreenshot('moderator1-zoom150.png');
 
@@ -289,8 +300,11 @@ class Presentation extends MultiUsers {
     await expect(wbBox).toHaveScreenshot('moderator1-zoom125.png');
 
     //Reset Zoom 100%
+    await this.modPage.waitAndClick(e.zoomInButton);
+    await expect(resetZoomButtonLocator).toContainText(/150%/);
     await this.modPage.waitAndClick(e.resetZoomButton);
     await expect(resetZoomButtonLocator).toContainText(/100%/);
+    await expect(zoomOutButtonLocator).toBeDisabled();
     await expect(wbBox).toHaveScreenshot('moderator1-zoom100.png');
   }
 

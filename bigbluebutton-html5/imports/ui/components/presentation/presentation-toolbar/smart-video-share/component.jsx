@@ -44,7 +44,7 @@ export const SmartMediaShare = (props) => {
         <Styled.QuickVideoButton
           role="button"
           label={intl.formatMessage(intlMessages.externalVideo)}
-          color="light"
+          color="primary"
           circle
           icon="external-video"
           size="md"
