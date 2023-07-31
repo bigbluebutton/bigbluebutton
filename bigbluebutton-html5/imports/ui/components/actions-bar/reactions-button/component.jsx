@@ -45,7 +45,11 @@ const ReactionsButton = (props) => {
 
   const renderReactionsBar = () => (
     <Styled.Wrapper>
-      <ReactionsBar {...props} onReactionSelect={handleReactionSelect} onRaiseHand={handleRaiseHandButtonClick} />
+      <ReactionsBar
+        {...props}
+        onReactionSelect={handleReactionSelect}
+        onRaiseHand={handleRaiseHandButtonClick}
+      />
     </Styled.Wrapper>
   );
 
@@ -56,7 +60,7 @@ const ReactionsButton = (props) => {
       trigger={(
         <Styled.ReactionsDropdown>
           <Styled.RaiseHandButton
-            data-test="ReactionsButton"
+            data-test="reactionsButton"
             icon="hand"
             label={intl.formatMessage(intlMessages.reactionsLabel)}
             description="Reactions"

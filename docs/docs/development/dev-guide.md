@@ -663,6 +663,18 @@ sudo /etc/init.d/ntp restart
 
 The above will re-sync your clock.
 
+### Resolving Conflicts Between Java Versions
+
+In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'17' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 17 for its operation, but the `sbt` build tool is using Java 11 instead.
+
+To address this, you need to set the appropriate Java version. The following command will set Java 17 as the active version:
+
+```bash
+update-java-alternatives -s java-1.17.0-openjdk-amd64
+```
+
+By executing this command, the system is instructed to use Java 17, i.e., the version with which BBB is currently compatible.
+
 ## Set up HTTPS
 
 See the [installation instructions](/administration/install) on how to configure ssl on your BigBlueButton server.

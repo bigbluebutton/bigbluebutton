@@ -3,12 +3,15 @@ import PropTypes from 'prop-types';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import CaptionsListItem from '/imports/ui/components/user-list/captions-list-item/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import KEY_CODES from '/imports/utils/keyCodes';
 import Styled from './styles';
+import { findDOMNode } from 'react-dom';
 
 const propTypes = {
   ownedLocales: PropTypes.arrayOf(PropTypes.object).isRequired,
   sidebarContentPanel: PropTypes.string.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
+  roving: PropTypes.func.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -19,12 +22,61 @@ const intlMessages = defineMessages({
 });
 
 class UserCaptions extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      selectedCaption: null,
+    };
+
+    this.activeCaptionRefs = [];
+
+    this.changeState = this.changeState.bind(this);
+    this.rove = this.rove.bind(this);
+  }
+
+  componentDidMount() {
+    if (this._captionsList) {
+      this._captionsList.addEventListener(
+        'keydown',
+        this.rove,
+        true,
+      );
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { selectedCaption } = this.state;
+    if (selectedCaption && selectedCaption !== prevState.selectedCaption) {
+      const { firstChild } = selectedCaption;
+      if (firstChild) firstChild.focus();
+    }
+  }
+
+  changeState(ref) {
+    this.setState({ selectedCaption: ref });
+  }
+
+  rove(event) {
+    const { roving } = this.props;
+    const { selectedCaption } = this.state;
+    const captionItemsRef = findDOMNode(this._captionItems);
+    if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event?.which)) {
+      selectedCaption?.firstChild?.click();
+    } else {
+      roving(event, this.changeState, captionItemsRef, selectedCaption);
+    }
+    event.stopPropagation();
+  }
+
   renderCaptions() {
     const {
       ownedLocales,
       sidebarContentPanel,
       layoutContextDispatch,
     } = this.props;
+
+    let index = -1;
 
     return ownedLocales.map((ownedLocale) => (
       <CSSTransition
@@ -36,7 +88,7 @@ class UserCaptions extends Component {
         component="div"
         key={ownedLocale.locale}
       >
-        <Styled.ListTransition>
+        <Styled.ListTransition ref={(node) => { this.activeCaptionRefs[index += 1] = node; }}>
           <CaptionsListItem
             {...{
               locale: ownedLocale.locale,
@@ -69,10 +121,10 @@ class UserCaptions extends Component {
         <Styled.ScrollableList
           role="tabpanel"
           tabIndex={0}
-          ref={(ref) => { this._msgsList = ref; }}
+          ref={(ref) => { this._captionsList = ref; }}
         >
           <Styled.List>
-            <TransitionGroup ref={(ref) => { this._msgItems = ref; }}>
+            <TransitionGroup ref={(ref) => { this._captionItems = ref; }}>
               {this.renderCaptions()}
             </TransitionGroup>
           </Styled.List>

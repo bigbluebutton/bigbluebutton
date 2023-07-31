@@ -472,12 +472,12 @@ class UsersTable extends React.Component {
                       !user.isModerator ? (
                         <td className={`px-4 py-3 text-sm text-center items ${opacity}`} data-test="userActivityScoreDashboard">
                           <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
-                            <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#A7F3D0' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#6EE7B7' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.userKey] > 4 ? '#34D399' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.userKey] > 6 ? '#10B981' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.userKey] > 8 ? '#059669' : '#e4e4e7'} />
-                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.userKey] === 10 ? '#047857' : '#e4e4e7'} />
+                            <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#4BA381' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#338866' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="28" fill={usersActivityScore[user.userKey] > 4 ? '#1A6653' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="42" fill={usersActivityScore[user.userKey] > 6 ? '#055C42' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="56" fill={usersActivityScore[user.userKey] > 8 ? '#023B34' : '#e4e4e7'} />
+                            <rect width="12" height="12" x="70" fill={usersActivityScore[user.userKey] === 10 ? '#02362B' : '#e4e4e7'} />
                           </svg>
                           &nbsp;
                           <span className="text-xs bg-gray-200 rounded-full px-2">

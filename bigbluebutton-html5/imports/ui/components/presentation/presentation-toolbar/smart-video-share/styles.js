@@ -2,7 +2,10 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 
 const QuickVideoButton = styled(Button)`
+  margin-left: .5rem;
+
   i {
+    color: unset;
     font-size: 1rem;
     padding-left: 20%;
     right: 2px;

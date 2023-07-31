@@ -36,7 +36,7 @@ import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 
-const Item = styled.div`
+const Item = styled.li`
   display: flex;
   width: 100%;
   height: 4rem;
@@ -320,6 +320,10 @@ const ConnectionTabPanel = styled(TabPanel)`
   &.is-selected {
     display: flex;
     flex-flow: column;
+  }
+
+  & ul {
+    padding: 0;
   }
 
   @media ${smallOnly} {
