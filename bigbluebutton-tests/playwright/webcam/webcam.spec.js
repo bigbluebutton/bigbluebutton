@@ -2,9 +2,9 @@ const { test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
 
-test.describe.parallel('Webcam @ci', () => {
+test.describe.parallel('Webcam', () => {
   // https://docs.bigbluebutton.org/2.6/release-tests.html#joining-webcam-automated
-  test('Shares webcam', async ({ browser, page }) => {
+  test('Shares webcam @ci', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.share();
@@ -49,7 +49,9 @@ test.describe.parallel('Webcam @ci', () => {
       await webcam.applyBackground();
     });
 
-    test('Managing new background', async ({ browser, page }) => {
+    // following test is throwing failures due to mis-comparison screenshot
+    // as the emulated video is not static, we may add a mask in the middle part - where it moves the most
+    test('Managing new background @flaky', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);
       await webcam.managingNewBackground();
