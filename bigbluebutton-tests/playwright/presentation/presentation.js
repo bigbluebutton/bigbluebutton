@@ -66,6 +66,7 @@ class Presentation extends MultiUsers {
   async uploadSinglePresentationTest() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     // wait until the notifications disappear
@@ -81,6 +82,45 @@ class Presentation extends MultiUsers {
     
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
+    await this.modPage.waitAndClick(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo);
+    await this.userPage.wasRemoved(e.smallToastMsg);
+
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-png-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+
+    await uploadSinglePresentation(this.modPage, e.presentationPPTX, UPLOAD_PDF_WAIT_TIME);
+    await this.modPage.waitAndClick(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo);
+    await this.userPage.wasRemoved(e.smallToastMsg);
+
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-pptx-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+
+    await uploadSinglePresentation(this.modPage, e.presentationTXT, UPLOAD_PDF_WAIT_TIME);
+    await this.modPage.waitAndClick(e.smallToastMsg);
+    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.wasRemoved(e.presentationStatusInfo);
+    await this.userPage.wasRemoved(e.smallToastMsg);
+
+    await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
+      maxDiffPixels: 1000,
+    });
+    await expect(userWhiteboardLocator).toHaveScreenshot('viewer-txt-presentation-screenshot.png', {
       maxDiffPixels: 1000,
     });
   }

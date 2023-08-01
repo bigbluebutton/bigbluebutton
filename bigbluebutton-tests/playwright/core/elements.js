@@ -266,6 +266,8 @@ exports.answerE = 'div[data-test="numberOfVotes"]>>nth=4';
 // Presentation
 exports.currentSlideImg = 'img[id="slide-background-shape_image"]';
 exports.uploadPresentationFileName = 'uploadTest.png';
+exports.presentationPPTX = 'BBB.pptx';
+exports.presentationTXT = 'helloWorld.txt';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
 exports.noPresentationLabel = 'There is no currently active presentation';
 exports.startScreenSharing = 'button[data-test="startScreenShare"]';
