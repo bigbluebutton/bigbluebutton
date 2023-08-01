@@ -16,13 +16,58 @@ on:
 permissions:
   contents: read
 jobs:
-  build-install-and-test:
+  build-external_dependencies:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_external_dependencies.tar
+          path: |
+            artifacts.tar
+  build-bbb-apps-akka:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
       - run: ./build/setup.sh bbb-apps-akka
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-apps-akka.tar
+          path: |
+            artifacts.tar
+  build-bbb-config:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
       - run: ./build/setup.sh bbb-config
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-config.tar
+          path: |
+            artifacts.tar
+  build-bbb-etherpad:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/setup.sh bbb-etherpad
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-etherpad.tar
+          path: |
+            artifacts.tar
+  build-others:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
       - run: ./build/setup.sh bbb-etherpad
       - run: ./build/setup.sh bbb-export-annotations
       - run: ./build/setup.sh bbb-freeswitch-core
@@ -63,6 +108,45 @@ jobs:
       #     tar xf artifacts.tar
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
+  install:
+    needs: [build-external_dependencies, build-bbb-apps-akka, build-bbb-config, build-bbb-etherpad, build-others]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Download artifacts_external_dependencies
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_external_dependencies.tar
+      - name: Download artifacts_bbb-apps-akka.tar
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-apps-akka.tar
+      - name: Download artifacts_bbb-config.tar
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-config.tar
+      - name: Download artifacts_bbb-etherpad.tar
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-etherpad.tar
+      - name: Download artifacts.tar
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts.tar
+      - name: Fake package build
+        run: |
+          tar xf *.tar
+          mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
+      - name: Generate CA
+        run: |
+          sudo -i <<EOF
+          set -e
+          mkdir /root/bbb-ci-ssl/
+          cd /root/bbb-ci-ssl/
+          openssl rand -base64 48 > /root/bbb-ci-ssl/bbb-dev-ca.pass ;
+          chmod 600 /root/bbb-ci-ssl/bbb-dev-ca.pass ;
+          openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
+          openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
+          EOF
       - name: Generate CA
         run: |
           sudo -i <<EOF
