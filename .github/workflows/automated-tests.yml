@@ -197,17 +197,6 @@ jobs:
           openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
           openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
           EOF
-      - name: Generate CA
-        run: |
-          sudo -i <<EOF
-          set -e
-          mkdir /root/bbb-ci-ssl/
-          cd /root/bbb-ci-ssl/
-          openssl rand -base64 48 > /root/bbb-ci-ssl/bbb-dev-ca.pass ;
-          chmod 600 /root/bbb-ci-ssl/bbb-dev-ca.pass ;
-          openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
-          openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
-          EOF
       - name: Trust CA
         run: |
           sudo -i <<EOF
