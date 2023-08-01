@@ -151,6 +151,7 @@ jobs:
     needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
     runs-on: ubuntu-20.04
     steps:
+      - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
       - name: Download artifacts_bbb-apps-akka
         uses: actions/download-artifact@v3
