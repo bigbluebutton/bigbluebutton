@@ -3,6 +3,7 @@ import { Random } from 'meteor/random';
 import Meetings, {
   RecordMeetings,
   MeetingTimeRemaining,
+  AutoApproveQuestionsMeetings,
   ExternalVideoMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
@@ -191,3 +192,25 @@ function notificationsPublish(...args) {
 }
 
 Meteor.publish('notifications', notificationsPublish);
+
+function autoApproveQuestionsMeetings() {
+  const tokenValidation = AuthTokenValidation.findOne({ connectionId: this.connection.id });
+
+  if (!tokenValidation || tokenValidation.validationStatus !== ValidationStates.VALIDATED) {
+    Logger.warn(`Publishing AutoApproveQuestionsMeetings was requested by unauth connection ${this.connection.id}`);
+    return AutoApproveQuestionsMeetings.find({ meetingId: '' });
+  }
+
+  const { meetingId, userId } = tokenValidation;
+
+  Logger.debug(`Publishing AutoApproveQuestionsMeetings for ${meetingId} ${userId}`);
+
+  return AutoApproveQuestionsMeetings.find({ meetingId });
+}
+
+function autoApproveQuestionsMeetingsPublish(...args) {
+  const boundAutoApproveQuestionsMeetings = autoApproveQuestionsMeetings.bind(this);
+  return boundAutoApproveQuestionsMeetings(...args);
+}
+
+Meteor.publish('auto-approve-questions-meetings', autoApproveQuestionsMeetingsPublish);

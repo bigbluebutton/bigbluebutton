@@ -4,6 +4,7 @@ import { UsersContext } from '/imports/ui/components/components-data/users-conte
 import ChatService from '../../service';
 import { layoutSelect } from '../../../layout/context';
 import PollService from '/imports/ui/components/poll/service';
+import QuestionService from '/imports/ui/components/questions/service';
 import Auth from '/imports/ui/services/auth';
 
 const CHAT_CONFIG = Meteor.settings.public.chat;
@@ -53,6 +54,7 @@ const TimeWindowChatItemContainer = (props) => {
         extra,
         messageValues,
         getPollResultString: PollService.getPollResultString,
+        getQuestionString: QuestionService.getQuestionString,
         user,
         timestamp,
         systemMessage: messageId.startsWith(SYSTEM_CHAT_TYPE) || !sender,

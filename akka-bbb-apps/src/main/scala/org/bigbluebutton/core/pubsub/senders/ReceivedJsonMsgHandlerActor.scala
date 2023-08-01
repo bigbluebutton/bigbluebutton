@@ -401,6 +401,22 @@ class ReceivedJsonMsgHandlerActor(
       case UpdateTranscriptPubMsg.NAME =>
         routeGenericMsg[UpdateTranscriptPubMsg](envelope, jsonNode)
 
+      // Questions
+      case CreateQuestionPubMsg.NAME =>
+        routeGenericMsg[CreateQuestionPubMsg](envelope, jsonNode)
+      case ApproveQuestionPubMsg.NAME =>
+        routeGenericMsg[ApproveQuestionPubMsg](envelope, jsonNode)
+      case DeleteQuestionPubMsg.NAME =>
+        routeGenericMsg[DeleteQuestionPubMsg](envelope, jsonNode)
+      case QuestionAnsweredPubMsg.NAME =>
+        routeGenericMsg[QuestionAnsweredPubMsg](envelope, jsonNode)
+      case UpvoteQuestionPubMsg.NAME =>
+        routeGenericMsg[UpvoteQuestionPubMsg](envelope, jsonNode)
+      case SetAutoApproveQuestionsPubMsg.NAME =>
+        routeGenericMsg[SetAutoApproveQuestionsPubMsg](envelope, jsonNode)
+      case GetAutoApproveQuestionsReqMsg.NAME =>
+        routeGenericMsg[GetAutoApproveQuestionsReqMsg](envelope, jsonNode)
+
       // GroupChats
       case GetGroupChatsReqMsg.NAME =>
         routeGenericMsg[GetGroupChatsReqMsg](envelope, jsonNode)

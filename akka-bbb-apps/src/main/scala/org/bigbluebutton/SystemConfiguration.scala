@@ -46,6 +46,7 @@ trait SystemConfiguration {
 
   lazy val endMeetingWhenNoMoreAuthedUsers = Try(config.getBoolean("apps.endMeetingWhenNoMoreAuthedUsers")).getOrElse(false)
   lazy val endMeetingWhenNoMoreAuthedUsersAfterMinutes = Try(config.getInt("apps.endMeetingWhenNoMoreAuthedUsersAfterMinutes")).getOrElse(2)
+  lazy val questionsAutoApproveDefault = Try(config.getBoolean("questions.autoApproveDefault")).getOrElse(false)
 
   lazy val transcriptWords = Try(config.getInt("transcript.words")).getOrElse(8)
   lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)

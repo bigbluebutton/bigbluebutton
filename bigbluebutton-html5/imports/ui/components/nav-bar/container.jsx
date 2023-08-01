@@ -9,6 +9,7 @@ import userListService from '/imports/ui/components/user-list/service';
 import { ChatContext } from '/imports/ui/components/components-data/chat-context/context';
 import { GroupChatContext } from '/imports/ui/components/components-data/group-chat-context/context';
 import { UsersContext } from '/imports/ui/components/components-data/users-context/context';
+import QuestionsService from '/imports/ui/components/questions/service';
 import NotesService from '/imports/ui/components/notes/service';
 import NavBar from './component';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
@@ -62,12 +63,16 @@ const NavBarContainer = ({ children, ...props }) => {
 
   if (hideNavBar || navBar.display === false) return null;
 
+  const isQuestionsPanelOpened = QuestionsService.isPanelOpened(sidebarContentPanel);
+  const hasUnreadQuestions = amIModerator && QuestionsService.getUnreadQuestions() > 0 && !isQuestionsPanelOpened;
+
   return (
     <NavBar
       {...{
         amIModerator,
         hasUnreadMessages,
         hasUnreadNotes,
+        hasUnreadQuestions,
         sidebarNavPanel,
         sidebarContentPanel,
         sidebarNavigation,

@@ -107,6 +107,7 @@ export const PANELS = {
   BREAKOUT: 'breakoutroom',
   SHARED_NOTES: 'shared-notes',
   TIMER: 'timer',
+  QUESTIONS: 'questions',
   WAITING_USERS: 'waiting-users',
   NONE: 'none',
 };

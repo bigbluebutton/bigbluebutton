@@ -571,6 +571,7 @@ public:
     system_messages_keys:
       chat_clear: PUBLIC_CHAT_CLEAR
       chat_poll_result: PUBLIC_CHAT_POLL_RESULT
+      chat_question_message: PUBLIC_CHAT_QUESTION
       chat_exported_presentation: PUBLIC_CHAT_EXPORTED_PRESENTATION
       chat_status_message: PUBLIC_CHAT_STATUS
     typingIndicator:
@@ -583,6 +584,9 @@ public:
       frequentEmojiSortOnClick: false
     # e.g.: disableEmojis: ['1F595','1F922']
     disableEmojis: []
+  questions:
+    enabled: true
+    textAnswers: true
   userReaction:
     enabled: true
     expire: 60

@@ -7,6 +7,7 @@ import SanitizeHTML from 'sanitize-html';
 import Meetings, {
   RecordMeetings,
   ExternalVideoMeetings,
+  AutoApproveQuestionsMeetings,
   LayoutMeetings,
 } from '/imports/api/meetings';
 import Logger from '/imports/startup/server/logger';
@@ -18,6 +19,7 @@ import { addCursorStreamer } from '/imports/api/cursor/server/streamer';
 import { addExternalVideoStreamer } from '/imports/api/external-videos/server/streamer';
 import addUserReactionsObserver from '/imports/api/user-reaction/server/helpers';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import RedisPubSub from '/imports/startup/server/redis';
 
 const addExternalVideo = async (meetingId) => {
   const selector = { meetingId };
@@ -61,6 +63,38 @@ const addLayout = async (meetingId, layout) => {
     }
   } catch (err) {
     Logger.error(`Adding layout: ${err}`);
+  }
+};
+
+const requestAutoApproveState = (meetingId) => {
+  const REDIS_CONFIG = Meteor.settings.private.redis;
+  const CHANNEL = REDIS_CONFIG.channels.toAkkaApps;
+  const EVENT_NAME = 'GetAutoApproveQuestionsReqMsg';
+  const USER_ID = 'nodeJSapp';
+
+  const payload = {};
+
+  return RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, USER_ID, payload);
+};
+
+const addAutoApproveQuestions = (meetingId) => {
+  const selector = { meetingId };
+
+  const modifier = {
+    meetingId,
+    autoApprove: false,
+  };
+
+  try {
+    const { numberAffected } = AutoApproveQuestionsMeetings.upsert(selector, modifier);
+
+    requestAutoApproveState(meetingId);
+
+    if (numberAffected) {
+      Logger.verbose(`Added autoApproveQuestions meetingId=${meetingId}`);
+    }
+  } catch (err) {
+    Logger.error(`Adding autoApproveQuestions: ${err}`);
   }
 };
 
@@ -257,6 +291,7 @@ export default async function addMeeting(meeting) {
     Logger.error(`Adding record prop to collection: ${err}`);
   }
 
+  await addAutoApproveQuestions(meetingId)
   await addExternalVideo(meetingId);
   await addLayout(meetingId, LAYOUT_TYPE[meetingLayout] || 'smart');
 

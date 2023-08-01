@@ -21,7 +21,7 @@ const SUBSCRIPTIONS = [
   'local-settings', 'users-typing', 'record-meetings', 'video-streams',
   'connection-status', 'voice-call-states', 'external-video-meetings', 'breakouts', 'breakouts-history',
   'pads', 'pads-sessions', 'pads-updates', 'notifications', 'audio-captions',
-  'layout-meetings', 'user-reaction', 'timer',
+  'layout-meetings', 'user-reaction', 'timer', 'questions', 'auto-approve-questions-meetings',
 ];
 const {
   localBreakoutsSync,

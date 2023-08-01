@@ -7,6 +7,7 @@ import NotesContainer from '/imports/ui/components/notes/container';
 import PollContainer from '/imports/ui/components/poll/container';
 import CaptionsContainer from '/imports/ui/components/captions/container';
 import BreakoutRoomContainer from '/imports/ui/components/breakout-room/container';
+import QuestionsContainer from '/imports/ui/components/questions/container';
 import TimerContainer from '/imports/ui/components/timer/container';
 import WaitingUsersPanel from '/imports/ui/components/waiting-users/container';
 import Styled from './styles';
@@ -143,6 +144,7 @@ const SidebarContent = (props) => {
       )}
       {sidebarContentPanel === PANELS.CAPTIONS && <CaptionsContainer />}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
+      {sidebarContentPanel === PANELS.QUESTIONS && <QuestionsContainer />}
       {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
       {sidebarContentPanel === PANELS.WAITING_USERS && <WaitingUsersPanel />}
       {sidebarContentPanel === PANELS.POLL && (
