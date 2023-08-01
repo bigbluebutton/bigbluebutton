@@ -55,37 +55,41 @@ jobs:
             artifacts.tar
       # - name: Fake package build
       #   run: |
-      #     sudo sh -c '
+      #     sudo -i <<EOF
+      #     set -e
       #     echo "Faking a package build (to speed up installation test)"
       #     cd /
-      #     wget -q "http://ci.bbb.imdt.dev/artifacts.tar"
+      #     wget -nv "http://ci.bbb.imdt.dev/artifacts.tar"
       #     tar xf artifacts.tar
-      #     '
+      #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
+      #     EOF
       - name: Generate CA
         run: |
-          sudo sh -c '
+          sudo -i <<EOF
+          set -e
           mkdir /root/bbb-ci-ssl/
           cd /root/bbb-ci-ssl/
           openssl rand -base64 48 > /root/bbb-ci-ssl/bbb-dev-ca.pass ;
           chmod 600 /root/bbb-ci-ssl/bbb-dev-ca.pass ;
           openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
           openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
-          '
+          EOF
       - name: Trust CA
         run: |
-          sudo sh -c '
+          sudo -i <<EOF
+          set -e
           sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
           sudo cp /root/bbb-ci-ssl/bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
           sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           sudo update-ca-certificates
-          '
+          EOF
       - name: Generate certificate
         run: |
           sudo sh -c '
           cd /root/bbb-ci-ssl/
           echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
           openssl genrsa -out bbb-ci.test.key 2048
-          rm bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
+          rm -f bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
           cat > bbb-ci.test.ext << EOF
           authorityKeyIdentifier=keyid,issuer
           basicConstraints=CA:FALSE
@@ -105,15 +109,17 @@ jobs:
           cat /root/bbb-ci-ssl/bbb-ci.test.key > /local/certs/privkey.pem
           '
       - name: Setup local repository
+        shell: bash
         run: |
-            sudo sh -c '
+            sudo -i <<EOF
+            set -e
             apt install -yq dpkg-dev
-            cd /root && wget -q http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
+            cd /root && wget -nv http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
             cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
             cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
             cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
             echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
-            '
+            EOF
       - name: Prepare for install
         run: |
             sudo sh -c '
@@ -121,14 +127,15 @@ jobs:
             '
       - name: Install BBB
         run: |
-            sudo sh -c '
-            cd /root/ && wget -q https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
+            sudo -i <<EOF
+            set -e
+            cd /root/ && wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v2.7.x-release/bbb-install.sh -O bbb-install.sh
             cat bbb-install.sh | sed "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" | bash -s -- -v focal-27-dev -s bbb-ci.test -j -d /certs/
             bbb-conf --salt bbbci
             echo "NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt" >> /usr/share/meteor/bundle/bbb-html5-with-roles.conf
             sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
             bbb-conf --restart
-            '
+            EOF
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         run: |
@@ -170,7 +177,7 @@ jobs:
       - if: failure()
         name: Prepare artifacts (configs and logs)
         run: |
-          sudo sh -c '
+          sudo -i <<EOF
           mkdir configs
           cp /etc/haproxy/haproxy.cfg configs/haproxy.cfg
           touch /etc/bigbluebutton/turn-stun-servers.xml
@@ -187,10 +194,11 @@ jobs:
           cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml configs/bbb-webrtc-recorder-default.yml
           cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
           cp /etc/hosts /configs/hosts
-          chmod a+r -R configs
+          mv configs /home/runner/work/bigbluebutton/bigbluebutton/configs
+          chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
           bbb-conf --zip
-          cp $(ls -t /root/*.tar.gz | head -1) ./bbb-logs.tar.gz
-          '
+          ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
+          EOF
       - if: failure()
         uses: actions/upload-artifact@v3
         with:
