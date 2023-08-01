@@ -85,29 +85,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: Get the last commit SHA for bigbluebutton-html5 folder
-        id: last_commit
-        run: echo "::set-output name=sha::$(git log -1 --format=%H -- bigbluebutton-html5)"
-      - name: Cache artifacts_bbb-html5.tar
-        uses: actions/cache@v3
-        with:
-          path: artifacts.tar
-          key: ${{ runner.os }}-${{ steps.last_commit.outputs.sha }}
-      - name: Check if artifacts_bbb-html5.tar is cached
-        id: cached-artifacts
-        run: |
-          if [[ -f "artifacts.tar" ]]; then
-            echo "::set-output name=cached::true"
-          else
-            echo "::set-output name=cached::false"
-          fi
-      - name: Build html5
-        if: steps.cached-artifacts.outputs.cached == 'false'
-        run: |
-          ./build/get_external_dependencies.sh
-          ./build/setup.sh bbb-html5-nodejs
-          ./build/setup.sh bbb-html5
-          tar cvf artifacts.tar artifacts/
+      - run: ./build/get_external_dependencies.sh
+      - run: ./build/setup.sh bbb-html5-nodejs
+      - run: ./build/setup.sh bbb-html5
+      - run: tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -166,7 +147,7 @@ jobs:
       #     tar xf artifacts.tar
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
-  install:
+  install-and-run-tests:
     needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
     runs-on: ubuntu-20.04
     steps:
