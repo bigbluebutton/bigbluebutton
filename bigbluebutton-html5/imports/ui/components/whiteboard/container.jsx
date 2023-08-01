@@ -1,9 +1,7 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import React, { useContext } from 'react';
-import {
-  ColorStyle, DashStyle, SizeStyle, TDShapeType,
-} from '@tldraw/tldraw';
+import { ColorStyle, DashStyle, SizeStyle, TDShapeType } from '@tldraw/tldraw';
 import SettingsService from '/imports/ui/services/settings';
 import {
   getShapes,
@@ -38,7 +36,7 @@ const WhiteboardContainer = (props) => {
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
   const sidebarNavigationWidth = layoutSelect(
-    (i) => i?.output?.sidebarNavigation?.width,
+    (i) => i?.output?.sidebarNavigation?.width
   );
   const { users } = usingUsersContext;
   const currentUser = users[Auth.meetingID][Auth.userID];
@@ -47,7 +45,8 @@ const WhiteboardContainer = (props) => {
   const { maxStickyNoteLength, maxNumberOfAnnotations } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const fullscreen = layoutSelect((i) => i.fullscreen);
-  const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullScreen = (ref) =>
+    FullscreenService.toggleFullScreen(ref);
   const layoutContextDispatch = layoutDispatch();
 
   const { shapes } = props;
@@ -55,12 +54,13 @@ const WhiteboardContainer = (props) => {
     const owner = shapes[id]?.userId;
     const isBackgroundShape = id?.includes('slide-background');
     const isPollsResult = shapes[id]?.name?.includes('poll-result');
-    const hasAccess = (!isBackgroundShape && !isPollsResult)
-      || (isPresenter
-        && ((owner && owner === currentUser?.userId)
-          || !owner
-          || isPresenter
-          || isModerator));
+    const hasAccess =
+      (!isBackgroundShape && !isPollsResult) ||
+      (isPresenter &&
+        ((owner && owner === currentUser?.userId) ||
+          !owner ||
+          isPresenter ||
+          isModerator));
 
     return hasAccess;
   };
@@ -152,7 +152,7 @@ export default withTracker(
       previousSlide: PresentationToolbarService.previousSlide,
       numberOfSlides: PresentationToolbarService.getNumberOfSlides(
         podId,
-        presentationId,
+        presentationId
       ),
       notifyNotAllowedChange,
       notifyShapeNumberExceeded,
@@ -163,7 +163,7 @@ export default withTracker(
       toggleToolsAnimations,
       isIphone,
     };
-  },
+  }
 )(WhiteboardContainer);
 
 WhiteboardContainer.propTypes = {
