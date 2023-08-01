@@ -176,48 +176,48 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-apps-akka.tar
+        run: tar xf artifacts.tar
       - name: Download artifacts_bbb-config
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-config.tar
+        run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-etherpad.tar
+        run: tar xf artifacts.tar
       - name: Download artifacts_bbb-freeswitch
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-freeswitch.tar
+        run: tar xf artifacts.tar
       - name: Download artifacts_bbb-web
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-web.tar
+        run: tar xf artifacts.tar
       - name: Download artifacts_bbb-fsesl-akka
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-fsesl-akka.tar
+        run: tar xf artifacts.tar
       - name: Download artifacts_bbb-html5
         uses: actions/download-artifact@v3
         with:
           name: artifacts_bbb-html5.tar
-      - name: ls files
-        run: |
-          set -e
-          pwd
-          ls
-          echo "Done artifacts_bbb-html5.tar"
+        run: tar xf artifacts.tar
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
           name: artifacts.tar
+        run: tar xf artifacts.tar
       - name: Extracting files .tar
         run: |
           set -e
           pwd
           ls
-          tar xf *.tar
           ls artifacts/
-          ls *.tar
           echo "Done"
       - name: Generate CA
         run: |
