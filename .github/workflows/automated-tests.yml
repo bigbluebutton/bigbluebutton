@@ -172,7 +172,7 @@ jobs:
       - name: Download artifacts_bbb-web
         uses: actions/download-artifact@v3
         with:
-          name: artifacts_bbb-web
+          name: artifacts_bbb-web.tar
       - name: Download artifacts_bbb-fsesl-akka
         uses: actions/download-artifact@v3
         with:
