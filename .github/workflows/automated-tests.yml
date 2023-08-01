@@ -185,7 +185,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: artifacts.tar
-      - run: tar xf *.tar
+      - name: Extracting files .tar
+        run: |
+          set -e
+          pwd
+          ls
+          tar xf *.tar
+          echo "Done"
       - name: Generate CA
         run: |
           sudo -i <<EOF
