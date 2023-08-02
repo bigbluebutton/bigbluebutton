@@ -20,9 +20,22 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-apps-akka
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_AKKA_APPS_KEY=$(git log -1 --format=%H -- akka-bbb-apps)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-apps-akka-${{ env.CACHE_AKKA_APPS_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-apps-akka
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -46,9 +59,26 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-etherpad
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_ETHERPAD_VERSION_KEY=$(git log -1 --format=%H -- bbb-etherpad.placeholder.sh)" >> $GITHUB_ENV
+      - run: echo "CACHE_ETHERPAD_BUILD_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-etherpad)" >> $GITHUB_ENV
+      - run: echo "CACHE_URL1_KEY=$(curl -s https://api.github.com/repos/mconf/ep_pad_ttl/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_URL2_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_URL3_KEY=$(curl -s https://api.github.com/repos/mconf/ep_redis_publisher/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - run: echo "CACHE_URL4_KEY=$(curl -s https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-etherpad-${{ env.CACHE_ETHERPAD_VERSION_KEY }}-${{ env.CACHE_ETHERPAD_BUILD_KEY }}-${{ env.CACHE_URL1_KEY }}-${{ env.CACHE_URL2_KEY }}-${{ env.CACHE_URL3_KEY }}-${{ env.CACHE_URL4_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-etherpad
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -59,9 +89,23 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-web
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_BBB_WEB_KEY=$(git log -1 --format=%H -- bigbluebutton-web)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_WEB_KEY=$(git log -1 --format=%H -- bbb-common-web)" >> $GITHUB_ENV
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-web-${{ env.CACHE_BBB_WEB_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}-${{ env.CACHE_COMMON_WEB_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-web
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -72,9 +116,22 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-fsesl-akka
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_AKKA_FSESL_KEY=$(git log -1 --format=%H -- akka-bbb-fsesl)" >> $GITHUB_ENV
+      - run: echo "CACHE_COMMON_MSG_KEY=$(git log -1 --format=%H -- bbb-common-message)" >> $GITHUB_ENV
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-fsesl-akka-${{ env.CACHE_AKKA_FSESL_KEY }}-${{ env.CACHE_COMMON_MSG_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-fsesl-akka
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
@@ -88,14 +145,14 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history
       - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
-      - name: Cache bigbluebutton-html5
-        id: cache-bigbluebutton-html5
+      - name: Handle cache
+        id: cache-action
         uses: actions/cache@v3
         with:
           path: artifacts.tar
           key: ${{ runner.os }}-bbb-html5-${{ env.CACHE_KEY }}
-      - if: ${{ steps.cache-bigbluebutton-html5.outputs.cache-hit != 'true' }}
-        name: Generate html5 artifacts
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
         run: |
           ./build/get_external_dependencies.sh
           ./build/setup.sh bbb-html5-nodejs
