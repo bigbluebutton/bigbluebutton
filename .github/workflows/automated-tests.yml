@@ -86,21 +86,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history
+          fetch-depth: 5 # Fetch all history
       - run: ls
       - run: git status
-      - run: echo $(git log -n 5)
-      - run: echo $(git log -n 5 bigbluebutton-html5)
+      - run: echo $(git log -n 6)
+      - run: echo $(git log -n 6 bigbluebutton-html5)
       - run: echo $(git log -1 bigbluebutton-html5)
       - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
       - name: Cache bigbluebutton-html5
         id: cache-bigbluebutton-html5
         uses: actions/cache@v3
-        env:
-          cache-name: test
         with:
           path: artifacts.tar
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.CACHE_KEY }}
+          key: ${{ runner.os }}-bbb-html5-${{ env.CACHE_KEY }}
       - if: ${{ steps.cache-bigbluebutton-html5.outputs.cache-hit != 'true' }}
         name: Generate html5 artifacts
         run: |
