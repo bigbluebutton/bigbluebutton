@@ -72,15 +72,26 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-learning-dashboard
-      - run: tar cvf artifacts.tar artifacts/
+        with:
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_LEARNING_DASHBOARD_KEY=$(git log -1 --format=%H -- bbb-learning-dashboard)" >> $GITHUB_ENV
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-learning-dashboard-${{ env.CACHE_LEARNING_DASHBOARD_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-learning-dashboard
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
           name: artifacts_bbb-learning-dashboard.tar
-          path: |
-            artifacts.tar
+          path: artifacts.tar
   build-bbb-playback-record:
     runs-on: ubuntu-20.04
     steps:
