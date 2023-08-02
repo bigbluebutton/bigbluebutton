@@ -16,20 +16,105 @@ on:
 permissions:
   contents: read
 jobs:
-  build-install-and-test:
+  build-bbb-apps-akka:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-apps-akka
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-apps-akka.tar
+          path: |
+            artifacts.tar
+  build-bbb-config:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-config
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-config.tar
+          path: |
+            artifacts.tar
+  build-bbb-etherpad:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-etherpad
-      - run: ./build/setup.sh bbb-export-annotations
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-etherpad.tar
+          path: |
+            artifacts.tar
+  build-bbb-bbb-web:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
+      - run: ./build/setup.sh bbb-web
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-web.tar
+          path: |
+            artifacts.tar
+  build-bbb-fsesl-akka:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-fsesl-akka
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-fsesl-akka.tar
+          path: |
+            artifacts.tar
+  build-bbb-html5:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
       - run: ./build/setup.sh bbb-html5-nodejs
       - run: ./build/setup.sh bbb-html5
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-html5.tar
+          path: |
+            artifacts.tar
+  build-bbb-freeswitch:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
+      - run: ./build/setup.sh bbb-freeswitch-core
+      - run: ./build/setup.sh bbb-freeswitch-sounds
+      - run: tar cvf artifacts.tar artifacts/
+      - name: Archive packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: artifacts_bbb-freeswitch.tar
+          path: |
+            artifacts.tar
+  build-others:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
+      - run: ./build/setup.sh bbb-export-annotations
       - run: ./build/setup.sh bbb-learning-dashboard
       - run: ./build/setup.sh bbb-libreoffice-docker
       - run: ./build/setup.sh bbb-mkclean
@@ -41,7 +126,6 @@ jobs:
       - run: ./build/setup.sh bbb-playback-screenshare
       - run: ./build/setup.sh bbb-playback-video
       - run: ./build/setup.sh bbb-record-core
-      - run: ./build/setup.sh bbb-web
       - run: ./build/setup.sh bbb-webrtc-sfu
       - run: ./build/setup.sh bbb-webrtc-recorder
       - run: ./build/setup.sh bbb-transcription-controller
@@ -63,6 +147,59 @@ jobs:
       #     tar xf artifacts.tar
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
+  install-and-run-tests:
+    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./build/get_external_dependencies.sh
+      - name: Download artifacts_bbb-apps-akka
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-apps-akka.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-config
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-config.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-etherpad
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-etherpad.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-freeswitch
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-freeswitch.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-web
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-web.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-fsesl-akka
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-fsesl-akka.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts_bbb-html5
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts_bbb-html5.tar
+      - run: tar xf artifacts.tar
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts.tar
+      - run: tar xf artifacts.tar
+      - name: Extracting files .tar
+        run: |
+          set -e
+          pwd
+          ls
+          ls artifacts/
+          echo "Done"
       - name: Generate CA
         run: |
           sudo -i <<EOF
