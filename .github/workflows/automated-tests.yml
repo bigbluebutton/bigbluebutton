@@ -85,10 +85,22 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-html5-nodejs
-      - run: ./build/setup.sh bbb-html5
-      - run: tar cvf artifacts.tar artifacts/
+      - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
+      - name: Cache bigbluebutton-html5
+        id: cache-bigbluebutton-html5
+        uses: actions/cache@v3
+        env:
+          cache-name: test
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ env.CACHE_KEY }}
+      - if: ${{ steps.cache-bigbluebutton-html5.outputs.cache-hit != 'true' }}
+        name: Generate html5 artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-html5-nodejs
+          ./build/setup.sh bbb-html5
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
