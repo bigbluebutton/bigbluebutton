@@ -97,7 +97,7 @@ jobs:
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
-          name: artifacts_bbb-bbb-playback-record.tar
+          name: artifacts_bbb-playback-record.tar
           path: |
             artifacts.tar
   build-bbb-etherpad:
@@ -267,7 +267,7 @@ jobs:
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
   install-and-run-tests:
-    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-bbb-playback-record, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
+    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-playback-record, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -292,10 +292,10 @@ jobs:
         with:
           name: artifacts_bbb-learning-dashboard.tar
       - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-bbb-playback-record
+      - name: Download artifacts_bbb-playback-record
         uses: actions/download-artifact@v3
         with:
-          name: artifacts_bbb-bbb-playback-record.tar
+          name: artifacts_bbb-playback-record.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
