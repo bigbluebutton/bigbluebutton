@@ -31,6 +31,7 @@ const VideoListItem = (props) => {
     name, voiceUser, isFullscreenContext, layoutContextDispatch, user, onHandleVideoFocus,
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
+    disabledCams,
   } = props;
 
   const intl = useIntl();
@@ -102,7 +103,7 @@ const VideoListItem = (props) => {
     if (!isSelfViewDisabled && videoDataLoaded) {
       playElement(videoTag.current);
     }
-    if (isSelfViewDisabled && user.userId === Auth.userID) {
+    if ((isSelfViewDisabled && user.userId === Auth.userID) || disabledCams?.includes(cameraId)) {
       videoTag.current.pause();
     }
   }, [isSelfViewDisabled, videoDataLoaded]);
@@ -233,7 +234,8 @@ const VideoListItem = (props) => {
     >
 
       <Styled.VideoContainer
-        $selfViewDisabled={isSelfViewDisabled && user.userId === Auth.userID}
+        $selfViewDisabled={(isSelfViewDisabled && user.userId === Auth.userID)
+          || disabledCams.includes(cameraId)}
       >
         <Styled.Video
           mirrored={isMirrored}
@@ -246,7 +248,8 @@ const VideoListItem = (props) => {
         />
       </Styled.VideoContainer>
 
-      {isStream && isSelfViewDisabled && user.userId === Auth.userID && (
+      {isStream && ((isSelfViewDisabled && user.userId === Auth.userID)
+      || disabledCams.includes(cameraId)) && (
         <Styled.VideoDisabled>
           {intl.formatMessage(intlMessages.disableDesc)}
         </Styled.VideoDisabled>
@@ -254,13 +257,14 @@ const VideoListItem = (props) => {
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {(videoIsReady || isSelfViewDisabled) && (
+      {(videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && (
         isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
       )}
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
-      {isSelfViewDisabled && user.userId === Auth.userID && renderWebcamConnecting()}
+      {((isSelfViewDisabled && user.userId === Auth.userID) || disabledCams.includes(cameraId))
+      && renderWebcamConnecting()}
     </Styled.Content>
   );
 };
