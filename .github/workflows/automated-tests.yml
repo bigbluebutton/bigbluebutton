@@ -111,10 +111,22 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - run: ./build/get_external_dependencies.sh
-      - run: ./build/setup.sh bbb-freeswitch-core
-      - run: ./build/setup.sh bbb-freeswitch-sounds
-      - run: tar cvf artifacts.tar artifacts/
+      - run: echo "CACHE_FREESWITCH_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-core)" >> $GITHUB_ENV
+      - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
+      - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified")" >> $GITHUB_ENV
+      - name: Handle cache
+        id: cache-action
+        uses: actions/cache@v3
+        with:
+          path: artifacts.tar
+          key: ${{ runner.os }}-bbb-freeswitch-${{ env.CACHE_FREESWITCH_KEY }}-${{ env.CACHE_FREESWITCH_SOUNDS_KEY }}-${{ env.CACHE_SOUNDS_KEY }}
+      - if: ${{ steps.cache-action.outputs.cache-hit != 'true' }}
+        name: Generate artifacts
+        run: |
+          ./build/get_external_dependencies.sh
+          ./build/setup.sh bbb-freeswitch-core
+          ./build/setup.sh bbb-freeswitch-sounds
+          tar cvf artifacts.tar artifacts/
       - name: Archive packages
         uses: actions/upload-artifact@v3
         with:
