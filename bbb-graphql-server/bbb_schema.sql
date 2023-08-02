@@ -1295,3 +1295,12 @@ JOIN "v_meeting_breakoutPolicies"vmbp using("meetingId")
 JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 
+----------------------
+DROP VIEW IF EXISTS v_current_time;
+
+CREATE OR REPLACE VIEW "v_current_time" AS
+SELECT
+	current_timestamp AS "currentTimestampWithTimeZone",
+	localtimestamp AS "currentTimestampWithoutTimeZone",
+	current_timestamp AT TIME ZONE 'UTC' AS "currentTimestampUTC",
+	EXTRACT(EPOCH FROM current_timestamp) * 1000 AS "currentTimeMillis";
