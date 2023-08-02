@@ -86,15 +86,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 5 # Fetch all history
-      - run: ls
-      - run: git status
-      - run: echo $(git log -n 6)
-      - run: echo $(git log --full-history -n 6 bigbluebutton-html5)
-      - run: echo $(git log --full-history -n 6 akka-bbb-fsesl)
-      - run: echo $(git log --full-history -n 6 bbb-learning-dashboard)
-      - run: echo $(git log -1 bigbluebutton-html5)
-      - run: echo "CACHE_KEY=$(git log --full-history -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
+          fetch-depth: 0 # Fetch all history
+      - run: echo "CACHE_KEY=$(git log -1 --format=%H -- bigbluebutton-html5)" >> $GITHUB_ENV
       - name: Cache bigbluebutton-html5
         id: cache-bigbluebutton-html5
         uses: actions/cache@v3
@@ -119,7 +112,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 1000 # Fetch all history
+          fetch-depth: 0 # Fetch all history
       - run: echo "CACHE_FREESWITCH_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-core)" >> $GITHUB_ENV
       - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
       - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
