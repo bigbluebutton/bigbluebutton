@@ -2,7 +2,7 @@ import { GroupChatMsg } from '/imports/api/group-chat-msg';
 import GroupChat from '/imports/api/group-chat';
 import Logger from '/imports/startup/server/logger';
 import flat from 'flat';
-import { parseMessage } from '/imports/api/common/server/helpers';
+import { parseMessage } from './addGroupChatMsg';
 
 export default async function addBulkGroupChatMsgs(msgs) {
   if (!msgs.length) return;
