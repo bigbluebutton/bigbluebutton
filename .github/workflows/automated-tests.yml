@@ -255,7 +255,7 @@ jobs:
       #     mv artifacts /home/runner/work/bigbluebutton/bigbluebutton/artifacts/
       #     EOF
   install-and-run-tests:
-    needs: [build-bbb-apps-akka, build-bbb-config, build-export-annotations, build-learning-dashboard, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
+    needs: [build-bbb-apps-akka, build-bbb-config, build-bbb-export-annotations, build-bbb-learning-dashboard, build-bbb-etherpad, build-bbb-bbb-web, build-bbb-fsesl-akka, build-bbb-html5, build-bbb-freeswitch, build-others]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -270,15 +270,15 @@ jobs:
         with:
           name: artifacts_bbb-config.tar
       - run: tar xf artifacts.tar
-      - name: Download artifacts_export-annotations
+      - name: Download artifacts_bbb-export-annotations
         uses: actions/download-artifact@v3
         with:
-          name: artifacts_export-annotations.tar
+          name: artifacts_bbb-export-annotations.tar
       - run: tar xf artifacts.tar
-      - name: Download artifacts_learning-dashboard
+      - name: Download artifacts_bbb-learning-dashboard
         uses: actions/download-artifact@v3
         with:
-          name: artifacts_learning-dashboard.tar
+          name: artifacts_bbb-learning-dashboard.tar
       - run: tar xf artifacts.tar
       - name: Download artifacts_bbb-etherpad
         uses: actions/download-artifact@v3
