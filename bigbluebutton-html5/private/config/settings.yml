@@ -742,7 +742,8 @@ public:
       - critical
     help: STATS_HELP_URL
   presentation:
-    allowDownloadable: true
+    allowDownloadOriginal: true
+    allowDownloadWithAnnotations: true
     allowSnapshotOfCurrentSlide: true
     panZoomThrottle: 32
     restoreOnUpdate: true
