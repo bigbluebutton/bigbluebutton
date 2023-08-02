@@ -117,7 +117,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history
+          fetch-depth: 1000 # Fetch all history
       - run: echo "CACHE_FREESWITCH_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-core)" >> $GITHUB_ENV
       - run: echo "CACHE_FREESWITCH_SOUNDS_KEY=$(git log -1 --format=%H -- build/packages-template/bbb-freeswitch-sounds)" >> $GITHUB_ENV
       - run: echo "CACHE_SOUNDS_KEY=$(curl -Is http://bigbluebutton.org/downloads/sounds.tar.gz | grep "Last-Modified" | md5sum | awk '{ print $1 }')" >> $GITHUB_ENV
