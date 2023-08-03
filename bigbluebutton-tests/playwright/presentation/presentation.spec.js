@@ -84,15 +84,13 @@ test.describe.parallel('Presentation', () => {
     });
 
     // https://docs.bigbluebutton.org/2.6/release-tests.html#enabling-and-disabling-presentation-download-automated
-    // flaky: update is needed due to changes made on https://github.com/bigbluebutton/bigbluebutton/pull/18411
-    test('Enable and disable original presentation download @flaky', async ({ browser, context, page }, testInfo) => {
+    test('Enable and disable original presentation download', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
-
-    // flaky: update is needed due to changes made on https://github.com/bigbluebutton/bigbluebutton/pull/18411
-    test('Send presentation in the current state (with annotations) to chat for downloading @flaky', async ({ browser, context, page }, testInfo) => {
+    
+    test('Send presentation in the current state (with annotations) to chat for downloading ', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.sendPresentationToDownload(testInfo);
