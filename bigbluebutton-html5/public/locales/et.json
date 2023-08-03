@@ -1164,7 +1164,7 @@
     "app.externalVideo.autoPlayWarning": "Käivita video, et meedia sünkroniseerimine aktiveerida",
     "app.externalVideo.refreshLabel": "Värskenda videomängijat",
     "app.externalVideo.fullscreenLabel": "Videomängija",
-    "app.externalVideo.noteLabel": "Märkus: jagatud väliseid videoid sessiooni salvestisse ei kaasata. Toetatatakse keskkondi YouTube, Vimeo, Instructure Media, Twitch ja Dailymotion ning meediafailide URL-e (nt https://example.com/xy.mp4).",
+    "app.externalVideo.noteLabel": "Märkus: jagatud väliseid videoid sessiooni salvestisse ei kaasata. Toetatakse keskkondi YouTube, Vimeo, Instructure Media, Twitch ja Dailymotion ning meediafailide URL-e (nt https://example.com/xy.mp4).",
     "app.externalVideo.subtitlesOn": "Lülita välja",
     "app.externalVideo.subtitlesOff": "Lülita sisse (kui saadaval)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Jaga välist videot",
