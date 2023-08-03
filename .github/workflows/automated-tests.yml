@@ -384,19 +384,19 @@ jobs:
           echo "VERSION_ADDON: $VERSION_ADDON"
           echo "GIT_REV: $GIT_REV"
           echo "VERSION: $VERSION"
-#          mv artifacts/bbb-apps-akka_2* artifacts/bbb-apps-akka_2:${VERSION}_all.deb 2>/dev/null || true
-#          mv artifacts/bbb-fsesl-akka_2* artifacts/bbb-fsesl-akka_2:${VERSION}_all.deb 2>/dev/null || true
-#          mv artifacts/bbb-etherpad* artifacts/bbb-etherpad_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-freeswitch-core* artifacts/bbb-freeswitch-core_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-freeswitch-sounds* artifacts/bbb-freeswitch-sounds_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-html5-nodejs* artifacts/bbb-html5-nodejs_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-html5_* artifacts/bbb-html5_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-web_* artifacts/bbb-web_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-learning-dashboard_* artifacts/bbb-learning-dashboard_${VERSION}_amd64.deb 2>/dev/null || true
-#          mv artifacts/bbb-config_* artifacts/bbb-config_${VERSION}_amd64.deb 2>/dev/null || true
-#          echo "----Renamed----"
-#          ls artifacts/
           echo "Done"
+        #          mv artifacts/bbb-apps-akka_2* artifacts/bbb-apps-akka_2:${VERSION}_all.deb 2>/dev/null || true
+        #          mv artifacts/bbb-fsesl-akka_2* artifacts/bbb-fsesl-akka_2:${VERSION}_all.deb 2>/dev/null || true
+        #          mv artifacts/bbb-etherpad* artifacts/bbb-etherpad_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-freeswitch-core* artifacts/bbb-freeswitch-core_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-freeswitch-sounds* artifacts/bbb-freeswitch-sounds_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-html5-nodejs* artifacts/bbb-html5-nodejs_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-html5_* artifacts/bbb-html5_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-web_* artifacts/bbb-web_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-learning-dashboard_* artifacts/bbb-learning-dashboard_${VERSION}_amd64.deb 2>/dev/null || true
+        #          mv artifacts/bbb-config_* artifacts/bbb-config_${VERSION}_amd64.deb 2>/dev/null || true
+        #          echo "----Renamed----"
+        #          ls artifacts/
       - name: Generate CA
         run: |
           sudo -i <<EOF
