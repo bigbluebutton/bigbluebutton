@@ -38,6 +38,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import EmojiRainContainer from '../emoji-rain/container';
 import { makeCall } from '/imports/ui/services/api';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Settings from '/imports/ui/services/settings';
@@ -639,6 +640,7 @@ class App extends Component {
           <PadsSessionsContainer />
           <WakeLockContainer />
           {this.renderActionsBar()}
+          <EmojiRainContainer />
           {customStyleUrl ? <link rel="stylesheet" type="text/css" href={customStyleUrl} /> : null}
           {customStyle ? <link rel="stylesheet" type="text/css" href={`data:text/css;charset=UTF-8,${encodeURIComponent(customStyle)}`} /> : null}
           {isRandomUserSelectModalOpen ? <RandomUserSelectContainer

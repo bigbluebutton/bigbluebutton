@@ -5,8 +5,11 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import ReactionsBar from '/imports/ui/components/emoji-picker/reactions-bar/component';
 import UserReactionService from '/imports/ui/components/user-reaction/service';
 import UserListService from '/imports/ui/components/user-list/service';
+import { throttle } from '/imports/utils/throttle';
 
 import Styled from '../styles';
+
+const EMOJI_RAIN_INTERVAL = Meteor.settings.public.app.emojiRain.intervalEmojis;
 
 const ReactionsButton = (props) => {
   const {
@@ -58,7 +61,7 @@ const ReactionsButton = (props) => {
   return (
     <BBBMenu
       trigger={(
-        <Styled.ReactionsDropdown>
+        <Styled.ReactionsDropdown id="interactionsButton">
           <Styled.RaiseHandButton
             data-test="reactionsButton"
             icon="hand"
