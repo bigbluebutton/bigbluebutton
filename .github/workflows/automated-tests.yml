@@ -359,6 +359,7 @@ jobs:
           mv artifacts/bbb-html5-nodejs* artifacts/bbb-html5-nodejs_${VERSION}_amd64.deb
           mv artifacts/bbb-html5_* artifacts/bbb-html5_${VERSION}_amd64.deb
           mv artifacts/bbb-web_* artifacts/bbb-web_${VERSION}_amd64.deb
+          mv artifacts/bbb-learning-dashboard_* artifacts/bbb-learning-dashboard_${VERSION}_amd64.deb
           mv artifacts/bbb-config_* artifacts/bbb-config_${VERSION}_amd64.deb
           echo "----Renamed----"
           ls artifacts/
