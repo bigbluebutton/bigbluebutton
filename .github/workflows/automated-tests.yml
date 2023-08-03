@@ -373,18 +373,19 @@ jobs:
           pwd
           echo "----ls artifacts/----"
           ls artifacts/
-#          COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
-#          VERSION_NUMBER="$(cat bigbluebutton-config/bigbluebutton-release | cut -d '=' -f2 | cut -d "-" -f1)"
-#          VERSION_ADDON="$(cat bigbluebutton-config/bigbluebutton-release | cut -d '=' -f2 | cut -d "-" -f2)"
-#          GIT_REV=$(git rev-parse HEAD)
-#          GIT_REV="local-build-${GIT_REV:0:10}"
-#          VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
-#          echo "COMMIT_DATE: $COMMIT_DATE"
-#          echo "VERSION_NUMBER: $VERSION_NUMBER"
-#          echo "VERSION_ADDON: $VERSION_ADDON"
-#          echo "GIT_REV: $GIT_REV"
-#          echo "VERSION: $VERSION"
           echo "Done"
+        #          COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
+        #          VERSION_NUMBER="$(cat bigbluebutton-config/bigbluebutton-release | cut -d '=' -f2 | cut -d "-" -f1)"
+        #          VERSION_ADDON="$(cat bigbluebutton-config/bigbluebutton-release | cut -d '=' -f2 | cut -d "-" -f2)"
+        #          GIT_REV=$(git rev-parse HEAD)
+        #          GIT_REV="local-build-${GIT_REV:0:10}"
+        #          VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
+        #          echo "COMMIT_DATE: $COMMIT_DATE"
+        #          echo "VERSION_NUMBER: $VERSION_NUMBER"
+        #          echo "VERSION_ADDON: $VERSION_ADDON"
+        #          echo "GIT_REV: $GIT_REV"
+        #          echo "VERSION: $VERSION"
+
       - name: Generate CA
         run: |
           sudo -i <<EOF
