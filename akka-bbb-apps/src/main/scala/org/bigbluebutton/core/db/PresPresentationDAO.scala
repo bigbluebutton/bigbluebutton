@@ -27,7 +27,7 @@ object PresPresentationDAO {
     }
   }
 
-  def insert(meetingId: String, presentation: PresentationInPod, podId: String) = {
+  def insert(meetingId: String, presentation: PresentationInPod) = {
     DatabaseConnection.db.run(
       TableQuery[PresPresentationDbTableDef].insertOrUpdate(
         PresPresentationDbModel(
@@ -50,7 +50,6 @@ object PresPresentationDAO {
                 PresPageDbModel(
                   pageId = page._2.id,
                   presentationId = presentation.id,
-                  podId = podId,
                   slideId = "",
                   num = page._2.num,
                   urls = page._2.urls.toJson.asJsObject.compactPrint,

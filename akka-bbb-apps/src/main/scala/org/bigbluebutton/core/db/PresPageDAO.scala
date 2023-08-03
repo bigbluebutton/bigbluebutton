@@ -11,7 +11,6 @@ import scala.util.{ Failure, Success }
 case class PresPageDbModel(
     pageId:         String,
     presentationId: String,
-    podId:          String,
     slideId:        String,
     num:            Int,
     urls:           String,
@@ -30,7 +29,6 @@ case class PresPageDbModel(
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
   val pageId = column[String]("pageId", O.PrimaryKey)
   val presentationId = column[String]("presentationId")
-  val podId = column[String]("podId")
   val slideId = column[String]("slideId")
   val num = column[Int]("num")
   val urls = column[String]("urls")
@@ -45,7 +43,7 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val viewBoxWidth = column[Double]("viewBoxWidth")
   val viewBoxHeight = column[Double]("viewBoxHeight")
   //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, podId, slideId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  def * = (pageId, presentationId, slideId, num, urls, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
