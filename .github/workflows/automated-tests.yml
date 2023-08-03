@@ -342,7 +342,27 @@ jobs:
         run: |
           set -e
           pwd
-          ls
+          echo "----ls artifacts/----"
+          ls artifacts/
+# renane to avoid error: Depends: bbb-apps-akka (= 2:2.7.0~beta.3+20230802T211649-git.local-build-3632c35759) but 2:2.7.0~beta.3+20230802T145515-git.local-build-53a0c6e8ad is to be installed
+# "${PACKAGE}_${VERSION}_${DISTRO}"
+          COMMIT_DATE="$(git log -n1 --pretty='format:%cd' --date=format:'%Y%m%dT%H%M%S')"
+          VERSION_NUMBER="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f1)"
+          VERSION_ADDON="$(cat "$SOURCE/bigbluebutton-config/bigbluebutton-release" | cut -d '=' -f2 | cut -d "-" -f2)"
+          GIT_REV=$(git rev-parse HEAD)
+          GIT_REV="local-build-${GIT_REV:0:10}"
+          VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
+          echo "VERSION: $VERSION"
+          mv artifacts/bbb-apps-akka_2* artifacts/bbb-apps-akka_2:${VERSION}_all.deb
+          mv artifacts/bbb-fsesl-akka_2* artifacts/bbb-fsesl-akka_2:${VERSION}_all.deb
+          mv artifacts/bbb-etherpad* artifacts/bbb-etherpad_${VERSION}_amd64.deb
+          mv artifacts/bbb-freeswitch-core* artifacts/bbb-freeswitch-core_${VERSION}_amd64.deb
+          mv artifacts/bbb-freeswitch-sounds* artifacts/bbb-freeswitch-sounds_${VERSION}_amd64.deb
+          mv artifacts/bbb-html5-nodejs* artifacts/bbb-html5-nodejs_${VERSION}_amd64.deb
+          mv artifacts/bbb-html5_* artifacts/bbb-html5_${VERSION}_amd64.deb
+          mv artifacts/bbb-web_* artifacts/bbb-web_${VERSION}_amd64.deb
+          mv artifacts/bbb-config_* artifacts/bbb-config_${VERSION}_amd64.deb
+          echo "----Renamed----"
           ls artifacts/
           echo "Done"
       - name: Generate CA
